@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
-import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,64 +32,90 @@ import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-// TODO re-enable when the new executor is implemented in remote
-@Test(enabled = false)
+@Test
 @SuppressWarnings("unused")
-public class TraverseTestNew extends DocumentDBBaseTest {
+public class NewTraverseTest extends DocumentDBBaseTest {
   private int totalElements = 0;
-  private ODocument tomCruise;
-  private ODocument megRyan;
-  private ODocument nicoleKidman;
+  private OVertex tomCruise;
+  private OVertex megRyan;
+  private OVertex nicoleKidman;
 
   @Parameters(value = "url")
-  public TraverseTestNew(@Optional String url) {
+  public NewTraverseTest(@Optional String url) {
     super(url);
   }
 
   @BeforeClass
   public void init() {
-    OrientGraph graph = new OrientGraph(database);
-    graph.setUseLightweightEdges(false);
+    database.createVertexClass("Actor");
+    database.createVertexClass("Movie");
 
-    graph.createVertexType("Movie");
-    graph.createVertexType("Actor");
+    database.createEdgeClass("actorIn");
+    database.createEdgeClass("friend");
+    database.createEdgeClass("married");
 
-    tomCruise = graph.addVertex("class:Actor", "name", "Tom Cruise").getRecord();
-    totalElements++;
-    megRyan = graph.addVertex("class:Actor", "name", "Meg Ryan").getRecord();
-    totalElements++;
-    nicoleKidman =
-        graph
-            .addVertex("class:Actor", "name", "Nicole Kidman", "attributeWithDotValue", "a.b")
-            .getRecord();
-    totalElements++;
+    tomCruise = database.newVertex("Actor");
+    tomCruise.setProperty("name", "Tom Cruise");
+    tomCruise.save();
 
-    ODocument topGun = graph.addVertex("class:Movie", "name", "Top Gun", "year", 1986).getRecord();
     totalElements++;
-    ODocument missionImpossible =
-        graph.addVertex("class:Movie", "name", "Mission: Impossible", "year", 1996).getRecord();
-    totalElements++;
-    ODocument youHaveGotMail =
-        graph.addVertex("class:Movie", "name", "You've Got Mail", "year", 1998).getRecord();
-    totalElements++;
+    megRyan = database.newVertex("Actor");
+    megRyan.setProperty("name", "Meg Ryan");
+    megRyan.save();
 
-    graph.addEdge(null, graph.getVertex(tomCruise), graph.getVertex(topGun), "actorIn");
     totalElements++;
-    graph.addEdge(null, graph.getVertex(megRyan), graph.getVertex(topGun), "actorIn");
-    totalElements++;
-    graph.addEdge(null, graph.getVertex(tomCruise), graph.getVertex(missionImpossible), "actorIn");
-    totalElements++;
-    graph.addEdge(null, graph.getVertex(megRyan), graph.getVertex(youHaveGotMail), "actorIn");
+    nicoleKidman = database.newVertex("Actor");
+    nicoleKidman.setProperty("name", "Nicole Kidman");
+    nicoleKidman.setProperty("attributeWithDotValue", "a.b");
+    nicoleKidman.save();
+
     totalElements++;
 
-    graph.addEdge(null, graph.getVertex(tomCruise), graph.getVertex(megRyan), "friend");
+    var topGun = database.newVertex("Movie");
+    topGun.setProperty("name", "Top Gun");
+    topGun.setProperty("year", 1986);
+    topGun.save();
+
     totalElements++;
-    graph
-        .addEdge(null, graph.getVertex(tomCruise), graph.getVertex(nicoleKidman), "married")
-        .setProperty("year", 1990);
+    var missionImpossible = database.newVertex("Movie");
+    missionImpossible.setProperty("name", "Mission: Impossible");
+    missionImpossible.setProperty("year", 1996);
+    missionImpossible.save();
+
+    totalElements++;
+    var youHaveGotMail = database.newVertex("Movie");
+    youHaveGotMail.setProperty("name", "You've Got Mail");
+    youHaveGotMail.setProperty("year", 1998);
+    youHaveGotMail.save();
     totalElements++;
 
-    graph.commit();
+    var e = database.newEdge(tomCruise, topGun, "actorIn");
+    e.save();
+
+    totalElements++;
+    e = database.newEdge(megRyan, topGun, "actorIn");
+    e.save();
+
+    totalElements++;
+    e = database.newEdge(tomCruise, missionImpossible, "actorIn");
+    e.save();
+
+    totalElements++;
+    e = database.newEdge(megRyan, youHaveGotMail, "actorIn");
+    e.save();
+
+    totalElements++;
+
+    e = database.newEdge(tomCruise, megRyan, "friend");
+    e.save();
+
+    totalElements++;
+    e = database.newEdge(tomCruise, nicoleKidman, "married");
+
+    e.setProperty("year", 1990);
+    e.save();
+
+    totalElements++;
   }
 
   public void traverseSQLAllFromActorNoWhereBreadthFrirst() {

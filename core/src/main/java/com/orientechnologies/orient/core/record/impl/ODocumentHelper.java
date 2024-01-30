@@ -773,43 +773,43 @@ public class ODocumentHelper {
     } else return iMap.get(iKey);
   }
 
-  public static Object getIdentifiableValue(final OIdentifiable iCurrent, final String iFieldName) {
-    if (iFieldName == null) return null;
+  public static Object getIdentifiableValue(final OIdentifiable current, final String fieldName) {
+    if (fieldName == null) return null;
 
-    if (iFieldName.length() > 0) {
-      final char begin = iFieldName.charAt(0);
+    if (!fieldName.isEmpty()) {
+      final char begin = fieldName.charAt(0);
       if (begin == '@') {
         // RETURN AN ATTRIBUTE
-        if (iFieldName.equalsIgnoreCase(ATTRIBUTE_THIS)) return iCurrent.getRecord();
-        else if (iFieldName.equalsIgnoreCase(ATTRIBUTE_RID)) return iCurrent.getIdentity();
-        else if (iFieldName.equalsIgnoreCase(ATTRIBUTE_RID_ID))
-          return iCurrent.getIdentity().getClusterId();
-        else if (iFieldName.equalsIgnoreCase(ATTRIBUTE_RID_POS))
-          return iCurrent.getIdentity().getClusterPosition();
-        else if (iFieldName.equalsIgnoreCase(ATTRIBUTE_VERSION))
-          return iCurrent.getRecord().getVersion();
-        else if (iFieldName.equalsIgnoreCase(ATTRIBUTE_CLASS))
-          return ((ODocument) iCurrent.getRecord()).getClassName();
-        else if (iFieldName.equalsIgnoreCase(ATTRIBUTE_TYPE))
+        if (fieldName.equalsIgnoreCase(ATTRIBUTE_THIS)) return current.getRecord();
+        else if (fieldName.equalsIgnoreCase(ATTRIBUTE_RID)) return current.getIdentity();
+        else if (fieldName.equalsIgnoreCase(ATTRIBUTE_RID_ID))
+          return current.getIdentity().getClusterId();
+        else if (fieldName.equalsIgnoreCase(ATTRIBUTE_RID_POS))
+          return current.getIdentity().getClusterPosition();
+        else if (fieldName.equalsIgnoreCase(ATTRIBUTE_VERSION))
+          return current.getRecord().getVersion();
+        else if (fieldName.equalsIgnoreCase(ATTRIBUTE_CLASS))
+          return ((ODocument) current.getRecord()).getClassName();
+        else if (fieldName.equalsIgnoreCase(ATTRIBUTE_TYPE))
           return Orient.instance()
               .getRecordFactoryManager()
-              .getRecordTypeName(ORecordInternal.getRecordType(iCurrent.getRecord()));
-        else if (iFieldName.equalsIgnoreCase(ATTRIBUTE_SIZE)) {
-          final byte[] stream = iCurrent.getRecord().toStream();
+              .getRecordTypeName(ORecordInternal.getRecordType(current.getRecord()));
+        else if (fieldName.equalsIgnoreCase(ATTRIBUTE_SIZE)) {
+          final byte[] stream = current.getRecord().toStream();
           return stream != null ? stream.length : 0;
-        } else if (iFieldName.equalsIgnoreCase(ATTRIBUTE_FIELDS))
-          return ((ODocument) iCurrent.getRecord()).fieldNames();
-        else if (iFieldName.equalsIgnoreCase(ATTRIBUTE_RAW))
-          return new String(iCurrent.getRecord().toStream());
+        } else if (fieldName.equalsIgnoreCase(ATTRIBUTE_FIELDS))
+          return ((ODocument) current.getRecord()).fieldNames();
+        else if (fieldName.equalsIgnoreCase(ATTRIBUTE_RAW))
+          return new String(current.getRecord().toStream());
       }
     }
-    if (iCurrent == null) return null;
+    if (current == null) return null;
 
-    final ODocument doc = ((ODocument) iCurrent.getRecord());
+    final ODocument doc = current.getRecord();
     if (doc == null) { // broken link
       return null;
     }
-    return doc.accessProperty(iFieldName);
+    return doc.accessProperty(fieldName);
   }
 
   public static Object evaluateFunction(
@@ -835,10 +835,10 @@ public class ODocumentHelper {
     else if (function.startsWith("VALUES("))
       result = currentValue instanceof Map<?, ?> ? ((Map<?, ?>) currentValue).values() : null;
     else if (function.startsWith("ASSTRING(")) result = currentValue.toString();
-    else if (function.startsWith("ASINTEGER(")) result = new Integer(currentValue.toString());
-    else if (function.startsWith("ASFLOAT(")) result = new Float(currentValue.toString());
+    else if (function.startsWith("ASINTEGER(")) result = Integer.valueOf(currentValue.toString());
+    else if (function.startsWith("ASFLOAT(")) result = Float.valueOf(currentValue.toString());
     else if (function.startsWith("ASBOOLEAN(")) {
-      if (currentValue instanceof String) result = new Boolean((String) currentValue);
+      if (currentValue instanceof String) result = Boolean.valueOf(currentValue.toString());
       else if (currentValue instanceof Number) {
         final int bValue = ((Number) currentValue).intValue();
         if (bValue == 0) result = Boolean.FALSE;

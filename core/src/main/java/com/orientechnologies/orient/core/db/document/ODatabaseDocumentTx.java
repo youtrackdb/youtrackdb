@@ -165,7 +165,7 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
         try {
           factory = OrientDBInternal.distributed(baseUrl, config);
         } catch (ODatabaseException ignore) {
-          factory = OrientDBInternal.embedded(baseUrl, config);
+          factory = OrientDBInternal.embedded(baseUrl, config, false);
         }
         embedded.put(baseUrl, factory);
       }

@@ -99,7 +99,6 @@
     </test>
     <test name="Graph">
         <classes>
-            <class name="com.orientechnologies.orient.test.database.auto.GraphDatabaseTest"/>
             <!--  <class name="com.orientechnologies.orient.test.database.auto.SQLCreateVertexAndEdgeTest"/> -->
         </classes>
     </test>

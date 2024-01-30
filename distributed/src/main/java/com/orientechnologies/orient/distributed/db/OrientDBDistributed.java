@@ -67,7 +67,7 @@ public class OrientDBDistributed extends OrientDBEmbedded implements OServerAwar
       new ConcurrentHashMap<String, ODistributedConfigurationManager>();
 
   public OrientDBDistributed(String directoryPath, OrientDBConfig config, Orient instance) {
-    super(directoryPath, config, instance);
+    super(directoryPath, config, instance, false);
     // This now is simple but should be replaced by a factory depending to the protocol version
   }
 
@@ -173,6 +173,9 @@ public class OrientDBDistributed extends OrientDBEmbedded implements OServerAwar
     OAbstractPaginatedStorage storage = null;
     ODatabaseDocumentEmbedded embedded;
     synchronized (this) {
+      if (disk == null) {
+        throw new ODatabaseException("OrientDB was initialized as in-memory only database");
+      }
       try {
         storage = storages.get(dbName);
 

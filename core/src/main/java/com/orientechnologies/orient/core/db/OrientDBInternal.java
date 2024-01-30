@@ -55,11 +55,13 @@ public interface OrientDBInternal extends AutoCloseable, OSchedulerInternal {
    */
   static OrientDBInternal fromUrl(String url, OrientDBConfig configuration) {
     String what = url.substring(0, url.indexOf(':'));
-    if ("embedded".equals(what))
-      return embedded(url.substring(url.indexOf(':') + 1), configuration);
-    else if ("remote".equals(what))
-      return remote(url.substring(url.indexOf(':') + 1).split(";"), configuration);
-    throw new ODatabaseException("not supported database type");
+    return switch (what) {
+      case "memory" -> embedded(url.substring(url.indexOf(':') + 1), configuration, true);
+      case "embedded", "plocal" ->
+          embedded(url.substring(url.indexOf(':') + 1), configuration, false);
+      case "remote" -> remote(url.substring(url.indexOf(':') + 1).split(";"), configuration);
+      default -> throw new ODatabaseException("not supported database type");
+    };
   }
 
   default OrientDB newOrientDB() {
@@ -113,12 +115,14 @@ public interface OrientDBInternal extends AutoCloseable, OSchedulerInternal {
    * Create a new Embedded factory
    *
    * @param directoryPath base path where the database are hosted
+   * @param inMemoryOnly Indicates that only in-memory database can be created and operated
    * @param config configuration for the specific factory for the list of option {@see
    *     OGlobalConfiguration}
    * @return a new embedded databases factory
    */
-  static OrientDBInternal embedded(String directoryPath, OrientDBConfig config) {
-    return new OrientDBEmbedded(directoryPath, config, Orient.instance());
+  static OrientDBInternal embedded(
+      String directoryPath, OrientDBConfig config, boolean inMemoryOnly) {
+    return new OrientDBEmbedded(directoryPath, config, Orient.instance(), inMemoryOnly);
   }
 
   static OrientDBInternal distributed(String directoryPath, OrientDBConfig configuration) {

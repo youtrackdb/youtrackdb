@@ -27,7 +27,6 @@ import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
-import com.orientechnologies.orient.graph.gremlin.OCommandGremlin;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -291,36 +290,6 @@ public class SecurityTest extends DocumentDBBaseTest {
       database.command(new OCommandSQL("alter class Protected superclass OUser")).execute();
     } finally {
       database.getMetadata().getSchema().dropClass("Protected");
-    }
-  }
-
-  @Test
-  public void testGremlinExecution() throws IOException {
-    if (!database.getURL().startsWith("remote:")) return;
-
-    database.open("admin", "admin");
-    try {
-      database.command(new OCommandGremlin("g.V")).execute();
-    } finally {
-      database.close();
-    }
-
-    database.open("reader", "reader");
-    try {
-      database.command(new OCommandGremlin("g.V")).execute();
-      Assert.fail("Security breach: Gremlin can be executed by reader user!");
-    } catch (OSecurityException e) {
-    } finally {
-      database.close();
-    }
-
-    database.open("writer", "writer");
-    try {
-      database.command(new OCommandGremlin("g.V")).execute();
-      Assert.fail("Security breach: Gremlin can be executed by writer user!");
-    } catch (OSecurityException e) {
-    } finally {
-      database.close();
     }
   }
 

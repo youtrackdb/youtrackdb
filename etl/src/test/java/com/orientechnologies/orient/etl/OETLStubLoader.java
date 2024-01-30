@@ -44,7 +44,7 @@ public class OETLStubLoader extends OETLAbstractLoader {
   @Override
   public void beginLoader(OETLPipeline pipeline) {
 
-    orient = new OrientDB("embedded:target/etlTests/", null);
+    orient = new OrientDB("memory:.", null);
 
     orient.execute(
         "create database testDatabase memory users (admin identified by 'admin' role admin)");

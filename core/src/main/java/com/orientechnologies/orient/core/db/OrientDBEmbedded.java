@@ -112,12 +112,18 @@ public class OrientDBEmbedded implements OrientDBInternal {
   protected final long maxWALSegmentSize;
   protected final long doubleWriteLogMaxSegSize;
 
-  public OrientDBEmbedded(String directoryPath, OrientDBConfig configurations, Orient orient) {
+  public OrientDBEmbedded(
+      String directoryPath, OrientDBConfig configurations, Orient orient, boolean inMemoryOnly) {
     super();
     this.orient = orient;
     orient.onEmbeddedFactoryInit(this);
     memory = orient.getEngine("memory");
-    disk = orient.getEngine("plocal");
+    if (!inMemoryOnly) {
+      disk = orient.getEngine("plocal");
+    } else {
+      disk = null;
+    }
+
     directoryPath = directoryPath.trim();
     if (directoryPath.length() != 0) {
       final File dirFile = new File(directoryPath);
@@ -136,7 +142,7 @@ public class OrientDBEmbedded implements OrientDBInternal {
 
     this.configurations = configurations != null ? configurations : OrientDBConfig.defaultConfig();
 
-    if (basePath == null) {
+    if (inMemoryOnly || basePath == null) {
       maxWALSegmentSize = -1;
       doubleWriteLogMaxSegSize = -1;
     } else {
@@ -589,6 +595,9 @@ public class OrientDBEmbedded implements OrientDBInternal {
 
       storage = storages.get(name);
       if (storage == null) {
+        if (disk == null) {
+          throw new ODatabaseException("OrientDB was initialized as in-memory only database");
+        }
         storage =
             (OAbstractPaginatedStorage)
                 disk.createStorage(
@@ -661,6 +670,9 @@ public class OrientDBEmbedded implements OrientDBInternal {
                         generateStorageId(),
                         this);
           } else {
+            if (disk == null) {
+              throw new ODatabaseException("OrientDB was initialized as in-memory only database");
+            }
             storage =
                 (OAbstractPaginatedStorage)
                     disk.createStorage(
@@ -749,6 +761,9 @@ public class OrientDBEmbedded implements OrientDBInternal {
     synchronized (this) {
       if (!exists(name, null, null)) {
         try {
+          if (disk == null) {
+            throw new ODatabaseException("OrientDB was initialized as in-memory only database");
+          }
           storage =
               (OAbstractPaginatedStorage)
                   disk.createStorage(
@@ -1059,6 +1074,9 @@ public class OrientDBEmbedded implements OrientDBInternal {
     ODatabaseDocumentEmbedded embedded = null;
     synchronized (this) {
       boolean exists = OLocalPaginatedStorage.exists(Paths.get(path));
+      if (disk == null) {
+        throw new ODatabaseException("OrientDB was initialized as in-memory only database");
+      }
       OAbstractPaginatedStorage storage =
           (OAbstractPaginatedStorage)
               disk.createStorage(

@@ -96,7 +96,7 @@ public class OrientDB implements AutoCloseable {
 
   protected OrientDBInternal internal;
   protected String serverUser;
-  private String serverPassword;
+  private final String serverPassword;
 
   /**
    * Create a new OrientDb instance for a specific environment
@@ -183,12 +183,20 @@ public class OrientDB implements AutoCloseable {
     } else {
       what = url;
     }
-    if ("embedded".equals(what) || "memory".equals(what) || "plocal".equals(what))
-      internal = OrientDBInternal.embedded(url.substring(url.indexOf(':') + 1), configuration);
-    else if ("remote".equals(what))
-      internal =
-          OrientDBInternal.remote(url.substring(url.indexOf(':') + 1).split("[,;]"), configuration);
-    else throw new IllegalArgumentException("Wrong url:`" + url + "`");
+
+    switch (what) {
+      case "memory" ->
+          internal =
+              OrientDBInternal.embedded(url.substring(url.indexOf(':') + 1), configuration, true);
+      case "embedded", "plocal" ->
+          internal =
+              OrientDBInternal.embedded(url.substring(url.indexOf(':') + 1), configuration, false);
+      case "remote" ->
+          internal =
+              OrientDBInternal.remote(
+                  url.substring(url.indexOf(':') + 1).split("[,;]"), configuration);
+      default -> throw new IllegalArgumentException("Wrong url:`" + url + "`");
+    }
 
     this.serverUser = serverUser;
     this.serverPassword = serverPassword;

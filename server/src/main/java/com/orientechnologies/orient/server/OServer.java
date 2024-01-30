@@ -383,13 +383,13 @@ public class OServer {
                   contextConfiguration, ODistributedConfig.fromEnv(configuration.distributed));
           databases = OrientDBInternal.distributed(this.databaseDirectory, orientDBConfig);
         } catch (ODatabaseException ex) {
-          databases = OrientDBInternal.embedded(this.databaseDirectory, config);
+          databases = OrientDBInternal.embedded(this.databaseDirectory, config, false);
         }
       } else {
         try {
           databases = OrientDBInternal.distributed(this.databaseDirectory, config);
         } catch (ODatabaseException ex) {
-          databases = OrientDBInternal.embedded(this.databaseDirectory, config);
+          databases = OrientDBInternal.embedded(this.databaseDirectory, config, false);
         }
       }
     }

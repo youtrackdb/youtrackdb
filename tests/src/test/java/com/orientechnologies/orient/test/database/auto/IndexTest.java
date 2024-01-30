@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.common.util.ORawPair;
@@ -41,11 +42,6 @@ import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedSt
 import com.orientechnologies.orient.test.database.base.OrientTest;
 import com.orientechnologies.orient.test.domain.business.Account;
 import com.orientechnologies.orient.test.domain.whiz.Profile;
-import com.tinkerpop.blueprints.Vertex;
-import com.tinkerpop.blueprints.impls.orient.OrientBaseGraph;
-import com.tinkerpop.blueprints.impls.orient.OrientGraph;
-import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
-import com.tinkerpop.blueprints.impls.orient.OrientVertexType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -53,7 +49,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -64,6 +59,7 @@ import org.testng.annotations.Test;
 @SuppressWarnings({"deprecation", "unchecked"})
 @Test(groups = {"index"})
 public class IndexTest extends ObjectDBBaseTest {
+
   @Parameters(value = "url")
   public IndexTest(@Optional String url) {
     super(url);
@@ -1120,9 +1116,12 @@ public class IndexTest extends ObjectDBBaseTest {
         OClass anotherChildClass =
             db.getMetadata().getSchema().createClass("AnotherChildTestClass", 1, (OClass[]) null);
 
-        if (!baseClass.isSuperClassOf(childClass)) childClass.setSuperClass(baseClass);
-        if (!baseClass.isSuperClassOf(anotherChildClass))
+        if (!baseClass.isSuperClassOf(childClass)) {
+          childClass.setSuperClass(baseClass);
+        }
+        if (!baseClass.isSuperClassOf(anotherChildClass)) {
           anotherChildClass.setSuperClass(baseClass);
+        }
 
         baseClass
             .createProperty("testParentProperty", OType.LONG)
@@ -1390,7 +1389,9 @@ public class IndexTest extends ObjectDBBaseTest {
                 "select from NullIndexKeysSupport where nullField is null"));
 
     Assert.assertEquals(result.size(), 4);
-    for (ODocument document : result) Assert.assertNull(document.field("nullField"));
+    for (ODocument document : result) {
+      Assert.assertNull(document.field("nullField"));
+    }
 
     final ODocument explain =
         databaseDocumentTx.command(new OCommandSQL("explain " + query)).execute();
@@ -1441,7 +1442,9 @@ public class IndexTest extends ObjectDBBaseTest {
                 "select from NullHashIndexKeysSupport where nullField is null"));
 
     Assert.assertEquals(result.size(), 4);
-    for (ODocument document : result) Assert.assertNull(document.field("nullField"));
+    for (ODocument document : result) {
+      Assert.assertNull(document.field("nullField"));
+    }
 
     final ODocument explain =
         databaseDocumentTx.command(new OCommandSQL("explain " + query)).execute();
@@ -1497,7 +1500,9 @@ public class IndexTest extends ObjectDBBaseTest {
                 "select from NullIndexKeysSupportInTx where nullField is null"));
 
     Assert.assertEquals(result.size(), 4);
-    for (ODocument document : result) Assert.assertNull(document.field("nullField"));
+    for (ODocument document : result) {
+      Assert.assertNull(document.field("nullField"));
+    }
 
     final ODocument explain =
         databaseDocumentTx.command(new OCommandSQL("explain " + query)).execute();
@@ -1506,7 +1511,9 @@ public class IndexTest extends ObjectDBBaseTest {
   }
 
   public void testNullIndexKeysSupportInMiddleTx() {
-    if (database.getURL().startsWith("remote:")) return;
+    if (database.getURL().startsWith("remote:")) {
+      return;
+    }
 
     final ODatabaseDocument databaseDocumentTx = database.getUnderlying();
 
@@ -1553,7 +1560,9 @@ public class IndexTest extends ObjectDBBaseTest {
                 "select from NullIndexKeysSupportInMiddleTx where nullField is null"));
 
     Assert.assertEquals(result.size(), 4);
-    for (ODocument document : result) Assert.assertNull(document.field("nullField"));
+    for (ODocument document : result) {
+      Assert.assertNull(document.field("nullField"));
+    }
 
     final ODocument explain =
         databaseDocumentTx.command(new OCommandSQL("explain " + query)).execute();
@@ -1614,7 +1623,9 @@ public class IndexTest extends ObjectDBBaseTest {
 
   @Test(enabled = false)
   public void testValuesContainerIsRemovedIfIndexIsRemoved() {
-    if (database.getURL().startsWith("remote:")) return;
+    if (database.getURL().startsWith("remote:")) {
+      return;
+    }
 
     final OSchema schema = database.getMetadata().getSchema();
     OClass clazz =
@@ -1644,68 +1655,6 @@ public class IndexTest extends ObjectDBBaseTest {
         .command(new OCommandSQL("drop index ValuesContainerIsRemovedIfIndexIsRemovedIndex"))
         .execute();
     Assert.assertFalse(writeCache.exists("ValuesContainerIsRemovedIfIndexIsRemovedIndex.irs"));
-  }
-
-  public void testPreservingIdentityInIndexTx() {
-    checkEmbeddedDB();
-
-    OrientGraph graph = new OrientGraph(database.getUnderlying(), true);
-    graph.setAutoScaleEdgeType(true);
-
-    OrientVertexType fieldClass = graph.getVertexType("PreservingIdentityInIndexTxChild");
-    if (fieldClass == null) {
-      fieldClass = graph.createVertexType("PreservingIdentityInIndexTxChild");
-      fieldClass.createProperty("name", OType.STRING);
-      fieldClass.createProperty("in_field", OType.LINK);
-      fieldClass.createIndex("nameParentIndex", OClass.INDEX_TYPE.NOTUNIQUE, "in_field", "name");
-    }
-
-    Vertex parent = graph.addVertex("class:PreservingIdentityInIndexTxParent");
-    Vertex child = graph.addVertex("class:PreservingIdentityInIndexTxChild");
-    parent.addEdge("preservingIdentityInIndexTxEdge", child);
-    child.setProperty("name", "pokus");
-
-    Vertex parent2 = graph.addVertex("class:PreservingIdentityInIndexTxParent");
-    Vertex child2 = graph.addVertex("class:PreservingIdentityInIndexTxChild");
-    parent2.addEdge("preservingIdentityInIndexTxEdge", child2);
-    child2.setProperty("name", "pokus2");
-    graph.commit();
-
-    {
-      fieldClass = graph.getVertexType("PreservingIdentityInIndexTxChild");
-      OIndex index = fieldClass.getClassIndex("nameParentIndex");
-      OCompositeKey key = new OCompositeKey(parent.getId(), "pokus");
-
-      Collection<ORID> h;
-      try (Stream<ORID> stream = index.getInternal().getRids(key)) {
-        h = stream.collect(Collectors.toList());
-      }
-      for (ORID o : h) {
-        Assert.assertNotNull(graph.getVertex(o));
-      }
-    }
-
-    {
-      fieldClass = graph.getVertexType("PreservingIdentityInIndexTxChild");
-      OIndex index = fieldClass.getClassIndex("nameParentIndex");
-      OCompositeKey key = new OCompositeKey(parent2.getId(), "pokus2");
-
-      Collection<ORID> h;
-      try (Stream<ORID> stream = index.getInternal().getRids(key)) {
-        h = stream.collect(Collectors.toList());
-      }
-      for (ORID o : h) {
-        Assert.assertNotNull(graph.getVertex(o));
-      }
-    }
-
-    parent.remove();
-    child.remove();
-
-    parent2.remove();
-    child2.remove();
-
-    graph.shutdown();
   }
 
   public void testEmptyNotUniqueIndex() {
@@ -1746,7 +1695,6 @@ public class IndexTest extends ObjectDBBaseTest {
 
   public void testNullIteration() {
     ODatabaseDocumentInternal database = this.database.getUnderlying();
-    OrientGraph graph = new OrientGraph(database, false);
 
     OClass v = database.getMetadata().getSchema().getClass("V");
     OClass testNullIteration =
@@ -1799,7 +1747,9 @@ public class IndexTest extends ObjectDBBaseTest {
         database.getUnderlying().browseCluster(database.getClusterNameById(clusterId));
 
     for (int i = 0; i < 7; i++) {
-      if (!iteratorCluster.hasNext()) break;
+      if (!iteratorCluster.hasNext()) {
+        break;
+      }
 
       ORecord doc = iteratorCluster.next();
       positions.add(doc.getIdentity().getClusterPosition());
@@ -2354,39 +2304,5 @@ public class IndexTest extends ObjectDBBaseTest {
       }
     }
     Assert.assertEquals(index.getInternal().size(), 2);
-  }
-
-  @Test
-  public void testParamsOrder() {
-
-    OrientBaseGraph graph =
-        new OrientGraphNoTx("memory:IndexTest_testParamsOrder", "admin", "admin");
-
-    graph.command(new OCommandSQL("CREATE CLASS Task extends V")).execute();
-    graph
-        .command(
-            new OCommandSQL(
-                "CREATE PROPERTY Task.projectId STRING (MANDATORY TRUE, NOTNULL, MAX 20)"))
-        .execute();
-    graph
-        .command(
-            new OCommandSQL("CREATE PROPERTY Task.seq SHORT ( MANDATORY TRUE, NOTNULL, MIN 0)"))
-        .execute();
-    graph.command(new OCommandSQL("CREATE INDEX TaskPK ON Task (projectId, seq) UNIQUE")).execute();
-
-    graph
-        .command(new OCommandSQL("INSERT INTO Task (projectId, seq) values ( 'foo', 2)"))
-        .execute();
-    graph
-        .command(new OCommandSQL("INSERT INTO Task (projectId, seq) values ( 'bar', 3)"))
-        .execute();
-    Iterable<Vertex> x =
-        graph.getVertices(
-            "Task", new String[] {"seq", "projectId"}, new Object[] {(short) 2, "foo"});
-    Iterator<Vertex> iter = x.iterator();
-    Assert.assertTrue(iter.hasNext());
-    iter.next();
-    Assert.assertFalse(iter.hasNext());
-    graph.drop();
   }
 }
