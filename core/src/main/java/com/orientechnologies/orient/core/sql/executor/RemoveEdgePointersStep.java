@@ -5,7 +5,6 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * This is intended for INSERT FROM SELECT. This step removes existing edge pointers so that the
@@ -21,23 +20,23 @@ public class RemoveEdgePointersStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    OExecutionStream upstream = getPrev().get().start(ctx);
+    assert prev != null;
+    OExecutionStream upstream = prev.start(ctx);
+
     return upstream.map(this::mapResult);
   }
 
   private OResult mapResult(OResult result, OCommandContext ctx) {
     Set<String> propNames = result.getPropertyNames();
     for (String propName :
-        propNames.stream()
-            .filter(x -> x.startsWith("in_") || x.startsWith("out_"))
-            .collect(Collectors.toList())) {
+        propNames.stream().filter(x -> x.startsWith("in_") || x.startsWith("out_")).toList()) {
       Object val = result.getProperty(propName);
       if (val instanceof OElement) {
         if (((OElement) val).getSchemaType().map(x -> x.isSubClassOf("E")).orElse(false)) {
           ((OResultInternal) result).removeProperty(propName);
         }
-      } else if (val instanceof Iterable) {
-        for (Object o : (Iterable) val) {
+      } else if (val instanceof Iterable<?> iterable) {
+        for (Object o : iterable) {
           if (o instanceof OElement) {
             if (((OElement) o).getSchemaType().map(x -> x.isSubClassOf("E")).orElse(false)) {
               ((OResultInternal) result).removeProperty(propName);
@@ -57,7 +56,7 @@ public class RemoveEdgePointersStep extends AbstractExecutionStep {
     result.append(spaces);
     result.append("+ CHECK AND EXCLUDE (possible) EXISTING EDGES ");
     if (profilingEnabled) {
-      result.append(" (" + getCostFormatted() + ")");
+      result.append(" (").append(getCostFormatted()).append(")");
     }
     return result.toString();
   }

@@ -30,16 +30,16 @@ public class CheckSafeDeleteStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    OExecutionStream upstream = getPrev().get().start(ctx);
+    assert prev != null;
+    OExecutionStream upstream = prev.start(ctx);
     return upstream.map(this::mapResult);
   }
 
   private OResult mapResult(OResult result, OCommandContext ctx) {
     if (result.isElement()) {
-      OIdentifiable elem = result.getElement().get();
+      OIdentifiable elem = result.toElement();
       ORecord record = elem.getRecord();
-      if (record instanceof ODocument) {
-        ODocument doc = (ODocument) record;
+      if (record instanceof ODocument doc) {
         OClass clazz = ODocumentInternal.getImmutableSchemaClass(doc);
         if (clazz != null) {
           if (clazz.getName().equalsIgnoreCase("V") || clazz.isSubClassOf("V")) {
@@ -63,7 +63,7 @@ public class CheckSafeDeleteStep extends AbstractExecutionStep {
     result.append(spaces);
     result.append("+ CHECK SAFE DELETE");
     if (profilingEnabled) {
-      result.append(" (" + getCostFormatted() + ")");
+      result.append(" (").append(getCostFormatted()).append(")");
     }
     return result.toString();
   }

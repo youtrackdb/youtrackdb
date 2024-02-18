@@ -124,6 +124,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @SuppressWarnings("unchecked")
 public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabaseListener>
     implements ODatabaseDocumentInternal {
+
   protected final Map<String, Object> properties = new HashMap<String, Object>();
   protected Map<ORecordHook, ORecordHook.HOOK_POSITION> unmodifiableHooks;
   protected final Set<OIdentifiable> inHook = new HashSet<OIdentifiable>();
@@ -247,7 +248,9 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
 
   /** {@inheritDoc} */
   public <RET extends ORecord> RET getRecord(final OIdentifiable iIdentifiable) {
-    if (iIdentifiable instanceof ORecord) return (RET) iIdentifiable;
+    if (iIdentifiable instanceof ORecord) {
+      return (RET) iIdentifiable;
+    }
     return load(iIdentifiable.getIdentity());
   }
 
@@ -421,8 +424,12 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       if (metadata != null) {
         final OSecurityInternal security = sharedContext.getSecurity();
         this.user = new OImmutableUser(security.getVersion(this), user);
-      } else this.user = new OImmutableUser(-1, user);
-    } else this.user = (OImmutableUser) user;
+      } else {
+        this.user = new OImmutableUser(-1, user);
+      }
+    } else {
+      this.user = (OImmutableUser) user;
+    }
   }
 
   public void reloadUser() {
@@ -476,7 +483,9 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     hooks.clear();
     for (ORecordHook.HOOK_POSITION p : ORecordHook.HOOK_POSITION.values()) {
       for (Map.Entry<ORecordHook, ORecordHook.HOOK_POSITION> e : tmp.entrySet()) {
-        if (e.getValue() == p) hooks.put(e.getKey(), e.getValue());
+        if (e.getValue() == p) {
+          hooks.put(e.getKey(), e.getValue());
+        }
       }
     }
     compileHooks();
@@ -518,18 +527,23 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
    * @return True if the input record is changed, otherwise false
    */
   public ORecordHook.RESULT callbackHooks(final ORecordHook.TYPE type, final OIdentifiable id) {
-    if (id == null || hooks.isEmpty() || id.getIdentity().getClusterId() == 0)
+    if (id == null || hooks.isEmpty() || id.getIdentity().getClusterId() == 0) {
       return ORecordHook.RESULT.RECORD_NOT_CHANGED;
+    }
 
     final ORecordHook.SCOPE scope = ORecordHook.SCOPE.typeToScope(type);
     final int scopeOrdinal = scope.ordinal();
 
     final ORID identity = id.getIdentity().copy();
-    if (!pushInHook(identity)) return ORecordHook.RESULT.RECORD_NOT_CHANGED;
+    if (!pushInHook(identity)) {
+      return ORecordHook.RESULT.RECORD_NOT_CHANGED;
+    }
 
     try {
       final ORecord rec = id.getRecord();
-      if (rec == null) return ORecordHook.RESULT.RECORD_NOT_CHANGED;
+      if (rec == null) {
+        return ORecordHook.RESULT.RECORD_NOT_CHANGED;
+      }
 
       final OScenarioThreadLocal.RUN_MODE runMode = OScenarioThreadLocal.INSTANCE.getRunMode();
 
@@ -540,24 +554,33 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
             if (isDistributed()
                 && hook.getDistributedExecutionMode()
                     == ORecordHook.DISTRIBUTED_EXECUTION_MODE.TARGET_NODE)
-              // SKIP
+            // SKIP
+            {
               continue;
+            }
             break; // TARGET NODE
           case RUNNING_DISTRIBUTED:
             if (hook.getDistributedExecutionMode()
-                == ORecordHook.DISTRIBUTED_EXECUTION_MODE.SOURCE_NODE) continue;
+                == ORecordHook.DISTRIBUTED_EXECUTION_MODE.SOURCE_NODE) {
+              continue;
+            }
         }
 
         final ORecordHook.RESULT res = hook.onTrigger(type, rec);
 
-        if (res == ORecordHook.RESULT.RECORD_CHANGED) recordChanged = true;
-        else if (res == ORecordHook.RESULT.SKIP_IO)
-          // SKIP IO OPERATION
+        if (res == ORecordHook.RESULT.RECORD_CHANGED) {
+          recordChanged = true;
+        } else if (res == ORecordHook.RESULT.SKIP_IO)
+        // SKIP IO OPERATION
+        {
           return res;
-        else if (res == ORecordHook.RESULT.SKIP)
-          // SKIP NEXT HOOKS AND RETURN IT
+        } else if (res == ORecordHook.RESULT.SKIP)
+        // SKIP NEXT HOOKS AND RETURN IT
+        {
           return res;
-        else if (res == ORecordHook.RESULT.RECORD_REPLACED) return res;
+        } else if (res == ORecordHook.RESULT.RECORD_REPLACED) {
+          return res;
+        }
       }
       return recordChanged
           ? ORecordHook.RESULT.RECORD_CHANGED
@@ -581,8 +604,9 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   @Override
   public OContextConfiguration getConfiguration() {
     checkIfActive();
-    if (getStorageInfo() != null)
+    if (getStorageInfo() != null) {
       return getStorageInfo().getConfiguration().getContextConfiguration();
+    }
     return null;
   }
 
@@ -632,7 +656,9 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
 
   @Override
   public int getClusterIdByName(final String iClusterName) {
-    if (iClusterName == null) return -1;
+    if (iClusterName == null) {
+      return -1;
+    }
 
     checkIfActive();
     return getStorageInfo().getClusterIdByName(iClusterName.toLowerCase(Locale.ENGLISH));
@@ -640,7 +666,9 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
 
   @Override
   public String getClusterNameById(final int iClusterId) {
-    if (iClusterId < 0) return null;
+    if (iClusterId < 0) {
+      return null;
+    }
 
     checkIfActive();
     return getStorageInfo().getPhysicalClusterNameById(iClusterId);
@@ -651,20 +679,24 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     final Set<OClass> classes =
         getMetadata().getImmutableSchemaSnapshot().getClassesRelyOnCluster(iClusterName);
     for (OClass c : classes) {
-      if (c.isSubClassOf(OSecurityShared.RESTRICTED_CLASSNAME))
+      if (c.isSubClassOf(OSecurityShared.RESTRICTED_CLASSNAME)) {
         throw new OSecurityException(
             "Class '"
                 + c.getName()
                 + "' cannot be truncated because has record level security enabled (extends '"
                 + OSecurityShared.RESTRICTED_CLASSNAME
                 + "')");
+      }
     }
   }
 
   @Override
   public Object setProperty(final String iName, final Object iValue) {
-    if (iValue == null) return properties.remove(iName.toLowerCase(Locale.ENGLISH));
-    else return properties.put(iName.toLowerCase(Locale.ENGLISH), iValue);
+    if (iValue == null) {
+      return properties.remove(iName.toLowerCase(Locale.ENGLISH));
+    } else {
+      return properties.put(iName.toLowerCase(Locale.ENGLISH), iValue);
+    }
   }
 
   @Override
@@ -681,7 +713,9 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   public Object get(final ATTRIBUTES iAttribute) {
     checkIfActive();
 
-    if (iAttribute == null) throw new IllegalArgumentException("attribute is null");
+    if (iAttribute == null) {
+      throw new IllegalArgumentException("attribute is null");
+    }
     final OStorageInfo storage = getStorageInfo();
     switch (iAttribute) {
       case STATUS:
@@ -816,7 +850,9 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     checkIfActive();
 
     final ORecord rec = load(iRecord);
-    if (rec != null) delete(rec);
+    if (rec != null) {
+      delete(rec);
+    }
     return this;
   }
 
@@ -853,7 +889,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     currentTx.rollback(true, 0);
 
     // WAKE UP LISTENERS
-    for (ODatabaseListener listener : browseListeners())
+    for (ODatabaseListener listener : browseListeners()) {
       try {
         listener.onBeforeTxBegin(this);
       } catch (Exception e) {
@@ -862,6 +898,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
         OLogManager.instance().error(this, message, e);
         throw OException.wrapException(new OTransactionBlockedException(message), e);
       }
+    }
 
     currentTx = iTx;
     if (iTx instanceof OTransactionOptimistic) {
@@ -915,8 +952,9 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     // if provided a cluster name use it.
     if (rid.getClusterId() <= ORID.CLUSTER_POS_INVALID && iClusterName != null) {
       rid.setClusterId(getClusterIdByName(iClusterName));
-      if (rid.getClusterId() == -1)
+      if (rid.getClusterId() == -1) {
         throw new IllegalArgumentException("Cluster name '" + iClusterName + "' is not configured");
+      }
     }
     OClass schemaClass = null;
     // if cluster id is not set yet try to find it out
@@ -924,15 +962,17 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       if (record instanceof ODocument) {
         schemaClass = ODocumentInternal.getImmutableSchemaClass(this, ((ODocument) record));
         if (schemaClass != null) {
-          if (schemaClass.isAbstract())
+          if (schemaClass.isAbstract()) {
             throw new OSchemaException(
                 "Document belongs to abstract class "
                     + schemaClass.getName()
                     + " and cannot be saved");
+          }
           rid.setClusterId(schemaClass.getClusterForNewInstance((ODocument) record));
-        } else
+        } else {
           throw new ODatabaseException(
               "Cannot save (1) document " + record + ": no class or cluster defined");
+        }
       } else {
         if (record instanceof ORecordBytes) {
           Set<Integer> blobs = getBlobClusterIds();
@@ -946,8 +986,9 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
               "Cannot save (3) document " + record + ": no class or cluster defined");
         }
       }
-    } else if (record instanceof ODocument)
+    } else if (record instanceof ODocument) {
       schemaClass = ODocumentInternal.getImmutableSchemaClass(this, ((ODocument) record));
+    }
     // If the cluster id was set check is validity
     if (rid.getClusterId() > ORID.CLUSTER_ID_INVALID) {
       if (schemaClass != null) {
@@ -978,8 +1019,9 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     checkIfActive();
 
     // CHECK IT'S NOT INSIDE A HOOK
-    if (!inHook.isEmpty())
+    if (!inHook.isEmpty()) {
       throw new IllegalStateException("Cannot begin a transaction while a hook is executing");
+    }
 
     if (currentTx.isActive()) {
       if (iType == OTransaction.TXTYPE.OPTIMISTIC && currentTx instanceof OTransactionOptimistic) {
@@ -990,12 +1032,13 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     }
 
     // WAKE UP LISTENERS
-    for (ODatabaseListener listener : browseListeners())
+    for (ODatabaseListener listener : browseListeners()) {
       try {
         listener.onBeforeTxBegin(this);
       } catch (Exception e) {
         OLogManager.instance().error(this, "Error before tx begin", e);
       }
+    }
 
     switch (iType) {
       case NOTX:
@@ -1016,7 +1059,9 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
 
   public void setDefaultTransactionMode(
       Map<ORID, OTransactionAbstract.LockedRecordMetadata> noTxLocks) {
-    if (!(currentTx instanceof OTransactionNoTx)) currentTx = new OTransactionNoTx(this, noTxLocks);
+    if (!(currentTx instanceof OTransactionNoTx)) {
+      currentTx = new OTransactionNoTx(this, noTxLocks);
+    }
   }
 
   /** Creates a new ODocument. */
@@ -1089,7 +1134,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   public OEdge newEdge(OVertex from, OVertex to, String type) {
     OClass cl = getMetadata().getImmutableSchemaSnapshot().getClass(type);
     if (cl == null || !cl.isEdgeType()) {
-      throw new IllegalArgumentException("" + type + " is not an edge class");
+      throw new IllegalArgumentException(type + " is not an edge class");
     }
     return addEdgeInternal(from, to, type, false);
   }
@@ -1105,69 +1150,78 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   private OEdge addEdgeInternal(
       final OVertex currentVertex,
       final OVertex inVertex,
-      String iClassName,
+      String className,
       boolean forceRegular,
       final Object... fields) {
-    if (currentVertex == null) throw new IllegalArgumentException("To vertex is null");
-    if (inVertex == null) throw new IllegalArgumentException("To vertex is null");
-    OEdge edge = null;
+    Objects.requireNonNull(currentVertex);
+    Objects.requireNonNull(inVertex);
+
+    OEdgeInternal edge = null;
     ODocument outDocument = null;
     ODocument inDocument = null;
-    boolean outDocumentModified = false;
 
-    if (checkDeletedInTx(currentVertex))
+    if (checkDeletedInTx(currentVertex)) {
       throw new ORecordNotFoundException(
           currentVertex.getIdentity(),
           "The vertex " + currentVertex.getIdentity() + " has been deleted");
+    }
 
-    if (checkDeletedInTx(inVertex))
+    if (checkDeletedInTx(inVertex)) {
       throw new ORecordNotFoundException(
           inVertex.getIdentity(), "The vertex " + inVertex.getIdentity() + " has been deleted");
+    }
 
     final int maxRetries = 1; // TODO
     for (int retry = 0; retry < maxRetries; ++retry) {
       try {
         // TEMPORARY STATIC LOCK TO AVOID MT PROBLEMS AGAINST OMVRBTreeRID
+        outDocument = currentVertex.getRecord();
         if (outDocument == null) {
-          outDocument = currentVertex.getRecord();
-          if (outDocument == null)
-            throw new IllegalArgumentException(
-                "source vertex is invalid (rid=" + currentVertex.getIdentity() + ")");
+          throw new IllegalArgumentException(
+              "source vertex is invalid (rid=" + currentVertex.getIdentity() + ")");
         }
 
+        inDocument = inVertex.getRecord();
         if (inDocument == null) {
-          inDocument = inVertex.getRecord();
-          if (inDocument == null)
-            throw new IllegalArgumentException(
-                "source vertex is invalid (rid=" + inVertex.getIdentity() + ")");
+          throw new IllegalArgumentException(
+              "source vertex is invalid (rid=" + inVertex.getIdentity() + ")");
         }
 
-        if (!ODocumentInternal.getImmutableSchemaClass(this, outDocument).isVertexType())
+        if (!ODocumentInternal.getImmutableSchemaClass(this, outDocument).isVertexType()) {
           throw new IllegalArgumentException("source record is not a vertex");
+        }
 
-        if (!ODocumentInternal.getImmutableSchemaClass(this, outDocument).isVertexType())
+        if (!ODocumentInternal.getImmutableSchemaClass(this, outDocument).isVertexType()) {
           throw new IllegalArgumentException("destination record is not a vertex");
+        }
 
         OVertex to = inVertex;
         OVertex from = currentVertex;
 
         OSchema schema = getMetadata().getImmutableSchemaSnapshot();
-        final OClass edgeType = schema.getClass(iClassName);
+        final OClass edgeType = schema.getClass(className);
         if (edgeType == null)
-          // AUTO CREATE CLASS
-          schema.createClass(iClassName);
-        else
-          // OVERWRITE CLASS NAME BECAUSE ATTRIBUTES ARE CASE SENSITIVE
-          iClassName = edgeType.getName();
+        // AUTO CREATE CLASS
+        {
+          schema.createClass(className);
+        } else
+        // OVERWRITE CLASS NAME BECAUSE ATTRIBUTES ARE CASE SENSITIVE
+        {
+          className = edgeType.getName();
+        }
 
-        final String outFieldName = getConnectionFieldName(ODirection.OUT, iClassName);
-        final String inFieldName = getConnectionFieldName(ODirection.IN, iClassName);
+        final String outFieldName = OVertex.getEdgeLinkFieldName(ODirection.OUT, className);
+        final String inFieldName = OVertex.getEdgeLinkFieldName(ODirection.IN, className);
 
         // since the label for the edge can potentially get re-assigned
         // before being pushed into the OrientEdge, the
         // null check has to go here.
-        if (iClassName == null)
-          throw new IllegalArgumentException("Class " + iClassName + " cannot be found");
+        if (className == null) {
+          throw new IllegalArgumentException("Class " + className + " cannot be found");
+        }
+
+        OVertexInternal.validateConnectionType(from, className, outFieldName);
+        OVertexInternal.validateConnectionType(to, className, inFieldName);
 
         // CREATE THE EDGE DOCUMENT TO STORE FIELDS TOO
 
@@ -1175,45 +1229,44 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
             hasLinkedClass(from, outFieldName, edgeType)
                 || hasLinkedClass(to, inFieldName, edgeType);
 
-        if (isUseLightweightEdges()
-            && !regularEdgeBasedOnSchema
-            && (fields == null || fields.length == 0)
-            && !forceRegular) {
-          edge = newLightweightEdge(iClassName, from, to);
-          OVertexDocument.createLink(from.getRecord(), to.getRecord(), outFieldName);
-          OVertexDocument.createLink(to.getRecord(), from.getRecord(), inFieldName);
-        } else {
-          edge = newEdgeInternal(iClassName);
-          edge.setProperty("out", currentVertex.getRecord());
-          edge.setProperty("in", inDocument.getRecord());
+        edge = (OEdgeInternal) newEdgeInternal(className);
+        edge.setPropertyWithoutValidation(OEdgeInternal.DIRECTION_OUT, currentVertex.getRecord());
+        edge.setPropertyWithoutValidation(OEdgeInternal.DIRECTION_IN, inDocument.getRecord());
 
-          if (fields != null) {
-            for (int i = 0; i < fields.length; i += 2) {
-              String fieldName = "" + fields[i];
-              if (fields.length <= i + 1) {
-                break;
-              }
-              Object fieldValue = fields[i + 1];
-              edge.setProperty(fieldName, fieldValue);
+        if (fields != null) {
+          for (int i = 0; i < fields.length; i += 2) {
+            String fieldName = "" + fields[i];
+            if (fields.length <= i + 1) {
+              break;
             }
+            Object fieldValue = fields[i + 1];
+            edge.setProperty(fieldName, fieldValue);
           }
-
-          if (!outDocumentModified) {
-            // OUT-VERTEX ---> IN-VERTEX/EDGE
-            OVertexDocument.createLink(outDocument, edge.getRecord(), outFieldName);
-          }
-
-          // IN-VERTEX ---> OUT-VERTEX/EDGE
-          OVertexDocument.createLink(inDocument, edge.getRecord(), inFieldName);
         }
+
+        // OUT-VERTEX ---> IN-VERTEX/EDGE
+        OVertexInternal.createLink(outDocument, edge.getRecord(), outFieldName);
+
+        // IN-VERTEX ---> OUT-VERTEX/EDGE
+        OVertexInternal.createLink(inDocument, edge.getRecord(), inFieldName);
+
+        var directOutFieldName = OVertexInternal.getDirectEdgeLinkFieldName(outFieldName);
+        var directInFieldName = OVertexInternal.getDirectEdgeLinkFieldName(inFieldName);
+
+        // Direct connection between OUT-VERTEX ---> IN-VERTEX/EDGE
+        OVertexInternal.createLink(outDocument, inDocument, directOutFieldName);
+        // Direct connection between IN-VERTEX ---> OUT-VERTEX/EDGE
+        OVertexInternal.createLink(inDocument, outDocument, directInFieldName);
 
         // OK
         break;
-
       } catch (ONeedRetryException ignore) {
         // RETRY
-        if (!outDocumentModified) outDocument.reload();
-        else if (inDocument != null) inDocument.reload();
+        outDocument.reload();
+
+        if (inDocument != null) {
+          inDocument.reload();
+        }
       }
     }
     return edge;
@@ -1236,24 +1289,18 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
 
   private boolean checkDeletedInTx(OVertex currentVertex) {
     ORID id;
-    if (currentVertex.getRecord() != null) id = currentVertex.getRecord().getIdentity();
-    else return false;
+    if (currentVertex.getRecord() != null) {
+      id = currentVertex.getRecord().getIdentity();
+    } else {
+      return false;
+    }
 
     final ORecordOperation oper = getTransaction().getRecordEntry(id);
-    if (oper == null) return id.isTemporary();
-    else return oper.type == ORecordOperation.DELETED;
-  }
-
-  private static String getConnectionFieldName(
-      final ODirection iDirection, final String iClassName) {
-    if (iDirection == null || iDirection == ODirection.BOTH)
-      throw new IllegalArgumentException("Direction not valid");
-
-    // PREFIX "out_" or "in_" TO THE FIELD NAME
-    final String prefix = iDirection == ODirection.OUT ? "out_" : "in_";
-    if (iClassName == null || iClassName.isEmpty() || iClassName.equals("E")) return prefix;
-
-    return prefix + iClassName;
+    if (oper == null) {
+      return id.isTemporary();
+    } else {
+      return oper.type == ORecordOperation.DELETED;
+    }
   }
 
   /** {@inheritDoc} */
@@ -1264,9 +1311,10 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   /** {@inheritDoc} */
   public ORecordIteratorClass<ODocument> browseClass(
       final String iClassName, final boolean iPolymorphic) {
-    if (getMetadata().getImmutableSchemaSnapshot().getClass(iClassName) == null)
+    if (getMetadata().getImmutableSchemaSnapshot().getClass(iClassName) == null) {
       throw new IllegalArgumentException(
           "Class '" + iClassName + "' not found in current database");
+    }
 
     checkSecurity(ORule.ResourceGeneric.CLASS, ORole.PERMISSION_READ, iClassName);
     return new ORecordIteratorClass<ODocument>(this, iClassName, iPolymorphic, false);
@@ -1481,15 +1529,17 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     ODocumentInternal.convertAllMultiValuesToTrackedVersions(doc);
 
     if (iForceCreate || !doc.getIdentity().isValid()) {
-      if (doc.getClassName() != null)
+      if (doc.getClassName() != null) {
         checkSecurity(ORule.ResourceGeneric.CLASS, ORole.PERMISSION_CREATE, doc.getClassName());
+      }
 
       assignAndCheckCluster(doc, iClusterName);
 
     } else {
       // UPDATE: CHECK ACCESS ON SCHEMA CLASS NAME (IF ANY)
-      if (doc.getClassName() != null)
+      if (doc.getClassName() != null) {
         checkSecurity(ORule.ResourceGeneric.CLASS, ORole.PERMISSION_UPDATE, doc.getClassName());
+      }
     }
 
     if (!getSerializer().equals(ORecordInternal.getRecordSerializer(doc))) {
@@ -1512,7 +1562,9 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   public long countView(final String viewName) {
     final OImmutableView cls =
         (OImmutableView) getMetadata().getImmutableSchemaSnapshot().getView(viewName);
-    if (cls == null) throw new IllegalArgumentException("View '" + cls + "' not found in database");
+    if (cls == null) {
+      throw new IllegalArgumentException("View '" + cls + "' not found in database");
+    }
 
     return countClass(cls, false);
   }
@@ -1529,8 +1581,9 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   public long countClass(final String iClassName, final boolean iPolymorphic) {
     final OImmutableClass cls =
         (OImmutableClass) getMetadata().getImmutableSchemaSnapshot().getClass(iClassName);
-    if (cls == null)
+    if (cls == null) {
       throw new IllegalArgumentException("Class '" + cls + "' not found in database");
+    }
 
     return countClass(cls, iPolymorphic);
   }
@@ -1542,17 +1595,21 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     long deletedInTx = 0;
     long addedInTx = 0;
     String className = cls.getName();
-    if (getTransaction().isActive())
+    if (getTransaction().isActive()) {
       for (ORecordOperation op : getTransaction().getRecordOperations()) {
         if (op.type == ORecordOperation.DELETED) {
           final ORecord rec = op.getRecord();
           if (rec != null && rec instanceof ODocument) {
             OClass schemaClass = ODocumentInternal.getImmutableSchemaClass(((ODocument) rec));
             if (iPolymorphic) {
-              if (schemaClass.isSubClassOf(className)) deletedInTx++;
+              if (schemaClass.isSubClassOf(className)) {
+                deletedInTx++;
+              }
             } else {
               if (className.equals(schemaClass.getName())
-                  || className.equals(schemaClass.getShortName())) deletedInTx++;
+                  || className.equals(schemaClass.getShortName())) {
+                deletedInTx++;
+              }
             }
           }
         }
@@ -1562,15 +1619,20 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
             OClass schemaClass = ODocumentInternal.getImmutableSchemaClass(((ODocument) rec));
             if (schemaClass != null) {
               if (iPolymorphic) {
-                if (schemaClass.isSubClassOf(className)) addedInTx++;
+                if (schemaClass.isSubClassOf(className)) {
+                  addedInTx++;
+                }
               } else {
                 if (className.equals(schemaClass.getName())
-                    || className.equals(schemaClass.getShortName())) addedInTx++;
+                    || className.equals(schemaClass.getShortName())) {
+                  addedInTx++;
+                }
               }
             }
           }
         }
       }
+    }
 
     return (totalOnDb + addedInTx) - deletedInTx;
   }
@@ -1586,7 +1648,9 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     checkOpenness();
     checkIfActive();
 
-    if (!currentTx.isActive()) return this;
+    if (!currentTx.isActive()) {
+      return this;
+    }
 
     if (!force && currentTx.amountOfNestedTxs() > 1) {
       // This just do count down no real commit here
@@ -1611,12 +1675,13 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       currentTx.commit(force);
     } catch (RuntimeException e) {
 
-      if ((e instanceof OHighLevelException) || (e instanceof ONeedRetryException))
+      if ((e instanceof OHighLevelException) || (e instanceof ONeedRetryException)) {
         OLogManager.instance()
             .debug(this, "Error on transaction commit `%08X`", e, System.identityHashCode(e));
-      else
+      } else {
         OLogManager.instance()
             .error(this, "Error on transaction commit `%08X`", e, System.identityHashCode(e));
+      }
 
       // WAKE UP ROLLBACK LISTENERS
       beforeRollbackOperations();
@@ -1642,7 +1707,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   }
 
   protected void beforeCommitOperations() {
-    for (ODatabaseListener listener : browseListeners())
+    for (ODatabaseListener listener : browseListeners()) {
       try {
         listener.onBeforeTxCommit(this);
       } catch (Exception e) {
@@ -1661,10 +1726,11 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
                     + "#onBeforeTxCommit()"),
             e);
       }
+    }
   }
 
   protected void afterCommitOperations() {
-    for (ODatabaseListener listener : browseListeners())
+    for (ODatabaseListener listener : browseListeners()) {
       try {
         listener.onAfterTxCommit(this);
       } catch (Exception e) {
@@ -1678,26 +1744,29 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
 
         throw OException.wrapException(new OTransactionBlockedException(message), e);
       }
+    }
   }
 
   protected void beforeRollbackOperations() {
-    for (ODatabaseListener listener : browseListeners())
+    for (ODatabaseListener listener : browseListeners()) {
       try {
         listener.onBeforeTxRollback(this);
       } catch (Exception t) {
         OLogManager.instance()
             .error(this, "Error before transaction rollback `%08X`", t, System.identityHashCode(t));
       }
+    }
   }
 
   protected void afterRollbackOperations() {
-    for (ODatabaseListener listener : browseListeners())
+    for (ODatabaseListener listener : browseListeners()) {
       try {
         listener.onAfterTxRollback(this);
       } catch (Exception t) {
         OLogManager.instance()
             .error(this, "Error after transaction rollback `%08X`", t, System.identityHashCode(t));
       }
+    }
   }
 
   /** {@inheritDoc} */
@@ -1755,7 +1824,9 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
 
   @Override
   public void resetInitialization() {
-    for (ORecordHook h : hooks.keySet()) h.onUnregister();
+    for (ORecordHook h : hooks.keySet()) {
+      h.onUnregister();
+    }
 
     hooks.clear();
     compileHooks();
@@ -1798,7 +1869,9 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   @Override
   public ODatabaseDocumentAbstract activateOnCurrentThread() {
     final ODatabaseRecordThreadLocal tl = ODatabaseRecordThreadLocal.instance();
-    if (tl != null) tl.set(this);
+    if (tl != null) {
+      tl.set(this);
+    }
     return this;
   }
 
@@ -1810,8 +1883,9 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   }
 
   protected void checkOpenness() {
-    if (status == STATUS.CLOSED)
+    if (status == STATUS.CLOSED) {
       throw new ODatabaseException("Database '" + getURL() + "' is closed");
+    }
   }
 
   private void popInHook(OIdentifiable id) {
@@ -1823,9 +1897,10 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   }
 
   protected void callbackHookFailure(ORecord record, boolean wasNew, byte[] stream) {
-    if (stream != null && stream.length > 0)
+    if (stream != null && stream.length > 0) {
       callbackHooks(
           wasNew ? ORecordHook.TYPE.CREATE_FAILED : ORecordHook.TYPE.UPDATE_FAILED, record);
+    }
   }
 
   protected void callbackHookSuccess(
@@ -1867,7 +1942,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
         metadata.getImmutableSchemaSnapshot().getClassByClusterId(rid.getClusterId());
     if (recordClass == null && clusterIdClass != null
         || clusterIdClass == null && recordClass != null
-        || (recordClass != null && !recordClass.equals(clusterIdClass)))
+        || (recordClass != null && !recordClass.equals(clusterIdClass))) {
       throw new IllegalArgumentException(
           "Record saved into cluster '"
               + iClusterName
@@ -1876,6 +1951,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
               + "' but has been created with class '"
               + recordClass
               + "'");
+    }
   }
 
   protected void init() {
@@ -1888,7 +1964,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     if (currentDatabase instanceof ODatabaseDocumentTx) {
       currentDatabase = ((ODatabaseDocumentTx) currentDatabase).internal;
     }
-    if (currentDatabase != this)
+    if (currentDatabase != this) {
       throw new IllegalStateException(
           "The current database instance ("
               + toString()
@@ -1896,6 +1972,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
               + Thread.currentThread()
               + "). Current active database is: "
               + currentDatabase);
+    }
   }
 
   public Set<Integer> getBlobClusterIds() {
@@ -1905,12 +1982,15 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   private void compileHooks() {
     final List<ORecordHook>[] intermediateHooksByScope =
         new List[ORecordHook.SCOPE.values().length];
-    for (ORecordHook.SCOPE scope : ORecordHook.SCOPE.values())
+    for (ORecordHook.SCOPE scope : ORecordHook.SCOPE.values()) {
       intermediateHooksByScope[scope.ordinal()] = new ArrayList<>();
+    }
 
-    for (ORecordHook hook : hooks.keySet())
-      for (ORecordHook.SCOPE scope : hook.getScopes())
+    for (ORecordHook hook : hooks.keySet()) {
+      for (ORecordHook.SCOPE scope : hook.getScopes()) {
         intermediateHooksByScope[scope.ordinal()].add(hook);
+      }
+    }
 
     for (ORecordHook.SCOPE scope : ORecordHook.SCOPE.values()) {
       final int ordinal = scope.ordinal();
@@ -1949,16 +2029,19 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
 
         if (recordToReloadOnRetry != null) {
           // RELOAD THE RECORDS
-          for (ORecord r : recordToReloadOnRetry) r.reload();
+          for (ORecord r : recordToReloadOnRetry) {
+            r.reload();
+          }
         }
 
-        if (waitBetweenRetry > 0)
+        if (waitBetweenRetry > 0) {
           try {
             Thread.sleep(waitBetweenRetry);
           } catch (InterruptedException ignore) {
             Thread.currentThread().interrupt();
             break;
           }
+        }
       }
     }
     throw lastException;
@@ -1968,27 +2051,27 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     final List<OStorageEntryConfiguration> custom =
         (List<OStorageEntryConfiguration>) this.get(ATTRIBUTES.CUSTOM);
     for (OStorageEntryConfiguration c : custom) {
-      if (c.name.equals("useLightweightEdges")) return Boolean.parseBoolean(c.value);
+      if (c.name.equals("useLightweightEdges")) {
+        return Boolean.parseBoolean(c.value);
+      }
     }
     return false;
   }
 
+  @Deprecated
   public void setUseLightweightEdges(boolean b) {
-    this.setCustom("useLightweightEdges", b);
+    throw new UnsupportedOperationException("Creation of lightweight edges is not supported");
   }
 
+  @Deprecated
   public OEdge newLightweightEdge(String iClassName, OVertex from, OVertex to) {
-    OImmutableClass clazz =
-        (OImmutableClass) getMetadata().getImmutableSchemaSnapshot().getClass(iClassName);
-    OEdgeDelegate result = new OEdgeDelegate(from, to, clazz, iClassName);
-
-    return result;
+    throw new UnsupportedOperationException();
   }
 
   public OEdge newRegularEdge(String iClassName, OVertex from, OVertex to) {
     OClass cl = getMetadata().getImmutableSchemaSnapshot().getClass(iClassName);
     if (cl == null || !cl.isEdgeType()) {
-      throw new IllegalArgumentException("" + iClassName + " is not an edge class");
+      throw new IllegalArgumentException(iClassName + " is not an edge class");
     }
     return addEdgeInternal(from, to, iClassName, true);
   }

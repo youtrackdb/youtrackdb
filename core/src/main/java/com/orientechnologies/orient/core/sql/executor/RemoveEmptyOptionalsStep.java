@@ -3,23 +3,20 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
-import com.orientechnologies.orient.core.sql.parser.OIdentifier;
 
-/** @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com) */
+/**
+ * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
+ */
 public class RemoveEmptyOptionalsStep extends AbstractExecutionStep {
-
-  public RemoveEmptyOptionalsStep(
-      OCommandContext ctx, OIdentifier cluster, boolean profilingEnabled) {
-    super(ctx, profilingEnabled);
-  }
-
   public RemoveEmptyOptionalsStep(OCommandContext ctx, boolean profilingEnabled) {
-    this(ctx, null, profilingEnabled);
+    super(ctx, profilingEnabled);
   }
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    OExecutionStream upstream = getPrev().get().start(ctx);
+    assert prev != null;
+
+    OExecutionStream upstream = prev.start(ctx);
     return upstream.map(this::mapResult);
   }
 
@@ -35,9 +32,6 @@ public class RemoveEmptyOptionalsStep extends AbstractExecutionStep {
   @Override
   public String prettyPrint(int depth, int indent) {
     String spaces = OExecutionStepInternal.getIndent(depth, indent);
-    StringBuilder result = new StringBuilder();
-    result.append(spaces);
-    result.append("+ REMOVE EMPTY OPTIONALS");
-    return result.toString();
+    return spaces + "+ REMOVE EMPTY OPTIONALS";
   }
 }

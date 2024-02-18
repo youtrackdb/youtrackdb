@@ -61,8 +61,10 @@ public class OPropertyAccessTest {
   public void testNotAccessiblePropertyListing() {
     ODocument doc = new ODocument();
     doc.setProperty("name", "one value");
-    assertArrayEquals(new String[] {"name"}, doc.fieldNames());
-    assertArrayEquals(new String[] {"one value"}, doc.fieldValues());
+    assertArrayEquals(new String[] {"name"}, doc.getPropertyNames().toArray());
+    assertArrayEquals(
+        new String[] {"one value"},
+        doc.getPropertyNames().stream().map(doc::getProperty).toArray());
     assertEquals(new HashSet<String>(Arrays.asList("name")), doc.getPropertyNames());
     for (Map.Entry<String, Object> e : doc) {
       assertEquals("name", e.getKey());
@@ -83,8 +85,10 @@ public class OPropertyAccessTest {
   public void testNotAccessiblePropertyListingSer() {
     ODocument docPre = new ODocument();
     docPre.setProperty("name", "one value");
-    assertArrayEquals(new String[] {"name"}, docPre.fieldNames());
-    assertArrayEquals(new String[] {"one value"}, docPre.fieldValues());
+    assertArrayEquals(new String[] {"name"}, docPre.getPropertyNames().toArray());
+    assertArrayEquals(
+        new String[] {"one value"},
+        docPre.getPropertyNames().stream().map(docPre::getProperty).toArray());
     assertEquals(new HashSet<String>(Arrays.asList("name")), docPre.getPropertyNames());
     for (Map.Entry<String, Object> e : docPre) {
       assertEquals("name", e.getKey());
@@ -95,8 +99,9 @@ public class OPropertyAccessTest {
     ODocument doc = new ODocument();
     doc.fromStream(docPre.toStream());
     ODocumentInternal.setPropertyAccess(doc, new OPropertyAccess(toHide));
-    assertArrayEquals(new String[] {}, doc.fieldNames());
-    assertArrayEquals(new String[] {}, doc.fieldValues());
+    assertArrayEquals(new String[] {}, doc.getPropertyNames().toArray());
+    assertArrayEquals(
+        new String[] {}, doc.getPropertyNames().stream().map(doc::getProperty).toArray());
     assertEquals(new HashSet<String>(), doc.getPropertyNames());
     for (Map.Entry<String, Object> e : doc) {
       assertNotEquals("name", e.getKey());

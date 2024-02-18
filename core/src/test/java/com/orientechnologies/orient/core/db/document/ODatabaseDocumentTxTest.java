@@ -20,7 +20,6 @@ import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
@@ -455,55 +454,5 @@ public class ODatabaseDocumentTxTest extends BaseMemoryDatabase {
             (ODatabaseDocumentInternal) db, (ODatabaseDocumentInternal) db, className, true);
     Assert.assertTrue(reverseIterator.hasNext());
     Assert.assertEquals(document, reverseIterator.next());
-  }
-
-  @Test
-  public void testDeleteVertexWithLinkset() {
-    String V = "testv";
-    String E = "teste";
-
-    db.createEdgeClass(E);
-    OClass clazz = db.createVertexClass(V);
-    clazz.createProperty("out_" + E, OType.LINKSET);
-
-    OVertex v1 = db.newVertex(V);
-    v1.setProperty("name", "root");
-    v1.save();
-
-    for (int i = 0; i < 10; i++) {
-      OVertex v2 = db.newVertex(V);
-      v2.setProperty("name", "foo");
-      v2.save();
-
-      OElement edge = db.newElement(E);
-      edge.setProperty("out", v1);
-      edge.setProperty("in", v2);
-      edge.save();
-
-      Collection out = v1.getProperty("out_" + E);
-      if (out == null) {
-        out = new HashSet();
-      }
-      out.add(edge);
-      v1.setProperty("out_" + E, out);
-      v1.save();
-
-      Collection in = v2.getProperty("in_" + E);
-      if (in == null) {
-        in = new HashSet();
-      }
-      in.add(edge);
-      v2.setProperty("in_" + E, in);
-      v2.save();
-    }
-
-    db.begin();
-    OResultSet rs = db.query("select from " + V + " where name = 'root'");
-    while (rs.hasNext()) {
-      OResult item = rs.next();
-      item.getVertex().get().delete();
-    }
-    rs.close();
-    db.commit();
   }
 }

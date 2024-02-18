@@ -40,6 +40,7 @@ import com.orientechnologies.orient.core.exception.OConfigurationException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.OSchemaException;
 import com.orientechnologies.orient.core.exception.OSerializationException;
+import com.orientechnologies.orient.core.id.OEmptyRecordId;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -65,6 +66,7 @@ import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.OElementInternal;
 import com.orientechnologies.orient.core.serialization.serializer.OJSONReader;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerJSON;
@@ -1308,7 +1310,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
           ORecordInternal.setVersion(record, loadedRecord.getVersion());
         } else {
           ORecordInternal.setVersion(record, 0);
-          ORecordInternal.setIdentity(record, new ORecordId());
+          ORecordInternal.setIdentity(record, new OEmptyRecordId());
         }
         record.setDirty();
 
@@ -1397,7 +1399,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
     }
 
     ORID rid;
-    ORID lastRid = new ORecordId();
+    ORID lastRid = new OEmptyRecordId();
     final long begin = System.currentTimeMillis();
     long lastLapRecords = 0;
     long last = begin;
@@ -1472,7 +1474,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
     OElement doc = (OElement) record;
     bags.forEach(
         (field, ridset) -> {
-          ORidBag ridbag = ((OElement) record).getProperty(field);
+          ORidBag ridbag = ((OElementInternal) record).getPropertyWithoutValidation(field);
           ridset.forEach(
               rid -> {
                 ridbag.add(rid);
@@ -1482,7 +1484,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
   }
 
   private void importSkippedRidbag(ORecord record, String value, Integer skippedPartsIndex) {
-    OElement doc = (OElement) record;
+    var doc = (OElementInternal) record;
 
     StringBuilder builder = new StringBuilder();
 
@@ -1504,7 +1506,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
             '\t');
 
     String fieldName = OIOUtils.getStringContent(builder.toString());
-    ORidBag bag = doc.getProperty(fieldName);
+    ORidBag bag = doc.getPropertyWithoutValidation(fieldName);
 
     if (!(value.charAt(nextIndex) == '[')) {
       throw new ODatabaseImportException("Cannot import field: " + fieldName + " (too big)");

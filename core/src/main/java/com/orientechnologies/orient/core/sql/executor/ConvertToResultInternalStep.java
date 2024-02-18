@@ -22,17 +22,17 @@ public class ConvertToResultInternalStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    if (!prev.isPresent()) {
+    if (prev == null) {
       throw new IllegalStateException("filter step requires a previous step");
     }
-    OExecutionStream resultSet = prev.get().start(ctx);
+    OExecutionStream resultSet = prev.start(ctx);
     return resultSet.filter(this::filterMap);
   }
 
   private OResult filterMap(OResult result, OCommandContext ctx) {
     if (result instanceof OUpdatableResult) {
-      ORecord element = result.getElement().get().getRecord();
-      if (element != null && element instanceof ODocument) {
+      ORecord element = result.toElement().getRecord();
+      if (element instanceof ODocument) {
         return new OResultInternal(element);
       }
       return result;

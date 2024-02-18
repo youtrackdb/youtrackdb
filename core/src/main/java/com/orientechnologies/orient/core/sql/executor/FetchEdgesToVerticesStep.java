@@ -36,23 +36,26 @@ public class FetchEdgesToVerticesStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    getPrev().ifPresent(x -> x.start(ctx).close(ctx));
-    Stream<Object> source = init();
+    if (prev != null) {
+      prev.start(ctx).close(ctx);
+    }
 
+    Stream<Object> source = init();
     return new OSubResultsExecutionStream(source.map(this::edges).iterator());
   }
 
   private Stream<Object> init() {
-    Object toValues = null;
+    Object toValues;
 
     toValues = ctx.getVariable(toAlias);
     if (toValues instanceof Iterable && !(toValues instanceof OIdentifiable)) {
-      toValues = ((Iterable) toValues).iterator();
+      toValues = ((Iterable<?>) toValues).iterator();
     } else if (!(toValues instanceof Iterator)) {
       toValues = Collections.singleton(toValues).iterator();
     }
 
-    return StreamSupport.stream(Spliterators.spliteratorUnknownSize((Iterator) toValues, 0), false);
+    return StreamSupport.stream(
+        Spliterators.spliteratorUnknownSize((Iterator<?>) toValues, 0), false);
   }
 
   private OExecutionStream edges(Object from) {
@@ -63,14 +66,13 @@ public class FetchEdgesToVerticesStep extends AbstractExecutionStep {
       from = ((OIdentifiable) from).getRecord();
     }
     if (from instanceof OElement && ((OElement) from).isVertex()) {
-      Iterable<OEdge> edges = ((OElement) from).asVertex().get().getEdges(ODirection.IN);
+      var vertex = ((OElement) from).toVertex();
+      assert vertex != null;
+      Iterable<OEdge> edges = vertex.getEdges(ODirection.IN);
       Stream<OResult> stream =
           StreamSupport.stream(edges.spliterator(), false)
-              .filter(
-                  (edge) -> {
-                    return matchesClass(edge) && matchesCluster(edge);
-                  })
-              .map((e) -> new OResultInternal(e));
+              .filter((edge) -> matchesClass(edge) && matchesCluster(edge))
+              .map(OResultInternal::new);
       return OExecutionStream.resultIterator(stream.iterator());
     } else {
       throw new OCommandExecutionException("Invalid vertex: " + from);
@@ -90,7 +92,10 @@ public class FetchEdgesToVerticesStep extends AbstractExecutionStep {
     if (targetClass == null) {
       return true;
     }
-    return edge.getSchemaType().get().isSubClassOf(targetClass.getStringValue());
+    var schemaClass = edge.getSchemaClass();
+
+    assert schemaClass != null;
+    return schemaClass.isSubClassOf(targetClass.getStringValue());
   }
 
   @Override

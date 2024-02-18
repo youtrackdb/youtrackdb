@@ -369,7 +369,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
 
           if (type != null) {
             // TREAT IT AS EMBEDDED
-            doc.setProperty(fieldName, v, type);
+            doc.setPropertyWithoutValidation(fieldName, v, type);
             return;
           }
         } else if (v instanceof Map<?, ?> && !((Map<?, ?>) v).isEmpty()) {
@@ -395,8 +395,8 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
         if (OMultiValue.getFirstValue(v) instanceof OIdentifiable) type = OType.LINKLIST;
       }
 
-      if (type != null) doc.setProperty(fieldName, v, type);
-      else doc.setProperty(fieldName, v);
+      if (type != null) doc.setPropertyWithoutValidation(fieldName, v, type);
+      else doc.setPropertyWithoutValidation(fieldName, v);
     }
   }
 

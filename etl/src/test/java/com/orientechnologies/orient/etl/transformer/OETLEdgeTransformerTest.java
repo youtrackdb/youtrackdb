@@ -26,7 +26,6 @@ import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.db.ODatabasePool;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OVertex;
@@ -60,12 +59,10 @@ public class OETLEdgeTransformerTest extends OETLBaseTest {
   }
 
   public void createClasses(ODatabaseDocument db) {
-    final OClass v1 = db.createVertexClass("V1");
+    db.createVertexClass("V1");
     final OClass v2 = db.createVertexClass("V2");
 
     final OClass edgeType = db.createEdgeClass("Friend");
-    edgeType.createProperty("in", OType.LINK, v2);
-    edgeType.createProperty("out", OType.LINK, v1);
 
     // ASSURE NOT DUPLICATES
     edgeType.createIndex("out_in", OClass.INDEX_TYPE.UNIQUE, "in", "out");

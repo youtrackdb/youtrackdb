@@ -20,15 +20,15 @@ public class ExpandStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    if (prev == null || !prev.isPresent()) {
+    if (prev == null) {
       throw new OCommandExecutionException("Cannot expand without a target");
     }
-    OExecutionStream resultSet = getPrev().get().start(ctx);
+    OExecutionStream resultSet = prev.start(ctx);
     return resultSet.flatMap(this::nextResults);
   }
 
   private OExecutionStream nextResults(OResult nextAggregateItem, OCommandContext ctx) {
-    if (nextAggregateItem.getPropertyNames().size() == 0) {
+    if (nextAggregateItem.getPropertyNames().isEmpty()) {
       return OExecutionStream.empty();
     }
     if (nextAggregateItem.getPropertyNames().size() > 1) {
@@ -47,13 +47,15 @@ public class ExpandStep extends AbstractExecutionStep {
       }
       OResultInternal res = new OResultInternal(rec);
 
-      return OExecutionStream.singleton((OResult) res);
+      return OExecutionStream.singleton(res);
     } else if (projValue instanceof OResult) {
       return OExecutionStream.singleton((OResult) projValue);
     } else if (projValue instanceof Iterator) {
-      return OExecutionStream.iterator((Iterator) projValue);
+      //noinspection unchecked
+      return OExecutionStream.iterator((Iterator<Object>) projValue);
     } else if (projValue instanceof Iterable) {
-      return OExecutionStream.iterator(((Iterable) projValue).iterator());
+      //noinspection unchecked
+      return OExecutionStream.iterator(((Iterable<Object>) projValue).iterator());
     } else {
       return OExecutionStream.empty();
     }

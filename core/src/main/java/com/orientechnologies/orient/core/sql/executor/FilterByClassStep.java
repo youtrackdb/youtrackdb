@@ -13,7 +13,7 @@ import java.util.Optional;
 public class FilterByClassStep extends AbstractExecutionStep {
 
   private OIdentifier identifier;
-  private String className;
+  private final String className;
 
   public FilterByClassStep(OIdentifier identifier, OCommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
@@ -23,17 +23,17 @@ public class FilterByClassStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    if (!prev.isPresent()) {
+    if (prev == null) {
       throw new IllegalStateException("filter step requires a previous step");
     }
 
-    OExecutionStream resultSet = prev.get().start(ctx);
+    OExecutionStream resultSet = prev.start(ctx);
     return resultSet.filter(this::filterMap);
   }
 
   private OResult filterMap(OResult result, OCommandContext ctx) {
     if (result.isElement()) {
-      Optional<OClass> clazz = result.getElement().get().getSchemaType();
+      Optional<OClass> clazz = result.toElement().getSchemaType();
       if (clazz.isPresent() && clazz.get().isSubClassOf(className)) {
         return result;
       }
@@ -47,7 +47,7 @@ public class FilterByClassStep extends AbstractExecutionStep {
     result.append(OExecutionStepInternal.getIndent(depth, indent));
     result.append("+ FILTER ITEMS BY CLASS");
     if (profilingEnabled) {
-      result.append(" (" + getCostFormatted() + ")");
+      result.append(" (").append(getCostFormatted()).append(")");
     }
     result.append(" \n");
     result.append(OExecutionStepInternal.getIndent(depth, indent));

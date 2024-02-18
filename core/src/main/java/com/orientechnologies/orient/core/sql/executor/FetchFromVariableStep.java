@@ -19,11 +19,12 @@ public class FetchFromVariableStep extends AbstractExecutionStep {
     reset();
   }
 
-  public void reset() {}
-
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    getPrev().ifPresent(x -> x.start(ctx).close(ctx));
+    if (prev != null) {
+      prev.start(ctx).close(ctx);
+    }
+
     Object src = ctx.getVariable(variableName);
     OExecutionStream source;
     if (src instanceof OExecutionStream) {
@@ -39,7 +40,7 @@ public class FetchFromVariableStep extends AbstractExecutionStep {
     } else if (src instanceof OResult) {
       source = OExecutionStream.resultIterator(Collections.singleton((OResult) src).iterator());
     } else if (src instanceof Iterable) {
-      source = OExecutionStream.iterator(((Iterable) src).iterator());
+      source = OExecutionStream.iterator(((Iterable<?>) src).iterator());
     } else {
       throw new OCommandExecutionException("Cannot use variable as query target: " + variableName);
     }

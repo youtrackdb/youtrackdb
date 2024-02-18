@@ -17,6 +17,7 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.command.OCommandResultListener;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.id.OEmptyRecordId;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorCluster;
@@ -618,7 +619,8 @@ public class SQLSelectTest extends AbstractSelectTest {
       Assert.assertTrue(record.getClassName().equalsIgnoreCase("Profile"));
 
       boolean found = false;
-      for (Object fieldValue : record.fieldValues()) {
+      for (Object fieldValue :
+          record.getPropertyNames().stream().map(record::getProperty).toArray()) {
         if (fieldValue != null && fieldValue.toString().startsWith("N")) {
           found = true;
           break;
@@ -929,7 +931,7 @@ public class SQLSelectTest extends AbstractSelectTest {
 
   @Test
   public void queryWithManualPagination() {
-    ORID last = new ORecordId();
+    ORID last = new OEmptyRecordId();
     List<ODocument> resultset =
         executeQuery("select from Profile where @rid > ? LIMIT 3", database, last);
 
@@ -958,7 +960,7 @@ public class SQLSelectTest extends AbstractSelectTest {
   public void queryWithAutomaticPagination() {
     final OSQLSynchQuery<ODocument> query =
         new OSQLSynchQuery<ODocument>("select from Profile LIMIT 3");
-    ORID last = new ORecordId();
+    ORID last = new OEmptyRecordId();
 
     List<ODocument> resultset = database.query(query);
 
@@ -999,7 +1001,7 @@ public class SQLSelectTest extends AbstractSelectTest {
                 + range[1]
                 + " LIMIT 3");
 
-    ORID last = new ORecordId();
+    ORID last = new OEmptyRecordId();
 
     List<ODocument> resultset = database.query(query);
 
@@ -1029,7 +1031,7 @@ public class SQLSelectTest extends AbstractSelectTest {
   public void queryWithAutomaticPaginationWithWhere() {
     final OSQLSynchQuery<ODocument> query =
         new OSQLSynchQuery<ODocument>("select from Profile where followers.length() > 0 LIMIT 3");
-    ORID last = new ORecordId();
+    ORID last = new OEmptyRecordId();
 
     List<ODocument> resultset = database.query(query);
 
@@ -1059,7 +1061,7 @@ public class SQLSelectTest extends AbstractSelectTest {
   public void queryWithAutomaticPaginationWithWhereAndBindingVar() {
     final OSQLSynchQuery<ODocument> query =
         new OSQLSynchQuery<ODocument>("select from Profile where followers.length() > ? LIMIT 3");
-    ORID last = new ORecordId();
+    ORID last = new OEmptyRecordId();
 
     List<ODocument> resultset = database.query(query, 0);
 
@@ -1087,7 +1089,7 @@ public class SQLSelectTest extends AbstractSelectTest {
   public void queryWithAutomaticPaginationWithWhereAndBindingVarAtTheFirstQueryCall() {
     final OSQLSynchQuery<ODocument> query =
         new OSQLSynchQuery<ODocument>("select from Profile where followers.length() > ? LIMIT 3");
-    ORID last = new ORecordId();
+    ORID last = new OEmptyRecordId();
 
     List<ODocument> resultset = database.query(query, 0);
 
@@ -1924,7 +1926,7 @@ public class SQLSelectTest extends AbstractSelectTest {
       OSQLSynchQuery<ODocument> query =
           new OSQLSynchQuery<ODocument>(
               "select from PersonMultipleClusters where @rid > ? limit 2");
-      List<ODocument> resultset = database.query(query, new ORecordId());
+      List<ODocument> resultset = database.query(query, new OEmptyRecordId());
 
       while (!resultset.isEmpty()) {
         final ORID last = resultset.get(resultset.size() - 1).getIdentity();

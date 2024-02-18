@@ -71,7 +71,11 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    getPrev().ifPresent(x -> x.start(ctx).close(ctx));
+    var prev = this.prev;
+    if (prev != null) {
+      prev.start(ctx).close(ctx);
+    }
+
     Set<Stream<ORawPair<Object, ORID>>> streams = init(desc, isOrderAsc(), ctx);
     Stream<OExecutionStream> resultStreams =
         streams.stream()
@@ -130,8 +134,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
       } else if (condition instanceof OBetweenCondition) {
         size = 1;
         range = true;
-      } else if (condition instanceof OAndBlock) {
-        OAndBlock andBlock = ((OAndBlock) condition);
+      } else if (condition instanceof OAndBlock andBlock) {
         size = andBlock.getSubBlocks().size();
         OBooleanExpression lastOp = andBlock.getSubBlocks().get(andBlock.getSubBlocks().size() - 1);
         if (lastOp instanceof OBinaryCondition) {
@@ -156,7 +159,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
       return Collections.emptySet();
     }
     if (condition == null) {
-      return processFlatIteration(index, condition, isOrderAsc);
+      return processFlatIteration(index, isOrderAsc);
     } else if (condition instanceof OBinaryCondition) {
       return processBinaryCondition(index, condition, isOrderAsc, ctx);
     } else if (condition instanceof OBetweenCondition) {
@@ -198,13 +201,13 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
         }
 
         Stream<ORawPair<Object, ORID>> localCursor =
-            createCursor(index, equals, definition, item, ctx, orderAsc, condition);
+            createCursor(index, equals, definition, item, orderAsc, condition);
 
         acquiredStreams.add(localCursor);
       }
     } else {
       Stream<ORawPair<Object, ORID>> stream =
-          createCursor(index, equals, definition, rightValue, ctx, orderAsc, condition);
+          createCursor(index, equals, definition, rightValue, orderAsc, condition);
       acquiredStreams.add(stream);
     }
     return acquiredStreams;
@@ -213,10 +216,6 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
   /**
    * it's not key = [...] but a real condition on field names, already ordered (field names will be
    * ignored)
-   *
-   * @param index
-   * @param condition
-   * @param acquiredStreams TODO
    */
   private static Set<Stream<ORawPair<Object, ORID>>> processAndBlock(
       OIndexInternal index,
@@ -241,7 +240,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
   }
 
   private static Set<Stream<ORawPair<Object, ORID>>> processFlatIteration(
-      OIndexInternal index, OBooleanExpression condition, boolean isOrderAsc) {
+      OIndexInternal index, boolean isOrderAsc) {
     Set<Stream<ORawPair<Object, ORID>>> acquiredStreams =
         Collections.newSetFromMap(new IdentityHashMap<>());
     Stream<ORawPair<Object, ORID>> stream = isOrderAsc ? index.stream() : index.descStream();
@@ -283,19 +282,19 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
 
       Object secondValue = secondValueCombinations.get(i).execute((OResult) null, ctx);
       if (secondValue instanceof List
-          && ((List) secondValue).size() == 1
+          && ((List<?>) secondValue).size() == 1
           && indexDef.getFields().size() == 1
           && !(indexDef instanceof OIndexDefinitionMultiValue)) {
-        secondValue = ((List) secondValue).get(0);
+        secondValue = ((List<?>) secondValue).get(0);
       }
       secondValue = unboxOResult(secondValue);
       // TODO unwind collections!
       Object thirdValue = thirdValueCombinations.get(i).execute((OResult) null, ctx);
       if (thirdValue instanceof List
-          && ((List) thirdValue).size() == 1
+          && ((List<?>) thirdValue).size() == 1
           && indexDef.getFields().size() == 1
           && !(indexDef instanceof OIndexDefinitionMultiValue)) {
-        thirdValue = ((List) thirdValue).get(0);
+        thirdValue = ((List<?>) thirdValue).get(0);
       }
       thirdValue = unboxOResult(thirdValue);
 
@@ -395,8 +394,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
    */
   private static Object unboxOResult(Object value) {
     if (value instanceof List) {
-      try (Stream stream = ((List) value).stream()) {
-        //noinspection unchecked
+      try (Stream<?> stream = ((List<?>) value).stream()) {
         return stream.map(FetchFromIndexStep::unboxOResult).collect(Collectors.toList());
       }
     }
@@ -425,12 +423,12 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     Object value = nextElementInKey.execute(new OResultInternal(), ctx);
     if (value instanceof Iterable && !(value instanceof OIdentifiable)) {
       List<OCollection> result = new ArrayList<>();
-      for (Object elemInKey : (Collection) value) {
+      for (Object elemInKey : (Collection<?>) value) {
         OCollection newHead = new OCollection(-1);
         for (OExpression exp : head.getExpressions()) {
           newHead.add(exp.copy());
         }
-        newHead.add(toExpression(elemInKey, ctx));
+        newHead.add(toExpression(elemInKey));
         OCollection tail = key.copy();
         tail.getExpressions().remove(0);
         result.addAll(cartesianProduct(newHead, tail, ctx));
@@ -448,7 +446,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     }
   }
 
-  private static OExpression toExpression(Object value, OCommandContext ctx) {
+  private static OExpression toExpression(Object value) {
     return new OValueExpression(value);
   }
 
@@ -549,14 +547,14 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     }
     Object rightValue = ((OBinaryCondition) condition).getRight().execute((OResult) null, ctx);
     Stream<ORawPair<Object, ORID>> stream =
-        createCursor(index, operator, definition, rightValue, ctx, isOrderAsc, condition);
+        createCursor(index, operator, definition, rightValue, isOrderAsc, condition);
     acquiredStreams.add(stream);
     return acquiredStreams;
   }
 
-  private static Collection toIndexKey(OIndexDefinition definition, Object rightValue) {
+  private static Collection<?> toIndexKey(OIndexDefinition definition, Object rightValue) {
     if (definition.getFields().size() == 1 && rightValue instanceof Collection) {
-      rightValue = ((Collection) rightValue).iterator().next();
+      rightValue = ((Collection<?>) rightValue).iterator().next();
     }
     if (rightValue instanceof List) {
       rightValue = definition.createValue((List<?>) rightValue);
@@ -566,20 +564,20 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     if (!(rightValue instanceof Collection)) {
       rightValue = Collections.singleton(rightValue);
     }
-    return (Collection) rightValue;
+    return (Collection<?>) rightValue;
   }
 
   private static Object toBetweenIndexKey(OIndexDefinition definition, Object rightValue) {
     if (definition.getFields().size() == 1 && rightValue instanceof Collection) {
-      if (((Collection) rightValue).size() > 0) {
-        rightValue = ((Collection) rightValue).iterator().next();
+      if (!((Collection<?>) rightValue).isEmpty()) {
+        rightValue = ((Collection<?>) rightValue).iterator().next();
       } else {
         rightValue = null;
       }
     }
 
     if (rightValue instanceof Collection) {
-      rightValue = definition.createValue(((Collection) rightValue).toArray());
+      rightValue = definition.createValue(((Collection<?>) rightValue).toArray());
     } else {
       rightValue = definition.createValue(rightValue);
     }
@@ -592,7 +590,6 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
       OBinaryCompareOperator operator,
       OIndexDefinition definition,
       Object value,
-      OCommandContext ctx,
       boolean orderAsc,
       OBooleanExpression condition) {
     if (operator instanceof OEqualsCompareOperator

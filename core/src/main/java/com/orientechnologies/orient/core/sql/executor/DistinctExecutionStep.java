@@ -13,7 +13,7 @@ import java.util.Set;
 /** Created by luigidellaquila on 08/07/16. */
 public class DistinctExecutionStep extends AbstractExecutionStep {
 
-  private long maxElementsAllowed;
+  private final long maxElementsAllowed;
 
   public DistinctExecutionStep(OCommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
@@ -28,15 +28,15 @@ public class DistinctExecutionStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    OExecutionStream resultSet = prev.get().start(ctx);
+    assert prev != null;
+    OExecutionStream resultSet = prev.start(ctx);
     Set<OResult> pastItems = new HashSet<>();
     ORidSet pastRids = new ORidSet();
 
-    return resultSet.filter((result, context) -> filterMap(context, result, pastRids, pastItems));
+    return resultSet.filter((result, context) -> filterMap(result, pastRids, pastItems));
   }
 
-  private OResult filterMap(
-      OCommandContext ctx, OResult result, Set<ORID> pastRids, Set<OResult> pastItems) {
+  private OResult filterMap(OResult result, Set<ORID> pastRids, Set<OResult> pastItems) {
     if (alreadyVisited(result, pastRids, pastItems)) {
       return null;
     } else {
@@ -47,7 +47,7 @@ public class DistinctExecutionStep extends AbstractExecutionStep {
 
   private void markAsVisited(OResult nextValue, Set<ORID> pastRids, Set<OResult> pastItems) {
     if (nextValue.isElement()) {
-      ORID identity = nextValue.getElement().get().getIdentity();
+      ORID identity = nextValue.toElement().getIdentity();
       int cluster = identity.getClusterId();
       long pos = identity.getClusterPosition();
       if (cluster >= 0 && pos >= 0) {
@@ -69,7 +69,7 @@ public class DistinctExecutionStep extends AbstractExecutionStep {
 
   private boolean alreadyVisited(OResult nextValue, Set<ORID> pastRids, Set<OResult> pastItems) {
     if (nextValue.isElement()) {
-      ORID identity = nextValue.getElement().get().getIdentity();
+      ORID identity = nextValue.toElement().getIdentity();
       int cluster = identity.getClusterId();
       long pos = identity.getClusterPosition();
       if (cluster >= 0 && pos >= 0) {
@@ -84,7 +84,9 @@ public class DistinctExecutionStep extends AbstractExecutionStep {
 
   @Override
   public void close() {
-    prev.ifPresent(x -> x.close());
+    if (prev != null) {
+      prev.close();
+    }
   }
 
   @Override

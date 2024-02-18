@@ -18,7 +18,8 @@ public class UpdateRemoveStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    OExecutionStream upstream = getPrev().get().start(ctx);
+    assert prev != null;
+    OExecutionStream upstream = prev.start(ctx);
     return upstream.map(this::mapResult);
   }
 
@@ -37,11 +38,8 @@ public class UpdateRemoveStep extends AbstractExecutionStep {
     StringBuilder result = new StringBuilder();
     result.append(spaces);
     result.append("+ UPDATE REMOVE");
-    for (int i = 0; i < items.size(); i++) {
-      OUpdateRemoveItem item = items.get(i);
-      if (i < items.size()) {
-        result.append("\n");
-      }
+    for (OUpdateRemoveItem item : items) {
+      result.append("\n");
       result.append(spaces);
       result.append("  ");
       result.append(item.toString());

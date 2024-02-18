@@ -154,9 +154,6 @@ public class OServerCommandGetGephi extends OServerCommandAuthenticatedDbAbstrac
 
       // ADD ALL THE PROPERTIES
       for (String field : vertex.getPropertyNames()) {
-
-        if (field.startsWith("in_") || field.startsWith("out_")) continue;
-
         final Object v = vertex.getProperty(field);
         if (v != null) {
           json.writeAttribute(3, false, field, v);
@@ -176,12 +173,10 @@ public class OServerCommandGetGephi extends OServerCommandAuthenticatedDbAbstrac
       json.beginObject(2, false, edge.getIdentity());
       json.writeAttribute(3, false, "directed", false);
 
-      json.writeAttribute(3, false, "source", edge.getTo().getIdentity());
-      json.writeAttribute(3, false, "target", edge.getFrom().getIdentity());
+      json.writeAttribute(3, false, "source", edge.getToIdentifiable());
+      json.writeAttribute(3, false, "target", edge.getFromIdentifiable());
 
       for (String field : edge.getPropertyNames()) {
-        if ("in".equalsIgnoreCase(field) || "out".equalsIgnoreCase(field)) continue;
-
         final Object v = edge.getProperty(field);
 
         if (v != null) {

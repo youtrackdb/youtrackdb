@@ -1145,7 +1145,9 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       0,
       new OProfileDumpIntervalChangeCallback()),
 
-  /** @Since 2.2.27 */
+  /**
+   * @Since 2.2.27
+   */
   PROFILER_AUTODUMP_TYPE(
       "profiler.autoDump.type",
       "Type of profiler dump between 'full' or 'performance'",
@@ -1444,7 +1446,9 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       false),
 
   // DISTRIBUTED
-  /** @Since 2.2.18 */
+  /**
+   * @Since 2.2.18
+   */
   DISTRIBUTED_DUMP_STATS_EVERY(
       "distributed.dumpStatsEvery",
       "Time in ms to dump the cluster stats. Set to 0 to disable such dump",
@@ -1530,7 +1534,9 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       Long.class,
       15000l),
 
-  /** @Since 2.2.7 */
+  /**
+   * @Since 2.2.7
+   */
   DISTRIBUTED_TX_EXPIRE_TIMEOUT(
       "distributed.txAliveTimeout",
       "Maximum timeout (in ms) a distributed transaction can be alive. This timeout is to rollback"
@@ -1539,21 +1545,27 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       1800000l,
       true),
 
-  /** @Since 2.2.6 */
+  /**
+   * @Since 2.2.6
+   */
   DISTRIBUTED_REQUEST_CHANNELS(
       "distributed.requestChannels",
       "Number of network channels used to send requests",
       Integer.class,
       1),
 
-  /** @Since 2.2.6 */
+  /**
+   * @Since 2.2.6
+   */
   DISTRIBUTED_RESPONSE_CHANNELS(
       "distributed.responseChannels",
       "Number of network channels used to send responses",
       Integer.class,
       1),
 
-  /** @Since 2.2.5 */
+  /**
+   * @Since 2.2.5
+   */
   DISTRIBUTED_HEARTBEAT_TIMEOUT(
       "distributed.heartbeatTimeout",
       "Maximum time in ms to wait for the heartbeat. If the server does not respond in time, it is"
@@ -1561,14 +1573,18 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       Long.class,
       10000l),
 
-  /** @Since 2.2.5 */
+  /**
+   * @Since 2.2.5
+   */
   DISTRIBUTED_CHECK_HEALTH_CAN_OFFLINE_SERVER(
       "distributed.checkHealthCanOfflineServer",
       "In case a server does not respond to the heartbeat message, it is set offline",
       Boolean.class,
       false),
 
-  /** @Since 2.2.5 */
+  /**
+   * @Since 2.2.5
+   */
   DISTRIBUTED_CHECK_HEALTH_EVERY(
       "distributed.checkHealthEvery",
       "Time in ms to check the cluster health. Set to 0 to disable it",
@@ -1585,7 +1601,9 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       0,
       true),
 
-  /** @Since 2.2.0 */
+  /**
+   * @Since 2.2.0
+   */
   DISTRIBUTED_PUBLISH_NODE_STATUS_EVERY(
       "distributed.publishNodeStatusEvery",
       "Time in ms to publish the node status on distributed map. Set to 0 to disable such refresh"
@@ -1594,7 +1612,9 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       10000l,
       true),
 
-  /** @Since 2.2.0 */
+  /**
+   * @Since 2.2.0
+   */
   DISTRIBUTED_REPLICATION_PROTOCOL_VERSION(
       "distributed.replicationProtocol.version",
       "1 for legacy replication model (v 3.0 and previous), 2 for coordinated replication (v 3.1"
@@ -1603,7 +1623,9 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       1,
       true),
 
-  /** @Since 2.2.0 */
+  /**
+   * @Since 2.2.0
+   */
   @OApi(maturity = OApi.MATURITY.NEW)
   DISTRIBUTED_LOCAL_QUEUESIZE(
       "distributed.localQueueSize",
@@ -1611,7 +1633,9 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       Integer.class,
       10000),
 
-  /** @Since 2.2.0 */
+  /**
+   * @Since 2.2.0
+   */
   @OApi(maturity = OApi.MATURITY.NEW)
   DISTRIBUTED_DB_WORKERTHREADS(
       "distributed.dbWorkerThreads",
@@ -1620,7 +1644,9 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       Integer.class,
       0),
 
-  /** @Since 2.1.3 */
+  /**
+   * @Since 2.1.3
+   */
   @OApi(maturity = OApi.MATURITY.NEW)
   DISTRIBUTED_BACKUP_DIRECTORY(
       "distributed.backupDirectory",
@@ -1629,7 +1655,9 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       String.class,
       "../backup/databases"),
 
-  /** @Since 2.2.15 */
+  /**
+   * @Since 2.2.15
+   */
   @OApi(maturity = OApi.MATURITY.NEW)
   @Deprecated
   DISTRIBUTED_BACKUP_TRY_INCREMENTAL_FIRST(
@@ -1638,7 +1666,9 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       Boolean.class,
       true),
 
-  /** @Since 2.1 */
+  /**
+   * @Since 2.1
+   */
   @OApi(maturity = OApi.MATURITY.NEW)
   DISTRIBUTED_CONCURRENT_TX_MAX_AUTORETRY(
       "distributed.concurrentTxMaxAutoRetry",
@@ -1648,7 +1678,9 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       15,
       true),
 
-  /** @Since 2.2.7 */
+  /**
+   * @Since 2.2.7
+   */
   @OApi(maturity = OApi.MATURITY.NEW)
   DISTRIBUTED_ATOMIC_LOCK_TIMEOUT(
       "distributed.atomicLockTimeout",
@@ -1657,7 +1689,9 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       100,
       true),
 
-  /** @Since 2.1 */
+  /**
+   * @Since 2.1
+   */
   @OApi(maturity = OApi.MATURITY.NEW)
   DISTRIBUTED_CONCURRENT_TX_AUTORETRY_DELAY(
       "distributed.concurrentTxAutoRetryDelay",
@@ -1681,17 +1715,23 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       String.class,
       ORecordSerializerBinary.NAME),
 
-  /** @Since 2.2 */
+  /**
+   * @Since 2.2
+   */
   @OApi(maturity = OApi.MATURITY.NEW)
   CLIENT_KRB5_CONFIG(
       "client.krb5.config", "Location of the Kerberos configuration file", String.class, null),
 
-  /** @Since 2.2 */
+  /**
+   * @Since 2.2
+   */
   @OApi(maturity = OApi.MATURITY.NEW)
   CLIENT_KRB5_CCNAME(
       "client.krb5.ccname", "Location of the Kerberos client ticketcache", String.class, null),
 
-  /** @Since 2.2 */
+  /**
+   * @Since 2.2
+   */
   @OApi(maturity = OApi.MATURITY.NEW)
   CLIENT_KRB5_KTNAME(
       "client.krb5.ktname", "Location of the Kerberos client keytab", String.class, null),
@@ -1711,7 +1751,9 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       Boolean.class,
       true),
 
-  /** @Since 2.2 */
+  /**
+   * @Since 2.2
+   */
   @OApi(maturity = OApi.MATURITY.NEW)
   CLIENT_CREDENTIAL_INTERCEPTOR(
       "client.credentialinterceptor",
@@ -1749,7 +1791,9 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       false,
       true),
 
-  /** @Since 2.2 */
+  /**
+   * @Since 2.2
+   */
   @OApi(maturity = OApi.MATURITY.NEW)
   CREATE_DEFAULT_USERS(
       "security.createDefaultUsers",
@@ -1761,7 +1805,9 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       "Indicates whether access with default users should show a warning",
       Boolean.class,
       true),
-  /** @Since 2.2 */
+  /**
+   * @Since 2.2
+   */
   @OApi(maturity = OApi.MATURITY.NEW)
   SERVER_SECURITY_FILE(
       "server.security.file",
@@ -1890,12 +1936,16 @@ public enum OGlobalConfiguration { // ENVIRONMENT
   AUTO_CLOSE_DELAY(
       "storage.autoCloseDelay", "Storage auto close delay time in minutes", Integer.class, 20),
 
-  /** @Since 3.1 */
+  /**
+   * @Since 3.1
+   */
   @OApi(maturity = OApi.MATURITY.NEW)
   DISTRIBUTED(
       "distributed", "Enable the clustering mode", Boolean.class, false, false, false, true),
 
-  /** @Since 3.1 */
+  /**
+   * @Since 3.1
+   */
   @OApi(maturity = OApi.MATURITY.NEW)
   DISTRIBUTED_NODE_NAME(
       "distributed.nodeName",

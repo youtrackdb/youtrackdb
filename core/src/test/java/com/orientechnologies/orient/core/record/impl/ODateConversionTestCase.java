@@ -89,8 +89,8 @@ public class ODateConversionTestCase {
 
         ODocument doc = new ODocument();
 
-        doc.field("dateTime", date);
-        String formatted = doc.field("dateTime.format('yyyy-MM-dd')");
+        doc.setProperty("dateTime", date);
+        String formatted = doc.eval("dateTime.format('yyyy-MM-dd')").toString();
 
         Assert.assertEquals("2016-08-31", formatted);
       }

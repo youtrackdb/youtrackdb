@@ -27,6 +27,8 @@ import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.id.OEmptyRecordId;
+import com.orientechnologies.orient.core.id.OImmutableRecordId;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.impl.ODirtyManager;
@@ -422,7 +424,7 @@ public abstract class ORecordAbstract implements ORecord {
   }
 
   protected ORecordAbstract setIdentity(final int iClusterId, final long iClusterPosition) {
-    if (recordId == null || recordId == ORecordId.EMPTY_RECORD_ID)
+    if (recordId == null || recordId == OImmutableRecordId.EMPTY_RECORD_ID)
       recordId = new ORecordId(iClusterId, iClusterPosition);
     else {
       recordId.setClusterId(iClusterId);
@@ -460,10 +462,6 @@ public abstract class ORecordAbstract implements ORecord {
     return ODatabaseRecordThreadLocal.instance().getIfDefined();
   }
 
-  protected <RET extends ORecord> RET flatCopy() {
-    return copy();
-  }
-
   protected void addIdentityChangeListener(OIdentityChangeListener identityChangeListener) {
     if (newIdentityChangeListeners == null)
       newIdentityChangeListeners =
@@ -477,7 +475,7 @@ public abstract class ORecordAbstract implements ORecord {
   }
 
   protected void setup(ODatabaseDocumentInternal db) {
-    if (recordId == null) recordId = new ORecordId();
+    if (recordId == null) recordId = new OEmptyRecordId();
   }
 
   protected void checkForLoading() {

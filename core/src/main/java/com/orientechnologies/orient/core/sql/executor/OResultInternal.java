@@ -14,6 +14,7 @@ import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.record.impl.OBlob;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.OElementInternal;
 import com.orientechnologies.orient.core.serialization.OSerializableStream;
 import java.io.Serializable;
 import java.util.Collection;
@@ -26,6 +27,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 
 /** Created by luigidellaquila on 06/07/16. */
 public class OResultInternal implements OResult {
@@ -56,6 +58,16 @@ public class OResultInternal implements OResult {
     } else {
       content.put(name, value);
     }
+  }
+
+  @Nullable
+  @Override
+  public ORID getRecordId() {
+    if (element == null) {
+      return null;
+    }
+
+    return element.getIdentity();
   }
 
   private void checkType(Object value) {
@@ -211,11 +223,10 @@ public class OResultInternal implements OResult {
   }
 
   private static Object wrap(Object input) {
-    if (input instanceof OElement && !((OElement) input).getIdentity().isValid()) {
+    if (input instanceof OElementInternal elem && !((OElement) input).getIdentity().isValid()) {
       OResultInternal result = new OResultInternal();
-      OElement elem = (OElement) input;
-      for (String prop : elem.getPropertyNames()) {
-        result.setProperty(prop, elem.getProperty(prop));
+      for (String prop : elem.getPropertyNamesWithoutFiltration()) {
+        result.setProperty(prop, elem.getPropertyWithoutValidation(prop));
       }
       elem.getSchemaType().ifPresent(x -> result.setProperty("@class", x.getName()));
       return result;

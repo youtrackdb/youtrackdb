@@ -56,7 +56,7 @@ public class OSQLMethodFormat extends OAbstractSQLMethod {
     if (v != null) {
       if (isCollectionOfDates(ioResult)) {
         List<String> result = new ArrayList<String>();
-        Iterator<Object> iterator = OMultiValue.getMultiValueIterator(ioResult);
+        Iterator<?> iterator = OMultiValue.getMultiValueIterator(ioResult);
         final SimpleDateFormat format = new SimpleDateFormat(v.toString());
         if (iParams.length > 1) {
           format.setTimeZone(TimeZone.getTimeZone(iParams[1].toString()));
@@ -85,7 +85,7 @@ public class OSQLMethodFormat extends OAbstractSQLMethod {
 
   private boolean isCollectionOfDates(Object ioResult) {
     if (OMultiValue.isMultiValue(ioResult)) {
-      Iterator<Object> iterator = OMultiValue.getMultiValueIterator(ioResult);
+      Iterator<?> iterator = OMultiValue.getMultiValueIterator(ioResult);
       while (iterator.hasNext()) {
         Object item = iterator.next();
         if (item != null && !(item instanceof Date)) {

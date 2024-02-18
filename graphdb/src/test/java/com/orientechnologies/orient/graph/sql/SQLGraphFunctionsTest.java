@@ -15,16 +15,17 @@
  */
 package com.orientechnologies.orient.graph.sql;
 
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.sql.OCommandSQL;
+import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.record.OElement;
+import com.orientechnologies.orient.core.record.OVertex;
+import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
-import com.orientechnologies.orient.graph.gremlin.OGremlinHelper;
-import com.tinkerpop.blueprints.impls.orient.OrientEdge;
 import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 import com.tinkerpop.blueprints.impls.orient.OrientVertex;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -93,57 +94,50 @@ public class SQLGraphFunctionsTest {
   }
 
   @Test
-  public void testGremlinTraversal() {
-    OGremlinHelper.global().create();
+  public void testTraversal() {
+    try (OrientDB orientDB = new OrientDB("memory:", OrientDBConfig.defaultConfig())) {
+      orientDB.execute(
+          "create database "
+              + SQLGraphFunctionsTest.class.getSimpleName()
+              + " memory users ( admin identified by 'admin' role admin)");
+      try (var session =
+          orientDB.open(SQLGraphFunctionsTest.class.getSimpleName(), "admin", "admin")) {
+        session.createVertexClass("tc1");
+        session.createEdgeClass("edge1");
 
-    graph.setAutoStartTx(false);
-    graph.commit();
+        session.begin();
 
-    graph.sqlCommand("create class tc1 extends V clusters 1").close();
-    graph.sqlCommand("create class edge1 extends E clusters 1").close();
+        OVertex v1 =
+            session.command("create vertex tc1 SET id='1', name='name1'").next().getVertex().get();
 
-    graph.setAutoStartTx(true);
+        OVertex v2 =
+            session.command("create vertex tc1 SET id='2', name='name2'").next().getVertex().get();
 
-    OrientVertex v1 =
-        graph.command(new OCommandSQL("create vertex tc1 SET id='1', name='name1'")).execute();
-    OrientVertex v2 =
-        graph.command(new OCommandSQL("create vertex tc1 SET id='2', name='name2'")).execute();
+        session.commit();
 
-    graph.commit();
+        Iterator<OResult> e =
+            session
+                .command(
+                    "create edge edge1 from "
+                        + v1.getIdentity()
+                        + " to "
+                        + v2.getIdentity()
+                        + " set f='fieldValue';")
+                .stream()
+                .iterator();
+        session.commit();
 
-    int tc1Id = graph.getRawGraph().getClusterIdByName("tc1");
-    int edge1Id = graph.getRawGraph().getClusterIdByName("edge1");
+        List<OElement> result =
+            session.query("select outE() from tc1").stream().map(OResult::toElement).toList();
 
-    Iterable<OrientEdge> e =
-        graph
-            .command(
-                new OCommandSQL(
-                    "create edge edge1 from #"
-                        + tc1Id
-                        + ":0 to #"
-                        + tc1Id
-                        + ":1 set f='fieldValue';"))
-            .execute();
-    graph.commit();
+        Assert.assertEquals(2, result.size());
 
-    List<ODocument> result =
-        graph
-            .getRawGraph()
-            .query(new OSQLSynchQuery<ODocument>("select gremlin('current.outE') from tc1"));
-
-    Assert.assertEquals(2, result.size());
-
-    ODocument firstItem = result.get(0);
-    List<OrientEdge> firstResult = firstItem.field("gremlin");
-
-    Assert.assertEquals(1, firstResult.size());
-    OrientEdge edge = firstResult.get(0);
-    Assert.assertEquals(new ORecordId(edge1Id, 0), (ORID) edge.getId());
-
-    ODocument secondItem = result.get(1);
-    List<OrientEdge> secondResult = secondItem.field("gremlin");
-    Assert.assertTrue(secondResult.isEmpty());
-
-    OGremlinHelper.global().destroy();
+        var edgeId = e.next().toElement().getIdentity();
+        Assert.assertEquals(1, result.get(0).<Collection<?>>getProperty("outE()").size());
+        Assert.assertEquals(
+            edgeId, result.get(0).<Collection<?>>getProperty("outE()").iterator().next());
+        Assert.assertTrue(result.get(1).<Collection<?>>getProperty("outE()").isEmpty());
+      }
+    }
   }
 }

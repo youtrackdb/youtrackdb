@@ -94,14 +94,6 @@ public class OClassIndexManager {
     processIndexOnDelete(database, iDocument);
   }
 
-  protected static void putInIndex(OIndex index, Object key, OIdentifiable value) {
-    index.put(key, value);
-  }
-
-  protected static void removeFromIndex(OIndex index, Object key, OIdentifiable value) {
-    index.remove(key, value);
-  }
-
   private static void processCompositeIndexUpdate(
       final OIndex index, final Set<String> dirtyFields, final ODocument iRecord) {
     final OCompositeIndexDefinition indexDefinition =

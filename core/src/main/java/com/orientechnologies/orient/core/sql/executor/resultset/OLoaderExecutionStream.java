@@ -10,9 +10,9 @@ import java.util.Iterator;
 
 public final class OLoaderExecutionStream implements OExecutionStream {
   private OResult nextResult = null;
-  private final Iterator<OIdentifiable> iterator;
+  private final Iterator<? extends OIdentifiable> iterator;
 
-  public OLoaderExecutionStream(Iterator<OIdentifiable> iterator) {
+  public OLoaderExecutionStream(Iterator<? extends OIdentifiable> iterator) {
     this.iterator = iterator;
   }
 

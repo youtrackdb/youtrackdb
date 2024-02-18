@@ -339,16 +339,16 @@ public class OMultiValue {
    *
    * @param iObject Multi-value object (array, collection or map)
    */
-  public static Iterator<Object> getMultiValueIterator(final Object iObject) {
+  public static Iterator<?> getMultiValueIterator(final Object iObject) {
     if (iObject == null) return null;
 
     if (iObject instanceof Iterator<?>) return (Iterator<Object>) iObject;
 
     if (iObject instanceof Iterable<?>) return ((Iterable<Object>) iObject).iterator();
     if (iObject instanceof Map<?, ?>) return ((Map<?, Object>) iObject).values().iterator();
-    if (iObject.getClass().isArray()) return new OIterableObjectArray<Object>(iObject).iterator();
+    if (iObject.getClass().isArray()) return new OIterableObjectArray<>(iObject).iterator();
 
-    return new OIterableObject<Object>(iObject);
+    return new OIterableObject<>(iObject);
   }
 
   /**

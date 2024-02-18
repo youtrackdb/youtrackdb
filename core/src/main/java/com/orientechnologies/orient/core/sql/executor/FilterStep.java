@@ -22,11 +22,11 @@ public class FilterStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    if (!prev.isPresent()) {
+    if (prev == null) {
       throw new IllegalStateException("filter step requires a previous step");
     }
 
-    OExecutionStream resultSet = prev.get().start(ctx);
+    OExecutionStream resultSet = prev.start(ctx);
     resultSet = resultSet.filter(this::filterMap);
     if (timeoutMillis > 0) {
       resultSet = new OExpireResultSet(resultSet, timeoutMillis, this::sendTimeout);
@@ -44,9 +44,9 @@ public class FilterStep extends AbstractExecutionStep {
   @Override
   public String prettyPrint(int depth, int indent) {
     StringBuilder result = new StringBuilder();
-    result.append(OExecutionStepInternal.getIndent(depth, indent) + "+ FILTER ITEMS WHERE ");
+    result.append(OExecutionStepInternal.getIndent(depth, indent)).append("+ FILTER ITEMS WHERE ");
     if (profilingEnabled) {
-      result.append(" (" + getCostFormatted() + ")");
+      result.append(" (").append(getCostFormatted()).append(")");
     }
     result.append("\n");
     result.append(OExecutionStepInternal.getIndent(depth, indent));

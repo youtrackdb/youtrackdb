@@ -76,8 +76,7 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
     clusterIds[clusterIds.length - 1] = -1; // temporary cluster, data in tx
 
     sortClusers(clusterIds);
-    for (int i = 0; i < clusterIds.length; i++) {
-      int clusterId = clusterIds[i];
+    for (int clusterId : clusterIds) {
       if (clusterId > 0) {
         FetchFromClusterExecutionStep step =
             new FetchFromClusterExecutionStep(clusterId, planningInfo, ctx, profilingEnabled);
@@ -129,7 +128,9 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    getPrev().ifPresent(x -> x.start(ctx).close(ctx));
+    if (prev != null) {
+      prev.start(ctx).close(ctx);
+    }
 
     Iterator<OExecutionStream> substeps =
         getSubSteps().stream().map((step) -> ((AbstractExecutionStep) step).start(ctx)).iterator();
@@ -146,7 +147,9 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
     for (OExecutionStep step : getSubSteps()) {
       ((AbstractExecutionStep) step).sendTimeout();
     }
-    prev.ifPresent(p -> p.sendTimeout());
+    if (prev != null) {
+      prev.sendTimeout();
+    }
   }
 
   @Override
@@ -154,7 +157,9 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
     for (OExecutionStep step : getSubSteps()) {
       ((AbstractExecutionStep) step).close();
     }
-    prev.ifPresent(p -> p.close());
+    if (prev != null) {
+      prev.close();
+    }
   }
 
   @Override
@@ -162,9 +167,9 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
     StringBuilder builder = new StringBuilder();
     String ind = OExecutionStepInternal.getIndent(depth, indent);
     builder.append(ind);
-    builder.append("+ FETCH FROM CLASS " + className);
+    builder.append("+ FETCH FROM CLASS ").append(className);
     if (profilingEnabled) {
-      builder.append(" (" + getCostFormatted() + ")");
+      builder.append(" (").append(getCostFormatted()).append(")");
     }
     builder.append("\n");
     for (int i = 0; i < getSubSteps().size(); i++) {

@@ -3,12 +3,10 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,8 +22,10 @@ public class FetchFromRidsStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    getPrev().ifPresent(x -> x.start(ctx).close(ctx));
-    return OExecutionStream.loadIterator((Iterator<OIdentifiable>) (Iterator) this.rids.iterator());
+    if (prev != null) {
+      prev.start(ctx).close(ctx);
+    }
+    return OExecutionStream.loadIterator(this.rids.iterator());
   }
 
   @Override
@@ -41,7 +41,8 @@ public class FetchFromRidsStep extends AbstractExecutionStep {
   public OResult serialize() {
     OResultInternal result = OExecutionStepInternal.basicSerialize(this);
     if (rids != null) {
-      result.setProperty("rids", rids.stream().map(x -> x.toString()).collect(Collectors.toList()));
+      result.setProperty(
+          "rids", rids.stream().map(ORecordId::toString).collect(Collectors.toList()));
     }
     return result;
   }
@@ -52,7 +53,7 @@ public class FetchFromRidsStep extends AbstractExecutionStep {
       OExecutionStepInternal.basicDeserialize(fromResult, this);
       if (fromResult.getProperty("rids") != null) {
         List<String> ser = fromResult.getProperty("rids");
-        rids = ser.stream().map(x -> new ORecordId(x)).collect(Collectors.toList());
+        rids = ser.stream().map(ORecordId::new).collect(Collectors.toList());
       }
       reset();
     } catch (Exception e) {

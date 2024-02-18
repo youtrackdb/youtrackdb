@@ -41,13 +41,14 @@ public class AggregateProjectionCalculationStep extends ProjectionCalculationSte
 
   private List<OResult> executeAggregation(OCommandContext ctx) {
     long timeoutBegin = System.currentTimeMillis();
-    if (!prev.isPresent()) {
+    if (prev == null) {
       throw new OCommandExecutionException(
           "Cannot execute an aggregation or a GROUP BY without a previous result");
     }
-    OExecutionStepInternal prevStep = prev.get();
+
+    OExecutionStepInternal prevStep = prev;
     OExecutionStream lastRs = prevStep.start(ctx);
-    Map<List, OResultInternal> aggregateResults = new LinkedHashMap<>();
+    Map<List<?>, OResultInternal> aggregateResults = new LinkedHashMap<>();
     while (lastRs.hasNext(ctx)) {
       if (timeoutMillis > 0 && timeoutBegin + timeoutMillis < System.currentTimeMillis()) {
         sendTimeout();
@@ -55,8 +56,7 @@ public class AggregateProjectionCalculationStep extends ProjectionCalculationSte
       aggregate(lastRs.next(ctx), ctx, aggregateResults);
     }
     lastRs.close(ctx);
-    List<OResult> finalResults = new ArrayList<>();
-    finalResults.addAll(aggregateResults.values());
+    List<OResult> finalResults = new ArrayList<>(aggregateResults.values());
     aggregateResults.clear();
     for (OResult ele : finalResults) {
       OResultInternal item = (OResultInternal) ele;
@@ -74,7 +74,7 @@ public class AggregateProjectionCalculationStep extends ProjectionCalculationSte
   }
 
   private void aggregate(
-      OResult next, OCommandContext ctx, Map<List, OResultInternal> aggregateResults) {
+      OResult next, OCommandContext ctx, Map<List<?>, OResultInternal> aggregateResults) {
     List<Object> key = new ArrayList<>();
     if (groupBy != null) {
       for (OExpression item : groupBy.getItems()) {
@@ -123,7 +123,6 @@ public class AggregateProjectionCalculationStep extends ProjectionCalculationSte
             + spaces
             + "      "
             + projection.toString()
-            + ""
             + (groupBy == null ? "" : (spaces + "\n  " + groupBy.toString()));
     return result;
   }

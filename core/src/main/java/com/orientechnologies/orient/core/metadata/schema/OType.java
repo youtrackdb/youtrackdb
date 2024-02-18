@@ -37,6 +37,7 @@ import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.OElementInternal;
 import com.orientechnologies.orient.core.serialization.ODocumentSerializable;
 import com.orientechnologies.orient.core.serialization.OSerializableStream;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
@@ -517,12 +518,16 @@ public enum OType {
             ((OResult) iValue).getProperty(((OResult) iValue).getPropertyNames().iterator().next()),
             iTargetClass);
       } else if (iValue instanceof OElement
-          && ((OElement) iValue).getPropertyNames().size() == 1
+          && ((OElementInternal) iValue).getPropertyNamesWithoutFiltration().size() == 1
           && !OElement.class.isAssignableFrom(iTargetClass)) {
         // try to unbox OResult with a single property, for subqueries
         return convert(
             ((OElement) iValue)
-                .getProperty(((OElement) iValue).getPropertyNames().iterator().next()),
+                .getProperty(
+                    ((OElementInternal) iValue)
+                        .getPropertyNamesWithoutFiltration()
+                        .iterator()
+                        .next()),
             iTargetClass);
       }
 

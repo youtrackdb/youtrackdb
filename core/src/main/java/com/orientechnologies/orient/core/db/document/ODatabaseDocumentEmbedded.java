@@ -94,7 +94,7 @@ import com.orientechnologies.orient.core.record.ORecordVersionHelper;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.record.impl.OEdgeDocument;
-import com.orientechnologies.orient.core.record.impl.OVertexDocument;
+import com.orientechnologies.orient.core.record.impl.OVertexInternal;
 import com.orientechnologies.orient.core.schedule.OScheduledEvent;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializerFactory;
@@ -1043,7 +1043,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
 
     if (record instanceof OElement) {
       if (((OElement) record).isVertex()) {
-        OVertexDocument.deleteLinks(((OElement) record).asVertex().get());
+        OVertexInternal.deleteLinks(((OElement) record).asVertex().get());
       } else if (((OElement) record).isEdge()) {
         OEdgeDocument.deleteLinks(((OElement) record).asEdge().get());
       }
@@ -1379,7 +1379,6 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
                   "You use deprecated record locking strategy: %s it may lead to deadlocks "
                       + lockingStrategy);
           record.lock(false);
-
         } else if (lockingStrategy == OStorage.LOCKING_STRATEGY.KEEP_EXCLUSIVE_LOCK) {
           OLogManager.instance()
               .warn(

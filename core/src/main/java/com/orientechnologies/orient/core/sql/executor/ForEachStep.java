@@ -34,9 +34,11 @@ public class ForEachStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    OExecutionStream prevStream = prev.get().start(ctx);
+    assert prev != null;
+
+    OExecutionStream prevStream = prev.start(ctx);
     prevStream.close(ctx);
-    Iterator<Object> iterator = init(ctx);
+    Iterator<?> iterator = init(ctx);
     while (iterator.hasNext()) {
       ctx.setVariable(loopVariable.getStringValue(), iterator.next());
       OScriptExecutionPlan plan = initPlan(ctx);
@@ -49,7 +51,7 @@ public class ForEachStep extends AbstractExecutionStep {
     return new EmptyStep(ctx, false).start(ctx);
   }
 
-  protected Iterator<Object> init(OCommandContext ctx) {
+  protected Iterator<?> init(OCommandContext ctx) {
     Object val = source.execute(new OResultInternal(), ctx);
     return OMultiValue.getMultiValueIterator(val);
   }

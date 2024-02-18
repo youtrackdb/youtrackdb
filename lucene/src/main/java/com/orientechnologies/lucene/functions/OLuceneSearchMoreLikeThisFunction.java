@@ -7,6 +7,7 @@ import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
 import com.orientechnologies.lucene.query.OLuceneKeyAndMetadata;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.id.OEmptyRecordId;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.OMetadataInternal;
@@ -95,7 +96,7 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
         ridsAsString.stream()
             .map(
                 rid -> {
-                  ORecordId recordId = new ORecordId();
+                  ORecordId recordId = new OEmptyRecordId();
 
                   recordId.fromString(rid);
                   return recordId;

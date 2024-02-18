@@ -8,7 +8,7 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OProduceExecutio
 /** Created by luigidellaquila on 08/07/16. */
 public class EmptyDataGeneratorStep extends AbstractExecutionStep {
 
-  private int size;
+  private final int size;
 
   public EmptyDataGeneratorStep(int size, OCommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
@@ -17,7 +17,10 @@ public class EmptyDataGeneratorStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    getPrev().ifPresent(x -> x.start(ctx).close(ctx));
+    if (prev != null) {
+      prev.start(ctx).close(ctx);
+    }
+
     return new OProduceExecutionStream(this::create).limit(size);
   }
 

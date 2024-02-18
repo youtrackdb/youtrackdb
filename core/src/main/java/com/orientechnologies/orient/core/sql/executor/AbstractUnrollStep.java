@@ -19,10 +19,10 @@ public abstract class AbstractUnrollStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    if (prev == null || !prev.isPresent()) {
+    if (prev == null) {
       throw new OCommandExecutionException("Cannot expand without a target");
     }
-    OExecutionStream resultSet = getPrev().get().start(ctx);
+    OExecutionStream resultSet = prev.start(ctx);
     return resultSet.flatMap(this::fetchNextResults);
   }
 

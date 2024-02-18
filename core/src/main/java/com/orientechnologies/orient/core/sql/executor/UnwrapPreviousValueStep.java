@@ -18,7 +18,9 @@ public class UnwrapPreviousValueStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    OExecutionStream upstream = prev.get().start(ctx);
+    assert prev != null;
+
+    OExecutionStream upstream = prev.start(ctx);
     return upstream.map(this::mapResult);
   }
 

@@ -268,9 +268,9 @@ public class OLiveQueryHookV2 {
   public static OResultInternal calculateBefore(
       ODocument iDocument, Set<String> projectionsToLoad) {
     OResultInternal result = new OResultInternal();
-    for (String prop : iDocument.getPropertyNames()) {
+    for (String prop : iDocument.getPropertyNamesWithoutFiltration()) {
       if (projectionsToLoad == null || projectionsToLoad.contains(prop)) {
-        result.setProperty(prop, unboxRidbags(iDocument.getProperty(prop)));
+        result.setProperty(prop, unboxRidbags(iDocument.getPropertyWithoutValidation(prop)));
       }
     }
     result.setProperty("@rid", iDocument.getIdentity());
@@ -302,9 +302,9 @@ public class OLiveQueryHookV2 {
   private static OResultInternal calculateAfter(
       ODocument iDocument, Set<String> projectionsToLoad) {
     OResultInternal result = new OResultInternal();
-    for (String prop : iDocument.getPropertyNames()) {
+    for (String prop : iDocument.getPropertyNamesWithoutFiltration()) {
       if (projectionsToLoad == null || projectionsToLoad.contains(prop)) {
-        result.setProperty(prop, unboxRidbags(iDocument.getProperty(prop)));
+        result.setProperty(prop, unboxRidbags(iDocument.getPropertyWithoutValidation(prop)));
       }
     }
     result.setProperty("@rid", iDocument.getIdentity());

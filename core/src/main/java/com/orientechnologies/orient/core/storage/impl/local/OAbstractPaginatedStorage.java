@@ -737,7 +737,9 @@ public abstract class OAbstractPaginatedStorage
     }
   }
 
-  /** @inheritDoc */
+  /**
+   * @inheritDoc
+   */
   @Override
   public final String getCreatedAtVersion() {
     return configuration.getCreatedAtVersion();
@@ -2637,6 +2639,7 @@ public abstract class OAbstractPaginatedStorage
 
   private void applyTxChanges(OTransactionIndexChangesPerKey changes, OIndexInternal index)
       throws OInvalidIndexEngineIdException {
+    assert !(changes.key instanceof ORID orid) || orid.isPersistent();
     for (OTransactionIndexChangesPerKey.OTransactionIndexEntry op :
         index.interpretTxKeyChanges(changes)) {
       switch (op.getOperation()) {
@@ -4175,7 +4178,9 @@ public abstract class OAbstractPaginatedStorage
     return "rw";
   }
 
-  /** @inheritDoc */
+  /**
+   * @inheritDoc
+   */
   @Override
   public final void pageIsBroken(final String fileName, final long pageIndex) {
     OLogManager.instance()

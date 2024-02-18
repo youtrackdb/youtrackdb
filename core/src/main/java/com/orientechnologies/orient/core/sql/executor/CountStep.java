@@ -22,7 +22,9 @@ public class CountStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    OExecutionStream prevResult = getPrev().get().start(ctx);
+    assert prev != null;
+
+    OExecutionStream prevResult = prev.start(ctx);
     long count = 0;
     while (prevResult.hasNext(ctx)) {
       count++;
@@ -41,7 +43,7 @@ public class CountStep extends AbstractExecutionStep {
     result.append(spaces);
     result.append("+ COUNT");
     if (profilingEnabled) {
-      result.append(" (" + getCostFormatted() + ")");
+      result.append(" (").append(getCostFormatted()).append(")");
     }
     return result.toString();
   }

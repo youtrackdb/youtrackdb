@@ -15,7 +15,8 @@ public class CastToVertexStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    OExecutionStream upstream = getPrev().get().start(ctx);
+    assert prev != null;
+    OExecutionStream upstream = prev.start(ctx);
     return upstream.map(this::mapResult);
   }
 
@@ -25,9 +26,9 @@ public class CastToVertexStep extends AbstractExecutionStep {
     }
     if (result.isVertex()) {
       if (result instanceof OResultInternal) {
-        ((OResultInternal) result).setElement(result.getElement().get().asVertex().get());
+        ((OResultInternal) result).setElement(result.toElement().toVertex());
       } else {
-        result = new OResultInternal(result.getElement().get().asVertex().get());
+        result = new OResultInternal(result.toElement().toVertex());
       }
     } else {
       throw new OCommandExecutionException("Current element is not a vertex: " + result);

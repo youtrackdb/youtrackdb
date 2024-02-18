@@ -28,7 +28,7 @@ public class GlobalLetQueryStep extends AbstractExecutionStep {
 
     OBasicCommandContext subCtx = new OBasicCommandContext();
     if (scriptVars != null) {
-      scriptVars.forEach(x -> subCtx.declareScriptVariable(x));
+      scriptVars.forEach(subCtx::declareScriptVariable);
     }
     subCtx.setDatabase(ctx.getDatabase());
     subCtx.setParent(ctx);
@@ -43,7 +43,10 @@ public class GlobalLetQueryStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    getPrev().ifPresent(x -> x.start(ctx).close(ctx));
+    if (prev != null) {
+      prev.start(ctx).close(ctx);
+    }
+
     calculate(ctx);
     return OExecutionStream.empty();
   }

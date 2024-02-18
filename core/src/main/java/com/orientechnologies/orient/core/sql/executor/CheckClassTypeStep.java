@@ -39,7 +39,10 @@ public class CheckClassTypeStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext context) throws OTimeoutException {
-    getPrev().ifPresent(x -> x.start(context).close(ctx));
+    if (prev != null) {
+      prev.start(context).close(ctx);
+    }
+
     if (this.targetClass.equals(this.parentClass)) {
       return OExecutionStream.empty();
     }
@@ -80,10 +83,10 @@ public class CheckClassTypeStep extends AbstractExecutionStep {
     result.append(spaces);
     result.append("+ CHECK CLASS HIERARCHY");
     if (profilingEnabled) {
-      result.append(" (" + getCostFormatted() + ")");
+      result.append(" (").append(getCostFormatted()).append(")");
     }
     result.append("\n");
-    result.append("  " + this.parentClass);
+    result.append("  ").append(this.parentClass);
     return result.toString();
   }
 

@@ -31,7 +31,9 @@ public class MatchPrefetchStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    getPrev().ifPresent(x -> x.start(ctx).close(ctx));
+    if (prev != null) {
+      prev.start(ctx).close(ctx);
+    }
 
     OExecutionStream nextBlock = prefetchExecutionPlan.start();
     List<OResult> prefetched = new ArrayList<>();
@@ -47,10 +49,10 @@ public class MatchPrefetchStep extends AbstractExecutionStep {
   @Override
   public String prettyPrint(int depth, int indent) {
     String spaces = OExecutionStepInternal.getIndent(depth, indent);
-    StringBuilder result = new StringBuilder();
-    result.append(spaces);
-    result.append("+ PREFETCH " + alias + "\n");
-    result.append(prefetchExecutionPlan.prettyPrint(depth + 1, indent));
-    return result.toString();
+    return spaces
+        + "+ PREFETCH "
+        + alias
+        + "\n"
+        + prefetchExecutionPlan.prettyPrint(depth + 1, indent);
   }
 }

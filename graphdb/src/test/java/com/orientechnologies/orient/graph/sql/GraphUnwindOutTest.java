@@ -5,7 +5,6 @@ import static org.junit.Assert.assertNotNull;
 
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
-import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.impls.orient.OrientElement;
 import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 import com.tinkerpop.blueprints.impls.orient.OrientVertex;
@@ -15,15 +14,12 @@ import org.junit.Test;
 public class GraphUnwindOutTest {
 
   @Test
-  public void testUwindLightweightEdges() {
+  public void testUwindEdges() {
     OrientGraph graph = new OrientGraph("memory:" + GraphUnwindOutTest.class.getSimpleName());
-    graph.setUseLightweightEdges(true);
     try {
 
       OrientVertexType type = graph.createVertexType("edgetest");
       graph.createEdgeType("edgetestedge");
-      type.createEdgeProperty(Direction.IN, "edgetestedge");
-      type.createEdgeProperty(Direction.OUT, "edgetestedge");
 
       OrientVertex test = graph.addVertex("class:edgetest");
       test.setProperty("ida", "parentckt1");
@@ -55,7 +51,7 @@ public class GraphUnwindOutTest {
       for (OrientElement oDocument : res) {
         assertNotNull(oDocument.getRecord().field("out_edgetestedge"));
         ODocument doc = oDocument.getRecord().field("out_edgetestedge");
-        assertEquals(doc.getClassName(), "edgetest");
+        assertEquals(doc.getClassName(), "edgetestedge");
       }
 
     } finally {

@@ -9,7 +9,7 @@ import com.orientechnologies.orient.core.sql.parser.OIdentifier;
 /** Created by luigidellaquila on 14/02/17. */
 public class MoveVertexStep extends AbstractExecutionStep {
   private String targetCluster;
-  private String targetClass;
+  private final String targetClass;
 
   public MoveVertexStep(
       OIdentifier targetClass,
@@ -28,7 +28,9 @@ public class MoveVertexStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    OExecutionStream upstream = getPrev().get().start(ctx);
+    assert prev != null;
+
+    OExecutionStream upstream = prev.start(ctx);
     return upstream.map(this::mapResult);
   }
 

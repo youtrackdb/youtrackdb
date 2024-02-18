@@ -17,14 +17,16 @@ public class UpdateMergeStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    OExecutionStream upstream = getPrev().get().start(ctx);
+    assert prev != null;
+
+    OExecutionStream upstream = prev.start(ctx);
     return upstream.map(this::mapResult);
   }
 
   private OResult mapResult(OResult result, OCommandContext ctx) {
     if (result instanceof OResultInternal) {
       if (!(result.getElement().orElse(null) instanceof ODocument)) {
-        ((OResultInternal) result).setElement(result.getElement().get().getRecord());
+        ((OResultInternal) result).setElement(result.toElement().getRecord());
       }
       if (!(result.getElement().orElse(null) instanceof ODocument)) {
         return result;
@@ -41,12 +43,6 @@ public class UpdateMergeStep extends AbstractExecutionStep {
   @Override
   public String prettyPrint(int depth, int indent) {
     String spaces = OExecutionStepInternal.getIndent(depth, indent);
-    StringBuilder result = new StringBuilder();
-    result.append(spaces);
-    result.append("+ UPDATE MERGE\n");
-    result.append(spaces);
-    result.append("  ");
-    result.append(json);
-    return result.toString();
+    return spaces + "+ UPDATE MERGE\n" + spaces + "  " + json;
   }
 }

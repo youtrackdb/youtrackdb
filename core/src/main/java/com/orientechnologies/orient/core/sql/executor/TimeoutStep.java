@@ -17,8 +17,8 @@ public class TimeoutStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    return new OExpireResultSet(
-        getPrev().get().start(ctx), timeout.getVal().longValue(), this::fail);
+    assert prev != null;
+    return new OExpireResultSet(prev.start(ctx), timeout.getVal().longValue(), this::fail);
   }
 
   private void fail() {
@@ -37,9 +37,6 @@ public class TimeoutStep extends AbstractExecutionStep {
         + timeout.getVal().toString()
         + " millis)";
   }
-
-  @Override
-  public void reset() {}
 
   @Override
   public boolean canBeCached() {

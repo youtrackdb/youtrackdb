@@ -5,15 +5,17 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.OStepStats;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.text.DecimalFormat;
-import java.util.Optional;
+import javax.annotation.Nullable;
 
-/** @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com) */
+/**
+ * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
+ */
 public abstract class AbstractExecutionStep implements OExecutionStepInternal {
 
-  protected final OCommandContext ctx;
-  protected Optional<OExecutionStepInternal> prev = Optional.empty();
-  protected Optional<OExecutionStepInternal> next = Optional.empty();
-  protected boolean profilingEnabled = false;
+  final OCommandContext ctx;
+  @Nullable protected OExecutionStepInternal prev = null;
+  @Nullable OExecutionStepInternal next = null;
+  protected boolean profilingEnabled;
 
   public AbstractExecutionStep(OCommandContext ctx, boolean profilingEnabled) {
     this.ctx = ctx;
@@ -22,33 +24,22 @@ public abstract class AbstractExecutionStep implements OExecutionStepInternal {
 
   @Override
   public void setPrevious(OExecutionStepInternal step) {
-    this.prev = Optional.ofNullable(step);
+    this.prev = step;
   }
 
   @Override
-  public void setNext(OExecutionStepInternal step) {
-    this.next = Optional.ofNullable(step);
-  }
-
-  public OCommandContext getContext() {
-    return ctx;
-  }
-
-  public Optional<OExecutionStepInternal> getPrev() {
-    return prev;
-  }
-
-  public Optional<OExecutionStepInternal> getNext() {
-    return next;
+  public void setNext(@Nullable OExecutionStepInternal step) {
+    this.next = step;
   }
 
   @Override
   public void sendTimeout() {
-    prev.ifPresent(p -> p.sendTimeout());
+    if (prev != null) {
+      prev.sendTimeout();
+    }
   }
 
   private boolean alreadyClosed = false;
-  private long baseCost = 0;
 
   @Override
   public void close() {
@@ -56,7 +47,10 @@ public abstract class AbstractExecutionStep implements OExecutionStepInternal {
       return;
     }
     alreadyClosed = true;
-    prev.ifPresent(p -> p.close());
+
+    if (prev != null) {
+      prev.close();
+    }
   }
 
   public boolean isProfilingEnabled() {
@@ -79,7 +73,6 @@ public abstract class AbstractExecutionStep implements OExecutionStepInternal {
       return internalStart(ctx);
     }
   }
-  ;
 
   protected abstract OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException;
 

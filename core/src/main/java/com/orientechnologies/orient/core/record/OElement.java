@@ -19,12 +19,16 @@
  */
 package com.orientechnologies.orient.core.record;
 
+import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import java.util.Optional;
 import java.util.Set;
+import javax.annotation.Nullable;
 
-/** @author Luigi Dell'Aquila */
+/**
+ * @author Luigi Dell'Aquila
+ */
 public interface OElement extends ORecord {
 
   /**
@@ -35,13 +39,26 @@ public interface OElement extends ORecord {
   Set<String> getPropertyNames();
 
   /**
-   * Gets a property given its name
+   * Gets a property given its name This method loads linked record automatically if you prefer to
+   * work with lazy loaded record use {@link #getLinkProperty(String)}
    *
    * @param name the property name
    * @param <RET>
    * @return Returns the property value
    */
   <RET> RET getProperty(String name);
+
+  /**
+   * This method similar to {@link #getProperty(String)} bun unlike before mentioned method it does
+   * not load link automatically.
+   *
+   * @param name the name of the link property
+   * @return the link property value, or null if the property does not exist
+   * @throws IllegalArgumentException if requested property is not a link.
+   * @see #getProperty(String)
+   */
+  @Nullable
+  OIdentifiable getLinkProperty(String name);
 
   /**
    * Check if a property exists in the Element
@@ -84,12 +101,30 @@ public interface OElement extends ORecord {
   Optional<OVertex> asVertex();
 
   /**
+   * Converts the current element to an OVertex.
+   *
+   * @return An OVertex that represents the current element. Returns null if the current element is
+   *     not a vertex.
+   */
+  @Nullable
+  OVertex toVertex();
+
+  /**
    * Returns an instance of OEdge representing current element
    *
    * @return An OEdge that represents the current element. An empty optional if the current element
    *     is not an edge
    */
   Optional<OEdge> asEdge();
+
+  /**
+   * Converts the current element to an OEdge.
+   *
+   * @return an OEdge that represents the current element. If the current element is not an edge,
+   *     returns null.
+   */
+  @Nullable
+  OEdge toEdge();
 
   /**
    * return true if the current element is a vertex
@@ -112,4 +147,30 @@ public interface OElement extends ORecord {
    *     have a schema
    */
   Optional<OClass> getSchemaType();
+
+  /**
+   * Retrieves the schema class associated with this element.
+   *
+   * @return the schema class associated with this element, or null if it does not have a schema
+   *     class
+   */
+  @Nullable
+  OClass getSchemaClass();
+
+  /**
+   * Deletes the current element from the database
+   *
+   * @return the current element
+   */
+  @Override
+  OElement delete();
+
+  /**
+   * Creates a copy of the record. All the record contents are copied.
+   *
+   * @return The Object instance itself giving a "fluent interface". Useful to call multiple methods
+   *     in chain.
+   */
+  @Override
+  OElement copy();
 }

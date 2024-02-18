@@ -16,11 +16,12 @@ public class LimitExecutionStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
+    assert prev != null;
     int limitVal = limit.getValue(ctx);
     if (limitVal == -1) {
-      return getPrev().get().start(ctx);
+      return prev.start(ctx);
     }
-    OExecutionStream result = prev.get().start(ctx);
+    OExecutionStream result = prev.start(ctx);
     return result.limit(limitVal);
   }
 
@@ -29,7 +30,9 @@ public class LimitExecutionStep extends AbstractExecutionStep {
 
   @Override
   public void close() {
-    prev.ifPresent(x -> x.close());
+    if (prev != null) {
+      prev.close();
+    }
   }
 
   @Override

@@ -258,7 +258,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       return;
     }
     final int size = OMultiValue.getSize(iRecords);
-    final Iterator<Object> it = OMultiValue.getMultiValueIterator(iRecords);
+    final Iterator<?> it = OMultiValue.getMultiValueIterator(iRecords);
 
     if (accept != null && accept.contains("text/csv")) {
       sendStream(
@@ -382,7 +382,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       String iFetchPlan,
       String iFormat,
       Map<String, Object> iAdditionalProperties,
-      Iterator<Object> it,
+      Iterator<?> it,
       Writer buffer)
       throws IOException {
     final OJSONWriter json = new OJSONWriter(buffer, iFormat);

@@ -25,14 +25,15 @@ public class CopyRecordContentBeforeUpdateStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    OExecutionStream lastFetched = getPrev().get().start(ctx);
+    assert prev != null;
+    OExecutionStream lastFetched = prev.start(ctx);
     return lastFetched.map(this::mapResult);
   }
 
   private OResult mapResult(OResult result, OCommandContext ctx) {
     if (result instanceof OUpdatableResult) {
       OResultInternal prevValue = new OResultInternal();
-      ORecord rec = result.getElement().get().getRecord();
+      ORecord rec = result.toElement().getRecord();
       prevValue.setProperty("@rid", rec.getIdentity());
       prevValue.setProperty("@version", rec.getVersion());
       if (rec instanceof ODocument) {
@@ -59,7 +60,7 @@ public class CopyRecordContentBeforeUpdateStep extends AbstractExecutionStep {
     result.append(spaces);
     result.append("+ COPY RECORD CONTENT BEFORE UPDATE");
     if (profilingEnabled) {
-      result.append(" (" + getCostFormatted() + ")");
+      result.append(" (").append(getCostFormatted()).append(")");
     }
     return result.toString();
   }

@@ -20,7 +20,7 @@ import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 
 /**
  * {@link ODocumentFieldHandlingStrategy} that delegates to the default {@link
- * ODocument#field(String)} implementation.
+ * ODocument#getProperty(String)} (String)} implementation.
  *
  * @author diegomtassis <a href="mailto:dta@compart.com">Diego Martin Tassis</a>
  */

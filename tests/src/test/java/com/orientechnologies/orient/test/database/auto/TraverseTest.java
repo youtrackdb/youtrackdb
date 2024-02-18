@@ -25,6 +25,7 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.filter.OSQLPredicate;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.HashMap;
@@ -185,14 +186,15 @@ public class TraverseTest extends DocumentDBBaseTest {
 
   @Test
   public void traverseSQLMoviesOnlyDepth() {
-    List<ODocument> result1 =
+    List<OElement> result1 =
         database
-            .command(
-                new OSQLSynchQuery<ODocument>(
-                    "select from ( traverse * from "
-                        + tomCruise.getIdentity()
-                        + " while $depth <= 1 ) where @class = 'Movie'"))
-            .execute();
+            .query(
+                "select from ( traverse * from "
+                    + tomCruise.getIdentity()
+                    + " while $depth <= 1 ) where @class = 'Movie'")
+            .stream()
+            .map(OResult::toElement)
+            .toList();
     Assert.assertTrue(result1.isEmpty());
 
     List<ODocument> result2 =

@@ -18,7 +18,9 @@ public class AccumulatingTimeoutStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    final OExecutionStream internal = getPrev().get().start(ctx);
+    assert prev != null;
+
+    final OExecutionStream internal = prev.start(ctx);
     return new OTimeoutResultSet(internal, this.timeout.getVal().longValue(), this::fail);
   }
 

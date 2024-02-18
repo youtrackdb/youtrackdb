@@ -30,7 +30,9 @@ public class WhileStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    prev.ifPresent(x -> x.start(ctx).close(ctx));
+    if (prev != null) {
+      prev.start(ctx).close(ctx);
+    }
 
     while (condition.evaluate(new OResultInternal(), ctx)) {
       if (OExecutionThreadLocal.isInterruptCurrentOperation())

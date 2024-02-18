@@ -15,7 +15,8 @@ public class CastToEdgeStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    OExecutionStream upstream = getPrev().get().start(ctx);
+    assert prev != null;
+    OExecutionStream upstream = prev.start(ctx);
     return upstream.map(this::mapResult);
   }
 
@@ -25,9 +26,9 @@ public class CastToEdgeStep extends AbstractExecutionStep {
     }
     if (result.isEdge()) {
       if (result instanceof OResultInternal) {
-        ((OResultInternal) result).setElement(result.getElement().get().asEdge().get());
+        ((OResultInternal) result).setElement(result.toElement().toEdge());
       } else {
-        result = new OResultInternal(result.getElement().get().asEdge().get());
+        result = new OResultInternal(result.toElement().toEdge());
       }
     } else {
       throw new OCommandExecutionException("Current element is not a vertex: " + result);

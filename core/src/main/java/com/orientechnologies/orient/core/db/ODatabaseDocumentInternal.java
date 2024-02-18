@@ -61,13 +61,19 @@ public interface ODatabaseDocumentInternal extends ODatabaseSession, ODatabaseIn
    */
   OCurrentStorageComponentsFactory getStorageVersions();
 
-  /** Internal. Gets an instance of sb-tree collection manager for current database. */
+  /**
+   * Internal. Gets an instance of sb-tree collection manager for current database.
+   */
   OSBTreeCollectionManager getSbTreeCollectionManager();
 
-  /** @return the factory of binary serializers. */
+  /**
+   * @return the factory of binary serializers.
+   */
   OBinarySerializerFactory getSerializerFactory();
 
-  /** @return serializer which is used for document serialization. */
+  /**
+   * @return serializer which is used for document serialization.
+   */
   ORecordSerializer getSerializer();
 
   void setSerializer(ORecordSerializer serializer);
@@ -167,10 +173,23 @@ public interface ODatabaseDocumentInternal extends ODatabaseSession, ODatabaseIn
 
   boolean isUseLightweightEdges();
 
+  /**
+   * Creates a new lightweight edge with the specified class name, starting vertex, and ending
+   * vertex.
+   *
+   * @param iClassName the class name of the edge
+   * @param from       the starting vertex of the edge
+   * @param to         the ending vertex of the edge
+   * @return the new lightweight edge
+   * @deprecated This method is deprecated and will be removed in future versions. Use
+   * newRegularEdge instead.
+   */
+  @Deprecated
   OEdge newLightweightEdge(String iClassName, OVertex from, OVertex to);
 
   OEdge newRegularEdge(String iClassName, OVertex from, OVertex to);
 
+  @Deprecated
   void setUseLightweightEdges(boolean b);
 
   ODatabaseDocumentInternal cleanOutRecord(ORID rid, int version);
@@ -206,8 +225,8 @@ public interface ODatabaseDocumentInternal extends ODatabaseSession, ODatabaseIn
   /**
    * sends an execution plan to a remote node for a remote query execution
    *
-   * @param nodeName the node name
-   * @param executionPlan the execution plan
+   * @param nodeName        the node name
+   * @param executionPlan   the execution plan
    * @param inputParameters the input parameters for execution
    * @return an OResultSet to fetch the results of the query execution
    */

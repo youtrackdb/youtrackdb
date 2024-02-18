@@ -30,6 +30,7 @@ import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OSchemaException;
 import com.orientechnologies.orient.core.exception.OSerializationException;
+import com.orientechnologies.orient.core.id.OImmutableRecordId;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -388,7 +389,7 @@ public abstract class OrientElement
   /** (Blueprints Extension) Returns the record's identity. */
   @Override
   public ORID getIdentity() {
-    if (rawElement == null) return ORecordId.EMPTY_RECORD_ID;
+    if (rawElement == null) return OImmutableRecordId.EMPTY_RECORD_ID;
 
     final ORID rid = rawElement.getIdentity();
     if (!rid.isValid()) {

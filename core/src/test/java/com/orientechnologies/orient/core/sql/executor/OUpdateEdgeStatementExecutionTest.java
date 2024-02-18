@@ -7,7 +7,9 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com) */
+/**
+ * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
+ */
 public class OUpdateEdgeStatementExecutionTest extends BaseMemoryDatabase {
 
   @Test
@@ -25,13 +27,13 @@ public class OUpdateEdgeStatementExecutionTest extends BaseMemoryDatabase {
     try (OResultSet res1 = db.command("create vertex")) {
       OResult r = res1.next();
       Assert.assertEquals(r.getProperty("@class"), "V");
-      v1 = r.getElement().get();
+      v1 = r.toElement();
     }
     OElement v2;
     try (OResultSet res2 = db.command("create vertex V1")) {
       OResult r = res2.next();
       Assert.assertEquals(r.getProperty("@class"), "V1");
-      v2 = r.getElement().get();
+      v2 = r.toElement();
     }
 
     OElement v3;
@@ -39,7 +41,7 @@ public class OUpdateEdgeStatementExecutionTest extends BaseMemoryDatabase {
       OResult r = res3.next();
       Assert.assertEquals(r.getProperty("@class"), "V");
       Assert.assertEquals(r.getProperty("brand"), "fiat");
-      v3 = r.getElement().get();
+      v3 = r.toElement();
     }
     OElement v4;
     try (OResultSet res4 =
@@ -48,7 +50,7 @@ public class OUpdateEdgeStatementExecutionTest extends BaseMemoryDatabase {
       Assert.assertEquals(r.getProperty("@class"), "V1");
       Assert.assertEquals(r.getProperty("brand"), "fiat");
       Assert.assertEquals(r.getProperty("name"), "wow");
-      v4 = r.getElement().get();
+      v4 = r.toElement();
     }
 
     OResultSet edges =
@@ -56,7 +58,7 @@ public class OUpdateEdgeStatementExecutionTest extends BaseMemoryDatabase {
     Assert.assertTrue(edges.hasNext());
     OResult edge = edges.next();
     Assert.assertFalse(edges.hasNext());
-    Assert.assertEquals(((ODocument) edge.getElement().get().getRecord()).getClassName(), "E1");
+    Assert.assertEquals(((ODocument) edge.toElement().getRecord()).getClassName(), "E1");
     edges.close();
 
     db.command(
@@ -65,7 +67,7 @@ public class OUpdateEdgeStatementExecutionTest extends BaseMemoryDatabase {
             + ", in = "
             + v4.getIdentity()
             + " where @rid = "
-            + edge.getElement().get().getIdentity());
+            + edge.toElement().getIdentity());
 
     OResultSet result = db.query("select expand(out('E1')) from " + v3.getIdentity());
     Assert.assertTrue(result.hasNext());
@@ -105,21 +107,17 @@ public class OUpdateEdgeStatementExecutionTest extends BaseMemoryDatabase {
         db.command("create edge E from " + v1.getIdentity() + " to " + v2.getIdentity());
     OResult edge = edges.next();
 
-    db.command(
-            "UPDATE EDGE "
-                + edge.getElement().get().getIdentity()
-                + " SET in = "
-                + v3.getIdentity())
+    db.command("UPDATE EDGE " + edge.toElement().getIdentity() + " SET in = " + v3.getIdentity())
         .close();
     edges.close();
 
     OResultSet result = db.query("select expand(out()) from " + v1.getIdentity());
 
-    Assert.assertEquals(result.next().getIdentity().get(), v3.getIdentity());
+    Assert.assertEquals(result.next().getRecordId(), v3.getIdentity());
     result.close();
 
     result = db.query("select expand(in()) from " + v3.getIdentity());
-    Assert.assertEquals(result.next().getIdentity().get(), v1.getIdentity());
+    Assert.assertEquals(result.next().getRecordId(), v1.getIdentity());
     result.close();
 
     result = db.command("select expand(in()) from " + v2.getIdentity());

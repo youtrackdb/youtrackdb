@@ -56,7 +56,9 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-/** @author Sergey Sitnikov */
+/**
+ * @author Sergey Sitnikov
+ */
 public class PostponedEngineStartTest {
 
   private static Orient ORIENT;

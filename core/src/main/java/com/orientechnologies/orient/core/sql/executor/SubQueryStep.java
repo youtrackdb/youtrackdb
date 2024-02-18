@@ -7,8 +7,7 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
 /** Created by luigidellaquila on 22/07/16. */
 public class SubQueryStep extends AbstractExecutionStep {
   private final OInternalExecutionPlan subExecuitonPlan;
-  private final OCommandContext childCtx;
-  private boolean sameContextAsParent = false;
+  private final boolean sameContextAsParent;
 
   /**
    * executes a sub-query
@@ -23,15 +22,17 @@ public class SubQueryStep extends AbstractExecutionStep {
       OCommandContext subCtx,
       boolean profilingEnabled) {
     super(ctx, profilingEnabled);
-    this.subExecuitonPlan = subExecutionPlan;
-    this.childCtx = subCtx;
 
-    this.sameContextAsParent = (ctx == childCtx);
+    this.subExecuitonPlan = subExecutionPlan;
+    this.sameContextAsParent = (ctx == subCtx);
   }
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    getPrev().ifPresent(x -> x.start(ctx).close(ctx));
+    if (prev != null) {
+      prev.start(ctx).close(ctx);
+    }
+
     OExecutionStream parentRs = subExecuitonPlan.start();
     return parentRs.map(this::mapResult);
   }

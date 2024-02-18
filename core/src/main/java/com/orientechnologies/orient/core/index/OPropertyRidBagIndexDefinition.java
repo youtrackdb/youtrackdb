@@ -82,7 +82,7 @@ public class OPropertyRidBagIndexDefinition extends OPropertyIndexDefinition
     final ORidBag ridBag = (ORidBag) params.get(0);
     final List<Object> values = new ArrayList<Object>();
     for (final OIdentifiable item : ridBag) {
-      values.add(createSingleValue(item));
+      values.add(createSingleValue(item.getIdentity()));
     }
 
     return values;
@@ -93,9 +93,9 @@ public class OPropertyRidBagIndexDefinition extends OPropertyIndexDefinition
     if (!(params[0] instanceof ORidBag)) return null;
 
     final ORidBag ridBag = (ORidBag) params[0];
-    final List<Object> values = new ArrayList<Object>();
+    final List<Object> values = new ArrayList<>();
     for (final OIdentifiable item : ridBag) {
-      values.add(createSingleValue(item));
+      values.add(createSingleValue(item.getIdentity()));
     }
 
     return values;

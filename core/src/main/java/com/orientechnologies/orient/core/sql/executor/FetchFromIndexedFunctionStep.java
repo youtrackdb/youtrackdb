@@ -27,7 +27,11 @@ public class FetchFromIndexedFunctionStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    getPrev().ifPresent(x -> x.start(ctx).close(ctx));
+    var prev = this.prev;
+    if (prev != null) {
+      prev.start(ctx).close(ctx);
+    }
+
     Iterator<OIdentifiable> fullResult = init(ctx);
     return OExecutionStream.loadIterator(fullResult).interruptable();
   }
@@ -47,9 +51,6 @@ public class FetchFromIndexedFunctionStep extends AbstractExecutionStep {
     }
     return result;
   }
-
-  @Override
-  public void reset() {}
 
   @Override
   public OResult serialize() {

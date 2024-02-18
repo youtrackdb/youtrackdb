@@ -21,7 +21,10 @@ public class FetchFromDistributedMetadataStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    getPrev().ifPresent(x -> x.start(ctx).close(ctx));
+    if (prev != null) {
+      prev.start(ctx).close(ctx);
+    }
+
     return new OProduceExecutionStream(this::produce).limit(1);
   }
 
@@ -33,8 +36,8 @@ public class FetchFromDistributedMetadataStep extends AbstractExecutionStep {
     doc.setTrackingChanges(false);
     doc.deserializeFields();
 
-    for (String alias : doc.getPropertyNames()) {
-      result.setProperty(alias, doc.getProperty(alias));
+    for (String alias : doc.getPropertyNamesWithoutFiltration()) {
+      result.setProperty(alias, doc.getPropertyWithoutValidation(alias));
     }
     return result;
   }

@@ -21,7 +21,7 @@ public class CheckClusterTypeStep extends AbstractExecutionStep {
 
   private OCluster cluster;
   private String clusterName;
-  private String targetClass;
+  private final String targetClass;
 
   public CheckClusterTypeStep(
       String targetClusterName, String clazz, OCommandContext ctx, boolean profilingEnabled) {
@@ -39,7 +39,11 @@ public class CheckClusterTypeStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext context) throws OTimeoutException {
-    getPrev().ifPresent(x -> x.start(context).close(ctx));
+    var prev = this.prev;
+    if (prev != null) {
+      prev.start(context).close(ctx);
+    }
+
     ODatabaseDocumentInternal db = (ODatabaseDocumentInternal) context.getDatabase();
 
     int clusterId;
@@ -83,11 +87,11 @@ public class CheckClusterTypeStep extends AbstractExecutionStep {
     result.append(spaces);
     result.append("+ CHECK TARGET CLUSTER FOR CLASS");
     if (profilingEnabled) {
-      result.append(" (" + getCostFormatted() + ")");
+      result.append(" (").append(getCostFormatted()).append(")");
     }
     result.append("\n");
     result.append(spaces);
-    result.append("  " + this.targetClass);
+    result.append("  ").append(this.targetClass);
     return result.toString();
   }
 }

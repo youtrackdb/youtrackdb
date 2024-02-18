@@ -20,6 +20,7 @@
 package com.orientechnologies.orient.server.network.protocol.http.command.patch;
 
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.id.OEmptyRecordId;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -52,7 +53,7 @@ public class OServerCommandPatchDocument extends OServerCommandDocumentAbstract 
 
         if (!recordId.isValid())
           throw new IllegalArgumentException("Invalid Record ID in request: " + recordId);
-      } else recordId = new com.orientechnologies.orient.core.id.ORecordId();
+      } else recordId = new OEmptyRecordId();
 
       // UNMARSHALL DOCUMENT WITH REQUEST CONTENT
       doc = new com.orientechnologies.orient.core.record.impl.ODocument();

@@ -36,21 +36,20 @@ public abstract class AbstractTraverseStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    OExecutionStream resultSet = getPrev().get().start(ctx);
+    assert prev != null;
+
+    OExecutionStream resultSet = prev.start(ctx);
     return new OExecutionStream() {
-      private List<OResult> entryPoints = new ArrayList<>();
-      private List<OResult> results = new ArrayList<>();
-      private Set<ORID> traversed = new ORidSet();
+      private final List<OResult> entryPoints = new ArrayList<>();
+      private final List<OResult> results = new ArrayList<>();
+      private final Set<ORID> traversed = new ORidSet();
 
       @Override
       public boolean hasNext(OCommandContext ctx) {
         if (results.isEmpty()) {
           fetchNextBlock(ctx, this.entryPoints, this.results, this.traversed, resultSet);
         }
-        if (results.isEmpty()) {
-          return false;
-        }
-        return true;
+        return !results.isEmpty();
       }
 
       @Override
@@ -60,7 +59,7 @@ public abstract class AbstractTraverseStep extends AbstractExecutionStep {
         }
         OResult result = results.remove(0);
         if (result.isElement()) {
-          this.traversed.add(result.getElement().get().getIdentity());
+          this.traversed.add(result.toElement().getIdentity());
         }
         return result;
       }
@@ -79,7 +78,7 @@ public abstract class AbstractTraverseStep extends AbstractExecutionStep {
     if (!results.isEmpty()) {
       return;
     }
-    while (results.isEmpty()) {
+    while (true) {
       if (entryPoints.isEmpty()) {
         fetchNextEntryPoints(resultSet, ctx, entryPoints, traversed);
       }

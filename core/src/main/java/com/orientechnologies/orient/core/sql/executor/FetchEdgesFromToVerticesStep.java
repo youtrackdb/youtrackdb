@@ -41,18 +41,18 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    getPrev().ifPresent(x -> x.start(ctx).close(ctx));
+    if (prev != null) {
+      prev.start(ctx).close(ctx);
+    }
 
-    Iterator fromIter = loadFrom();
+    Iterator<?> fromIter = loadFrom();
 
     Set<ORID> toList = loadTo();
 
-    OExecutionStream result =
-        new OSubResultsExecutionStream(
-            StreamSupport.stream(Spliterators.spliteratorUnknownSize(fromIter, 0), false)
-                .map((val) -> createResultSet(toList, val))
-                .iterator());
-    return result;
+    return new OSubResultsExecutionStream(
+        StreamSupport.stream(Spliterators.spliteratorUnknownSize(fromIter, 0), false)
+            .map((val) -> createResultSet(toList, val))
+            .iterator());
   }
 
   private OExecutionStream createResultSet(Set<ORID> toList, Object val) {
@@ -71,12 +71,12 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
 
     toValues = ctx.getVariable(toAlias);
     if (toValues instanceof Iterable && !(toValues instanceof OIdentifiable)) {
-      toValues = ((Iterable) toValues).iterator();
+      toValues = ((Iterable<?>) toValues).iterator();
     } else if (!(toValues instanceof Iterator) && toValues != null) {
       toValues = Collections.singleton(toValues).iterator();
     }
 
-    Iterator toIter = (Iterator) toValues;
+    Iterator<?> toIter = (Iterator<?>) toValues;
     if (toIter != null) {
       final Set<ORID> toList = new HashSet<ORID>();
       while (toIter.hasNext()) {
@@ -98,25 +98,21 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
     return null;
   }
 
-  private Iterator loadFrom() {
+  private Iterator<?> loadFrom() {
     Object fromValues = null;
 
     fromValues = ctx.getVariable(fromAlias);
     if (fromValues instanceof Iterable && !(fromValues instanceof OIdentifiable)) {
-      fromValues = ((Iterable) fromValues).iterator();
+      fromValues = ((Iterable<?>) fromValues).iterator();
     } else if (!(fromValues instanceof Iterator)) {
       fromValues = Collections.singleton(fromValues).iterator();
     }
-    return (Iterator) fromValues;
+    return (Iterator<?>) fromValues;
   }
 
   private boolean filterResult(OEdge edge, Set<ORID> toList) {
     if (toList == null || toList.contains(edge.getTo().getIdentity())) {
-      if (matchesClass(edge) && matchesCluster(edge)) {
-        return true;
-      } else {
-        return false;
-      }
+      return matchesClass(edge) && matchesCluster(edge);
     }
     return true;
   }
@@ -129,8 +125,9 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
       from = ((OIdentifiable) from).getRecord();
     }
     if (from instanceof OElement && ((OElement) from).isVertex()) {
-      Iterable<OEdge> edges = ((OElement) from).asVertex().get().getEdges(ODirection.OUT);
-      return edges;
+      var vertex = ((OElement) from).toVertex();
+      assert vertex != null;
+      return vertex.getEdges(ODirection.OUT);
     } else {
       throw new OCommandExecutionException("Invalid vertex: " + from);
     }
@@ -149,7 +146,9 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
     if (targetClass == null) {
       return true;
     }
-    return edge.getSchemaType().get().isSubClassOf(targetClass.getStringValue());
+    var schemaClass = edge.getSchemaClass();
+    assert schemaClass != null;
+    return schemaClass.isSubClassOf(targetClass.getStringValue());
   }
 
   @Override

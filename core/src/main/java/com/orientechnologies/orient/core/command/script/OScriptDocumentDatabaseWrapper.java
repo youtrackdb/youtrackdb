@@ -37,6 +37,7 @@ import com.orientechnologies.orient.core.iterator.ORecordIteratorCluster;
 import com.orientechnologies.orient.core.metadata.OMetadata;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.OUser;
+import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -120,7 +121,7 @@ public class OScriptDocumentDatabaseWrapper {
     database.reload();
   }
 
-  public ODocument newInstance(String iClassName) {
+  public OElement newInstance(String iClassName) {
     return database.newInstance(iClassName);
   }
 

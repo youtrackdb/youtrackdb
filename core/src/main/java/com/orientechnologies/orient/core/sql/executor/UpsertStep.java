@@ -14,7 +14,9 @@ import com.orientechnologies.orient.core.sql.parser.OFromClause;
 import com.orientechnologies.orient.core.sql.parser.OWhereClause;
 import java.util.List;
 
-/** @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com) */
+/**
+ * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
+ */
 public class UpsertStep extends AbstractExecutionStep {
   private final OFromClause commandTarget;
   private final OWhereClause initialFilter;
@@ -28,10 +30,14 @@ public class UpsertStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    OExecutionStream upstream = getPrev().get().start(ctx);
+    var prev = this.prev;
+    assert prev != null;
+
+    OExecutionStream upstream = prev.start(ctx);
     if (upstream.hasNext(ctx)) {
       return upstream;
     }
+
     return OExecutionStream.singleton(createNewRecord(ctx, commandTarget, initialFilter));
   }
 
@@ -66,7 +72,7 @@ public class UpsertStep extends AbstractExecutionStep {
 
   private void setContent(OResultInternal doc, OWhereClause initialFilter) {
     List<OAndBlock> flattened = initialFilter.flatten();
-    if (flattened.size() == 0) {
+    if (flattened.isEmpty()) {
       return;
     }
     if (flattened.size() > 1) {
@@ -81,16 +87,14 @@ public class UpsertStep extends AbstractExecutionStep {
   @Override
   public String prettyPrint(int depth, int indent) {
     String spaces = OExecutionStepInternal.getIndent(depth, indent);
-    StringBuilder result = new StringBuilder();
-    result.append(spaces);
-    result.append("+ INSERT (upsert, if needed)\n");
-    result.append(spaces);
-    result.append("  target: ");
-    result.append(commandTarget);
-    result.append("\n");
-    result.append(spaces);
-    result.append("  content: ");
-    result.append(initialFilter);
-    return result.toString();
+    return spaces
+        + "+ INSERT (upsert, if needed)\n"
+        + spaces
+        + "  target: "
+        + commandTarget
+        + "\n"
+        + spaces
+        + "  content: "
+        + initialFilter;
   }
 }

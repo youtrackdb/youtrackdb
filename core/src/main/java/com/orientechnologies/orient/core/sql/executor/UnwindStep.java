@@ -6,6 +6,7 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
+import com.orientechnologies.orient.core.sql.parser.OIdentifier;
 import com.orientechnologies.orient.core.sql.parser.OUnwind;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,33 +22,33 @@ import java.util.stream.Collectors;
 public class UnwindStep extends AbstractExecutionStep {
 
   private final OUnwind unwind;
-  private List<String> unwindFields;
+  private final List<String> unwindFields;
 
   public UnwindStep(OUnwind unwind, OCommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.unwind = unwind;
     unwindFields =
-        unwind.getItems().stream().map(x -> x.getStringValue()).collect(Collectors.toList());
+        unwind.getItems().stream().map(OIdentifier::getStringValue).collect(Collectors.toList());
   }
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    if (prev == null || !prev.isPresent()) {
+    if (prev == null) {
       throw new OCommandExecutionException("Cannot expand without a target");
     }
-    OExecutionStream resultSet = getPrev().get().start(ctx);
-    return resultSet.flatMap(this::fetchNextResults);
+
+    OExecutionStream resultSet = prev.start(ctx);
+    return resultSet.flatMap((res, res2) -> fetchNextResults(res));
   }
 
-  private OExecutionStream fetchNextResults(OResult res, OCommandContext ctx) {
-    return OExecutionStream.resultIterator(unwind(res, unwindFields, ctx).iterator());
+  private OExecutionStream fetchNextResults(OResult res) {
+    return OExecutionStream.resultIterator(unwind(res, unwindFields).iterator());
   }
 
-  private Collection<OResult> unwind(
-      final OResult doc, final List<String> unwindFields, final OCommandContext iContext) {
+  private Collection<OResult> unwind(final OResult doc, final List<String> unwindFields) {
     final List<OResult> result = new ArrayList<>();
 
-    if (unwindFields.size() == 0) {
+    if (unwindFields.isEmpty()) {
       result.add(doc);
     } else {
       String firstField = unwindFields.get(0);
@@ -55,34 +56,34 @@ public class UnwindStep extends AbstractExecutionStep {
 
       Object fieldValue = doc.getProperty(firstField);
       if (fieldValue == null || fieldValue instanceof ODocument) {
-        result.addAll(unwind(doc, nextFields, iContext));
+        result.addAll(unwind(doc, nextFields));
         return result;
       }
 
       if (!(fieldValue instanceof Iterable) && !fieldValue.getClass().isArray()) {
-        result.addAll(unwind(doc, nextFields, iContext));
+        result.addAll(unwind(doc, nextFields));
         return result;
       }
 
-      Iterator iterator;
+      Iterator<?> iterator;
       if (fieldValue.getClass().isArray()) {
         iterator = OMultiValue.getMultiValueIterator(fieldValue);
       } else {
-        iterator = ((Iterable) fieldValue).iterator();
+        iterator = ((Iterable<?>) fieldValue).iterator();
       }
       if (!iterator.hasNext()) {
         OResultInternal unwindedDoc = new OResultInternal();
         copy(doc, unwindedDoc);
 
         unwindedDoc.setProperty(firstField, null);
-        result.addAll(unwind(unwindedDoc, nextFields, iContext));
+        result.addAll(unwind(unwindedDoc, nextFields));
       } else {
         do {
           Object o = iterator.next();
           OResultInternal unwindedDoc = new OResultInternal();
           copy(doc, unwindedDoc);
           unwindedDoc.setProperty(firstField, o);
-          result.addAll(unwind(unwindedDoc, nextFields, iContext));
+          result.addAll(unwind(unwindedDoc, nextFields));
         } while (iterator.hasNext());
       }
     }

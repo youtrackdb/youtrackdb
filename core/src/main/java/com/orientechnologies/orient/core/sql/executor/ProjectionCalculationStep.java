@@ -17,11 +17,11 @@ public class ProjectionCalculationStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    if (!prev.isPresent()) {
+    if (prev == null) {
       throw new IllegalStateException("Cannot calculate projections without a previous source");
     }
 
-    OExecutionStream parentRs = prev.get().start(ctx);
+    OExecutionStream parentRs = prev.start(ctx);
     return parentRs.map(this::mapResult);
   }
 
@@ -45,7 +45,7 @@ public class ProjectionCalculationStep extends AbstractExecutionStep {
     if (profilingEnabled) {
       result += " (" + getCostFormatted() + ")";
     }
-    result += ("\n" + spaces + "  " + projection.toString() + "");
+    result += ("\n" + spaces + "  " + projection.toString());
     return result;
   }
 

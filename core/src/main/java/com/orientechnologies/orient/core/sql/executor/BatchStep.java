@@ -9,7 +9,7 @@ import com.orientechnologies.orient.core.sql.parser.OBatch;
 /** Created by luigidellaquila on 14/02/17. */
 public class BatchStep extends AbstractExecutionStep {
 
-  private Integer batchSize;
+  private final Integer batchSize;
 
   public BatchStep(OBatch batch, OCommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
@@ -18,7 +18,9 @@ public class BatchStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    OExecutionStream prevResult = getPrev().get().start(ctx);
+    assert prev != null;
+
+    OExecutionStream prevResult = prev.start(ctx);
     return prevResult.map(this::mapResult);
   }
 
@@ -34,14 +36,8 @@ public class BatchStep extends AbstractExecutionStep {
   }
 
   @Override
-  public void reset() {}
-
-  @Override
   public String prettyPrint(int depth, int indent) {
     String spaces = OExecutionStepInternal.getIndent(depth, indent);
-    StringBuilder result = new StringBuilder();
-    result.append(spaces);
-    result.append("+ BATCH COMMIT EVERY " + batchSize);
-    return result.toString();
+    return spaces + "+ BATCH COMMIT EVERY " + batchSize;
   }
 }

@@ -5,7 +5,9 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OIdentifier;
 
-/** @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com) */
+/**
+ * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
+ */
 public class SaveElementStep extends AbstractExecutionStep {
 
   private final OIdentifier cluster;
@@ -21,7 +23,9 @@ public class SaveElementStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    OExecutionStream upstream = getPrev().get().start(ctx);
+    assert prev != null;
+
+    OExecutionStream upstream = prev.start(ctx);
     return upstream.map(this::mapResult);
   }
 
@@ -45,7 +49,7 @@ public class SaveElementStep extends AbstractExecutionStep {
     if (cluster != null) {
       result.append("\n");
       result.append(spaces);
-      result.append("  on cluster " + cluster);
+      result.append("  on cluster ").append(cluster);
     }
     return result.toString();
   }

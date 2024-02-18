@@ -8,9 +8,9 @@ import java.util.Iterator;
 
 public class OIteratorExecutionStream implements OExecutionStream {
 
-  private Iterator<Object> iterator;
+  private final Iterator<?> iterator;
 
-  public OIteratorExecutionStream(Iterator<Object> iter) {
+  public OIteratorExecutionStream(Iterator<?> iter) {
     this.iterator = iter;
   }
 

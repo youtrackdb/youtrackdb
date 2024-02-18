@@ -27,7 +27,7 @@ import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.OImmutableRecordId;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.OBlob;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -332,8 +332,8 @@ public class OTableFormatter {
     else if (value instanceof Collection<?>)
       value = getPrettyFieldMultiValue(((Collection<?>) value).iterator(), multiValueMaxEntries);
     else if (value instanceof ORecord) {
-      if (((ORecord) value).getIdentity().equals(ORecordId.EMPTY_RECORD_ID)) {
-        value = ((ORecord) value).toString();
+      if (((ORecord) value).getIdentity().equals(OImmutableRecordId.EMPTY_RECORD_ID)) {
+        value = value.toString();
       } else {
         value = ((ORecord) value).getIdentity().toString();
       }
@@ -484,7 +484,7 @@ public class OTableFormatter {
         ((ODocument) rec).setLazyLoad(false);
         // PARSE ALL THE DOCUMENT'S FIELDS
         final ODocument doc = (ODocument) rec;
-        for (String fieldName : doc.fieldNames()) {
+        for (String fieldName : doc.getPropertyNames()) {
           columns.put(fieldName, getColumnSize(fetched, doc, fieldName, columns.get(fieldName)));
         }
 

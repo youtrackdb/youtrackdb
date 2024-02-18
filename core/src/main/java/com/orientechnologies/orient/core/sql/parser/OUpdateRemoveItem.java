@@ -87,7 +87,7 @@ public class OUpdateRemoveItem extends SimpleNode {
       if (OMultiValue.isMultiValue(leftVal)) {
         OMultiValue.remove(leftVal, rightVal, false);
         if (OMultiValue.isMultiValue(rightVal)) {
-          Iterator<Object> iter = OMultiValue.getMultiValueIterator(rightVal);
+          Iterator<?> iter = OMultiValue.getMultiValueIterator(rightVal);
           while (iter.hasNext()) {
             Object item = iter.next();
             if (item instanceof OResult && ((OResult) item).getIdentity().isPresent()) {

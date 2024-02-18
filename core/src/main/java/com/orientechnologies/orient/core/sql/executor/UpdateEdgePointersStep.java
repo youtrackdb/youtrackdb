@@ -3,10 +3,11 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.OVertexInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Collection;
 
@@ -22,13 +23,15 @@ public class UpdateEdgePointersStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    OExecutionStream upstream = getPrev().get().start(ctx);
+    var prev = this.prev;
+    assert prev != null;
+    OExecutionStream upstream = prev.start(ctx);
     return upstream.map(this::mapResult);
   }
 
   private OResult mapResult(OResult result, OCommandContext ctx) {
     if (result instanceof OResultInternal) {
-      handleUpdateEdge((ODocument) result.getElement().get().getRecord());
+      handleUpdateEdge(result.toElement().getRecord());
     }
     return result;
   }
@@ -36,10 +39,7 @@ public class UpdateEdgePointersStep extends AbstractExecutionStep {
   @Override
   public String prettyPrint(int depth, int indent) {
     String spaces = OExecutionStepInternal.getIndent(depth, indent);
-    StringBuilder result = new StringBuilder();
-    result.append(spaces);
-    result.append("+ UPDATE EDGE POINTERS");
-    return result.toString();
+    return spaces + "+ UPDATE EDGE POINTERS";
   }
 
   /**
@@ -54,84 +54,58 @@ public class UpdateEdgePointersStep extends AbstractExecutionStep {
     Object prevOut = record.getOriginalValue("out");
     Object prevIn = record.getOriginalValue("in");
 
-    // to manage subqueries
-    if (currentOut instanceof Collection && ((Collection) currentOut).size() == 1) {
-      currentOut = ((Collection) currentOut).iterator().next();
-      record.setProperty("out", currentOut);
+    if (currentOut instanceof Collection<?> col && col.size() == 1) {
+      currentOut = col.iterator().next();
+      record.setPropertyWithoutValidation("out", currentOut);
     }
-    if (currentIn instanceof Collection && ((Collection) currentIn).size() == 1) {
-      currentIn = ((Collection) currentIn).iterator().next();
-      record.setProperty("in", currentIn);
+    if (currentIn instanceof Collection<?> col && col.size() == 1) {
+      currentIn = col.iterator().next();
+      record.setPropertyWithoutValidation("in", currentIn);
     }
 
-    validateOutInForEdge(record, currentOut, currentIn);
+    validateOutInForEdge(currentOut, currentIn);
 
-    changeVertexEdgePointer(record, (OIdentifiable) prevIn, (OIdentifiable) currentIn, "in");
-    changeVertexEdgePointer(record, (OIdentifiable) prevOut, (OIdentifiable) currentOut, "out");
+    var prevInIdentifiable = (OIdentifiable) prevIn;
+    var currentInIdentifiable = (OIdentifiable) currentIn;
+    var currentOutIdentifiable = (OIdentifiable) currentOut;
+    var prevOutIdentifiable = (OIdentifiable) prevOut;
+
+    OVertexInternal.changeVertexEdgePointers(
+        record,
+        prevInIdentifiable,
+        currentInIdentifiable,
+        prevOutIdentifiable,
+        currentOutIdentifiable);
   }
 
-  /**
-   * updates old and new vertices connected to an edge after out/in update on the edge itself
-   *
-   * @param edge the edge
-   * @param prevVertex the previously connected vertex
-   * @param currentVertex the currently connected vertex
-   * @param direction the direction ("out" or "in")
-   */
-  private void changeVertexEdgePointer(
-      ODocument edge, OIdentifiable prevVertex, OIdentifiable currentVertex, String direction) {
-    if (prevVertex != null && !prevVertex.equals(currentVertex)) {
-      String edgeClassName = edge.getClassName();
-      if (edgeClassName.equalsIgnoreCase("E")) {
-        edgeClassName = "";
-      }
-      String vertexFieldName = direction + "_" + edgeClassName;
-      ODocument prevOutDoc = ((OIdentifiable) prevVertex).getRecord();
-      ORidBag prevBag = prevOutDoc.field(vertexFieldName);
-      if (prevBag != null) {
-        prevBag.remove(edge);
-        prevOutDoc.save();
-      }
-
-      ODocument currentVertexDoc = ((OIdentifiable) currentVertex).getRecord();
-      ORidBag currentBag = currentVertexDoc.field(vertexFieldName);
-      if (currentBag == null) {
-        currentBag = new ORidBag();
-        currentVertexDoc.field(vertexFieldName, currentBag);
-      }
-      currentBag.add(edge);
-    }
-  }
-
-  private void validateOutInForEdge(ODocument record, Object currentOut, Object currentIn) {
-    if (!isRecordInstanceOf(currentOut, "V")) {
+  private void validateOutInForEdge(Object currentOut, Object currentIn) {
+    if (recordIsNotInstanceOfVertex(currentOut)) {
       throw new OCommandExecutionException(
-          "Error updating edge: 'out' is not a vertex - " + currentOut + "");
+          "Error updating edge: 'out' is not a vertex - " + currentOut);
     }
-    if (!isRecordInstanceOf(currentIn, "V")) {
+    if (recordIsNotInstanceOfVertex(currentIn)) {
       throw new OCommandExecutionException(
-          "Error updating edge: 'in' is not a vertex - " + currentIn + "");
+          "Error updating edge: 'in' is not a vertex - " + currentIn);
     }
   }
 
   /**
-   * checks if an object is an OIdentifiable and an instance of a particular (schema) class
+   * checks if an object is a vertex
    *
    * @param iRecord The record object
-   * @param orientClass The schema class
-   * @return
    */
-  private boolean isRecordInstanceOf(Object iRecord, String orientClass) {
+  private boolean recordIsNotInstanceOfVertex(Object iRecord) {
     if (iRecord == null) {
-      return false;
+      return true;
     }
     if (!(iRecord instanceof OIdentifiable)) {
-      return false;
+      return true;
     }
     ODocument record = ((OIdentifiable) iRecord).getRecord();
     if (record == null) {
-      return false;
+      return true;
     }
-    return (ODocumentInternal.getImmutableSchemaClass(record).isSubClassOf(orientClass));
+    return (!ODocumentInternal.getImmutableSchemaClass(record)
+        .isSubClassOf(OClass.VERTEX_CLASS_NAME));
   }
 }

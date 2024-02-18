@@ -17,7 +17,8 @@ public class SkipExecutionStep extends AbstractExecutionStep {
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
     int skipValue = skip.getValue(ctx);
-    OExecutionStream rs = prev.get().start(ctx);
+    assert prev != null;
+    OExecutionStream rs = prev.start(ctx);
     int skipped = 0;
     while (rs.hasNext(ctx) && skipped < skipValue) {
       rs.next(ctx);
@@ -32,7 +33,9 @@ public class SkipExecutionStep extends AbstractExecutionStep {
 
   @Override
   public void close() {
-    prev.ifPresent(x -> x.close());
+    if (prev != null) {
+      prev.close();
+    }
   }
 
   @Override

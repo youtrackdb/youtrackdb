@@ -5,10 +5,12 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.List;
 
-/** Created by luigidellaquila on 20/09/16. */
+/**
+ * Created by luigidellaquila on 20/09/16.
+ */
 public class MatchFirstStep extends AbstractExecutionStep {
   private final PatternNode node;
-  private OInternalExecutionPlan executionPlan;
+  private final OInternalExecutionPlan executionPlan;
 
   public MatchFirstStep(OCommandContext context, PatternNode node, boolean profilingEnabled) {
     this(context, node, null, profilingEnabled);
@@ -27,15 +29,20 @@ public class MatchFirstStep extends AbstractExecutionStep {
   @Override
   public void reset() {
     if (executionPlan != null) {
-      executionPlan.reset(this.getContext());
+      executionPlan.reset(ctx);
     }
   }
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    getPrev().ifPresent(x -> x.start(ctx).close(ctx));
+    if (prev != null) {
+      prev.start(ctx).close(ctx);
+    }
+
     OExecutionStream data;
     String alias = getAlias();
+
+    @SuppressWarnings("unchecked")
     List<OResult> matchedNodes =
         (List<OResult>) ctx.getVariable(MatchPrefetchStep.PREFETCHED_MATCH_ALIAS_PREFIX + alias);
     if (matchedNodes != null) {

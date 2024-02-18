@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 /** Created by luigidellaquila on 11/10/16. */
 public class CartesianProductStep extends AbstractExecutionStep {
 
-  private List<OInternalExecutionPlan> subPlans = new ArrayList<>();
+  private final List<OInternalExecutionPlan> subPlans = new ArrayList<>();
 
   public CartesianProductStep(OCommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
@@ -18,7 +18,10 @@ public class CartesianProductStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    getPrev().ifPresent(x -> x.start(ctx).close(ctx));
+    if (prev != null) {
+      prev.start(ctx).close(ctx);
+    }
+
     Stream<OResult[]> stream = null;
     OResult[] productTuple = new OResult[this.subPlans.size()];
 
@@ -50,6 +53,7 @@ public class CartesianProductStep extends AbstractExecutionStep {
                 });
       }
     }
+    assert stream != null;
     Stream<OResult> finalStream = stream.map(this::produceResult);
     return OExecutionStream.resultIterator(finalStream.iterator())
         .onClose((context) -> finalStream.close());
@@ -59,8 +63,7 @@ public class CartesianProductStep extends AbstractExecutionStep {
 
     OResultInternal nextRecord = new OResultInternal();
 
-    for (int i = 0; i < path.length; i++) {
-      OResult res = path[i];
+    for (OResult res : path) {
       for (String s : res.getPropertyNames()) {
         nextRecord.setProperty(s, res.getProperty(s));
       }
@@ -74,7 +77,7 @@ public class CartesianProductStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String result = "";
+    StringBuilder result = new StringBuilder();
     String ind = OExecutionStepInternal.getIndent(depth, indent);
 
     int[] blockSizes = new int[subPlans.size()];
@@ -85,23 +88,23 @@ public class CartesianProductStep extends AbstractExecutionStep {
 
       String[] partials = partial.split("\n");
       blockSizes[subPlans.size() - 1 - i] = partials.length + 2;
-      result = "+-------------------------\n" + result;
+      result.insert(0, "+-------------------------\n");
       for (int j = 0; j < partials.length; j++) {
         String p = partials[partials.length - 1 - j];
-        if (result.length() > 0) {
-          result = appendPipe(p) + "\n" + result;
+        if (!result.isEmpty()) {
+          result.insert(0, appendPipe(p) + "\n");
         } else {
-          result = appendPipe(p);
+          result = new StringBuilder(appendPipe(p));
         }
       }
-      result = "+-------------------------\n" + result;
+      result.insert(0, "+-------------------------\n");
     }
-    result = addArrows(result, blockSizes);
-    result += foot(blockSizes);
-    result = ind + result;
-    result = result.replaceAll("\n", "\n" + ind);
-    result = head(depth, indent, subPlans.size()) + "\n" + result;
-    return result;
+    result = new StringBuilder(addArrows(result.toString(), blockSizes));
+    result.append(foot(blockSizes));
+    result.insert(0, ind);
+    result = new StringBuilder(result.toString().replaceAll("\n", "\n" + ind));
+    result.insert(0, head(depth, indent) + "\n");
+    return result.toString();
   }
 
   private String addArrows(String input, int[] blockSizes) {
@@ -135,34 +138,23 @@ public class CartesianProductStep extends AbstractExecutionStep {
     if (col < block * 3 + 2) {
       return false;
     }
-    if (subRow == blockSize / 2) {
-      return true;
-    }
-    return false;
+    return subRow == blockSize / 2;
   }
 
   private boolean isPlus(int col, int subRow, int block, int blockSize) {
     if (col == block * 3 + 1) {
-      if (subRow == blockSize / 2) {
-        return true;
-      }
+      return subRow == blockSize / 2;
     }
     return false;
   }
 
   private boolean isVerticalRow(int col, int subRow, int block, int blockSize) {
     if (col == block * 3 + 1) {
-      if (subRow > blockSize / 2) {
-        return true;
-      }
-    } else if (col < block * 3 + 1 && col % 3 == 1) {
-      return true;
-    }
-
-    return false;
+      return subRow > blockSize / 2;
+    } else return col < block * 3 + 1 && col % 3 == 1;
   }
 
-  private String head(int depth, int indent, int nItems) {
+  private String head(int depth, int indent) {
     String ind = OExecutionStepInternal.getIndent(depth, indent);
     String result = ind + "+ CARTESIAN PRODUCT";
     if (profilingEnabled) {
@@ -172,11 +164,7 @@ public class CartesianProductStep extends AbstractExecutionStep {
   }
 
   private String foot(int[] blockSizes) {
-    StringBuilder result = new StringBuilder();
-    for (int i = 0; i < blockSizes.length; i++) {
-      result.append(" V ");
-    }
-    return result.toString();
+    return " V ".repeat(blockSizes.length);
   }
 
   private String appendPipe(String p) {

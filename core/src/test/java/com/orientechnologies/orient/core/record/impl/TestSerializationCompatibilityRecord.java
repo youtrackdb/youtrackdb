@@ -29,7 +29,7 @@ public class TestSerializationCompatibilityRecord extends BaseMemoryDatabase {
     db.getLocalCache().clear();
     ODocument record = db.load(id);
     // Force deserialize + serialize;
-    record.field("some", "aa");
+    record.setProperty("some", "aa");
     db.save(record);
     db.getLocalCache().clear();
     ODocument record1 = db.load(id);

@@ -54,4 +54,22 @@ public class OViewDocument extends ODocument {
       }
     }
   }
+
+  @Override
+  public void setPropertyWithoutValidation(String name, Object value) {
+    super.setPropertyWithoutValidation(name, value);
+
+    if (view != null && view.isUpdatable()) {
+      String originField = view.getOriginRidField();
+      if (originField != null) {
+        Object origin = getPropertyWithoutValidation(originField);
+        if (origin instanceof ORID) {
+          origin = ((ORID) origin).getRecord();
+        }
+        if (origin instanceof OElementInternal) {
+          ((OElementInternal) origin).setPropertyWithoutValidation(name, value);
+        }
+      }
+    }
+  }
 }

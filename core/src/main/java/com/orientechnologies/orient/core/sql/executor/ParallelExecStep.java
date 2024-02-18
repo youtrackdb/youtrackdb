@@ -7,7 +7,9 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OSubResultsExecu
 import java.util.List;
 import java.util.stream.Collectors;
 
-/** @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com) */
+/**
+ * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
+ */
 public class ParallelExecStep extends AbstractExecutionStep {
   private final List<OInternalExecutionPlan> subExecutionPlans;
 
@@ -21,14 +23,17 @@ public class ParallelExecStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    getPrev().ifPresent(x -> x.start(ctx).close(ctx));
+    if (prev != null) {
+      prev.start(ctx).close(ctx);
+    }
+
     return new OSubResultsExecutionStream(
-        subExecutionPlans.stream().map((step) -> step.start()).iterator());
+        subExecutionPlans.stream().map(OInternalExecutionPlan::start).iterator());
   }
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    String result = "";
+    StringBuilder result = new StringBuilder();
     String ind = OExecutionStepInternal.getIndent(depth, indent);
 
     int[] blockSizes = new int[subExecutionPlans.size()];
@@ -39,23 +44,23 @@ public class ParallelExecStep extends AbstractExecutionStep {
 
       String[] partials = partial.split("\n");
       blockSizes[subExecutionPlans.size() - 1 - i] = partials.length + 2;
-      result = "+-------------------------\n" + result;
+      result.insert(0, "+-------------------------\n");
       for (int j = 0; j < partials.length; j++) {
         String p = partials[partials.length - 1 - j];
-        if (result.length() > 0) {
-          result = appendPipe(p) + "\n" + result;
+        if (!result.isEmpty()) {
+          result.insert(0, appendPipe(p) + "\n");
         } else {
-          result = appendPipe(p);
+          result = new StringBuilder(appendPipe(p));
         }
       }
-      result = "+-------------------------\n" + result;
+      result.insert(0, "+-------------------------\n");
     }
-    result = addArrows(result, blockSizes);
-    result += foot(blockSizes);
-    result = ind + result;
-    result = result.replaceAll("\n", "\n" + ind);
-    result = head(depth, indent, subExecutionPlans.size()) + "\n" + result;
-    return result;
+    result = new StringBuilder(addArrows(result.toString(), blockSizes));
+    result.append(foot(blockSizes));
+    result.insert(0, ind);
+    result = new StringBuilder(result.toString().replaceAll("\n", "\n" + ind));
+    result.insert(0, head(depth, indent) + "\n");
+    return result.toString();
   }
 
   private String addArrows(String input, int[] blockSizes) {
@@ -89,52 +94,29 @@ public class ParallelExecStep extends AbstractExecutionStep {
     if (col < block * 3 + 2) {
       return false;
     }
-    if (subRow == blockSize / 2) {
-      return true;
-    }
-    return false;
+    return subRow == blockSize / 2;
   }
 
   private boolean isPlus(int col, int subRow, int block, int blockSize) {
     if (col == block * 3 + 1) {
-      if (subRow == blockSize / 2) {
-        return true;
-      }
+      return subRow == blockSize / 2;
     }
     return false;
   }
 
   private boolean isVerticalRow(int col, int subRow, int block, int blockSize) {
     if (col == block * 3 + 1) {
-      if (subRow > blockSize / 2) {
-        return true;
-      }
-    } else if (col < block * 3 + 1 && col % 3 == 1) {
-      return true;
-    }
-
-    return false;
+      return subRow > blockSize / 2;
+    } else return col < block * 3 + 1 && col % 3 == 1;
   }
 
-  private String head(int depth, int indent, int nItems) {
+  private String head(int depth, int indent) {
     String ind = OExecutionStepInternal.getIndent(depth, indent);
     return ind + "+ PARALLEL";
   }
 
   private String foot(int[] blockSizes) {
-    StringBuilder result = new StringBuilder();
-    for (int i = 0; i < blockSizes.length; i++) {
-      result.append(" V ");
-    }
-    return result.toString();
-  }
-
-  private String spaces(int num) {
-    StringBuilder result = new StringBuilder();
-    for (int i = 0; i < num; i++) {
-      result.append(" ");
-    }
-    return result.toString();
+    return " V ".repeat(blockSizes.length);
   }
 
   private String appendPipe(String p) {
@@ -142,6 +124,7 @@ public class ParallelExecStep extends AbstractExecutionStep {
   }
 
   public List<OExecutionPlan> getSubExecutionPlans() {
+    //noinspection unchecked,rawtypes
     return (List) subExecutionPlans;
   }
 

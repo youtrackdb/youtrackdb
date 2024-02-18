@@ -25,6 +25,7 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.OSecurityException;
+import com.orientechnologies.orient.core.id.OEmptyRecordId;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.security.ORole;
@@ -49,7 +50,7 @@ import java.util.Set;
 public abstract class OIdentifiableIterator<REC extends OIdentifiable>
     implements Iterator<REC>, Iterable<REC> {
   protected final ODatabaseDocumentInternal database;
-  protected final ORecordId current = new ORecordId();
+  protected final ORecordId current = new OEmptyRecordId();
   private final OStorage dbStorage;
   protected boolean liveUpdated = false;
   protected long limit = -1;
@@ -78,7 +79,9 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
     this(iDatabase, OStorage.LOCKING_STRATEGY.NONE);
   }
 
-  /** @deprecated usage of this constructor may lead to deadlocks. */
+  /**
+   * @deprecated usage of this constructor may lead to deadlocks.
+   */
   @Deprecated
   public OIdentifiableIterator(
       final ODatabaseDocumentInternal iDatabase, final OStorage.LOCKING_STRATEGY iLockingStrategy) {

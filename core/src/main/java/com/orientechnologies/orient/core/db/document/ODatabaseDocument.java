@@ -27,6 +27,7 @@ import com.orientechnologies.orient.core.iterator.ORecordIteratorClass;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorCluster;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
+import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OElement;
@@ -69,11 +70,11 @@ public interface ODatabaseDocument extends ODatabase<ORecord> {
   ORecordIteratorClass<ODocument> browseClass(String iClassName, boolean iPolymorphic);
 
   /**
-   * Creates a new entity instance. Each database implementation will return the right type.
+   * Creates a new element instance.
    *
    * @return The new instance.
    */
-  <RET extends Object> RET newInstance(String iClassName);
+  <RET extends OElement> RET newInstance(String iClassName);
 
   /**
    * Create a new instance of a blob containing the given bytes.
@@ -429,7 +430,12 @@ public interface ODatabaseDocument extends ODatabase<ORecord> {
    *     was deleted from the schema)
    */
   default OClass createEdgeClass(String className) {
-    return createClass(className, "E");
+    var edgeClass = createClass(className, "E");
+
+    edgeClass.createProperty(OEdge.DIRECTION_IN, OType.LINK);
+    edgeClass.createProperty(OEdge.DIRECTION_OUT, OType.LINK);
+
+    return edgeClass;
   }
 
   /**

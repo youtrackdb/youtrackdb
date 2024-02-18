@@ -21,9 +21,11 @@ package com.orientechnologies.orient.core.tx;
 
 import com.orientechnologies.common.comparator.ODefaultComparator;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.id.IdentityChangeListener;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexInternal;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
+import java.util.IdentityHashMap;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
@@ -32,8 +34,7 @@ import java.util.TreeMap;
  *
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
-public class OTransactionIndexChanges {
-
+public class OTransactionIndexChanges implements IdentityChangeListener {
   public enum OPERATION {
     PUT,
     REMOVE,
@@ -41,7 +42,10 @@ public class OTransactionIndexChanges {
   }
 
   public NavigableMap<Object, OTransactionIndexChangesPerKey> changesPerKey =
-      new TreeMap<Object, OTransactionIndexChangesPerKey>(ODefaultComparator.INSTANCE);
+      new TreeMap<>(ODefaultComparator.INSTANCE);
+
+  private final IdentityHashMap<Object, OTransactionIndexChangesPerKey> identityChangeQueue =
+      new IdentityHashMap<>();
 
   public OTransactionIndexChangesPerKey nullKeyChanges = new OTransactionIndexChangesPerKey(null);
 
@@ -78,10 +82,6 @@ public class OTransactionIndexChanges {
     return changesPerKey.higherKey(key);
   }
 
-  public Object getCeilingKey(Object key) {
-    return changesPerKey.ceilingKey(key);
-  }
-
   public Object[] firstAndLastKeys(
       Object from, boolean fromInclusive, Object to, boolean toInclusive) {
     final NavigableMap<Object, OTransactionIndexChangesPerKey> interval;
@@ -102,10 +102,6 @@ public class OTransactionIndexChanges {
     }
   }
 
-  public Object getFloorKey(Object key) {
-    return changesPerKey.floorKey(key);
-  }
-
   public OIndexInternal resolveAssociatedIndex(
       String indexName, OIndexManagerAbstract indexManager, ODatabaseDocumentInternal db) {
     if (resolvedIndex == null) {
@@ -118,5 +114,24 @@ public class OTransactionIndexChanges {
 
   public OIndexInternal getAssociatedIndex() {
     return resolvedIndex;
+  }
+
+  @Override
+  public void onBeforeIdentityChange(Object source) {
+    var changes = changesPerKey.remove(source);
+    if (changes != null) {
+      assert changes.key == source;
+      identityChangeQueue.put(source, changes);
+    }
+  }
+
+  @Override
+  public void onAfterIdentityChange(Object source) {
+    var changes = identityChangeQueue.remove(source);
+
+    if (changes != null) {
+      assert changes.key == source;
+      changesPerKey.put(source, changes);
+    }
   }
 }

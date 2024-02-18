@@ -15,6 +15,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import javax.annotation.Nullable;
 
 /** Created by luigidellaquila on 21/07/16. */
 public interface OResult {
@@ -66,10 +67,14 @@ public interface OResult {
 
   Optional<ORID> getIdentity();
 
+  @Nullable
+  ORID getRecordId();
+
   boolean isElement();
 
   Optional<OElement> getElement();
 
+  @Nullable
   OElement toElement();
 
   default boolean isVertex() {
@@ -80,12 +85,32 @@ public interface OResult {
     return getElement().flatMap(x -> x.asVertex());
   }
 
+  @Nullable
+  default OVertex toVertex() {
+    var element = toElement();
+    if (element == null) {
+      return null;
+    }
+
+    return element.toVertex();
+  }
+
   default boolean isEdge() {
     return getElement().map(x -> x.isEdge()).orElse(false);
   }
 
   default Optional<OEdge> getEdge() {
     return getElement().flatMap(x -> x.asEdge());
+  }
+
+  @Nullable
+  default OEdge toEdge() {
+    var element = toElement();
+    if (element == null) {
+      return null;
+    }
+
+    return element.toEdge();
   }
 
   boolean isBlob();

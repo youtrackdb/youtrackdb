@@ -24,7 +24,10 @@ public class DistributedExecutionStep extends AbstractExecutionStep {
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
     OExecutionStream remote = sendSerializedExecutionPlan(nodeName, subExecuitonPlan, ctx);
-    getPrev().ifPresent(x -> x.start(ctx).close(ctx));
+    if (prev != null) {
+      prev.start(ctx).close(ctx);
+    }
+
     return remote;
   }
 
@@ -46,7 +49,7 @@ public class DistributedExecutionStep extends AbstractExecutionStep {
     StringBuilder builder = new StringBuilder();
     String ind = OExecutionStepInternal.getIndent(depth, indent);
     builder.append(ind);
-    builder.append("+ EXECUTE ON NODE " + nodeName + "----------- \n");
+    builder.append("+ EXECUTE ON NODE ").append(nodeName).append("----------- \n");
     builder.append(subExecuitonPlan.prettyPrint(depth + 1, indent));
     builder.append("  ------------------------------------------- \n");
     builder.append("   |\n");

@@ -197,7 +197,9 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
     return factory;
   }
 
-  /** @Deprecated use {{@link OrientDB}} instead. */
+  /**
+   * @Deprecated use {{@link OrientDB}} instead.
+   */
   @Deprecated
   public ODatabaseDocumentTx(String url) {
     this(url, true);
@@ -597,8 +599,9 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
     return internal.isUseLightweightEdges();
   }
 
+  @Deprecated
   public void setUseLightweightEdges(boolean b) {
-    internal.setUseLightweightEdges(b);
+    throw new UnsupportedOperationException("Creation of lightweight edges is not supported");
   }
 
   @Override
@@ -1350,7 +1353,7 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
   }
 
   @Override
-  public ODocument newInstance(String iClassName) {
+  public OElement newInstance(String iClassName) {
     checkOpenness();
     return internal.newInstance(iClassName);
   }
@@ -1366,6 +1369,7 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
     return new ORecordBytes();
   }
 
+  @Deprecated
   public OEdge newLightweightEdge(String iClassName, OVertex from, OVertex to) {
     checkOpenness();
     return internal.newLightweightEdge(iClassName, from, to);

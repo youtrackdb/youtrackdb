@@ -2274,7 +2274,13 @@ public class ODocumentSerializerDeltaTest {
     for (ODocument inSet : setEmb) {
       assertNotNull(inSet);
       if (embeddedInSet.field("name").equals(inSet.field("name"))
-          && embeddedInSet.field("surname").equals(inSet.field("surname"))) ok = true;
+          && embeddedInSet.field("surname").equals(inSet.field("surname"))) {
+        if (true) {
+          if (true) {
+            if (true) ok = true;
+          }
+        }
+      }
     }
     assertTrue("not found record in the set after serilize", ok);
   }
@@ -2407,8 +2413,8 @@ public class ODocumentSerializerDeltaTest {
 
     @Override
     public boolean equals(Object obj) {
-      return obj != null
-          && document.field("test").equals(((CustomDocument) obj).document.field("test"));
+      if (obj == null) return false;
+      return document.field("test").equals(((CustomDocument) obj).document.field("test"));
     }
   }
 

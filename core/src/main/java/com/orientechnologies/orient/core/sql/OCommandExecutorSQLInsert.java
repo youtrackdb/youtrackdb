@@ -38,6 +38,7 @@ import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.OElementInternal;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterItemField;
 import com.orientechnologies.orient.core.sql.query.OSQLAsynchQuery;
@@ -316,7 +317,7 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
     }
 
     if (rec instanceof OElement) {
-      OElement doc = (OElement) rec;
+      OElementInternal doc = (OElementInternal) rec;
 
       if (oldClass != null && oldClass.isSubClassOf("V")) {
         OLogManager.instance()
@@ -328,7 +329,7 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
         String[] fields = ((ODocument) rec).fieldNames();
         for (String field : fields) {
           if (field.startsWith("out_") || field.startsWith("in_")) {
-            Object edges = doc.getProperty(field);
+            Object edges = doc.getPropertyWithoutValidation(field);
             if (edges instanceof OIdentifiable) {
               ODocument edgeRec = ((OIdentifiable) edges).getRecord();
               OClass clazz = ODocumentInternal.getImmutableSchemaClass(edgeRec);

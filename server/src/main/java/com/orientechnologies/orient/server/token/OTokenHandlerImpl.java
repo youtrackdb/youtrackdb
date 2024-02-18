@@ -7,6 +7,7 @@ import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.id.OImmutableRecordId;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.OToken;
@@ -451,7 +452,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
     final OrientJwtPayload payload = new OrientJwtPayload();
     payload.setAudience("OrientDBServer");
     payload.setDatabase("-");
-    payload.setUserRid(ORecordId.EMPTY_RECORD_ID);
+    payload.setUserRid(OImmutableRecordId.EMPTY_RECORD_ID);
 
     final long expiryMinutes = sessionInMills;
     final long currTime = System.currentTimeMillis();

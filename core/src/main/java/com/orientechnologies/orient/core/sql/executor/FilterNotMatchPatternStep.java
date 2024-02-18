@@ -7,7 +7,7 @@ import java.util.List;
 
 public class FilterNotMatchPatternStep extends AbstractExecutionStep {
 
-  private List<AbstractExecutionStep> subSteps;
+  private final List<AbstractExecutionStep> subSteps;
 
   public FilterNotMatchPatternStep(
       List<AbstractExecutionStep> steps, OCommandContext ctx, boolean enableProfiling) {
@@ -17,10 +17,10 @@ public class FilterNotMatchPatternStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    if (!prev.isPresent()) {
+    if (prev == null) {
       throw new IllegalStateException("filter step requires a previous step");
     }
-    OExecutionStream resultSet = prev.get().start(ctx);
+    OExecutionStream resultSet = prev.start(ctx);
     return resultSet.filter(this::filterMap);
   }
 
@@ -62,12 +62,13 @@ public class FilterNotMatchPatternStep extends AbstractExecutionStep {
             return result;
           }
         });
-    subSteps.stream().forEach(step -> plan.chain(step));
+    subSteps.forEach(plan::chain);
     return plan;
   }
 
   @Override
   public List<OExecutionStep> getSubSteps() {
+    //noinspection unchecked,rawtypes
     return (List) subSteps;
   }
 

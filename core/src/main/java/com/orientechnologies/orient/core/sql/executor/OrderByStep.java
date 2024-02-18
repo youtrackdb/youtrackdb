@@ -10,7 +10,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/** Created by luigidellaquila on 11/07/16. */
+/**
+ * Created by luigidellaquila on 11/07/16.
+ **/
 public class OrderByStep extends AbstractExecutionStep {
   private final OOrderBy orderBy;
   private final long timeoutMillis;
@@ -39,11 +41,13 @@ public class OrderByStep extends AbstractExecutionStep {
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
     List<OResult> results;
-    if (prev.isPresent()) {
-      results = init(prev.get(), ctx);
+
+    if (prev != null) {
+      results = init(prev, ctx);
     } else {
       results = Collections.emptyList();
     }
+
     return OExecutionStream.resultIterator(results.iterator());
   }
 

@@ -29,7 +29,6 @@ import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OImmutableClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.ORecord;
@@ -37,13 +36,16 @@ import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.serialization.OSerializableStream;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.storage.OStorage;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-/** @author Luigi Dell'Aquila */
-public class OEdgeDelegate implements OEdge {
+/**
+ * @author Luigi Dell'Aquila
+ */
+public class OEdgeDelegate implements OEdgeInternal {
   protected OVertex vOut;
   protected OVertex vIn;
   protected OImmutableClass lightweightEdgeType;
@@ -65,9 +67,10 @@ public class OEdgeDelegate implements OEdge {
 
   @Override
   public OVertex getFrom() {
-    if (vOut != null)
+    if (vOut != null) {
       // LIGHTWEIGHT EDGE
       return vOut;
+    }
 
     final ODocument doc = getRecord();
     if (doc == null) return null;
@@ -80,7 +83,33 @@ public class OEdgeDelegate implements OEdge {
     if (!v.isVertex()) {
       return null; // TODO optional...?
     }
-    return v.asVertex().get();
+    return v.toVertex();
+  }
+
+  @Override
+  public OIdentifiable getFromIdentifiable() {
+    if (vOut != null) {
+      // LIGHTWEIGHT EDGE
+      return vOut;
+    }
+
+    final ODocument doc = getRecord();
+    if (doc == null) {
+      return null;
+    }
+
+    var result = doc.getLinkProperty(DIRECTION_OUT);
+    assert result != null;
+
+    var id = result.getIdentity();
+    var db = getDatabase();
+    var schema = db.getMetadata().getSchema();
+
+    if (schema.getClassByClusterId(id.getClusterId()).isVertexType()) {
+      return id;
+    }
+
+    return null;
   }
 
   @Override
@@ -93,27 +122,45 @@ public class OEdgeDelegate implements OEdge {
     if (doc == null) return null;
 
     Object result = doc.getProperty(DIRECTION_IN);
-    if (!(result instanceof OElement)) {
+    if (!(result instanceof OElement v)) {
       return null;
     }
-    OElement v = (OElement) result;
     if (!v.isVertex()) {
-      return null; // TODO optional...?
+      return null;
     }
-    return v.asVertex().get();
+
+    return v.toVertex();
+  }
+
+  @Override
+  public OIdentifiable getToIdentifiable() {
+    if (vIn != null) {
+      // LIGHTWEIGHT EDGE
+      return vIn;
+    }
+
+    final ODocument doc = getRecord();
+    if (doc == null) {
+      return null;
+    }
+
+    var result = doc.getLinkProperty(DIRECTION_IN);
+    assert result != null;
+
+    var id = result.getIdentity();
+    var db = getDatabase();
+    var schema = db.getMetadata().getSchema();
+
+    if (schema.getClassByClusterId(id.getClusterId()).isVertexType()) {
+      return id;
+    }
+
+    return null;
   }
 
   @Override
   public boolean isLightweight() {
     return this.element == null;
-  }
-
-  @Override
-  public Set<String> getPropertyNames() {
-    if (element != null) {
-      return element.getPropertyNames();
-    }
-    return Collections.EMPTY_SET;
   }
 
   public OEdge delete() {
@@ -126,37 +173,12 @@ public class OEdgeDelegate implements OEdge {
   }
 
   @Override
-  public <RET> RET getProperty(String name) {
-    return element == null ? null : element.getProperty(name);
-  }
-
-  @Override
-  public boolean hasProperty(String propertyName) {
-    return element == null ? false : element.hasProperty(propertyName);
-  }
-
-  @Override
-  public void setProperty(String name, Object value) {
-    if (element == null) {
-      promoteToRegularEdge();
-    }
-    element.setProperty(name, value);
-  }
-
-  @Override
-  public void setProperty(String name, Object value, OType... fieldType) {
-    if (element == null) {
-      promoteToRegularEdge();
-    }
-    element.setProperty(name, value, fieldType);
-  }
-
-  private void promoteToRegularEdge() {
+  public void promoteToRegularEdge() {
     ODatabaseDocument db = getDatabase();
-    OVertex from = getFrom();
+    var from = getFrom();
     OVertex to = getTo();
-    OVertexDocument.detachOutgointEdge(from, this);
-    OVertexDocument.detachIncomingEdge(to, this);
+    OVertexInternal.removeOutgoingEdge(from, this);
+    OVertexInternal.removeIncomingEdge(to, this);
     this.element =
         ((ODatabaseDocumentInternal) db)
             .newRegularEdge(
@@ -168,8 +190,9 @@ public class OEdgeDelegate implements OEdge {
   }
 
   @Override
-  public <RET> RET removeProperty(String name) {
-    return element.removeProperty(name);
+  @Nullable
+  public ODocument getBaseDocument() {
+    return element;
   }
 
   @Override
@@ -177,9 +200,21 @@ public class OEdgeDelegate implements OEdge {
     return Optional.empty();
   }
 
+  @Nullable
+  @Override
+  public OVertex toVertex() {
+    return null;
+  }
+
   @Override
   public Optional<OEdge> asEdge() {
     return Optional.of(this);
+  }
+
+  @Nonnull
+  @Override
+  public OEdge toEdge() {
+    return this;
   }
 
   @Override
@@ -198,6 +233,15 @@ public class OEdgeDelegate implements OEdge {
       return Optional.ofNullable(lightweightEdgeType);
     }
     return element.getSchemaType();
+  }
+
+  @Nullable
+  @Override
+  public OClass getSchemaClass() {
+    if (element == null) {
+      return lightweightEdgeType;
+    }
+    return element.getSchemaClass();
   }
 
   public boolean isLabeled(String[] labels) {

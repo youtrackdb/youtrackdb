@@ -19,14 +19,14 @@ import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
-/** @author Artem Orobets (enisher-at-gmail.com) */
+/**
+ * @author Artem Orobets (enisher-at-gmail.com)
+ */
 public class ODocumentTest {
   private static final String dbName = ODocumentTest.class.getSimpleName();
   private static final String defaultDbAdminCredentials = "admin";
@@ -257,36 +257,6 @@ public class ODocumentTest {
         odb.close();
       }
     }
-  }
-
-  @Test
-  public void testSetFieldAtListIndex() {
-    ODocument doc = new ODocument();
-
-    Map<String, Object> data = new HashMap<String, Object>();
-
-    List<Object> parentArray = new ArrayList<Object>();
-    parentArray.add(1);
-    parentArray.add(2);
-    parentArray.add(3);
-
-    Map<String, Object> object4 = new HashMap<String, Object>();
-    object4.put("prop", "A");
-    parentArray.add(object4);
-
-    data.put("array", parentArray);
-
-    doc.field("data", data);
-
-    assertEquals(doc.field("data.array[3].prop"), "A");
-    doc.field("data.array[3].prop", "B");
-
-    assertEquals(doc.field("data.array[3].prop"), "B");
-
-    assertEquals(doc.<Object>field("data.array[0]"), 1);
-    doc.field("data.array[0]", 5);
-
-    assertEquals(doc.<Object>field("data.array[0]"), 5);
   }
 
   @Test

@@ -31,16 +31,19 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import javax.annotation.Nullable;
 
-/** @author mdjurovi */
+/**
+ * @author mdjurovi
+ */
 public class OResultBinary implements OResult {
 
-  private ODocumentSerializer serializer;
-  private Optional<ORecordId> id;
+  private final ODocumentSerializer serializer;
+  @Nullable private final ORecordId id;
   private final byte[] bytes;
   private final int offset;
   private final int fieldLength;
-  private OImmutableSchema schema;
+  private final OImmutableSchema schema;
 
   public OResultBinary(
       OImmutableSchema schema,
@@ -49,7 +52,7 @@ public class OResultBinary implements OResult {
       int fieldLength,
       ODocumentSerializer serializer) {
     this.schema = schema;
-    this.id = Optional.empty();
+    this.id = null;
     this.bytes = bytes;
     this.serializer = serializer;
     this.offset = offset;
@@ -62,9 +65,9 @@ public class OResultBinary implements OResult {
       int offset,
       int fieldLength,
       ODocumentSerializer serializer,
-      ORecordId id) {
+      @Nullable ORecordId id) {
     schema = ((OMetadataInternal) db.getMetadata()).getImmutableSchemaSnapshot();
-    this.id = Optional.of(id);
+    this.id = id;
     this.bytes = bytes;
     this.serializer = serializer;
     this.offset = offset;
@@ -87,7 +90,7 @@ public class OResultBinary implements OResult {
   public <T> T getProperty(String name) {
     BytesContainer bytes = new BytesContainer(this.bytes);
     bytes.skip(offset);
-    return (T) serializer.deserializeFieldTyped(bytes, name, !id.isPresent(), schema, null);
+    return serializer.deserializeFieldTyped(bytes, name, id == null, schema, null);
   }
 
   @Override
@@ -117,13 +120,19 @@ public class OResultBinary implements OResult {
     final BytesContainer container = new BytesContainer(bytes);
     container.skip(offset);
     // TODO: use something more correct that new ODocument
-    String[] fields = serializer.getFieldNames(new ODocument(), container, !id.isPresent());
+    String[] fields = serializer.getFieldNames(new ODocument(), container, id == null);
     return new HashSet<>(Arrays.asList(fields));
   }
 
   @Override
   public Optional<ORID> getIdentity() {
-    return id.map((id) -> id);
+    return Optional.ofNullable(id);
+  }
+
+  @Nullable
+  @Override
+  public ORID getRecordId() {
+    return id;
   }
 
   @Override

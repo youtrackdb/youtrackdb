@@ -2,11 +2,12 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.executor.resultset.OProduceExecutionStream;
 
-/** @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com) */
+/**
+ * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
+ */
 public class CreateRecordStep extends AbstractExecutionStep {
 
   private int total = 0;
@@ -18,12 +19,15 @@ public class CreateRecordStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    getPrev().ifPresent(x -> x.start(ctx).close(ctx));
+    if (prev != null) {
+      prev.start(ctx).close(ctx);
+    }
+
     return new OProduceExecutionStream(this::produce).limit(total);
   }
 
   private OResult produce(OCommandContext ctx) {
-    return new OUpdatableResult((ODocument) ctx.getDatabase().newInstance());
+    return new OUpdatableResult(ctx.getDatabase().newInstance());
   }
 
   @Override
@@ -33,14 +37,14 @@ public class CreateRecordStep extends AbstractExecutionStep {
     result.append(spaces);
     result.append("+ CREATE EMPTY RECORDS");
     if (profilingEnabled) {
-      result.append(" (" + getCostFormatted() + ")");
+      result.append(" (").append(getCostFormatted()).append(")");
     }
     result.append("\n");
     result.append(spaces);
     if (total == 1) {
       result.append("  1 record");
     } else {
-      result.append("  " + total + " record");
+      result.append("  ").append(total).append(" record");
     }
     return result.toString();
   }

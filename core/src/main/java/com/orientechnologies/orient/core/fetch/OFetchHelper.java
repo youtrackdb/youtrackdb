@@ -150,7 +150,7 @@ public class OFetchHelper {
     if (iFetchPlan == OFetchHelper.DEFAULT_FETCHPLAN) return;
 
     Object fieldValue;
-    for (String fieldName : record.getPropertyNames()) {
+    for (String fieldName : record.getPropertyNamesWithoutFiltration()) {
       int depthLevel;
       final String fieldPath =
           !iFieldPathFromRoot.isEmpty() ? iFieldPathFromRoot + "." + fieldName : fieldName;
@@ -440,7 +440,7 @@ public class OFetchHelper {
     // Pre-process to gather fieldTypes
     fetchContext.onBeforeFetch(record);
     if (settings.keepTypes) {
-      for (final String fieldName : record.getPropertyNames()) {
+      for (final String fieldName : record.getPropertyNamesWithoutFiltration()) {
         processFieldTypes(
             record,
             userObject,
@@ -458,7 +458,7 @@ public class OFetchHelper {
 
     fetchContext.onBeforeFetch(record);
     final Set<String> toRemove = new HashSet<>();
-    for (final String fieldName : record.getPropertyNames()) {
+    for (final String fieldName : record.getPropertyNamesWithoutFiltration()) {
       process(
           record,
           userObject,

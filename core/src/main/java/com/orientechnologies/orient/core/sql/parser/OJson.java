@@ -113,7 +113,7 @@ public class OJson extends SimpleNode {
         OType t = OFieldTypesString.getOTypeFromChar(charType);
         retDoc.setProperty(name, value, t);
       } else {
-        retDoc.setProperty(name, value);
+        retDoc.setPropertyWithoutValidation(name, value);
       }
     }
     return retDoc;

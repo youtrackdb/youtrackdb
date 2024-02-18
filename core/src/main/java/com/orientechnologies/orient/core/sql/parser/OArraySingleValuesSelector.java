@@ -68,7 +68,7 @@ public class OArraySingleValuesSelector extends SimpleNode {
         } else if (iResult instanceof OElement && index instanceof String) {
           result.add(((OElement) iResult).getProperty((String) index));
         } else if (OMultiValue.isMultiValue(iResult)) {
-          Iterator<Object> iter = OMultiValue.getMultiValueIterator(iResult);
+          Iterator<?> iter = OMultiValue.getMultiValueIterator(iResult);
           while (iter.hasNext()) {
             result.add(calculateValue(iter.next(), index));
           }
@@ -100,7 +100,7 @@ public class OArraySingleValuesSelector extends SimpleNode {
         } else if (iResult instanceof OElement && index instanceof String) {
           result.add(((OElement) iResult).getProperty((String) index));
         } else if (OMultiValue.isMultiValue(iResult)) {
-          Iterator<Object> iter = OMultiValue.getMultiValueIterator(iResult);
+          Iterator<?> iter = OMultiValue.getMultiValueIterator(iResult);
           while (iter.hasNext()) {
             result.add(calculateValue(iter.next(), index));
           }
@@ -124,7 +124,7 @@ public class OArraySingleValuesSelector extends SimpleNode {
     } else if (item instanceof OElement && index instanceof String) {
       return ((OElement) item).getProperty((String) index);
     } else if (OMultiValue.isMultiValue(item)) {
-      Iterator<Object> iter = OMultiValue.getMultiValueIterator(item);
+      Iterator<?> iter = OMultiValue.getMultiValueIterator(item);
       List<Object> result = new ArrayList<>();
       while (iter.hasNext()) {
         result.add(calculateValue(iter.next(), index));

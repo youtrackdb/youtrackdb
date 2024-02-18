@@ -33,7 +33,10 @@ public class RetryStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    getPrev().ifPresent(x -> x.start(ctx).close(ctx));
+    if (prev != null) {
+      prev.start(ctx).close(ctx);
+    }
+
     for (int i = 0; i < retries; i++) {
       try {
 
@@ -48,12 +51,13 @@ public class RetryStep extends AbstractExecutionStep {
         break;
       } catch (ONeedRetryException ex) {
         try {
-          ctx.getDatabase().rollback();
-        } catch (Exception e) {
+          var db = ctx.getDatabase();
+          db.rollback();
+        } catch (Exception ignored) {
         }
 
         if (i == retries - 1) {
-          if (elseBody != null && elseBody.size() > 0) {
+          if (elseBody != null && !elseBody.isEmpty()) {
             OScriptExecutionPlan plan = initPlan(elseBody, ctx);
             OExecutionStepInternal result = plan.executeFull();
             if (result != null) {

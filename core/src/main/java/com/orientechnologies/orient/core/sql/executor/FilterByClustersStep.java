@@ -20,25 +20,25 @@ public class FilterByClustersStep extends AbstractExecutionStep {
   }
 
   private Set<Integer> init(ODatabaseSession db) {
-    return clusters.stream()
-        .map(x -> db.getClusterIdByName(x))
-        .filter(x -> x != null)
-        .collect(Collectors.toSet());
+    return clusters.stream().map(db::getClusterIdByName).collect(Collectors.toSet());
   }
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
     Set<Integer> ids = init(ctx.getDatabase());
-    if (!prev.isPresent()) {
+    if (prev == null) {
       throw new IllegalStateException("filter step requires a previous step");
     }
-    OExecutionStream resultSet = prev.get().start(ctx);
+    OExecutionStream resultSet = prev.start(ctx);
     return resultSet.filter((value, context) -> this.filterMap(value, ids));
   }
 
   private OResult filterMap(OResult result, Set<Integer> clusterIds) {
     if (result.isElement()) {
-      int clusterId = result.getIdentity().get().getClusterId();
+      var rid = result.getRecordId();
+      assert rid != null;
+
+      int clusterId = rid.getClusterId();
       if (clusterId < 0) {
         // this record comes from a TX, it still doesn't have a cluster assigned
         return result;
@@ -56,7 +56,7 @@ public class FilterByClustersStep extends AbstractExecutionStep {
         + "+ FILTER ITEMS BY CLUSTERS \n"
         + OExecutionStepInternal.getIndent(depth, indent)
         + "  "
-        + clusters.stream().collect(Collectors.joining(", "));
+        + String.join(", ", clusters);
   }
 
   @Override

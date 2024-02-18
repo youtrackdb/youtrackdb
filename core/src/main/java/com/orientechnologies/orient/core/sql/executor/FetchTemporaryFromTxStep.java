@@ -12,8 +12,6 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -35,14 +33,13 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    getPrev().ifPresent(x -> x.start(ctx).close(ctx));
-    Iterator<ORecord> data = null;
-    data = init(ctx);
-    if (data == null) {
-      data = Collections.emptyIterator();
+    if (prev != null) {
+      prev.start(ctx).close(ctx);
     }
-    OExecutionStream resultSet = OExecutionStream.iterator((Iterator) data).map(this::setContext);
-    return resultSet;
+
+    Iterator<ORecord> data;
+    data = init(ctx);
+    return OExecutionStream.iterator(data).map(this::setContext);
   }
 
   private OResult setContext(OResult result, OCommandContext context) {
@@ -62,38 +59,18 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
       }
     }
     if (order == FetchFromClusterExecutionStep.ORDER_ASC) {
-      Collections.sort(
-          records,
-          new Comparator<ORecord>() {
-            @Override
-            public int compare(ORecord o1, ORecord o2) {
-              long p1 = o1.getIdentity().getClusterPosition();
-              long p2 = o2.getIdentity().getClusterPosition();
-              if (p1 == p2) {
-                return 0;
-              } else if (p1 > p2) {
-                return 1;
-              } else {
-                return -1;
-              }
-            }
+      records.sort(
+          (o1, o2) -> {
+            long p1 = o1.getIdentity().getClusterPosition();
+            long p2 = o2.getIdentity().getClusterPosition();
+            return Long.compare(p1, p2);
           });
     } else {
-      Collections.sort(
-          records,
-          new Comparator<ORecord>() {
-            @Override
-            public int compare(ORecord o1, ORecord o2) {
-              long p1 = o1.getIdentity().getClusterPosition();
-              long p2 = o2.getIdentity().getClusterPosition();
-              if (p1 == p2) {
-                return 0;
-              } else if (p1 > p2) {
-                return -1;
-              } else {
-                return 1;
-              }
-            }
+      records.sort(
+          (o1, o2) -> {
+            long p1 = o1.getIdentity().getClusterPosition();
+            long p2 = o2.getIdentity().getClusterPosition();
+            return Long.compare(p2, p1);
           });
     }
     return records.iterator();
@@ -104,10 +81,7 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
     if (rid == null) {
       return false;
     }
-    if (rid.getClusterId() < 0) {
-      return false;
-    }
-    return true;
+    return rid.getClusterId() >= 0;
   }
 
   private boolean matchesClass(ORecord record, String className) {
@@ -120,10 +94,7 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
     if (schema == null) return className == null;
     else if (schema.getName().equals(className)) {
       return true;
-    } else if (schema.isSubClassOf(className)) {
-      return true;
-    }
-    return false;
+    } else return schema.isSubClassOf(className);
   }
 
   public void setOrder(Object order) {
@@ -137,7 +108,7 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
     result.append(spaces);
     result.append("+ FETCH NEW RECORDS FROM CURRENT TRANSACTION SCOPE (if any)");
     if (profilingEnabled) {
-      result.append(" (" + getCostFormatted() + ")");
+      result.append(" (").append(getCostFormatted()).append(")");
     }
     return result.toString();
   }
@@ -166,8 +137,6 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStep copy(OCommandContext ctx) {
-    FetchTemporaryFromTxStep result =
-        new FetchTemporaryFromTxStep(ctx, this.className, profilingEnabled);
-    return result;
+    return new FetchTemporaryFromTxStep(ctx, this.className, profilingEnabled);
   }
 }

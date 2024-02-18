@@ -162,11 +162,21 @@ public class OProjectionItem extends SimpleNode {
     if (value instanceof OExecutionStream) {
       value = ((OExecutionStream) value).stream(context).collect(Collectors.toList());
     }
-    if (value instanceof Iterator && !(value instanceof OIdentifiable)) {
-      Iterator iter = (Iterator) value;
-      value = new ArrayList<>();
-      while (iter.hasNext()) {
-        ((List) value).add(iter.next());
+    if (!(value instanceof OIdentifiable)) {
+      Iterator<?> iter = null;
+      if (value instanceof Iterator) {
+        iter = (Iterator<?>) value;
+      } else if (value instanceof Iterable && !(value instanceof Collection<?>)) {
+        iter = ((Iterable<?>) value).iterator();
+      }
+
+      if (iter != null) {
+        var list = new ArrayList<>();
+        while (iter.hasNext()) {
+          list.add(iter.next());
+        }
+
+        value = list;
       }
     }
 

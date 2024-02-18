@@ -76,7 +76,7 @@ public interface ORecord extends ORecordElement, OIdentifiable, Serializable, OS
    * @return The Object instance itself giving a "fluent interface". Useful to call multiple methods
    *     in chain.
    */
-  <RET extends ORecord> RET copy();
+  ORecord copy();
 
   /** Returns the record identity as &lt;cluster-id&gt;:&lt;cluster-position&gt; */
   ORID getIdentity();
@@ -170,7 +170,7 @@ public interface ORecord extends ORecordElement, OIdentifiable, Serializable, OS
    * @return The Object instance itself giving a "fluent interface". Useful to call multiple methods
    *     in chain.
    */
-  <RET extends ORecord> RET delete();
+  ORecord delete();
 
   /**
    * Fills the record parsing the content in JSON format.

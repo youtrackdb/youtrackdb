@@ -34,8 +34,6 @@ public class GraphIntersectRegularEdgesTest extends GraphNoTxAbstractTest {
 
   @Test
   public void testIntersect() {
-    graph.setUseLightweightEdges(false);
-
     graph.setAutoStartTx(false);
 
     // graph.begin();

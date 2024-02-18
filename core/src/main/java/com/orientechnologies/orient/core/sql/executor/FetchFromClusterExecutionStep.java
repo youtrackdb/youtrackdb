@@ -8,6 +8,7 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorCluster;
+import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OBinaryCompareOperator;
 import com.orientechnologies.orient.core.sql.parser.OBinaryCondition;
@@ -19,7 +20,9 @@ import com.orientechnologies.orient.core.sql.parser.OLtOperator;
 import com.orientechnologies.orient.core.sql.parser.ORid;
 import java.util.Iterator;
 
-/** @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com) */
+/**
+ * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
+ */
 public class FetchFromClusterExecutionStep extends AbstractExecutionStep {
 
   public static final Object ORDER_ASC = "ASC";
@@ -46,16 +49,18 @@ public class FetchFromClusterExecutionStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    getPrev().ifPresent(x -> x.start(ctx).close(ctx));
+    if (prev != null) {
+      prev.start(ctx).close(ctx);
+    }
     long minClusterPosition = calculateMinClusterPosition();
     long maxClusterPosition = calculateMaxClusterPosition();
-    ORecordIteratorCluster iterator =
-        new ORecordIteratorCluster(
+    ORecordIteratorCluster<ORecord> iterator =
+        new ORecordIteratorCluster<>(
             (ODatabaseDocumentInternal) ctx.getDatabase(),
             clusterId,
             minClusterPosition,
             maxClusterPosition);
-    Iterator<OIdentifiable> iter;
+    Iterator<ORecord> iter;
     if (ORDER_DESC.equals(order)) {
       iter = iterator.reversed();
     } else {
@@ -78,8 +83,7 @@ public class FetchFromClusterExecutionStep extends AbstractExecutionStep {
     long maxValue = -1;
 
     for (OBooleanExpression ridRangeCondition : queryPlanning.ridRangeConditions.getSubBlocks()) {
-      if (ridRangeCondition instanceof OBinaryCondition) {
-        OBinaryCondition cond = (OBinaryCondition) ridRangeCondition;
+      if (ridRangeCondition instanceof OBinaryCondition cond) {
         ORid condRid = cond.getRight().getRid();
         OBinaryCompareOperator operator = cond.getOperator();
         if (condRid != null) {
@@ -105,8 +109,7 @@ public class FetchFromClusterExecutionStep extends AbstractExecutionStep {
     long minValue = Long.MAX_VALUE;
 
     for (OBooleanExpression ridRangeCondition : queryPlanning.ridRangeConditions.getSubBlocks()) {
-      if (ridRangeCondition instanceof OBinaryCondition) {
-        OBinaryCondition cond = (OBinaryCondition) ridRangeCondition;
+      if (ridRangeCondition instanceof OBinaryCondition cond) {
         ORID conditionRid;
 
         Object obj;
@@ -194,12 +197,10 @@ public class FetchFromClusterExecutionStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStep copy(OCommandContext ctx) {
-    FetchFromClusterExecutionStep result =
-        new FetchFromClusterExecutionStep(
-            this.clusterId,
-            this.queryPlanning == null ? null : this.queryPlanning.copy(),
-            ctx,
-            profilingEnabled);
-    return result;
+    return new FetchFromClusterExecutionStep(
+        this.clusterId,
+        this.queryPlanning == null ? null : this.queryPlanning.copy(),
+        ctx,
+        profilingEnabled);
   }
 }

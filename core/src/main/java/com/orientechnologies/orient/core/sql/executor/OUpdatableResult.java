@@ -2,8 +2,11 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.record.OElement;
+import com.orientechnologies.orient.core.record.impl.OElementInternal;
 
-/** @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com) */
+/**
+ * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
+ */
 public class OUpdatableResult extends OResultInternal {
   protected OResultInternal previousValue = null;
 
@@ -37,7 +40,7 @@ public class OUpdatableResult extends OResultInternal {
 
   @Override
   public void setProperty(String name, Object value) {
-    ((OElement) element).setProperty(name, value);
+    ((OElementInternal) element).setPropertyWithoutValidation(name, value);
   }
 
   public void removeProperty(String name) {

@@ -1,10 +1,14 @@
 package com.orientechnologies.orient.graph.blueprints;
 
+import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.schema.OClass.INDEX_TYPE;
 import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.record.ODirection;
+import com.orientechnologies.orient.core.record.OEdge;
+import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
-import com.tinkerpop.blueprints.Vertex;
-import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -14,170 +18,166 @@ import org.junit.Test;
  */
 public class EdgeIndexingTest {
 
-  /**
-   * Test that "in_vertex" has edges to only single "out_vertex" but we may have several edges to
-   * single "out_vertex".
-   */
+  /** Test many to one connection type. Many vertices can be connected to only one. */
   @Test
   public void testOutLinksUniqueness() {
-    final String url = "memory:" + this.getClass().getSimpleName();
-    OrientGraph graph = new OrientGraph(url);
-    graph.drop();
+    final String url = "memory:.";
+    var dbName = this.getClass().getSimpleName();
+    try (var orientDB = new OrientDB(url, OrientDBConfig.defaultConfig())) {
+      orientDB.execute(
+          "create database ? memory users (admin identified by 'admin' role admin)", dbName);
 
-    graph = new OrientGraph(url);
-    graph.setUseLightweightEdges(true);
-    graph.createEdgeType("link");
-    graph.setAutoStartTx(false);
+      try (var session = orientDB.open(dbName, "admin", "admin")) {
+        session.createEdgeClass("link");
+        var vertexClass = session.createVertexClass("IndexedOutVertex");
+        var property =
+            vertexClass.createProperty(
+                OVertex.getDirectEdgeLinkFieldName(ODirection.OUT, "link"), OType.LINKBAG);
+        property.createIndex(INDEX_TYPE.UNIQUE);
 
-    OClass outVertexType = graph.createVertexType("IndexedOutVertex");
-    outVertexType.createProperty("out_link", OType.LINKBAG);
-    outVertexType.createIndex("uniqueLinkIndex", "unique", "out_link");
+        session.begin();
+        var vertexOutOne = session.newVertex("IndexedOutVertex");
 
-    graph.setAutoStartTx(true);
+        var vertexInOne = session.newVertex();
+        var vertexInTwo = session.newVertex();
 
-    Vertex vertexOutOne = graph.addVertex("class:IndexedOutVertex");
+        vertexOutOne.addEdge(vertexInOne, "link");
+        vertexOutOne.addEdge(vertexInTwo, "link");
 
-    Vertex vertexInOne = graph.addVertex(null);
-    Vertex vertexInTwo = graph.addVertex(null);
+        vertexOutOne.save();
 
-    vertexOutOne.addEdge("link", vertexInOne);
-    vertexOutOne.addEdge("link", vertexInTwo);
-    graph.commit();
+        session.commit();
 
-    Vertex vertexOutTwo = graph.addVertex("class:IndexedOutVertex");
-    vertexOutTwo.addEdge("link", vertexInTwo);
+        session.begin();
 
-    try {
-      graph.commit();
+        var vertexOutTwo = session.newVertex("IndexedOutVertex");
+        vertexOutTwo.addEdge(vertexInTwo, "link");
 
-      // in vertex can be linked by only one out vertex.
-      Assert.fail();
-    } catch (ORecordDuplicatedException e) {
+        vertexOutTwo.save();
+        try {
+          session.commit();
+          // in vertex can be linked by only one out vertex.
+          Assert.fail();
+        } catch (ORecordDuplicatedException e) {
+        }
+      }
     }
-
-    graph.drop();
   }
 
-  /**
-   * Test that "in_vertex" has edges to only single "out_vertex" but we may have several edges to
-   * single "out_vertex".
-   */
+  /** Test many to one connection type. Many vertices can be connected to only one. */
   @Test
   public void testOutLinksUniquenessTwo() {
-    final String url = "memory:" + this.getClass().getSimpleName();
-    OrientGraph graph = new OrientGraph(url);
-    graph.drop();
+    final String url = "memory:.";
+    var dbName = this.getClass().getSimpleName();
+    try (var orientDB = new OrientDB(url, OrientDBConfig.defaultConfig())) {
+      orientDB.execute(
+          "create database ? memory users (admin identified by 'admin' role admin)", dbName);
+      try (var session = orientDB.open(dbName, "admin", "admin")) {
+        session.createEdgeClass("link");
+        OClass outVertexClass = session.createVertexClass("IndexedOutVertex");
 
-    graph = new OrientGraph(url);
-    graph.setUseLightweightEdges(true);
-    graph.createEdgeType("link");
-    graph.setAutoStartTx(false);
+        var property =
+            outVertexClass.createProperty(
+                OVertex.getDirectEdgeLinkFieldName(ODirection.OUT, "link"), OType.LINKBAG);
+        property.createIndex(INDEX_TYPE.UNIQUE);
 
-    OClass outVertexType = graph.createVertexType("IndexedOutVertex");
-    outVertexType.createProperty("out_link", OType.LINKBAG);
-    outVertexType.createIndex("uniqueLinkIndex", "unique", "out_link");
+        session.begin();
 
-    graph.setAutoStartTx(true);
+        var vertexOutOne = session.newVertex("IndexedOutVertex");
 
-    Vertex vertexOutOne = graph.addVertex("class:IndexedOutVertex");
+        var vertexInOne = session.newVertex();
+        var vertexInTwo = session.newVertex();
 
-    Vertex vertexInOne = graph.addVertex(null);
-    Vertex vertexInTwo = graph.addVertex(null);
+        vertexOutOne.addEdge(vertexInOne, "link");
+        vertexOutOne.addEdge(vertexInTwo, "link");
+        vertexOutOne.save();
 
-    vertexOutOne.addEdge("link", vertexInOne);
-    vertexOutOne.addEdge("link", vertexInTwo);
+        var vertexOutTwo = session.newVertex("IndexedOutVertex");
+        vertexOutTwo.addEdge(vertexInTwo, "link");
 
-    Vertex vertexOutTwo = graph.addVertex("class:IndexedOutVertex");
-    vertexOutTwo.addEdge("link", vertexInTwo);
+        vertexOutTwo.save();
+        try {
+          session.commit();
 
-    try {
-      graph.commit();
-
-      // in vertex can be linked by only one out vertex.
-      Assert.fail();
-    } catch (ORecordDuplicatedException e) {
+          // in vertex can be linked by only one out vertex.
+          Assert.fail();
+        } catch (ORecordDuplicatedException e) {
+        }
+      }
     }
-
-    graph.drop();
   }
 
-  /**
-   * Test that "out_vertex" has edges to only single "in_vertex" but we may have several edges to
-   * single "in_vertex".
-   */
+  /** Test that "out_vertex" has edges to only single "in_vertex". */
   @Test
   public void testOutLinksUniquenessThree() {
-    final String url = "memory:" + this.getClass().getSimpleName();
+    final String url = "memory:.";
+    var dbName = this.getClass().getSimpleName();
+    try (var orientDB = new OrientDB(url, OrientDBConfig.defaultConfig())) {
+      orientDB.execute(
+          "create database ? memory users (admin identified by 'admin' role admin)", dbName);
+      try (var session = orientDB.open(dbName, "admin", "admin")) {
+        session.createEdgeClass("link");
 
-    OrientGraph graph = new OrientGraph(url, "admin", "admin", false);
-    graph.drop();
+        OClass inVertexType = session.createVertexClass("IndexedInVertex");
+        var in_link =
+            inVertexType.createProperty(
+                OVertex.getDirectEdgeLinkFieldName(ODirection.IN, "link"), OType.LINKBAG);
 
-    graph = new OrientGraph(url, "admin", "admin", false);
-    graph.setUseLightweightEdges(true);
+        inVertexType.createIndex("uniqueLinkIndex", "unique", in_link.getName());
 
-    graph.createEdgeType("link");
+        session.begin();
 
-    OClass inVertexType = graph.createVertexType("IndexedInVertex");
-    inVertexType.createProperty("in_link", OType.LINKBAG);
-    inVertexType.createIndex("uniqueLinkIndex", "unique", "in_link");
+        var vertexOutOne = session.newVertex();
 
-    graph.setAutoStartTx(true);
+        var vertexInOne = session.newVertex("IndexedInVertex");
+        var vertexInTwo = session.newVertex("IndexedInVertex");
 
-    Vertex vertexOutOne = graph.addVertex(null);
+        vertexOutOne.addEdge(vertexInOne, "link");
+        vertexOutOne.addEdge(vertexInTwo, "link");
 
-    Vertex vertexInOne = graph.addVertex("class:IndexedInVertex");
-    Vertex vertexInTwo = graph.addVertex("class:IndexedInVertex");
+        vertexOutOne.save();
 
-    vertexOutOne.addEdge("link", vertexInOne);
-    vertexOutOne.addEdge("link", vertexInTwo);
-
-    try {
-      graph.commit();
-      Assert.fail();
-      // in vertex can be linked by only one out vertex.
-    } catch (ORecordDuplicatedException e) {
+        try {
+          session.commit();
+          Assert.fail();
+          // in vertex can be linked by only one out vertex.
+        } catch (ORecordDuplicatedException e) {
+        }
+      }
     }
-
-    graph.drop();
   }
 
-  /**
-   * Test that "out_vertex" has singe and only single edge to "in_vertex". This only possible if
-   * edges are not lightweight edges.
-   */
+  /** Test that "out_vertex" has singe and only single edge to "in_vertex". */
   @Test
   public void testOutLinksUniquenessFour() {
-    final String url = "memory:" + this.getClass().getSimpleName();
+    final String url = "memory:.";
+    var dbName = this.getClass().getSimpleName();
+    try (var orientDB = new OrientDB(url, OrientDBConfig.defaultConfig())) {
+      orientDB.execute(
+          "create database ? memory users (admin identified by 'admin' role admin)", dbName);
+      try (var session = orientDB.open(dbName, "admin", "admin")) {
+        OClass edgeType = session.createEdgeClass("link");
+        edgeType.createIndex("uniqueLinkIndex", "unique", OEdge.DIRECTION_IN, OEdge.DIRECTION_OUT);
 
-    OrientGraph graph = new OrientGraph(url, "admin", "admin", false);
-    graph.drop();
+        session.begin();
+        var vertexOutOne = session.newVertex();
 
-    graph = new OrientGraph(url, "admin", "admin", false);
+        var vertexInOne = session.newVertex();
+        var vertexInTwo = session.newVertex();
 
-    OClass edgeType = graph.createEdgeType("link");
+        vertexOutOne.addEdge(vertexInOne, "link");
+        vertexOutOne.addEdge(vertexInTwo, "link");
+        vertexOutOne.addEdge(vertexInOne, "link");
 
-    edgeType.createProperty("in", OType.LINK);
-    edgeType.createProperty("out", OType.LINK);
-    edgeType.createIndex("uniqueLinkIndex", "unique", "in", "out");
+        vertexOutOne.save();
 
-    graph.setAutoStartTx(true);
-
-    Vertex vertexOutOne = graph.addVertex(null);
-
-    Vertex vertexInOne = graph.addVertex(null);
-    Vertex vertexInTwo = graph.addVertex(null);
-
-    vertexOutOne.addEdge("link", vertexInOne);
-    vertexOutOne.addEdge("link", vertexInTwo);
-    vertexOutOne.addEdge("link", vertexInOne);
-
-    try {
-      graph.commit();
-      Assert.fail();
-      // in vertex can be linked by only one out vertex.
-    } catch (ORecordDuplicatedException e) {
+        try {
+          session.commit();
+          Assert.fail();
+          // in vertex can be linked by only one out vertex.
+        } catch (ORecordDuplicatedException e) {
+        }
+      }
     }
-
-    graph.drop();
   }
 }

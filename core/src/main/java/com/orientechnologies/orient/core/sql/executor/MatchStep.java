@@ -7,7 +7,9 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OResultSetEdgeTr
 import com.orientechnologies.orient.core.sql.parser.OFieldMatchPathItem;
 import com.orientechnologies.orient.core.sql.parser.OMultiMatchPathItem;
 
-/** @author Luigi Dell'Aquila */
+/**
+ * @author Luigi Dell'Aquila
+ */
 public class MatchStep extends AbstractExecutionStep {
   protected final EdgeTraversal edge;
 
@@ -17,11 +19,10 @@ public class MatchStep extends AbstractExecutionStep {
   }
 
   @Override
-  public void reset() {}
-
-  @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    OExecutionStream resultSet = getPrev().get().start(ctx);
+    assert prev != null;
+
+    OExecutionStream resultSet = prev.start(ctx);
     return resultSet.flatMap(this::createNextResultSet);
   }
 
@@ -55,14 +56,14 @@ public class MatchStep extends AbstractExecutionStep {
     }
     result.append(spaces);
     result.append("  ");
-    result.append("{" + edge.edge.out.alias + "}");
+    result.append("{").append(edge.edge.out.alias).append("}");
     if (edge.edge.item instanceof OFieldMatchPathItem) {
       result.append(".");
       result.append(((OFieldMatchPathItem) edge.edge.item).getField());
     } else {
       result.append(edge.edge.item.getMethod());
     }
-    result.append("{" + edge.edge.in.alias + "}");
+    result.append("{").append(edge.edge.in.alias).append("}");
     return result.toString();
   }
 }

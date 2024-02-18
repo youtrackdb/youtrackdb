@@ -2,7 +2,6 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OUpdateItem;
 import java.util.List;
@@ -19,21 +18,15 @@ public class UpdateSetStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    OExecutionStream upstream = getPrev().get().start(ctx);
+    assert prev != null;
+
+    OExecutionStream upstream = prev.start(ctx);
     return upstream.map(this::mapResult);
   }
 
   private OResult mapResult(OResult result, OCommandContext ctx) {
     if (result instanceof OResultInternal) {
       for (OUpdateItem item : items) {
-        OClass type = result.getElement().flatMap(x -> x.getSchemaType()).orElse(null);
-        if (type == null) {
-          Object clazz = result.getProperty("@view");
-          if (clazz instanceof String) {
-            type = ctx.getDatabase().getMetadata().getSchema().getView((String) clazz);
-          }
-        }
-
         item.applyUpdate((OResultInternal) result, ctx);
       }
     }
@@ -46,11 +39,9 @@ public class UpdateSetStep extends AbstractExecutionStep {
     StringBuilder result = new StringBuilder();
     result.append(spaces);
     result.append("+ UPDATE SET");
-    for (int i = 0; i < items.size(); i++) {
-      OUpdateItem item = items.get(i);
-      if (i < items.size()) {
-        result.append("\n");
-      }
+
+    for (OUpdateItem item : items) {
+      result.append("\n");
       result.append(spaces);
       result.append("  ");
       result.append(item.toString());

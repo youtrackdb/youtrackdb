@@ -100,7 +100,7 @@ public class OContainsAllCondition extends OBooleanExpression {
       if (!OMultiValue.isMultiValue(leftValue)) {
         return false;
       }
-      Iterator<Object> iter = OMultiValue.getMultiValueIterator(leftValue);
+      Iterator<?> iter = OMultiValue.getMultiValueIterator(leftValue);
       while (iter.hasNext()) {
         Object item = iter.next();
         if (item instanceof OIdentifiable) {
@@ -161,7 +161,7 @@ public class OContainsAllCondition extends OBooleanExpression {
       if (!OMultiValue.isMultiValue(leftValue)) {
         return false;
       }
-      Iterator<Object> iter = OMultiValue.getMultiValueIterator(leftValue);
+      Iterator<?> iter = OMultiValue.getMultiValueIterator(leftValue);
       while (iter.hasNext()) {
         Object item = iter.next();
         if (item instanceof OIdentifiable) {

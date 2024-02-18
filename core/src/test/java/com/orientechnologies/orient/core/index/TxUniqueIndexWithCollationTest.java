@@ -32,7 +32,9 @@ import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.query.OLegacyResultSet;
 import org.junit.Test;
 
-/** @author Sergey Sitnikov */
+/**
+ * @author Sergey Sitnikov
+ */
 public class TxUniqueIndexWithCollationTest extends BaseMemoryDatabase {
 
   public void beforeTest() {

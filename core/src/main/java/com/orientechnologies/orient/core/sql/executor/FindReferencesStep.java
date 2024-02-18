@@ -65,7 +65,7 @@ public class FindReferencesStep extends AbstractExecutionStep {
     List<OResult> results = new ArrayList<>();
     for (ORID rid : rids) {
       List<String> resultForRecord = checkObject(Collections.singleton(rid), rec, record, "");
-      if (resultForRecord.size() > 0) {
+      if (!resultForRecord.isEmpty()) {
         OResultInternal nextResult = new OResultInternal();
         nextResult.setProperty("rid", rid);
         nextResult.setProperty("referredBy", rec);
@@ -77,11 +77,12 @@ public class FindReferencesStep extends AbstractExecutionStep {
   }
 
   private List<ORecordIteratorCluster<ORecord>> initClusterIterators(OCommandContext ctx) {
+    @SuppressWarnings("rawtypes")
     ODatabaseInternal db = (ODatabaseInternal) ctx.getDatabase();
     Collection<String> targetClusterNames = new HashSet<>();
 
-    if ((this.classes == null || this.classes.size() == 0)
-        && (this.clusters == null || this.clusters.size() == 0)) {
+    if ((this.classes == null || this.classes.isEmpty())
+        && (this.clusters == null || this.clusters.isEmpty())) {
       targetClusterNames.addAll(ctx.getDatabase().getClusterNames());
     } else {
       if (this.clusters != null) {
@@ -98,6 +99,7 @@ public class FindReferencesStep extends AbstractExecutionStep {
         }
         OSchema schema =
             ((ODatabaseDocumentInternal) db).getMetadata().getImmutableSchemaSnapshot();
+        assert this.classes != null;
         for (OIdentifier className : this.classes) {
           OClass clazz = schema.getClass(className.getStringValue());
           if (clazz == null) {
@@ -110,25 +112,24 @@ public class FindReferencesStep extends AbstractExecutionStep {
       }
     }
 
-    List<ORecordIteratorCluster<ORecord>> iterators =
-        targetClusterNames.stream()
-            .map(
-                clusterName ->
-                    new ORecordIteratorCluster<ORecord>(
-                        (ODatabaseDocumentInternal) db, db.getClusterIdByName(clusterName)))
-            .collect(Collectors.toList());
-    return iterators;
+    return targetClusterNames.stream()
+        .map(
+            clusterName ->
+                new ORecordIteratorCluster<>(
+                    (ODatabaseDocumentInternal) db, db.getClusterIdByName(clusterName)))
+        .collect(Collectors.toList());
   }
 
   private Set<ORID> fetchRidsToFind(OCommandContext ctx) {
     Set<ORID> ridsToFind = new HashSet<>();
 
-    OExecutionStepInternal prevStep = getPrev().get();
+    OExecutionStepInternal prevStep = prev;
+    assert prevStep != null;
     OExecutionStream nextSlot = prevStep.start(ctx);
     while (nextSlot.hasNext(ctx)) {
       OResult nextRes = nextSlot.next(ctx);
       if (nextRes.isElement()) {
-        ridsToFind.add(nextRes.getElement().get().getIdentity());
+        ridsToFind.add(nextRes.toElement().getIdentity());
       }
     }
     nextSlot.close(ctx);
@@ -235,11 +236,11 @@ public class FindReferencesStep extends AbstractExecutionStep {
         && (this.clusters == null || this.clusters.isEmpty())) {
       result.append("  (all db)");
     } else {
-      if (this.classes != null && this.classes.size() > 0) {
-        result.append("  classes: " + this.classes);
+      if (this.classes != null && !this.classes.isEmpty()) {
+        result.append("  classes: ").append(this.classes);
       }
-      if (this.clusters != null && this.clusters.size() > 0) {
-        result.append("  classes: " + this.clusters);
+      if (this.clusters != null && !this.clusters.isEmpty()) {
+        result.append("  classes: ").append(this.clusters);
       }
     }
     return result.toString();

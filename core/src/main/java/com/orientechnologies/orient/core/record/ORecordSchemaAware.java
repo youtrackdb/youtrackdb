@@ -19,23 +19,25 @@
  */
 package com.orientechnologies.orient.core.record;
 
-import com.orientechnologies.orient.core.exception.OValidationException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 
 /**
  * Generic record representation with a schema definition. The record has multiple fields. Fields
  * are also called properties.
+ *
+ * @deprecated use {@link OElement} instead
  */
-public interface ORecordSchemaAware {
+public interface ORecordSchemaAware extends OElement {
 
   /**
    * Returns the value of a field.
    *
    * @param iFieldName Field name
    * @return Field value if exists, otherwise null
+   * @deprecated use {@link #getProperty(String)} instead
    */
-  public <RET> RET field(String iFieldName);
+  @Deprecated
+  <RET> RET field(String iFieldName);
 
   /**
    * Returns the value of a field forcing the return type. This is useful when you want avoid
@@ -45,8 +47,10 @@ public interface ORecordSchemaAware {
    * @param iFieldName Field name
    * @param iType Type between the values defined in the {@link OType} enum
    * @return Field value if exists, otherwise null
+   * @deprecated use {@link #setProperty(String, Object, OType...)} instead
    */
-  public <RET> RET field(String iFieldName, OType iType);
+  @Deprecated
+  <RET> RET field(String iFieldName, OType iType);
 
   /**
    * Sets the value for a field.
@@ -55,8 +59,10 @@ public interface ORecordSchemaAware {
    * @param iFieldValue Field value to set
    * @return The Record instance itself giving a "fluent interface". Useful to call multiple methods
    *     in chain.
+   * @deprecated use {@link #setProperty(String, Object)} instead
    */
-  public ORecordSchemaAware field(String iFieldName, Object iFieldValue);
+  @Deprecated
+  ORecordSchemaAware field(String iFieldName, Object iFieldValue);
 
   /**
    * Sets the value for a field forcing the type.This is useful when you want avoid automatic
@@ -66,9 +72,10 @@ public interface ORecordSchemaAware {
    * @param iFieldValue Field value to set
    * @param iType Type between the values defined in the {@link
    *     com.orientechnologies.orient.core.metadata.schema.OType} enum
-   * @return
+   * @deprecated use {@link #setProperty(String, Object, OType...)} instead
    */
-  public ORecordSchemaAware field(String iFieldName, Object iFieldValue, OType... iType);
+  @Deprecated
+  ORecordSchemaAware field(String iFieldName, Object iFieldValue, OType... iType);
 
   /**
    * Removes a field. This operation does not set the field value to null but remove the field
@@ -76,23 +83,29 @@ public interface ORecordSchemaAware {
    *
    * @param iFieldName Field name
    * @return The old value contained in the remove field
+   * @deprecated use {@link #removeProperty(String)} instead
    */
-  public Object removeField(String iFieldName);
+  @Deprecated
+  Object removeField(String iFieldName);
 
   /**
    * Tells if a field is contained in current record.
    *
    * @param iFieldName Field name
    * @return true if exists, otherwise false
+   * @deprecated use {@link #hasProperty(String)} (String)} instead
    */
-  public boolean containsField(String iFieldName);
+  @Deprecated
+  boolean containsField(String iFieldName);
 
   /**
    * Returns the number of fields present in memory.
    *
    * @return Fields number
+   * @deprecated use {@link #getPropertyNames()} instead
    */
-  public int fields();
+  @Deprecated
+  int fields();
 
   /**
    * Returns the record's field names. The returned Set object is disconnected by internal
@@ -100,8 +113,10 @@ public interface ORecordSchemaAware {
    * maintained also in the returning collection.
    *
    * @return Set of string containing the field names
+   * @deprecated use {@link #getPropertyNames()} instead
    */
-  public String[] fieldNames();
+  @Deprecated
+  String[] fieldNames();
 
   /**
    * Returns the record's field values. The returned object array is disconnected by internal
@@ -109,44 +124,8 @@ public interface ORecordSchemaAware {
    * maintained also in the returning collection.
    *
    * @return Object array of the field values
+   * @deprecated use {@link #getPropertyNames()} and {@link #getLinkProperty(String)} instead
    */
-  public Object[] fieldValues();
-
-  /**
-   * Returns the class name associated to the current record. Can be null. Call this method after a
-   * {@link #reset()} to re-associate the class.
-   *
-   * @return Class name if any
-   */
-  public String getClassName();
-
-  /**
-   * Sets the class for the current record. If the class not exists, it will be created in
-   * transparent way as empty (no fields).
-   *
-   * @param iClassName Class name to set
-   */
-  public void setClassName(String iClassName);
-
-  /**
-   * Sets the class for the current record only if already exists in the schema.
-   *
-   * @param iClassName Class name to set
-   */
-  public void setClassNameIfExists(String iClassName);
-
-  /**
-   * Returns the schema class object for the record.
-   *
-   * @return {@link OClass} instance or null if the record has no class associated
-   */
-  public OClass getSchemaClass();
-
-  /**
-   * Validates the record against the schema constraints if defined. If the record breaks the
-   * validation rules, then a {@link OValidationException} exception is thrown.
-   *
-   * @throws OValidationException
-   */
-  public void validate() throws OValidationException;
+  @Deprecated
+  Object[] fieldValues();
 }

@@ -3,7 +3,6 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.executor.resultset.OResultMapper;
 import com.orientechnologies.orient.core.sql.parser.OExpression;
@@ -28,7 +27,9 @@ public class InsertValuesStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    OExecutionStream upstream = getPrev().get().start(ctx);
+    assert prev != null;
+    OExecutionStream upstream = prev.start(ctx);
+
     return upstream.map(
         new OResultMapper() {
 
@@ -41,7 +42,7 @@ public class InsertValuesStep extends AbstractExecutionStep {
                 throw new OCommandExecutionException(
                     "Error executing INSERT, cannot modify element: " + result);
               }
-              result = new OUpdatableResult((ODocument) result.getElement().get());
+              result = new OUpdatableResult(result.toElement());
             }
             List<OExpression> currentValues = values.get(nextValueSet++);
             if (currentValues.size() != identifiers.size()) {

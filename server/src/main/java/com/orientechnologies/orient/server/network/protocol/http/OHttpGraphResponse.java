@@ -29,6 +29,7 @@ import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.OVertex;
+import com.orientechnologies.orient.core.record.impl.OVertexInternal;
 import com.orientechnologies.orient.core.serialization.serializer.OJSONWriter;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import java.io.ByteArrayInputStream;
@@ -92,7 +93,7 @@ public class OHttpGraphResponse extends OHttpResponseAbstract {
       Set<ORID> edgeRids = new HashSet<ORID>();
       boolean lightweightFound = false;
 
-      final Iterator<Object> iIterator = OMultiValue.getMultiValueIterator(iRecords);
+      final Iterator<?> iIterator = OMultiValue.getMultiValueIterator(iRecords);
       while (iIterator.hasNext()) {
         Object entry = iIterator.next();
 
@@ -144,8 +145,8 @@ public class OHttpGraphResponse extends OHttpResponseAbstract {
         json.writeAttribute("@class", vertex.getSchemaType().get().getName());
 
         // ADD ALL THE PROPERTIES
-        for (String field : vertex.getPropertyNames()) {
-          final Object v = vertex.getProperty(field);
+        for (String field : ((OVertexInternal) vertex).getPropertyNamesWithoutFiltration()) {
+          final Object v = ((OVertexInternal) vertex).getPropertyWithoutValidation(field);
           if (v != null) json.writeAttribute(field, v);
         }
         json.endObject();
@@ -230,10 +231,8 @@ public class OHttpGraphResponse extends OHttpResponseAbstract {
     json.writeAttribute("in", edge.getVertex(ODirection.IN).getIdentity());
 
     for (String field : edge.getPropertyNames()) {
-      if (!(field.equals("out") || field.equals("in"))) {
-        final Object v = edge.getProperty(field);
-        if (v != null) json.writeAttribute(field, v);
-      }
+      final Object v = edge.getProperty(field);
+      if (v != null) json.writeAttribute(field, v);
     }
 
     json.endObject();

@@ -23,6 +23,7 @@ import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.OTransactionException;
+import com.orientechnologies.orient.core.id.ChangeableIdentity;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.index.OCompositeKey;
@@ -45,15 +46,14 @@ import java.util.Map.Entry;
 
 public abstract class OTransactionRealAbstract extends OTransactionAbstract
     implements OTransactionInternal {
-  protected Map<ORID, ORID> updatedRids = new HashMap<ORID, ORID>();
-  protected Map<ORID, ORecordOperation> allEntries = new LinkedHashMap<ORID, ORecordOperation>();
-  protected Map<String, OTransactionIndexChanges> indexEntries =
-      new LinkedHashMap<String, OTransactionIndexChanges>();
+  protected Map<ORID, ORID> updatedRids = new HashMap<>();
+  protected Map<ORID, ORecordOperation> allEntries = new LinkedHashMap<>();
+  protected Map<String, OTransactionIndexChanges> indexEntries = new LinkedHashMap<>();
   protected Map<ORID, List<OTransactionRecordIndexOperation>> recordIndexOperations =
-      new HashMap<ORID, List<OTransactionRecordIndexOperation>>();
+      new HashMap<>();
   protected int id;
   protected int newObjectCounter = -2;
-  protected Map<String, Object> userData = new HashMap<String, Object>();
+  protected Map<String, Object> userData = new HashMap<>();
   private Map<ORID, LockedRecordMetadata> noTxLocks;
   private Optional<OTxMetadataHolder> metadata = Optional.empty();
 
@@ -61,7 +61,7 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
    * token This set is used to track which documents are changed during tx, if documents are changed
    * but not saved all changes are made during tx will be undone.
    */
-  protected final Set<ODocument> changedDocuments = new HashSet<ODocument>();
+  protected final Set<ODocument> changedDocuments = new HashSet<>();
 
   private Optional<List<byte[]>> serializedOperations = Optional.empty();
 
@@ -285,11 +285,18 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
       indexEntries.put(iIndexName, indexEntry);
     }
 
-    if (iOperation == OPERATION.CLEAR) indexEntry.setCleared();
-    else {
+    if (iOperation == OPERATION.CLEAR) {
+      indexEntry.setCleared();
+    } else {
       OTransactionIndexChangesPerKey changes = indexEntry.getChangesPerKey(key);
       changes.clientTrackOnly = clientTrackOnly;
       changes.add(iValue, iOperation);
+
+      if (changes.key == key
+          && key instanceof ChangeableIdentity changeableIdentity
+          && changeableIdentity.canChangeIdentity()) {
+        changeableIdentity.addIdentityChangeListeners(indexEntry);
+      }
 
       if (iValue == null) return;
 
@@ -297,7 +304,7 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
           recordIndexOperations.get(iValue.getIdentity());
 
       if (transactionIndexOperations == null) {
-        transactionIndexOperations = new ArrayList<OTransactionRecordIndexOperation>();
+        transactionIndexOperations = new ArrayList<>();
         recordIndexOperations.put(iValue.getIdentity().copy(), transactionIndexOperations);
       }
 
@@ -336,6 +343,10 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
         if (isIndexKeyMayDependOnRid(keyChanges.key, oldRid, fieldRidDependencies)) {
           keyRecordsToReinsert.add(new KeyChangesUpdateRecord(keyChanges, indexChanges));
           iterator.remove();
+
+          if (keyChanges.key instanceof ChangeableIdentity changeableIdentity) {
+            changeableIdentity.removeIdentityChangeListener(indexChanges);
+          }
         }
       }
     }

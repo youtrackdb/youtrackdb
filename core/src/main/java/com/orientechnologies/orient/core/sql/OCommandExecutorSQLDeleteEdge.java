@@ -30,6 +30,7 @@ import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.security.ORole;
@@ -257,8 +258,10 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
               final OVertex v = toVertex(toId);
               if (v != null)
                 for (OEdge e : v.getEdges(ODirection.IN, label)) {
-                  final OIdentifiable outV = ((OEdge) e).getFrom();
-                  if (outV != null && fromIds.contains(outV.getIdentity())) edges.add(e);
+                  final ORID outVRid = e.getFromIdentifiable().getIdentity();
+                  if (outVRid != null && fromIds.contains(outVRid)) {
+                    edges.add(e);
+                  }
                 }
             }
           }

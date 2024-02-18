@@ -1,17 +1,15 @@
 package com.orientechnologies.orient.core.record.impl;
 
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.OVertex;
+import java.util.Set;
+import javax.annotation.Nullable;
 
-public class OEdgeDocument extends ODocument implements OEdge {
-
-  public OEdgeDocument(OClass cl) {
-    super(cl);
-  }
-
+public class OEdgeDocument extends ODocument implements OEdgeInternal {
   public OEdgeDocument(ODatabaseSession session, String cl) {
     super(session, cl);
   }
@@ -26,28 +24,67 @@ public class OEdgeDocument extends ODocument implements OEdge {
 
   @Override
   public OVertex getFrom() {
-    Object result = getProperty(DIRECTION_OUT);
-    if (!(result instanceof OElement)) {
+    Object result = getPropertyWithoutValidation(DIRECTION_OUT);
+    if (!(result instanceof OElement v)) {
       return null;
     }
-    OElement v = (OElement) result;
+
     if (!v.isVertex()) {
       return null;
     }
-    return v.asVertex().get();
+
+    return v.toVertex();
+  }
+
+  @Override
+  @Nullable
+  public OIdentifiable getFromIdentifiable() {
+    var db = getDatabase();
+    var schema = db.getMetadata().getImmutableSchemaSnapshot();
+
+    var result = getLinkPropertyWithoutValidation(DIRECTION_OUT);
+    if (result == null) {
+      return null;
+    }
+
+    var rid = result.getIdentity();
+    if (schema.getClassByClusterId(rid.getClusterId()).isVertexType()) {
+      return rid;
+    }
+
+    return null;
   }
 
   @Override
   public OVertex getTo() {
-    Object result = getProperty(DIRECTION_IN);
-    if (!(result instanceof OElement)) {
+    Object result = getPropertyWithoutValidation(DIRECTION_IN);
+    if (!(result instanceof OElement v)) {
       return null;
     }
-    OElement v = (OElement) result;
+
     if (!v.isVertex()) {
       return null;
     }
-    return v.asVertex().get();
+
+    return v.toVertex();
+  }
+
+  @Override
+  public OIdentifiable getToIdentifiable() {
+    var db = getDatabase();
+    var schema = db.getMetadata().getImmutableSchemaSnapshot();
+
+    var result = getLinkPropertyWithoutValidation(DIRECTION_IN);
+    if (result == null) {
+      return null;
+    }
+
+    var rid = result.getIdentity();
+    if (schema.getClassByClusterId(rid.getClusterId()).isVertexType()) {
+      return rid;
+    }
+
+    return null;
   }
 
   @Override
@@ -62,18 +99,68 @@ public class OEdgeDocument extends ODocument implements OEdge {
   }
 
   @Override
+  @Nullable
+  public ODocument getBaseDocument() {
+    return this;
+  }
+
+  @Override
   public OEdgeDocument copy() {
     return (OEdgeDocument) super.copyTo(new OEdgeDocument());
   }
 
+  @Override
+  public Set<String> getPropertyNames() {
+    return OEdgeInternal.filterPropertyNames(super.getPropertyNames());
+  }
+
+  @Override
+  public <RET> RET getProperty(String fieldName) {
+    OEdgeInternal.checkPropertyName(fieldName);
+
+    return getPropertyWithoutValidation(fieldName);
+  }
+
+  @Nullable
+  @Override
+  public OIdentifiable getLinkProperty(String fieldName) {
+    OEdgeInternal.checkPropertyName(fieldName);
+
+    return super.getLinkProperty(fieldName);
+  }
+
+  @Override
+  public void setProperty(String fieldName, Object propertyValue) {
+    OEdgeInternal.checkPropertyName(fieldName);
+
+    setPropertyWithoutValidation(fieldName, propertyValue);
+  }
+
+  @Override
+  public void setProperty(String name, Object value, OType... types) {
+    OEdgeInternal.checkPropertyName(name);
+
+    super.setProperty(name, value, types);
+  }
+
+  @Override
+  public <RET> RET removeProperty(String fieldName) {
+    OEdgeInternal.checkPropertyName(fieldName);
+
+    return removePropertyWithoutValidation(fieldName);
+  }
+
+  @Override
+  public void promoteToRegularEdge() {}
+
   public static void deleteLinks(OEdge delegate) {
     OVertex from = delegate.getFrom();
     if (from != null) {
-      OVertexDocument.detachOutgointEdge(from, delegate);
+      OVertexInternal.removeOutgoingEdge(from, delegate);
     }
     OVertex to = delegate.getTo();
     if (to != null) {
-      OVertexDocument.detachIncomingEdge(to, delegate);
+      OVertexInternal.removeIncomingEdge(to, delegate);
     }
   }
 }

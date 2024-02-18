@@ -65,7 +65,7 @@ public class OArrayConcatExpression extends SimpleNode {
 
     List<Object> result = new ArrayList<>();
     if (OMultiValue.isMultiValue(left)) {
-      Iterator<Object> leftIter = OMultiValue.getMultiValueIterator(left);
+      Iterator<?> leftIter = OMultiValue.getMultiValueIterator(left);
       while (leftIter.hasNext()) {
         result.add(leftIter.next());
       }
@@ -74,7 +74,7 @@ public class OArrayConcatExpression extends SimpleNode {
     }
 
     if (OMultiValue.isMultiValue(right)) {
-      Iterator<Object> rigthIter = OMultiValue.getMultiValueIterator(right);
+      Iterator<?> rigthIter = OMultiValue.getMultiValueIterator(right);
       while (rigthIter.hasNext()) {
         result.add(rigthIter.next());
       }

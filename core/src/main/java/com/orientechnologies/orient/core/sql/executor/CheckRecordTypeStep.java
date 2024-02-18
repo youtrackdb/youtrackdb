@@ -22,7 +22,8 @@ public class CheckRecordTypeStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    OExecutionStream upstream = prev.get().start(ctx);
+    assert prev != null;
+    OExecutionStream upstream = prev.start(ctx);
     return upstream.map(this::mapResult);
   }
 
@@ -30,13 +31,13 @@ public class CheckRecordTypeStep extends AbstractExecutionStep {
     if (!result.isElement()) {
       throw new OCommandExecutionException("record " + result + " is not an instance of " + clazz);
     }
-    OElement doc = result.getElement().get();
+    OElement doc = result.toElement();
     if (doc == null) {
       throw new OCommandExecutionException("record " + result + " is not an instance of " + clazz);
     }
     Optional<OClass> schema = doc.getSchemaType();
 
-    if (!schema.isPresent() || !schema.get().isSubClassOf(clazz)) {
+    if (schema.isEmpty() || !schema.get().isSubClassOf(clazz)) {
       throw new OCommandExecutionException("record " + result + " is not an instance of " + clazz);
     }
     return result;

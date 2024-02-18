@@ -21,6 +21,8 @@ package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.common.comparator.ODefaultComparator;
 import com.orientechnologies.orient.core.exception.OSerializationException;
+import com.orientechnologies.orient.core.id.ChangeableIdentity;
+import com.orientechnologies.orient.core.id.IdentityChangeListener;
 import com.orientechnologies.orient.core.index.comparator.OAlwaysGreaterKey;
 import com.orientechnologies.orient.core.index.comparator.OAlwaysLessKey;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -35,8 +37,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.WeakHashMap;
 
 /**
  * Container for the list of heterogeneous values that are going to be stored in in index as
@@ -45,8 +49,16 @@ import java.util.TreeMap;
  * @author Andrey Lomakin (a.lomakin-at-orientdb.com), Artem Orobets
  */
 public class OCompositeKey
-    implements Comparable<OCompositeKey>, Serializable, ODocumentSerializable {
+    implements Comparable<OCompositeKey>,
+        Serializable,
+        ODocumentSerializable,
+        ChangeableIdentity,
+        IdentityChangeListener {
+
+  private boolean canChangeIdentity;
   private static final long serialVersionUID = 1L;
+
+  private Set<IdentityChangeListener> identityChangeListeners;
 
   /** */
   private final List<Object> keys;
@@ -96,13 +108,21 @@ public class OCompositeKey
    * @param key Key to add.
    */
   public void addKey(final Object key) {
-    if (key instanceof OCompositeKey) {
-      final OCompositeKey compositeKey = (OCompositeKey) key;
+    if (key instanceof OCompositeKey compositeKey) {
       for (final Object inKey : compositeKey.keys) {
         addKey(inKey);
       }
     } else {
       keys.add(key);
+    }
+
+    if (key instanceof ChangeableIdentity changeableIdentity) {
+      var canChangeIdentity = changeableIdentity.canChangeIdentity();
+
+      if (canChangeIdentity) {
+        changeableIdentity.addIdentityChangeListeners(this);
+        this.canChangeIdentity = true;
+      }
     }
   }
 
@@ -236,5 +256,54 @@ public class OCompositeKey
         addKey(k);
       }
     }
+  }
+
+  public void addIdentityChangeListeners(IdentityChangeListener identityChangeListeners) {
+    if (this.identityChangeListeners == null) {
+      this.identityChangeListeners = Collections.newSetFromMap(new WeakHashMap<>());
+    }
+
+    this.identityChangeListeners.add(identityChangeListeners);
+  }
+
+  public void removeIdentityChangeListener(IdentityChangeListener identityChangeListener) {
+    if (this.identityChangeListeners != null) {
+      this.identityChangeListeners.remove(identityChangeListener);
+
+      if (this.identityChangeListeners.isEmpty()) {
+        this.identityChangeListeners = null;
+      }
+    }
+  }
+
+  private void fireBeforeIdentityChange() {
+    if (this.identityChangeListeners != null) {
+      for (IdentityChangeListener listener : this.identityChangeListeners) {
+        listener.onBeforeIdentityChange(this);
+      }
+    }
+  }
+
+  private void fireAfterIdentityChange() {
+    if (this.identityChangeListeners != null) {
+      for (IdentityChangeListener listener : this.identityChangeListeners) {
+        listener.onAfterIdentityChange(this);
+      }
+    }
+  }
+
+  @Override
+  public void onBeforeIdentityChange(Object source) {
+    fireBeforeIdentityChange();
+  }
+
+  @Override
+  public void onAfterIdentityChange(Object source) {
+    fireAfterIdentityChange();
+  }
+
+  @Override
+  public boolean canChangeIdentity() {
+    return canChangeIdentity;
   }
 }

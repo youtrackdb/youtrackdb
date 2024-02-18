@@ -16,11 +16,13 @@ public class LockRecordStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    OExecutionStream upstream = getPrev().get().start(ctx);
+    assert prev != null;
+    OExecutionStream upstream = prev.start(ctx);
     return upstream.map(this::mapResult);
   }
 
   private OResult mapResult(OResult result, OCommandContext ctx) {
+    //noinspection deprecation
     result
         .getElement()
         .ifPresent(x -> ctx.getDatabase().getTransaction().lockRecord(x, lockStrategy));
@@ -30,13 +32,7 @@ public class LockRecordStep extends AbstractExecutionStep {
   @Override
   public String prettyPrint(int depth, int indent) {
     String spaces = OExecutionStepInternal.getIndent(depth, indent);
-    StringBuilder result = new StringBuilder();
-    result.append(spaces);
-    result.append("+ LOCK RECORD");
-    result.append("\n");
-    result.append(spaces);
-    result.append("  lock strategy: " + lockStrategy);
 
-    return result.toString();
+    return spaces + "+ LOCK RECORD" + "\n" + spaces + "  lock strategy: " + lockStrategy;
   }
 }

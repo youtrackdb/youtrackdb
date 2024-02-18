@@ -18,10 +18,11 @@ public class GuaranteeEmptyCountStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    if (!prev.isPresent()) {
+    if (prev == null) {
       throw new IllegalStateException("filter step requires a previous step");
     }
-    OExecutionStream upstream = prev.get().start(ctx);
+
+    OExecutionStream upstream = prev.start(ctx);
     if (upstream.hasNext(ctx)) {
       return upstream.limit(1);
     } else {
@@ -42,8 +43,6 @@ public class GuaranteeEmptyCountStep extends AbstractExecutionStep {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    StringBuilder result = new StringBuilder();
-    result.append(OExecutionStepInternal.getIndent(depth, indent) + "+ GUARANTEE FOR ZERO COUNT ");
-    return result.toString();
+    return OExecutionStepInternal.getIndent(depth, indent) + "+ GUARANTEE FOR ZERO COUNT ";
   }
 }

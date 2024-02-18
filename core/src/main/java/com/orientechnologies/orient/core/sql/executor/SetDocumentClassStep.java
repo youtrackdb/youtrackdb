@@ -23,15 +23,16 @@ public class SetDocumentClassStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    OExecutionStream upstream = getPrev().get().start(ctx);
+    assert prev != null;
+
+    OExecutionStream upstream = prev.start(ctx);
     return upstream.map(this::mapResult);
   }
 
   private OResult mapResult(OResult result, OCommandContext ctx) {
     if (result.isElement()) {
-      OIdentifiable element = result.getElement().get().getRecord();
-      if (element instanceof ODocument) {
-        ODocument doc = (ODocument) element;
+      OIdentifiable element = result.toElement().getRecord();
+      if (element instanceof ODocument doc) {
         doc.setClassName(targetClass);
         if (!(result instanceof OResultInternal)) {
           result = new OUpdatableResult(doc);
@@ -46,12 +47,6 @@ public class SetDocumentClassStep extends AbstractExecutionStep {
   @Override
   public String prettyPrint(int depth, int indent) {
     String spaces = OExecutionStepInternal.getIndent(depth, indent);
-    StringBuilder result = new StringBuilder();
-    result.append(spaces);
-    result.append("+ SET CLASS\n");
-    result.append(spaces);
-    result.append("  ");
-    result.append(this.targetClass);
-    return result.toString();
+    return spaces + "+ SET CLASS\n" + spaces + "  " + this.targetClass;
   }
 }

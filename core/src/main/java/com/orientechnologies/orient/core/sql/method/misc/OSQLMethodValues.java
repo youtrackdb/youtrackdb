@@ -21,7 +21,6 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -49,8 +48,15 @@ public class OSQLMethodValues extends OAbstractSQLMethod {
     if (ioResult instanceof Map) {
       return ((Map<?, ?>) ioResult).values();
     }
-    if (ioResult instanceof ODocument) {
-      return Arrays.asList(((ODocument) ioResult).fieldValues());
+    if (ioResult instanceof ODocument doc) {
+      var propertyNames = doc.getPropertyNames();
+      var result = new ArrayList<>(propertyNames.size());
+
+      for (String propertyName : propertyNames) {
+        result.add(doc.getProperty(propertyName));
+      }
+
+      return result;
     }
     if (ioResult instanceof OResult) {
       OResult res = (OResult) ioResult;

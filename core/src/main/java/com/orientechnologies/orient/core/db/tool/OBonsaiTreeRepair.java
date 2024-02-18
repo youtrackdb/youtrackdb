@@ -10,7 +10,7 @@ import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.record.impl.OVertexDocument;
+import com.orientechnologies.orient.core.record.impl.OVertexInternal;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
@@ -60,19 +60,19 @@ public class OBonsaiTreeRepair {
           final ODocument outVertex = outId.getRecord();
 
           final String inVertexName =
-              OVertexDocument.getConnectionFieldName(ODirection.IN, label, true);
+              OVertexInternal.getEdgeLinkFieldName(ODirection.IN, label, true);
           final String outVertexName =
-              OVertexDocument.getConnectionFieldName(ODirection.OUT, label, true);
+              OVertexInternal.getEdgeLinkFieldName(ODirection.OUT, label, true);
 
           Set<ORID> inVertexes = processedVertexes.get(inVertexName);
           if (inVertexes == null) {
-            inVertexes = new HashSet<ORID>();
+            inVertexes = new HashSet<>();
             processedVertexes.put(inVertexName, inVertexes);
           }
 
           Set<ORID> outVertexes = processedVertexes.get(outVertexName);
           if (outVertexes == null) {
-            outVertexes = new HashSet<ORID>();
+            outVertexes = new HashSet<>();
             processedVertexes.put(outVertexName, outVertexes);
           }
 
@@ -100,9 +100,10 @@ public class OBonsaiTreeRepair {
 
           counter++;
 
-          if (counter > 0 && counter % 1000 == 0)
+          if (counter > 0 && counter % 1000 == 0) {
             message(
                 outputListener, counter + " edges were processed out of " + countEdges + " \n.");
+          }
 
         } catch (Exception e) {
           final StringWriter sw = new StringWriter();

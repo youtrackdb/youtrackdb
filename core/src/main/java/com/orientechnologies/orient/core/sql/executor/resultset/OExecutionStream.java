@@ -37,7 +37,7 @@ public interface OExecutionStream {
     return new OLimitedExecutionStream(this, limit);
   }
 
-  public static OExecutionStream iterator(Iterator<Object> iterator) {
+  public static OExecutionStream iterator(Iterator<?> iterator) {
     return new OIteratorExecutionStream(iterator);
   }
 
@@ -49,7 +49,7 @@ public interface OExecutionStream {
     return new OCostMeasureExecutionStream(this, step);
   }
 
-  public static OExecutionStream loadIterator(Iterator<OIdentifiable> iterator) {
+  public static OExecutionStream loadIterator(Iterator<? extends OIdentifiable> iterator) {
     return new OLoaderExecutionStream(iterator);
   }
 

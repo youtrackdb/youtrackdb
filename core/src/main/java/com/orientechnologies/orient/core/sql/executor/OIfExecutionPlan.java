@@ -6,7 +6,9 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
 import java.util.Collections;
 import java.util.List;
 
-/** @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com) */
+/**
+ * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
+ */
 public class OIfExecutionPlan implements OInternalExecutionPlan {
 
   private String location;

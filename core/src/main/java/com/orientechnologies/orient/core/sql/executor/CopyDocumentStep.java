@@ -25,23 +25,24 @@ public class CopyDocumentStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    OExecutionStream upstream = getPrev().get().start(ctx);
+    assert prev != null;
+
+    OExecutionStream upstream = prev.start(ctx);
     return upstream.map(this::mapResult);
   }
 
   private OResult mapResult(OResult result, OCommandContext ctx) {
     ORecord resultDoc = null;
     if (result.isElement()) {
-      ORecord docToCopy = result.getElement().get().getRecord();
+      ORecord docToCopy = result.toElement().getRecord();
       if (docToCopy instanceof ODocument) {
         resultDoc = ((ODocument) docToCopy).copy();
         resultDoc.getIdentity().reset();
         ((ODocument) resultDoc).setClassName(null);
         resultDoc.setDirty();
       } else if (docToCopy instanceof OBlob) {
-        ORecordBytes newBlob = ((ORecordBytes) docToCopy).copy();
-        OResultInternal newResult = new OResultInternal(newBlob);
-        return newResult;
+        ORecordBytes newBlob = (ORecordBytes) docToCopy.copy();
+        return new OResultInternal(newBlob);
       }
     } else {
       resultDoc = result.toElement().getRecord();
@@ -56,7 +57,7 @@ public class CopyDocumentStep extends AbstractExecutionStep {
     result.append(spaces);
     result.append("+ COPY DOCUMENT");
     if (profilingEnabled) {
-      result.append(" (" + getCostFormatted() + ")");
+      result.append(" (").append(getCostFormatted()).append(")");
     }
     return result.toString();
   }

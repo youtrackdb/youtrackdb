@@ -11,6 +11,7 @@ import com.orientechnologies.orient.core.metadata.security.OSecurity;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.OElementInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OInputParameter;
 import com.orientechnologies.orient.core.sql.parser.OJson;
@@ -35,34 +36,27 @@ public class UpdateContentStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    OExecutionStream upstream = getPrev().get().start(ctx);
+    assert prev != null;
+    OExecutionStream upstream = prev.start(ctx);
     return upstream.map(this::mapResult);
   }
 
   private OResult mapResult(OResult result, OCommandContext ctx) {
     if (result instanceof OResultInternal) {
-      if (!(result.getElement().get() instanceof OElement)) {
-        ((OResultInternal) result).setElement(result.getElement().get().getRecord());
-      }
-      if (!(result.getElement().get() instanceof OElement)) {
-        return result;
-      }
-      handleContent((OElement) result.getElement().get(), ctx);
+      var elem = result.toElement();
+      assert elem != null;
+      handleContent((OElementInternal) elem, ctx);
     }
     return result;
   }
 
-  private boolean handleContent(OElement record, OCommandContext ctx) {
-    boolean updated = false;
-
+  private void handleContent(OElementInternal record, OCommandContext ctx) {
     // REPLACE ALL THE CONTENT
     ODocument fieldsToPreserve = null;
 
     OClass clazz = record.getSchemaType().orElse(null);
     if (clazz != null && ((OImmutableClass) clazz).isRestricted()) {
-      if (fieldsToPreserve == null) {
-        fieldsToPreserve = new ODocument();
-      }
+      fieldsToPreserve = new ODocument();
 
       final OClass restricted =
           ((ODatabaseDocumentInternal) ctx.getDatabase())
@@ -80,7 +74,8 @@ public class UpdateContentStep extends AbstractExecutionStep {
           if (preDefaultValues == null) {
             preDefaultValues = new HashMap<>();
           }
-          preDefaultValues.put(prop.getName(), record.<Object>getProperty(prop.getName()));
+          preDefaultValues.put(
+              prop.getName(), record.<Object>getPropertyWithoutValidation(prop.getName()));
         }
       }
     }
@@ -89,21 +84,21 @@ public class UpdateContentStep extends AbstractExecutionStep {
         ODocumentInternal.getImmutableSchemaClass(
             (ODatabaseDocumentInternal) ctx.getDatabase(), record.getRecord());
     if (recordClass != null && recordClass.isSubClassOf("V")) {
-      for (String fieldName : record.getPropertyNames()) {
+      for (String fieldName : record.getPropertyNamesWithoutFiltration()) {
         if (fieldName.startsWith("in_") || fieldName.startsWith("out_")) {
           if (fieldsToPreserve == null) {
             fieldsToPreserve = new ODocument();
           }
-          fieldsToPreserve.field(fieldName, record.<Object>getProperty(fieldName));
+          fieldsToPreserve.field(fieldName, record.<Object>getPropertyWithoutValidation(fieldName));
         }
       }
     } else if (recordClass != null && recordClass.isSubClassOf("E")) {
-      for (String fieldName : record.getPropertyNames()) {
+      for (String fieldName : record.getPropertyNamesWithoutFiltration()) {
         if (fieldName.equals("in") || fieldName.equals("out")) {
           if (fieldsToPreserve == null) {
             fieldsToPreserve = new ODocument();
           }
-          fieldsToPreserve.field(fieldName, record.<Object>getProperty(fieldName));
+          fieldsToPreserve.field(fieldName, record.<Object>getPropertyWithoutValidation(fieldName));
         }
       }
     }
@@ -114,8 +109,9 @@ public class UpdateContentStep extends AbstractExecutionStep {
       Object val = inputParameter.getValue(ctx.getInputParameters());
       if (val instanceof OElement) {
         doc.merge((ODocument) ((OElement) val).getRecord(), false, false);
-      } else if (val instanceof Map) {
-        doc.merge(new ODocument().fromMap((Map) val), false, false);
+      } else if (val instanceof Map<?, ?> map) {
+        //noinspection unchecked
+        doc.merge(new ODocument().fromMap((Map<String, ?>) map), false, false);
       } else {
         throw new OCommandExecutionException("Invalid value for UPDATE CONTENT: " + val);
       }
@@ -130,10 +126,6 @@ public class UpdateContentStep extends AbstractExecutionStep {
         }
       }
     }
-
-    updated = true;
-
-    return updated;
   }
 
   @Override

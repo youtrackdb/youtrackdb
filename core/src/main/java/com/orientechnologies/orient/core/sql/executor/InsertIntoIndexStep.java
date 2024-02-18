@@ -34,7 +34,10 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    getPrev().ifPresent(x -> x.start(ctx).close(ctx));
+    if (prev != null) {
+      prev.start(ctx).close(ctx);
+    }
+
     return new OProduceExecutionStream(this::produce).limit(1);
   }
 
@@ -88,9 +91,11 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
           valueExp = valList.get(i);
         }
       }
+      assert valueExp != null;
+      assert keyExp != null;
       count += doExecute(index, ctx, keyExp, valueExp);
     }
-    if (keyExp == null || valueExp == null) {
+    if (keyExp == null) {
       throw new OCommandExecutionException("Invalid insert expression");
     }
     return count;
@@ -123,19 +128,19 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
       insertIntoIndex(index, key, (OIdentifiable) value);
       count++;
     } else if (value instanceof OResult && ((OResult) value).isElement()) {
-      insertIntoIndex(index, key, ((OResult) value).getElement().get());
+      insertIntoIndex(index, key, ((OResult) value).toElement());
       count++;
     } else if (value instanceof OResultSet) {
       ((OResultSet) value).elementStream().forEach(x -> index.put(key, x));
     } else if (OMultiValue.isMultiValue(value)) {
-      Iterator iterator = OMultiValue.getMultiValueIterator(value);
+      Iterator<?> iterator = OMultiValue.getMultiValueIterator(value);
       while (iterator.hasNext()) {
         Object item = iterator.next();
         if (item instanceof OIdentifiable) {
           insertIntoIndex(index, key, (OIdentifiable) item);
           count++;
         } else if (item instanceof OResult && ((OResult) item).isElement()) {
-          insertIntoIndex(index, key, ((OResult) item).getElement().get());
+          insertIntoIndex(index, key, ((OResult) item).toElement());
           count++;
         } else {
           throw new OCommandExecutionException("Cannot insert into index " + item);

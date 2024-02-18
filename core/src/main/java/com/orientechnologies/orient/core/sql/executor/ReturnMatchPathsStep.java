@@ -13,7 +13,8 @@ public class ReturnMatchPathsStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    return getPrev().get().start(ctx);
+    assert prev != null;
+    return prev.start(ctx);
   }
 
   @Override

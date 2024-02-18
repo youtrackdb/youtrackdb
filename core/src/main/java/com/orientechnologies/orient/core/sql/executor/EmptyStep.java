@@ -12,12 +12,11 @@ public class EmptyStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    getPrev().ifPresent(x -> x.start(ctx).close(ctx));
-    return OExecutionStream.empty();
-  }
+    if (prev != null) {
+      prev.start(ctx).close(ctx);
+    }
 
-  public OExecutionStep copy(OCommandContext ctx) {
-    throw new UnsupportedOperationException();
+    return OExecutionStream.empty();
   }
 
   public boolean canBeCached() {

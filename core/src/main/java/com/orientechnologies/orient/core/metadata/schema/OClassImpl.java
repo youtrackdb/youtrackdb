@@ -1368,7 +1368,7 @@ public abstract class OClassImpl implements OClass {
           case EMBEDDEDSET:
           case LINKSET:
             try {
-              Collection emb = item.getElement().get().getProperty(propertyName);
+              Collection emb = item.toElement().getProperty(propertyName);
               emb.stream()
                   .filter(x -> !matchesType(x, linkedClass))
                   .findFirst()

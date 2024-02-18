@@ -5,7 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import org.junit.Test;
 
-/** @author S. Colin Leister */
+/**
+ * @author S. Colin Leister
+ */
 public class OSymmetricKeyTest {
 
   private void command(ODatabaseDocument db, String sql, Object... params) {

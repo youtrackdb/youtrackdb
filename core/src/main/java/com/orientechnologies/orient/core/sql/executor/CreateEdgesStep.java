@@ -57,18 +57,17 @@ public class CreateEdgesStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    getPrev().ifPresent(x -> x.start(ctx).close(ctx));
+    if (prev != null) {
+      prev.start(ctx).close(ctx);
+    }
 
-    Iterator fromIter = fetchFroms();
+    Iterator<?> fromIter = fetchFroms();
     List<Object> toList = fetchTo();
     OIndex uniqueIndex = findIndex(this.uniqueIndexName);
     Stream<OResult> stream =
         StreamSupport.stream(Spliterators.spliteratorUnknownSize(fromIter, 0), false)
             .map(this::asVertex)
-            .flatMap(
-                (currentFrom) -> {
-                  return mapTo(toList, (OVertex) currentFrom, uniqueIndex);
-                });
+            .flatMap((currentFrom) -> mapTo(toList, currentFrom, uniqueIndex));
     return OExecutionStream.resultIterator(stream.iterator());
   }
 
@@ -88,7 +87,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
   private List<Object> fetchTo() {
     Object toValues = ctx.getVariable(toAlias.getStringValue());
     if (toValues instanceof Iterable && !(toValues instanceof OIdentifiable)) {
-      toValues = ((Iterable) toValues).iterator();
+      toValues = ((Iterable<?>) toValues).iterator();
     } else if (!(toValues instanceof Iterator)) {
       toValues = Collections.singleton(toValues).iterator();
     }
@@ -96,7 +95,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
       toValues = ((OInternalResultSet) toValues).copy();
     }
 
-    Iterator toIter = (Iterator) toValues;
+    Iterator<?> toIter = (Iterator<?>) toValues;
 
     if (toIter instanceof OResultSet) {
       try {
@@ -111,17 +110,17 @@ public class CreateEdgesStep extends AbstractExecutionStep {
     return toList;
   }
 
-  private Iterator fetchFroms() {
+  private Iterator<?> fetchFroms() {
     Object fromValues = ctx.getVariable(fromAlias.getStringValue());
     if (fromValues instanceof Iterable && !(fromValues instanceof OIdentifiable)) {
-      fromValues = ((Iterable) fromValues).iterator();
+      fromValues = ((Iterable<?>) fromValues).iterator();
     } else if (!(fromValues instanceof Iterator)) {
       fromValues = Collections.singleton(fromValues).iterator();
     }
     if (fromValues instanceof OInternalResultSet) {
       fromValues = ((OInternalResultSet) fromValues).copy();
     }
-    Iterator fromIter = (Iterator) fromValues;
+    Iterator<?> fromIter = (Iterator<?>) fromValues;
     if (fromIter instanceof OResultSet) {
       try {
         ((OResultSet) fromIter).reset();
