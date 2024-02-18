@@ -83,10 +83,11 @@ import com.orientechnologies.orient.core.record.impl.OBlob;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentEmbedded;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import com.orientechnologies.orient.core.record.impl.OEdgeDelegate;
 import com.orientechnologies.orient.core.record.impl.OEdgeDocument;
+import com.orientechnologies.orient.core.record.impl.OEdgeInternal;
 import com.orientechnologies.orient.core.record.impl.ORecordBytes;
 import com.orientechnologies.orient.core.record.impl.OVertexDocument;
+import com.orientechnologies.orient.core.record.impl.OVertexInternal;
 import com.orientechnologies.orient.core.serialization.serializer.binary.OBinarySerializerFactory;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializerFactory;
@@ -111,6 +112,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -1224,11 +1226,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
         OVertexInternal.validateConnectionType(to, className, inFieldName);
 
         // CREATE THE EDGE DOCUMENT TO STORE FIELDS TOO
-
-        boolean regularEdgeBasedOnSchema =
-            hasLinkedClass(from, outFieldName, edgeType)
-                || hasLinkedClass(to, inFieldName, edgeType);
-
         edge = (OEdgeInternal) newEdgeInternal(className);
         edge.setPropertyWithoutValidation(OEdgeInternal.DIRECTION_OUT, currentVertex.getRecord());
         edge.setPropertyWithoutValidation(OEdgeInternal.DIRECTION_IN, inDocument.getRecord());
