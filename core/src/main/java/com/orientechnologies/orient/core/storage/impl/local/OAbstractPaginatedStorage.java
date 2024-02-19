@@ -20,13 +20,12 @@
 
 package com.orientechnologies.orient.core.storage.impl.local;
 
+import com.google.common.util.concurrent.Striped;
 import com.orientechnologies.common.concur.ONeedRetryException;
 import com.orientechnologies.common.concur.lock.OInterruptedException;
 import com.orientechnologies.common.concur.lock.OLockManager;
 import com.orientechnologies.common.concur.lock.OModificationOperationProhibitedException;
-import com.orientechnologies.common.concur.lock.ONotThreadRWLockManager;
 import com.orientechnologies.common.concur.lock.OPartitionedLockManager;
-import com.orientechnologies.common.concur.lock.OSimpleRWLockManager;
 import com.orientechnologies.common.concur.lock.ScalableRWLock;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.exception.OHighLevelException;
@@ -205,6 +204,7 @@ import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -263,7 +263,7 @@ public abstract class OAbstractPaginatedStorage
         OThreadPoolExecutors.newSingleThreadScheduledPool("Fuzzy Checkpoint", storageThreadGroup);
   }
 
-  private final OSimpleRWLockManager<ORID> lockManager;
+  private final Striped<Semaphore> lockManager = Striped.semaphore(1024, Integer.MAX_VALUE);
   protected volatile OSBTreeCollectionManagerShared sbTreeCollectionManager;
 
   /** Lock is used to atomically update record versions. */
@@ -328,7 +328,7 @@ public abstract class OAbstractPaginatedStorage
 
   protected volatile STATUS status = STATUS.CLOSED;
 
-  protected AtomicReference<Throwable> error = new AtomicReference<Throwable>(null);
+  protected AtomicReference<Throwable> error = new AtomicReference<>(null);
   protected OrientDBInternal context;
   private volatile CountDownLatch migration = new CountDownLatch(1);
 
@@ -342,7 +342,6 @@ public abstract class OAbstractPaginatedStorage
     stateLock = new ScalableRWLock();
 
     this.id = id;
-    lockManager = new ONotThreadRWLockManager<>();
     recordVersionManager = new OPartitionedLockManager<>();
     sbTreeCollectionManager = new OSBTreeCollectionManagerShared(this);
 
@@ -1699,18 +1698,6 @@ public abstract class OAbstractPaginatedStorage
     }
   }
 
-  public OLogSequenceNumber getLSN() {
-    try {
-      return writeAheadLog.end();
-    } catch (final RuntimeException ee) {
-      throw logAndPrepareForRethrow(ee);
-    } catch (final Error ee) {
-      throw logAndPrepareForRethrow(ee, false);
-    } catch (final Throwable t) {
-      throw logAndPrepareForRethrow(t, false);
-    }
-  }
-
   @Override
   public final long count(final int[] iClusterIds) {
     return count(iClusterIds, false);
@@ -1919,8 +1906,6 @@ public abstract class OAbstractPaginatedStorage
       throw logAndPrepareForRethrow(ee);
     } catch (final Throwable t) {
       throw logAndPrepareForRethrow(t);
-    } finally {
-
     }
   }
 
@@ -1959,8 +1944,6 @@ public abstract class OAbstractPaginatedStorage
       throw logAndPrepareForRethrow(ee, false);
     } catch (final Throwable t) {
       throw logAndPrepareForRethrow(t, false);
-    } finally {
-
     }
   }
 
@@ -2011,7 +1994,7 @@ public abstract class OAbstractPaginatedStorage
         } else {
           finalClusterId = clusterId;
         }
-        return new Iterator<OClusterBrowsePage>() {
+        return new Iterator<>() {
           private OClusterBrowsePage page;
           private long lastPos = -1;
 
@@ -3178,8 +3161,6 @@ public abstract class OAbstractPaginatedStorage
       throw logAndPrepareForRethrow(ee, false);
     } catch (final Throwable t) {
       throw logAndPrepareForRethrow(t, false);
-    } finally {
-
     }
   }
 
@@ -4455,7 +4436,13 @@ public abstract class OAbstractPaginatedStorage
     }
 
     try {
-      lockManager.acquireWriteLock(rid, timeout);
+      if (timeout > 0) {
+        if (lockManager.get(rid).tryAcquire(Integer.MAX_VALUE, timeout, TimeUnit.MILLISECONDS)) {
+          throw new OStorageException("Timeout on acquiring lock for record " + rid);
+        }
+      } else {
+        lockManager.get(rid).acquire(Integer.MAX_VALUE);
+      }
     } catch (final RuntimeException ee) {
       throw logAndPrepareForRethrow(ee);
     } catch (final Error ee) {
@@ -4475,7 +4462,7 @@ public abstract class OAbstractPaginatedStorage
     }
 
     try {
-      lockManager.acquireWriteLock(rid, 0);
+      lockManager.get(rid).acquire(Integer.MAX_VALUE);
     } catch (final RuntimeException ee) {
       throw logAndPrepareForRethrow(ee);
     } catch (final Error ee) {
@@ -4487,7 +4474,7 @@ public abstract class OAbstractPaginatedStorage
 
   public final void releaseWriteLock(final ORID rid) {
     try {
-      lockManager.releaseWriteLock(rid);
+      lockManager.get(rid).release(Integer.MAX_VALUE);
     } catch (final RuntimeException ee) {
       throw logAndPrepareForRethrow(ee);
     } catch (final Error ee) {
@@ -4507,7 +4494,7 @@ public abstract class OAbstractPaginatedStorage
     }
 
     try {
-      lockManager.acquireReadLock(rid.copy(), 0);
+      lockManager.get(rid).acquire();
     } catch (final RuntimeException ee) {
       throw logAndPrepareForRethrow(ee);
     } catch (final Error ee) {
@@ -4527,7 +4514,9 @@ public abstract class OAbstractPaginatedStorage
     }
 
     try {
-      lockManager.acquireReadLock(rid, timeout);
+      if (!lockManager.get(rid).tryAcquire(timeout, TimeUnit.MILLISECONDS)) {
+        throw new OStorageException("Timeout on acquiring lock for record " + rid);
+      }
     } catch (final RuntimeException ee) {
       throw logAndPrepareForRethrow(ee);
     } catch (final Error ee) {
@@ -4539,7 +4528,7 @@ public abstract class OAbstractPaginatedStorage
 
   public final void releaseReadLock(final ORID rid) {
     try {
-      lockManager.releaseReadLock(rid);
+      lockManager.get(rid).release();
     } catch (final RuntimeException ee) {
       throw logAndPrepareForRethrow(ee);
     } catch (final Error ee) {

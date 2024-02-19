@@ -206,6 +206,10 @@
             <artifactId>commons-collections4</artifactId>
         </dependency>
         <dependency>
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.github.jnr</groupId>
             <artifactId>jnr-posix</artifactId>
             <version>3.1.15</version>
