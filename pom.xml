@@ -111,30 +111,13 @@
         <url>https://github.com/orientechnologies/orientdb/issues</url>
     </issueManagement>
     <distributionManagement>
-        <repository>
-            <id>sonatype-nexus-staging</id>
-            <name>OrientDB Maven2 Repository</name>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-        </repository>
         <snapshotRepository>
-            <id>sonatype-nexus-snapshots</id>
-            <name>OrientDB Maven2 Snapshot Repository</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <id>space-orientdb-daily</id>
+            <url>https://packages.jetbrains.team/maven/p/xodus/orientdb-daily</url>
             <uniqueVersion>false</uniqueVersion>
         </snapshotRepository>
     </distributionManagement>
     <repositories>
-        <repository>
-            <id>sonatype-nexus-snapshots</id>
-            <name>Sonatype Nexus Snapshots</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
         <repository>
             <id>maven2-repository.dev.java.net</id>
             <name>Java.net repository</name>
@@ -157,9 +140,6 @@
         <blueprints.version>2.6.0</blueprints.version>
         <!-- | shared build/report plugins version -->
         <surefire.version>3.2.5</surefire.version>
-        <sonatypeOssDistMgmtSnapshotsUrl>https://oss.sonatype.org/content/repositories/snapshots/
-        </sonatypeOssDistMgmtSnapshotsUrl>
-
         <license.location>license.txt</license.location>
         <!--Override with the given url on external modules-->
         <!--<license.location>https://github.com/orientechnologies/orientdb/raw/develop/ODB-ASL-LICENSE.txt</license.location>-->
