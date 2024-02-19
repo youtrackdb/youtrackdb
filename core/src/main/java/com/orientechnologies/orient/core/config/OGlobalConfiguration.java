@@ -609,7 +609,7 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       "storage.diskCache.pageSize",
       "Size of page of disk buffer (in kilobytes). !!! NEVER CHANGE THIS VALUE !!!",
       Integer.class,
-      64),
+      4),
 
   DISK_CACHE_PRINT_FLUSH_TILL_SEGMENT_STATISTICS(
       "storage.diskCache.printFlushTillSegmentStatistics",
@@ -846,9 +846,10 @@ public enum OGlobalConfiguration { // ENVIRONMENT
 
   SBTREE_MAX_KEY_SIZE(
       "sbtree.maxKeySize",
-      "Maximum size of a key, which can be put in the SBTree in bytes (10240 by default)",
+      "Maximum size of a key, which can be put in the SBTree in bytes (-1 by default, calculated"
+          + " automatically from the page size)",
       Integer.class,
-      10240),
+      -1),
 
   SBTREE_MAX_EMBEDDED_VALUE_SIZE(
       "sbtree.maxEmbeddedValueSize",

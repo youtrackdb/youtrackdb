@@ -471,9 +471,15 @@ public abstract class OAbstractPaginatedStorage
 
   private static void checkPageSizeAndRelatedParametersInGlobalConfiguration() {
     final int pageSize = OGlobalConfiguration.DISK_CACHE_PAGE_SIZE.getValueAsInteger() * 1024;
-    final int maxKeySize = OGlobalConfiguration.SBTREE_MAX_KEY_SIZE.getValueAsInteger();
+    int maxKeySize = OGlobalConfiguration.SBTREE_MAX_KEY_SIZE.getValueAsInteger();
+    var bTreeMaxKeySize = (int) (pageSize * 0.3);
 
-    if (maxKeySize > pageSize / 4) {
+    if (maxKeySize <= 0) {
+      maxKeySize = bTreeMaxKeySize;
+      OGlobalConfiguration.SBTREE_MAX_KEY_SIZE.setValue(maxKeySize);
+    }
+
+    if (maxKeySize > bTreeMaxKeySize) {
       throw new OStorageException(
           "Value of parameter "
               + OGlobalConfiguration.DISK_CACHE_PAGE_SIZE.getKey()
@@ -504,6 +510,7 @@ public abstract class OAbstractPaginatedStorage
   }
 
   public final void open(final OContextConfiguration contextConfiguration) {
+    checkPageSizeAndRelatedParametersInGlobalConfiguration();
     try {
       stateLock.readLock().lock();
       try {
@@ -1031,9 +1038,9 @@ public abstract class OAbstractPaginatedStorage
     if (configuration.getPageSize() != -1 && configuration.getPageSize() != pageSize) {
       throw new OStorageException(
           "Storage is created with value of "
-              + OGlobalConfiguration.DISK_CACHE_PAGE_SIZE.getKey()
-              + " parameter equal to "
               + configuration.getPageSize()
+              + " parameter equal to "
+              + OGlobalConfiguration.DISK_CACHE_PAGE_SIZE.getKey()
               + " but current value is "
               + pageSize);
     }
@@ -1041,9 +1048,9 @@ public abstract class OAbstractPaginatedStorage
     if (configuration.getMaxKeySize() != -1 && configuration.getMaxKeySize() != maxKeySize) {
       throw new OStorageException(
           "Storage is created with value of "
-              + OGlobalConfiguration.SBTREE_MAX_KEY_SIZE.getKey()
-              + " parameter equal to "
               + configuration.getMaxKeySize()
+              + " parameter equal to "
+              + OGlobalConfiguration.SBTREE_MAX_KEY_SIZE.getKey()
               + " but current value is "
               + maxKeySize);
     }

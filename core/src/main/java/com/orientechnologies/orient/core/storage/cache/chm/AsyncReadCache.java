@@ -79,7 +79,7 @@ public final class AsyncReadCache implements OReadCache {
 
       this.trackHitRate = trackHitRate;
       this.maxCacheSize = (int) (maxCacheSizeInBytes / pageSize);
-      this.data = new ConcurrentHashMap<>(this.maxCacheSize);
+      this.data = new ConcurrentHashMap<>(this.maxCacheSize, 0.5f, N_CPU * 2);
       policy = new WTinyLFUPolicy(data, new FrequencySketch(), cacheSize);
       policy.setMaxSize(this.maxCacheSize);
     } finally {

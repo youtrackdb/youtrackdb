@@ -10,7 +10,6 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.junit.Test;
 
 public class BigKeyIndexTest extends BaseMemoryDatabase {
-
   @Test
   public void testBigKey() {
     OClass cl = db.createClass("One");
@@ -19,11 +18,12 @@ public class BigKeyIndexTest extends BaseMemoryDatabase {
 
     for (int i = 0; i < 100; i++) {
       ODocument doc = db.newInstance("One");
-      String bigValue = i % 1000 + "one10000";
-      for (int z = 0; z < 1000; z++) {
-        bigValue += "one" + z;
+      StringBuilder bigValue = new StringBuilder(i % 1000 + "one10000");
+      for (int z = 0; z < 218; z++) {
+        bigValue.append("one").append(z);
       }
-      doc.setProperty("two", bigValue);
+      doc.setProperty("two", bigValue.toString());
+
       db.save(doc);
     }
   }
@@ -35,11 +35,11 @@ public class BigKeyIndexTest extends BaseMemoryDatabase {
     prop.createIndex(INDEX_TYPE.NOTUNIQUE);
 
     ODocument doc = db.newInstance("One");
-    String bigValue = "";
-    for (int z = 0; z < 3000; z++) {
-      bigValue += "one" + z;
+    StringBuilder bigValue = new StringBuilder();
+    for (int z = 0; z < 5000; z++) {
+      bigValue.append("one").append(z);
     }
-    doc.setProperty("two", bigValue);
+    doc.setProperty("two", bigValue.toString());
     db.save(doc);
   }
 }

@@ -3,6 +3,7 @@ package com.orientechnologies.orient.core.storage.index.versionmap;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODurableComponent;
+import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODurablePage;
 import java.io.IOException;
 
 public abstract class OVersionPositionMap extends ODurableComponent {
@@ -11,7 +12,9 @@ public abstract class OVersionPositionMap extends ODurableComponent {
   public static final int MAX_CONCURRENT_DISTRIBUTED_TRANSACTIONS = 1000;
   public static final int MAGIC_SAFETY_FILL_FACTOR = 10;
   public static final int DEFAULT_VERSION_ARRAY_SIZE =
-      MAX_CONCURRENT_DISTRIBUTED_TRANSACTIONS * MAGIC_SAFETY_FILL_FACTOR;
+      Math.min(
+          MAX_CONCURRENT_DISTRIBUTED_TRANSACTIONS * MAGIC_SAFETY_FILL_FACTOR,
+          (ODurablePage.MAX_PAGE_SIZE_BYTES - ODurablePage.NEXT_FREE_POSITION) / Integer.BYTES);
 
   public OVersionPositionMap(
       OAbstractPaginatedStorage storage, String name, String extension, String lockName) {
