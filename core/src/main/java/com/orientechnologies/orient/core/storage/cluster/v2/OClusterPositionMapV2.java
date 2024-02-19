@@ -139,7 +139,8 @@ public final class OClusterPositionMapV2 extends OClusterPositionMap {
         }
 
         final long index = bucket.add(pageIndex, recordPosition);
-        return index + (cacheEntry.getPageIndex() - 1) * OClusterPositionMapBucket.MAX_ENTRIES;
+        return index
+            + (long) (cacheEntry.getPageIndex() - 1) * OClusterPositionMapBucket.MAX_ENTRIES;
       } finally {
         cacheEntry.close();
       }
@@ -206,7 +207,8 @@ public final class OClusterPositionMapV2 extends OClusterPositionMap {
           bucket.init();
         }
         final long index = bucket.allocate();
-        return index + (cacheEntry.getPageIndex() - 1) * OClusterPositionMapBucket.MAX_ENTRIES;
+        return index
+            + (long) (cacheEntry.getPageIndex() - 1) * OClusterPositionMapBucket.MAX_ENTRIES;
       } finally {
         cacheEntry.close();
       }
@@ -375,7 +377,7 @@ public final class OClusterPositionMapV2 extends OClusterPositionMap {
         } else {
           int entriesCount = 0;
           final long startIndex =
-              cacheEntry.getPageIndex() * OClusterPositionMapBucket.MAX_ENTRIES + index;
+              (long) cacheEntry.getPageIndex() * OClusterPositionMapBucket.MAX_ENTRIES + index;
 
           result = new long[resultSize];
           for (int i = 0; i < resultSize; i++) {
@@ -445,7 +447,7 @@ public final class OClusterPositionMapV2 extends OClusterPositionMap {
         int entriesCount = 0;
 
         final long startPosition =
-            cacheEntry.getPageIndex() * OClusterPositionMapBucket.MAX_ENTRIES;
+            (long) cacheEntry.getPageIndex() * OClusterPositionMapBucket.MAX_ENTRIES;
         result = new long[resultSize];
 
         for (int i = 0; i < resultSize; i++) {
