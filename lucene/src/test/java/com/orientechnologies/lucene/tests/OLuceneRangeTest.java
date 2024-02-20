@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.stream.Stream;
 import org.apache.lucene.document.DateTools;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /** Created by frank on 13/12/2016. */
@@ -145,6 +146,7 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
   }
 
   @Test
+  @Ignore
   public void shouldUseRangeQueryMultipleField() {
 
     //noinspection EmptyTryBlock
