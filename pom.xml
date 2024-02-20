@@ -19,69 +19,13 @@
 
     <name>OrientDB</name>
     <description>OrientDB NoSQL document graph dbms</description>
-    <url>http://www.orientdb.com</url>
     <inceptionYear>2009</inceptionYear>
-    <organization>
-        <name>OrientDB</name>
-        <url>https://www.orientdb.com</url>
-    </organization>
     <licenses>
         <license>
             <name>Apache 2</name>
             <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
         </license>
     </licenses>
-
-    <developers>
-        <developer>
-            <id>l.garulli</id>
-            <name>Luca Garulli</name>
-            <roles>
-                <role>founder</role>
-                <role>architect</role>
-                <role>developer</role>
-            </roles>
-            <timezone>+1</timezone>
-        </developer>
-        <developer>
-            <id>lomakin.andrey</id>
-            <name>Andrey Lomakin</name>
-            <roles>
-                <role>architect</role>
-                <role>developer</role>
-            </roles>
-            <timezone>+2</timezone>
-        </developer>
-        <developer>
-            <id>e.risa</id>
-            <name>Enrico Risa</name>
-            <roles>
-                <role>architect</role>
-                <role>developer</role>
-            </roles>
-            <timezone>+1</timezone>
-        </developer>
-        <developer>
-            <id>l.aquila</id>
-            <name>Luigi Dell'Aquila</name>
-            <roles>
-                <role>architect</role>
-                <role>developer</role>
-            </roles>
-            <timezone>+1</timezone>
-        </developer>
-        <developer>
-            <id>e.tagliaferri</id>
-            <name>Emanuale Tagliaferri</name>
-            <organization>SAP</organization>
-            <organizationUrl>https://sap.com</organizationUrl>
-            <roles>
-                <role>architect</role>
-                <role>developer</role>
-            </roles>
-            <timezone>+1</timezone>
-        </developer>
-    </developers>
 
     <modules>
         <module>test-commons</module>
@@ -101,14 +45,14 @@
     </modules>
 
     <scm>
-        <connection>scm:git:git@github.com:orientechnologies/orientdb.git</connection>
-        <developerConnection>scm:git:git@github.com:orientechnologies/orientdb.git</developerConnection>
-        <url>scm:git:git@github.com:orientechnologies/orientdb.git</url>
+        <connection>scm:git:git@github.com:laa/orientdb.git</connection>
+        <developerConnection>scm:git:git@github.com:laa/orientdb.git</developerConnection>
+        <url>scm:git:git@github.com:laa/orientdb.git</url>
         <tag>HEAD</tag>
     </scm>
     <issueManagement>
         <system>GitHub Issues</system>
-        <url>https://github.com/orientechnologies/orientdb/issues</url>
+        <url>https://github.com/laa/orientdb/issues</url>
     </issueManagement>
     <distributionManagement>
         <snapshotRepository>
