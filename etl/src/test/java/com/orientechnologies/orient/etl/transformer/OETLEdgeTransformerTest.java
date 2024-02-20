@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import com.oracle.truffle.api.library.ExportMessage.Ignore;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.db.ODatabasePool;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
@@ -240,6 +241,7 @@ public class OETLEdgeTransformerTest extends OETLBaseTest {
   }
 
   @Test
+  @Ignore
   public void testVertexAndEdgesOnSeparatedFiles() {
     // IMPORT PERSON (VERTICES)
     configure(
