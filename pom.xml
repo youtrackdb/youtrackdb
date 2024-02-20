@@ -61,7 +61,12 @@
             <uniqueVersion>false</uniqueVersion>
         </snapshotRepository>
     </distributionManagement>
+
     <repositories>
+        <repository>
+            <id>space-orientdb-daily</id>
+            <url>https://packages.jetbrains.team/maven/p/xodus/orientdb-daily</url>
+        </repository>
         <repository>
             <id>maven2-repository.dev.java.net</id>
             <name>Java.net repository</name>
