@@ -609,7 +609,7 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       "storage.diskCache.pageSize",
       "Size of page of disk buffer (in kilobytes). !!! NEVER CHANGE THIS VALUE !!!",
       Integer.class,
-      4),
+      8),
 
   DISK_CACHE_PRINT_FLUSH_TILL_SEGMENT_STATISTICS(
       "storage.diskCache.printFlushTillSegmentStatistics",

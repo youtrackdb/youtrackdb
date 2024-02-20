@@ -7,6 +7,7 @@ import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.storage.cache.OWriteCache;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
+import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODurablePage;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -94,11 +95,11 @@ public class FreeSpaceMapTestIT {
     atomicOperationsManager.executeInsideAtomicOperation(
         null,
         operation -> {
-          freeSpaceMap.updatePageFreeSpace(operation, 3, 2048);
-          freeSpaceMap.updatePageFreeSpace(operation, 4, 5029);
-          freeSpaceMap.updatePageFreeSpace(operation, 5, 10029);
+          freeSpaceMap.updatePageFreeSpace(operation, 3, 1024);
+          freeSpaceMap.updatePageFreeSpace(operation, 4, 2029);
+          freeSpaceMap.updatePageFreeSpace(operation, 5, 3029);
 
-          Assert.assertEquals(4, freeSpaceMap.findFreePage(2048));
+          Assert.assertEquals(4, freeSpaceMap.findFreePage(1024));
         });
   }
 
@@ -107,11 +108,11 @@ public class FreeSpaceMapTestIT {
     atomicOperationsManager.executeInsideAtomicOperation(
         null,
         operation -> {
-          freeSpaceMap.updatePageFreeSpace(operation, 3, 2048);
-          freeSpaceMap.updatePageFreeSpace(operation, 4, 5029);
-          freeSpaceMap.updatePageFreeSpace(operation, 5, 10029);
+          freeSpaceMap.updatePageFreeSpace(operation, 3, 1024);
+          freeSpaceMap.updatePageFreeSpace(operation, 4, 2029);
+          freeSpaceMap.updatePageFreeSpace(operation, 5, 3029);
 
-          Assert.assertEquals(5, freeSpaceMap.findFreePage(5080));
+          Assert.assertEquals(5, freeSpaceMap.findFreePage(2050));
         });
   }
 
@@ -132,7 +133,7 @@ public class FreeSpaceMapTestIT {
       atomicOperationsManager.executeInsideAtomicOperation(
           null,
           operation -> {
-            final int freeSpace = random.nextInt(65536);
+            final int freeSpace = random.nextInt(ODurablePage.MAX_PAGE_SIZE_BYTES);
             final int freeSpaceIndex =
                 (freeSpace - FreeSpaceMap.NORMALIZATION_INTERVAL + 1)
                     / FreeSpaceMap.NORMALIZATION_INTERVAL;
@@ -146,7 +147,7 @@ public class FreeSpaceMapTestIT {
     }
 
     for (int i = 0; i < checks; i++) {
-      final int freeSpace = random.nextInt(65536);
+      final int freeSpace = random.nextInt(ODurablePage.MAX_PAGE_SIZE_BYTES);
       final int pageIndex = freeSpaceMap.findFreePage(freeSpace);
       final int freeSpaceIndex = freeSpace / FreeSpaceMap.NORMALIZATION_INTERVAL;
       if (freeSpaceIndex <= maxFreeSpaceIndex[0]) {
@@ -176,7 +177,7 @@ public class FreeSpaceMapTestIT {
       atomicOperationsManager.executeInsideAtomicOperation(
           null,
           operation -> {
-            final int freeSpace = random.nextInt(65536);
+            final int freeSpace = random.nextInt(ODurablePage.MAX_PAGE_SIZE_BYTES);
             pageSpaceMap.put(pageIndex, freeSpace);
             sizeMap.compute(
                 freeSpace,
@@ -198,7 +199,7 @@ public class FreeSpaceMapTestIT {
       atomicOperationsManager.executeInsideAtomicOperation(
           null,
           operation -> {
-            final int freeSpace = random.nextInt(65536);
+            final int freeSpace = random.nextInt(ODurablePage.MAX_PAGE_SIZE_BYTES);
             final int oldFreeSpace = pageSpaceMap.get(pageIndex);
 
             pageSpaceMap.put(pageIndex, freeSpace);
@@ -232,7 +233,7 @@ public class FreeSpaceMapTestIT {
             / FreeSpaceMap.NORMALIZATION_INTERVAL;
 
     for (int i = 0; i < checks; i++) {
-      final int freeSpace = random.nextInt(65536);
+      final int freeSpace = random.nextInt(ODurablePage.MAX_PAGE_SIZE_BYTES);
       final int pageIndex = freeSpaceMap.findFreePage(freeSpace);
       final int freeSpaceIndex = freeSpace / FreeSpaceMap.NORMALIZATION_INTERVAL;
 
