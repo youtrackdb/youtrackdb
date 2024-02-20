@@ -24,63 +24,65 @@ import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang.ArrayUtils;
 
 /**
- * OrientDB management environment, it allow to connect to an environment and manipulate databases
+ * OrientDB management environment, it allows to connect to an environment and manipulate databases
  * or open sessions.
  *
- * <p>Usage example:
- *
- * <p>Remote Example:
+ * <p>Usage examples: Remote Example:
  *
  * <pre>
  * <code>
- * OrientDB orientDb = new OrientDB("remote:localhost","root","root");
- * if(orientDb.createIfNotExists("test",ODatabaseType.MEMORY)){
- *  ODatabaseDocument session = orientDb.open("test","admin","admin");
- *  session.createClass("MyClass");
- *  session.close();
+ * try(OrientDB orientDb = OrientDB.remote("localhost","root","root") {
+ *  orientDb.createIfNotExists("test",ODatabaseType.PLOCAL, "superuser", "password", "admin",
+ *  "writer" , "password2", "writer");
+ *  try(ODatabaseDocument session = orientDb.open("test","superuser","password")) {
+ *     session.createClass("MyClass");
+ *   }
+ *  try(ODatabaseDocument session = orientDb.open("test","writer","password2")) {
+ *     //...
+ *  }
  * }
- * ODatabaseDocument session = orientDb.open("test","writer","writer");
- * //...
- * session.close();
- * orientDb.close();
  * </code>
  * </pre>
  *
- * <p>Embedded example:
+ * Embedded example:
  *
  * <pre>
  * <code>
- * OrientDB orientDb = new OrientDB("embedded:./databases/",null,null);
- * orientDb.create("test",ODatabaseType.PLOCAL);
- * ODatabaseDocument session = orientDb.open("test","admin","admin");
- * //...
- * session.close();
- * orientDb.close();
+ * try(OrientDB orientDb = OrientDB.embedded("./databases/")) {
+ *  orientDb.createIfNotExists("test",ODatabaseType.PLOCAL, "superuser", "password", "admin",
+ *  "writer" , "password2", "writer");
+ *   try(ODatabaseDocument session = orientDb.open("test","superuser","password")) {
+ *     session.createClass("MyClass");
+ *   }
+ *
+ *   try(ODatabaseDocument session = orientDb.open("test","writer","password2")) {
+ *     //...
+ *   }
+ * }
  * </code>
  * </pre>
  *
- * <p>Database Manipulation Example:
- *
- * <p>
+ * Database Manipulation Example:
  *
  * <pre>
  * <code>
- * OrientDB orientDb = ...
- * if(!orientDb.exists("one")){
- *  orientDb.create("one",ODatabaseType.PLOCAL);
+ * tru(OrientDB orientDb = ...) {
+ *  if(!orientDb.exists("one")) {
+ *     orientDb.create("one",ODatabaseType.PLOCAL, "superuser", "password", "admin", "writer,
+ *     "password2", "writer");
+ *  }
+ *  if(orientDb.exists("two")) {
+ *    orientDb.drop("two");
+ *  }
+ *  List<tString> databases = orientDb.list();
+ *  assertEquals(databases.size(),1);
+ *  assertEquals(databases.get("0"),"one");
  * }
- * if(orientDb.exists("two")){
- *  orientDb.drop("two");
- * }
- * List&ltString&gt databases = orientDb.list();
- * assertEquals(databases.size(),1);
- * assertEquals(databases.get("0"),"one");
  * </code>
  * </pre>
- *
- * <p>
  *
  * <p>
  *
@@ -97,6 +99,60 @@ public class OrientDB implements AutoCloseable {
   protected OrientDBInternal internal;
   protected String serverUser;
   private String serverPassword;
+
+  /**
+   * Create a new OrientDb instance for an embedded deployment with default configuration. For in
+   * memory database use any directory name, for example "mydb"
+   *
+   * @param directoryPath the directory where the database are stored
+   */
+  public static OrientDB embedded(String directoryPath) {
+    return embedded(directoryPath, OrientDBConfig.defaultConfig());
+  }
+
+  /**
+   * Create a new OrientDb instance for a embedded deployment with custom configuration. For in
+   * memory database use any directory name, for example "mydb"
+   *
+   * @param directoryPath the directory where the database are stored
+   * @param config custom configuration for current environment
+   */
+  public static OrientDB embedded(String directoryPath, OrientDBConfig config) {
+    return new OrientDB(OrientDBInternal.embedded(directoryPath, config));
+  }
+
+  /**
+   * Create a new OrientDb instance for a remote deployment with default configuration.
+   *
+   * @param url the url for the database server for example "localhost" or "localhost:2424"
+   * @param serverUser the server user allowed to manipulate databases.
+   * @param serverPassword relative to the server user.
+   * @return a new OrientDB instance
+   */
+  public static OrientDB remote(String url, String serverUser, String serverPassword) {
+    return remote(url, serverUser, serverPassword, OrientDBConfig.defaultConfig());
+  }
+
+  /**
+   * Create a new OrientDb instance for a remote deployment with custom configuration.
+   *
+   * @param url the url for the database server for example "localhost" or "localhost:2424"
+   * @param serverUser the server user allowed to manipulate databases.
+   * @param serverPassword relative to the server user.
+   * @param config custom configuration for current environment
+   * @return a new OrientDB instance
+   */
+  public static OrientDB remote(
+      String url, String serverUser, String serverPassword, OrientDBConfig config) {
+    var orientdb =
+        new OrientDB(
+            OrientDBInternal.remote(url.substring(url.indexOf(':') + 1).split("[,;]"), config));
+
+    orientdb.serverUser = serverUser;
+    orientdb.serverPassword = serverPassword;
+
+    return orientdb;
+  }
 
   /**
    * Create a new OrientDb instance for a specific environment
@@ -131,6 +187,10 @@ public class OrientDB implements AutoCloseable {
    * @param url the url for the specific environment.
    * @param configuration configuration for the specific environment for the list of option {@see
    *     OGlobalConfiguration}.
+   * @see #embedded(String, OrientDBConfig)
+   * @see #remote(String, String, String, OrientDBConfig)
+   * @see #remote(String, String, String)
+   * @see #embedded(String)
    */
   public OrientDB(String url, OrientDBConfig configuration) {
     this(url, null, null, configuration);
@@ -173,6 +233,10 @@ public class OrientDB implements AutoCloseable {
    * @param serverPassword relative to the server user.
    * @param configuration configuration for the specific environment for the list of option {@see
    *     OGlobalConfiguration}.
+   * @see #embedded(String, OrientDBConfig)
+   * @see #remote(String, String, String, OrientDBConfig)
+   * @see #remote(String, String, String)
+   * @see #embedded(String)
    */
   public OrientDB(
       String url, String serverUser, String serverPassword, OrientDBConfig configuration) {
@@ -227,17 +291,49 @@ public class OrientDB implements AutoCloseable {
   }
 
   /**
-   * Create a new database
+   * Create a new database without users. In case if you want to create users during creation please
+   * use {@link #create(String, ODatabaseType, String...)}
    *
    * @param database database name
    * @param type can be plocal or memory
+   * @see #create(String, ODatabaseType, String...)
    */
   public void create(String database, ODatabaseType type) {
     create(database, type, OrientDBConfig.defaultConfig());
   }
 
   /**
-   * Create a new database
+   * Creates a new database alongside with users, passwords and roles.
+   *
+   * <p>If you want to create users during creation of database you should provide array that
+   * consist of triple strings. Each triple string should contain user name, password and role.
+   *
+   * <p>For example:
+   *
+   * <p>{@code orientDB.create("test", ODatabaseType.PLOCAL, "user1", "password1", "admin", "user2",
+   * "password2", "reader"); }
+   *
+   * <p>The predefined roles are:
+   *
+   * <ul>
+   *   <li>admin: has all privileges on the database
+   *   <li>reader: can read the data but cannot modify it
+   *   <li>writer: can read and modify the data but cannot create or delete classes
+   * </ul>
+   *
+   * @param database database name
+   * @param type can be plocal or memory
+   * @param userCredentials user names, passwords and roles provided as a sequence of triple strings
+   */
+  public void create(String database, ODatabaseType type, String... userCredentials) {
+    StringBuilder queryString = new StringBuilder("create database ? " + type.name());
+    var params = addUsersToCreationScript(userCredentials, queryString);
+    execute(queryString.toString(), ArrayUtils.add(params, 0, database)).close();
+  }
+
+  /**
+   * Creates a new database without users. In case if you want to create users during creation
+   * please use {@link #create(String, ODatabaseType, String...)}
    *
    * @param database database name
    * @param type can be plocal or memory
@@ -248,7 +344,9 @@ public class OrientDB implements AutoCloseable {
   }
 
   /**
-   * Create a new database if not exists
+   * Create a new database without users if it does not exist.
+   * In case if you want to create users during creation please use
+   * {@link #createIfNotExists(String, ODatabaseType, String...)}
    *
    * @param database database name
    * @param type can be plocal or memory
@@ -259,7 +357,68 @@ public class OrientDB implements AutoCloseable {
   }
 
   /**
-   * Create a new database if not exists
+   * Creates a new database alongside with users, passwords and roles if such one does not exist
+   * yet.
+   *
+   * <p>If you want to create users during creation of database you should provide array that
+   * consist of triple strings. Each triple string should contain user name, password and role.
+   *
+   * <p>The predefined roles are:
+   *
+   * <ul>
+   *   <li>admin: has all privileges on the database
+   *   <li>reader: can read the data but cannot modify it
+   *   <li>writer: can read and modify the data but cannot create or delete classes
+   * </ul>
+   *
+   * <p>For example:
+   *
+   * <p>{@code orientDB.createIfNotExists("test", ODatabaseType.PLOCAL, "user1", "password1",
+   * "admin", "user2", "password2", "reader"); }
+   *
+   * @param database database name
+   * @param type can be plocal or memory
+   * @param userCredentials user names, passwords and roles provided as a sequence of triple strings
+   */
+  public void createIfNotExists(String database, ODatabaseType type, String... userCredentials) {
+    StringBuilder queryString =
+        new StringBuilder("create database ? " + type.name() + " if not exists");
+    var params = addUsersToCreationScript(userCredentials, queryString);
+    execute(queryString.toString(), ArrayUtils.add(params, 0, database)).close();
+  }
+
+  private static String[] addUsersToCreationScript(
+      String[] userCredentials, StringBuilder queryString) {
+    if (userCredentials != null && userCredentials.length > 0) {
+      if (userCredentials.length % 3 != 0) {
+        throw new IllegalArgumentException(
+            "User credentials should be provided as a sequence of triple strings");
+      }
+
+      queryString.append(" users (");
+
+      var result = new String[2 * userCredentials.length / 3];
+      for (int i = 0; i < userCredentials.length / 3; i++) {
+        if (i > 0) {
+          queryString.append(", ");
+        }
+        queryString.append("? identified by ? role ").append(userCredentials[i * 3 + 2]);
+
+        result[i * 2] = userCredentials[i * 3];
+        result[i * 2 + 1] = userCredentials[i * 3 + 1];
+      }
+
+      queryString.append(")");
+
+      return result;
+    }
+
+    return new String[0];
+  }
+
+  /**
+   * Create a new database without users if not exists. In case if you want to create users during
+   * creation please use {@link #createIfNotExists(String, ODatabaseType, String...)}
    *
    * @param database database name
    * @param type can be plocal or memory

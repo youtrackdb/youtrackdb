@@ -25,6 +25,7 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabasePool;
+import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
@@ -443,11 +444,7 @@ public class OETLOrientDBLoader extends OETLAbstractLoader {
       }
 
       if (!orient.exists(dbCtx)) {
-        orient.execute(
-            "create database ?  memory if not exists users (? identified by ? role admin)",
-            dbCtx,
-            dbUser,
-            dbPassword);
+        orient.createIfNotExists(dbCtx, ODatabaseType.MEMORY, dbUser, dbPassword, "admin");
       }
 
       pool = new ODatabasePool(orient, dbCtx, dbUser, dbPassword);
@@ -465,12 +462,9 @@ public class OETLOrientDBLoader extends OETLAbstractLoader {
       }
 
       if (!orient.exists(dbName) && dbAutoCreate) {
-        orient.execute(
-            "create database ?  plocal if not exists users (? identified by ? role admin)",
-            dbName,
-            dbUser,
-            dbPassword);
+        orient.createIfNotExists(dbName, ODatabaseType.MEMORY, dbUser, dbPassword, "admin");
       }
+
       pool = new ODatabasePool(orient, dbName, dbUser, dbPassword);
     } else {
       orient = context.getOrientDB("remote:" + dbCtx, serverUser, serverPassword);
@@ -483,11 +477,7 @@ public class OETLOrientDBLoader extends OETLAbstractLoader {
       }
 
       if (!orient.exists(dbName) && dbAutoCreate) {
-        orient.execute(
-            "create database ?  plocal if not exists users (? identified by ? role admin)",
-            dbName,
-            dbUser,
-            dbPassword);
+        orient.createIfNotExists(dbName, ODatabaseType.MEMORY, dbUser, dbPassword, "admin");
       }
       pool = new ODatabasePool(orient, dbName, dbUser, dbPassword);
     }

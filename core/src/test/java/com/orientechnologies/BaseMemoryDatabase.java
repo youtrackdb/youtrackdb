@@ -1,6 +1,7 @@
 package com.orientechnologies;
 
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import org.junit.After;
@@ -22,12 +23,7 @@ public class BaseMemoryDatabase {
     dbName = dbName.replace('[', '_');
     dbName = dbName.replace(']', '_');
     this.databaseName = dbName;
-    context
-        .execute(
-            "create database "
-                + this.databaseName
-                + " memory users(admin identified by 'adminpwd' role admin) ")
-        .close();
+    context.create(this.databaseName, ODatabaseType.MEMORY, "admin", "adminpwd", "admin");
     db = context.open(this.databaseName, "admin", "adminpwd");
   }
 

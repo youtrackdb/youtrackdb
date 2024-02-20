@@ -1,6 +1,7 @@
 package com.orientechnologies;
 
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import org.junit.After;
@@ -17,12 +18,7 @@ public class BaseMemoryInternalDatabase {
   @Before
   public void beforeTest() {
     context = new OrientDB("embedded:", OrientDBConfig.defaultConfig());
-    context
-        .execute(
-            "create database "
-                + getDatabaseName()
-                + " memory users(admin identified by 'adminpwd' role admin) ")
-        .close();
+    context.create(getDatabaseName(), ODatabaseType.MEMORY, "admin", "adminpwd", "admin");
     db = (ODatabaseDocumentInternal) context.open(getDatabaseName(), "admin", "adminpwd");
   }
 

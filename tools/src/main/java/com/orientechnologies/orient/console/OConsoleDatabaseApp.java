@@ -387,11 +387,12 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     } else {
       OrientDBInternal internal = OrientDBInternal.extract(orientDB);
       if (internal.isEmbedded()) {
-        orientDB.execute(
-            "create database ? " + type + " users (? identified by ? role admin) ",
+        orientDB.createIfNotExists(
             urlConnection.getDbName(),
+            type,
             currentDatabaseUserName,
-            currentDatabaseUserPassword);
+            currentDatabaseUserPassword,
+            "admin");
       } else {
         orientDB.create(urlConnection.getDbName(), type);
       }
