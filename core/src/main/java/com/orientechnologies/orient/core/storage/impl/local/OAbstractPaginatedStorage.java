@@ -23,9 +23,7 @@ package com.orientechnologies.orient.core.storage.impl.local;
 import com.google.common.util.concurrent.Striped;
 import com.orientechnologies.common.concur.ONeedRetryException;
 import com.orientechnologies.common.concur.lock.OInterruptedException;
-import com.orientechnologies.common.concur.lock.OLockManager;
 import com.orientechnologies.common.concur.lock.OModificationOperationProhibitedException;
-import com.orientechnologies.common.concur.lock.OPartitionedLockManager;
 import com.orientechnologies.common.concur.lock.ScalableRWLock;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.exception.OHighLevelException;
@@ -268,7 +266,7 @@ public abstract class OAbstractPaginatedStorage
   protected volatile OSBTreeCollectionManagerShared sbTreeCollectionManager;
 
   /** Lock is used to atomically update record versions. */
-  private final OLockManager<ORID> recordVersionManager;
+  private final Striped<Lock> recordVersionManager = Striped.lazyWeakLock(1024);
 
   private final Map<String, OCluster> clusterMap = new HashMap<>();
   private final List<OCluster> clusters = new CopyOnWriteArrayList<>();
@@ -343,7 +341,6 @@ public abstract class OAbstractPaginatedStorage
     stateLock = new ScalableRWLock();
 
     this.id = id;
-    recordVersionManager = new OPartitionedLockManager<>();
     sbTreeCollectionManager = new OSBTreeCollectionManagerShared(this);
 
     registerProfilerHooks();
@@ -2122,7 +2119,8 @@ public abstract class OAbstractPaginatedStorage
         checkOpennessAndMigration();
 
         // GET THE SHARED LOCK AND GET AN EXCLUSIVE LOCK AGAINST THE RECORD
-        final Lock lock = recordVersionManager.acquireExclusiveLock(rid);
+        final Lock lock = recordVersionManager.get(rid);
+        lock.lock();
         try {
           checkOpennessAndMigration();
 

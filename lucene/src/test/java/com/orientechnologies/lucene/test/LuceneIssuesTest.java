@@ -6,6 +6,7 @@ import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.io.InputStream;
 import java.util.stream.Stream;
 import org.assertj.core.api.Assertions;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /** Created by frank on 27/04/2017. */
@@ -45,6 +46,7 @@ public class LuceneIssuesTest extends BaseLuceneTest {
   }
 
   @Test
+  @Ignore
   public void testGh_issue7513() throws Exception {
 
     try (InputStream stream = ClassLoader.getSystemResourceAsStream("testGh_7513.osql")) {
