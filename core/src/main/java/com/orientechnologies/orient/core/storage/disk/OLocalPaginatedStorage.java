@@ -514,10 +514,10 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
   @Override
   protected OStartupMetadata checkIfStorageDirty() throws IOException {
     if (startupMetadata.exists()) {
-      startupMetadata.open(OConstants.getVersion());
+      startupMetadata.open(OConstants.getRawVersion());
     } else {
-      startupMetadata.create(OConstants.getVersion());
-      startupMetadata.makeDirty(OConstants.getVersion());
+      startupMetadata.create(OConstants.getRawVersion());
+      startupMetadata.makeDirty(OConstants.getRawVersion());
     }
 
     return new OStartupMetadata(startupMetadata.getLastTxId(), startupMetadata.getTxMetadata());

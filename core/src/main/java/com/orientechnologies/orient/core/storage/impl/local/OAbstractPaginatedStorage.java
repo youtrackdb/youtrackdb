@@ -5010,14 +5010,14 @@ public abstract class OAbstractPaginatedStorage
       try {
         final String openedAtVersion = getOpenedAtVersion();
 
-        if (openedAtVersion != null && !openedAtVersion.equals(OConstants.getVersion())) {
-          throw new OStorageException(
-              "Database has been opened at version "
-                  + openedAtVersion
-                  + " but is attempted to be restored at version "
-                  + OConstants.getVersion()
-                  + ". Please use correct version to restore database.");
-        }
+//        if (openedAtVersion != null && !openedAtVersion.equals(OConstants.getRawVersion())) {
+//          throw new OStorageException(
+//              "Database has been opened at version "
+//                  + openedAtVersion
+//                  + " but is attempted to be restored at version "
+//                  + OConstants.getRawVersion()
+//                  + ". Please use correct version to restore database.");
+//        }
 
         wereDataRestoredAfterOpen = true;
         restoreFromWAL();
