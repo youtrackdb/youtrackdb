@@ -1,6 +1,5 @@
 package com.orientechnologies.orient.core.storage.cache.local.doublewritelog;
 
-import static com.orientechnologies.orient.core.storage.cache.local.doublewritelog.DoubleWriteLogGL.BLOCK_SIZE;
 
 import com.orientechnologies.common.directmemory.OByteBufferPool;
 import com.orientechnologies.common.directmemory.OPointer;
@@ -44,7 +43,8 @@ public class DoubleWriteLogGLTestIT {
     final OByteBufferPool bufferPool = new OByteBufferPool(pageSize);
 
     try {
-      final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024);
+      final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024,
+          512);
 
       doubleWriteLog.open("test", Paths.get(buildDirectory), pageSize);
       try {
@@ -95,7 +95,8 @@ public class DoubleWriteLogGLTestIT {
     final OByteBufferPool bufferPool = new OByteBufferPool(pageSize);
 
     try {
-      final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024);
+      final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024,
+          512);
 
       doubleWriteLog.open("test", Paths.get(buildDirectory), pageSize);
       try {
@@ -148,7 +149,8 @@ public class DoubleWriteLogGLTestIT {
 
     final OByteBufferPool bufferPool = new OByteBufferPool(pageSize);
     try {
-      final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024);
+      final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024,
+          512);
 
       doubleWriteLog.open("test", Paths.get(buildDirectory), pageSize);
       try {
@@ -211,7 +213,8 @@ public class DoubleWriteLogGLTestIT {
 
     final OByteBufferPool bufferPool = new OByteBufferPool(pageSize);
     try {
-      final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024);
+      final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024,
+          512);
 
       doubleWriteLog.open("test", Paths.get(buildDirectory), pageSize);
       try {
@@ -266,7 +269,8 @@ public class DoubleWriteLogGLTestIT {
 
     final OByteBufferPool bufferPool = new OByteBufferPool(pageSize);
     try {
-      final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024);
+      final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024,
+          512);
 
       doubleWriteLog.open("test", Paths.get(buildDirectory), pageSize);
       try {
@@ -320,7 +324,8 @@ public class DoubleWriteLogGLTestIT {
 
     final OByteBufferPool bufferPool = new OByteBufferPool(pageSize);
     try {
-      final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024);
+      final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024,
+          512);
 
       doubleWriteLog.open("test", Paths.get(buildDirectory), pageSize);
       try {
@@ -382,7 +387,8 @@ public class DoubleWriteLogGLTestIT {
 
       final OByteBufferPool bufferPool = new OByteBufferPool(pageSize);
       try {
-        final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024);
+        final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024,
+            512);
 
         doubleWriteLog.open("test", Paths.get(buildDirectory), pageSize);
         try {
@@ -451,7 +457,8 @@ public class DoubleWriteLogGLTestIT {
 
       final OByteBufferPool bufferPool = new OByteBufferPool(pageSize);
       try {
-        final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024);
+        final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024,
+            512);
         doubleWriteLog.open("test", Paths.get(buildDirectory), pageSize);
         try {
           final Map<Integer, ByteBuffer> pageMap = new HashMap<>();
@@ -551,7 +558,8 @@ public class DoubleWriteLogGLTestIT {
 
       final OByteBufferPool bufferPool = new OByteBufferPool(pageSize);
       try {
-        final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024);
+        final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(4 * 4 * 1024,
+            512);
 
         doubleWriteLog.open("test", Paths.get(buildDirectory), pageSize);
         try {
@@ -582,7 +590,8 @@ public class DoubleWriteLogGLTestIT {
             writtenPages += pagesForSinglePatch;
           }
 
-          final DoubleWriteLogGL doubleWriteLogRestore = new DoubleWriteLogGL(2 * 4 * 1024);
+          final DoubleWriteLogGL doubleWriteLogRestore = new DoubleWriteLogGL(2 * 4 * 1024,
+              512);
           doubleWriteLogRestore.open("test", Paths.get(buildDirectory), pageSize);
 
           doubleWriteLogRestore.restoreModeOn();
@@ -624,7 +633,8 @@ public class DoubleWriteLogGLTestIT {
 
       final OByteBufferPool bufferPool = new OByteBufferPool(pageSize);
       try {
-        final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024);
+        final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024,
+            512);
         doubleWriteLog.open("test", Paths.get(buildDirectory), pageSize);
         try {
           final Map<Integer, ByteBuffer> pageMap = new HashMap<>();
@@ -676,7 +686,8 @@ public class DoubleWriteLogGLTestIT {
             }
           }
 
-          final DoubleWriteLogGL doubleWriteLogRestore = new DoubleWriteLogGL(2 * 4 * 1024);
+          final DoubleWriteLogGL doubleWriteLogRestore = new DoubleWriteLogGL(2 * 4 * 1024,
+              512);
           doubleWriteLogRestore.open("test", Paths.get(buildDirectory), pageSize);
 
           doubleWriteLogRestore.restoreModeOn();
@@ -715,10 +726,9 @@ public class DoubleWriteLogGLTestIT {
   @Test
   public void testTruncate() throws IOException {
     final int pageSize = 256;
-
-    final OByteBufferPool bufferPool = new OByteBufferPool(pageSize);
+        final OByteBufferPool bufferPool = new OByteBufferPool(pageSize);
     try {
-      final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(BLOCK_SIZE);
+      final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(512, 512);
       doubleWriteLog.open("test", Paths.get(buildDirectory), pageSize);
       try {
         List<Path> paths =
@@ -731,8 +741,7 @@ public class DoubleWriteLogGLTestIT {
           final boolean overflow =
               doubleWriteLog.write(
                   new ByteBuffer[] {ByteBuffer.allocate(pageSize)}, new int[] {12}, new int[] {45});
-          // Not sure here what is correct
-          // Assert.assertTrue(overflow && i > 0 || i == 0 && !overflow);
+          Assert.assertTrue(overflow && i > 0 || i == 0 && !overflow);
         }
 
         paths =
@@ -740,12 +749,16 @@ public class DoubleWriteLogGLTestIT {
                 Files.list(Paths.get(buildDirectory))
                     .sorted(Comparator.comparing(path -> path.getFileName().toString()))
                     .toArray(Path[]::new));
-        Assert.assertEquals(2, paths.size());
+        Assert.assertEquals(4, paths.size());
 
         Assert.assertEquals(
             "test_0" + DoubleWriteLogGL.EXTENSION, paths.get(0).getFileName().toString());
         Assert.assertEquals(
             "test_1" + DoubleWriteLogGL.EXTENSION, paths.get(1).getFileName().toString());
+        Assert.assertEquals(
+            "test_2" + DoubleWriteLogGL.EXTENSION, paths.get(2).getFileName().toString());
+        Assert.assertEquals(
+            "test_3" + DoubleWriteLogGL.EXTENSION, paths.get(3).getFileName().toString());
 
         doubleWriteLog.restoreModeOn();
         doubleWriteLog.truncate();
@@ -755,12 +768,16 @@ public class DoubleWriteLogGLTestIT {
                 Files.list(Paths.get(buildDirectory))
                     .sorted(Comparator.comparing(path -> path.getFileName().toString()))
                     .toArray(Path[]::new));
-        Assert.assertEquals(2, paths.size());
+        Assert.assertEquals(4, paths.size());
 
         Assert.assertEquals(
             "test_0" + DoubleWriteLogGL.EXTENSION, paths.get(0).getFileName().toString());
         Assert.assertEquals(
             "test_1" + DoubleWriteLogGL.EXTENSION, paths.get(1).getFileName().toString());
+        Assert.assertEquals(
+            "test_2" + DoubleWriteLogGL.EXTENSION, paths.get(2).getFileName().toString());
+        Assert.assertEquals(
+            "test_3" + DoubleWriteLogGL.EXTENSION, paths.get(3).getFileName().toString());
 
         doubleWriteLog.restoreModeOff();
 
@@ -774,7 +791,7 @@ public class DoubleWriteLogGLTestIT {
         Assert.assertEquals(1, paths.size());
 
         Assert.assertEquals(
-            "test_1" + DoubleWriteLogGL.EXTENSION, paths.get(0).getFileName().toString());
+            "test_3" + DoubleWriteLogGL.EXTENSION, paths.get(0).getFileName().toString());
       } finally {
         doubleWriteLog.close();
       }
@@ -786,10 +803,11 @@ public class DoubleWriteLogGLTestIT {
   @Test
   public void testClose() throws IOException {
     final int pageSize = 256;
+    final int maxLogSize = 512; // single block for each segment
 
     final OByteBufferPool bufferPool = new OByteBufferPool(pageSize);
     try {
-      final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(BLOCK_SIZE);
+      final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(maxLogSize, 512);
       doubleWriteLog.open("test", Paths.get(buildDirectory), pageSize);
       try {
         List<Path> paths =
@@ -808,12 +826,16 @@ public class DoubleWriteLogGLTestIT {
                 Files.list(Paths.get(buildDirectory))
                     .sorted(Comparator.comparing(path -> path.getFileName().toString()))
                     .toArray(Path[]::new));
-        Assert.assertEquals(2, paths.size());
+        Assert.assertEquals(4, paths.size());
 
         Assert.assertEquals(
             "test_0" + DoubleWriteLogGL.EXTENSION, paths.get(0).getFileName().toString());
         Assert.assertEquals(
             "test_1" + DoubleWriteLogGL.EXTENSION, paths.get(1).getFileName().toString());
+        Assert.assertEquals(
+            "test_2" + DoubleWriteLogGL.EXTENSION, paths.get(2).getFileName().toString());
+        Assert.assertEquals(
+            "test_3" + DoubleWriteLogGL.EXTENSION, paths.get(3).getFileName().toString());
 
       } finally {
         doubleWriteLog.close();
@@ -830,11 +852,11 @@ public class DoubleWriteLogGLTestIT {
   @Test
   public void testInitAfterCrash() throws Exception {
     final int pageSize = 256;
-    final int maxLogSize = BLOCK_SIZE;
+    final int maxLogSize = 512; // single block for each segment
 
     final OByteBufferPool bufferPool = new OByteBufferPool(pageSize);
     try {
-      final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(maxLogSize);
+      final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(maxLogSize, 512);
       doubleWriteLog.open("test", Paths.get(buildDirectory), pageSize);
       try {
         for (int i = 0; i < 4; i++) {
@@ -847,22 +869,7 @@ public class DoubleWriteLogGLTestIT {
                 Files.list(Paths.get(buildDirectory))
                     .sorted(Comparator.comparing(path -> path.getFileName().toString()))
                     .toArray(Path[]::new));
-        Assert.assertEquals(2, paths.size());
-
-        Assert.assertEquals(
-            "test_0" + DoubleWriteLogGL.EXTENSION, paths.get(0).getFileName().toString());
-        Assert.assertEquals(
-            "test_1" + DoubleWriteLogGL.EXTENSION, paths.get(1).getFileName().toString());
-
-        final DoubleWriteLogGL doubleWriteLogRestore = new DoubleWriteLogGL(maxLogSize);
-        doubleWriteLogRestore.open("test", Paths.get(buildDirectory), pageSize);
-
-        paths =
-            Arrays.asList(
-                Files.list(Paths.get(buildDirectory))
-                    .sorted(Comparator.comparing(path -> path.getFileName().toString()))
-                    .toArray(Path[]::new));
-        Assert.assertEquals(3, paths.size());
+        Assert.assertEquals(4, paths.size());
 
         Assert.assertEquals(
             "test_0" + DoubleWriteLogGL.EXTENSION, paths.get(0).getFileName().toString());
@@ -870,6 +877,29 @@ public class DoubleWriteLogGLTestIT {
             "test_1" + DoubleWriteLogGL.EXTENSION, paths.get(1).getFileName().toString());
         Assert.assertEquals(
             "test_2" + DoubleWriteLogGL.EXTENSION, paths.get(2).getFileName().toString());
+        Assert.assertEquals(
+            "test_3" + DoubleWriteLogGL.EXTENSION, paths.get(3).getFileName().toString());
+
+        final DoubleWriteLogGL doubleWriteLogRestore = new DoubleWriteLogGL(maxLogSize, maxLogSize);
+        doubleWriteLogRestore.open("test", Paths.get(buildDirectory), pageSize);
+
+        paths =
+            Arrays.asList(
+                Files.list(Paths.get(buildDirectory))
+                    .sorted(Comparator.comparing(path -> path.getFileName().toString()))
+                    .toArray(Path[]::new));
+        Assert.assertEquals(5, paths.size());
+
+        Assert.assertEquals(
+            "test_0" + DoubleWriteLogGL.EXTENSION, paths.get(0).getFileName().toString());
+        Assert.assertEquals(
+            "test_1" + DoubleWriteLogGL.EXTENSION, paths.get(1).getFileName().toString());
+        Assert.assertEquals(
+            "test_2" + DoubleWriteLogGL.EXTENSION, paths.get(2).getFileName().toString());
+        Assert.assertEquals(
+            "test_3" + DoubleWriteLogGL.EXTENSION, paths.get(3).getFileName().toString());
+        Assert.assertEquals(
+            "test_4" + DoubleWriteLogGL.EXTENSION, paths.get(4).getFileName().toString());
 
         doubleWriteLogRestore.close();
       } finally {
@@ -883,11 +913,11 @@ public class DoubleWriteLogGLTestIT {
   @Test
   public void testCreationNewSegment() throws Exception {
     final int pageSize = 256;
-    final int maxLogSize = BLOCK_SIZE;
+    final int maxLogSize = 512; // single block for each segment
 
     final OByteBufferPool bufferPool = new OByteBufferPool(pageSize);
     try {
-      final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(maxLogSize);
+      final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(maxLogSize, 512);
       doubleWriteLog.open("test", Paths.get(buildDirectory), pageSize);
       try {
         List<Path> paths =
@@ -941,13 +971,17 @@ public class DoubleWriteLogGLTestIT {
                     .sorted(Comparator.comparing(path -> path.getFileName().toString()))
                     .toArray(Path[]::new));
 
-        Assert.assertEquals(3, paths.size());
+        Assert.assertEquals(5, paths.size());
         Assert.assertEquals(
             "test_0" + DoubleWriteLogGL.EXTENSION, paths.get(0).getFileName().toString());
         Assert.assertEquals(
             "test_1" + DoubleWriteLogGL.EXTENSION, paths.get(1).getFileName().toString());
         Assert.assertEquals(
             "test_2" + DoubleWriteLogGL.EXTENSION, paths.get(2).getFileName().toString());
+        Assert.assertEquals(
+            "test_3" + DoubleWriteLogGL.EXTENSION, paths.get(3).getFileName().toString());
+        Assert.assertEquals(
+            "test_4" + DoubleWriteLogGL.EXTENSION, paths.get(4).getFileName().toString());
       } finally {
         doubleWriteLog.close();
       }
