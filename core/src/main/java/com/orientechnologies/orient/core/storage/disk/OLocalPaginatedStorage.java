@@ -561,7 +561,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
 
   @Override
   protected void preCreateSteps() throws IOException {
-    startupMetadata.create(OConstants.getVersion());
+    startupMetadata.create(OConstants.getRawVersion());
   }
 
   @Override
