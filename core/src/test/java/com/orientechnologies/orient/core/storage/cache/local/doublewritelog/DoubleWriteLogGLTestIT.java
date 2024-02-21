@@ -1,6 +1,5 @@
 package com.orientechnologies.orient.core.storage.cache.local.doublewritelog;
 
-
 import com.orientechnologies.common.directmemory.OByteBufferPool;
 import com.orientechnologies.common.directmemory.OPointer;
 import com.orientechnologies.common.io.OFileUtils;
@@ -43,8 +42,7 @@ public class DoubleWriteLogGLTestIT {
     final OByteBufferPool bufferPool = new OByteBufferPool(pageSize);
 
     try {
-      final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024,
-          512);
+      final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024, 512);
 
       doubleWriteLog.open("test", Paths.get(buildDirectory), pageSize);
       try {
@@ -95,8 +93,7 @@ public class DoubleWriteLogGLTestIT {
     final OByteBufferPool bufferPool = new OByteBufferPool(pageSize);
 
     try {
-      final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024,
-          512);
+      final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024, 512);
 
       doubleWriteLog.open("test", Paths.get(buildDirectory), pageSize);
       try {
@@ -149,8 +146,7 @@ public class DoubleWriteLogGLTestIT {
 
     final OByteBufferPool bufferPool = new OByteBufferPool(pageSize);
     try {
-      final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024,
-          512);
+      final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024, 512);
 
       doubleWriteLog.open("test", Paths.get(buildDirectory), pageSize);
       try {
@@ -213,8 +209,7 @@ public class DoubleWriteLogGLTestIT {
 
     final OByteBufferPool bufferPool = new OByteBufferPool(pageSize);
     try {
-      final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024,
-          512);
+      final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024, 512);
 
       doubleWriteLog.open("test", Paths.get(buildDirectory), pageSize);
       try {
@@ -269,8 +264,7 @@ public class DoubleWriteLogGLTestIT {
 
     final OByteBufferPool bufferPool = new OByteBufferPool(pageSize);
     try {
-      final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024,
-          512);
+      final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024, 512);
 
       doubleWriteLog.open("test", Paths.get(buildDirectory), pageSize);
       try {
@@ -324,8 +318,7 @@ public class DoubleWriteLogGLTestIT {
 
     final OByteBufferPool bufferPool = new OByteBufferPool(pageSize);
     try {
-      final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024,
-          512);
+      final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024, 512);
 
       doubleWriteLog.open("test", Paths.get(buildDirectory), pageSize);
       try {
@@ -387,8 +380,7 @@ public class DoubleWriteLogGLTestIT {
 
       final OByteBufferPool bufferPool = new OByteBufferPool(pageSize);
       try {
-        final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024,
-            512);
+        final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024, 512);
 
         doubleWriteLog.open("test", Paths.get(buildDirectory), pageSize);
         try {
@@ -457,8 +449,7 @@ public class DoubleWriteLogGLTestIT {
 
       final OByteBufferPool bufferPool = new OByteBufferPool(pageSize);
       try {
-        final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024,
-            512);
+        final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024, 512);
         doubleWriteLog.open("test", Paths.get(buildDirectory), pageSize);
         try {
           final Map<Integer, ByteBuffer> pageMap = new HashMap<>();
@@ -558,8 +549,7 @@ public class DoubleWriteLogGLTestIT {
 
       final OByteBufferPool bufferPool = new OByteBufferPool(pageSize);
       try {
-        final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(4 * 4 * 1024,
-            512);
+        final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(4 * 4 * 1024, 512);
 
         doubleWriteLog.open("test", Paths.get(buildDirectory), pageSize);
         try {
@@ -590,8 +580,7 @@ public class DoubleWriteLogGLTestIT {
             writtenPages += pagesForSinglePatch;
           }
 
-          final DoubleWriteLogGL doubleWriteLogRestore = new DoubleWriteLogGL(2 * 4 * 1024,
-              512);
+          final DoubleWriteLogGL doubleWriteLogRestore = new DoubleWriteLogGL(2 * 4 * 1024, 512);
           doubleWriteLogRestore.open("test", Paths.get(buildDirectory), pageSize);
 
           doubleWriteLogRestore.restoreModeOn();
@@ -633,8 +622,7 @@ public class DoubleWriteLogGLTestIT {
 
       final OByteBufferPool bufferPool = new OByteBufferPool(pageSize);
       try {
-        final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024,
-            512);
+        final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024, 512);
         doubleWriteLog.open("test", Paths.get(buildDirectory), pageSize);
         try {
           final Map<Integer, ByteBuffer> pageMap = new HashMap<>();
@@ -686,8 +674,7 @@ public class DoubleWriteLogGLTestIT {
             }
           }
 
-          final DoubleWriteLogGL doubleWriteLogRestore = new DoubleWriteLogGL(2 * 4 * 1024,
-              512);
+          final DoubleWriteLogGL doubleWriteLogRestore = new DoubleWriteLogGL(2 * 4 * 1024, 512);
           doubleWriteLogRestore.open("test", Paths.get(buildDirectory), pageSize);
 
           doubleWriteLogRestore.restoreModeOn();
@@ -726,7 +713,7 @@ public class DoubleWriteLogGLTestIT {
   @Test
   public void testTruncate() throws IOException {
     final int pageSize = 256;
-        final OByteBufferPool bufferPool = new OByteBufferPool(pageSize);
+    final OByteBufferPool bufferPool = new OByteBufferPool(pageSize);
     try {
       final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(512, 512);
       doubleWriteLog.open("test", Paths.get(buildDirectory), pageSize);
