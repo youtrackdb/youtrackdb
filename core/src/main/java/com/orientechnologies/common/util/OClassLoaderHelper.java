@@ -50,7 +50,7 @@ public class OClassLoaderHelper {
     try {
       return ServiceLoader.load(clazz).iterator();
     } catch (Exception e) {
-      OLogManager.instance().warn(null, "Cannot lookup in service registry", e);
+      OLogManager.instance().warn(OClassLoaderHelper.class, "Cannot lookup in service registry", e);
       throw OException.wrapException(
           new OConfigurationException("Cannot lookup in service registry"), e);
     } finally {

@@ -42,12 +42,6 @@ import org.testng.ISuiteResult;
  * @author Sergey Sitnikov
  */
 public class OTestNGTestListener implements ISuiteListener {
-
-  @Override
-  public void onStart(ISuite suite) {
-    OLogManager.instance().applyStorageFilter();
-  }
-
   @Override
   public void onFinish(ISuite suite) {
 

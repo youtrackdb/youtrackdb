@@ -88,7 +88,7 @@ public class OFetchHelper {
       }
     } catch (final Exception e) {
       OLogManager.instance()
-          .error(null, "Fetching error on record %s", e, rootRecord.getIdentity());
+          .error(OFetchHelper.class, "Fetching error on record %s", e, rootRecord.getIdentity());
     }
   }
 
@@ -206,7 +206,7 @@ public class OFetchHelper {
               iContext);
         } catch (Exception e) {
           OLogManager.instance()
-              .error(null, "Fetching error on record %s", e, record.getIdentity());
+              .error(OFetchHelper.class, "Fetching error on record %s", e, record.getIdentity());
         }
       }
     }
@@ -615,7 +615,8 @@ public class OFetchHelper {
               settings);
         }
       } catch (final Exception e) {
-        OLogManager.instance().error(null, "Fetching error on record %s", e, record.getIdentity());
+        OLogManager.instance()
+            .error(OFetchHelper.class, "Fetching error on record %s", e, record.getIdentity());
       }
     }
   }

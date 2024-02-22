@@ -229,7 +229,7 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
     maxRecordSize = CASWALPage.DEFAULT_MAX_RECORD_SIZE;
 
     OLogManager.instance()
-        .infoNoDb(
+        .info(
             this,
             "Page size for WAL located in %s is set to %d bytes.",
             walLocation.toString(),
@@ -457,7 +457,7 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
         try {
           flushLatch.get().await();
         } catch (final InterruptedException e) {
-          OLogManager.instance().errorNoDb(this, "WAL write was interrupted", e);
+          OLogManager.instance().error(this, "WAL write was interrupted", e);
         }
 
         writtenLSN = this.writtenUpTo.get().getLsn();
@@ -561,7 +561,7 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
 
               if (checkPageIsBrokenAndDecrypt(buffer, segment, pageIndex, pageSize)) {
                 OLogManager.instance()
-                    .errorNoDb(
+                    .error(
                         this,
                         "WAL page %d of segment %s is broken, read of records will be stopped",
                         null,
@@ -734,7 +734,7 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
         try {
           flushLatch.get().await();
         } catch (final InterruptedException e) {
-          OLogManager.instance().errorNoDb(this, "WAL write was interrupted", e);
+          OLogManager.instance().error(this, "WAL write was interrupted", e);
         }
 
         writtenLSN = this.writtenUpTo.get().getLsn();
@@ -950,7 +950,7 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
           threadsWaitingSum.add(endTs - startTs);
         }
       } catch (final InterruptedException e) {
-        OLogManager.instance().errorNoDb(this, "WAL write was interrupted", e);
+        OLogManager.instance().error(this, "WAL write was interrupted", e);
       }
 
       qsize = queueSize.get();
@@ -1327,7 +1327,7 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
     try {
       future.get();
     } catch (final Exception e) {
-      OLogManager.instance().errorNoDb(this, "Exception during WAL flush", e);
+      OLogManager.instance().error(this, "Exception during WAL flush", e);
       throw new IllegalStateException(e);
     }
   }
@@ -1712,7 +1712,7 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
                       writeFuture.get();
                     }
                   } catch (final InterruptedException e) {
-                    OLogManager.instance().errorNoDb(this, "WAL write was interrupted", e);
+                    OLogManager.instance().error(this, "WAL write was interrupted", e);
                   }
 
                   assert walFile.position() == currentPosition;
@@ -1864,7 +1864,7 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
               writeFuture.get();
             }
           } catch (final InterruptedException e) {
-            OLogManager.instance().errorNoDb(this, "WAL write was interrupted", e);
+            OLogManager.instance().error(this, "WAL write was interrupted", e);
           }
 
           assert walFile == null || walFile.position() == currentPosition;
@@ -1881,10 +1881,10 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
         }
       }
     } catch (final IOException | ExecutionException e) {
-      OLogManager.instance().errorNoDb(this, "Error during WAL writing", e);
+      OLogManager.instance().error(this, "Error during WAL writing", e);
       throw new IllegalStateException(e);
     } catch (final RuntimeException | Error e) {
-      OLogManager.instance().errorNoDb(this, "Error during WAL writing", e);
+      OLogManager.instance().error(this, "Error during WAL writing", e);
       throw e;
     } finally {
       recordsWriterLock.unlock();
@@ -1940,7 +1940,7 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
         fsyncCount++;
       }
     } catch (final IOException e) {
-      OLogManager.instance().errorNoDb(this, "Error during FSync of WAL data", e);
+      OLogManager.instance().error(this, "Error during FSync of WAL data", e);
       throw e;
     }
   }
@@ -2001,9 +2001,9 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
         writeFuture.get();
       }
     } catch (final InterruptedException e) {
-      OLogManager.instance().errorNoDb(this, "WAL write was interrupted", e);
+      OLogManager.instance().error(this, "WAL write was interrupted", e);
     } catch (final Exception e) {
-      OLogManager.instance().errorNoDb(this, "Error during WAL write", e);
+      OLogManager.instance().error(this, "Error during WAL write", e);
       throw OException.wrapException(new OStorageException("Error during WAL data write"), e);
     }
 
@@ -2081,7 +2081,7 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
         bytesWrittenTime += (endTs - startTs);
       }
     } catch (final IOException e) {
-      OLogManager.instance().errorNoDb(this, "Error during WAL data write", e);
+      OLogManager.instance().error(this, "Error during WAL data write", e);
       throw e;
     }
   }
@@ -2107,18 +2107,22 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
       final long threadsWaitingCount = CASDiskWriteAheadLog.this.threadsWaitingCount.sum();
       final long threadsWaitingSum = CASDiskWriteAheadLog.this.threadsWaitingSum.sum();
 
+      final Object[] additionalArgs =
+          new Object[] {
+            storageName,
+            bytesWritten / 1024,
+            writtenTime > 0 ? 1_000_000_000L * bytesWritten / writtenTime / 1024 : -1,
+            fsyncCount,
+            fsyncCount > 0 ? fsyncTime / fsyncCount / 1_000_000 : -1,
+            threadsWaitingCount,
+            threadsWaitingCount > 0 ? threadsWaitingSum / threadsWaitingCount / 1_000_000 : -1
+          };
       OLogManager.instance()
-          .infoNoDb(
+          .info(
               this,
               "WAL stat:%s: %d KB was written, write speed is %d KB/s. FSync count %d. Avg. fsync"
                   + " time %d ms. %d times threads were waiting for WAL. Avg wait interval %d ms.",
-              storageName,
-              bytesWritten / 1024,
-              writtenTime > 0 ? 1_000_000_000L * bytesWritten / writtenTime / 1024 : -1,
-              fsyncCount,
-              fsyncCount > 0 ? fsyncTime / fsyncCount / 1_000_000 : -1,
-              threadsWaitingCount,
-              threadsWaitingCount > 0 ? threadsWaitingSum / threadsWaitingCount / 1_000_000 : -1);
+              additionalArgs);
 
       //noinspection NonAtomicOperationOnVolatileField
       CASDiskWriteAheadLog.this.bytesWrittenSum -= bytesWritten;

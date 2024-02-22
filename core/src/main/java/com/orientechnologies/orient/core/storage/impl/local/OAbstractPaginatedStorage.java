@@ -113,7 +113,6 @@ import com.orientechnologies.orient.core.record.ORecordVersionHelper;
 import com.orientechnologies.orient.core.record.impl.OBlob;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.index.OCompositeKeySerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.sharding.auto.OAutoShardingIndexEngine;
@@ -359,9 +358,18 @@ public abstract class OAbstractPaginatedStorage
 
   public static String checkName(String name) {
     name = normalizeName(name);
-    if (OStringSerializerHelper.contains(name, ',')) {
-      throw new IllegalArgumentException("Invalid character in storage name: " + name);
+
+    Pattern pattern = Pattern.compile("^\\p{L}[\\p{L}\\d_$-]*$");
+    Matcher matcher = pattern.matcher(name);
+    boolean isValid = matcher.matches();
+    if (!isValid) {
+      throw new OInvalidDatabaseNameException(
+          "Invalid name for database. ("
+              + name
+              + ") Name can contain only letters, numbers, underscores and dashes. "
+              + "Name should start with letter.");
     }
+
     return name;
   }
 
@@ -645,7 +653,7 @@ public abstract class OAbstractPaginatedStorage
         try {
           if (status != STATUS.MIGRATION) {
             OLogManager.instance()
-                .errorStorage(
+                .error(
                     this,
                     "Unexpected storage status %s, process of creation of storage is aborted",
                     null,
@@ -662,7 +670,7 @@ public abstract class OAbstractPaginatedStorage
         try {
           if (status != STATUS.MIGRATION) {
             OLogManager.instance()
-                .errorStorage(
+                .error(
                     this,
                     "Unexpected storage status %s, process of creation of storage is aborted",
                     null,
@@ -717,12 +725,9 @@ public abstract class OAbstractPaginatedStorage
       }
     }
 
+    final Object[] additionalArgs = new Object[] {getURL(), OConstants.getVersion()};
     OLogManager.instance()
-        .infoNoDb(
-            this,
-            "Storage '%s' is opened under OrientDB distribution : %s",
-            getURL(),
-            OConstants.getVersion());
+        .info(this, "Storage '%s' is opened under OrientDB distribution : %s", additionalArgs);
   }
 
   protected abstract void readIv() throws IOException;
@@ -872,12 +877,9 @@ public abstract class OAbstractPaginatedStorage
       throw logAndPrepareForRethrow(t);
     }
 
+    final Object[] additionalArgs = new Object[] {getURL(), OConstants.getVersion()};
     OLogManager.instance()
-        .infoNoDb(
-            this,
-            "Storage '%s' is created under OrientDB distribution : %s",
-            getURL(),
-            OConstants.getVersion());
+        .info(this, "Storage '%s' is created under OrientDB distribution : %s", additionalArgs);
   }
 
   protected void doCreate(OContextConfiguration contextConfiguration)
@@ -1712,7 +1714,7 @@ public abstract class OAbstractPaginatedStorage
   public final void onException(final Throwable e) {
 
     OLogManager.instance()
-        .errorStorage(
+        .error(
             this,
             "Error in data flush background thread, for storage %s ,"
                 + "please restart database and send full stack trace inside of bug report",
@@ -3890,7 +3892,7 @@ public abstract class OAbstractPaginatedStorage
 
           } else {
             OLogManager.instance()
-                .errorNoDb(
+                .error(
                     this,
                     "Sync can not be performed because of internal error in storage %s",
                     null,
@@ -4171,7 +4173,7 @@ public abstract class OAbstractPaginatedStorage
   @Override
   public final void pageIsBroken(final String fileName, final long pageIndex) {
     OLogManager.instance()
-        .errorStorage(
+        .error(
             this,
             "In storage %s file with name '%s' has broken page under the index %d",
             null,
@@ -4709,7 +4711,7 @@ public abstract class OAbstractPaginatedStorage
       }
 
       OLogManager.instance()
-          .debugNoDb(
+          .debug(
               this,
               "Before fuzzy checkpoint: min LSN segment is "
                   + minLSNSegment
@@ -4719,22 +4721,25 @@ public abstract class OAbstractPaginatedStorage
                   + endLSN
                   + ", fuzzy segment is "
                   + fuzzySegment,
-              null);
+              null,
+              new Object[] {});
 
       if (fuzzySegment > beginLSN.getSegment() && beginLSN.getSegment() < endLSN.getSegment()) {
-        OLogManager.instance().debugNoDb(this, "Making fuzzy checkpoint", null);
+        OLogManager.instance().debug(this, "Making fuzzy checkpoint", null, new Object[] {});
         writeCache.syncDataFiles(fuzzySegment, lastMetadata);
 
         beginLSN = writeAheadLog.begin();
         endLSN = writeAheadLog.end();
 
         OLogManager.instance()
-            .debugNoDb(
+            .debug(
                 this,
                 "After fuzzy checkpoint: WAL begin is " + beginLSN + " WAL end is " + endLSN,
-                null);
+                null,
+                new Object[] {});
       } else {
-        OLogManager.instance().debugNoDb(this, "No reason to make fuzzy checkpoint", null);
+        OLogManager.instance()
+            .debug(this, "No reason to make fuzzy checkpoint", null, new Object[] {});
       }
     } catch (final IOException ioe) {
       throw OException.wrapException(new OIOException("Error during fuzzy checkpoint"), ioe);
@@ -4766,7 +4771,7 @@ public abstract class OAbstractPaginatedStorage
       makeStorageDirty();
       sbTreeCollectionManager.delete(atomicOperation, collectionPointer);
     } catch (final Exception e) {
-      OLogManager.instance().errorNoDb(this, "Error during deletion of rid bag", e);
+      OLogManager.instance().error(this, "Error during deletion of rid bag", e);
       throw OException.wrapException(new OStorageException("Error during deletion of ridbag"), e);
     }
 
@@ -5528,7 +5533,7 @@ public abstract class OAbstractPaginatedStorage
         writeAheadLog.close();
       } else {
         OLogManager.instance()
-            .errorNoDb(
+            .error(
                 this,
                 "Because of JVM error happened inside of storage it can not be properly closed",
                 null);
@@ -5597,7 +5602,7 @@ public abstract class OAbstractPaginatedStorage
         writeAheadLog.delete();
       } else {
         OLogManager.instance()
-            .errorNoDb(
+            .error(
                 this,
                 "Because of JVM error happened inside of storage it can not be properly closed",
                 null);
@@ -5949,8 +5954,7 @@ public abstract class OAbstractPaginatedStorage
 
             if (operationList == null || operationList.isEmpty()) {
               OLogManager.instance()
-                  .errorNoDb(
-                      this, "'Start transaction' record is absent for atomic operation", null);
+                  .error(this, "'Start transaction' record is absent for atomic operation", null);
 
               if (operationList == null) {
                 operationList = new ArrayList<>(1024);
@@ -5962,7 +5966,7 @@ public abstract class OAbstractPaginatedStorage
           } else if (walRecord instanceof ONonTxOperationPerformedWALRecord ignored) {
             if (!wereNonTxOperationsPerformedInPreviousOpen) {
               OLogManager.instance()
-                  .warnNoDb(
+                  .warn(
                       this,
                       "Non tx operation was used during data modification we will need index"
                           + " rebuild.");
@@ -5973,7 +5977,7 @@ public abstract class OAbstractPaginatedStorage
             lastUpdatedLSN = walRecord.getLsn();
           } else {
             OLogManager.instance()
-                .warnNoDb(this, "Record %s will be skipped during data restore", walRecord);
+                .warn(this, "Record %s will be skipped during data restore", walRecord);
           }
 
           recordsProcessed++;
@@ -5981,13 +5985,13 @@ public abstract class OAbstractPaginatedStorage
           final long currentTime = System.currentTimeMillis();
           if (reportBatchSize > 0 && recordsProcessed % reportBatchSize == 0
               || currentTime - lastReportTime > WAL_RESTORE_REPORT_INTERVAL) {
+            final Object[] additionalArgs =
+                new Object[] {recordsProcessed, lsn, writeAheadLog.end()};
             OLogManager.instance()
-                .infoNoDb(
+                .info(
                     this,
                     "%d operations were processed, current LSN is %s last LSN is %s",
-                    recordsProcessed,
-                    lsn,
-                    writeAheadLog.end());
+                    additionalArgs);
             lastReportTime = currentTime;
           }
         }
@@ -5996,14 +6000,14 @@ public abstract class OAbstractPaginatedStorage
       }
     } catch (final OWALPageBrokenException e) {
       OLogManager.instance()
-          .errorNoDb(
+          .error(
               this,
               "Data restore was paused because broken WAL page was found. The rest of changes will"
                   + " be rolled back.",
               e);
     } catch (final RuntimeException e) {
       OLogManager.instance()
-          .errorNoDb(
+          .error(
               this,
               "Data restore was paused because of exception. The rest of changes will be rolled"
                   + " back.",
@@ -6404,14 +6408,12 @@ public abstract class OAbstractPaginatedStorage
         || runtimeException instanceof ONeedRetryException
         || runtimeException instanceof OInternalErrorException
         || runtimeException instanceof IllegalArgumentException)) {
+      final Object[] iAdditionalArgs =
+          new Object[] {
+            System.identityHashCode(runtimeException), getURL(), OConstants.getVersion()
+          };
       OLogManager.instance()
-          .errorStorage(
-              this,
-              "Exception `%08X` in storage `%s`: %s",
-              runtimeException,
-              System.identityHashCode(runtimeException),
-              getURL(),
-              OConstants.getVersion());
+          .error(this, "Exception `%08X` in storage `%s`: %s", runtimeException, iAdditionalArgs);
     }
 
     return runtimeException;
@@ -6427,14 +6429,10 @@ public abstract class OAbstractPaginatedStorage
         setInError(error);
       }
 
+      final Object[] iAdditionalArgs =
+          new Object[] {System.identityHashCode(error), getURL(), OConstants.getVersion()};
       OLogManager.instance()
-          .errorStorage(
-              this,
-              "Exception `%08X` in storage `%s`: %s",
-              error,
-              System.identityHashCode(error),
-              getURL(),
-              OConstants.getVersion());
+          .error(this, "Exception `%08X` in storage `%s`: %s", error, iAdditionalArgs);
     }
 
     return error;
@@ -6452,28 +6450,20 @@ public abstract class OAbstractPaginatedStorage
       if (putInReadOnlyMode) {
         setInError(throwable);
       }
+      final Object[] iAdditionalArgs =
+          new Object[] {System.identityHashCode(throwable), getURL(), OConstants.getVersion()};
       OLogManager.instance()
-          .errorStorage(
-              this,
-              "Exception `%08X` in storage `%s`: %s",
-              throwable,
-              System.identityHashCode(throwable),
-              getURL(),
-              OConstants.getVersion());
+          .error(this, "Exception `%08X` in storage `%s`: %s", throwable, iAdditionalArgs);
     }
     return new RuntimeException(throwable);
   }
 
   private OInvalidIndexEngineIdException logAndPrepareForRethrow(
       final OInvalidIndexEngineIdException exception) {
+    final Object[] iAdditionalArgs =
+        new Object[] {System.identityHashCode(exception), getURL(), OConstants.getVersion()};
     OLogManager.instance()
-        .errorStorage(
-            this,
-            "Exception `%08X` in storage `%s` : %s",
-            exception,
-            System.identityHashCode(exception),
-            getURL(),
-            OConstants.getVersion());
+        .error(this, "Exception `%08X` in storage `%s` : %s", exception, iAdditionalArgs);
     return exception;
   }
 

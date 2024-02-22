@@ -238,7 +238,7 @@ public class DbCreationTest extends ObjectDBBaseTest {
     }
 
     for (int i = 0; i < 3; ++i) {
-      String ur = u + "/" + i + "$db";
+      String ur = u + "/a" + i + "$db";
       ODatabaseDocument db = new ODatabaseDocumentTx(ur);
 
       try {
@@ -252,7 +252,7 @@ public class DbCreationTest extends ObjectDBBaseTest {
     }
 
     for (int i = 0; i < 3; ++i) {
-      String ur = u + "/" + i + "$db";
+      String ur = u + "/a" + i + "$db";
       ODatabaseDocument db = new ODatabaseDocumentTx(ur);
       Assert.assertTrue(ODatabaseHelper.existsDatabase(db, getStorageType()));
       db.activateOnCurrentThread();

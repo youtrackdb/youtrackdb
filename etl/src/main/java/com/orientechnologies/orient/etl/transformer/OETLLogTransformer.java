@@ -21,7 +21,7 @@ package com.orientechnologies.orient.etl.transformer;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import java.util.logging.Level;
+import org.slf4j.event.Level;
 
 /** ETL Transformer that logs the input. */
 public class OETLLogTransformer extends OETLAbstractTransformer {

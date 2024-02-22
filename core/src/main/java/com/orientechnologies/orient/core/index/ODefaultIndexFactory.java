@@ -116,7 +116,7 @@ public class ODefaultIndexFactory implements OIndexFactory {
       return new OIndexNotUnique(im, storage);
     } else if (OClass.INDEX_TYPE.FULLTEXT.toString().equals(indexType)) {
       OLogManager.instance()
-          .warnNoDb(
+          .warn(
               ODefaultIndexFactory.class,
               "You are creating native full text index instance. That is unsafe because this type"
                   + " of index is deprecated and will be removed in future.");

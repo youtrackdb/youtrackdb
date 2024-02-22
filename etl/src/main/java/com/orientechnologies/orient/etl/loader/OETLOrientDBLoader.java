@@ -47,7 +47,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.logging.Level;
+import org.slf4j.event.Level;
 
 /** ETL Loader that saves record into OrientDB database. */
 public class OETLOrientDBLoader extends OETLAbstractLoader {
@@ -144,7 +144,7 @@ public class OETLOrientDBLoader extends OETLAbstractLoader {
     if (tx && batchCommitSize > 0 && batchCounter.get() > batchCommitSize) {
       synchronized (this) {
         if (batchCommitSize > 0 && batchCounter.get() > batchCommitSize) {
-          log(Level.FINE, "committing document batch %d", progress.get());
+          log(Level.DEBUG, "committing document batch %d", progress.get());
           db.commit();
           db.begin();
           db.getTransaction().setUsingLog(txUseLog);
@@ -240,7 +240,7 @@ public class OETLOrientDBLoader extends OETLAbstractLoader {
     if (clusterName != null) {
       int clusterIdByName = db.getClusterIdByName(clusterName);
       if (clusterIdByName == -1) {
-        log(Level.FINE, "add cluster :: " + clusterName);
+        log(Level.DEBUG, "add cluster :: " + clusterName);
         cls.addCluster(clusterName);
       }
     }
@@ -267,7 +267,7 @@ public class OETLOrientDBLoader extends OETLAbstractLoader {
 
           cls = db.createVertexClass(iClassName).setSuperClasses(Arrays.asList(superClass));
           log(
-              Level.FINE,
+              Level.DEBUG,
               "- OrientDBLoader: created vertex class '%s' extends '%s'",
               iClassName,
               iSuperClass);
@@ -276,7 +276,7 @@ public class OETLOrientDBLoader extends OETLAbstractLoader {
           cls = db.createEdgeClass(iClassName).setSuperClasses(Arrays.asList(superClass));
 
           log(
-              Level.FINE,
+              Level.DEBUG,
               "- OrientDBLoader: created edge class '%s' extends '%s'",
               iClassName,
               iSuperClass);
@@ -284,7 +284,7 @@ public class OETLOrientDBLoader extends OETLAbstractLoader {
       } else {
         // ALWAYS CREATE SUB-VERTEX
         cls = db.createVertexClass(iClassName);
-        log(Level.FINE, "- OrientDBLoader: created vertex class '%s'", iClassName);
+        log(Level.DEBUG, "- OrientDBLoader: created vertex class '%s'", iClassName);
       }
     }
     return cls;
@@ -303,13 +303,13 @@ public class OETLOrientDBLoader extends OETLAbstractLoader {
 
         cls = documentDatabase.getMetadata().getSchema().createClass(iClassName, superClass);
         log(
-            Level.FINE,
+            Level.DEBUG,
             "- OrientDBLoader: created class '%s' extends '%s'",
             iClassName,
             iSuperClass);
       } else {
         cls = documentDatabase.getMetadata().getSchema().createClass(iClassName);
-        log(Level.FINE, "- OrientDBLoader: created class '%s'", iClassName);
+        log(Level.DEBUG, "- OrientDBLoader: created class '%s'", iClassName);
       }
     }
     return cls;
@@ -331,7 +331,7 @@ public class OETLOrientDBLoader extends OETLAbstractLoader {
       } catch (OSchemaException e) {
       }
 
-      log(Level.FINE, "created property [%s.%s] of type [%s]", cls.getName(), f, fType);
+      log(Level.DEBUG, "created property [%s.%s] of type [%s]", cls.getName(), f, fType);
     }
   }
 
@@ -494,7 +494,7 @@ public class OETLOrientDBLoader extends OETLAbstractLoader {
         if (clusters != null) OClassImpl.addClusters(schemaClass, clusters);
 
         log(
-            Level.FINE,
+            Level.DEBUG,
             "%s: found %d %s in class '%s'",
             getName(),
             schemaClass.count(),
@@ -505,7 +505,7 @@ public class OETLOrientDBLoader extends OETLAbstractLoader {
     if (className != null) {
       schemaClass = getOrCreateClass(db, className, null);
       log(
-          Level.FINE,
+          Level.DEBUG,
           "%s: found %d %s in class '%s'",
           getName(),
           schemaClass.count(),
@@ -517,7 +517,7 @@ public class OETLOrientDBLoader extends OETLAbstractLoader {
         OIndex index;
 
         final ODocument metadata = (ODocument) resolve(idx.field("metadata"));
-        log(Level.FINE, "%s: found metadata field '%s'", getName(), metadata);
+        log(Level.DEBUG, "%s: found metadata field '%s'", getName(), metadata);
 
         String idxName = (String) resolve(idx.field("name"));
         if (idxName != null) {
@@ -561,7 +561,7 @@ public class OETLOrientDBLoader extends OETLAbstractLoader {
 
             cls.createProperty(fieldNameParts[0], type);
             log(
-                Level.FINE,
+                Level.DEBUG,
                 "- OrientDBLoader: created property '%s.%s' of type: %s",
                 idxClass,
                 fieldNameParts[0],
@@ -587,7 +587,7 @@ public class OETLOrientDBLoader extends OETLAbstractLoader {
 
         index = cls.createIndex(idxName, idxType, null, metadata, algorithm, fields);
         log(
-            Level.FINE,
+            Level.DEBUG,
             "- OrientDocumentLoader: created index '%s' type '%s' against Class '%s', fields %s",
             idxName,
             idxType,

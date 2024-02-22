@@ -23,7 +23,7 @@ import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.etl.OETLProcessHaltedException;
-import java.util.logging.Level;
+import org.slf4j.event.Level;
 
 /** Loads a record. */
 public class OETLLoadTransformer extends OETLAbstractLookupTransformer {
@@ -52,7 +52,7 @@ public class OETLLoadTransformer extends OETLAbstractLookupTransformer {
     Object joinValue = ((ODocument) ((OIdentifiable) input).getRecord()).field(joinFieldName);
     final Object result = lookup((ODatabaseDocumentInternal) db, joinValue, false);
 
-    log(Level.FINE, "%s: joinValue=%s, lookupResult=%s", getName(), joinValue, result);
+    log(Level.DEBUG, "%s: joinValue=%s, lookupResult=%s", getName(), joinValue, result);
 
     if (result != null) {
       return result;
@@ -62,21 +62,21 @@ public class OETLLoadTransformer extends OETLAbstractLookupTransformer {
       switch (unresolvedLinkAction) {
         case NOTHING:
           log(
-              Level.FINE,
+              Level.DEBUG,
               "%s: DOING NOTHING for unresolved link on value %s",
               getName(),
               joinValue);
           break;
         case ERROR:
           processor.getStats().incrementErrors();
-          log(Level.SEVERE, "%s: ERROR Cannot resolve join for value '%s'", getName(), joinValue);
+          log(Level.ERROR, "%s: ERROR Cannot resolve join for value '%s'", getName(), joinValue);
           break;
         case WARNING:
           processor.getStats().incrementWarnings();
           log(Level.INFO, "%s: WARN Cannot resolve join for value '%s'", getName(), joinValue);
           break;
         case SKIP:
-          log(Level.FINE, "%s: SKIPPING unresolved link on value %s", getName(), joinValue);
+          log(Level.DEBUG, "%s: SKIPPING unresolved link on value %s", getName(), joinValue);
           return null;
         case HALT:
           throw new OETLProcessHaltedException(

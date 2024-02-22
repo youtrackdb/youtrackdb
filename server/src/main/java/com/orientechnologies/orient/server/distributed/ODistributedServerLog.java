@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.server.distributed;
 
 import com.orientechnologies.common.log.OLogManager;
-import java.util.logging.Level;
+import javax.annotation.Nonnull;
 
 /**
  * Distributed logger.
@@ -40,155 +40,130 @@ public class ODistributedServerLog {
   }
 
   public static void debug(
-      final Object iRequester,
+      @Nonnull final Object iRequester,
       final String iLocalNode,
       final String iRemoteNode,
       final DIRECTION iDirection,
-      final String iMessage,
+      @Nonnull final String iMessage,
       final Object... iAdditionalArgs) {
     OLogManager.instance()
-        .log(
+        .debug(
             iRequester,
-            Level.FINE,
-            formatMessage(iRequester, iLocalNode, iRemoteNode, iDirection, iMessage),
-            null,
-            true,
+            formatMessage(iLocalNode, iRemoteNode, iDirection, iMessage),
             null,
             iAdditionalArgs);
   }
 
   public static void debug(
-      final Object iRequester,
+      @Nonnull final Object iRequester,
       final String iLocalNode,
       final String iRemoteNode,
       final DIRECTION iDirection,
-      final String iMessage,
+      @Nonnull final String iMessage,
       final Throwable iException,
       final Object... iAdditionalArgs) {
     OLogManager.instance()
-        .log(
+        .debug(
             iRequester,
-            Level.FINE,
-            formatMessage(iRequester, iLocalNode, iRemoteNode, iDirection, iMessage),
+            formatMessage(iLocalNode, iRemoteNode, iDirection, iMessage),
             iException,
-            true,
+            iAdditionalArgs);
+  }
+
+  public static void info(
+      @Nonnull final Object iRequester,
+      final String iLocalNode,
+      final String iRemoteNode,
+      final DIRECTION iDirection,
+      @Nonnull final String iMessage,
+      final Object... iAdditionalArgs) {
+    OLogManager.instance()
+        .info(
+            iRequester,
+            formatMessage(iLocalNode, iRemoteNode, iDirection, iMessage),
             null,
             iAdditionalArgs);
   }
 
   public static void info(
-      final Object iRequester,
+      @Nonnull final Object iRequester,
       final String iLocalNode,
       final String iRemoteNode,
       final DIRECTION iDirection,
-      final String iMessage,
-      final Object... iAdditionalArgs) {
-    OLogManager.instance()
-        .log(
-            iRequester,
-            Level.INFO,
-            formatMessage(iRequester, iLocalNode, iRemoteNode, iDirection, iMessage),
-            null,
-            true,
-            null,
-            iAdditionalArgs);
-  }
-
-  public static void info(
-      final Object iRequester,
-      final String iLocalNode,
-      final String iRemoteNode,
-      final DIRECTION iDirection,
-      final String iMessage,
+      @Nonnull final String iMessage,
       final Throwable iException,
       final Object... iAdditionalArgs) {
     OLogManager.instance()
-        .log(
+        .info(
             iRequester,
-            Level.INFO,
-            formatMessage(iRequester, iLocalNode, iRemoteNode, iDirection, iMessage),
+            formatMessage(iLocalNode, iRemoteNode, iDirection, iMessage),
             iException,
-            true,
+            iAdditionalArgs);
+  }
+
+  public static void warn(
+      @Nonnull final Object iRequester,
+      final String iLocalNode,
+      final String iRemoteNode,
+      final DIRECTION iDirection,
+      @Nonnull final String iMessage,
+      final Object... iAdditionalArgs) {
+    OLogManager.instance()
+        .warn(
+            iRequester,
+            formatMessage(iLocalNode, iRemoteNode, iDirection, iMessage),
             null,
             iAdditionalArgs);
   }
 
   public static void warn(
-      final Object iRequester,
+      @Nonnull final Object iRequester,
       final String iLocalNode,
       final String iRemoteNode,
       final DIRECTION iDirection,
-      final String iMessage,
-      final Object... iAdditionalArgs) {
-    OLogManager.instance()
-        .log(
-            iRequester,
-            Level.WARNING,
-            formatMessage(iRequester, iLocalNode, iRemoteNode, iDirection, iMessage),
-            null,
-            true,
-            null,
-            iAdditionalArgs);
-  }
-
-  public static void warn(
-      final Object iRequester,
-      final String iLocalNode,
-      final String iRemoteNode,
-      final DIRECTION iDirection,
-      final String iMessage,
+      @Nonnull final String iMessage,
       final Throwable iException,
       final Object... iAdditionalArgs) {
     OLogManager.instance()
-        .log(
+        .warn(
             iRequester,
-            Level.WARNING,
-            formatMessage(iRequester, iLocalNode, iRemoteNode, iDirection, iMessage),
+            formatMessage(iLocalNode, iRemoteNode, iDirection, iMessage),
             iException,
-            true,
+            iAdditionalArgs);
+  }
+
+  public static void error(
+      @Nonnull final Object iRequester,
+      final String iLocalNode,
+      final String iRemoteNode,
+      final DIRECTION iDirection,
+      @Nonnull final String iMessage,
+      final Object... iAdditionalArgs) {
+    OLogManager.instance()
+        .error(
+            iRequester,
+            formatMessage(iLocalNode, iRemoteNode, iDirection, iMessage),
             null,
             iAdditionalArgs);
   }
 
   public static void error(
-      final Object iRequester,
+      @Nonnull final Object iRequester,
       final String iLocalNode,
       final String iRemoteNode,
       final DIRECTION iDirection,
-      final String iMessage,
-      final Object... iAdditionalArgs) {
-    OLogManager.instance()
-        .log(
-            iRequester,
-            Level.SEVERE,
-            formatMessage(iRequester, iLocalNode, iRemoteNode, iDirection, iMessage),
-            null,
-            true,
-            null,
-            iAdditionalArgs);
-  }
-
-  public static void error(
-      final Object iRequester,
-      final String iLocalNode,
-      final String iRemoteNode,
-      final DIRECTION iDirection,
-      final String iMessage,
+      @Nonnull final String iMessage,
       final Throwable iException,
       final Object... iAdditionalArgs) {
     OLogManager.instance()
-        .log(
+        .error(
             iRequester,
-            Level.SEVERE,
-            formatMessage(iRequester, iLocalNode, iRemoteNode, iDirection, iMessage),
+            formatMessage(iLocalNode, iRemoteNode, iDirection, iMessage),
             iException,
-            true,
-            null,
             iAdditionalArgs);
   }
 
   protected static String formatMessage(
-      final Object iRequester,
       final String iLocalNode,
       final String iRemoteNode,
       final DIRECTION iDirection,

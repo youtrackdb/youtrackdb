@@ -158,7 +158,7 @@ public class OClientConnectionManager {
     connection = new OClientConnection(connectionSerial.incrementAndGet(), iProtocol);
 
     connections.put(connection.getId(), connection);
-    OLogManager.instance().config(this, "Remote client connected from: " + connection);
+    OLogManager.instance().debug(this, "Remote client connected from: " + connection);
     OServerPluginHelper.invokeHandlerCallbackOnClientConnection(iProtocol.getServer(), connection);
     return connection;
   }
@@ -190,7 +190,7 @@ public class OClientConnectionManager {
     }
     connection.setToken(parsedToken, tokenBytes);
     session.addConnection(connection);
-    OLogManager.instance().config(this, "Remote client connected from: " + connection);
+    OLogManager.instance().debug(this, "Remote client connected from: " + connection);
     OServerPluginHelper.invokeHandlerCallbackOnClientConnection(iProtocol.getServer(), connection);
     return connection;
   }

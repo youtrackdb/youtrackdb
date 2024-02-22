@@ -355,7 +355,7 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
         } catch (RuntimeException e) {
           localeInstance = Locale.getDefault();
           OLogManager.instance()
-              .errorNoDb(
+              .error(
                   this,
                   "Error during initialization of locale, default one %s will be used",
                   e,

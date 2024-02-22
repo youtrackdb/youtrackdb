@@ -102,7 +102,8 @@ public class OFindReferenceHelper {
             checkObject(iSourceRIDs, map, value, (ODocument) record);
           }
         } catch (Exception e) {
-          OLogManager.instance().debug(null, "Error reading record " + record.getIdentity(), e);
+          OLogManager.instance()
+              .debug(OFindReferenceHelper.class, "Error reading record " + record.getIdentity(), e);
         }
       }
     }

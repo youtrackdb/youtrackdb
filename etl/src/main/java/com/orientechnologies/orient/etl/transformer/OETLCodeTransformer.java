@@ -26,7 +26,7 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
+import org.slf4j.event.Level;
 
 /** Executes arbitrary code in any supported language by JVM. */
 public class OETLCodeTransformer extends OETLAbstractTransformer {
@@ -73,13 +73,11 @@ public class OETLCodeTransformer extends OETLAbstractTransformer {
     try {
       Object result = cmd.executeInContext(context, params);
 
-      log(Level.FINE, "executed code=%s, result=%s", cmd, result);
+      log(Level.DEBUG, "executed code=%s, result=%s", cmd, result);
       return result;
 
     } catch (Exception e) {
-
-      log(Level.SEVERE, "exception=%s - input=%s - command=%s ", e.getMessage(), input, cmd);
-
+      log(Level.ERROR, "exception=%s - input=%s - command=%s ", e.getMessage(), input, cmd);
       throw e;
     }
   }

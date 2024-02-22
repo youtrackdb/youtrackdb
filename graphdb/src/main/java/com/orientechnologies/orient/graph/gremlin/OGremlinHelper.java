@@ -308,7 +308,7 @@ public class OGremlinHelper {
         } catch (Exception e2) {
           OLogManager.instance()
               .error(
-                  null,
+                  OGremlinHelper.class,
                   "[GremlinHelper] error on cloning object %s, previous %s",
                   e2,
                   objectToClone,

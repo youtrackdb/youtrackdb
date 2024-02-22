@@ -102,7 +102,7 @@ public final class AsyncFile implements OFile {
       fileChannel.truncate(currentSize + HEADER_SIZE);
 
       OLogManager.instance()
-          .warnNoDb(
+          .warn(
               this,
               "Data page in file {} was partially written and will be truncated, "
                   + "initial size {}, truncated size {}",
@@ -352,7 +352,7 @@ public final class AsyncFile implements OFile {
     try {
       doClose();
 
-      OLogManager.instance().infoNoDb(this, "File " + osFile + " has been deleted.");
+      OLogManager.instance().info(this, "File " + osFile + " has been deleted.");
       Files.delete(osFile);
     } finally {
       lock.exclusiveUnlock();

@@ -258,7 +258,7 @@ public class OSQLEngine {
             } catch (Exception e) {
               OLogManager.instance()
                   .warn(
-                      null,
+                      OSQLEngine.class,
                       "Cannot load OCommandExecutorSQLFactory instance from service registry",
                       e);
             }

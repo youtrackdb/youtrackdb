@@ -178,7 +178,7 @@ public class StorageStartupMetadata {
             }
           } else {
             OLogManager.instance()
-                .infoNoDb(this, "File with startup metadata does not exist, creating new one");
+                .info(this, "File with startup metadata does not exist, creating new one");
             create(createdAtVersion);
             return;
           }

@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.etl.OETLProcessHaltedException;
-import java.util.logging.Level;
+import org.slf4j.event.Level;
 
 /** Merges two records. Useful when a record needs to be updated rather than created. */
 public class OETLMergeTransformer extends OETLAbstractLookupTransformer {
@@ -53,19 +53,19 @@ public class OETLMergeTransformer extends OETLAbstractLookupTransformer {
     Object joinValue = ((ODocument) ((OIdentifiable) input).getRecord()).field(joinFieldName);
     final Object result = lookup((ODatabaseDocumentInternal) db, joinValue, false);
 
-    log(Level.FINE, "%s: joinValue=%s, lookupResult=%s", getName(), joinValue, result);
+    log(Level.DEBUG, "%s: joinValue=%s, lookupResult=%s", getName(), joinValue, result);
 
     if (result != null) {
       if (result instanceof OIdentifiable) {
         ((ODocument) result).merge((ODocument) input, true, false);
-        log(Level.FINE, "%s: merged record %s with found record=%s", getName(), result, input);
+        log(Level.DEBUG, "%s: merged record %s with found record=%s", getName(), result, input);
         return result;
 
       } else if (OMultiValue.isMultiValue(result) && OMultiValue.getSize(result) == 1) {
         final ODocument firstValue =
-            (ODocument) ((OIdentifiable) OMultiValue.getFirstValue(result)).getRecord();
+            ((OIdentifiable) OMultiValue.getFirstValue(result)).getRecord();
         firstValue.merge((ODocument) ((OIdentifiable) input).getRecord(), true, false);
-        log(Level.FINE, "%s: merged record %s with found record=%s", getName(), firstValue, input);
+        log(Level.DEBUG, "%s: merged record %s with found record=%s", getName(), firstValue, input);
         return firstValue;
       } else if (OMultiValue.isMultiValue(result) && OMultiValue.getSize(result) > 1) {
         throw new OETLProcessHaltedException(
@@ -79,21 +79,21 @@ public class OETLMergeTransformer extends OETLAbstractLookupTransformer {
       switch (unresolvedLinkAction) {
         case NOTHING:
           log(
-              Level.FINE,
+              Level.DEBUG,
               "%s: DOING NOTHING for unresolved link on value %s",
               getName(),
               joinValue);
           break;
         case ERROR:
           processor.getStats().incrementErrors();
-          log(Level.SEVERE, "%s: ERROR Cannot resolve join for value '%s'", getName(), joinValue);
+          log(Level.ERROR, "%s: ERROR Cannot resolve join for value '%s'", getName(), joinValue);
           break;
         case WARNING:
           processor.getStats().incrementWarnings();
           log(Level.INFO, "%s: WARN Cannot resolve join for value '%s'", getName(), joinValue);
           break;
         case SKIP:
-          log(Level.FINE, "%s: SKIPPING unresolved link on value %s", getName(), joinValue);
+          log(Level.DEBUG, "%s: SKIPPING unresolved link on value %s", getName(), joinValue);
           return null;
         case HALT:
           throw new OETLProcessHaltedException(

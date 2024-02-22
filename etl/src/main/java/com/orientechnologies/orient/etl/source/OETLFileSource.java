@@ -31,9 +31,9 @@ import java.io.Reader;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.charset.Charset;
-import java.util.logging.Level;
 import java.util.zip.GZIPInputStream;
 import org.apache.commons.io.input.BOMInputStream;
+import org.slf4j.event.Level;
 
 public class OETLFileSource extends OETLAbstractSource {
   protected String fileName;

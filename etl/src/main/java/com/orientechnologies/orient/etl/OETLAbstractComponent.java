@@ -31,7 +31,7 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilter;
 import com.orientechnologies.orient.core.sql.filter.OSQLPredicate;
 import com.orientechnologies.orient.etl.context.OETLContext;
-import java.util.logging.Level;
+import org.slf4j.event.Level;
 
 /** ETL abstract component. */
 public abstract class OETLAbstractComponent implements OETLComponent {
@@ -55,7 +55,7 @@ public abstract class OETLAbstractComponent implements OETLComponent {
 
   @Override
   public void begin(ODatabaseDocument db) {
-    if (configuration.containsField("output")) output = configuration.field("output");
+    if (configuration.hasProperty("output")) output = configuration.field("output");
   }
 
   @Override
@@ -96,7 +96,7 @@ public abstract class OETLAbstractComponent implements OETLComponent {
       final ODocument doc =
           input instanceof OIdentifiable ? (ODocument) ((OIdentifiable) input).getRecord() : null;
 
-      log(Level.FINE, "Evaluating conditional expression if=%s...", ifFilter);
+      log(Level.TRACE, "Evaluating conditional expression if=%s...", ifFilter);
 
       final Object result = ifFilter.evaluate(doc, null, context);
       if (!(result instanceof Boolean))
@@ -127,16 +127,9 @@ public abstract class OETLAbstractComponent implements OETLComponent {
     if (extractedNum != null) {
       OLogManager.instance()
           .log(
-              this,
-              iLevel,
-              "[" + extractedNum + ":" + getName() + "]  " + iText,
-              exception,
-              true,
-              null,
-              iArgs);
+              this, iLevel, "[" + extractedNum + ":" + getName() + "]  " + iText, exception, iArgs);
     } else {
-      OLogManager.instance()
-          .log(this, iLevel, "[" + getName() + "] " + iText, exception, true, null, iArgs);
+      OLogManager.instance().log(this, iLevel, "[" + getName() + "] " + iText, exception, iArgs);
     }
   }
 
@@ -149,7 +142,7 @@ public abstract class OETLAbstractComponent implements OETLComponent {
       final Object value = iObject[i];
       if (value != null) {
         buffer.append("'");
-        buffer.append(value.toString());
+        buffer.append(value);
         buffer.append("'");
       }
     }
@@ -161,8 +154,7 @@ public abstract class OETLAbstractComponent implements OETLComponent {
     if (context == null || content == null) return content;
 
     Object value;
-    if (content instanceof String) {
-      String contentAsString = (String) content;
+    if (content instanceof String contentAsString) {
       if (contentAsString.startsWith("$") && !contentAsString.startsWith(VAR_BEGIN)) {
         value = context.getVariable(content.toString());
       } else {

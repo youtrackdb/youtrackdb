@@ -9,7 +9,7 @@ public class OUncaughtExceptionHandler implements Thread.UncaughtExceptionHandle
     final OLogManager logManager = OLogManager.instance();
 
     if (logManager != null) {
-      OLogManager.instance().errorNoDb(this, "Uncaught exception in thread %s", e, t.getName());
+      OLogManager.instance().error(this, "Uncaught exception in thread %s", e, t.getName());
     }
   }
 }

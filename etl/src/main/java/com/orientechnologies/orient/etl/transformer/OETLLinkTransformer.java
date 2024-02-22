@@ -32,7 +32,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
+import org.slf4j.event.Level;
 
 /** Converts a JOIN in LINK */
 public class OETLLinkTransformer extends OETLAbstractLookupTransformer {
@@ -78,7 +78,7 @@ public class OETLLinkTransformer extends OETLAbstractLookupTransformer {
   public Object executeTransform(ODatabaseDocument db, final Object input) {
     if (!(input instanceof OIdentifiable)) {
       log(
-          Level.FINE,
+          Level.DEBUG,
           "skip because input value is not a record, but rather an instance of class: %s",
           input.getClass());
       return null;
@@ -100,7 +100,7 @@ public class OETLLinkTransformer extends OETLAbstractLookupTransformer {
       result = singleJoinsResult;
     } else result = lookup((ODatabaseDocumentInternal) db, joinRuntimeValue, true);
 
-    log(Level.FINE, "joinRuntimeValue=%s, lookupResult=%s", joinRuntimeValue, result);
+    log(Level.DEBUG, "joinRuntimeValue=%s, lookupResult=%s", joinRuntimeValue, result);
 
     if (result != null) {
       if (linkFieldType != null) {
@@ -135,7 +135,7 @@ public class OETLLinkTransformer extends OETLAbstractLookupTransformer {
               linkedDoc.field(lookupParts[1], joinRuntimeValue);
               linkedDoc.save();
 
-              log(Level.FINE, "created new document=%s", linkedDoc.getRecord());
+              log(Level.DEBUG, "created new document=%s", linkedDoc.getRecord());
 
               result = linkedDoc;
             } else
@@ -146,7 +146,7 @@ public class OETLLinkTransformer extends OETLAbstractLookupTransformer {
           case ERROR:
             processor.getStats().incrementErrors();
             log(
-                Level.SEVERE,
+                Level.ERROR,
                 "%s: ERROR Cannot resolve join for value '%s'",
                 getName(),
                 joinRuntimeValue);
@@ -171,7 +171,7 @@ public class OETLLinkTransformer extends OETLAbstractLookupTransformer {
     // SET THE TRANSFORMED FIELD BACK
     doc.field(linkFieldName, result);
 
-    log(Level.FINE, "set %s=%s in document=%s", linkFieldName, result, input);
+    log(Level.DEBUG, "set %s=%s in document=%s", linkFieldName, result, input);
 
     return input;
   }

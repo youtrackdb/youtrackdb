@@ -186,12 +186,13 @@ public final class OByteBufferPool implements OByteBufferPoolMXBean {
     boolean detected = false;
     if (TRACK) {
       for (Map.Entry<OPointer, PointerTracker> entry : pointerMapping.entrySet()) {
+        final Object[] iAdditionalArgs = new Object[] {System.identityHashCode(entry.getKey())};
         OLogManager.instance()
-            .errorNoDb(
+            .error(
                 this,
                 "DIRECT-TRACK: unreleased direct memory pointer `%X` detected.",
                 entry.getValue().allocation,
-                System.identityHashCode(entry.getKey()));
+                iAdditionalArgs);
         detected = true;
       }
     }

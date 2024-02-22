@@ -526,7 +526,7 @@ public abstract class OAbstractProfiler extends OSharedResourceAbstract
                         "\n"
                             + "*******************************************************************************************************************************************");
 
-                    OLogManager.instance().info(null, output.toString());
+                    OLogManager.instance().info(this, output.toString());
                   },
                   ms,
                   ms);

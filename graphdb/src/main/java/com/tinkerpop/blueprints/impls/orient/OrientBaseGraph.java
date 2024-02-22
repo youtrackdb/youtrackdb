@@ -89,10 +89,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.configuration.Configuration;
+import org.slf4j.event.Level;
 
 /**
  * A Blueprints implementation of the graph database OrientDB (http://orientdb.com)
@@ -377,7 +377,11 @@ public abstract class OrientBaseGraph extends OrientConfigurableGraph
       return URLEncoder.encode(iClassName, "UTF-8").replaceAll("\\.", "%2E"); // encode invalid '.'
     } catch (UnsupportedEncodingException e) {
       OLogManager.instance()
-          .error(null, "Error on encoding class name using encoding '%s'", e, "UTF-8");
+          .error(
+              OrientBaseGraph.class,
+              "Error on encoding class name using encoding '%s'",
+              e,
+              "UTF-8");
       return iClassName;
     }
   }
@@ -392,7 +396,11 @@ public abstract class OrientBaseGraph extends OrientConfigurableGraph
       return URLDecoder.decode(iClassName, "UTF-8");
     } catch (UnsupportedEncodingException e) {
       OLogManager.instance()
-          .error(null, "Error on decoding class name using encoding '%s'", e, "UTF-8");
+          .error(
+              OrientBaseGraph.class,
+              "Error on decoding class name using encoding '%s'",
+              e,
+              "UTF-8");
       return iClassName;
     }
   }
@@ -2281,7 +2289,8 @@ public abstract class OrientBaseGraph extends OrientConfigurableGraph
       graph.getDatabase().getMetadata().reload();
       klass = graph.getDatabase().getMetadata().getSchema().getClass(inverseFieldName);
       if (klass == null) {
-        OLogManager.instance().warn(null, "Removing edge, schema class not found for " + r);
+        OLogManager.instance()
+            .warn(OrientBaseGraph.class, "Removing edge, schema class not found for " + r);
         return;
       }
     }

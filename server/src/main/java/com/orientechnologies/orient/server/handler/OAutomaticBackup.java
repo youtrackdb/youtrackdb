@@ -441,7 +441,7 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
       OFileUtils.atomicMoveWithFallback(tempFilePath, filePath, this);
     } catch (Exception e) {
       OLogManager.instance()
-          .errorNoDb(
+          .error(
               this, "Error during backup processing, file %s will be deleted\n", e, tempFileName);
       Files.deleteIfExists(tempFilePath);
       throw e;

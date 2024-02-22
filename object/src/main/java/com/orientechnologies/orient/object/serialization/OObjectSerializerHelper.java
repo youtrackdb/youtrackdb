@@ -996,7 +996,8 @@ public class OObjectSerializerHelper {
         OObjectSerializerHelper.setFieldFromDocument(oDocument, pojo, aField);
       }
     } catch (Exception e) {
-      OLogManager.instance().error(null, "Error on converting document in object", e);
+      OLogManager.instance()
+          .error(OObjectSerializerHelper.class, "Error on converting document in object", e);
     }
     return pojo;
   }
@@ -1055,7 +1056,7 @@ public class OObjectSerializerHelper {
         }
       }
     } catch (Exception e) {
-      OLogManager.instance().error(null, "Error on convertInObject()", e);
+      OLogManager.instance().error(OObjectSerializerHelper.class, "Error on convertInObject()", e);
     }
     return aSubList;
   }

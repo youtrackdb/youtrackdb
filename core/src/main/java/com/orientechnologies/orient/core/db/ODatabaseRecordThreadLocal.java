@@ -37,6 +37,9 @@ public class ODatabaseRecordThreadLocal extends ThreadLocal<ODatabaseDocumentInt
     // we can do that to avoid thread local memory leaks in containers
     if (INSTANCE.get() == null) {
       final Orient inst = Orient.instance();
+      if (inst == null) {
+        return null;
+      }
       inst.registerListener(
           new OOrientListenerAbstract() {
             @Override

@@ -155,7 +155,8 @@ public class NodeOperationTask implements ORemoteTask {
       try {
         return factory.request.call();
       } catch (Exception e) {
-        OLogManager.instance().warn(null, "Cannot create node operation from id %d", messageId);
+        OLogManager.instance()
+            .warn(NodeOperationTask.class, "Cannot create node operation from id %d", messageId);
         return null;
       }
     } else {
@@ -189,7 +190,10 @@ public class NodeOperationTask implements ORemoteTask {
         return factory.response.call();
       } catch (Exception e) {
         OLogManager.instance()
-            .warn(null, "Cannot create node operation response from id %d", messageId);
+            .warn(
+                NodeOperationTask.class,
+                "Cannot create node operation response from id %d",
+                messageId);
         return null;
       }
     } else {

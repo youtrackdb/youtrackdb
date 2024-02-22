@@ -111,7 +111,7 @@ public class OServer {
 
     if (insideWebContainer && shutdownEngineOnExit) {
       OLogManager.instance()
-          .warnNoDb(
+          .warn(
               this,
               "OrientDB instance is running inside of web application, it is highly unrecommended"
                   + " to force to shutdown OrientDB engine on server shutdown");

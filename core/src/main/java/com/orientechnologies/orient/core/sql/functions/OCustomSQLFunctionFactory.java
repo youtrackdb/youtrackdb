@@ -36,7 +36,9 @@ public class OCustomSQLFunctionFactory implements OSQLFunctionFactory {
       final String name = prefix + entry.getKey();
       if (FUNCTIONS.containsKey(name)) {
         OLogManager.instance()
-            .warn(null, "Unable to register reflective function with name " + name);
+            .warn(
+                OCustomSQLFunctionFactory.class,
+                "Unable to register reflective function with name " + name);
       } else {
         List<Method> methodsList = methodsMap.get(entry.getKey());
         Method[] methods = new Method[methodsList.size()];

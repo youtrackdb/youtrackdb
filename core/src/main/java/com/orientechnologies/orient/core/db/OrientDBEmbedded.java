@@ -123,10 +123,10 @@ public class OrientDBEmbedded implements OrientDBInternal {
       final File dirFile = new File(directoryPath);
       if (!dirFile.exists()) {
         OLogManager.instance()
-            .infoNoDb(this, "Directory " + dirFile + " does not exist, try to create it.");
+            .info(this, "Directory " + dirFile + " does not exist, try to create it.");
 
         if (!dirFile.mkdirs()) {
-          OLogManager.instance().errorNoDb(this, "Can not create directory " + dirFile, null);
+          OLogManager.instance().error(this, "Can not create directory " + dirFile, null);
         }
       }
       this.basePath = dirFile.getAbsolutePath();
@@ -150,7 +150,7 @@ public class OrientDBEmbedded implements OrientDBInternal {
         }
 
         OLogManager.instance()
-            .infoNoDb(
+            .info(
                 this, "WAL maximum segment size is set to %,d MB", maxWALSegmentSize / 1024 / 1024);
       } catch (IOException e) {
         throw OException.wrapException(
@@ -541,7 +541,7 @@ public class OrientDBEmbedded implements OrientDBInternal {
             || ("writer".equals(user) && "writer".equals(password)))
         && WARNING_DEFAULT_USERS.getValueAsBoolean()) {
       OLogManager.instance()
-          .warnNoDb(
+          .warn(
               this,
               String.format(
                   "IMPORTANT! Using default password is unsafe, please change password for user"

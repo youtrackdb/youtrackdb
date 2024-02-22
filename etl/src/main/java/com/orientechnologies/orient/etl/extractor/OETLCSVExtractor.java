@@ -34,10 +34,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.logging.Level;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.slf4j.event.Level;
 
 /** An extractor based on Apache Commons CSV Created by frank on 10/5/15. */
 public class OETLCSVExtractor extends OETLAbstractSourceExtractor {
@@ -244,7 +244,7 @@ public class OETLCSVExtractor extends OETLAbstractSourceExtractor {
         } catch (Exception e) {
           processor.getStats().incrementErrors();
           log(
-              Level.SEVERE,
+              Level.ERROR,
               "Error on converting row %d field '%s' (%d), value '%s' (class:%s) to type: %s",
               csvRecord.getRecordNumber(),
               fieldName,
@@ -255,7 +255,7 @@ public class OETLCSVExtractor extends OETLAbstractSourceExtractor {
       }
     }
 
-    log(Level.FINE, "document=%s", doc);
+    log(Level.TRACE, "document=%s", doc);
     current++;
     return new OETLExtractedItem(current, doc);
   }
@@ -307,15 +307,15 @@ public class OETLCSVExtractor extends OETLAbstractSourceExtractor {
     try {
       if (fieldStringValue.contains(".") || fieldStringValue.contains(",")) {
         String numberAsString = fieldStringValue.replaceAll(",", ".");
-        fieldValue = new Float(numberAsString);
+        fieldValue = Float.valueOf(numberAsString);
         if (!isFinite((Float) fieldValue)) {
-          fieldValue = new Double(numberAsString);
+          fieldValue = Double.valueOf(numberAsString);
         }
       } else {
         try {
-          fieldValue = new Integer(fieldStringValue);
+          fieldValue = Integer.valueOf(fieldStringValue);
         } catch (Exception e) {
-          fieldValue = new Long(fieldStringValue);
+          fieldValue = Long.valueOf(fieldStringValue);
         }
       }
     } catch (NumberFormatException nf) {

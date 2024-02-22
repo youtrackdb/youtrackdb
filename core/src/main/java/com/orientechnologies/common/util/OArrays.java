@@ -69,7 +69,8 @@ public class OArrays {
       System.arraycopy(iSource, iBegin, copy, 0, Math.min(iSource.length - iBegin, newLength));
       return copy;
     } catch (OutOfMemoryError e) {
-      OLogManager.instance().error(null, "Error on copying buffer of size %d bytes", e, newLength);
+      OLogManager.instance()
+          .error(OArrays.class, "Error on copying buffer of size %d bytes", e, newLength);
       throw e;
     }
   }

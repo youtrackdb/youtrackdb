@@ -20,7 +20,6 @@
 
 package com.orientechnologies.common.reflection;
 
-import com.orientechnologies.common.log.OLogManager;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -31,7 +30,6 @@ import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -161,30 +159,6 @@ public class OReflectionHelper {
         }
       }
     return classes;
-  }
-
-  /**
-   * Filters discovered classes to see if they implement a given interface.
-   *
-   * @param thePackage
-   * @param theInterface
-   * @param iClassLoader
-   * @return The list of classes that implements the requested interface
-   */
-  public static List<Class<?>> getClassessOfInterface(
-      String thePackage, Class<?> theInterface, final ClassLoader iClassLoader) {
-    List<Class<?>> classList = new ArrayList<Class<?>>();
-    try {
-      for (Class<?> discovered : getClassesFor(thePackage, iClassLoader)) {
-        if (Arrays.asList(discovered.getInterfaces()).contains(theInterface)) {
-          classList.add(discovered);
-        }
-      }
-    } catch (ClassNotFoundException ex) {
-      OLogManager.instance().error(null, "Error finding classes", ex);
-    }
-
-    return classList;
   }
 
   /**

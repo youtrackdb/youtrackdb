@@ -472,7 +472,7 @@ public class OIOUtils {
       return (int) fileStore.getBlockSize();
     } catch (IOException | UnsupportedOperationException e) {
       OLogManager.instance()
-          .errorNoDb(
+          .error(
               OIOUtils.class,
               "Error during calculation file system "
                   + "block size, falling back to default one - 4K",

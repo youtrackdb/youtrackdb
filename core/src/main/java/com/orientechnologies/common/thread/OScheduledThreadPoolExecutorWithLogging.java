@@ -45,7 +45,7 @@ public class OScheduledThreadPoolExecutorWithLogging extends ScheduledThreadPool
 
     if (t != null) {
       final Thread thread = Thread.currentThread();
-      OLogManager.instance().errorNoDb(this, "Exception in thread '%s'", t, thread.getName());
+      OLogManager.instance().error(this, "Exception in thread '%s'", t, thread.getName());
     }
   }
 }

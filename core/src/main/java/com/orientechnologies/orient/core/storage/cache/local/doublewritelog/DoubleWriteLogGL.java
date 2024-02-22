@@ -319,7 +319,7 @@ public class DoubleWriteLogGL implements DoubleWriteLog {
                   Files.delete(segmentPath);
                 } catch (final IOException e) {
                   OLogManager.instance()
-                      .errorNoDb(
+                      .error(
                           this,
                           "Can not delete segment of double write log - %s in storage %s",
                           e,
@@ -543,7 +543,7 @@ public class DoubleWriteLogGL implements DoubleWriteLog {
 
   private void printSegmentIsBroken(Path segment) {
     OLogManager.instance()
-        .warnNoDb(
+        .warn(
             this,
             "DWL Segment "
                 + segment

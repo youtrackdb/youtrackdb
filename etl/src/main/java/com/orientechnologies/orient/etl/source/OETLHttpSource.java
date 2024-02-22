@@ -29,7 +29,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.logging.Level;
+import org.slf4j.event.Level;
 
 /** Extracts data from HTTP endpoint. */
 public class OETLHttpSource extends OETLAbstractSource {
@@ -78,11 +78,11 @@ public class OETLHttpSource extends OETLAbstractSource {
       if (headers != null)
         for (String k : headers.fieldNames()) conn.setRequestProperty(k, (String) headers.field(k));
 
-      log(Level.FINE, "Connecting to %s (method=%s)", url, method);
+      log(Level.DEBUG, "Connecting to %s (method=%s)", url, method);
 
       final int responseCode = conn.getResponseCode();
 
-      log(Level.FINE, "Connected: response code %d", responseCode);
+      log(Level.DEBUG, "Connected: response code %d", responseCode);
 
     } catch (Exception e) {
       throw new OETLSourceException(

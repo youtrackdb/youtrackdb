@@ -203,19 +203,19 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
             if (freeSpaceMap.exists(atomicOperation)) {
               freeSpaceMap.open(atomicOperation);
             } else {
+              final Object[] additionalArgs2 = new Object[] {getName(), storageName};
               OLogManager.instance()
-                  .infoNoDb(
+                  .info(
                       this,
                       "Free space map is absent inside of %s cluster of storage %s . Information"
                           + " about free space present inside of each page will be recovered.",
-                      getName(),
-                      storageName);
+                      additionalArgs2);
+              final Object[] additionalArgs1 = new Object[] {getName(), storageName};
               OLogManager.instance()
-                  .infoNoDb(
+                  .info(
                       this,
                       "Scanning of free space for cluster %s in storage %s started ...",
-                      getName(),
-                      storageName);
+                      additionalArgs1);
 
               freeSpaceMap.create(atomicOperation);
               final long filledUpTo = getFilledUpTo(atomicOperation, fileId);
@@ -229,19 +229,21 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
                 }
 
                 if (pageIndex > 0 && pageIndex % 1_000 == 0) {
+                  final Object[] additionalArgs =
+                      new Object[] {
+                        pageIndex + 1, filledUpTo, 100 * (pageIndex + 1) / filledUpTo, getName()
+                      };
                   OLogManager.instance()
-                      .infoNoDb(
+                      .info(
                           this,
                           "%d pages out of %d (%d %) were processed in cluster %s ...",
-                          pageIndex + 1,
-                          filledUpTo,
-                          100 * (pageIndex + 1) / filledUpTo,
-                          getName());
+                          additionalArgs);
                 }
               }
 
+              final Object[] additionalArgs = new Object[] {getName()};
               OLogManager.instance()
-                  .infoNoDb(this, "Page scan for cluster %s " + "is completed.", getName());
+                  .info(this, "Page scan for cluster %s " + "is completed.", additionalArgs);
             }
           } finally {
             releaseExclusiveLock();

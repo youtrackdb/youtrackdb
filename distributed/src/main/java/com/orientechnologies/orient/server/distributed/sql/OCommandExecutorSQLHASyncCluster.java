@@ -187,7 +187,7 @@ public class OCommandExecutorSQLHASyncCluster extends OCommandExecutorSQLAbstrac
           continue;
         } else if (value instanceof Throwable) {
           ODistributedServerLog.error(
-              null,
+              OCommandExecutorSQLHASyncCluster.class,
               nodeName,
               r.getKey(),
               ODistributedServerLog.DIRECTION.IN,
@@ -219,7 +219,7 @@ public class OCommandExecutorSQLHASyncCluster extends OCommandExecutorSQLAbstrac
               continue;
             } else if (result instanceof Exception) {
               ODistributedServerLog.error(
-                  null,
+                  OCommandExecutorSQLHASyncCluster.class,
                   nodeName,
                   r.getKey(),
                   ODistributedServerLog.DIRECTION.IN,
@@ -271,7 +271,7 @@ public class OCommandExecutorSQLHASyncCluster extends OCommandExecutorSQLAbstrac
 
     } catch (Exception e) {
       ODistributedServerLog.error(
-          null,
+          OCommandExecutorSQLHASyncCluster.class,
           nodeName,
           null,
           ODistributedServerLog.DIRECTION.NONE,
@@ -320,7 +320,7 @@ public class OCommandExecutorSQLHASyncCluster extends OCommandExecutorSQLAbstrac
       throws IOException {
 
     ODistributedServerLog.warn(
-        null,
+        OCommandExecutorSQLHASyncCluster.class,
         iNodeName,
         null,
         ODistributedServerLog.DIRECTION.NONE,

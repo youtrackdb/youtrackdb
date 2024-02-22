@@ -32,7 +32,8 @@ public class OrientJdbcDriver implements java.sql.Driver {
     try {
       DriverManager.registerDriver(new OrientJdbcDriver());
     } catch (SQLException e) {
-      OLogManager.instance().error(null, "Error while registering the JDBC Driver", e);
+      OLogManager.instance()
+          .error(OrientJdbcDriver.class, "Error while registering the JDBC Driver", e);
     }
   }
 

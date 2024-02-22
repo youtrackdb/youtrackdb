@@ -117,7 +117,7 @@ public class OScriptManager {
       }
       if (defEngine == null) {
         OLogManager.instance()
-            .warnNoDb(this, "Cannot find default script language for %s", DEF_LANGUAGE);
+            .warn(this, "Cannot find default script language for %s", DEF_LANGUAGE);
       } else {
         // GET DIRECTLY THE LANGUAGE BY NAME (DON'T KNOW WHY SOMETIMES DOESN'T RETURN IT WITH
         // getEngineFactories() ABOVE!

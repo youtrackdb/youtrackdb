@@ -70,20 +70,12 @@ public class StorageNamingTests {
     OAbstractPaginatedStorage.checkName("/,,,/,/,/name");
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = OInvalidDatabaseNameException.class)
   public void commaInNameShouldThrow() {
-
     OAbstractPaginatedStorage.checkName("/path/with/,/name/with,");
-
-    //    Assert.assertThrows(IllegalArgumentException.class, new Assert.ThrowingRunnable() {
-    //      @Override
-    //      public void run() throws Throwable {
-    //        new NamingTestStorage("/name/with,");
-    //      }
-    //    });
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = OInvalidDatabaseNameException.class)
   public void name() throws Exception {
     OAbstractPaginatedStorage.checkName("/name/with,");
   }

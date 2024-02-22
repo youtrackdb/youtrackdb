@@ -1740,7 +1740,7 @@ public class ODistributedPlugin extends OServerPluginAbstract
                 oldDirectory.toPath(), backupFullPath.toPath(), StandardCopyOption.ATOMIC_MOVE);
           } catch (AtomicMoveNotSupportedException e) {
             OLogManager.instance()
-                .errorNoDb(
+                .error(
                     this,
                     "Atomic moves not supported during database backup, will try not atomic move",
                     null);
@@ -1753,7 +1753,7 @@ public class ODistributedPlugin extends OServerPluginAbstract
           }
         } catch (DirectoryNotEmptyException e) {
           OLogManager.instance()
-              .errorNoDb(
+              .error(
                   this,
                   "File rename not supported during database backup, will try coping files",
                   null);
@@ -1766,7 +1766,7 @@ public class ODistributedPlugin extends OServerPluginAbstract
                 oldDirectory, Paths.get(backupPath, oldDirectory.getName()).toFile());
             deleteRecursively(oldDirectory);
           } catch (IOException ioe) {
-            OLogManager.instance().errorNoDb(this, "Error moving old database removing it", ioe);
+            OLogManager.instance().error(this, "Error moving old database removing it", ioe);
             deleteRecursively(oldDirectory);
           }
         }

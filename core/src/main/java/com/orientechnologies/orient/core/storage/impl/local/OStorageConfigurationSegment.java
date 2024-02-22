@@ -133,7 +133,7 @@ public class OStorageConfigurationSegment extends OStorageConfigurationImpl {
         }
 
         OLogManager.instance()
-            .warnNoDb(
+            .warn(
                 this,
                 "Main storage configuration file %s is broken in storage %s, try to read from"
                     + " backup file %s",
@@ -146,13 +146,12 @@ public class OStorageConfigurationSegment extends OStorageConfigurationImpl {
             return this;
           }
 
-          OLogManager.instance()
-              .errorNoDb(this, "Backup configuration file %s is broken too", null);
+          OLogManager.instance().error(this, "Backup configuration file %s is broken too", null);
           throw new OStorageException(
               "Invalid format for configuration file " + file + " for storage" + storageName);
         } else {
           OLogManager.instance()
-              .errorNoDb(this, "Backup configuration file %s does not exist", null, backupFile);
+              .error(this, "Backup configuration file %s does not exist", null, backupFile);
           throw new OStorageException(
               "Invalid format for configuration file " + file + " for storage" + storageName);
         }
@@ -170,7 +169,7 @@ public class OStorageConfigurationSegment extends OStorageConfigurationImpl {
         }
 
         OLogManager.instance()
-            .errorNoDb(this, "Backup configuration file %s is broken", null, backupFile);
+            .error(this, "Backup configuration file %s is broken", null, backupFile);
         throw new OStorageException(
             "Invalid format for configuration file " + backupFile + " for storage" + storageName);
       } else {
@@ -324,7 +323,7 @@ public class OStorageConfigurationSegment extends OStorageConfigurationImpl {
               fromStream(buffer, 0, buffer.length, streamEncoding);
             } catch (Exception e) {
               OLogManager.instance()
-                  .errorNoDb(
+                  .error(
                       this,
                       "Error during reading of configuration %s of storage %s",
                       e,
@@ -341,7 +340,7 @@ public class OStorageConfigurationSegment extends OStorageConfigurationImpl {
             fromStream(buffer, 0, buffer.length, Charset.defaultCharset());
           } catch (Exception e) {
             OLogManager.instance()
-                .errorNoDb(
+                .error(
                     this,
                     "Error during reading of configuration %s of storage %s",
                     e,
@@ -355,7 +354,7 @@ public class OStorageConfigurationSegment extends OStorageConfigurationImpl {
           fromStream(buffer, 0, buffer.length, Charset.defaultCharset());
         } catch (Exception e) {
           OLogManager.instance()
-              .errorNoDb(
+              .error(
                   this,
                   "Error during reading of configuration %s of storage %s",
                   e,
@@ -376,7 +375,7 @@ public class OStorageConfigurationSegment extends OStorageConfigurationImpl {
         fromStream(buffer, 0, buffer.length, Charset.forName("UTF-8"));
       } catch (Exception e) {
         OLogManager.instance()
-            .errorNoDb(
+            .error(
                 this,
                 "Error during reading of configuration %s of storage %s",
                 e,

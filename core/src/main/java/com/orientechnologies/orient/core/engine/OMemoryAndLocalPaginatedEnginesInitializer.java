@@ -77,7 +77,7 @@ public class OMemoryAndLocalPaginatedEnginesInitializer {
     final ONative.MemoryLimitResult osMemory = ONative.instance().getMemoryLimit(true);
     if (osMemory == null) {
       OLogManager.instance()
-          .warnNoDb(
+          .warn(
               this,
               "Can not determine amount of memory installed on machine, default size of disk cache"
                   + " will be used");
@@ -86,17 +86,21 @@ public class OMemoryAndLocalPaginatedEnginesInitializer {
 
     final long jvmMaxMemory = OMemory.getCappedRuntimeMaxMemory(2L * 1024 * 1024 * 1024 /* 2GB */);
     OLogManager.instance()
-        .infoNoDb(this, "JVM can use maximum %dMB of heap memory", jvmMaxMemory / (1024 * 1024));
+        .info(this, "JVM can use maximum %dMB of heap memory", jvmMaxMemory / (1024 * 1024));
 
     long diskCacheInMB;
     if (osMemory.insideContainer) {
+      final Object[] additionalArgs =
+          new Object[] {
+            OGlobalConfiguration.MEMORY_LEFT_TO_CONTAINER.getValueAsString(),
+            OGlobalConfiguration.MEMORY_LEFT_TO_CONTAINER.getKey()
+          };
       OLogManager.instance()
-          .infoNoDb(
+          .info(
               this,
               "Because OrientDB is running inside a container %s of memory will be left unallocated"
                   + " according to the setting '%s' not taking into account heap memory",
-              OGlobalConfiguration.MEMORY_LEFT_TO_CONTAINER.getValueAsString(),
-              OGlobalConfiguration.MEMORY_LEFT_TO_CONTAINER.getKey());
+              additionalArgs);
 
       diskCacheInMB =
           (calculateMemoryLeft(
@@ -106,13 +110,17 @@ public class OMemoryAndLocalPaginatedEnginesInitializer {
                   - jvmMaxMemory)
               / (1024 * 1024);
     } else {
+      final Object[] additionalArgs =
+          new Object[] {
+            OGlobalConfiguration.MEMORY_LEFT_TO_OS.getValueAsString(),
+            OGlobalConfiguration.MEMORY_LEFT_TO_OS.getKey()
+          };
       OLogManager.instance()
-          .infoNoDb(
+          .info(
               this,
               "Because OrientDB is running outside a container %s of memory will be left "
                   + "unallocated according to the setting '%s' not taking into account heap memory",
-              OGlobalConfiguration.MEMORY_LEFT_TO_OS.getValueAsString(),
-              OGlobalConfiguration.MEMORY_LEFT_TO_OS.getKey());
+              additionalArgs);
 
       diskCacheInMB =
           (calculateMemoryLeft(
@@ -125,8 +133,8 @@ public class OMemoryAndLocalPaginatedEnginesInitializer {
 
     if (diskCacheInMB > 0) {
       OLogManager.instance()
-          .infoNoDb(
-              null,
+          .info(
+              this,
               "OrientDB auto-config DISKCACHE=%,dMB (heap=%,dMB os=%,dMB)",
               diskCacheInMB,
               jvmMaxMemory / 1024 / 1024,
@@ -137,8 +145,8 @@ public class OMemoryAndLocalPaginatedEnginesInitializer {
       // LOW MEMORY: SET IT TO 256MB ONLY
       diskCacheInMB = OReadCache.MIN_CACHE_SIZE;
       OLogManager.instance()
-          .warnNoDb(
-              null,
+          .warn(
+              this,
               "Not enough physical memory available for DISKCACHE: %,dMB (heap=%,dMB). Set lower"
                   + " Maximum Heap (-Xmx setting on JVM) and restart OrientDB. Now running with"
                   + " DISKCACHE="
@@ -149,8 +157,8 @@ public class OMemoryAndLocalPaginatedEnginesInitializer {
       OGlobalConfiguration.DISK_CACHE_SIZE.setValue(diskCacheInMB);
 
       OLogManager.instance()
-          .infoNoDb(
-              null,
+          .info(
+              this,
               "OrientDB config DISKCACHE=%,dMB (heap=%,dMB os=%,dMB)",
               diskCacheInMB,
               jvmMaxMemory / 1024 / 1024,
@@ -263,7 +271,7 @@ public class OMemoryAndLocalPaginatedEnginesInitializer {
 
   private void warningInvalidMemoryLeftValue(String parameter, String memoryLeft) {
     OLogManager.instance()
-        .warnNoDb(
+        .warn(
             this,
             "Invalid value of '%s' parameter ('%s') memory limit will not be decreased",
             memoryLeft,

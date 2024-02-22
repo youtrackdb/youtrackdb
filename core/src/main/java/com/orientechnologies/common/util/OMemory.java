@@ -60,7 +60,7 @@ public class OMemory {
         && physicalMemory != null
         && maxHeapSize + maxCacheSize > physicalMemory.memoryLimit)
       OLogManager.instance()
-          .warnNoDb(
+          .warn(
               OMemory.class,
               "The sum of the configured JVM maximum heap size ("
                   + maxHeapSize
@@ -90,7 +90,7 @@ public class OMemory {
     final int max32BitCacheSize = 512;
     if (getJavaBitWidth() == 32 && diskCacheSize > max32BitCacheSize) {
       OLogManager.instance()
-          .infoNoDb(
+          .info(
               OGlobalConfiguration.class,
               "32 bit JVM is detected. Lowering disk cache size from %,dMB to %,dMB.",
               diskCacheSize,

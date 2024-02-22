@@ -2259,7 +2259,7 @@ public final class OWOWCache extends OAbstractWriteCache
 
       if (recordLen > MAX_FILE_RECORD_LEN) {
         OLogManager.instance()
-            .errorNoDb(
+            .error(
                 this,
                 "Maximum record length in file registry can not exceed %d bytes. "
                     + "But actual record length %d.  Storage name : %s",
@@ -2277,7 +2277,7 @@ public final class OWOWCache extends OAbstractWriteCache
       final long xxHash = XX_HASH_64.hash(buffer, 0, recordLen, XX_HASH_SEED);
       if (xxHash != storedXxHash) {
         OLogManager.instance()
-            .errorNoDb(
+            .error(
                 this, "Hash of the file registry is broken. Storage name : %s", null, storageName);
         return null;
       }
@@ -2666,12 +2666,13 @@ public final class OWOWCache extends OAbstractWriteCache
 
   public Long executeFindDirtySegment() {
     if (flushError != null) {
+      final Object[] iAdditionalArgs = new Object[] {flushError.getMessage()};
       OLogManager.instance()
-          .errorNoDb(
+          .error(
               this,
               "Can not calculate minimum LSN because of issue during data write, %s",
               null,
-              flushError.getMessage());
+              iAdditionalArgs);
       return null;
     }
 
@@ -3212,12 +3213,13 @@ public final class OWOWCache extends OAbstractWriteCache
 
   public Void executeFileFlush(Set<Integer> fileIdSet) throws InterruptedException, IOException {
     if (flushError != null) {
+      final Object[] iAdditionalArgs = new Object[] {flushError.getMessage()};
       OLogManager.instance()
-          .errorNoDb(
+          .error(
               this,
               "Can not flush file data because of issue during data write, %s",
               null,
-              flushError.getMessage());
+              iAdditionalArgs);
       return null;
     }
 
@@ -3343,12 +3345,13 @@ public final class OWOWCache extends OAbstractWriteCache
 
     try {
       if (flushError != null) {
+        final Object[] iAdditionalArgs = new Object[] {flushError.getMessage()};
         OLogManager.instance()
-            .errorNoDb(
+            .error(
                 this,
                 "Can not flush data because of issue during data write, %s",
                 null,
-                flushError.getMessage());
+                iAdditionalArgs);
         return;
       }
 
@@ -3405,12 +3408,13 @@ public final class OWOWCache extends OAbstractWriteCache
 
     try {
       if (flushError != null) {
+        final Object[] iAdditionalArgs = new Object[] {flushError.getMessage()};
         OLogManager.instance()
-            .errorNoDb(
+            .error(
                 this,
                 "Can not flush data because of issue during data write, %s",
                 null,
-                flushError.getMessage());
+                iAdditionalArgs);
         return;
       }
 
@@ -3447,12 +3451,13 @@ public final class OWOWCache extends OAbstractWriteCache
 
   public Void executeFlushTillSegment(long segmentId) throws InterruptedException, IOException {
     if (flushError != null) {
+      final Object[] iAdditionalArgs = new Object[] {flushError.getMessage()};
       OLogManager.instance()
-          .errorNoDb(
+          .error(
               this,
               "Can not flush data till provided segment because of issue during data write, %s",
               null,
-              flushError.getMessage());
+              iAdditionalArgs);
       return null;
     }
 

@@ -130,7 +130,7 @@ public class OStatementCache {
         } catch (UnsupportedEncodingException e2) {
           OLogManager.instance()
               .warn(
-                  null,
+                  OStatementCache.class,
                   "Unsupported charset for database "
                       + db
                       + " "
@@ -148,7 +148,7 @@ public class OStatementCache {
         } catch (UnsupportedEncodingException e2) {
           OLogManager.instance()
               .warn(
-                  null,
+                  OStatementCache.class,
                   "Unsupported charset for database "
                       + db
                       + " "

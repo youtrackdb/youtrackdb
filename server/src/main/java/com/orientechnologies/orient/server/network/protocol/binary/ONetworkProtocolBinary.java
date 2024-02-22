@@ -791,28 +791,27 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
       channel.flush();
 
       if (OLogManager.instance().isLevelEnabled(logClientExceptions)) {
-        if (logClientFullStackTrace)
+        if (logClientFullStackTrace) {
+          assert t != null;
           OLogManager.instance()
               .log(
                   this,
-                  logClientExceptions,
+                  OLogManager.fromJulToSLF4JLevel(logClientExceptions),
                   "Sent run-time exception to the client %s: %s",
                   t,
-                  true,
-                  null,
                   channel.socket.getRemoteSocketAddress(),
                   t.toString());
-        else
+        } else {
+          assert t != null;
           OLogManager.instance()
               .log(
                   this,
-                  logClientExceptions,
+                  OLogManager.fromJulToSLF4JLevel(logClientExceptions),
                   "Sent run-time exception to the client %s: %s",
-                  null,
-                  true,
                   null,
                   channel.socket.getRemoteSocketAddress(),
                   t.toString());
+        }
       }
     } catch (Exception e) {
       if (e instanceof SocketException) shutdown();

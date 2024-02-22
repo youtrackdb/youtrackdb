@@ -111,7 +111,7 @@ public final class OSBTreeCollectionManagerShared
 
     if (!filesToMigrate.isEmpty()) {
       OLogManager.instance()
-          .infoNoDb(
+          .info(
               this,
               "There are found %d RidBags (containers for edges which are going to be migrated)."
                   + " PLEASE DO NOT SHUTDOWN YOUR DATABASE DURING MIGRATION BECAUSE THAT RISKS TO"
@@ -128,7 +128,7 @@ public final class OSBTreeCollectionManagerShared
       final int clusterId = Integer.parseInt(clusterIdStr);
 
       OLogManager.instance()
-          .infoNoDb(
+          .info(
               this,
               "Migration of RidBag for cluster #%s is started ... "
                   + "PLEASE WAIT FOR COMPLETION !",
@@ -169,7 +169,7 @@ public final class OSBTreeCollectionManagerShared
 
       migrationCounter++;
       OLogManager.instance()
-          .infoNoDb(
+          .info(
               this,
               "%d RidBags out of %d are migrated ... PLEASE WAIT FOR COMPLETION !",
               migrationCounter,
@@ -177,7 +177,7 @@ public final class OSBTreeCollectionManagerShared
     }
 
     OLogManager.instance()
-        .infoNoDb(this, "All RidBags are going to be flushed out ... PLEASE WAIT FOR COMPLETION !");
+        .info(this, "All RidBags are going to be flushed out ... PLEASE WAIT FOR COMPLETION !");
     final OReadCache readCache = storage.getReadCache();
 
     int flushCounter = 0;
@@ -200,7 +200,7 @@ public final class OSBTreeCollectionManagerShared
       flushCounter++;
 
       OLogManager.instance()
-          .infoNoDb(
+          .info(
               this,
               "%d RidBags are flushed out of %d ... PLEASE WAIT FOR COMPLETION !",
               flushCounter,
@@ -218,7 +218,7 @@ public final class OSBTreeCollectionManagerShared
       fileIdBTreeMap.put(OWOWCache.extractFileId(bTree.getFileId()), bTree);
     }
 
-    OLogManager.instance().infoNoDb(this, "All RidBags are migrated.");
+    OLogManager.instance().info(this, "All RidBags are migrated.");
   }
 
   @Override

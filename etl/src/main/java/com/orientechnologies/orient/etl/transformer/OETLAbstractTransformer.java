@@ -20,14 +20,14 @@ package com.orientechnologies.orient.etl.transformer;
 
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.etl.OETLAbstractPipelineComponent;
-import java.util.logging.Level;
+import org.slf4j.event.Level;
 
 /** Abstract Transformer. */
 public abstract class OETLAbstractTransformer extends OETLAbstractPipelineComponent
     implements OETLTransformer {
   @Override
   public Object transform(ODatabaseDocument db, final Object input) {
-    log(Level.FINE, "Transformer input: %s", input);
+    log(Level.DEBUG, "Transformer input: %s", input);
 
     if (input == null) return null;
 
@@ -36,12 +36,12 @@ public abstract class OETLAbstractTransformer extends OETLAbstractPipelineCompon
 
       final Object result = executeTransform(db, input);
       if (output == null) {
-        log(Level.FINE, "Transformer output: %s", result);
+        log(Level.DEBUG, "Transformer output: %s", result);
         return result;
       }
       context.setVariable(output, result);
     }
-    log(Level.FINE, "Transformer output (same as input): %s", input);
+    log(Level.DEBUG, "Transformer output (same as input): %s", input);
     return input;
   }
 

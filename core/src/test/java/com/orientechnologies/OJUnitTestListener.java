@@ -23,7 +23,6 @@ import com.orientechnologies.common.directmemory.OByteBufferPool;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.Orient;
 import org.junit.Assert;
-import org.junit.runner.Description;
 import org.junit.runner.Result;
 import org.junit.runner.notification.RunListener;
 
@@ -42,13 +41,6 @@ import org.junit.runner.notification.RunListener;
  * @author Sergey Sitnikov
  */
 public class OJUnitTestListener extends RunListener {
-  @Override
-  public void testRunStarted(Description description) throws Exception {
-    super.testRunStarted(description);
-
-    OLogManager.instance().applyStorageFilter();
-  }
-
   @Override
   public void testRunFinished(Result result) throws Exception {
     super.testRunFinished(result);

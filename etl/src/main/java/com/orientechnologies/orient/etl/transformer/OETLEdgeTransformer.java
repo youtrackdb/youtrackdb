@@ -33,7 +33,7 @@ import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
 import com.orientechnologies.orient.etl.OETLProcessHaltedException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
+import org.slf4j.event.Level;
 
 public class OETLEdgeTransformer extends OETLAbstractLookupTransformer {
   private String edgeClass = "E";
@@ -143,7 +143,7 @@ public class OETLEdgeTransformer extends OETLAbstractLookupTransformer {
 
   private List<OEdge> createEdge(
       ODatabaseDocument db, final OVertex vertex, final Object joinCurrentValue, Object result) {
-    log(Level.FINE, "joinCurrentValue=%s, lookupResult=%s", joinCurrentValue, result);
+    log(Level.DEBUG, "joinCurrentValue=%s, lookupResult=%s", joinCurrentValue, result);
 
     if (result == null) {
       // APPLY THE STRATEGY DEFINED IN unresolvedLinkAction
@@ -163,7 +163,7 @@ public class OETLEdgeTransformer extends OETLAbstractLookupTransformer {
 
               linkedV.save();
 
-              log(Level.FINE, "created new vertex=" + linkedV.getRecord());
+              log(Level.DEBUG, "created new vertex=" + linkedV.getRecord());
 
               result = linkedV.getIdentity();
             } else {
@@ -176,7 +176,7 @@ public class OETLEdgeTransformer extends OETLAbstractLookupTransformer {
         case ERROR:
           processor.getStats().incrementErrors();
           log(
-              Level.SEVERE,
+              Level.ERROR,
               "%s: ERROR Cannot resolve join for value '%s'",
               getName(),
               joinCurrentValue);
@@ -227,14 +227,14 @@ public class OETLEdgeTransformer extends OETLAbstractLookupTransformer {
           }
 
           edges.add(edge);
-          log(Level.FINE, "created new edge=%s", edge);
+          log(Level.DEBUG, "created new edge=%s", edge);
         } catch (ORecordDuplicatedException e) {
           if (skipDuplicates) {
-            log(Level.FINE, "skipped creation of new edge because already exists");
+            log(Level.DEBUG, "skipped creation of new edge because already exists");
             continue;
           } else {
             log(
-                Level.SEVERE,
+                Level.ERROR,
                 "error on creation of new edge because it already exists (skipDuplicates=false)");
             throw e;
           }

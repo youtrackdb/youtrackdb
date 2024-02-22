@@ -18,7 +18,7 @@ public class OConstants {
         properties.load(inputStream);
       }
     } catch (IOException e) {
-      OLogManager.instance().errorNoDb(OConstants.class, "Failed to load OrientDB properties", e);
+      OLogManager.instance().error(OConstants.class, "Failed to load OrientDB properties", e);
     }
   }
 
@@ -29,7 +29,7 @@ public class OConstants {
     final String[] versions = properties.getProperty("version").split("\\.");
     if (versions.length == 0) {
       OLogManager.instance()
-          .errorNoDb(OConstants.class, "Can not retrieve version information for this build", null);
+          .error(OConstants.class, "Can not retrieve version information for this build", null);
       return -1;
     }
 
@@ -37,7 +37,7 @@ public class OConstants {
       return Integer.parseInt(versions[0]);
     } catch (NumberFormatException nfe) {
       OLogManager.instance()
-          .errorNoDb(
+          .error(
               OConstants.class, "Can not retrieve major version information for this build", nfe);
       return -1;
     }
@@ -50,7 +50,7 @@ public class OConstants {
     final String[] versions = properties.getProperty("version").split("\\.");
     if (versions.length < 2) {
       OLogManager.instance()
-          .errorNoDb(
+          .error(
               OConstants.class, "Can not retrieve minor version information for this build", null);
       return -1;
     }
@@ -59,7 +59,7 @@ public class OConstants {
       return Integer.parseInt(versions[1]);
     } catch (NumberFormatException nfe) {
       OLogManager.instance()
-          .errorNoDb(
+          .error(
               OConstants.class, "Can not retrieve minor version information for this build", nfe);
       return -1;
     }
@@ -86,7 +86,7 @@ public class OConstants {
       return Integer.parseInt(hotfix);
     } catch (NumberFormatException nfe) {
       OLogManager.instance()
-          .errorNoDb(
+          .error(
               OConstants.class, "Can not retrieve hotfix version information for this build", nfe);
       return -1;
     }

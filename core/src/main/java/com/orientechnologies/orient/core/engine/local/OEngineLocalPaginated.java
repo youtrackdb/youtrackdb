@@ -57,11 +57,13 @@ public class OEngineLocalPaginated extends OEngineAbstract {
 
   private static int getOpenFilesLimit() {
     if (OGlobalConfiguration.OPEN_FILES_LIMIT.getValueAsInteger() > 0) {
+      final Object[] additionalArgs =
+          new Object[] {OGlobalConfiguration.OPEN_FILES_LIMIT.getValueAsInteger()};
       OLogManager.instance()
-          .infoNoDb(
+          .info(
               OEngineLocalPaginated.class,
               "Limit of open files for disk cache will be set to %d.",
-              OGlobalConfiguration.OPEN_FILES_LIMIT.getValueAsInteger());
+              additionalArgs);
       return OGlobalConfiguration.OPEN_FILES_LIMIT.getValueAsInteger();
     }
 
@@ -74,11 +76,10 @@ public class OEngineLocalPaginated extends OEngineAbstract {
   @Override
   public void startup() {
     final String userName = System.getProperty("user.name", "unknown");
-    OLogManager.instance()
-        .infoNoDb(this, "System is started under an effective user : `%s`", userName);
+    OLogManager.instance().info(this, "System is started under an effective user : `%s`", userName);
     if (ONative.instance().isOsRoot()) {
       OLogManager.instance()
-          .warnNoDb(
+          .warn(
               this,
               "You are running under the \"root\" user privileges that introduces security risks."
                   + " Please consider to run under a user dedicated to be used to run current"

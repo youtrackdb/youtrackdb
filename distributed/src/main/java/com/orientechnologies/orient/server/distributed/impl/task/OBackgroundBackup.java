@@ -165,7 +165,7 @@ public class OBackgroundBackup implements Runnable, OSyncSource {
       }
     } catch (Exception e) {
       OLogManager.instance()
-          .errorNoDb(
+          .error(
               this,
               "Error during backup processing, file %s will be deleted\n",
               e,
@@ -173,7 +173,7 @@ public class OBackgroundBackup implements Runnable, OSyncSource {
       try {
         Files.deleteIfExists(Paths.get(resultedBackupFile.getAbsolutePath()));
       } catch (IOException ioe) {
-        OLogManager.instance().errorNoDb(this, "Can not delete file %s\n", ioe, resultedBackupFile);
+        OLogManager.instance().error(this, "Can not delete file %s\n", ioe, resultedBackupFile);
       }
     }
   }

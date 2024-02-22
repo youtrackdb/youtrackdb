@@ -323,7 +323,7 @@ public class ODirectMemoryAllocator implements ODirectMemoryAllocatorMXBean {
 
       if (memCons > 0) {
         OLogManager.instance()
-            .warnNoDb(
+            .warn(
                 this,
                 "DIRECT-TRACK: memory consumption is not zero (%d bytes), it may indicate presence"
                     + " of memory leaks",
@@ -334,7 +334,7 @@ public class ODirectMemoryAllocator implements ODirectMemoryAllocatorMXBean {
       synchronized (this) {
         for (TrackedPointerReference reference : trackedReferences)
           OLogManager.instance()
-              .errorNoDb(
+              .error(
                   this,
                   "DIRECT-TRACK: unreleased direct memory pointer `%X` detected.",
                   reference.stackTrace,
@@ -372,7 +372,7 @@ public class ODirectMemoryAllocator implements ODirectMemoryAllocatorMXBean {
     while ((reference = (TrackedPointerReference) trackedPointersQueue.poll()) != null) {
       if (trackedReferences.remove(reference)) {
         OLogManager.instance()
-            .errorNoDb(
+            .error(
                 this,
                 "DIRECT-TRACK: unreleased direct memory pointer `%X` detected.",
                 reference.stackTrace,
@@ -397,12 +397,13 @@ public class ODirectMemoryAllocator implements ODirectMemoryAllocatorMXBean {
 
         final TrackedPointerReference reference = trackedBuffers.remove(trackedBufferKey);
         if (reference == null) {
+          final Object[] iAdditionalArgs = new Object[] {id(pointer)};
           OLogManager.instance()
-              .errorNoDb(
+              .error(
                   this,
                   "DIRECT-TRACK: untracked direct memory pointer `%X` detected.",
                   new Exception(),
-                  id(pointer));
+                  iAdditionalArgs);
 
           assert false;
         } else {
@@ -506,7 +507,7 @@ public class ODirectMemoryAllocator implements ODirectMemoryAllocatorMXBean {
       }
 
       final String memoryStat = printMemoryStatistics(accumulator);
-      OLogManager.instance().infoNoDb(this, memoryStat);
+      OLogManager.instance().info(this, memoryStat);
     }
   }
 
