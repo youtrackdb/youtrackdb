@@ -61,6 +61,18 @@
             <uniqueVersion>false</uniqueVersion>
         </snapshotRepository>
     </distributionManagement>
+    <repositories>
+        <repository>
+            <id>space-orientdb-daily</id>
+            <url>https://packages.jetbrains.team/maven/p/xodus/orientdb-daily</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
