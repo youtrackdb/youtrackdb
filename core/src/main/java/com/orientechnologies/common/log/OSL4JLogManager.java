@@ -17,8 +17,8 @@ import org.slf4j.event.Level;
  * Centralized Log Manager used in OrientDB. All the log messages are routed through this class. It
  * uses SLF4J as the logging facade. Logging methods are accepting messages formatted as in {@link
  * String#format(String, Object...)} It is strongly recommended to use specialized logging methods
- * from this class instead of generic {@link #log(Object, Level, String, Throwable,
- * Object...)} method.
+ * from this class instead of generic {@link #log(Object, Level, String, Throwable, Object...)}
+ * method.
  */
 public abstract class OSL4JLogManager {
   private final ConcurrentHashMap<String, Logger> loggersCache = new ConcurrentHashMap<>();
@@ -55,15 +55,16 @@ public abstract class OSL4JLogManager {
       requesterName = requester.getClass().getName();
     }
 
-    Logger log = loggersCache.get(requesterName);
-    if (log == null) {
-      log = LoggerFactory.getLogger(requesterName);
-
-      Logger oldLogger = loggersCache.putIfAbsent(requesterName, log);
-      if (oldLogger != null) {
-        log = oldLogger;
-      }
-    }
+    var log =
+        loggersCache.compute(
+            requesterName,
+            (k, v) -> {
+              if (v == null) {
+                return LoggerFactory.getLogger(k);
+              } else {
+                return v;
+              }
+            });
 
     if (log.isEnabledForLevel(level)) {
       String dbName = fetchDbName(requester);
