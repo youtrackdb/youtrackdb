@@ -654,7 +654,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
 
   @Override
   protected void makeStorageDirty() throws IOException {
-    startupMetadata.makeDirty(OConstants.getVersion());
+    startupMetadata.makeDirty(OConstants.getRawVersion());
   }
 
   @Override
