@@ -319,18 +319,6 @@ public class ODirectMemoryAllocator implements ODirectMemoryAllocatorMXBean {
   /** Verifies that all pointers which were allocated by allocator are freed. */
   public void checkMemoryLeaks() {
     if (TRACK) {
-      final long memCons = memoryConsumption.longValue();
-
-      if (memCons > 0) {
-        OLogManager.instance()
-            .warn(
-                this,
-                "DIRECT-TRACK: memory consumption is not zero (%d bytes), it may indicate presence"
-                    + " of memory leaks",
-                memCons);
-
-        assert false;
-      }
       synchronized (this) {
         for (TrackedPointerReference reference : trackedReferences)
           OLogManager.instance()
@@ -343,6 +331,18 @@ public class ODirectMemoryAllocator implements ODirectMemoryAllocatorMXBean {
         checkTrackedPointerLeaks();
 
         assert trackedReferences.size() == 0;
+      }
+      final long memCons = memoryConsumption.longValue();
+
+      if (memCons > 0) {
+        OLogManager.instance()
+            .warn(
+                this,
+                "DIRECT-TRACK: memory consumption is not zero (%d bytes), it may indicate presence"
+                    + " of memory leaks",
+                memCons);
+
+        assert false;
       }
     }
   }
