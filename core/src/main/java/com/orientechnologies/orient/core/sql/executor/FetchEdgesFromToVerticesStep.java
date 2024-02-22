@@ -9,13 +9,13 @@ import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
-import com.orientechnologies.orient.core.sql.executor.resultset.OSubResultsExecutionStream;
+import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStreamProducer;
+import com.orientechnologies.orient.core.sql.executor.resultset.OMultipleExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OIdentifier;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.Spliterators;
 import java.util.stream.StreamSupport;
 
 /** Created by luigidellaquila on 21/02/17. */
@@ -45,14 +45,30 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
       prev.start(ctx).close(ctx);
     }
 
-    Iterator<?> fromIter = loadFrom();
+    final Iterator fromIter = loadFrom();
 
-    Set<ORID> toList = loadTo();
+    final Set<ORID> toList = loadTo();
 
-    return new OSubResultsExecutionStream(
-        StreamSupport.stream(Spliterators.spliteratorUnknownSize(fromIter, 0), false)
-            .map((val) -> createResultSet(toList, val))
-            .iterator());
+    OExecutionStreamProducer res =
+        new OExecutionStreamProducer() {
+          private final Iterator iter = fromIter;
+          private final Set<ORID> to = toList;
+
+          @Override
+          public OExecutionStream next(OCommandContext ctx) {
+            return createResultSet(to, iter.next());
+          }
+
+          @Override
+          public boolean hasNext(OCommandContext ctx) {
+            return iter.hasNext();
+          }
+
+          @Override
+          public void close(OCommandContext ctx) {}
+        };
+
+    return new OMultipleExecutionStream(res);
   }
 
   private OExecutionStream createResultSet(Set<ORID> toList, Object val) {
