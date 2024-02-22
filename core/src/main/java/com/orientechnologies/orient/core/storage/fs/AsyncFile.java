@@ -1,17 +1,13 @@
 package com.orientechnologies.orient.core.storage.fs;
 
-import com.orientechnologies.common.concur.lock.OInterruptedException;
 import com.orientechnologies.common.concur.lock.ScalableRWLock;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.exception.OStorageException;
-import java.io.EOFException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.AsynchronousFileChannel;
-import java.nio.channels.CompletionHandler;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
@@ -21,10 +17,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -331,70 +324,72 @@ public final class AsyncFile implements OFile {
     }
   }
 
-//  private final class WriteHandler implements CompletionHandler<Integer, CountDownLatch> {
-//
-//    private final ByteBuffer byteBuffer;
-//    private final AsyncIOResult ioResult;
-//    private final long position;
-//
-//    private final Semaphore syncSemaphore;
-//
-//    private WriteHandler(
-//        ByteBuffer byteBuffer, AsyncIOResult ioResult, long position, Semaphore syncSemaphore) {
-//      this.byteBuffer = byteBuffer;
-//      this.ioResult = ioResult;
-//      this.position = position;
-//      this.syncSemaphore = syncSemaphore;
-//    }
-//
-//    @Override
-//    public void completed(Integer result, CountDownLatch attachment) {
-//      if (byteBuffer.remaining() > 0) {
-//        lock.sharedLock();
-//        try {
-//          checkForClose();
-//
-//          fileChannel.write(byteBuffer, position + byteBuffer.position(), attachment, this);
-//        } finally {
-//          lock.sharedUnlock();
-//        }
-//      } else {
-//        dirtyCounter.incrementAndGet();
-//        attachment.countDown();
-//        syncSemaphore.release();
-//      }
-//    }
-//
-//    @Override
-//    public void failed(Throwable exc, CountDownLatch attachment) {
-//      ioResult.exc = exc;
-//      OLogManager.instance().error(this, "Error during write operation to the file " + osFile, exc);
-//
-//      dirtyCounter.incrementAndGet();
-//      attachment.countDown();
-//      syncSemaphore.release();
-//    }
-//  }
-//
-//  private static final class AsyncIOResult implements IOResult {
-//
-//    private final CountDownLatch latch;
-//    private Throwable exc;
-//
-//    private AsyncIOResult(CountDownLatch latch) {
-//      this.latch = latch;
-//    }
-//
-//    @Override
-//    public void await() {
-//      try {
-//        latch.await();
-//      } catch (InterruptedException e) {
-//        throw OException.wrapException(new OInterruptedException("File write was interrupted"), e);
-//      }
-//      if (exc != null) {
-//        throw OException.wrapException(new OStorageException("Error during IO operation"), exc);
-//      }
-//    }
-//  }
+  //  private final class WriteHandler implements CompletionHandler<Integer, CountDownLatch> {
+  //
+  //    private final ByteBuffer byteBuffer;
+  //    private final AsyncIOResult ioResult;
+  //    private final long position;
+  //
+  //    private final Semaphore syncSemaphore;
+  //
+  //    private WriteHandler(
+  //        ByteBuffer byteBuffer, AsyncIOResult ioResult, long position, Semaphore syncSemaphore) {
+  //      this.byteBuffer = byteBuffer;
+  //      this.ioResult = ioResult;
+  //      this.position = position;
+  //      this.syncSemaphore = syncSemaphore;
+  //    }
+  //
+  //    @Override
+  //    public void completed(Integer result, CountDownLatch attachment) {
+  //      if (byteBuffer.remaining() > 0) {
+  //        lock.sharedLock();
+  //        try {
+  //          checkForClose();
+  //
+  //          fileChannel.write(byteBuffer, position + byteBuffer.position(), attachment, this);
+  //        } finally {
+  //          lock.sharedUnlock();
+  //        }
+  //      } else {
+  //        dirtyCounter.incrementAndGet();
+  //        attachment.countDown();
+  //        syncSemaphore.release();
+  //      }
+  //    }
+  //
+  //    @Override
+  //    public void failed(Throwable exc, CountDownLatch attachment) {
+  //      ioResult.exc = exc;
+  //      OLogManager.instance().error(this, "Error during write operation to the file " + osFile,
+  // exc);
+  //
+  //      dirtyCounter.incrementAndGet();
+  //      attachment.countDown();
+  //      syncSemaphore.release();
+  //    }
+  //  }
+  //
+  //  private static final class AsyncIOResult implements IOResult {
+  //
+  //    private final CountDownLatch latch;
+  //    private Throwable exc;
+  //
+  //    private AsyncIOResult(CountDownLatch latch) {
+  //      this.latch = latch;
+  //    }
+  //
+  //    @Override
+  //    public void await() {
+  //      try {
+  //        latch.await();
+  //      } catch (InterruptedException e) {
+  //        throw OException.wrapException(new OInterruptedException("File write was interrupted"),
+  // e);
+  //      }
+  //      if (exc != null) {
+  //        throw OException.wrapException(new OStorageException("Error during IO operation"), exc);
+  //      }
+  //    }
+  //  }
 }

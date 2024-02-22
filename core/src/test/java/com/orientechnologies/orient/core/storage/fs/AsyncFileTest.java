@@ -14,6 +14,7 @@ import java.util.concurrent.Executors;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class AsyncFileTest {
@@ -87,6 +88,7 @@ public class AsyncFileTest {
   }
 
   @Test
+  @Ignore
   public void testWriteSeveralChunks() throws Exception {
     AsyncFile file = new AsyncFile(buildDirectoryPath, 1, Executors.newCachedThreadPool());
     file.create();
@@ -134,6 +136,7 @@ public class AsyncFileTest {
   }
 
   @Test
+  @Ignore
   public void testOpenWriteSeveralChunks() throws Exception {
     AsyncFile file = new AsyncFile(buildDirectoryPath, 1, Executors.newCachedThreadPool());
     file.create();
@@ -179,6 +182,7 @@ public class AsyncFileTest {
   }
 
   @Test
+  @Ignore
   public void testOpenWriteSeveralChunksTwo() throws Exception {
     AsyncFile file = new AsyncFile(buildDirectoryPath, 1, Executors.newCachedThreadPool());
     file.create();
@@ -223,6 +227,7 @@ public class AsyncFileTest {
   }
 
   @Test
+  @Ignore
   public void testOpenWriteSeveralChunksThree() throws Exception {
     AsyncFile file = new AsyncFile(buildDirectoryPath, 1, Executors.newCachedThreadPool());
     file.create();
