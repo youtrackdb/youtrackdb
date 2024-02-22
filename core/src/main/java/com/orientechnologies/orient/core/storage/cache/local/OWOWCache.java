@@ -2968,13 +2968,15 @@ public final class OWOWCache extends OAbstractWriteCache
 
         final OClosableEntry<Long, OFile> fileEntry = files.tryAcquire(entry.getKey());
         if (fileEntry != null) {
-          final OFile file = fileEntry.get();
-
-          final List<ORawPair<Long, ByteBuffer>> bufferList = entry.getValue();
-
-          ioResults.add(file.write(bufferList));
-          acquiredFiles.add(fileEntry);
-
+          try{
+            final OFile file = fileEntry.get();
+            final List<ORawPair<Long, ByteBuffer>> bufferList = entry.getValue();
+            for (final ORawPair<Long, ByteBuffer> bufferPair : bufferList) {
+              file.write(bufferPair.first, bufferPair.second);
+            }
+          } finally{
+            files.release(fileEntry);
+          }
           entry = null;
         } else {
           if (ioResults.size() != acquiredFiles.size()) {

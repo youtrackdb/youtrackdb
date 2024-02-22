@@ -3,6 +3,7 @@ package com.orientechnologies.orient.core.storage.fs;
 import com.orientechnologies.common.concur.lock.OInterruptedException;
 import com.orientechnologies.common.concur.lock.ScalableRWLock;
 import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.exception.OStorageException;
@@ -11,6 +12,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.CompletionHandler;
+import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
@@ -35,11 +37,9 @@ public final class AsyncFile implements OFile {
   private final Object flushSemaphore = new Object();
 
   private final AtomicLong size = new AtomicLong(-1);
-  private AsynchronousFileChannel fileChannel;
+  private FileChannel fileChannel;
 
   private final int pageSize;
-  private final ExecutorService executor;
-
   private final Semaphore syncSemaphore = new Semaphore(Integer.MAX_VALUE);
   private static final Set<OpenOption> options;
 
@@ -52,7 +52,6 @@ public final class AsyncFile implements OFile {
   public AsyncFile(final Path osFile, final int pageSize, ExecutorService executor) {
     this.osFile = osFile;
     this.pageSize = pageSize;
-    this.executor = executor;
   }
 
   @Override
@@ -74,22 +73,7 @@ public final class AsyncFile implements OFile {
   private void initSize() throws IOException {
     if (fileChannel.size() < HEADER_SIZE) {
       final ByteBuffer buffer = ByteBuffer.allocate(HEADER_SIZE);
-
-      int written = 0;
-      do {
-        buffer.position(written);
-        final Future<Integer> writeFuture = fileChannel.write(buffer, written);
-        try {
-          written += writeFuture.get();
-        } catch (InterruptedException e) {
-          throw OException.wrapException(
-              new OInterruptedException("File write was interrupted"), e);
-        } catch (ExecutionException e) {
-          throw OException.wrapException(
-              new OStorageException("Error during write operation to the file " + osFile), e);
-        }
-      } while (written < HEADER_SIZE);
-
+      OIOUtils.writeByteBuffer(buffer, fileChannel, 0);
       dirtyCounter.incrementAndGet();
     }
 
@@ -140,7 +124,7 @@ public final class AsyncFile implements OFile {
     if (fileChannel != null) {
       throw new OStorageException("File " + osFile + " is already opened.");
     }
-    fileChannel = AsynchronousFileChannel.open(osFile, options, executor);
+    fileChannel = FileChannel.open(osFile, options);
 
     initSize();
   }
@@ -181,24 +165,14 @@ public final class AsyncFile implements OFile {
       checkPosition(offset);
       checkPosition(offset + buffer.limit() - 1);
 
-      int written = 0;
-      do {
-        buffer.position(written);
-        final Future<Integer> writeFuture =
-            fileChannel.write(buffer, offset + HEADER_SIZE + written);
-        try {
-          written += writeFuture.get();
-        } catch (InterruptedException e) {
-          throw OException.wrapException(
-              new OInterruptedException("File write was interrupted"), e);
-        } catch (ExecutionException e) {
-          throw OException.wrapException(
-              new OStorageException("Error during write operation to the file " + osFile), e);
-        }
-      } while (written < buffer.limit());
+      try {
+        OIOUtils.writeByteBuffer(buffer, fileChannel, offset + HEADER_SIZE);
+      } catch (IOException e) {
+        throw OException.wrapException(
+            new OStorageException("Error during write operation to the file " + osFile), e);
+      }
 
       dirtyCounter.incrementAndGet();
-      assert written == buffer.limit();
     } finally {
       lock.sharedUnlock();
       syncSemaphore.release();
@@ -207,31 +181,7 @@ public final class AsyncFile implements OFile {
 
   @Override
   public IOResult write(List<ORawPair<Long, ByteBuffer>> buffers) {
-    final CountDownLatch latch = new CountDownLatch(buffers.size());
-    final AsyncIOResult asyncIOResult = new AsyncIOResult(latch);
-
-    syncSemaphore.acquireUninterruptibly(buffers.size());
-    for (final ORawPair<Long, ByteBuffer> pair : buffers) {
-      final ByteBuffer byteBuffer = pair.second;
-      byteBuffer.rewind();
-      lock.sharedLock();
-      try {
-        checkForClose();
-        checkPosition(pair.first);
-        checkPosition(pair.first + pair.second.limit() - 1);
-
-        final long position = pair.first + HEADER_SIZE;
-        fileChannel.write(
-            byteBuffer,
-            position,
-            latch,
-            new WriteHandler(byteBuffer, asyncIOResult, position, syncSemaphore));
-      } finally {
-        lock.sharedUnlock();
-      }
-    }
-
-    return asyncIOResult;
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -241,31 +191,7 @@ public final class AsyncFile implements OFile {
       checkForClose();
       checkPosition(offset);
 
-      int read = 0;
-      do {
-        buffer.position(read);
-        final Future<Integer> readFuture = fileChannel.read(buffer, offset + HEADER_SIZE + read);
-        final int bytesRead;
-        try {
-          bytesRead = readFuture.get();
-        } catch (InterruptedException e) {
-          throw OException.wrapException(
-              new OInterruptedException("File write was interrupted"), e);
-        } catch (ExecutionException e) {
-          throw OException.wrapException(
-              new OStorageException("Error during read operation from the file " + osFile), e);
-        }
-
-        if (bytesRead == -1) {
-          if (throwOnEof) {
-            throw new EOFException("End of file " + osFile + " is reached.");
-          }
-
-          break;
-        }
-
-        read += bytesRead;
-      } while (read < buffer.limit());
+      OIOUtils.readByteBuffer(buffer, fileChannel, offset + HEADER_SIZE, throwOnEof);
     } finally {
       lock.sharedUnlock();
     }
@@ -405,70 +331,70 @@ public final class AsyncFile implements OFile {
     }
   }
 
-  private final class WriteHandler implements CompletionHandler<Integer, CountDownLatch> {
-
-    private final ByteBuffer byteBuffer;
-    private final AsyncIOResult ioResult;
-    private final long position;
-
-    private final Semaphore syncSemaphore;
-
-    private WriteHandler(
-        ByteBuffer byteBuffer, AsyncIOResult ioResult, long position, Semaphore syncSemaphore) {
-      this.byteBuffer = byteBuffer;
-      this.ioResult = ioResult;
-      this.position = position;
-      this.syncSemaphore = syncSemaphore;
-    }
-
-    @Override
-    public void completed(Integer result, CountDownLatch attachment) {
-      if (byteBuffer.remaining() > 0) {
-        lock.sharedLock();
-        try {
-          checkForClose();
-
-          fileChannel.write(byteBuffer, position + byteBuffer.position(), attachment, this);
-        } finally {
-          lock.sharedUnlock();
-        }
-      } else {
-        dirtyCounter.incrementAndGet();
-        attachment.countDown();
-        syncSemaphore.release();
-      }
-    }
-
-    @Override
-    public void failed(Throwable exc, CountDownLatch attachment) {
-      ioResult.exc = exc;
-      OLogManager.instance().error(this, "Error during write operation to the file " + osFile, exc);
-
-      dirtyCounter.incrementAndGet();
-      attachment.countDown();
-      syncSemaphore.release();
-    }
-  }
-
-  private static final class AsyncIOResult implements IOResult {
-
-    private final CountDownLatch latch;
-    private Throwable exc;
-
-    private AsyncIOResult(CountDownLatch latch) {
-      this.latch = latch;
-    }
-
-    @Override
-    public void await() {
-      try {
-        latch.await();
-      } catch (InterruptedException e) {
-        throw OException.wrapException(new OInterruptedException("File write was interrupted"), e);
-      }
-      if (exc != null) {
-        throw OException.wrapException(new OStorageException("Error during IO operation"), exc);
-      }
-    }
-  }
+//  private final class WriteHandler implements CompletionHandler<Integer, CountDownLatch> {
+//
+//    private final ByteBuffer byteBuffer;
+//    private final AsyncIOResult ioResult;
+//    private final long position;
+//
+//    private final Semaphore syncSemaphore;
+//
+//    private WriteHandler(
+//        ByteBuffer byteBuffer, AsyncIOResult ioResult, long position, Semaphore syncSemaphore) {
+//      this.byteBuffer = byteBuffer;
+//      this.ioResult = ioResult;
+//      this.position = position;
+//      this.syncSemaphore = syncSemaphore;
+//    }
+//
+//    @Override
+//    public void completed(Integer result, CountDownLatch attachment) {
+//      if (byteBuffer.remaining() > 0) {
+//        lock.sharedLock();
+//        try {
+//          checkForClose();
+//
+//          fileChannel.write(byteBuffer, position + byteBuffer.position(), attachment, this);
+//        } finally {
+//          lock.sharedUnlock();
+//        }
+//      } else {
+//        dirtyCounter.incrementAndGet();
+//        attachment.countDown();
+//        syncSemaphore.release();
+//      }
+//    }
+//
+//    @Override
+//    public void failed(Throwable exc, CountDownLatch attachment) {
+//      ioResult.exc = exc;
+//      OLogManager.instance().error(this, "Error during write operation to the file " + osFile, exc);
+//
+//      dirtyCounter.incrementAndGet();
+//      attachment.countDown();
+//      syncSemaphore.release();
+//    }
+//  }
+//
+//  private static final class AsyncIOResult implements IOResult {
+//
+//    private final CountDownLatch latch;
+//    private Throwable exc;
+//
+//    private AsyncIOResult(CountDownLatch latch) {
+//      this.latch = latch;
+//    }
+//
+//    @Override
+//    public void await() {
+//      try {
+//        latch.await();
+//      } catch (InterruptedException e) {
+//        throw OException.wrapException(new OInterruptedException("File write was interrupted"), e);
+//      }
+//      if (exc != null) {
+//        throw OException.wrapException(new OStorageException("Error during IO operation"), exc);
+//      }
+//    }
+//  }
 }
