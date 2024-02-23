@@ -463,8 +463,7 @@ public abstract class ORecordAbstract implements ORecord {
 
   protected void addIdentityChangeListener(OIdentityChangeListener identityChangeListener) {
     if (newIdentityChangeListeners == null)
-      newIdentityChangeListeners =
-          Collections.newSetFromMap(new WeakHashMap<>());
+      newIdentityChangeListeners = Collections.newSetFromMap(new WeakHashMap<>());
     newIdentityChangeListeners.add(identityChangeListener);
   }
 
