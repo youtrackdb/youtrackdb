@@ -109,9 +109,11 @@ public interface OCluster {
   OPhysicalPosition getPhysicalPosition(OPhysicalPosition iPPosition) throws IOException;
 
   /**
-   * Check if a rid is existent and deleted or not existent return true only if delete flag is set.
+   * Check if a rid is existent and deleted or not existent
+   *
+   * @return true if the record is deleted or not existent
    */
-  boolean isDeleted(OPhysicalPosition iPPosition) throws IOException;
+  boolean exists(long clusterPosition) throws IOException;
 
   long getEntries();
 

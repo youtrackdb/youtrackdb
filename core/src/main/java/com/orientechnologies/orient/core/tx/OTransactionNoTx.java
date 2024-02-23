@@ -133,6 +133,15 @@ public class OTransactionNoTx extends OTransactionAbstract {
   }
 
   @Override
+  public boolean exists(ORID rid) {
+    if (rid.isNew()) {
+      return false;
+    }
+
+    return database.executeExists(rid);
+  }
+
+  @Override
   public ORecord reloadRecord(ORID rid, ORecord record, String fetchPlan, boolean ignoreCache) {
     return reloadRecord(rid, record, fetchPlan, ignoreCache, true);
   }

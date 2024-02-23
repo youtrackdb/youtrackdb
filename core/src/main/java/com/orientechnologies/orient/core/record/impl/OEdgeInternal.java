@@ -53,6 +53,16 @@ public interface OEdgeInternal extends OEdge, OElementInternal {
   }
 
   @Override
+  default boolean exists() {
+    var baseDocument = getBaseDocument();
+    if (baseDocument == null) {
+      return false;
+    }
+
+    return baseDocument.exists();
+  }
+
+  @Override
   default void setProperty(String name, Object value) {
     checkPropertyName(name);
 

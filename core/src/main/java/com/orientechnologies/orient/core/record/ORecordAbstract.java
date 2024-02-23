@@ -275,9 +275,7 @@ public abstract class ORecordAbstract implements ORecord {
 
       return this;
 
-    } catch (OOfflineClusterException e) {
-      throw e;
-    } catch (ORecordNotFoundException e) {
+    } catch (OOfflineClusterException | ORecordNotFoundException e) {
       throw e;
     } catch (Exception e) {
       throw OException.wrapException(new ORecordNotFoundException(getIdentity()), e);
@@ -370,6 +368,11 @@ public abstract class ORecordAbstract implements ORecord {
     return status;
   }
 
+  @Override
+  public boolean exists() {
+    return getDatabase().exists(recordId);
+  }
+
   public void setInternalStatus(final ORecordElement.STATUS iStatus) {
     this.status = iStatus;
   }
@@ -440,22 +443,18 @@ public abstract class ORecordAbstract implements ORecord {
 
   protected abstract byte getRecordType();
 
-  protected void onBeforeIdentityChanged(final ORecord iRecord) {
+  protected void onBeforeIdentityChanged() {
     if (newIdentityChangeListeners != null) {
       for (OIdentityChangeListener changeListener : newIdentityChangeListeners)
         changeListener.onBeforeIdentityChange(this);
     }
   }
 
-  protected void onAfterIdentityChanged(final ORecord iRecord) {
+  protected void onAfterIdentityChanged() {
     if (newIdentityChangeListeners != null) {
       for (OIdentityChangeListener changeListener : newIdentityChangeListeners)
         changeListener.onAfterIdentityChange(this);
     }
-  }
-
-  protected ODatabaseDocumentInternal getDatabaseInternal() {
-    return ODatabaseRecordThreadLocal.instance().get();
   }
 
   protected ODatabaseDocumentInternal getDatabaseIfDefinedInternal() {
@@ -465,7 +464,7 @@ public abstract class ORecordAbstract implements ORecord {
   protected void addIdentityChangeListener(OIdentityChangeListener identityChangeListener) {
     if (newIdentityChangeListeners == null)
       newIdentityChangeListeners =
-          Collections.newSetFromMap(new WeakHashMap<OIdentityChangeListener, Boolean>());
+          Collections.newSetFromMap(new WeakHashMap<>());
     newIdentityChangeListeners.add(identityChangeListener);
   }
 

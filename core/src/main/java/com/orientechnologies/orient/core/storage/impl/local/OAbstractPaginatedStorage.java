@@ -1957,38 +1957,6 @@ public abstract class OAbstractPaginatedStorage
     }
   }
 
-  public boolean isDeleted(final ORID rid) {
-    try {
-      if (rid.isNew()) {
-        throw new OStorageException(
-            "Passed record with id " + rid + " is new and cannot be stored.");
-      }
-
-      stateLock.readLock().lock();
-      try {
-
-        final OCluster cluster = doGetAndCheckCluster(rid.getClusterId());
-        checkOpennessAndMigration();
-
-        return cluster.isDeleted(new OPhysicalPosition(rid.getClusterPosition()));
-
-      } catch (final IOException ioe) {
-        OLogManager.instance()
-            .error(this, "Retrieval of record  '" + rid + "' cause: " + ioe.getMessage(), ioe);
-      } finally {
-        stateLock.readLock().unlock();
-      }
-
-      return false;
-    } catch (final RuntimeException ee) {
-      throw logAndPrepareForRethrow(ee);
-    } catch (final Error ee) {
-      throw logAndPrepareForRethrow(ee, false);
-    } catch (final Throwable t) {
-      throw logAndPrepareForRethrow(t, false);
-    }
-  }
-
   public Iterator<OClusterBrowsePage> browseCluster(final int clusterId) {
     try {
       stateLock.readLock().lock();
@@ -4964,6 +4932,63 @@ public abstract class OAbstractPaginatedStorage
     }
   }
 
+  @Override
+  public boolean recordExists(ORID rid) {
+    if (!rid.isPersistent()) {
+      throw new ORecordNotFoundException(
+          rid,
+          "Cannot read record "
+              + rid
+              + " since the position is invalid in database '"
+              + name
+              + '\'');
+    }
+
+    if (transaction.get() != null) {
+      checkOpennessAndMigration();
+      final OCluster cluster;
+      try {
+        cluster = doGetAndCheckCluster(rid.getClusterId());
+      } catch (IllegalArgumentException e) {
+        return false;
+      }
+
+      return doRecordExists(cluster, rid);
+    }
+
+    stateLock.readLock().lock();
+    try {
+      checkOpennessAndMigration();
+      if (readLock) {
+        final ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+        if (db == null
+            || !((OTransactionAbstract) db.getTransaction()).getLockedRecords().contains(rid)) {
+          acquireReadLock(rid);
+        }
+      }
+
+      final OCluster cluster;
+      try {
+        cluster = doGetAndCheckCluster(rid.getClusterId());
+      } catch (IllegalArgumentException e) {
+        return false;
+      }
+      return doRecordExists(cluster, rid);
+    } finally {
+      try {
+        if (readLock) {
+          final ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+          if (db == null
+              || !((OTransactionAbstract) db.getTransaction()).getLockedRecords().contains(rid)) {
+            releaseReadLock(rid);
+          }
+        }
+      } finally {
+        stateLock.readLock().unlock();
+      }
+    }
+  }
+
   private void endStorageTx(
       final OTransactionInternal txi, final Collection<ORecordOperation> recordOperations)
       throws IOException {
@@ -5251,6 +5276,15 @@ public abstract class OAbstractPaginatedStorage
       recordRead.increment();
 
       return buff;
+    } catch (final IOException e) {
+      throw OException.wrapException(
+          new OStorageException("Error during read of record with rid = " + rid), e);
+    }
+  }
+
+  private boolean doRecordExists(final OCluster clusterSegment, final ORID rid) {
+    try {
+      return clusterSegment.exists(rid.getClusterPosition());
     } catch (final IOException e) {
       throw OException.wrapException(
           new OStorageException("Error during read of record with rid = " + rid), e);

@@ -541,6 +541,11 @@ public final class OPaginatedClusterV1 extends OPaginatedCluster {
     }
   }
 
+  @Override
+  public boolean exists(long clusterPosition) throws IOException {
+    throw new UnsupportedOperationException();
+  }
+
   private ORawBuffer internalReadRecord(
       final long clusterPosition,
       final long pageIndex,
@@ -1046,36 +1051,6 @@ public final class OPaginatedClusterV1 extends OPaginatedCluster {
           physicalPosition.clusterPosition = position.clusterPosition;
 
           return physicalPosition;
-        }
-      } finally {
-        releaseSharedLock();
-      }
-    } finally {
-      atomicOperationsManager.releaseReadLock(this);
-    }
-  }
-
-  @Override
-  public boolean isDeleted(final OPhysicalPosition position) throws IOException {
-    atomicOperationsManager.acquireReadLock(this);
-    try {
-      acquireSharedLock();
-      try {
-        final OAtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
-        final long clusterPosition = position.clusterPosition;
-        final OClusterPositionMapBucket.PositionEntry positionEntry =
-            clusterPositionMap.get(clusterPosition, atomicOperation);
-
-        if (positionEntry == null) {
-          return false;
-        }
-
-        final long pageIndex = positionEntry.getPageIndex();
-        final int recordPosition = positionEntry.getRecordPosition();
-
-        try (final OCacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
-          final OClusterPage localPage = new OClusterPage(cacheEntry);
-          return localPage.isDeleted(recordPosition);
         }
       } finally {
         releaseSharedLock();

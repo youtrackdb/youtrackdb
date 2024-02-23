@@ -173,6 +173,16 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
     return factory;
   }
 
+  @Override
+  public boolean exists(ORID rid) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean executeExists(ORID rid) {
+    return false;
+  }
+
   protected static OrientDBInternal getOrCreateEmbeddedFactory(
       String baseUrl, OrientDBConfig config) {
     if (!baseUrl.endsWith("/")) {

@@ -23,22 +23,34 @@ import com.orientechnologies.orient.core.OOrientListenerAbstract;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import java.util.concurrent.atomic.AtomicReference;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class ODatabaseRecordThreadLocal extends ThreadLocal<ODatabaseDocumentInternal> {
-
   private static final AtomicReference<ODatabaseRecordThreadLocal> INSTANCE =
       new AtomicReference<>();
 
+  @Nullable
+  public static ODatabaseRecordThreadLocal getInstanceIfDefined() {
+    return INSTANCE.get();
+  }
+
+  @Nonnull
   public static ODatabaseRecordThreadLocal instance() {
     final ODatabaseRecordThreadLocal dbInst = INSTANCE.get();
+    if (dbInst != null) {
+      return dbInst;
+    }
+    registerCleanUpHandler();
+    return INSTANCE.get();
+  }
 
-    if (dbInst != null) return dbInst;
-
+  private static void registerCleanUpHandler() {
     // we can do that to avoid thread local memory leaks in containers
     if (INSTANCE.get() == null) {
       final Orient inst = Orient.instance();
       if (inst == null) {
-        return null;
+        throw new ODatabaseException("OrientDB API is not active.");
       }
       inst.registerListener(
           new OOrientListenerAbstract() {
@@ -53,7 +65,6 @@ public class ODatabaseRecordThreadLocal extends ThreadLocal<ODatabaseDocumentInt
 
       INSTANCE.compareAndSet(null, new ODatabaseRecordThreadLocal());
     }
-    return INSTANCE.get();
   }
 
   @Override

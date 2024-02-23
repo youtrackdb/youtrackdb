@@ -792,7 +792,14 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   @SuppressWarnings("unchecked")
   @Override
   public <RET extends ORecord> RET load(final ORID recordId) {
+    checkIfActive();
     return (RET) currentTx.loadRecord(recordId, null, null, false);
+  }
+
+  @Override
+  public boolean exists(ORID rid) {
+    checkIfActive();
+    return currentTx.exists(rid);
   }
 
   @SuppressWarnings("unchecked")
@@ -972,8 +979,12 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
           }
           rid.setClusterId(schemaClass.getClusterForNewInstance((ODocument) record));
         } else {
-          throw new ODatabaseException(
-              "Cannot save (1) document " + record + ": no class or cluster defined");
+          var defaultCluster = getStorageInfo().getDefaultClusterId();
+          if (defaultCluster < 0) {
+            throw new ODatabaseException(
+                "Cannot save (1) document " + record + ": no class or cluster defined");
+          }
+          rid.setClusterId(defaultCluster);
         }
       } else {
         if (record instanceof ORecordBytes) {

@@ -129,6 +129,8 @@ public interface ODatabaseDocumentInternal extends ODatabaseSession, ODatabaseIn
       final OStorage.LOCKING_STRATEGY lockingStrategy,
       RecordReader recordReader);
 
+  boolean executeExists(ORID rid);
+
   void executeDeleteRecord(
       OIdentifiable record,
       final int iVersion,

@@ -221,7 +221,7 @@ public class OOfflineCluster implements OCluster {
   }
 
   @Override
-  public boolean isDeleted(OPhysicalPosition iPPosition) throws IOException {
+  public boolean exists(long clusterPosition) throws IOException {
     return false;
   }
 

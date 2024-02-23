@@ -1445,9 +1445,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
         this.totalRecordLoadMs += readTime;
       }
 
-    } catch (OOfflineClusterException t) {
-      throw t;
-    } catch (ORecordNotFoundException t) {
+    } catch (OOfflineClusterException | ORecordNotFoundException t) {
       throw t;
     } catch (Exception t) {
       if (rid.isTemporary())
@@ -1464,6 +1462,41 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
             t);
     } finally {
       getMetadata().clearThreadLocalSchemaSnapshot();
+    }
+  }
+
+  @Override
+  public boolean executeExists(ORID rid) {
+    checkOpenness();
+    checkIfActive();
+    try {
+      checkSecurity(
+          ORule.ResourceGeneric.CLUSTER,
+          ORole.PERMISSION_READ,
+          getClusterNameById(rid.getClusterId()));
+
+      ORecord record = getTransaction().getRecord(rid);
+      if (record == OTransactionAbstract.DELETED_RECORD) {
+        // DELETED IN TX
+        return false;
+      }
+      if (record != null) {
+        return true;
+      }
+
+      if (!rid.isPersistent()) {
+        return false;
+      }
+      return storage.recordExists(rid);
+    } catch (Exception t) {
+      throw OException.wrapException(
+          new ODatabaseException(
+              "Error on retrieving record "
+                  + rid
+                  + " (cluster: "
+                  + getStorage().getPhysicalClusterNameById(rid.getClusterId())
+                  + ")"),
+          t);
     }
   }
 

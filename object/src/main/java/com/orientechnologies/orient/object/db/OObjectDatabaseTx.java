@@ -466,6 +466,11 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
     return (RET) load(recordId, null);
   }
 
+  @Override
+  public boolean exists(ORID rid) {
+    throw new UnsupportedOperationException();
+  }
+
   public <RET> RET load(final ORID iRecordId, final String iFetchPlan) {
     return (RET) load(iRecordId, iFetchPlan, false);
   }
@@ -476,7 +481,7 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
     if (iRecordId == null) return null;
 
     // GET THE ASSOCIATED DOCUMENT
-    final ODocument record = (ODocument) underlying.load(iRecordId, iFetchPlan, iIgnoreCache);
+    final ODocument record = underlying.load(iRecordId, iFetchPlan, iIgnoreCache);
     if (record == null) return null;
 
     return (RET)

@@ -116,6 +116,9 @@ public class ONetworkBinaryProtocolFactory {
       case OChannelBinaryProtocol.REQUEST_RECORD_LOAD:
         return new OReadRecordRequest();
 
+      case OChannelBinaryProtocol.REQUEST_RECORD_EXISTS:
+        return new ORecordExistsRequest();
+
       case OChannelBinaryProtocol.REQUEST_RECORD_LOAD_IF_VERSION_NOT_LATEST:
         return new OReadRecordIfVersionIsNotLatestRequest();
 

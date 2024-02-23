@@ -269,6 +269,11 @@ public interface OVertexInternal extends OVertex, OElementInternal {
   }
 
   @Override
+  default boolean exists() {
+    return getBaseDocument().exists();
+  }
+
+  @Override
   default Iterable<OEdge> getEdges(ODirection direction, String... labels) {
     return getEdgesInternal(direction, labels, false);
   }

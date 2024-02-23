@@ -663,6 +663,19 @@ public interface ODatabase<T> extends OBackupable, Closeable {
   <RET extends T> RET load(ORID iRecordId, String iFetchPlan, boolean iIgnoreCache);
 
   /**
+   * Checks if record exists in database.
+   * That happens in two cases:
+   * <ol>
+   *   <li>Record is already stored in database.</li>
+   *   <li>Record is only added in current transaction.</li>
+   * </ol>
+   * <p/>
+   * @param rid Record id to check.
+   * @return True if record exists, otherwise false.
+   */
+  boolean exists(ORID rid);
+
+  /**
    * Saves an entity in synchronous mode. If the entity is not dirty, then the operation will be
    * ignored. For custom entity implementations assure to set the entity as dirty.
    *

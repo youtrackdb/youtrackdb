@@ -100,6 +100,8 @@ public interface OStorage extends OBackupable, OStorageInfo {
       boolean prefetchRecords,
       ORecordCallback<ORawBuffer> iCallback);
 
+  boolean recordExists(ORID rid);
+
   OStorageOperationResult<ORawBuffer> readRecordIfVersionIsNotLatest(
       ORecordId rid, String fetchPlan, boolean ignoreCache, int recordVersion)
       throws ORecordNotFoundException;

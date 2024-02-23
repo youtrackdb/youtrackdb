@@ -239,6 +239,22 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
   }
 
   @Override
+  public boolean exists(ORID rid) {
+    checkTransactionValid();
+
+    final ORecord txRecord = getRecord(rid);
+    if (txRecord == OTransactionAbstract.DELETED_RECORD) {
+      return false;
+    }
+
+    if (txRecord != null) {
+      return true;
+    }
+
+    return database.executeExists(rid);
+  }
+
+  @Override
   public ORecord loadRecordIfVersionIsNotLatest(
       ORID rid, final int recordVersion, String fetchPlan, boolean ignoreCache)
       throws ORecordNotFoundException {

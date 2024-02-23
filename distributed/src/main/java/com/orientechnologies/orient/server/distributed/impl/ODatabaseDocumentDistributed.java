@@ -980,7 +980,7 @@ public class ODatabaseDocumentDistributed extends ODatabaseDocumentEmbedded {
         int changeVersion = entry.getRecord().getVersion();
         ORecordMetadata metadata = getStorage().getRecordMetadata(entry.getRID());
         if (metadata == null) {
-          if (((OAbstractPaginatedStorage) getStorage()).isDeleted(entry.getRID())) {
+          if (!getStorage().recordExists(entry.getRID())) {
             throw new OConcurrentModificationException(
                 entry.getRID(), changeVersion, changeVersion, entry.getType());
           } else {

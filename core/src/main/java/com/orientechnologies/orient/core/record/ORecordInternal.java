@@ -128,11 +128,11 @@ public class ORecordInternal {
   }
 
   public static void onBeforeIdentityChanged(final ORecord record) {
-    ((ORecordAbstract) record).onBeforeIdentityChanged(record);
+    ((ORecordAbstract) record).onBeforeIdentityChanged();
   }
 
   public static void onAfterIdentityChanged(final ORecord record) {
-    ((ORecordAbstract) record).onAfterIdentityChanged(record);
+    ((ORecordAbstract) record).onAfterIdentityChanged();
   }
 
   public static void setRecordSerializer(final ORecord record, final ORecordSerializer serializer) {

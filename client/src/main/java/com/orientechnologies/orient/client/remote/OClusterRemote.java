@@ -28,6 +28,7 @@ import com.orientechnologies.orient.core.storage.ORawBuffer;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.impl.local.OClusterBrowsePage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
+import java.io.IOException;
 
 /**
  * Remote cluster implementation
@@ -224,8 +225,8 @@ public class OClusterRemote implements OCluster {
   }
 
   @Override
-  public boolean isDeleted(OPhysicalPosition iPPosition) {
-    throw new UnsupportedOperationException("isDeleted()");
+  public boolean exists(long clusterPosition) throws IOException {
+    throw new UnsupportedOperationException("exists()");
   }
 
   @Override

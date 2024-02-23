@@ -97,6 +97,7 @@ import com.orientechnologies.orient.client.remote.message.OReadRecordIfVersionIs
 import com.orientechnologies.orient.client.remote.message.OReadRecordRequest;
 import com.orientechnologies.orient.client.remote.message.OReadRecordResponse;
 import com.orientechnologies.orient.client.remote.message.ORebeginTransaction38Request;
+import com.orientechnologies.orient.client.remote.message.ORecordExistsRequest;
 import com.orientechnologies.orient.client.remote.message.OReloadRequest37;
 import com.orientechnologies.orient.client.remote.message.OReloadResponse37;
 import com.orientechnologies.orient.client.remote.message.ORemoteResultSet;
@@ -850,6 +851,13 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
         networkOperation(request, "Error on read record " + rid);
 
     return new OStorageOperationResult<ORawBuffer>(response.getResult());
+  }
+
+  @Override
+  public boolean recordExists(ORID rid) {
+    var request = new ORecordExistsRequest(rid);
+    var response = networkOperation(request, "Error on record existence check " + rid);
+    return response.isRecordExists();
   }
 
   public OStorageOperationResult<ORawBuffer> readRecord(

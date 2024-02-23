@@ -39,6 +39,8 @@ public interface OBinaryRequestExecutor {
 
   OBinaryResponse executeReadRecord(OReadRecordRequest request);
 
+  OBinaryResponse executeRecordExists(ORecordExistsRequest request);
+
   OBinaryResponse executeReadRecordIfNotLastest(OReadRecordIfVersionIsNotLatestRequest request);
 
   OBinaryResponse executeCreateRecord(OCreateRecordRequest request);

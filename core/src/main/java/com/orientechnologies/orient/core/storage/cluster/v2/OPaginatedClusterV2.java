@@ -1040,13 +1040,12 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
   }
 
   @Override
-  public boolean isDeleted(final OPhysicalPosition position) throws IOException {
+  public boolean exists(long clusterPosition) throws IOException {
     atomicOperationsManager.acquireReadLock(this);
     try {
       acquireSharedLock();
       try {
         final OAtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
-        final long clusterPosition = position.clusterPosition;
         final OClusterPositionMapBucket.PositionEntry positionEntry =
             clusterPositionMap.get(clusterPosition, atomicOperation);
 
@@ -1059,7 +1058,7 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
 
         try (final OCacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
           final OClusterPage localPage = new OClusterPage(cacheEntry);
-          return localPage.isDeleted(recordPosition);
+          return !localPage.isDeleted(recordPosition);
         }
       } finally {
         releaseSharedLock();

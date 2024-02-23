@@ -103,6 +103,8 @@ public interface OTransaction {
 
   ORecord loadRecord(ORID iRid, ORecord iRecord, String iFetchPlan, boolean ignoreCache);
 
+  boolean exists(ORID rid);
+
   ORecord reloadRecord(ORID iRid, ORecord iRecord, String iFetchPlan, boolean ignoreCache);
 
   ORecord reloadRecord(

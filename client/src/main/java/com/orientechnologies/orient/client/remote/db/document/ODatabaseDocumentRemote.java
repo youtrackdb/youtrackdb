@@ -111,9 +111,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Created by tglman on 30/06/16.
- */
+/** Created by tglman on 30/06/16. */
 public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
 
   protected OStorageRemoteSession sessionMetadata;
@@ -708,8 +706,8 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
   }
 
   /**
-   * This method is internal, it can be subject to signature change or be removed, do not use.
-   * @Internal
+   * This method is internal, it can be subject to signature change or be removed, do not
+   * use. @Internal
    */
   public <RET extends ORecord> RET executeReadRecord(
       final ORecordId rid,
@@ -853,6 +851,36 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
       }
     } finally {
       getMetadata().clearThreadLocalSchemaSnapshot();
+    }
+  }
+
+  @Override
+  public boolean executeExists(ORID rid) {
+    checkOpenness();
+    checkIfActive();
+
+    try {
+      ORecord record = getTransaction().getRecord(rid);
+      if (record == OTransactionAbstract.DELETED_RECORD) {
+        return false;
+      }
+      if (record != null) {
+        return true;
+      }
+
+      if (!rid.isPersistent()) {
+        return false;
+      }
+      return storage.recordExists(rid);
+    } catch (Exception t) {
+      throw OException.wrapException(
+          new ODatabaseException(
+              "Error on retrieving record "
+                  + rid
+                  + " (cluster: "
+                  + getStorage().getPhysicalClusterNameById(rid.getClusterId())
+                  + ")"),
+          t);
     }
   }
 
@@ -1002,27 +1030,21 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
     return this;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public long countClusterElements(int iClusterId, boolean countTombstones) {
     checkIfActive();
     return getStorageRemote().count(iClusterId, countTombstones);
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public long countClusterElements(int[] iClusterIds, boolean countTombstones) {
     checkIfActive();
     return getStorageRemote().count(iClusterIds, countTombstones);
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public long countClusterElements(final String iClusterName) {
     checkIfActive();
@@ -1175,9 +1197,7 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
     return getStorageRemote().getRecordMetadata(rid);
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public void freeze(final boolean throwException) {
     checkOpenness();
@@ -1191,17 +1211,13 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
     return;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public void freeze() {
     freeze(false);
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public void release() {
     checkOpenness();
@@ -1238,9 +1254,7 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
         "restore is not supported against remote instance. Use OrientDB instance command instead");
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   public OSBTreeCollectionManager getSbTreeCollectionManager() {
     return getStorageRemote().getSBtreeCollectionManager();
   }
@@ -1341,9 +1355,7 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
     return filterClusters.stream().map((c) -> getClusterIdByName(c)).mapToInt(i -> i).toArray();
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public void truncateCluster(String clusterName) {
     command("truncate cluster " + clusterName).close();

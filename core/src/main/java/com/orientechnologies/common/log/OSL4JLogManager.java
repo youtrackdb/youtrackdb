@@ -103,7 +103,7 @@ public abstract class OSL4JLogManager {
       if (requester instanceof OStorage) {
         dbName = ((OStorage) requester).getName();
       } else {
-        var dbInstance = ODatabaseRecordThreadLocal.instance();
+        var dbInstance = ODatabaseRecordThreadLocal.getInstanceIfDefined();
         if (dbInstance != null) {
           var db = dbInstance.getIfDefined();
           if (db != null && db.getStorage() != null) {

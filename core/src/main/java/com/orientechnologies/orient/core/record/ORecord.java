@@ -226,4 +226,12 @@ public interface ORecord extends ORecordElement, OIdentifiable, Serializable, OS
    * @param iStatus status between the values defined in the enum {@link STATUS}
    */
   void setInternalStatus(STATUS iStatus);
+
+  /**
+   * Checks if the record exists in the database.
+   * It adheres the same rules {@link ODatabaseDocument#exists(ORID)}.
+   *
+   * @return true if the record exists, otherwise false
+   */
+  boolean exists();
 }

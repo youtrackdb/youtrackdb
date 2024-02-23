@@ -339,6 +339,13 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   }
 
   @Override
+  public OBinaryResponse executeRecordExists(ORecordExistsRequest request) {
+    final ORID rid = request.getRecordId();
+    final boolean recordExists = connection.getDatabase().exists(rid);
+    return new ORecordExistsResponse(recordExists);
+  }
+
+  @Override
   public OBinaryResponse executeReadRecordIfNotLastest(
       OReadRecordIfVersionIsNotLatestRequest request) {
 

@@ -158,6 +158,11 @@ public final class AsyncFile implements OFile {
       checkPosition(offset);
       checkPosition(offset + buffer.limit() - 1);
 
+      if (buffer.remaining() < pageSize || (buffer.remaining() & (pageSize - 1)) != 0) {
+        throw new IllegalStateException(
+            "Buffer size is not quantized by page size, buffer size -  " + buffer.remaining());
+      }
+
       try {
         OIOUtils.writeByteBuffer(buffer, fileChannel, offset + HEADER_SIZE);
       } catch (IOException e) {

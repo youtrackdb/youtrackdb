@@ -302,6 +302,11 @@ public class PostponedEngineStartTest {
         }
 
         @Override
+        public boolean recordExists(ORID rid) {
+          return false;
+        }
+
+        @Override
         public OStorageOperationResult<ORawBuffer> readRecordIfVersionIsNotLatest(
             ORecordId rid, String fetchPlan, boolean ignoreCache, int recordVersion)
             throws ORecordNotFoundException {
