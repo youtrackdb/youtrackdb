@@ -6,6 +6,7 @@ import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.db.ODatabase;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.exception.OCommitSerializationException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.OSchemaException;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -75,7 +76,7 @@ public class ODatabaseDocumentTxTest extends BaseMemoryDatabase {
     Assert.assertEquals(newTimezone, "GMT");
   }
 
-  @Test(expected = ODatabaseException.class)
+  @Test(expected = OCommitSerializationException.class)
   public void testSaveInvalidRid() {
     ODocument doc = new ODocument();
 
