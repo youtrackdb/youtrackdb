@@ -99,11 +99,11 @@
             <outputDirectory>config</outputDirectory>
             <fileMode>600</fileMode>
         </fileSet>
-        <fileSet>
-            <directory>${basedir}/../distributed/config</directory>
-            <outputDirectory>config</outputDirectory>
-            <fileMode>600</fileMode>
-        </fileSet>
+<!--        <fileSet>-->
+<!--            <directory>${basedir}/../distributed/config</directory>-->
+<!--            <outputDirectory>config</outputDirectory>-->
+<!--            <fileMode>600</fileMode>-->
+<!--        </fileSet>-->
         <fileSet>
             <directory>${basedir}/../graphdb/config</directory>
             <outputDirectory>config</outputDirectory>
