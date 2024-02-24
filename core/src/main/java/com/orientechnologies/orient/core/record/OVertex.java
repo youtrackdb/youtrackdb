@@ -275,6 +275,18 @@ public interface OVertex extends OElement {
   ORID moveTo(final String className, final String clusterName);
 
   /**
+   * Removes all edges connected to the vertex in the given direction.
+   *
+   * @param direction the direction of the edges to remove (OUT, IN, or BOTH)
+   */
+  default void removeEdges(ODirection direction, OClass... labels) {
+    var edges = getEdges(direction, labels);
+    for (var edge : edges) {
+      edge.delete();
+    }
+  }
+
+  /**
    * Deletes the current vertex.
    *
    * @return the deleted vertex
@@ -286,7 +298,6 @@ public interface OVertex extends OElement {
    *
    * @return a copy of the current vertex
    */
-  @SuppressWarnings("unchecked")
   OVertex copy();
 
   /**
