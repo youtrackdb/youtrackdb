@@ -71,24 +71,24 @@
         <!--
          | copy distributed scripts
         -->
-        <fileSet>
-            <directory>${basedir}/../distributed/script</directory>
-            <outputDirectory>bin</outputDirectory>
-            <includes>
-                <include>*.bat</include>
-            </includes>
-            <fileMode>644</fileMode>
-            <filtered>true</filtered>
-        </fileSet>
-        <fileSet>
-            <directory>${basedir}/../distributed/script</directory>
-            <outputDirectory>bin</outputDirectory>
-            <includes>
-                <include>*.sh</include>
-            </includes>
-            <fileMode>755</fileMode>
-            <filtered>true</filtered>
-        </fileSet>
+<!--        <fileSet>-->
+<!--            <directory>${basedir}/../distributed/script</directory>-->
+<!--            <outputDirectory>bin</outputDirectory>-->
+<!--            <includes>-->
+<!--                <include>*.bat</include>-->
+<!--            </includes>-->
+<!--            <fileMode>644</fileMode>-->
+<!--            <filtered>true</filtered>-->
+<!--        </fileSet>-->
+<!--        <fileSet>-->
+<!--            <directory>${basedir}/../distributed/script</directory>-->
+<!--            <outputDirectory>bin</outputDirectory>-->
+<!--            <includes>-->
+<!--                <include>*.sh</include>-->
+<!--            </includes>-->
+<!--            <fileMode>755</fileMode>-->
+<!--            <filtered>true</filtered>-->
+<!--        </fileSet>-->
 
 
         <!--
