@@ -3131,7 +3131,7 @@ public final class OWOWCache extends OAbstractWriteCache
             addMagicChecksumAndEncryption(
                 extractFileId(entry.getKey()),
                 startPageIndex + i,
-                containerBuffer.slice().slice(position, pageSize).order(ByteOrder.nativeOrder()));
+                containerBuffer.slice(position, pageSize).order(ByteOrder.nativeOrder()));
           }
 
           stubsToAdd.add(new ORawPair<>(lastPosition, containerBuffer));
