@@ -89,6 +89,9 @@ public abstract class OSL4JLogManager {
         if (dbMarker != null) {
           logEventBuilder = logEventBuilder.addMarker(dbMarker);
         }
+        if(exception != null) {
+          logEventBuilder = logEventBuilder.setCause(exception);
+        }
 
         logEventBuilder.log();
       } catch (Exception e) {
