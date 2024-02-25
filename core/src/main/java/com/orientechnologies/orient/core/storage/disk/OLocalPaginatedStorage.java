@@ -194,6 +194,17 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
     } catch (final Throwable t) {
       throw logAndPrepareForRethrow(t);
     }
+
+    boolean fsyncAfterCreate =
+        contextConfiguration.getValueAsBoolean(
+            OGlobalConfiguration.STORAGE_MAKE_FULL_CHECKPOINT_AFTER_CREATE);
+    if (fsyncAfterCreate) {
+      synch();
+    }
+
+    final Object[] additionalArgs = new Object[] {getURL(), OConstants.getVersion()};
+    OLogManager.instance()
+        .info(this, "Storage '%s' is created under OrientDB distribution : %s", additionalArgs);
   }
 
   protected void doCreate(OContextConfiguration contextConfiguration)

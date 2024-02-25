@@ -60,6 +60,7 @@ import com.orientechnologies.orient.core.storage.impl.local.OPageIsBrokenListene
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.MetaDataRecord;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OLogSequenceNumber;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OWriteAheadLog;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -80,6 +81,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -146,14 +148,10 @@ public final class OWOWCache extends OAbstractWriteCache
   private static final ThreadLocal<Cipher> CIPHER =
       ThreadLocal.withInitial(OWOWCache::getCipherInstance);
 
-  /**
-   * Extension for the file which contains mapping between file name and file id
-   */
+  /** Extension for the file which contains mapping between file name and file id */
   private static final String NAME_ID_MAP_EXTENSION = ".cm";
 
-  /**
-   * Name for file which contains first version of binary format
-   */
+  /** Name for file which contains first version of binary format */
   private static final String NAME_ID_MAP_V1 = "name_id_map" + NAME_ID_MAP_EXTENSION;
 
   /**
@@ -197,24 +195,16 @@ public final class OWOWCache extends OAbstractWriteCache
    */
   private static final int MAX_FILE_RECORD_LEN = 16 * 1024;
 
-  /**
-   * Marks pages which have a checksum stored.
-   */
+  /** Marks pages which have a checksum stored. */
   public static final long MAGIC_NUMBER_WITH_CHECKSUM = 0xFACB03FEL;
 
-  /**
-   * Marks pages which have a checksum stored and data encrypted
-   */
+  /** Marks pages which have a checksum stored and data encrypted */
   public static final long MAGIC_NUMBER_WITH_CHECKSUM_ENCRYPTED = 0x1L;
 
-  /**
-   * Marks pages which have no checksum stored.
-   */
+  /** Marks pages which have no checksum stored. */
   private static final long MAGIC_NUMBER_WITHOUT_CHECKSUM = 0xEF30BCAFL;
 
-  /**
-   * Marks pages which have no checksum stored but have data encrypted
-   */
+  /** Marks pages which have no checksum stored but have data encrypted */
   private static final long MAGIC_NUMBER_WITHOUT_CHECKSUM_ENCRYPTED = 0x2L;
 
   private static final int MAGIC_NUMBER_OFFSET = 0;
@@ -226,9 +216,7 @@ public final class OWOWCache extends OAbstractWriteCache
 
   private static final int CHUNK_SIZE = 64 * 1024 * 1024;
 
-  /**
-   * Executor which runs in single thread all tasks are related to flush of write cache data.
-   */
+  /** Executor which runs in single thread all tasks are related to flush of write cache data. */
   private static final ScheduledExecutorService commitExecutor;
 
   static {
@@ -238,20 +226,22 @@ public final class OWOWCache extends OAbstractWriteCache
   }
 
   /**
-   * Limit of free space on disk after which database will be switched to "read only" mode
+   * Comparator which is used to sort pages in write cache by page position in file. It is used in
+   * {{@link #flushPages(ArrayList, OLogSequenceNumber)}} method to detect holes in the files that
+   * should be filled with stub pages to avoid false detection of broken pages.
    */
+  private static final Comparator<ORawPair<Long, ByteBuffer>> pagePositionsComparator =
+      Comparator.comparingLong(ORawPair<Long, ByteBuffer>::getFirst);
+
+  /** Limit of free space on disk after which database will be switched to "read only" mode */
   private final long freeSpaceLimit =
       OGlobalConfiguration.DISK_CACHE_FREE_SPACE_LIMIT.getValueAsLong() * 1024L * 1024L;
 
-  /**
-   * Listeners which are called once we detect that some of the pages of files are broken.
-   */
+  /** Listeners which are called once we detect that some of the pages of files are broken. */
   private final List<WeakReference<OPageIsBrokenListener>> pageIsBrokenListeners =
       new CopyOnWriteArrayList<>();
 
-  /**
-   * Path to the storage root directory where all files served by write cache will be stored
-   */
+  /** Path to the storage root directory where all files served by write cache will be stored */
   private final Path storagePath;
 
   private final FileStore fileStore;
@@ -300,14 +290,14 @@ public final class OWOWCache extends OAbstractWriteCache
       new ConcurrentHashMap<>();
 
   /**
-   * Copy of content of {@link #dirtyPages} table at the moment when
-   * {@link #convertSharedDirtyPagesToLocal()} was called. This field is not thread safe because it
-   * is used inside of tasks which are running inside of {@link #commitExecutor} thread. It is used
-   * to keep results of postprocessing of {@link #dirtyPages} table. Every time we invoke
-   * {@link #convertSharedDirtyPagesToLocal()} all content of dirty pages is removed and copied to
-   * current field and {@link #localDirtyPagesBySegment} filed. Such approach is possible because
-   * {@link #dirtyPages} table is filled by many threads but is read only from inside of
-   * {@link #commitExecutor} thread.
+   * Copy of content of {@link #dirtyPages} table at the moment when {@link
+   * #convertSharedDirtyPagesToLocal()} was called. This field is not thread safe because it is used
+   * inside of tasks which are running inside of {@link #commitExecutor} thread. It is used to keep
+   * results of postprocessing of {@link #dirtyPages} table. Every time we invoke {@link
+   * #convertSharedDirtyPagesToLocal()} all content of dirty pages is removed and copied to current
+   * field and {@link #localDirtyPagesBySegment} filed. Such approach is possible because {@link
+   * #dirtyPages} table is filled by many threads but is read only from inside of {@link
+   * #commitExecutor} thread.
    */
   private final HashMap<PageKey, OLogSequenceNumber> localDirtyPages = new HashMap<>();
 
@@ -319,29 +309,19 @@ public final class OWOWCache extends OAbstractWriteCache
    */
   private final TreeMap<Long, TreeSet<PageKey>> localDirtyPagesBySegment = new TreeMap<>();
 
-  /**
-   * Approximate amount of all pages contained by write cache at the moment
-   */
+  /** Approximate amount of all pages contained by write cache at the moment */
   private final AtomicLong writeCacheSize = new AtomicLong();
 
-  /**
-   * Amount of exclusive pages are hold by write cache.
-   */
+  /** Amount of exclusive pages are hold by write cache. */
   private final AtomicLong exclusiveWriteCacheSize = new AtomicLong();
 
-  /**
-   * Serialized is used to encode/decode names of files are managed by write cache.
-   */
+  /** Serialized is used to encode/decode names of files are managed by write cache. */
   private final OBinarySerializer<String> stringSerializer;
 
-  /**
-   * Size of single page in cache in bytes.
-   */
+  /** Size of single page in cache in bytes. */
   private final int pageSize;
 
-  /**
-   * WAL instance
-   */
+  /** WAL instance */
   private final OWriteAheadLog writeAheadLog;
 
   /**
@@ -372,14 +352,10 @@ public final class OWOWCache extends OAbstractWriteCache
 
   private final Random fileIdGen = new Random();
 
-  /**
-   * Path to the file which contains metadata for the files registered in storage.
-   */
+  /** Path to the file which contains metadata for the files registered in storage. */
   private Path nameIdMapHolderPath;
 
-  /**
-   * Write cache id , which should be unique across all storages.
-   */
+  /** Write cache id , which should be unique across all storages. */
   private final int id;
 
   /**
@@ -392,19 +368,13 @@ public final class OWOWCache extends OAbstractWriteCache
 
   private volatile OChecksumMode checksumMode;
 
-  /**
-   * Error thrown during data flush. Once error registered no more write operations are allowed.
-   */
+  /** Error thrown during data flush. Once error registered no more write operations are allowed. */
   private Throwable flushError;
 
-  /**
-   * IV is used for AES encryption
-   */
+  /** IV is used for AES encryption */
   private final byte[] iv;
 
-  /**
-   * Key is used for AES encryption
-   */
+  /** Key is used for AES encryption */
   private final byte[] aesKey;
 
   private final int exclusiveWriteCacheMaxSize;
@@ -422,9 +392,7 @@ public final class OWOWCache extends OAbstractWriteCache
 
   private final int shutdownTimeout;
 
-  /**
-   * Listeners which are called when exception in background data flush thread is happened.
-   */
+  /** Listeners which are called when exception in background data flush thread is happened. */
   private final List<WeakReference<OBackgroundExceptionListener>> backgroundExceptionListeners =
       new CopyOnWriteArrayList<>();
 
@@ -509,9 +477,7 @@ public final class OWOWCache extends OAbstractWriteCache
     }
   }
 
-  /**
-   * Loads files already registered in storage. Has to be called before usage of this cache
-   */
+  /** Loads files already registered in storage. Has to be called before usage of this cache */
   public void loadRegisteredFiles() throws IOException, InterruptedException {
     filesLock.acquireWriteLock();
     try {
@@ -554,9 +520,7 @@ public final class OWOWCache extends OAbstractWriteCache
     backgroundExceptionListeners.removeAll(itemsToRemove);
   }
 
-  /**
-   * Fires event about exception is thrown in data flush thread
-   */
+  /** Fires event about exception is thrown in data flush thread */
   private void fireBackgroundDataFlushExceptionEvent(final Throwable e) {
     for (final WeakReference<OBackgroundExceptionListener> ref : backgroundExceptionListeners) {
       final OBackgroundExceptionListener listener = ref.get();
@@ -579,7 +543,7 @@ public final class OWOWCache extends OAbstractWriteCache
    * Directory which contains all files managed by write cache.
    *
    * @return Directory which contains all files managed by write cache or <code>null</code> in case
-   * of in memory database.
+   *     of in memory database.
    */
   @Override
   public Path getRootDirectory() {
@@ -2609,6 +2573,10 @@ public final class OWOWCache extends OAbstractWriteCache
         final long extFileId = externalFileId(intFileId);
 
         final OClosableEntry<Long, OFile> fileEntry = files.acquire(extFileId);
+        // such thing can happen during db restore
+        if (fileEntry == null) {
+          continue;
+        }
         try {
           final OFile fileClassic = fileEntry.get();
           fileClassic.synch();
@@ -2737,7 +2705,8 @@ public final class OWOWCache extends OAbstractWriteCache
 
     int copiedPages = 0;
 
-    List<List<OQuarto<Long, ByteBuffer, OPointer, OCachePointer>>> chunks = new ArrayList<>(16);
+    ArrayList<ArrayList<OQuarto<Long, ByteBuffer, OPointer, OCachePointer>>> chunks =
+        new ArrayList<>(16);
     ArrayList<OQuarto<Long, ByteBuffer, OPointer, OCachePointer>> chunk = new ArrayList<>(16);
 
     long currentSegment = segStart;
@@ -2877,17 +2846,15 @@ public final class OWOWCache extends OAbstractWriteCache
   }
 
   private int flushPages(
-      final List<List<OQuarto<Long, ByteBuffer, OPointer, OCachePointer>>> chunks,
+      final ArrayList<ArrayList<OQuarto<Long, ByteBuffer, OPointer, OCachePointer>>> chunks,
       final OLogSequenceNumber fullLogLSN)
       throws InterruptedException, IOException {
-
     if (chunks.isEmpty()) {
       return 0;
     }
 
     if (fullLogLSN != null) {
       OLogSequenceNumber flushedLSN = writeAheadLog.getFlushedLsn();
-
       while (flushedLSN == null || flushedLSN.compareTo(fullLogLSN) < 0) {
         writeAheadLog.flush();
         flushedLSN = writeAheadLog.getFlushedLsn();
@@ -2898,121 +2865,26 @@ public final class OWOWCache extends OAbstractWriteCache
 
     int flushedPages = 0;
 
-    final OPointer[] containerPointers = new OPointer[chunks.size()];
-    final ByteBuffer[] containerBuffers = new ByteBuffer[chunks.size()];
-    final int[] chunkPositions = new int[chunks.size()];
-    final int[] chunkFileIds = new int[chunks.size()];
+    final ArrayList<OPointer> containerPointers = new ArrayList<>(chunks.size());
+    final ArrayList<ByteBuffer> containerBuffers = new ArrayList<>(chunks.size());
+    final IntArrayList chunkPageIndexes = new IntArrayList(chunks.size());
+    final IntArrayList chunkFileIds = new IntArrayList(chunks.size());
 
-    final Map<Long, List<ORawPair<Long, ByteBuffer>>> buffersByFileId = new HashMap<>();
+    final Map<Long, ArrayList<ORawPair<Long, ByteBuffer>>> buffersByFileId = new HashMap<>();
     try {
-      for (int i = 0; i < chunks.size(); i++) {
-        final List<OQuarto<Long, ByteBuffer, OPointer, OCachePointer>> chunk = chunks.get(i);
-
-        flushedPages += chunk.size();
-
-        final OPointer containerPointer =
-            ODirectMemoryAllocator.instance()
-                .allocate(
-                    chunk.size() * pageSize,
-                    false,
-                    Intention.ALLOCATE_CHUNK_TO_WRITE_DATA_IN_BATCH);
-        final ByteBuffer containerBuffer = containerPointer.getNativeByteBuffer();
-
-        containerPointers[i] = containerPointer;
-        containerBuffers[i] = containerBuffer;
-        assert containerBuffer.position() == 0;
-
-        for (final OQuarto<Long, ByteBuffer, OPointer, OCachePointer> quarto : chunk) {
-          final ByteBuffer buffer = quarto.two;
-
-          final OCachePointer pointer = quarto.four;
-
-          addMagicChecksumAndEncryption(
-              extractFileId(pointer.getFileId()), pointer.getPageIndex(), buffer);
-
-          buffer.position(0);
-          containerBuffer.put(buffer);
-        }
-
-        final OQuarto<Long, ByteBuffer, OPointer, OCachePointer> firstPage = chunk.get(0);
-        final OCachePointer firstCachePointer = firstPage.four;
-
-        final long fileId = firstCachePointer.getFileId();
-        final int pageIndex = firstCachePointer.getPageIndex();
-
-        final List<ORawPair<Long, ByteBuffer>> fileBuffers =
-            buffersByFileId.computeIfAbsent(fileId, (id) -> new ArrayList<>());
-        fileBuffers.add(new ORawPair<>(((long) pageIndex) * pageSize, containerBuffer));
-
-        chunkPositions[i] = pageIndex;
-        chunkFileIds[i] = internalFileId(fileId);
-      }
-
-      fsyncFiles = doubleWriteLog.write(containerBuffers, chunkFileIds, chunkPositions);
-
-      final List<OClosableEntry<Long, OFile>> acquiredFiles =
-          new ArrayList<>(buffersByFileId.size());
-      final List<IOResult> ioResults = new ArrayList<>(buffersByFileId.size());
-
-      final Iterator<Map.Entry<Long, List<ORawPair<Long, ByteBuffer>>>> filesIterator =
-          buffersByFileId.entrySet().iterator();
-      Map.Entry<Long, List<ORawPair<Long, ByteBuffer>>> entry = null;
-      // acquire as much files as possible and flush data
-      while (true) {
-        if (entry == null) {
-          if (filesIterator.hasNext()) {
-            entry = filesIterator.next();
-          } else {
-            break;
-          }
-        }
-
-        final OClosableEntry<Long, OFile> fileEntry = files.tryAcquire(entry.getKey());
-        if (fileEntry != null) {
-          final OFile file = fileEntry.get();
-
-          final List<ORawPair<Long, ByteBuffer>> bufferList = entry.getValue();
-
-          ioResults.add(file.write(bufferList));
-          acquiredFiles.add(fileEntry);
-
-          entry = null;
-        } else {
-          if (ioResults.size() != acquiredFiles.size()) {
-            throw new IllegalStateException("Not all data are written to the files.");
-          }
-
-          if (!ioResults.isEmpty()) {
-            for (final IOResult ioResult : ioResults) {
-              ioResult.await();
-            }
-
-            for (final OClosableEntry<Long, OFile> closableEntry : acquiredFiles) {
-              files.release(closableEntry);
-            }
-
-            ioResults.clear();
-            acquiredFiles.clear();
-          } else {
-            Thread.yield();
-          }
-        }
-      }
-
-      if (ioResults.size() != acquiredFiles.size()) {
-        throw new IllegalStateException("Not all data are written to the files.");
-      }
-
-      if (!ioResults.isEmpty()) {
-        for (final IOResult ioResult : ioResults) {
-          ioResult.await();
-        }
-
-        for (final OClosableEntry<Long, OFile> closableEntry : acquiredFiles) {
-          files.release(closableEntry);
-        }
-      }
-
+      flushedPages =
+          copyPageChunksIntoTheBuffers(
+              chunks,
+              flushedPages,
+              containerPointers,
+              containerBuffers,
+              buffersByFileId,
+              chunkPageIndexes,
+              chunkFileIds);
+      generatePageStubs(
+          buffersByFileId, containerPointers, containerBuffers, chunkPageIndexes, chunkFileIds);
+      fsyncFiles = doubleWriteLog.write(containerBuffers, chunkFileIds, chunkPageIndexes);
+      writePageChunksToFiles(buffersByFileId);
     } finally {
       for (final OPointer containerPointer : containerPointers) {
         if (containerPointer != null) {
@@ -3025,6 +2897,13 @@ public final class OWOWCache extends OAbstractWriteCache
       fsyncFiles();
     }
 
+    removeWrittenPagesFromCache(chunks);
+
+    return flushedPages;
+  }
+
+  private void removeWrittenPagesFromCache(
+      ArrayList<ArrayList<OQuarto<Long, ByteBuffer, OPointer, OCachePointer>>> chunks) {
     for (final List<OQuarto<Long, ByteBuffer, OPointer, OCachePointer>> chunk : chunks) {
       for (final OQuarto<Long, ByteBuffer, OPointer, OCachePointer> chunkPage : chunk) {
         final OCachePointer pointer = chunkPage.four;
@@ -3057,8 +2936,212 @@ public final class OWOWCache extends OAbstractWriteCache
         bufferPool.release(chunkPage.three);
       }
     }
+  }
 
+  private int copyPageChunksIntoTheBuffers(
+      ArrayList<ArrayList<OQuarto<Long, ByteBuffer, OPointer, OCachePointer>>> chunks,
+      int flushedPages,
+      ArrayList<OPointer> containerPointers,
+      ArrayList<ByteBuffer> containerBuffers,
+      Map<Long, ArrayList<ORawPair<Long, ByteBuffer>>> buffersByFileId,
+      IntArrayList chunkPageIndexes,
+      IntArrayList chunkFileIds) {
+    for (final List<OQuarto<Long, ByteBuffer, OPointer, OCachePointer>> chunk : chunks) {
+      flushedPages += chunk.size();
+
+      final OPointer containerPointer =
+          ODirectMemoryAllocator.instance()
+              .allocate(
+                  chunk.size() * pageSize, false, Intention.ALLOCATE_CHUNK_TO_WRITE_DATA_IN_BATCH);
+      final ByteBuffer containerBuffer = containerPointer.getNativeByteBuffer();
+
+      containerPointers.add(containerPointer);
+      containerBuffers.add(containerBuffer);
+      assert containerBuffer.position() == 0;
+
+      for (final OQuarto<Long, ByteBuffer, OPointer, OCachePointer> quarto : chunk) {
+        final ByteBuffer buffer = quarto.two;
+
+        final OCachePointer pointer = quarto.four;
+
+        addMagicChecksumAndEncryption(
+            extractFileId(pointer.getFileId()), pointer.getPageIndex(), buffer);
+
+        buffer.position(0);
+        containerBuffer.put(buffer);
+      }
+
+      final OQuarto<Long, ByteBuffer, OPointer, OCachePointer> firstPage = chunk.get(0);
+      final OCachePointer firstCachePointer = firstPage.four;
+
+      final long fileId = firstCachePointer.getFileId();
+      final int pageIndex = firstCachePointer.getPageIndex();
+
+      final ArrayList<ORawPair<Long, ByteBuffer>> fileBuffers =
+          buffersByFileId.computeIfAbsent(fileId, (id) -> new ArrayList<>());
+      fileBuffers.add(new ORawPair<>(((long) pageIndex) * pageSize, containerBuffer));
+
+      chunkPageIndexes.add(pageIndex);
+      chunkFileIds.add(internalFileId(fileId));
+    }
     return flushedPages;
+  }
+
+  private void writePageChunksToFiles(
+      Map<Long, ArrayList<ORawPair<Long, ByteBuffer>>> buffersByFileId)
+      throws InterruptedException, IOException {
+    final List<OClosableEntry<Long, OFile>> acquiredFiles = new ArrayList<>(buffersByFileId.size());
+    final List<IOResult> ioResults = new ArrayList<>(buffersByFileId.size());
+
+    Map.Entry<Long, ArrayList<ORawPair<Long, ByteBuffer>>> entry;
+    Iterator<Map.Entry<Long, ArrayList<ORawPair<Long, ByteBuffer>>>> filesIterator;
+
+    filesIterator = buffersByFileId.entrySet().iterator();
+    entry = null;
+    // acquire as much files as possible and flush data
+    while (true) {
+      if (entry == null) {
+        if (filesIterator.hasNext()) {
+          entry = filesIterator.next();
+        } else {
+          break;
+        }
+      }
+
+      final OClosableEntry<Long, OFile> fileEntry = files.tryAcquire(entry.getKey());
+      if (fileEntry != null) {
+        final OFile file = fileEntry.get();
+
+        final List<ORawPair<Long, ByteBuffer>> bufferList = entry.getValue();
+
+        ioResults.add(file.write(bufferList));
+        acquiredFiles.add(fileEntry);
+
+        entry = null;
+      } else {
+        if (ioResults.size() != acquiredFiles.size()) {
+          throw new IllegalStateException("Not all data are written to the files.");
+        }
+
+        if (!ioResults.isEmpty()) {
+          for (final IOResult ioResult : ioResults) {
+            ioResult.await();
+          }
+
+          for (final OClosableEntry<Long, OFile> closableEntry : acquiredFiles) {
+            files.release(closableEntry);
+          }
+
+          ioResults.clear();
+          acquiredFiles.clear();
+        } else {
+          Thread.yield();
+        }
+      }
+    }
+
+    if (ioResults.size() != acquiredFiles.size()) {
+      throw new IllegalStateException("Not all data are written to the files.");
+    }
+
+    if (!ioResults.isEmpty()) {
+      for (final IOResult ioResult : ioResults) {
+        ioResult.await();
+      }
+
+      for (final OClosableEntry<Long, OFile> closableEntry : acquiredFiles) {
+        files.release(closableEntry);
+      }
+    }
+  }
+
+  private void generatePageStubs(
+      Map<Long, ArrayList<ORawPair<Long, ByteBuffer>>> buffersByFileId,
+      ArrayList<OPointer> containerPointers,
+      ArrayList<ByteBuffer> containerBuffers,
+      IntArrayList chunkPageIndexes,
+      IntArrayList chunkFileIds)
+      throws InterruptedException, IOException {
+    Iterator<Map.Entry<Long, ArrayList<ORawPair<Long, ByteBuffer>>>> filesIterator =
+        buffersByFileId.entrySet().iterator();
+    Map.Entry<Long, ArrayList<ORawPair<Long, ByteBuffer>>> entry;
+    // detecting holes in file that are not written yet and fill them with stubs with zeros and
+    // checksums
+    while (filesIterator.hasNext()) {
+      entry = filesIterator.next();
+      var fileChunks = entry.getValue();
+      // sort by position in file
+      fileChunks.sort(pagePositionsComparator);
+
+      long underlyingFileSize;
+      var file = files.acquire(entry.getKey());
+      try {
+        underlyingFileSize = file.get().getUnderlyingFileSize();
+        if ((underlyingFileSize & (pageSize - 1)) != 0) {
+          throw new IllegalStateException(
+              "File size is not aligned to page size. File size : "
+                  + underlyingFileSize
+                  + ", page size : "
+                  + pageSize);
+        }
+      } finally {
+        files.release(file);
+      }
+      // if all pages will be written inside existing file, nothing needs to be done
+      var lastChunk = fileChunks.get(fileChunks.size() - 1);
+      if (lastChunk.first <= underlyingFileSize) {
+        continue;
+      }
+
+      long lastPosition = underlyingFileSize;
+
+      // collect all stubs to add them in map after all
+      // this map will be used to write stubs to the file
+      var stubsToAdd = new ArrayList<ORawPair<Long, ByteBuffer>>();
+      for (var chunk : fileChunks) {
+        var chunkPosition = chunk.first;
+        if (chunkPosition > lastPosition) {
+          // generate stubs with checksums
+          var stubLength = (int) (chunkPosition - lastPosition);
+          if ((stubLength & (pageSize - 1)) != 0) {
+            throw new IllegalStateException(
+                "Stub length is not aligned to page size. Stub length : "
+                    + stubLength
+                    + ", page size : "
+                    + pageSize);
+          }
+
+          final OPointer containerPointer =
+              ODirectMemoryAllocator.instance()
+                  .allocate(stubLength, true, Intention.ALLOCATE_CHUNK_TO_WRITE_DATA_IN_BATCH);
+          final ByteBuffer containerBuffer = containerPointer.getNativeByteBuffer();
+
+          containerPointers.add(containerPointer);
+          containerBuffers.add(containerBuffer);
+          assert containerBuffer.position() == 0;
+
+          chunkPageIndexes.add((int) (lastPosition / pageSize));
+          chunkFileIds.add(internalFileId(entry.getKey()));
+
+          var pages = stubLength / pageSize;
+          var startPageIndex = (int) (lastPosition / pageSize);
+
+          // generate magic number and checksum for each page
+          for (int i = 0, position = 0; i < pages; i++, position += pageSize) {
+            addMagicChecksumAndEncryption(
+                extractFileId(entry.getKey()),
+                startPageIndex + i,
+                containerBuffer.slice().slice(position, pageSize).order(ByteOrder.nativeOrder()));
+          }
+
+          stubsToAdd.add(new ORawPair<>(lastPosition, containerBuffer));
+        }
+
+        lastPosition = chunkPosition + chunk.second.limit();
+      }
+
+      fileChunks.addAll(stubsToAdd);
+    }
   }
 
   private void flushExclusiveWriteCache(final CountDownLatch latch, long pagesToFlush)
@@ -3071,8 +3154,9 @@ public final class OWOWCache extends OAbstractWriteCache
     final long ewcSize = exclusiveWriteCacheSize.get();
     pagesToFlush = Math.min(Math.max(pagesToFlush, chunkSize), ewcSize);
 
-    List<List<OQuarto<Long, ByteBuffer, OPointer, OCachePointer>>> chunks = new ArrayList<>(16);
-    List<OQuarto<Long, ByteBuffer, OPointer, OCachePointer>> chunk = new ArrayList<>(16);
+    ArrayList<ArrayList<OQuarto<Long, ByteBuffer, OPointer, OCachePointer>>> chunks =
+        new ArrayList<>(16);
+    ArrayList<OQuarto<Long, ByteBuffer, OPointer, OCachePointer>> chunk = new ArrayList<>(16);
 
     if (latch != null && ewcSize <= exclusiveWriteCacheMaxSize) {
       latch.countDown();
@@ -3235,7 +3319,7 @@ public final class OWOWCache extends OAbstractWriteCache
 
     OLogSequenceNumber maxLSN = null;
 
-    final List<List<OQuarto<Long, ByteBuffer, OPointer, OCachePointer>>> chunks =
+    final ArrayList<ArrayList<OQuarto<Long, ByteBuffer, OPointer, OCachePointer>>> chunks =
         new ArrayList<>(chunkSize);
     for (final PageKey pageKey : pagesToFlush) {
       if (fileIdSet.contains(pageKey.fileId)) {
@@ -3262,9 +3346,10 @@ public final class OWOWCache extends OAbstractWriteCache
               maxLSN = endLSN;
             }
 
-            chunks.add(
-                Collections.singletonList(
-                    new OQuarto<>(pagePointer.getVersion(), copy, directPointer, pagePointer)));
+            var chunk = new ArrayList<OQuarto<Long, ByteBuffer, OPointer, OCachePointer>>(1);
+            chunk.add(new OQuarto<>(pagePointer.getVersion(), copy, directPointer, pagePointer));
+            chunks.add(chunk);
+
             removeFromDirtyPages(pageKey);
           } finally {
             pagePointer.releaseSharedLock();

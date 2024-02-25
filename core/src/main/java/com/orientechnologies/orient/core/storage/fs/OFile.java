@@ -65,6 +65,14 @@ public interface OFile extends OClosableItem {
 
   void renameTo(Path newFile) throws IOException, InterruptedException;
 
+  /**
+   * Returns the underlying file size. It's the physical size of the file on the file system.
+   *
+   * @return the size of the file
+   * @throws IOException if an I/O error occurs
+   */
+  long getUnderlyingFileSize() throws IOException;
+
   void replaceContentWith(Path newContentFile) throws IOException, InterruptedException;
 
   /*

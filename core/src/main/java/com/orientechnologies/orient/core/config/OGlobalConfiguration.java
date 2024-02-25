@@ -357,7 +357,7 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       "storage.makeFullCheckpointAfterCreate",
       "Indicates whether a full checkpoint should be performed, if storage was created",
       Boolean.class,
-      false),
+      true),
 
   STORAGE_ATOMIC_OPERATIONS_TABLE_COMPACTION_LIMIT(
       "storage.atomicOperationsTable.compactionLimit",
@@ -1147,7 +1147,7 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       new OProfileDumpIntervalChangeCallback()),
 
   /**
-   * @Since 2.2.27
+   * @since 2.2.27
    */
   PROFILER_AUTODUMP_TYPE(
       "profiler.autoDump.type",

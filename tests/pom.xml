@@ -158,8 +158,7 @@
                     <systemPropertyVariables>
                         <storage.lockTimeout>60000</storage.lockTimeout>
                         <storage.makeFullCheckpointAfterCreate>false</storage.makeFullCheckpointAfterCreate>
-                        <storage.makeFullCheckpointAfterClusterCreate>false
-                        </storage.makeFullCheckpointAfterClusterCreate>
+                        <storage.makeFullCheckpointAfterClusterCreate>false</storage.makeFullCheckpointAfterClusterCreate>
                         <storage.wal.syncOnPageFlush>false</storage.wal.syncOnPageFlush>
                         <storage.configuration.syncOnUpdate>false</storage.configuration.syncOnUpdate>
                         <index.flushAfterCreate>false</index.flushAfterCreate>
@@ -179,6 +178,7 @@
                             <value>com.orientechnologies.OTestNGTestListener</value>
                         </property>
                     </properties>
+                    <redirectTestOutputToFile>false</redirectTestOutputToFile>
                 </configuration>
                 <executions>
                     <execution>

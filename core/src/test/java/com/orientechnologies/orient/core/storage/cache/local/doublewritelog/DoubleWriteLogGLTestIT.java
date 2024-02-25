@@ -3,6 +3,7 @@ package com.orientechnologies.orient.core.storage.cache.local.doublewritelog;
 import com.orientechnologies.common.directmemory.OByteBufferPool;
 import com.orientechnologies.common.directmemory.OPointer;
 import com.orientechnologies.common.io.OFileUtils;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -11,13 +12,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -57,7 +59,10 @@ public class DoubleWriteLogGLTestIT {
         buffer.put(data);
 
         buffer.position(0);
-        doubleWriteLog.write(new ByteBuffer[] {buffer}, new int[] {12}, new int[] {24});
+        doubleWriteLog.write(
+            new ArrayList<>(Collections.singleton(buffer)),
+            IntArrayList.of(12),
+            IntArrayList.of(24));
         doubleWriteLog.truncate();
 
         pointer = doubleWriteLog.loadPage(12, 24, bufferPool);
@@ -105,13 +110,19 @@ public class DoubleWriteLogGLTestIT {
 
         buffer.put(data);
 
-        doubleWriteLog.write(new ByteBuffer[] {buffer}, new int[] {12}, new int[] {24});
+        doubleWriteLog.write(
+            new ArrayList<>(Collections.singleton(buffer)),
+            IntArrayList.of(12),
+            IntArrayList.of(24));
 
         buffer.rewind();
         random.nextBytes(data);
         buffer.put(data);
 
-        doubleWriteLog.write(new ByteBuffer[] {buffer}, new int[] {12}, new int[] {24});
+        doubleWriteLog.write(
+            new ArrayList<>(Collections.singleton(buffer)),
+            IntArrayList.of(12),
+            IntArrayList.of(24));
         doubleWriteLog.truncate();
 
         OPointer pointer = doubleWriteLog.loadPage(12, 24, bufferPool);
@@ -165,7 +176,10 @@ public class DoubleWriteLogGLTestIT {
           buffer.put(data);
         }
 
-        doubleWriteLog.write(new ByteBuffer[] {buffer}, new int[] {12}, new int[] {24});
+        doubleWriteLog.write(
+            new ArrayList<>(Collections.singleton(buffer)),
+            IntArrayList.of(12),
+            IntArrayList.of(24));
 
         OPointer pointer = doubleWriteLog.loadPage(12, 24, bufferPool);
         Assert.assertNull(pointer);
@@ -228,7 +242,10 @@ public class DoubleWriteLogGLTestIT {
           buffer.put(data);
         }
 
-        doubleWriteLog.write(new ByteBuffer[] {buffer}, new int[] {12}, new int[] {24});
+        doubleWriteLog.write(
+            new ArrayList<>(Collections.singleton(buffer)),
+            IntArrayList.of(12),
+            IntArrayList.of(24));
 
         OPointer pointer = doubleWriteLog.loadPage(12, 24, bufferPool);
         Assert.assertNull(pointer);
@@ -282,7 +299,10 @@ public class DoubleWriteLogGLTestIT {
         for (byte[] data : datas) {
           buffer.put(data);
         }
-        doubleWriteLog.write(new ByteBuffer[] {buffer}, new int[] {12}, new int[] {24});
+        doubleWriteLog.write(
+            new ArrayList<>(Collections.singleton(buffer)),
+            IntArrayList.of(12),
+            IntArrayList.of(24));
 
         OPointer pointer = doubleWriteLog.loadPage(12, 24, bufferPool);
         Assert.assertNull(pointer);
@@ -338,7 +358,10 @@ public class DoubleWriteLogGLTestIT {
             buffer.put(datas.get(i * 10 + j));
           }
 
-          doubleWriteLog.write(new ByteBuffer[] {buffer}, new int[] {12 + i}, new int[] {24});
+          doubleWriteLog.write(
+              new ArrayList<>(Collections.singleton(buffer)),
+              IntArrayList.of(12 + i),
+              IntArrayList.of(24));
         }
 
         doubleWriteLog.restoreModeOn();
@@ -406,7 +429,9 @@ public class DoubleWriteLogGLTestIT {
             }
 
             doubleWriteLog.write(
-                new ByteBuffer[] {buffer}, new int[] {12}, new int[] {24 + pageIndex});
+                new ArrayList<>(Collections.singleton(buffer)),
+                IntArrayList.of(12),
+                IntArrayList.of(24 + pageIndex));
             pageIndex += pagesForSinglePatch;
             writtenPages += pagesForSinglePatch;
           }
@@ -490,9 +515,9 @@ public class DoubleWriteLogGLTestIT {
               }
 
               doubleWriteLog.write(
-                  new ByteBuffer[] {containerBuffer},
-                  new int[] {12},
-                  new int[] {startPageIndex + pageIndex});
+                  new ArrayList<>(Collections.singleton(containerBuffer)),
+                  IntArrayList.of(12),
+                  IntArrayList.of(startPageIndex + pageIndex));
 
               for (int j = 0; j < buffers.length; j++) {
                 pageMap.put(startPageIndex + pageIndex + j, buffers[j]);
@@ -575,7 +600,9 @@ public class DoubleWriteLogGLTestIT {
             }
 
             doubleWriteLog.write(
-                new ByteBuffer[] {buffer}, new int[] {12}, new int[] {24 + pageIndex});
+                new ArrayList<>(Collections.singleton(buffer)),
+                IntArrayList.of(12),
+                IntArrayList.of(24 + pageIndex));
             pageIndex += pagesForSinglePatch;
             writtenPages += pagesForSinglePatch;
           }
@@ -662,9 +689,9 @@ public class DoubleWriteLogGLTestIT {
               }
 
               doubleWriteLog.write(
-                  new ByteBuffer[] {containerBuffer},
-                  new int[] {12},
-                  new int[] {startPageIndex + pageIndex});
+                  new ArrayList<>(Collections.singleton(containerBuffer)),
+                  IntArrayList.of(12),
+                  IntArrayList.of(startPageIndex + pageIndex));
               for (int j = 0; j < buffers.length; j++) {
                 pageMap.put(startPageIndex + pageIndex + j, buffers[j]);
               }
@@ -718,8 +745,7 @@ public class DoubleWriteLogGLTestIT {
       final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(512, 512);
       doubleWriteLog.open("test", Paths.get(buildDirectory), pageSize);
       try {
-        List<Path> paths =
-            Arrays.asList(Files.list(Paths.get(buildDirectory)).toArray(Path[]::new));
+        List<Path> paths = listFiles();
         Assert.assertEquals(1, paths.size());
         Assert.assertEquals(
             "test_0" + DoubleWriteLogGL.EXTENSION, paths.get(0).getFileName().toString());
@@ -727,15 +753,13 @@ public class DoubleWriteLogGLTestIT {
         for (int i = 0; i < 4; i++) {
           final boolean overflow =
               doubleWriteLog.write(
-                  new ByteBuffer[] {ByteBuffer.allocate(pageSize)}, new int[] {12}, new int[] {45});
+                  new ArrayList<>(Collections.singleton(ByteBuffer.allocate(pageSize))),
+                  IntArrayList.of(12),
+                  IntArrayList.of(45));
           Assert.assertTrue(overflow && i > 0 || i == 0 && !overflow);
         }
 
-        paths =
-            Arrays.asList(
-                Files.list(Paths.get(buildDirectory))
-                    .sorted(Comparator.comparing(path -> path.getFileName().toString()))
-                    .toArray(Path[]::new));
+        paths = listFiles();
         Assert.assertEquals(4, paths.size());
 
         Assert.assertEquals(
@@ -750,11 +774,7 @@ public class DoubleWriteLogGLTestIT {
         doubleWriteLog.restoreModeOn();
         doubleWriteLog.truncate();
 
-        paths =
-            Arrays.asList(
-                Files.list(Paths.get(buildDirectory))
-                    .sorted(Comparator.comparing(path -> path.getFileName().toString()))
-                    .toArray(Path[]::new));
+        paths = listFiles();
         Assert.assertEquals(4, paths.size());
 
         Assert.assertEquals(
@@ -770,11 +790,7 @@ public class DoubleWriteLogGLTestIT {
 
         doubleWriteLog.truncate();
 
-        paths =
-            Arrays.asList(
-                Files.list(Paths.get(buildDirectory))
-                    .sorted(Comparator.comparing(path -> path.getFileName().toString()))
-                    .toArray(Path[]::new));
+        paths = listFiles();
         Assert.assertEquals(1, paths.size());
 
         Assert.assertEquals(
@@ -784,6 +800,14 @@ public class DoubleWriteLogGLTestIT {
       }
     } finally {
       bufferPool.clear();
+    }
+  }
+
+  private static List<Path> listFiles() throws IOException {
+    try (var files = Files.list(Paths.get(buildDirectory))) {
+      return files
+          .sorted(Comparator.comparing(path -> path.getFileName().toString()))
+          .collect(Collectors.toList());
     }
   }
 
@@ -797,22 +821,19 @@ public class DoubleWriteLogGLTestIT {
       final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(maxLogSize, 512);
       doubleWriteLog.open("test", Paths.get(buildDirectory), pageSize);
       try {
-        List<Path> paths =
-            Arrays.asList(Files.list(Paths.get(buildDirectory)).toArray(Path[]::new));
+        List<Path> paths = listFiles();
         Assert.assertEquals(1, paths.size());
         Assert.assertEquals(
             "test_0" + DoubleWriteLogGL.EXTENSION, paths.get(0).getFileName().toString());
 
         for (int i = 0; i < 4; i++) {
           doubleWriteLog.write(
-              new ByteBuffer[] {ByteBuffer.allocate(pageSize)}, new int[] {12}, new int[] {45});
+              new ArrayList<>(Collections.singleton(ByteBuffer.allocate(pageSize))),
+              IntArrayList.of(12),
+              IntArrayList.of(45));
         }
 
-        paths =
-            Arrays.asList(
-                Files.list(Paths.get(buildDirectory))
-                    .sorted(Comparator.comparing(path -> path.getFileName().toString()))
-                    .toArray(Path[]::new));
+        paths = listFiles();
         Assert.assertEquals(4, paths.size());
 
         Assert.assertEquals(
@@ -831,8 +852,7 @@ public class DoubleWriteLogGLTestIT {
       bufferPool.clear();
     }
 
-    final List<Path> paths =
-        Arrays.asList(Files.list(Paths.get(buildDirectory)).toArray(Path[]::new));
+    final List<Path> paths = listFiles();
     Assert.assertTrue(paths.isEmpty());
   }
 
@@ -848,14 +868,12 @@ public class DoubleWriteLogGLTestIT {
       try {
         for (int i = 0; i < 4; i++) {
           doubleWriteLog.write(
-              new ByteBuffer[] {ByteBuffer.allocate(pageSize)}, new int[] {12}, new int[] {45});
+              new ArrayList<>(Collections.singleton(ByteBuffer.allocate(pageSize))),
+              IntArrayList.of(12),
+              IntArrayList.of(45));
         }
 
-        List<Path> paths =
-            Arrays.asList(
-                Files.list(Paths.get(buildDirectory))
-                    .sorted(Comparator.comparing(path -> path.getFileName().toString()))
-                    .toArray(Path[]::new));
+        List<Path> paths = listFiles();
         Assert.assertEquals(4, paths.size());
 
         Assert.assertEquals(
@@ -870,11 +888,7 @@ public class DoubleWriteLogGLTestIT {
         final DoubleWriteLogGL doubleWriteLogRestore = new DoubleWriteLogGL(maxLogSize, maxLogSize);
         doubleWriteLogRestore.open("test", Paths.get(buildDirectory), pageSize);
 
-        paths =
-            Arrays.asList(
-                Files.list(Paths.get(buildDirectory))
-                    .sorted(Comparator.comparing(path -> path.getFileName().toString()))
-                    .toArray(Path[]::new));
+        paths = listFiles();
         Assert.assertEquals(5, paths.size());
 
         Assert.assertEquals(
@@ -907,8 +921,7 @@ public class DoubleWriteLogGLTestIT {
       final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(maxLogSize, 512);
       doubleWriteLog.open("test", Paths.get(buildDirectory), pageSize);
       try {
-        List<Path> paths =
-            Arrays.asList(Files.list(Paths.get(buildDirectory)).toArray(Path[]::new));
+        List<Path> paths = listFiles();
         Assert.assertEquals(1, paths.size());
         Assert.assertEquals(
             "test_0" + DoubleWriteLogGL.EXTENSION, paths.get(0).getFileName().toString());
@@ -919,15 +932,13 @@ public class DoubleWriteLogGLTestIT {
         for (int i = 0; i < 4; i++) {
           final boolean overflow =
               doubleWriteLog.write(
-                  new ByteBuffer[] {ByteBuffer.allocate(pageSize)}, new int[] {12}, new int[] {45});
+                  new ArrayList<>(Collections.singleton(ByteBuffer.allocate(pageSize))),
+                  IntArrayList.of(12),
+                  IntArrayList.of(45));
           Assert.assertFalse(overflow);
         }
 
-        paths =
-            Arrays.asList(
-                Files.list(Paths.get(buildDirectory))
-                    .sorted(Comparator.comparing(path -> path.getFileName().toString()))
-                    .toArray(Path[]::new));
+        paths = listFiles();
 
         Assert.assertEquals(1, paths.size());
         Assert.assertEquals(
@@ -935,11 +946,7 @@ public class DoubleWriteLogGLTestIT {
 
         doubleWriteLog.endCheckpoint();
 
-        paths =
-            Arrays.asList(
-                Files.list(Paths.get(buildDirectory))
-                    .sorted(Comparator.comparing(path -> path.getFileName().toString()))
-                    .toArray(Path[]::new));
+        paths = listFiles();
 
         Assert.assertEquals(1, paths.size());
         Assert.assertEquals(
@@ -948,15 +955,13 @@ public class DoubleWriteLogGLTestIT {
         for (int i = 0; i < 4; i++) {
           final boolean overflow =
               doubleWriteLog.write(
-                  new ByteBuffer[] {ByteBuffer.allocate(pageSize)}, new int[] {12}, new int[] {45});
+                  new ArrayList<>(Collections.singleton(ByteBuffer.allocate(pageSize))),
+                  IntArrayList.of(12),
+                  IntArrayList.of(45));
           Assert.assertTrue(overflow);
         }
 
-        paths =
-            Arrays.asList(
-                Files.list(Paths.get(buildDirectory))
-                    .sorted(Comparator.comparing(path -> path.getFileName().toString()))
-                    .toArray(Path[]::new));
+        paths = listFiles();
 
         Assert.assertEquals(5, paths.size());
         Assert.assertEquals(

@@ -8,6 +8,7 @@ import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.exception.OStorageException;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -192,7 +193,10 @@ public class DoubleWriteLogGL implements DoubleWriteLog {
   }
 
   @Override
-  public boolean write(final ByteBuffer[] buffers, final int[] fileIds, final int[] pageIndexes)
+  public boolean write(
+      final ArrayList<ByteBuffer> buffers,
+      final IntArrayList fileIds,
+      final IntArrayList pageIndexes)
       throws IOException {
     synchronized (mutex) {
       assert checkpointCounter >= 0;
@@ -207,7 +211,7 @@ public class DoubleWriteLogGL implements DoubleWriteLog {
         sizeToAllocate += LZ_4_COMPRESSOR.maxCompressedLength(byteBuffer.limit());
       }
 
-      sizeToAllocate += buffers.length * RECORD_METADATA_SIZE;
+      sizeToAllocate += buffers.size() * RECORD_METADATA_SIZE;
       sizeToAllocate = (sizeToAllocate + blockMask) & ~blockMask;
       final OPointer pageContainer =
           ALLOCATOR.allocate(sizeToAllocate, false, Intention.DWL_ALLOCATE_CHUNK);
@@ -218,8 +222,8 @@ public class DoubleWriteLogGL implements DoubleWriteLog {
         containerBuffer = pageContainer.getNativeByteBuffer();
         assert containerBuffer.position() == 0;
 
-        for (int i = 0; i < buffers.length; i++) {
-          final ByteBuffer buffer = buffers[i];
+        for (int i = 0; i < buffers.size(); i++) {
+          final ByteBuffer buffer = buffers.get(i);
           buffer.rewind();
 
           final int maxCompressedLength = LZ_4_COMPRESSOR.maxCompressedLength(buffer.limit());
@@ -238,8 +242,8 @@ public class DoubleWriteLogGL implements DoubleWriteLog {
 
             final int xxHashPosition = containerBuffer.position();
             containerBuffer.position(xxHashPosition + XX_HASH_LEN);
-            containerBuffer.putInt(fileIds[i]);
-            containerBuffer.putInt(pageIndexes[i]);
+            containerBuffer.putInt(fileIds.getInt(i));
+            containerBuffer.putInt(pageIndexes.getInt(i));
             containerBuffer.putInt(buffer.limit() / pageSize);
             containerBuffer.putInt(compressedSize);
 
