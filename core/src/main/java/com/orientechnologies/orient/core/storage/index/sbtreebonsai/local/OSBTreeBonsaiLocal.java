@@ -1252,7 +1252,7 @@ public class OSBTreeBonsaiLocal<K, V> extends ODurableComponent implements OSBTr
 
       final int startRightIndex = splitLeaf ? indexToSplit : indexToSplit + 1;
       if (startRightIndex == 0) {
-        throw new OStorageException("Left part of bucket is empty");
+        throw new OSBTreeBonsaiLocalException("Left part of bucket is empty", this);
       }
 
       for (int i = startRightIndex; i < bucketSize; i++) {
@@ -1260,7 +1260,7 @@ public class OSBTreeBonsaiLocal<K, V> extends ODurableComponent implements OSBTr
       }
 
       if (rightEntries.isEmpty()) {
-        throw new OStorageException("Right part of bucket is empty");
+        throw new OSBTreeBonsaiLocalException("Right part of bucket is empty", this);
       }
 
       if (!bucketPointer.equals(rootBucketPointer)) {
@@ -1567,11 +1567,11 @@ public class OSBTreeBonsaiLocal<K, V> extends ODurableComponent implements OSBTr
             || allocationResult.pointer.getPageOffset() != requestedPageOffset) {
           allocationResult.cacheEntry.close();
 
-          throw new OStorageException(
+          throw new OSBTreeBonsaiLocalException(
               "Can not allocate rid bag with pageIndex = "
                   + requestedPageIndex
                   + ", pageOffset = "
-                  + requestedPageOffset);
+                  + requestedPageOffset, this);
         }
 
         return allocationResult;
