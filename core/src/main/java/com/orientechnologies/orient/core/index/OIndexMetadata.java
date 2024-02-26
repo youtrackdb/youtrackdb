@@ -27,6 +27,7 @@ import com.orientechnologies.orient.core.serialization.serializer.stream.OStream
 import com.orientechnologies.orient.core.sharding.auto.OAutoShardingIndexFactory;
 import com.orientechnologies.orient.core.storage.index.hashindex.local.OHashIndexFactory;
 import java.util.Set;
+import javax.annotation.Nonnull;
 
 /**
  * Contains the index metadata.
@@ -34,7 +35,7 @@ import java.util.Set;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OIndexMetadata {
-  private final String name;
+  @Nonnull private final String name;
   private final OIndexDefinition indexDefinition;
   private final Set<String> clustersToIndex;
   private final String type;
@@ -44,7 +45,7 @@ public class OIndexMetadata {
   private ODocument metadata;
 
   public OIndexMetadata(
-      String name,
+      @Nonnull String name,
       OIndexDefinition indexDefinition,
       Set<String> clustersToIndex,
       String type,
@@ -73,6 +74,7 @@ public class OIndexMetadata {
     this.metadata = metadata;
   }
 
+  @Nonnull
   public String getName() {
     return name;
   }

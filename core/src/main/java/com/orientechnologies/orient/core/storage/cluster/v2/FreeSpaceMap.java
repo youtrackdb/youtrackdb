@@ -6,6 +6,7 @@ import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoper
 import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODurableComponent;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODurablePage;
 import java.io.IOException;
+import javax.annotation.Nonnull;
 
 public final class FreeSpaceMap extends ODurableComponent {
 
@@ -17,7 +18,10 @@ public final class FreeSpaceMap extends ODurableComponent {
   private long fileId;
 
   public FreeSpaceMap(
-      OAbstractPaginatedStorage storage, String name, String extension, String lockName) {
+      @Nonnull OAbstractPaginatedStorage storage,
+      @Nonnull String name,
+      String extension,
+      String lockName) {
     super(storage, name, extension, lockName);
   }
 
@@ -94,7 +98,7 @@ public final class FreeSpaceMap extends ODurableComponent {
     }
 
     try (final OCacheEntry firstLevelCacheEntry =
-        loadPageForWrite(atomicOperation, fileId, 0, true); ) {
+        loadPageForWrite(atomicOperation, fileId, 0, true)) {
       final FreeSpaceMapPage page = new FreeSpaceMapPage(firstLevelCacheEntry);
       page.updatePageMaxFreeSpace(secondLevelPageIndex - 1, maxFreeSpaceSecondLevel);
     }

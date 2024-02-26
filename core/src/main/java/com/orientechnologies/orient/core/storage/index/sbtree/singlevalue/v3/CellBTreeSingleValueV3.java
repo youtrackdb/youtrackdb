@@ -28,7 +28,6 @@ import com.orientechnologies.common.serialization.types.OShortSerializer;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.encryption.OEncryption;
-import com.orientechnologies.orient.core.exception.OStorageException;
 import com.orientechnologies.orient.core.exception.OTooBigIndexKeyException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -46,6 +45,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+import javax.annotation.Nonnull;
 
 /**
  * This is implementation which is based on B+-tree implementation threaded tree. The main
@@ -102,7 +102,7 @@ public final class CellBTreeSingleValueV3<K> extends ODurableComponent
   private OType[] keyTypes;
 
   public CellBTreeSingleValueV3(
-      final String name,
+      @Nonnull final String name,
       final String dataFileExtension,
       final String nullFileExtension,
       final OAbstractPaginatedStorage storage) {
@@ -146,13 +146,15 @@ public final class CellBTreeSingleValueV3<K> extends ODurableComponent
             }
 
             try (final OCacheEntry rootCacheEntry = addPage(atomicOperation, fileId)) {
-              @SuppressWarnings("unused") final CellBTreeSingleValueBucketV3<K> rootBucket =
+              @SuppressWarnings("unused")
+              final CellBTreeSingleValueBucketV3<K> rootBucket =
                   new CellBTreeSingleValueBucketV3<>(rootCacheEntry);
               rootBucket.init(true);
             }
 
             try (final OCacheEntry nullCacheEntry = addPage(atomicOperation, nullBucketFileId)) {
-              @SuppressWarnings("unused") final CellBTreeSingleValueV3NullBucket nullBucket =
+              @SuppressWarnings("unused")
+              final CellBTreeSingleValueV3NullBucket nullBucket =
                   new CellBTreeSingleValueV3NullBucket(nullCacheEntry);
               nullBucket.init();
             }
@@ -187,7 +189,7 @@ public final class CellBTreeSingleValueV3<K> extends ODurableComponent
         } else {
 
           try (final OCacheEntry nullBucketCacheEntry =
-              loadPageForRead(atomicOperation, nullBucketFileId, 0);) {
+              loadPageForRead(atomicOperation, nullBucketFileId, 0); ) {
             final CellBTreeSingleValueV3NullBucket nullBucket =
                 new CellBTreeSingleValueV3NullBucket(nullBucketCacheEntry);
             return nullBucket.getValue();
@@ -828,7 +830,7 @@ public final class CellBTreeSingleValueV3<K> extends ODurableComponent
       pages.remove(freePageIndex);
 
       try (final OCacheEntry cacheEntry =
-          loadPageForRead(atomicOperation, fileId, freePageIndex);) {
+          loadPageForRead(atomicOperation, fileId, freePageIndex); ) {
         final CellBTreeSingleValueBucketV3<K> bucket =
             new CellBTreeSingleValueBucketV3<>(cacheEntry);
         freePageIndex = bucket.getNextFreeListPage();
@@ -1681,12 +1683,15 @@ public final class CellBTreeSingleValueV3<K> extends ODurableComponent
       if (depth > MAX_PATH_LENGTH) {
         throw new CellBTreeSingleValueV3Exception(
             "We reached max level of depth of BTree but still found nothing, seems like tree is in"
-                + " corrupted state. You should rebuild index related to given query.",
+                + " corrupted state. You should rebuild index related to given query."
+                + " Key = "
+                + key,
             this);
       }
 
       try (final OCacheEntry bucketEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
-        @SuppressWarnings("ObjectAllocationInLoop") final CellBTreeSingleValueBucketV3<K> bucket =
+        @SuppressWarnings("ObjectAllocationInLoop")
+        final CellBTreeSingleValueBucketV3<K> bucket =
             new CellBTreeSingleValueBucketV3<>(bucketEntry);
 
         final int index = bucket.find(key, keySerializer);
@@ -1729,12 +1734,14 @@ public final class CellBTreeSingleValueV3<K> extends ODurableComponent
       if (depth > MAX_PATH_LENGTH) {
         throw new CellBTreeSingleValueV3Exception(
             "We reached max level of depth of SBTree but still found nothing, seems like tree is in"
-                + " corrupted state. You should rebuild index related to given query.",
+                + " corrupted state. You should rebuild index related to given query. Key = "
+                + key,
             this);
       }
 
       try (final OCacheEntry bucketEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
-        @SuppressWarnings("ObjectAllocationInLoop") final CellBTreeSingleValueBucketV3<K> keyBucket =
+        @SuppressWarnings("ObjectAllocationInLoop")
+        final CellBTreeSingleValueBucketV3<K> keyBucket =
             new CellBTreeSingleValueBucketV3<>(bucketEntry);
         final int index = keyBucket.find(key, keySerializer);
 
@@ -1767,13 +1774,15 @@ public final class CellBTreeSingleValueV3<K> extends ODurableComponent
       if (path.size() > MAX_PATH_LENGTH) {
         throw new CellBTreeSingleValueV3Exception(
             "We reached max level of depth of SBTree but still found nothing, seems like tree is in"
-                + " corrupted state. You should rebuild index related to given query.",
+                + " corrupted state. You should rebuild index related to given query. Key = "
+                + key,
             this);
       }
 
       path.add(pageIndex);
       try (final OCacheEntry bucketEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
-        @SuppressWarnings("ObjectAllocationInLoop") final CellBTreeSingleValueBucketV3<K> keyBucket =
+        @SuppressWarnings("ObjectAllocationInLoop")
+        final CellBTreeSingleValueBucketV3<K> keyBucket =
             new CellBTreeSingleValueBucketV3<>(bucketEntry);
         final int index = keyBucket.find(key, keySerializer);
 

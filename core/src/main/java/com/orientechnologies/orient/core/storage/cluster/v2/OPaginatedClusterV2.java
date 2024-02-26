@@ -54,12 +54,14 @@ import java.util.ListIterator;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import javax.annotation.Nonnull;
 
 /**
  * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 10/7/13
  */
 public final class OPaginatedClusterV2 extends OPaginatedCluster {
+
   // max chunk size - nex page pointer - first record flag
   private static final int MAX_ENTRY_SIZE =
       OClusterPage.MAX_RECORD_SIZE - OByteSerializer.BYTE_SIZE - OLongSerializer.LONG_SIZE;
@@ -81,7 +83,8 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
   private long fileId;
   private ORecordConflictStrategy recordConflictStrategy;
 
-  public OPaginatedClusterV2(final String name, final OAbstractPaginatedStorage storage) {
+  public OPaginatedClusterV2(
+      @Nonnull final String name, @Nonnull final OAbstractPaginatedStorage storage) {
     this(
         name,
         OPaginatedCluster.DEF_EXTENSION,
@@ -231,7 +234,7 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
                 if (pageIndex > 0 && pageIndex % 1_000 == 0) {
                   final Object[] additionalArgs =
                       new Object[] {
-                        pageIndex + 1, filledUpTo, 100 * (pageIndex + 1) / filledUpTo, getName()
+                        pageIndex + 1, filledUpTo, 100L * (pageIndex + 1) / filledUpTo, getName()
                       };
                   OLogManager.instance()
                       .info(
@@ -610,14 +613,6 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
   private static int calculateChunkSize(final int entrySize) {
     // entry content + first entry flag + next entry pointer
     return entrySize + OByteSerializer.BYTE_SIZE + OLongSerializer.LONG_SIZE;
-  }
-
-  private static int getEntryContentLength(final int grownContentSize) {
-
-    return grownContentSize
-        + 2 * OByteSerializer.BYTE_SIZE
-        + OIntegerSerializer.INT_SIZE
-        + OLongSerializer.LONG_SIZE;
   }
 
   @Override
@@ -1160,7 +1155,9 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
     return id;
   }
 
-  /** Returns the fileId used in disk cache. */
+  /**
+   * Returns the fileId used in disk cache.
+   */
   public long getFileId() {
     return fileId;
   }
@@ -1508,19 +1505,16 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
     try {
       final byte status = clusterPositionMap.getStatus(clusterPosition, atomicOperation);
 
-      switch (status) {
-        case OClusterPositionMapBucket.NOT_EXISTENT:
-          return RECORD_STATUS.NOT_EXISTENT;
-        case OClusterPositionMapBucket.ALLOCATED:
-          return RECORD_STATUS.ALLOCATED;
-        case OClusterPositionMapBucket.FILLED:
-          return RECORD_STATUS.PRESENT;
-        case OClusterPositionMapBucket.REMOVED:
-          return RECORD_STATUS.REMOVED;
-      }
+      return switch (status) {
+        case OClusterPositionMapBucket.NOT_EXISTENT -> RECORD_STATUS.NOT_EXISTENT;
+        case OClusterPositionMapBucket.ALLOCATED -> RECORD_STATUS.ALLOCATED;
+        case OClusterPositionMapBucket.FILLED -> RECORD_STATUS.PRESENT;
+        case OClusterPositionMapBucket.REMOVED -> RECORD_STATUS.REMOVED;
+        default ->
+            throw new IllegalStateException(
+                "Invalid record status : " + status + " for cluster " + getName());
+      };
 
-      // UNREACHABLE
-      return null;
     } finally {
       releaseSharedLock();
     }

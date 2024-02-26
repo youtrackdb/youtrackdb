@@ -6,10 +6,11 @@ import com.orientechnologies.orient.core.metadata.schema.OType;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.Nonnull;
 
 public final class IndexEngineData {
   private final int indexId;
-  private final String name;
+  @Nonnull private final String name;
   private final String algorithm;
   private final String indexType;
 
@@ -67,7 +68,7 @@ public final class IndexEngineData {
 
   public IndexEngineData(
       int indexId,
-      final String name,
+      @Nonnull final String name,
       final String algorithm,
       String indexType,
       final Boolean durableInNonTxMode,
@@ -111,6 +112,7 @@ public final class IndexEngineData {
     return keySize;
   }
 
+  @Nonnull
   public String getName() {
     return name;
   }
