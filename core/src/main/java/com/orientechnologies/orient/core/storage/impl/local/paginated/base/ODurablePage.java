@@ -85,7 +85,7 @@ public class ODurablePage {
         cacheEntry.setInitialLSN(getLogSequenceNumberFromPage(buffer));
       } else {
         // it is new a page
-        cacheEntry.setInitialLSN(new OLogSequenceNumber(0, 0));
+        cacheEntry.setInitialLSN(new OLogSequenceNumber(-1, -1));
       }
     }
   }

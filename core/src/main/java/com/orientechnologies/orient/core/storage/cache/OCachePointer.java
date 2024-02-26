@@ -61,7 +61,7 @@ public final class OCachePointer {
   private final long fileId;
   private final int pageIndex;
 
-  private OLogSequenceNumber endLSN;
+  private volatile OLogSequenceNumber endLSN;
 
   private int hash;
 
