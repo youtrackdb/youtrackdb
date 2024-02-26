@@ -40,7 +40,6 @@ import com.orientechnologies.common.types.OModifiableLong;
 import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.common.util.ORawPair;
-import com.orientechnologies.common.util.ORawTriple;
 import com.orientechnologies.orient.core.OConstants;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.command.OCommandExecutor;
@@ -128,7 +127,6 @@ import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
 import com.orientechnologies.orient.core.storage.cache.OPageDataVerificationError;
 import com.orientechnologies.orient.core.storage.cache.OReadCache;
 import com.orientechnologies.orient.core.storage.cache.OWriteCache;
-import com.orientechnologies.orient.core.storage.cache.chm.PageKey;
 import com.orientechnologies.orient.core.storage.cache.local.OBackgroundExceptionListener;
 import com.orientechnologies.orient.core.storage.cluster.OOfflineCluster;
 import com.orientechnologies.orient.core.storage.cluster.OPaginatedCluster;
@@ -139,7 +137,6 @@ import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoper
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODurablePage;
-import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.AtomicUnitEndRecordWithPageLSNs;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.MetaDataRecord;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OAtomicUnitEndRecord;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OAtomicUnitStartMetadataRecord;
@@ -178,7 +175,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -5964,47 +5960,6 @@ public abstract class OAbstractPaginatedStorage
       final List<OWALRecord> atomicUnit, final OModifiableBoolean atLeastOnePageUpdate)
       throws IOException {
     assert atomicUnit.get(atomicUnit.size() - 1) instanceof OAtomicUnitEndRecord;
-
-    final HashSet<PageKey> pages = new HashSet<>();
-    AtomicUnitEndRecordWithPageLSNs atomicUnitEndRecord;
-
-    for (final OWALRecord walRecord : atomicUnit) {
-      if (walRecord instanceof OUpdatePageRecord record) {
-        final long fileId = record.getFileId();
-        final long pageIndex = record.getPageIndex();
-
-        pages.add(new PageKey(fileId, (int) pageIndex));
-      } else if (walRecord instanceof AtomicUnitEndRecordWithPageLSNs) {
-        atomicUnitEndRecord = (AtomicUnitEndRecordWithPageLSNs) walRecord;
-        final ArrayList<ORawTriple<PageKey, OLogSequenceNumber, OLogSequenceNumber>> pageLSNs =
-            atomicUnitEndRecord.getPageLSNs();
-
-        if (pages.size() != pageLSNs.size()) {
-          String message =
-              String.format(
-                  "Amount of page changes stored in atomic unit is "
-                      + "different from expected. Expected : %d, stored : %d",
-                  pageLSNs.size(), pages.size());
-          var exception = new OStorageException(message);
-          OLogManager.instance().error(this, message, exception);
-          throw exception;
-        }
-
-        if (isAtomicUnitAlreadyApplied(pageLSNs, pages)) {
-          checkThatAllChangesFromAtomicUnitArePresent(pageLSNs);
-          return false;
-        } else {
-          checkThatAtomicUnitWillBeAppliedOnCorrectData(pageLSNs);
-        }
-      }
-    }
-
-    applyChangesFromAtomicUnit(atomicUnit, atLeastOnePageUpdate);
-    return true;
-  }
-
-  private void applyChangesFromAtomicUnit(
-      List<OWALRecord> atomicUnit, OModifiableBoolean atLeastOnePageUpdate) throws IOException {
     for (final OWALRecord walRecord : atomicUnit) {
       if (walRecord instanceof OFileDeletedWALRecord fileDeletedWALRecord) {
         if (writeCache.exists(fileDeletedWALRecord.getFileId())) {
@@ -6083,148 +6038,7 @@ public abstract class OAbstractPaginatedStorage
         assert false : "Invalid WAL record type was passed " + walRecord.getClass().getName();
       }
     }
-  }
-
-  private void checkThatAtomicUnitWillBeAppliedOnCorrectData(
-      ArrayList<ORawTriple<PageKey, OLogSequenceNumber, OLogSequenceNumber>> pageLSNs)
-      throws IOException {
-    for (final ORawTriple<PageKey, OLogSequenceNumber, OLogSequenceNumber> triple : pageLSNs) {
-      if (!writeCache.exists(triple.first.getFileId())) {
-        if (!triple.second.equals(new OLogSequenceNumber(-1, -1))) {
-          var message =
-              String.format(
-                  "Page %s should already exist in storage at the moment of application of given"
-                      + " transaction.",
-                  triple.first);
-          var exception = new OStorageException(message);
-          OLogManager.instance().error(this, message, exception);
-          throw exception;
-        }
-      } else {
-        final OCacheEntry cacheEntry =
-            readCache.loadForRead(
-                triple.first.getFileId(), triple.first.getPageIndex(), writeCache, true);
-        if (cacheEntry == null) {
-          if (!triple.second.equals(new OLogSequenceNumber(-1, -1))) {
-            var message =
-                String.format(
-                    "Page %s should already exist in storage at "
-                        + "the moment of application of given transaction.",
-                    triple.first);
-            var exception = new OStorageException(message);
-            OLogManager.instance().error(this, message, exception);
-            throw exception;
-          }
-          continue;
-        }
-        try {
-          final ByteBuffer buffer = cacheEntry.getCachePointer().getBuffer();
-          assert buffer != null;
-
-          final OLogSequenceNumber lsn = ODurablePage.getLogSequenceNumberFromPage(buffer);
-          if (!lsn.equals(triple.second)) {
-            var message =
-                String.format(
-                    "LSN of page %s stored in WAL %s is different from LSN of page in storage %s.",
-                    triple.first, triple.second, lsn);
-            var exception = new OStorageException(message);
-            OLogManager.instance().error(this, message, exception);
-            throw exception;
-          }
-        } finally {
-          readCache.releaseFromRead(cacheEntry);
-        }
-      }
-    }
-  }
-
-  private void checkThatAllChangesFromAtomicUnitArePresent(
-      ArrayList<ORawTriple<PageKey, OLogSequenceNumber, OLogSequenceNumber>> pageLSNs)
-      throws IOException {
-    for (final ORawTriple<PageKey, OLogSequenceNumber, OLogSequenceNumber> triple : pageLSNs) {
-      if (!writeCache.exists(triple.first.getFileId())) {
-        var message =
-            String.format(
-                "Some changes from the given transaction are already applied, but page"
-                    + " %s that should be created by given transaction does not exist.",
-                triple.first);
-        var exception = new OStorageException(message);
-        OLogManager.instance().error(this, message, exception);
-        throw exception;
-      } else {
-        final OCacheEntry cacheEntry =
-            readCache.loadForRead(
-                triple.first.getFileId(), triple.first.getPageIndex(), writeCache, true);
-        if (cacheEntry == null) {
-          var message =
-              String.format(
-                  "Some changes from the given transaction are already applied, but page"
-                      + " %s that should be created by given transaction does not exist.",
-                  triple.first);
-          var exception = new OStorageException(message);
-          OLogManager.instance().error(this, message, exception);
-          throw exception;
-        }
-        try {
-          final ByteBuffer buffer = cacheEntry.getCachePointer().getBuffer();
-          assert buffer != null;
-
-          final OLogSequenceNumber lsn = ODurablePage.getLogSequenceNumberFromPage(buffer);
-          if (lsn.compareTo(triple.third) < 0) {
-            var message =
-                String.format(
-                    "Some changes from the given transaction are already applied, but page"
-                        + " %s though present in storage does not contain expected changes..",
-                    triple.first);
-            var exception = new OStorageException(message);
-            OLogManager.instance().error(this, message, exception);
-            throw exception;
-          }
-        } finally {
-          readCache.releaseFromRead(cacheEntry);
-        }
-      }
-    }
-  }
-
-  private boolean isAtomicUnitAlreadyApplied(
-      ArrayList<ORawTriple<PageKey, OLogSequenceNumber, OLogSequenceNumber>> pageLSNs,
-      HashSet<PageKey> pages)
-      throws IOException {
-    for (final ORawTriple<PageKey, OLogSequenceNumber, OLogSequenceNumber> triple : pageLSNs) {
-      if (!pages.contains(triple.first)) {
-        var message =
-            String.format(
-                "Page %s was found in atomic unit changes but it is not expected to be there",
-                triple.first);
-        var exception = new OStorageException(message);
-        OLogManager.instance().error(this, message, exception);
-        throw exception;
-      }
-
-      if (writeCache.exists(triple.first.getFileId())) {
-        final OCacheEntry cacheEntry =
-            readCache.loadForRead(
-                triple.first.getFileId(), triple.first.getPageIndex(), writeCache, true);
-        // page doest not exist at all
-        if (cacheEntry == null) {
-          continue;
-        }
-        try {
-          final ByteBuffer buffer = cacheEntry.getCachePointer().getBuffer();
-          assert buffer != null;
-
-          final OLogSequenceNumber lsn = ODurablePage.getLogSequenceNumberFromPage(buffer);
-          // page exists but already contains changes from given transaction
-          if (lsn.compareTo(triple.third) >= 0) {
-            return true;
-          }
-        } finally {
-          readCache.releaseFromRead(cacheEntry);
-        }
-      }
-    }
-    return false;
+    return true;
   }
 
   @SuppressWarnings("unused")
