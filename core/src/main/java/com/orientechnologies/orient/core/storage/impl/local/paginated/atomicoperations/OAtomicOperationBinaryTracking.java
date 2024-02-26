@@ -524,7 +524,10 @@ final class OAtomicOperationBinaryTracking implements OAtomicOperation {
                 readCache.loadForWrite(
                     fileId, pageIndex, writeCache, filePageChanges.verifyCheckSum, startLSN);
             if (cacheEntry == null) {
-              assert filePageChanges.isNew;
+              if (!filePageChanges.isNew) {
+                throw new OStorageException(
+                    "Page with index " + pageIndex + " is not found in file with id " + fileId);
+              }
               do {
                 if (cacheEntry != null) {
                   readCache.releaseFromWrite(cacheEntry, writeCache, true);

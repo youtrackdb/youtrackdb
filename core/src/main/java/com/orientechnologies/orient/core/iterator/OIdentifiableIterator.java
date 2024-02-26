@@ -20,6 +20,7 @@
 package com.orientechnologies.orient.core.iterator;
 
 import com.orientechnologies.common.log.OLogManager;
+import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
@@ -49,6 +50,7 @@ import java.util.Set;
  */
 public abstract class OIdentifiableIterator<REC extends OIdentifiable>
     implements Iterator<REC>, Iterable<REC> {
+
   protected final ODatabaseDocumentInternal database;
   protected final ORecordId current = new OEmptyRecordId();
   private final OStorage dbStorage;
@@ -136,7 +138,7 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
    * they will be reset to the next operation.
    *
    * @param reuseSameRecord if true the same record will be used for iteration. If false new record
-   *     will be created each time iterator retrieves record from db.
+   *                        will be created each time iterator retrieves record from db.
    * @return @see #isReuseSameRecord()
    */
   public OIdentifiableIterator<REC> setReuseSameRecord(final boolean reuseSameRecord) {
@@ -207,18 +209,26 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
   protected ORecord getTransactionEntry() {
     boolean noPhysicalRecordToBrowse;
 
-    if (current.getClusterPosition() < ORID.CLUSTER_POS_INVALID) noPhysicalRecordToBrowse = true;
-    else if (directionForward) noPhysicalRecordToBrowse = lastClusterEntry <= currentEntry;
-    else noPhysicalRecordToBrowse = currentEntry <= firstClusterEntry;
-
-    if (!noPhysicalRecordToBrowse && positionsToProcess.length == 0)
+    if (current.getClusterPosition() < ORID.CLUSTER_POS_INVALID) {
       noPhysicalRecordToBrowse = true;
+    } else if (directionForward) {
+      noPhysicalRecordToBrowse = lastClusterEntry <= currentEntry;
+    } else {
+      noPhysicalRecordToBrowse = currentEntry <= firstClusterEntry;
+    }
+
+    if (!noPhysicalRecordToBrowse && positionsToProcess.length == 0) {
+      noPhysicalRecordToBrowse = true;
+    }
 
     if (noPhysicalRecordToBrowse && txEntries != null) {
       // IN TX
       currentTxEntryPosition++;
-      if (currentTxEntryPosition >= txEntries.size()) throw new NoSuchElementException();
-      else return txEntries.get(currentTxEntryPosition).getRecord();
+      if (currentTxEntryPosition >= txEntries.size()) {
+        throw new NoSuchElementException();
+      } else {
+        return txEntries.get(currentTxEntryPosition).getRecord();
+      }
     }
     return null;
   }
@@ -234,73 +244,84 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
       // REUSE THE SAME RECORD AFTER HAVING RESETTED IT
       record = reusedRecord;
       record.reset();
-    } else record = null;
+    } else {
+      record = null;
+    }
     return record;
   }
 
   protected void checkDirection(final boolean iForward) {
     if (directionForward == null)
-      // SET THE DIRECTION
+    // SET THE DIRECTION
+    {
       directionForward = iForward;
-    else if (directionForward != iForward)
+    } else if (directionForward != iForward) {
       throw new OIterationException("Iterator cannot change direction while browsing");
+    }
   }
 
   /**
    * Read the current record and increment the counter if the record was found.
    *
    * @param iRecord to read value from database inside it. If record is null link will be created
-   *     and stored in it.
+   *                and stored in it.
    * @return record which was read from db.
    */
-  protected ORecord readCurrentRecord(ORecord iRecord, final int iMovement) {
+  protected ORecord readCurrentRecord(ORecord iRecord, final int movement) {
     if (limit > -1 && browsedRecords >= limit)
-      // LIMIT REACHED
+    // LIMIT REACHED
+    {
       return null;
+    }
 
     do {
-      final boolean moveResult;
-      switch (iMovement) {
-        case 1:
-          moveResult = nextPosition();
-          break;
-        case -1:
-          moveResult = prevPosition();
-          break;
-        case 0:
-          moveResult = checkCurrentPosition();
-          break;
-        default:
-          throw new IllegalStateException("Invalid movement value : " + iMovement);
-      }
+      final boolean moveResult =
+          switch (movement) {
+            case 1 -> nextPosition();
+            case -1 -> prevPosition();
+            case 0 -> checkCurrentPosition();
+            default -> throw new IllegalStateException("Invalid movement value : " + movement);
+          };
 
-      if (!moveResult) return null;
+      if (!moveResult) {
+        return null;
+      }
 
       try {
         if (iRecord != null) {
           ORecordInternal.setIdentity(
               iRecord, new ORecordId(current.getClusterId(), current.getClusterPosition()));
           iRecord = database.load(iRecord, fetchPlan, false);
-        } else iRecord = database.load(current, fetchPlan, false);
+        } else {
+          iRecord = database.load(current, fetchPlan, false);
+        }
       } catch (ODatabaseException e) {
         if (Thread.interrupted() || database.isClosed())
-          // THREAD INTERRUPTED: RETURN
+        // THREAD INTERRUPTED: RETURN
+        {
           throw e;
+        }
 
-        if (e.getCause() instanceof OSecurityException) throw e;
+        if (e.getCause() instanceof OSecurityException) {
+          throw e;
+        }
 
-        brokenRIDs.add(current.copy());
+        if (OGlobalConfiguration.DB_SKIP_BROKEN_RECORDS.getValueAsBoolean()) {
+          brokenRIDs.add(current.copy());
 
-        OLogManager.instance()
-            .error(
-                this, "Error on fetching record during browsing. The record has been skipped", e);
+          OLogManager.instance()
+              .error(
+                  this, "Error on fetching record during browsing. The record has been skipped", e);
+        } else {
+          throw e;
+        }
       }
 
       if (iRecord != null) {
         browsedRecords++;
         return iRecord;
       }
-    } while (iMovement != 0);
+    } while (movement != 0);
 
     return null;
   }
@@ -310,9 +331,13 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
       positionsToProcess =
           dbStorage.ceilingPhysicalPositions(
               current.getClusterId(), new OPhysicalPosition(firstClusterEntry));
-      if (positionsToProcess == null) return false;
+      if (positionsToProcess == null) {
+        return false;
+      }
     } else {
-      if (currentEntry >= lastClusterEntry) return false;
+      if (currentEntry >= lastClusterEntry) {
+        return false;
+      }
     }
 
     incrementEntreePosition();
@@ -325,11 +350,15 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
       incrementEntreePosition();
     }
 
-    if (positionsToProcess.length == 0) return false;
+    if (positionsToProcess.length == 0) {
+      return false;
+    }
 
     currentEntry = positionsToProcess[currentEntryPosition].clusterPosition;
 
-    if (currentEntry > lastClusterEntry || currentEntry == ORID.CLUSTER_POS_INVALID) return false;
+    if (currentEntry > lastClusterEntry || currentEntry == ORID.CLUSTER_POS_INVALID) {
+      return false;
+    }
 
     current.setClusterPosition(currentEntry);
     return true;
@@ -338,7 +367,9 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
   protected boolean checkCurrentPosition() {
     if (currentEntry == ORID.CLUSTER_POS_INVALID
         || firstClusterEntry > currentEntry
-        || lastClusterEntry < currentEntry) return false;
+        || lastClusterEntry < currentEntry) {
+      return false;
+    }
 
     current.setClusterPosition(currentEntry);
     return true;
@@ -349,13 +380,19 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
       positionsToProcess =
           dbStorage.floorPhysicalPositions(
               current.getClusterId(), new OPhysicalPosition(lastClusterEntry));
-      if (positionsToProcess == null) return false;
+      if (positionsToProcess == null) {
+        return false;
+      }
 
-      if (positionsToProcess.length == 0) return false;
+      if (positionsToProcess.length == 0) {
+        return false;
+      }
 
       currentEntryPosition = positionsToProcess.length;
     } else {
-      if (currentEntry < firstClusterEntry) return false;
+      if (currentEntry < firstClusterEntry) {
+        return false;
+      }
     }
 
     decrementEntreePosition();
@@ -368,11 +405,15 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
       decrementEntreePosition();
     }
 
-    if (positionsToProcess.length == 0) return false;
+    if (positionsToProcess.length == 0) {
+      return false;
+    }
 
     currentEntry = positionsToProcess[currentEntryPosition].clusterPosition;
 
-    if (currentEntry < firstClusterEntry) return false;
+    if (currentEntry < firstClusterEntry) {
+      return false;
+    }
 
     current.setClusterPosition(currentEntry);
     return true;
@@ -400,17 +441,23 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
         if (dbUser == null
             || dbUser.allow(ORule.ResourceGeneric.SYSTEM_CLUSTERS, null, ORole.PERMISSION_READ)
                 != null)
-          // AUTHORIZED
+        // AUTHORIZED
+        {
           break;
+        }
       }
     }
   }
 
   private void decrementEntreePosition() {
-    if (positionsToProcess.length > 0) currentEntryPosition--;
+    if (positionsToProcess.length > 0) {
+      currentEntryPosition--;
+    }
   }
 
   private void incrementEntreePosition() {
-    if (positionsToProcess.length > 0) currentEntryPosition++;
+    if (positionsToProcess.length > 0) {
+      currentEntryPosition++;
+    }
   }
 }
