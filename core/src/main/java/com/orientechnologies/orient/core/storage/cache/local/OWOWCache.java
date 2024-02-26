@@ -846,12 +846,10 @@ public final class OWOWCache extends OAbstractWriteCache
   }
 
   @Override
-  public void create() {
-  }
+  public void create() {}
 
   @Override
-  public void open() {
-  }
+  public void open() {}
 
   @Override
   public long addFile(final String fileName, long fileId) throws IOException {
@@ -2407,8 +2405,8 @@ public final class OWOWCache extends OAbstractWriteCache
 
           if (verifyChecksums
               && (checksumMode == OChecksumMode.StoreAndVerify
-              || checksumMode == OChecksumMode.StoreAndThrow
-              || checksumMode == OChecksumMode.StoreAndSwitchReadOnlyMode)) {
+                  || checksumMode == OChecksumMode.StoreAndThrow
+                  || checksumMode == OChecksumMode.StoreAndSwitchReadOnlyMode)) {
             // if page is broken inside of data file we check double write log
             if (!verifyMagicChecksumAndDecryptPage(buffer, internalFileId, pageIndex)) {
               final OPointer doubleWritePointer =
@@ -2441,8 +2439,8 @@ public final class OWOWCache extends OAbstractWriteCache
 
             if (verifyChecksums
                 && (checksumMode == OChecksumMode.StoreAndVerify
-                || checksumMode == OChecksumMode.StoreAndThrow
-                || checksumMode == OChecksumMode.StoreAndSwitchReadOnlyMode)) {
+                    || checksumMode == OChecksumMode.StoreAndThrow
+                    || checksumMode == OChecksumMode.StoreAndSwitchReadOnlyMode)) {
               if (!verifyMagicChecksumAndDecryptPage(buffer, internalFileId, pageIndex)) {
                 assertPageIsBroken(pageIndex, fileId, pointer);
               }
@@ -2573,10 +2571,10 @@ public final class OWOWCache extends OAbstractWriteCache
 
     if ((aesKey == null && magicNumber != MAGIC_NUMBER_WITH_CHECKSUM)
         || (magicNumber != MAGIC_NUMBER_WITH_CHECKSUM
-        && (magicNumber & 0xFF) != MAGIC_NUMBER_WITH_CHECKSUM_ENCRYPTED)) {
+            && (magicNumber & 0xFF) != MAGIC_NUMBER_WITH_CHECKSUM_ENCRYPTED)) {
       if ((aesKey == null && magicNumber != MAGIC_NUMBER_WITHOUT_CHECKSUM)
           || (magicNumber != MAGIC_NUMBER_WITHOUT_CHECKSUM
-          && (magicNumber & 0xFF) != MAGIC_NUMBER_WITHOUT_CHECKSUM_ENCRYPTED)) {
+              && (magicNumber & 0xFF) != MAGIC_NUMBER_WITHOUT_CHECKSUM_ENCRYPTED)) {
         return false;
       }
 
@@ -2683,7 +2681,7 @@ public final class OWOWCache extends OAbstractWriteCache
 
   public Long executeFindDirtySegment() {
     if (flushError != null) {
-      final Object[] iAdditionalArgs = new Object[]{flushError.getMessage()};
+      final Object[] iAdditionalArgs = new Object[] {flushError.getMessage()};
       OLogManager.instance()
           .error(
               this,
@@ -3347,7 +3345,7 @@ public final class OWOWCache extends OAbstractWriteCache
 
   public Void executeFileFlush(Set<Integer> fileIdSet) throws InterruptedException, IOException {
     if (flushError != null) {
-      final Object[] iAdditionalArgs = new Object[]{flushError.getMessage()};
+      final Object[] iAdditionalArgs = new Object[] {flushError.getMessage()};
       OLogManager.instance()
           .error(
               this,
@@ -3480,7 +3478,7 @@ public final class OWOWCache extends OAbstractWriteCache
 
     try {
       if (flushError != null) {
-        final Object[] iAdditionalArgs = new Object[]{flushError.getMessage()};
+        final Object[] iAdditionalArgs = new Object[] {flushError.getMessage()};
         OLogManager.instance()
             .error(
                 this,
@@ -3543,7 +3541,7 @@ public final class OWOWCache extends OAbstractWriteCache
 
     try {
       if (flushError != null) {
-        final Object[] iAdditionalArgs = new Object[]{flushError.getMessage()};
+        final Object[] iAdditionalArgs = new Object[] {flushError.getMessage()};
         OLogManager.instance()
             .error(
                 this,
@@ -3586,7 +3584,7 @@ public final class OWOWCache extends OAbstractWriteCache
 
   public Void executeFlushTillSegment(long segmentId) throws InterruptedException, IOException {
     if (flushError != null) {
-      final Object[] iAdditionalArgs = new Object[]{flushError.getMessage()};
+      final Object[] iAdditionalArgs = new Object[] {flushError.getMessage()};
       OLogManager.instance()
           .error(
               this,
