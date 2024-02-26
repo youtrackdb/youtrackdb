@@ -108,6 +108,12 @@ public class ODurablePage {
     return new OLogSequenceNumber(segment, position);
   }
 
+  public static void setLogSequenceNumberForPage(
+      final ByteBuffer buffer, final OLogSequenceNumber lsn) {
+    buffer.putLong(WAL_SEGMENT_OFFSET, lsn.getSegment());
+    buffer.putInt(WAL_POSITION_OFFSET, lsn.getPosition());
+  }
+
   /**
    * DO NOT DELETE THIS METHOD IT IS USED IN ENTERPRISE STORAGE
    *
