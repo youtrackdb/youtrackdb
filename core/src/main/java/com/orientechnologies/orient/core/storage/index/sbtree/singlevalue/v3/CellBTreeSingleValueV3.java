@@ -79,6 +79,7 @@ import java.util.stream.StreamSupport;
  */
 public final class CellBTreeSingleValueV3<K> extends ODurableComponent
     implements OCellBTreeSingleValue<K> {
+
   private static final int SPLITERATOR_CACHE_SIZE =
       OGlobalConfiguration.INDEX_CURSOR_PREFETCH_SIZE.getValueAsInteger();
   private static final int MAX_KEY_SIZE =
@@ -145,15 +146,13 @@ public final class CellBTreeSingleValueV3<K> extends ODurableComponent
             }
 
             try (final OCacheEntry rootCacheEntry = addPage(atomicOperation, fileId)) {
-              @SuppressWarnings("unused")
-              final CellBTreeSingleValueBucketV3<K> rootBucket =
+              @SuppressWarnings("unused") final CellBTreeSingleValueBucketV3<K> rootBucket =
                   new CellBTreeSingleValueBucketV3<>(rootCacheEntry);
               rootBucket.init(true);
             }
 
             try (final OCacheEntry nullCacheEntry = addPage(atomicOperation, nullBucketFileId)) {
-              @SuppressWarnings("unused")
-              final CellBTreeSingleValueV3NullBucket nullBucket =
+              @SuppressWarnings("unused") final CellBTreeSingleValueV3NullBucket nullBucket =
                   new CellBTreeSingleValueV3NullBucket(nullCacheEntry);
               nullBucket.init();
             }
@@ -188,7 +187,7 @@ public final class CellBTreeSingleValueV3<K> extends ODurableComponent
         } else {
 
           try (final OCacheEntry nullBucketCacheEntry =
-              loadPageForRead(atomicOperation, nullBucketFileId, 0); ) {
+              loadPageForRead(atomicOperation, nullBucketFileId, 0);) {
             final CellBTreeSingleValueV3NullBucket nullBucket =
                 new CellBTreeSingleValueV3NullBucket(nullBucketCacheEntry);
             return nullBucket.getValue();
@@ -829,7 +828,7 @@ public final class CellBTreeSingleValueV3<K> extends ODurableComponent
       pages.remove(freePageIndex);
 
       try (final OCacheEntry cacheEntry =
-          loadPageForRead(atomicOperation, fileId, freePageIndex); ) {
+          loadPageForRead(atomicOperation, fileId, freePageIndex);) {
         final CellBTreeSingleValueBucketV3<K> bucket =
             new CellBTreeSingleValueBucketV3<>(cacheEntry);
         freePageIndex = bucket.getNextFreeListPage();
@@ -1409,7 +1408,7 @@ public final class CellBTreeSingleValueV3<K> extends ODurableComponent
 
     final int startRightIndex = splitLeaf ? indexToSplit : indexToSplit + 1;
     if (startRightIndex == 0) {
-      throw new OStorageException("Left part of bucket is empty");
+      throw new CellBTreeSingleValueV3Exception("Left part of bucket is empty", this);
     }
 
     for (int i = startRightIndex; i < bucketSize; i++) {
@@ -1417,7 +1416,7 @@ public final class CellBTreeSingleValueV3<K> extends ODurableComponent
     }
 
     if (rightEntries.isEmpty()) {
-      throw new OStorageException("Right part of bucket is empty");
+      throw new CellBTreeSingleValueV3Exception("Right part of bucket is empty", this);
     }
 
     if (entryToSplit.getPageIndex() != ROOT_INDEX) {
@@ -1687,8 +1686,7 @@ public final class CellBTreeSingleValueV3<K> extends ODurableComponent
       }
 
       try (final OCacheEntry bucketEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
-        @SuppressWarnings("ObjectAllocationInLoop")
-        final CellBTreeSingleValueBucketV3<K> bucket =
+        @SuppressWarnings("ObjectAllocationInLoop") final CellBTreeSingleValueBucketV3<K> bucket =
             new CellBTreeSingleValueBucketV3<>(bucketEntry);
 
         final int index = bucket.find(key, keySerializer);
@@ -1736,8 +1734,7 @@ public final class CellBTreeSingleValueV3<K> extends ODurableComponent
       }
 
       try (final OCacheEntry bucketEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
-        @SuppressWarnings("ObjectAllocationInLoop")
-        final CellBTreeSingleValueBucketV3<K> keyBucket =
+        @SuppressWarnings("ObjectAllocationInLoop") final CellBTreeSingleValueBucketV3<K> keyBucket =
             new CellBTreeSingleValueBucketV3<>(bucketEntry);
         final int index = keyBucket.find(key, keySerializer);
 
@@ -1776,8 +1773,7 @@ public final class CellBTreeSingleValueV3<K> extends ODurableComponent
 
       path.add(pageIndex);
       try (final OCacheEntry bucketEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
-        @SuppressWarnings("ObjectAllocationInLoop")
-        final CellBTreeSingleValueBucketV3<K> keyBucket =
+        @SuppressWarnings("ObjectAllocationInLoop") final CellBTreeSingleValueBucketV3<K> keyBucket =
             new CellBTreeSingleValueBucketV3<>(bucketEntry);
         final int index = keyBucket.find(key, keySerializer);
 
@@ -1840,12 +1836,18 @@ public final class CellBTreeSingleValueV3<K> extends ODurableComponent
    * internal keys are used, whether lowest or highest partially matched key should be used.
    */
   private enum PartialSearchMode {
-    /** Any partially matched key will be used as search result. */
+    /**
+     * Any partially matched key will be used as search result.
+     */
     NONE,
-    /** The biggest partially matched key will be used as search result. */
+    /**
+     * The biggest partially matched key will be used as search result.
+     */
     HIGHEST_BOUNDARY,
 
-    /** The smallest partially matched key will be used as search result. */
+    /**
+     * The smallest partially matched key will be used as search result.
+     */
     LOWEST_BOUNDARY
   }
 
