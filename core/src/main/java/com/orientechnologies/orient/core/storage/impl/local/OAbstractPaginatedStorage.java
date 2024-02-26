@@ -5895,13 +5895,10 @@ public abstract class OAbstractPaginatedStorage
                 operationUnits.get(operationUnitRecord.getOperationUnitId());
 
             if (operationList == null || operationList.isEmpty()) {
-              OLogManager.instance()
-                  .error(this, "'Start transaction' record is absent for atomic operation", null);
-
-              if (operationList == null) {
-                operationList = new ArrayList<>(1024);
-                operationUnits.put(operationUnitRecord.getOperationUnitId(), operationList);
-              }
+              // The unit was started in the previous segment but not ended ib it.
+              // We ignore given operation, it is only possible if it is already flushed to the
+              //disk
+              continue;
             }
 
             operationList.add(operationUnitRecord);
