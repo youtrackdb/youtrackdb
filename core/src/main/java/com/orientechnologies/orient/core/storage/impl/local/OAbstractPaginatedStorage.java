@@ -5901,7 +5901,7 @@ public abstract class OAbstractPaginatedStorage
             if (operationList == null || operationList.isEmpty()) {
               // The unit was started in the previous segment but not ended ib it.
               // We ignore given operation, it is only possible if it is already flushed to the
-              //disk
+              // disk
               continue;
             }
 
