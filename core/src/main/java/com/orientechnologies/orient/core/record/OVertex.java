@@ -278,8 +278,22 @@ public interface OVertex extends OElement {
    * Removes all edges connected to the vertex in the given direction.
    *
    * @param direction the direction of the edges to remove (OUT, IN, or BOTH)
+   * @param labels the labels of the edges to remove
    */
   default void removeEdges(ODirection direction, OClass... labels) {
+    var edges = getEdges(direction, labels);
+    for (var edge : edges) {
+      edge.delete();
+    }
+  }
+
+  /**
+   * Removes all edges connected to the vertex in the given direction.
+   *
+   * @param direction the direction of the edges to remove (OUT, IN, or BOTH)
+   * @param labels the labels of the edges to remove
+   */
+  default void removeEdges(ODirection direction, String... labels) {
     var edges = getEdges(direction, labels);
     for (var edge : edges) {
       edge.delete();
