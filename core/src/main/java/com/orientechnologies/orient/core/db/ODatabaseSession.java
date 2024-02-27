@@ -22,4 +22,16 @@ package com.orientechnologies.orient.core.db;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 
 /** Session for database operations with a specific user. */
-public interface ODatabaseSession extends ODatabaseDocument {}
+public interface ODatabaseSession extends ODatabaseDocument {
+  /**
+   * Returns the active session for the current thread.
+   *
+   * @return the active session for the current thread
+   * @see #activateOnCurrentThread()
+   * @see #isActiveOnCurrentThread()
+   */
+  static ODatabaseDocument getActiveSession() {
+    final ODatabaseRecordThreadLocal tl = ODatabaseRecordThreadLocal.instance();
+    return tl.get();
+  }
+}
