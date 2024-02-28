@@ -2791,7 +2791,7 @@ public final class OWOWCache extends OAbstractWriteCache
             pageKeysToFlush.add(new PageKey(fileId, startPageIndex + i));
           }
         }
-        fileIdSizeMap.put(fileId, pageKey.pageIndex * pageSize + pageSize);
+        fileIdSizeMap.put(fileId, Math.max(fileSize, pageKey.pageIndex * pageSize + pageSize));
 
         if (pageKeysToFlush.size() >= pagesFlushLimit - chunksSize) {
           break;
@@ -3172,8 +3172,6 @@ public final class OWOWCache extends OAbstractWriteCache
 
   private void flushExclusiveWriteCache(final CountDownLatch latch, long pagesToFlushLimit)
       throws InterruptedException, IOException {
-    final Iterator<PageKey> iterator = exclusiveWritePages.iterator();
-
     int flushedPages = 0;
     int copiedPages = 0;
 
@@ -3194,159 +3192,181 @@ public final class OWOWCache extends OAbstractWriteCache
     fileSizeMap.defaultReturnValue(-1);
 
     int chunksSize = 0;
-    flushCycle:
-    while (chunksSize < pagesToFlushLimit) {
-      long lastFileId = -1;
-      long lastPageIndex = -1;
 
-      while (chunksSize + chunk.size() < pagesToFlushLimit) {
-        if (!iterator.hasNext()) {
-          if (!chunk.isEmpty()) {
-            chunks.add(chunk);
-          }
+    flushRetry:
+    while (true) {
+      final Iterator<PageKey> iterator = exclusiveWritePages.iterator();
+      flushCycle:
+      while (chunksSize < pagesToFlushLimit) {
+        long lastFileId = -1;
+        long lastPageIndex = -1;
 
-          break flushCycle;
-        }
-
-        final PageKey pageKeyToFlush = iterator.next();
-        var fileSize = fileSizeMap.get(pageKeyToFlush.fileId);
-        if (fileSize < 0) {
-          fileSize = files.get(externalFileId(pageKeyToFlush.fileId)).getUnderlyingFileSize();
-          fileSizeMap.put(pageKeyToFlush.fileId, fileSize);
-        }
-
-        var pagesToFlush = new ArrayList<PageKey>();
-        pagesToFlush.add(pageKeyToFlush);
-
-        var diff = (pageKeyToFlush.pageIndex * pageSize - fileSize) / pageSize;
-        // it is important to do not create holes in the file
-        // otherwise restore process after crash will be aborted
-        if (diff > 0) {
-          var startPageIndex = fileSize / pageSize;
-          for (int i = 0; i < diff; i++) {
-            pagesToFlush.add(new PageKey(pageKeyToFlush.fileId, startPageIndex + i));
-          }
-
-          fileSizeMap.put(pageKeyToFlush.fileId, pageKeyToFlush.pageIndex * pageSize + pageSize);
-        }
-
-        for (var pageKey : pagesToFlush) {
-          final long version;
-          final OCachePointer pointer = writeCachePages.get(pageKey);
-          if (pointer == null) {
-            iterator.remove();
-
-            var file = files.get(externalFileId(pageKey.fileId));
-            if (file.getUnderlyingFileSize() < (pageKey.pageIndex + 1) * pageSize) {
-              // if we can not write at least one page outside the size of the file on disk
-              // we should stop the process because otherwise hole in the file during restore
-              // after crash will be treated as an invalid data and restore process will be aborted
-              if (!chunk.isEmpty()) {
-                chunks.add(chunk);
-              }
-              break flushCycle;
+        while (chunksSize + chunk.size() < pagesToFlushLimit) {
+          if (!iterator.hasNext()) {
+            if (!chunk.isEmpty()) {
+              chunks.add(chunk);
             }
-          } else {
-            if (pointer.tryAcquireSharedLock()) {
-              final OLogSequenceNumber fullLSN;
 
-              final OPointer directPointer =
-                  bufferPool.acquireDirect(false, Intention.COPY_PAGE_DURING_EXCLUSIVE_PAGE_FLUSH);
-              final ByteBuffer copy = directPointer.getNativeByteBuffer();
-              assert copy.position() == 0;
-              try {
-                version = pointer.getVersion();
-                final ByteBuffer buffer = pointer.getBuffer();
+            break flushCycle;
+          }
 
-                fullLSN = pointer.getEndLSN();
+          final PageKey pageKeyToFlush = iterator.next();
+          var fileSize = fileSizeMap.get(pageKeyToFlush.fileId);
+          if (fileSize < 0) {
+            fileSize = files.get(externalFileId(pageKeyToFlush.fileId)).getUnderlyingFileSize();
+            fileSizeMap.put(pageKeyToFlush.fileId, fileSize);
+          }
 
-                assert buffer != null;
-                assert buffer.position() == 0;
-                assert copy.position() == 0;
+          var pagesToFlush = new ArrayList<PageKey>();
+          pagesToFlush.add(pageKeyToFlush);
 
-                copy.put(0, buffer, 0, buffer.capacity());
+          var diff = (pageKeyToFlush.pageIndex * pageSize - fileSize) / pageSize;
+          // it is important to do not create holes in the file
+          // otherwise restore process after crash will be aborted
+          if (diff > 0) {
+            var startPageIndex = fileSize / pageSize;
+            for (int i = 0; i < diff; i++) {
+              pagesToFlush.add(new PageKey(pageKeyToFlush.fileId, startPageIndex + i));
+            }
 
-                removeFromDirtyPages(pageKey);
+            fileSizeMap.put(
+                pageKeyToFlush.fileId,
+                Math.max(pageKeyToFlush.pageIndex * pageSize + pageSize, fileSize));
+          }
 
-                copiedPages++;
-              } finally {
-                pointer.releaseSharedLock();
-              }
-
-              if (fullLSN != null
-                  && (maxFullLogLSN == null || maxFullLogLSN.compareTo(fullLSN) < 0)) {
-                maxFullLogLSN = fullLSN;
-              }
-
-              assert copy.position() == 0;
-
-              if (!chunk.isEmpty()) {
-                if (lastFileId != pointer.getFileId()
-                    || lastPageIndex != pointer.getPageIndex() - 1) {
+          for (var pageKey : pagesToFlush) {
+            final long version;
+            final OCachePointer pointer = writeCachePages.get(pageKey);
+            if (pointer == null) {
+              var file = files.get(externalFileId(pageKey.fileId));
+              if (file.getUnderlyingFileSize() < (pageKey.pageIndex + 1) * pageSize) {
+                // if we can not write at least one page outside the size of the file on disk
+                // we should stop the process because otherwise hole in the file during restore
+                // after crash will be treated as an invalid data and restore process will be
+                // aborted
+                if (!chunk.isEmpty()) {
                   chunks.add(chunk);
                   chunksSize += chunk.size();
                   chunk = new ArrayList<>(16);
-
-                  if (chunksSize - flushedPages >= this.chunkSize) {
-                    flushedPages += flushPages(chunks, maxFullLogLSN);
-                    chunks.clear();
-
-                    if (latch != null
-                        && exclusiveWriteCacheSize.get() <= exclusiveWriteCacheMaxSize) {
-                      latch.countDown();
-                    }
-                  }
                 }
-              }
 
-              chunk.add(new OQuarto<>(version, copy, directPointer, pointer));
-
-              lastFileId = pointer.getFileId();
-              lastPageIndex = pointer.getPageIndex();
-            } else {
-              if (!chunk.isEmpty()) {
-                chunks.add(chunk);
-                chunksSize += chunk.size();
-                chunk = new ArrayList<>(16);
-              }
-
-              var underlyingFileSize =
-                  files.get(externalFileId(pageKey.fileId)).getUnderlyingFileSize();
-              // chunk size is reached flush limit, or we have a risk to have a hole in the file
-              // that will lead to error during restore after crash process
-              if (chunksSize - flushedPages >= this.chunkSize
-                  || underlyingFileSize < (pageKey.pageIndex + 1) * pageSize) {
                 flushedPages += flushPages(chunks, maxFullLogLSN);
                 chunks.clear();
 
                 if (latch != null && exclusiveWriteCacheSize.get() <= exclusiveWriteCacheMaxSize) {
                   latch.countDown();
                 }
-              }
 
-              lastFileId = -1;
-              lastPageIndex = -1;
+                continue flushRetry;
+              }
+            } else {
+              if (pointer.tryAcquireSharedLock()) {
+                final OLogSequenceNumber fullLSN;
+
+                final OPointer directPointer =
+                    bufferPool.acquireDirect(
+                        false, Intention.COPY_PAGE_DURING_EXCLUSIVE_PAGE_FLUSH);
+                final ByteBuffer copy = directPointer.getNativeByteBuffer();
+                assert copy.position() == 0;
+                try {
+                  version = pointer.getVersion();
+                  final ByteBuffer buffer = pointer.getBuffer();
+
+                  fullLSN = pointer.getEndLSN();
+
+                  assert buffer != null;
+                  assert buffer.position() == 0;
+                  assert copy.position() == 0;
+
+                  copy.put(0, buffer, 0, buffer.capacity());
+
+                  removeFromDirtyPages(pageKey);
+
+                  copiedPages++;
+                } finally {
+                  pointer.releaseSharedLock();
+                }
+
+                if (fullLSN != null
+                    && (maxFullLogLSN == null || maxFullLogLSN.compareTo(fullLSN) < 0)) {
+                  maxFullLogLSN = fullLSN;
+                }
+
+                assert copy.position() == 0;
+
+                if (!chunk.isEmpty()) {
+                  if (lastFileId != pointer.getFileId()
+                      || lastPageIndex != pointer.getPageIndex() - 1) {
+                    chunks.add(chunk);
+                    chunksSize += chunk.size();
+                    chunk = new ArrayList<>(16);
+
+                    if (chunksSize - flushedPages >= this.chunkSize) {
+                      flushedPages += flushPages(chunks, maxFullLogLSN);
+                      chunks.clear();
+
+                      if (latch != null
+                          && exclusiveWriteCacheSize.get() <= exclusiveWriteCacheMaxSize) {
+                        latch.countDown();
+                      }
+                    }
+                  }
+                }
+
+                chunk.add(new OQuarto<>(version, copy, directPointer, pointer));
+
+                lastFileId = pointer.getFileId();
+                lastPageIndex = pointer.getPageIndex();
+              } else {
+                if (!chunk.isEmpty()) {
+                  chunks.add(chunk);
+                  chunksSize += chunk.size();
+                  chunk = new ArrayList<>(16);
+                }
+
+                if (chunksSize - flushedPages >= this.chunkSize) {
+                  flushedPages += flushPages(chunks, maxFullLogLSN);
+                  chunks.clear();
+
+                  if (latch != null
+                      && exclusiveWriteCacheSize.get() <= exclusiveWriteCacheMaxSize) {
+                    latch.countDown();
+                  }
+                }
+
+                var underlyingFileSize =
+                    files.get(externalFileId(pageKey.fileId)).getUnderlyingFileSize();
+                // chunk size is reached flush limit, or we have a risk to have a hole in the file
+                // that will lead to error during restore after crash process
+                if (underlyingFileSize < (pageKey.pageIndex + 1) * pageSize) {
+                  continue flushRetry;
+                }
+
+                lastFileId = -1;
+                lastPageIndex = -1;
+              }
+            }
+          }
+        }
+
+        if (!chunk.isEmpty()) {
+          chunks.add(chunk);
+          chunksSize += chunk.size();
+          chunk = new ArrayList<>();
+
+          if (chunksSize - flushedPages >= this.chunkSize) {
+            flushedPages += flushPages(chunks, maxFullLogLSN);
+            chunks.clear();
+
+            if (latch != null && exclusiveWriteCacheSize.get() <= exclusiveWriteCacheMaxSize) {
+              latch.countDown();
             }
           }
         }
       }
 
-      if (!chunk.isEmpty()) {
-        chunks.add(chunk);
-        chunksSize += chunk.size();
-        chunk = new ArrayList<>();
-
-        if (chunksSize - flushedPages >= this.chunkSize) {
-          flushedPages += flushPages(chunks, maxFullLogLSN);
-          chunks.clear();
-
-          if (latch != null && exclusiveWriteCacheSize.get() <= exclusiveWriteCacheMaxSize) {
-            latch.countDown();
-          }
-        }
-      }
+      break;
     }
-
     flushedPages += flushPages(chunks, maxFullLogLSN);
 
     if (copiedPages != flushedPages) {
