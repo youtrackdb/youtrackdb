@@ -152,11 +152,7 @@ public final class AsyncFile implements OFile {
 
   @Override
   public long getUnderlyingFileSize() throws IOException {
-    if (fileChannel != null) {
-      return fileChannel.size() - HEADER_SIZE;
-    }
-
-    throw new IOException("File is not open");
+    return Files.size(osFile) - HEADER_SIZE;
   }
 
   @Override

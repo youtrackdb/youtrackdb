@@ -655,7 +655,7 @@ public class OSBTreeV2<K, V> extends ODurableComponent implements OSBTree<K, V> 
         final OAtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
 
         final Optional<BucketSearchResult> searchResult = firstItem(atomicOperation);
-        if (!searchResult.isPresent()) {
+        if (searchResult.isEmpty()) {
           return null;
         }
 
@@ -688,7 +688,7 @@ public class OSBTreeV2<K, V> extends ODurableComponent implements OSBTree<K, V> 
         final OAtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
 
         final Optional<BucketSearchResult> searchResult = lastItem(atomicOperation);
-        if (!searchResult.isPresent()) {
+        if (searchResult.isEmpty()) {
           return null;
         }
 
@@ -717,7 +717,6 @@ public class OSBTreeV2<K, V> extends ODurableComponent implements OSBTree<K, V> 
     try {
       acquireSharedLock();
       try {
-        //noinspection resource
         return StreamSupport.stream(new SpliteratorForward(null, null, false, false), false)
             .map((entry) -> entry.first);
       } finally {
@@ -1213,12 +1212,12 @@ public class OSBTreeV2<K, V> extends ODurableComponent implements OSBTree<K, V> 
       return new BucketSearchResult(keyIndex, resultPath);
     }
 
-    resultPath.add((long) rightPageIndex);
+    resultPath.add(rightPageIndex);
     if (splitLeaf) {
       return new BucketSearchResult(keyIndex - indexToSplit, resultPath);
     }
 
-    resultPath.add((long) rightPageIndex);
+    resultPath.add(rightPageIndex);
     return new BucketSearchResult(keyIndex - indexToSplit - 1, resultPath);
   }
 
@@ -1351,11 +1350,9 @@ public class OSBTreeV2<K, V> extends ODurableComponent implements OSBTree<K, V> 
   }
 
   private K enhanceCompositeKey(final K key, final PartialSearchMode partialSearchMode) {
-    if (!(key instanceof OCompositeKey)) {
+    if (!(key instanceof OCompositeKey compositeKey)) {
       return key;
     }
-
-    final OCompositeKey compositeKey = (OCompositeKey) key;
 
     if (!(keySize == 1
         || compositeKey.getKeys().size() == keySize
@@ -1549,10 +1546,10 @@ public class OSBTreeV2<K, V> extends ODurableComponent implements OSBTree<K, V> 
       OCacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, pageIndex);
       try {
         OSBTreeBucketV2<K, V> bucket = new OSBTreeBucketV2<>(cacheEntry);
-        if (lastLSN == null || bucket.getLSN().equals(lastLSN)) {
+        if (lastLSN == null || bucket.getLsn().equals(lastLSN)) {
           while (true) {
             final int bucketSize = bucket.size();
-            lastLSN = bucket.getLSN();
+            lastLSN = bucket.getLsn();
 
             for (;
                 itemIndex < bucketSize && dataCache.size() < SPLITERATOR_CACHE_SIZE;
@@ -1753,7 +1750,7 @@ public class OSBTreeV2<K, V> extends ODurableComponent implements OSBTree<K, V> 
       OCacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, pageIndex);
       try {
         OSBTreeBucketV2<K, V> bucket = new OSBTreeBucketV2<>(cacheEntry);
-        if (lastLSN == null || bucket.getLSN().equals(lastLSN)) {
+        if (lastLSN == null || bucket.getLsn().equals(lastLSN)) {
           while (true) {
             final int bucketSize = bucket.size();
             if (itemIndex == Integer.MIN_VALUE) {
@@ -1762,7 +1759,7 @@ public class OSBTreeV2<K, V> extends ODurableComponent implements OSBTree<K, V> 
               throw new IllegalStateException("Invalid value of item index");
             }
 
-            lastLSN = bucket.getLSN();
+            lastLSN = bucket.getLsn();
 
             for (; itemIndex >= 0 && dataCache.size() < SPLITERATOR_CACHE_SIZE; itemIndex--) {
               @SuppressWarnings("ObjectAllocationInLoop")

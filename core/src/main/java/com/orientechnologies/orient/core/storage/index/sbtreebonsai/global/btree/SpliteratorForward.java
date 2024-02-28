@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 
-final class SpliteratorForward implements Spliterator<ORawPair<EdgeKey, Integer>> {
+public final class SpliteratorForward implements Spliterator<ORawPair<EdgeKey, Integer>> {
 
   /** */
   private final BTree bTree;
