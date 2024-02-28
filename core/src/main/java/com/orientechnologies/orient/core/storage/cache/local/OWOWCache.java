@@ -3339,7 +3339,12 @@ public final class OWOWCache extends OAbstractWriteCache
                   chunk = new ArrayList<>(16);
                 }
 
-                if (chunksSize - flushedPages >= this.chunkSize) {
+                var underlyingFileSize =
+                    files.get(externalFileId(pageKey.fileId)).getUnderlyingFileSize();
+                // chunk size is reached flush limit, or we have a risk to have a hole in the file
+                // that will lead to error during restore after crash process
+                if (chunksSize - flushedPages >= this.chunkSize
+                    || underlyingFileSize < (pageKey.pageIndex + 1) * pageSize) {
                   flushedPages += flushPages(chunks, maxFullLogLSN);
                   chunks.clear();
 
@@ -3348,11 +3353,6 @@ public final class OWOWCache extends OAbstractWriteCache
                     latch.countDown();
                   }
                 }
-
-                var underlyingFileSize =
-                    files.get(externalFileId(pageKey.fileId)).getUnderlyingFileSize();
-                // chunk size is reached flush limit, or we have a risk to have a hole in the file
-                // that will lead to error during restore after crash process
                 if (underlyingFileSize < (pageKey.pageIndex + 1) * pageSize) {
                   continue flushRetry;
                 }
