@@ -833,8 +833,7 @@ public final class CellBTreeSingleValueV3<K> extends ODurableComponent
     while (freePageIndex >= 0) {
       pages.remove(freePageIndex);
 
-      try (final OCacheEntry cacheEntry =
-          loadPageForRead(atomicOperation, fileId, freePageIndex)) {
+      try (final OCacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, freePageIndex)) {
         final CellBTreeSingleValueBucketV3<K> bucket =
             new CellBTreeSingleValueBucketV3<>(cacheEntry);
         freePageIndex = bucket.getNextFreeListPage();
@@ -1049,8 +1048,7 @@ public final class CellBTreeSingleValueV3<K> extends ODurableComponent
     try {
       acquireSharedLock();
       try {
-        return StreamSupport.stream(
-                new SpliteratorForward<>(this, null, null, false, false), false)
+        return StreamSupport.stream(new SpliteratorForward<>(this, null, null, false, false), false)
             .map((entry) -> entry.first);
       } finally {
         releaseSharedLock();

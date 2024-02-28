@@ -404,7 +404,7 @@ public class ODirectMemoryAllocator implements ODirectMemoryAllocatorMXBean {
 
         final TrackedPointerReference reference = trackedBuffers.remove(trackedBufferKey);
         if (reference == null) {
-          final Object[] iAdditionalArgs = new Object[]{id(pointer)};
+          final Object[] iAdditionalArgs = new Object[] {id(pointer)};
           OLogManager.instance()
               .error(
                   this,
