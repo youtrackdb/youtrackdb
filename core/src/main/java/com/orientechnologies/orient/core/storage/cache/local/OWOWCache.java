@@ -2791,7 +2791,11 @@ public final class OWOWCache extends OAbstractWriteCache
             pageKeysToFlush.add(new PageKey(fileId, startPageIndex + i));
           }
         }
-        fileIdSizeMap.put(fileId, Math.max(fileSize, pageKey.pageIndex * pageSize + pageSize));
+
+        var pageEnd = pageKey.pageIndex * pageSize + pageSize;
+        if (pageEnd > fileSize) {
+          fileIdSizeMap.put(fileId, pageEnd);
+        }
 
         if (pageKeysToFlush.size() >= pagesFlushLimit - chunksSize) {
           break;
@@ -3035,7 +3039,11 @@ public final class OWOWCache extends OAbstractWriteCache
 
           try {
             if (version == pointer.getVersion()) {
-              writeCachePages.remove(pageKey);
+              var removed = writeCachePages.remove(pageKey);
+              if (removed == null) {
+                throw new IllegalStateException("Page is not found in write cache");
+              }
+
               writeCacheSize.decrementAndGet();
 
               pointer.decrementWritersReferrer();
@@ -3244,11 +3252,11 @@ public final class OWOWCache extends OAbstractWriteCache
         for (int i = 0; i < diff; i++) {
           pagesToFlush.add(new PageKey(pageKeyToFlush.fileId, startPageIndex + i));
         }
-
-        // pages are sorted by position in index, so file size will be correctly incremented
-        fileSizeMap.put(
-            pageKeyToFlush.fileId,
-            Math.max(pageKeyToFlush.pageIndex * pageSize + pageSize, fileSize));
+      }
+      // pages are sorted by position in index, so file size will be correctly incremented
+      var pageEnd = pageKeyToFlush.pageIndex * pageSize + pageSize;
+      if (pageEnd > fileSize) {
+        fileSizeMap.put(pageKeyToFlush.fileId, pageEnd);
       }
 
       for (var pageKey : pagesToFlush) {
@@ -3277,7 +3285,7 @@ public final class OWOWCache extends OAbstractWriteCache
             chunks.clear();
             prevChunksSize = 0;
             iterator = exclusiveWritePages.iterator();
-
+            fileSizeMap.clear();
             continue flushCycle;
           }
         } else {
@@ -3366,6 +3374,7 @@ public final class OWOWCache extends OAbstractWriteCache
             if (underlyingFileSize < (pageKey.pageIndex + 1) * pageSize) {
               // reset flush cycle, we can not afford holes in files
               iterator = exclusiveWritePages.iterator();
+              fileSizeMap.clear();
               continue flushCycle;
             }
           }
