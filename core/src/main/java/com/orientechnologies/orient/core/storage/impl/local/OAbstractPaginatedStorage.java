@@ -5903,7 +5903,7 @@ public abstract class OAbstractPaginatedStorage
           if (reportBatchSize > 0 && recordsProcessed % reportBatchSize == 0
               || currentTime - lastReportTime > WAL_RESTORE_REPORT_INTERVAL) {
             final Object[] additionalArgs =
-                new Object[] {recordsProcessed, lsn, writeAheadLog.end()};
+                new Object[] {recordsProcessed, walRecord.getLsn(), writeAheadLog.end()};
             OLogManager.instance()
                 .info(
                     this,
