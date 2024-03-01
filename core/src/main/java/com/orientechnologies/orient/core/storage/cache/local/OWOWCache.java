@@ -2949,7 +2949,7 @@ public final class OWOWCache extends OAbstractWriteCache
             buffer.position(0);
             file.write(pagePosition, buffer);
           } finally {
-            bufferPool.release(pointer);
+            ODirectMemoryAllocator.instance().deallocate(pointer);
           }
         }
       } finally {
