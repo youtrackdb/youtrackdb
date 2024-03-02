@@ -4,21 +4,25 @@ import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OIdentifier;
-import java.util.Optional;
 
-/** Created by luigidellaquila on 01/03/17. */
+/**
+ * Created by luigidellaquila on 01/03/17.
+ */
 public class FilterByClassStep extends AbstractExecutionStep {
 
   private OIdentifier identifier;
   private final String className;
 
-  public FilterByClassStep(OIdentifier identifier, OCommandContext ctx, boolean profilingEnabled) {
+  private final boolean isClassName;
+
+  public FilterByClassStep(
+      OIdentifier identifier, OCommandContext ctx, boolean profilingEnabled, boolean isClassName) {
     super(ctx, profilingEnabled);
     this.identifier = identifier;
     this.className = identifier.getStringValue();
+    this.isClassName = isClassName;
   }
 
   @Override
@@ -32,12 +36,24 @@ public class FilterByClassStep extends AbstractExecutionStep {
   }
 
   private OResult filterMap(OResult result, OCommandContext ctx) {
-    if (result.isElement()) {
-      Optional<OClass> clazz = result.toElement().getSchemaType();
-      if (clazz.isPresent() && clazz.get().isSubClassOf(className)) {
-        return result;
+    var id = result.getRecordId();
+    if (id != null) {
+      var database = ctx.getDatabase();
+      var schema = database.getMetadata().getSchema();
+
+      if (isClassName) {
+        var clazz = schema.getClassByClusterId(id.getClusterId());
+        if (clazz != null && clazz.isSubClassOf(className)) {
+          return result;
+        }
+      } else {
+        var view = schema.getViewByClusterId(id.getClusterId());
+        if (view != null && view.isSubClassOf(className)) {
+          return result;
+        }
       }
     }
+
     return null;
   }
 
@@ -81,6 +97,6 @@ public class FilterByClassStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStep copy(OCommandContext ctx) {
-    return new FilterByClassStep(this.identifier.copy(), ctx, this.profilingEnabled);
+    return new FilterByClassStep(this.identifier.copy(), ctx, this.profilingEnabled, isClassName);
   }
 }
