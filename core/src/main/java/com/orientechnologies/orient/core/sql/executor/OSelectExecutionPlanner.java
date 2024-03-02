@@ -1934,22 +1934,30 @@ public class OSelectExecutionPlanner {
       OCommandContext ctx,
       boolean profilingEnabled) {
     OIdentifier identifier = from.getItem().getIdentifier();
+    String className = identifier.getStringValue();
+    OSchema schema = getSchemaFromContext(ctx);
+    boolean classIsPresent = schema.getClass(className) != null;
+
+    if (!classIsPresent && schema.getView(className) == null) {
+      throw new OCommandExecutionException("Class or View not present in the schema: " + className);
+    }
+
     if (handleClassAsTargetWithIndexedFunction(
         plan, filterClusters, identifier, info, ctx, profilingEnabled)) {
-      plan.chain(new FilterByClassStep(identifier, ctx, profilingEnabled));
+      plan.chain(new FilterByClassStep(identifier, ctx, profilingEnabled, classIsPresent));
       return;
     }
 
     if (handleClassAsTargetWithIndex(
         plan, identifier, filterClusters, info, ctx, profilingEnabled)) {
-      plan.chain(new FilterByClassStep(identifier, ctx, profilingEnabled));
+      plan.chain(new FilterByClassStep(identifier, ctx, profilingEnabled, classIsPresent));
       return;
     }
 
     if (info.orderBy != null
         && handleClassWithIndexForSortOnly(
             plan, identifier, filterClusters, info, ctx, profilingEnabled)) {
-      plan.chain(new FilterByClassStep(identifier, ctx, profilingEnabled));
+      plan.chain(new FilterByClassStep(identifier, ctx, profilingEnabled, classIsPresent));
       return;
     }
 
@@ -1959,11 +1967,9 @@ public class OSelectExecutionPlanner {
     } else if (isOrderByRidDesc(info)) {
       orderByRidAsc = false;
     }
-    String className = identifier.getStringValue();
-    OSchema schema = getSchemaFromContext(ctx);
 
     AbstractExecutionStep fetcher;
-    if (schema.getClass(className) != null) {
+    if (classIsPresent) {
       fetcher =
           new FetchFromClassExecutionStep(
               className, filterClusters, info, ctx, orderByRidAsc, profilingEnabled);
