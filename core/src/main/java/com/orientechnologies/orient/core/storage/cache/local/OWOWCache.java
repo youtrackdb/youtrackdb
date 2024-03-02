@@ -3024,6 +3024,9 @@ public final class OWOWCache extends OAbstractWriteCache
       IntArrayList chunkPageIndexes,
       IntArrayList chunkFileIds) {
     for (final List<OQuarto<Long, ByteBuffer, OPointer, OCachePointer>> chunk : chunks) {
+      if (chunk.isEmpty()) {
+        continue;
+      }
       flushedPages += chunk.size();
 
       final OPointer containerPointer =
@@ -3288,8 +3291,10 @@ public final class OWOWCache extends OAbstractWriteCache
             }
 
             if (prevChunksSize + chunk.size() >= chunkSize) {
-              chunks.add(chunk);
-              chunk = new ArrayList<>(16);
+              if (!chunk.isEmpty()) {
+                chunks.add(chunk);
+                chunk = new ArrayList<>(16);
+              }
 
               flushedPages += flushPages(chunks, maxFullLogLSN);
 
