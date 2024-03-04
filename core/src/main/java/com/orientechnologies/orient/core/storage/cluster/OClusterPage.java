@@ -29,8 +29,8 @@ import com.orientechnologies.orient.core.exception.OStorageException;
 import com.orientechnologies.orient.core.record.ORecordVersionHelper;
 import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODurablePage;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
@@ -89,7 +89,7 @@ public final class OClusterPage extends ODurablePage {
       final int recordVersion,
       final byte[] record,
       final int requestedPosition,
-      final Set<Integer> bookedRecordPositions) {
+      final IntSet bookedRecordPositions) {
     int freePosition = getFreePosition();
     final int indexesLength = getPageIndexesLength();
 
@@ -340,7 +340,7 @@ public final class OClusterPage extends ODurablePage {
       int entrySize,
       int freeListHeader,
       boolean useOnlyFreeList,
-      Set<Integer> bookedRecordPositions) {
+      IntSet bookedRecordPositions) {
     boolean allocatedFromFreeList = false;
     int entryIndex;
     if (freeListHeader > 0) {

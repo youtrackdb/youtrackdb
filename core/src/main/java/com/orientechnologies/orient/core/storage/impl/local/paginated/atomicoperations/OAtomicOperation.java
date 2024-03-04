@@ -4,6 +4,7 @@ import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OLogSequenceNumber;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OWriteAheadLog;
 import com.orientechnologies.orient.core.storage.index.sbtreebonsai.local.OBonsaiBucketPointer;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import java.io.IOException;
 import java.util.Set;
 
@@ -59,7 +60,7 @@ public interface OAtomicOperation {
 
   void addDeletedRecordPosition(final int clusterId, final int pageIndex, final int recordPosition);
 
-  Set<Integer> getBookedRecordPositions(final int clusterId, final int pageIndex);
+  IntSet getBookedRecordPositions(final int clusterId, final int pageIndex);
 
   void incrementComponentOperations();
 

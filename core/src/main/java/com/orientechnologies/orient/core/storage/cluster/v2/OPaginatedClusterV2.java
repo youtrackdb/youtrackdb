@@ -231,7 +231,7 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
                 if (pageIndex > 0 && pageIndex % 1_000 == 0) {
                   final Object[] additionalArgs =
                       new Object[] {
-                        pageIndex + 1, filledUpTo, 100 * (pageIndex + 1) / filledUpTo, getName()
+                        pageIndex + 1, filledUpTo, 100L * (pageIndex + 1) / filledUpTo, getName()
                       };
                   OLogManager.instance()
                       .info(

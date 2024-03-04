@@ -42,6 +42,7 @@ import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedSt
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODurableComponent;
 import com.orientechnologies.orient.core.storage.index.sbtree.singlevalue.OCellBTreeSingleValue;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Stream;
@@ -813,7 +814,7 @@ public final class CellBTreeSingleValueV3<K> extends ODurableComponent
   }
 
   private void removePagesStoredInFreeList(
-      OAtomicOperation atomicOperation, Set<Integer> pages, int filledUpTo) throws IOException {
+      OAtomicOperation atomicOperation, IntOpenHashSet pages, int filledUpTo) throws IOException {
     final int freeListHead;
 
     try (final OCacheEntry entryCacheEntry =
@@ -843,7 +844,7 @@ public final class CellBTreeSingleValueV3<K> extends ODurableComponent
     try {
       acquireSharedLock();
       try {
-        final Set<Integer> pages = new HashSet<>();
+        final IntOpenHashSet pages = new IntOpenHashSet();
         final int filledUpTo = (int) getFilledUpTo(atomicOperation, fileId);
 
         for (int i = 2; i < filledUpTo; i++) {
@@ -870,7 +871,7 @@ public final class CellBTreeSingleValueV3<K> extends ODurableComponent
   }
 
   private void removeUsedPages(
-      final int pageIndex, final Set<Integer> pages, final OAtomicOperation atomicOperation)
+      final int pageIndex, final IntOpenHashSet pages, final OAtomicOperation atomicOperation)
       throws IOException {
 
     try (final OCacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
