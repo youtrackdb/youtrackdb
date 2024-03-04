@@ -13,11 +13,10 @@ import com.orientechnologies.orient.core.storage.index.sbtreebonsai.local.OBonsa
 import com.orientechnologies.orient.core.storage.index.sbtreebonsai.local.OSBTreeBonsai;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.Change;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
-import java.util.ArrayList;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Function;
@@ -107,7 +106,7 @@ public class BTreeBonsaiGlobal implements OSBTreeBonsai<OIdentifiable, Integer> 
     try (final Stream<ORawPair<EdgeKey, Integer>> stream =
         bTree.iterateEntriesMajor(
             new EdgeKey(ridBagId, Integer.MIN_VALUE, Long.MIN_VALUE), true, true)) {
-      return !stream.findAny().isPresent();
+      return stream.findAny().isEmpty();
     }
   }
 
@@ -334,19 +333,19 @@ public class BTreeBonsaiGlobal implements OSBTreeBonsai<OIdentifiable, Integer> 
     }
   }
 
-  private static List<Integer> streamToList(
+  private static IntArrayList streamToList(
       final Stream<ORawPair<EdgeKey, Integer>> stream, int maxValuesToFetch) {
     if (maxValuesToFetch < 0) {
       maxValuesToFetch = Integer.MAX_VALUE;
     }
 
-    final ArrayList<Integer> result = new ArrayList<>(Math.max(8, maxValuesToFetch));
+    final IntArrayList result = new IntArrayList(Math.max(8, maxValuesToFetch));
 
     final int limit = maxValuesToFetch;
     forEachEntry(
         stream,
         entry -> {
-          result.add(entry.second);
+          result.add(entry.second.intValue());
           return result.size() < limit;
         });
 

@@ -9,6 +9,7 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.exception.OStorageException;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -18,7 +19,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -81,7 +81,7 @@ public class DoubleWriteLogGL implements DoubleWriteLog {
   private static final LZ4Compressor LZ_4_COMPRESSOR;
   private static final LZ4FastDecompressor LZ_4_DECOMPRESSOR;
 
-  private List<Long> tailSegments;
+  private LongArrayList tailSegments;
 
   private volatile boolean restoreMode;
 
@@ -119,7 +119,7 @@ public class DoubleWriteLogGL implements DoubleWriteLog {
       this.storagePath = storagePath;
       this.storageName = storageName;
 
-      this.tailSegments = new ArrayList<>();
+      this.tailSegments = new LongArrayList();
       this.pageMap = new HashMap<>();
 
       final Optional<Path> latestPath;
@@ -314,7 +314,9 @@ public class DoubleWriteLogGL implements DoubleWriteLog {
         return;
       }
 
-      tailSegments.stream()
+      tailSegments
+          .longStream()
+          .boxed()
           .map(this::generateSegmentsName)
           .forEach(
               (segment) -> {

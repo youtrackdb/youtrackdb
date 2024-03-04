@@ -1,16 +1,16 @@
 package com.orientechnologies.orient.core.storage.index.sbtreebonsai.global.btree;
 
-import java.util.ArrayList;
-import java.util.List;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 
 public final class UpdateBucketSearchResult {
 
-  private final List<Integer> insertionIndexes;
-  private final ArrayList<Integer> path;
+  private final IntList insertionIndexes;
+  private final IntArrayList path;
   private final int itemIndex;
 
   public UpdateBucketSearchResult(
-      final List<Integer> insertionIndexes, final ArrayList<Integer> path, final int itemIndex) {
+      final IntList insertionIndexes, final IntArrayList path, final int itemIndex) {
     this.insertionIndexes = insertionIndexes;
     this.path = path;
     this.itemIndex = itemIndex;
@@ -20,11 +20,11 @@ public final class UpdateBucketSearchResult {
     return getPath().get(getPath().size() - 1);
   }
 
-  public List<Integer> getInsertionIndexes() {
+  public IntList getInsertionIndexes() {
     return insertionIndexes;
   }
 
-  public ArrayList<Integer> getPath() {
+  public IntArrayList getPath() {
     return path;
   }
 

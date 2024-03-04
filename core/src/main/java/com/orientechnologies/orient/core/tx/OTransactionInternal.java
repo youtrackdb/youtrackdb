@@ -27,6 +27,7 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import java.io.IOException;
 import java.util.*;
+import javax.annotation.Nullable;
 
 /**
  * Expose the api for extract the internal details needed by the storage for perform the transaction
@@ -101,11 +102,12 @@ public interface OTransactionInternal extends OTransaction {
     return true;
   }
 
-  default Optional<byte[]> getMetadata() {
-    return Optional.empty();
+  @Nullable
+  default byte[] getMetadata() {
+    return null;
   }
 
-  void setMetadataHolder(Optional<OTxMetadataHolder> metadata);
+  void setMetadataHolder(OTxMetadataHolder metadata);
 
   default void storageBegun() {}
 

@@ -44,6 +44,10 @@ import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoper
 import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODurableComponent;
 import com.orientechnologies.orient.core.storage.index.sbtree.local.v2.OSBTreeV2;
 import com.orientechnologies.orient.core.storage.index.sbtree.multivalue.OCellBTreeMultiValue;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
+import it.unimi.dsi.fastutil.longs.LongList;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,7 +60,6 @@ import java.util.Optional;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -169,7 +172,7 @@ public final class CellBTreeMultiValueV2<K> extends ODurableComponent
               entryPoint.init();
             }
 
-            try (final OCacheEntry rootCacheEntry = addPage(atomicOperation, fileId); ) {
+            try (final OCacheEntry rootCacheEntry = addPage(atomicOperation, fileId)) {
               @SuppressWarnings("unused")
               final CellBTreeMultiValueV2Bucket<K> rootBucket =
                   new CellBTreeMultiValueV2Bucket<>(rootCacheEntry);
@@ -310,7 +313,7 @@ public final class CellBTreeMultiValueV2<K> extends ODurableComponent
                               final MultiValueEntry entry = pair.first;
                               return new ORecordId(entry.clusterId, entry.clusterPosition);
                             })
-                        .collect(Collectors.toList()));
+                        .toList());
               }
             }
             return values.stream();
@@ -351,7 +354,7 @@ public final class CellBTreeMultiValueV2<K> extends ODurableComponent
                       return new ORecordId(
                           multiValueEntry.clusterId, multiValueEntry.clusterPosition);
                     })
-                .collect(Collectors.toList()));
+                .toList());
       }
     }
   }
@@ -391,7 +394,7 @@ public final class CellBTreeMultiValueV2<K> extends ODurableComponent
                           new ORecordId(
                               multiValueEntry.clusterId, multiValueEntry.clusterPosition));
                     })
-                .collect(Collectors.toList()));
+                .toList());
       }
     }
   }
@@ -511,7 +514,7 @@ public final class CellBTreeMultiValueV2<K> extends ODurableComponent
           atomicOperation,
           new MultiValueEntry(result, value.getClusterId(), value.getClusterPosition()),
           (byte) 1,
-          new IndexEngineValidatorIncrement(bucketMultiValue, index));
+          new IndexEngineValidatorIncrement<>(bucketMultiValue, index));
       return true;
     }
 
@@ -1229,8 +1232,8 @@ public final class CellBTreeMultiValueV2<K> extends ODurableComponent
   private UpdateBucketSearchResult splitBucket(
       final CellBTreeMultiValueV2Bucket<K> bucketToSplit,
       final OCacheEntry entryToSplit,
-      final List<Long> path,
-      final List<Integer> insertionIndexes,
+      final LongList path,
+      final IntList insertionIndexes,
       final int keyIndex,
       final K keyToInsert,
       final OAtomicOperation atomicOperation)
@@ -1311,8 +1314,8 @@ public final class CellBTreeMultiValueV2<K> extends ODurableComponent
   }
 
   private UpdateBucketSearchResult splitNonRootBucket(
-      final List<Long> path,
-      final List<Integer> insertionIndexes,
+      final LongList path,
+      final IntList insertionIndexes,
       final int keyIndex,
       final K keyToInsert,
       final long pageIndex,
@@ -1372,12 +1375,12 @@ public final class CellBTreeMultiValueV2<K> extends ODurableComponent
         }
       }
 
-      long parentIndex = path.get(path.size() - 2);
+      long parentIndex = path.getLong(path.size() - 2);
       OCacheEntry parentCacheEntry = loadPageForWrite(atomicOperation, fileId, parentIndex, true);
       try {
         CellBTreeMultiValueV2Bucket<K> parentBucket =
             new CellBTreeMultiValueV2Bucket<>(parentCacheEntry);
-        int insertionIndex = insertionIndexes.get(insertionIndexes.size() - 2);
+        int insertionIndex = insertionIndexes.getInt(insertionIndexes.size() - 2);
 
         while (!parentBucket.addNonLeafEntry(
             insertionIndex,
@@ -1418,9 +1421,9 @@ public final class CellBTreeMultiValueV2<K> extends ODurableComponent
       rightBucketEntry.close();
     }
 
-    final ArrayList<Long> resultPath = new ArrayList<>(path.subList(0, path.size() - 1));
-    final ArrayList<Integer> resultInsertionIndexes =
-        new ArrayList<>(insertionIndexes.subList(0, insertionIndexes.size() - 1));
+    final LongArrayList resultPath = new LongArrayList(path.subList(0, path.size() - 1));
+    final IntArrayList resultInsertionIndexes =
+        new IntArrayList(insertionIndexes.subList(0, insertionIndexes.size() - 1));
 
     if (keyIndex < indexToSplit) {
       return addToTheLeftNonRootBucket(keyIndex, pageIndex, resultPath, resultInsertionIndexes);
@@ -1453,10 +1456,10 @@ public final class CellBTreeMultiValueV2<K> extends ODurableComponent
       final boolean splitLeaf,
       final int indexToSplit,
       final long rightPageIndex,
-      final ArrayList<Long> resultPath,
-      final ArrayList<Integer> resultItemPointers) {
+      final LongArrayList resultPath,
+      final IntArrayList resultItemPointers) {
     final int parentIndex = resultItemPointers.size() - 1;
-    resultItemPointers.set(parentIndex, resultItemPointers.get(parentIndex) + 1);
+    resultItemPointers.set(parentIndex, resultItemPointers.getInt(parentIndex) + 1);
     resultPath.add(rightPageIndex);
 
     if (splitLeaf) {
@@ -1473,8 +1476,8 @@ public final class CellBTreeMultiValueV2<K> extends ODurableComponent
   private static UpdateBucketSearchResult addToTheLeftNonRootBucket(
       final int keyIndex,
       final long pageIndex,
-      final ArrayList<Long> resultPath,
-      final ArrayList<Integer> resultItemPointers) {
+      final LongArrayList resultPath,
+      final IntArrayList resultItemPointers) {
     resultPath.add(pageIndex);
     resultItemPointers.add(keyIndex);
 
@@ -1541,7 +1544,6 @@ public final class CellBTreeMultiValueV2<K> extends ODurableComponent
       }
 
       entryPoint.setPagesSize(pageSize);
-    } finally {
     }
 
     try {
@@ -1586,10 +1588,10 @@ public final class CellBTreeMultiValueV2<K> extends ODurableComponent
         rightBucketEntry.getPageIndex(),
         true);
 
-    final ArrayList<Long> resultPath = new ArrayList<>(8);
+    final LongArrayList resultPath = new LongArrayList(8);
     resultPath.add(ROOT_INDEX);
 
-    final ArrayList<Integer> itemPointers = new ArrayList<>(8);
+    final IntArrayList itemPointers = new IntArrayList(8);
 
     if (keyIndex < indexToSplit) {
       return addToTheLeftRootBucket(keyIndex, leftBucketEntry, resultPath, itemPointers);
@@ -1609,9 +1611,9 @@ public final class CellBTreeMultiValueV2<K> extends ODurableComponent
       final boolean splitLeaf,
       final int indexToSplit,
       final OCacheEntry rightBucketEntry,
-      final ArrayList<Long> resultPath,
-      final ArrayList<Integer> itemPointers) {
-    resultPath.add((long) rightBucketEntry.getPageIndex());
+      final LongArrayList resultPath,
+      final IntArrayList itemPointers) {
+    resultPath.add(rightBucketEntry.getPageIndex());
     itemPointers.add(0);
 
     if (splitLeaf) {
@@ -1628,12 +1630,12 @@ public final class CellBTreeMultiValueV2<K> extends ODurableComponent
   private static UpdateBucketSearchResult addToTheLeftRootBucket(
       final int keyIndex,
       final OCacheEntry leftBucketEntry,
-      final ArrayList<Long> resultPath,
-      final ArrayList<Integer> itemPointers) {
+      final LongArrayList resultPath,
+      final IntArrayList itemPointers) {
     itemPointers.add(-1);
     itemPointers.add(keyIndex);
 
-    resultPath.add((long) leftBucketEntry.getPageIndex());
+    resultPath.add(leftBucketEntry.getPageIndex());
     return new UpdateBucketSearchResult(itemPointers, resultPath, keyIndex);
   }
 
@@ -1678,8 +1680,8 @@ public final class CellBTreeMultiValueV2<K> extends ODurableComponent
       final K key, final OAtomicOperation atomicOperation) throws IOException {
     long pageIndex = ROOT_INDEX;
 
-    final ArrayList<Long> path = new ArrayList<>(8);
-    final ArrayList<Integer> insertionIndexes = new ArrayList<>(8);
+    final LongArrayList path = new LongArrayList(8);
+    final IntArrayList insertionIndexes = new IntArrayList(8);
 
     while (true) {
       if (path.size() > MAX_PATH_LENGTH) {
@@ -1721,11 +1723,9 @@ public final class CellBTreeMultiValueV2<K> extends ODurableComponent
   }
 
   private K enhanceCompositeKey(final K key, final PartialSearchMode partialSearchMode) {
-    if (!(key instanceof OCompositeKey)) {
+    if (!(key instanceof OCompositeKey compositeKey)) {
       return key;
     }
-
-    final OCompositeKey compositeKey = (OCompositeKey) key;
 
     if (!(keySize == 1
         || compositeKey.getKeys().size() == keySize
@@ -1776,19 +1776,19 @@ public final class CellBTreeMultiValueV2<K> extends ODurableComponent
   }
 
   private static final class UpdateBucketSearchResult {
-    private final List<Integer> insertionIndexes;
-    private final ArrayList<Long> path;
+    private final IntList insertionIndexes;
+    private final LongArrayList path;
     private final int itemIndex;
 
     private UpdateBucketSearchResult(
-        final List<Integer> insertionIndexes, final ArrayList<Long> path, final int itemIndex) {
+        final IntList insertionIndexes, final LongArrayList path, final int itemIndex) {
       this.insertionIndexes = insertionIndexes;
       this.path = path;
       this.itemIndex = itemIndex;
     }
 
     private long getLastPathItem() {
-      return path.get(path.size() - 1);
+      return path.getLong(path.size() - 1);
     }
   }
 

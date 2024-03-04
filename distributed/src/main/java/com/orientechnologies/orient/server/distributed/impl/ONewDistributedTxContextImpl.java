@@ -15,7 +15,6 @@ import com.orientechnologies.orient.server.distributed.task.ODistributedKeyLocke
 import com.orientechnologies.orient.server.distributed.task.ODistributedRecordLockedException;
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
 public class ONewDistributedTxContextImpl implements ODistributedTxContext {
@@ -85,7 +84,7 @@ public class ONewDistributedTxContextImpl implements ODistributedTxContext {
         ((ODatabaseDocumentDistributed) database).getDistributedShared();
     OTxMetadataHolder metadataHolder = localDistributedDatabase.commit(getTransactionId());
     try {
-      tx.setMetadataHolder(Optional.of(metadataHolder));
+      tx.setMetadataHolder(metadataHolder);
       tx.prepareSerializedOperations();
       ((ODatabaseDocumentDistributed) database).internalCommit2pc(this);
     } catch (IOException e) {

@@ -74,6 +74,7 @@ import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.executor.ORidSet;
 import com.orientechnologies.orient.core.storage.OPhysicalPosition;
 import com.orientechnologies.orient.core.storage.OStorage;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -1620,7 +1621,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
 
       indexManager.dropIndex(database, indexName);
       indexesToRebuild.remove(indexName);
-      List<Integer> clusterIds = new ArrayList<>();
+      IntArrayList clusterIds = new IntArrayList();
 
       for (final String clusterName : clustersToIndex) {
         int id = database.getClusterIdByName(clusterName);
@@ -1634,7 +1635,8 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
       int[] clusterIdsToIndex = new int[clusterIds.size()];
 
       int i = 0;
-      for (Integer clusterId : clusterIds) {
+      for (var n = 0; n < clusterIds.size(); n++) {
+        int clusterId = clusterIds.getInt(n);
         clusterIdsToIndex[i] = clusterId;
         i++;
       }

@@ -45,6 +45,7 @@ import com.orientechnologies.orient.core.storage.impl.local.OClusterBrowseEntry;
 import com.orientechnologies.orient.core.storage.impl.local.OClusterBrowsePage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODurablePage;
+import it.unimi.dsi.fastutil.ints.Int2ObjectFunction;
 import java.io.IOException;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -53,7 +54,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 /**
  * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
@@ -231,7 +231,7 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
                 if (pageIndex > 0 && pageIndex % 1_000 == 0) {
                   final Object[] additionalArgs =
                       new Object[] {
-                        pageIndex + 1, filledUpTo, 100 * (pageIndex + 1) / filledUpTo, getName()
+                        pageIndex + 1, filledUpTo, 100L * (pageIndex + 1) / filledUpTo, getName()
                       };
                   OLogManager.instance()
                       .info(
@@ -417,7 +417,7 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
       final int recordVersion,
       final long nextRecordPointer,
       final OAtomicOperation atomicOperation,
-      final Function<Integer, OClusterPage> pageSupplier,
+      final Int2ObjectFunction<OClusterPage> pageSupplier,
       final Consumer<OClusterPage> pagePostProcessor)
       throws IOException {
 
@@ -612,14 +612,6 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
     return entrySize + OByteSerializer.BYTE_SIZE + OLongSerializer.LONG_SIZE;
   }
 
-  private static int getEntryContentLength(final int grownContentSize) {
-
-    return grownContentSize
-        + 2 * OByteSerializer.BYTE_SIZE
-        + OIntegerSerializer.INT_SIZE
-        + OLongSerializer.LONG_SIZE;
-  }
-
   @Override
   public ORawBuffer readRecord(final long clusterPosition, final boolean prefetchRecords)
       throws IOException {
@@ -799,7 +791,7 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
 
             long nextPagePointer;
             int removedContentSize = 0;
-            int removeRecordSize = 0;
+            int removeRecordSize;
 
             do {
               boolean cacheEntryReleased = false;
@@ -812,7 +804,6 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
                   if (removedContentSize == 0) {
                     cacheEntryReleased = true;
                     cacheEntry.close();
-                    ;
                     return false;
                   } else {
                     throw new OPaginatedClusterException(
@@ -1508,19 +1499,16 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
     try {
       final byte status = clusterPositionMap.getStatus(clusterPosition, atomicOperation);
 
-      switch (status) {
-        case OClusterPositionMapBucket.NOT_EXISTENT:
-          return RECORD_STATUS.NOT_EXISTENT;
-        case OClusterPositionMapBucket.ALLOCATED:
-          return RECORD_STATUS.ALLOCATED;
-        case OClusterPositionMapBucket.FILLED:
-          return RECORD_STATUS.PRESENT;
-        case OClusterPositionMapBucket.REMOVED:
-          return RECORD_STATUS.REMOVED;
-      }
+      return switch (status) {
+        case OClusterPositionMapBucket.NOT_EXISTENT -> RECORD_STATUS.NOT_EXISTENT;
+        case OClusterPositionMapBucket.ALLOCATED -> RECORD_STATUS.ALLOCATED;
+        case OClusterPositionMapBucket.FILLED -> RECORD_STATUS.PRESENT;
+        case OClusterPositionMapBucket.REMOVED -> RECORD_STATUS.REMOVED;
+        default ->
+            throw new IllegalStateException(
+                "Invalid record status : " + status + " for cluster " + getName());
+      };
 
-      // UNREACHABLE
-      return null;
     } finally {
       releaseSharedLock();
     }

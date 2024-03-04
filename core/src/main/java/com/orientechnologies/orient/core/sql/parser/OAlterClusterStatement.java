@@ -11,10 +11,10 @@ import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.storage.OCluster;
 import com.orientechnologies.orient.core.storage.OStorage;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -73,7 +73,7 @@ public class OAlterClusterStatement extends ODDLStatement {
   @Override
   public OExecutionStream executeDDL(OCommandContext ctx) {
     List<OResult> result = new ArrayList<>();
-    List<Integer> clustersToUpdate = getClusters(ctx);
+    IntArrayList clustersToUpdate = getClusters(ctx);
 
     Object finalValue = attributeValue.execute((OIdentifiable) null, ctx);
 
@@ -119,14 +119,10 @@ public class OAlterClusterStatement extends ODDLStatement {
     return value != null ? value : "";
   }
 
-  private OCluster.ATTRIBUTES getClusterAttribute(OIdentifier attributeName) {
-    return null;
-  }
-
-  private List<Integer> getClusters(OCommandContext ctx) {
+  private IntArrayList getClusters(OCommandContext ctx) {
     ODatabaseDocumentInternal database = (ODatabaseDocumentInternal) ctx.getDatabase();
     if (starred) {
-      List<Integer> result = new ArrayList<>();
+      IntArrayList result = new IntArrayList();
       for (String clusterName : database.getClusterNames()) {
         if (clusterName.startsWith(name.getStringValue())) {
           result.add(database.getClusterIdByName(clusterName));
@@ -139,7 +135,7 @@ public class OAlterClusterStatement extends ODDLStatement {
         throw new OCommandExecutionException("Cannot find cluster " + name);
       }
 
-      return Collections.singletonList(clusterId);
+      return IntArrayList.of(clusterId);
     }
   }
 
@@ -155,11 +151,9 @@ public class OAlterClusterStatement extends ODDLStatement {
     if (attributeName != null
         ? !attributeName.equals(that.attributeName)
         : that.attributeName != null) return false;
-    if (attributeValue != null
-        ? !attributeValue.equals(that.attributeValue)
-        : that.attributeValue != null) return false;
-
-    return true;
+    return attributeValue != null
+        ? attributeValue.equals(that.attributeValue)
+        : that.attributeValue == null;
   }
 
   @Override
