@@ -5,13 +5,13 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
-import java.util.Arrays;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.util.stream.Collectors;
 
 /** Created by luigidellaquila on 16/03/17. */
 public class GetValueFromIndexEntryStep extends AbstractExecutionStep {
 
-  private final int[] filterClusterIds;
+  private final IntArrayList filterClusterIds;
 
   /**
    * @param ctx the execution context
@@ -20,7 +20,7 @@ public class GetValueFromIndexEntryStep extends AbstractExecutionStep {
    * @param profilingEnabled enable profiling
    */
   public GetValueFromIndexEntryStep(
-      OCommandContext ctx, int[] filterClusterIds, boolean profilingEnabled) {
+      OCommandContext ctx, IntArrayList filterClusterIds, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.filterClusterIds = filterClusterIds;
   }
@@ -74,7 +74,11 @@ public class GetValueFromIndexEntryStep extends AbstractExecutionStep {
       result += spaces;
       result += "  filtering clusters [";
       result +=
-          Arrays.stream(filterClusterIds).boxed().map(x -> "" + x).collect(Collectors.joining(","));
+          filterClusterIds
+              .intStream()
+              .boxed()
+              .map(String::valueOf)
+              .collect(Collectors.joining(","));
       result += "]";
     }
     return result;

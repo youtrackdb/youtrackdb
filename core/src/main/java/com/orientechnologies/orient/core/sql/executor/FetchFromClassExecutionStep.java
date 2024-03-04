@@ -9,6 +9,7 @@ import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStreamProducer;
 import com.orientechnologies.orient.core.sql.executor.resultset.OMultipleExecutionStream;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -63,7 +64,8 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
     }
     OClass clazz = loadClassFromSchema(className, ctx);
     int[] classClusters = clazz.getPolymorphicClusterIds();
-    List<Integer> filteredClassClusters = new ArrayList<>();
+    IntArrayList filteredClassClusters = new IntArrayList();
+
     for (int clusterId : classClusters) {
       String clusterName = ctx.getDatabase().getClusterNameById(clusterId);
       if (clusters == null || clusters.contains(clusterName)) {
@@ -72,7 +74,7 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
     }
     int[] clusterIds = new int[filteredClassClusters.size() + 1];
     for (int i = 0; i < filteredClassClusters.size(); i++) {
-      clusterIds[i] = filteredClassClusters.get(i);
+      clusterIds[i] = filteredClassClusters.getInt(i);
     }
     clusterIds[clusterIds.length - 1] = -1; // temporary cluster, data in tx
 

@@ -40,6 +40,8 @@ import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODurableComponent;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
+import it.unimi.dsi.fastutil.longs.LongList;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -947,7 +949,7 @@ public final class OSBTreeV1<K, V> extends ODurableComponent
               return null;
             }
           } else {
-            final ArrayList<Long> resultPath = new ArrayList<>(path.size() + 1);
+            final LongArrayList resultPath = new LongArrayList(path.size() + 1);
             for (final PagePathItemUnit pathItemUnit : path) {
               resultPath.add(pathItemUnit.pageIndex);
             }
@@ -1020,7 +1022,7 @@ public final class OSBTreeV1<K, V> extends ODurableComponent
               return null;
             }
           } else {
-            final ArrayList<Long> resultPath = new ArrayList<>(path.size() + 1);
+            final LongArrayList resultPath = new LongArrayList(path.size() + 1);
             for (final PagePathItemUnit pathItemUnit : path) {
               resultPath.add(pathItemUnit.pageIndex);
             }
@@ -1117,12 +1119,12 @@ public final class OSBTreeV1<K, V> extends ODurableComponent
   }
 
   private BucketSearchResult splitBucket(
-      final List<Long> path,
+      final LongList path,
       final int keyIndex,
       final K keyToInsert,
       final OAtomicOperation atomicOperation)
       throws IOException {
-    final long pageIndex = path.get(path.size() - 1);
+    final long pageIndex = path.getLong(path.size() - 1);
 
     try (final OCacheEntry bucketEntry =
         loadPageForWrite(atomicOperation, fileId, pageIndex, true)) {
@@ -1171,7 +1173,7 @@ public final class OSBTreeV1<K, V> extends ODurableComponent
   }
 
   private BucketSearchResult splitNonRootBucket(
-      final List<Long> path,
+      final LongList path,
       final int keyIndex,
       final K keyToInsert,
       final long pageIndex,
@@ -1210,7 +1212,7 @@ public final class OSBTreeV1<K, V> extends ODurableComponent
         }
       }
 
-      long parentIndex = path.get(path.size() - 2);
+      long parentIndex = path.getLong(path.size() - 2);
       OCacheEntry parentCacheEntry = loadPageForWrite(atomicOperation, fileId, parentIndex, true);
       try {
         OSBTreeBucketV1<K, V> parentBucket = new OSBTreeBucketV1<>(parentCacheEntry);
@@ -1240,7 +1242,7 @@ public final class OSBTreeV1<K, V> extends ODurableComponent
       }
     }
 
-    final ArrayList<Long> resultPath = new ArrayList<>(path.subList(0, path.size() - 1));
+    final LongArrayList resultPath = new LongArrayList(path.subList(0, path.size() - 1));
 
     if (comparator.compare(keyToInsert, separationKey) < 0) {
       resultPath.add(pageIndex);
@@ -1257,7 +1259,7 @@ public final class OSBTreeV1<K, V> extends ODurableComponent
   }
 
   private BucketSearchResult splitRootBucket(
-      final List<Long> path,
+      final LongList path,
       final int keyIndex,
       final K keyToInsert,
       final OCacheEntry bucketEntry,
@@ -1315,7 +1317,7 @@ public final class OSBTreeV1<K, V> extends ODurableComponent
     bucketToSplit.addNonLeafEntry(
         0, serializeKey(separationKey), leftBucketIndex, rightBucketIndex, true);
 
-    final ArrayList<Long> resultPath = new ArrayList<>(path.subList(0, path.size() - 1));
+    final LongArrayList resultPath = new LongArrayList(path.subList(0, path.size() - 1));
     if (comparator.compare(keyToInsert, separationKey) < 0) {
       resultPath.add(leftBucketIndex);
       return new BucketSearchResult(keyIndex, resultPath);
@@ -1333,7 +1335,7 @@ public final class OSBTreeV1<K, V> extends ODurableComponent
   private BucketSearchResult findBucket(final K key, final OAtomicOperation atomicOperation)
       throws IOException {
     long pageIndex = ROOT_INDEX;
-    final ArrayList<Long> path = new ArrayList<>(8);
+    final LongArrayList path = new LongArrayList(8);
 
     while (true) {
       if (path.size() > MAX_PATH_LENGTH) {
@@ -1381,11 +1383,9 @@ public final class OSBTreeV1<K, V> extends ODurableComponent
   }
 
   private K enhanceCompositeKey(final K key, final PartialSearchMode partialSearchMode) {
-    if (!(key instanceof OCompositeKey)) {
+    if (!(key instanceof OCompositeKey compositeKey)) {
       return key;
     }
-
-    final OCompositeKey compositeKey = (OCompositeKey) key;
 
     if (!(keySize == 1
         || compositeKey.getKeys().size() == keySize
@@ -1434,15 +1434,15 @@ public final class OSBTreeV1<K, V> extends ODurableComponent
 
   private static class BucketSearchResult {
     private final int itemIndex;
-    private final ArrayList<Long> path;
+    private final LongArrayList path;
 
-    private BucketSearchResult(final int itemIndex, final ArrayList<Long> path) {
+    private BucketSearchResult(final int itemIndex, final LongArrayList path) {
       this.itemIndex = itemIndex;
       this.path = path;
     }
 
     long getLastPathItem() {
-      return path.get(path.size() - 1);
+      return path.getLong(path.size() - 1);
     }
   }
 

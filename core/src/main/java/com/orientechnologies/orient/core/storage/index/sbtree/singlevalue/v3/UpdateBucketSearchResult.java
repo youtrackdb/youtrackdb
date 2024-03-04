@@ -1,29 +1,29 @@
 package com.orientechnologies.orient.core.storage.index.sbtree.singlevalue.v3;
 
-import java.util.ArrayList;
-import java.util.List;
+import it.unimi.dsi.fastutil.ints.IntList;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
 
 final class UpdateBucketSearchResult {
-  private final List<Integer> insertionIndexes;
-  private final ArrayList<Long> path;
+  private final IntList insertionIndexes;
+  private final LongArrayList path;
   private final int itemIndex;
 
   public UpdateBucketSearchResult(
-      final List<Integer> insertionIndexes, final ArrayList<Long> path, final int itemIndex) {
+      final IntList insertionIndexes, final LongArrayList path, final int itemIndex) {
     this.insertionIndexes = insertionIndexes;
     this.path = path;
     this.itemIndex = itemIndex;
   }
 
   public long getLastPathItem() {
-    return getPath().get(getPath().size() - 1);
+    return path.getLong(path.size() - 1);
   }
 
-  public ArrayList<Long> getPath() {
+  public LongArrayList getPath() {
     return path;
   }
 
-  public List<Integer> getInsertionIndexes() {
+  public IntList getInsertionIndexes() {
     return insertionIndexes;
   }
 

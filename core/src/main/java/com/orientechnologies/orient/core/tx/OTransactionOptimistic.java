@@ -495,8 +495,8 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
     if (iClusterName == null) {
       iClusterName = database.getClusterNameById(iRecord.getIdentity().getClusterId());
     }
-    if (iStatus != ORecordOperation.LOADED) {
-      changedDocuments.remove(iRecord);
+    if (iStatus != ORecordOperation.LOADED && iRecord instanceof ODocument document) {
+      changedDocuments.remove(document);
     }
 
     try {
@@ -515,7 +515,7 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
           }
           break;
         case ORecordOperation.LOADED:
-          /** Read hooks already invoked in {@link ODatabaseDocumentTx#executeReadRecord} */
+          /* Read hooks already invoked in {@link ODatabaseDocumentTx#executeReadRecord} */
           break;
         case ORecordOperation.UPDATED:
           {
@@ -561,20 +561,16 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
               }
               break;
             case ORecordOperation.UPDATED:
-              switch (iStatus) {
-                case ORecordOperation.DELETED:
-                  txEntry.type = ORecordOperation.DELETED;
-                  break;
+              if (iStatus == ORecordOperation.DELETED) {
+                txEntry.type = ORecordOperation.DELETED;
               }
               break;
             case ORecordOperation.DELETED:
               break;
             case ORecordOperation.CREATED:
-              switch (iStatus) {
-                case ORecordOperation.DELETED:
-                  allEntries.remove(rid);
-                  // txEntry.type = ORecordOperation.DELETED;
-                  break;
+              if (iStatus == ORecordOperation.DELETED) {
+                allEntries.remove(rid);
+                // txEntry.type = ORecordOperation.DELETED;
               }
               break;
           }
@@ -585,7 +581,7 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
             database.afterCreateOperations(iRecord);
             break;
           case ORecordOperation.LOADED:
-            /** Read hooks already invoked in {@link ODatabaseDocumentTx#executeReadRecord} . */
+            /* Read hooks already invoked in {@link ODatabaseDocumentTx#executeReadRecord} . */
             break;
           case ORecordOperation.UPDATED:
             database.afterUpdateOperations(iRecord);
@@ -649,7 +645,6 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
     for (final ORecordOperation recordOperation : allEntries.values()) {
       final ORecord record = recordOperation.getRecord();
       final ORID identity = record.getIdentity();
-      locks.keySet();
       if (recordOperation.type == ORecordOperation.CREATED
           && recordOperation.createdCallback != null) {
         recordOperation.createdCallback.call(
@@ -688,7 +683,7 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
 
   public Set<ORID> getLockedRecords() {
     if (getNoTxLocks() != null) {
-      final Set<ORID> rids = new HashSet<ORID>(getNoTxLocks().keySet());
+      final Set<ORID> rids = new HashSet<>(getNoTxLocks().keySet());
       rids.addAll(locks.keySet());
       return rids;
     } else {
@@ -698,10 +693,6 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
 
   public void setSentToServer(boolean sentToServer) {
     this.sentToServer = sentToServer;
-  }
-
-  public boolean getSentToServer() {
-    return sentToServer;
   }
 
   public void fill(final Iterator<ORecordOperation> operations) {
@@ -743,8 +734,7 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
       case ORecordOperation.UPDATED:
         {
           final OIdentifiable updateRecord = change.getRecord();
-          if (updateRecord instanceof ODocument) {
-            final ODocument updateDoc = (ODocument) updateRecord;
+          if (updateRecord instanceof ODocument updateDoc) {
             OLiveQueryHook.addOp(updateDoc, ORecordOperation.UPDATED, database);
             OLiveQueryHookV2.addOp(updateDoc, ORecordOperation.UPDATED, database);
             final OImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(updateDoc);

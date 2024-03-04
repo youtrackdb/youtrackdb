@@ -37,6 +37,8 @@ import com.orientechnologies.orient.core.sql.parser.OProjectionItem;
 import com.orientechnologies.orient.core.sql.parser.OSelectStatement;
 import com.orientechnologies.orient.core.sql.parser.OStatement;
 import com.orientechnologies.orient.core.sql.parser.OStatementCache;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntIterator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -67,7 +69,7 @@ public class ViewManager {
       new ConcurrentHashMap<>();
 
   private final ConcurrentMap<Integer, String> oldClustersPerViews = new ConcurrentHashMap<>();
-  private final List<Integer> clustersToDrop = Collections.synchronizedList(new ArrayList<>());
+  private final IntArrayList clustersToDrop = IntArrayList.of();
 
   /**
    * To retain indexes that are being used in queries until the queries are closed.
@@ -185,11 +187,13 @@ public class ViewManager {
       // backup is running handle delete the next run
       return;
     }
-    List<Integer> clusters = new ArrayList<>();
+    IntArrayList clusters = new IntArrayList();
+
     synchronized (this) {
-      Iterator<Integer> iter = clustersToDrop.iterator();
+      IntIterator iter = clustersToDrop.intIterator();
       while (iter.hasNext()) {
-        Integer cluster = iter.next();
+        int cluster = iter.nextInt();
+
         AtomicInteger visitors = viewCluserVisitors.get(cluster);
         if (visitors == null || visitors.get() <= 0) {
           iter.remove();
@@ -197,7 +201,9 @@ public class ViewManager {
         }
       }
     }
-    for (Integer cluster : clusters) {
+
+    for (int i = 0; i < clusters.size(); i++) {
+      var cluster = clusters.getInt(i);
       db.dropCluster(cluster);
       viewCluserVisitors.remove(cluster);
       oldClustersPerViews.remove(cluster);

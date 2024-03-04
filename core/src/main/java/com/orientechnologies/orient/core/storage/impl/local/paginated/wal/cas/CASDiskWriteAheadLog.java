@@ -22,6 +22,7 @@ import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.*;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.common.*;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.common.deque.Cursor;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.common.deque.MPSCFAAArrayDequeue;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -53,11 +54,11 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
       ThreadLocal.withInitial(CASDiskWriteAheadLog::getCipherInstance);
 
   private static final XXHashFactory xxHashFactory = XXHashFactory.fastestJavaInstance();
-  private static final int XX_SEED = 0x9747b28c;
+  private static final long XX_SEED = 0x9747b28cL;
 
   private static final int BATCH_READ_SIZE = 4 * 1024;
 
-  protected static final int DEFAULT_MAX_CACHE_SIZE = Integer.MAX_VALUE;
+  static final int DEFAULT_MAX_CACHE_SIZE = Integer.MAX_VALUE;
 
   private static final ScheduledExecutorService commitExecutor;
   private static final ExecutorService writeExecutor;
@@ -286,7 +287,7 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
     return pageSize;
   }
 
-  protected int maxCacheSize() {
+  int maxCacheSize() {
     return maxCacheSize;
   }
 
@@ -307,7 +308,6 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
 
     final OModifiableLong walSize = new OModifiableLong();
     if (filterWALFiles) {
-      //noinspection resource
       walFiles =
           Files.find(
               walLocation,
@@ -315,7 +315,6 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
               (Path path, BasicFileAttributes attributes) ->
                   validateName(path.getFileName().toString(), storageName, locale));
     } else {
-      //noinspection resource
       walFiles =
           Files.find(
               walLocation,
@@ -787,12 +786,13 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
   }
 
   public void delete() throws IOException {
-    final List<Long> segmentsToDelete = new ArrayList<>(this.segments.size());
+    final LongArrayList segmentsToDelete = new LongArrayList(this.segments.size());
     segmentsToDelete.addAll(segments);
 
     close(false);
 
-    for (final long segment : segmentsToDelete) {
+    for (int i = 0; i < segmentsToDelete.size(); i++) {
+      final long segment = segmentsToDelete.getLong(i);
       final String segmentName = getSegmentName(segment);
       final Path segmentPath = walLocation.resolve(segmentName);
       Files.deleteIfExists(segmentPath);
@@ -1123,21 +1123,6 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
     }
   }
 
-  public List<String> getWalFiles() {
-    final List<String> result = new ArrayList<>();
-
-    for (final long segment : segments) {
-      final String segmentName = getSegmentName(segment);
-      final Path segmentPath = walLocation.resolve(segmentName);
-
-      if (Files.exists(segmentPath)) {
-        result.add(segmentPath.toAbsolutePath().toString());
-      }
-    }
-
-    return result;
-  }
-
   public void moveLsnAfter(final OLogSequenceNumber lsn) {
     final long segment = lsn.getSegment() + 1;
     appendSegment(segment);
@@ -1152,7 +1137,7 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
       maxSegment = writtenUpTo.getSegment();
     }
 
-    final List<Long> result = new ArrayList<>();
+    final LongArrayList result = new LongArrayList();
     for (final long segment : segments) {
       if (segment < maxSegment) {
         result.add(segment);
@@ -1161,12 +1146,7 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
       }
     }
 
-    final long[] segs = new long[result.size()];
-    for (int i = 0; i < segs.length; i++) {
-      segs[i] = result.get(i);
-    }
-
-    return segs;
+    return result.toLongArray();
   }
 
   public File[] nonActiveSegments(final long fromSegment) {

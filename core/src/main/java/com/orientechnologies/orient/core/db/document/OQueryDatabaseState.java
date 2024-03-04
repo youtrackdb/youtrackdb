@@ -3,14 +3,13 @@ package com.orientechnologies.orient.core.db.document;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.viewmanager.ViewManager;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.util.ArrayList;
-import java.util.List;
 
 public class OQueryDatabaseState {
-
   private OResultSet resultSet = null;
-  private List<Integer> usedClusters = new ArrayList<>();
-  private List<String> usedIndexes = new ArrayList<>();
+  private final IntArrayList usedClusters = new IntArrayList();
+  private final ArrayList<String> usedIndexes = new ArrayList<>();
 
   public OQueryDatabaseState() {}
 
@@ -38,8 +37,8 @@ public class OQueryDatabaseState {
       return;
     }
     ViewManager views = database.getSharedContext().getViewManager();
-    for (int cluster : this.usedClusters) {
-      views.endUsingViewCluster(cluster);
+    for (var i = 0; i < usedClusters.size(); i++) {
+      views.endUsingViewCluster(usedClusters.getInt(i));
     }
     this.usedClusters.clear();
     for (String index : this.usedIndexes) {

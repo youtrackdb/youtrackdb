@@ -31,9 +31,8 @@ import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.storage.OCluster;
 import com.orientechnologies.orient.core.storage.OCluster.ATTRIBUTES;
 import com.orientechnologies.orient.core.storage.OStorage;
-import java.util.ArrayList;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -148,7 +147,7 @@ public class OCommandExecutorSQLAlterCluster extends OCommandExecutorSQLAbstract
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
 
-    final List<Integer> clusters = getClusters();
+    final IntArrayList clusters = getClusters();
 
     if (clusters.isEmpty())
       throw new OCommandExecutionException("Cluster '" + clusterName + "' not found");
@@ -184,10 +183,10 @@ public class OCommandExecutorSQLAlterCluster extends OCommandExecutorSQLAbstract
         .getValueAsLong(OGlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT);
   }
 
-  protected List<Integer> getClusters() {
+  protected IntArrayList getClusters() {
     final ODatabaseDocumentInternal database = getDatabase();
 
-    final List<Integer> result = new ArrayList<>();
+    final IntArrayList result = new IntArrayList();
 
     if (clusterName.endsWith("*")) {
       final String toMatch =

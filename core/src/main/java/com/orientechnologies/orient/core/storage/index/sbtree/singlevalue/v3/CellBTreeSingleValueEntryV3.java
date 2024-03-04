@@ -9,8 +9,8 @@ public final class CellBTreeSingleValueEntryV3<K>
     implements Comparable<CellBTreeSingleValueEntryV3<K>> {
   private final Comparator<? super K> comparator = ODefaultComparator.INSTANCE;
 
-  protected final int leftChild;
-  protected final int rightChild;
+  private final int leftChild;
+  private final int rightChild;
   public final K key;
   public final ORID value;
 

@@ -38,7 +38,7 @@ public class TransactionMetadataTest {
     db.begin();
     byte[] metadata = new byte[] {1, 2, 4};
     ((OTransactionInternal) db.getTransaction())
-        .setMetadataHolder(Optional.of(new TestMetadataHolder(metadata)));
+        .setMetadataHolder(new TestMetadataHolder(metadata));
     OVertex v = db.newVertex("V");
     v.setProperty("name", "Foo");
     db.save(v);
@@ -66,7 +66,7 @@ public class TransactionMetadataTest {
     db.begin();
     byte[] metadata = new byte[] {1, 2, 4};
     ((OTransactionInternal) db.getTransaction())
-        .setMetadataHolder(Optional.of(new TestMetadataHolder(metadata)));
+        .setMetadataHolder(new TestMetadataHolder(metadata));
     OVertex v = db.newVertex("V");
     v.setProperty("name", "Foo");
     db.save(v);

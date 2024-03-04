@@ -43,6 +43,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.Map.Entry;
+import javax.annotation.Nullable;
 
 public abstract class OTransactionRealAbstract extends OTransactionAbstract
     implements OTransactionInternal {
@@ -55,7 +56,7 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
   protected int newObjectCounter = -2;
   protected Map<String, Object> userData = new HashMap<>();
   private Map<ORID, LockedRecordMetadata> noTxLocks;
-  private Optional<OTxMetadataHolder> metadata = Optional.empty();
+  @Nullable private OTxMetadataHolder metadata = null;
 
   /**
    * token This set is used to track which documents are changed during tx, if documents are changed
@@ -63,7 +64,7 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
    */
   protected final Set<ODocument> changedDocuments = new HashSet<>();
 
-  private Optional<List<byte[]>> serializedOperations = Optional.empty();
+  @Nullable private List<byte[]> serializedOperations;
 
   protected OTransactionRealAbstract(final ODatabaseDocumentInternal database, final int id) {
     super(database);
@@ -81,8 +82,7 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
     super.close();
     for (final ORecordOperation recordOperation : getRecordOperations()) {
       final ORecord record = recordOperation.getRecord();
-      if (record instanceof ODocument) {
-        final ODocument document = (ODocument) record;
+      if (record instanceof ODocument document) {
         if (document.isDirty()) {
           document.undo();
         }
@@ -151,7 +151,7 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
   /** Called by class iterator. */
   public List<ORecordOperation> getNewRecordEntriesByClass(
       final OClass iClass, final boolean iPolymorphic) {
-    final List<ORecordOperation> result = new ArrayList<ORecordOperation>();
+    final List<ORecordOperation> result = new ArrayList<>();
 
     if (iClass == null)
       // RETURN ALL THE RECORDS
@@ -178,7 +178,7 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
 
   /** Called by cluster iterator. */
   public List<ORecordOperation> getNewRecordEntriesByClusterIds(final int[] iIds) {
-    final List<ORecordOperation> result = new ArrayList<ORecordOperation>();
+    final List<ORecordOperation> result = new ArrayList<>();
 
     if (iIds == null)
       // RETURN ALL THE RECORDS
@@ -209,7 +209,7 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
   public List<String> getInvolvedIndexes() {
     List<String> list = null;
     for (String indexName : indexEntries.keySet()) {
-      if (list == null) list = new ArrayList<String>();
+      if (list == null) list = new ArrayList<>();
       list.add(indexName);
     }
     return list;
@@ -223,11 +223,15 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
       final ODocument indexDoc = new ODocument().setTrackingChanges(false);
       ODocumentInternal.addOwner(indexDoc, result);
 
+      //noinspection deprecation
       result.field(indexEntry.getKey(), indexDoc, OType.EMBEDDED);
 
-      if (indexEntry.getValue().cleared) indexDoc.field("clear", Boolean.TRUE);
+      if (indexEntry.getValue().cleared) { // noinspection deprecation
+        indexDoc.field("clear", Boolean.TRUE);
+      }
 
-      final List<ODocument> entries = new ArrayList<ODocument>();
+      final List<ODocument> entries = new ArrayList<>();
+      //noinspection deprecation
       indexDoc.field("entries", entries, OType.EMBEDDEDLIST);
 
       // STORE INDEX ENTRIES
@@ -235,6 +239,7 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
         if (!entry.clientTrackOnly) entries.add(serializeIndexChangeEntry(entry, indexDoc));
       }
 
+      //noinspection deprecation
       indexDoc.field(
           "nullEntries", serializeIndexChangeEntry(indexEntry.getValue().nullKeyChanges, indexDoc));
     }
@@ -248,11 +253,7 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
     return indexEntries;
   }
 
-  /**
-   * Bufferizes index changes to be flushed at commit time.
-   *
-   * @return
-   */
+  /** Buffer sizes index changes to be flushed at commit time. */
   public OTransactionIndexChanges getIndexChanges(final String iIndexName) {
     return indexEntries.get(iIndexName);
   }
@@ -322,8 +323,7 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
     // potentially affected index keys to keep
     // the OTransactionIndexChanges.changesPerKey in a consistent state.
 
-    final List<KeyChangesUpdateRecord> keyRecordsToReinsert =
-        new ArrayList<KeyChangesUpdateRecord>();
+    final List<KeyChangesUpdateRecord> keyRecordsToReinsert = new ArrayList<>();
     final ODatabaseDocumentInternal database = getDatabase();
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
     for (Entry<String, OTransactionIndexChanges> entry : indexEntries.entrySet()) {
@@ -415,16 +415,20 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
       if (entry.key instanceof OCompositeKey) {
         final List<Object> keys = ((OCompositeKey) entry.key).getKeys();
 
+        //noinspection deprecation
         keyContainer.field("key", keys, OType.EMBEDDEDLIST);
+        //noinspection deprecation
         keyContainer.field("binary", false);
       } else {
+        //noinspection deprecation
         keyContainer.field("key", entry.key);
+        //noinspection deprecation
         keyContainer.field("binary", false);
       }
 
     } else keyContainer = null;
 
-    final List<ODocument> operations = new ArrayList<ODocument>();
+    final List<ODocument> operations = new ArrayList<>();
 
     // SERIALIZE VALUES
     if (!entry.isEmpty()) {
@@ -434,6 +438,7 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
         ODocumentInternal.addOwner(changeDoc, indexDoc);
 
         // SERIALIZE OPERATION
+        //noinspection deprecation
         changeDoc.field("o", e.getOperation().ordinal());
 
         if (e.getValue() instanceof ORecord && e.getValue().getIdentity().isNew()) {
@@ -442,6 +447,7 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
           else ((ORecord) e.getValue()).save();
         }
 
+        //noinspection deprecation
         changeDoc.field("v", e.getValue() != null ? e.getValue().getIdentity() : null);
 
         operations.add(changeDoc);
@@ -450,6 +456,7 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
     ODocument res = new ODocument();
     res.setTrackingChanges(false);
     ODocumentInternal.addOwner(res, indexDoc);
+    //noinspection deprecation
     return res.setAllowChainedAccess(false)
         .field("k", keyContainer, OType.EMBEDDED)
         .field("ops", operations, OType.EMBEDDEDLIST);
@@ -476,8 +483,9 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
   private static Dependency[] getIndexFieldRidDependencies(OIndex index) {
     final OIndexDefinition definition = index.getDefinition();
 
-    if (definition == null) // type for untyped index is still not resolved
-    return null;
+    if (definition == null) { // type for untyped index is still not resolved
+      return null;
+    }
 
     final OType[] types = definition.getTypes();
     final Dependency[] dependencies = new Dependency[types.length];
@@ -524,29 +532,17 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
   }
 
   private static Dependency getTypeRidDependency(OType type) {
-    switch (type) {
-      case CUSTOM:
-      case ANY:
-        return Dependency.Unknown;
-
-      case EMBEDDED:
-      case LINK:
-        return Dependency.Yes;
-
-      case LINKLIST:
-      case LINKSET:
-      case LINKMAP:
-      case LINKBAG:
-      case EMBEDDEDLIST:
-      case EMBEDDEDSET:
-      case EMBEDDEDMAP:
-        assert false; // under normal conditions, collection field type is already resolved to its
-        // component type
-        return Dependency.Unknown; // fallback to the safest variant, just in case
-
-      default: // all other primitive types which doesn't depend on rids
-        return Dependency.No;
-    }
+    // fallback to the safest variant, just in case
+    return switch (type) {
+      case CUSTOM, ANY -> Dependency.Unknown;
+      case EMBEDDED, LINK -> Dependency.Yes;
+      case LINKLIST, LINKSET, LINKMAP, LINKBAG, EMBEDDEDLIST, EMBEDDEDSET, EMBEDDEDMAP ->
+          // under normal conditions, collection field type is already resolved to its
+          // component type
+          throw new IllegalStateException("Collection field type is not allowed here");
+      default -> // all other primitive types which doesn't depend on rids
+          Dependency.No;
+    };
   }
 
   private enum Dependency {
@@ -583,19 +579,23 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
   }
 
   @Override
-  public Optional<byte[]> getMetadata() {
-    return metadata.map((h) -> h.metadata());
+  @Nullable
+  public byte[] getMetadata() {
+    if (metadata != null) {
+      return metadata.metadata();
+    }
+    return null;
   }
 
   @Override
   public void storageBegun() {
-    if (metadata.isPresent()) {
-      metadata.get().notifyMetadataRead();
+    if (metadata != null) {
+      metadata.notifyMetadataRead();
     }
   }
 
   @Override
-  public void setMetadataHolder(Optional<OTxMetadataHolder> metadata) {
+  public void setMetadataHolder(OTxMetadataHolder metadata) {
     this.metadata = metadata;
   }
 
@@ -608,12 +608,12 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
       change.serialize(new DataOutputStream(out));
       operations.add(out.toByteArray());
     }
-    this.serializedOperations = Optional.of(operations);
+    this.serializedOperations = operations;
   }
 
   public Iterator<byte[]> getSerializedOperations() {
-    if (serializedOperations.isPresent()) {
-      return serializedOperations.get().iterator();
+    if (serializedOperations != null) {
+      return serializedOperations.iterator();
     } else {
       return Collections.emptyIterator();
     }

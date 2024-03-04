@@ -61,6 +61,7 @@ import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.MetaDa
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OLogSequenceNumber;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OWriteAheadLog;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -1402,7 +1403,7 @@ public final class OWOWCache extends OAbstractWriteCache
 
       final Collection<Integer> fileIds = nameIdMap.values();
 
-      final List<Long> closedIds = new ArrayList<>(1_000);
+      final LongArrayList closedIds = new LongArrayList(1_000);
       final Map<Integer, String> idFileNameMap = new HashMap<>(1_000);
 
       for (final Integer intId : fileIds) {
@@ -1458,15 +1459,7 @@ public final class OWOWCache extends OAbstractWriteCache
       nameIdMap.clear();
       idNameMap.clear();
 
-      final long[] ids = new long[closedIds.size()];
-      int n = 0;
-
-      for (final long id : closedIds) {
-        ids[n] = id;
-        n++;
-      }
-
-      return ids;
+      return closedIds.toLongArray();
     } finally {
       filesLock.releaseWriteLock();
     }
@@ -1678,7 +1671,7 @@ public final class OWOWCache extends OAbstractWriteCache
 
   @Override
   public long[] delete() throws IOException {
-    final List<Long> result = new ArrayList<>(1_024);
+    final LongArrayList result = new LongArrayList(1_024);
     filesLock.acquireWriteLock();
     try {
       checkForClose();
@@ -1720,17 +1713,9 @@ public final class OWOWCache extends OAbstractWriteCache
     }
 
     stopFlush();
-
-    final long[] fIds = new long[result.size()];
-    int n = 0;
-    for (final Long fid : result) {
-      fIds[n] = fid;
-      n++;
-    }
-
     doubleWriteLog.close();
 
-    return fIds;
+    return result.toLongArray();
   }
 
   @Override

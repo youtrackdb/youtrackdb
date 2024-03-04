@@ -36,13 +36,16 @@ import com.orientechnologies.orient.core.index.OCompositeKey;
 import com.orientechnologies.orient.core.index.comparator.OAlwaysGreaterKey;
 import com.orientechnologies.orient.core.index.comparator.OAlwaysLessKey;
 import com.orientechnologies.orient.core.index.engine.IndexEngineValidator;
-import com.orientechnologies.orient.core.iterator.OEmptyIterator;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODurableComponent;
 import com.orientechnologies.orient.core.storage.index.sbtree.singlevalue.OCellBTreeSingleValue;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
+import it.unimi.dsi.fastutil.longs.LongList;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -667,7 +670,6 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
           return StreamSupport.stream(Spliterators.emptySpliterator(), false);
         }
 
-        //noinspection resource
         return StreamSupport.stream(
                 new CellBTreeSpliteratorForward(null, null, false, false), false)
             .map((entry) -> entry.first);
@@ -689,7 +691,6 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
     try {
       acquireSharedLock();
       try {
-        //noinspection resource
         return StreamSupport.stream(
             new CellBTreeSpliteratorForward(null, null, false, false), false);
       } finally {
@@ -1023,8 +1024,8 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
   private UpdateBucketSearchResult splitBucket(
       final CellBTreeBucketSingleValueV1<K> bucketToSplit,
       final OCacheEntry entryToSplit,
-      final List<Long> path,
-      final List<Integer> itemPointers,
+      final LongList path,
+      final IntList itemPointers,
       final int keyIndex,
       final OAtomicOperation atomicOperation)
       throws IOException {
@@ -1067,8 +1068,8 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
   }
 
   private UpdateBucketSearchResult splitNonRootBucket(
-      final List<Long> path,
-      final List<Integer> itemPointers,
+      final LongList path,
+      final IntList itemPointers,
       final int keyIndex,
       final long pageIndex,
       final CellBTreeBucketSingleValueV1<K> bucketToSplit,
@@ -1126,12 +1127,12 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
         }
       }
 
-      long parentIndex = path.get(path.size() - 2);
+      long parentIndex = path.getLong(path.size() - 2);
       OCacheEntry parentCacheEntry = loadPageForWrite(atomicOperation, fileId, parentIndex, true);
       try {
         CellBTreeBucketSingleValueV1<K> parentBucket =
             new CellBTreeBucketSingleValueV1<>(parentCacheEntry);
-        int insertionIndex = itemPointers.get(itemPointers.size() - 2);
+        int insertionIndex = itemPointers.getInt(itemPointers.size() - 2);
         while (!parentBucket.addNonLeafEntry(
             insertionIndex,
             (int) pageIndex,
@@ -1168,9 +1169,9 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
       rightBucketEntry.close();
     }
 
-    final ArrayList<Long> resultPath = new ArrayList<>(path.subList(0, path.size() - 1));
-    final ArrayList<Integer> resultItemPointers =
-        new ArrayList<>(itemPointers.subList(0, itemPointers.size() - 1));
+    final LongArrayList resultPath = new LongArrayList(path.subList(0, path.size() - 1));
+    final IntArrayList resultItemPointers =
+        new IntArrayList(itemPointers.subList(0, itemPointers.size() - 1));
 
     if (keyIndex <= indexToSplit) {
       resultPath.add(pageIndex);
@@ -1180,8 +1181,8 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
     }
 
     final int parentIndex = resultItemPointers.size() - 1;
-    resultItemPointers.set(parentIndex, resultItemPointers.get(parentIndex) + 1);
-    resultPath.add((long) rightBucketEntry.getPageIndex());
+    resultItemPointers.set(parentIndex, resultItemPointers.getInt(parentIndex) + 1);
+    resultPath.add(rightBucketEntry.getPageIndex());
 
     if (splitLeaf) {
       resultItemPointers.add(keyIndex - indexToSplit);
@@ -1298,20 +1299,20 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
         serializeKey(separationKey),
         true);
 
-    final ArrayList<Long> resultPath = new ArrayList<>(8);
+    final LongArrayList resultPath = new LongArrayList(8);
     resultPath.add(ROOT_INDEX);
 
-    final ArrayList<Integer> itemPointers = new ArrayList<>(8);
+    final IntArrayList itemPointers = new IntArrayList(8);
 
     if (keyIndex <= indexToSplit) {
       itemPointers.add(-1);
       itemPointers.add(keyIndex);
 
-      resultPath.add((long) leftBucketEntry.getPageIndex());
+      resultPath.add(leftBucketEntry.getPageIndex());
       return new UpdateBucketSearchResult(itemPointers, resultPath, keyIndex);
     }
 
-    resultPath.add((long) rightBucketEntry.getPageIndex());
+    resultPath.add(rightBucketEntry.getPageIndex());
     itemPointers.add(0);
 
     if (splitLeaf) {
@@ -1365,8 +1366,8 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
       final K key, final OAtomicOperation atomicOperation) throws IOException {
     long pageIndex = ROOT_INDEX;
 
-    final ArrayList<Long> path = new ArrayList<>(8);
-    final ArrayList<Integer> itemIndexes = new ArrayList<>(8);
+    final LongArrayList path = new LongArrayList(8);
+    final IntArrayList itemIndexes = new IntArrayList(8);
 
     while (true) {
       if (path.size() > MAX_PATH_LENGTH) {
@@ -1407,11 +1408,9 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
   }
 
   private K enhanceCompositeKey(final K key, final PartialSearchMode partialSearchMode) {
-    if (!(key instanceof OCompositeKey)) {
+    if (!(key instanceof OCompositeKey compositeKey)) {
       return key;
     }
-
-    final OCompositeKey compositeKey = (OCompositeKey) key;
 
     if (!(keySize == 1
         || compositeKey.getKeys().size() == keySize
@@ -1470,19 +1469,19 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
   }
 
   private static final class UpdateBucketSearchResult {
-    private final List<Integer> insertionIndexes;
-    private final ArrayList<Long> path;
+    private final IntList insertionIndexes;
+    private final LongArrayList path;
     private final int itemIndex;
 
     private UpdateBucketSearchResult(
-        final List<Integer> insertionIndexes, final ArrayList<Long> path, final int itemIndex) {
+        final IntList insertionIndexes, final LongArrayList path, final int itemIndex) {
       this.insertionIndexes = insertionIndexes;
       this.path = path;
       this.itemIndex = itemIndex;
     }
 
     private long getLastPathItem() {
-      return path.get(path.size() - 1);
+      return path.getLong(path.size() - 1);
     }
   }
 
@@ -1493,122 +1492,6 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
     private PagePathItemUnit(final long pageIndex, final int itemIndex) {
       this.pageIndex = pageIndex;
       this.itemIndex = itemIndex;
-    }
-  }
-
-  public final class OSBTreeFullKeySpliterator implements Spliterator<K> {
-    private final int prefetchSize =
-        OGlobalConfiguration.INDEX_CURSOR_PREFETCH_SIZE.getValueAsInteger();
-    private long pageIndex;
-    private int itemIndex;
-
-    private List<K> keysCache = new ArrayList<>();
-    private Iterator<K> keysIterator = new OEmptyIterator<>();
-
-    private OSBTreeFullKeySpliterator(final long startPageIndex) {
-      pageIndex = startPageIndex;
-      itemIndex = 0;
-    }
-
-    @Override
-    public boolean tryAdvance(Consumer<? super K> action) {
-      if (keysIterator == null) {
-        return false;
-      }
-
-      if (keysIterator.hasNext()) {
-        action.accept(keysIterator.next());
-        return true;
-      }
-
-      keysCache.clear();
-
-      atomicOperationsManager.acquireReadLock(CellBTreeSingleValueV1.this);
-      try {
-        acquireSharedLock();
-        try {
-          final OAtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
-
-          while (keysCache.size() < prefetchSize) {
-            if (pageIndex == -1) {
-              break;
-            }
-
-            try (final OCacheEntry entryPointCacheEntry =
-                loadPageForRead(atomicOperation, fileId, ENTRY_POINT_INDEX); ) {
-              @SuppressWarnings("ObjectAllocationInLoop")
-              final CellBTreeSingleValueEntryPointV1 entryPoint =
-                  new CellBTreeSingleValueEntryPointV1(entryPointCacheEntry);
-              if (pageIndex >= entryPoint.getPagesSize() + 1) {
-                pageIndex = -1;
-                break;
-              }
-            }
-
-            try (final OCacheEntry cacheEntry =
-                loadPageForRead(atomicOperation, fileId, pageIndex)) {
-              @SuppressWarnings("ObjectAllocationInLoop")
-              final CellBTreeBucketSingleValueV1<K> bucket =
-                  new CellBTreeBucketSingleValueV1<>(cacheEntry);
-
-              final int bucketSize = bucket.size();
-
-              if (itemIndex >= bucketSize) {
-                pageIndex = bucket.getRightSibling();
-                itemIndex = 0;
-                continue;
-              }
-
-              while (itemIndex < bucketSize && keysCache.size() < prefetchSize) {
-                @SuppressWarnings("ObjectAllocationInLoop")
-                final K key = bucket.getEntry(itemIndex, encryption, keySerializer).key;
-                itemIndex++;
-
-                keysCache.add(key);
-              }
-            }
-          }
-        } finally {
-          releaseSharedLock();
-        }
-      } catch (final IOException e) {
-        throw OException.wrapException(
-            new OCellBTreeSingleValueV1Exception(
-                "Error during element iteration", CellBTreeSingleValueV1.this),
-            e);
-      } finally {
-        atomicOperationsManager.releaseReadLock(CellBTreeSingleValueV1.this);
-      }
-
-      if (keysCache.isEmpty()) {
-        keysCache = null;
-        return false;
-      }
-
-      keysIterator = keysCache.iterator();
-      action.accept(keysIterator.next());
-
-      return false;
-    }
-
-    @Override
-    public Spliterator<K> trySplit() {
-      return null;
-    }
-
-    @Override
-    public long estimateSize() {
-      return Long.MAX_VALUE;
-    }
-
-    @Override
-    public int characteristics() {
-      return SORTED | NONNULL | ORDERED;
-    }
-
-    @Override
-    public Comparator<? super K> getComparator() {
-      return comparator;
     }
   }
 

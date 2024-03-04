@@ -4,14 +4,10 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OView;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 /** Created by luigidellaquila on 08/07/16. */
 public class FetchFromViewExecutionStep extends FetchFromClassExecutionStep {
-
-  private List<Integer> usedClusters = new ArrayList<>();
 
   public FetchFromViewExecutionStep(
       String className,
@@ -28,7 +24,6 @@ public class FetchFromViewExecutionStep extends FetchFromClassExecutionStep {
     for (int clusterId : classClusters) {
       String clusterName = ctx.getDatabase().getClusterNameById(clusterId);
       if (clusters == null || clusters.contains(clusterName)) {
-        usedClusters.add(clusterId);
         database.queryStartUsingViewCluster(clusterId);
       }
     }
@@ -56,9 +51,9 @@ public class FetchFromViewExecutionStep extends FetchFromClassExecutionStep {
     StringBuilder builder = new StringBuilder();
     String ind = OExecutionStepInternal.getIndent(depth, indent);
     builder.append(ind);
-    builder.append("+ FETCH FROM VIEW " + className);
+    builder.append("+ FETCH FROM VIEW ").append(className);
     if (profilingEnabled) {
-      builder.append(" (" + getCostFormatted() + ")");
+      builder.append(" (").append(getCostFormatted()).append(")");
     }
     builder.append("\n");
     for (int i = 0; i < getSubSteps().size(); i++) {

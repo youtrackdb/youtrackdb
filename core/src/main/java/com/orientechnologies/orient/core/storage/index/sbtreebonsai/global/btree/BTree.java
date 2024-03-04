@@ -10,6 +10,8 @@ import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoper
 import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODurableComponent;
 import com.orientechnologies.orient.core.storage.index.sbtreebonsai.global.EntryPoint;
 import com.orientechnologies.orient.core.storage.index.sbtreebonsai.global.IntSerializer;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -213,7 +215,7 @@ public final class BTree extends ODurableComponent {
         final OAtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
 
         final Optional<BucketSearchResult> searchResult = firstItem(atomicOperation);
-        if (!searchResult.isPresent()) {
+        if (searchResult.isEmpty()) {
           return null;
         }
 
@@ -303,7 +305,7 @@ public final class BTree extends ODurableComponent {
         final OAtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
 
         final Optional<BucketSearchResult> searchResult = lastItem(atomicOperation);
-        if (!searchResult.isPresent()) {
+        if (searchResult.isEmpty()) {
           return null;
         }
 
@@ -393,8 +395,8 @@ public final class BTree extends ODurableComponent {
   private UpdateBucketSearchResult splitBucket(
       final Bucket bucketToSplit,
       final OCacheEntry entryToSplit,
-      final List<Integer> path,
-      final List<Integer> itemPointers,
+      final IntList path,
+      final IntList itemPointers,
       final int keyIndex,
       final OAtomicOperation atomicOperation)
       throws IOException {
@@ -437,8 +439,8 @@ public final class BTree extends ODurableComponent {
   }
 
   private UpdateBucketSearchResult splitNonRootBucket(
-      final List<Integer> path,
-      final List<Integer> itemPointers,
+      final IntList path,
+      final IntList itemPointers,
       final int keyIndex,
       final int pageIndex,
       final Bucket bucketToSplit,
@@ -492,11 +494,11 @@ public final class BTree extends ODurableComponent {
         }
       }
 
-      long parentIndex = path.get(path.size() - 2);
+      long parentIndex = path.getInt(path.size() - 2);
       OCacheEntry parentCacheEntry = loadPageForWrite(atomicOperation, fileId, parentIndex, true);
       try {
         Bucket parentBucket = new Bucket(parentCacheEntry);
-        int insertionIndex = itemPointers.get(itemPointers.size() - 2);
+        int insertionIndex = itemPointers.getInt(itemPointers.size() - 2);
         while (!parentBucket.addNonLeafEntry(
             insertionIndex,
             pageIndex,
@@ -533,9 +535,9 @@ public final class BTree extends ODurableComponent {
       rightBucketEntry.close();
     }
 
-    final ArrayList<Integer> resultPath = new ArrayList<>(path.subList(0, path.size() - 1));
-    final ArrayList<Integer> resultItemPointers =
-        new ArrayList<>(itemPointers.subList(0, itemPointers.size() - 1));
+    final IntArrayList resultPath = new IntArrayList(path.subList(0, path.size() - 1));
+    final IntArrayList resultItemPointers =
+        new IntArrayList(itemPointers.subList(0, itemPointers.size() - 1));
 
     if (keyIndex <= indexToSplit) {
       resultPath.add(pageIndex);
@@ -545,7 +547,7 @@ public final class BTree extends ODurableComponent {
     }
 
     final int parentIndex = resultItemPointers.size() - 1;
-    resultItemPointers.set(parentIndex, resultItemPointers.get(parentIndex) + 1);
+    resultItemPointers.set(parentIndex, resultItemPointers.getInt(parentIndex) + 1);
     resultPath.add(rightBucketEntry.getPageIndex());
 
     if (splitLeaf) {
@@ -643,10 +645,10 @@ public final class BTree extends ODurableComponent {
         EdgeKeySerializer.INSTANCE.serializeNativeAsWhole(separationKey, (Object[]) null),
         true);
 
-    final ArrayList<Integer> resultPath = new ArrayList<>(8);
+    final IntArrayList resultPath = new IntArrayList(8);
     resultPath.add(ROOT_INDEX);
 
-    final ArrayList<Integer> itemPointers = new ArrayList<>(8);
+    final IntArrayList itemPointers = new IntArrayList(8);
 
     if (keyIndex <= indexToSplit) {
       itemPointers.add(-1);
@@ -681,8 +683,8 @@ public final class BTree extends ODurableComponent {
       final EdgeKey key, final OAtomicOperation atomicOperation) throws IOException {
     int pageIndex = ROOT_INDEX;
 
-    final ArrayList<Integer> path = new ArrayList<>(8);
-    final ArrayList<Integer> itemIndexes = new ArrayList<>(8);
+    final IntArrayList path = new IntArrayList(8);
+    final IntArrayList itemIndexes = new IntArrayList(8);
 
     while (true) {
       if (path.size() > MAX_PATH_LENGTH) {

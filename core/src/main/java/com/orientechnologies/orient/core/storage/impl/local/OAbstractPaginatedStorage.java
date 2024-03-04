@@ -166,9 +166,13 @@ import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollection
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManagerShared;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeRidBag;
 import com.orientechnologies.orient.core.tx.OTransactionAbstract;
+import com.orientechnologies.orient.core.tx.OTransactionData;
+import com.orientechnologies.orient.core.tx.OTransactionId;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChanges;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChangesPerKey;
 import com.orientechnologies.orient.core.tx.OTransactionInternal;
+import com.orientechnologies.orient.core.tx.OTxMetadataHolder;
+import com.orientechnologies.orient.core.tx.OTxMetadataHolderImpl;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -4915,9 +4919,9 @@ public abstract class OAbstractPaginatedStorage
     transaction.set(new OStorageTransaction(clientTx));
     try {
       final OAtomicOperation atomicOperation =
-          atomicOperationsManager.startAtomicOperation(clientTx.getMetadata().orElse(null));
-      if (clientTx.getMetadata().isPresent()) {
-        this.lastMetadata = clientTx.getMetadata().get();
+          atomicOperationsManager.startAtomicOperation(clientTx.getMetadata());
+      if (clientTx.getMetadata() != null) {
+        this.lastMetadata = clientTx.getMetadata();
       }
       clientTx.storageBegun();
       Iterator<byte[]> ops = clientTx.getSerializedOperations();
@@ -6862,6 +6866,7 @@ public abstract class OAbstractPaginatedStorage
     }
   }
 
+  @SuppressWarnings("unused")
   public int getVersionForKey(final String indexName, final Object key) {
     assert isIndexUniqueByName(indexName);
     if (!isDistributedMode(lastMetadata)) {
@@ -6934,6 +6939,100 @@ public abstract class OAbstractPaginatedStorage
       throw logAndPrepareForRethrow(ee, false);
     } catch (final Throwable t) {
       throw logAndPrepareForRethrow(t, false);
+    }
+  }
+
+  public Optional<OBackgroundNewDelta> extractTransactionsFromWal(
+      List<OTransactionId> transactionsMetadata) {
+    Map<OTransactionId, OTransactionData> finished = new HashMap<>();
+    List<OTransactionId> started = new ArrayList<>();
+    stateLock.readLock().lock();
+    try {
+      Set<OTransactionId> transactionsToRead = new HashSet<>(transactionsMetadata);
+      // we iterate till the last record is contained in wal at the moment when we call this method
+      OLogSequenceNumber beginLsn = writeAheadLog.begin();
+      Map<Long, OTransactionData> units = new HashMap<>();
+
+      writeAheadLog.addCutTillLimit(beginLsn);
+      try {
+        List<WriteableWALRecord> records = writeAheadLog.next(beginLsn, 1_000);
+        // all information about changed records is contained in atomic operation metadata
+        while (!records.isEmpty()) {
+          for (final OWALRecord record : records) {
+
+            if (record instanceof OFileCreatedWALRecord) {
+              return Optional.empty();
+            }
+
+            if (record instanceof OFileDeletedWALRecord) {
+              return Optional.empty();
+            }
+
+            if (record instanceof OAtomicUnitStartMetadataRecord) {
+              byte[] meta = ((OAtomicUnitStartMetadataRecord) record).getMetadata();
+              OTxMetadataHolder data = OTxMetadataHolderImpl.read(meta);
+              // This will not be a byte to byte compare, but should compare only the tx id not all
+              // status
+              //noinspection ConstantConditions
+              OTransactionId txId =
+                  new OTransactionId(
+                      Optional.empty(), data.getId().getPosition(), data.getId().getSequence());
+              if (transactionsToRead.contains(txId)) {
+                long unitId = ((OAtomicUnitStartMetadataRecord) record).getOperationUnitId();
+                units.put(unitId, new OTransactionData(txId));
+                started.add(txId);
+              }
+            }
+            if (record instanceof OAtomicUnitEndRecord) {
+              long opId = ((OAtomicUnitEndRecord) record).getOperationUnitId();
+              OTransactionData opes = units.remove(opId);
+              if (opes != null) {
+                transactionsToRead.remove(opes.getTransactionId());
+                finished.put(opes.getTransactionId(), opes);
+              }
+            }
+            if (record instanceof OHighLevelTransactionChangeRecord) {
+              byte[] data = ((OHighLevelTransactionChangeRecord) record).getData();
+              long unitId = ((OHighLevelTransactionChangeRecord) record).getOperationUnitId();
+              OTransactionData tx = units.get(unitId);
+              if (tx != null) {
+                tx.addRecord(data);
+              }
+            }
+            if (transactionsToRead.isEmpty() && units.isEmpty()) {
+              // all read stop scanning and return the transactions
+              List<OTransactionData> transactions = new ArrayList<>();
+              for (OTransactionId id : started) {
+                OTransactionData data = finished.get(id);
+                if (data != null) {
+                  transactions.add(data);
+                }
+              }
+              return Optional.of(new OBackgroundNewDelta(transactions));
+            }
+          }
+          records = writeAheadLog.next(records.get(records.size() - 1).getLsn(), 1_000);
+        }
+      } finally {
+        writeAheadLog.removeCutTillLimit(beginLsn);
+      }
+      if (transactionsToRead.isEmpty()) {
+        List<OTransactionData> transactions = new ArrayList<>();
+        for (OTransactionId id : started) {
+          OTransactionData data = finished.get(id);
+          if (data != null) {
+            transactions.add(data);
+          }
+        }
+        return Optional.of(new OBackgroundNewDelta(transactions));
+      } else {
+        return Optional.empty();
+      }
+    } catch (final IOException e) {
+      throw OException.wrapException(
+          new OStorageException("Error of reading of records from  WAL"), e);
+    } finally {
+      stateLock.readLock().unlock();
     }
   }
 
