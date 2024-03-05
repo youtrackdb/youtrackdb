@@ -81,12 +81,12 @@ import com.orientechnologies.orient.object.iterator.OObjectIteratorClass;
 import com.orientechnologies.orient.object.iterator.OObjectIteratorCluster;
 import com.orientechnologies.orient.object.metadata.OMetadataObject;
 import com.orientechnologies.orient.object.serialization.OObjectSerializerHelper;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import javassist.util.proxy.Proxy;
@@ -1020,7 +1020,7 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
   }
 
   @Override
-  public Set<Integer> getBlobClusterIds() {
+  public IntSet getBlobClusterIds() {
     return getUnderlying().getBlobClusterIds();
   }
 

@@ -63,6 +63,7 @@ import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OLogSe
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OWriteAheadLog;
 import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import java.io.EOFException;
 import java.io.IOException;
@@ -3353,7 +3354,7 @@ public final class OWOWCache extends OAbstractWriteCache
     }
   }
 
-  public Void executeFileFlush(Set<Integer> fileIdSet) throws InterruptedException, IOException {
+  public Void executeFileFlush(IntOpenHashSet fileIdSet) throws InterruptedException, IOException {
     if (flushError != null) {
       final Object[] iAdditionalArgs = new Object[] {flushError.getMessage()};
       OLogManager.instance()
@@ -3426,8 +3427,9 @@ public final class OWOWCache extends OAbstractWriteCache
     flushPages(chunks, maxLSN);
 
     if (callFsync) {
-      for (final int iFileId : fileIdSet) {
-        final long finalId = composeFileId(id, iFileId);
+      var fileIdIterator = fileIdSet.intIterator();
+      while (fileIdIterator.hasNext()) {
+        final long finalId = composeFileId(id, fileIdIterator.nextInt());
         final OClosableEntry<Long, OFile> entry = files.acquire(finalId);
         if (entry != null) {
           try {

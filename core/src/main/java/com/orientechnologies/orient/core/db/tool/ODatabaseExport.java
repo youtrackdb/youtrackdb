@@ -644,7 +644,7 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
         if (recordExported > 0) writer.append(",");
 
         final String format = ORecordAbstract.BASE_FORMAT + ",dateAsLong";
-        ORecordSerializerJSON.INSTANCE.toString(rec, writer, format == null ? "" : format, true);
+        ORecordSerializerJSON.INSTANCE.toString(rec, writer, format == null ? "" : format);
 
         recordExported++;
         recordNum++;

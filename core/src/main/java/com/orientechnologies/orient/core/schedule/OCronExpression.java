@@ -18,6 +18,9 @@
 package com.orientechnologies.orient.core.schedule;
 
 import com.orientechnologies.common.log.OLogManager;
+import it.unimi.dsi.fastutil.ints.IntRBTreeSet;
+import it.unimi.dsi.fastutil.ints.IntSortedSet;
+import java.io.Serial;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Calendar;
@@ -26,10 +29,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
-import java.util.SortedSet;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
-import java.util.TreeSet;
 
 /**
  * Provides a parser and evaluator for unix-like cron expressions. Cron expressions provide the
@@ -185,22 +186,22 @@ import java.util.TreeSet;
  */
 public final class OCronExpression implements Serializable, Cloneable {
 
-  private static final long serialVersionUID = 12423409423L;
+  @Serial private static final long serialVersionUID = 12423409423L;
 
-  protected static final int SECOND = 0;
-  protected static final int MINUTE = 1;
-  protected static final int HOUR = 2;
-  protected static final int DAY_OF_MONTH = 3;
-  protected static final int MONTH = 4;
-  protected static final int DAY_OF_WEEK = 5;
-  protected static final int YEAR = 6;
-  protected static final int ALL_SPEC_INT = 99; // '*'
-  protected static final int NO_SPEC_INT = 98; // '?'
-  protected static final Integer ALL_SPEC = ALL_SPEC_INT;
-  protected static final Integer NO_SPEC = NO_SPEC_INT;
+  private static final int SECOND = 0;
+  private static final int MINUTE = 1;
+  private static final int HOUR = 2;
+  private static final int DAY_OF_MONTH = 3;
+  private static final int MONTH = 4;
+  private static final int DAY_OF_WEEK = 5;
+  private static final int YEAR = 6;
+  private static final int ALL_SPEC_INT = 99; // '*'
+  private static final int NO_SPEC_INT = 98; // '?'
+  private static final int ALL_SPEC = ALL_SPEC_INT;
+  private static final int NO_SPEC = NO_SPEC_INT;
 
-  protected static final Map<String, Integer> monthMap = new HashMap<String, Integer>(20);
-  protected static final Map<String, Integer> dayMap = new HashMap<String, Integer>(60);
+  private static final Map<String, Integer> monthMap = new HashMap<String, Integer>(20);
+  private static final Map<String, Integer> dayMap = new HashMap<String, Integer>(60);
 
   static {
     monthMap.put("JAN", 0);
@@ -227,20 +228,19 @@ public final class OCronExpression implements Serializable, Cloneable {
 
   private final String cronExpression;
   private TimeZone timeZone = null;
-  protected transient TreeSet<Integer> seconds;
-  protected transient TreeSet<Integer> minutes;
-  protected transient TreeSet<Integer> hours;
-  protected transient TreeSet<Integer> daysOfMonth;
-  protected transient TreeSet<Integer> months;
-  protected transient TreeSet<Integer> daysOfWeek;
-  protected transient TreeSet<Integer> years;
+  private transient IntRBTreeSet seconds;
+  private transient IntRBTreeSet minutes;
+  private transient IntRBTreeSet hours;
+  private transient IntRBTreeSet daysOfMonth;
+  private transient IntRBTreeSet months;
+  private transient IntRBTreeSet daysOfWeek;
+  private transient IntRBTreeSet years;
 
-  protected transient boolean lastdayOfWeek = false;
-  protected transient int nthdayOfWeek = 0;
-  protected transient boolean lastdayOfMonth = false;
-  protected transient boolean nearestWeekday = false;
-  protected transient int lastdayOffset = 0;
-  protected transient boolean expressionParsed = false;
+  private transient boolean lastdayOfWeek = false;
+  private transient int nthdayOfWeek = 0;
+  private transient boolean lastdayOfMonth = false;
+  private transient boolean nearestWeekday = false;
+  private transient int lastdayOffset = 0;
 
   public static final int MAX_YEAR = Calendar.getInstance().get(Calendar.YEAR) + 100;
 
@@ -383,59 +383,35 @@ public final class OCronExpression implements Serializable, Cloneable {
     return cronExpression;
   }
 
-  /**
-   * Indicates whether the specified cron expression can be parsed into a valid cron expression
-   *
-   * @param cronExpression the expression to evaluate
-   * @return a boolean indicating whether the given expression is a valid cron expression
-   */
-  public static boolean isValidExpression(String cronExpression) {
-
-    try {
-      new OCronExpression(cronExpression);
-    } catch (ParseException ignore) {
-      return false;
-    }
-
-    return true;
-  }
-
-  public static void validateExpression(String cronExpression) throws ParseException {
-
-    new OCronExpression(cronExpression);
-  }
-
   ////////////////////////////////////////////////////////////////////////////
   //
   // Expression Parsing Functions
   //
   ////////////////////////////////////////////////////////////////////////////
 
-  protected synchronized void buildExpression(String expression) throws ParseException {
-    expressionParsed = true;
-
+  synchronized void buildExpression(String expression) throws ParseException {
     try {
 
       if (seconds == null) {
-        seconds = new TreeSet<Integer>();
+        seconds = new IntRBTreeSet();
       }
       if (minutes == null) {
-        minutes = new TreeSet<Integer>();
+        minutes = new IntRBTreeSet();
       }
       if (hours == null) {
-        hours = new TreeSet<Integer>();
+        hours = new IntRBTreeSet();
       }
       if (daysOfMonth == null) {
-        daysOfMonth = new TreeSet<Integer>();
+        daysOfMonth = new IntRBTreeSet();
       }
       if (months == null) {
-        months = new TreeSet<Integer>();
+        months = new IntRBTreeSet();
       }
       if (daysOfWeek == null) {
-        daysOfWeek = new TreeSet<Integer>();
+        daysOfWeek = new IntRBTreeSet();
       }
       if (years == null) {
-        years = new TreeSet<Integer>();
+        years = new IntRBTreeSet();
       }
 
       int exprOn = SECOND;
@@ -486,8 +462,8 @@ public final class OCronExpression implements Serializable, Cloneable {
         storeExpressionVals(0, "*", YEAR);
       }
 
-      TreeSet<Integer> dow = getSet(DAY_OF_WEEK);
-      TreeSet<Integer> dom = getSet(DAY_OF_MONTH);
+      IntRBTreeSet dow = getSet(DAY_OF_WEEK);
+      IntRBTreeSet dom = getSet(DAY_OF_MONTH);
 
       // Copying the logic from the UnsupportedOperationException below
       boolean dayOfMSpec = !dom.contains(NO_SPEC);
@@ -715,7 +691,7 @@ public final class OCronExpression implements Serializable, Cloneable {
       } else {
         throw new ParseException("'L' option is not valid here. (pos=" + i + ")", i);
       }
-      TreeSet<Integer> set = getSet(type);
+      IntRBTreeSet set = getSet(type);
       set.add(val);
       i++;
       return i;
@@ -732,7 +708,7 @@ public final class OCronExpression implements Serializable, Cloneable {
             "The 'W' option does not make sense with values larger than 31 (max number of days in a"
                 + " month)",
             i);
-      TreeSet<Integer> set = getSet(type);
+      IntRBTreeSet set = getSet(type);
       set.add(val);
       i++;
       return i;
@@ -754,7 +730,7 @@ public final class OCronExpression implements Serializable, Cloneable {
         throw new ParseException("A numeric value between 1 and 5 must follow the '#' option", i);
       }
 
-      TreeSet<Integer> set = getSet(type);
+      IntRBTreeSet set = getSet(type);
       set.add(val);
       i++;
       return i;
@@ -872,8 +848,7 @@ public final class OCronExpression implements Serializable, Cloneable {
     return buf.toString();
   }
 
-  protected String getExpressionSetSummary(java.util.Set<Integer> set) {
-
+  private String getExpressionSetSummary(IntRBTreeSet set) {
     if (set.contains(NO_SPEC)) {
       return "?";
     }
@@ -906,7 +881,7 @@ public final class OCronExpression implements Serializable, Cloneable {
     return i;
   }
 
-  protected int findNextWhiteSpace(int i, String s) {
+  private int findNextWhiteSpace(int i, String s) {
     for (; i < s.length() && (s.charAt(i) != ' ' || s.charAt(i) != '\t'); i++) {
       ;
     }
@@ -914,9 +889,8 @@ public final class OCronExpression implements Serializable, Cloneable {
     return i;
   }
 
-  protected void addToSet(int val, int end, int incr, int type) throws ParseException {
-
-    TreeSet<Integer> set = getSet(type);
+  private void addToSet(int val, int end, int incr, int type) throws ParseException {
+    IntRBTreeSet set = getSet(type);
 
     if (type == SECOND || type == MINUTE) {
       if ((val < 0 || val > 59 || end > 59) && (val != ALL_SPEC_INT)) {
@@ -1052,25 +1026,17 @@ public final class OCronExpression implements Serializable, Cloneable {
     }
   }
 
-  TreeSet<Integer> getSet(int type) {
-    switch (type) {
-      case SECOND:
-        return seconds;
-      case MINUTE:
-        return minutes;
-      case HOUR:
-        return hours;
-      case DAY_OF_MONTH:
-        return daysOfMonth;
-      case MONTH:
-        return months;
-      case DAY_OF_WEEK:
-        return daysOfWeek;
-      case YEAR:
-        return years;
-      default:
-        return null;
-    }
+  IntRBTreeSet getSet(int type) {
+    return switch (type) {
+      case SECOND -> seconds;
+      case MINUTE -> minutes;
+      case HOUR -> hours;
+      case DAY_OF_MONTH -> daysOfMonth;
+      case MONTH -> months;
+      case DAY_OF_WEEK -> daysOfWeek;
+      case YEAR -> years;
+      default -> null;
+    };
   }
 
   protected ValueSet getValue(int v, String s, int i) {
@@ -1144,7 +1110,7 @@ public final class OCronExpression implements Serializable, Cloneable {
         return null;
       }
 
-      SortedSet<Integer> st = null;
+      IntSortedSet st;
       int t = 0;
 
       int sec = cl.get(Calendar.SECOND);
@@ -1152,7 +1118,7 @@ public final class OCronExpression implements Serializable, Cloneable {
 
       // get second.................................................
       st = seconds.tailSet(sec);
-      if (st != null && st.size() != 0) {
+      if (st != null && !st.isEmpty()) {
         sec = st.first();
       } else {
         sec = seconds.first();

@@ -36,6 +36,8 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerSchemaAware2CSV;
 import com.orientechnologies.orient.core.serialization.serializer.string.OStringSerializerAnyStreamable;
 import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -43,11 +45,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public abstract class OStringSerializerHelper {
   public static final char RECORD_SEPARATOR = ',';
@@ -320,7 +320,7 @@ public abstract class OStringSerializerHelper {
       final boolean iConsiderSets,
       final boolean iConsiderBags,
       final int maxRidbagSizeBeforeSkip,
-      Set<Integer> skippedPartsIndexes,
+      IntSet skippedPartsIndexes,
       char... iJumpChars) {
     return smartSplit(
         iSource,
@@ -373,7 +373,7 @@ public abstract class OStringSerializerHelper {
       final boolean iConsiderBags,
       boolean iUnicode,
       final int maxRidbagSizeBeforeSkip,
-      final Set<Integer> skippedPartsIndexes,
+      final IntSet skippedPartsIndexes,
       final char... iJumpChars) {
     return smartSplit(
         iSource,
@@ -416,7 +416,7 @@ public abstract class OStringSerializerHelper {
         iUnicode,
         iPreserveQuotes,
         -1,
-        new HashSet<>(),
+        new IntOpenHashSet(),
         iJumpChars);
   }
 
@@ -432,7 +432,7 @@ public abstract class OStringSerializerHelper {
       boolean iUnicode,
       boolean iPreserveQuotes,
       final int maxRidbagSizeBeforeSkip,
-      Set<Integer> skippedPartsIndexes,
+      IntSet skippedPartsIndexes,
       final char... iJumpChars) {
 
     final StringBuilder buffer = new StringBuilder(128);

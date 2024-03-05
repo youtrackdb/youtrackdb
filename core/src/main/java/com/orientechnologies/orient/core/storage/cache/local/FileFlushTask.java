@@ -1,19 +1,18 @@
 package com.orientechnologies.orient.core.storage.cache.local;
 
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.Callable;
 
 final class FileFlushTask implements Callable<Void> {
   /** */
   private final OWOWCache cache;
 
-  private final Set<Integer> fileIdSet;
+  private final IntOpenHashSet fileIdSet;
 
   FileFlushTask(OWOWCache owowCache, final Collection<Integer> fileIds) {
     cache = owowCache;
-    this.fileIdSet = new HashSet<>(fileIds);
+    this.fileIdSet = new IntOpenHashSet(fileIds);
   }
 
   @Override

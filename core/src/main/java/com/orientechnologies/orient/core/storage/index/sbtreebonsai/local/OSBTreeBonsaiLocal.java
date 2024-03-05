@@ -37,6 +37,7 @@ import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODura
 import com.orientechnologies.orient.core.storage.index.sbtree.local.v1.OSBTreeV1;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.Change;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -44,7 +45,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -346,8 +346,8 @@ public class OSBTreeBonsaiLocal<K, V> extends ODurableComponent implements OSBTr
         final OAtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
         final int filledUpTo = (int) getFilledUpTo(atomicOperation, fileId);
 
-        final HashSet<Long> children = new HashSet<>();
-        final HashSet<Long> roots = new HashSet<>();
+        final LongOpenHashSet children = new LongOpenHashSet();
+        final LongOpenHashSet roots = new LongOpenHashSet();
 
         for (int pageIndex = 0; pageIndex < filledUpTo; pageIndex++) {
 
