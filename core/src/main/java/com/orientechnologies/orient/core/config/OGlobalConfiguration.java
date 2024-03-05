@@ -739,6 +739,13 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       Integer.class,
       60000),
 
+  DB_SKIP_BROKEN_RECORDS(
+      "db.skipBrokenRecords",
+      "Indicates whether the database should skip broken records during "
+          + "iteration over query result set or not (true by default)",
+      Boolean.class,
+      true),
+
   @Deprecated
   DB_POOL_IDLE_TIMEOUT(
       "db.pool.idleTimeout",

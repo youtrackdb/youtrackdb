@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+import javax.annotation.Nonnull;
 
 public final class OCellBTreeMultiValueIndexEngine
     implements OMultiValueIndexEngine, OCellBTreeIndexEngine {
@@ -47,7 +48,7 @@ public final class OCellBTreeMultiValueIndexEngine
   private OAbstractPaginatedStorage storage;
 
   public OCellBTreeMultiValueIndexEngine(
-      int id, String name, OAbstractPaginatedStorage storage, final int version) {
+      int id, @Nonnull String name, OAbstractPaginatedStorage storage, final int version) {
     this.id = id;
     this.name = name;
     this.storage = storage;
