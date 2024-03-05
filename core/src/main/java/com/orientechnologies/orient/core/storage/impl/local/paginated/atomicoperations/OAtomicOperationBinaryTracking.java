@@ -20,7 +20,6 @@
 package com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.common.util.ORawTriple;
 import com.orientechnologies.orient.core.exception.OStorageException;
 import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
@@ -32,6 +31,11 @@ import com.orientechnologies.orient.core.storage.cache.chm.PageKey;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODurablePage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.*;
 import com.orientechnologies.orient.core.storage.index.sbtreebonsai.local.OBonsaiBucketPointer;
+import it.unimi.dsi.fastutil.ints.IntIntImmutablePair;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
+import it.unimi.dsi.fastutil.ints.IntSets;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import java.io.IOException;
 import java.util.*;
 
@@ -45,7 +49,6 @@ import java.util.*;
 final class OAtomicOperationBinaryTracking implements OAtomicOperation {
 
   private final int storageId;
-  private final OLogSequenceNumber startLSN;
   private final long operationUnitId;
 
   private boolean rollback;
@@ -53,7 +56,7 @@ final class OAtomicOperationBinaryTracking implements OAtomicOperation {
   private final Set<String> lockedObjects = new HashSet<>();
   private final Map<Long, FileChanges> fileChanges = new HashMap<>();
   private final Map<String, Long> newFileNamesId = new HashMap<>();
-  private final Set<Long> deletedFiles = new HashSet<>();
+  private final LongOpenHashSet deletedFiles = new LongOpenHashSet();
   private final Map<String, Long> deletedFileNameIdMap = new HashMap<>();
 
   private final OReadCache readCache;
@@ -69,17 +72,14 @@ final class OAtomicOperationBinaryTracking implements OAtomicOperation {
    */
   private final Set<OBonsaiBucketPointer> deletedBonsaiPointers = new HashSet<>();
 
-  private final Map<ORawPair<Integer, Integer>, Set<Integer>> deletedRecordPositions =
-      new HashMap<>();
+  private final Map<IntIntImmutablePair, IntSet> deletedRecordPositions = new HashMap<>();
 
   OAtomicOperationBinaryTracking(
-      final OLogSequenceNumber startLSN,
       final long operationUnitId,
       final OReadCache readCache,
       final OWriteCache writeCache,
       final int storageId) {
     this.storageId = storageId;
-    this.startLSN = startLSN;
     this.operationUnitId = operationUnitId;
 
     this.readCache = readCache;
@@ -432,7 +432,9 @@ final class OAtomicOperationBinaryTracking implements OAtomicOperation {
     if (writeAheadLog != null) {
       final OLogSequenceNumber startLSN = writeAheadLog.end();
 
-      for (final long deletedFileId : deletedFiles) {
+      var deletedFilesIterator = deletedFiles.longIterator();
+      while (deletedFilesIterator.hasNext()) {
+        final long deletedFileId = deletedFilesIterator.nextLong();
         writeAheadLog.log(new OFileDeletedWALRecord(operationUnitId, deletedFileId));
       }
 
@@ -489,7 +491,9 @@ final class OAtomicOperationBinaryTracking implements OAtomicOperation {
               new AtomicUnitEndRecordWithPageLSNs(
                   operationUnitId, rollback, getMetadata(), pageLSNs));
 
-      for (final long deletedFileId : deletedFiles) {
+      deletedFilesIterator = deletedFiles.longIterator();
+      while (deletedFilesIterator.hasNext()) {
+        var deletedFileId = deletedFilesIterator.nextLong();
         readCache.deleteFile(deletedFileId, writeCache);
       }
 
@@ -549,7 +553,9 @@ final class OAtomicOperationBinaryTracking implements OAtomicOperation {
         }
       }
     } else {
-      for (final long deletedFileId : deletedFiles) {
+      var deletedFilesIterator = deletedFiles.longIterator();
+      while (deletedFilesIterator.hasNext()) {
+        var deletedFileId = deletedFilesIterator.nextLong();
         readCache.deleteFile(deletedFileId, writeCache);
       }
 
@@ -666,16 +672,16 @@ final class OAtomicOperationBinaryTracking implements OAtomicOperation {
 
   @Override
   public void addDeletedRecordPosition(int clusterId, int pageIndex, int recordPosition) {
-    final ORawPair<Integer, Integer> key = new ORawPair<>(clusterId, pageIndex);
-    final Set<Integer> recordPositions =
-        deletedRecordPositions.computeIfAbsent(key, k -> new HashSet<>());
+    var key = new IntIntImmutablePair(clusterId, pageIndex);
+    final IntSet recordPositions =
+        deletedRecordPositions.computeIfAbsent(key, k -> new IntOpenHashSet());
     recordPositions.add(recordPosition);
   }
 
   @Override
-  public Set<Integer> getBookedRecordPositions(int clusterId, int pageIndex) {
+  public IntSet getBookedRecordPositions(int clusterId, int pageIndex) {
     return deletedRecordPositions.getOrDefault(
-        new ORawPair<>(clusterId, pageIndex), Collections.emptySet());
+        new IntIntImmutablePair(clusterId, pageIndex), IntSets.emptySet());
   }
 
   @Override

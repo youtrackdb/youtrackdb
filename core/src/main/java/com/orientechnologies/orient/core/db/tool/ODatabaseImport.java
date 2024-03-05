@@ -74,6 +74,7 @@ import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.executor.ORidSet;
 import com.orientechnologies.orient.core.storage.OPhysicalPosition;
 import com.orientechnologies.orient.core.storage.OStorage;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
@@ -1169,7 +1170,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
     // this stage
     // and processed later. The following collects the positions ("value" inside the string) of
     // skipped fields.
-    Set<Integer> skippedPartsIndexes = new HashSet<>();
+    IntOpenHashSet skippedPartsIndexes = new IntOpenHashSet();
 
     try {
       try {

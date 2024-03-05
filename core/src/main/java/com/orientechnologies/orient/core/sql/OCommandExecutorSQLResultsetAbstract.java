@@ -51,16 +51,15 @@ import com.orientechnologies.orient.core.sql.operator.OQueryOperatorNotEquals;
 import com.orientechnologies.orient.core.sql.query.OLegacyResultSet;
 import com.orientechnologies.orient.core.sql.query.OSQLAsynchQuery;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -493,9 +492,9 @@ public abstract class OCommandExecutorSQLResultsetAbstract extends OCommandExecu
   protected void searchInClusters() {
     final ODatabaseDocumentInternal database = getDatabase();
 
-    final Set<Integer> clusterIds = new HashSet<Integer>();
+    final IntOpenHashSet clusterIds = new IntOpenHashSet();
     for (String clusterName : parsedTarget.getTargetClusters().keySet()) {
-      if (clusterName == null || clusterName.length() == 0)
+      if (clusterName == null || clusterName.isEmpty())
         throw new OCommandExecutionException("No cluster or schema class selected in query");
 
       database.checkSecurity(
@@ -521,14 +520,10 @@ public abstract class OCommandExecutorSQLResultsetAbstract extends OCommandExecu
       }
     }
 
-    // CREATE CLUSTER AS ARRAY OF INT
-    final int[] clIds = new int[clusterIds.size()];
-    int i = 0;
-    for (int c : clusterIds) clIds[i++] = c;
-
     final ORID[] range = getRange();
-
-    target = new ORecordIteratorClusters<ORecord>(database, clIds).setRange(range[0], range[1]);
+    target =
+        new ORecordIteratorClusters<>(database, clusterIds.toIntArray())
+            .setRange(range[0], range[1]);
   }
 
   protected void applyLimitAndSkip() {

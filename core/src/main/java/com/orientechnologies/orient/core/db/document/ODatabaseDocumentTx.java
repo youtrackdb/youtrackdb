@@ -68,6 +68,7 @@ import com.orientechnologies.orient.core.tx.OTransactionAbstract;
 import com.orientechnologies.orient.core.tx.OTransactionInternal;
 import com.orientechnologies.orient.core.util.OURLConnection;
 import com.orientechnologies.orient.core.util.OURLHelper;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -1275,7 +1276,7 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
   }
 
   @Override
-  public Set<Integer> getBlobClusterIds() {
+  public IntSet getBlobClusterIds() {
     checkOpenness();
     return internal.getBlobClusterIds();
   }

@@ -6,8 +6,8 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /** Created by luigidellaquila on 01/03/17. */
 public class FilterByClustersStep extends AbstractExecutionStep {
@@ -19,13 +19,18 @@ public class FilterByClustersStep extends AbstractExecutionStep {
     this.clusters = filterClusters;
   }
 
-  private Set<Integer> init(ODatabaseSession db) {
-    return clusters.stream().map(db::getClusterIdByName).collect(Collectors.toSet());
+  private IntOpenHashSet init(ODatabaseSession db) {
+    var clusterIds = new IntOpenHashSet();
+    for (var clusterName : clusters) {
+      var clusterId = db.getClusterIdByName(clusterName);
+      clusterIds.add(clusterId);
+    }
+    return clusterIds;
   }
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
-    Set<Integer> ids = init(ctx.getDatabase());
+    IntOpenHashSet ids = init(ctx.getDatabase());
     if (prev == null) {
       throw new IllegalStateException("filter step requires a previous step");
     }
@@ -33,7 +38,7 @@ public class FilterByClustersStep extends AbstractExecutionStep {
     return resultSet.filter((value, context) -> this.filterMap(value, ids));
   }
 
-  private OResult filterMap(OResult result, Set<Integer> clusterIds) {
+  private OResult filterMap(OResult result, IntOpenHashSet clusterIds) {
     if (result.isElement()) {
       var rid = result.getRecordId();
       assert rid != null;

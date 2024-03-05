@@ -101,6 +101,7 @@ import com.orientechnologies.orient.core.tx.OTransaction;
 import com.orientechnologies.orient.core.tx.OTransactionAbstract;
 import com.orientechnologies.orient.core.tx.OTransactionNoTx;
 import com.orientechnologies.orient.core.tx.OTransactionOptimistic;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -988,11 +989,11 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
         }
       } else {
         if (record instanceof ORecordBytes) {
-          Set<Integer> blobs = getBlobClusterIds();
-          if (blobs.size() == 0) {
+          IntSet blobs = getBlobClusterIds();
+          if (blobs.isEmpty()) {
             rid.setClusterId(getDefaultClusterId());
           } else {
-            rid.setClusterId(blobs.iterator().next());
+            rid.setClusterId(blobs.iterator().nextInt());
           }
         } else {
           throw new ODatabaseException(
@@ -1983,7 +1984,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     }
   }
 
-  public Set<Integer> getBlobClusterIds() {
+  public IntSet getBlobClusterIds() {
     return getMetadata().getSchema().getBlobClusters();
   }
 

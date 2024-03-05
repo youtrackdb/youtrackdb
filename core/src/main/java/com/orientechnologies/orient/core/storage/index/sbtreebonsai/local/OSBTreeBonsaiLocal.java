@@ -37,6 +37,7 @@ import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODura
 import com.orientechnologies.orient.core.storage.index.sbtree.local.v1.OSBTreeV1;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.Change;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -44,7 +45,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -84,8 +84,8 @@ public class OSBTreeBonsaiLocal<K, V> extends ODurableComponent implements OSBTr
     super(storage, name, dataFileExtension, name + dataFileExtension);
   }
 
-  public long createComponent(OAtomicOperation atomicOperation) {
-    return calculateInsideComponentOperation(
+  public void createComponent(OAtomicOperation atomicOperation) {
+    calculateInsideComponentOperation(
         atomicOperation,
         operation -> {
           if (isFileExists(atomicOperation, getFullName())) {
@@ -342,8 +342,8 @@ public class OSBTreeBonsaiLocal<K, V> extends ODurableComponent implements OSBTr
         final OAtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
         final int filledUpTo = (int) getFilledUpTo(atomicOperation, fileId);
 
-        final HashSet<Long> children = new HashSet<Long>();
-        final HashSet<Long> roots = new HashSet<Long>();
+        final LongOpenHashSet children = new LongOpenHashSet();
+        final LongOpenHashSet roots = new LongOpenHashSet();
 
         for (int pageIndex = 0; pageIndex < filledUpTo; pageIndex++) {
 
@@ -1294,7 +1294,7 @@ public class OSBTreeBonsaiLocal<K, V> extends ODurableComponent implements OSBTr
 
               try (final OCacheEntry rightSiblingBucketEntry =
                   loadPageForWrite(
-                      atomicOperation, fileId, rightSiblingBucketPointer.getPageIndex(), true); ) {
+                      atomicOperation, fileId, rightSiblingBucketPointer.getPageIndex(), true)) {
                 final OSBTreeBonsaiBucket<K, V> rightSiblingBucket =
                     new OSBTreeBonsaiBucket<>(
                         rightSiblingBucketEntry,
@@ -1771,7 +1771,7 @@ public class OSBTreeBonsaiLocal<K, V> extends ODurableComponent implements OSBTr
     debugPrintBucket(rootBucketPointer, writer, path);
   }
 
-  @SuppressWarnings({"resource", "StringConcatenationInsideStringBufferAppend"})
+  @SuppressWarnings({"StringConcatenationInsideStringBufferAppend"})
   private void debugPrintBucket(
       final OBonsaiBucketPointer bucketPointer,
       final PrintStream writer,
@@ -1845,28 +1845,5 @@ public class OSBTreeBonsaiLocal<K, V> extends ODurableComponent implements OSBTr
         }
       }
     }
-  }
-
-  public void markToDelete(final OAtomicOperation atomicOperation) {
-    executeInsideComponentOperation(
-        atomicOperation,
-        operation -> {
-          final Lock lock = FILE_LOCK_MANAGER.acquireExclusiveLock(fileId);
-          try {
-            try (final OCacheEntry cacheEntry =
-                loadPageForWrite(atomicOperation, fileId, rootBucketPointer.getPageIndex(), true)) {
-              OSBTreeBonsaiBucket<K, V> rootBucket =
-                  new OSBTreeBonsaiBucket<>(
-                      cacheEntry,
-                      rootBucketPointer.getPageOffset(),
-                      keySerializer,
-                      valueSerializer,
-                      this);
-              rootBucket.setToDelete(true);
-            }
-          } finally {
-            lock.unlock();
-          }
-        });
   }
 }

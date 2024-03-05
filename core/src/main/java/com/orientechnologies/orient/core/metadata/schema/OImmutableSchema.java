@@ -28,6 +28,7 @@ import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.clusterselection.OClusterSelectionFactory;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -45,7 +46,7 @@ import java.util.Set;
 public class OImmutableSchema implements OSchema {
   private final Map<Integer, OClass> clustersToClasses;
   private final Map<String, OClass> classes;
-  private final Set<Integer> blogClusters;
+  private final IntSet blogClusters;
 
   private final Map<Integer, OView> clustersToViews;
   private final Map<String, OView> views;
@@ -81,8 +82,7 @@ public class OImmutableSchema implements OSchema {
     for (OClass cl : classes.values()) {
       ((OImmutableClass) cl).init();
     }
-    this.blogClusters =
-        Collections.unmodifiableSet(new HashSet<Integer>(schemaShared.getBlobClusters()));
+    this.blogClusters = schemaShared.getBlobClusters();
 
     clustersToViews = new HashMap<Integer, OView>(schemaShared.getViews(database).size() * 3);
     views = new HashMap<String, OView>(schemaShared.getViews(database).size());
@@ -284,7 +284,7 @@ public class OImmutableSchema implements OSchema {
     return ODatabaseRecordThreadLocal.instance().get();
   }
 
-  public Set<Integer> getBlobClusters() {
+  public IntSet getBlobClusters() {
     return blogClusters;
   }
 

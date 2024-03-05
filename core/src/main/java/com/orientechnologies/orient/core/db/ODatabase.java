@@ -46,12 +46,12 @@ import com.orientechnologies.orient.core.storage.ORecordCallback;
 import com.orientechnologies.orient.core.storage.ORecordMetadata;
 import com.orientechnologies.orient.core.tx.OTransaction;
 import com.orientechnologies.orient.core.util.OBackupable;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import java.io.Closeable;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
@@ -344,7 +344,7 @@ public interface ODatabase<T> extends OBackupable, Closeable {
    *
    * @return the set of defined blob cluster ids.
    */
-  Set<Integer> getBlobClusterIds();
+  IntSet getBlobClusterIds();
 
   /**
    * Adds a new cluster.
