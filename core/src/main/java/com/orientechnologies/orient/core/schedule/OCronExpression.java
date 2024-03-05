@@ -872,8 +872,7 @@ public final class OCronExpression implements Serializable, Cloneable {
     return buf.toString();
   }
 
-  protected String getExpressionSetSummary(java.util.Set<Integer> set) {
-
+  private String getExpressionSetSummary(TreeSet<Integer> set) {
     if (set.contains(NO_SPEC)) {
       return "?";
     }

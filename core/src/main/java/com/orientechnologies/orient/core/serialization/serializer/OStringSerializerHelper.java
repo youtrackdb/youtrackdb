@@ -36,6 +36,9 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerSchemaAware2CSV;
 import com.orientechnologies.orient.core.serialization.serializer.string.OStringSerializerAnyStreamable;
 import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
+import it.unimi.dsi.fastutil.ints.IntSets;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -320,7 +323,7 @@ public abstract class OStringSerializerHelper {
       final boolean iConsiderSets,
       final boolean iConsiderBags,
       final int maxRidbagSizeBeforeSkip,
-      Set<Integer> skippedPartsIndexes,
+      IntSet skippedPartsIndexes,
       char... iJumpChars) {
     return smartSplit(
         iSource,
@@ -373,7 +376,7 @@ public abstract class OStringSerializerHelper {
       final boolean iConsiderBags,
       boolean iUnicode,
       final int maxRidbagSizeBeforeSkip,
-      final Set<Integer> skippedPartsIndexes,
+      final IntSet skippedPartsIndexes,
       final char... iJumpChars) {
     return smartSplit(
         iSource,
@@ -416,7 +419,7 @@ public abstract class OStringSerializerHelper {
         iUnicode,
         iPreserveQuotes,
         -1,
-        new HashSet<>(),
+        new IntOpenHashSet(),
         iJumpChars);
   }
 
@@ -432,7 +435,7 @@ public abstract class OStringSerializerHelper {
       boolean iUnicode,
       boolean iPreserveQuotes,
       final int maxRidbagSizeBeforeSkip,
-      Set<Integer> skippedPartsIndexes,
+      IntSet skippedPartsIndexes,
       final char... iJumpChars) {
 
     final StringBuilder buffer = new StringBuilder(128);
