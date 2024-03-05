@@ -166,8 +166,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
       final String[] fields,
       final String options,
       boolean needReload) {
-    return fromString(source, record, fields, options, needReload,
-        -1, new IntOpenHashSet());
+    return fromString(source, record, fields, options, needReload, -1, new IntOpenHashSet());
   }
 
   public ORecord fromString(
@@ -196,10 +195,11 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
     boolean noMap = false;
     if (iOptions != null) {
       final String[] format = iOptions.split(",");
-      for (String f : format) if (f.equalsIgnoreCase("noMap")) {
-        noMap = true;
-        break;
-      }
+      for (String f : format)
+        if (f.equalsIgnoreCase("noMap")) {
+          noMap = true;
+          break;
+        }
     }
 
     if (record != null)

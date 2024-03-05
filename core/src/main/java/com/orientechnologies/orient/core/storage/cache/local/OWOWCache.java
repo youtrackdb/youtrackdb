@@ -63,7 +63,6 @@ import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OWrite
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.PrintWriter;
