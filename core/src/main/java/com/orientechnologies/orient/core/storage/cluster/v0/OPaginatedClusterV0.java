@@ -1455,8 +1455,7 @@ public final class OPaginatedClusterV0 extends OPaginatedCluster {
 
       final boolean newRecord = freePageIndex >= FREE_LIST_SIZE;
 
-      try (OCacheEntry cacheEntry =
-          loadOrAddPageForWrite(atomicOperation, fileId, pageIndex, true)) {
+      try (OCacheEntry cacheEntry = loadOrAddPageForWrite(atomicOperation, fileId, pageIndex)) {
         final OClusterPage localPage = new OClusterPage(cacheEntry);
         if (newRecord) {
           localPage.init();

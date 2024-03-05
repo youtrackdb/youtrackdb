@@ -30,6 +30,7 @@ import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedSt
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
 import java.io.IOException;
+import javax.annotation.Nonnull;
 
 /**
  * Base class for all durable data structures, that is data structures state of which can be
@@ -53,13 +54,12 @@ public abstract class ODurableComponent extends OSharedResourceAbstract {
   private final String lockName;
 
   public ODurableComponent(
-      final OAbstractPaginatedStorage storage,
-      final String name,
+      @Nonnull final OAbstractPaginatedStorage storage,
+      @Nonnull final String name,
       final String extension,
       final String lockName) {
     super();
 
-    assert name != null;
     this.extension = extension;
     this.storage = storage;
     this.fullName = name + extension;
@@ -102,11 +102,6 @@ public abstract class ODurableComponent extends OSharedResourceAbstract {
     atomicOperationsManager.executeInsideComponentOperation(operation, this, consumer);
   }
 
-  protected boolean tryExecuteInsideComponentOperation(
-      final OAtomicOperation operation, final TxConsumer consumer) {
-    return atomicOperationsManager.tryExecuteInsideComponentOperation(operation, this, consumer);
-  }
-
   protected long getFilledUpTo(final OAtomicOperation atomicOperation, final long fileId) {
     if (atomicOperation == null) {
       return writeCache.getFilledUpTo(fileId);
@@ -124,12 +119,9 @@ public abstract class ODurableComponent extends OSharedResourceAbstract {
   }
 
   protected OCacheEntry loadOrAddPageForWrite(
-      final OAtomicOperation atomicOperation,
-      final long fileId,
-      final long pageIndex,
-      final boolean verifyCheckSum)
+      final OAtomicOperation atomicOperation, final long fileId, final long pageIndex)
       throws IOException {
-    OCacheEntry entry = atomicOperation.loadPageForWrite(fileId, pageIndex, 1, verifyCheckSum);
+    OCacheEntry entry = atomicOperation.loadPageForWrite(fileId, pageIndex, 1, true);
     if (entry == null) {
       entry = addPage(atomicOperation, fileId);
     }

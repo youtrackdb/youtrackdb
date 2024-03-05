@@ -54,12 +54,14 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Optional;
 import java.util.function.Consumer;
+import javax.annotation.Nonnull;
 
 /**
  * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 10/7/13
  */
 public final class OPaginatedClusterV2 extends OPaginatedCluster {
+
   // max chunk size - nex page pointer - first record flag
   private static final int MAX_ENTRY_SIZE =
       OClusterPage.MAX_RECORD_SIZE - OByteSerializer.BYTE_SIZE - OLongSerializer.LONG_SIZE;
@@ -81,7 +83,8 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
   private long fileId;
   private ORecordConflictStrategy recordConflictStrategy;
 
-  public OPaginatedClusterV2(final String name, final OAbstractPaginatedStorage storage) {
+  public OPaginatedClusterV2(
+      @Nonnull final String name, @Nonnull final OAbstractPaginatedStorage storage) {
     this(
         name,
         OPaginatedCluster.DEF_EXTENSION,
@@ -1151,7 +1154,9 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
     return id;
   }
 
-  /** Returns the fileId used in disk cache. */
+  /**
+   * Returns the fileId used in disk cache.
+   */
   public long getFileId() {
     return fileId;
   }

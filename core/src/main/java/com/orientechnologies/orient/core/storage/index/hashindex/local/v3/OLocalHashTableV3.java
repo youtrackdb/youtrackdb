@@ -333,7 +333,7 @@ public class OLocalHashTableV3<K, V> extends ODurableComponent implements OHashT
               V removed;
 
               try (OCacheEntry cacheEntry =
-                  loadOrAddPageForWrite(atomicOperation, nullBucketFileId, 0, true); ) {
+                  loadOrAddPageForWrite(atomicOperation, nullBucketFileId, 0); ) {
                 final ONullBucket<V> nullBucket =
                     new ONullBucket<>(cacheEntry, valueSerializer, false);
 
