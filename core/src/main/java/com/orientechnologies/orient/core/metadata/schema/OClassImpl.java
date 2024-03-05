@@ -47,7 +47,7 @@ import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntRBTreeSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -60,7 +60,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 /**
  * Schema Class implementation.
@@ -652,16 +651,8 @@ public abstract class OClassImpl implements OClass {
   }
 
   private void setPolymorphicClusterIds(final int[] iClusterIds) {
-    Set<Integer> set = new TreeSet<Integer>();
-    for (int iClusterId : iClusterIds) {
-      set.add(iClusterId);
-    }
-    polymorphicClusterIds = new int[set.size()];
-    int i = 0;
-    for (Integer clusterId : set) {
-      polymorphicClusterIds[i] = clusterId;
-      i++;
-    }
+    IntRBTreeSet set = new IntRBTreeSet(iClusterIds);
+    polymorphicClusterIds = set.toIntArray();
   }
 
   public void renameProperty(final String iOldName, final String iNewName) {
@@ -1787,7 +1778,7 @@ public abstract class OClassImpl implements OClass {
 
   /** Add different cluster id to the "polymorphic cluster ids" array. */
   protected void addPolymorphicClusterIds(final OClassImpl iBaseClass) {
-    IntOpenHashSet clusters = new IntOpenHashSet(polymorphicClusterIds);
+    IntRBTreeSet clusters = new IntRBTreeSet(polymorphicClusterIds);
 
     for (int clusterId : iBaseClass.polymorphicClusterIds) {
       if (clusters.add(clusterId)) {
