@@ -193,7 +193,7 @@ public final class CellBTreeSingleValueV3<K> extends ODurableComponent
         } else {
 
           try (final OCacheEntry nullBucketCacheEntry =
-              loadPageForRead(atomicOperation, nullBucketFileId, 0); ) {
+              loadPageForRead(atomicOperation, nullBucketFileId, 0)) {
             final CellBTreeSingleValueV3NullBucket nullBucket =
                 new CellBTreeSingleValueV3NullBucket(nullBucketCacheEntry);
             return nullBucket.getValue();
@@ -834,7 +834,7 @@ public final class CellBTreeSingleValueV3<K> extends ODurableComponent
       pages.remove(freePageIndex);
 
       try (final OCacheEntry cacheEntry =
-          loadPageForRead(atomicOperation, fileId, freePageIndex); ) {
+          loadPageForRead(atomicOperation, fileId, freePageIndex)) {
         final CellBTreeSingleValueBucketV3<K> bucket =
             new CellBTreeSingleValueBucketV3<>(cacheEntry);
         freePageIndex = bucket.getNextFreeListPage();
@@ -1050,7 +1050,7 @@ public final class CellBTreeSingleValueV3<K> extends ODurableComponent
       acquireSharedLock();
       try {
         return StreamSupport.stream(
-                new SpliteratorForward<K>(this, null, null, false, false), false)
+                new SpliteratorForward<>(this, null, null, false, false), false)
             .map((entry) -> entry.first);
       } finally {
         releaseSharedLock();
@@ -1066,7 +1066,7 @@ public final class CellBTreeSingleValueV3<K> extends ODurableComponent
       acquireSharedLock();
       try {
         return StreamSupport.stream(
-            new SpliteratorForward<K>(this, null, null, false, false), false);
+            new SpliteratorForward<>(this, null, null, false, false), false);
       } finally {
         releaseSharedLock();
       }
@@ -1122,14 +1122,14 @@ public final class CellBTreeSingleValueV3<K> extends ODurableComponent
     key = keySerializer.preprocess(key, (Object[]) keyTypes);
     key = enhanceCompositeKeyMinorDesc(key, inclusive);
 
-    return new SpliteratorBackward<K>(this, null, key, false, inclusive);
+    return new SpliteratorBackward<>(this, null, key, false, inclusive);
   }
 
   private Spliterator<ORawPair<K, ORID>> iterateEntriesMinorAsc(K key, final boolean inclusive) {
     key = keySerializer.preprocess(key, (Object[]) keyTypes);
     key = enhanceCompositeKeyMinorAsc(key, inclusive);
 
-    return new SpliteratorForward<K>(this, null, key, false, inclusive);
+    return new SpliteratorForward<>(this, null, key, false, inclusive);
   }
 
   private K enhanceCompositeKeyMinorDesc(K key, final boolean inclusive) {
@@ -1160,7 +1160,7 @@ public final class CellBTreeSingleValueV3<K> extends ODurableComponent
     key = keySerializer.preprocess(key, (Object[]) keyTypes);
     key = enhanceCompositeKeyMajorAsc(key, inclusive);
 
-    return new SpliteratorForward<K>(this, key, null, inclusive, false);
+    return new SpliteratorForward<>(this, key, null, inclusive, false);
   }
 
   private Spliterator<ORawPair<K, ORID>> iterateEntriesMajorDesc(K key, final boolean inclusive) {
@@ -1169,7 +1169,7 @@ public final class CellBTreeSingleValueV3<K> extends ODurableComponent
       key = keySerializer.preprocess(key, (Object[]) keyTypes);
       key = enhanceCompositeKeyMajorDesc(key, inclusive);
 
-      return new SpliteratorBackward<K>(this, key, null, inclusive, false);
+      return new SpliteratorBackward<>(this, key, null, inclusive, false);
 
     } finally {
       releaseSharedLock();
@@ -1333,7 +1333,7 @@ public final class CellBTreeSingleValueV3<K> extends ODurableComponent
     keyFrom = enhanceFromCompositeKeyBetweenAsc(keyFrom, fromInclusive);
     keyTo = enhanceToCompositeKeyBetweenAsc(keyTo, toInclusive);
 
-    return new SpliteratorForward<K>(this, keyFrom, keyTo, fromInclusive, toInclusive);
+    return new SpliteratorForward<>(this, keyFrom, keyTo, fromInclusive, toInclusive);
   }
 
   private Spliterator<ORawPair<K, ORID>> iterateEntriesBetweenDescOrder(
@@ -1344,7 +1344,7 @@ public final class CellBTreeSingleValueV3<K> extends ODurableComponent
     keyFrom = enhanceFromCompositeKeyBetweenDesc(keyFrom, fromInclusive);
     keyTo = enhanceToCompositeKeyBetweenDesc(keyTo, toInclusive);
 
-    return new SpliteratorBackward<K>(this, keyFrom, keyTo, fromInclusive, toInclusive);
+    return new SpliteratorBackward<>(this, keyFrom, keyTo, fromInclusive, toInclusive);
   }
 
   private K enhanceToCompositeKeyBetweenAsc(K keyTo, final boolean toInclusive) {
@@ -2017,7 +2017,7 @@ public final class CellBTreeSingleValueV3<K> extends ODurableComponent
     OCacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, iter.getPageIndex());
     try {
       CellBTreeSingleValueBucketV3<K> bucket = new CellBTreeSingleValueBucketV3<>(cacheEntry);
-      if (iter.getLastLSN() == null || bucket.getLSN().equals(iter.getLastLSN())) {
+      if (iter.getLastLSN() == null || bucket.getLsn().equals(iter.getLastLSN())) {
         while (true) {
           int bucketSize = bucket.size();
           if (iter.getItemIndex() >= bucketSize) {
@@ -2036,7 +2036,7 @@ public final class CellBTreeSingleValueV3<K> extends ODurableComponent
             bucketSize = bucket.size();
           }
 
-          iter.setLastLSN(bucket.getLSN());
+          iter.setLastLSN(bucket.getLsn());
 
           for (;
               iter.getItemIndex() < bucketSize
@@ -2077,7 +2077,7 @@ public final class CellBTreeSingleValueV3<K> extends ODurableComponent
     OCacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, iter.getPageIndex());
     try {
       CellBTreeSingleValueBucketV3<K> bucket = new CellBTreeSingleValueBucketV3<>(cacheEntry);
-      if (iter.getLastLSN() == null || bucket.getLSN().equals(iter.getLastLSN())) {
+      if (iter.getLastLSN() == null || bucket.getLsn().equals(iter.getLastLSN())) {
         while (true) {
           if (iter.getItemIndex() < 0) {
             iter.setPageIndex((int) bucket.getLeftSibling());
@@ -2094,7 +2094,7 @@ public final class CellBTreeSingleValueV3<K> extends ODurableComponent
             iter.setItemIndex(bucketSize - 1);
           }
 
-          iter.setLastLSN(bucket.getLSN());
+          iter.setLastLSN(bucket.getLsn());
 
           for (;
               iter.getItemIndex() >= 0 && iter.getDataCache().size() < SPLITERATOR_CACHE_SIZE;
