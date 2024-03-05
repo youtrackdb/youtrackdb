@@ -410,7 +410,7 @@ public class OSelectExecutionPlanner {
   }
 
   /**
-   * @param clusterMap    the cluster map for current sharding configuration
+   * @param clusterMap the cluster map for current sharding configuration
    * @param queryClusters the clusters that are target of the query
    */
   private Set<String> getServersThatHasAllClusters(
@@ -906,9 +906,7 @@ public class OSelectExecutionPlanner {
     }
   }
 
-  /**
-   * splits LET clauses in global (executed once) and local (executed once per record)
-   */
+  /** splits LET clauses in global (executed once) and local (executed once per record) */
   private static void splitLet(QueryPlanningInfo info, OCommandContext ctx) {
     if (info.perRecordLetClause != null && info.perRecordLetClause.getItems() != null) {
       Iterator<OLetItem> iterator = info.perRecordLetClause.getItems().iterator();
@@ -985,9 +983,7 @@ public class OSelectExecutionPlanner {
     return result;
   }
 
-  /**
-   * creates additional projections for ORDER BY
-   */
+  /** creates additional projections for ORDER BY */
   private static void addOrderByProjections(QueryPlanningInfo info) {
     if (info.orderApplied
         || info.expand
@@ -1031,9 +1027,9 @@ public class OSelectExecutionPlanner {
    * clause will be modified with new replaced aliases
    *
    * @param allAliases existing aliases in the projection
-   * @param orderBy    sorting clause
+   * @param orderBy sorting clause
    * @return a list of additional projections to add to the existing projections to allow ORDER BY
-   * calculation (empty if nothing has to be added).
+   *     calculation (empty if nothing has to be added).
    */
   private static List<OProjectionItem> calculateAdditionalOrderByProjections(
       Set<String> allAliases, OOrderBy orderBy) {
@@ -1184,9 +1180,7 @@ public class OSelectExecutionPlanner {
     }
   }
 
-  /**
-   * translates subqueries to LET statements
-   */
+  /** translates subqueries to LET statements */
   private static void extractSubQueries(QueryPlanningInfo info) {
     SubQueryCollector collector = new SubQueryCollector();
     if (info.perRecordLetClause != null) {
@@ -1910,9 +1904,8 @@ public class OSelectExecutionPlanner {
   }
 
   /**
-   * @param plan             the execution plan where to add the fetch step
-   * @param filterClusters   clusters of interest (all the others have to be excluded from the
-   *                         result)
+   * @param plan the execution plan where to add the fetch step
+   * @param filterClusters clusters of interest (all the others have to be excluded from the result)
    * @param info
    * @param ctx
    * @param profilingEnabled
@@ -2209,7 +2202,7 @@ public class OSelectExecutionPlanner {
    *
    * @param plan current execution plan
    * @param info the query planning information
-   * @param ctx  the current context
+   * @param ctx the current context
    * @return true if it succeeded to use an index to sort, false otherwise.
    */
   private boolean handleClassWithIndexForSortOnly(
@@ -3095,8 +3088,6 @@ public class OSelectExecutionPlanner {
       return true;
     } else if (info.target.getItem().getCluster() != null) {
       return true;
-    } else {
-      return info.target.getItem().getClusterList() != null;
-    }
+    } else return info.target.getItem().getClusterList() != null;
   }
 }

@@ -52,6 +52,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.function.Consumer;
+import javax.annotation.Nonnull;
 
 /**
  * Tree-based dictionary algorithm. Similar to {@link OSBTreeV1} but uses subpages of disk cache
@@ -64,6 +65,7 @@ import java.util.function.Consumer;
  * @since 1.6.0
  */
 public class OSBTreeBonsaiLocal<K, V> extends ODurableComponent implements OSBTreeBonsai<K, V> {
+
   private static final OLockManager<Long> FILE_LOCK_MANAGER = new OPartitionedLockManager<>();
 
   private static final int PAGE_SIZE =
@@ -80,7 +82,9 @@ public class OSBTreeBonsaiLocal<K, V> extends ODurableComponent implements OSBTr
   private OBinarySerializer<V> valueSerializer;
 
   public OSBTreeBonsaiLocal(
-      final String name, final String dataFileExtension, final OAbstractPaginatedStorage storage) {
+      @Nonnull final String name,
+      final String dataFileExtension,
+      @Nonnull final OAbstractPaginatedStorage storage) {
     super(storage, name, dataFileExtension, name + dataFileExtension);
   }
 
@@ -455,7 +459,8 @@ public class OSBTreeBonsaiLocal<K, V> extends ODurableComponent implements OSBTr
   }
 
   /**
-   * Removes all entries from bonsai tree. Put all but the root page to free list for further reuse.
+   * Removes all entries from bonsai tree. Put all but the root page to free list for further
+   * reuse.
    */
   @Override
   public void clear(final OAtomicOperation atomicOperation) {
@@ -566,7 +571,9 @@ public class OSBTreeBonsaiLocal<K, V> extends ODurableComponent implements OSBTr
     }
   }
 
-  /** Deletes a whole tree. Puts all its pages to free list for further reusage. */
+  /**
+   * Deletes a whole tree. Puts all its pages to free list for further reusage.
+   */
   @Override
   public void delete(OAtomicOperation atomicOperation) {
     executeInsideComponentOperation(
@@ -843,7 +850,7 @@ public class OSBTreeBonsaiLocal<K, V> extends ODurableComponent implements OSBTr
   /**
    * Load all entries with key greater then specified key.
    *
-   * @param key defines
+   * @param key       defines
    * @param inclusive if true entry with given key is included
    */
   @Override
@@ -1252,7 +1259,7 @@ public class OSBTreeBonsaiLocal<K, V> extends ODurableComponent implements OSBTr
 
       final int startRightIndex = splitLeaf ? indexToSplit : indexToSplit + 1;
       if (startRightIndex == 0) {
-        throw new OStorageException("Left part of bucket is empty");
+        throw new OSBTreeBonsaiLocalException("Left part of bucket is empty", this);
       }
 
       for (int i = startRightIndex; i < bucketSize; i++) {
@@ -1260,7 +1267,7 @@ public class OSBTreeBonsaiLocal<K, V> extends ODurableComponent implements OSBTr
       }
 
       if (rightEntries.isEmpty()) {
-        throw new OStorageException("Right part of bucket is empty");
+        throw new OSBTreeBonsaiLocalException("Right part of bucket is empty", this);
       }
 
       if (!bucketPointer.equals(rootBucketPointer)) {
@@ -1567,11 +1574,12 @@ public class OSBTreeBonsaiLocal<K, V> extends ODurableComponent implements OSBTr
             || allocationResult.pointer.getPageOffset() != requestedPageOffset) {
           allocationResult.cacheEntry.close();
 
-          throw new OStorageException(
+          throw new OSBTreeBonsaiLocalException(
               "Can not allocate rid bag with pageIndex = "
                   + requestedPageIndex
                   + ", pageOffset = "
-                  + requestedPageOffset);
+                  + requestedPageOffset,
+              this);
         }
 
         return allocationResult;
@@ -1724,6 +1732,7 @@ public class OSBTreeBonsaiLocal<K, V> extends ODurableComponent implements OSBTr
   }
 
   private static class AllocationResult {
+
     private final OBonsaiBucketPointer pointer;
     private final OCacheEntry cacheEntry;
 
@@ -1742,6 +1751,7 @@ public class OSBTreeBonsaiLocal<K, V> extends ODurableComponent implements OSBTr
   }
 
   private static class BucketSearchResult {
+
     private final int itemIndex;
     private final ArrayList<OBonsaiBucketPointer> path;
 
@@ -1756,6 +1766,7 @@ public class OSBTreeBonsaiLocal<K, V> extends ODurableComponent implements OSBTr
   }
 
   private static final class PagePathItemUnit {
+
     private final OBonsaiBucketPointer bucketPointer;
     private final int itemIndex;
 

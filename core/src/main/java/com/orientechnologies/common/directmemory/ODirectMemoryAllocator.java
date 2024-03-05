@@ -29,8 +29,6 @@ import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
@@ -48,19 +46,15 @@ public class ODirectMemoryAllocator implements ODirectMemoryAllocatorMXBean {
   private static final Unsafe unsafe;
 
   static {
-    unsafe =
-        (Unsafe)
-            AccessController.doPrivileged(
-                (PrivilegedAction<Object>)
-                    () -> {
-                      try {
-                        Field f = Unsafe.class.getDeclaredField("theUnsafe");
-                        f.setAccessible(true);
-                        return f.get(null);
-                      } catch (NoSuchFieldException | IllegalAccessException e) {
-                        return null;
-                      }
-                    });
+    Unsafe localUnsafe;
+    try {
+      Field f = Unsafe.class.getDeclaredField("theUnsafe");
+      f.setAccessible(true);
+      localUnsafe = (Unsafe) f.get(null);
+    } catch (NoSuchFieldException | IllegalAccessException e) {
+      localUnsafe = null;
+    }
+    unsafe = localUnsafe;
   }
 
   private static final boolean PROFILE_MEMORY =
@@ -69,11 +63,15 @@ public class ODirectMemoryAllocator implements ODirectMemoryAllocatorMXBean {
   private static final int MEMORY_STATISTICS_PRINTING_INTERVAL =
       OGlobalConfiguration.MEMORY_PROFILING_REPORT_INTERVAL.getValueAsInteger();
 
-  /** Whether we should track memory leaks during application execution */
+  /**
+   * Whether we should track memory leaks during application execution
+   */
   private static final boolean TRACK =
       OGlobalConfiguration.DIRECT_MEMORY_TRACK_MODE.getValueAsBoolean();
 
-  /** Holder for singleton instance */
+  /**
+   * Holder for singleton instance
+   */
   private static final AtomicReference<ODirectMemoryAllocator> INSTANCE_HOLDER =
       new AtomicReference<>();
 
@@ -102,7 +100,9 @@ public class ODirectMemoryAllocator implements ODirectMemoryAllocatorMXBean {
    */
   private final Map<TrackedPointerKey, TrackedPointerReference> trackedBuffers;
 
-  /** Amount of direct memory consumed by using this allocator. */
+  /**
+   * Amount of direct memory consumed by using this allocator.
+   */
   private final LongAdder memoryConsumption = new LongAdder();
 
   private final ThreadLocal<EnumMap<Intention, OModifiableLong>> memoryConsumptionByIntention =
@@ -145,12 +145,12 @@ public class ODirectMemoryAllocator implements ODirectMemoryAllocatorMXBean {
   /**
    * Allocates chunk of direct memory of given size.
    *
-   * @param size Amount of memory to allocate
-   * @param clear clears memory if needed
+   * @param size      Amount of memory to allocate
+   * @param clear     clears memory if needed
    * @param intention Why this memory is allocated. This parameter is used for memory profiling.
    * @return Pointer to allocated memory
    * @throws ODirectMemoryAllocationFailedException if it is impossible to allocate amount of direct
-   *     memory of given size
+   *                                                memory of given size
    */
   public OPointer allocate(int size, boolean clear, Intention intention) {
     if (size <= 0) {
@@ -215,7 +215,9 @@ public class ODirectMemoryAllocator implements ODirectMemoryAllocatorMXBean {
     }
   }
 
-  /** Returns allocated direct memory back to OS */
+  /**
+   * Returns allocated direct memory back to OS
+   */
   public void deallocate(OPointer pointer) {
     if (pointer == null) {
       throw new IllegalArgumentException("Null value is passed");
@@ -316,21 +318,24 @@ public class ODirectMemoryAllocator implements ODirectMemoryAllocatorMXBean {
     return memoryConsumption.longValue();
   }
 
-  /** Verifies that all pointers which were allocated by allocator are freed. */
+  /**
+   * Verifies that all pointers which were allocated by allocator are freed.
+   */
   public void checkMemoryLeaks() {
     if (TRACK) {
       synchronized (this) {
-        for (TrackedPointerReference reference : trackedReferences)
+        for (TrackedPointerReference reference : trackedReferences) {
           OLogManager.instance()
               .error(
                   this,
                   "DIRECT-TRACK: unreleased direct memory pointer `%X` detected.",
                   reference.stackTrace,
                   reference.id);
+        }
 
         checkTrackedPointerLeaks();
 
-        assert trackedReferences.size() == 0;
+        assert trackedReferences.isEmpty();
       }
       final long memCons = memoryConsumption.longValue();
 
@@ -364,7 +369,9 @@ public class ODirectMemoryAllocator implements ODirectMemoryAllocatorMXBean {
     return pointer;
   }
 
-  /** Checks reference queue to find direct memory leaks */
+  /**
+   * Checks reference queue to find direct memory leaks
+   */
   public void checkTrackedPointerLeaks() {
     boolean leaked = false;
 
@@ -430,6 +437,8 @@ public class ODirectMemoryAllocator implements ODirectMemoryAllocatorMXBean {
     DWL_ALLOCATE_COMPRESSED_CHUNK,
     ALLOCATE_FIRST_WAL_BUFFER,
     ALLOCATE_SECOND_WAL_BUFFER,
+
+    ADD_NEW_PAGE_IN_FILE
   }
 
   /**
@@ -450,7 +459,8 @@ public class ODirectMemoryAllocator implements ODirectMemoryAllocatorMXBean {
   }
 
   /**
-   * WeakReference key which wraps direct memory pointer and can be used as key for the {@link Map}.
+   * WeakReference key which wraps direct memory pointer and can be used as key for the
+   * {@link Map}.
    */
   private static class TrackedPointerKey extends WeakReference<OPointer> {
 
@@ -479,6 +489,7 @@ public class ODirectMemoryAllocator implements ODirectMemoryAllocatorMXBean {
   }
 
   private static final class ConsumptionMapEvictionIndicator extends WeakReference<Thread> {
+
     private final EnumMap<Intention, OModifiableLong> consumptionMap;
 
     public ConsumptionMapEvictionIndicator(
@@ -492,6 +503,7 @@ public class ODirectMemoryAllocator implements ODirectMemoryAllocatorMXBean {
   }
 
   private static final class MemoryStatPrinter implements Runnable {
+
     private final Set<ConsumptionMapEvictionIndicator> consumptionMaps;
 
     private MemoryStatPrinter(Set<ConsumptionMapEvictionIndicator> consumptionMaps) {

@@ -20,7 +20,6 @@
 
 package com.orientechnologies.orient.core.storage.impl.local.paginated.wal;
 
-import com.orientechnologies.common.serialization.types.OLongSerializer;
 import java.nio.ByteBuffer;
 import java.util.Objects;
 
@@ -29,7 +28,10 @@ import java.util.Objects;
  * @since 26.04.13
  */
 public class OUpdatePageRecord extends OAbstractPageWALRecord {
+
   private OWALChanges changes;
+
+  private OLogSequenceNumber initialLsn;
 
   @SuppressWarnings("WeakerAccess")
   public OUpdatePageRecord() {}
@@ -38,13 +40,20 @@ public class OUpdatePageRecord extends OAbstractPageWALRecord {
       final long pageIndex,
       final long fileId,
       final long operationUnitId,
-      final OWALChanges changes) {
+      final OWALChanges changes,
+      final OLogSequenceNumber initialLsn) {
     super(pageIndex, fileId, operationUnitId);
+
     this.changes = changes;
+    this.initialLsn = initialLsn;
   }
 
   public OWALChanges getChanges() {
     return changes;
+  }
+
+  public OLogSequenceNumber getInitialLsn() {
+    return initialLsn;
   }
 
   @Override
@@ -52,7 +61,7 @@ public class OUpdatePageRecord extends OAbstractPageWALRecord {
     int serializedSize = super.serializedSize();
     serializedSize += changes.serializedSize();
 
-    serializedSize += 2 * OLongSerializer.LONG_SIZE;
+    serializedSize += Integer.BYTES + Long.BYTES;
 
     return serializedSize;
   }
@@ -62,6 +71,8 @@ public class OUpdatePageRecord extends OAbstractPageWALRecord {
     super.serializeToByteBuffer(buffer);
 
     changes.toStream(buffer);
+    buffer.putLong(initialLsn.getSegment());
+    buffer.putInt(initialLsn.getPosition());
   }
 
   @Override
@@ -70,13 +81,23 @@ public class OUpdatePageRecord extends OAbstractPageWALRecord {
 
     changes = new OWALPageChangesPortion();
     changes.fromStream(buffer);
+
+    final long segment = buffer.getLong();
+    final int position = buffer.getInt();
+    initialLsn = new OLogSequenceNumber(segment, position);
   }
 
   @Override
   public boolean equals(final Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    if (!super.equals(o)) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    if (!super.equals(o)) {
+      return false;
+    }
 
     final OUpdatePageRecord that = (OUpdatePageRecord) o;
 

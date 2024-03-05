@@ -20,7 +20,6 @@
 
 package com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations;
 
-import com.orientechnologies.common.concur.lock.OLockException;
 import com.orientechnologies.common.concur.lock.OOneEntryPerKeyLockManager;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.function.TxConsumer;
@@ -40,16 +39,19 @@ import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OWrite
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Objects;
+import javax.annotation.Nonnull;
 
 /**
  * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 12/3/13
  */
 public class OAtomicOperationsManager {
+
   private final ThreadLocal<OAtomicOperation> currentOperation = new ThreadLocal<>();
 
   private final OAbstractPaginatedStorage storage;
-  private final OWriteAheadLog writeAheadLog;
+
+  @Nonnull private final OWriteAheadLog writeAheadLog;
   private final OOneEntryPerKeyLockManager<String> lockManager =
       new OOneEntryPerKeyLockManager<>(
           true, -1, OGlobalConfiguration.COMPONENTS_LOCK_CACHE.getValueAsInteger());
@@ -59,22 +61,17 @@ public class OAtomicOperationsManager {
   private final Object segmentLock = new Object();
   private final AtomicOperationIdGen idGen;
 
-  private final int operationsCacheLimit;
-
   private final OperationsFreezer atomicOperationsFreezer = new OperationsFreezer();
   private final OperationsFreezer componentOperationsFreezer = new OperationsFreezer();
   private final AtomicOperationsTable atomicOperationsTable;
 
   public OAtomicOperationsManager(
-      OAbstractPaginatedStorage storage,
-      int operationsCacheLimit,
-      AtomicOperationsTable atomicOperationsTable) {
+      OAbstractPaginatedStorage storage, AtomicOperationsTable atomicOperationsTable) {
     this.storage = storage;
     this.writeAheadLog = storage.getWALInstance();
     this.readCache = storage.getReadCache();
     this.writeCache = storage.getWriteCache();
 
-    this.operationsCacheLimit = operationsCacheLimit;
     this.idGen = storage.getIdGen();
     this.atomicOperationsTable = atomicOperationsTable;
   }
@@ -86,8 +83,6 @@ public class OAtomicOperationsManager {
     }
 
     atomicOperationsFreezer.startOperation();
-
-    final OLogSequenceNumber lsn;
 
     final long activeSegment;
     final long unitId;
@@ -101,9 +96,9 @@ public class OAtomicOperationsManager {
 
     atomicOperationsTable.startOperation(unitId, activeSegment);
     if (metadata != null) {
-      lsn = writeAheadLog.logAtomicOperationStartRecord(true, unitId, metadata);
+      writeAheadLog.logAtomicOperationStartRecord(true, unitId, metadata);
     } else {
-      lsn = writeAheadLog.logAtomicOperationStartRecord(true, unitId);
+      writeAheadLog.logAtomicOperationStartRecord(true, unitId);
     }
 
     operation = new OAtomicOperationBinaryTracking(unitId, readCache, writeCache, storage.getId());
@@ -175,36 +170,6 @@ public class OAtomicOperationsManager {
     }
   }
 
-  public boolean tryExecuteInsideComponentOperation(
-      final OAtomicOperation atomicOperation,
-      final ODurableComponent component,
-      final TxConsumer consumer) {
-    return tryExecuteInsideComponentOperation(atomicOperation, component.getLockName(), consumer);
-  }
-
-  private boolean tryExecuteInsideComponentOperation(
-      final OAtomicOperation atomicOperation, final String lockName, final TxConsumer consumer) {
-    Objects.requireNonNull(atomicOperation);
-    final boolean result = tryStartComponentOperation(atomicOperation, lockName);
-    if (!result) {
-      return false;
-    }
-
-    try {
-      consumer.accept(atomicOperation);
-    } catch (Exception e) {
-      throw OException.wrapException(
-          new OStorageException(
-              "Exception during execution of component operation inside of storage "
-                  + storage.getName()),
-          e);
-    } finally {
-      endComponentOperation(atomicOperation);
-    }
-
-    return true;
-  }
-
   public <T> T calculateInsideComponentOperation(
       final OAtomicOperation atomicOperation,
       final ODurableComponent component,
@@ -243,42 +208,6 @@ public class OAtomicOperationsManager {
     componentOperationsFreezer.endOperation();
   }
 
-  public long freezeComponentOperations() {
-    return componentOperationsFreezer.freezeOperations(null, null);
-  }
-
-  public void releaseComponentOperations(final long freezeId) {
-    componentOperationsFreezer.releaseOperations(freezeId);
-  }
-
-  private boolean tryStartComponentOperation(
-      final OAtomicOperation atomicOperation, final String lockName) {
-    final boolean result = tryAcquireExclusiveLockTillOperationComplete(atomicOperation, lockName);
-    if (!result) {
-      return false;
-    }
-
-    atomicOperation.incrementComponentOperations();
-    return true;
-  }
-
-  private boolean tryAcquireExclusiveLockTillOperationComplete(
-      OAtomicOperation operation, String lockName) {
-    if (operation.containsInLockedObjects(lockName)) {
-      return true;
-    }
-
-    try {
-      lockManager.acquireLock(lockName, OOneEntryPerKeyLockManager.LOCK.EXCLUSIVE, 1);
-    } catch (OLockException e) {
-      return false;
-    }
-    operation.addLockedObject(lockName);
-
-    componentOperationsFreezer.startOperation();
-    return true;
-  }
-
   public void alarmClearOfAtomicOperation() {
     final OAtomicOperation current = currentOperation.get();
 
@@ -299,7 +228,9 @@ public class OAtomicOperationsManager {
     return currentOperation.get();
   }
 
-  /** Ends the current atomic operation on this manager. */
+  /**
+   * Ends the current atomic operation on this manager.
+   */
   public void endAtomicOperation(final Throwable error) throws IOException {
     final OAtomicOperation operation = currentOperation.get();
 
@@ -369,7 +300,7 @@ public class OAtomicOperationsManager {
    * Acquires exclusive lock with the given lock name in the given atomic operation.
    *
    * @param operation the atomic operation to acquire the lock in.
-   * @param lockName the lock name to acquire.
+   * @param lockName  the lock name to acquire.
    */
   public void acquireExclusiveLockTillOperationComplete(
       OAtomicOperation operation, String lockName) {

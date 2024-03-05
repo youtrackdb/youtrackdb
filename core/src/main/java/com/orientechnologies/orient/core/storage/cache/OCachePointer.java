@@ -61,7 +61,7 @@ public final class OCachePointer {
   private final long fileId;
   private final int pageIndex;
 
-  private OLogSequenceNumber endLSN;
+  private volatile OLogSequenceNumber endLSN;
 
   private int hash;
 
@@ -134,8 +134,13 @@ public final class OCachePointer {
       readersWriters = READERS_WRITERS_REFERRER_UPDATER.get(this);
       readers = getReaders(readersWriters);
       writers = getWriters(readersWriters);
-      readers--;
 
+      if (readers == 0) {
+        throw new IllegalStateException(
+            "Invalid direct memory state, number of readers cannot be zero " + readers);
+      }
+
+      readers--;
       assert readers >= 0;
     }
 
@@ -179,6 +184,12 @@ public final class OCachePointer {
       readersWriters = READERS_WRITERS_REFERRER_UPDATER.get(this);
       readers = getReaders(readersWriters);
       writers = getWriters(readersWriters);
+
+      if (writers == 0) {
+        throw new IllegalStateException(
+            "Invalid direct memory state, number of writers cannot be zero " + writers);
+      }
+
       writers--;
 
       assert writers >= 0;
