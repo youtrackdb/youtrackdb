@@ -39,6 +39,7 @@ import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -56,7 +57,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  *
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
-@SuppressWarnings("unchecked")
 public abstract class OSchemaShared implements OCloseable {
   private static final int NOT_EXISTENT_CLUSTER_ID = -1;
   public static final int CURRENT_VERSION_NUMBER = 4;
@@ -64,15 +64,14 @@ public abstract class OSchemaShared implements OCloseable {
   // this is needed for guarantee the compatibility to 2.0-M1 and 2.0-M2 no changed associated with
   // it
   public static final int VERSION_NUMBER_V5 = 5;
-  private static final long serialVersionUID = 1L;
 
   private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
   protected final Map<String, OClass> classes = new HashMap<String, OClass>();
-  protected final Map<Integer, OClass> clustersToClasses = new HashMap<Integer, OClass>();
+  protected final Int2ObjectOpenHashMap<OClass> clustersToClasses = new Int2ObjectOpenHashMap<>();
 
   protected final Map<String, OView> views = new HashMap<String, OView>();
-  protected final Map<Integer, OView> clustersToViews = new HashMap<Integer, OView>();
+  protected final Int2ObjectOpenHashMap<OView> clustersToViews = new Int2ObjectOpenHashMap<>();
 
   private final OClusterSelectionFactory clusterSelectionFactory = new OClusterSelectionFactory();
 
@@ -82,7 +81,6 @@ public abstract class OSchemaShared implements OCloseable {
       new HashMap<String, OGlobalProperty>();
   private Set<Integer> blobClusters = new HashSet<Integer>();
   private volatile int version = 0;
-  private volatile boolean acquiredDistributed = false;
   private volatile ORID identity;
   protected volatile OImmutableSchema snapshot;
 
@@ -344,7 +342,6 @@ public abstract class OSchemaShared implements OCloseable {
     try {
       identity = new ORecordId(database.getStorageInfo().getConfiguration().getSchemaRecordId());
       ODocument document = new ODocument(identity);
-      //noinspection NonAtomicOperationOnVolatileField
       document = database.reload(document, null, true, true);
       fromStream(document);
       forceSnapshot(database);

@@ -25,9 +25,9 @@ import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Index definition for index which is bound to field with type {@link OType#LINKBAG} .
@@ -37,7 +37,6 @@ import java.util.Map;
  */
 public class OPropertyRidBagIndexDefinition extends OPropertyIndexDefinition
     implements OIndexDefinitionMultiValue {
-  private static final long serialVersionUID = -8315498456603024776L;
 
   public OPropertyRidBagIndexDefinition() {}
 
@@ -52,8 +51,8 @@ public class OPropertyRidBagIndexDefinition extends OPropertyIndexDefinition
 
   public void processChangeEvent(
       final OMultiValueChangeEvent<?, ?> changeEvent,
-      final Map<Object, Integer> keysToAdd,
-      final Map<Object, Integer> keysToRemove) {
+      final Object2IntMap<Object> keysToAdd,
+      final Object2IntMap<Object> keysToRemove) {
     switch (changeEvent.getChangeType()) {
       case ADD:
         {
@@ -77,10 +76,8 @@ public class OPropertyRidBagIndexDefinition extends OPropertyIndexDefinition
 
   @Override
   public Object createValue(final List<?> params) {
-    if (!(params.get(0) instanceof ORidBag)) return null;
-
-    final ORidBag ridBag = (ORidBag) params.get(0);
-    final List<Object> values = new ArrayList<Object>();
+    if (!(params.get(0) instanceof ORidBag ridBag)) return null;
+    final List<Object> values = new ArrayList<>();
     for (final OIdentifiable item : ridBag) {
       values.add(createSingleValue(item.getIdentity()));
     }
@@ -90,9 +87,7 @@ public class OPropertyRidBagIndexDefinition extends OPropertyIndexDefinition
 
   @Override
   public Object createValue(final Object... params) {
-    if (!(params[0] instanceof ORidBag)) return null;
-
-    final ORidBag ridBag = (ORidBag) params[0];
+    if (!(params[0] instanceof ORidBag ridBag)) return null;
     final List<Object> values = new ArrayList<>();
     for (final OIdentifiable item : ridBag) {
       values.add(createSingleValue(item.getIdentity()));

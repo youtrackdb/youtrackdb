@@ -65,10 +65,10 @@ public class OLiveQueryHookV2 {
     protected Map<ODatabaseDocument, List<OLiveQueryOp>> pendingOps =
         new ConcurrentHashMap<ODatabaseDocument, List<OLiveQueryOp>>();
     private OLiveQueryQueueThreadV2 queueThread = new OLiveQueryQueueThreadV2(this);
-    private Object threadLock = new Object();
+    private final Object threadLock = new Object();
 
-    private BlockingQueue<OLiveQueryOp> queue = new LinkedBlockingQueue<OLiveQueryOp>();
-    private ConcurrentMap<Integer, OLiveQueryListenerV2> subscribers =
+    private final BlockingQueue<OLiveQueryOp> queue = new LinkedBlockingQueue<OLiveQueryOp>();
+    private final ConcurrentMap<Integer, OLiveQueryListenerV2> subscribers =
         new ConcurrentHashMap<Integer, OLiveQueryListenerV2>();
 
     @Override

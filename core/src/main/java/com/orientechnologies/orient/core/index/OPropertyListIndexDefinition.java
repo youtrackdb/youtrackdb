@@ -23,11 +23,11 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Index implementation bound to one schema class property that presents {@link
@@ -38,8 +38,6 @@ import java.util.Map;
  */
 public class OPropertyListIndexDefinition extends OPropertyIndexDefinition
     implements OIndexDefinitionMultiValue {
-
-  private static final long serialVersionUID = -6499782365051906190L;
 
   public OPropertyListIndexDefinition(
       final String iClassName, final String iField, final OType iType) {
@@ -55,7 +53,7 @@ public class OPropertyListIndexDefinition extends OPropertyIndexDefinition
 
   @Override
   public Object createValue(List<?> params) {
-    if (!(params.get(0) instanceof Collection)) params = (List) Collections.singletonList(params);
+    if (!(params.get(0) instanceof Collection)) params = Collections.singletonList(params);
 
     final Collection<?> multiValueCollection = (Collection<?>) params.get(0);
     final List<Object> values = new ArrayList<>(multiValueCollection.size());
@@ -99,8 +97,8 @@ public class OPropertyListIndexDefinition extends OPropertyIndexDefinition
 
   public void processChangeEvent(
       final OMultiValueChangeEvent<?, ?> changeEvent,
-      final Map<Object, Integer> keysToAdd,
-      final Map<Object, Integer> keysToRemove) {
+      final Object2IntMap<Object> keysToAdd,
+      final Object2IntMap<Object> keysToRemove) {
     switch (changeEvent.getChangeType()) {
       case ADD:
         {

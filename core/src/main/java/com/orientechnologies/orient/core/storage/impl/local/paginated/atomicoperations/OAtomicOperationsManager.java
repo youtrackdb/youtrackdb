@@ -106,8 +106,7 @@ public class OAtomicOperationsManager {
       lsn = writeAheadLog.logAtomicOperationStartRecord(true, unitId);
     }
 
-    operation =
-        new OAtomicOperationBinaryTracking(lsn, unitId, readCache, writeCache, storage.getId());
+    operation = new OAtomicOperationBinaryTracking(unitId, readCache, writeCache, storage.getId());
 
     currentOperation.set(operation);
 

@@ -14,8 +14,8 @@ import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -106,7 +106,7 @@ public class OPolyglotScriptExecutor extends OAbstractScriptExecutor
   public OResultSet execute(ODatabaseDocumentInternal database, String script, Object... params) {
     preExecute(database, script, params);
 
-    Map<Integer, Object> par = new HashMap<>();
+    Int2ObjectOpenHashMap<Object> par = new Int2ObjectOpenHashMap<>();
 
     for (int i = 0; i < params.length; i++) {
       par.put(i, params[i]);

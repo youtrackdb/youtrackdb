@@ -12,7 +12,7 @@ import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
-import java.util.HashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.script.Bindings;
@@ -38,7 +38,7 @@ public class OJsr223ScriptExecutor extends OAbstractScriptExecutor {
 
     preExecute(database, script, params);
 
-    Map<Integer, Object> par = new HashMap<>();
+    Int2ObjectOpenHashMap<Object> par = new Int2ObjectOpenHashMap<>();
 
     for (int i = 0; i < params.length; i++) {
       par.put(i, params[i]);

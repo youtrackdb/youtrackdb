@@ -3,10 +3,9 @@ package com.orientechnologies.orient.core.storage.impl.local.paginated.atomicope
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.types.OModifiableInteger;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -91,11 +90,15 @@ public final class OperationsFreezer {
       freezeParametersIdMap.remove(id);
     }
 
-    final Map<Long, FreezeParameters> freezeParametersMap = new HashMap<>(freezeParametersIdMap);
+    final Long2ObjectOpenHashMap<FreezeParameters> freezeParametersMap =
+        new Long2ObjectOpenHashMap<>(freezeParametersIdMap);
     final long requests = freezeRequests.decrementAndGet();
 
     if (requests == 0) {
-      for (Long freezeId : freezeParametersMap.keySet()) {
+      var idsIterator = freezeParametersMap.keySet().iterator();
+
+      while (idsIterator.hasNext()) {
+        final long freezeId = idsIterator.nextLong();
         freezeParametersIdMap.remove(freezeId);
       }
 

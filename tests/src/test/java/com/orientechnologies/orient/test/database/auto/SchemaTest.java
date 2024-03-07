@@ -105,8 +105,8 @@ public class SchemaTest extends DocumentDBBaseTest {
     Assert.assertNotNull(schema.getClass("TestInvalidName;"));
     schema.createClass("TestInvalid Name");
     Assert.assertNotNull(schema.getClass("TestInvalid Name"));
-    schema.createClass("TestInvalid.Name");
-    Assert.assertNotNull(schema.getClass("TestInvalid.Name"));
+    schema.createClass("TestInvalid_Name");
+    Assert.assertNotNull(schema.getClass("TestInvalid_Name"));
   }
 
   @Test(dependsOnMethods = "checkSchema")

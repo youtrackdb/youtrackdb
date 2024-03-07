@@ -32,6 +32,9 @@ import com.orientechnologies.orient.core.storage.cache.chm.PageKey;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODurablePage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.*;
 import com.orientechnologies.orient.core.storage.index.sbtreebonsai.local.OBonsaiBucketPointer;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import java.io.IOException;
 import java.util.*;
 
@@ -45,16 +48,16 @@ import java.util.*;
 final class OAtomicOperationBinaryTracking implements OAtomicOperation {
 
   private final int storageId;
-  private final OLogSequenceNumber startLSN;
   private final long operationUnitId;
 
   private boolean rollback;
 
   private final Set<String> lockedObjects = new HashSet<>();
-  private final Map<Long, FileChanges> fileChanges = new HashMap<>();
-  private final Map<String, Long> newFileNamesId = new HashMap<>();
+  private final Long2ObjectOpenHashMap<FileChanges> fileChanges = new Long2ObjectOpenHashMap<>();
+  private final Object2LongOpenHashMap<String> newFileNamesId = new Object2LongOpenHashMap<>();
   private final Set<Long> deletedFiles = new HashSet<>();
-  private final Map<String, Long> deletedFileNameIdMap = new HashMap<>();
+  private final Object2LongOpenHashMap<String> deletedFileNameIdMap =
+      new Object2LongOpenHashMap<>();
 
   private final OReadCache readCache;
   private final OWriteCache writeCache;
@@ -73,13 +76,14 @@ final class OAtomicOperationBinaryTracking implements OAtomicOperation {
       new HashMap<>();
 
   OAtomicOperationBinaryTracking(
-      final OLogSequenceNumber startLSN,
       final long operationUnitId,
       final OReadCache readCache,
       final OWriteCache writeCache,
       final int storageId) {
+    newFileNamesId.defaultReturnValue(-1);
+    deletedFileNameIdMap.defaultReturnValue(-1);
+
     this.storageId = storageId;
-    this.startLSN = startLSN;
     this.operationUnitId = operationUnitId;
 
     this.readCache = readCache;
@@ -321,7 +325,7 @@ final class OAtomicOperationBinaryTracking implements OAtomicOperation {
     final boolean isNew;
 
     if (deletedFileNameIdMap.containsKey(fileName)) {
-      fileId = deletedFileNameIdMap.remove(fileName);
+      fileId = deletedFileNameIdMap.removeLong(fileName);
       deletedFiles.remove(fileId);
       isNew = false;
     } else {
@@ -342,8 +346,8 @@ final class OAtomicOperationBinaryTracking implements OAtomicOperation {
 
   @Override
   public long loadFile(final String fileName) throws IOException {
-    Long fileId = newFileNamesId.get(fileName);
-    if (fileId == null) {
+    long fileId = newFileNamesId.getLong(fileName);
+    if (fileId == -1) {
       fileId = writeCache.loadFile(fileName);
     }
     this.fileChanges.computeIfAbsent(fileId, k -> new FileChanges());
@@ -356,7 +360,7 @@ final class OAtomicOperationBinaryTracking implements OAtomicOperation {
 
     final FileChanges fileChanges = this.fileChanges.remove(fileId);
     if (fileChanges != null && fileChanges.fileName != null) {
-      newFileNamesId.remove(fileChanges.fileName);
+      newFileNamesId.removeLong(fileChanges.fileName);
     } else {
       deletedFiles.add(fileId);
       final String f = writeCache.fileNameById(fileId);
@@ -398,8 +402,8 @@ final class OAtomicOperationBinaryTracking implements OAtomicOperation {
 
   @Override
   public long fileIdByName(final String fileName) {
-    Long fileId = newFileNamesId.get(fileName);
-    if (fileId != null) {
+    long fileId = newFileNamesId.getLong(fileName);
+    if (fileId > -1) {
       return fileId;
     }
 
@@ -439,9 +443,10 @@ final class OAtomicOperationBinaryTracking implements OAtomicOperation {
       final ArrayList<ORawTriple<PageKey, OLogSequenceNumber, OLogSequenceNumber>> pageLSNs =
           new ArrayList<>();
 
-      for (final Map.Entry<Long, FileChanges> fileChangesEntry : fileChanges.entrySet()) {
+      for (final Long2ObjectMap.Entry<FileChanges> fileChangesEntry :
+          fileChanges.long2ObjectEntrySet()) {
         final FileChanges fileChanges = fileChangesEntry.getValue();
-        final long fileId = fileChangesEntry.getKey();
+        final long fileId = fileChangesEntry.getLongKey();
 
         if (fileChanges.isNew) {
           writeAheadLog.log(
@@ -455,14 +460,14 @@ final class OAtomicOperationBinaryTracking implements OAtomicOperation {
                       + " operation is not recommended to be used");
         }
 
-        final Iterator<Map.Entry<Long, OCacheEntryChanges>> filePageChangesIterator =
-            fileChanges.pageChangesMap.entrySet().iterator();
+        final Iterator<Long2ObjectMap.Entry<OCacheEntryChanges>> filePageChangesIterator =
+            fileChanges.pageChangesMap.long2ObjectEntrySet().iterator();
         while (filePageChangesIterator.hasNext()) {
-          final Map.Entry<Long, OCacheEntryChanges> filePageChangesEntry =
+          final Long2ObjectMap.Entry<OCacheEntryChanges> filePageChangesEntry =
               filePageChangesIterator.next();
 
           if (filePageChangesEntry.getValue().changes.hasChanges()) {
-            final long pageIndex = filePageChangesEntry.getKey();
+            final long pageIndex = filePageChangesEntry.getLongKey();
             final OCacheEntryChanges filePageChanges = filePageChangesEntry.getValue();
 
             final OUpdatePageRecord updatePageRecord =
@@ -493,13 +498,14 @@ final class OAtomicOperationBinaryTracking implements OAtomicOperation {
         readCache.deleteFile(deletedFileId, writeCache);
       }
 
-      for (final Map.Entry<Long, FileChanges> fileChangesEntry : fileChanges.entrySet()) {
+      for (final Long2ObjectMap.Entry<FileChanges> fileChangesEntry :
+          fileChanges.long2ObjectEntrySet()) {
         final FileChanges fileChanges = fileChangesEntry.getValue();
-        final long fileId = fileChangesEntry.getKey();
+        final long fileId = fileChangesEntry.getLongKey();
 
         if (fileChanges.isNew) {
           readCache.addFile(
-              fileChanges.fileName, newFileNamesId.get(fileChanges.fileName), writeCache);
+              fileChanges.fileName, newFileNamesId.getLong(fileChanges.fileName), writeCache);
         } else if (fileChanges.truncate) {
           OLogManager.instance()
               .warn(
@@ -510,14 +516,14 @@ final class OAtomicOperationBinaryTracking implements OAtomicOperation {
           readCache.truncateFile(fileId, writeCache);
         }
 
-        final Iterator<Map.Entry<Long, OCacheEntryChanges>> filePageChangesIterator =
-            fileChanges.pageChangesMap.entrySet().iterator();
+        final Iterator<Long2ObjectMap.Entry<OCacheEntryChanges>> filePageChangesIterator =
+            fileChanges.pageChangesMap.long2ObjectEntrySet().iterator();
         while (filePageChangesIterator.hasNext()) {
-          final Map.Entry<Long, OCacheEntryChanges> filePageChangesEntry =
+          final Long2ObjectMap.Entry<OCacheEntryChanges> filePageChangesEntry =
               filePageChangesIterator.next();
 
           if (filePageChangesEntry.getValue().changes.hasChanges()) {
-            final long pageIndex = filePageChangesEntry.getKey();
+            final long pageIndex = filePageChangesEntry.getLongKey();
             final OCacheEntryChanges filePageChanges = filePageChangesEntry.getValue();
 
             OCacheEntry cacheEntry =
@@ -553,24 +559,25 @@ final class OAtomicOperationBinaryTracking implements OAtomicOperation {
         readCache.deleteFile(deletedFileId, writeCache);
       }
 
-      for (final Map.Entry<Long, FileChanges> fileChangesEntry : fileChanges.entrySet()) {
+      for (final Long2ObjectMap.Entry<FileChanges> fileChangesEntry :
+          fileChanges.long2ObjectEntrySet()) {
         final FileChanges fileChanges = fileChangesEntry.getValue();
-        final long fileId = fileChangesEntry.getKey();
+        final long fileId = fileChangesEntry.getLongKey();
 
         if (fileChanges.isNew) {
           readCache.addFile(
-              fileChanges.fileName, newFileNamesId.get(fileChanges.fileName), writeCache);
+              fileChanges.fileName, newFileNamesId.getLong(fileChanges.fileName), writeCache);
         } else if (fileChanges.truncate) {
           readCache.truncateFile(fileId, writeCache);
         }
 
-        for (final Map.Entry<Long, OCacheEntryChanges> filePageChangesEntry :
-            fileChanges.pageChangesMap.entrySet()) {
+        for (final Long2ObjectMap.Entry<OCacheEntryChanges> filePageChangesEntry :
+            fileChanges.pageChangesMap.long2ObjectEntrySet()) {
           final OCacheEntryChanges filePageChanges = filePageChangesEntry.getValue();
           if (!filePageChanges.changes.hasChanges()) {
             continue;
           }
-          final long pageIndex = filePageChangesEntry.getKey();
+          final long pageIndex = filePageChangesEntry.getLongKey();
 
           OCacheEntry cacheEntry =
               readCache.loadForWrite(fileId, pageIndex, writeCache, true, null);
@@ -638,7 +645,8 @@ final class OAtomicOperationBinaryTracking implements OAtomicOperation {
   }
 
   private static final class FileChanges {
-    private final Map<Long, OCacheEntryChanges> pageChangesMap = new HashMap<>();
+    private final Long2ObjectOpenHashMap<OCacheEntryChanges> pageChangesMap =
+        new Long2ObjectOpenHashMap<>();
     private long maxNewPageIndex = -2;
     private boolean isNew;
     private boolean truncate;

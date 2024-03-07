@@ -23,8 +23,8 @@ import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionAbstract;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -39,12 +39,13 @@ public class OSQLFunctionMode extends OSQLFunctionAbstract {
 
   public static final String NAME = "mode";
 
-  private Map<Object, Integer> seen = new HashMap<Object, Integer>();
+  private final Object2IntOpenHashMap<Object> seen = new Object2IntOpenHashMap<>();
   private int max = 0;
-  private List<Object> maxElems = new ArrayList<Object>();
+  private final List<Object> maxElems = new ArrayList<Object>();
 
   public OSQLFunctionMode() {
     super(NAME, 1, 1);
+    seen.defaultReturnValue(-1);
   }
 
   @Override
@@ -88,7 +89,9 @@ public class OSQLFunctionMode extends OSQLFunctionAbstract {
   @Override
   public Object mergeDistributedResult(List<Object> resultsToMerge) {
     if (returnDistributedResult()) {
-      Map<Object, Integer> dSeen = new HashMap<Object, Integer>();
+      Object2IntOpenHashMap<Object> dSeen = new Object2IntOpenHashMap<>();
+      dSeen.defaultReturnValue(-1);
+
       int dMax = 0;
       List<Object> dMaxElems = new ArrayList<Object>();
       for (Object iParameter : resultsToMerge) {
@@ -106,18 +109,22 @@ public class OSQLFunctionMode extends OSQLFunctionAbstract {
   }
 
   private int evaluate(
-      Object value, int times, Map<Object, Integer> iSeen, List<Object> iMaxElems, int iMax) {
+      Object value,
+      int times,
+      Object2IntOpenHashMap<Object> iSeen,
+      List<Object> iMaxElems,
+      int iMax) {
     if (value != null) {
       if (iSeen.containsKey(value)) {
-        iSeen.put(value, iSeen.get(value) + times);
+        iSeen.put(value, iSeen.getInt(value) + times);
       } else {
         iSeen.put(value, times);
       }
-      if (iSeen.get(value) > iMax) {
-        iMax = iSeen.get(value);
+      if (iSeen.getInt(value) > iMax) {
+        iMax = iSeen.getInt(value);
         iMaxElems.clear();
         iMaxElems.add(value);
-      } else if (iSeen.get(value) == iMax) {
+      } else if (iSeen.getInt(value) == iMax) {
         iMaxElems.add(value);
       }
     }

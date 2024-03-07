@@ -60,8 +60,13 @@ import com.orientechnologies.orient.core.storage.impl.local.OPageIsBrokenListene
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.MetaDataRecord;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OLogSequenceNumber;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OWriteAheadLog;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
+import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -1050,7 +1055,8 @@ public final class OWOWCache extends OAbstractWriteCache
     try {
       checkForClose();
 
-      final Map<String, Long> result = new HashMap<>(1_000);
+      final Object2LongOpenHashMap<String> result = new Object2LongOpenHashMap<>(1_000);
+      result.defaultReturnValue(-1);
 
       for (final Map.Entry<String, Integer> entry : nameIdMap.entrySet()) {
         if (entry.getValue() > 0) {
@@ -1404,14 +1410,14 @@ public final class OWOWCache extends OAbstractWriteCache
       final Collection<Integer> fileIds = nameIdMap.values();
 
       final LongArrayList closedIds = new LongArrayList(1_000);
-      final Map<Integer, String> idFileNameMap = new HashMap<>(1_000);
+      final Int2ObjectOpenHashMap<String> idFileNameMap = new Int2ObjectOpenHashMap<>(1_000);
 
       for (final Integer intId : fileIds) {
         if (intId >= 0) {
           final long extId = composeFileId(id, intId);
           final OFile fileClassic = files.remove(extId);
 
-          idFileNameMap.put(intId, fileClassic.getName());
+          idFileNameMap.put(intId.intValue(), fileClassic.getName());
           fileClassic.close();
           closedIds.add(extId);
         }
@@ -1430,7 +1436,7 @@ public final class OWOWCache extends OAbstractWriteCache
           final String fileName;
 
           if (entry.getValue() >= 0) {
-            fileName = idFileNameMap.get(entry.getValue());
+            fileName = idFileNameMap.get(entry.getValue().intValue());
           } else {
             fileName = entry.getKey();
           }
@@ -1912,7 +1918,7 @@ public final class OWOWCache extends OAbstractWriteCache
 
     NameFileIdEntry nameFileIdEntry;
 
-    final Map<Integer, String> idFileNameMap = new HashMap<>(1_000);
+    final Int2ObjectOpenHashMap<String> idFileNameMap = new Int2ObjectOpenHashMap<>(1_000);
 
     while ((nameFileIdEntry = readNextNameIdEntryV3(nameIdMapHolder)) != null) {
       final long absFileId = Math.abs(nameFileIdEntry.getFileId());
@@ -1940,7 +1946,8 @@ public final class OWOWCache extends OAbstractWriteCache
         final long externalId = composeFileId(id, nameIdEntry.getValue());
 
         if (files.get(externalId) == null) {
-          final Path path = storagePath.resolve(idFileNameMap.get((nameIdEntry.getValue())));
+          final Path path =
+              storagePath.resolve(idFileNameMap.get((nameIdEntry.getValue().intValue())));
           final AsyncFile file = new AsyncFile(path, pageSize, this.executor);
 
           if (file.exists()) {
@@ -1978,7 +1985,7 @@ public final class OWOWCache extends OAbstractWriteCache
 
     NameFileIdEntry nameFileIdEntry;
 
-    final Map<Integer, String> idFileNameMap = new HashMap<>(1_000);
+    final Int2ObjectOpenHashMap<String> idFileNameMap = new Int2ObjectOpenHashMap<>(1_000);
 
     while ((nameFileIdEntry = readNextNameIdEntryV2(nameIdMapHolder)) != null) {
       final long absFileId = Math.abs(nameFileIdEntry.getFileId());
@@ -2007,7 +2014,8 @@ public final class OWOWCache extends OAbstractWriteCache
         final long externalId = composeFileId(id, nameIdEntry.getValue());
 
         if (files.get(externalId) == null) {
-          final Path path = storagePath.resolve(idFileNameMap.get((nameIdEntry.getValue())));
+          final Path path =
+              storagePath.resolve(idFileNameMap.get((nameIdEntry.getValue().intValue())));
           final AsyncFile file = new AsyncFile(path, pageSize, this.executor);
 
           if (file.exists()) {
@@ -2030,7 +2038,8 @@ public final class OWOWCache extends OAbstractWriteCache
     // some deleted files have the same id
     // because we reuse ids of removed files when we re-create them
     // we need to fix this situation
-    final Map<Integer, Set<String>> filesWithNegativeIds = new HashMap<>(1_000);
+    final Int2ObjectOpenHashMap<Set<String>> filesWithNegativeIds =
+        new Int2ObjectOpenHashMap<>(1_000);
 
     nameIdMap.clear();
 
@@ -2049,13 +2058,12 @@ public final class OWOWCache extends OAbstractWriteCache
       final Integer existingId = nameIdMap.get(nameFileIdEntry.getName());
 
       if (existingId != null && existingId < 0) {
-        final Set<String> files = filesWithNegativeIds.get(existingId);
+        final Set<String> files = filesWithNegativeIds.get(existingId.intValue());
 
         if (files != null) {
           files.remove(nameFileIdEntry.getName());
-
           if (files.isEmpty()) {
-            filesWithNegativeIds.remove(existingId);
+            filesWithNegativeIds.remove(existingId.intValue());
           }
         }
       }
@@ -2103,11 +2111,11 @@ public final class OWOWCache extends OAbstractWriteCache
 
     final Set<String> fixedFiles = new HashSet<>(8);
 
-    for (final Map.Entry<Integer, Set<String>> entry : filesWithNegativeIds.entrySet()) {
+    for (final Int2ObjectMap.Entry<Set<String>> entry : filesWithNegativeIds.int2ObjectEntrySet()) {
       final Set<String> files = entry.getValue();
 
       if (files.size() > 1) {
-        idNameMap.remove(entry.getKey());
+        idNameMap.remove(entry.getIntKey());
 
         for (final String fileName : files) {
           int fileId;
@@ -2855,7 +2863,8 @@ public final class OWOWCache extends OAbstractWriteCache
     final IntArrayList chunkPageIndexes = new IntArrayList(chunks.size());
     final IntArrayList chunkFileIds = new IntArrayList(chunks.size());
 
-    final Map<Long, ArrayList<ORawPair<Long, ByteBuffer>>> buffersByFileId = new HashMap<>();
+    final Long2ObjectOpenHashMap<ArrayList<ORawPair<Long, ByteBuffer>>> buffersByFileId =
+        new Long2ObjectOpenHashMap<>();
     try {
       flushedPages =
           copyPageChunksIntoTheBuffers(
@@ -2928,7 +2937,7 @@ public final class OWOWCache extends OAbstractWriteCache
       int flushedPages,
       ArrayList<OPointer> containerPointers,
       ArrayList<ByteBuffer> containerBuffers,
-      Map<Long, ArrayList<ORawPair<Long, ByteBuffer>>> buffersByFileId,
+      Long2ObjectOpenHashMap<ArrayList<ORawPair<Long, ByteBuffer>>> buffersByFileId,
       IntArrayList chunkPageIndexes,
       IntArrayList chunkFileIds) {
     for (final List<OQuarto<Long, ByteBuffer, OPointer, OCachePointer>> chunk : chunks) {
@@ -2973,15 +2982,15 @@ public final class OWOWCache extends OAbstractWriteCache
   }
 
   private void writePageChunksToFiles(
-      Map<Long, ArrayList<ORawPair<Long, ByteBuffer>>> buffersByFileId)
+      Long2ObjectOpenHashMap<ArrayList<ORawPair<Long, ByteBuffer>>> buffersByFileId)
       throws InterruptedException, IOException {
     final List<OClosableEntry<Long, OFile>> acquiredFiles = new ArrayList<>(buffersByFileId.size());
     final List<IOResult> ioResults = new ArrayList<>(buffersByFileId.size());
 
-    Map.Entry<Long, ArrayList<ORawPair<Long, ByteBuffer>>> entry;
-    Iterator<Map.Entry<Long, ArrayList<ORawPair<Long, ByteBuffer>>>> filesIterator;
+    Long2ObjectOpenHashMap.Entry<ArrayList<ORawPair<Long, ByteBuffer>>> entry;
+    Iterator<Long2ObjectMap.Entry<ArrayList<ORawPair<Long, ByteBuffer>>>> filesIterator;
 
-    filesIterator = buffersByFileId.entrySet().iterator();
+    filesIterator = buffersByFileId.long2ObjectEntrySet().iterator();
     entry = null;
     // acquire as much files as possible and flush data
     while (true) {
@@ -2993,7 +3002,7 @@ public final class OWOWCache extends OAbstractWriteCache
         }
       }
 
-      final OClosableEntry<Long, OFile> fileEntry = files.tryAcquire(entry.getKey());
+      final OClosableEntry<Long, OFile> fileEntry = files.tryAcquire(entry.getLongKey());
       if (fileEntry != null) {
         final OFile file = fileEntry.get();
 
@@ -3041,15 +3050,15 @@ public final class OWOWCache extends OAbstractWriteCache
   }
 
   private void generatePageStubs(
-      Map<Long, ArrayList<ORawPair<Long, ByteBuffer>>> buffersByFileId,
+      Long2ObjectOpenHashMap<ArrayList<ORawPair<Long, ByteBuffer>>> buffersByFileId,
       ArrayList<OPointer> containerPointers,
       ArrayList<ByteBuffer> containerBuffers,
       IntArrayList chunkPageIndexes,
       IntArrayList chunkFileIds)
       throws InterruptedException, IOException {
-    Iterator<Map.Entry<Long, ArrayList<ORawPair<Long, ByteBuffer>>>> filesIterator =
-        buffersByFileId.entrySet().iterator();
-    Map.Entry<Long, ArrayList<ORawPair<Long, ByteBuffer>>> entry;
+    Iterator<Long2ObjectMap.Entry<ArrayList<ORawPair<Long, ByteBuffer>>>> filesIterator =
+        buffersByFileId.long2ObjectEntrySet().iterator();
+    Long2ObjectMap.Entry<ArrayList<ORawPair<Long, ByteBuffer>>> entry;
     // detecting holes in file that are not written yet and fill them with stubs with zeros and
     // checksums
     while (filesIterator.hasNext()) {
@@ -3059,7 +3068,7 @@ public final class OWOWCache extends OAbstractWriteCache
       fileChunks.sort(pagePositionsComparator);
 
       long underlyingFileSize;
-      var file = files.acquire(entry.getKey());
+      var file = files.acquire(entry.getLongKey());
       try {
         underlyingFileSize = file.get().getUnderlyingFileSize();
         if ((underlyingFileSize & (pageSize - 1)) != 0) {
@@ -3106,7 +3115,7 @@ public final class OWOWCache extends OAbstractWriteCache
           assert containerBuffer.position() == 0;
 
           chunkPageIndexes.add((int) (lastPosition / pageSize));
-          chunkFileIds.add(internalFileId(entry.getKey()));
+          chunkFileIds.add(internalFileId(entry.getLongKey()));
 
           var pages = stubLength / pageSize;
           var startPageIndex = (int) (lastPosition / pageSize);
@@ -3114,7 +3123,7 @@ public final class OWOWCache extends OAbstractWriteCache
           // generate magic number and checksum for each page
           for (int i = 0, position = 0; i < pages; i++, position += pageSize) {
             addMagicChecksumAndEncryption(
-                extractFileId(entry.getKey()),
+                extractFileId(entry.getLongKey()),
                 startPageIndex + i,
                 containerBuffer.slice(position, pageSize).order(ByteOrder.nativeOrder()));
           }
