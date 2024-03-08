@@ -23,7 +23,7 @@ package com.orientechnologies.orient.core.storage.cluster;
 import com.orientechnologies.common.serialization.types.OByteSerializer;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
-import com.orientechnologies.common.util.ORawPair;
+import com.orientechnologies.common.util.ORawPairIntegerBoolean;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.exception.OStorageException;
 import com.orientechnologies.orient.core.record.ORecordVersionHelper;
@@ -110,7 +110,7 @@ public final class OClusterPage extends ODurablePage {
           final int entryPosition = findHole[0];
           final int holeSize = findHole[1];
 
-          final ORawPair<Integer, Boolean> entry =
+          final ORawPairIntegerBoolean entry =
               findFirstEmptySlot(
                   recordVersion,
                   entryPosition,
@@ -146,7 +146,7 @@ public final class OClusterPage extends ODurablePage {
     int entryIndex;
 
     if (requestedPosition < 0) {
-      final ORawPair<Integer, Boolean> entry =
+      final ORawPairIntegerBoolean entry =
           findFirstEmptySlot(
               recordVersion,
               freePosition,
@@ -333,7 +333,7 @@ public final class OClusterPage extends ODurablePage {
     return allocatedFromFreeList;
   }
 
-  private ORawPair<Integer, Boolean> findFirstEmptySlot(
+  private ORawPairIntegerBoolean findFirstEmptySlot(
       int recordVersion,
       int entryPosition,
       int indexesLength,
@@ -396,7 +396,7 @@ public final class OClusterPage extends ODurablePage {
       entryIndex = appendEntry(recordVersion, entryPosition, indexesLength, entrySize);
     }
 
-    return new ORawPair<>(entryIndex, allocatedFromFreeList);
+    return new ORawPairIntegerBoolean(entryIndex, allocatedFromFreeList);
   }
 
   private int appendEntry(int recordVersion, int freePosition, int indexesLength, int entrySize) {

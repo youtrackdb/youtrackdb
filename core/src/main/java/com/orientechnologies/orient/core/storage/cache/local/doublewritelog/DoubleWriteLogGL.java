@@ -6,7 +6,8 @@ import com.orientechnologies.common.directmemory.ODirectMemoryAllocator.Intentio
 import com.orientechnologies.common.directmemory.OPointer;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.common.util.ORawPair;
+import com.orientechnologies.common.util.ORawPairIntegerInteger;
+import com.orientechnologies.common.util.ORawPairLongLong;
 import com.orientechnologies.orient.core.exception.OStorageException;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
@@ -92,7 +93,7 @@ public class DoubleWriteLogGL implements DoubleWriteLog {
 
   private long segmentPosition;
 
-  private Map<ORawPair<Integer, Integer>, ORawPair<Long, Long>> pageMap;
+  private Map<ORawPairIntegerInteger, ORawPairLongLong> pageMap;
 
   static {
     final LZ4Factory factory = LZ4Factory.fastestInstance();
@@ -350,7 +351,8 @@ public class DoubleWriteLogGL implements DoubleWriteLog {
         return null;
       }
 
-      final ORawPair<Long, Long> segmentPosition = pageMap.get(new ORawPair<>(fileId, pageIndex));
+      final ORawPairLongLong segmentPosition =
+          pageMap.get(new ORawPairIntegerInteger(fileId, pageIndex));
       if (segmentPosition == null) {
         return null;
       }
@@ -535,7 +537,8 @@ public class DoubleWriteLogGL implements DoubleWriteLog {
 
             for (int i = 0; i < pages; i++) {
               pageMap.put(
-                  new ORawPair<>(fileId, pageIndex + i), new ORawPair<>(segmentId, position));
+                  new ORawPairIntegerInteger(fileId, pageIndex + i),
+                  new ORawPairLongLong(segmentId, position));
             }
 
             position += RECORD_METADATA_SIZE + compressedLen;

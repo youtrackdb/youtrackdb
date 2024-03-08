@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.storage.index.sbtreebonsai.global.btree;
 
-import com.orientechnologies.common.util.ORawPair;
+import com.orientechnologies.common.util.ORawPairObjectInteger;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OLogSequenceNumber;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 
-public final class SpliteratorBackward implements Spliterator<ORawPair<EdgeKey, Integer>> {
+public final class SpliteratorBackward implements Spliterator<ORawPairObjectInteger<EdgeKey>> {
 
   /** */
   private final BTree bTree;
@@ -25,8 +25,8 @@ public final class SpliteratorBackward implements Spliterator<ORawPair<EdgeKey, 
 
   private OLogSequenceNumber lastLSN = null;
 
-  private final List<ORawPair<EdgeKey, Integer>> dataCache = new ArrayList<>();
-  private Iterator<ORawPair<EdgeKey, Integer>> cacheIterator = Collections.emptyIterator();
+  private final List<ORawPairObjectInteger<EdgeKey>> dataCache = new ArrayList<>();
+  private Iterator<ORawPairObjectInteger<EdgeKey>> cacheIterator = Collections.emptyIterator();
 
   SpliteratorBackward(
       BTree bTree,
@@ -42,7 +42,7 @@ public final class SpliteratorBackward implements Spliterator<ORawPair<EdgeKey, 
   }
 
   @Override
-  public boolean tryAdvance(Consumer<? super ORawPair<EdgeKey, Integer>> action) {
+  public boolean tryAdvance(Consumer<? super ORawPairObjectInteger<EdgeKey>> action) {
     if (cacheIterator == null) {
       return false;
     }
@@ -72,7 +72,7 @@ public final class SpliteratorBackward implements Spliterator<ORawPair<EdgeKey, 
   }
 
   @Override
-  public Spliterator<ORawPair<EdgeKey, Integer>> trySplit() {
+  public Spliterator<ORawPairObjectInteger<EdgeKey>> trySplit() {
     return null;
   }
 
@@ -87,11 +87,11 @@ public final class SpliteratorBackward implements Spliterator<ORawPair<EdgeKey, 
   }
 
   @Override
-  public Comparator<? super ORawPair<EdgeKey, Integer>> getComparator() {
+  public Comparator<? super ORawPairObjectInteger<EdgeKey>> getComparator() {
     return (pairOne, pairTwo) -> -pairOne.first.compareTo(pairTwo.first);
   }
 
-  public List<ORawPair<EdgeKey, Integer>> getDataCache() {
+  public List<ORawPairObjectInteger<EdgeKey>> getDataCache() {
     return dataCache;
   }
 

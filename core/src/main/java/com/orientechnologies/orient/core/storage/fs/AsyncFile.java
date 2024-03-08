@@ -4,7 +4,7 @@ import com.orientechnologies.common.concur.lock.OInterruptedException;
 import com.orientechnologies.common.concur.lock.ScalableRWLock;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.common.util.ORawPair;
+import com.orientechnologies.common.util.ORawPairLongObject;
 import com.orientechnologies.orient.core.exception.OStorageException;
 import java.io.EOFException;
 import java.io.IOException;
@@ -211,12 +211,12 @@ public final class AsyncFile implements OFile {
   }
 
   @Override
-  public IOResult write(List<ORawPair<Long, ByteBuffer>> buffers) {
+  public IOResult write(List<ORawPairLongObject<ByteBuffer>> buffers) {
     final CountDownLatch latch = new CountDownLatch(buffers.size());
     final AsyncIOResult asyncIOResult = new AsyncIOResult(latch);
 
     syncSemaphore.acquireUninterruptibly(buffers.size());
-    for (final ORawPair<Long, ByteBuffer> pair : buffers) {
+    for (final ORawPairLongObject<ByteBuffer> pair : buffers) {
       final ByteBuffer byteBuffer = pair.second;
       byteBuffer.rewind();
       lock.sharedLock();

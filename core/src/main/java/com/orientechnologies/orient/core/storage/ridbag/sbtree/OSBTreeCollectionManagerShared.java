@@ -23,7 +23,7 @@ package com.orientechnologies.orient.core.storage.ridbag.sbtree;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
-import com.orientechnologies.common.util.ORawPair;
+import com.orientechnologies.common.util.ORawPairObjectInteger;
 import com.orientechnologies.orient.core.OOrientShutdownListener;
 import com.orientechnologies.orient.core.OOrientStartupListener;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
@@ -381,7 +381,7 @@ public final class OSBTreeCollectionManagerShared
       ridBagId = (rootPointer.getPageIndex() << 16) + rootPointer.getPageOffset();
     }
 
-    try (Stream<ORawPair<EdgeKey, Integer>> stream =
+    try (Stream<ORawPairObjectInteger<EdgeKey>> stream =
         bTree.iterateEntriesBetween(
             new EdgeKey(ridBagId, Integer.MIN_VALUE, Long.MIN_VALUE),
             true,

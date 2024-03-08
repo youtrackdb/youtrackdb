@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.storage.fs;
 
 import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.common.util.ORawPair;
+import com.orientechnologies.common.util.ORawPairLongObject;
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -109,11 +109,11 @@ public class AsyncFileTest {
     random.nextBytes(data2);
     random.nextBytes(data3);
 
-    final List<ORawPair<Long, ByteBuffer>> buffers = new ArrayList<>();
+    final List<ORawPairLongObject<ByteBuffer>> buffers = new ArrayList<>();
 
-    buffers.add(new ORawPair<>(position1, ByteBuffer.wrap(data1)));
-    buffers.add(new ORawPair<>(position2, ByteBuffer.wrap(data2)));
-    buffers.add(new ORawPair<>(position3, ByteBuffer.wrap(data3)));
+    buffers.add(new ORawPairLongObject<>(position1, ByteBuffer.wrap(data1)));
+    buffers.add(new ORawPairLongObject<>(position2, ByteBuffer.wrap(data2)));
+    buffers.add(new ORawPairLongObject<>(position3, ByteBuffer.wrap(data3)));
 
     final IOResult result = file.write(buffers);
     result.await();
@@ -152,11 +152,11 @@ public class AsyncFileTest {
     random.nextBytes(data2);
     random.nextBytes(data3);
 
-    final List<ORawPair<Long, ByteBuffer>> buffers = new ArrayList<>();
+    final List<ORawPairLongObject<ByteBuffer>> buffers = new ArrayList<>();
 
-    buffers.add(new ORawPair<>(position1, ByteBuffer.wrap(data1)));
-    buffers.add(new ORawPair<>(position2, ByteBuffer.wrap(data2)));
-    buffers.add(new ORawPair<>(position3, ByteBuffer.wrap(data3)));
+    buffers.add(new ORawPairLongObject<>(position1, ByteBuffer.wrap(data1)));
+    buffers.add(new ORawPairLongObject<>(position2, ByteBuffer.wrap(data2)));
+    buffers.add(new ORawPairLongObject<>(position3, ByteBuffer.wrap(data3)));
 
     final IOResult result = file.write(buffers);
     result.await();
@@ -197,10 +197,10 @@ public class AsyncFileTest {
     random.nextBytes(data2);
     random.nextBytes(data3);
 
-    final List<ORawPair<Long, ByteBuffer>> buffers = new ArrayList<>();
+    final List<ORawPairLongObject<ByteBuffer>> buffers = new ArrayList<>();
 
-    buffers.add(new ORawPair<>(position1, ByteBuffer.wrap(data1)));
-    buffers.add(new ORawPair<>(position2, ByteBuffer.wrap(data2)));
+    buffers.add(new ORawPairLongObject<>(position1, ByteBuffer.wrap(data1)));
+    buffers.add(new ORawPairLongObject<>(position2, ByteBuffer.wrap(data2)));
 
     final IOResult result = file.write(buffers);
     result.await();
@@ -245,11 +245,11 @@ public class AsyncFileTest {
     random.nextBytes(data2);
     random.nextBytes(data3);
 
-    final List<ORawPair<Long, ByteBuffer>> buffers = new ArrayList<>();
+    final List<ORawPairLongObject<ByteBuffer>> buffers = new ArrayList<>();
 
-    buffers.add(new ORawPair<>(position1, ByteBuffer.wrap(data1)));
-    buffers.add(new ORawPair<>(position2, ByteBuffer.wrap(data2)));
-    buffers.add(new ORawPair<>(position3, ByteBuffer.wrap(data3)));
+    buffers.add(new ORawPairLongObject<>(position1, ByteBuffer.wrap(data1)));
+    buffers.add(new ORawPairLongObject<>(position2, ByteBuffer.wrap(data2)));
+    buffers.add(new ORawPairLongObject<>(position3, ByteBuffer.wrap(data3)));
 
     final IOResult result = file.write(buffers);
     result.await();
