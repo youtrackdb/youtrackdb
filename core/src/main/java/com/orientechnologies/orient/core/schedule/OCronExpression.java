@@ -20,15 +20,14 @@ package com.orientechnologies.orient.core.schedule;
 import com.orientechnologies.common.log.OLogManager;
 import it.unimi.dsi.fastutil.ints.IntRBTreeSet;
 import it.unimi.dsi.fastutil.ints.IntSortedSet;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import java.io.Serial;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
-import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 
@@ -200,10 +199,12 @@ public final class OCronExpression implements Serializable, Cloneable {
   private static final int ALL_SPEC = ALL_SPEC_INT;
   private static final int NO_SPEC = NO_SPEC_INT;
 
-  private static final Map<String, Integer> monthMap = new HashMap<String, Integer>(20);
-  private static final Map<String, Integer> dayMap = new HashMap<String, Integer>(60);
+  protected static final Object2IntOpenHashMap<String> monthMap = new Object2IntOpenHashMap<>(20);
+  protected static final Object2IntOpenHashMap<String> dayMap = new Object2IntOpenHashMap<>(60);
 
   static {
+    monthMap.defaultReturnValue(-1);
+
     monthMap.put("JAN", 0);
     monthMap.put("FEB", 1);
     monthMap.put("MAR", 2);
@@ -217,6 +218,7 @@ public final class OCronExpression implements Serializable, Cloneable {
     monthMap.put("NOV", 10);
     monthMap.put("DEC", 11);
 
+    dayMap.defaultReturnValue(-1);
     dayMap.put("SUN", 1);
     dayMap.put("MON", 2);
     dayMap.put("TUE", 3);
@@ -1064,23 +1066,11 @@ public final class OCronExpression implements Serializable, Cloneable {
   }
 
   protected int getMonthNumber(String s) {
-    Integer integer = monthMap.get(s);
-
-    if (integer == null) {
-      return -1;
-    }
-
-    return integer;
+    return monthMap.getInt(s);
   }
 
   protected int getDayOfWeekNumber(String s) {
-    Integer integer = dayMap.get(s);
-
-    if (integer == null) {
-      return -1;
-    }
-
-    return integer;
+    return dayMap.getInt(s);
   }
 
   ////////////////////////////////////////////////////////////////////////////

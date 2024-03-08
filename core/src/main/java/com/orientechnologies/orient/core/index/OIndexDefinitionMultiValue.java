@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
-import java.util.Map;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 
 /**
  * Interface that indicates that index definition is based on collection of values but not on single
@@ -49,6 +49,6 @@ public interface OIndexDefinitionMultiValue extends OIndexDefinition {
    */
   public void processChangeEvent(
       final OMultiValueChangeEvent<?, ?> changeEvent,
-      final Map<Object, Integer> keysToAdd,
-      final Map<Object, Integer> keysToRemove);
+      final Object2IntMap<Object> keysToAdd,
+      final Object2IntMap<Object> keysToRemove);
 }

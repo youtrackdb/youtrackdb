@@ -22,6 +22,7 @@ package com.orientechnologies.orient.core.index;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -31,16 +32,13 @@ import java.util.Map;
 /**
  * Index implementation bound to one schema class property that presents {@link com.orientechnologies.orient.core.metadata.schema.OType#EMBEDDEDMAP
  * or
- *
  * @link com.orientechnologies.orient.core.metadata.schema.OType#LINKMAP} property.
  */
 public class OPropertyMapIndexDefinition extends OPropertyIndexDefinition
     implements OIndexDefinitionMultiValue {
 
-  private static final long serialVersionUID = 275241019910834466L;
-
   /** Indicates whether Map will be indexed using its keys or values. */
-  public static enum INDEX_BY {
+  public enum INDEX_BY {
     KEY,
     VALUE
   }
@@ -70,7 +68,7 @@ public class OPropertyMapIndexDefinition extends OPropertyIndexDefinition
     if (!(params.get(0) instanceof Map)) return null;
 
     final Collection<?> mapParams = extractMapParams((Map<?, ?>) params.get(0));
-    final List<Object> result = new ArrayList<Object>(mapParams.size());
+    final List<Object> result = new ArrayList<>(mapParams.size());
     for (final Object mapParam : mapParams) {
       result.add(createSingleValue(mapParam));
     }
@@ -102,13 +100,13 @@ public class OPropertyMapIndexDefinition extends OPropertyIndexDefinition
   @Override
   protected void serializeToStream() {
     super.serializeToStream();
-    document.field("mapIndexBy", indexBy.toString());
+    document.setPropertyWithoutValidation("mapIndexBy", indexBy.toString());
   }
 
   @Override
   protected void serializeFromStream() {
     super.serializeFromStream();
-    indexBy = INDEX_BY.valueOf(document.<String>field("mapIndexBy"));
+    indexBy = INDEX_BY.valueOf(document.field("mapIndexBy"));
   }
 
   private Collection<?> extractMapParams(Map<?, ?> map) {
@@ -124,9 +122,7 @@ public class OPropertyMapIndexDefinition extends OPropertyIndexDefinition
 
     OPropertyMapIndexDefinition that = (OPropertyMapIndexDefinition) o;
 
-    if (indexBy != that.indexBy) return false;
-
-    return true;
+    return indexBy == that.indexBy;
   }
 
   public Object createSingleValue(final Object... param) {
@@ -135,8 +131,8 @@ public class OPropertyMapIndexDefinition extends OPropertyIndexDefinition
 
   public void processChangeEvent(
       final OMultiValueChangeEvent<?, ?> changeEvent,
-      final Map<Object, Integer> keysToAdd,
-      final Map<Object, Integer> keysToRemove) {
+      final Object2IntMap<Object> keysToAdd,
+      final Object2IntMap<Object> keysToRemove) {
     final boolean result;
     if (indexBy.equals(INDEX_BY.KEY))
       result = processKeyChangeEvent(changeEvent, keysToAdd, keysToRemove);
@@ -148,25 +144,26 @@ public class OPropertyMapIndexDefinition extends OPropertyIndexDefinition
 
   private boolean processKeyChangeEvent(
       final OMultiValueChangeEvent<?, ?> changeEvent,
-      final Map<Object, Integer> keysToAdd,
-      final Map<Object, Integer> keysToRemove) {
-    switch (changeEvent.getChangeType()) {
-      case ADD:
+      final Object2IntMap<Object> keysToAdd,
+      final Object2IntMap<Object> keysToRemove) {
+    return switch (changeEvent.getChangeType()) {
+      case ADD -> {
         processAdd(createSingleValue(changeEvent.getKey()), keysToAdd, keysToRemove);
-        return true;
-      case REMOVE:
+        yield true;
+      }
+      case REMOVE -> {
         processRemoval(createSingleValue(changeEvent.getKey()), keysToAdd, keysToRemove);
-        return true;
-      case UPDATE:
-        return true;
-    }
-    return false;
+        yield true;
+      }
+      case UPDATE -> true;
+      default -> false;
+    };
   }
 
   private boolean processValueChangeEvent(
       final OMultiValueChangeEvent<?, ?> changeEvent,
-      final Map<Object, Integer> keysToAdd,
-      final Map<Object, Integer> keysToRemove) {
+      final Object2IntMap<Object> keysToAdd,
+      final Object2IntMap<Object> keysToRemove) {
     switch (changeEvent.getChangeType()) {
       case ADD:
         processAdd(createSingleValue(changeEvent.getValue()), keysToAdd, keysToRemove);

@@ -7,6 +7,7 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OQueryParsingException;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunction;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionAbstract;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -48,9 +49,11 @@ public class OSQLStaticReflectiveFunction extends OSQLFunctionAbstract {
     }
   }
 
-  private static final Map<Class<?>, Integer> PRIMITIVE_WEIGHT = new HashMap<>();
+  private static final Object2IntOpenHashMap<Class<?>> PRIMITIVE_WEIGHT =
+      new Object2IntOpenHashMap<>();
 
   static {
+    PRIMITIVE_WEIGHT.defaultReturnValue(-1);
     PRIMITIVE_WEIGHT.put(boolean.class, 1);
     PRIMITIVE_WEIGHT.put(char.class, 2);
     PRIMITIVE_WEIGHT.put(byte.class, 3);
@@ -62,7 +65,7 @@ public class OSQLStaticReflectiveFunction extends OSQLFunctionAbstract {
     PRIMITIVE_WEIGHT.put(void.class, 9);
   }
 
-  private Method[] methods;
+  private final Method[] methods;
 
   public OSQLStaticReflectiveFunction(
       String name, int minParams, int maxParams, Method... methods) {
@@ -81,7 +84,7 @@ public class OSQLStaticReflectiveFunction extends OSQLFunctionAbstract {
               if (m1Params[i].isPrimitive()
                   && m2Params[i].isPrimitive()
                   && !m1Params[i].equals(m2Params[i])) {
-                c += PRIMITIVE_WEIGHT.get(m1Params[i]) - PRIMITIVE_WEIGHT.get(m2Params[i]);
+                c += PRIMITIVE_WEIGHT.getInt(m1Params[i]) - PRIMITIVE_WEIGHT.getInt(m2Params[i]);
               }
             }
           }

@@ -74,6 +74,7 @@ import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.executor.ORidSet;
 import com.orientechnologies.orient.core.storage.OPhysicalPosition;
 import com.orientechnologies.orient.core.storage.OStorage;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import java.io.BufferedInputStream;
@@ -125,11 +126,9 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
   private final Set<String> indexesToRebuild = new HashSet<>();
   private final Map<String, String> convertedClassNames = new HashMap<>();
 
-  private final Map<Integer, Integer> clusterToClusterMapping = new HashMap<>();
+  private final Int2IntOpenHashMap clusterToClusterMapping = new Int2IntOpenHashMap();
 
   private int maxRidbagStringSizeBeforeLazyImport = 100_000_000;
-
-  private InputStream input;
 
   public ODatabaseImport(
       final ODatabaseDocumentInternal database,
@@ -138,6 +137,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
       throws IOException {
     super(database, fileName, outputListener);
 
+    clusterToClusterMapping.defaultReturnValue(-2);
     // TODO: check unclosed stream?
     final BufferedInputStream bufferedInputStream =
         new BufferedInputStream(new FileInputStream(this.fileName));
@@ -158,6 +158,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
       final OCommandOutputListener outputListener)
       throws IOException {
     super(database, "streaming", outputListener);
+    clusterToClusterMapping.defaultReturnValue(-2);
     createJsonReaderDefaultListenerAndDeclareIntent(database, outputListener, inputStream);
   }
 
@@ -169,7 +170,6 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
       listener = text -> {};
     }
     jsonReader = new OJSONReader(new InputStreamReader(inputStream));
-    input = inputStream;
   }
 
   @Override
@@ -672,6 +672,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
     long classImported = 0;
 
     try {
+      String prevClassName = "";
       do {
         jsonReader.readNext(OJSONReader.BEGIN_OBJECT);
 
@@ -680,6 +681,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
                 .readNext(OJSONReader.FIELD_ASSIGNMENT)
                 .checkContent("\"name\"")
                 .readString(OJSONReader.COMMA_SEPARATOR);
+        prevClassName = className;
 
         String next = jsonReader.readNext(OJSONReader.FIELD_ASSIGNMENT).getValue();
 
@@ -697,7 +699,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
 
         int realClassDefClusterId = classDefClusterId;
         if (!clusterToClusterMapping.isEmpty()
-            && clusterToClusterMapping.get(classDefClusterId) != null) {
+            && clusterToClusterMapping.get(classDefClusterId) > -2) {
           realClassDefClusterId = clusterToClusterMapping.get(classDefClusterId);
         }
         String classClusterIds =
@@ -738,7 +740,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
           cls = (OClassImpl) database.getMetadata().getSchema().createClass(className);
         }
 
-        if (classClusterIds != null && clustersImported) {
+        if (clustersImported) {
           // REMOVE BRACES
           classClusterIds = classClusterIds.substring(1, classClusterIds.length() - 1);
 
@@ -746,7 +748,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
           for (int i : OStringSerializerHelper.splitIntArray(classClusterIds)) {
             if (i != -1) {
               if (!clusterToClusterMapping.isEmpty()
-                  && clusterToClusterMapping.get(classDefClusterId) != null) {
+                  && clusterToClusterMapping.get(classDefClusterId) > -2) {
                 i = clusterToClusterMapping.get(i);
               }
               cls.addClusterId(i);
@@ -759,58 +761,62 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
           jsonReader.readNext(OJSONReader.FIELD_ASSIGNMENT);
           value = jsonReader.getValue();
 
-          if (value.equals("\"strictMode\"")) {
-            cls.setStrictMode(jsonReader.readBoolean(OJSONReader.NEXT_IN_OBJECT));
-          } else if (value.equals("\"abstract\"")) {
-            cls.setAbstract(jsonReader.readBoolean(OJSONReader.NEXT_IN_OBJECT));
-          } else if (value.equals("\"oversize\"")) {
-            final String oversize = jsonReader.readString(OJSONReader.NEXT_IN_OBJECT);
-            cls.setOverSize(Float.parseFloat(oversize));
-          } else if (value.equals("\"strictMode\"")) { // TODO: check redundant?
-            final String strictMode = jsonReader.readString(OJSONReader.NEXT_IN_OBJECT);
-            cls.setStrictMode(Boolean.parseBoolean(strictMode));
-          } else if (value.equals("\"short-name\"")) {
-            final String shortName = jsonReader.readString(OJSONReader.NEXT_IN_OBJECT);
-            if (!cls.getName().equalsIgnoreCase(shortName)) cls.setShortName(shortName);
-          } else if (value.equals("\"super-class\"")) {
-            // @compatibility <2.1 SINGLE CLASS ONLY
-            final String classSuper = jsonReader.readString(OJSONReader.NEXT_IN_OBJECT);
-            final List<String> superClassNames = new ArrayList<String>();
-            superClassNames.add(classSuper);
-            superClasses.put(cls, superClassNames);
-          } else if (value.equals("\"super-classes\"")) {
-            // MULTIPLE CLASSES
-            jsonReader.readNext(OJSONReader.BEGIN_COLLECTION);
-
-            final List<String> superClassNames = new ArrayList<String>();
-            while (jsonReader.lastChar() != ']') {
-              jsonReader.readNext(OJSONReader.NEXT_IN_ARRAY);
-
-              final String clsName = jsonReader.getValue();
-
-              superClassNames.add(OIOUtils.getStringContent(clsName));
+          switch (value) {
+            case "\"strictMode\"" ->
+                cls.setStrictMode(jsonReader.readBoolean(OJSONReader.NEXT_IN_OBJECT));
+            case "\"abstract\"" ->
+                cls.setAbstract(jsonReader.readBoolean(OJSONReader.NEXT_IN_OBJECT));
+            case "\"oversize\"" -> {
+              final String oversize = jsonReader.readString(OJSONReader.NEXT_IN_OBJECT);
+              cls.setOverSize(Float.parseFloat(oversize));
             }
-            jsonReader.readNext(OJSONReader.NEXT_IN_OBJECT);
-
-            superClasses.put(cls, superClassNames);
-          } else if (value.equals("\"properties\"")) {
-            // GET PROPERTIES
-            jsonReader.readNext(OJSONReader.BEGIN_COLLECTION);
-
-            while (jsonReader.lastChar() != ']') {
-              importProperty(cls);
-
-              if (jsonReader.lastChar() == '}') jsonReader.readNext(OJSONReader.NEXT_IN_ARRAY);
+            case "\"short-name\"" -> {
+              final String shortName = jsonReader.readString(OJSONReader.NEXT_IN_OBJECT);
+              if (!cls.getName().equalsIgnoreCase(shortName)) cls.setShortName(shortName);
             }
-            jsonReader.readNext(OJSONReader.NEXT_IN_OBJECT);
-          } else if (value.equals("\"customFields\"")) {
-            Map<String, String> customFields = importCustomFields();
-            for (Entry<String, String> entry : customFields.entrySet()) {
-              cls.setCustom(entry.getKey(), entry.getValue());
+            case "\"super-class\"" -> {
+              // @compatibility <2.1 SINGLE CLASS ONLY
+              final String classSuper = jsonReader.readString(OJSONReader.NEXT_IN_OBJECT);
+              final List<String> superClassNames = new ArrayList<String>();
+              superClassNames.add(classSuper);
+              superClasses.put(cls, superClassNames);
             }
-          } else if (value.equals("\"cluster-selection\"")) {
-            // @SINCE 1.7
-            cls.setClusterSelection(jsonReader.readString(OJSONReader.NEXT_IN_OBJECT));
+            case "\"super-classes\"" -> {
+              // MULTIPLE CLASSES
+              jsonReader.readNext(OJSONReader.BEGIN_COLLECTION);
+
+              final List<String> superClassNames = new ArrayList<String>();
+              while (jsonReader.lastChar() != ']') {
+                jsonReader.readNext(OJSONReader.NEXT_IN_ARRAY);
+
+                final String clsName = jsonReader.getValue();
+
+                superClassNames.add(OIOUtils.getStringContent(clsName));
+              }
+              jsonReader.readNext(OJSONReader.NEXT_IN_OBJECT);
+
+              superClasses.put(cls, superClassNames);
+            }
+            case "\"properties\"" -> {
+              // GET PROPERTIES
+              jsonReader.readNext(OJSONReader.BEGIN_COLLECTION);
+
+              while (jsonReader.lastChar() != ']') {
+                importProperty(cls);
+
+                if (jsonReader.lastChar() == '}') jsonReader.readNext(OJSONReader.NEXT_IN_ARRAY);
+              }
+              jsonReader.readNext(OJSONReader.NEXT_IN_OBJECT);
+            }
+            case "\"customFields\"" -> {
+              Map<String, String> customFields = importCustomFields();
+              for (Entry<String, String> entry : customFields.entrySet()) {
+                cls.setCustom(entry.getKey(), entry.getValue());
+              }
+            }
+            case "\"cluster-selection\"" ->
+                // @SINCE 1.7
+                cls.setClusterSelection(jsonReader.readString(OJSONReader.NEXT_IN_OBJECT));
           }
         }
 
@@ -1072,7 +1078,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
 
           final OClass clazz =
               database.getMetadata().getSchema().getClassByClusterId(createdClusterId);
-          if (clazz != null && clazz instanceof OClassEmbedded)
+          if (clazz instanceof OClassEmbedded)
             ((OClassEmbedded) clazz).removeClusterId(createdClusterId, true);
 
           database.dropCluster(createdClusterId);
@@ -1399,6 +1405,9 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
         recordsBeforeImport.add(recordIterator.next().getIdentity());
       }
     }
+
+    // excluding placeholder record that exist for binary compatibility
+    recordsBeforeImport.remove(new ORecordId(0, 0));
 
     ORID rid;
     ORID lastRid = new OEmptyRecordId();

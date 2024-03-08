@@ -173,6 +173,9 @@ import com.orientechnologies.orient.core.tx.OTransactionIndexChangesPerKey.OTran
 import com.orientechnologies.orient.core.tx.OTransactionInternal;
 import com.orientechnologies.orient.core.tx.OTxMetadataHolder;
 import com.orientechnologies.orient.core.tx.OTxMetadataHolderImpl;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -5837,7 +5840,8 @@ public abstract class OAbstractPaginatedStorage
 
     final int reportBatchSize =
         OGlobalConfiguration.WAL_REPORT_AFTER_OPERATIONS_DURING_RESTORE.getValueAsInteger();
-    final Map<Long, List<OWALRecord>> operationUnits = new HashMap<>(1024);
+    final Long2ObjectOpenHashMap<List<OWALRecord>> operationUnits =
+        new Long2ObjectOpenHashMap<>(1024);
     final Map<Long, byte[]> operationMetadata = new LinkedHashMap<>(1024);
 
     long lastReportTime = 0;
@@ -6079,9 +6083,9 @@ public abstract class OAbstractPaginatedStorage
   }
 
   @SuppressWarnings("unused")
-  protected static Map<Integer, List<ORecordId>> getRidsGroupedByCluster(
+  protected static Int2ObjectMap<List<ORecordId>> getRidsGroupedByCluster(
       final Collection<ORecordId> rids) {
-    final Map<Integer, List<ORecordId>> ridsPerCluster = new HashMap<>(8);
+    final Int2ObjectOpenHashMap<List<ORecordId>> ridsPerCluster = new Int2ObjectOpenHashMap<>(8);
     for (final ORecordId rid : rids) {
       final List<ORecordId> group =
           ridsPerCluster.computeIfAbsent(rid.getClusterId(), k -> new ArrayList<>(rids.size()));
@@ -6848,7 +6852,7 @@ public abstract class OAbstractPaginatedStorage
       Set<OTransactionId> transactionsToRead = new HashSet<>(transactionsMetadata);
       // we iterate till the last record is contained in wal at the moment when we call this method
       OLogSequenceNumber beginLsn = writeAheadLog.begin();
-      Map<Long, OTransactionData> units = new HashMap<>();
+      Long2ObjectOpenHashMap<OTransactionData> units = new Long2ObjectOpenHashMap<>();
 
       writeAheadLog.addCutTillLimit(beginLsn);
       try {

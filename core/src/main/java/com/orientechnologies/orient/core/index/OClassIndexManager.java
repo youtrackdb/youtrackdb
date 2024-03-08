@@ -31,14 +31,13 @@ import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.metadata.schema.OImmutableClass;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -54,7 +53,7 @@ public class OClassIndexManager {
     processIndexOnCreate(database, document);
   }
 
-  public static void reIndex(ODocument document, ODatabaseDocumentInternal database, OIndex index) {
+  public static void reIndex(ODocument document, OIndex index) {
     document = checkForLoading(document);
     addIndexEntry(document, document.getIdentity(), index);
   }
@@ -63,7 +62,7 @@ public class OClassIndexManager {
     final OImmutableClass cls = ODocumentInternal.getImmutableSchemaClass(database, document);
     if (cls != null) {
       final Collection<OIndex> indexes = cls.getRawIndexes();
-      addIndexesEntries(database, document, indexes);
+      addIndexesEntries(document, indexes);
     }
   }
 
@@ -145,8 +144,11 @@ public class OClassIndexManager {
             // place where collection item should be located so we can not use "fast path" to
             // update index values
             if (dirtyFields.size() == 1 && indexDefinition.isNullValuesIgnored()) {
-              final Map<OCompositeKey, Integer> keysToAdd = new HashMap<>();
-              final Map<OCompositeKey, Integer> keysToRemove = new HashMap<>();
+              final Object2IntOpenHashMap<OCompositeKey> keysToAdd = new Object2IntOpenHashMap<>();
+              keysToAdd.defaultReturnValue(-1);
+              final Object2IntOpenHashMap<OCompositeKey> keysToRemove =
+                  new Object2IntOpenHashMap<>();
+              keysToRemove.defaultReturnValue(-1);
 
               for (OMultiValueChangeEvent<?, ?> changeEvent :
                   multiValueChangeTimeLine.getMultiValueChangeEvents()) {
@@ -160,6 +162,7 @@ public class OClassIndexManager {
               for (final Object keyToAdd : keysToAdd.keySet())
                 addPut(index, keyToAdd, iRecord.getIdentity());
             } else {
+              @SuppressWarnings("rawtypes")
               final OTrackedMultiValue fieldValue = iRecord.field(multiValueField);
               @SuppressWarnings("unchecked")
               final Object restoredMultiValue =
@@ -178,7 +181,6 @@ public class OClassIndexManager {
         return;
       }
     }
-    return;
   }
 
   private static void processSingleIndexUpdate(
@@ -196,18 +198,23 @@ public class OClassIndexManager {
     if (multiValueChangeTimeLine != null) {
       final OIndexDefinitionMultiValue indexDefinitionMultiValue =
           (OIndexDefinitionMultiValue) indexDefinition;
-      final Map<Object, Integer> keysToAdd = new HashMap<>();
-      final Map<Object, Integer> keysToRemove = new HashMap<>();
+      final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+      keysToAdd.defaultReturnValue(-1);
+      final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+      keysToRemove.defaultReturnValue(-1);
 
       for (OMultiValueChangeEvent<?, ?> changeEvent :
           multiValueChangeTimeLine.getMultiValueChangeEvents()) {
         indexDefinitionMultiValue.processChangeEvent(changeEvent, keysToAdd, keysToRemove);
       }
 
-      for (final Object keyToRemove : keysToRemove.keySet()) addRemove(index, keyToRemove, iRecord);
+      for (final Object keyToRemove : keysToRemove.keySet()) {
+        addRemove(index, keyToRemove, iRecord);
+      }
 
-      for (final Object keyToAdd : keysToAdd.keySet())
+      for (final Object keyToAdd : keysToAdd.keySet()) {
         addPut(index, keyToAdd, iRecord.getIdentity());
+      }
 
     } else {
       final Object origValue = indexDefinition.createValue(iRecord.getOriginalValue(indexField));
@@ -275,6 +282,7 @@ public class OClassIndexManager {
           final OMultiValueChangeTimeLine<?, ?> multiValueChangeTimeLine =
               iRecord.getCollectionTimeLine(multiValueField);
           if (multiValueChangeTimeLine != null) {
+            @SuppressWarnings("rawtypes")
             final OTrackedMultiValue fieldValue = iRecord.field(multiValueField);
             @SuppressWarnings("unchecked")
             final Object restoredMultiValue =
@@ -359,8 +367,7 @@ public class OClassIndexManager {
     else processSingleIndexUpdate(index, dirtyFields, iDocument);
   }
 
-  public static void addIndexesEntries(
-      ODatabaseDocumentInternal database, ODocument document, final Collection<OIndex> indexes) {
+  public static void addIndexesEntries(ODocument document, final Collection<OIndex> indexes) {
     // STORE THE RECORD IF NEW, OTHERWISE ITS RID
     final OIdentifiable rid = document.getIdentity();
 
@@ -385,10 +392,7 @@ public class OClassIndexManager {
     final OImmutableClass cls = ODocumentInternal.getImmutableSchemaClass(database, iDocument);
     if (cls == null) return;
 
-    final Collection<OIndex> indexes = new ArrayList<>();
-    for (OIndex index : cls.getRawIndexes()) {
-      indexes.add(index);
-    }
+    final Collection<OIndex> indexes = new ArrayList<>(cls.getRawIndexes());
 
     if (!indexes.isEmpty()) {
       final Set<String> dirtyFields = new HashSet<>(Arrays.asList(iDocument.getDirtyFields()));

@@ -28,6 +28,7 @@ import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.clusterselection.OClusterSelectionFactory;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,11 +45,11 @@ import java.util.Set;
  * @since 10/21/14
  */
 public class OImmutableSchema implements OSchema {
-  private final Map<Integer, OClass> clustersToClasses;
+  private final Int2ObjectOpenHashMap<OClass> clustersToClasses;
   private final Map<String, OClass> classes;
   private final IntSet blogClusters;
 
-  private final Map<Integer, OView> clustersToViews;
+  private final Int2ObjectOpenHashMap<OView> clustersToViews;
   private final Map<String, OView> views;
 
   public final int version;
@@ -61,8 +62,8 @@ public class OImmutableSchema implements OSchema {
     identity = schemaShared.getIdentity();
     clusterSelectionFactory = schemaShared.getClusterSelectionFactory();
 
-    clustersToClasses = new HashMap<Integer, OClass>(schemaShared.getClasses(database).size() * 3);
-    classes = new HashMap<String, OClass>(schemaShared.getClasses(database).size());
+    clustersToClasses = new Int2ObjectOpenHashMap<>(schemaShared.getClasses(database).size() * 3);
+    classes = new HashMap<>(schemaShared.getClasses(database).size());
 
     for (OClass oClass : schemaShared.getClasses(database)) {
       final OImmutableClass immutableClass = new OImmutableClass(oClass, this);
@@ -84,7 +85,7 @@ public class OImmutableSchema implements OSchema {
     }
     this.blogClusters = schemaShared.getBlobClusters();
 
-    clustersToViews = new HashMap<Integer, OView>(schemaShared.getViews(database).size() * 3);
+    clustersToViews = new Int2ObjectOpenHashMap<>(schemaShared.getViews(database).size() * 3);
     views = new HashMap<String, OView>(schemaShared.getViews(database).size());
 
     for (OView oClass : schemaShared.getViews(database)) {

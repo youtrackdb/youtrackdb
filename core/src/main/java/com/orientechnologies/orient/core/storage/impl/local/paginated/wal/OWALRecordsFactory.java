@@ -27,11 +27,10 @@ import com.orientechnologies.common.serialization.types.OShortSerializer;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.common.EmptyWALRecord;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.common.WriteableWALRecord;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.HashMap;
-import java.util.Map;
 import net.jpountz.lz4.LZ4Compressor;
 import net.jpountz.lz4.LZ4Factory;
 import net.jpountz.lz4.LZ4FastDecompressor;
@@ -54,7 +53,7 @@ public final class OWALRecordsFactory {
   private static final int COMPRESSED_METADATA_SIZE =
       RECORD_ID_SIZE + OPERATION_ID_SIZE + ORIGINAL_CONTENT_SIZE;
 
-  private final Map<Integer, Class<?>> idToTypeMap = new HashMap<>();
+  private final Int2ObjectOpenHashMap<Class<?>> idToTypeMap = new Int2ObjectOpenHashMap<>();
 
   public static final OWALRecordsFactory INSTANCE = new OWALRecordsFactory();
 

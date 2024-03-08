@@ -811,7 +811,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
     final List<String> items =
         OStringSerializerHelper.smartSplit(value, OStringSerializerHelper.RECORD_SEPARATOR);
     for (String item : items) {
-      if (item.length() == 0) coll.add(new OEmptyRecordId());
+      if (item.isEmpty()) coll.add(new OEmptyRecordId());
       else {
         if (item.startsWith("#")) coll.add(new ORecordId(item));
         else {
@@ -830,7 +830,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
     final List<String> items =
         OStringSerializerHelper.smartSplit(value, OStringSerializerHelper.RECORD_SEPARATOR);
     for (String item : items) {
-      if (item.length() == 0) coll.add(new OEmptyRecordId());
+      if (item.isEmpty()) coll.add(new OEmptyRecordId());
       else {
         if (item.startsWith("#")) coll.add(new ORecordId(item));
         else {

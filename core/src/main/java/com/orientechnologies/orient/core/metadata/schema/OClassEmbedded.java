@@ -715,9 +715,10 @@ public class OClassEmbedded extends OClassImpl {
         // SWITCH TO ABSTRACT
         if (defaultClusterId != NOT_EXISTENT_CLUSTER_ID) {
           // CHECK
-          if (count() > 0)
+          if (count() > 0) {
             throw new IllegalStateException(
                 "Cannot set the class as abstract because contains records.");
+          }
 
           tryDropCluster(defaultClusterId);
           for (int clusterId : getClusterIds()) {

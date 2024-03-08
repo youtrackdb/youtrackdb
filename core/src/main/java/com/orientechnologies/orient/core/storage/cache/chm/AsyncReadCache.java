@@ -99,6 +99,7 @@ public final class AsyncReadCache implements OReadCache {
   @Override
   public final long addFile(final String fileName, long fileId, final OWriteCache writeCache)
       throws IOException {
+    assert fileId >= 0;
     fileId = OAbstractWriteCache.checkFileIdCompatibility(writeCache.getId(), fileId);
     return writeCache.addFile(fileName, fileId);
   }

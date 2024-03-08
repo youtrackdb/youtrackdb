@@ -29,6 +29,8 @@ import com.orientechnologies.orient.core.OOrientListener;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.storage.OStorage;
+import it.unimi.dsi.fastutil.objects.Object2LongMap;
+import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -45,16 +47,16 @@ public abstract class ODatabasePoolAbstract<DB extends ODatabaseInternal> extend
   private final HashMap<String, OReentrantResourcePool<String, DB>> pools =
       new HashMap<String, OReentrantResourcePool<String, DB>>();
   protected Object owner;
-  private int maxSize;
-  private int timeout;
+  private final int maxSize;
+  private final int timeout;
   private volatile Timer evictionTask;
   private Evictor evictor;
 
   /** The idle object evictor {@link TimerTask}. */
   class Evictor extends TimerTask {
 
-    private HashMap<String, Map<DB, Long>> evictionMap = new HashMap<String, Map<DB, Long>>();
-    private long minIdleTime;
+    private final HashMap<String, Object2LongOpenHashMap<DB>> evictionMap = new HashMap<>();
+    private final long minIdleTime;
 
     public Evictor(long minIdleTime) {
       this.minIdleTime = minIdleTime;
@@ -66,9 +68,9 @@ public abstract class ODatabasePoolAbstract<DB extends ODatabaseInternal> extend
       OLogManager.instance().debug(this, "Running Connection Pool Evictor Service...");
       lock();
       try {
-        for (Entry<String, Map<DB, Long>> pool : this.evictionMap.entrySet()) {
-          Map<DB, Long> poolDbs = pool.getValue();
-          Iterator<Entry<DB, Long>> iterator = poolDbs.entrySet().iterator();
+        for (Entry<String, Object2LongOpenHashMap<DB>> pool : this.evictionMap.entrySet()) {
+          Object2LongOpenHashMap<DB> poolDbs = pool.getValue();
+          Iterator<Object2LongMap.Entry<DB>> iterator = poolDbs.object2LongEntrySet().iterator();
           while (iterator.hasNext()) {
             Entry<DB, Long> db = iterator.next();
             if (System.currentTimeMillis() - db.getValue() >= this.minIdleTime) {
@@ -90,9 +92,11 @@ public abstract class ODatabasePoolAbstract<DB extends ODatabaseInternal> extend
     }
 
     public void updateIdleTime(final String poolName, final DB iDatabase) {
-      Map<DB, Long> pool = this.evictionMap.get(poolName);
+      Object2LongOpenHashMap<DB> pool = this.evictionMap.get(poolName);
       if (pool == null) {
-        pool = new HashMap<DB, Long>();
+        pool = new Object2LongOpenHashMap<>();
+        pool.defaultReturnValue(-1);
+
         this.evictionMap.put(poolName, pool);
       }
 
@@ -173,8 +177,7 @@ public abstract class ODatabasePoolAbstract<DB extends ODatabaseInternal> extend
     } finally {
       unlock();
     }
-    final DB db = pool.getResource(iURL, timeout, iUserName, iUserPassword, iOptionalParams);
-    return db;
+    return pool.getResource(iURL, timeout, iUserName, iUserPassword, iOptionalParams);
   }
 
   public int getMaxConnections(final String url, final String userName) {

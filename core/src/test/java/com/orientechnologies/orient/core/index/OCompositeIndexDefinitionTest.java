@@ -11,6 +11,7 @@ import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -710,8 +711,7 @@ public class OCompositeIndexDefinitionTest {
             "testClass",
             Arrays.asList(
                 new OPropertyIndexDefinition("testClass", "fOne", OType.INTEGER),
-                new OPropertyIndexDefinition("testClass", "fTwo", OType.STRING)),
-            -1);
+                new OPropertyIndexDefinition("testClass", "fTwo", OType.STRING)));
 
     final OCompositeIndexDefinition emptyCompositeIndexTwo =
         new OCompositeIndexDefinition("testClass");
@@ -757,8 +757,11 @@ public class OCompositeIndexDefinitionTest {
     trackedList.add("l3");
     trackedList.remove("l2");
 
-    Map<OCompositeKey, Integer> keysToAdd = new HashMap<OCompositeKey, Integer>();
-    Map<OCompositeKey, Integer> keysToRemove = new HashMap<OCompositeKey, Integer>();
+    Object2IntOpenHashMap<OCompositeKey> keysToAdd = new Object2IntOpenHashMap<>();
+    keysToAdd.defaultReturnValue(-1);
+
+    Object2IntOpenHashMap<OCompositeKey> keysToRemove = new Object2IntOpenHashMap<>();
+    keysToRemove.defaultReturnValue(-1);
 
     for (OMultiValueChangeEvent<Object, Object> multiValueChangeEvent :
         trackedList.getTimeLine().getMultiValueChangeEvents()) {
@@ -793,8 +796,11 @@ public class OCompositeIndexDefinitionTest {
     ridBag.remove(new ORecordId("#10:0"));
     ridBag.remove(new ORecordId("#10:1"));
 
-    Map<OCompositeKey, Integer> keysToAdd = new HashMap<OCompositeKey, Integer>();
-    Map<OCompositeKey, Integer> keysToRemove = new HashMap<OCompositeKey, Integer>();
+    Object2IntOpenHashMap<OCompositeKey> keysToAdd = new Object2IntOpenHashMap<>();
+    keysToAdd.defaultReturnValue(-1);
+
+    Object2IntOpenHashMap<OCompositeKey> keysToRemove = new Object2IntOpenHashMap<>();
+    keysToRemove.defaultReturnValue(-1);
 
     for (OMultiValueChangeEvent<Object, Object> multiValueChangeEvent :
         ridBag.getTimeLine().getMultiValueChangeEvents()) {
@@ -835,8 +841,11 @@ public class OCompositeIndexDefinitionTest {
     trackedList.add("l4");
     trackedList.remove("l1");
 
-    Map<OCompositeKey, Integer> keysToAdd = new HashMap<OCompositeKey, Integer>();
-    Map<OCompositeKey, Integer> keysToRemove = new HashMap<OCompositeKey, Integer>();
+    Object2IntOpenHashMap<OCompositeKey> keysToAdd = new Object2IntOpenHashMap<>();
+    keysToAdd.defaultReturnValue(-1);
+
+    Object2IntOpenHashMap<OCompositeKey> keysToRemove = new Object2IntOpenHashMap<>();
+    keysToRemove.defaultReturnValue(-1);
 
     for (OMultiValueChangeEvent<Object, Object> multiValueChangeEvent :
         trackedList.getTimeLine().getMultiValueChangeEvents()) {
@@ -874,8 +883,11 @@ public class OCompositeIndexDefinitionTest {
     ridBag.add(new ORecordId("#10:4"));
     ridBag.remove(new ORecordId("#10:1"));
 
-    Map<OCompositeKey, Integer> keysToAdd = new HashMap<OCompositeKey, Integer>();
-    Map<OCompositeKey, Integer> keysToRemove = new HashMap<OCompositeKey, Integer>();
+    Object2IntOpenHashMap<OCompositeKey> keysToAdd = new Object2IntOpenHashMap<>();
+    keysToAdd.defaultReturnValue(-1);
+
+    Object2IntOpenHashMap<OCompositeKey> keysToRemove = new Object2IntOpenHashMap<>();
+    keysToRemove.defaultReturnValue(-1);
 
     for (OMultiValueChangeEvent<Object, Object> multiValueChangeEvent :
         ridBag.getTimeLine().getMultiValueChangeEvents()) {
@@ -913,8 +925,11 @@ public class OCompositeIndexDefinitionTest {
     trackedSet.add("l3");
     trackedSet.remove("l2");
 
-    Map<OCompositeKey, Integer> keysToAdd = new HashMap<OCompositeKey, Integer>();
-    Map<OCompositeKey, Integer> keysToRemove = new HashMap<OCompositeKey, Integer>();
+    Object2IntOpenHashMap<OCompositeKey> keysToAdd = new Object2IntOpenHashMap<>();
+    keysToAdd.defaultReturnValue(-1);
+
+    Object2IntOpenHashMap<OCompositeKey> keysToRemove = new Object2IntOpenHashMap<>();
+    keysToRemove.defaultReturnValue(-1);
 
     for (OMultiValueChangeEvent<Object, Object> multiValueChangeEvent :
         trackedSet.getTimeLine().getMultiValueChangeEvents()) {
@@ -955,8 +970,11 @@ public class OCompositeIndexDefinitionTest {
     trackedMap.add("l4");
     trackedMap.remove("l1");
 
-    Map<OCompositeKey, Integer> keysToAdd = new HashMap<OCompositeKey, Integer>();
-    Map<OCompositeKey, Integer> keysToRemove = new HashMap<OCompositeKey, Integer>();
+    Object2IntOpenHashMap<OCompositeKey> keysToAdd = new Object2IntOpenHashMap<>();
+    keysToAdd.defaultReturnValue(-1);
+
+    Object2IntOpenHashMap<OCompositeKey> keysToRemove = new Object2IntOpenHashMap<>();
+    keysToRemove.defaultReturnValue(-1);
 
     for (OMultiValueChangeEvent<Object, Object> multiValueChangeEvent :
         trackedMap.getTimeLine().getMultiValueChangeEvents()) {
@@ -994,8 +1012,11 @@ public class OCompositeIndexDefinitionTest {
     trackedMap.put("k3", "v3");
     trackedMap.remove("k2");
 
-    Map<OCompositeKey, Integer> keysToAdd = new HashMap<OCompositeKey, Integer>();
-    Map<OCompositeKey, Integer> keysToRemove = new HashMap<OCompositeKey, Integer>();
+    Object2IntOpenHashMap<OCompositeKey> keysToAdd = new Object2IntOpenHashMap<>();
+    keysToAdd.defaultReturnValue(-1);
+
+    Object2IntOpenHashMap<OCompositeKey> keysToRemove = new Object2IntOpenHashMap<>();
+    keysToRemove.defaultReturnValue(-1);
 
     for (OMultiValueChangeEvent<Object, Object> multiValueChangeEvent :
         trackedMap.getTimeLine().getMultiValueChangeEvents()) {
@@ -1037,8 +1058,11 @@ public class OCompositeIndexDefinitionTest {
     trackedMap.put("k4", "v4");
     trackedMap.remove("k1");
 
-    Map<OCompositeKey, Integer> keysToAdd = new HashMap<OCompositeKey, Integer>();
-    Map<OCompositeKey, Integer> keysToRemove = new HashMap<OCompositeKey, Integer>();
+    Object2IntOpenHashMap<OCompositeKey> keysToAdd = new Object2IntOpenHashMap<>();
+    keysToAdd.defaultReturnValue(-1);
+
+    Object2IntOpenHashMap<OCompositeKey> keysToRemove = new Object2IntOpenHashMap<>();
+    keysToRemove.defaultReturnValue(-1);
 
     for (OMultiValueChangeEvent<Object, Object> multiValueChangeEvent :
         trackedMap.getTimeLine().getMultiValueChangeEvents()) {
