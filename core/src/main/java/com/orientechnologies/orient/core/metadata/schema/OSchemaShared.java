@@ -40,6 +40,9 @@ import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
+import it.unimi.dsi.fastutil.ints.IntSets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -76,10 +79,9 @@ public abstract class OSchemaShared implements OCloseable {
   private final OClusterSelectionFactory clusterSelectionFactory = new OClusterSelectionFactory();
 
   private final OModifiableInteger modificationCounter = new OModifiableInteger();
-  private final List<OGlobalProperty> properties = new ArrayList<OGlobalProperty>();
-  private final Map<String, OGlobalProperty> propertiesByNameType =
-      new HashMap<String, OGlobalProperty>();
-  private Set<Integer> blobClusters = new HashSet<Integer>();
+  private final List<OGlobalProperty> properties = new ArrayList<>();
+  private final Map<String, OGlobalProperty> propertiesByNameType = new HashMap<>();
+  private IntOpenHashSet blobClusters = new IntOpenHashSet();
   private volatile int version = 0;
   private volatile ORID identity;
   protected volatile OImmutableSchema snapshot;
@@ -651,7 +653,9 @@ public abstract class OSchemaShared implements OCloseable {
       views.clear();
       views.putAll(newViews);
 
-      if (document.containsField("blobClusters")) blobClusters = document.field("blobClusters");
+      if (document.containsField("blobClusters")) {
+        blobClusters = new IntOpenHashSet((Set<Integer>) document.field("blobClusters"));
+      }
 
       if (!hasGlobalProperties) {
         ODatabaseDocumentInternal database = ODatabaseRecordThreadLocal.instance().get();
@@ -969,8 +973,8 @@ public abstract class OSchemaShared implements OCloseable {
     return clId;
   }
 
-  public Set<Integer> getBlobClusters() {
-    return Collections.unmodifiableSet(blobClusters);
+  public IntSet getBlobClusters() {
+    return IntSets.unmodifiable(blobClusters);
   }
 
   public void sendCommand(ODatabaseDocumentInternal database, String command) {

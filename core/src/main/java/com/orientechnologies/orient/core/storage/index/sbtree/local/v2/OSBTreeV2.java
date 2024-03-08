@@ -1548,10 +1548,10 @@ public class OSBTreeV2<K, V> extends ODurableComponent implements OSBTree<K, V> 
       OCacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, pageIndex);
       try {
         OSBTreeBucketV2<K, V> bucket = new OSBTreeBucketV2<>(cacheEntry);
-        if (lastLSN == null || bucket.getLSN().equals(lastLSN)) {
+        if (lastLSN == null || bucket.getLsn().equals(lastLSN)) {
           while (true) {
             final int bucketSize = bucket.size();
-            lastLSN = bucket.getLSN();
+            lastLSN = bucket.getLsn();
 
             for (;
                 itemIndex < bucketSize && dataCache.size() < SPLITERATOR_CACHE_SIZE;
@@ -1752,7 +1752,7 @@ public class OSBTreeV2<K, V> extends ODurableComponent implements OSBTree<K, V> 
       OCacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, pageIndex);
       try {
         OSBTreeBucketV2<K, V> bucket = new OSBTreeBucketV2<>(cacheEntry);
-        if (lastLSN == null || bucket.getLSN().equals(lastLSN)) {
+        if (lastLSN == null || bucket.getLsn().equals(lastLSN)) {
           while (true) {
             final int bucketSize = bucket.size();
             if (itemIndex == Integer.MIN_VALUE) {
@@ -1761,7 +1761,7 @@ public class OSBTreeV2<K, V> extends ODurableComponent implements OSBTree<K, V> 
               throw new IllegalStateException("Invalid value of item index");
             }
 
-            lastLSN = bucket.getLSN();
+            lastLSN = bucket.getLsn();
 
             for (; itemIndex >= 0 && dataCache.size() < SPLITERATOR_CACHE_SIZE; itemIndex--) {
               @SuppressWarnings("ObjectAllocationInLoop")

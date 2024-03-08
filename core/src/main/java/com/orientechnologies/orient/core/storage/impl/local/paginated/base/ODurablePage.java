@@ -85,7 +85,7 @@ public class ODurablePage {
         cacheEntry.setInitialLSN(getLogSequenceNumberFromPage(buffer));
       } else {
         // it is new a page
-        cacheEntry.setInitialLSN(new OLogSequenceNumber(0, 0));
+        cacheEntry.setInitialLSN(new OLogSequenceNumber(-1, -1));
       }
     }
   }
@@ -94,7 +94,7 @@ public class ODurablePage {
     return cacheEntry.getPageIndex();
   }
 
-  public final OLogSequenceNumber getLSN() {
+  public final OLogSequenceNumber getLsn() {
     final long segment = getLongValue(WAL_SEGMENT_OFFSET);
     final int position = getIntValue(WAL_POSITION_OFFSET);
 
@@ -106,6 +106,12 @@ public class ODurablePage {
     final int position = buffer.getInt(WAL_POSITION_OFFSET);
 
     return new OLogSequenceNumber(segment, position);
+  }
+
+  public static void setLogSequenceNumberForPage(
+      final ByteBuffer buffer, final OLogSequenceNumber lsn) {
+    buffer.putLong(WAL_SEGMENT_OFFSET, lsn.getSegment());
+    buffer.putInt(WAL_POSITION_OFFSET, lsn.getPosition());
   }
 
   /**

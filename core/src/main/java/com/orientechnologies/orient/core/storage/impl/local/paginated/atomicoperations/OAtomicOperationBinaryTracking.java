@@ -20,20 +20,22 @@
 package com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.common.util.ORawPair;
-import com.orientechnologies.common.util.ORawTriple;
 import com.orientechnologies.orient.core.exception.OStorageException;
 import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
 import com.orientechnologies.orient.core.storage.cache.OCacheEntryImpl;
 import com.orientechnologies.orient.core.storage.cache.OCachePointer;
 import com.orientechnologies.orient.core.storage.cache.OReadCache;
 import com.orientechnologies.orient.core.storage.cache.OWriteCache;
-import com.orientechnologies.orient.core.storage.cache.chm.PageKey;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODurablePage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.*;
 import com.orientechnologies.orient.core.storage.index.sbtreebonsai.local.OBonsaiBucketPointer;
+import it.unimi.dsi.fastutil.ints.IntIntImmutablePair;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
+import it.unimi.dsi.fastutil.ints.IntSets;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import java.io.IOException;
 import java.util.*;
@@ -55,7 +57,7 @@ final class OAtomicOperationBinaryTracking implements OAtomicOperation {
   private final Set<String> lockedObjects = new HashSet<>();
   private final Long2ObjectOpenHashMap<FileChanges> fileChanges = new Long2ObjectOpenHashMap<>();
   private final Object2LongOpenHashMap<String> newFileNamesId = new Object2LongOpenHashMap<>();
-  private final Set<Long> deletedFiles = new HashSet<>();
+  private final LongOpenHashSet deletedFiles = new LongOpenHashSet();
   private final Object2LongOpenHashMap<String> deletedFileNameIdMap =
       new Object2LongOpenHashMap<>();
 
@@ -72,8 +74,7 @@ final class OAtomicOperationBinaryTracking implements OAtomicOperation {
    */
   private final Set<OBonsaiBucketPointer> deletedBonsaiPointers = new HashSet<>();
 
-  private final Map<ORawPair<Integer, Integer>, Set<Integer>> deletedRecordPositions =
-      new HashMap<>();
+  private final Map<IntIntImmutablePair, IntSet> deletedRecordPositions = new HashMap<>();
 
   OAtomicOperationBinaryTracking(
       final long operationUnitId,
@@ -313,7 +314,9 @@ final class OAtomicOperationBinaryTracking implements OAtomicOperation {
       return true;
     } else if (changesContainer.isNew || changesContainer.maxNewPageIndex > -2) {
       return pageIndex < changesContainer.maxNewPageIndex + 1;
-    } else return !changesContainer.truncate;
+    } else {
+      return !changesContainer.truncate;
+    }
   }
 
   @Override
@@ -433,171 +436,120 @@ final class OAtomicOperationBinaryTracking implements OAtomicOperation {
 
   public OLogSequenceNumber commitChanges(final OWriteAheadLog writeAheadLog) throws IOException {
     OLogSequenceNumber txEndLsn = null;
-    if (writeAheadLog != null) {
-      final OLogSequenceNumber startLSN = writeAheadLog.end();
 
-      for (final long deletedFileId : deletedFiles) {
-        writeAheadLog.log(new OFileDeletedWALRecord(operationUnitId, deletedFileId));
+    final OLogSequenceNumber startLSN = writeAheadLog.end();
+
+    var deletedFilesIterator = deletedFiles.longIterator();
+    while (deletedFilesIterator.hasNext()) {
+      final long deletedFileId = deletedFilesIterator.nextLong();
+      writeAheadLog.log(new OFileDeletedWALRecord(operationUnitId, deletedFileId));
+    }
+
+    for (final Long2ObjectMap.Entry<FileChanges> fileChangesEntry :
+        fileChanges.long2ObjectEntrySet()) {
+      final FileChanges fileChanges = fileChangesEntry.getValue();
+      final long fileId = fileChangesEntry.getLongKey();
+
+      if (fileChanges.isNew) {
+        writeAheadLog.log(new OFileCreatedWALRecord(operationUnitId, fileChanges.fileName, fileId));
+      } else if (fileChanges.truncate) {
+        OLogManager.instance()
+            .warn(
+                this,
+                "You performing truncate operation which is considered unsafe because can not be"
+                    + " rolled back, as result data can be incorrectly restored after crash, this"
+                    + " operation is not recommended to be used");
       }
 
-      final ArrayList<ORawTriple<PageKey, OLogSequenceNumber, OLogSequenceNumber>> pageLSNs =
-          new ArrayList<>();
+      final Iterator<Long2ObjectMap.Entry<OCacheEntryChanges>> filePageChangesIterator =
+          fileChanges.pageChangesMap.long2ObjectEntrySet().iterator();
+      while (filePageChangesIterator.hasNext()) {
+        final Long2ObjectMap.Entry<OCacheEntryChanges> filePageChangesEntry =
+            filePageChangesIterator.next();
 
-      for (final Long2ObjectMap.Entry<FileChanges> fileChangesEntry :
-          fileChanges.long2ObjectEntrySet()) {
-        final FileChanges fileChanges = fileChangesEntry.getValue();
-        final long fileId = fileChangesEntry.getLongKey();
-
-        if (fileChanges.isNew) {
-          writeAheadLog.log(
-              new OFileCreatedWALRecord(operationUnitId, fileChanges.fileName, fileId));
-        } else if (fileChanges.truncate) {
-          OLogManager.instance()
-              .warn(
-                  this,
-                  "You performing truncate operation which is considered unsafe because can not be"
-                      + " rolled back, as result data can be incorrectly restored after crash, this"
-                      + " operation is not recommended to be used");
-        }
-
-        final Iterator<Long2ObjectMap.Entry<OCacheEntryChanges>> filePageChangesIterator =
-            fileChanges.pageChangesMap.long2ObjectEntrySet().iterator();
-        while (filePageChangesIterator.hasNext()) {
-          final Long2ObjectMap.Entry<OCacheEntryChanges> filePageChangesEntry =
-              filePageChangesIterator.next();
-
-          if (filePageChangesEntry.getValue().changes.hasChanges()) {
-            final long pageIndex = filePageChangesEntry.getLongKey();
-            final OCacheEntryChanges filePageChanges = filePageChangesEntry.getValue();
-
-            final OUpdatePageRecord updatePageRecord =
-                new OUpdatePageRecord(pageIndex, fileId, operationUnitId, filePageChanges.changes);
-            writeAheadLog.log(updatePageRecord);
-            filePageChanges.setChangeLSN(updatePageRecord.getLsn());
-
-            final OLogSequenceNumber initialLSN = filePageChanges.getInitialLSN();
-            Objects.requireNonNull(initialLSN);
-
-            pageLSNs.add(
-                new ORawTriple<>(
-                    filePageChangesEntry.getValue().getPageKey(),
-                    initialLSN,
-                    updatePageRecord.getLsn()));
-          } else {
-            filePageChangesIterator.remove();
-          }
-        }
-      }
-
-      txEndLsn =
-          writeAheadLog.log(
-              new AtomicUnitEndRecordWithPageLSNs(
-                  operationUnitId, rollback, getMetadata(), pageLSNs));
-
-      for (final long deletedFileId : deletedFiles) {
-        readCache.deleteFile(deletedFileId, writeCache);
-      }
-
-      for (final Long2ObjectMap.Entry<FileChanges> fileChangesEntry :
-          fileChanges.long2ObjectEntrySet()) {
-        final FileChanges fileChanges = fileChangesEntry.getValue();
-        final long fileId = fileChangesEntry.getLongKey();
-
-        if (fileChanges.isNew) {
-          readCache.addFile(
-              fileChanges.fileName, newFileNamesId.getLong(fileChanges.fileName), writeCache);
-        } else if (fileChanges.truncate) {
-          OLogManager.instance()
-              .warn(
-                  this,
-                  "You performing truncate operation which is considered unsafe because can not be"
-                      + " rolled back, as result data can be incorrectly restored after crash, this"
-                      + " operation is not recommended to be used");
-          readCache.truncateFile(fileId, writeCache);
-        }
-
-        final Iterator<Long2ObjectMap.Entry<OCacheEntryChanges>> filePageChangesIterator =
-            fileChanges.pageChangesMap.long2ObjectEntrySet().iterator();
-        while (filePageChangesIterator.hasNext()) {
-          final Long2ObjectMap.Entry<OCacheEntryChanges> filePageChangesEntry =
-              filePageChangesIterator.next();
-
-          if (filePageChangesEntry.getValue().changes.hasChanges()) {
-            final long pageIndex = filePageChangesEntry.getLongKey();
-            final OCacheEntryChanges filePageChanges = filePageChangesEntry.getValue();
-
-            OCacheEntry cacheEntry =
-                readCache.loadForWrite(
-                    fileId, pageIndex, writeCache, filePageChanges.verifyCheckSum, startLSN);
-            if (cacheEntry == null) {
-              assert filePageChanges.isNew;
-              do {
-                if (cacheEntry != null) {
-                  readCache.releaseFromWrite(cacheEntry, writeCache, true);
-                }
-
-                cacheEntry = readCache.allocateNewPage(fileId, writeCache, startLSN);
-              } while (cacheEntry.getPageIndex() != pageIndex);
-            }
-
-            try {
-              final ODurablePage durablePage = new ODurablePage(cacheEntry);
-              cacheEntry.setEndLSN(txEndLsn);
-
-              durablePage.restoreChanges(filePageChanges.changes);
-              durablePage.setLsn(filePageChanges.getChangeLSN());
-            } finally {
-              readCache.releaseFromWrite(cacheEntry, writeCache, true);
-            }
-          } else {
-            filePageChangesIterator.remove();
-          }
-        }
-      }
-    } else {
-      for (final long deletedFileId : deletedFiles) {
-        readCache.deleteFile(deletedFileId, writeCache);
-      }
-
-      for (final Long2ObjectMap.Entry<FileChanges> fileChangesEntry :
-          fileChanges.long2ObjectEntrySet()) {
-        final FileChanges fileChanges = fileChangesEntry.getValue();
-        final long fileId = fileChangesEntry.getLongKey();
-
-        if (fileChanges.isNew) {
-          readCache.addFile(
-              fileChanges.fileName, newFileNamesId.getLong(fileChanges.fileName), writeCache);
-        } else if (fileChanges.truncate) {
-          readCache.truncateFile(fileId, writeCache);
-        }
-
-        for (final Long2ObjectMap.Entry<OCacheEntryChanges> filePageChangesEntry :
-            fileChanges.pageChangesMap.long2ObjectEntrySet()) {
-          final OCacheEntryChanges filePageChanges = filePageChangesEntry.getValue();
-          if (!filePageChanges.changes.hasChanges()) {
-            continue;
-          }
+        if (filePageChangesEntry.getValue().changes.hasChanges()) {
           final long pageIndex = filePageChangesEntry.getLongKey();
+          final OCacheEntryChanges filePageChanges = filePageChangesEntry.getValue();
+
+          final OLogSequenceNumber initialLSN = filePageChanges.getInitialLSN();
+          Objects.requireNonNull(initialLSN);
+          final OUpdatePageRecord updatePageRecord =
+              new OUpdatePageRecord(
+                  pageIndex, fileId, operationUnitId, filePageChanges.changes, initialLSN);
+          writeAheadLog.log(updatePageRecord);
+          filePageChanges.setChangeLSN(updatePageRecord.getLsn());
+
+        } else {
+          filePageChangesIterator.remove();
+        }
+      }
+    }
+
+    txEndLsn =
+        writeAheadLog.log(new OAtomicUnitEndRecord(operationUnitId, rollback, getMetadata()));
+
+    deletedFilesIterator = deletedFiles.longIterator();
+    while (deletedFilesIterator.hasNext()) {
+      var deletedFileId = deletedFilesIterator.nextLong();
+      readCache.deleteFile(deletedFileId, writeCache);
+    }
+
+    for (final Long2ObjectMap.Entry<FileChanges> fileChangesEntry :
+        fileChanges.long2ObjectEntrySet()) {
+      final FileChanges fileChanges = fileChangesEntry.getValue();
+      final long fileId = fileChangesEntry.getLongKey();
+
+      if (fileChanges.isNew) {
+        readCache.addFile(
+            fileChanges.fileName, newFileNamesId.getLong(fileChanges.fileName), writeCache);
+      } else if (fileChanges.truncate) {
+        OLogManager.instance()
+            .warn(
+                this,
+                "You performing truncate operation which is considered unsafe because can not be"
+                    + " rolled back, as result data can be incorrectly restored after crash, this"
+                    + " operation is not recommended to be used");
+        readCache.truncateFile(fileId, writeCache);
+      }
+
+      final Iterator<Long2ObjectMap.Entry<OCacheEntryChanges>> filePageChangesIterator =
+          fileChanges.pageChangesMap.long2ObjectEntrySet().iterator();
+      while (filePageChangesIterator.hasNext()) {
+        final Long2ObjectMap.Entry<OCacheEntryChanges> filePageChangesEntry =
+            filePageChangesIterator.next();
+
+        if (filePageChangesEntry.getValue().changes.hasChanges()) {
+          final long pageIndex = filePageChangesEntry.getLongKey();
+          final OCacheEntryChanges filePageChanges = filePageChangesEntry.getValue();
 
           OCacheEntry cacheEntry =
-              readCache.loadForWrite(fileId, pageIndex, writeCache, true, null);
+              readCache.loadForWrite(
+                  fileId, pageIndex, writeCache, filePageChanges.verifyCheckSum, startLSN);
           if (cacheEntry == null) {
-            assert filePageChanges.isNew;
+            if (!filePageChanges.isNew) {
+              throw new OStorageException(
+                  "Page with index " + pageIndex + " is not found in file with id " + fileId);
+            }
             do {
               if (cacheEntry != null) {
                 readCache.releaseFromWrite(cacheEntry, writeCache, true);
               }
 
-              cacheEntry = readCache.allocateNewPage(fileId, writeCache, null);
+              cacheEntry = readCache.allocateNewPage(fileId, writeCache, startLSN);
             } while (cacheEntry.getPageIndex() != pageIndex);
           }
 
           try {
             final ODurablePage durablePage = new ODurablePage(cacheEntry);
+            cacheEntry.setEndLSN(txEndLsn);
+
             durablePage.restoreChanges(filePageChanges.changes);
+            durablePage.setLsn(filePageChanges.getChangeLSN());
           } finally {
             readCache.releaseFromWrite(cacheEntry, writeCache, true);
           }
+        } else {
+          filePageChangesIterator.remove();
         }
       }
     }
@@ -674,16 +626,16 @@ final class OAtomicOperationBinaryTracking implements OAtomicOperation {
 
   @Override
   public void addDeletedRecordPosition(int clusterId, int pageIndex, int recordPosition) {
-    final ORawPair<Integer, Integer> key = new ORawPair<>(clusterId, pageIndex);
-    final Set<Integer> recordPositions =
-        deletedRecordPositions.computeIfAbsent(key, k -> new HashSet<>());
+    var key = new IntIntImmutablePair(clusterId, pageIndex);
+    final IntSet recordPositions =
+        deletedRecordPositions.computeIfAbsent(key, k -> new IntOpenHashSet());
     recordPositions.add(recordPosition);
   }
 
   @Override
-  public Set<Integer> getBookedRecordPositions(int clusterId, int pageIndex) {
+  public IntSet getBookedRecordPositions(int clusterId, int pageIndex) {
     return deletedRecordPositions.getOrDefault(
-        new ORawPair<>(clusterId, pageIndex), Collections.emptySet());
+        new IntIntImmutablePair(clusterId, pageIndex), IntSets.emptySet());
   }
 
   @Override

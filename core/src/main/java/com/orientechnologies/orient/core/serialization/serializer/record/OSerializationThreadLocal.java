@@ -21,10 +21,10 @@ package com.orientechnologies.orient.core.serialization.serializer.record;
 
 import com.orientechnologies.orient.core.OOrientListenerAbstract;
 import com.orientechnologies.orient.core.Orient;
-import java.util.HashSet;
-import java.util.Set;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 
-public class OSerializationThreadLocal extends ThreadLocal<Set<Integer>> {
+public class OSerializationThreadLocal extends ThreadLocal<IntSet> {
   public static volatile OSerializationThreadLocal INSTANCE = new OSerializationThreadLocal();
 
   static {
@@ -44,7 +44,7 @@ public class OSerializationThreadLocal extends ThreadLocal<Set<Integer>> {
   }
 
   @Override
-  protected Set<Integer> initialValue() {
-    return new HashSet<Integer>();
+  protected IntSet initialValue() {
+    return new IntOpenHashSet();
   }
 }

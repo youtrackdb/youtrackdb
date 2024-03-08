@@ -17,6 +17,7 @@ import com.orientechnologies.orient.core.storage.cache.OWriteCache;
 import com.orientechnologies.orient.core.storage.cache.chm.readbuffer.BoundedBuffer;
 import com.orientechnologies.orient.core.storage.cache.chm.readbuffer.Buffer;
 import com.orientechnologies.orient.core.storage.cache.chm.writequeue.MPSCLinkedQueue;
+import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODurablePage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OLogSequenceNumber;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -60,7 +61,9 @@ public final class AsyncReadCache implements OReadCache {
   private final LongAdder requests = new LongAdder();
   private final LongAdder hits = new LongAdder();
 
-  /** Status which indicates whether flush of buffers should be performed or may be delayed. */
+  /**
+   * Status which indicates whether flush of buffers should be performed or may be delayed.
+   */
   private final AtomicReference<DrainStatus> drainStatus = new AtomicReference<>(DrainStatus.IDLE);
 
   private final int pageSize;
@@ -278,6 +281,8 @@ public final class AsyncReadCache implements OReadCache {
     final OPointer pointer = bufferPool.acquireDirect(true, Intention.ADD_NEW_PAGE_IN_DISK_CACHE);
     final OCachePointer cachePointer = new OCachePointer(pointer, bufferPool, fileId, pageIndex);
     cachePointer.incrementReadersReferrer();
+    ODurablePage.setLogSequenceNumberForPage(
+        pointer.getNativeByteBuffer(), new OLogSequenceNumber(-1, -1));
 
     final OCacheEntry cacheEntry = new OCacheEntryImpl(fileId, pageIndex, cachePointer, true, this);
     cacheEntry.acquireEntry();

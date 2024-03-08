@@ -25,6 +25,7 @@ import com.orientechnologies.orient.core.db.record.OProxedResource;
 import com.orientechnologies.orient.core.db.viewmanager.ViewCreationListener;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.clusterselection.OClusterSelectionFactory;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -259,7 +260,7 @@ public class OSchemaProxy extends OProxedResource<OSchemaShared> implements OSch
     return delegate.getClusterSelectionFactory();
   }
 
-  public Set<Integer> getBlobClusters() {
+  public IntSet getBlobClusters() {
     return delegate.getBlobClusters();
   }
 

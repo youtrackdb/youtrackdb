@@ -963,7 +963,7 @@ public final class BTree extends ODurableComponent {
     try {
       Bucket bucket = new Bucket(cacheEntry);
       if (iter.getLastLSN() == null
-          || bucket.getLSN().equals(iter.getLastLSN()) && atomicOperation == null) {
+          || bucket.getLsn().equals(iter.getLastLSN()) && atomicOperation == null) {
         while (true) {
           int bucketSize = bucket.size();
           if (iter.getItemIndex() >= bucketSize) {
@@ -982,7 +982,7 @@ public final class BTree extends ODurableComponent {
             bucketSize = bucket.size();
           }
 
-          iter.setLastLSN(bucket.getLSN());
+          iter.setLastLSN(bucket.getLsn());
 
           for (;
               iter.getItemIndex() < bucketSize && iter.getDataCache().size() < 10;
@@ -1096,7 +1096,7 @@ public final class BTree extends ODurableComponent {
     try {
       Bucket bucket = new Bucket(cacheEntry);
       if (iter.getLastLSN() == null
-          || bucket.getLSN().equals(iter.getLastLSN()) && atomicOperation == null) {
+          || bucket.getLsn().equals(iter.getLastLSN()) && atomicOperation == null) {
         while (true) {
           if (iter.getItemIndex() < 0) {
             iter.setPageIndex((int) bucket.getLeftSibling());
@@ -1113,7 +1113,7 @@ public final class BTree extends ODurableComponent {
             iter.setItemIndex(bucketSize - 1);
           }
 
-          iter.setLastLSN(bucket.getLSN());
+          iter.setLastLSN(bucket.getLsn());
 
           for (; iter.getItemIndex() >= 0 && iter.getDataCache().size() < 10; iter.decItemIndex()) {
             @SuppressWarnings("ObjectAllocationInLoop")

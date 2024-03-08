@@ -57,12 +57,15 @@ import com.orientechnologies.orient.core.storage.fs.IOResult;
 import com.orientechnologies.orient.core.storage.fs.OFile;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.OPageIsBrokenListener;
+import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODurablePage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.MetaDataRecord;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OLogSequenceNumber;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OWriteAheadLog;
+import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
@@ -87,7 +90,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -230,14 +232,6 @@ public final class OWOWCache extends OAbstractWriteCache
         OThreadPoolExecutors.newSingleThreadScheduledPool(
             "OrientDB Write Cache Flush Task", OAbstractPaginatedStorage.storageThreadGroup);
   }
-
-  /**
-   * Comparator which is used to sort pages in write cache by page position in file. It is used in
-   * {{@link #flushPages(ArrayList, OLogSequenceNumber)}} method to detect holes in the files that
-   * should be filled with stub pages to avoid false detection of broken pages.
-   */
-  private static final Comparator<ORawPair<Long, ByteBuffer>> pagePositionsComparator =
-      Comparator.comparingLong(ORawPair<Long, ByteBuffer>::getFirst);
 
   /** Limit of free space on disk after which database will be switched to "read only" mode */
   private final long freeSpaceLimit =
@@ -1117,6 +1111,7 @@ public final class OWOWCache extends OAbstractWriteCache
 
   @Override
   public int allocateNewPage(final long fileId) throws IOException {
+    int pageIndex;
     filesLock.acquireReadLock();
     try {
       checkForClose();
@@ -1127,12 +1122,11 @@ public final class OWOWCache extends OAbstractWriteCache
         final long allocatedPosition = fileClassic.allocateSpace(pageSize);
         final long allocationIndex = allocatedPosition / pageSize;
 
-        final int pageIndex = (int) allocationIndex;
+        pageIndex = (int) allocationIndex;
         if (pageIndex < 0) {
           throw new IllegalStateException("Illegal page index value " + pageIndex);
         }
 
-        return pageIndex;
       } finally {
         files.release(entry);
       }
@@ -1142,6 +1136,9 @@ public final class OWOWCache extends OAbstractWriteCache
     } finally {
       filesLock.releaseReadLock();
     }
+    commitExecutor.submit(new EnsurePageIsValidInFileTask(internalFileId(fileId), pageIndex, this));
+
+    return pageIndex;
   }
 
   @Override
@@ -2706,6 +2703,9 @@ public final class OWOWCache extends OAbstractWriteCache
 
     int chunksSize = 0;
 
+    var fileIdSizeMap = new Int2LongOpenHashMap();
+    fileIdSizeMap.defaultReturnValue(-1);
+
     OLogSequenceNumber maxFullLogLSN = null;
     flushCycle:
     while (chunksSize < pagesFlushLimit) {
@@ -2722,11 +2722,47 @@ public final class OWOWCache extends OAbstractWriteCache
       }
 
       final Iterator<PageKey> lsnPagesIterator = segmentPages.iterator();
-
       final List<PageKey> pageKeysToFlush = new ArrayList<>(pagesFlushLimit);
 
       while (lsnPagesIterator.hasNext() && pageKeysToFlush.size() < pagesFlushLimit - chunksSize) {
         final PageKey pageKey = lsnPagesIterator.next();
+        var fileId = pageKey.fileId;
+        var fileSize = fileIdSizeMap.get(fileId);
+
+        if (fileSize == -1) {
+          fileSize = files.get(externalFileId(fileId)).getUnderlyingFileSize();
+
+          if ((fileSize & (pageSize - 1)) != 0) {
+            throw new OStorageException(
+                "Storage : "
+                    + storageName
+                    + ". File size is not multiple of page size. File id : "
+                    + fileId);
+          }
+          fileIdSizeMap.put(fileId, fileSize);
+        }
+
+        var diff = (pageKey.pageIndex * pageSize - fileSize) / pageSize;
+        // it is important to do not create holes in the file
+        // otherwise restore process after crash will be aborted
+        // because of invalid data
+        if (diff > 0) {
+          diff = Math.min(diff, pagesFlushLimit - chunksSize - pageKeysToFlush.size());
+          var startPageIndex = fileSize / pageSize;
+
+          for (int i = 0; i < diff; i++) {
+            pageKeysToFlush.add(new PageKey(fileId, startPageIndex + i));
+          }
+        }
+
+        var pageEnd = pageKey.pageIndex * pageSize + pageSize;
+        if (pageEnd > fileSize) {
+          fileIdSizeMap.put(fileId, pageEnd);
+        }
+
+        if (pageKeysToFlush.size() >= pagesFlushLimit - chunksSize) {
+          break;
+        }
         pageKeysToFlush.add(pageKey);
       }
 
@@ -2802,7 +2838,7 @@ public final class OWOWCache extends OAbstractWriteCache
           if (chunksSize + chunk.size() >= pagesFlushLimit) {
             chunks.add(chunk);
             chunksSize += chunk.size();
-            chunk = new ArrayList<>();
+            chunk = new ArrayList<>(16);
 
             lastPageIndex = -1;
             lastFileId = -1;
@@ -2814,20 +2850,27 @@ public final class OWOWCache extends OAbstractWriteCache
           if (!chunk.isEmpty()) {
             chunks.add(chunk);
             chunksSize += chunk.size();
-            chunk = new ArrayList<>();
+            chunk = new ArrayList<>(16);
           }
-
-          maxFullLogLSN = null;
 
           lastPageIndex = -1;
           lastFileId = -1;
+
+          var fileSize = files.get(externalFileId(pageKey.fileId)).getUnderlyingFileSize();
+          if (pageKey.pageIndex * pageSize >= fileSize) {
+            // if we can not write at least one page outside of the size of the file on disk
+            // we should stop the process because otherwise hole in the file during restore
+            // after crash will be treated as a invalid data and restore process will be aborted
+
+            break flushCycle;
+          }
         }
       }
 
       if (!chunk.isEmpty()) {
         chunks.add(chunk);
         chunksSize += chunk.size();
-        chunk = new ArrayList<>();
+        chunk = new ArrayList<>(16);
       }
     }
 
@@ -2835,6 +2878,54 @@ public final class OWOWCache extends OAbstractWriteCache
     if (copiedPages != flushedPages) {
       throw new IllegalStateException(
           "Copied pages (" + copiedPages + " ) != flushed pages (" + flushedPages + ")");
+    }
+  }
+
+  void writeValidPageInFile(int internalFileId, int pageIndex) {
+    if (flushError != null) {
+      OLogManager.instance()
+          .error(
+              this,
+              "Can not write valid page in file because of the problems with data write, %s",
+              null,
+              flushError.getMessage());
+    }
+
+    if (stopFlush) {
+      return;
+    }
+
+    try {
+      var pagePosition = (long) pageIndex * pageSize;
+      var entry = files.acquire(externalFileId(internalFileId));
+      try {
+        var file = entry.get();
+        if (file.getUnderlyingFileSize() <= pagePosition) {
+          var pointer =
+              ODirectMemoryAllocator.instance()
+                  .allocate(pageSize, true, Intention.ADD_NEW_PAGE_IN_FILE);
+          try {
+            var buffer = pointer.getNativeByteBuffer();
+            ODurablePage.setLogSequenceNumberForPage(buffer, new OLogSequenceNumber(-1, -1));
+            addMagicChecksumAndEncryption(internalFileId, pageIndex, buffer);
+
+            buffer.position(0);
+            file.write(pagePosition, buffer);
+          } finally {
+            ODirectMemoryAllocator.instance().deallocate(pointer);
+          }
+        }
+      } finally {
+        files.release(entry);
+      }
+    } catch (final IOException | InterruptedException e) {
+      throw OException.wrapException(
+          new OStorageException(
+              "Storage : "
+                  + storageName
+                  + "Error during of writing initial blank page for file  "
+                  + idNameMap.get(internalFileId)),
+          e);
     }
   }
 
@@ -2875,8 +2966,6 @@ public final class OWOWCache extends OAbstractWriteCache
               buffersByFileId,
               chunkPageIndexes,
               chunkFileIds);
-      generatePageStubs(
-          buffersByFileId, containerPointers, containerBuffers, chunkPageIndexes, chunkFileIds);
       fsyncFiles = doubleWriteLog.write(containerBuffers, chunkFileIds, chunkPageIndexes);
       writePageChunksToFiles(buffersByFileId);
     } finally {
@@ -2914,7 +3003,11 @@ public final class OWOWCache extends OAbstractWriteCache
 
           try {
             if (version == pointer.getVersion()) {
-              writeCachePages.remove(pageKey);
+              var removed = writeCachePages.remove(pageKey);
+              if (removed == null) {
+                throw new IllegalStateException("Page is not found in write cache");
+              }
+
               writeCacheSize.decrementAndGet();
 
               pointer.decrementWritersReferrer();
@@ -2941,6 +3034,9 @@ public final class OWOWCache extends OAbstractWriteCache
       IntArrayList chunkPageIndexes,
       IntArrayList chunkFileIds) {
     for (final List<OQuarto<Long, ByteBuffer, OPointer, OCachePointer>> chunk : chunks) {
+      if (chunk.isEmpty()) {
+        continue;
+      }
       flushedPages += chunk.size();
 
       final OPointer containerPointer =
@@ -3049,137 +3145,117 @@ public final class OWOWCache extends OAbstractWriteCache
     }
   }
 
-  private void generatePageStubs(
-      Long2ObjectOpenHashMap<ArrayList<ORawPair<Long, ByteBuffer>>> buffersByFileId,
-      ArrayList<OPointer> containerPointers,
-      ArrayList<ByteBuffer> containerBuffers,
-      IntArrayList chunkPageIndexes,
-      IntArrayList chunkFileIds)
+  private void flushExclusiveWriteCache(final CountDownLatch latch, long pagesToFlushLimit)
       throws InterruptedException, IOException {
-    Iterator<Long2ObjectMap.Entry<ArrayList<ORawPair<Long, ByteBuffer>>>> filesIterator =
-        buffersByFileId.long2ObjectEntrySet().iterator();
-    Long2ObjectMap.Entry<ArrayList<ORawPair<Long, ByteBuffer>>> entry;
-    // detecting holes in file that are not written yet and fill them with stubs with zeros and
-    // checksums
-    while (filesIterator.hasNext()) {
-      entry = filesIterator.next();
-      var fileChunks = entry.getValue();
-      // sort by position in file
-      fileChunks.sort(pagePositionsComparator);
+    // method flushes at least chunkSize pages that exist in write cache but do not exist
+    // in read cache. It is important to do not flush more than chunkSize pages at once because
+    // it can lead to the situation when a lot of RAM will be consumed during page flush.
+    // Method iterates over pages that do not exist in read cache in order sorted by file and
+    // position
+    // of page in file. It is important to do not create holes in the file
+    // otherwise restore process after crash will be aborted
+    // because of invalid data.
+    // Pages are gathered together in chunks of adjacent pages in order to minimize the number of
+    // IO operations. Once amount of pages needed to be flushed reaches chunk size it is flushed and
+    // process continued till requested amount of pages not flushed.
 
-      long underlyingFileSize;
-      var file = files.acquire(entry.getLongKey());
-      try {
-        underlyingFileSize = file.get().getUnderlyingFileSize();
-        if ((underlyingFileSize & (pageSize - 1)) != 0) {
-          throw new IllegalStateException(
-              "File size is not aligned to page size. File size : "
-                  + underlyingFileSize
-                  + ", page size : "
-                  + pageSize);
-        }
-      } finally {
-        files.release(file);
-      }
-      // if all pages will be written inside existing file, nothing needs to be done
-      var lastChunk = fileChunks.get(fileChunks.size() - 1);
-      if (lastChunk.first <= underlyingFileSize) {
-        continue;
-      }
-
-      long lastPosition = underlyingFileSize;
-
-      // collect all stubs to add them in map after all
-      // this map will be used to write stubs to the file
-      var stubsToAdd = new ArrayList<ORawPair<Long, ByteBuffer>>();
-      for (var chunk : fileChunks) {
-        var chunkPosition = chunk.first;
-        if (chunkPosition > lastPosition) {
-          // generate stubs with checksums
-          var stubLength = (int) (chunkPosition - lastPosition);
-          if ((stubLength & (pageSize - 1)) != 0) {
-            throw new IllegalStateException(
-                "Stub length is not aligned to page size. Stub length : "
-                    + stubLength
-                    + ", page size : "
-                    + pageSize);
-          }
-
-          final OPointer containerPointer =
-              ODirectMemoryAllocator.instance()
-                  .allocate(stubLength, true, Intention.ALLOCATE_CHUNK_TO_WRITE_DATA_IN_BATCH);
-          final ByteBuffer containerBuffer = containerPointer.getNativeByteBuffer();
-
-          containerPointers.add(containerPointer);
-          containerBuffers.add(containerBuffer);
-          assert containerBuffer.position() == 0;
-
-          chunkPageIndexes.add((int) (lastPosition / pageSize));
-          chunkFileIds.add(internalFileId(entry.getLongKey()));
-
-          var pages = stubLength / pageSize;
-          var startPageIndex = (int) (lastPosition / pageSize);
-
-          // generate magic number and checksum for each page
-          for (int i = 0, position = 0; i < pages; i++, position += pageSize) {
-            addMagicChecksumAndEncryption(
-                extractFileId(entry.getLongKey()),
-                startPageIndex + i,
-                containerBuffer.slice(position, pageSize).order(ByteOrder.nativeOrder()));
-          }
-
-          stubsToAdd.add(new ORawPair<>(lastPosition, containerBuffer));
-        }
-
-        lastPosition = chunkPosition + chunk.second.limit();
-      }
-
-      fileChunks.addAll(stubsToAdd);
-    }
-  }
-
-  private void flushExclusiveWriteCache(final CountDownLatch latch, long pagesToFlush)
-      throws InterruptedException, IOException {
-    final Iterator<PageKey> iterator = exclusiveWritePages.iterator();
-
-    int flushedPages = 0;
-    int copiedPages = 0;
-
+    // amount of dirty pages that exist only in write cache
     final long ewcSize = exclusiveWriteCacheSize.get();
-    pagesToFlush = Math.min(Math.max(pagesToFlush, chunkSize), ewcSize);
+
+    // we flush at least chunkSize pages but no more than amount of exclusive pages.
+    pagesToFlushLimit = Math.min(Math.max(pagesToFlushLimit, chunkSize), ewcSize);
 
     ArrayList<ArrayList<OQuarto<Long, ByteBuffer, OPointer, OCachePointer>>> chunks =
         new ArrayList<>(16);
     ArrayList<OQuarto<Long, ByteBuffer, OPointer, OCachePointer>> chunk = new ArrayList<>(16);
 
+    // latch is hold by write thread if limit of pages in write cache exceeded
+    // it is important to release it once we lower amount of pages in write cache to the limit.
     if (latch != null && ewcSize <= exclusiveWriteCacheMaxSize) {
       latch.countDown();
     }
 
     OLogSequenceNumber maxFullLogLSN = null;
 
-    int chunksSize = 0;
+    // cache of files sizes.
+    var fileSizeMap = new Int2LongOpenHashMap();
+    fileSizeMap.defaultReturnValue(-1);
+
+    int flushedPages = 0;
+    int copiedPages = 0;
+
+    // total amount of pages in chunks that precedes current/active chunk
+    int prevChunksSize = 0;
+    long lastFileId = -1;
+    long lastPageIndex = -1;
+
+    Iterator<PageKey> iterator = exclusiveWritePages.iterator();
     flushCycle:
-    while (chunksSize < pagesToFlush) {
-      long lastFileId = -1;
-      long lastPageIndex = -1;
-
-      while (chunksSize + chunk.size() < pagesToFlush) {
-        if (!iterator.hasNext()) {
-          if (!chunk.isEmpty()) {
-            chunks.add(chunk);
-          }
-
-          break flushCycle;
+    while (flushedPages < pagesToFlushLimit) {
+      // if nothing to flush we should add the last gathered chunk and stop cycle.
+      if (!iterator.hasNext()) {
+        if (!chunk.isEmpty()) {
+          chunks.add(chunk);
+          chunk = new ArrayList<>(16);
         }
 
-        final PageKey pageKey = iterator.next();
+        break;
+      }
 
+      final PageKey pageKeyToFlush = iterator.next();
+      var fileSize = fileSizeMap.get(pageKeyToFlush.fileId);
+      if (fileSize < 0) {
+        fileSize = files.get(externalFileId(pageKeyToFlush.fileId)).getUnderlyingFileSize();
+        fileSizeMap.put(pageKeyToFlush.fileId, fileSize);
+      }
+
+      var pagesToFlush = new ArrayList<PageKey>();
+      pagesToFlush.add(pageKeyToFlush);
+
+      var diff = (pageKeyToFlush.pageIndex * pageSize - fileSize) / pageSize;
+      // it is important to do not create holes in the file
+      // otherwise restore process after crash will be aborted
+      if (diff > 0) {
+        var startPageIndex = fileSize / pageSize;
+        for (int i = 0; i < diff; i++) {
+          pagesToFlush.add(new PageKey(pageKeyToFlush.fileId, startPageIndex + i));
+        }
+      }
+      // pages are sorted by position in index, so file size will be correctly incremented
+      var pageEnd = pageKeyToFlush.pageIndex * pageSize + pageSize;
+      if (pageEnd > fileSize) {
+        fileSizeMap.put(pageKeyToFlush.fileId, pageEnd);
+      }
+
+      for (var pageKey : pagesToFlush) {
         final OCachePointer pointer = writeCachePages.get(pageKey);
-        final long version;
-
+        // because accesses between maps not synchronized there could be eventual consistency
+        // between exclusiveWritePages and writeCachePages. We treat writeCachePages as source of
+        // truth.
         if (pointer == null) {
-          iterator.remove();
+          var file = files.get(externalFileId(pageKey.fileId));
+          if (file.getUnderlyingFileSize() < (pageKey.pageIndex + 1) * pageSize) {
+            // if we can not write at least one page outside the size of the file on disk
+            // we should stop the process because otherwise hole in the file during restore
+            // after crash will be treated as an invalid data and restore process will be
+            // aborted
+            if (!chunk.isEmpty()) {
+              chunks.add(chunk);
+              chunk = new ArrayList<>(16);
+            }
+
+            flushedPages += flushPages(chunks, maxFullLogLSN);
+            if (latch != null && exclusiveWriteCacheSize.get() <= exclusiveWriteCacheMaxSize) {
+              latch.countDown();
+            }
+
+            // reset flush cycle
+            chunks.clear();
+            prevChunksSize = 0;
+            iterator = exclusiveWritePages.iterator();
+            fileSizeMap.clear();
+            continue flushCycle;
+          }
         } else {
           if (pointer.tryAcquireSharedLock()) {
             final OLogSequenceNumber fullLSN;
@@ -3188,6 +3264,7 @@ public final class OWOWCache extends OAbstractWriteCache
                 bufferPool.acquireDirect(false, Intention.COPY_PAGE_DURING_EXCLUSIVE_PAGE_FLUSH);
             final ByteBuffer copy = directPointer.getNativeByteBuffer();
             assert copy.position() == 0;
+            long version;
             try {
               version = pointer.getVersion();
               final ByteBuffer buffer = pointer.getBuffer();
@@ -3218,21 +3295,21 @@ public final class OWOWCache extends OAbstractWriteCache
               if (lastFileId != pointer.getFileId()
                   || lastPageIndex != pointer.getPageIndex() - 1) {
                 chunks.add(chunk);
-                chunksSize += chunk.size();
-                chunk = new ArrayList<>();
-
-                if (chunksSize - flushedPages >= this.chunkSize) {
-                  flushedPages += flushPages(chunks, maxFullLogLSN);
-                  chunks.clear();
-
-                  if (latch != null
-                      && exclusiveWriteCacheSize.get() <= exclusiveWriteCacheMaxSize) {
-                    latch.countDown();
-                  }
-
-                  maxFullLogLSN = null;
-                }
+                prevChunksSize += chunk.size();
+                chunk = new ArrayList<>(16);
               }
+            }
+
+            if (prevChunksSize + chunk.size() >= chunkSize) {
+              if (!chunk.isEmpty()) {
+                chunks.add(chunk);
+                chunk = new ArrayList<>(16);
+              }
+
+              flushedPages += flushPages(chunks, maxFullLogLSN);
+
+              chunks.clear();
+              prevChunksSize = 0;
             }
 
             chunk.add(new OQuarto<>(version, copy, directPointer, pointer));
@@ -3242,54 +3319,51 @@ public final class OWOWCache extends OAbstractWriteCache
           } else {
             if (!chunk.isEmpty()) {
               chunks.add(chunk);
-              chunksSize += chunk.size();
-              chunk = new ArrayList<>();
+              prevChunksSize += chunk.size();
+
+              chunk = new ArrayList<>(16);
             }
 
-            if (chunksSize - flushedPages >= this.chunkSize) {
+            var underlyingFileSize =
+                files.get(externalFileId(pageKey.fileId)).getUnderlyingFileSize();
+            // chunk size is reached flush limit, or we have a risk to have a hole in the file
+            // that will lead to error during restore after crash process
+            // we need to check only prevChunksSize because current chunk is empty
+            if (prevChunksSize >= this.chunkSize
+                || underlyingFileSize < (pageKey.pageIndex + 1) * pageSize) {
               flushedPages += flushPages(chunks, maxFullLogLSN);
+
               chunks.clear();
+              prevChunksSize = 0;
 
               if (latch != null && exclusiveWriteCacheSize.get() <= exclusiveWriteCacheMaxSize) {
                 latch.countDown();
               }
-
-              maxFullLogLSN = null;
             }
 
-            lastFileId = -1;
-            lastPageIndex = -1;
-          }
-        }
-      }
-
-      if (!chunk.isEmpty()) {
-        chunks.add(chunk);
-        chunksSize += chunk.size();
-        chunk = new ArrayList<>();
-
-        if (chunksSize - flushedPages >= this.chunkSize) {
-          flushedPages += flushPages(chunks, maxFullLogLSN);
-          chunks.clear();
-
-          maxFullLogLSN = null;
-
-          if (latch != null && exclusiveWriteCacheSize.get() <= exclusiveWriteCacheMaxSize) {
-            latch.countDown();
+            if (underlyingFileSize < (pageKey.pageIndex + 1) * pageSize) {
+              // reset flush cycle, we can not afford holes in files
+              iterator = exclusiveWritePages.iterator();
+              fileSizeMap.clear();
+              continue flushCycle;
+            }
           }
         }
       }
     }
 
-    flushedPages += flushPages(chunks, maxFullLogLSN);
+    if (!chunk.isEmpty()) {
+      chunks.add(chunk);
+    }
 
+    flushedPages += flushPages(chunks, maxFullLogLSN);
     if (copiedPages != flushedPages) {
       throw new IllegalStateException(
           "Copied pages (" + copiedPages + " ) != flushed pages (" + flushedPages + ")");
     }
   }
 
-  public Void executeFileFlush(Set<Integer> fileIdSet) throws InterruptedException, IOException {
+  public Void executeFileFlush(IntOpenHashSet fileIdSet) throws InterruptedException, IOException {
     if (flushError != null) {
       final Object[] iAdditionalArgs = new Object[] {flushError.getMessage()};
       OLogManager.instance()
@@ -3362,8 +3436,9 @@ public final class OWOWCache extends OAbstractWriteCache
     flushPages(chunks, maxLSN);
 
     if (callFsync) {
-      for (final int iFileId : fileIdSet) {
-        final long finalId = composeFileId(id, iFileId);
+      var fileIdIterator = fileIdSet.intIterator();
+      while (fileIdIterator.hasNext()) {
+        final long finalId = composeFileId(id, fileIdIterator.nextInt());
         final OClosableEntry<Long, OFile> entry = files.acquire(finalId);
         if (entry != null) {
           try {
