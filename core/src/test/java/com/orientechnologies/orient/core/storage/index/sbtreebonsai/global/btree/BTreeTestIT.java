@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.storage.index.sbtreebonsai.global.btree;
 
 import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.common.util.ORawPair;
+import com.orientechnologies.common.util.ORawPairObjectInteger;
 import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OrientDB;
@@ -429,8 +429,8 @@ public class BTreeTestIT {
         fromKey = new EdgeKey(fromKey.ridBagId, fromKey.targetCluster, fromKey.targetPosition - 1);
       }
 
-      final Iterator<ORawPair<EdgeKey, Integer>> indexIterator;
-      try (Stream<ORawPair<EdgeKey, Integer>> stream =
+      final Iterator<ORawPairObjectInteger<EdgeKey>> indexIterator;
+      try (Stream<ORawPairObjectInteger<EdgeKey>> stream =
           bTree.iterateEntriesMajor(fromKey, keyInclusive, ascSortOrder)) {
         indexIterator = stream.iterator();
 
@@ -447,11 +447,11 @@ public class BTreeTestIT {
         }
 
         while (iterator.hasNext()) {
-          final ORawPair<EdgeKey, Integer> indexEntry = indexIterator.next();
+          final ORawPairObjectInteger<EdgeKey> indexEntry = indexIterator.next();
           final Map.Entry<EdgeKey, Integer> entry = iterator.next();
 
           Assert.assertEquals(indexEntry.first, entry.getKey());
-          Assert.assertEquals(indexEntry.second, entry.getValue());
+          Assert.assertEquals(indexEntry.second, entry.getValue().intValue());
         }
 
         //noinspection ConstantConditions
@@ -520,8 +520,8 @@ public class BTreeTestIT {
         toKey = new EdgeKey(toKey.ridBagId, toKey.targetCluster, toKey.targetPosition + 1);
       }
 
-      final Iterator<ORawPair<EdgeKey, Integer>> indexIterator;
-      try (Stream<ORawPair<EdgeKey, Integer>> stream =
+      final Iterator<ORawPairObjectInteger<EdgeKey>> indexIterator;
+      try (Stream<ORawPairObjectInteger<EdgeKey>> stream =
           bTree.iterateEntriesMinor(toKey, keyInclusive, ascSortOrder)) {
         indexIterator = stream.iterator();
 
@@ -533,11 +533,11 @@ public class BTreeTestIT {
         }
 
         while (iterator.hasNext()) {
-          ORawPair<EdgeKey, Integer> indexEntry = indexIterator.next();
+          ORawPairObjectInteger<EdgeKey> indexEntry = indexIterator.next();
           Map.Entry<EdgeKey, Integer> entry = iterator.next();
 
           Assert.assertEquals(indexEntry.first, entry.getKey());
-          Assert.assertEquals(indexEntry.second, entry.getValue());
+          Assert.assertEquals(indexEntry.second, entry.getValue().intValue());
         }
 
         //noinspection ConstantConditions
@@ -622,8 +622,8 @@ public class BTreeTestIT {
         fromKey = toKey;
       }
 
-      final Iterator<ORawPair<EdgeKey, Integer>> indexIterator;
-      try (Stream<ORawPair<EdgeKey, Integer>> stream =
+      final Iterator<ORawPairObjectInteger<EdgeKey>> indexIterator;
+      try (Stream<ORawPairObjectInteger<EdgeKey>> stream =
           bTree.iterateEntriesBetween(fromKey, fromInclusive, toKey, toInclusive, ascSortOrder)) {
         indexIterator = stream.iterator();
 
@@ -641,12 +641,12 @@ public class BTreeTestIT {
         }
 
         while (iterator.hasNext()) {
-          ORawPair<EdgeKey, Integer> indexEntry = indexIterator.next();
+          ORawPairObjectInteger<EdgeKey> indexEntry = indexIterator.next();
           Assert.assertNotNull(indexEntry);
 
           Map.Entry<EdgeKey, Integer> mapEntry = iterator.next();
           Assert.assertEquals(indexEntry.first, mapEntry.getKey());
-          Assert.assertEquals(indexEntry.second, mapEntry.getValue());
+          Assert.assertEquals(indexEntry.second, mapEntry.getValue().intValue());
         }
 
         //noinspection ConstantConditions

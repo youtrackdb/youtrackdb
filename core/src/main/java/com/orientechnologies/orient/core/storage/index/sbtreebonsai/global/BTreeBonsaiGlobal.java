@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.storage.index.sbtreebonsai.global;
 
 import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.common.types.OModifiableInteger;
-import com.orientechnologies.common.util.ORawPair;
+import com.orientechnologies.common.util.ORawPairObjectInteger;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -86,24 +86,24 @@ public class BTreeBonsaiGlobal implements OSBTreeBonsai<OIdentifiable, Integer> 
 
   @Override
   public void clear(OAtomicOperation atomicOperation) {
-    try (Stream<ORawPair<EdgeKey, Integer>> stream =
+    try (Stream<ORawPairObjectInteger<EdgeKey>> stream =
         bTree.iterateEntriesBetween(
             new EdgeKey(ridBagId, Integer.MIN_VALUE, Long.MIN_VALUE),
             true,
             new EdgeKey(ridBagId, Integer.MAX_VALUE, Long.MAX_VALUE),
             true,
             true)) {
-      final Iterator<ORawPair<EdgeKey, Integer>> iterator = stream.iterator();
+      final Iterator<ORawPairObjectInteger<EdgeKey>> iterator = stream.iterator();
 
       while (iterator.hasNext()) {
-        final ORawPair<EdgeKey, Integer> entry = iterator.next();
+        final ORawPairObjectInteger<EdgeKey> entry = iterator.next();
         bTree.remove(atomicOperation, entry.first);
       }
     }
   }
 
   public boolean isEmpty() {
-    try (final Stream<ORawPair<EdgeKey, Integer>> stream =
+    try (final Stream<ORawPairObjectInteger<EdgeKey>> stream =
         bTree.iterateEntriesMajor(
             new EdgeKey(ridBagId, Integer.MIN_VALUE, Long.MIN_VALUE), true, true)) {
       return stream.findAny().isEmpty();
@@ -134,7 +134,7 @@ public class BTreeBonsaiGlobal implements OSBTreeBonsai<OIdentifiable, Integer> 
   public Collection<Integer> getValuesMinor(
       OIdentifiable key, boolean inclusive, int maxValuesToFetch) {
     final ORID rid = key.getIdentity();
-    try (final Stream<ORawPair<EdgeKey, Integer>> stream =
+    try (final Stream<ORawPairObjectInteger<EdgeKey>> stream =
         bTree.iterateEntriesBetween(
             new EdgeKey(ridBagId, rid.getClusterId(), rid.getClusterPosition()),
             inclusive,
@@ -150,7 +150,7 @@ public class BTreeBonsaiGlobal implements OSBTreeBonsai<OIdentifiable, Integer> 
   public void loadEntriesMinor(
       OIdentifiable key, boolean inclusive, RangeResultListener<OIdentifiable, Integer> listener) {
     final ORID rid = key.getIdentity();
-    try (final Stream<ORawPair<EdgeKey, Integer>> stream =
+    try (final Stream<ORawPairObjectInteger<EdgeKey>> stream =
         bTree.iterateEntriesBetween(
             new EdgeKey(ridBagId, rid.getClusterId(), rid.getClusterPosition()),
             inclusive,
@@ -166,7 +166,7 @@ public class BTreeBonsaiGlobal implements OSBTreeBonsai<OIdentifiable, Integer> 
       OIdentifiable key, boolean inclusive, int maxValuesToFetch) {
     final ORID rid = key.getIdentity();
 
-    try (final Stream<ORawPair<EdgeKey, Integer>> stream =
+    try (final Stream<ORawPairObjectInteger<EdgeKey>> stream =
         bTree.iterateEntriesBetween(
             new EdgeKey(ridBagId, rid.getClusterId(), rid.getClusterPosition()),
             true,
@@ -184,7 +184,7 @@ public class BTreeBonsaiGlobal implements OSBTreeBonsai<OIdentifiable, Integer> 
       boolean ascSortOrder,
       RangeResultListener<OIdentifiable, Integer> listener) {
     final ORID rid = key.getIdentity();
-    try (final Stream<ORawPair<EdgeKey, Integer>> stream =
+    try (final Stream<ORawPairObjectInteger<EdgeKey>> stream =
         bTree.iterateEntriesBetween(
             new EdgeKey(ridBagId, rid.getClusterId(), rid.getClusterPosition()),
             inclusive,
@@ -204,7 +204,7 @@ public class BTreeBonsaiGlobal implements OSBTreeBonsai<OIdentifiable, Integer> 
       int maxValuesToFetch) {
     final ORID ridFrom = keyFrom.getIdentity();
     final ORID ridTo = keyTo.getIdentity();
-    try (final Stream<ORawPair<EdgeKey, Integer>> stream =
+    try (final Stream<ORawPairObjectInteger<EdgeKey>> stream =
         bTree.iterateEntriesBetween(
             new EdgeKey(ridBagId, ridFrom.getClusterId(), ridFrom.getClusterPosition()),
             fromInclusive,
@@ -217,16 +217,16 @@ public class BTreeBonsaiGlobal implements OSBTreeBonsai<OIdentifiable, Integer> 
 
   @Override
   public OIdentifiable firstKey() {
-    try (final Stream<ORawPair<EdgeKey, Integer>> stream =
+    try (final Stream<ORawPairObjectInteger<EdgeKey>> stream =
         bTree.iterateEntriesBetween(
             new EdgeKey(ridBagId, Integer.MIN_VALUE, Long.MIN_VALUE),
             true,
             new EdgeKey(ridBagId, Integer.MAX_VALUE, Long.MAX_VALUE),
             true,
             true)) {
-      final Iterator<ORawPair<EdgeKey, Integer>> iterator = stream.iterator();
+      final Iterator<ORawPairObjectInteger<EdgeKey>> iterator = stream.iterator();
       if (iterator.hasNext()) {
-        final ORawPair<EdgeKey, Integer> entry = iterator.next();
+        final ORawPairObjectInteger<EdgeKey> entry = iterator.next();
         return new ORecordId(entry.first.targetCluster, entry.first.targetPosition);
       }
     }
@@ -236,16 +236,16 @@ public class BTreeBonsaiGlobal implements OSBTreeBonsai<OIdentifiable, Integer> 
 
   @Override
   public OIdentifiable lastKey() {
-    try (final Stream<ORawPair<EdgeKey, Integer>> stream =
+    try (final Stream<ORawPairObjectInteger<EdgeKey>> stream =
         bTree.iterateEntriesBetween(
             new EdgeKey(ridBagId, Integer.MAX_VALUE, Long.MAX_VALUE),
             true,
             new EdgeKey(ridBagId, Integer.MIN_VALUE, Long.MIN_VALUE),
             true,
             false)) {
-      final Iterator<ORawPair<EdgeKey, Integer>> iterator = stream.iterator();
+      final Iterator<ORawPairObjectInteger<EdgeKey>> iterator = stream.iterator();
       if (iterator.hasNext()) {
-        final ORawPair<EdgeKey, Integer> entry = iterator.next();
+        final ORawPairObjectInteger<EdgeKey> entry = iterator.next();
         return new ORecordId(entry.first.targetCluster, entry.first.targetPosition);
       }
     }
@@ -260,7 +260,7 @@ public class BTreeBonsaiGlobal implements OSBTreeBonsai<OIdentifiable, Integer> 
       OIdentifiable keyTo,
       boolean toInclusive,
       RangeResultListener<OIdentifiable, Integer> listener) {
-    try (final Stream<ORawPair<EdgeKey, Integer>> stream =
+    try (final Stream<ORawPairObjectInteger<EdgeKey>> stream =
         bTree.iterateEntriesBetween(
             new EdgeKey(ridBagId, Integer.MAX_VALUE, Long.MAX_VALUE),
             true,
@@ -276,7 +276,7 @@ public class BTreeBonsaiGlobal implements OSBTreeBonsai<OIdentifiable, Integer> 
     final Map<OIdentifiable, Change> notAppliedChanges = new HashMap<>(changes);
     final OModifiableInteger size = new OModifiableInteger(0);
 
-    try (final Stream<ORawPair<EdgeKey, Integer>> stream =
+    try (final Stream<ORawPairObjectInteger<EdgeKey>> stream =
         bTree.iterateEntriesBetween(
             new EdgeKey(ridBagId, Integer.MIN_VALUE, Long.MIN_VALUE),
             true,
@@ -322,19 +322,19 @@ public class BTreeBonsaiGlobal implements OSBTreeBonsai<OIdentifiable, Integer> 
   }
 
   private static void forEachEntry(
-      final Stream<ORawPair<EdgeKey, Integer>> stream,
-      final Function<ORawPair<EdgeKey, Integer>, Boolean> consumer) {
+      final Stream<ORawPairObjectInteger<EdgeKey>> stream,
+      final Function<ORawPairObjectInteger<EdgeKey>, Boolean> consumer) {
 
     boolean cont = true;
 
-    final Iterator<ORawPair<EdgeKey, Integer>> iterator = stream.iterator();
+    final Iterator<ORawPairObjectInteger<EdgeKey>> iterator = stream.iterator();
     while (iterator.hasNext() && cont) {
       cont = consumer.apply(iterator.next());
     }
   }
 
   private static IntArrayList streamToList(
-      final Stream<ORawPair<EdgeKey, Integer>> stream, int maxValuesToFetch) {
+      final Stream<ORawPairObjectInteger<EdgeKey>> stream, int maxValuesToFetch) {
     if (maxValuesToFetch < 0) {
       maxValuesToFetch = Integer.MAX_VALUE;
     }
@@ -345,7 +345,7 @@ public class BTreeBonsaiGlobal implements OSBTreeBonsai<OIdentifiable, Integer> 
     forEachEntry(
         stream,
         entry -> {
-          result.add(entry.second.intValue());
+          result.add(entry.second);
           return result.size() < limit;
         });
 
@@ -353,7 +353,7 @@ public class BTreeBonsaiGlobal implements OSBTreeBonsai<OIdentifiable, Integer> 
   }
 
   private static void listenStream(
-      final Stream<ORawPair<EdgeKey, Integer>> stream,
+      final Stream<ORawPairObjectInteger<EdgeKey>> stream,
       final RangeResultListener<OIdentifiable, Integer> listener) {
     forEachEntry(
         stream,

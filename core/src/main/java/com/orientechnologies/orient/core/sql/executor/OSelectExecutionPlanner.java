@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.common.util.OPair;
+import com.orientechnologies.common.util.OPairIntegerObject;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
@@ -2620,11 +2620,8 @@ public class OSelectExecutionPlanner {
     descriptors = removePrefixIndexes(descriptors);
 
     // sort by cost
-    List<OPair<Integer, IndexSearchDescriptor>> sortedDescriptors =
-        descriptors.stream()
-            .map(x -> (OPair<Integer, IndexSearchDescriptor>) new OPair(x.cost(ctx), x))
-            .sorted()
-            .collect(Collectors.toList());
+    List<OPairIntegerObject<IndexSearchDescriptor>> sortedDescriptors =
+        descriptors.stream().map(x -> new OPairIntegerObject<>(x.cost(ctx), x)).sorted().toList();
 
     // get only the descriptors with the lowest cost
     if (sortedDescriptors.isEmpty()) {
@@ -2632,7 +2629,7 @@ public class OSelectExecutionPlanner {
     } else {
       descriptors =
           sortedDescriptors.stream()
-              .filter(x -> x.key.equals(sortedDescriptors.get(0).key))
+              .filter(x -> x.key == sortedDescriptors.get(0).key)
               .map(x -> x.value)
               .collect(Collectors.toList());
     }
@@ -2640,7 +2637,7 @@ public class OSelectExecutionPlanner {
     // sort remaining by the number of indexed fields
     descriptors =
         descriptors.stream()
-            .sorted(Comparator.comparingInt(x -> x.blockCount()))
+            .sorted(Comparator.comparingInt(IndexSearchDescriptor::blockCount))
             .collect(Collectors.toList());
 
     // get the one that has more indexed fields

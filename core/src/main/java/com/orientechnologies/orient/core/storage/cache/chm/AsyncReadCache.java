@@ -6,7 +6,7 @@ import com.orientechnologies.common.directmemory.ODirectMemoryAllocator.Intentio
 import com.orientechnologies.common.directmemory.OPointer;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.types.OModifiableBoolean;
-import com.orientechnologies.common.util.ORawPair;
+import com.orientechnologies.common.util.ORawPairLongInteger;
 import com.orientechnologies.orient.core.exception.OStorageException;
 import com.orientechnologies.orient.core.storage.cache.OAbstractWriteCache;
 import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
@@ -540,14 +540,14 @@ public final class AsyncReadCache implements OReadCache {
   }
 
   @Override
-  public final void deleteStorage(final OWriteCache writeCache) throws IOException {
+  public void deleteStorage(final OWriteCache writeCache) throws IOException {
     final Collection<Long> files = writeCache.files().values();
-    final List<ORawPair<Long, Integer>> filledUpTo = new ArrayList<>(1024);
+    final List<ORawPairLongInteger> filledUpTo = new ArrayList<>(1024);
     for (final long fileId : files) {
-      filledUpTo.add(new ORawPair<>(fileId, (int) writeCache.getFilledUpTo(fileId)));
+      filledUpTo.add(new ORawPairLongInteger(fileId, (int) writeCache.getFilledUpTo(fileId)));
     }
 
-    for (final ORawPair<Long, Integer> entry : filledUpTo) {
+    for (final ORawPairLongInteger entry : filledUpTo) {
       clearFile(entry.first, entry.second, writeCache);
     }
 
@@ -555,14 +555,14 @@ public final class AsyncReadCache implements OReadCache {
   }
 
   @Override
-  public final void closeStorage(final OWriteCache writeCache) throws IOException {
+  public void closeStorage(final OWriteCache writeCache) throws IOException {
     final Collection<Long> files = writeCache.files().values();
-    final List<ORawPair<Long, Integer>> filledUpTo = new ArrayList<>(1024);
+    final List<ORawPairLongInteger> filledUpTo = new ArrayList<>(1024);
     for (final long fileId : files) {
-      filledUpTo.add(new ORawPair<>(fileId, (int) writeCache.getFilledUpTo(fileId)));
+      filledUpTo.add(new ORawPairLongInteger(fileId, (int) writeCache.getFilledUpTo(fileId)));
     }
 
-    for (final ORawPair<Long, Integer> entry : filledUpTo) {
+    for (final ORawPairLongInteger entry : filledUpTo) {
       clearFile(entry.first, entry.second, writeCache);
     }
 

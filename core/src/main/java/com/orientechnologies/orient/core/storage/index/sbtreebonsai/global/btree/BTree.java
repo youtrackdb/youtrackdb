@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.storage.index.sbtreebonsai.global.btree;
 
 import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.common.util.ORawPair;
+import com.orientechnologies.common.util.ORawPairObjectInteger;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.exception.OStorageException;
 import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
@@ -790,7 +790,7 @@ public final class BTree extends ODurableComponent {
         });
   }
 
-  public Stream<ORawPair<EdgeKey, Integer>> iterateEntriesMinor(
+  public Stream<ORawPairObjectInteger<EdgeKey>> iterateEntriesMinor(
       final EdgeKey key, final boolean inclusive, final boolean ascSortOrder) {
     atomicOperationsManager.acquireReadLock(this);
     try {
@@ -809,7 +809,7 @@ public final class BTree extends ODurableComponent {
     }
   }
 
-  public Stream<ORawPair<EdgeKey, Integer>> iterateEntriesMajor(
+  public Stream<ORawPairObjectInteger<EdgeKey>> iterateEntriesMajor(
       final EdgeKey key, final boolean inclusive, final boolean ascSortOrder) {
     atomicOperationsManager.acquireReadLock(this);
     try {
@@ -827,7 +827,7 @@ public final class BTree extends ODurableComponent {
     }
   }
 
-  public Stream<ORawPair<EdgeKey, Integer>> iterateEntriesBetween(
+  public Stream<ORawPairObjectInteger<EdgeKey>> iterateEntriesBetween(
       final EdgeKey keyFrom,
       final boolean fromInclusive,
       final EdgeKey keyTo,
@@ -852,32 +852,32 @@ public final class BTree extends ODurableComponent {
     }
   }
 
-  private Spliterator<ORawPair<EdgeKey, Integer>> iterateEntriesMinorDesc(
+  private Spliterator<ORawPairObjectInteger<EdgeKey>> iterateEntriesMinorDesc(
       EdgeKey key, final boolean inclusive) {
     return new SpliteratorBackward(this, null, key, false, inclusive);
   }
 
-  private Spliterator<ORawPair<EdgeKey, Integer>> iterateEntriesMinorAsc(
+  private Spliterator<ORawPairObjectInteger<EdgeKey>> iterateEntriesMinorAsc(
       EdgeKey key, final boolean inclusive) {
     return new SpliteratorForward(this, null, key, false, inclusive);
   }
 
-  private Spliterator<ORawPair<EdgeKey, Integer>> iterateEntriesMajorAsc(
+  private Spliterator<ORawPairObjectInteger<EdgeKey>> iterateEntriesMajorAsc(
       EdgeKey key, final boolean inclusive) {
     return new SpliteratorForward(this, key, null, inclusive, false);
   }
 
-  private Spliterator<ORawPair<EdgeKey, Integer>> iterateEntriesMajorDesc(
+  private Spliterator<ORawPairObjectInteger<EdgeKey>> iterateEntriesMajorDesc(
       EdgeKey key, final boolean inclusive) {
     return new SpliteratorBackward(this, key, null, inclusive, false);
   }
 
-  private Spliterator<ORawPair<EdgeKey, Integer>> iterateEntriesBetweenAscOrder(
+  private Spliterator<ORawPairObjectInteger<EdgeKey>> iterateEntriesBetweenAscOrder(
       EdgeKey keyFrom, final boolean fromInclusive, EdgeKey keyTo, final boolean toInclusive) {
     return new SpliteratorForward(this, keyFrom, keyTo, fromInclusive, toInclusive);
   }
 
-  private Spliterator<ORawPair<EdgeKey, Integer>> iterateEntriesBetweenDescOrder(
+  private Spliterator<ORawPairObjectInteger<EdgeKey>> iterateEntriesBetweenDescOrder(
       EdgeKey keyFrom, final boolean fromInclusive, EdgeKey keyTo, final boolean toInclusive) {
     return new SpliteratorBackward(this, keyFrom, keyTo, fromInclusive, toInclusive);
   }
@@ -1001,7 +1001,7 @@ public final class BTree extends ODurableComponent {
             }
 
             //noinspection ObjectAllocationInLoop
-            iter.getDataCache().add(new ORawPair<>(entry.getKey(), entry.getValue()));
+            iter.getDataCache().add(new ORawPairObjectInteger<>(entry.getKey(), entry.getValue()));
           }
 
           if (iter.getDataCache().size() >= 10) {
@@ -1130,7 +1130,7 @@ public final class BTree extends ODurableComponent {
             }
 
             //noinspection ObjectAllocationInLoop
-            iter.getDataCache().add(new ORawPair<>(entry.getKey(), entry.getValue()));
+            iter.getDataCache().add(new ORawPairObjectInteger<>(entry.getKey(), entry.getValue()));
           }
 
           if (iter.getDataCache().size() >= 10) {

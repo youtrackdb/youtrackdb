@@ -6,6 +6,7 @@ import com.orientechnologies.common.serialization.types.OByteSerializer;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OStringSerializer;
 import com.orientechnologies.common.util.ORawPair;
+import com.orientechnologies.common.util.ORawPairObjectInteger;
 import com.orientechnologies.orient.core.config.IndexEngineData;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
@@ -919,7 +920,7 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
   }
 
   private void readConfiguration() {
-    final ORawPair<byte[], Integer> pair = readProperty(CONFIGURATION_PROPERTY);
+    final ORawPairObjectInteger<byte[]> pair = readProperty(CONFIGURATION_PROPERTY);
     if (pair == null) {
       return;
     }
@@ -1287,7 +1288,7 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
   public IndexEngineData getIndexEngine(final String name, int defaultIndexId) {
     lock.readLock().lock();
     try {
-      final ORawPair<byte[], Integer> pair = readProperty(ENGINE_PREFIX_PROPERTY + name);
+      final ORawPairObjectInteger<byte[]> pair = readProperty(ENGINE_PREFIX_PROPERTY + name);
       if (pair == null) {
         return null;
       }
@@ -1343,7 +1344,7 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
         config.setStatus(status);
       }
 
-      final ORawPair<byte[], Integer> pair = readProperty(CLUSTERS_PREFIX_PROPERTY + clusterId);
+      var pair = readProperty(CLUSTERS_PREFIX_PROPERTY + clusterId);
       if (pair == null) {
         return;
       }
@@ -1448,7 +1449,6 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
         new byte[4 * OIntegerSerializer.INT_SIZE + 5 * OByteSerializer.BYTE_SIZE];
     totalSize += numericProperties.length;
     entries.add(numericProperties);
-
     {
       int pos = 0;
       OIntegerSerializer.INSTANCE.serializeNative(
@@ -1814,7 +1814,7 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
     }
   }
 
-  private ORawPair<byte[], Integer> readProperty(final String name) {
+  private ORawPairObjectInteger<byte[]> readProperty(final String name) {
     try {
       final ORID rid = btree.get(name);
       if (rid == null) {
@@ -1822,7 +1822,7 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
       }
 
       final ORawBuffer buffer = cluster.readRecord(rid.getClusterPosition(), false);
-      return new ORawPair<>(buffer.buffer, rid.getClusterId());
+      return new ORawPairObjectInteger<>(buffer.buffer, rid.getClusterId());
     } catch (final IOException e) {
       throw OException.wrapException(
           new OStorageException("Error during read of configuration property " + name), e);
@@ -1843,7 +1843,7 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
       return (int) cachedValue;
     }
 
-    final ORawPair<byte[], Integer> pair = readProperty(name);
+    var pair = readProperty(name);
     if (pair == null) {
       throw new IllegalStateException("Property " + name + " is absent");
     }
@@ -1860,7 +1860,7 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
 
   private void preloadIntProperties() {
     for (final String name : INT_PROPERTIES) {
-      final ORawPair<byte[], Integer> pair = readProperty(name);
+      final var pair = readProperty(name);
 
       if (pair != null) {
         cache.put(name, OIntegerSerializer.INSTANCE.deserializeNative(pair.first, 0));
@@ -1870,8 +1870,7 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
 
   private void preloadStringProperties() {
     for (final String name : STRING_PROPERTIES) {
-      final ORawPair<byte[], Integer> property = readProperty(name);
-
+      final var property = readProperty(name);
       if (property != null) {
         cache.put(name, deserializeStringValue(property.first, 0));
       }

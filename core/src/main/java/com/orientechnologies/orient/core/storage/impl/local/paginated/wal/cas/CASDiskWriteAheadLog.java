@@ -10,7 +10,7 @@ import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
 import com.orientechnologies.common.thread.OThreadPoolExecutors;
 import com.orientechnologies.common.types.OModifiableLong;
-import com.orientechnologies.common.util.OPair;
+import com.orientechnologies.common.util.ORawPairLongObject;
 import com.orientechnologies.orient.core.exception.EncryptionKeyAbsentException;
 import com.orientechnologies.orient.core.exception.OInvalidStorageEncryptionKeyException;
 import com.orientechnologies.orient.core.exception.OSecurityException;
@@ -125,7 +125,7 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
       new ConcurrentSkipListMap<>();
   private final ScalableRWLock cuttingLock = new ScalableRWLock();
 
-  private final ConcurrentLinkedQueue<OPair<Long, OWALFile>> fileCloseQueue =
+  private final ConcurrentLinkedQueue<ORawPairLongObject<OWALFile>> fileCloseQueue =
       new ConcurrentLinkedQueue<>();
   private final AtomicInteger fileCloseQueueSize = new AtomicInteger();
 
@@ -1024,12 +1024,12 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
           return false;
         }
 
-        OPair<Long, OWALFile> pair = fileCloseQueue.poll();
+        ORawPairLongObject<OWALFile> pair = fileCloseQueue.poll();
         while (pair != null) {
-          final OWALFile file = pair.value;
+          final OWALFile file = pair.second;
 
           fileCloseQueueSize.decrementAndGet();
-          if (pair.key >= segmentId) {
+          if (pair.first >= segmentId) {
             if (callFsync) {
               file.force(true);
             }
@@ -1249,8 +1249,8 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
         record = records.poll();
       }
 
-      for (final OPair<Long, OWALFile> pair : fileCloseQueue) {
-        final OWALFile file = pair.value;
+      for (var pair : fileCloseQueue) {
+        final OWALFile file = pair.second;
 
         if (callFsync) {
           file.force(true);
@@ -1698,7 +1698,7 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
                   assert walFile.position() == currentPosition;
 
                   fileCloseQueueSize.incrementAndGet();
-                  fileCloseQueue.offer(new OPair<>(segmentId, walFile));
+                  fileCloseQueue.offer(new ORawPairLongObject<>(segmentId, walFile));
                 }
 
                 segmentId = lsn.getSegment();
@@ -1883,9 +1883,9 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
         int counter = 0;
 
         while (counter < cqSize) {
-          final OPair<Long, OWALFile> pair = fileCloseQueue.poll();
+          final var pair = fileCloseQueue.poll();
           if (pair != null) {
-            final OWALFile file = pair.value;
+            final OWALFile file = pair.second;
 
             assert file.position() % pageSize == 0;
 

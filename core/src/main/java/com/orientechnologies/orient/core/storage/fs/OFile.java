@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.storage.fs;
 
 import com.orientechnologies.common.collection.closabledictionary.OClosableItem;
-import com.orientechnologies.common.util.ORawPair;
+import com.orientechnologies.common.util.ORawPairLongObject;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
@@ -20,7 +20,7 @@ public interface OFile extends OClosableItem {
 
   void write(long offset, ByteBuffer buffer) throws IOException;
 
-  IOResult write(List<ORawPair<Long, ByteBuffer>> buffers) throws IOException;
+  IOResult write(List<ORawPairLongObject<ByteBuffer>> buffers) throws IOException;
 
   void synch();
 

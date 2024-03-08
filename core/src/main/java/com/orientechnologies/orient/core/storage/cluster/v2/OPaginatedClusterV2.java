@@ -21,7 +21,7 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.serialization.types.OByteSerializer;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
-import com.orientechnologies.common.util.ORawPair;
+import com.orientechnologies.common.util.ORawPairObjectInteger;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.config.OStorageClusterConfiguration;
 import com.orientechnologies.orient.core.config.OStoragePaginatedClusterConfiguration;
@@ -444,7 +444,7 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
 
           final int pageChunkSize = Math.min(availableInPage, chunkSize);
 
-          final ORawPair<byte[], Integer> pair =
+          final ORawPairObjectInteger<byte[]> pair =
               serializeEntryChunk(
                   content, pageChunkSize, bytesToWrite, nextRecordPointers, recordType);
           final byte[] chunk = pair.first;
@@ -480,7 +480,7 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
     return new int[] {nextPageIndex, nextPageOffset, 0};
   }
 
-  private ORawPair<byte[], Integer> serializeEntryChunk(
+  private ORawPairObjectInteger<byte[]> serializeEntryChunk(
       final byte[] recordContent,
       final int chunkSize,
       final int bytesToWrite,
@@ -566,7 +566,7 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
       }
     }
 
-    return new ORawPair<>(chunk, written);
+    return new ORawPairObjectInteger<>(chunk, written);
   }
 
   private int findNextFreePageIndexToWrite(int bytesToWrite) throws IOException {

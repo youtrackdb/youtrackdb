@@ -4,7 +4,7 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.util.OCommonConst;
-import com.orientechnologies.common.util.ORawPair;
+import com.orientechnologies.common.util.ORawPairIntegerObject;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.encryption.OEncryption;
 import com.orientechnologies.orient.core.exception.OLocalHashTableV2Exception;
@@ -1627,7 +1627,7 @@ public class LocalHashTableV2<K, V> extends ODurableComponent implements OHashTa
         directory.setNodePointer(
             parentNodeIndex,
             startIndex + pointersSize + i,
-            (newNodeIndex << 8) | (i * hashMapSize) | Long.MIN_VALUE,
+            ((long) newNodeIndex << 8) | ((long) i * hashMapSize) | Long.MIN_VALUE,
             atomicOperation);
       }
     }
@@ -1959,18 +1959,18 @@ public class LocalHashTableV2<K, V> extends ODurableComponent implements OHashTa
 
     bucket.setDepth(newBucketDepth);
 
-    final List<ORawPair<Integer, RawEntry>> entriesToRemove = new ArrayList<>();
+    final List<ORawPairIntegerObject<RawEntry>> entriesToRemove = new ArrayList<>();
 
     for (int i = 0; i < entries.size(); i++) {
       final RawEntry entry = entries.get(i);
       if (((entry.hashCode >>> (HASH_CODE_SIZE - newBucketDepth)) & 1) == 1) {
-        entriesToRemove.add(new ORawPair<>(i, entry));
+        entriesToRemove.add(new ORawPairIntegerObject<>(i, entry));
         newBucket.addEntry(newBucket.size(), entry.hashCode, entry.key, entry.value);
       }
     }
 
     for (int i = entriesToRemove.size() - 1; i >= 0; i--) {
-      final ORawPair<Integer, RawEntry> pair = entriesToRemove.get(i);
+      final ORawPairIntegerObject<RawEntry> pair = entriesToRemove.get(i);
       final RawEntry entry = pair.second;
       bucket.deleteEntry(pair.first, entry.hashCode, entry.key, entry.value);
     }

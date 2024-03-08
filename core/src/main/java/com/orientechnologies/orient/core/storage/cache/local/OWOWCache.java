@@ -37,8 +37,8 @@ import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
 import com.orientechnologies.common.thread.OThreadPoolExecutors;
 import com.orientechnologies.common.types.OModifiableBoolean;
-import com.orientechnologies.common.util.OQuarto;
 import com.orientechnologies.common.util.ORawPair;
+import com.orientechnologies.common.util.ORawPairLongObject;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
@@ -2695,9 +2695,8 @@ public final class OWOWCache extends OAbstractWriteCache
 
     int copiedPages = 0;
 
-    ArrayList<ArrayList<OQuarto<Long, ByteBuffer, OPointer, OCachePointer>>> chunks =
-        new ArrayList<>(16);
-    ArrayList<OQuarto<Long, ByteBuffer, OPointer, OCachePointer>> chunk = new ArrayList<>(16);
+    ArrayList<ArrayList<WritePageContainer>> chunks = new ArrayList<>(16);
+    ArrayList<WritePageContainer> chunk = new ArrayList<>(16);
 
     long currentSegment = segStart;
 
@@ -2833,7 +2832,7 @@ public final class OWOWCache extends OAbstractWriteCache
 
           copy.position(0);
 
-          chunk.add(new OQuarto<>(version, copy, directPointer, pointer));
+          chunk.add(new WritePageContainer(version, copy, directPointer, pointer));
 
           if (chunksSize + chunk.size() >= pagesFlushLimit) {
             chunks.add(chunk);
@@ -2930,8 +2929,7 @@ public final class OWOWCache extends OAbstractWriteCache
   }
 
   private int flushPages(
-      final ArrayList<ArrayList<OQuarto<Long, ByteBuffer, OPointer, OCachePointer>>> chunks,
-      final OLogSequenceNumber fullLogLSN)
+      final ArrayList<ArrayList<WritePageContainer>> chunks, final OLogSequenceNumber fullLogLSN)
       throws InterruptedException, IOException {
     if (chunks.isEmpty()) {
       return 0;
@@ -2954,7 +2952,7 @@ public final class OWOWCache extends OAbstractWriteCache
     final IntArrayList chunkPageIndexes = new IntArrayList(chunks.size());
     final IntArrayList chunkFileIds = new IntArrayList(chunks.size());
 
-    final Long2ObjectOpenHashMap<ArrayList<ORawPair<Long, ByteBuffer>>> buffersByFileId =
+    final Long2ObjectOpenHashMap<ArrayList<ORawPairLongObject<ByteBuffer>>> buffersByFileId =
         new Long2ObjectOpenHashMap<>();
     try {
       flushedPages =
@@ -2985,15 +2983,14 @@ public final class OWOWCache extends OAbstractWriteCache
     return flushedPages;
   }
 
-  private void removeWrittenPagesFromCache(
-      ArrayList<ArrayList<OQuarto<Long, ByteBuffer, OPointer, OCachePointer>>> chunks) {
-    for (final List<OQuarto<Long, ByteBuffer, OPointer, OCachePointer>> chunk : chunks) {
-      for (final OQuarto<Long, ByteBuffer, OPointer, OCachePointer> chunkPage : chunk) {
-        final OCachePointer pointer = chunkPage.four;
+  private void removeWrittenPagesFromCache(ArrayList<ArrayList<WritePageContainer>> chunks) {
+    for (final List<WritePageContainer> chunk : chunks) {
+      for (var chunkPage : chunk) {
+        final OCachePointer pointer = chunkPage.originalPagePointer;
 
         final PageKey pageKey =
             new PageKey(internalFileId(pointer.getFileId()), pointer.getPageIndex());
-        final long version = chunkPage.one;
+        final long version = chunkPage.pageVersion;
 
         final Lock lock = lockManager.acquireExclusiveLock(pageKey);
         try {
@@ -3020,20 +3017,20 @@ public final class OWOWCache extends OAbstractWriteCache
           lock.unlock();
         }
 
-        bufferPool.release(chunkPage.three);
+        bufferPool.release(chunkPage.pageCopyDirectMemoryPointer);
       }
     }
   }
 
   private int copyPageChunksIntoTheBuffers(
-      ArrayList<ArrayList<OQuarto<Long, ByteBuffer, OPointer, OCachePointer>>> chunks,
+      ArrayList<ArrayList<WritePageContainer>> chunks,
       int flushedPages,
       ArrayList<OPointer> containerPointers,
       ArrayList<ByteBuffer> containerBuffers,
-      Long2ObjectOpenHashMap<ArrayList<ORawPair<Long, ByteBuffer>>> buffersByFileId,
+      Long2ObjectOpenHashMap<ArrayList<ORawPairLongObject<ByteBuffer>>> buffersByFileId,
       IntArrayList chunkPageIndexes,
       IntArrayList chunkFileIds) {
-    for (final List<OQuarto<Long, ByteBuffer, OPointer, OCachePointer>> chunk : chunks) {
+    for (final List<WritePageContainer> chunk : chunks) {
       if (chunk.isEmpty()) {
         continue;
       }
@@ -3049,10 +3046,10 @@ public final class OWOWCache extends OAbstractWriteCache
       containerBuffers.add(containerBuffer);
       assert containerBuffer.position() == 0;
 
-      for (final OQuarto<Long, ByteBuffer, OPointer, OCachePointer> quarto : chunk) {
-        final ByteBuffer buffer = quarto.two;
+      for (var chunkPage : chunk) {
+        final ByteBuffer buffer = chunkPage.copyOfPage;
 
-        final OCachePointer pointer = quarto.four;
+        final OCachePointer pointer = chunkPage.originalPagePointer;
 
         addMagicChecksumAndEncryption(
             extractFileId(pointer.getFileId()), pointer.getPageIndex(), buffer);
@@ -3061,15 +3058,14 @@ public final class OWOWCache extends OAbstractWriteCache
         containerBuffer.put(buffer);
       }
 
-      final OQuarto<Long, ByteBuffer, OPointer, OCachePointer> firstPage = chunk.get(0);
-      final OCachePointer firstCachePointer = firstPage.four;
+      final var firstPage = chunk.get(0);
+      final OCachePointer firstCachePointer = firstPage.originalPagePointer;
 
       final long fileId = firstCachePointer.getFileId();
       final int pageIndex = firstCachePointer.getPageIndex();
 
-      final ArrayList<ORawPair<Long, ByteBuffer>> fileBuffers =
-          buffersByFileId.computeIfAbsent(fileId, (id) -> new ArrayList<>());
-      fileBuffers.add(new ORawPair<>(((long) pageIndex) * pageSize, containerBuffer));
+      var fileBuffers = buffersByFileId.computeIfAbsent(fileId, (id) -> new ArrayList<>());
+      fileBuffers.add(new ORawPairLongObject<>(((long) pageIndex) * pageSize, containerBuffer));
 
       chunkPageIndexes.add(pageIndex);
       chunkFileIds.add(internalFileId(fileId));
@@ -3078,13 +3074,13 @@ public final class OWOWCache extends OAbstractWriteCache
   }
 
   private void writePageChunksToFiles(
-      Long2ObjectOpenHashMap<ArrayList<ORawPair<Long, ByteBuffer>>> buffersByFileId)
+      Long2ObjectOpenHashMap<ArrayList<ORawPairLongObject<ByteBuffer>>> buffersByFileId)
       throws InterruptedException, IOException {
     final List<OClosableEntry<Long, OFile>> acquiredFiles = new ArrayList<>(buffersByFileId.size());
     final List<IOResult> ioResults = new ArrayList<>(buffersByFileId.size());
 
-    Long2ObjectOpenHashMap.Entry<ArrayList<ORawPair<Long, ByteBuffer>>> entry;
-    Iterator<Long2ObjectMap.Entry<ArrayList<ORawPair<Long, ByteBuffer>>>> filesIterator;
+    Long2ObjectOpenHashMap.Entry<ArrayList<ORawPairLongObject<ByteBuffer>>> entry;
+    Iterator<Long2ObjectMap.Entry<ArrayList<ORawPairLongObject<ByteBuffer>>>> filesIterator;
 
     filesIterator = buffersByFileId.long2ObjectEntrySet().iterator();
     entry = null;
@@ -3102,7 +3098,7 @@ public final class OWOWCache extends OAbstractWriteCache
       if (fileEntry != null) {
         final OFile file = fileEntry.get();
 
-        final List<ORawPair<Long, ByteBuffer>> bufferList = entry.getValue();
+        var bufferList = entry.getValue();
 
         ioResults.add(file.write(bufferList));
         acquiredFiles.add(fileEntry);
@@ -3165,9 +3161,8 @@ public final class OWOWCache extends OAbstractWriteCache
     // we flush at least chunkSize pages but no more than amount of exclusive pages.
     pagesToFlushLimit = Math.min(Math.max(pagesToFlushLimit, chunkSize), ewcSize);
 
-    ArrayList<ArrayList<OQuarto<Long, ByteBuffer, OPointer, OCachePointer>>> chunks =
-        new ArrayList<>(16);
-    ArrayList<OQuarto<Long, ByteBuffer, OPointer, OCachePointer>> chunk = new ArrayList<>(16);
+    ArrayList<ArrayList<WritePageContainer>> chunks = new ArrayList<>(16);
+    ArrayList<WritePageContainer> chunk = new ArrayList<>(16);
 
     // latch is hold by write thread if limit of pages in write cache exceeded
     // it is important to release it once we lower amount of pages in write cache to the limit.
@@ -3312,7 +3307,7 @@ public final class OWOWCache extends OAbstractWriteCache
               prevChunksSize = 0;
             }
 
-            chunk.add(new OQuarto<>(version, copy, directPointer, pointer));
+            chunk.add(new WritePageContainer(version, copy, directPointer, pointer));
 
             lastFileId = pointer.getFileId();
             lastPageIndex = pointer.getPageIndex();
@@ -3387,8 +3382,7 @@ public final class OWOWCache extends OAbstractWriteCache
 
     OLogSequenceNumber maxLSN = null;
 
-    final ArrayList<ArrayList<OQuarto<Long, ByteBuffer, OPointer, OCachePointer>>> chunks =
-        new ArrayList<>(chunkSize);
+    final ArrayList<ArrayList<WritePageContainer>> chunks = new ArrayList<>(chunkSize);
     for (final PageKey pageKey : pagesToFlush) {
       if (fileIdSet.contains(pageKey.fileId)) {
         final OCachePointer pagePointer = writeCachePages.get(pageKey);
@@ -3414,8 +3408,9 @@ public final class OWOWCache extends OAbstractWriteCache
               maxLSN = endLSN;
             }
 
-            var chunk = new ArrayList<OQuarto<Long, ByteBuffer, OPointer, OCachePointer>>(1);
-            chunk.add(new OQuarto<>(pagePointer.getVersion(), copy, directPointer, pagePointer));
+            var chunk = new ArrayList<WritePageContainer>(1);
+            chunk.add(
+                new WritePageContainer(pagePointer.getVersion(), copy, directPointer, pagePointer));
             chunks.add(chunk);
 
             removeFromDirtyPages(pageKey);
@@ -3638,5 +3633,25 @@ public final class OWOWCache extends OAbstractWriteCache
     }
 
     return null;
+  }
+
+  private static final class WritePageContainer {
+    private final long pageVersion;
+    private final ByteBuffer copyOfPage;
+
+    private final OPointer pageCopyDirectMemoryPointer;
+
+    private final OCachePointer originalPagePointer;
+
+    public WritePageContainer(
+        long pageVersion,
+        ByteBuffer copyOfPage,
+        OPointer pageCopyDirectMemoryPointer,
+        OCachePointer originalPagePointer) {
+      this.pageVersion = pageVersion;
+      this.copyOfPage = copyOfPage;
+      this.pageCopyDirectMemoryPointer = pageCopyDirectMemoryPointer;
+      this.originalPagePointer = originalPagePointer;
+    }
   }
 }

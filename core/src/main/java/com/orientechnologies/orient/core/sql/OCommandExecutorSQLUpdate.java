@@ -912,7 +912,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
 
       // INSERT TRANSFORMED FIELD VALUE
       putEntries.add(
-          new OTriple(
+          new OTriple<>(
               fieldName,
               (String) getFieldValueCountingParameters(fieldKey),
               getFieldValueCountingParameters(fieldValue)));
@@ -921,7 +921,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
       firstLap = false;
     }
 
-    if (putEntries.size() == 0)
+    if (putEntries.isEmpty())
       throwSyntaxErrorException(
           "Entries to put <field> = <key>, <value> are missed. Example: name = 'Bill', 30");
   }

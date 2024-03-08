@@ -5,7 +5,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.common.exception.OErrorCode;
 import com.orientechnologies.common.listener.OProgressListener;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.common.util.OPair;
+import com.orientechnologies.common.util.OPairLongObject;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.OCommandExecutor;
@@ -576,23 +576,19 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
 
     // Sort the possible root vertices in order of estimated size, since we want to start with a
     // small vertex set.
-    List<OPair<Long, String>> rootWeights = new ArrayList<OPair<Long, String>>();
+    List<OPairLongObject<String>> rootWeights = new ArrayList<>();
     for (Map.Entry<String, Long> root : estimatedRootEntries.entrySet()) {
-      rootWeights.add(new OPair<Long, String>(root.getValue(), root.getKey()));
+      rootWeights.add(new OPairLongObject<>(root.getValue(), root.getKey()));
     }
     Collections.sort(rootWeights);
 
     // Add the starting vertices, in the correct order, to an ordered set.
     Set<String> remainingStarts = new LinkedHashSet<String>();
-    for (OPair<Long, String> item : rootWeights) {
+    for (OPairLongObject<String> item : rootWeights) {
       remainingStarts.add(item.getValue());
     }
     // Add all the remaining aliases after all the suggested start points.
-    for (String alias : pattern.aliasToNode.keySet()) {
-      if (!remainingStarts.contains(alias)) {
-        remainingStarts.add(alias);
-      }
-    }
+    remainingStarts.addAll(pattern.aliasToNode.keySet());
 
     while (resultingSchedule.size() < pattern.numOfEdges) {
       // Start a new depth-first pass, adding all nodes with satisfied dependencies.
