@@ -8,6 +8,7 @@ permissions:
   contents: read
 jobs:
   build:
+    runs-on: [ubuntu-latest, windows-latest, macos-latest]
     strategy:
       fail-fast: false
       matrix:
