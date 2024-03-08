@@ -33,9 +33,12 @@ import com.orientechnologies.orient.core.storage.cache.OWriteCache;
 import com.orientechnologies.orient.core.storage.cache.local.OBackgroundExceptionListener;
 import com.orientechnologies.orient.core.storage.impl.local.OPageIsBrokenListener;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OLogSequenceNumber;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -50,8 +53,8 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
     implements OReadCache, OWriteCache {
   private final Lock metadataLock = new ReentrantLock();
 
-  private final Map<String, Integer> fileNameIdMap = new HashMap<>();
-  private final Map<Integer, String> fileIdNameMap = new HashMap<>();
+  private final Object2IntOpenHashMap<String> fileNameIdMap = new Object2IntOpenHashMap<>();
+  private final Int2ObjectOpenHashMap<String> fileIdNameMap = new Int2ObjectOpenHashMap<>();
 
   private final ConcurrentMap<Integer, MemoryFile> files = new ConcurrentHashMap<>();
 
@@ -63,21 +66,22 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
   ODirectMemoryOnlyDiskCache(final int pageSize, final int id) {
     this.pageSize = pageSize;
     this.id = id;
+    fileNameIdMap.defaultReturnValue(-1);
   }
 
   /** {@inheritDoc} */
   @Override
-  public final Path getRootDirectory() {
+  public Path getRootDirectory() {
     return null;
   }
 
   @Override
-  public final long addFile(final String fileName, final OWriteCache writeCache) {
+  public long addFile(final String fileName, final OWriteCache writeCache) {
     metadataLock.lock();
     try {
-      Integer fileId = fileNameIdMap.get(fileName);
+      var fileId = fileNameIdMap.getInt(fileName);
 
-      if (fileId == null) {
+      if (fileId == -1) {
         counter++;
         final int id = counter;
 
@@ -98,11 +102,11 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
   }
 
   @Override
-  public final long fileIdByName(final String fileName) {
+  public long fileIdByName(final String fileName) {
     metadataLock.lock();
     try {
-      final Integer fileId = fileNameIdMap.get(fileName);
-      if (fileId != null) {
+      final int fileId = fileNameIdMap.getInt(fileName);
+      if (fileId > -1) {
         return fileId;
       }
     } finally {
@@ -175,7 +179,7 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
       final OWriteCache writeCache,
       final boolean verifyChecksums,
       final OLogSequenceNumber startLSN) {
-
+    assert fileId >= 0;
     final OCacheEntry cacheEntry = doLoad(fileId, pageIndex);
 
     if (cacheEntry == null) {
@@ -219,7 +223,6 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
       return null;
     }
 
-    //noinspection SynchronizationOnLocalVariableOrMethodParameter
     synchronized (cacheEntry) {
       cacheEntry.incrementUsages();
     }
@@ -235,7 +238,6 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
     final MemoryFile memoryFile = getFile(intId);
     final OCacheEntry cacheEntry = memoryFile.addNewPage(this);
 
-    //noinspection SynchronizationOnLocalVariableOrMethodParameter
     synchronized (cacheEntry) {
       cacheEntry.incrementUsages();
     }
@@ -306,7 +308,7 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
         return;
       }
 
-      fileNameIdMap.remove(fileName);
+      fileNameIdMap.removeInt(fileName);
       final MemoryFile file = files.remove(intId);
       if (file != null) {
         file.clear();
@@ -327,7 +329,7 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
         return;
       }
 
-      fileNameIdMap.remove(fileName);
+      fileNameIdMap.removeInt(fileName);
 
       fileIdNameMap.put(intId, newFileName);
       fileNameIdMap.put(newFileName, intId);
@@ -396,17 +398,17 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
   public void changeMaximumAmountOfMemory(final long calculateReadCacheMaxMemory) {}
 
   @Override
-  public final OPageDataVerificationError[] checkStoredPages(
+  public OPageDataVerificationError[] checkStoredPages(
       final OCommandOutputListener commandOutputListener) {
     return OCommonConst.EMPTY_PAGE_DATA_VERIFICATION_ARRAY;
   }
 
   @Override
-  public final boolean exists(final String name) {
+  public boolean exists(final String name) {
     metadataLock.lock();
     try {
-      final Integer fileId = fileNameIdMap.get(name);
-      if (fileId == null) {
+      final int fileId = fileNameIdMap.getInt(name);
+      if (fileId == -1) {
         return false;
       }
 
@@ -464,25 +466,25 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
   }
 
   @Override
-  public final boolean checkLowDiskSpace() {
+  public boolean checkLowDiskSpace() {
     return true;
   }
 
   /** Not implemented because has no sense */
   @Override
-  public final void addPageIsBrokenListener(final OPageIsBrokenListener listener) {}
+  public void addPageIsBrokenListener(final OPageIsBrokenListener listener) {}
 
   /** Not implemented because has no sense */
   @Override
-  public final void removePageIsBrokenListener(final OPageIsBrokenListener listener) {}
+  public void removePageIsBrokenListener(final OPageIsBrokenListener listener) {}
 
   @Override
-  public final long loadFile(final String fileName) {
+  public long loadFile(final String fileName) {
     metadataLock.lock();
     try {
-      final Integer fileId = fileNameIdMap.get(fileName);
+      final int fileId = fileNameIdMap.getInt(fileName);
 
-      if (fileId == null) {
+      if (fileId == -1) {
         throw new OStorageException("File " + fileName + " does not exist.");
       }
 
@@ -503,24 +505,23 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
   }
 
   @Override
-  public final void store(
-      final long fileId, final long pageIndex, final OCachePointer dataPointer) {
+  public void store(final long fileId, final long pageIndex, final OCachePointer dataPointer) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public final void syncDataFiles(final long segmentId, byte[] lastMetadata) {}
+  public void syncDataFiles(final long segmentId, byte[] lastMetadata) {}
 
   @Override
-  public final void flushTillSegment(final long segmentId) {}
+  public void flushTillSegment(final long segmentId) {}
 
   @Override
-  public final Long getMinimalNotFlushedSegment() {
+  public Long getMinimalNotFlushedSegment() {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public final void updateDirtyPagesTable(
+  public void updateDirtyPagesTable(
       final OCachePointer pointer, final OLogSequenceNumber startLSN) {}
 
   @Override
@@ -530,7 +531,7 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
   public void open() {}
 
   @Override
-  public final OCachePointer load(
+  public OCachePointer load(
       final long fileId,
       final long startPageIndex,
       final OModifiableBoolean cacheHit,
@@ -539,29 +540,29 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
   }
 
   @Override
-  public final long getExclusiveWriteCachePagesSize() {
+  public long getExclusiveWriteCachePagesSize() {
     return 0;
   }
 
   @Override
-  public final void truncateFile(final long fileId, final OWriteCache writeCache) {
+  public void truncateFile(final long fileId, final OWriteCache writeCache) {
     truncateFile(fileId);
   }
 
   @Override
-  public final int getId() {
+  public int getId() {
     return id;
   }
 
   @Override
-  public final Map<String, Long> files() {
-    final Map<String, Long> result = new HashMap<>(1024);
+  public Map<String, Long> files() {
+    final Object2LongOpenHashMap<String> result = new Object2LongOpenHashMap<>(1024);
 
     metadataLock.lock();
     try {
-      for (final Map.Entry<String, Integer> entry : fileNameIdMap.entrySet()) {
-        if (entry.getValue() > 0) {
-          result.put(entry.getKey(), composeFileId(id, entry.getValue()));
+      for (final Object2IntMap.Entry<String> entry : fileNameIdMap.object2IntEntrySet()) {
+        if (entry.getIntValue() > 0) {
+          result.put(entry.getKey(), composeFileId(id, entry.getIntValue()));
         }
       }
     } finally {

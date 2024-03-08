@@ -23,6 +23,7 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -62,7 +63,7 @@ public class ORole extends OIdentity implements OSecurityRole {
   protected static final byte STREAM_ALLOW = 1;
   private static final long serialVersionUID = 1L;
   // CRUD OPERATIONS
-  private static Map<Integer, String> PERMISSION_BIT_NAMES;
+  private static Int2ObjectOpenHashMap<String> PERMISSION_BIT_NAMES;
   protected ALLOW_MODES mode = ALLOW_MODES.DENY_ALL_BUT;
   protected ORole parentRole;
 
@@ -124,17 +125,18 @@ public class ORole extends OIdentity implements OSecurityRole {
     return returnValue.toString();
   }
 
-  public static int registerPermissionBit(final int iBitNo, final String iName) {
-    if (iBitNo < 0 || iBitNo > 31)
+  public static int registerPermissionBit(final int bitNo, final String iName) {
+    if (bitNo < 0 || bitNo > 31)
       throw new IndexOutOfBoundsException(
           "Permission bit number must be positive and less than 32");
 
-    final int value = 1 << iBitNo;
-    if (PERMISSION_BIT_NAMES == null) PERMISSION_BIT_NAMES = new HashMap<Integer, String>();
+    final int value = 1 << bitNo;
+    if (PERMISSION_BIT_NAMES == null) {
+      PERMISSION_BIT_NAMES = new Int2ObjectOpenHashMap<>();
+    }
 
     if (PERMISSION_BIT_NAMES.containsKey(value))
-      throw new IndexOutOfBoundsException(
-          "Permission bit number " + String.valueOf(iBitNo) + " already in use");
+      throw new IndexOutOfBoundsException("Permission bit number " + bitNo + " already in use");
 
     PERMISSION_BIT_NAMES.put(value, iName);
     return value;

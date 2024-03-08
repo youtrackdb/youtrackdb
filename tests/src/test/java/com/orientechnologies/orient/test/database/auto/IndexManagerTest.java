@@ -90,8 +90,7 @@ public class IndexManagerTest extends DocumentDBBaseTest {
                 CLASS_NAME,
                 Arrays.asList(
                     new OPropertyIndexDefinition(CLASS_NAME, "fOne", OType.INTEGER),
-                    new OPropertyIndexDefinition(CLASS_NAME, "fTwo", OType.STRING)),
-                -1),
+                    new OPropertyIndexDefinition(CLASS_NAME, "fTwo", OType.STRING))),
             new int[] {database.getClusterIdByName(CLASS_NAME)},
             null,
             null);
@@ -141,8 +140,7 @@ public class IndexManagerTest extends DocumentDBBaseTest {
                 Arrays.asList(
                     new OPropertyIndexDefinition(CLASS_NAME, "fOne", OType.INTEGER),
                     new OPropertyIndexDefinition(CLASS_NAME, "fTwo", OType.STRING),
-                    new OPropertyIndexDefinition(CLASS_NAME, "fThree", OType.BOOLEAN)),
-                -1),
+                    new OPropertyIndexDefinition(CLASS_NAME, "fThree", OType.BOOLEAN))),
             new int[] {database.getClusterIdByName(CLASS_NAME)},
             progressListener,
             null);
@@ -623,8 +621,7 @@ public class IndexManagerTest extends DocumentDBBaseTest {
             className,
             Arrays.asList(
                 new OPropertyIndexDefinition(className, "one", OType.STRING),
-                new OPropertyIndexDefinition(className, "two", OType.STRING)),
-            -1),
+                new OPropertyIndexDefinition(className, "two", OType.STRING))),
         oClass.getClusterIds(),
         null,
         null);
@@ -638,8 +635,7 @@ public class IndexManagerTest extends DocumentDBBaseTest {
             Arrays.asList(
                 new OPropertyIndexDefinition(className, "one", OType.STRING),
                 new OPropertyIndexDefinition(className, "two", OType.STRING),
-                new OPropertyIndexDefinition(className, "three", OType.STRING)),
-            -1),
+                new OPropertyIndexDefinition(className, "three", OType.STRING))),
         oClass.getClusterIds(),
         null,
         null);

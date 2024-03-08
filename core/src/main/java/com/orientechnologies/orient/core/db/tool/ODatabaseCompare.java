@@ -45,11 +45,9 @@ import com.orientechnologies.orient.core.storage.ORawBuffer;
 import com.orientechnologies.orient.core.storage.OStorage;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -583,7 +581,7 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
               //noinspection resource
               try (Stream<ORID> indexTwoValue =
                   makeDbCall(databaseTwo, database -> indexTwo.getInternal().getRids(indexKey))) {
-                differences =
+                differences +=
                     compareIndexStreams(
                         indexKey, indexOneStream, indexTwoValue, ridMapper, listener);
               }
@@ -661,56 +659,6 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
       differences++;
     }
     return differences;
-  }
-
-  private static boolean compareIndexValues(
-      Collection<ORID> oneValue,
-      Collection<ORID> secondValue,
-      ODocumentHelper.RIDMapper ridMapper) {
-    Map<ORID, Integer> firstMap = new HashMap<>();
-    Map<ORID, Integer> secondMap = new HashMap<>();
-
-    for (ORID rid : oneValue) {
-      ORID ridToInsert;
-
-      if (ridMapper != null) {
-        if (rid.isPersistent()) {
-          ridToInsert = ridMapper.map(rid);
-
-          if (ridToInsert == null) {
-            ridToInsert = rid;
-          }
-        } else {
-          ridToInsert = rid;
-        }
-      } else {
-        ridToInsert = rid;
-      }
-
-      firstMap.compute(
-          ridToInsert,
-          (k, v) -> {
-            if (v == null) {
-              return 1;
-            }
-
-            return v + 1;
-          });
-    }
-
-    for (ORID rid : secondValue) {
-      secondMap.compute(
-          rid,
-          (k, v) -> {
-            if (v == null) {
-              return 1;
-            }
-
-            return v + 1;
-          });
-    }
-
-    return firstMap.equals(secondMap);
   }
 
   @SuppressWarnings("ObjectAllocationInLoop")
@@ -832,7 +780,7 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
       final ODocument doc2 = new ODocument();
 
       @SuppressWarnings("ObjectAllocationInLoop")
-      final ORecordId rid = new ORecordId(clusterId1);
+      final ORecordId rid1 = new ORecordId(clusterId1);
 
       // TODO why this maximums can be different?
       final long clusterMax = Math.max(db1Max, db2Max);
@@ -865,36 +813,31 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
             recordsCounter++;
 
             final long position = physicalPosition.clusterPosition;
-            rid.setClusterPosition(position);
-
-            // noinspection ObjectAllocationInLoop
-            if (rid.equals(new ORecordId(configuration1.getIndexMgrRecordId()))
-                && rid.equals(new ORecordId(configuration2.getIndexMgrRecordId()))) continue;
-            // noinspection ObjectAllocationInLoop
-            if (rid.equals(new ORecordId(configuration1.getSchemaRecordId()))
-                && rid.equals(new ORecordId(configuration2.getSchemaRecordId()))) continue;
-
-            if (rid.getClusterId() == 0 && rid.getClusterPosition() == 0) {
-              // Skip the compare of raw structure if the storage type are different, due the fact
-              // that are different by definition.
-              if (!storageType1.equals(storageType2)) continue;
-            }
+            rid1.setClusterPosition(position);
 
             final ORecordId rid2;
-            if (ridMapper == null) rid2 = rid;
+            if (ridMapper == null) rid2 = rid1;
             else {
-              final ORID newRid = ridMapper.map(rid);
-              if (newRid == null) rid2 = rid;
+              final ORID newRid = ridMapper.map(rid1);
+              if (newRid == null) rid2 = rid1;
               else
                 //noinspection ObjectAllocationInLoop
                 rid2 = new ORecordId(newRid);
+            }
+
+            if (skipRecord(
+                rid1, rid2, configuration1, configuration2, storageType1, storageType2)) {
+              continue;
             }
 
             final ORawBuffer buffer1 =
                 makeDbCall(
                     databaseOne,
                     database ->
-                        database.getStorage().readRecord(rid, null, true, false, null).getResult());
+                        database
+                            .getStorage()
+                            .readRecord(rid1, null, true, false, null)
+                            .getResult());
             final ORawBuffer buffer2 =
                 makeDbCall(
                     databaseTwo,
@@ -973,8 +916,8 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
                         return null;
                       });
 
-                  if (rid.toString().equals(configuration1.getSchemaRecordId())
-                      && rid.toString().equals(configuration2.getSchemaRecordId())) {
+                  if (rid1.toString().equals(configuration1.getSchemaRecordId())
+                      && rid1.toString().equals(configuration2.getSchemaRecordId())) {
                     makeDbCall(
                         databaseOne,
                         database -> {
@@ -1060,7 +1003,7 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
             }
           } catch (RuntimeException e) {
             OLogManager.instance()
-                .error(this, "Error during data comparison of records with rid " + rid, e);
+                .error(this, "Error during data comparison of records with rid " + rid1, e);
             throw e;
           }
         }
@@ -1088,6 +1031,26 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
               + clusterName
               + " ...");
     }
+  }
+
+  private static boolean skipRecord(
+      ORecordId rid1,
+      ORecordId rid2,
+      OStorageConfiguration configuration1,
+      OStorageConfiguration configuration2,
+      String storageType1,
+      String storageType2) {
+    if (rid1.equals(new ORecordId(configuration1.getIndexMgrRecordId()))
+        || rid2.equals(new ORecordId(configuration2.getIndexMgrRecordId()))) return true;
+    if (rid1.equals(new ORecordId(configuration1.getSchemaRecordId()))
+        || rid2.equals(new ORecordId(configuration2.getSchemaRecordId()))) return true;
+    if ((rid1.getClusterId() == 0 && rid1.getClusterPosition() == 0)
+        || (rid2.getClusterId() == 0 && rid2.getClusterPosition() == 0)) {
+      // Skip the compare of raw structure if the storage type are different, due the fact
+      // that are different by definition.
+      return !storageType1.equals(storageType2);
+    }
+    return false;
   }
 
   public void setCompareIndexMetadata(boolean compareIndexMetadata) {

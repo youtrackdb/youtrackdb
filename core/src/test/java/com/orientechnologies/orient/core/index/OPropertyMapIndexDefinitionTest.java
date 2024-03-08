@@ -4,6 +4,7 @@ import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -288,8 +289,12 @@ public class OPropertyMapIndexDefinitionTest {
 
   @Test
   public void testProcessChangeEventAddKey() {
-    final Map<Object, Integer> keysToAdd = new HashMap<Object, Integer>();
-    final Map<Object, Integer> keysToRemove = new HashMap<Object, Integer>();
+    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    keysToAdd.defaultReturnValue(-1);
+
+    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    keysToRemove.defaultReturnValue(-1);
+
     final OMultiValueChangeEvent<String, String> multiValueChangeEvent =
         new OMultiValueChangeEvent<String, String>(
             OMultiValueChangeEvent.OChangeType.ADD, "key1", "value1");
@@ -307,8 +312,12 @@ public class OPropertyMapIndexDefinitionTest {
 
   @Test
   public void testProcessChangeEventAddKeyWithConversion() {
-    final Map<Object, Integer> keysToAdd = new HashMap<Object, Integer>();
-    final Map<Object, Integer> keysToRemove = new HashMap<Object, Integer>();
+    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    keysToAdd.defaultReturnValue(-1);
+
+    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    keysToRemove.defaultReturnValue(-1);
+
     final OMultiValueChangeEvent<String, String> multiValueChangeEvent =
         new OMultiValueChangeEvent<String, String>(
             OMultiValueChangeEvent.OChangeType.ADD, "12", "value1");
@@ -326,8 +335,12 @@ public class OPropertyMapIndexDefinitionTest {
 
   @Test
   public void testProcessChangeEventAddValue() {
-    final Map<Object, Integer> keysToAdd = new HashMap<Object, Integer>();
-    final Map<Object, Integer> keysToRemove = new HashMap<Object, Integer>();
+    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    keysToAdd.defaultReturnValue(-1);
+
+    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    keysToRemove.defaultReturnValue(-1);
+
     final OMultiValueChangeEvent<String, Integer> multiValueChangeEvent =
         new OMultiValueChangeEvent<String, Integer>(
             OMultiValueChangeEvent.OChangeType.ADD, "key1", 42);
@@ -345,8 +358,12 @@ public class OPropertyMapIndexDefinitionTest {
 
   @Test
   public void testProcessChangeEventAddValueWithConversion() {
-    final Map<Object, Integer> keysToAdd = new HashMap<Object, Integer>();
-    final Map<Object, Integer> keysToRemove = new HashMap<Object, Integer>();
+    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    keysToAdd.defaultReturnValue(-1);
+
+    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    keysToRemove.defaultReturnValue(-1);
+
     final OMultiValueChangeEvent<String, String> multiValueChangeEvent =
         new OMultiValueChangeEvent<String, String>(
             OMultiValueChangeEvent.OChangeType.ADD, "12", "42");
@@ -364,8 +381,12 @@ public class OPropertyMapIndexDefinitionTest {
 
   @Test
   public void testProcessChangeEventRemoveKey() {
-    final Map<Object, Integer> keysToAdd = new HashMap<Object, Integer>();
-    final Map<Object, Integer> keysToRemove = new HashMap<Object, Integer>();
+    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    keysToAdd.defaultReturnValue(-1);
+
+    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    keysToRemove.defaultReturnValue(-1);
+
     final OMultiValueChangeEvent<String, String> multiValueChangeEvent =
         new OMultiValueChangeEvent<String, String>(
             OMultiValueChangeEvent.OChangeType.REMOVE, "key1", "value1");
@@ -382,8 +403,12 @@ public class OPropertyMapIndexDefinitionTest {
 
   @Test
   public void testProcessChangeEventRemoveKeyWithConversion() {
-    final Map<Object, Integer> keysToAdd = new HashMap<Object, Integer>();
-    final Map<Object, Integer> keysToRemove = new HashMap<Object, Integer>();
+    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    keysToAdd.defaultReturnValue(-1);
+
+    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    keysToRemove.defaultReturnValue(-1);
+
     final OMultiValueChangeEvent<String, String> multiValueChangeEvent =
         new OMultiValueChangeEvent<String, String>(
             OMultiValueChangeEvent.OChangeType.REMOVE, "12", "value1");
@@ -401,8 +426,12 @@ public class OPropertyMapIndexDefinitionTest {
 
   @Test
   public void testProcessChangeEventRemoveValue() {
-    final Map<Object, Integer> keysToAdd = new HashMap<Object, Integer>();
-    final Map<Object, Integer> keysToRemove = new HashMap<Object, Integer>();
+    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    keysToAdd.defaultReturnValue(-1);
+
+    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    keysToRemove.defaultReturnValue(-1);
+
     final OMultiValueChangeEvent<String, Integer> multiValueChangeEvent =
         new OMultiValueChangeEvent<String, Integer>(
             OMultiValueChangeEvent.OChangeType.REMOVE, "key1", null, 42);
@@ -419,8 +448,12 @@ public class OPropertyMapIndexDefinitionTest {
 
   @Test
   public void testProcessChangeEventRemoveValueWithConversion() {
-    final Map<Object, Integer> keysToAdd = new HashMap<Object, Integer>();
-    final Map<Object, Integer> keysToRemove = new HashMap<Object, Integer>();
+    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    keysToAdd.defaultReturnValue(-1);
+
+    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    keysToRemove.defaultReturnValue(-1);
+
     final OMultiValueChangeEvent<String, String> multiValueChangeEvent =
         new OMultiValueChangeEvent<String, String>(
             OMultiValueChangeEvent.OChangeType.REMOVE, "12", null, "42");
@@ -437,8 +470,12 @@ public class OPropertyMapIndexDefinitionTest {
 
   @Test
   public void testProcessChangeEventUpdateKey() {
-    final Map<Object, Integer> keysToAdd = new HashMap<Object, Integer>();
-    final Map<Object, Integer> keysToRemove = new HashMap<Object, Integer>();
+    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    keysToAdd.defaultReturnValue(-1);
+
+    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    keysToRemove.defaultReturnValue(-1);
+
     final OMultiValueChangeEvent<String, Integer> multiValueChangeEvent =
         new OMultiValueChangeEvent<String, Integer>(
             OMultiValueChangeEvent.OChangeType.UPDATE, "key1", 42);
@@ -450,8 +487,12 @@ public class OPropertyMapIndexDefinitionTest {
 
   @Test
   public void testProcessChangeEventUpdateValue() {
-    final Map<Object, Integer> keysToAdd = new HashMap<Object, Integer>();
-    final Map<Object, Integer> keysToRemove = new HashMap<Object, Integer>();
+    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    keysToAdd.defaultReturnValue(-1);
+
+    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    keysToRemove.defaultReturnValue(-1);
+
     final OMultiValueChangeEvent<String, Integer> multiValueChangeEvent =
         new OMultiValueChangeEvent<String, Integer>(
             OMultiValueChangeEvent.OChangeType.UPDATE, "key1", 41, 42);
@@ -470,8 +511,12 @@ public class OPropertyMapIndexDefinitionTest {
 
   @Test
   public void testProcessChangeEventUpdateValueWithConversion() {
-    final Map<Object, Integer> keysToAdd = new HashMap<Object, Integer>();
-    final Map<Object, Integer> keysToRemove = new HashMap<Object, Integer>();
+    final Object2IntOpenHashMap<Object> keysToAdd = new Object2IntOpenHashMap<>();
+    keysToAdd.defaultReturnValue(-1);
+
+    final Object2IntOpenHashMap<Object> keysToRemove = new Object2IntOpenHashMap<>();
+    keysToRemove.defaultReturnValue(-1);
+
     final OMultiValueChangeEvent<String, String> multiValueChangeEvent =
         new OMultiValueChangeEvent<String, String>(
             OMultiValueChangeEvent.OChangeType.UPDATE, "12", "42", "41");

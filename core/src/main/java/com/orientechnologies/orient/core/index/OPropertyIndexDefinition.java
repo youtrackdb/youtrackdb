@@ -24,13 +24,12 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.OCommandExecutorSQLCreateIndex;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /** Index implementation bound to one schema class property. */
 public class OPropertyIndexDefinition extends OAbstractIndexDefinition {
-  private static final long serialVersionUID = 7395728581151922197L;
   protected String className;
   protected String field;
   protected OType keyType;
@@ -80,9 +79,7 @@ public class OPropertyIndexDefinition extends OAbstractIndexDefinition {
 
     if (!className.equals(that.className)) return false;
     if (!field.equals(that.field)) return false;
-    if (keyType != that.keyType) return false;
-
-    return true;
+    return keyType == that.keyType;
   }
 
   @Override
@@ -143,11 +140,11 @@ public class OPropertyIndexDefinition extends OAbstractIndexDefinition {
   protected void serializeToStream() {
     super.serializeToStream();
 
-    document.field("className", className);
-    document.field("field", field);
-    document.field("keyType", keyType.toString());
-    document.field("collate", collate.getName());
-    document.field("nullValuesIgnored", isNullValuesIgnored());
+    document.setPropertyWithoutValidation("className", className);
+    document.setPropertyWithoutValidation("field", field);
+    document.setPropertyWithoutValidation("keyType", keyType.toString());
+    document.setPropertyWithoutValidation("collate", collate.getName());
+    document.setPropertyWithoutValidation("nullValuesIgnored", isNullValuesIgnored());
   }
 
   protected void serializeFromStream() {
@@ -195,43 +192,55 @@ public class OPropertyIndexDefinition extends OAbstractIndexDefinition {
     ddl.append(indexType);
 
     if (engine != null)
-      ddl.append(' ').append(OCommandExecutorSQLCreateIndex.KEYWORD_ENGINE + " " + engine);
+      ddl.append(' ').append(OCommandExecutorSQLCreateIndex.KEYWORD_ENGINE + " ").append(engine);
     return ddl;
   }
 
   protected void processAdd(
       final Object value,
-      final Map<Object, Integer> keysToAdd,
-      final Map<Object, Integer> keysToRemove) {
+      final Object2IntMap<Object> keysToAdd,
+      final Object2IntMap<Object> keysToRemove) {
     if (value == null) return;
 
-    final Integer removeCount = keysToRemove.get(value);
-    if (removeCount != null) {
+    final int removeCount = keysToRemove.getInt(value);
+    if (removeCount > 0) {
       int newRemoveCount = removeCount - 1;
-      if (newRemoveCount > 0) keysToRemove.put(value, newRemoveCount);
-      else keysToRemove.remove(value);
+      if (newRemoveCount > 0) {
+        keysToRemove.put(value, newRemoveCount);
+      } else {
+        keysToRemove.removeInt(value);
+      }
     } else {
-      final Integer addCount = keysToAdd.get(value);
-      if (addCount != null) keysToAdd.put(value, addCount + 1);
-      else keysToAdd.put(value, 1);
+      final int addCount = keysToAdd.getInt(value);
+      if (addCount > 0) {
+        keysToAdd.put(value, addCount + 1);
+      } else {
+        keysToAdd.put(value, 1);
+      }
     }
   }
 
   protected void processRemoval(
       final Object value,
-      final Map<Object, Integer> keysToAdd,
-      final Map<Object, Integer> keysToRemove) {
+      final Object2IntMap<Object> keysToAdd,
+      final Object2IntMap<Object> keysToRemove) {
     if (value == null) return;
 
-    final Integer addCount = keysToAdd.get(value);
-    if (addCount != null) {
+    final int addCount = keysToAdd.getInt(value);
+    if (addCount > 0) {
       int newAddCount = addCount - 1;
-      if (newAddCount > 0) keysToAdd.put(value, newAddCount);
-      else keysToAdd.remove(value);
+      if (newAddCount > 0) {
+        keysToAdd.put(value, newAddCount);
+      } else {
+        keysToAdd.removeInt(value);
+      }
     } else {
-      final Integer removeCount = keysToRemove.get(value);
-      if (removeCount != null) keysToRemove.put(value, removeCount + 1);
-      else keysToRemove.put(value, 1);
+      final int removeCount = keysToRemove.getInt(value);
+      if (removeCount > 0) {
+        keysToRemove.put(value, removeCount + 1);
+      } else {
+        keysToRemove.put(value, 1);
+      }
     }
   }
 

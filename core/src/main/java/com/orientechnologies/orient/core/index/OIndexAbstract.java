@@ -961,7 +961,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
 
       if (record instanceof ODocument) {
         final ODocument doc = (ODocument) record;
-        OClassIndexManager.reIndex(doc, database, this);
+        OClassIndexManager.reIndex(doc, this);
         ++documentIndexed;
       }
       if (documentIndexed % 1000 == 0) {

@@ -438,8 +438,7 @@ public class ViewManager {
       newRow.setProperty("@view", viewName);
     }
     db.save(newRow, clusterName);
-    OClassIndexManager.addIndexesEntries(
-        (ODatabaseDocumentInternal) db, (ODocument) newRow, indexes);
+    OClassIndexManager.addIndexesEntries((ODocument) newRow, indexes);
     db.commit();
   }
 
