@@ -20,8 +20,13 @@
 
 package com.orientechnologies.orient.graph;
 
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseType;
+import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 import java.util.Locale;
+import java.util.Objects;
 import org.junit.AfterClass;
 
 /**
@@ -31,6 +36,7 @@ import org.junit.AfterClass;
  */
 public abstract class GraphNoTxAbstractTest {
   protected static OrientGraphNoTx graph;
+  protected static OrientDB orientDB;
 
   public static ENV getEnvironment() {
     String envName = System.getProperty("orientdb.test.env", "dev").toUpperCase(Locale.ENGLISH);
@@ -46,7 +52,9 @@ public abstract class GraphNoTxAbstractTest {
   }
 
   public static String getStorageType() {
-    if (getEnvironment().equals(ENV.DEV)) return "memory";
+    if (getEnvironment().equals(ENV.DEV)) {
+      return "memory";
+    }
 
     return "plocal";
   }
@@ -55,11 +63,19 @@ public abstract class GraphNoTxAbstractTest {
     final String storageType = getStorageType();
     final String buildDirectory = "./target/";
 
-    //    OFileUtils.deleteRecursively(new File(buildDirectory + "/" + dbName));
-
     final String url = System.getProperty("url");
-    if (url != null) graph = new OrientGraphNoTx(url);
-    else graph = new OrientGraphNoTx(storageType + ":" + buildDirectory + "/" + dbName);
+    orientDB =
+        new OrientDB(
+            Objects.requireNonNullElseGet(url, () -> storageType + ":" + buildDirectory),
+            OrientDBConfig.defaultConfig());
+    if (orientDB.exists(dbName)) {
+      orientDB.drop(dbName);
+    }
+
+    orientDB.create(
+        dbName, ODatabaseType.valueOf(storageType.toUpperCase()), "admin", "admin", "admin");
+    graph =
+        new OrientGraphNoTx((ODatabaseDocumentInternal) orientDB.open(dbName, "admin", "admin"));
   }
 
   @AfterClass
@@ -68,9 +84,14 @@ public abstract class GraphNoTxAbstractTest {
       graph.shutdown();
       graph = null;
     }
+
+    if (orientDB != null) {
+      orientDB.close();
+      orientDB = null;
+    }
   }
 
-  public static enum ENV {
+  public enum ENV {
     DEV,
     RELEASE,
     CI

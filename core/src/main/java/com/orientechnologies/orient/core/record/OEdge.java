@@ -105,7 +105,24 @@ public interface OEdge extends OElement {
     } else if (dir == ODirection.OUT) {
       return getFrom();
     }
-    return null;
+    throw new IllegalArgumentException("Direction not supported: " + dir);
+  }
+
+  /**
+   * Retrieves the identifiable object of the vertex connected to this edge in the specified
+   * direction.
+   *
+   * @param dir the direction of the edge (IN or OUT)
+   * @return the identifiable object of the vertex connected to this edge in the specified
+   *     direction, or null if no vertex is connected
+   */
+  default OIdentifiable getVertexLink(ODirection dir) {
+    if (dir == ODirection.IN) {
+      return getToIdentifiable();
+    } else if (dir == ODirection.OUT) {
+      return getFromIdentifiable();
+    }
+    throw new IllegalArgumentException("Direction not supported: " + dir);
   }
 
   /**

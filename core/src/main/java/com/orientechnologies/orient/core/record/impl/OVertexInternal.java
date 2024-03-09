@@ -581,34 +581,28 @@ public interface OVertexInternal extends OVertex, OElementInternal {
 
       final ODocument doc = getBaseDocument().copy();
 
-      final Iterable<OEdge> outEdges = getEdges(ODirection.OUT);
-      final Iterable<OEdge> inEdges = getEdges(ODirection.IN);
-
       // DELETE THE OLD RECORD FIRST TO AVOID ISSUES WITH UNIQUE CONSTRAINTS
-      copyRidBags(oldRecord, doc); // TODO! check this!!!
+      copyRidBags(oldRecord, doc);
       detachRidbags(oldRecord);
       db.delete(oldRecord);
 
-      if (className != null)
-      // OVERWRITE CLASS
-      {
+      var delegate = new OVertexDelegate(doc);
+      final Iterable<OEdge> outEdges = delegate.getEdges(ODirection.OUT);
+      final Iterable<OEdge> inEdges = delegate.getEdges(ODirection.IN);
+      if (className != null) {
         doc.setClassName(className);
       }
 
       // SAVE THE NEW VERTEX
       doc.setDirty();
-
       // RESET IDENTITY
       ORecordInternal.setIdentity(doc, new OEmptyRecordId());
-
       db.save(doc, clusterName);
-
       final ORID newIdentity = doc.getIdentity();
 
       // CONVERT OUT EDGES
       for (OEdge oe : outEdges) {
-        final OVertex inV = oe.getVertex(ODirection.IN);
-
+        final OIdentifiable inVLink = oe.getVertexLink(ODirection.IN);
         var optSchemaType = oe.getSchemaType();
 
         String schemaType;
@@ -621,18 +615,23 @@ public interface OVertexInternal extends OVertex, OElementInternal {
 
         final String inFieldName = getEdgeLinkFieldName(ODirection.IN, schemaType, true);
 
+        //link to itself
+        ODocument inRecord;
+        if (inVLink.equals(oldIdentity)) {
+          inRecord = doc;
+        } else {
+          inRecord = inVLink.getRecord();
+        }
         //noinspection deprecation
         if (oe.isLightweight()) {
           // REPLACE ALL REFS IN inVertex
-          replaceLinks(inV.getRecord(), inFieldName, oldIdentity, newIdentity);
+          replaceLinks(inRecord, inFieldName, oldIdentity, newIdentity);
         } else {
           // REPLACE WITH NEW VERTEX
           ((OElementInternal) oe)
               .setPropertyWithoutValidation(OEdgeInternal.DIRECTION_OUT, newIdentity);
 
-          var inRecord = inV.<ODocument>getRecord();
           var directInFieldName = getDirectEdgeLinkFieldName(inFieldName);
-
           if (inRecord.hasProperty(directInFieldName)) {
             replaceLinks(inRecord, directInFieldName, oldIdentity, newIdentity);
           }
@@ -642,7 +641,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
       }
 
       for (OEdge ine : inEdges) {
-        final OVertex outV = ine.getVertex(ODirection.OUT);
+        final OIdentifiable outVLink = ine.getVertexLink(ODirection.OUT);
 
         var optSchemaType = ine.getSchemaType();
 
@@ -656,16 +655,19 @@ public interface OVertexInternal extends OVertex, OElementInternal {
 
         final String outFieldName = getEdgeLinkFieldName(ODirection.OUT, schemaType, true);
 
+        ODocument outRecord;
+        if (outVLink.equals(oldIdentity)) {
+          outRecord = doc;
+        } else {
+          outRecord = outVLink.getRecord();
+        }
         //noinspection deprecation
         if (ine.isLightweight()) {
           // REPLACE ALL REFS IN outVertex
-
-          replaceLinks(outV.getRecord(), outFieldName, oldIdentity, newIdentity);
+          replaceLinks(outRecord, outFieldName, oldIdentity, newIdentity);
         } else {
           // REPLACE WITH NEW VERTEX
           ((OEdgeInternal) ine).setPropertyWithoutValidation(OEdge.DIRECTION_IN, newIdentity);
-
-          var outRecord = outV.<ODocument>getRecord();
           var directOutFieldName = getDirectEdgeLinkFieldName(outFieldName);
 
           if (outRecord.hasProperty(directOutFieldName)) {
