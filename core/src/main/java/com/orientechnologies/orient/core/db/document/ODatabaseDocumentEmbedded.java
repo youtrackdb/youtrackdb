@@ -1137,8 +1137,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
   }
 
   public void afterUpdateOperations(final OIdentifiable id) {
-    if (id instanceof ODocument) {
-      ODocument doc = (ODocument) id;
+    if (id instanceof ODocument doc) {
       OImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(this, doc);
       if (clazz != null) {
         OClassIndexManager.checkIndexesAfterUpdate((ODocument) id, this);
@@ -1147,11 +1146,6 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
         }
         if (clazz.isOuser() || clazz.isOrole() || clazz.isSecurityPolicy()) {
           sharedContext.getSecurity().incrementVersion(this);
-        }
-        if (clazz.isSequence()) {
-          ((OSequenceLibraryProxy) getMetadata().getSequenceLibrary())
-              .getDelegate()
-              .onSequenceUpdated(this, doc);
         }
         if (clazz.isTriggered()) {
           OClassTrigger.onRecordAfterUpdate(doc, this);

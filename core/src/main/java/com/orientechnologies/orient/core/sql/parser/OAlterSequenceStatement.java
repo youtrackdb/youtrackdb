@@ -97,7 +97,6 @@ public class OAlterSequenceStatement extends ODDLStatement {
       OLogManager.instance().error(this, message, exc, (Object) null);
       throw new OCommandExecutionException(message);
     }
-    sequence.save(database);
 
     OResultInternal item = new OResultInternal();
     item.setProperty("operation", "alter sequence");

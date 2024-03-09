@@ -16,11 +16,12 @@
 package com.orientechnologies.orient.core.metadata.sequence;
 
 import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.exception.OHighLevelException;
 
 /**
  * @author mdjurovi
  */
-public class OSequenceLimitReachedException extends OException {
+public class OSequenceLimitReachedException extends OException implements OHighLevelException {
 
   public OSequenceLimitReachedException(String message) {
     super(message);

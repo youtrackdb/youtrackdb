@@ -1180,7 +1180,7 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       "sequence.maxRetry",
       "Maximum number of retries between attempt to change a sequence in concurrent mode",
       Integer.class,
-      100),
+      1_000),
 
   SEQUENCE_RETRY_DELAY(
       "sequence.retryDelay",

@@ -20,28 +20,45 @@
 package com.orientechnologies.orient.core.metadata.sequence;
 
 import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.common.log.OLogManager;
+import com.orientechnologies.common.thread.NonDaemonThreadFactory;
+import com.orientechnologies.common.thread.OThreadPoolExecutorWithLogging;
 import com.orientechnologies.common.util.OApi;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.OSequenceException;
 import com.orientechnologies.orient.core.exception.OStorageException;
+import com.orientechnologies.orient.core.id.OEmptyRecordId;
+import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OClassImpl;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import java.util.Objects;
 import java.util.Random;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.BiFunction;
+import javax.annotation.Nonnull;
 
 /**
  * @author Matan Shukry (matanshukry@gmail.com)
  * @since 3/2/2015
  */
 public abstract class OSequence {
+  private static final ExecutorService sequenceExecutor =
+      new OThreadPoolExecutorWithLogging(
+          0,
+          Runtime.getRuntime().availableProcessors(),
+          1,
+          TimeUnit.MINUTES,
+          new LinkedBlockingQueue<>(1024),
+          new NonDaemonThreadFactory("SequenceExecutor"));
   public static final long DEFAULT_START = 0;
   public static final int DEFAULT_INCREMENT = 1;
   public static final int DEFAULT_CACHE = 20;
@@ -64,15 +81,11 @@ public abstract class OSequence {
   private static final String FIELD_NAME = "name";
   private static final String FIELD_TYPE = "type";
 
-  private ODocument document;
-  protected ThreadLocal<ODocument> tlDocument = new ThreadLocal<ODocument>();
+  protected ORID docRid = new OEmptyRecordId();
 
-  private boolean cruacialValueChanged = false;
+  private final ReentrantLock updateLock = new ReentrantLock();
 
   public static final SequenceOrderType DEFAULT_ORDER_TYPE = SequenceOrderType.ORDER_POSITIVE;
-
-  protected static int replicationProtocolVersion =
-      OGlobalConfiguration.DISTRIBUTED_REPLICATION_PROTOCOL_VERSION.getValue();
 
   public static class CreateParams {
     protected Long start = DEFAULT_START;
@@ -143,11 +156,9 @@ public abstract class OSequence {
       this.start = this.start != null ? this.start : DEFAULT_START;
       this.increment = this.increment != null ? this.increment : DEFAULT_INCREMENT;
       this.cacheSize = this.cacheSize != null ? this.cacheSize : DEFAULT_CACHE;
-      limitValue = limitValue == null ? DEFAULT_LIMIT_VALUE : limitValue;
       orderType = orderType == null ? DEFAULT_ORDER_TYPE : orderType;
       recyclable = recyclable == null ? DEFAULT_RECYCLABLE_VALUE : recyclable;
-      turnLimitOff = turnLimitOff == null ? false : turnLimitOff;
-      currentValue = currentValue == null ? null : currentValue;
+      turnLimitOff = turnLimitOff != null && turnLimitOff;
       return this;
     }
 
@@ -188,7 +199,7 @@ public abstract class OSequence {
     CACHED((byte) 0),
     ORDERED((byte) 1);
 
-    private byte val;
+    private final byte val;
 
     SEQUENCE_TYPE(byte val) {
       this.val = val;
@@ -199,261 +210,188 @@ public abstract class OSequence {
     }
 
     public static SEQUENCE_TYPE fromVal(byte val) {
-      switch (val) {
-        case 0:
-          return CACHED;
-        case 1:
-          return ORDERED;
-        default:
-          return null;
-      }
+      return switch (val) {
+        case 0 -> CACHED;
+        case 1 -> ORDERED;
+        default -> throw new OSequenceException("Unknown sequence type: " + val);
+      };
     }
   }
 
   private int maxRetry = DEF_MAX_RETRY;
 
-  protected OSequence() {
-    this(null, null);
+  protected OSequence(ODocument iDocument) {
+    Objects.requireNonNull(iDocument);
+    iDocument.reload();
+
+    docRid = iDocument.getIdentity();
   }
 
-  protected void setCrucialValueChanged(boolean val) {
-    synchronized (this) {
-      cruacialValueChanged = val;
+  protected OSequence(CreateParams params, @Nonnull String name) {
+    Objects.requireNonNull(name);
+    var document = new ODocument(CLASS_NAME);
+
+    if (params == null) {
+      params = new CreateParams().setDefaults();
     }
+
+    initSequence(document, params);
+    setName(document, name);
+    document.save();
+
+    docRid = document.getIdentity();
   }
 
-  protected boolean getCrucialValueChanged() {
-    synchronized (this) {
-      return cruacialValueChanged;
-    }
-  }
-
-  protected OSequence(final ODocument iDocument) {
-    this(iDocument, null);
-  }
-
-  protected OSequence(final ODocument iDocument, CreateParams params) {
-    document = iDocument != null ? iDocument : new ODocument(CLASS_NAME);
-    bindOnLocalThread();
-
-    if (iDocument == null) {
-      if (params == null) {
-        params = new CreateParams().setDefaults();
-      }
-
-      initSequence(params);
-      document = getDocument();
-    }
-    cruacialValueChanged = true;
-  }
-
-  public void save() {
-    ODocument doc = tlDocument.get();
-    doc = doc.save();
-    onUpdate(doc);
-  }
-
-  public void save(ODatabaseDocument database) {
-    ODocument doc = database.save(tlDocument.get());
-    onUpdate(doc);
-  }
-
-  synchronized void bindOnLocalThread() {
-    if (tlDocument.get() == null) {
-      tlDocument.set(document.copy());
-    }
-  }
-
-  public final ODocument getDocument() {
-    return tlDocument.get();
-  }
-
-  private <T> T sendSequenceActionOverCluster(int actionType, CreateParams params)
-      throws ExecutionException, InterruptedException {
-    OSequenceAction action = new OSequenceAction(actionType, getName(), params, getSequenceType());
-    return tlDocument.get().getDatabase().sendSequenceAction(action);
-  }
-
-  protected final synchronized void initSequence(OSequence.CreateParams params) {
-    setStart(params.start);
-    setIncrement(params.increment);
+  protected final void initSequence(ODocument document, OSequence.CreateParams params) {
+    setStart(document, params.start);
+    setIncrement(document, params.increment);
     if (params.currentValue == null) {
-      setValue(params.start);
+      setValue(document, params.start);
     } else {
-      setValue(params.currentValue);
+      setValue(document, params.currentValue);
     }
-    setLimitValue(params.limitValue);
-    setOrderType(params.orderType);
-    setRecyclable(params.recyclable);
+    setLimitValue(document, params.limitValue);
+    setOrderType(document, params.orderType);
+    setRecyclable(document, params.recyclable);
 
-    setSequenceType();
-  }
-
-  protected boolean shouldGoOverDistrtibute() {
-    return isOnDistributted() && (replicationProtocolVersion == 2);
+    setSequenceType(document);
   }
 
   public boolean updateParams(CreateParams params) throws ODatabaseException {
-    boolean shouldGoOverDistributted = shouldGoOverDistrtibute();
-    return updateParams(params, shouldGoOverDistributted);
+    var doc = getDatabase().<ODocument>load(docRid, null, true);
+    doc.reload();
+    var result = updateParams(doc, params, false);
+    doc.save();
+    return result;
   }
 
-  protected boolean isOnDistributted() {
-    return tlDocument.get().getDatabase().isDistributed();
-  }
-
-  synchronized boolean updateParams(CreateParams params, boolean executeViaDistributed)
+  boolean updateParams(ODocument document, CreateParams params, boolean executeViaDistributed)
       throws ODatabaseException {
-    if (executeViaDistributed) {
-      try {
-        return sendSequenceActionOverCluster(OSequenceAction.UPDATE, params);
-      } catch (InterruptedException | ExecutionException exc) {
-        OLogManager.instance().error(this, exc.getMessage(), exc, (Object[]) null);
-        throw new ODatabaseException(exc.getMessage());
-      }
-    }
     boolean any = false;
 
-    if (params.start != null && this.getStart() != params.start) {
-      this.setStart(params.start);
+    if (params.start != null && this.getStart(document) != params.start) {
+      this.setStart(document, params.start);
       any = true;
     }
 
-    if (params.increment != null && this.getIncrement() != params.increment) {
-      this.setIncrement(params.increment);
+    if (params.increment != null && this.getIncrement(document) != params.increment) {
+      this.setIncrement(document, params.increment);
       any = true;
     }
 
-    if (params.limitValue != null && !params.limitValue.equals(this.getLimitValue())) {
-      this.setLimitValue(params.limitValue);
+    if (params.limitValue != null && !params.limitValue.equals(this.getLimitValue(document))) {
+      this.setLimitValue(document, params.limitValue);
       any = true;
     }
 
-    if (params.orderType != null && this.getOrderType() != params.orderType) {
-      this.setOrderType(params.orderType);
+    if (params.orderType != null && this.getOrderType(document) != params.orderType) {
+      this.setOrderType(document, params.orderType);
       any = true;
     }
 
-    if (params.recyclable != null && this.getRecyclable() != params.recyclable) {
-      this.setRecyclable(params.recyclable);
+    if (params.recyclable != null && this.getRecyclable(document) != params.recyclable) {
+      this.setRecyclable(document, params.recyclable);
       any = true;
     }
 
-    if (params.turnLimitOff != null && params.turnLimitOff == true) {
-      this.setLimitValue(null);
+    if (params.turnLimitOff != null && params.turnLimitOff) {
+      this.setLimitValue(document, null);
     }
 
-    if (params.currentValue != null && getValue() != params.currentValue) {
-      this.setValue(params.currentValue);
+    if (params.currentValue != null && getValue(document) != params.currentValue) {
+      this.setValue(document, params.currentValue);
     }
-
-    save();
 
     return any;
   }
 
-  public void onUpdate(ODocument iDocument) {
-    document = iDocument;
-    this.tlDocument.set(iDocument);
-  }
-
-  protected static Long getValue(ODocument doc) {
-    if (!doc.containsField(FIELD_VALUE)) {
-      return null;
+  protected static long getValue(ODocument doc) {
+    if (!doc.hasProperty(FIELD_VALUE)) {
+      throw new OSequenceException("Value property not found in document");
     }
-    return doc.field(FIELD_VALUE, OType.LONG);
+    return doc.getProperty(FIELD_VALUE);
   }
 
-  protected synchronized long getValue() {
-    return getValue(tlDocument.get());
+  protected void setValue(ODocument document, long value) {
+    document.setProperty(FIELD_VALUE, value);
   }
 
-  protected synchronized void setValue(long value) {
-    tlDocument.get().field(FIELD_VALUE, value);
-    setCrucialValueChanged(true);
+  protected int getIncrement(ODocument document) {
+    return document.getProperty(FIELD_INCREMENT);
   }
 
-  protected synchronized int getIncrement() {
-    return tlDocument.get().field(FIELD_INCREMENT, OType.INTEGER);
+  protected void setLimitValue(ODocument document, Long limitValue) {
+    document.setProperty(FIELD_LIMIT_VALUE, limitValue);
   }
 
-  protected synchronized void setLimitValue(Long limitValue) {
-    tlDocument.get().field(FIELD_LIMIT_VALUE, limitValue);
-    setCrucialValueChanged(true);
+  protected Long getLimitValue(ODocument document) {
+    return document.getProperty(FIELD_LIMIT_VALUE);
   }
 
-  protected synchronized Long getLimitValue() {
-    return tlDocument.get().field(FIELD_LIMIT_VALUE, OType.LONG);
+  protected void setOrderType(ODocument document, SequenceOrderType orderType) {
+    document.setProperty(FIELD_ORDER_TYPE, orderType.getValue());
   }
 
-  protected synchronized void setOrderType(SequenceOrderType orderType) {
-    tlDocument.get().field(FIELD_ORDER_TYPE, orderType.getValue());
-    setCrucialValueChanged(true);
-  }
-
-  protected synchronized SequenceOrderType getOrderType() {
-    Byte val = tlDocument.get().field(FIELD_ORDER_TYPE);
+  protected SequenceOrderType getOrderType(ODocument document) {
+    Byte val = document.getProperty(FIELD_ORDER_TYPE);
     return val == null ? SequenceOrderType.ORDER_POSITIVE : SequenceOrderType.fromValue(val);
   }
 
-  protected synchronized void setIncrement(int value) {
-    tlDocument.get().field(FIELD_INCREMENT, value);
-    setCrucialValueChanged(true);
+  protected void setIncrement(ODocument document, int value) {
+    document.setProperty(FIELD_INCREMENT, value);
   }
 
-  protected synchronized long getStart() {
-    return tlDocument.get().field(FIELD_START, OType.LONG);
+  protected long getStart(ODocument document) {
+    return document.getProperty(FIELD_START);
   }
 
-  protected synchronized void setStart(long value) {
-    tlDocument.get().field(FIELD_START, value);
-    setCrucialValueChanged(true);
+  protected void setStart(ODocument document, long value) {
+    document.setProperty(FIELD_START, value);
   }
 
-  public synchronized int getMaxRetry() {
+  public int getMaxRetry() {
     return maxRetry;
   }
 
-  public synchronized void setMaxRetry(final int maxRetry) {
+  public void setMaxRetry(final int maxRetry) {
     this.maxRetry = maxRetry;
   }
 
-  public synchronized String getName() {
-    return getSequenceName(tlDocument.get());
+  public String getName() {
+    return getSequenceName(getDatabase().load(docRid, null, true));
   }
 
-  public synchronized OSequence setName(final String name) {
-    tlDocument.get().field(FIELD_NAME, name);
-    return this;
+  protected void setName(ODocument doc, final String name) {
+    doc.setProperty(FIELD_NAME, name);
   }
 
-  public synchronized boolean getRecyclable() {
-    return tlDocument.get().field(FIELD_RECYCLABLE, OType.BOOLEAN);
+  protected boolean getRecyclable(ODocument document) {
+    return document.getProperty(FIELD_RECYCLABLE);
   }
 
-  public synchronized void setRecyclable(final boolean recyclable) {
-    tlDocument.get().field(FIELD_RECYCLABLE, recyclable);
-    setCrucialValueChanged(true);
+  protected void setRecyclable(ODocument document, final boolean recyclable) {
+    document.setProperty(FIELD_RECYCLABLE, recyclable);
   }
 
-  private synchronized void setSequenceType() {
-    tlDocument.get().field(FIELD_TYPE, getSequenceType());
-    setCrucialValueChanged(true);
+  private void setSequenceType(ODocument document) {
+    document.setProperty(FIELD_TYPE, getSequenceType());
   }
 
-  protected final synchronized ODatabaseDocumentInternal getDatabase() {
+  protected final ODatabaseDocumentInternal getDatabase() {
     return ODatabaseRecordThreadLocal.instance().get();
   }
 
   public static String getSequenceName(final ODocument iDocument) {
-    return iDocument.field(FIELD_NAME, OType.STRING);
+    return iDocument.getProperty(FIELD_NAME);
   }
 
   public static SEQUENCE_TYPE getSequenceType(final ODocument document) {
     String sequenceTypeStr = document.field(FIELD_TYPE);
-    if (sequenceTypeStr != null) return SEQUENCE_TYPE.valueOf(sequenceTypeStr);
+    if (sequenceTypeStr != null) {
+      return SEQUENCE_TYPE.valueOf(sequenceTypeStr);
+    }
 
-    return null;
+    throw new OSequenceException("Sequence type not found in document");
   }
 
   public static void initClass(OClassImpl sequenceClass) {
@@ -464,7 +402,7 @@ public abstract class OSequence {
     sequenceClass.createProperty(OSequence.FIELD_NAME, OType.STRING, (OType) null, true);
     sequenceClass.createProperty(OSequence.FIELD_TYPE, OType.STRING, (OType) null, true);
 
-    sequenceClass.createProperty(OSequence.FIELD_LIMIT_VALUE, OType.INTEGER, (OType) null, true);
+    sequenceClass.createProperty(OSequence.FIELD_LIMIT_VALUE, OType.LONG, (OType) null, true);
     sequenceClass.createProperty(OSequence.FIELD_ORDER_TYPE, OType.BYTE, (OType) null, true);
     sequenceClass.createProperty(OSequence.FIELD_RECYCLABLE, OType.BOOLEAN, (OType) null, true);
   }
@@ -474,24 +412,7 @@ public abstract class OSequence {
    */
   @OApi
   public long next() throws OSequenceLimitReachedException, ODatabaseException {
-    boolean shouldGoOverDistributted = shouldGoOverDistrtibute();
-    return next(shouldGoOverDistributted);
-  }
-
-  long next(boolean executeViaDistributed)
-      throws OSequenceLimitReachedException, ODatabaseException {
-    long retVal;
-    if (executeViaDistributed) {
-      try {
-        retVal = sendSequenceActionOverCluster(OSequenceAction.NEXT, null);
-      } catch (InterruptedException | ExecutionException exc) {
-        OLogManager.instance().error(this, exc.getMessage(), exc, (Object[]) null);
-        throw new ODatabaseException(exc.getMessage());
-      }
-    } else {
-      retVal = nextWork();
-    }
-    return retVal;
+    return nextWork();
   }
 
   public abstract long nextWork() throws OSequenceLimitReachedException;
@@ -501,49 +422,13 @@ public abstract class OSequence {
    */
   @OApi
   public long current() throws ODatabaseException {
-    // boolean shouldGoOverDistributted = shouldGoOverDistrtibute();
-    // current should never go through distributed
-    return current(false);
-  }
-
-  long current(boolean executeViaDistributed) throws ODatabaseException {
-    long retVal;
-    if (executeViaDistributed) {
-      try {
-        retVal = sendSequenceActionOverCluster(OSequenceAction.CURRENT, null);
-      } catch (InterruptedException | ExecutionException exc) {
-        OLogManager.instance().error(this, exc.getMessage(), exc, (Object[]) null);
-        throw new ODatabaseException(exc.getMessage());
-      }
-    } else {
-      retVal = currentWork();
-    }
-    return retVal;
+    return currentWork();
   }
 
   protected abstract long currentWork();
 
   public long reset() throws ODatabaseException {
-    boolean shouldGoOverDistributted = shouldGoOverDistrtibute();
-    return reset(shouldGoOverDistributted);
-  }
-
-  /*
-   * Resets the sequence value to it's initialized value.
-   */
-  long reset(boolean executeViaDistributed) throws ODatabaseException {
-    long retVal;
-    if (executeViaDistributed) {
-      try {
-        retVal = sendSequenceActionOverCluster(OSequenceAction.RESET, null);
-      } catch (InterruptedException | ExecutionException exc) {
-        OLogManager.instance().error(this, exc.getMessage(), exc, (Object[]) null);
-        throw new ODatabaseException(exc.getMessage());
-      }
-    } else {
-      retVal = resetWork();
-    }
-    return retVal;
+    return resetWork();
   }
 
   public abstract long resetWork();
@@ -553,64 +438,101 @@ public abstract class OSequence {
    */
   public abstract SEQUENCE_TYPE getSequenceType();
 
-  protected void reloadSequence() {
-    tlDocument.set(tlDocument.get().reload(null, true));
-  }
-
   protected <T> T callRetry(
-      boolean reloadSequence, final Callable<T> callable, final String method) {
-    for (int retry = 0; retry < maxRetry; ++retry) {
-      try {
-        if (reloadSequence) {
-          reloadSequence();
-        }
-        return callable.call();
-      } catch (OConcurrentModificationException ignore) {
-        try {
-          Thread.sleep(
-              1
-                  + new Random()
-                      .nextInt(
-                          getDatabase()
-                              .getConfiguration()
-                              .getValueAsInteger(OGlobalConfiguration.SEQUENCE_RETRY_DELAY)));
-        } catch (InterruptedException ignored) {
-          Thread.currentThread().interrupt();
-          break;
-        }
+      final BiFunction<ODatabaseSession, ODocument, T> callable, final String method) {
+    var oldDb = getDatabase();
+    var db = oldDb.copy();
+    oldDb.activateOnCurrentThread();
+    var future =
+        sequenceExecutor.submit(
+            () -> {
+              db.activateOnCurrentThread();
+              try (db) {
+                for (int retry = 0; retry < maxRetry; ++retry) {
+                  updateLock.lock();
+                  try {
+                    db.begin();
+                    var doc = db.<ODocument>load(docRid, null, true);
+                    var result = callable.apply(db, doc);
+                    doc.save();
+                    db.commit();
+                    return result;
+                  } catch (OConcurrentModificationException ignore) {
+                    try {
+                      //noinspection BusyWait
+                      Thread.sleep(
+                          1
+                              + new Random()
+                                  .nextInt(
+                                      getDatabase()
+                                          .getConfiguration()
+                                          .getValueAsInteger(
+                                              OGlobalConfiguration.SEQUENCE_RETRY_DELAY)));
+                    } catch (InterruptedException ignored) {
+                      Thread.currentThread().interrupt();
+                      break;
+                    }
 
-      } catch (OStorageException e) {
-        if (e.getCause() instanceof OConcurrentModificationException) {
-          reloadSequence();
-        } else {
-          throw OException.wrapException(
-              new OSequenceException(
-                  "Error in transactional processing of " + getName() + "." + method + "()"),
-              e);
-        }
-      } catch (OSequenceLimitReachedException exc) {
-        throw exc;
-      } catch (OException ignore) {
-        reloadSequence();
-      } catch (Exception e) {
-        throw OException.wrapException(
-            new OSequenceException(
-                "Error in transactional processing of " + getName() + "." + method + "()"),
-            e);
-      }
-    }
-
+                  } catch (OStorageException e) {
+                    if (!(e.getCause() instanceof OConcurrentModificationException)) {
+                      throw OException.wrapException(
+                          new OSequenceException(
+                              "Error in transactional processing of "
+                                  + getName()
+                                  + "."
+                                  + method
+                                  + "()"),
+                          e);
+                    }
+                  } catch (Exception e) {
+                    throw OException.wrapException(
+                        new OSequenceException(
+                            "Error in transactional processing of "
+                                + getName()
+                                + "."
+                                + method
+                                + "()"),
+                        e);
+                  } finally {
+                    updateLock.unlock();
+                  }
+                }
+                updateLock.lock();
+                try {
+                  db.begin();
+                  var doc = db.<ODocument>load(docRid, null, true);
+                  var result = callable.apply(db, doc);
+                  doc.save();
+                  db.commit();
+                  return result;
+                } catch (Exception e) {
+                  throw OException.wrapException(
+                      new OSequenceException(
+                          "Error in transactional processing of "
+                              + getName()
+                              + "."
+                              + method
+                              + "()"),
+                      e);
+                } finally {
+                  updateLock.unlock();
+                }
+              }
+            });
     try {
-      return callable.call();
-    } catch (Exception e) {
-      if (e.getCause() instanceof OConcurrentModificationException) {
-        //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
-        throw ((OConcurrentModificationException) e.getCause());
+      return future.get();
+    } catch (InterruptedException e) {
+      throw OException.wrapException(
+          new ODatabaseException("Sequence operation was interrupted"), e);
+    } catch (ExecutionException e) {
+      var cause = e.getCause();
+      if (cause == null) {
+        cause = e;
       }
       throw OException.wrapException(
           new OSequenceException(
               "Error in transactional processing of " + getName() + "." + method + "()"),
-          e);
+          cause);
     }
   }
 }
