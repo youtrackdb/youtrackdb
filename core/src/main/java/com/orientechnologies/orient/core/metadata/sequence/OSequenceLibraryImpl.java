@@ -20,12 +20,12 @@
 
 package com.orientechnologies.orient.core.metadata.sequence;
 
+import com.orientechnologies.common.concur.ONeedRetryException;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.OMetadataUpdateListener;
 import com.orientechnologies.orient.core.exception.OSequenceException;
 import com.orientechnologies.orient.core.metadata.schema.OClassImpl;
 import com.orientechnologies.orient.core.metadata.sequence.OSequence.SEQUENCE_TYPE;
-import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -83,19 +83,10 @@ public class OSequenceLibraryImpl {
     OSequence seq;
     synchronized (this) {
       seq = sequences.get(name);
-      if (seq != null && seq.getDocument() != null) {
-        ORecord tmp = database.getRecord(seq.getDocument());
-        int a = 0;
-        ++a;
-      }
       if (seq == null) {
         load(database);
         seq = sequences.get(name);
       }
-    }
-
-    if (seq != null) {
-      seq.bindOnLocalThread();
     }
 
     return seq;
@@ -112,9 +103,8 @@ public class OSequenceLibraryImpl {
     final String key = iName.toUpperCase(Locale.ENGLISH);
     validateSequenceNoExists(key);
 
-    final OSequence sequence =
-        OSequenceHelper.createSequence(sequenceType, params, null).setName(iName);
-    sequence.save(database);
+    final OSequence sequence = OSequenceHelper.createSequence(sequenceType, params, iName);
+
     sequences.put(key, sequence);
     if (database.getTransaction().isActive()) {
       this.reloadNeeded.set(true);
@@ -126,45 +116,34 @@ public class OSequenceLibraryImpl {
   public synchronized void dropSequence(
       final ODatabaseDocumentInternal database, final String iName) {
     final OSequence seq = getSequence(database, iName);
-
     if (seq != null) {
-      database.delete(seq.getDocument().getIdentity());
-      sequences.remove(iName.toUpperCase(Locale.ENGLISH));
+      try {
+        database.delete(seq.docRid);
+        sequences.remove(iName.toUpperCase(Locale.ENGLISH));
+      } catch (ONeedRetryException e) {
+        var rec = database.load(seq.docRid, null, true);
+        rec.delete();
+      }
     }
   }
 
-  public OSequence onSequenceCreated(
+  public void onSequenceCreated(
       final ODatabaseDocumentInternal database, final ODocument iDocument) {
     init(database);
 
     String name = OSequence.getSequenceName(iDocument);
-    if (name == null) return null;
+    if (name == null) return;
 
     name = name.toUpperCase(Locale.ENGLISH);
 
     final OSequence seq = getSequence(database, name);
 
-    if (seq != null) return seq;
+    if (seq != null) return;
 
     final OSequence sequence = OSequenceHelper.createSequence(iDocument);
 
     sequences.put(name, sequence);
     onSequenceLibraryUpdate(database);
-    return sequence;
-  }
-
-  public OSequence onSequenceUpdated(
-      final ODatabaseDocumentInternal database, final ODocument iDocument) {
-    String name = OSequence.getSequenceName(iDocument);
-    if (name == null) return null;
-
-    name = name.toUpperCase(Locale.ENGLISH);
-
-    final OSequence sequence = sequences.get(name);
-    if (sequence == null) return null;
-
-    sequence.onUpdate(iDocument);
-    return sequence;
   }
 
   public void onSequenceDropped(

@@ -704,10 +704,9 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
   }
 
   protected void resolveTracking(final ORecordOperation change) {
-    if (!(change.getRecord() instanceof ODocument)) {
+    if (!(change.getRecord() instanceof ODocument rec)) {
       return;
     }
-    final ODocument rec = (ODocument) change.getRecord();
     switch (change.getType()) {
       case ORecordOperation.CREATED:
         {
@@ -742,11 +741,6 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
               OClassIndexManager.processIndexOnUpdate(database, updateDoc);
               if (clazz.isFunction()) {
                 database.getSharedContext().getFunctionLibrary().updatedFunction(updateDoc);
-              }
-              if (clazz.isSequence()) {
-                ((OSequenceLibraryProxy) database.getMetadata().getSequenceLibrary())
-                    .getDelegate()
-                    .onSequenceUpdated(database, updateDoc);
               }
             }
           }
