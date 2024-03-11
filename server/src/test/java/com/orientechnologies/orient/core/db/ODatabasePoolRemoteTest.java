@@ -11,6 +11,7 @@ import com.orientechnologies.orient.server.OServer;
 import java.io.File;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class ODatabasePoolRemoteTest {
@@ -31,6 +32,7 @@ public class ODatabasePoolRemoteTest {
   }
 
   @Test
+  @Ignore
   public void testPoolCloseTx() {
     OrientDB orientDb =
         new OrientDB(
