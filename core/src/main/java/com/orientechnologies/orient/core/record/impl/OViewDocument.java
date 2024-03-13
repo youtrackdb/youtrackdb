@@ -18,6 +18,11 @@ public class OViewDocument extends ODocument {
     view = database.getViewFromCluster(cluster);
   }
 
+  public OViewDocument(ODatabaseDocumentInternal database, ORID rid) {
+    super(database, rid);
+    view = database.getViewFromCluster(rid.getClusterId());
+  }
+
   @Override
   public OView getSchemaClass() {
     return view;

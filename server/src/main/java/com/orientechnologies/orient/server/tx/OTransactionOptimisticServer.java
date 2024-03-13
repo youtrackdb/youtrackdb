@@ -81,10 +81,9 @@ public class OTransactionOptimisticServer extends OTransactionOptimistic {
             ORecord record =
                 Orient.instance()
                     .getRecordFactoryManager()
-                    .newInstance(operation.getRecordType(), rid.getClusterId(), getDatabase());
+                    .newInstance(operation.getRecordType(), rid, getDatabase());
             ORecordSerializerNetworkV37.INSTANCE.fromStream(operation.getRecord(), record);
             entry = new ORecordOperation(record, ORecordOperation.CREATED);
-            ORecordInternal.setIdentity(record, rid);
             ORecordInternal.setVersion(record, 0);
             record.setDirty();
 
@@ -115,10 +114,9 @@ public class OTransactionOptimisticServer extends OTransactionOptimistic {
               ORecord updated =
                   Orient.instance()
                       .getRecordFactoryManager()
-                      .newInstance(operation.getRecordType(), rid.getClusterId(), getDatabase());
+                      .newInstance(operation.getRecordType(), rid, getDatabase());
               ORecordSerializerNetworkV37.INSTANCE.fromStream(operation.getRecord(), updated);
               entry = new ORecordOperation(updated, ORecordOperation.UPDATED);
-              ORecordInternal.setIdentity(updated, rid);
               ORecordInternal.setVersion(updated, version);
               updated.setDirty();
               ORecordInternal.setContentChanged(entry.getRecord(), operation.isContentChanged());

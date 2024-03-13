@@ -30,6 +30,8 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.hook.ORecordHook;
+import com.orientechnologies.orient.core.hook.ORecordHook.TYPE;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -249,7 +251,11 @@ public class OTransactionNoTx extends OTransactionAbstract {
 
   /** Deletes the record. */
   public void deleteRecord(final ORecord iRecord, final OPERATION_MODE iMode) {
-    if (!iRecord.getIdentity().isPersistent()) return;
+    if (!iRecord.getIdentity().isPersistent()) {
+      database.callbackHooks(TYPE.BEFORE_DELETE, iRecord);
+      database.callbackHooks(TYPE.AFTER_DELETE, iRecord);
+      return;
+    }
 
     try {
       database.executeDeleteRecord(iRecord, iRecord.getVersion(), true, iMode, false);

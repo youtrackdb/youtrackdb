@@ -120,7 +120,7 @@ public class OCompositeKey
       var canChangeIdentity = changeableIdentity.canChangeIdentity();
 
       if (canChangeIdentity) {
-        changeableIdentity.addIdentityChangeListeners(this);
+        changeableIdentity.addIdentityChangeListener(this);
         this.canChangeIdentity = true;
       }
     }
@@ -258,7 +258,11 @@ public class OCompositeKey
     }
   }
 
-  public void addIdentityChangeListeners(IdentityChangeListener identityChangeListeners) {
+  public void addIdentityChangeListener(IdentityChangeListener identityChangeListeners) {
+    if (!canChangeIdentity()) {
+      return;
+    }
+
     if (this.identityChangeListeners == null) {
       this.identityChangeListeners = Collections.newSetFromMap(new WeakHashMap<>());
     }

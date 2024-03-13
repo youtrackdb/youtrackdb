@@ -50,7 +50,11 @@ public class OEmptyRecordId extends ORecordId implements ChangeableIdentity {
     fireAfterIdentityChange();
   }
 
-  public void addIdentityChangeListeners(IdentityChangeListener identityChangeListeners) {
+  public void addIdentityChangeListener(IdentityChangeListener identityChangeListeners) {
+    if (!canChangeIdentity()) {
+      return;
+    }
+
     if (this.identityChangeListeners == null) {
       this.identityChangeListeners = Collections.newSetFromMap(new WeakHashMap<>());
     }
@@ -148,10 +152,18 @@ public class OEmptyRecordId extends ORecordId implements ChangeableIdentity {
   }
 
   public ORecordId copy() {
-    var recordId = new OEmptyRecordId();
+    if (clusterId == CLUSTER_ID_INVALID && clusterPosition == CLUSTER_POS_INVALID) {
+      var recordId = new OEmptyRecordId();
+      recordId.clusterId = clusterId;
+      recordId.clusterPosition = clusterPosition;
+      recordId.tempId = tempId;
+
+      return recordId;
+    }
+
+    var recordId = new ORecordId();
     recordId.clusterId = clusterId;
     recordId.clusterPosition = clusterPosition;
-    recordId.tempId = tempId;
 
     return recordId;
   }

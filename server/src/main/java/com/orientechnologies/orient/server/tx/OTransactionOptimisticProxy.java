@@ -87,9 +87,8 @@ public class OTransactionOptimisticProxy extends OTransactionOptimistic {
             ORecord record =
                 Orient.instance()
                     .getRecordFactoryManager()
-                    .newInstance(operation.getRecordType(), rid.getClusterId(), getDatabase());
+                    .newInstance(operation.getRecordType(), rid, getDatabase());
             serializer.fromStream(operation.getRecord(), record, null);
-            ORecordInternal.setIdentity(record, rid);
             ORecordInternal.setVersion(record, 0);
             entry = new ORecordOperation(record, ORecordOperation.CREATED);
             record.setDirty();
@@ -103,8 +102,7 @@ public class OTransactionOptimisticProxy extends OTransactionOptimistic {
             ORecord updated =
                 Orient.instance()
                     .getRecordFactoryManager()
-                    .newInstance(operation.getRecordType(), rid.getClusterId(), getDatabase());
-            ORecordInternal.setIdentity(updated, rid);
+                    .newInstance(operation.getRecordType(), rid, getDatabase());
             ORecordInternal.setVersion(updated, version);
             entry = new ORecordOperation(updated, ORecordOperation.UPDATED);
             updated.setDirty();

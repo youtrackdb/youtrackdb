@@ -86,7 +86,7 @@ public class OUpdateRecordRequest implements OBinaryAsyncRequest<OUpdateRecordRe
             .getRecordFactoryManager()
             .newInstance(
                 recordType,
-                rid.getClusterId(),
+                rid,
                 ODatabaseRecordThreadLocal.instance().getIfDefined());
     serializer.fromStream(bts, content, null);
   }

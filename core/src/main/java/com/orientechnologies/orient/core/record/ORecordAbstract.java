@@ -473,7 +473,9 @@ public abstract class ORecordAbstract implements ORecord {
   }
 
   protected void setup(ODatabaseDocumentInternal db) {
-    if (recordId == null) recordId = new OEmptyRecordId();
+    if (recordId == null) {
+      recordId = new OEmptyRecordId();
+    }
   }
 
   protected void checkForLoading() {
