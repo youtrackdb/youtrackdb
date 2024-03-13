@@ -21,6 +21,7 @@ package com.orientechnologies.orient.core.record;
 
 import com.orientechnologies.common.exception.OSystemException;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.OBlob;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.OEdgeDocument;
@@ -47,7 +48,7 @@ public class ORecordFactoryManager {
   protected final ORecordFactory[] recordFactories = new ORecordFactory[Byte.MAX_VALUE];
 
   public interface ORecordFactory {
-    ORecord newRecord(int cluster, ODatabaseDocumentInternal database);
+    ORecord newRecord(ORID rid, ODatabaseDocumentInternal database);
   }
 
   public ORecordFactoryManager() {
@@ -55,25 +56,26 @@ public class ORecordFactoryManager {
         ODocument.RECORD_TYPE,
         "document",
         ODocument.class,
-        (cluster, database) -> {
+        (rid, database) -> {
+          var cluster = rid.getClusterId();
           if (database != null && cluster >= 0) {
             if (database.isClusterVertex(cluster)) {
-              return new OVertexDocument(database);
+              return new OVertexDocument(database, rid);
             } else if (database.isClusterEdge(cluster)) {
-              return new OEdgeDocument(database);
+              return new OEdgeDocument(database, rid);
             } else if (database.isClusterView(cluster)) {
-              return new OViewDocument(database, cluster);
+              return new OViewDocument(database, rid);
             }
           }
-          return new ODocument();
+          return new ODocument(database, rid);
         });
     declareRecordType(
-        OBlob.RECORD_TYPE, "bytes", OBlob.class, (cluster, database) -> new ORecordBytes());
+        OBlob.RECORD_TYPE, "bytes", OBlob.class, (rid, database) -> new ORecordBytes(rid));
     declareRecordType(
         ORecordFlat.RECORD_TYPE,
         "flat",
         ORecordFlat.class,
-        (cluster, database) -> new ORecordFlat());
+        (rid, database) -> new ORecordFlat(rid));
   }
 
   public String getRecordTypeName(final byte iRecordType) {
@@ -82,24 +84,18 @@ public class ORecordFactoryManager {
     return name;
   }
 
-  public Class<? extends ORecord> getRecordTypeClass(final byte iRecordType) {
-    Class<? extends ORecord> cls = recordTypes[iRecordType];
-    if (cls == null) throw new IllegalArgumentException("Unsupported record type: " + iRecordType);
-    return cls;
-  }
-
-  public ORecord newInstance(int cluster, ODatabaseDocumentInternal database) {
+  public ORecord newInstance(ORID rid, ODatabaseDocumentInternal database) {
     try {
-      return (ORecord) getFactory(database.getRecordType()).newRecord(cluster, database);
+      return getFactory(database.getRecordType()).newRecord(rid, database);
     } catch (Exception e) {
       throw new IllegalArgumentException("Unsupported record type: " + database.getRecordType(), e);
     }
   }
 
   public ORecord newInstance(
-      final byte iRecordType, int cluster, ODatabaseDocumentInternal database) {
+      final byte iRecordType, ORID rid, ODatabaseDocumentInternal database) {
     try {
-      return (ORecord) getFactory(iRecordType).newRecord(cluster, database);
+      return getFactory(iRecordType).newRecord(rid, database);
     } catch (Exception e) {
       throw new IllegalArgumentException("Unsupported record type: " + iRecordType, e);
     }

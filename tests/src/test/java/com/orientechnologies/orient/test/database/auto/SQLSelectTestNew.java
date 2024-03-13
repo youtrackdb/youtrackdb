@@ -91,7 +91,9 @@ public class SQLSelectTestNew extends AbstractSelectTest {
 
   @Test
   public void queryNoDirtyResultset() {
+    database.getLocalCache().clear();
     List<ODocument> result = executeQuery(" select from Profile ", database);
+
 
     Assert.assertTrue(result.size() != 0);
 
@@ -103,7 +105,6 @@ public class SQLSelectTestNew extends AbstractSelectTest {
   @Test
   public void queryNoWhere() {
     List<ODocument> result = executeQuery(" select from Profile ", database);
-
     Assert.assertTrue(result.size() != 0);
 
     for (ODocument d : result) {

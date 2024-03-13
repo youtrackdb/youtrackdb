@@ -91,7 +91,7 @@ public class OCreateRecordRequest implements OBinaryAsyncRequest<OCreateRecordRe
             .getRecordFactoryManager()
             .newInstance(
                 recordType,
-                rid.getClusterId(),
+                rid,
                 ODatabaseRecordThreadLocal.instance().getIfDefined());
     serializer.fromStream(rec, content, null);
   }

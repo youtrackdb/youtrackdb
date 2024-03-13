@@ -99,6 +99,7 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
                   ORecordId recordId = new OEmptyRecordId();
 
                   recordId.fromString(rid);
+                  recordId = recordId.copy();
                   return recordId;
                 })
             .map(id -> id.<ORecord>getRecord())

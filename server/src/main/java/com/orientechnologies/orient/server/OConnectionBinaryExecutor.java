@@ -668,7 +668,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
               Orient.instance()
                   .getRecordFactoryManager()
                   .newInstance(
-                      operation.getRecordType(), operation.getId().getClusterId(), database);
+                      operation.getRecordType(), operation.getId(), database);
           connection.getData().getSerializer().fromStream(operation.getRecord(), record, null);
           current = (ORecordId) record.getIdentity();
           OCreateRecordResponse createRecordResponse =
@@ -690,7 +690,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
               Orient.instance()
                   .getRecordFactoryManager()
                   .newInstance(
-                      operation.getRecordType(), operation.getId().getClusterId(), database);
+                      operation.getRecordType(), operation.getId(), database);
           connection.getData().getSerializer().fromStream(operation.getRecord(), record, null);
           current = (ORecordId) record.getIdentity();
           OUpdateRecordResponse updateRecordResponse =

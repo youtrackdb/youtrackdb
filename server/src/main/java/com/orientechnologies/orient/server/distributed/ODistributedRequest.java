@@ -100,6 +100,7 @@ public class ODistributedRequest {
     if (in.readBoolean()) {
       userRID = new OEmptyRecordId();
       userRID.fromStream(in);
+      userRID = userRID.copy();
     }
   }
 

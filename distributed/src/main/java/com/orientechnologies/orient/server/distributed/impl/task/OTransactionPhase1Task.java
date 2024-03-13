@@ -330,7 +330,7 @@ public class OTransactionPhase1Task extends OAbstractRemoteTask implements OLock
               record =
                   Orient.instance()
                       .getRecordFactoryManager()
-                      .newInstance(req.getRecordType(), req.getId().getClusterId(), database);
+                      .newInstance(req.getRecordType(), req.getId(), database);
             }
             break;
           }
