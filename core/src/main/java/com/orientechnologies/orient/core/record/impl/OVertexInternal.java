@@ -615,7 +615,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
 
         final String inFieldName = getEdgeLinkFieldName(ODirection.IN, schemaType, true);
 
-        //link to itself
+        // link to itself
         ODocument inRecord;
         if (inVLink.equals(oldIdentity)) {
           inRecord = doc;
