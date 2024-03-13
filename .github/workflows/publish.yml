@@ -12,6 +12,7 @@ permissions:
 jobs:
   on-success:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event_name != 'pull_request' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -20,7 +21,10 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-      
+          server-id: space-orientdb-daily
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
+          
       - name: Publish to Space Repository
         run: mvn --batch-mode -P all -DskipTests deploy
         env:
