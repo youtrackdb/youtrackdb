@@ -4,24 +4,23 @@ on:
     workflows: [Dev tests]
     types:
       - completed
-  permissions:
-    contents: read
-  jobs:	
-    on-success:
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v4
-        - name: Publish to Space Repository
-          uses: actions/setup-java@v4
-          with:
-            java-version: '17'
-            distribution: 'temurin'
-            server-id: space-orientdb-daily
-            server-username: MAVEN_USERNAME
-            server-password: MAVEN_PASSWORD
-        - name: Publish package
-          run: mvn --batch-mode -P all -DskipTests deploy
-          env:
-            MAVEN_USERNAME: ${{ secrets.SPACE_USER_NAME }}
-            MAVEN_PASSWORD: ${{ secrets.SPACE_REPO_PASSWORD }} 
-            
+permissions:
+  contents: read
+jobs:	
+  on-success:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Publish to Space Repository
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          server-id: space-orientdb-daily
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
+      - name: Publish package
+        run: mvn --batch-mode -P all -DskipTests deploy
+        env:
+          MAVEN_USERNAME: ${{ secrets.SPACE_USER_NAME }}
+          MAVEN_PASSWORD: ${{ secrets.SPACE_REPO_PASSWORD }}
