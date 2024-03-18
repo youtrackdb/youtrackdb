@@ -89,10 +89,7 @@ public class OCreateRecordRequest implements OBinaryAsyncRequest<OCreateRecordRe
     content =
         Orient.instance()
             .getRecordFactoryManager()
-            .newInstance(
-                recordType,
-                rid,
-                ODatabaseRecordThreadLocal.instance().getIfDefined());
+            .newInstance(recordType, rid, ODatabaseRecordThreadLocal.instance().getIfDefined());
     serializer.fromStream(rec, content, null);
   }
 

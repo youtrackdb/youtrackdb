@@ -51,7 +51,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Consumer;
 
 public interface ODatabaseDocumentInternal extends ODatabaseSession, ODatabaseInternal<ORecord> {
 
@@ -328,7 +327,8 @@ public interface ODatabaseDocumentInternal extends ODatabaseSession, ODatabaseIn
 
   public long truncateClusterInternal(String name);
 
-  void registerRecordDeletionListener(ORecord record, RecordListenersManager.RecordListener listener);
+  void registerRecordDeletionListener(
+      ORecord record, RecordListenersManager.RecordListener listener);
 
   void removeRecordDeletionListener(ORecord record, RecordListenersManager.RecordListener listener);
 }

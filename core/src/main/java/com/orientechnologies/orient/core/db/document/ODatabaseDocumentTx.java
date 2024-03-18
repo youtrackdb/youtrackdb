@@ -370,7 +370,6 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
     recordDeleteListenersManager.removeRecordListener(record, listener);
   }
 
-
   @Override
   public <DB extends ODatabase<?>> DB registerHook(
       ORecordHook iHookImpl, ORecordHook.HOOK_POSITION iPosition) {

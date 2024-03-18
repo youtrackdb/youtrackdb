@@ -115,8 +115,7 @@ public class OTransactionData {
                           record =
                               Orient.instance()
                                   .getRecordFactoryManager()
-                                  .newInstance(
-                                      x.getRecordType(), x.getId(), database);
+                                  .newInstance(x.getRecordType(), x.getId(), database);
                         }
                         break;
                       }

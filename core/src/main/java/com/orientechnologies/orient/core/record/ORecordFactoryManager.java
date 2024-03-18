@@ -92,8 +92,7 @@ public class ORecordFactoryManager {
     }
   }
 
-  public ORecord newInstance(
-      final byte iRecordType, ORID rid, ODatabaseDocumentInternal database) {
+  public ORecord newInstance(final byte iRecordType, ORID rid, ODatabaseDocumentInternal database) {
     try {
       return getFactory(iRecordType).newRecord(rid, database);
     } catch (Exception e) {

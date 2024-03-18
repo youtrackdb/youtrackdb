@@ -41,8 +41,8 @@ public final class RecordListenersManager implements IdentityChangeListener {
     var listeners = recordListeners.computeIfAbsent(rid, k -> new HashSet<>());
     listeners.add(new ListenerWeakRef(rid, listener, refQueue));
 
-    if (rid instanceof ChangeableIdentity changeableIdentity &&
-        changeableIdentity.canChangeIdentity()) {
+    if (rid instanceof ChangeableIdentity changeableIdentity
+        && changeableIdentity.canChangeIdentity()) {
       changeableIdentity.addIdentityChangeListener(this);
     }
   }
@@ -150,7 +150,7 @@ public final class RecordListenersManager implements IdentityChangeListener {
     }
   }
 
-  public static abstract class RecordListener {
+  public abstract static class RecordListener {
     private static final AtomicLong nextId = new AtomicLong(0);
     private long id = nextId.getAndIncrement();
 

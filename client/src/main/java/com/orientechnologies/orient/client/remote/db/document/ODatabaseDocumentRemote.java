@@ -59,7 +59,6 @@ import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.fetch.OFetchHelper;
 import com.orientechnologies.orient.core.hook.ORecordHook;
-import com.orientechnologies.orient.core.id.OEmptyRecordId;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.index.OClassIndexManager;
@@ -941,9 +940,7 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
     ORecord toFillRecord = getLocalCache().findRecord(recordId);
     if (toFillRecord == null) {
       toFillRecord =
-          Orient.instance()
-              .getRecordFactoryManager()
-              .newInstance(recordType, recordId, this);
+          Orient.instance().getRecordFactoryManager().newInstance(recordType, recordId, this);
     }
     ORecordInternal.fill(toFillRecord, recordId, version, buffer, false);
     getLocalCache().updateRecord(toFillRecord);

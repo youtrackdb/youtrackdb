@@ -83,9 +83,9 @@ public class DeletedElementsUnloadingTest extends BaseMemoryDatabase {
   public void deleteEdgesTest() {
     var vertexOne = db.newVertex();
 
-    var vertexTwo  = db.newVertex();
-    var vertexThree  = db.newVertex();
-    var vertexFour  = db.newVertex();
+    var vertexTwo = db.newVertex();
+    var vertexThree = db.newVertex();
+    var vertexFour = db.newVertex();
 
     db.createEdgeClass("linked");
 
@@ -95,7 +95,7 @@ public class DeletedElementsUnloadingTest extends BaseMemoryDatabase {
 
     vertexOne.save();
 
-    vertexOne.getEdges( ODirection.OUT, "linked").forEach(edge -> edge.getTo().delete());
+    vertexOne.getEdges(ODirection.OUT, "linked").forEach(edge -> edge.getTo().delete());
     var edges = vertexOne.getEdges(ODirection.OUT, "linked");
     Assert.assertFalse(edges.iterator().hasNext());
   }

@@ -94,7 +94,6 @@ public class SQLSelectTestNew extends AbstractSelectTest {
     database.getLocalCache().clear();
     List<ODocument> result = executeQuery(" select from Profile ", database);
 
-
     Assert.assertTrue(result.size() != 0);
 
     for (ODocument d : result) {

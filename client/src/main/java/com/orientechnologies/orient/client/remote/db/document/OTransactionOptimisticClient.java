@@ -61,8 +61,7 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
         record =
             Orient.instance()
                 .getRecordFactoryManager()
-                .newInstance(
-                    operation.getRecordType(), operation.getOldId(), database);
+                .newInstance(operation.getRecordType(), operation.getOldId(), database);
       }
       if (operation.getType() == ORecordOperation.UPDATED
           && operation.getRecordType() == ODocument.RECORD_TYPE) {
