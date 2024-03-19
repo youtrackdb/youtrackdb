@@ -38,6 +38,7 @@ import com.orientechnologies.orient.core.metadata.OMetadataDefault;
 import com.orientechnologies.orient.core.metadata.schema.clusterselection.OClusterSelectionFactory;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
+import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -366,6 +367,8 @@ public abstract class OSchemaShared implements OCloseable {
       ODocument document = database.reload(identity.getRecord(), null, true);
       fromStream(document);
       forceSnapshot(database);
+      ORecordInternal.unsetDirty(document);
+      document.unload();
     } finally {
       lock.writeLock().unlock();
     }
@@ -825,7 +828,8 @@ public abstract class OSchemaShared implements OCloseable {
       ODocument document = identity.getRecord();
       document = database.reload(document, "*:-1 index:0", true);
       fromStream(document);
-
+      ORecordInternal.unsetDirty(document);
+      document.unload();
       return this;
     } finally {
       lock.writeLock().unlock();

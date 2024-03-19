@@ -51,6 +51,7 @@ import com.orientechnologies.orient.core.storage.ORecordCallback;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.OStorage.LOCKING_STRATEGY;
 import com.orientechnologies.orient.core.storage.OStorageProxy;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -385,19 +386,51 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
 
   public void deleteRecord(final ORecord iRecord, final OPERATION_MODE iMode) {
     if (!iRecord.getIdentity().isValid()) return;
+
     Set<ORecord> records = ORecordInternal.getDirtyManager(iRecord).getUpdateRecords();
+    final Set<ORecord> newRecords = ORecordInternal.getDirtyManager(iRecord).getNewRecords();
+    var recordsMap = new HashMap<>(16);
+
     if (records != null) {
-      for (final ORecord rec : records) {
+      for (ORecord rec : records) {
+        rec = rec.getRecord();
+        var prev = recordsMap.put(rec.getIdentity(), rec);
+
+        if (prev != null && prev != rec) {
+          var db = getDatabase();
+          throw new IllegalStateException(
+              "Database :"
+                  + db.getName()
+                  + " .For record "
+                  + rec
+                  + " second instance of record  "
+                  + prev
+                  + " was registered in dirty manager, such case may lead to data corruption");
+        }
+
         saveRecord(rec, null, ODatabaseSession.OPERATION_MODE.SYNCHRONOUS, false, null, null);
       }
     }
 
-    final Set<ORecord> newRecords = ORecordInternal.getDirtyManager(iRecord).getNewRecords();
     if (newRecords != null) {
-      for (final ORecord rec : newRecords) {
+      for (ORecord rec : newRecords) {
+        rec = rec.getRecord();
+        var prev = recordsMap.put(rec.getIdentity(), rec);
+        if (prev != null && prev != rec) {
+          var db = getDatabase();
+          throw new IllegalStateException(
+              "Database :"
+                  + db.getName()
+                  + " .For record "
+                  + rec
+                  + " second instance of record  "
+                  + prev
+                  + " was registered in dirty manager, such case may lead to data corruption");
+        }
         saveRecord(rec, null, ODatabaseSession.OPERATION_MODE.SYNCHRONOUS, false, null, null);
       }
     }
+
     addRecord(iRecord, ORecordOperation.DELETED, null);
   }
 
@@ -417,6 +450,9 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
     // fetch primary record if the record is a proxy record.
     passedRecord = passedRecord.getRecord();
 
+    var recordsMap = new HashMap<>(16);
+    recordsMap.put(passedRecord.getIdentity(), passedRecord);
+
     ORecordOperation recordOperation = null;
     boolean originalSaved = false;
     final ODirtyManager dirtyManager = ORecordInternal.getDirtyManager(passedRecord);
@@ -427,6 +463,20 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
       if (newRecord != null) {
         for (ORecord rec : newRecord) {
           rec = rec.getRecord();
+
+          var prev = recordsMap.put(rec.getIdentity(), rec);
+          if (prev != null && prev != rec) {
+            var db = getDatabase();
+            throw new IllegalStateException(
+                "Database :"
+                    + db.getName()
+                    + " .For record "
+                    + rec
+                    + " second instance of record  "
+                    + prev
+                    + " was registered in dirty manager, such case may lead to data corruption");
+          }
+
           if (rec instanceof ODocument)
             ODocumentInternal.convertAllMultiValuesToTrackedVersions((ODocument) rec);
           if (rec == passedRecord) {
@@ -438,6 +488,20 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
       if (updatedRecord != null) {
         for (ORecord rec : updatedRecord) {
           rec = rec.getRecord();
+
+          var prev = recordsMap.put(rec.getIdentity(), rec);
+          if (prev != null && prev != rec) {
+            var db = getDatabase();
+            throw new IllegalStateException(
+                "Database :"
+                    + db.getName()
+                    + " .For record "
+                    + rec
+                    + " second instance of record  "
+                    + prev
+                    + " was registered in dirty manager, such case may lead to data corruption");
+          }
+
           if (rec instanceof ODocument)
             ODocumentInternal.convertAllMultiValuesToTrackedVersions((ODocument) rec);
           if (rec == passedRecord) {

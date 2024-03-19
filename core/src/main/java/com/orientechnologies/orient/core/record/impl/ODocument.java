@@ -1773,7 +1773,32 @@ public class ODocument extends ORecordAbstract
       return ((ODocument) primaryRecord).field(iFieldName);
     }
 
-    return getPropertyWithoutValidation(iFieldName);
+    RET value = this.rawField(iFieldName);
+
+    if (!iFieldName.startsWith("@")
+        && lazyLoad
+        && value instanceof ORID
+        && (((ORID) value).isPersistent() || ((ORID) value).isNew())
+        && ODatabaseRecordThreadLocal.instance().isDefined()) {
+      // CREATE THE DOCUMENT OBJECT IN LAZY WAY
+      RET newValue = getDatabase().load((ORID) value);
+      if (newValue != null) {
+        unTrack((ORID) value);
+        track((OIdentifiable) newValue);
+        value = newValue;
+        if (this.isTrackingChanges()) {
+          ORecordInternal.setDirtyManager((ORecord) value, this.getDirtyManager());
+        }
+        if (!iFieldName.contains(".")) {
+          ODocumentEntry entry = fields.get(iFieldName);
+          entry.disableTracking(this, entry.getValue());
+          entry.setValue(value);
+          entry.enableTracking(this);
+        }
+      }
+    }
+
+    return value;
   }
 
   /**
@@ -2704,6 +2729,10 @@ public class ODocument extends ORecordAbstract
     }
     if (status == ORecordElement.STATUS.NOT_LOADED) {
       return this;
+    }
+
+    if (dirty) {
+      throw new IllegalStateException("Can not unload dirty document");
     }
 
     internalReset();

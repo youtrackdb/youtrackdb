@@ -245,7 +245,7 @@ public abstract class ORecordAbstract implements ORecord {
     }
   }
 
-  public boolean isDirty() {
+  public final boolean isDirty() {
     checkForLoading();
     if (primaryRecord != null) {
       return primaryRecord.isDirty();

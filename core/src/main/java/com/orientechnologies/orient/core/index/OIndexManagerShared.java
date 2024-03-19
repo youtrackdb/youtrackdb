@@ -31,7 +31,6 @@ import com.orientechnologies.orient.core.db.OMetadataUpdateListener;
 import com.orientechnologies.orient.core.db.OScenarioThreadLocal;
 import com.orientechnologies.orient.core.db.record.OTrackedSet;
 import com.orientechnologies.orient.core.dictionary.ODictionary;
-import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.OMetadata;
@@ -44,6 +43,7 @@ import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.metadata.security.OSecurityInternal;
 import com.orientechnologies.orient.core.metadata.security.OSecurityResourceProperty;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sharding.auto.OAutoShardingIndexFactory;
 import com.orientechnologies.orient.core.storage.OStorage;
@@ -83,6 +83,7 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
   protected String defaultClusterName = OMetadataDefault.CLUSTER_INDEX_NAME;
   protected String manualClusterName = OMetadataDefault.CLUSTER_MANUAL_INDEX_NAME;
   protected final AtomicInteger writeLockNesting = new AtomicInteger();
+
   protected final ReadWriteLock lock = new ReentrantReadWriteLock();
   protected ORID identity;
 
@@ -103,6 +104,8 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
         // RELOAD IT
         ODocument document = database.load(identity, "*:-1 index:0", true);
         fromStream(document);
+        ORecordInternal.unsetDirty(document);
+        document.unload();
       } finally {
         releaseExclusiveLock();
       }
@@ -115,6 +118,8 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
       ODatabaseDocumentInternal database = getDatabase();
       ODocument document = database.load(identity, "*:-1 index:0", true);
       fromStream(document);
+      ORecordInternal.unsetDirty(document);
+      document.unload();
     } finally {
       releaseExclusiveLock();
     }
@@ -386,7 +391,7 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
   void internalAcquireExclusiveLock() {
     final ODatabaseDocumentInternal databaseRecord = getDatabaseIfDefined();
     if (databaseRecord != null && !databaseRecord.isClosed()) {
-      final OMetadataInternal metadata = (OMetadataInternal) databaseRecord.getMetadata();
+      final OMetadataInternal metadata = databaseRecord.getMetadata();
       if (metadata != null) metadata.makeThreadLocalSchemaSnapshot();
       databaseRecord.startEsclusiveMetadataChange();
     }
@@ -820,7 +825,7 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
   public ODocument toStream() {
     internalAcquireExclusiveLock();
     try {
-      ODocument document = getDatabase().load((ORecord) identity.getRecord(), null, true);
+      ODocument document = getDatabase().load(identity, null, true);
       final OTrackedSet<ODocument> indexes = new OTrackedSet<>(document);
 
       for (final OIndex i : this.indexes.values()) {
@@ -1039,22 +1044,7 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
   }
 
   private void internalSave() {
-    boolean saved = false;
-    for (int retry = 0; retry < 10; retry++)
-      try {
-
-        ODocument document = toStream();
-        document.save();
-        saved = true;
-        break;
-
-      } catch (OConcurrentModificationException e) {
-        OLogManager.instance()
-            .debug(this, "concurrent modification while saving index manager configuration", e);
-      }
-
-    if (!saved)
-      OLogManager.instance()
-          .error(this, "failed to save the index manager configuration after 10 retries", null);
+    ODocument document = toStream();
+    document.save();
   }
 }
