@@ -67,6 +67,10 @@ public class OTransactionOptimisticServer extends OTransactionOptimistic {
   @Override
   public void begin() {
     super.begin();
+    if (txStartCounter > 1) {
+      // ALREADY BEGUN
+      return;
+    }
     try {
       List<ORecordOperation> toMergeUpdates = new ArrayList<>();
       for (ORecordOperationRequest operation : this.operations) {
@@ -330,7 +334,7 @@ public class OTransactionOptimisticServer extends OTransactionOptimistic {
           case ORecordOperation.LOADED:
             /**
              * Read hooks already invoked in {@link
-             * com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx#executeReadRecord}
+             * ODatabaseDocumentInternal#executeReadRecord}
              */
             break;
           case ORecordOperation.UPDATED:
@@ -385,20 +389,16 @@ public class OTransactionOptimisticServer extends OTransactionOptimistic {
               }
               break;
             case ORecordOperation.UPDATED:
-              switch (iStatus) {
-                case ORecordOperation.DELETED:
-                  txEntry.type = ORecordOperation.DELETED;
-                  break;
+              if (iStatus == ORecordOperation.DELETED) {
+                txEntry.type = ORecordOperation.DELETED;
               }
               break;
             case ORecordOperation.DELETED:
               break;
             case ORecordOperation.CREATED:
-              switch (iStatus) {
-                case ORecordOperation.DELETED:
-                  allEntries.remove(rid);
-                  // txEntry.type = ORecordOperation.DELETED;
-                  break;
+              if (iStatus == ORecordOperation.DELETED) {
+                allEntries.remove(rid);
+                // txEntry.type = ORecordOperation.DELETED;
               }
               break;
           }
@@ -412,7 +412,7 @@ public class OTransactionOptimisticServer extends OTransactionOptimistic {
             case ORecordOperation.LOADED:
               /**
                * Read hooks already invoked in {@link
-               * com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx#executeReadRecord}
+               * ODatabaseDocumentInternal#executeReadRecord}
                * .
                */
               break;
@@ -433,7 +433,7 @@ public class OTransactionOptimisticServer extends OTransactionOptimistic {
             case ORecordOperation.LOADED:
               /**
                * Read hooks already invoked in {@link
-               * com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx#executeReadRecord}
+               * ODatabaseDocumentInternal#executeReadRecord}
                * .
                */
               break;

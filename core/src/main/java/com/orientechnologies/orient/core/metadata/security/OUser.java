@@ -56,13 +56,13 @@ public class OUser extends OIdentity implements OSecurityUser {
 
   public OUser(final String iName) {
     super(CLASS_NAME);
-    document.field("name", iName);
+    getDocument().field("name", iName);
     setAccountStatus(STATUSES.ACTIVE);
   }
 
   public OUser(String iUserName, final String iUserPassword) {
     super("OUser");
-    document.field("name", iUserName);
+    getDocument().field("name", iUserName);
     setPassword(iUserPassword);
     setAccountStatus(STATUSES.ACTIVE);
   }
@@ -101,9 +101,10 @@ public class OUser extends OIdentity implements OSecurityUser {
 
   @Override
   public void fromStream(final ODocument iSource) {
-    if (document != null) return;
+    if (getDocument() != null) return;
 
-    document = iSource;
+    setDocument(iSource);
+    var document = getDocument();
 
     roles = new HashSet<ORole>();
     final Collection<ODocument> loadedRoles = iSource.field("roles");
@@ -141,6 +142,7 @@ public class OUser extends OIdentity implements OSecurityUser {
    */
   public ORole allow(
       final ORule.ResourceGeneric resourceGeneric, String resourceSpecific, final int iOperation) {
+    var document = getDocument();
     if (roles == null || roles.isEmpty()) {
       if (document.field("roles") != null
           && !((Collection<OIdentifiable>) document.field("roles")).isEmpty()) {
@@ -253,35 +255,35 @@ public class OUser extends OIdentity implements OSecurityUser {
   }
 
   public boolean checkPassword(final String iPassword) {
-    return OSecurityManager.checkPassword(iPassword, (String) document.field(PASSWORD_FIELD));
+    return OSecurityManager.checkPassword(iPassword, (String) getDocument().field(PASSWORD_FIELD));
   }
 
   public String getName() {
-    return document.field("name");
+    return getDocument().field("name");
   }
 
   public OUser setName(final String iName) {
-    document.field("name", iName);
+    getDocument().field("name", iName);
     return this;
   }
 
   public String getPassword() {
-    return document.field(PASSWORD_FIELD);
+    return getDocument().field(PASSWORD_FIELD);
   }
 
   public OUser setPassword(final String iPassword) {
-    document.field(PASSWORD_FIELD, iPassword);
+    getDocument().field(PASSWORD_FIELD, iPassword);
     return this;
   }
 
   public STATUSES getAccountStatus() {
-    final String status = (String) document.field("status");
+    final String status = (String) getDocument().field("status");
     if (status == null) throw new OSecurityException("User '" + getName() + "' has no status");
     return STATUSES.valueOf(status);
   }
 
   public void setAccountStatus(STATUSES accountStatus) {
-    document.field("status", accountStatus);
+    getDocument().field("status", accountStatus);
   }
 
   public Set<ORole> getRoles() {
@@ -289,7 +291,8 @@ public class OUser extends OIdentity implements OSecurityUser {
   }
 
   public OUser addRole(final String iRole) {
-    if (iRole != null) addRole(document.getDatabase().getMetadata().getSecurity().getRole(iRole));
+    if (iRole != null)
+      addRole(getDocument().getDatabase().getMetadata().getSecurity().getRole(iRole));
     return this;
   }
 
@@ -300,12 +303,13 @@ public class OUser extends OIdentity implements OSecurityUser {
     for (ORole r : roles) {
       persistentRoles.add(r.toStream());
     }
-    document.field("roles", persistentRoles);
+    getDocument().field("roles", persistentRoles);
     return this;
   }
 
   public boolean removeRole(final String iRoleName) {
     boolean removed = false;
+    var document = getDocument();
     for (Iterator<ORole> it = roles.iterator(); it.hasNext(); ) {
       if (it.next().getName().equals(iRoleName)) {
         it.remove();
@@ -344,7 +348,7 @@ public class OUser extends OIdentity implements OSecurityUser {
   @Override
   @SuppressWarnings("unchecked")
   public OUser save() {
-    document.save(OUser.class.getSimpleName());
+    getDocument().save(OUser.class.getSimpleName());
     return this;
   }
 
@@ -355,7 +359,7 @@ public class OUser extends OIdentity implements OSecurityUser {
 
   @Override
   public OIdentifiable getIdentity() {
-    return document;
+    return getDocument();
   }
 
   @Override

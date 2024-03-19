@@ -94,7 +94,7 @@ public class ORecordSerializerBinaryTest {
     Integer setValue = 15;
     doc.setProperty("TestPropAny", setValue);
     db.save(doc);
-    byte[] serializedDoc = serializer.toStream(doc);
+    byte[] serializedDoc = serializer.toStream(doc.reload());
     OResultBinary docBinary =
         (OResultBinary) serializer.getBinaryResult(db, serializedDoc, new ORecordId(-1, -1));
     Integer value = docBinary.getProperty("TestPropAny");
@@ -147,7 +147,7 @@ public class ORecordSerializerBinaryTest {
     root.setClassName("TestClass");
     db.save(root);
 
-    byte[] rootBytes = serializer.toStream(root);
+    byte[] rootBytes = serializer.toStream(root.reload());
     OResultBinary docBinary =
         (OResultBinary) serializer.getBinaryResult(db, rootBytes, new ORecordId(-1, -1));
     OResultBinary embeddedBytesViaGet = docBinary.getProperty("TestEmbedded");
@@ -171,7 +171,8 @@ public class ORecordSerializerBinaryTest {
 
     db.save(root);
 
-    byte[] rootBytes = serializer.toStream(root);
+    byte[] rootBytes = serializer.toStream(root.reload());
+    embedded = root.field("TestEmbedded");
     byte[] embeddedNativeBytes = serializer.toStream(embedded);
     // want to update data pointers because first byte will be removed
     decreasePositionsBy(embeddedNativeBytes, 1, false);
@@ -211,7 +212,7 @@ public class ORecordSerializerBinaryTest {
 
     db.save(root);
 
-    byte[] rootBytes = serializer.toStream(root);
+    byte[] rootBytes = serializer.toStream(root.reload());
 
     OResultBinary docBinary =
         (OResultBinary) serializer.getBinaryResult(db, rootBytes, new ORecordId(-1, -1));
@@ -235,7 +236,7 @@ public class ORecordSerializerBinaryTest {
 
     db.save(root);
 
-    byte[] rootBytes = serializer.toStream(root);
+    byte[] rootBytes = serializer.toStream(root.reload());
     OResultBinary docBinary =
         (OResultBinary) serializer.getBinaryResult(db, rootBytes, new ORecordId(-1, -1));
     OResultBinary embeddedBytesViaGet = docBinary.getProperty("TestEmbedded");

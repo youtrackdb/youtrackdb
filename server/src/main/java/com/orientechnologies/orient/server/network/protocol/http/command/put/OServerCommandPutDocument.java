@@ -62,7 +62,7 @@ public class OServerCommandPutDocument extends OServerCommandDocumentAbstract {
 
       // UNMARSHALL DOCUMENT WITH REQUEST CONTENT
       doc = new ODocument();
-      doc.fromJSON(iRequest.getContent()).setTrackingChanges(false);
+      ((ODocument) doc.fromJSON(iRequest.getContent())).setTrackingChanges(false);
 
       if (iRequest.getIfMatch() != null)
         // USE THE IF-MATCH HTTP HEADER AS VERSION

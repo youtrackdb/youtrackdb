@@ -31,6 +31,8 @@ import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBagDelegate;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.ORecordInternal;
+import com.orientechnologies.orient.core.record.impl.ODocumentEntry;
+import com.orientechnologies.orient.core.record.impl.ODocumentEntryAware;
 import com.orientechnologies.orient.core.record.impl.OSimpleMultiValueTracker;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.ORecordSerializationContext;
@@ -46,11 +48,11 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListMap;
 
-public class ORemoteTreeRidBag implements ORidBagDelegate {
+public class ORemoteTreeRidBag implements ORidBagDelegate, ODocumentEntryAware {
   /** Entries with not valid id. */
   private int size;
 
-  private OSimpleMultiValueTracker<OIdentifiable, OIdentifiable> tracker =
+  private final OSimpleMultiValueTracker<OIdentifiable, OIdentifiable> tracker =
       new OSimpleMultiValueTracker<>(this);
 
   private boolean autoConvertToRecord = true;
@@ -61,6 +63,16 @@ public class ORemoteTreeRidBag implements ORidBagDelegate {
   private ORecordId ownerRecord;
   private String fieldName;
   private OBonsaiCollectionPointer collectionPointer;
+
+  @Override
+  public void setDocumentEntry(ODocumentEntry entry) {
+    tracker.setDocumentEntry(entry);
+  }
+
+  @Override
+  public void clearDocumentEntry() {
+    tracker.clearDocumentEntry();
+  }
 
   private class RemovableIterator implements Iterator<OIdentifiable> {
     private Iterator<OIdentifiable> iter;

@@ -54,6 +54,11 @@ public class OVertexDelegate implements OVertexInternal {
   }
 
   @Override
+  public boolean isProxy() {
+    return true;
+  }
+
+  @Override
   public Optional<OVertex> asVertex() {
     return Optional.of(this);
   }

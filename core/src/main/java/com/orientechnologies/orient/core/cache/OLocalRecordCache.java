@@ -23,6 +23,7 @@ import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.ORecordVersionHelper;
@@ -63,11 +64,23 @@ public class OLocalRecordCache extends OAbstractRecordCache {
    * @param record record that should be cached
    */
   public void updateRecord(final ORecord record) {
-    if (record.getIdentity().getClusterId() != excludedCluster
-        && record.getIdentity().isValid()
+    assert !record.isProxy() && !record.isUnloaded();
+    var rid = record.getIdentity();
+    if (rid.getClusterId() != excludedCluster
+        && !rid.isTemporary()
+        && rid.isValid()
         && !record.isDirty()
         && !ORecordVersionHelper.isTombstone(record.getVersion())) {
-      if (underlying.get(record.getIdentity()) != record) underlying.put(record);
+      var loadedRecord = underlying.get(rid);
+      if (loadedRecord == null) {
+        underlying.put(record);
+      } else if (loadedRecord != record) {
+        throw new ODatabaseException(
+            "Record with id "
+                + record.getIdentity()
+                + " already registered in current session, please load "
+                + "record again using 'record = db.load(rid)' method or use another session.");
+      }
     }
   }
 

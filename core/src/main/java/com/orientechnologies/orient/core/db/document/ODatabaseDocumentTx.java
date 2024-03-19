@@ -47,6 +47,7 @@ import com.orientechnologies.orient.core.query.OQuery;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.record.impl.OBlob;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -60,6 +61,7 @@ import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.storage.ORecordCallback;
 import com.orientechnologies.orient.core.storage.ORecordMetadata;
 import com.orientechnologies.orient.core.storage.OStorage;
+import com.orientechnologies.orient.core.storage.OStorage.LOCKING_STRATEGY;
 import com.orientechnologies.orient.core.storage.OStorageInfo;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
@@ -304,13 +306,12 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
   @Override
   public <RET extends ORecord> RET executeReadRecord(
       ORecordId rid,
-      ORecord iRecord,
+      ORecordAbstract iRecord,
       int recordVersion,
       String fetchPlan,
       boolean ignoreCache,
-      boolean iUpdateCache,
       boolean loadTombstones,
-      OStorage.LOCKING_STRATEGY lockingStrategy,
+      LOCKING_STRATEGY lockingStrategy,
       RecordReader recordReader) {
     checkOpenness();
     return internal.executeReadRecord(
@@ -319,7 +320,6 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
         recordVersion,
         fetchPlan,
         ignoreCache,
-        iUpdateCache,
         loadTombstones,
         lockingStrategy,
         recordReader);

@@ -14,6 +14,7 @@ import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ODocumentSerializerDelta;
@@ -47,13 +48,13 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
       if (!operation.getOldId().equals(operation.getId()))
         updatedRids.put(operation.getId().copy(), operation.getOldId());
 
-      ORecord record = null;
+      ORecordAbstract record = null;
       ORecordOperation op = oldEntries.get(operation.getOldId());
       if (op != null) {
         record = op.getRecord();
       }
       if (record == null) {
-        getDatabase().getLocalCache().findRecord(operation.getOldId());
+        record = (ORecordAbstract) getDatabase().getLocalCache().findRecord(operation.getOldId());
       }
       if (record != null) {
         record.unload();
@@ -66,9 +67,14 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
       }
       if (operation.getType() == ORecordOperation.UPDATED
           && operation.getRecordType() == ODocument.RECORD_TYPE) {
-        record.fromStream(operation.getOriginal());
-        ODocumentSerializerDelta deltaSerializer = ODocumentSerializerDelta.instance();
-        deltaSerializer.deserializeDelta(operation.getRecord(), (ODocument) record);
+        record.incrementLoading();
+        try {
+          record.fromStream(operation.getOriginal());
+          ODocumentSerializerDelta deltaSerializer = ODocumentSerializerDelta.instance();
+          deltaSerializer.deserializeDelta(operation.getRecord(), (ODocument) record);
+        } finally {
+          record.decrementLoading();
+        }
       } else {
         record.fromStream(operation.getRecord());
       }
@@ -125,10 +131,7 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
             }
             break;
           case ORecordOperation.LOADED:
-            /**
-             * Read hooks already invoked in {@link
-             * com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx#executeReadRecord}
-             */
+            /** Read hooks already invoked in {@link ODatabaseDocumentInternal#executeReadRecord} */
             break;
           case ORecordOperation.UPDATED:
             {
@@ -196,9 +199,7 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
               break;
             case ORecordOperation.LOADED:
               /**
-               * Read hooks already invoked in {@link
-               * com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx#executeReadRecord}
-               * .
+               * Read hooks already invoked in {@link ODatabaseDocumentInternal#executeReadRecord} .
                */
               break;
             case ORecordOperation.UPDATED:

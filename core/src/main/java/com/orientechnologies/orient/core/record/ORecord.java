@@ -62,6 +62,23 @@ public interface ORecord extends ORecordElement, OIdentifiable, Serializable, OS
   <RET extends ORecord> RET unload();
 
   /**
+   * Returns true if the record is unloaded.
+   *
+   * @return true if the record is unloaded.
+   * @see #unload()
+   */
+  boolean isUnloaded();
+
+  /**
+   * Returns <code>true</code> if records servers as proxy for the real record in the storage. In
+   * such case it is recommended to call {@link #getRecord()} method to get the real record.
+   * Accessing of real record will increase system performance.
+   *
+   * @return <code>true</code> if records servers as proxy for the real record in the storage.
+   */
+  boolean isProxy();
+
+  /**
    * All the fields are deleted but the record identity is maintained. Use this to remove all the
    * document's fields.
    *
@@ -228,8 +245,8 @@ public interface ORecord extends ORecordElement, OIdentifiable, Serializable, OS
   void setInternalStatus(STATUS iStatus);
 
   /**
-   * Checks if the record exists in the database.
-   * It adheres the same rules {@link ODatabaseDocument#exists(ORID)}.
+   * Checks if the record exists in the database. It adheres the same rules {@link
+   * ODatabaseDocument#exists(ORID)}.
    *
    * @return true if the record exists, otherwise false
    */

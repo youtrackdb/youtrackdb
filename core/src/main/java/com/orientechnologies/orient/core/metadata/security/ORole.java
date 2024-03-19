@@ -82,14 +82,14 @@ public class ORole extends OIdentity implements OSecurityRole {
       final ALLOW_MODES iAllowMode,
       Map<String, OSecurityPolicy> policies) {
     super(CLASS_NAME);
-    document.field("name", iName);
+    getDocument().field("name", iName);
 
     parentRole = iParent;
-    document.field("inheritedRole", iParent != null ? iParent.getIdentity() : null);
+    getDocument().field("inheritedRole", iParent != null ? iParent.getIdentity() : null);
     if (policies != null) {
       Map<String, OIdentifiable> p = new HashMap<>();
       policies.forEach((k, v) -> p.put(k, ((OSecurityPolicyImpl) v).getElement()));
-      document.setProperty("policies", p);
+      getDocument().setProperty("policies", p);
     }
 
     updateRolesDocumentContent();
@@ -144,10 +144,13 @@ public class ORole extends OIdentity implements OSecurityRole {
 
   @Override
   public void fromStream(final ODocument iSource) {
-    if (document != null) return;
+    if (getDocument() != null) {
+      return;
+    }
 
-    document = iSource;
+    setDocument(iSource);
 
+    var document = getDocument();
     try {
       final Number modeField = document.field("mode");
       if (modeField == null) {
@@ -354,7 +357,7 @@ public class ORole extends OIdentity implements OSecurityRole {
   }
 
   public String getName() {
-    return document.field("name");
+    return getDocument().field("name");
   }
 
   @Deprecated
@@ -375,13 +378,13 @@ public class ORole extends OIdentity implements OSecurityRole {
 
   public ORole setParentRole(final OSecurityRole iParent) {
     this.parentRole = (ORole) iParent;
-    document.field("inheritedRole", parentRole != null ? parentRole.getIdentity() : null);
+    getDocument().field("inheritedRole", parentRole != null ? parentRole.getIdentity() : null);
     return this;
   }
 
   @Override
   public ORole save() {
-    document.save(ORole.class.getSimpleName());
+    getDocument().save(ORole.class.getSimpleName());
     return this;
   }
 
@@ -415,7 +418,7 @@ public class ORole extends OIdentity implements OSecurityRole {
 
   @Override
   public OIdentifiable getIdentity() {
-    return document;
+    return getDocument();
   }
 
   private void loadOldVersionOfRules(final Map<String, Number> storedRules) {
@@ -439,12 +442,12 @@ public class ORole extends OIdentity implements OSecurityRole {
   }
 
   private ODocument updateRolesDocumentContent() {
-    return document.field("rules", getRules());
+    return getDocument().field("rules", getRules());
   }
 
   @Override
   public Map<String, OSecurityPolicy> getPolicies() {
-    Map<String, OIdentifiable> policies = document.getProperty("policies");
+    Map<String, OIdentifiable> policies = getDocument().getProperty("policies");
     if (policies == null) {
       return null;
     }
@@ -463,7 +466,7 @@ public class ORole extends OIdentity implements OSecurityRole {
 
   @Override
   public OSecurityPolicy getPolicy(String resource) {
-    Map<String, OIdentifiable> policies = document.getProperty("policies");
+    Map<String, OIdentifiable> policies = getDocument().getProperty("policies");
     if (policies == null) {
       return null;
     }

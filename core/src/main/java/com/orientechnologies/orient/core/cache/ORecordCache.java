@@ -114,5 +114,10 @@ public interface ORecordCache {
    */
   Collection<ORID> keys();
 
+  /**
+   * Transfer all records contained in cache to unload state.
+   */
+  void unloadRecords();
+
   void clearRecords();
 }

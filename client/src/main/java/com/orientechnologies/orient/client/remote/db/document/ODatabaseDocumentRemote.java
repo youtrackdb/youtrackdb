@@ -21,8 +21,6 @@
 package com.orientechnologies.orient.client.remote.db.document;
 
 import static com.orientechnologies.orient.core.storage.OStorage.LOCKING_STRATEGY.EXCLUSIVE_LOCK;
-import static com.orientechnologies.orient.core.storage.OStorage.LOCKING_STRATEGY.KEEP_EXCLUSIVE_LOCK;
-import static com.orientechnologies.orient.core.storage.OStorage.LOCKING_STRATEGY.KEEP_SHARED_LOCK;
 
 import com.orientechnologies.common.concur.lock.OLockException;
 import com.orientechnologies.common.exception.OException;
@@ -51,16 +49,11 @@ import com.orientechnologies.orient.core.db.OSharedContext;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentAbstract;
-import com.orientechnologies.orient.core.db.document.RecordReader;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.fetch.OFetchHelper;
 import com.orientechnologies.orient.core.hook.ORecordHook;
 import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.index.OClassIndexManager;
 import com.orientechnologies.orient.core.index.OIndexManagerRemote;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorCluster;
@@ -77,7 +70,6 @@ import com.orientechnologies.orient.core.metadata.sequence.OSequenceAction;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.ORecordVersionHelper;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
@@ -87,12 +79,10 @@ import com.orientechnologies.orient.core.serialization.serializer.record.ORecord
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
-import com.orientechnologies.orient.core.storage.ORawBuffer;
 import com.orientechnologies.orient.core.storage.ORecordCallback;
 import com.orientechnologies.orient.core.storage.ORecordMetadata;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.OStorageInfo;
-import com.orientechnologies.orient.core.storage.cluster.OOfflineClusterException;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
 import com.orientechnologies.orient.core.tx.OTransaction;
 import com.orientechnologies.orient.core.tx.OTransactionAbstract;
@@ -705,155 +695,6 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
     return iRecord;
   }
 
-  /**
-   * This method is internal, it can be subject to signature change or be removed, do not
-   * use. @Internal
-   */
-  public <RET extends ORecord> RET executeReadRecord(
-      final ORecordId rid,
-      ORecord iRecord,
-      final int recordVersion,
-      final String fetchPlan,
-      final boolean ignoreCache,
-      final boolean iUpdateCache,
-      final boolean loadTombstones,
-      final OStorage.LOCKING_STRATEGY lockingStrategy,
-      RecordReader recordReader) {
-    checkOpenness();
-    checkIfActive();
-
-    getMetadata().makeThreadLocalSchemaSnapshot();
-    try {
-
-      // SEARCH IN LOCAL TX
-      ORecord record = getTransaction().getRecord(rid);
-      if (record == OTransactionAbstract.DELETED_RECORD)
-      // DELETED IN TX
-      {
-        return null;
-      }
-
-      if (record == null && !ignoreCache)
-      // SEARCH INTO THE CACHE
-      {
-        record = getLocalCache().findRecord(rid);
-      }
-
-      if (record != null) {
-        if (iRecord != null) {
-          iRecord.fromStream(record.toStream());
-          ORecordInternal.setVersion(iRecord, record.getVersion());
-          record = iRecord;
-        }
-
-        OFetchHelper.checkFetchPlanValid(fetchPlan);
-        if (beforeReadOperations(record)) {
-          return null;
-        }
-
-        if (record.getInternalStatus() == ORecordElement.STATUS.NOT_LOADED) {
-          record.reload();
-        }
-
-        if (lockingStrategy == KEEP_SHARED_LOCK) {
-          OLogManager.instance()
-              .warn(
-                  this,
-                  "You use deprecated record locking strategy: %s it may lead to deadlocks "
-                      + lockingStrategy);
-          record.lock(false);
-
-        } else if (lockingStrategy == KEEP_EXCLUSIVE_LOCK) {
-          OLogManager.instance()
-              .warn(
-                  this,
-                  "You use deprecated record locking strategy: %s it may lead to deadlocks "
-                      + lockingStrategy);
-          record.lock(true);
-        }
-
-        afterReadOperations(record);
-        if (record instanceof ODocument) {
-          ODocumentInternal.checkClass((ODocument) record, this);
-        }
-        return (RET) record;
-      }
-
-      final ORawBuffer recordBuffer;
-      if (!rid.isValid()) {
-        recordBuffer = null;
-      } else {
-        OFetchHelper.checkFetchPlanValid(fetchPlan);
-
-        int version;
-        if (iRecord != null) {
-          version = iRecord.getVersion();
-        } else {
-          version = recordVersion;
-        }
-
-        recordBuffer = recordReader.readRecord(getStorage(), rid, fetchPlan, ignoreCache, version);
-      }
-
-      if (recordBuffer == null) {
-        return null;
-      }
-
-      if (iRecord == null || ORecordInternal.getRecordType(iRecord) != recordBuffer.recordType)
-      // NO SAME RECORD TYPE: CAN'T REUSE OLD ONE BUT CREATE A NEW ONE FOR IT
-      {
-        iRecord =
-            Orient.instance()
-                .getRecordFactoryManager()
-                .newInstance(recordBuffer.recordType, rid.getClusterId(), this);
-      }
-
-      ORecordInternal.setRecordSerializer(iRecord, getSerializer());
-      ORecordInternal.fill(iRecord, rid, recordBuffer.version, recordBuffer.buffer, false, this);
-
-      if (iRecord instanceof ODocument) {
-        ODocumentInternal.checkClass((ODocument) iRecord, this);
-      }
-
-      if (ORecordVersionHelper.isTombstone(iRecord.getVersion())) {
-        return (RET) iRecord;
-      }
-
-      if (beforeReadOperations(iRecord)) {
-        return null;
-      }
-
-      iRecord.fromStream(recordBuffer.buffer);
-
-      afterReadOperations(iRecord);
-      if (iUpdateCache) {
-        getLocalCache().updateRecord(iRecord);
-      }
-
-      return (RET) iRecord;
-    } catch (OOfflineClusterException t) {
-      throw t;
-    } catch (ORecordNotFoundException t) {
-      throw t;
-    } catch (Exception t) {
-      if (rid.isTemporary()) {
-        throw OException.wrapException(
-            new ODatabaseException("Error on retrieving record using temporary RID: " + rid), t);
-      } else {
-        throw OException.wrapException(
-            new ODatabaseException(
-                "Error on retrieving record "
-                    + rid
-                    + " (cluster: "
-                    + getStorageRemote().getPhysicalClusterNameById(rid.getClusterId())
-                    + ")"),
-            t);
-      }
-    } finally {
-      getMetadata().clearThreadLocalSchemaSnapshot();
-    }
-  }
-
   @Override
   public boolean executeExists(ORID rid) {
     checkOpenness();
@@ -969,6 +810,11 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
     if (record == null) {
       throw new ODatabaseException("Cannot delete null document");
     }
+    var newTx = !currentTx.isActive();
+    if (newTx) {
+      //noinspection resource
+      begin();
+    }
     if (record instanceof OVertex) {
       reload(record, "in*:2 out*:2");
       OVertexInternal.deleteLinks((OVertex) record);
@@ -979,6 +825,10 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
 
     try {
       currentTx.deleteRecord(record, OPERATION_MODE.SYNCHRONOUS);
+      if (newTx) {
+        //noinspection resource
+        commit();
+      }
     } catch (OException e) {
       throw e;
     } catch (Exception e) {

@@ -191,6 +191,7 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
   @SuppressWarnings("unchecked")
   @Override
   public void serialize(final ODocument document, final BytesContainer bytes) {
+    ORecordInternal.checkForLoading(document);
     OImmutableSchema schema = ODocumentInternal.getImmutableSchema(document);
     OPropertyEncryption encryption = ODocumentInternal.getPropertyEncryption(document);
 
@@ -216,7 +217,7 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
 
     for (i = 0; i < size; i++) {
       int pointer = 0;
-      final Object value = values[i].getValue().value;
+      final Object value = values[i].getValue().getValue();
       if (value != null) {
         final OType type = getFieldType(values[i].getValue());
         if (type == null) {
@@ -761,7 +762,7 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
       final OProperty prop = entry.property;
       if (prop != null) type = prop.getType();
     }
-    if (type == null || OType.ANY == type) type = OType.getTypeByValue(entry.value);
+    if (type == null || OType.ANY == type) type = OType.getTypeByValue(entry.getValue());
     return type;
   }
 

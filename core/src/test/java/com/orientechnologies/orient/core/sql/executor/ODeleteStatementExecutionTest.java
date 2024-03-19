@@ -4,6 +4,7 @@ import static com.orientechnologies.orient.core.sql.executor.ExecutionPlanPrintU
 
 import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.junit.Assert;
@@ -107,9 +108,15 @@ public class ODeleteStatementExecutionTest extends BaseMemoryDatabase {
   public void testReturnBefore() {
     String className = "testReturnBefore";
     db.getMetadata().getSchema().createClass(className);
+    ORID fourthId = null;
+
     for (int i = 0; i < 10; i++) {
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
+      if (i == 4) {
+        fourthId = doc.getIdentity();
+      }
+
       doc.save();
     }
     OResultSet result =
@@ -119,7 +126,7 @@ public class ODeleteStatementExecutionTest extends BaseMemoryDatabase {
       Assert.assertTrue(result.hasNext());
       OResult item = result.next();
       Assert.assertNotNull(item);
-      Assert.assertEquals("name4", item.getProperty("name"));
+      Assert.assertEquals(fourthId, item.getRecordId());
     }
     Assert.assertFalse(result.hasNext());
 

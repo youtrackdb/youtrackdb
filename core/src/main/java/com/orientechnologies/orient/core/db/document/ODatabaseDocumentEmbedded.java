@@ -51,11 +51,9 @@ import com.orientechnologies.orient.core.db.viewmanager.ViewManager;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OSchemaException;
 import com.orientechnologies.orient.core.exception.OSecurityAccessException;
 import com.orientechnologies.orient.core.exception.OSecurityException;
-import com.orientechnologies.orient.core.fetch.OFetchHelper;
 import com.orientechnologies.orient.core.hook.ORecordHook;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -89,8 +87,6 @@ import com.orientechnologies.orient.core.query.live.OLiveQueryListenerV2;
 import com.orientechnologies.orient.core.query.live.OLiveQueryMonitorEmbedded;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.ORecordVersionHelper;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.record.impl.OEdgeDocument;
@@ -107,12 +103,10 @@ import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.parser.OLocalResultSet;
 import com.orientechnologies.orient.core.sql.parser.OLocalResultSetLifecycleDecorator;
 import com.orientechnologies.orient.core.sql.parser.OStatement;
-import com.orientechnologies.orient.core.storage.ORawBuffer;
 import com.orientechnologies.orient.core.storage.ORecordCallback;
 import com.orientechnologies.orient.core.storage.ORecordMetadata;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.OStorageInfo;
-import com.orientechnologies.orient.core.storage.cluster.OOfflineClusterException;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.OFreezableStorageComponent;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
@@ -884,12 +878,12 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     if (record == null) return;
     if (record instanceof ODocument) {
       if (record.getInternalStatus() == ORecordElement.STATUS.NOT_LOADED) {
-        ((ODocument) record).reload();
+        record = load(identifiable.getIdentity());
       }
     }
     OTransactionAbstract trans = (OTransactionAbstract) this.currentTx;
     try {
-      OTransactionOptimistic tx = new OTransactionOptimistic(this);
+      OTransactionOptimistic tx = new OTransactionOptimistic(this, false);
       tx.setNoTxLocks(trans.getInternalLocks());
       this.currentTx = tx;
       tx.begin();
@@ -1039,25 +1033,38 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
   public ODatabaseDocumentAbstract delete(ORecord record) {
     checkOpenness();
 
-    if (record == null) throw new ODatabaseException("Cannot delete null document");
+    if (record == null) {
+      throw new ODatabaseException("Cannot delete null document");
+    }
+
+    var newTx = !currentTx.isActive();
+    if (newTx) {
+      //noinspection resource
+      begin();
+    }
 
     if (record instanceof OElement) {
       if (((OElement) record).isVertex()) {
-        OVertexInternal.deleteLinks(((OElement) record).asVertex().get());
+        OVertexInternal.deleteLinks(((OElement) record).toVertex());
       } else if (((OElement) record).isEdge()) {
-        OEdgeDocument.deleteLinks(((OElement) record).asEdge().get());
+        OEdgeDocument.deleteLinks(((OElement) record).toEdge());
       }
     }
 
     // CHECK ACCESS ON SCHEMA CLASS NAME (IF ANY)
-    if (record instanceof ODocument && ((ODocument) record).getClassName() != null)
+    if (record instanceof ODocument && ((ODocument) record).getClassName() != null) {
       checkSecurity(
           ORule.ResourceGeneric.CLASS,
           ORole.PERMISSION_DELETE,
           ((ODocument) record).getClassName());
+    }
 
     try {
       currentTx.deleteRecord(record, OPERATION_MODE.SYNCHRONOUS);
+      if (newTx) {
+        //noinspection resource
+        commit();
+      }
     } catch (OException e) {
       throw e;
     } catch (Exception e) {
@@ -1190,8 +1197,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
 
   @Override
   public void afterReadOperations(OIdentifiable identifiable) {
-    if (identifiable instanceof ODocument) {
-      ODocument doc = (ODocument) identifiable;
+    if (identifiable instanceof ODocument doc) {
       OImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(this, doc);
       if (clazz != null) {
         if (clazz.isTriggered()) {
@@ -1262,7 +1268,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
       ORecordCallback<Integer> iRecordUpdatedCallback) {
     OTransactionAbstract trans = (OTransactionAbstract) this.currentTx;
     try {
-      OTransactionOptimistic tx = new OTransactionOptimistic(this);
+      OTransactionOptimistic tx = new OTransactionOptimistic(this, false);
       tx.setNoTxLocks(trans.getInternalLocks());
       this.currentTx = tx;
       tx.begin();
@@ -1318,145 +1324,6 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
       }
     }
     return view;
-  }
-
-  /**
-   * This method is internal, it can be subject to signature change or be removed, do not
-   * use. @Internal
-   */
-  public <RET extends ORecord> RET executeReadRecord(
-      final ORecordId rid,
-      ORecord iRecord,
-      final int recordVersion,
-      final String fetchPlan,
-      final boolean ignoreCache,
-      final boolean iUpdateCache,
-      final boolean loadTombstones,
-      final OStorage.LOCKING_STRATEGY lockingStrategy,
-      RecordReader recordReader) {
-    checkOpenness();
-    checkIfActive();
-
-    getMetadata().makeThreadLocalSchemaSnapshot();
-    try {
-      checkSecurity(
-          ORule.ResourceGeneric.CLUSTER,
-          ORole.PERMISSION_READ,
-          getClusterNameById(rid.getClusterId()));
-
-      // SEARCH IN LOCAL TX
-      ORecord record = getTransaction().getRecord(rid);
-      if (record == OTransactionAbstract.DELETED_RECORD)
-        // DELETED IN TX
-        return null;
-
-      if (record == null && !ignoreCache)
-        // SEARCH INTO THE CACHE
-        record = getLocalCache().findRecord(rid);
-
-      if (record != null) {
-        if (iRecord != null) {
-          ORecordInternal.fromStream(iRecord, record.toStream(), this);
-          ORecordInternal.setVersion(iRecord, record.getVersion());
-          record = iRecord;
-        }
-
-        OFetchHelper.checkFetchPlanValid(fetchPlan);
-        if (beforeReadOperations(record)) return null;
-
-        if (record.getInternalStatus() == ORecordElement.STATUS.NOT_LOADED) record.reload();
-
-        if (lockingStrategy == OStorage.LOCKING_STRATEGY.KEEP_SHARED_LOCK) {
-          OLogManager.instance()
-              .warn(
-                  this,
-                  "You use deprecated record locking strategy: %s it may lead to deadlocks "
-                      + lockingStrategy);
-          record.lock(false);
-        } else if (lockingStrategy == OStorage.LOCKING_STRATEGY.KEEP_EXCLUSIVE_LOCK) {
-          OLogManager.instance()
-              .warn(
-                  this,
-                  "You use deprecated record locking strategy: %s it may lead to deadlocks "
-                      + lockingStrategy);
-          record.lock(true);
-        }
-
-        afterReadOperations(record);
-        if (record instanceof ODocument) ODocumentInternal.checkClass((ODocument) record, this);
-        return (RET) record;
-      }
-
-      loadedRecordsCount++;
-      long begin = System.currentTimeMillis();
-      try {
-        final ORawBuffer recordBuffer;
-        if (!rid.isValid()) recordBuffer = null;
-        else {
-          OFetchHelper.checkFetchPlanValid(fetchPlan);
-
-          int version;
-          if (iRecord != null) version = iRecord.getVersion();
-          else version = recordVersion;
-
-          recordBuffer =
-              recordReader.readRecord(getStorage(), rid, fetchPlan, ignoreCache, version);
-        }
-
-        if (recordBuffer == null) return null;
-
-        if (iRecord == null || ORecordInternal.getRecordType(iRecord) != recordBuffer.recordType)
-          // NO SAME RECORD TYPE: CAN'T REUSE OLD ONE BUT CREATE A NEW ONE FOR IT
-          iRecord =
-              Orient.instance()
-                  .getRecordFactoryManager()
-                  .newInstance(recordBuffer.recordType, rid.getClusterId(), this);
-
-        ORecordInternal.setRecordSerializer(iRecord, getSerializer());
-        ORecordInternal.fill(iRecord, rid, recordBuffer.version, recordBuffer.buffer, false, this);
-
-        if (iRecord instanceof ODocument) ODocumentInternal.checkClass((ODocument) iRecord, this);
-
-        if (ORecordVersionHelper.isTombstone(iRecord.getVersion())) return (RET) iRecord;
-
-        if (beforeReadOperations(iRecord)) return null;
-
-        ORecordInternal.fromStream(iRecord, recordBuffer.buffer, this);
-
-        afterReadOperations(iRecord);
-        if (iUpdateCache) getLocalCache().updateRecord(iRecord);
-
-        return (RET) iRecord;
-      } finally {
-        long readTime = System.currentTimeMillis() - begin;
-        if (this.loadedRecordsCount == 1) {
-          this.minRecordLoadMs = readTime;
-          this.maxRecordLoadMs = readTime;
-        } else {
-          this.minRecordLoadMs = Math.min(this.minRecordLoadMs, readTime);
-          this.maxRecordLoadMs = Math.max(this.maxRecordLoadMs, readTime);
-        }
-        this.totalRecordLoadMs += readTime;
-      }
-
-    } catch (OOfflineClusterException | ORecordNotFoundException t) {
-      throw t;
-    } catch (Exception t) {
-      if (rid.isTemporary())
-        throw OException.wrapException(
-            new ODatabaseException("Error on retrieving record using temporary RID: " + rid), t);
-      else
-        throw OException.wrapException(
-            new ODatabaseException(
-                "Error on retrieving record "
-                    + rid
-                    + " (cluster: "
-                    + getStorage().getPhysicalClusterNameById(rid.getClusterId())
-                    + ")"),
-            t);
-    } finally {
-      getMetadata().clearThreadLocalSchemaSnapshot();
-    }
   }
 
   @Override

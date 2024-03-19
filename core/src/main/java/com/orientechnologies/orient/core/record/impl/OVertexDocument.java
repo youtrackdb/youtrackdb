@@ -4,6 +4,7 @@ import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.ODirection;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.OVertex;
 import java.util.Set;
 import javax.annotation.Nonnull;
@@ -27,12 +28,31 @@ public class OVertexDocument extends ODocument implements OVertexInternal {
   }
 
   @Override
+  public void convertToProxyRecord(ORecordAbstract primaryRecord) {
+    if (!(primaryRecord instanceof OVertexDocument) && !((ODocument) primaryRecord).isVertex()) {
+      throw new IllegalArgumentException("Can't convert to a proxy of OVertexDocument");
+    }
+
+    super.convertToProxyRecord(primaryRecord);
+  }
+
+  @Override
   public Set<String> getPropertyNames() {
+    checkForLoading();
+    if (primaryRecord != null) {
+      return ((OVertexInternal) primaryRecord).getPropertyNames();
+    }
+
     return OVertexInternal.filterPropertyNames(super.getPropertyNames());
   }
 
   @Override
   public <RET> RET getProperty(String fieldName) {
+    checkForLoading();
+    if (primaryRecord != null) {
+      return ((OVertexInternal) primaryRecord).getProperty(fieldName);
+    }
+
     OVertexInternal.checkPropertyName(fieldName);
 
     return getPropertyWithoutValidation(fieldName);
@@ -41,6 +61,11 @@ public class OVertexDocument extends ODocument implements OVertexInternal {
   @Nullable
   @Override
   public OIdentifiable getLinkProperty(String fieldName) {
+    checkForLoading();
+    if (primaryRecord != null) {
+      return ((OVertexInternal) primaryRecord).getLinkProperty(fieldName);
+    }
+
     OVertexInternal.checkPropertyName(fieldName);
 
     return super.getLinkProperty(fieldName);
@@ -48,6 +73,12 @@ public class OVertexDocument extends ODocument implements OVertexInternal {
 
   @Override
   public void setProperty(String fieldName, Object propertyValue) {
+    checkForLoading();
+    if (primaryRecord != null) {
+      ((OVertexInternal) primaryRecord).setProperty(fieldName, propertyValue);
+      return;
+    }
+
     OVertexInternal.checkPropertyName(fieldName);
 
     setPropertyWithoutValidation(fieldName, propertyValue);
@@ -55,6 +86,12 @@ public class OVertexDocument extends ODocument implements OVertexInternal {
 
   @Override
   public void setProperty(String name, Object value, OType... types) {
+    checkForLoading();
+    if (primaryRecord != null) {
+      ((OVertexInternal) primaryRecord).setProperty(name, value, types);
+      return;
+    }
+
     OVertexInternal.checkPropertyName(name);
 
     super.setProperty(name, value, types);
@@ -62,6 +99,11 @@ public class OVertexDocument extends ODocument implements OVertexInternal {
 
   @Override
   public <RET> RET removeProperty(String fieldName) {
+    checkForLoading();
+    if (primaryRecord != null) {
+      return ((OVertexInternal) primaryRecord).removeProperty(fieldName);
+    }
+
     OVertexInternal.checkPropertyName(fieldName);
 
     return removePropertyWithoutValidation(fieldName);
@@ -69,23 +111,44 @@ public class OVertexDocument extends ODocument implements OVertexInternal {
 
   @Override
   public Iterable<OVertex> getVertices(ODirection direction) {
+    checkForLoading();
+    if (primaryRecord != null) {
+      return ((OVertexInternal) primaryRecord).getVertices(direction);
+    }
+
     return OVertexInternal.super.getVertices(direction);
   }
 
   @Override
   public OVertexDocument delete() {
+    checkForLoading();
+    if (primaryRecord != null) {
+      ((OVertexInternal) primaryRecord).delete();
+      return (OVertexDocument) primaryRecord;
+    }
+
     super.delete();
     return this;
   }
 
   @Override
   public OVertexDocument copy() {
+    checkForLoading();
+    if (primaryRecord != null) {
+      return ((OVertexDocument) primaryRecord).copy();
+    }
+
     return (OVertexDocument) copyTo(new OVertexDocument());
   }
 
   @Override
   @Nonnull
   public ODocument getBaseDocument() {
+    checkForLoading();
+    if (primaryRecord != null) {
+      return (ODocument) primaryRecord;
+    }
+
     return this;
   }
 }

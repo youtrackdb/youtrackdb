@@ -456,6 +456,7 @@ public interface ODatabaseDocument extends ODatabase<ORecord> {
     if (result == null) {
       result = createClass(className, superclasses);
     }
+    schema.reload();
     return result;
   }
 }

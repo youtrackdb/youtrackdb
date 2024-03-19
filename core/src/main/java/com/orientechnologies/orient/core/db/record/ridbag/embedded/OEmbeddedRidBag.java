@@ -36,6 +36,8 @@ import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.ORecordInternal;
+import com.orientechnologies.orient.core.record.impl.ODocumentEntry;
+import com.orientechnologies.orient.core.record.impl.ODocumentEntryAware;
 import com.orientechnologies.orient.core.record.impl.OSimpleMultiValueTracker;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.OLinkSerializer;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.Change;
@@ -47,7 +49,7 @@ import java.util.NavigableMap;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
-public class OEmbeddedRidBag implements ORidBagDelegate {
+public class OEmbeddedRidBag implements ORidBagDelegate, ODocumentEntryAware {
   private boolean contentWasChanged = false;
 
   private Object[] entries = OCommonConst.EMPTY_OBJECT_ARRAY;
@@ -67,6 +69,16 @@ public class OEmbeddedRidBag implements ORidBagDelegate {
   @Override
   public void setSize(int size) {
     this.size = size;
+  }
+
+  @Override
+  public void setDocumentEntry(ODocumentEntry entry) {
+    tracker.setDocumentEntry(entry);
+  }
+
+  @Override
+  public void clearDocumentEntry() {
+    tracker.clearDocumentEntry();
   }
 
   private static enum Tombstone {
@@ -263,6 +275,7 @@ public class OEmbeddedRidBag implements ORidBagDelegate {
     copy.size = size;
     copy.owner = owner;
     copy.tracker = this.tracker;
+    tracker.clearDocumentEntry();
     return copy;
   }
 

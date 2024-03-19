@@ -45,7 +45,7 @@ public class OSequenceCached extends OSequence {
 
   public OSequenceCached(OSequence.CreateParams params, @Nonnull String name) {
     super(params, name);
-    var document = docRid.<ODocument>getRecord();
+    var document = (ODocument) docRid.getRecord();
 
     if (params == null) {
       params = new CreateParams().setDefaults();
@@ -165,7 +165,7 @@ public class OSequenceCached extends OSequence {
             if (tillEnd <= (delta / 100.f) || tillEnd <= 1) {
               String warningMessage =
                   "Non-recyclable sequence: "
-                      + getName()
+                      + getSequenceName(doc)
                       + " reaching limt, current value: "
                       + cacheStart
                       + " limit value: "

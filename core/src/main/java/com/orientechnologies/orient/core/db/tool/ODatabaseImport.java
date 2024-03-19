@@ -1584,12 +1584,10 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
           jsonReader.readNext(OJSONReader.NEXT_IN_OBJECT);
         } else if (fieldName.equals("engineProperties")) {
           final String jsonEngineProperties = jsonReader.readString(OJSONReader.END_OBJECT, true);
-          Map<String, Object> map = new ODocument().fromJSON(jsonEngineProperties).toMap();
+          Map<String, Object> map =
+              ((ODocument) new ODocument().fromJSON(jsonEngineProperties)).toMap();
           if (map != null) {
-            engineProperties = new HashMap<>(map.size());
-            for (Entry<String, Object> entry : map.entrySet()) {
-              map.put(entry.getKey(), entry.getValue());
-            }
+            map.replaceAll((k, v) -> v);
           }
           jsonReader.readNext(OJSONReader.NEXT_IN_OBJECT);
         } else if (fieldName.equals("blueprintsIndexClass"))

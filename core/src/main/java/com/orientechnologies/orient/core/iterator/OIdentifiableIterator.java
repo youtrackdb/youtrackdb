@@ -33,7 +33,6 @@ import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.storage.OPhysicalPosition;
 import com.orientechnologies.orient.core.storage.OStorage;
 import java.util.HashSet;
@@ -64,7 +63,6 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
   protected long firstClusterEntry = 0;
   protected long lastClusterEntry = Long.MAX_VALUE;
   private String fetchPlan;
-  private ORecord reusedRecord = null; // DEFAULT = NOT
   // REUSE IT
   private Boolean directionForward;
   private long currentEntry = ORID.CLUSTER_POS_INVALID;
@@ -76,10 +74,6 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
    * during JSON export/import procedure to fix links on broken records.
    */
   protected final Set<ORID> brokenRIDs = new HashSet<>();
-
-  public OIdentifiableIterator(final ODatabaseDocumentInternal iDatabase) {
-    this(iDatabase, OStorage.LOCKING_STRATEGY.NONE);
-  }
 
   /**
    * @deprecated usage of this constructor may lead to deadlocks.
@@ -103,7 +97,7 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
   public abstract OIdentifiableIterator<REC> last();
 
   public ORecord current() {
-    return readCurrentRecord(getRecord(), 0);
+    return readCurrentRecord(0);
   }
 
   public String getFetchPlan() {
@@ -120,30 +114,6 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
 
   public void remove() {
     throw new UnsupportedOperationException("remove");
-  }
-
-  /**
-   * Tells if the iterator is using the same record for browsing.
-   *
-   * @see #setReuseSameRecord(boolean)
-   */
-  public boolean isReuseSameRecord() {
-    return reusedRecord != null;
-  }
-
-  /**
-   * Tell to the iterator to use the same record for browsing. The record will be reset before every
-   * use. This improve the performance and reduce memory utilization since it does not create a new
-   * one for each operation, but pay attention to copy the data of the record once read otherwise
-   * they will be reset to the next operation.
-   *
-   * @param reuseSameRecord if true the same record will be used for iteration. If false new record
-   *                        will be created each time iterator retrieves record from db.
-   * @return @see #isReuseSameRecord()
-   */
-  public OIdentifiableIterator<REC> setReuseSameRecord(final boolean reuseSameRecord) {
-    reusedRecord = (ORecord) (reuseSameRecord ? database.newInstance() : null);
-    return this;
   }
 
   public long getCurrentEntry() {
@@ -233,23 +203,6 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
     return null;
   }
 
-  /**
-   * Return the record to use for the operation.
-   *
-   * @return the record to use for the operation.
-   */
-  protected ORecord getRecord() {
-    final ORecord record;
-    if (reusedRecord != null) {
-      // REUSE THE SAME RECORD AFTER HAVING RESETTED IT
-      record = reusedRecord;
-      record.reset();
-    } else {
-      record = null;
-    }
-    return record;
-  }
-
   protected void checkDirection(final boolean iForward) {
     if (directionForward == null)
     // SET THE DIRECTION
@@ -263,65 +216,55 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
   /**
    * Read the current record and increment the counter if the record was found.
    *
-   * @param iRecord to read value from database inside it. If record is null link will be created
-   *                and stored in it.
    * @return record which was read from db.
    */
-  protected ORecord readCurrentRecord(ORecord iRecord, final int movement) {
-    if (limit > -1 && browsedRecords >= limit)
+  protected ORecord readCurrentRecord(final int movement) {
     // LIMIT REACHED
-    {
+    if (limit > -1 && browsedRecords >= limit) {
       return null;
     }
 
-    do {
-      final boolean moveResult =
-          switch (movement) {
-            case 1 -> nextPosition();
-            case -1 -> prevPosition();
-            case 0 -> checkCurrentPosition();
-            default -> throw new IllegalStateException("Invalid movement value : " + movement);
-          };
+    final boolean moveResult =
+        switch (movement) {
+          case 1 -> nextPosition();
+          case -1 -> prevPosition();
+          case 0 -> checkCurrentPosition();
+          default -> throw new IllegalStateException("Invalid movement value : " + movement);
+        };
 
-      if (!moveResult) {
-        return null;
+    if (!moveResult) {
+      return null;
+    }
+
+    ORecord iRecord = null;
+    try {
+      iRecord = database.load(current, fetchPlan, false);
+    } catch (ODatabaseException e) {
+      if (Thread.interrupted() || database.isClosed())
+      // THREAD INTERRUPTED: RETURN
+      {
+        throw e;
       }
 
-      try {
-        if (iRecord != null) {
-          ORecordInternal.setIdentity(
-              iRecord, new ORecordId(current.getClusterId(), current.getClusterPosition()));
-          iRecord = database.load(iRecord, fetchPlan, false);
-        } else {
-          iRecord = database.load(current, fetchPlan, false);
-        }
-      } catch (ODatabaseException e) {
-        if (Thread.interrupted() || database.isClosed())
-        // THREAD INTERRUPTED: RETURN
-        {
-          throw e;
-        }
-
-        if (e.getCause() instanceof OSecurityException) {
-          throw e;
-        }
-
-        if (OGlobalConfiguration.DB_SKIP_BROKEN_RECORDS.getValueAsBoolean()) {
-          brokenRIDs.add(current.copy());
-
-          OLogManager.instance()
-              .error(
-                  this, "Error on fetching record during browsing. The record has been skipped", e);
-        } else {
-          throw e;
-        }
+      if (e.getCause() instanceof OSecurityException) {
+        throw e;
       }
 
-      if (iRecord != null) {
-        browsedRecords++;
-        return iRecord;
+      if (OGlobalConfiguration.DB_SKIP_BROKEN_RECORDS.getValueAsBoolean()) {
+        brokenRIDs.add(current.copy());
+
+        OLogManager.instance()
+            .error(
+                this, "Error on fetching record during browsing. The record has been skipped", e);
+      } else {
+        throw e;
       }
-    } while (movement != 0);
+    }
+
+    if (iRecord != null) {
+      browsedRecords++;
+      return iRecord;
+    }
 
     return null;
   }

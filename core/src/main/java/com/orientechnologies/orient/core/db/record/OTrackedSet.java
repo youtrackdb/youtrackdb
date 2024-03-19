@@ -23,6 +23,8 @@ package com.orientechnologies.orient.core.db.record;
 import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.ODocumentEntry;
+import com.orientechnologies.orient.core.record.impl.ODocumentEntryAware;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.record.impl.OSimpleMultiValueTracker;
 import java.io.Serializable;
@@ -42,14 +44,14 @@ import java.util.Set;
  */
 @SuppressWarnings("serial")
 public class OTrackedSet<T> extends LinkedHashSet<T>
-    implements ORecordElement, OTrackedMultiValue<T, T>, Serializable {
+    implements ORecordElement, OTrackedMultiValue<T, T>, Serializable, ODocumentEntryAware {
   protected final ORecordElement sourceRecord;
   private final boolean embeddedCollection;
   protected Class<?> genericClass;
   private boolean dirty = false;
   private boolean transactionDirty = false;
 
-  private OSimpleMultiValueTracker<T, T> tracker = new OSimpleMultiValueTracker<>(this);
+  private final OSimpleMultiValueTracker<T, T> tracker = new OSimpleMultiValueTracker<>(this);
 
   public OTrackedSet(
       final ORecordElement iRecord, final Collection<? extends T> iOrigin, final Class<?> cls) {
@@ -300,5 +302,15 @@ public class OTrackedSet<T> extends LinkedHashSet<T>
 
   public OMultiValueChangeTimeLine<T, T> getTransactionTimeLine() {
     return tracker.getTransactionTimeLine();
+  }
+
+  @Override
+  public void setDocumentEntry(ODocumentEntry entry) {
+    tracker.setDocumentEntry(entry);
+  }
+
+  @Override
+  public void clearDocumentEntry() {
+    tracker.clearDocumentEntry();
   }
 }

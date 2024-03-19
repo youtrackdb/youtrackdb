@@ -24,6 +24,7 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.method.misc.OAbstractSQLMethod;
 import java.util.ArrayList;
 import java.util.List;
@@ -91,6 +92,8 @@ public class OSQLMethodExclude extends OAbstractSQLMethod {
     if (iThis != null) {
       if (iThis instanceof ORecordId) {
         iThis = ((ORecordId) iThis).getRecord();
+      } else if (iThis instanceof OResult result) {
+        iThis = result.asElement();
       }
       if (iThis instanceof ODocument) {
         // ACT ON SINGLE DOCUMENT

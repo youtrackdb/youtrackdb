@@ -219,13 +219,24 @@ public class OSharedContextEmbedded extends OSharedContext {
           if (id != null) {
             ORecordId recordId = new ORecordId(id);
             ORecord record = session.load(recordId, null, false);
-            ORecordInternal.setIdentity(value, recordId);
-            if (record != null) {
-              ORecordInternal.setVersion(value, record.getVersion());
+            if (record == null) {
+              record = new ODocument();
             }
-            session.save(value, "internal");
+
+            var recordVersion = record.getVersion();
+            record.fromStream(value.toStream());
+
+            ORecordInternal.setIdentity(record, recordId);
+            ORecordInternal.setVersion(record, recordVersion);
+            record.setDirty();
+
+            session.save(record, "internal");
           } else {
-            ORID recordId = session.save(value, "internal").getIdentity();
+            var record = new ODocument();
+            record.fromStream(value.toStream());
+            record.setDirty();
+
+            ORID recordId = session.save(record, "internal").getIdentity();
             ((OStorage) storage).setProperty(propertyName, recordId.toString());
           }
           return null;

@@ -372,7 +372,7 @@ public class ODatabaseDocumentTxTest extends BaseMemoryDatabase {
     OVertex doc2 = db.newVertex(vertexClass);
     doc2.setProperty("name", "second");
     doc2.save();
-    db.newEdge(doc1, doc2, "testEdge");
+    db.newEdge(doc1, doc2, "testEdge").save();
 
     try (OResultSet rs = db.query("SELECT out() as o FROM " + vertexClass)) {
       Assert.assertTrue(rs.hasNext());
@@ -404,8 +404,8 @@ public class ODatabaseDocumentTxTest extends BaseMemoryDatabase {
     doc3.setProperty("name", "third");
     doc3.save();
 
-    db.newEdge(doc1, doc2, "testEdge");
-    db.newEdge(doc1, doc3, "testEdge");
+    db.newEdge(doc1, doc2, "testEdge").save();
+    db.newEdge(doc1, doc3, "testEdge").save();
 
     try (OResultSet rs = db.query("SELECT out() as o FROM " + vertexClass)) {
       Assert.assertTrue(rs.hasNext());

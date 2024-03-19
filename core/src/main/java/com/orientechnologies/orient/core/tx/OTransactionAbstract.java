@@ -65,25 +65,23 @@ public abstract class OTransactionAbstract implements OTransaction {
   public static void updateCacheFromEntries(
       final ODatabaseDocumentInternal database,
       final Iterable<? extends ORecordOperation> entries,
-      final boolean updateStrategy) {
+      boolean updateStrategy,
+      boolean unloadCachedRecords) {
     final OLocalRecordCache dbCache = database.getLocalCache();
 
     for (ORecordOperation txEntry : entries) {
-      if (!updateStrategy) {
-        // ALWAYS REMOVE THE RECORD FROM CACHE
-        dbCache.deleteRecord(txEntry.getRecord().getIdentity());
-      } else if (txEntry.type == ORecordOperation.DELETED) {
-        // DELETION
-        dbCache.deleteRecord(txEntry.getRecord().getIdentity());
-      } else if (txEntry.type == ORecordOperation.UPDATED
-          || txEntry.type == ORecordOperation.CREATED) {
-        // UPDATE OR CREATE
-        dbCache.updateRecord(txEntry.getRecord());
-      }
       if (txEntry.getRecord() instanceof ODocument) {
         ODocumentInternal.clearTransactionTrackData((ODocument) txEntry.getRecord());
       }
+
+      txEntry.getRecord().unload();
     }
+
+    if (unloadCachedRecords) {
+      dbCache.unloadRecords();
+    }
+
+    dbCache.clear();
   }
 
   @Override

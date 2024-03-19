@@ -162,33 +162,33 @@ public class ConcurrentTxTest {
 
     final Object recordId = firstVertexHandle.getId();
 
-    Thread updateThread =
-        new Thread(
-            new Runnable() {
-              @Override
-              public void run() {
-                // 1. Update
-                OrientGraph tx2 = graphFactory.getTx();
-                try {
-                  tx2.begin();
-                  Vertex secondVertexHandle = tx2.getVertex(recordId);
-                  secondVertexHandle.setProperty(PROPERTY_NAME, secondValue);
-                  tx2.commit();
-                } finally {
-                  tx2.shutdown();
-                }
-              }
-            });
-    updateThread.start();
-    updateThread.join();
-
     // 2. Update
     OrientGraph tx3 = graphFactory.getTx();
     try {
       tx3.begin();
       Vertex thirdVertexHandle = tx3.getVertex(recordId);
-      thirdVertexHandle.setProperty(PROPERTY_NAME, thirdValue);
 
+      Thread updateThread =
+          new Thread(
+              new Runnable() {
+                @Override
+                public void run() {
+                  // 1. Update
+                  OrientGraph tx2 = graphFactory.getTx();
+                  try {
+                    tx2.begin();
+                    Vertex secondVertexHandle = tx2.getVertex(recordId);
+                    secondVertexHandle.setProperty(PROPERTY_NAME, secondValue);
+                    tx2.commit();
+                  } finally {
+                    tx2.shutdown();
+                  }
+                }
+              });
+      updateThread.start();
+      updateThread.join();
+
+      thirdVertexHandle.setProperty(PROPERTY_NAME, thirdValue);
       // commit
       tx3.commit();
     } finally {

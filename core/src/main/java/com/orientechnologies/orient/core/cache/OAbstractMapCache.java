@@ -72,6 +72,6 @@ public abstract class OAbstractMapCache<T extends Map<ORID, ?>> implements OReco
 
   @Override
   public Collection<ORID> keys() {
-    return new ArrayList<ORID>(cache.keySet());
+    return new ArrayList<>(cache.keySet());
   }
 }

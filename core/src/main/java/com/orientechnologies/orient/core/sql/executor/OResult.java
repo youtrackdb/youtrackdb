@@ -75,6 +75,9 @@ public interface OResult {
   Optional<OElement> getElement();
 
   @Nullable
+  OElement asElement();
+
+  @Nullable
   OElement toElement();
 
   default boolean isVertex() {

@@ -594,6 +594,7 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
           registerUserObject(proxiedObject, record);
         }
       } finally {
+        ORecordInternal.checkForLoading(record);
         record.setInternalStatus(ORecordElement.STATUS.LOADED);
       }
       return (RET) proxiedObject;
@@ -612,7 +613,7 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
         throw new OObjectNotDetachedException(
             "Cannot retrieve the object's ID for '" + iPojo + "' because has not been detached");
 
-      record = (ODocument) underlying.load(rid);
+      record = underlying.load(rid);
     }
     deleteCascade(record);
 

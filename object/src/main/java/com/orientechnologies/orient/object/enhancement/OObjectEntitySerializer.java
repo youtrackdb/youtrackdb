@@ -85,7 +85,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
-/** @author Luca Molino (molino.luca--at--gmail.com) */
+/**
+ * @author Luca Molino (molino.luca--at--gmail.com)
+ */
 public class OObjectEntitySerializer {
 
   public static final String SIMPLE_NAME = OObjectEntitySerializedSchema.class.getSimpleName();
@@ -1197,8 +1199,7 @@ public class OObjectEntitySerializer {
   @SuppressWarnings("unchecked")
   protected static <T> T toStream(final T iPojo, final Proxy iProxiedPojo, ODatabaseObject db)
       throws IllegalArgumentException, IllegalAccessException {
-
-    final ODocument iRecord = getDocument(iProxiedPojo);
+    ODocument iRecord = getDocument(iProxiedPojo);
     final long timer = Orient.instance().getProfiler().startChrono();
 
     final Integer identityRecord = System.identityHashCode(iPojo);
@@ -1216,21 +1217,17 @@ public class OObjectEntitySerializer {
     // CHECK FOR ID BINDING
     final Field idField = getIdField(pojoClass);
     if (idField != null) {
-
       Object id = getFieldValue(idField, iPojo);
+      ORecordId recordId = null;
       if (id != null) {
         // FOUND
         if (id instanceof ORecordId) {
-          ORecordInternal.setIdentity(iRecord, (ORecordId) id);
+          recordId = (ORecordId) id;
         } else if (id instanceof Number) {
-          // TREATS AS CLUSTER POSITION
-          ((ORecordId) iRecord.getIdentity()).setClusterId(schemaClass.getDefaultClusterId());
-          ((ORecordId) iRecord.getIdentity()).setClusterPosition(((Number) id).longValue());
-        } else if (id instanceof String)
-          ((ORecordId) iRecord.getIdentity()).fromString((String) id);
-        else if (id.getClass().equals(Object.class))
-          ORecordInternal.setIdentity(iRecord, (ORecordId) id);
-        else
+          recordId = new ORecordId(schemaClass.getDefaultClusterId(), ((Number) id).longValue());
+        } else if (id instanceof String) {
+          recordId = new ORecordId((String) id);
+        } else
           OLogManager.instance()
               .warn(
                   OObjectSerializerHelper.class,
@@ -1238,7 +1235,9 @@ public class OObjectEntitySerializer {
                       + " Object",
                   id.getClass());
       }
-      if (iRecord.getIdentity().isValid() && iRecord.getIdentity().isPersistent()) iRecord.reload();
+      if (recordId != null && recordId.isValid() && recordId.isPersistent()) {
+        iRecord = recordId.getRecord();
+      }
     }
 
     // CHECK FOR VERSION BINDING

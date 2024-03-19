@@ -1405,7 +1405,8 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
       ORecordInternal.unsetDirty(txEntry.getRecord());
 
     // UPDATE THE CACHE ONLY IF THE ITERATOR ALLOWS IT.
-    OTransactionAbstract.updateCacheFromEntries(iTx.getDatabase(), iTx.getRecordOperations(), true);
+    OTransactionAbstract.updateCacheFromEntries(
+        iTx.getDatabase(), iTx.getRecordOperations(), true, iTx.isUnloadCachedRecords());
     return null;
   }
 

@@ -33,6 +33,7 @@ import com.orientechnologies.orient.core.metadata.schema.OView;
 import com.orientechnologies.orient.core.metadata.sequence.OSequenceAction;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.serialization.serializer.binary.OBinarySerializerFactory;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
@@ -40,6 +41,7 @@ import com.orientechnologies.orient.core.sql.executor.OExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.storage.ORecordCallback;
 import com.orientechnologies.orient.core.storage.OStorage;
+import com.orientechnologies.orient.core.storage.OStorage.LOCKING_STRATEGY;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
 import com.orientechnologies.orient.core.tx.OTransaction;
@@ -120,13 +122,12 @@ public interface ODatabaseDocumentInternal extends ODatabaseSession, ODatabaseIn
 
   <RET extends ORecord> RET executeReadRecord(
       final ORecordId rid,
-      ORecord iRecord,
+      ORecordAbstract iRecord,
       final int recordVersion,
       final String fetchPlan,
       final boolean ignoreCache,
-      final boolean iUpdateCache,
       final boolean loadTombstones,
-      final OStorage.LOCKING_STRATEGY lockingStrategy,
+      final LOCKING_STRATEGY lockingStrategy,
       RecordReader recordReader);
 
   boolean executeExists(ORID rid);

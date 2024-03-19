@@ -120,7 +120,7 @@ public class ODocumentSerializerDelta {
       ODocumentEntry docEntry = entry.getValue();
       if (!docEntry.exists()) continue;
       writeString(bytes, entry.getKey());
-      final Object value = entry.getValue().value;
+      final Object value = entry.getValue().getValue();
       if (value != null) {
         final OType type = getFieldType(entry.getValue());
         if (type == null) {
@@ -599,7 +599,7 @@ public class ODocumentSerializerDelta {
 
   private void serializeDeltaEntry(
       BytesContainer bytes, OClass oClass, String name, ODocumentEntry entry) {
-    final Object value = entry.value;
+    final Object value = entry.getValue();
     assert value != null;
     final OType type = getFieldType(entry);
     if (type == null) {
@@ -978,13 +978,13 @@ public class ODocumentSerializerDelta {
       final OProperty prop = entry.property;
       if (prop != null) type = prop.getType();
     }
-    if (type == null || OType.ANY == type) type = OType.getTypeByValue(entry.value);
+    if (type == null || OType.ANY == type) type = OType.getTypeByValue(entry.getValue());
     return type;
   }
 
   private void serializeFullEntry(
       BytesContainer bytes, OClass oClass, String name, ODocumentEntry entry) {
-    final Object value = entry.value;
+    final Object value = entry.getValue();
     if (value != null) {
       final OType type = getFieldType(entry);
       if (type == null) {

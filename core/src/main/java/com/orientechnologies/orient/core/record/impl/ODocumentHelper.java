@@ -1109,7 +1109,7 @@ public class ODocumentHelper {
     Object otherFieldValue;
     for (Entry<String, Object> f : iCurrent) {
       myFieldValue = f.getValue();
-      otherFieldValue = iOther.fields.get(f.getKey()).value;
+      otherFieldValue = iOther.fields.get(f.getKey()).getValue();
 
       if (myFieldValue == otherFieldValue) continue;
 

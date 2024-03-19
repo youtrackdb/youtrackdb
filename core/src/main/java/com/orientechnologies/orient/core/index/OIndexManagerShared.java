@@ -609,7 +609,7 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
     if (database.getTransaction().isActive())
       throw new IllegalStateException("Cannot create a new index inside a transaction");
 
-    final Character c = OSchemaShared.checkFieldNameIfValid(iName);
+    final Character c = OSchemaShared.checkIndexNameIfValid(iName);
     if (c != null)
       throw new IllegalArgumentException(
           "Invalid index name '" + iName + "'. Character '" + c + "' is invalid");
@@ -820,7 +820,7 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
   public ODocument toStream() {
     internalAcquireExclusiveLock();
     try {
-      ODocument document = new ODocument(identity);
+      ODocument document = getDatabase().load((ORecord) identity.getRecord(), null, true);
       final OTrackedSet<ODocument> indexes = new OTrackedSet<>(document);
 
       for (final OIndex i : this.indexes.values()) {

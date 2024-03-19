@@ -152,13 +152,14 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
   }
 
   public void serialize(final ODocument document, final BytesContainer bytes) {
+    ORecordInternal.checkForLoading(document);
     serializeClass(document, bytes);
     final Collection<Entry<String, ODocumentEntry>> fields = fetchEntries(document);
     OVarIntSerializer.write(bytes, fields.size());
     for (Entry<String, ODocumentEntry> entry : fields) {
       ODocumentEntry docEntry = entry.getValue();
       writeString(bytes, entry.getKey());
-      final Object value = docEntry.value;
+      final Object value = docEntry.getValue();
       if (value != null) {
         final OType type = getFieldType(docEntry);
         if (type == null) {
@@ -763,7 +764,7 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
       final OProperty prop = entry.property;
       if (prop != null) type = prop.getType();
     }
-    if (type == null || OType.ANY == type) type = OType.getTypeByValue(entry.value);
+    if (type == null || OType.ANY == type) type = OType.getTypeByValue(entry.getValue());
     return type;
   }
 

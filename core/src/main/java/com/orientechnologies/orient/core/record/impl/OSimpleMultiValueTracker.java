@@ -32,14 +32,25 @@ import java.lang.ref.WeakReference;
  * @param <K> Value that uniquely identifies position of item in collection
  * @param <V> Item value.
  */
-public final class OSimpleMultiValueTracker<K, V> {
+public final class OSimpleMultiValueTracker<K, V> implements ODocumentEntryAware {
   private final WeakReference<ORecordElement> element;
+  private WeakReference<ODocumentEntry> documentEntry;
   private OMultiValueChangeTimeLine<Object, Object> timeLine;
   private boolean enabled;
   private OMultiValueChangeTimeLine<K, V> transactionTimeLine;
 
   public OSimpleMultiValueTracker(ORecordElement element) {
-    this.element = new WeakReference<ORecordElement>(element);
+    this.element = new WeakReference<>(element);
+  }
+
+  @Override
+  public void setDocumentEntry(ODocumentEntry entry) {
+    this.documentEntry = new WeakReference<>(entry);
+  }
+
+  @Override
+  public void clearDocumentEntry() {
+    this.documentEntry = null;
   }
 
   public void addNoDirty(K key, V value) {
@@ -87,12 +98,19 @@ public final class OSimpleMultiValueTracker<K, V> {
 
     if (changeOwner) {
       document.setDirty();
+      if (documentEntry != null) {
+        var docEntry = documentEntry.get();
+        if (docEntry != null) {
+          docEntry.markChanged();
+        }
+      }
+
     } else {
       document.setDirtyNoChanged();
     }
 
     if (timeLine == null) {
-      timeLine = new OMultiValueChangeTimeLine<Object, Object>();
+      timeLine = new OMultiValueChangeTimeLine<>();
     }
     timeLine.addCollectionChangeEvent((OMultiValueChangeEvent<Object, Object>) event);
 

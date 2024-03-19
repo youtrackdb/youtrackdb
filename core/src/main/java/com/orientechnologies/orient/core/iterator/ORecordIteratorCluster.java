@@ -119,8 +119,7 @@ public class ORecordIteratorCluster<REC extends ORecord> extends OIdentifiableIt
     boolean thereAreRecordsToBrowse = getCurrentEntry() > firstClusterEntry;
 
     if (thereAreRecordsToBrowse) {
-      ORecord record = getRecord();
-      currentRecord = readCurrentRecord(record, -1);
+      currentRecord = readCurrentRecord(-1);
     }
 
     return currentRecord != null;
@@ -147,16 +146,10 @@ public class ORecordIteratorCluster<REC extends ORecord> extends OIdentifiableIt
 
     if (!(current.getClusterPosition() < ORID.CLUSTER_POS_INVALID)
         && getCurrentEntry() < lastClusterEntry) {
-      ORecord record = getRecord();
       try {
-        currentRecord = readCurrentRecord(record, +1);
+        currentRecord = readCurrentRecord(+1);
       } catch (Exception e) {
         OLogManager.instance().error(this, "Error during read of record", e);
-
-        final ORID recordRid = record == null ? null : record.getIdentity();
-
-        if (recordRid != null) brokenRIDs.add(recordRid.copy());
-
         currentRecord = null;
       }
 
@@ -244,7 +237,7 @@ public class ORecordIteratorCluster<REC extends ORecord> extends OIdentifiableIt
     updateRangesOnLiveUpdate();
     resetCurrentPosition();
 
-    currentRecord = readCurrentRecord(getRecord(), +1);
+    currentRecord = readCurrentRecord(+1);
 
     return this;
   }
@@ -262,7 +255,7 @@ public class ORecordIteratorCluster<REC extends ORecord> extends OIdentifiableIt
     updateRangesOnLiveUpdate();
     resetCurrentPosition();
 
-    currentRecord = readCurrentRecord(getRecord(), -1);
+    currentRecord = readCurrentRecord(-1);
 
     return this;
   }

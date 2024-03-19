@@ -25,6 +25,7 @@ import com.orientechnologies.common.types.OModifiableInteger;
 import com.orientechnologies.common.util.OArrays;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OMetadataUpdateListener;
 import com.orientechnologies.orient.core.db.OScenarioThreadLocal;
 import com.orientechnologies.orient.core.db.viewmanager.ViewCreationListener;
@@ -126,6 +127,25 @@ public abstract class OSchemaShared implements OCloseable {
   }
 
   public static Character checkFieldNameIfValid(String iName) {
+    if (iName == null) throw new IllegalArgumentException("Name is null");
+
+    iName = iName.trim();
+
+    final int nameSize = iName.length();
+
+    if (nameSize == 0) throw new IllegalArgumentException("Name is empty");
+
+    for (int i = 0; i < nameSize; ++i) {
+      final char c = iName.charAt(i);
+      if (c == ':' || c == ',' || c == ';' || c == ' ' || c == '=')
+        // INVALID CHARACTER
+        return c;
+    }
+
+    return null;
+  }
+
+  public static Character checkIndexNameIfValid(String iName) {
     if (iName == null) throw new IllegalArgumentException("Name is null");
 
     iName = iName.trim();
@@ -343,8 +363,7 @@ public abstract class OSchemaShared implements OCloseable {
     lock.writeLock().lock();
     try {
       identity = new ORecordId(database.getStorageInfo().getConfiguration().getSchemaRecordId());
-      ODocument document = new ODocument(identity);
-      document = database.reload(document, null, true, true);
+      ODocument document = database.reload(identity.getRecord(), null, true);
       fromStream(document);
       forceSnapshot(database);
     } finally {
@@ -708,7 +727,7 @@ public abstract class OSchemaShared implements OCloseable {
   public ODocument toStream() {
     lock.readLock().lock();
     try {
-      ODocument document = new ODocument(getIdentity());
+      ODocument document = ODatabaseSession.getActiveSession().load(identity, null, true);
       document.field("schemaVersion", CURRENT_VERSION_NUMBER);
 
       // This steps is needed because in classes there are duplicate due to aliases
@@ -803,7 +822,7 @@ public abstract class OSchemaShared implements OCloseable {
       identity = new ORecordId(database.getStorageInfo().getConfiguration().getSchemaRecordId());
       if (!identity.isValid())
         throw new OSchemaNotCreatedException("Schema is not created and cannot be loaded");
-      ODocument document = new ODocument(identity);
+      ODocument document = identity.getRecord();
       document = database.reload(document, "*:-1 index:0", true);
       fromStream(document);
 

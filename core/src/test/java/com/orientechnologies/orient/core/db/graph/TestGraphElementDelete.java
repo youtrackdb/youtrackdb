@@ -13,6 +13,7 @@ import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.OVertex;
+import java.util.concurrent.CountDownLatch;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -39,7 +40,6 @@ public class TestGraphElementDelete {
 
   @Test
   public void testDeleteVertex() {
-
     OVertex vertex = database.newVertex("V");
     OVertex vertex1 = database.newVertex("V");
     OEdge edge = vertex.addEdge(vertex1, "E");
@@ -64,21 +64,31 @@ public class TestGraphElementDelete {
   }
 
   @Test
-  public void testDeleteEdgeConcurrentModification() {
-
+  public void testDeleteEdgeConcurrentModification() throws Exception {
     OVertex vertex = database.newVertex("V");
     OVertex vertex1 = database.newVertex("V");
     OEdge edge = vertex.addEdge(vertex1, "E");
     database.save(edge);
-    database.getLocalCache().clear();
+
+    var saveLatch = new CountDownLatch(1);
+    new Thread(
+            () -> {
+              try (var database =
+                  orientDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
+                OElement instance = database.load(edge.getIdentity());
+                instance.setProperty("one", "two");
+                database.save(instance);
+                saveLatch.countDown();
+              }
+            })
+        .start();
+
     OElement instance = database.load(edge.getIdentity());
-    instance.setProperty("one", "two");
-    database.save(instance);
+    saveLatch.await();
     try {
-      database.delete(edge);
+      database.delete(instance);
       Assert.fail();
     } catch (OConcurrentModificationException e) {
-
     }
 
     assertNotNull(database.load(edge.getIdentity()));

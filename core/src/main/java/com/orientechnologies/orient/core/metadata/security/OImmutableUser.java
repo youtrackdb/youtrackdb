@@ -8,7 +8,6 @@ import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.security.OSecurityManager;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -16,7 +15,6 @@ import java.util.Set;
  * @since 03/11/14
  */
 public class OImmutableUser implements OSecurityUser {
-  private static final long serialVersionUID = 1L;
   private final long version;
 
   private final String name;
@@ -72,7 +70,7 @@ public class OImmutableUser implements OSecurityUser {
 
     final OSecurityRole role = checkIfAllowed(resourceGeneric, resourceSpecific, iOperation);
 
-    if (role == null)
+    if (role == null) {
       throw new OSecurityAccessException(
           getName(),
           "User '"
@@ -83,6 +81,7 @@ public class OImmutableUser implements OSecurityUser {
               + resourceGeneric
               + "."
               + resourceSpecific);
+    }
 
     return role;
   }
@@ -204,8 +203,7 @@ public class OImmutableUser implements OSecurityUser {
   }
 
   public boolean hasRole(final String iRoleName, final boolean iIncludeInherited) {
-    for (Iterator<OImmutableRole> it = roles.iterator(); it.hasNext(); ) {
-      final OSecurityRole role = it.next();
+    for (final OSecurityRole role : roles) {
       if (role.getName().equals(iRoleName)) return true;
 
       if (iIncludeInherited) {

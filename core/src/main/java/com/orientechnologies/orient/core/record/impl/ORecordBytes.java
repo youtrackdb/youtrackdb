@@ -39,8 +39,6 @@ import java.util.Arrays;
  */
 @SuppressWarnings({"unchecked"})
 public class ORecordBytes extends ORecordAbstract implements OBlob {
-  private static final long serialVersionUID = 1L;
-
   private static final byte[] EMPTY_SOURCE = new byte[] {};
 
   public ORecordBytes() {
@@ -69,7 +67,21 @@ public class ORecordBytes extends ORecordAbstract implements OBlob {
     setup(ODatabaseRecordThreadLocal.instance().getIfDefined());
   }
 
+  @Override
+  public void convertToProxyRecord(ORecordAbstract primaryRecord) {
+    if (!(primaryRecord instanceof ORecordBytes)) {
+      throw new IllegalArgumentException("Can only convert to of ORecordBytes");
+    }
+
+    super.convertToProxyRecord(primaryRecord);
+  }
+
   public ORecordBytes reset(final byte[] iSource) {
+    if (primaryRecord != null) {
+      ((ORecordBytes) primaryRecord).reset(iSource);
+      return this;
+    }
+
     reset();
     source = iSource;
     return this;
@@ -82,29 +94,39 @@ public class ORecordBytes extends ORecordAbstract implements OBlob {
 
   @Override
   public ORecordBytes fromStream(final byte[] iRecordBuffer) {
+    if (primaryRecord != null) {
+      ((ORecordBytes) primaryRecord).fromStream(iRecordBuffer);
+      return this;
+    }
+
     source = iRecordBuffer;
     status = ORecordElement.STATUS.LOADED;
+
     return this;
   }
 
   @Override
   public ORecordAbstract clear() {
+    if (primaryRecord != null) {
+      primaryRecord.clear();
+      return this;
+    }
+
     clearSource();
     return super.clear();
   }
 
   @Override
   public byte[] toStream() {
+    if (primaryRecord != null) {
+      return ((ORecordBytes) primaryRecord).toStream();
+    }
+
     return source;
   }
 
   public byte getRecordType() {
     return RECORD_TYPE;
-  }
-
-  @Override
-  protected void setup(ODatabaseDocumentInternal db) {
-    super.setup(db);
   }
 
   /**
@@ -117,24 +139,33 @@ public class ORecordBytes extends ORecordAbstract implements OBlob {
    * @throws IOException
    */
   public int fromInputStream(final InputStream in) throws IOException {
-    final OMemoryStream out = new OMemoryStream();
-    try {
-      final byte[] buffer = new byte[OMemoryStream.DEF_SIZE];
-      int readBytesCount;
-      while (true) {
-        readBytesCount = in.read(buffer, 0, buffer.length);
-        if (readBytesCount == -1) {
-          break;
-        }
-        out.write(buffer, 0, readBytesCount);
-      }
-      out.flush();
-      source = out.toByteArray();
-    } finally {
-      out.close();
+    if (primaryRecord != null) {
+      return ((ORecordBytes) primaryRecord).fromInputStream(in);
     }
-    size = source.length;
-    return size;
+
+    incrementLoading();
+    try {
+      final OMemoryStream out = new OMemoryStream();
+      try {
+        final byte[] buffer = new byte[OMemoryStream.DEF_SIZE];
+        int readBytesCount;
+        while (true) {
+          readBytesCount = in.read(buffer, 0, buffer.length);
+          if (readBytesCount == -1) {
+            break;
+          }
+          out.write(buffer, 0, readBytesCount);
+        }
+        out.flush();
+        source = out.toByteArray();
+      } finally {
+        out.close();
+      }
+      size = source.length;
+      return size;
+    } finally {
+      decrementLoading();
+    }
   }
 
   /**
@@ -148,31 +179,45 @@ public class ORecordBytes extends ORecordAbstract implements OBlob {
    * @throws IOException if an I/O error occurs.
    */
   public int fromInputStream(final InputStream in, final int maxSize) throws IOException {
-    final byte[] buffer = new byte[maxSize];
-    int totalBytesCount = 0;
-    int readBytesCount;
-    while (totalBytesCount < maxSize) {
-      readBytesCount = in.read(buffer, totalBytesCount, buffer.length - totalBytesCount);
-      if (readBytesCount == -1) {
-        break;
-      }
-      totalBytesCount += readBytesCount;
+    if (primaryRecord != null) {
+      return ((ORecordBytes) primaryRecord).fromInputStream(in, maxSize);
     }
 
-    if (totalBytesCount == 0) {
-      source = EMPTY_SOURCE;
-      size = 0;
-    } else if (totalBytesCount == maxSize) {
-      source = buffer;
-      size = maxSize;
-    } else {
-      source = Arrays.copyOf(buffer, totalBytesCount);
-      size = totalBytesCount;
+    incrementLoading();
+    try {
+      final byte[] buffer = new byte[maxSize];
+      int totalBytesCount = 0;
+      int readBytesCount;
+      while (totalBytesCount < maxSize) {
+        readBytesCount = in.read(buffer, totalBytesCount, buffer.length - totalBytesCount);
+        if (readBytesCount == -1) {
+          break;
+        }
+        totalBytesCount += readBytesCount;
+      }
+
+      if (totalBytesCount == 0) {
+        source = EMPTY_SOURCE;
+        size = 0;
+      } else if (totalBytesCount == maxSize) {
+        source = buffer;
+        size = maxSize;
+      } else {
+        source = Arrays.copyOf(buffer, totalBytesCount);
+        size = totalBytesCount;
+      }
+      return size;
+    } finally {
+      decrementLoading();
     }
-    return size;
   }
 
   public void toOutputStream(final OutputStream out) throws IOException {
+    if (primaryRecord != null) {
+      ((ORecordBytes) primaryRecord).toOutputStream(out);
+      return;
+    }
+
     checkForLoading();
 
     if (source.length > 0) {

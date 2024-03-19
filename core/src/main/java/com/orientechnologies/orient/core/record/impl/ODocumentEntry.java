@@ -32,7 +32,7 @@ import com.orientechnologies.orient.core.metadata.schema.OType;
  */
 public class ODocumentEntry {
 
-  public Object value;
+  private Object value;
   public Object original;
   public OType type;
   public OProperty property;
@@ -70,7 +70,7 @@ public class ODocumentEntry {
     final ODocumentEntry entry = new ODocumentEntry();
     entry.type = type;
     entry.property = property;
-    entry.value = value;
+    entry.setValue(getValue());
     entry.changed = changed;
     entry.created = created;
     entry.exists = exists;
@@ -81,8 +81,8 @@ public class ODocumentEntry {
   }
 
   public OMultiValueChangeTimeLine<Object, Object> getTimeLine() {
-    if (!isChanged() && value instanceof OTrackedMultiValue) {
-      return ((OTrackedMultiValue) value).getTimeLine();
+    if (!isChanged() && getValue() instanceof OTrackedMultiValue) {
+      return ((OTrackedMultiValue) getValue()).getTimeLine();
     } else {
       return null;
     }
@@ -101,8 +101,8 @@ public class ODocumentEntry {
   }
 
   public void removeTimeline() {
-    if (value instanceof OTrackedMultiValue) {
-      ((OTrackedMultiValue) value).disableTracking(null);
+    if (getValue() instanceof OTrackedMultiValue) {
+      ((OTrackedMultiValue) getValue()).disableTracking(null);
     }
   }
 
@@ -111,8 +111,8 @@ public class ODocumentEntry {
   }
 
   public boolean enableTracking(ODocument document) {
-    if (value instanceof OTrackedMultiValue) {
-      ((OTrackedMultiValue) value).enableTracking(document);
+    if (getValue() instanceof OTrackedMultiValue) {
+      ((OTrackedMultiValue) getValue()).enableTracking(document);
       return true;
     } else {
       return false;
@@ -126,21 +126,21 @@ public class ODocumentEntry {
   }
 
   public boolean isTrackedModified() {
-    if (value instanceof OTrackedMultiValue) {
-      return ((OTrackedMultiValue) value).isModified();
+    if (getValue() instanceof OTrackedMultiValue) {
+      return ((OTrackedMultiValue) getValue()).isModified();
     }
-    if (value instanceof ODocument && ((ODocument) value).isEmbedded()) {
-      return ((ODocument) value).isDirty();
+    if (getValue() instanceof ODocument && ((ODocument) getValue()).isEmbedded()) {
+      return ((ODocument) getValue()).isDirty();
     }
     return false;
   }
 
   public boolean isTxTrackedModified() {
-    if (value instanceof OTrackedMultiValue) {
-      return ((OTrackedMultiValue) value).isTransactionModified();
+    if (getValue() instanceof OTrackedMultiValue) {
+      return ((OTrackedMultiValue) getValue()).isTransactionModified();
     }
-    if (value instanceof ODocument && ((ODocument) value).isEmbedded()) {
-      return ((ODocument) value).isDirty();
+    if (getValue() instanceof ODocument && ((ODocument) getValue()).isEmbedded()) {
+      return ((ODocument) getValue()).isDirty();
     }
     return false;
   }
@@ -165,7 +165,7 @@ public class ODocumentEntry {
 
   public void undo() {
     if (isChanged()) {
-      value = original;
+      setValue(original);
       unmarkChanged();
       original = null;
       exists = true;
@@ -173,8 +173,8 @@ public class ODocumentEntry {
   }
 
   public void transactionClear() {
-    if (value instanceof OTrackedMultiValue) {
-      ((OTrackedMultiValue) value).transactionClear();
+    if (getValue() instanceof OTrackedMultiValue) {
+      ((OTrackedMultiValue) getValue()).transactionClear();
     }
     this.txCreated = false;
     this.txChanged = false;
@@ -190,5 +190,24 @@ public class ODocumentEntry {
 
   public boolean isTxExists() {
     return txExists;
+  }
+
+  public Object getValue() {
+    return value;
+  }
+
+  public void setValue(Object value) {
+    var prevValue = this.value;
+    this.value = value;
+
+    if (prevValue instanceof ODocumentEntryAware documentEntryAware) {
+      documentEntryAware.clearDocumentEntry();
+    }
+    if (value instanceof ODocumentEntryAware documentEntryAware) {
+      documentEntryAware.setDocumentEntry(this);
+    }
+    if (value instanceof ODocument document && document.isDirty()) {
+      markChanged();
+    }
   }
 }

@@ -242,6 +242,11 @@ public interface OVertexInternal extends OVertex, OElementInternal {
   }
 
   @Override
+  default boolean isUnloaded() {
+    return getBaseDocument().isUnloaded();
+  }
+
+  @Override
   default Iterable<OEdge> getEdges(ODirection direction) {
     var prefixes =
         switch (direction) {
@@ -615,7 +620,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
 
         final String inFieldName = getEdgeLinkFieldName(ODirection.IN, schemaType, true);
 
-        //link to itself
+        // link to itself
         ODocument inRecord;
         if (inVLink.equals(oldIdentity)) {
           inRecord = doc;

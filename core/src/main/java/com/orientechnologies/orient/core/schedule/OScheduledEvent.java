@@ -87,28 +87,28 @@ public class OScheduledEvent extends ODocumentWrapper {
   }
 
   public String getRule() {
-    return document.field(PROP_RULE);
+    return getDocument().field(PROP_RULE);
   }
 
   public String getName() {
-    return document.field(PROP_NAME);
+    return getDocument().field(PROP_NAME);
   }
 
   public long getNextExecutionId() {
-    Long value = document.field(PROP_EXEC_ID);
+    Long value = getDocument().field(PROP_EXEC_ID);
     return value != null ? value : 0;
   }
 
   public String getStatus() {
-    return document.field(PROP_STATUS);
+    return getDocument().field(PROP_STATUS);
   }
 
   public Map<Object, Object> getArguments() {
-    return document.field(PROP_ARGUMENTS);
+    return getDocument().field(PROP_ARGUMENTS);
   }
 
   public Date getStartTime() {
-    return document.field(PROP_STARTTIME);
+    return getDocument().field(PROP_STARTTIME);
   }
 
   public boolean isRunning() {
@@ -155,6 +155,7 @@ public class OScheduledEvent extends ODocumentWrapper {
   }
 
   private OFunction getFunctionSafe() {
+    var document = getDocument();
     if (function == null) {
       final Object funcDoc = document.field(PROP_FUNC);
       if (funcDoc != null) {
@@ -262,19 +263,20 @@ public class OScheduledEvent extends ODocumentWrapper {
 
     private boolean executeEvent() {
       for (int retry = 0; retry < 10; ++retry) {
+        var eventDoc = event.getDocument();
         try {
           if (isEventAlreadyExecuted()) break;
 
-          event.document.field(PROP_STATUS, STATUS.RUNNING);
-          event.document.field(PROP_STARTTIME, System.currentTimeMillis());
-          event.document.field(PROP_EXEC_ID, event.nextExecutionId.get());
+          eventDoc.field(PROP_STATUS, STATUS.RUNNING);
+          eventDoc.field(PROP_STARTTIME, System.currentTimeMillis());
+          eventDoc.field(PROP_EXEC_ID, event.nextExecutionId.get());
 
-          event.document.save();
+          eventDoc.save();
 
           // OK
           return true;
         } catch (ONeedRetryException e) {
-          event.document.reload(null, true);
+          eventDoc.unload();
           // CONCURRENT UPDATE, PROBABLY EXECUTED BY ANOTHER SERVER
           if (isEventAlreadyExecuted()) break;
 
@@ -327,11 +329,12 @@ public class OScheduledEvent extends ODocumentWrapper {
                 event.nextExecutionId.get(),
                 result);
         for (int retry = 0; retry < 10; ++retry) {
+          var eventDoc = event.getDocument();
           try {
-            event.document.field(PROP_STATUS, STATUS.WAITING);
-            event.document.save();
+            eventDoc.field(PROP_STATUS, STATUS.WAITING);
+            eventDoc.save();
           } catch (ONeedRetryException e) {
-            event.document.reload(null, true);
+            eventDoc.unload();
           } catch (Exception e) {
             OLogManager.instance()
                 .error(this, "Error on saving status for event '%s'", e, event.getName());
@@ -341,12 +344,14 @@ public class OScheduledEvent extends ODocumentWrapper {
     }
 
     private boolean isEventAlreadyExecuted() {
-      final ORecord rec = event.document.getIdentity().getRecord();
-      if (rec == null)
+      final ORecord rec = event.getDocument().getIdentity().getRecord();
+      if (rec == null) {
         // SKIP EXECUTION BECAUSE THE EVENT WAS DELETED
         return true;
+      }
 
-      final ODocument updated = rec.reload();
+      final ODocument updated =
+          ODatabaseSession.getActiveSession().load(rec.getIdentity(), null, true);
 
       final Long currentExecutionId = updated.field(PROP_EXEC_ID);
       if (currentExecutionId == null) return false;

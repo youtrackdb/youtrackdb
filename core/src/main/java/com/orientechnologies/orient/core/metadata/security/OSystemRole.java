@@ -54,6 +54,7 @@ public class OSystemRole extends ORole {
   public void fromStream(final ODocument iSource) {
     super.fromStream(iSource);
 
+    var document = getDocument();
     if (document != null
         && document.containsField(DB_FILTER)
         && document.fieldType(DB_FILTER) == OType.EMBEDDEDLIST) {

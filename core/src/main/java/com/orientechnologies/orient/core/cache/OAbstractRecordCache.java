@@ -106,6 +106,13 @@ public abstract class OAbstractRecordCache {
   }
 
   /**
+   * Transfer all records contained in cache to unload state.
+   */
+  public void unloadRecords() {
+    underlying.unloadRecords();
+  }
+
+  /**
    * Total number of cached entries
    *
    * @return non-negative integer

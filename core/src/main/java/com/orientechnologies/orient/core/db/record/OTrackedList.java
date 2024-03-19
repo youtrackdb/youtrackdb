@@ -22,6 +22,8 @@ package com.orientechnologies.orient.core.db.record;
 import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.ODocumentEntry;
+import com.orientechnologies.orient.core.record.impl.ODocumentEntryAware;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.record.impl.OSimpleMultiValueTracker;
 import java.io.Serializable;
@@ -38,13 +40,13 @@ import java.util.ListIterator;
  */
 @SuppressWarnings({"serial"})
 public class OTrackedList<T> extends ArrayList<T>
-    implements ORecordElement, OTrackedMultiValue<Integer, T>, Serializable {
+    implements ORecordElement, OTrackedMultiValue<Integer, T>, Serializable, ODocumentEntryAware {
   protected final ORecordElement sourceRecord;
   protected Class<?> genericClass;
   private final boolean embeddedCollection;
   private boolean dirty = false;
   private boolean transactionDirty = false;
-  private OSimpleMultiValueTracker<Integer, T> tracker = new OSimpleMultiValueTracker<>(this);
+  private final OSimpleMultiValueTracker<Integer, T> tracker = new OSimpleMultiValueTracker<>(this);
 
   public OTrackedList(
       final ORecordElement iRecord,
@@ -319,5 +321,15 @@ public class OTrackedList<T> extends ArrayList<T>
 
   public OMultiValueChangeTimeLine<Integer, T> getTransactionTimeLine() {
     return tracker.getTransactionTimeLine();
+  }
+
+  @Override
+  public void setDocumentEntry(ODocumentEntry entry) {
+    tracker.setDocumentEntry(entry);
+  }
+
+  @Override
+  public void clearDocumentEntry() {
+    tracker.clearDocumentEntry();
   }
 }

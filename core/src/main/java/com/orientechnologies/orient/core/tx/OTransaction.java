@@ -28,9 +28,11 @@ import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.storage.ORecordCallback;
 import com.orientechnologies.orient.core.storage.OStorage;
+import com.orientechnologies.orient.core.storage.OStorage.LOCKING_STRATEGY;
 import java.util.List;
 
 public interface OTransaction {
@@ -85,30 +87,28 @@ public interface OTransaction {
   @Deprecated
   ORecord loadRecord(
       ORID iRid,
-      ORecord iRecord,
+      ORecordAbstract iRecord,
       String iFetchPlan,
       boolean ignoreCache,
       boolean loadTombstone,
-      final OStorage.LOCKING_STRATEGY iLockingStrategy);
+      final LOCKING_STRATEGY iLockingStrategy);
 
   @Deprecated
   ORecord loadRecord(
       ORID iRid,
-      ORecord iRecord,
+      ORecordAbstract iRecord,
       String iFetchPlan,
       boolean ignoreCache,
       boolean iUpdateCache,
       boolean loadTombstone,
-      final OStorage.LOCKING_STRATEGY iLockingStrategy);
+      final LOCKING_STRATEGY iLockingStrategy);
 
-  ORecord loadRecord(ORID iRid, ORecord iRecord, String iFetchPlan, boolean ignoreCache);
+  ORecord loadRecord(ORID iRid, ORecordAbstract iRecord, String iFetchPlan, boolean ignoreCache);
 
   boolean exists(ORID rid);
 
-  ORecord reloadRecord(ORID iRid, ORecord iRecord, String iFetchPlan, boolean ignoreCache);
-
   ORecord reloadRecord(
-      ORID iRid, ORecord iRecord, String iFetchPlan, boolean ignoreCache, boolean force);
+      ORID iRid, ORecordAbstract iRecord, String iFetchPlan, boolean ignoreCache, boolean force);
 
   ORecord loadRecordIfVersionIsNotLatest(
       ORID rid, int recordVersion, String fetchPlan, boolean ignoreCache)

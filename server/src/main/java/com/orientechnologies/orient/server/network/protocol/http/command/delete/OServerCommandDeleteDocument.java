@@ -53,7 +53,7 @@ public class OServerCommandDeleteDocument extends OServerCommandDocumentAbstract
       if (!recordId.isValid())
         throw new IllegalArgumentException("Invalid Record ID in request: " + urlParts[2]);
 
-      final ODocument doc = new ODocument(recordId);
+      final ODocument doc = recordId.getRecord();
 
       // UNMARSHALL DOCUMENT WITH REQUEST CONTENT
       if (iRequest.getContent() != null)

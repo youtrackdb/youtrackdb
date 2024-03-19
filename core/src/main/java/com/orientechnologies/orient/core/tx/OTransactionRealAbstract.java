@@ -74,7 +74,7 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
   @Override
   public void addChangedDocument(ODocument document) {
     if (getRecord(document.getIdentity()) == null) {
-      changedDocuments.add(document);
+      changedDocuments.add((ODocument) document.getRecord());
     }
   }
 
@@ -82,7 +82,7 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
     super.close();
     for (final ORecordOperation recordOperation : getRecordOperations()) {
       final ORecord record = recordOperation.getRecord();
-      if (record instanceof ODocument document) {
+      if (record instanceof ODocument document && !document.isUnloaded()) {
         if (document.isDirty()) {
           document.undo();
         }
@@ -630,5 +630,10 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
         updatedRids.put(oldNew, op.getKey());
       }
     }
+  }
+
+  @Override
+  public boolean isUnloadCachedRecords() {
+    return false;
   }
 }

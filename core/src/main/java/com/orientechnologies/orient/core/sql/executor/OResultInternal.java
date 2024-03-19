@@ -301,6 +301,16 @@ public class OResultInternal implements OResult {
   }
 
   @Override
+  public OElement asElement() {
+    loadElement();
+    if (isElement()) {
+      return (OElement) element;
+    }
+
+    return null;
+  }
+
+  @Override
   public OElement toElement() {
     if (isElement()) {
       return getElement().get();

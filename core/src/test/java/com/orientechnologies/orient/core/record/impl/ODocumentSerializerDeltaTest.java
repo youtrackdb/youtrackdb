@@ -5,7 +5,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
@@ -59,15 +58,15 @@ public class ODocumentSerializerDeltaTest {
       String testValue = "testValue";
       String removeField = "removeField";
 
-      doc.field(fieldName, originalValue);
-      doc.field(constantFieldName, "someValue");
-      doc.field(removeField, "removeVal");
+      doc.setProperty(fieldName, originalValue);
+      doc.setProperty(constantFieldName, "someValue");
+      doc.setProperty(removeField, "removeVal");
 
       doc = db.save(doc);
       ODocument originalDoc = doc.copy();
 
-      doc.field(fieldName, testValue);
-      doc.removeField(removeField);
+      doc.setProperty(fieldName, testValue);
+      doc.removeProperty(removeField);
       // test serialization/deserialization
       ODocumentSerializerDelta delta = ODocumentSerializerDelta.instance();
       byte[] bytes = delta.serializeDelta(doc);
@@ -101,22 +100,22 @@ public class ODocumentSerializerDeltaTest {
       String testValue = "testValue";
       String nestedDocField = "nestedField";
 
-      nestedDoc.field(fieldName, originalValue);
-      nestedDoc.field(constantFieldName, "someValue1");
+      nestedDoc.setProperty(fieldName, originalValue);
+      nestedDoc.setProperty(constantFieldName, "someValue1");
 
-      doc.field(constantFieldName, "someValue2");
-      doc.field(nestedDocField, nestedDoc);
+      doc.setProperty(constantFieldName, "someValue2");
+      doc.setProperty(nestedDocField, nestedDoc);
 
       ODocument originalDoc = new ODocument();
-      originalDoc.field(constantFieldName, "someValue2");
-      originalDoc.field(nestedDocField, nestedDoc);
+      originalDoc.setProperty(constantFieldName, "someValue2");
+      originalDoc.setProperty(nestedDocField, nestedDoc);
 
       doc = db.save(doc);
 
       nestedDoc = doc.field(nestedDocField);
-      nestedDoc.field(fieldName, testValue);
+      nestedDoc.setProperty(fieldName, testValue);
 
-      doc.field(nestedDocField, nestedDoc);
+      doc.setProperty(nestedDocField, nestedDoc);
 
       ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
@@ -152,7 +151,7 @@ public class ODocumentSerializerDeltaTest {
       originalValue.add("two");
       originalValue.add("toRemove");
 
-      doc.field(fieldName, originalValue);
+      doc.setProperty(fieldName, originalValue);
 
       doc = db.save(doc);
       ODocument originalDoc = doc.copy();
@@ -167,7 +166,7 @@ public class ODocumentSerializerDeltaTest {
       byte[] bytes = serializerDelta.serializeDelta(doc);
       serializerDelta.deserializeDelta(bytes, originalDoc);
 
-      List checkList = originalDoc.field(fieldName);
+      List<?> checkList = originalDoc.getProperty(fieldName);
       assertEquals("three", checkList.get(1));
       assertFalse(checkList.contains("toRemove"));
     } finally {
@@ -196,7 +195,7 @@ public class ODocumentSerializerDeltaTest {
       originalValue.add("one");
       originalValue.add("toRemove");
 
-      doc.field(fieldName, originalValue);
+      doc.setProperty(fieldName, originalValue);
 
       doc = db.save(doc);
       ODocument originalDoc = doc.copy();
@@ -237,19 +236,20 @@ public class ODocumentSerializerDeltaTest {
       String fieldName = "testField";
       Set<Set<String>> originalValue = new HashSet<>();
       for (int i = 0; i < 2; i++) {
-        Set<String> containedList = new HashSet<>();
-        containedList.add("one");
-        containedList.add("two");
-        originalValue.add(containedList);
+        Set<String> containedSet = new HashSet<>();
+        containedSet.add("one");
+        containedSet.add("two");
+        originalValue.add(containedSet);
       }
 
-      doc.field(fieldName, originalValue);
+      doc.setProperty(fieldName, originalValue);
 
       doc = db.save(doc);
       ODocument originalDoc = doc.copy();
 
-      Set<String> newArray = (Set<String>) ((Set) doc.field(fieldName)).iterator().next();
-      newArray.add("three");
+      @SuppressWarnings("unchecked")
+      Set<String> newSet = ((Set<Set<String>>) doc.getProperty(fieldName)).iterator().next();
+      newSet.add("three");
 
       // test serialization/deserialization
       ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
@@ -257,8 +257,8 @@ public class ODocumentSerializerDeltaTest {
       byte[] bytes = serializerDelta.serializeDelta(doc);
       serializerDelta.deserializeDelta(bytes, originalDoc);
 
-      Set<List> checkSet = originalDoc.field(fieldName);
-      assertFalse(checkSet.contains("three"));
+      Set<Set<String>> checkSet = originalDoc.field(fieldName);
+      assertTrue(checkSet.iterator().next().contains("three"));
     } finally {
       if (db != null) db.close();
       if (odb != null) {
@@ -289,13 +289,14 @@ public class ODocumentSerializerDeltaTest {
         originalValue.add(containedList);
       }
 
-      doc.field(fieldName, originalValue);
+      doc.setProperty(fieldName, originalValue);
 
       doc = db.save(doc);
       ODocument originalDoc = doc.copy();
 
-      List<String> newArray = (List<String>) ((List) doc.field(fieldName)).get(0);
-      newArray.set(1, "three");
+      @SuppressWarnings("unchecked")
+      List<String> newList = ((List<List<String>>) doc.field(fieldName)).get(0);
+      newList.set(1, "three");
 
       // test serialization/deserialization
       ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
@@ -303,7 +304,7 @@ public class ODocumentSerializerDeltaTest {
       byte[] bytes = serializerDelta.serializeDelta(doc);
       serializerDelta.deserializeDelta(bytes, originalDoc);
 
-      List<List> checkList = originalDoc.field(fieldName);
+      List<List<String>> checkList = originalDoc.field(fieldName);
       assertEquals("three", checkList.get(0).get(1));
     } finally {
       if (db != null) db.close();
@@ -334,18 +335,19 @@ public class ODocumentSerializerDeltaTest {
       List<ODocument> originalValue = new ArrayList<>();
       for (int i = 0; i < 2; i++) {
         ODocument containedDoc = new ODocumentEmbedded();
-        containedDoc.field(constantField, constValue);
-        containedDoc.field(variableField, "one" + i);
+        containedDoc.setProperty(constantField, constValue);
+        containedDoc.setProperty(variableField, "one" + i);
         originalValue.add(containedDoc);
       }
 
-      doc.field(fieldName, originalValue);
+      doc.setProperty(fieldName, originalValue);
 
       doc = db.save(doc);
       ODocument originalDoc = doc.copy();
 
-      ODocument testDoc = (ODocument) ((List) doc.getProperty(fieldName)).get(1);
-      testDoc.field(variableField, "two");
+      @SuppressWarnings("unchecked")
+      ODocument testDoc = ((List<ODocument>) doc.getProperty(fieldName)).get(1);
+      testDoc.setProperty(variableField, "two");
 
       // test serialization/deserialization
       ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
@@ -357,9 +359,6 @@ public class ODocumentSerializerDeltaTest {
       ODocument checkDoc = checkList.get(1);
       assertEquals(checkDoc.field(constantField), constValue);
       assertEquals(checkDoc.field(variableField), "two");
-    } catch (Exception e) {
-      e.printStackTrace();
-      throw e;
     } finally {
       if (db != null) db.close();
       if (odb != null) {
@@ -386,30 +385,26 @@ public class ODocumentSerializerDeltaTest {
       ODocument doc = new ODocument(claz);
       String fieldName = "testField";
       List<List<ODocument>> originalValue = new ArrayList<>();
-      List<List<ODocument>> copyValue = new ArrayList<>();
       for (int i = 0; i < 2; i++) {
         List<ODocument> containedList = new ArrayList<>();
-        List<ODocument> copyContainedList = new ArrayList<>();
         ODocument d1 = new ODocument();
-        d1.field(constantField, constValue);
-        d1.field(variableField, "one");
+        d1.setProperty(constantField, constValue);
+        d1.setProperty(variableField, "one");
         ODocument d2 = new ODocument();
-        d2.field(constantField, constValue);
+        d2.setProperty(constantField, constValue);
         containedList.add(d1);
         containedList.add(d2);
-        copyContainedList.add(d1.copy());
-        copyContainedList.add(d2.copy());
         originalValue.add(containedList);
-        copyValue.add(copyContainedList);
       }
 
-      doc.field(fieldName, originalValue);
+      doc.setProperty(fieldName, originalValue);
 
       doc = db.save(doc);
       ODocument originalDoc = doc.copy();
 
+      originalValue = doc.getProperty(fieldName);
       ODocument d1 = originalValue.get(0).get(0);
-      d1.field(variableField, "two");
+      d1.setProperty(variableField, "two");
 
       // test serialization/deserialization
       ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
@@ -419,9 +414,6 @@ public class ODocumentSerializerDeltaTest {
 
       List<List<ODocument>> checkList = originalDoc.field(fieldName);
       assertEquals("two", checkList.get(0).get(0).field(variableField));
-    } catch (Exception e) {
-      e.printStackTrace();
-      fail();
     } finally {
       if (db != null) db.close();
       if (odb != null) {
@@ -455,13 +447,13 @@ public class ODocumentSerializerDeltaTest {
         originalValue.add(containedList);
       }
 
-      doc.field(fieldName, originalValue);
+      doc.setProperty(fieldName, originalValue);
 
       doc = db.save(doc);
       ODocument originalDoc = doc.copy();
 
-      List<String> innerList =
-          (List<String>) ((List) ((List) ((List) doc.field(fieldName)).get(0)).get(0));
+      @SuppressWarnings("unchecked")
+      List<String> innerList = ((List<List<List<String>>>) doc.field(fieldName)).get(0).get(0);
       innerList.set(0, "changed");
 
       // test serialization/deserialization
@@ -498,24 +490,26 @@ public class ODocumentSerializerDeltaTest {
       String constantField = "constField";
       String constValue = "ConstValue";
       String variableField = "varField";
+
       List<ODocument> originalValue = new ArrayList<>();
       for (int i = 0; i < 2; i++) {
         ODocument containedDoc = new ODocumentEmbedded();
-        containedDoc.field(constantField, constValue);
+        containedDoc.setProperty(constantField, constValue);
         List<String> listField = new ArrayList<>();
         for (int j = 0; j < 2; j++) {
           listField.add("Some" + j);
         }
-        containedDoc.field(variableField, listField);
+        containedDoc.setProperty(variableField, listField);
         originalValue.add(containedDoc);
       }
 
-      doc.field(fieldName, originalValue);
+      doc.setProperty(fieldName, originalValue);
 
       doc = db.save(doc);
       ODocument originalDoc = doc.copy();
 
-      ODocument testDoc = (ODocument) ((List) doc.field(fieldName)).get(1);
+      @SuppressWarnings("unchecked")
+      ODocument testDoc = ((List<ODocument>) doc.field(fieldName)).get(1);
       List<String> currentList = testDoc.field(variableField);
       currentList.set(0, "changed");
       // test serialization/deserialization
@@ -553,7 +547,7 @@ public class ODocumentSerializerDeltaTest {
       List<String> originalValue = new ArrayList<>();
       originalValue.add("one");
       originalValue.add("two");
-      doc.field(fieldName, originalValue);
+      doc.setProperty(fieldName, originalValue);
 
       doc = db.save(doc);
       ODocument originalDoc = doc.copy();
@@ -567,7 +561,7 @@ public class ODocumentSerializerDeltaTest {
       byte[] bytes = serializerDelta.serializeDelta(doc);
       serializerDelta.deserializeDelta(bytes, originalDoc);
 
-      List checkList = originalDoc.field(fieldName);
+      List<String> checkList = originalDoc.field(fieldName);
       assertEquals(3, checkList.size());
     } finally {
       if (db != null) db.close();
@@ -599,15 +593,16 @@ public class ODocumentSerializerDeltaTest {
         originalList.add(nestedList);
       }
 
-      doc.field(fieldName, originalList);
+      doc.setProperty(fieldName, originalList);
 
       doc = db.save(doc);
       // Deep Copy is not working in this case, use toStream/fromStream as workaround.
       // ODocument originalDoc = doc.copy();
       ODocument originalDoc = new ODocument();
-      originalDoc.fromStream(doc.toStream());
+      originalDoc.fromStream(doc.reload().toStream());
 
-      List<String> newArray = (List<String>) ((List) doc.field(fieldName)).get(0);
+      @SuppressWarnings("unchecked")
+      List<String> newArray = ((List<List<String>>) doc.field(fieldName)).get(0);
       newArray.add("three");
 
       // test serialization/deserialization
@@ -646,12 +641,12 @@ public class ODocumentSerializerDeltaTest {
       originalValue.add("two");
       originalValue.add("three");
 
-      doc.field(fieldName, originalValue);
+      doc.setProperty(fieldName, originalValue);
 
       doc = db.save(doc);
       ODocument originalDoc = doc.copy();
 
-      List<String> newArray = (List<String>) doc.field(fieldName);
+      List<String> newArray = doc.field(fieldName);
       newArray.remove(0);
       newArray.remove(0);
 
@@ -661,7 +656,7 @@ public class ODocumentSerializerDeltaTest {
       byte[] bytes = serializerDelta.serializeDelta(doc);
       serializerDelta.deserializeDelta(bytes, originalDoc);
 
-      List checkList = originalDoc.field(fieldName);
+      List<String> checkList = originalDoc.field(fieldName);
       assertEquals("three", checkList.get(0));
     } finally {
       if (db != null) db.close();
@@ -687,13 +682,13 @@ public class ODocumentSerializerDeltaTest {
       String constantFieldName = "constantField";
       String testValue = "testValue";
 
-      doc.field(constantFieldName + "1", "someValue1");
-      doc.field(constantFieldName, "someValue");
+      doc.setProperty(constantFieldName + "1", "someValue1");
+      doc.setProperty(constantFieldName, "someValue");
 
       doc = db.save(doc);
       ODocument originalDoc = doc.copy();
 
-      doc.field(fieldName, testValue);
+      doc.setProperty(fieldName, testValue);
 
       // test serialization/deserialization
       ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
@@ -725,13 +720,13 @@ public class ODocumentSerializerDeltaTest {
       String constantFieldName = "constantField";
       String testValue = "testValue";
 
-      doc.field(fieldName, testValue);
-      doc.field(constantFieldName, "someValue");
+      doc.setProperty(fieldName, testValue);
+      doc.setProperty(constantFieldName, "someValue");
 
       doc = db.save(doc);
       ODocument originalDoc = doc.copy();
 
-      doc.removeField(fieldName);
+      doc.removeProperty(fieldName);
       doc.setProperty("other", "new");
 
       // test serialization/deserialization
@@ -740,7 +735,7 @@ public class ODocumentSerializerDeltaTest {
       byte[] bytes = serializerDelta.serializeDelta(doc);
       serializerDelta.deserializeDelta(bytes, originalDoc);
 
-      assertFalse(originalDoc.containsField(fieldName));
+      assertFalse(originalDoc.hasProperty(fieldName));
       assertEquals(originalDoc.getProperty("other"), "new");
     } finally {
       if (db != null) db.close();
@@ -769,16 +764,17 @@ public class ODocumentSerializerDeltaTest {
       String constantFieldName = "constantField";
       String testValue = "testValue";
 
-      doc.field(fieldName, testValue);
-      doc.field(constantFieldName, "someValue");
+      doc.setProperty(fieldName, testValue);
+      doc.setProperty(constantFieldName, "someValue");
 
       ODocument rootDoc = new ODocument(claz);
-      rootDoc.field(nestedFieldName, doc);
+      rootDoc.setProperty(nestedFieldName, doc);
 
       rootDoc = db.save(rootDoc);
       ODocument originalDoc = rootDoc.copy();
 
-      doc.removeField(fieldName);
+      doc = rootDoc.field(nestedFieldName);
+      doc.removeProperty(fieldName);
 
       // test serialization/deserialization
       ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
@@ -787,7 +783,7 @@ public class ODocumentSerializerDeltaTest {
       serializerDelta.deserializeDelta(bytes, originalDoc);
 
       ODocument nested = originalDoc.field(nestedFieldName);
-      assertFalse(nested.containsField(fieldName));
+      assertFalse(nested.hasProperty(fieldName));
     } finally {
       if (db != null) db.close();
       if (odb != null) {
@@ -817,18 +813,19 @@ public class ODocumentSerializerDeltaTest {
       List<ODocument> originalValue = new ArrayList<>();
       for (int i = 0; i < 2; i++) {
         ODocument containedDoc = new ODocument();
-        containedDoc.field(constantField, constValue);
-        containedDoc.field(variableField, "one" + i);
+        containedDoc.setProperty(constantField, constValue);
+        containedDoc.setProperty(variableField, "one" + i);
         originalValue.add(containedDoc);
       }
 
-      doc.field(fieldName, originalValue);
+      doc.setProperty(fieldName, originalValue);
 
       doc = db.save(doc);
       ODocument originalDoc = doc.copy();
 
-      ODocument testDoc = (ODocument) ((List) doc.field(fieldName)).get(1);
-      testDoc.removeField(variableField);
+      @SuppressWarnings("unchecked")
+      ODocument testDoc = ((List<ODocument>) doc.field(fieldName)).get(1);
+      testDoc.removeProperty(variableField);
       // test serialization/deserialization
       ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
@@ -838,7 +835,7 @@ public class ODocumentSerializerDeltaTest {
       List<ODocument> checkList = originalDoc.field(fieldName);
       ODocument checkDoc = checkList.get(1);
       assertEquals(checkDoc.field(constantField), constValue);
-      assertFalse(checkDoc.containsField(variableField));
+      assertFalse(checkDoc.hasProperty(variableField));
     } finally {
       if (db != null) db.close();
       if (odb != null) {
@@ -864,7 +861,7 @@ public class ODocumentSerializerDeltaTest {
       mapValue.put("first", "one");
       mapValue.put("second", "two");
 
-      doc.field(fieldName, mapValue, OType.EMBEDDEDMAP);
+      doc.setProperty(fieldName, mapValue, OType.EMBEDDEDMAP);
 
       doc = db.save(doc);
       ODocument originalDoc = doc.copy();
@@ -902,23 +899,20 @@ public class ODocumentSerializerDeltaTest {
       ODocument doc = new ODocument(claz);
       String fieldName = "testField";
       List<Map<String, String>> originalValue = new ArrayList<>();
-      List<Map<String, String>> copyValue = new ArrayList<>();
       for (int i = 0; i < 2; i++) {
         Map<String, String> mapValue = new HashMap<>();
         mapValue.put("first", "one");
         mapValue.put("second", "two");
-        Map<String, String> copyMap = new HashMap<>(mapValue);
-
         originalValue.add(mapValue);
-        copyValue.add(copyMap);
       }
 
-      doc.field(fieldName, originalValue, OType.EMBEDDEDLIST);
+      doc.setProperty(fieldName, originalValue, OType.EMBEDDEDLIST);
 
       doc = db.save(doc);
       ODocument originalDoc = doc.copy();
 
-      Map<String, String> containedMap = (Map<String, String>) ((List) doc.field(fieldName)).get(0);
+      @SuppressWarnings("unchecked")
+      Map<String, String> containedMap = ((List<Map<String, String>>) doc.field(fieldName)).get(0);
       containedMap.put("first", "changed");
       // test serialization/deserialization
       ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
@@ -926,9 +920,11 @@ public class ODocumentSerializerDeltaTest {
       byte[] bytes = serializerDelta.serializeDelta(doc);
       serializerDelta.deserializeDelta(bytes, originalDoc);
 
-      containedMap = (Map<String, String>) ((List) originalDoc.field(fieldName)).get(0);
+      //noinspection unchecked
+      containedMap = ((List<Map<String, String>>) originalDoc.field(fieldName)).get(0);
       assertEquals("changed", containedMap.get("first"));
-      containedMap = (Map<String, String>) ((List) originalDoc.field(fieldName)).get(1);
+      //noinspection unchecked
+      containedMap = ((List<Map<String, String>>) originalDoc.field(fieldName)).get(1);
       assertEquals("one", containedMap.get("first"));
     } finally {
       if (db != null) db.close();
@@ -953,23 +949,19 @@ public class ODocumentSerializerDeltaTest {
       String fieldName = "testField";
       Map<String, ODocument> mapValue = new HashMap<>();
       ODocument d1 = new ODocument();
-      d1.field("f1", "v1");
+      d1.setProperty("f1", "v1");
       mapValue.put("first", d1);
       ODocument d2 = new ODocument();
-      d2.field("f2", "v2");
+      d2.setProperty("f2", "v2");
       mapValue.put("second", d2);
-      Map<String, ODocument> copyMap = new HashMap<>();
-      copyMap.put("first", d1.copy());
-      copyMap.put("second", d2.copy());
-
-      doc.field(fieldName, mapValue, OType.EMBEDDEDMAP);
+      doc.setProperty(fieldName, mapValue, OType.EMBEDDEDMAP);
 
       doc = db.save(doc);
       ODocument originalDoc = doc.copy();
 
       Map<String, ODocument> containedMap = doc.field(fieldName);
       ODocument changeDoc = containedMap.get("first");
-      changeDoc.field("f1", "changed");
+      changeDoc.setProperty("f1", "changed");
 
       // test serialization/deserialization
       ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
@@ -1169,6 +1161,8 @@ public class ODocumentSerializerDeltaTest {
 
       ODocument third = new ODocument(claz);
       third = db.save(third);
+
+      ridBag = doc.getProperty(fieldName);
       ridBag.add(third);
 
       // test serialization/deserialization
@@ -1216,6 +1210,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
 
       ODocument originalDoc = doc.copy();
+      ridBag = doc.getProperty(fieldName);
       ridBag.remove(third);
 
       // test serialization/deserialization

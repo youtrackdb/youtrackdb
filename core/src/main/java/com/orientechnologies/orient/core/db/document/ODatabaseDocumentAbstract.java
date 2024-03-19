@@ -52,6 +52,7 @@ import com.orientechnologies.orient.core.exception.OSecurityException;
 import com.orientechnologies.orient.core.exception.OTransactionBlockedException;
 import com.orientechnologies.orient.core.exception.OTransactionException;
 import com.orientechnologies.orient.core.exception.OValidationException;
+import com.orientechnologies.orient.core.fetch.OFetchHelper;
 import com.orientechnologies.orient.core.hook.ORecordHook;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -62,7 +63,6 @@ import com.orientechnologies.orient.core.metadata.OMetadataDefault;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OImmutableClass;
 import com.orientechnologies.orient.core.metadata.schema.OImmutableView;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OView;
 import com.orientechnologies.orient.core.metadata.security.OImmutableUser;
@@ -77,7 +77,9 @@ import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
+import com.orientechnologies.orient.core.record.ORecordVersionHelper;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.record.impl.OBlob;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -92,10 +94,13 @@ import com.orientechnologies.orient.core.serialization.serializer.binary.OBinary
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializerFactory;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.storage.ORawBuffer;
 import com.orientechnologies.orient.core.storage.ORecordCallback;
 import com.orientechnologies.orient.core.storage.OStorage;
+import com.orientechnologies.orient.core.storage.OStorage.LOCKING_STRATEGY;
 import com.orientechnologies.orient.core.storage.OStorageInfo;
 import com.orientechnologies.orient.core.storage.OStorageOperationResult;
+import com.orientechnologies.orient.core.storage.cluster.OOfflineClusterException;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
 import com.orientechnologies.orient.core.tx.OTransaction;
 import com.orientechnologies.orient.core.tx.OTransactionAbstract;
@@ -114,7 +119,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -266,7 +270,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
         -1,
         iFetchPlan,
         iIgnoreCache,
-        !iIgnoreCache,
         false,
         OStorage.LOCKING_STRATEGY.DEFAULT,
         new SimpleRecordReader(prefetchRecords));
@@ -776,7 +779,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     return (RET)
         currentTx.loadRecord(
             iRecord.getIdentity(),
-            iRecord,
+            (ORecordAbstract) iRecord,
             iFetchPlan,
             false,
             false,
@@ -787,7 +790,8 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   @Override
   public <RET extends ORecord> RET load(final ORecord iRecord) {
     checkIfActive();
-    return (RET) currentTx.loadRecord(iRecord.getIdentity(), iRecord, null, false);
+    return (RET)
+        currentTx.loadRecord(iRecord.getIdentity(), (ORecordAbstract) iRecord, null, false);
   }
 
   @SuppressWarnings("unchecked")
@@ -841,17 +845,14 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       ORecord record, String fetchPlan, boolean ignoreCache, boolean force) {
     checkIfActive();
 
-    final ORecord loadedRecord =
-        currentTx.reloadRecord(record.getIdentity(), record, fetchPlan, ignoreCache, force);
-
-    if (loadedRecord != null && record != loadedRecord) {
-      record.fromStream(loadedRecord.toStream());
-      ORecordInternal.setVersion(record, loadedRecord.getVersion());
-    } else if (loadedRecord == null) {
+    var loadedRecord =
+        currentTx.reloadRecord(
+            record.getIdentity(), (ORecordAbstract) record, fetchPlan, ignoreCache, force);
+    if (loadedRecord == null) {
       throw new ORecordNotFoundException(record.getIdentity());
     }
 
-    return (RET) record;
+    return (RET) loadedRecord;
   }
 
   /** Deletes the record without checking the version. */
@@ -922,11 +923,10 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       final ORecord iRecord, final String iFetchPlan, final boolean iIgnoreCache) {
     return executeReadRecord(
         (ORecordId) iRecord.getIdentity(),
-        iRecord,
+        (ORecordAbstract) iRecord,
         -1,
         iFetchPlan,
         iIgnoreCache,
-        !iIgnoreCache,
         false,
         OStorage.LOCKING_STRATEGY.NONE,
         new SimpleRecordReader(prefetchRecords));
@@ -946,16 +946,167 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
    * This method is internal, it can be subject to signature change or be removed, do not
    * use. @Internal
    */
-  public abstract <RET extends ORecord> RET executeReadRecord(
+  public final <RET extends ORecord> RET executeReadRecord(
       final ORecordId rid,
-      ORecord iRecord,
+      ORecordAbstract iRecord,
       final int recordVersion,
       final String fetchPlan,
       final boolean ignoreCache,
-      final boolean iUpdateCache,
       final boolean loadTombstones,
-      final OStorage.LOCKING_STRATEGY lockingStrategy,
-      RecordReader recordReader);
+      final LOCKING_STRATEGY lockingStrategy,
+      RecordReader recordReader) {
+    checkOpenness();
+    checkIfActive();
+
+    getMetadata().makeThreadLocalSchemaSnapshot();
+    if (iRecord != null) {
+      iRecord.incrementLoading();
+    }
+    try {
+      checkSecurity(
+          ORule.ResourceGeneric.CLUSTER,
+          ORole.PERMISSION_READ,
+          getClusterNameById(rid.getClusterId()));
+
+      // SEARCH IN LOCAL TX
+      ORecord record = getTransaction().getRecord(rid);
+      if (record == OTransactionAbstract.DELETED_RECORD) {
+        // DELETED IN TX
+        return null;
+      }
+
+      ORecord cachedRecord = getLocalCache().findRecord(rid);
+      assert cachedRecord == null || !cachedRecord.isProxy();
+
+      if (record == null && !ignoreCache) {
+        record = cachedRecord;
+      }
+
+      if (record != null && !record.isUnloaded()) {
+        assert !record.isProxy();
+
+        OFetchHelper.checkFetchPlanValid(fetchPlan);
+        if (beforeReadOperations(record)) {
+          return null;
+        }
+
+        if (lockingStrategy == OStorage.LOCKING_STRATEGY.KEEP_SHARED_LOCK) {
+          OLogManager.instance()
+              .warn(
+                  this,
+                  "You use deprecated record locking strategy: %s it may lead to deadlocks "
+                      + lockingStrategy);
+          record.lock(false);
+        } else if (lockingStrategy == OStorage.LOCKING_STRATEGY.KEEP_EXCLUSIVE_LOCK) {
+          OLogManager.instance()
+              .warn(
+                  this,
+                  "You use deprecated record locking strategy: %s it may lead to deadlocks "
+                      + lockingStrategy);
+          record.lock(true);
+        }
+
+        afterReadOperations(record);
+        if (record instanceof ODocument) {
+          ODocumentInternal.checkClass((ODocument) record, this);
+        }
+
+        getLocalCache().updateRecord(record);
+
+        if (iRecord != null && iRecord != record) {
+          iRecord.convertToProxyRecord((ORecordAbstract) record);
+        }
+
+        assert !record.isProxy() && !record.isUnloaded();
+        return (RET) record;
+      }
+
+      if (cachedRecord != null) {
+        record = cachedRecord;
+      }
+
+      loadedRecordsCount++;
+      final ORawBuffer recordBuffer;
+      if (!rid.isValid()) {
+        recordBuffer = null;
+      } else {
+        OFetchHelper.checkFetchPlanValid(fetchPlan);
+        recordBuffer =
+            getStorage()
+                .readRecord(rid, fetchPlan, ignoreCache, isPrefetchRecords(), null)
+                .getResult();
+      }
+
+      if (recordBuffer == null) {
+        return null;
+      }
+
+      if (record == null && iRecord != null) {
+        record = iRecord.getRecord();
+      }
+
+      if (record == null) {
+        // NO SAME RECORD TYPE: CAN'T REUSE OLD ONE BUT CREATE A NEW ONE FOR IT
+        record =
+            Orient.instance()
+                .getRecordFactoryManager()
+                .newInstance(recordBuffer.recordType, rid.getClusterId(), this);
+      }
+      assert !record.isProxy();
+
+      if (ORecordInternal.getRecordType(record) != recordBuffer.recordType) {
+        throw new ODatabaseException("Record type is different from the one in the database");
+      }
+
+      ORecordInternal.setRecordSerializer(record, getSerializer());
+      ORecordInternal.fill(record, rid, recordBuffer.version, recordBuffer.buffer, false, this);
+
+      if (record instanceof ODocument) {
+        ODocumentInternal.checkClass((ODocument) record, this);
+      }
+
+      if (ORecordVersionHelper.isTombstone(record.getVersion())) {
+        assert !record.isProxy() && !record.isUnloaded();
+        return (RET) record;
+      }
+
+      if (beforeReadOperations(record)) {
+        return null;
+      }
+
+      if (iRecord != null && iRecord != record) {
+        iRecord.convertToProxyRecord((ORecordAbstract) record);
+      }
+
+      ORecordInternal.fromStream(record, recordBuffer.buffer, this);
+      afterReadOperations(record);
+
+      getLocalCache().updateRecord(record);
+      assert !record.isProxy() && !record.isUnloaded();
+
+      return (RET) record;
+    } catch (OOfflineClusterException | ORecordNotFoundException t) {
+      throw t;
+    } catch (Exception t) {
+      if (rid.isTemporary())
+        throw OException.wrapException(
+            new ODatabaseException("Error on retrieving record using temporary RID: " + rid), t);
+      else
+        throw OException.wrapException(
+            new ODatabaseException(
+                "Error on retrieving record "
+                    + rid
+                    + " (cluster: "
+                    + getStorage().getPhysicalClusterNameById(rid.getClusterId())
+                    + ")"),
+            t);
+    } finally {
+      getMetadata().clearThreadLocalSchemaSnapshot();
+      if (iRecord != null) {
+        iRecord.decrementLoading();
+      }
+    }
+  }
 
   public int assignAndCheckCluster(ORecord record, String iClusterName) {
     ORecordId rid = (ORecordId) record.getIdentity();
@@ -1271,29 +1422,16 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
         break;
       } catch (ONeedRetryException ignore) {
         // RETRY
-        outDocument.reload();
+        if (outDocument != null) {
+          outDocument = load(outDocument.getIdentity());
+        }
 
         if (inDocument != null) {
-          inDocument.reload();
+          inDocument = load(inDocument.getIdentity());
         }
       }
     }
     return edge;
-  }
-
-  private boolean hasLinkedClass(OVertex vertex, String edgeFieldName, OClass linkedClass) {
-    Optional<OClass> clazz = vertex.getSchemaType();
-    if (!clazz.isPresent()) {
-      return false;
-    }
-    OProperty prop = clazz.get().getProperty(edgeFieldName);
-    if (prop == null) {
-      return false;
-    }
-    if (prop.getLinkedClass() == null) {
-      return false;
-    }
-    return linkedClass.isSubClassOf(prop.getLinkedClass());
   }
 
   private boolean checkDeletedInTx(OVertex currentVertex) {
@@ -1491,6 +1629,14 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       final ORecordCallback<? extends Number> iRecordCreatedCallback,
       ORecordCallback<Integer> iRecordUpdatedCallback) {
     checkOpenness();
+
+    if (iRecord.isUnloaded()) {
+      return (RET) iRecord;
+    }
+
+    if (iRecord.isProxy()) {
+      iRecord = iRecord.getRecord();
+    }
 
     if (iRecord instanceof OVertex) {
       iRecord = iRecord.getRecord();

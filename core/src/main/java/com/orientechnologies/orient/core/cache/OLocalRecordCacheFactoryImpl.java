@@ -31,6 +31,5 @@ public class OLocalRecordCacheFactoryImpl extends OConfigurableStatefulFactory<S
     implements OLocalRecordCacheFactory {
   public OLocalRecordCacheFactoryImpl() {
     register(ORecordCacheWeakRefs.class.getName(), ORecordCacheWeakRefs.class);
-    register(ORecordCacheSoftRefs.class.getName(), ORecordCacheSoftRefs.class);
   }
 }
