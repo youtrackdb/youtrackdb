@@ -3014,7 +3014,6 @@ public class ODocument extends ORecordAbstract
   }
 
   public boolean isEmbedded() {
-    checkForLoading();
     if (primaryRecord != null) {
       return ((ODocument) primaryRecord).isEmbedded();
     }
