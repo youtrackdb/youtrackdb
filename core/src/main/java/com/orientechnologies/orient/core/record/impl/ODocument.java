@@ -3074,8 +3074,7 @@ public class ODocument extends ORecordAbstract
           int pos2 = f.indexOf('.');
           if (pos1 > -1 || pos2 > -1) {
             int pos = pos1 > -1 ? pos1 : pos2;
-            if (pos2 > -1 && pos2 < pos)
-              pos = pos2;
+            if (pos2 > -1 && pos2 < pos) pos = pos2;
 
             // REPLACE THE FIELD NAME
             if (additional == null) {
@@ -3988,7 +3987,8 @@ public class ODocument extends ORecordAbstract
   }
 
   private void checkTimelineTrackable(
-      OMultiValueChangeTimeLine<Object, Object> timeLine, OTrackedMultiValue<Object, Object> origin) {
+      OMultiValueChangeTimeLine<Object, Object> timeLine,
+      OTrackedMultiValue<Object, Object> origin) {
     List<OMultiValueChangeEvent<Object, Object>> events = timeLine.getMultiValueChangeEvents();
     for (OMultiValueChangeEvent<Object, Object> event : events) {
       Object value = event.getValue();

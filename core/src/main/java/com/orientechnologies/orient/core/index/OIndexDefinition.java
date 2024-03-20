@@ -108,7 +108,8 @@ public interface OIndexDefinition extends OIndexCallback {
    *
    * @return Document that contains internal index state.
    */
-  @Nonnull ODocument toStream(@Nonnull ODocument document);
+  @Nonnull
+  ODocument toStream(@Nonnull ODocument document);
 
   /**
    * Deserialize internal index state from document.
@@ -116,7 +117,6 @@ public interface OIndexDefinition extends OIndexCallback {
    * @param document Serialized index presentation.
    */
   void fromStream(@Nonnull ODocument document);
-
 
   String toCreateIndexDDL(String indexName, String indexType, String engine);
 

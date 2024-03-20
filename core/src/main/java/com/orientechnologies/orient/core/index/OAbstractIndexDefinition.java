@@ -33,8 +33,7 @@ public abstract class OAbstractIndexDefinition implements OIndexDefinition {
   protected OCollate collate = new ODefaultCollate();
   private boolean nullValuesIgnored = true;
 
-  protected OAbstractIndexDefinition() {
-  }
+  protected OAbstractIndexDefinition() {}
 
   public OCollate getCollate() {
     return collate;
