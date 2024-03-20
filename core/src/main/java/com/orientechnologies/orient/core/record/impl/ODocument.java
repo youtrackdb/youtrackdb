@@ -113,6 +113,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -2355,6 +2356,7 @@ public class ODocument extends ORecordAbstract
 
   /** Returns the iterator fields */
   @Override
+  @Nonnull
   public Iterator<Entry<String, Object>> iterator() {
     checkForLoading();
     if (primaryRecord != null) {
@@ -2407,6 +2409,21 @@ public class ODocument extends ORecordAbstract
               @Override
               public String getKey() {
                 return intern.getKey();
+              }
+
+              @Override
+              public int hashCode() {
+                return intern.hashCode();
+              }
+
+              @Override
+              public boolean equals(Object obj) {
+                if (obj instanceof Entry entry) {
+                  return intern.getKey().equals(entry.getKey())
+                      && intern.getValue().value.equals(entry.getValue());
+                }
+
+                return intern.equals(obj);
               }
             };
         read = true;
