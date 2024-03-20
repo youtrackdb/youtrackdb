@@ -27,6 +27,7 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.record.impl.ORecordBytes;
@@ -74,7 +75,9 @@ public abstract class OTransactionAbstract implements OTransaction {
         ODocumentInternal.clearTransactionTrackData((ODocument) txEntry.getRecord());
       }
 
-      txEntry.getRecord().unload();
+      var record = txEntry.getRecord();
+      ORecordInternal.unsetDirty(record);
+      record.unload();
     }
 
     if (unloadCachedRecords) {

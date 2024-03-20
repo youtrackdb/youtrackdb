@@ -146,6 +146,7 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
 
     for (final ORecordOperation v : allEntries.values()) {
       final ORecord rec = v.getRecord();
+      ORecordInternal.unsetDirty(rec);
       rec.unload();
     }
 
