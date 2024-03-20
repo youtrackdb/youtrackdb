@@ -22,6 +22,7 @@ package com.orientechnologies.orient.core.cache;
 
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordInternal;
 import java.util.function.BiConsumer;
 
 /**
@@ -32,7 +33,10 @@ import java.util.function.BiConsumer;
 public class ORecordCacheWeakRefs extends OAbstractMapCache<ORIDsWeakValuesHashMap<ORecord>>
     implements ORecordCache {
   private static final BiConsumer<ORID, ORecord> UNLOAD_RECORDS_CONSUMER =
-      (rid, record) -> record.unload();
+      (rid, record) -> {
+        ORecordInternal.unsetDirty(record);
+        record.unload();
+      };
 
   public ORecordCacheWeakRefs() {
     super(new ORIDsWeakValuesHashMap<>());
