@@ -404,7 +404,7 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
 
     for (i = 0; i < size; i++) {
       int pointer = 0;
-      final Object value = values[i].getValue().getValue();
+      final Object value = values[i].getValue().value;
       if (value != null) {
         final OType type = getFieldType(values[i].getValue());
         if (type == null) {
@@ -1056,7 +1056,7 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
       final OProperty prop = entry.property;
       if (prop != null) type = prop.getType();
     }
-    if (type == null || OType.ANY == type) type = OType.getTypeByValue(entry.getValue());
+    if (type == null || OType.ANY == type) type = OType.getTypeByValue(entry.value);
     return type;
   }
 

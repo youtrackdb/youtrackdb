@@ -872,6 +872,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     final List<String> trackedList = document.field("embeddedlist");
     trackedList.add("value2");
 
+    ORecordInternal.unsetDirty(document);
     document.unload();
 
     Assert.assertEquals(document.getDirtyFields(), new String[] {});

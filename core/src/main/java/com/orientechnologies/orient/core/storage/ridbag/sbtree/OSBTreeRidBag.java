@@ -37,8 +37,6 @@ import com.orientechnologies.orient.core.db.record.ridbag.ORidBagDelegate;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.ODocumentEntry;
-import com.orientechnologies.orient.core.record.impl.ODocumentEntryAware;
 import com.orientechnologies.orient.core.record.impl.OSimpleMultiValueTracker;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.OLinkSerializer;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
@@ -75,7 +73,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
  *
  * @author Artem Orobets (enisher-at-gmail.com)
  */
-public class OSBTreeRidBag implements ORidBagDelegate, ODocumentEntryAware {
+public class OSBTreeRidBag implements ORidBagDelegate {
   private final OSBTreeCollectionManager collectionManager =
       ODatabaseRecordThreadLocal.instance().get().getSbTreeCollectionManager();
   private final NavigableMap<OIdentifiable, Change> changes = new ConcurrentSkipListMap<>();
@@ -99,16 +97,6 @@ public class OSBTreeRidBag implements ORidBagDelegate, ODocumentEntryAware {
   @Override
   public void setSize(int size) {
     this.size = size;
-  }
-
-  @Override
-  public void setDocumentEntry(ODocumentEntry entry) {
-    tracker.setDocumentEntry(entry);
-  }
-
-  @Override
-  public void clearDocumentEntry() {
-    tracker.clearDocumentEntry();
   }
 
   private static class OIdentifiableIntegerEntry implements Entry<OIdentifiable, Integer> {

@@ -28,8 +28,6 @@ import com.orientechnologies.orient.core.record.OIdentityChangeListener;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.record.impl.ODocumentEntry;
-import com.orientechnologies.orient.core.record.impl.ODocumentEntryAware;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.record.impl.OSimpleMultiValueTracker;
 import java.util.AbstractCollection;
@@ -64,8 +62,7 @@ public class ORecordLazySet extends AbstractCollection<OIdentifiable>
         OTrackedMultiValue<OIdentifiable, OIdentifiable>,
         ORecordElement,
         ORecordLazyMultiValue,
-        OIdentityChangeListener,
-        ODocumentEntryAware {
+        OIdentityChangeListener {
 
   protected boolean autoConvertToRecord = true;
   protected final ORecordElement sourceRecord;
@@ -474,15 +471,5 @@ public class ORecordLazySet extends AbstractCollection<OIdentifiable>
   @Override
   public OMultiValueChangeTimeLine<OIdentifiable, OIdentifiable> getTransactionTimeLine() {
     return tracker.getTransactionTimeLine();
-  }
-
-  @Override
-  public void setDocumentEntry(ODocumentEntry entry) {
-    tracker.setDocumentEntry(entry);
-  }
-
-  @Override
-  public void clearDocumentEntry() {
-    tracker.clearDocumentEntry();
   }
 }

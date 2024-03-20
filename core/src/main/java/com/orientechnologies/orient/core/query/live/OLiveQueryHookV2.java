@@ -282,9 +282,9 @@ public class OLiveQueryHookV2 {
         result.setProperty(
             rawEntry.getKey(), convert(iDocument.getOriginalValue(rawEntry.getKey())));
       } else if (entry.isTrackedModified()) {
-        if (entry.getValue() instanceof ODocument && ((ODocument) entry.getValue()).isEmbedded()) {
+        if (entry.value instanceof ODocument && ((ODocument) entry.value).isEmbedded()) {
           result.setProperty(
-              rawEntry.getKey(), calculateBefore((ODocument) entry.getValue(), null));
+              rawEntry.getKey(), calculateBefore((ODocument) entry.value, null));
         }
       }
     }

@@ -389,7 +389,7 @@ public class ORecordSerializerBinaryV1 implements ODocumentSerializer {
         OVarIntSerializer.write(headerBuffer, (docEntry.property.getId() + 1) * -1);
       }
 
-      final Object value = field.getValue().getValue();
+      final Object value = field.getValue().value;
 
       final OType type;
       if (value != null) {
@@ -915,7 +915,7 @@ public class ORecordSerializerBinaryV1 implements ODocumentSerializer {
       final OProperty prop = entry.property;
       if (prop != null) type = prop.getType();
     }
-    if (type == null || OType.ANY == type) type = OType.getTypeByValue(entry.getValue());
+    if (type == null || OType.ANY == type) type = OType.getTypeByValue(entry.value);
     return type;
   }
 

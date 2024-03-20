@@ -24,11 +24,8 @@ import com.orientechnologies.orient.core.metadata.schema.OType;
 /**
  * Generic record representation with a schema definition. The record has multiple fields. Fields
  * are also called properties.
- *
- * @deprecated use {@link OElement} instead
  */
 public interface ORecordSchemaAware extends OElement {
-
   /**
    * Returns the value of a field.
    *
