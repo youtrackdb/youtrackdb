@@ -23,6 +23,7 @@ import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.serialization.serializer.binary.OBinarySerializerFactory;
 import java.util.Arrays;
 import java.util.Collections;
@@ -99,6 +100,13 @@ public class ORuntimeKeyIndexDefinition<T> extends OAbstractIndexDefinition {
   public void fromStream(ODocument document) {
     this.document = document;
     serializeFromStream();
+  }
+
+  @Override
+  public void updateMetadataOwner(ODocument owner) {
+    if (document != null) {
+      ODocumentInternal.addOwner(document, owner);
+    }
   }
 
   @Override

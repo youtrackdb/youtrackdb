@@ -24,6 +24,7 @@ import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.collate.ODefaultCollate;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -109,6 +110,13 @@ public class OSimpleKeyIndexDefinition extends OAbstractIndexDefinition {
   public ODocument toStream() {
     serializeToStream();
     return document;
+  }
+
+  @Override
+  public void updateMetadataOwner(ODocument owner) {
+    if (document != null) {
+      ODocumentInternal.addOwner(document, owner);
+    }
   }
 
   @Override

@@ -431,6 +431,13 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
   }
 
   @Override
+  public void updateMetadataOwner(ODocument owner) {
+    for (OIndexDefinition indexDefinition : indexDefinitions) {
+      indexDefinition.updateMetadataOwner(owner);
+    }
+  }
+
+  @Override
   protected void serializeFromStream() {
     super.serializeFromStream();
 

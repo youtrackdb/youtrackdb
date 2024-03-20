@@ -23,6 +23,7 @@ import com.orientechnologies.orient.core.collate.ODefaultCollate;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.sql.OCommandExecutorSQLCreateIndex;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import java.util.Collections;
@@ -129,6 +130,13 @@ public class OPropertyIndexDefinition extends OAbstractIndexDefinition {
   public void fromStream(ODocument document) {
     this.document = document;
     serializeFromStream();
+  }
+
+  @Override
+  public void updateMetadataOwner(ODocument owner) {
+    if (document != null) {
+      ODocumentInternal.addOwner(document, owner);
+    };
   }
 
   @Override

@@ -785,6 +785,19 @@ public abstract class OIndexAbstract implements OIndexInternal {
     return document;
   }
 
+  @Override
+  public void updateMedataOwner(ODocument owner) {
+    var indexDefinition = im.getIndexDefinition();
+    if (indexDefinition != null) {
+      indexDefinition.updateMetadataOwner(owner);
+    }
+
+    var metadata = im.getMetadata();
+    if (metadata != null) {
+      ODocumentInternal.addOwner(metadata, owner);
+    }
+  }
+
   /**
    * Interprets transaction index changes for a certain key. Override it to customize index
    * behaviour on interpreting index changes. This may be viewed as an optimization, but in some

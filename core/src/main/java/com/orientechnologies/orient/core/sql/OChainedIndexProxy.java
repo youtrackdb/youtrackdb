@@ -550,6 +550,11 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
   }
 
   @Override
+  public void updateMedataOwner(ODocument owner) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public OIndex addCluster(String iClusterName) {
     throw new UnsupportedOperationException();
   }

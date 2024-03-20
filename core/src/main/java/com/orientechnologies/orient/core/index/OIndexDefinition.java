@@ -116,6 +116,9 @@ public interface OIndexDefinition extends OIndexCallback {
    */
   void fromStream(ODocument document);
 
+
+  void updateMetadataOwner(ODocument owner);
+
   String toCreateIndexDDL(String indexName, String indexType, String engine);
 
   boolean isAutomatic();
