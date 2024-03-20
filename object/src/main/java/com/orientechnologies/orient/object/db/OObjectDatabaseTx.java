@@ -606,20 +606,28 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
 
     if (iPojo == null) return this;
 
-    ODocument record = getRecordByUserObject(iPojo, false);
-    if (record == null) {
-      final ORecordId rid = OObjectSerializerHelper.getObjectID(this, iPojo);
-      if (rid == null)
-        throw new OObjectNotDetachedException(
-            "Cannot retrieve the object's ID for '" + iPojo + "' because has not been detached");
-
-      record = underlying.load(rid);
+    var newTx = !getTransaction().isActive();
+    if (newTx) {
+      begin();
     }
-    deleteCascade(record);
+    try {
+      ODocument record = getRecordByUserObject(iPojo, false);
+      if (record == null) {
+        final ORecordId rid = OObjectSerializerHelper.getObjectID(this, iPojo);
+        if (rid == null)
+          throw new OObjectNotDetachedException(
+              "Cannot retrieve the object's ID for '" + iPojo + "' because has not been detached");
 
-    underlying.delete(record);
+        record = underlying.load(rid);
+      }
+      deleteCascade(record);
 
-    if (getTransaction() instanceof OTransactionNoTx) unregisterPojo(iPojo, record);
+      underlying.delete(record);
+    } finally {
+      if (newTx) {
+        commit();
+      }
+    }
 
     return this;
   }
@@ -632,13 +640,18 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
 
     final ORecord record = iRID.getRecord();
     if (record instanceof ODocument) {
-      Object iPojo = getUserObjectByRecord(record, null);
-
-      deleteCascade((ODocument) record);
-
-      underlying.delete(record);
-
-      if (getTransaction() instanceof OTransactionNoTx) unregisterPojo(iPojo, (ODocument) record);
+      var newTx = !getTransaction().isActive();
+      if (newTx) {
+        begin();
+      }
+      try {
+        deleteCascade((ODocument) record);
+        underlying.delete(record);
+      } finally {
+        if (newTx) {
+          commit();
+        }
+      }
     }
     return this;
   }
