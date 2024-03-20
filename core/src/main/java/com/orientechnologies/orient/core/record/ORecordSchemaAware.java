@@ -34,9 +34,7 @@ public interface ORecordSchemaAware extends OElement {
    *
    * @param iFieldName Field name
    * @return Field value if exists, otherwise null
-   * @deprecated use {@link #getProperty(String)} instead
    */
-  @Deprecated
   <RET> RET field(String iFieldName);
 
   /**
@@ -47,9 +45,7 @@ public interface ORecordSchemaAware extends OElement {
    * @param iFieldName Field name
    * @param iType Type between the values defined in the {@link OType} enum
    * @return Field value if exists, otherwise null
-   * @deprecated use {@link #setProperty(String, Object, OType...)} instead
    */
-  @Deprecated
   <RET> RET field(String iFieldName, OType iType);
 
   /**
@@ -59,9 +55,7 @@ public interface ORecordSchemaAware extends OElement {
    * @param iFieldValue Field value to set
    * @return The Record instance itself giving a "fluent interface". Useful to call multiple methods
    *     in chain.
-   * @deprecated use {@link #setProperty(String, Object)} instead
    */
-  @Deprecated
   ORecordSchemaAware field(String iFieldName, Object iFieldValue);
 
   /**
@@ -72,9 +66,7 @@ public interface ORecordSchemaAware extends OElement {
    * @param iFieldValue Field value to set
    * @param iType Type between the values defined in the {@link
    *     com.orientechnologies.orient.core.metadata.schema.OType} enum
-   * @deprecated use {@link #setProperty(String, Object, OType...)} instead
    */
-  @Deprecated
   ORecordSchemaAware field(String iFieldName, Object iFieldValue, OType... iType);
 
   /**
@@ -83,9 +75,7 @@ public interface ORecordSchemaAware extends OElement {
    *
    * @param iFieldName Field name
    * @return The old value contained in the remove field
-   * @deprecated use {@link #removeProperty(String)} instead
    */
-  @Deprecated
   Object removeField(String iFieldName);
 
   /**
@@ -93,18 +83,14 @@ public interface ORecordSchemaAware extends OElement {
    *
    * @param iFieldName Field name
    * @return true if exists, otherwise false
-   * @deprecated use {@link #hasProperty(String)} (String)} instead
    */
-  @Deprecated
   boolean containsField(String iFieldName);
 
   /**
    * Returns the number of fields present in memory.
    *
    * @return Fields number
-   * @deprecated use {@link #getPropertyNames()} instead
    */
-  @Deprecated
   int fields();
 
   /**
@@ -113,9 +99,7 @@ public interface ORecordSchemaAware extends OElement {
    * maintained also in the returning collection.
    *
    * @return Set of string containing the field names
-   * @deprecated use {@link #getPropertyNames()} instead
    */
-  @Deprecated
   String[] fieldNames();
 
   /**
@@ -124,8 +108,6 @@ public interface ORecordSchemaAware extends OElement {
    * maintained also in the returning collection.
    *
    * @return Object array of the field values
-   * @deprecated use {@link #getPropertyNames()} and {@link #getLinkProperty(String)} instead
    */
-  @Deprecated
   Object[] fieldValues();
 }

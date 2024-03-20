@@ -1662,12 +1662,7 @@ public class ODocument extends ORecordAbstract
     }
   }
 
-  /**
-   * Returns the set of field names.
-   *
-   * @deprecated use {@link #getPropertyNames()} instead
-   */
-  @Deprecated
+  /** Returns the set of field names. */
   public String[] fieldNames() {
     checkForLoading();
     if (primaryRecord != null) {
@@ -1677,11 +1672,7 @@ public class ODocument extends ORecordAbstract
     return calculatePropertyNames().toArray(new String[] {});
   }
 
-  /**
-   * Returns the array of field values.
-   *
-   * @deprecated use {@link #getPropertyNames()} and {@link #getLinkProperty(String)} instead
-   */
+  /** Returns the array of field values. */
   public Object[] fieldValues() {
     checkForLoading();
     if (primaryRecord != null) {
@@ -1808,9 +1799,7 @@ public class ODocument extends ORecordAbstract
    * @param iFieldName field name
    * @param iFieldType Forced type.
    * @return field value if defined, otherwise null
-   * @deprecated use {@link #getProperty(String)} instead
    */
-  @Deprecated
   public <RET> RET field(final String iFieldName, final Class<?> iFieldType) {
     checkForLoading();
     if (primaryRecord != null) {
@@ -1833,9 +1822,7 @@ public class ODocument extends ORecordAbstract
    * @param iFieldName field name
    * @param iFieldType Forced type.
    * @return field value if defined, otherwise null
-   * @deprecated use {@link #setProperty(String, Object, OType...)} instead
    */
-  @Deprecated
   public <RET> RET field(final String iFieldName, final OType iFieldType) {
     checkForLoading();
     if (primaryRecord != null) {
@@ -1888,9 +1875,7 @@ public class ODocument extends ORecordAbstract
    * @param iPropertyValue field value
    * @return The Record instance itself giving a "fluent interface". Useful to call multiple methods
    *     in chain.
-   * @deprecated use {@link #setProperty(String, Object)} instead
    */
-  @Deprecated
   public ODocument field(final String iFieldName, Object iPropertyValue) {
     checkForLoading();
     if (primaryRecord != null) {
@@ -1900,12 +1885,7 @@ public class ODocument extends ORecordAbstract
     return field(iFieldName, iPropertyValue, OCommonConst.EMPTY_TYPES_ARRAY);
   }
 
-  /**
-   * Fills a document passing the field names/values.
-   *
-   * @deprecated use {@link #setProperty(String, Object, OType...)} instead
-   */
-  @Deprecated
+  /** Fills a document passing the field names/values. */
   public ODocument fields(
       final String iFieldName, final Object iFieldValue, final Object... iFields) {
     checkForLoading();
@@ -2028,9 +2008,7 @@ public class ODocument extends ORecordAbstract
    * @return The Record instance itself giving a "fluent interface". Useful to call multiple methods
    *     in chain. If the updated document is another document (using the dot (.) notation) then the
    *     document returned is the changed one or NULL if no document has been found in chain
-   * @deprecated use {@link #setProperty(String, Object, OType...)} instead
    */
-  @Deprecated
   public ODocument field(String iFieldName, Object iPropertyValue, OType... iFieldType) {
     checkForLoading();
     if (primaryRecord != null) {
@@ -2258,12 +2236,7 @@ public class ODocument extends ORecordAbstract
     return this;
   }
 
-  /**
-   * Removes a field.
-   *
-   * @deprecated use {@link #removeProperty(String)} instead
-   */
-  @Deprecated
+  /** Removes a field. */
   @Override
   public Object removeField(final String iFieldName) {
     checkForLoading();
@@ -2375,7 +2348,7 @@ public class ODocument extends ORecordAbstract
 
     final Set<String> dirtyFields = new HashSet<>();
     for (Entry<String, ODocumentEntry> entry : fields.entrySet()) {
-      if (entry.getValue().isChanged() || entry.getValue().isTrackedModified())
+      if (entry.getValue().isChanged())
         dirtyFields.add(entry.getKey());
     }
     return dirtyFields.toArray(new String[dirtyFields.size()]);
@@ -2489,9 +2462,7 @@ public class ODocument extends ORecordAbstract
    * Checks if a field exists.
    *
    * @return True if exists, otherwise false.
-   * @deprecated use {@link #hasProperty(String)} (String)} instead
    */
-  @Deprecated
   @Override
   public boolean containsField(final String iFieldName) {
     checkForLoading();
@@ -3015,12 +2986,7 @@ public class ODocument extends ORecordAbstract
     return System.identityHashCode(this);
   }
 
-  /**
-   * Returns the number of fields in memory.
-   *
-   * @deprecated use {@link #getPropertyNames()} instead
-   */
-  @Deprecated
+  /** Returns the number of fields in memory. */
   @Override
   public int fields() {
     checkForLoading();
