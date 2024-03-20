@@ -354,23 +354,25 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
         + '}';
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public ODocument toStream() {
-    serializeToStream();
+  public @Nonnull ODocument toStream(@Nonnull ODocument document) {
+    serializeToStream(document);
     return document;
   }
 
   @Override
-  protected void serializeToStream() {
-    super.serializeToStream();
+  protected void serializeToStream(ODocument document) {
+    super.serializeToStream(document);
 
     final List<ODocument> inds = new ArrayList<>(indexDefinitions.size());
     final List<String> indClasses = new ArrayList<>(indexDefinitions.size());
 
     document.setPropertyWithoutValidation("className", className);
     for (final OIndexDefinition indexDefinition : indexDefinitions) {
-      final ODocument indexDocument = indexDefinition.toStream();
+      final ODocument indexDocument = indexDefinition.toStream(new ODocument());
       inds.add(indexDocument);
 
       indClasses.add(indexDefinition.getClass().getName());
@@ -425,21 +427,13 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
     return "`" + next + "`";
   }
 
-  public void fromStream(ODocument document) {
-    this.document = document;
-    serializeFromStream();
+  public void fromStream(@Nonnull ODocument document) {
+    serializeFromStream(document);
   }
 
   @Override
-  public void updateMetadataOwner(ODocument owner) {
-    for (OIndexDefinition indexDefinition : indexDefinitions) {
-      indexDefinition.updateMetadataOwner(owner);
-    }
-  }
-
-  @Override
-  protected void serializeFromStream() {
-    super.serializeFromStream();
+  protected void serializeFromStream(ODocument document) {
+    super.serializeFromStream(document);
 
     try {
       className = document.field("className");

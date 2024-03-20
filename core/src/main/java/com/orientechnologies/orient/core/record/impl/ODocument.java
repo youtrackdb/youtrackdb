@@ -1624,7 +1624,7 @@ public class ODocument extends ORecordAbstract
     }
 
     if (isUnloaded()) {
-      return "Unloaded record {" + getIdentity() + "}";
+      return "Unloaded record {" + getIdentity() + ", v" + getVersion() + "}";
     }
 
     return toString(new HashSet<>());

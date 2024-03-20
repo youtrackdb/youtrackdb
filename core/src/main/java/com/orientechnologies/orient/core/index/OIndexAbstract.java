@@ -765,7 +765,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
 
     if (im.getIndexDefinition() != null) {
 
-      final ODocument indexDefDocument = im.getIndexDefinition().toStream();
+      final ODocument indexDefDocument = im.getIndexDefinition().toStream(new ODocument());
       if (!indexDefDocument.hasOwners()) ODocumentInternal.addOwner(indexDefDocument, document);
 
       document.field(OIndexInternal.INDEX_DEFINITION, indexDefDocument, OType.EMBEDDED);
@@ -783,19 +783,6 @@ public abstract class OIndexAbstract implements OIndexInternal {
       document.field(OIndexInternal.METADATA, im.getMetadata(), OType.EMBEDDED);
 
     return document;
-  }
-
-  @Override
-  public void updateMedataOwner(ODocument owner) {
-    var indexDefinition = im.getIndexDefinition();
-    if (indexDefinition != null) {
-      indexDefinition.updateMetadataOwner(owner);
-    }
-
-    var metadata = im.getMetadata();
-    if (metadata != null) {
-      ODocumentInternal.addOwner(metadata, owner);
-    }
   }
 
   /**

@@ -265,7 +265,7 @@ public abstract class OLuceneIndexEngineAbstract implements OLuceneIndexEngine {
           searcher.search(new TermQuery(new Term("_CLASS", "JSON_METADATA")), 1);
       if (topDocs.totalHits == 0) {
         String metaAsJson = metadata.toJSON();
-        String defAsJson = indexDefinition.toStream().toJSON();
+        String defAsJson = indexDefinition.toStream(new ODocument()).toJSON();
         Document metaDoc = new Document();
         metaDoc.add(new StringField("_META_JSON", metaAsJson, Field.Store.YES));
         metaDoc.add(new StringField("_DEF_JSON", defAsJson, Field.Store.YES));

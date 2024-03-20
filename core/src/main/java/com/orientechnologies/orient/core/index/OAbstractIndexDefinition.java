@@ -32,10 +32,8 @@ import com.orientechnologies.orient.core.sql.OSQLEngine;
 public abstract class OAbstractIndexDefinition implements OIndexDefinition {
   protected OCollate collate = new ODefaultCollate();
   private boolean nullValuesIgnored = true;
-  protected ODocument document;
 
   protected OAbstractIndexDefinition() {
-    document = new ODocument().setTrackingChanges(false);
   }
 
   public OCollate getCollate() {
@@ -84,7 +82,7 @@ public abstract class OAbstractIndexDefinition implements OIndexDefinition {
     nullValuesIgnored = value;
   }
 
-  protected void serializeToStream() {}
+  protected void serializeToStream(ODocument document) {}
 
-  protected void serializeFromStream() {}
+  protected void serializeFromStream(ODocument document) {}
 }

@@ -830,7 +830,6 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
 
       for (final OIndex i : this.indexes.values()) {
         var indexInternal = (OIndexInternal) i;
-        indexInternal.updateMedataOwner(document);
         indexes.add(indexInternal.updateConfiguration());
       }
       document.field(CONFIG_INDEXES, indexes, OType.EMBEDDEDSET);
@@ -1024,7 +1023,6 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
 
       for (final OIndex i : this.indexes.values()) {
         var indexInternal = (OIndexInternal) i;
-        indexInternal.updateMedataOwner(document);
         indexes.add(indexInternal.updateConfiguration());
       }
       document.field(CONFIG_INDEXES, indexes, OType.EMBEDDEDSET);

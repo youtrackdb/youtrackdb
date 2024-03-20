@@ -456,7 +456,7 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
         writer.beginObject(4, true, "definition");
 
         writer.writeAttribute(5, true, "defClass", index.getDefinition().getClass().getName());
-        writer.writeAttribute(5, true, "stream", index.getDefinition().toStream());
+        writer.writeAttribute(5, true, "stream", index.getDefinition().toStream(new ODocument()));
 
         writer.endObject(4, true);
       }

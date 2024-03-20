@@ -78,8 +78,6 @@ public interface OIndexInternal extends OIndex {
    */
   ODocument updateConfiguration();
 
-  void updateMedataOwner(ODocument owner);
-
   /**
    * Add given cluster to the list of clusters that should be automatically indexed.
    *
