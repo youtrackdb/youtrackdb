@@ -40,6 +40,7 @@ import com.orientechnologies.orient.core.fetch.OFetchHelper;
 import com.orientechnologies.orient.core.fetch.OFetchPlan;
 import com.orientechnologies.orient.core.fetch.json.OJSONFetchContext;
 import com.orientechnologies.orient.core.fetch.json.OJSONFetchListener;
+import com.orientechnologies.orient.core.id.OEmptyRecordId;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -250,7 +251,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
                     .getRecordFactoryManager()
                     .newInstance(
                         (byte) fieldValueAsString.charAt(0),
-                        -1,
+                        new OEmptyRecordId(),
                         ODatabaseRecordThreadLocal.instance().getIfDefined());
           }
         } else if (needReload

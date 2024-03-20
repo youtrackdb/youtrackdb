@@ -21,6 +21,8 @@ package com.orientechnologies.orient.core.record.impl;
 
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordStringable;
@@ -40,6 +42,10 @@ public class ORecordFlat extends ORecordAbstract implements ORecordStringable {
   public ORecordFlat(ODatabaseDocumentInternal iDatabase) {
     this();
     ODatabaseRecordThreadLocal.instance().set(iDatabase);
+  }
+
+  public ORecordFlat(ORID rid) {
+    recordId = (ORecordId) rid.copy();
   }
 
   public ORecordFlat() {

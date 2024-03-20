@@ -32,6 +32,7 @@ import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentAbstract;
+import com.orientechnologies.orient.core.db.document.RecordListenersManager;
 import com.orientechnologies.orient.core.db.record.OAutoConvertToRecord;
 import com.orientechnologies.orient.core.db.record.ODetachable;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
@@ -180,6 +181,11 @@ public class ODocument extends ORecordAbstract
     setup((ODatabaseDocumentInternal) database);
   }
 
+  public ODocument(ODatabaseSession database, ORID rid) {
+    setup((ODatabaseDocumentInternal) database);
+    this.recordId = (ORecordId) rid.copy();
+  }
+
   /**
    * Creates a new instance by the raw stream usually read from the database. New instances are not
    * persistent until {@link #save()} is called.
@@ -213,7 +219,7 @@ public class ODocument extends ORecordAbstract
    */
   public ODocument(final ORID iRID) {
     setup(ODatabaseRecordThreadLocal.instance().getIfDefined());
-    recordId = (ORecordId) iRID;
+    recordId = (ORecordId) iRID.copy();
     status = STATUS.NOT_LOADED;
     dirty = false;
     contentChanged = false;
@@ -228,7 +234,7 @@ public class ODocument extends ORecordAbstract
    */
   public ODocument(final String iClassName, final ORID iRID) {
     this(iClassName);
-    recordId = (ORecordId) iRID;
+    recordId = (ORecordId) iRID.copy();
 
     final ODatabaseDocumentInternal database = getDatabase();
     if (recordId.getClusterId() > -1) {
@@ -535,7 +541,8 @@ public class ODocument extends ORecordAbstract
         && (((ORID) value).isPersistent() || ((ORID) value).isNew())
         && ODatabaseRecordThreadLocal.instance().isDefined()) {
       // CREATE THE DOCUMENT OBJECT IN LAZY WAY
-      RET newValue = getDatabase().load(rid);
+      var db = getDatabase();
+      RET newValue = db.load((ORID) value);
       if (newValue != null) {
         unTrack(rid);
         track((OIdentifiable) newValue);
@@ -548,34 +555,12 @@ public class ODocument extends ORecordAbstract
         entry.value = value;
         entry.enableTracking(this);
 
-        // unload record in case of deletion
-        //noinspection resource
-        getDatabase()
-            .registerHook(
-                new ORecordHookAbstract() {
-                  @Override
-                  public DISTRIBUTED_EXECUTION_MODE getDistributedExecutionMode() {
-                    return DISTRIBUTED_EXECUTION_MODE.TARGET_NODE;
-                  }
-
-                  @Override
-                  public void onRecordAfterDelete(ORecord iRecord) {
-                    var recRid = iRecord.getIdentity();
-                    if (rid.equals(recRid)) {
-                      unTrack(iRecord);
-                      track(rid);
-                      ODocumentEntry entry = fields.get(name);
-                      if (entry != null
-                          && entry.value instanceof OIdentifiable entryId
-                          && entryId.equals(recRid)) {
-                        entry.disableTracking(ODocument.this, entry.value);
-                        entry.value = rid;
-                        entry.enableTracking(ODocument.this);
-                      }
-                    }
-                  }
-                });
+        var deletionListener = new LazyLoadedRecordDeletionListener(name, this);
+        db.registerRecordDeletionListener((ORecord) newValue, deletionListener);
+        entry.recordDeletionListener = deletionListener;
       }
+
+      value = newValue;
     }
 
     return convertToGraphElement(value);
@@ -754,6 +739,8 @@ public class ODocument extends ORecordAbstract
     ODocumentEntry entry = fields.get(name);
     final boolean knownProperty;
     final Object oldValue;
+    RecordListenersManager.RecordListener oldDeletionListener = null;
+
     final OType oldType;
     if (entry == null) {
       entry = new ODocumentEntry();
@@ -767,6 +754,8 @@ public class ODocument extends ORecordAbstract
       knownProperty = entry.exists();
       oldValue = entry.value;
       oldType = entry.type;
+      oldDeletionListener = entry.recordDeletionListener;
+      entry.recordDeletionListener = null;
     }
     OType fieldType = deriveFieldType(name, entry, type);
     if (value != null && fieldType != null) {
@@ -860,6 +849,18 @@ public class ODocument extends ORecordAbstract
       entry.original = oldValue;
       entry.markChanged();
     }
+
+    if (value instanceof ORecord record && entry.type != OType.EMBEDDED) {
+      var db = getDatabaseIfDefined();
+      var deletionListener = new LazyLoadedRecordDeletionListener(name, this);
+      db.registerRecordDeletionListener(record, deletionListener);
+      entry.recordDeletionListener = deletionListener;
+    }
+
+    if (oldDeletionListener != null) {
+      var db = getDatabase();
+      db.removeRecordDeletionListener((ORecord) oldValue, oldDeletionListener);
+    }
   }
 
   @Override
@@ -898,11 +899,23 @@ public class ODocument extends ORecordAbstract
     }
 
     final ODocumentEntry entry = fields.get(name);
-    if (entry == null) return null;
+    if (entry == null) {
+      return null;
+    }
+
     Object oldValue = entry.value;
+    var oldDeletionListener = entry.recordDeletionListener;
+
+    if (oldDeletionListener != null) {
+      getDatabase().removeRecordDeletionListener((ORecord) oldValue, oldDeletionListener);
+      entry.recordDeletionListener = null;
+    }
+
     if (entry.exists() && trackingChanges) {
       // SAVE THE OLD VALUE IN A SEPARATE MAP
-      if (entry.original == null) entry.original = entry.value;
+      if (entry.original == null) {
+        entry.original = entry.value;
+      }
       entry.value = null;
       entry.setExists(false);
       entry.markChanged();
@@ -911,8 +924,13 @@ public class ODocument extends ORecordAbstract
     }
     fieldSize--;
     entry.disableTracking(this, oldValue);
-    if (oldValue instanceof OIdentifiable) unTrack((OIdentifiable) oldValue);
-    if (oldValue instanceof ORidBag) ((ORidBag) oldValue).setOwner(null);
+    if (oldValue instanceof OIdentifiable) {
+      unTrack((OIdentifiable) oldValue);
+    }
+    if (oldValue instanceof ORidBag) {
+      ((ORidBag) oldValue).setOwner(null);
+    }
+
     setDirty();
     return (RET) oldValue;
   }
@@ -1195,7 +1213,7 @@ public class ODocument extends ORecordAbstract
       if (value.getTimeLine() != null) {
         List<OMultiValueChangeEvent<Object, Object>> event =
             value.getTimeLine().getMultiValueChangeEvents();
-        for (OMultiValueChangeEvent<Object, Object> object : event) {
+        for (var object : event) {
           if (object.getChangeType() == OMultiValueChangeEvent.OChangeType.ADD
               || object.getChangeType() == OMultiValueChangeEvent.OChangeType.UPDATE
                   && object.getValue() != null) validateLink(property, object.getValue(), true);
@@ -1431,9 +1449,16 @@ public class ODocument extends ORecordAbstract
       destination.fields =
           fields instanceof LinkedHashMap ? new LinkedHashMap<>() : new HashMap<>();
       for (Entry<String, ODocumentEntry> entry : fields.entrySet()) {
-        ODocumentEntry docEntry = entry.getValue().clone();
+        var originalEntry = entry.getValue();
+        ODocumentEntry docEntry = originalEntry.clone();
         destination.fields.put(entry.getKey(), docEntry);
         docEntry.value = ODocumentHelper.cloneValue(destination, entry.getValue().value);
+
+        if (originalEntry.recordDeletionListener != null) {
+          var deletionListener = new LazyLoadedRecordDeletionListener(entry.getKey(), destination);
+          getDatabase().registerRecordDeletionListener((ORecord) docEntry.value, deletionListener);
+          docEntry.recordDeletionListener = deletionListener;
+        }
       }
     } else destination.fields = null;
     destination.fieldSize = fieldSize;
@@ -1485,13 +1510,21 @@ public class ODocument extends ORecordAbstract
     if (fields != null) {
       Object fieldValue;
       for (Map.Entry<String, ODocumentEntry> entry : fields.entrySet()) {
-        fieldValue = entry.getValue().value;
+        var docEntry = entry.getValue();
+        fieldValue = docEntry.value;
 
-        if (fieldValue instanceof ORecord)
-          if (((ORecord) fieldValue).getIdentity().isNew()) fullyDetached = false;
-          else {
-            entry.getValue().value = ((ORecord) fieldValue).getIdentity();
+        if (fieldValue instanceof ORecord record) {
+          if (record.getIdentity().isNew()) {
+            fullyDetached = false;
+          } else {
+            entry.getValue().value = record.getIdentity();
           }
+
+          if (docEntry.recordDeletionListener != null) {
+            getDatabase().removeRecordDeletionListener(record, docEntry.recordDeletionListener);
+            docEntry.recordDeletionListener = null;
+          }
+        }
 
         if (fieldValue instanceof ODetachable) {
           if (!((ODetachable) fieldValue).detach()) fullyDetached = false;
@@ -1681,13 +1714,11 @@ public class ODocument extends ORecordAbstract
   }
 
   public <RET> RET rawField(final String iFieldName) {
+    if (iFieldName == null || iFieldName.isEmpty()) return null;
+
     checkForLoading();
     if (primaryRecord != null) {
       return ((ODocument) primaryRecord).rawField(iFieldName);
-    }
-
-    if (iFieldName == null || iFieldName.isEmpty()) {
-      return null;
     }
 
     if (!checkForFields(iFieldName))
@@ -1763,7 +1794,8 @@ public class ODocument extends ORecordAbstract
         && (((ORID) value).isPersistent() || ((ORID) value).isNew())
         && ODatabaseRecordThreadLocal.instance().isDefined()) {
       // CREATE THE DOCUMENT OBJECT IN LAZY WAY
-      RET newValue = getDatabase().load((ORID) value);
+      var db = getDatabase();
+      RET newValue = db.load((ORID) value);
       if (newValue != null) {
         unTrack((ORID) value);
         track((OIdentifiable) newValue);
@@ -1776,6 +1808,10 @@ public class ODocument extends ORecordAbstract
           entry.disableTracking(this, entry.value);
           entry.value = value;
           entry.enableTracking(this);
+
+          var oldDeletionListener = new LazyLoadedRecordDeletionListener(iFieldName, this);
+          db.registerRecordDeletionListener((ORecord) newValue, oldDeletionListener);
+          entry.recordDeletionListener = oldDeletionListener;
         }
       }
     }
@@ -2087,6 +2123,7 @@ public class ODocument extends ORecordAbstract
     final boolean knownProperty;
     final Object oldValue;
     final OType oldType;
+    RecordListenersManager.RecordListener oldDeletionListener = null;
     if (entry == null) {
       entry = new ODocumentEntry();
       fieldSize++;
@@ -2099,6 +2136,7 @@ public class ODocument extends ORecordAbstract
       knownProperty = entry.exists();
       oldValue = entry.value;
       oldType = entry.type;
+      oldDeletionListener = entry.recordDeletionListener;
     }
     OType fieldType = deriveFieldType(iFieldName, entry, iFieldType);
     if (iPropertyValue != null && fieldType != null) {
@@ -2140,8 +2178,7 @@ public class ODocument extends ORecordAbstract
         }
       }
 
-    if (oldValue instanceof ORidBag) {
-      final ORidBag ridBag = (ORidBag) oldValue;
+    if (oldValue instanceof ORidBag ridBag) {
       ridBag.setOwner(null);
       ridBag.setRecordAndField(recordId, iFieldName);
     } else if (oldValue instanceof ODocument) {
@@ -2166,8 +2203,7 @@ public class ODocument extends ORecordAbstract
         track((OIdentifiable) iPropertyValue);
       }
 
-      if (iPropertyValue instanceof ORidBag) {
-        final ORidBag ridBag = (ORidBag) iPropertyValue;
+      if (iPropertyValue instanceof ORidBag ridBag) {
         ridBag.setOwner(
             null); // in order to avoid IllegalStateException when ridBag changes the owner
         // (ODocument.merge)
@@ -2206,6 +2242,20 @@ public class ODocument extends ORecordAbstract
       entry.markChanged();
     }
 
+    if (iPropertyValue instanceof ORecord record && entry.type != OType.EMBEDDED) {
+      var db = getDatabaseIfDefined();
+      if (db != null) {
+        var deletionListener = new LazyLoadedRecordDeletionListener(iFieldName, this);
+        db.registerRecordDeletionListener(record, deletionListener);
+        entry.recordDeletionListener = deletionListener;
+      }
+    }
+
+    if (oldDeletionListener != null) {
+      var db = getDatabase();
+      db.removeRecordDeletionListener((ORecord) oldValue, oldDeletionListener);
+    }
+
     return this;
   }
 
@@ -2228,6 +2278,12 @@ public class ODocument extends ORecordAbstract
     final ODocumentEntry entry = fields.get(iFieldName);
     if (entry == null) return null;
     Object oldValue = entry.value;
+
+    var oldDeletionListener = entry.recordDeletionListener;
+    if (oldDeletionListener != null) {
+      getDatabase().removeRecordDeletionListener((ORecord) oldValue, oldDeletionListener);
+      entry.recordDeletionListener = null;
+    }
     if (entry.exists() && trackingChanges) {
       // SAVE THE OLD VALUE IN A SEPARATE MAP
       if (entry.original == null) entry.original = entry.value;
@@ -2432,16 +2488,26 @@ public class ODocument extends ORecordAbstract
 
       @Override
       public void remove() {
-
+        var entry = current.getValue();
         if (trackingChanges) {
-          if (current.getValue().isChanged())
-            current.getValue().original = current.getValue().value;
-          current.getValue().value = null;
-          current.getValue().setExists(false);
-          current.getValue().markChanged();
-        } else iterator.remove();
+          if (entry.isChanged()) {
+            entry.original = entry.value;
+          }
+          entry.value = null;
+          entry.setExists(false);
+          entry.markChanged();
+
+          if (entry.recordDeletionListener != null) {
+            getDatabase()
+                .removeRecordDeletionListener((ORecord) entry.value, entry.recordDeletionListener);
+            entry.recordDeletionListener = null;
+          }
+        } else {
+          iterator.remove();
+        }
         fieldSize--;
-        current.getValue().disableTracking(ODocument.this, current.getValue().value);
+
+        entry.disableTracking(ODocument.this, entry.value);
       }
     };
   }
@@ -2787,6 +2853,12 @@ public class ODocument extends ORecordAbstract
         } else {
           val.undo();
         }
+
+        if (val.recordDeletionListener != null) {
+          getDatabase()
+              .removeRecordDeletionListener((ORecord) val.value, val.recordDeletionListener);
+          val.recordDeletionListener = null;
+        }
       }
       fieldSize = fields.size();
     }
@@ -2809,6 +2881,12 @@ public class ODocument extends ORecordAbstract
           fields.remove(field);
         } else {
           value.undo();
+        }
+
+        if (value.recordDeletionListener != null) {
+          getDatabase()
+              .removeRecordDeletionListener((ORecord) value.value, value.recordDeletionListener);
+          value.recordDeletionListener = null;
         }
       }
     }
@@ -3201,8 +3279,11 @@ public class ODocument extends ORecordAbstract
     else size = i;
     final byte[] idBuffer = new byte[size];
     stream.readFully(idBuffer);
+
     ORecordId rid = new OEmptyRecordId();
     rid.fromStream(idBuffer);
+    rid = rid.copy();
+
     if (rid.getClusterId() == -2 && rid.getClusterPosition() == -2) {
       recordId = null;
     } else {
@@ -3426,13 +3507,11 @@ public class ODocument extends ORecordAbstract
           buffer.append('[');
           buffer.append(OMultiValue.getSize(f.getValue().value));
           buffer.append(']');
-        } else if (f.getValue().value instanceof ORecord) {
-          final ORecord record = (ORecord) f.getValue().value;
-
+        } else if (f.getValue().value instanceof ORecord record) {
           if (record.getIdentity().isValid()) record.getIdentity().toString(buffer);
           else if (record instanceof ODocument)
             buffer.append(((ODocument) record).toString(inspected));
-          else buffer.append(record.toString());
+          else buffer.append(record);
         } else buffer.append(f.getValue().value);
 
         if (first) first = false;
@@ -4399,6 +4478,35 @@ public class ODocument extends ORecordAbstract
 
     if (isVertex() || isEdge()) {
       throw new ODatabaseException("Vertices or Edges cannot be stored as embedded");
+    }
+  }
+
+  private static final class LazyLoadedRecordDeletionListener
+      extends RecordListenersManager.RecordListener {
+    private final String fieldName;
+    private final WeakReference<ODocument> document;
+
+    private LazyLoadedRecordDeletionListener(String fieldName, ODocument document) {
+      this.fieldName = fieldName;
+      this.document = new WeakReference<>(document);
+    }
+
+    @Override
+    public void onRecordChange(ORecord record) {
+      var doc = document.get();
+      if (doc == null) {
+        return;
+      }
+
+      var entry = doc.fields.get(fieldName);
+      if (entry != null
+          && entry.value instanceof ORecord recordValue
+          && recordValue.getIdentity().equals(record.getIdentity())) {
+        entry.disableTracking(doc, entry.value);
+        entry.value = record.getIdentity();
+        entry.enableTracking(doc);
+        entry.recordDeletionListener = null;
+      }
     }
   }
 }

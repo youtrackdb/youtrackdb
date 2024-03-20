@@ -84,10 +84,7 @@ public class OUpdateRecordRequest implements OBinaryAsyncRequest<OUpdateRecordRe
     content =
         Orient.instance()
             .getRecordFactoryManager()
-            .newInstance(
-                recordType,
-                rid.getClusterId(),
-                ODatabaseRecordThreadLocal.instance().getIfDefined());
+            .newInstance(recordType, rid, ODatabaseRecordThreadLocal.instance().getIfDefined());
     serializer.fromStream(bts, content, null);
   }
 

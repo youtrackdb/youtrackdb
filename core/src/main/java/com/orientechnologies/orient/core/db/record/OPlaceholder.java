@@ -104,8 +104,10 @@ public class OPlaceholder implements OIdentifiable, OStreamable {
 
   @Override
   public void fromStream(final DataInput in) throws IOException {
-    rid = new OEmptyRecordId();
+    var rid = new OEmptyRecordId();
     rid.fromStream(in);
+
+    this.rid = rid.copy();
     recordVersion = in.readInt();
   }
 

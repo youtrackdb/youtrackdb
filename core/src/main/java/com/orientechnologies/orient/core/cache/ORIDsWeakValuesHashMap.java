@@ -61,7 +61,7 @@ public final class ORIDsWeakValuesHashMap<V> extends AbstractMap<ORID, V>
     final WeakRefValue<V> soft_ref = new WeakRefValue<>(key, value, refQueue);
 
     if (key instanceof ChangeableIdentity changeableIdentity) {
-      changeableIdentity.addIdentityChangeListeners(this);
+      changeableIdentity.addIdentityChangeListener(this);
     }
 
     final WeakRefValue<V> result = hashMap.put(key, soft_ref);

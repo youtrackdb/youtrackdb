@@ -2,6 +2,7 @@ package com.orientechnologies.orient.core.record.impl;
 
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.ORecordAbstract;
@@ -18,6 +19,10 @@ public class OVertexDocument extends ODocument implements OVertexInternal {
 
   public OVertexDocument(ODatabaseSession session) {
     super(session);
+  }
+
+  public OVertexDocument(ODatabaseSession database, ORID rid) {
+    super(database, rid);
   }
 
   public OVertexDocument(ODatabaseSession session, String klass) {

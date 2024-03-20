@@ -410,9 +410,7 @@ public class OMessageHelper {
     ORecord record =
         Orient.instance()
             .getRecordFactoryManager()
-            .newInstance(
-                rec, rid.getClusterId(), ODatabaseRecordThreadLocal.instance().getIfDefined());
-    ORecordInternal.setIdentity(record, rid);
+            .newInstance(rec, rid, ODatabaseRecordThreadLocal.instance().getIfDefined());
     ORecordInternal.setVersion(record, version);
     serializer.fromStream(content, record, null);
     ORecordInternal.unsetDirty(record);

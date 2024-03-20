@@ -63,7 +63,7 @@ public class ORecordBytes extends ORecordAbstract implements OBlob {
   }
 
   public ORecordBytes(final ORID iRecordId) {
-    recordId = (ORecordId) iRecordId;
+    recordId = (ORecordId) iRecordId.copy();
     setup(ODatabaseRecordThreadLocal.instance().getIfDefined());
   }
 

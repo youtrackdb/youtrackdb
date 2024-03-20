@@ -296,7 +296,7 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
       if (changes.key == key
           && key instanceof ChangeableIdentity changeableIdentity
           && changeableIdentity.canChangeIdentity()) {
-        changeableIdentity.addIdentityChangeListeners(indexEntry);
+        changeableIdentity.addIdentityChangeListener(indexEntry);
       }
 
       if (iValue == null) return;

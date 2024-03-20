@@ -15,6 +15,11 @@ public class OViewDocument extends ODocument {
     view = database.getViewFromCluster(cluster);
   }
 
+  public OViewDocument(ODatabaseDocumentInternal database, ORID rid) {
+    super(database, rid);
+    view = database.getViewFromCluster(rid.getClusterId());
+  }
+
   @Override
   public void convertToProxyRecord(ORecordAbstract primaryRecord) {
     if (!(primaryRecord instanceof OViewDocument)) {
