@@ -20,7 +20,7 @@ import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 /** @since 21.03.12 */
-@Test(groups = {"index"})
+@Test
 public class LinkListIndexTest extends DocumentDBBaseTest {
 
   @Parameters(value = "url")
@@ -337,7 +337,7 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     }
 
     OIndex index = getIndex("linkCollectionIndex");
-    Assert.assertEquals(index.getInternal().size(), 3);
+    Assert.assertEquals(index.getInternal().size(), 2);
 
     Iterator<Object> keyIterator;
     try (Stream<Object> indexKeyStream = index.getInternal().keyStream()) {
@@ -346,8 +346,7 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
       while (keyIterator.hasNext()) {
         OIdentifiable key = (OIdentifiable) keyIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())
-            && !key.getIdentity().equals(docTwo.getIdentity())
-            && !key.getIdentity().equals(docThree.getIdentity())) {
+            && !key.getIdentity().equals(docTwo.getIdentity())) {
           Assert.fail("Unknown key found: " + key);
         }
       }

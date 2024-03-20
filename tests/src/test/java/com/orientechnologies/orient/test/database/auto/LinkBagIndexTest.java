@@ -25,7 +25,7 @@ import org.testng.annotations.Test;
  * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 1/30/14
  */
-@Test(groups = {"index"})
+@Test
 public class LinkBagIndexTest extends DocumentDBBaseTest {
 
   @Parameters(value = "url")
@@ -365,7 +365,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     }
 
     final OIndex index = getIndex("ridBagIndex");
-    Assert.assertEquals(index.getInternal().size(), 3);
+    Assert.assertEquals(index.getInternal().size(), 2);
 
     final Iterator<Object> keyIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -374,8 +374,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
       while (keyIterator.hasNext()) {
         OIdentifiable key = (OIdentifiable) keyIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())
-            && !key.getIdentity().equals(docTwo.getIdentity())
-            && !key.getIdentity().equals(docThree.getIdentity())) {
+            && !key.getIdentity().equals(docTwo.getIdentity())) {
           Assert.fail("Unknown key found: " + key);
         }
       }
