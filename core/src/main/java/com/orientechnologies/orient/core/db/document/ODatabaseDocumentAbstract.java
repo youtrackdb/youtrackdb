@@ -549,8 +549,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   public ORecordHook.RESULT callbackHooks(final ORecordHook.TYPE type, final OIdentifiable id) {
     if (type == ORecordHook.TYPE.AFTER_DELETE) {
       var record = id.getRecord();
-      recordDeleteListenersManager.triggerRecordListeners(record);
-      recordDeleteListenersManager.clearRecordListeners(record);
+      triggerRecordDeletionListeners(record);
     }
 
     if (id == null || hooks.isEmpty() || id.getIdentity().getClusterId() == 0) {
@@ -614,6 +613,12 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     } finally {
       popInHook(identity);
     }
+  }
+
+  @Override
+  public void triggerRecordDeletionListeners(ORecord record) {
+    recordDeleteListenersManager.triggerRecordListeners(record);
+    recordDeleteListenersManager.clearRecordListeners(record);
   }
 
   /** {@inheritDoc} */

@@ -109,6 +109,7 @@ public class OLocalRecordCache extends OAbstractRecordCache {
               1L,
               "db.*.cache.level1.cache.notFound");
 
+    assert record == null || !record.isProxy();
     return record;
   }
 

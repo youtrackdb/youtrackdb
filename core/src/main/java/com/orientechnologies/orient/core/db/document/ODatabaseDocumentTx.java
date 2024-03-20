@@ -544,6 +544,15 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
   }
 
   @Override
+  public void triggerRecordDeletionListeners(ORecord record) {
+    if (internal == null) {
+      return;
+    }
+
+    internal.triggerRecordDeletionListeners(record);
+  }
+
+  @Override
   public ORecordIteratorClass<ODocument> browseClass(String iClassName) {
     checkOpenness();
     return internal.browseClass(iClassName);

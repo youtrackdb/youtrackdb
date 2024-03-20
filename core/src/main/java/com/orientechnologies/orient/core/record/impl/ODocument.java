@@ -852,9 +852,11 @@ public class ODocument extends ORecordAbstract
 
     if (value instanceof ORecord record && entry.type != OType.EMBEDDED) {
       var db = getDatabaseIfDefined();
-      var deletionListener = new LazyLoadedRecordDeletionListener(name, this);
-      db.registerRecordDeletionListener(record, deletionListener);
-      entry.recordDeletionListener = deletionListener;
+      if (db != null) {
+        var deletionListener = new LazyLoadedRecordDeletionListener(name, this);
+        db.registerRecordDeletionListener(record, deletionListener);
+        entry.recordDeletionListener = deletionListener;
+      }
     }
 
     if (oldDeletionListener != null) {
@@ -2242,6 +2244,12 @@ public class ODocument extends ORecordAbstract
       entry.markChanged();
     }
 
+    if (oldDeletionListener != null) {
+      var db = getDatabase();
+      db.removeRecordDeletionListener((ORecord) oldValue, oldDeletionListener);
+      entry.recordDeletionListener = null;
+    }
+
     if (iPropertyValue instanceof ORecord record && entry.type != OType.EMBEDDED) {
       var db = getDatabaseIfDefined();
       if (db != null) {
@@ -2249,11 +2257,6 @@ public class ODocument extends ORecordAbstract
         db.registerRecordDeletionListener(record, deletionListener);
         entry.recordDeletionListener = deletionListener;
       }
-    }
-
-    if (oldDeletionListener != null) {
-      var db = getDatabase();
-      db.removeRecordDeletionListener((ORecord) oldValue, oldDeletionListener);
     }
 
     return this;
@@ -4404,8 +4407,15 @@ public class ODocument extends ORecordAbstract
   private void removeAllCollectionChangeListeners() {
     if (fields == null) return;
 
+    var db = getDatabaseIfDefined();
     for (final Map.Entry<String, ODocumentEntry> field : fields.entrySet()) {
-      field.getValue().disableTracking(this, field.getValue().value);
+      var docEntry = field.getValue();
+
+      var value = docEntry.value;
+      docEntry.disableTracking(this, value);
+      if (docEntry.recordDeletionListener != null && db != null) {
+        db.removeRecordDeletionListener((ORecord) value, docEntry.recordDeletionListener);
+      }
     }
   }
 
@@ -4502,9 +4512,14 @@ public class ODocument extends ORecordAbstract
       if (entry != null
           && entry.value instanceof ORecord recordValue
           && recordValue.getIdentity().equals(record.getIdentity())) {
-        entry.disableTracking(doc, entry.value);
-        entry.value = record.getIdentity();
-        entry.enableTracking(doc);
+        var valueRid = recordValue.getIdentity();
+
+        if(valueRid.isNew()) {
+          entry.value = null;
+        } else {
+          entry.value = valueRid;
+        }
+
         entry.recordDeletionListener = null;
       }
     }

@@ -1043,6 +1043,11 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
     return underlying.getSharedContext();
   }
 
+  @Override
+  public void triggerRecordDeletionListeners(ORecord record) {
+    underlying.triggerRecordDeletionListeners(record);
+  }
+
   /**
    * Register the static document binary mapping mode in the database context (only if it's not
    * already set)

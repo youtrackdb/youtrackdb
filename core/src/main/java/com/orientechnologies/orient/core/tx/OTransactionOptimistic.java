@@ -386,7 +386,16 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
   }
 
   public void deleteRecord(final ORecord iRecord, final OPERATION_MODE iMode) {
-    if (!iRecord.getIdentity().isValid()) return;
+    var rid = iRecord.getIdentity();
+
+    if (!iRecord.getIdentity().isValid()) {
+      // newly created but not saved record
+      if (rid.getClusterId() == -1 && rid.getClusterPosition() == -1) {
+        database.triggerRecordDeletionListeners(iRecord);
+      }
+
+      return;
+    }
 
     Set<ORecord> records = ORecordInternal.getDirtyManager(iRecord).getUpdateRecords();
     final Set<ORecord> newRecords = ORecordInternal.getDirtyManager(iRecord).getNewRecords();

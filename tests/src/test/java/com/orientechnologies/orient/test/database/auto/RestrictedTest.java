@@ -36,7 +36,7 @@ import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-@Test(groups = "security")
+@Test
 public class RestrictedTest extends DocumentDBBaseTest {
   private ODocument adminRecord;
   private ODocument writerRecord;
