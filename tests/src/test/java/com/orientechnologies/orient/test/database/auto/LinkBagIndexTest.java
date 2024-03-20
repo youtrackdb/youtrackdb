@@ -357,7 +357,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
       database.begin();
       ODocument loadedDocument = database.load(document.getIdentity());
       loadedDocument.<ORidBag>field("ridBag").add(docThree);
-      document.save();
+      loadedDocument.save();
       database.commit();
     } catch (Exception e) {
       database.rollback();
@@ -365,7 +365,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     }
 
     final OIndex index = getIndex("ridBagIndex");
-    Assert.assertEquals(index.getInternal().size(), 2);
+    Assert.assertEquals(index.getInternal().size(), 3);
 
     final Iterator<Object> keyIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -374,7 +374,8 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
       while (keyIterator.hasNext()) {
         OIdentifiable key = (OIdentifiable) keyIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())
-            && !key.getIdentity().equals(docTwo.getIdentity())) {
+            && !key.getIdentity().equals(docTwo.getIdentity()) &&
+            !key.getIdentity().equals(docThree.getIdentity())) {
           Assert.fail("Unknown key found: " + key);
         }
       }

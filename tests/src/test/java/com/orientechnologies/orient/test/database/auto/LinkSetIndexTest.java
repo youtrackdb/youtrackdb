@@ -353,7 +353,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
       database.begin();
       ODocument loadedDocument = database.load(document.getIdentity());
       loadedDocument.<Set<OIdentifiable>>field("linkSet").add(docThree);
-      document.save();
+      loadedDocument.save();
       database.commit();
     } catch (Exception e) {
       database.rollback();
@@ -361,7 +361,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     }
 
     OIndex index = getIndex("linkSetIndex");
-    Assert.assertEquals(index.getInternal().size(), 2);
+    Assert.assertEquals(index.getInternal().size(), 3);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -370,7 +370,8 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
       while (keysIterator.hasNext()) {
         OIdentifiable key = (OIdentifiable) keysIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())
-            && !key.getIdentity().equals(docTwo.getIdentity())) {
+            && !key.getIdentity().equals(docTwo.getIdentity()) &&
+            !key.getIdentity().equals(docThree.getIdentity())) {
           Assert.fail("Unknown key found: " + key);
         }
       }

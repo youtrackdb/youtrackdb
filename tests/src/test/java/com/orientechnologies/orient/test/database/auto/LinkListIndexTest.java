@@ -19,7 +19,9 @@ import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-/** @since 21.03.12 */
+/**
+ * @since 21.03.12
+ */
 @Test
 public class LinkListIndexTest extends DocumentDBBaseTest {
 
@@ -329,7 +331,7 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
       database.begin();
       ODocument loadedDocument = database.load(document.getIdentity());
       loadedDocument.<List<OIdentifiable>>field("linkCollection").add(docThree.getIdentity());
-      document.save();
+      loadedDocument.save();
       database.commit();
     } catch (Exception e) {
       database.rollback();
@@ -337,7 +339,7 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     }
 
     OIndex index = getIndex("linkCollectionIndex");
-    Assert.assertEquals(index.getInternal().size(), 2);
+    Assert.assertEquals(index.getInternal().size(), 3);
 
     Iterator<Object> keyIterator;
     try (Stream<Object> indexKeyStream = index.getInternal().keyStream()) {
@@ -346,7 +348,8 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
       while (keyIterator.hasNext()) {
         OIdentifiable key = (OIdentifiable) keyIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())
-            && !key.getIdentity().equals(docTwo.getIdentity())) {
+            && !key.getIdentity().equals(docTwo.getIdentity())
+            && !key.getIdentity().equals(docThree.getIdentity())) {
           Assert.fail("Unknown key found: " + key);
         }
       }
