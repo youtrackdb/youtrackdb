@@ -57,6 +57,7 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
         record = (ORecordAbstract) getDatabase().getLocalCache().findRecord(operation.getOldId());
       }
       if (record != null) {
+        ORecordInternal.unsetDirty(record);
         record.unload();
       } else {
         record =
