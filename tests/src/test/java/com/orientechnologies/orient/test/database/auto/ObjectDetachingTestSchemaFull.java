@@ -41,16 +41,14 @@ import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-@Test(
-    groups = {"object", "detachingSchemaFull"},
-    dependsOnGroups = "treeSchemaFull")
+@Test
 public class ObjectDetachingTestSchemaFull extends ObjectDBBaseTest {
   private Account account;
   private Profile profile;
 
   @Parameters(value = "url")
   public ObjectDetachingTestSchemaFull(@Optional String url) {
-    super(url, "_objectschema");
+    super(url, "objectschema");
   }
 
   @Test
@@ -316,7 +314,7 @@ public class ObjectDetachingTestSchemaFull extends ObjectDBBaseTest {
   public void clean() {
     database.close();
 
-    database = new OObjectDatabaseTx(url).open("admin", "admin");
+    database = createDatabaseSession();
     database.delete(profile);
     database.delete(account);
   }
@@ -384,7 +382,7 @@ public class ObjectDetachingTestSchemaFull extends ObjectDBBaseTest {
     ORecordId id = (ORecordId) database.getRecordByUserObject(savedJavaObj, false).getIdentity();
     database.close();
 
-    database = new OObjectDatabaseTx(url).open("admin", "admin");
+    database = createDatabaseSession();
     JavaAttachDetachTestClass loadedJavaObj = (JavaAttachDetachTestClass) database.load(id);
     database.detach(loadedJavaObj);
     Assert.assertEquals(loadedJavaObj.text, "test");
@@ -469,7 +467,7 @@ public class ObjectDetachingTestSchemaFull extends ObjectDBBaseTest {
     ORecordId id = (ORecordId) database.getRecordByUserObject(savedJavaObj, false).getIdentity();
     database.close();
 
-    database = new OObjectDatabaseTx(url).open("admin", "admin");
+    database = createDatabaseSession();
     JavaAttachDetachTestClass loadedJavaObj = (JavaAttachDetachTestClass) database.load(id);
     database.detachAll(loadedJavaObj, false);
     Assert.assertEquals(loadedJavaObj.text, "test");
@@ -558,7 +556,7 @@ public class ObjectDetachingTestSchemaFull extends ObjectDBBaseTest {
     ORecordId id = (ORecordId) database.getRecordByUserObject(savedJavaObj, false).getIdentity();
     database.close();
 
-    database = new OObjectDatabaseTx(url).open("admin", "admin");
+    database = createDatabaseSession();
     JavaAttachDetachTestClass loadedJavaObj = (JavaAttachDetachTestClass) database.load(id);
     loadedJavaObj = database.detach(loadedJavaObj, true);
     Assert.assertTrue(!(loadedJavaObj instanceof Proxy));
@@ -650,7 +648,7 @@ public class ObjectDetachingTestSchemaFull extends ObjectDBBaseTest {
     ORecordId id = (ORecordId) database.getRecordByUserObject(savedJavaObj, false).getIdentity();
     database.close();
 
-    database = new OObjectDatabaseTx(url).open("admin", "admin");
+    database = createDatabaseSession();
     JavaAttachDetachTestClass loadedJavaObj = (JavaAttachDetachTestClass) database.load(id);
     loadedJavaObj = database.detachAll(loadedJavaObj, true);
     Assert.assertTrue(!(loadedJavaObj instanceof Proxy));

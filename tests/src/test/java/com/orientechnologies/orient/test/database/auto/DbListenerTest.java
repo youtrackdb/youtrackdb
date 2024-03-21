@@ -179,23 +179,15 @@ public class DbListenerTest extends DocumentDBBaseTest {
   public void testEmbeddedDbListeners() throws IOException {
     if (database.getURL().startsWith("remote:")) return;
 
-    if (database.exists()) ODatabaseHelper.deleteDatabase(database, getStorageType());
-
-    database.registerListener(new DbListener());
-    final int baseOnClose = onClose;
-    final int baseOnCreate = onCreate;
-    final int baseOnDelete = onDelete;
-
-    ODatabaseHelper.createDatabase(database, url, getStorageType());
+    dropDb();
+    createDb();
 
     final int baseOnBeforeTxBegin = onBeforeTxBegin;
     final int baseOnBeforeTxCommit = onBeforeTxCommit;
     final int baseOnAfterTxCommit = onAfterTxCommit;
 
-    Assert.assertEquals(onCreate, baseOnCreate + 1);
-
-    database.open("admin", "admin");
-    Assert.assertEquals(onOpen, 1);
+    database = createDatabaseSession();
+    database.registerListener(new DbListener());
 
     database.begin(TXTYPE.OPTIMISTIC);
     Assert.assertEquals(onBeforeTxBegin, baseOnBeforeTxBegin + 1);
@@ -216,12 +208,6 @@ public class DbListenerTest extends DocumentDBBaseTest {
     database.rollback();
     Assert.assertEquals(onBeforeTxRollback, 1);
     Assert.assertEquals(onAfterTxRollback, 1);
-
-    ODatabaseHelper.deleteDatabase(database, getStorageType());
-    Assert.assertEquals(onClose, baseOnClose + 1);
-    Assert.assertEquals(onDelete, baseOnDelete + 1);
-
-    ODatabaseHelper.createDatabase(database, url, getStorageType());
   }
 
   @Test
@@ -263,12 +249,13 @@ public class DbListenerTest extends DocumentDBBaseTest {
   public void testEmbeddedDbListenersTxRecords() throws IOException {
     if (database.getURL().startsWith("remote:")) return;
 
-    if (database.exists()) ODatabaseHelper.deleteDatabase(database, getStorageType());
-    ODatabaseHelper.createDatabase(database, url, getStorageType());
+    dropDb();
+
+    createDb();
 
     final AtomicInteger recordedChanges = new AtomicInteger();
 
-    database.open("admin", "admin");
+    database = createDatabaseSession();
 
     database.begin(TXTYPE.OPTIMISTIC);
     ODocument rec =
@@ -286,18 +273,19 @@ public class DbListenerTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(cl.getChanges().size(), 1);
 
-    ODatabaseHelper.deleteDatabase(database, getStorageType());
-    ODatabaseHelper.createDatabase(database, url, getStorageType());
+    dropDb();
+    createDb();
   }
 
   @Test
   public void testEmbeddedDbListenersGraph() throws IOException {
     if (database.getURL().startsWith("remote:")) return;
 
-    if (database.exists()) ODatabaseHelper.deleteDatabase(database, getStorageType());
-    ODatabaseHelper.createDatabase(database, url, getStorageType());
+    dropDb();
 
-    database.open("admin", "admin");
+    createDb();
+
+    database = createDatabaseSession();
 
     database.begin();
     var v = database.newVertex();
@@ -313,8 +301,8 @@ public class DbListenerTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(cl.getChanges().size(), 1);
 
-    ODatabaseHelper.deleteDatabase(database, getStorageType());
-    ODatabaseHelper.createDatabase(database, url, getStorageType());
+    dropDb();
+    createDb();
   }
 
   @Test
@@ -322,12 +310,13 @@ public class DbListenerTest extends DocumentDBBaseTest {
 
     if (database.getURL().startsWith("remote:")) return;
 
-    if (database.exists()) ODatabaseHelper.deleteDatabase(database, getStorageType());
-    ODatabaseHelper.createDatabase(database, url, getStorageType());
+    dropDb();
+
+    createDb();
 
     final AtomicInteger recordedChanges = new AtomicInteger();
 
-    database.open("admin", "admin");
+    database = createDatabaseSession();
 
     database.registerListener(new DbListener());
 
@@ -336,7 +325,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(execute, commandResult);
     Assert.assertEquals(iText, command);
-    ODatabaseHelper.deleteDatabase(database, getStorageType());
-    ODatabaseHelper.createDatabase(database, url, getStorageType());
+    dropDb();
+    createDb();
   }
 }

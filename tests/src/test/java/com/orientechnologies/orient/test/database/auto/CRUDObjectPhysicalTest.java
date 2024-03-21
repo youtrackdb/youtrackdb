@@ -77,7 +77,7 @@ import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-@Test(groups = {"crud", "object"})
+@Test
 public class CRUDObjectPhysicalTest extends ObjectDBBaseTest {
   protected static final int TOT_RECORDS = 100;
   protected long startRecordNumber;
@@ -92,7 +92,7 @@ public class CRUDObjectPhysicalTest extends ObjectDBBaseTest {
   @Override
   public void beforeMethod() throws Exception {
     database.close();
-    database = OObjectDatabasePool.global().acquire(url, "admin", "admin");
+    database = createDatabaseSession("admin", "admin");
   }
 
   @AfterClass
@@ -100,7 +100,7 @@ public class CRUDObjectPhysicalTest extends ObjectDBBaseTest {
   public void afterClass() throws Exception {
     database.close();
 
-    database = createDatabaseInstance(url);
+    database = createDatabaseSession();
     super.afterClass();
   }
 
@@ -131,7 +131,7 @@ public class CRUDObjectPhysicalTest extends ObjectDBBaseTest {
 
   @Test(dependsOnMethods = "create", expectedExceptions = UnsupportedOperationException.class)
   public void testReleasedPoolDatabase() {
-    database.open("admin", "admin");
+    database=createDatabaseSession("admin", "admin");
   }
 
   @Test(dependsOnMethods = "testReleasedPoolDatabase")
