@@ -1235,7 +1235,7 @@ public class ODocumentHelper {
                   iOtherDb,
                   new ODbRelatedCall<ODocument>() {
                     public ODocument call(ODatabaseDocumentInternal database) {
-                      return (ODocument) otherMap.get(myEntry.getKey());
+                      return ((OIdentifiable) otherMap.get(myEntry.getKey())).getRecord();
                     }
                   }),
               iOtherDb,

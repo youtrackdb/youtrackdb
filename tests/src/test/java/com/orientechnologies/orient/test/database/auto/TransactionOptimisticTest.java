@@ -38,7 +38,7 @@ import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-@Test(groups = "dictionary")
+@Test
 public class TransactionOptimisticTest extends DocumentDBBaseTest {
   @Parameters(value = "url")
   public TransactionOptimisticTest(@Optional String iURL) {
@@ -199,7 +199,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
     String json =
         "{ \"@class\": \"Account\", \"type\": \"Residence\", \"street\": \"Piazza di Spagna\"}";
 
-    database.begin(TXTYPE.OPTIMISTIC);
+    database.begin();
     for (int g = 0; g < 1000; g++) {
       ODocument doc = new ODocument("Account");
       doc.fromJSON(json);
@@ -209,7 +209,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
     }
     database.commit();
 
-    Assert.assertEquals(database.countClusterElements("Account"), totalAccounts + 1000);
+    Assert.assertEquals(database.countClass("Account"), totalAccounts + 1000);
 
     database.close();
   }
@@ -342,14 +342,6 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
 
     ODocument brokenDocOne = new ODocument("NestedTxRollbackOne");
     brokenDocOne.save();
-
-    brokenDocOne = database.load(brokenDocOne.getIdentity(), "*:-1", true);
-
-    ODocument brokenDocTwo = database.load(brokenDocOne.getIdentity(), "*:-1", true);
-    brokenDocTwo.setDirty();
-    brokenDocTwo.field("v", "vstr");
-    brokenDocTwo.save();
-
     try {
       database.begin();
 
@@ -379,6 +371,21 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
       final ODocument externalDocThree = new ODocument("NestedTxRollbackOne");
       externalDocThree.field("v", "val3");
       externalDocThree.save();
+
+      executorService
+          .submit(
+              () -> {
+                final ODatabaseDocument db = new ODatabaseDocumentTx(database.getURL());
+                db.open("admin", "admin");
+                try {
+                  ODocument brokenDocTwo = db.load(brokenDocOne.getIdentity(), "*:-1", true);
+                  brokenDocTwo.field("v", "vstr");
+                  brokenDocTwo.save();
+                } finally {
+                  db.close();
+                }
+              })
+          .get();
 
       database.commit();
       Assert.fail();

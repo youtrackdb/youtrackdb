@@ -55,7 +55,6 @@ import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OSchemaException;
 import com.orientechnologies.orient.core.exception.OSecurityException;
 import com.orientechnologies.orient.core.exception.OValidationException;
-import com.orientechnologies.orient.core.hook.ORecordHookAbstract;
 import com.orientechnologies.orient.core.id.OEmptyRecordId;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -4514,7 +4513,7 @@ public class ODocument extends ORecordAbstract
           && recordValue.getIdentity().equals(record.getIdentity())) {
         var valueRid = recordValue.getIdentity();
 
-        if(valueRid.isNew()) {
+        if (valueRid.isNew()) {
           entry.value = null;
         } else {
           entry.value = valueRid;

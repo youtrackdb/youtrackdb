@@ -113,8 +113,6 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .getElement()
             .get();
 
-    database.delete(doc);
-
     Assert.assertTrue(doc != null);
     Assert.assertEquals(doc.getProperty("name"), "Luca");
     Assert.assertEquals(doc.getProperty("surname"), "Smith");

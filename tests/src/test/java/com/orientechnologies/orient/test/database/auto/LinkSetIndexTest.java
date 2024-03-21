@@ -370,8 +370,8 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
       while (keysIterator.hasNext()) {
         OIdentifiable key = (OIdentifiable) keysIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())
-            && !key.getIdentity().equals(docTwo.getIdentity()) &&
-            !key.getIdentity().equals(docThree.getIdentity())) {
+            && !key.getIdentity().equals(docTwo.getIdentity())
+            && !key.getIdentity().equals(docThree.getIdentity())) {
           Assert.fail("Unknown key found: " + key);
         }
       }

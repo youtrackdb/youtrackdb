@@ -526,7 +526,7 @@ public class SQLSelectTest extends AbstractSelectTest {
     rates.add(200);
     record.field("rates", rates);
 
-    record.save();
+    record.save("animal");
 
     List<ODocument> result =
         executeQuery("select * from cluster:animal where rates in [100,200]", database);

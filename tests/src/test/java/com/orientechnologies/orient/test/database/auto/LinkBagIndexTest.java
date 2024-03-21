@@ -374,8 +374,8 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
       while (keyIterator.hasNext()) {
         OIdentifiable key = (OIdentifiable) keyIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())
-            && !key.getIdentity().equals(docTwo.getIdentity()) &&
-            !key.getIdentity().equals(docThree.getIdentity())) {
+            && !key.getIdentity().equals(docTwo.getIdentity())
+            && !key.getIdentity().equals(docThree.getIdentity())) {
           Assert.fail("Unknown key found: " + key);
         }
       }

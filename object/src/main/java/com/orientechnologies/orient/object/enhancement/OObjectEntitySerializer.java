@@ -309,6 +309,10 @@ public class OObjectEntitySerializer {
     return ((OObjectProxyMethodHandler) ((ProxyObject) proxiedObject).getHandler()).getDoc();
   }
 
+  public static void setDocument(Proxy proxiedObject, ODocument document) {
+    ((OObjectProxyMethodHandler) ((ProxyObject) proxiedObject).getHandler()).setDoc(document);
+  }
+
   /**
    * Method that given a proxied entity returns the associated ODocument RID
    *
@@ -1328,6 +1332,8 @@ public class OObjectEntitySerializer {
         // ODOCUMENT FIELDS
         currentClass = Object.class;
     }
+
+    setDocument(iProxiedPojo, iRecord);
 
     // CALL AFTER MARSHALLING
     invokeCallback(pojoClass, iPojo, iRecord, OAfterSerialization.class);
