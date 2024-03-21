@@ -83,7 +83,7 @@ public class ObjectTreeTest extends ObjectDBBaseTest {
   public void afterClass() throws Exception {
     database.close();
 
-    database = createDatabaseSession();
+    database = createDatabaseInstance(url);
     super.afterClass();
   }
 

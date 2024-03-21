@@ -1,6 +1,7 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
@@ -23,12 +24,7 @@ public abstract class DocumentDBBaseTest extends BaseTest<ODatabaseDocumentInter
     super(url, prefix);
   }
 
-  protected ODatabaseDocumentInternal createDatabaseSession() {
-    return (ODatabaseDocumentInternal) orientDB.open(dbName, "admin", "admin");
-  }
-
-  @Override
-  protected ODatabaseDocumentInternal createDatabaseSession(String user, String password) {
-    return (ODatabaseDocumentInternal) orientDB.open(dbName, user, password);
+  protected ODatabaseDocumentInternal createDatabaseInstance(String url) {
+    return new ODatabaseDocumentTx(url);
   }
 }
