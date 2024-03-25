@@ -4,8 +4,12 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordInternal;
+import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.ORecordBytes;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.util.Map;
@@ -80,9 +84,30 @@ public class ORecordAttribute extends SimpleNode {
       }
       return identity;
     } else if (name.equalsIgnoreCase("@class")) {
-      return iCurrentRecord.toElement().getSchemaType().map(x -> x.getName()).orElse(null);
+      var element = iCurrentRecord.toElement();
+      if (element != null) {
+        return element.getSchemaType().map(OClass::getName).orElse(null);
+      }
+      return null;
     } else if (name.equalsIgnoreCase("@version")) {
-      return iCurrentRecord.getRecord().map(r -> r.getVersion()).orElse(null);
+      return iCurrentRecord.getRecord().map(ORecord::getVersion).orElse(null);
+    } else if (name.equals("@type")) {
+      return iCurrentRecord
+          .getRecord()
+          .map(
+              r -> {
+                var recordType = ORecordInternal.getRecordType(r);
+                if (recordType == ODocument.RECORD_TYPE) {
+                  return "document";
+                } else if (recordType == ORecordBytes.RECORD_TYPE) {
+                  return "bytes";
+                } else {
+                  return "unknown";
+                }
+              })
+          .orElse(null);
+    } else if (name.equals("@size")) {
+      return iCurrentRecord.getRecord().map(r -> r.toStream().length).orElse(null);
     }
     return null;
   }

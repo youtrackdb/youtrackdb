@@ -451,8 +451,4 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
       }
     }
   }
-
-  private List<ODocument> executeQuery(String sql) {
-    return database.query(sql).stream().map(r -> (ODocument) r.toElement()).toList();
-  }
 }

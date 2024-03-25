@@ -129,36 +129,68 @@ public class OInCondition extends OBooleanExpression {
 
   protected static boolean evaluateExpression(final Object iLeft, final Object iRight) {
     if (OMultiValue.isMultiValue(iRight)) {
-      if (iRight instanceof Set && ((Set) iRight).contains(iLeft)) {
-        return true;
+      if (iRight instanceof Set<?> set) {
+        if (set.contains(iLeft)) {
+          return true;
+        }
+        if (OMultiValue.isMultiValue(iLeft)) {
+          for (final Object o : OMultiValue.getMultiValueIterable(iLeft, false)) {
+            if (!set.contains(o)) {
+              return false;
+            }
+          }
+        }
       }
 
-      for (final Object o : OMultiValue.getMultiValueIterable(iRight, false)) {
-        if (OQueryOperatorEquals.equals(iLeft, o)) return true;
-        if (OMultiValue.isMultiValue(iLeft) && OMultiValue.getSize(iLeft) == 1) {
-
-          Object item = OMultiValue.getFirstValue(iLeft);
-          if (item instanceof OResult && ((OResult) item).getPropertyNames().size() == 1) {
-            Object propValue =
-                ((OResult) item).getProperty(((OResult) item).getPropertyNames().iterator().next());
-            if (OQueryOperatorEquals.equals(propValue, o)) return true;
+      for (final Object rightItem : OMultiValue.getMultiValueIterable(iRight, false)) {
+        if (OQueryOperatorEquals.equals(iLeft, rightItem)) {
+          return true;
+        }
+        if (OMultiValue.isMultiValue(iLeft)) {
+          if (OMultiValue.getSize(iLeft) == 1) {
+            Object leftItem = OMultiValue.getFirstValue(iLeft);
+            if (compareItems(rightItem, leftItem)) {
+              return true;
+            }
+          } else {
+            for (final Object leftItem : OMultiValue.getMultiValueIterable(iLeft, false)) {
+              if (compareItems(rightItem, leftItem)) {
+                return true;
+              }
+            }
           }
         }
       }
     } else if (iRight.getClass().isArray()) {
-      for (final Object o : (Object[]) iRight) {
-        if (OQueryOperatorEquals.equals(iLeft, o)) return true;
+      for (final Object rightItem : (Object[]) iRight) {
+        if (OQueryOperatorEquals.equals(iLeft, rightItem)) return true;
       }
     } else if (iRight instanceof OResultSet) {
-
       OResultSet rsRight = (OResultSet) iRight;
       rsRight.reset();
+
       while (((OResultSet) iRight).hasNext()) {
         if (OQueryOperatorEquals.equals(iLeft, rsRight.next())) {
           return true;
         }
       }
     }
+
+    return false;
+  }
+
+  private static boolean compareItems(Object rightItem, Object leftItem) {
+    if (OQueryOperatorEquals.equals(leftItem, rightItem)) {
+      return true;
+    }
+
+    if (leftItem instanceof OResult && ((OResult) leftItem).getPropertyNames().size() == 1) {
+      Object propValue =
+          ((OResult) leftItem)
+              .getProperty(((OResult) leftItem).getPropertyNames().iterator().next());
+      return OQueryOperatorEquals.equals(propValue, rightItem);
+    }
+
     return false;
   }
 

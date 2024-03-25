@@ -318,7 +318,7 @@ public class OCreateViewStatementExecutionTest extends BaseMemoryDatabase {
 
     db.command(statement);
 
-    Thread.sleep(2000);
+    Thread.sleep(3000);
     db.getLocalCache().clear();
     OResultSet result = db.query("SELECT FROM " + viewName);
     Assert.assertEquals(10, result.stream().count());

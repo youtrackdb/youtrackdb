@@ -30,7 +30,7 @@ import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-@Test(groups = "sql-select")
+@Test
 public class DateTest extends DocumentDBBaseTest {
 
   @Parameters(value = "url")

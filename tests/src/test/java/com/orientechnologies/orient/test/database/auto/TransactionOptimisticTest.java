@@ -25,7 +25,6 @@ import com.orientechnologies.orient.core.record.impl.OBlob;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ORecordBytes;
 import com.orientechnologies.orient.core.tx.ORollbackException;
-import com.orientechnologies.orient.core.tx.OTransaction.TXTYPE;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
@@ -194,7 +193,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
 
     if (!schema.existsClass("Account")) schema.createClass("Account");
 
-    long totalAccounts = database.countClusterElements("Account");
+    long totalAccounts = database.countClass("Account");
 
     String json =
         "{ \"@class\": \"Account\", \"type\": \"Residence\", \"street\": \"Piazza di Spagna\"}";

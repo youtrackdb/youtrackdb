@@ -26,7 +26,7 @@ import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-@Test(groups = "sql-select")
+@Test
 public class SQLSelectGroupByTest extends DocumentDBBaseTest {
 
   @Parameters(value = "url")
@@ -83,25 +83,16 @@ public class SQLSelectGroupByTest extends DocumentDBBaseTest {
   @Test
   public void queryGroupByAndOrderBy() {
     List<ODocument> result =
-        database
-            .command(
-                new OSQLSynchQuery<ODocument>(
-                    "select location from Account group by location order by location"))
-            .execute();
+        executeQuery("select location from Account group by location order by location");
 
     Assert.assertTrue(result.size() > 1);
     String last = null;
     for (ODocument d : result) {
-      if (last != null) Assert.assertTrue(last.compareTo((String) d.field("location")) < 0);
+      if (last != null) Assert.assertTrue(last.compareTo(d.field("location")) < 0);
       last = d.field("location");
     }
 
-    result =
-        database
-            .command(
-                new OSQLSynchQuery<ODocument>(
-                    "select location from Account group by location order by location desc"))
-            .execute();
+    result = executeQuery("select location from Account group by location order by location desc");
 
     Assert.assertTrue(result.size() > 1);
     last = null;
