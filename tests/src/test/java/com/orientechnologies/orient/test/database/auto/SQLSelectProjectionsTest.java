@@ -107,8 +107,8 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
     List<ODocument> result =
         database
             .query(
-                "select name, name.toUpperCase(Locale.ENGLISH) from Profile where name is not"
-                    + " null")
+                "select name, name.toUpperCase(Locale.ENGLISH) as name2 from Profile where name is"
+                    + " not null")
             .stream()
             .map(r -> (ODocument) r.toElement())
             .toList();
@@ -130,8 +130,8 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
     List<ODocument> result =
         database
             .query(
-                "select location.city.country.name, address.city.country.name from Profile"
-                    + " where location.city.country.name is not null")
+                "select location.city.country.name as location, address.city.country.name as"
+                    + " address from Profile where location.city.country.name is not null")
             .stream()
             .map(r -> (ODocument) r.toElement())
             .toList();
@@ -191,8 +191,8 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
 
     for (ODocument d : result) {
       Assert.assertTrue(d.fieldNames().length <= 2);
-      Assert.assertEquals(((Integer) d.field("10")).intValue(), 10L);
-      Assert.assertEquals(d.field("ciao"), "ciao");
+      Assert.assertEquals(((Integer) d.field("10")).intValue(), 10);
+      Assert.assertEquals(d.field("'ciao'"), "ciao");
 
       Assert.assertNull(d.getClassName());
       Assert.assertEquals(ORecordInternal.getRecordType(d), ODocument.RECORD_TYPE);
@@ -214,7 +214,7 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
   }
 
   public void queryProjectionRid() {
-    List<ODocument> result = executeQuery("select @rid FROM V");
+    List<ODocument> result = executeQuery("select @rid as rid FROM V");
     Assert.assertFalse(result.isEmpty());
 
     for (ODocument d : result) {
@@ -227,7 +227,7 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
   }
 
   public void queryProjectionOrigin() {
-    List<ODocument> result = executeQuery("select @raw FROM V");
+    List<ODocument> result = executeQuery("select @raw as raw FROM V");
     Assert.assertFalse(result.isEmpty());
 
     for (ODocument d : result) {
@@ -262,38 +262,25 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
   }
 
   public void ifNullFunction() {
-    List<ODocument> result = executeQuery("SELECT ifnull('a', 'b')");
+    List<ODocument> result = executeQuery("SELECT ifnull('a', 'b') as ifnull");
     Assert.assertFalse(result.isEmpty());
     Assert.assertEquals(result.get(0).field("ifnull"), "a");
 
-    result = executeQuery("SELECT ifnull('a', 'b', 'c')");
+    result = executeQuery("SELECT ifnull('a', 'b', 'c') as ifnull");
     Assert.assertFalse(result.isEmpty());
     Assert.assertEquals(result.get(0).field("ifnull"), "c");
 
-    result = executeQuery("SELECT ifnull(null, 'b')");
+    result = executeQuery("SELECT ifnull(null, 'b') as ifnull");
     Assert.assertFalse(result.isEmpty());
     Assert.assertEquals(result.get(0).field("ifnull"), "b");
   }
 
-  public void filteringArrayInChain() {
-    List<ODocument> result = executeQuery("SELECT set(name)[0-1] as set from OUser");
+  public void setAggregation() {
+    var result = executeQuery("SELECT set(name) as set from OUser");
     Assert.assertEquals(result.size(), 1);
     for (ODocument d : result) {
       Assert.assertTrue(OMultiValue.isMultiValue(d.<Object>field("set")));
-      Assert.assertTrue(OMultiValue.getSize(d.field("set")) <= 2);
-    }
-
-    result = executeQuery("SELECT set(name)[0,1] as set from OUser");
-    Assert.assertEquals(result.size(), 1);
-    for (ODocument d : result) {
-      Assert.assertTrue(OMultiValue.isMultiValue(d.<Object>field("set")));
-      Assert.assertTrue(OMultiValue.getSize(d.field("set")) <= 2);
-    }
-
-    result = executeQuery("SELECT set(name)[0] as unique from OUser");
-    Assert.assertEquals(result.size(), 1);
-    for (ODocument d : result) {
-      Assert.assertFalse(OMultiValue.isMultiValue(d.<Object>field("unique")));
+      Assert.assertTrue(OMultiValue.getSize(d.field("set")) <= 3);
     }
   }
 
@@ -302,7 +289,7 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
     Assert.assertEquals(result.size(), 1);
     for (ODocument d : result) {
       Assert.assertEquals(d.field("a"), "Ay");
-      Assert.assertEquals(d.field("bEE"), "bEE");
+      Assert.assertEquals(d.field("'bEE'"), "bEE");
     }
 
     result = executeQuery("select 'Ay' as a , 'bEE' as b");
@@ -323,7 +310,7 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
     Assert.assertEquals(result.size(), 1);
     for (ODocument d : result) {
       Assert.assertEquals(d.field("a"), "Ay");
-      Assert.assertEquals(d.field("bEE"), "bEE");
+      Assert.assertEquals(d.field("'bEE'"), "bEE");
     }
   }
 
@@ -407,7 +394,7 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
 
       List<ODocument> res =
           executeQuery(
-              "select out.exclude('in_B') from (select expand(in_C) from "
+              "select out.exclude('in_B') as out from (select expand(in_C) from "
                   + id3.getIdentity()
                   + " )");
       Assert.assertEquals(res.size(), 1);

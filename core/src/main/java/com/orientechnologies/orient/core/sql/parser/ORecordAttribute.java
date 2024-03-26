@@ -108,7 +108,12 @@ public class ORecordAttribute extends SimpleNode {
           .orElse(null);
     } else if (name.equals("@size")) {
       return iCurrentRecord.getRecord().map(r -> r.toStream().length).orElse(null);
+    } else if (name.equals("@raw")) {
+      return iCurrentRecord.getRecord().map(r -> r.toStream()).orElse(null);
+    } else if (name.equals("@rid")) {
+      return iCurrentRecord.getIdentity().orElse(null);
     }
+
     return null;
   }
 

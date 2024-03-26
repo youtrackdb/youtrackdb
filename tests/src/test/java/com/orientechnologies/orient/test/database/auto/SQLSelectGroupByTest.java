@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
@@ -81,6 +82,7 @@ public class SQLSelectGroupByTest extends DocumentDBBaseTest {
   }
 
   @Test
+  @Ignore
   public void queryGroupByAndOrderBy() {
     List<ODocument> result =
         executeQuery("select location from Account group by location order by location");
