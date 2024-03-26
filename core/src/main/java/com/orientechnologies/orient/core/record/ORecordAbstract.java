@@ -467,7 +467,7 @@ public abstract class ORecordAbstract implements ORecord {
       return primaryRecord;
     }
 
-    return reload(fetchPlan);
+    return reload(fetchPlan, true);
   }
 
   public ORecord reload(final String fetchPlan, final boolean ignoreCache) {
