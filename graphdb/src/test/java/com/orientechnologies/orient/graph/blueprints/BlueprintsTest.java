@@ -100,8 +100,6 @@ public class BlueprintsTest {
     Edge e = graph.addEdge("class:SubEdge", v1, v2, null);
     e.setProperty("key", "subedge");
     Assert.assertEquals(((OrientEdge) e).getRecord().getSchemaClass().getName(), "SubEdge");
-
-    graph.commit();
   }
 
   @Test
@@ -122,7 +120,6 @@ public class BlueprintsTest {
     Assert.assertTrue(result.iterator().next() instanceof Edge);
 
     e.remove();
-    graph.commit();
 
     result =
         graph
@@ -139,8 +136,6 @@ public class BlueprintsTest {
     graph.addVertex(null).setProperty("name", "Jay");
     graph.addVertex(null).setProperty("name", "Smith's");
     graph.addVertex(null).setProperty("name", "Smith\"s");
-
-    graph.commit(); // transaction not-reopened
 
     Assert.assertTrue(graph.getVertices("name", "Jay").iterator().hasNext());
     Assert.assertTrue(graph.getVertices("name", "Smith's").iterator().hasNext());

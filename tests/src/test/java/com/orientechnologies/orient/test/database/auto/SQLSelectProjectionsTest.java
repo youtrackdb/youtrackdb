@@ -18,6 +18,7 @@ package com.orientechnologies.orient.test.database.auto;
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
@@ -32,6 +33,7 @@ import org.testng.annotations.Test;
 
 @Test
 public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
+
   @Parameters(value = "url")
   public SQLSelectProjectionsTest(@Optional String url) {
     super(url);
@@ -93,9 +95,10 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
 
     for (ODocument d : result) {
       Assert.assertTrue(d.fieldNames().length <= 2);
-      if (d.field("name") != null)
+      if (d.field("name") != null) {
         Assert.assertEquals(
             ((String) d.field("name")).toUpperCase(Locale.ENGLISH), d.field("name"));
+      }
 
       Assert.assertNull(d.getClassName());
       Assert.assertEquals(ORecordInternal.getRecordType(d), ODocument.RECORD_TYPE);
@@ -240,7 +243,9 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
     List<ODocument> result = executeQuery("select eval('1 + 4') as result");
     Assert.assertEquals(result.size(), 1);
 
-    for (ODocument d : result) Assert.assertEquals(d.<Object>field("result"), 5);
+    for (ODocument d : result) {
+      Assert.assertEquals(d.<Object>field("result"), 5);
+    }
   }
 
   public void queryProjectionContextArray() {
@@ -314,99 +319,71 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
     }
   }
 
-  @Test()
+  @Test
   public void testSelectExcludeFunction() {
     try {
-      database.command("create class A extends V").close();
-      database.command("create class B extends E").close();
-      OIdentifiable id =
-          database.command("insert into A (a,b) values ('a','b')").next().getRecordId();
-      Assert.assertNotNull(id);
-      OIdentifiable id2 =
-          database.command("insert into A (a,b) values ('a','b')").next().getRecordId();
-      Assert.assertNotNull(id2);
-      OIdentifiable id3 =
-          database.command("insert into A (a,b) values ('a','b')").next().getRecordId();
-      Assert.assertNotNull(id3);
-      OIdentifiable id4 =
-          database.command("insert into A (a,b) values ('a','b')").next().getRecordId();
-      Assert.assertNotNull(id4);
-      database
-          .command("create edge B from " + id.getIdentity() + " to " + id2.getIdentity())
-          .close();
-      database
-          .command("create edge B from " + id.getIdentity() + " to " + id3.getIdentity())
-          .close();
-      database
-          .command("create edge B from " + id.getIdentity() + " to " + id4.getIdentity())
-          .close();
-      database
-          .command("create edge B from " + id4.getIdentity() + " to " + id.getIdentity())
-          .close();
+      var rootElement = database.newInstance("A");
+      var childElement = database.newInstance("B");
+
+      rootElement.setProperty("a", "a");
+      rootElement.setProperty("b", "b");
+
+      childElement.setProperty("c", "c");
+      childElement.setProperty("d", "d");
+      childElement.setProperty("e", "e");
+
+      rootElement.setProperty("child", childElement, OType.LINK);
+
+      rootElement.save();
 
       List<ODocument> res =
-          executeQuery(
-              "select a,b,in_B.out.exclude('out_B') from "
-                  + id2.getIdentity()
-                  + " fetchplan in_B.out:1");
+          executeQuery("select a,b, child.exclude('d') as child from " + rootElement.getIdentity());
 
       Assert.assertNotNull(res.get(0).field("a"));
       Assert.assertNotNull(res.get(0).field("b"));
-      //noinspection unchecked
-      Assert.assertNull((((List<ODocument>) res.get(0).field("in_B")).get(0).field("out_B")));
-
-      res =
-          executeQuery(
-              "SELECT out.exclude('in_B') FROM ( SELECT EXPAND(in_B) FROM "
-                  + id2.getIdentity()
-                  + " ) FETCHPLAN out:0 ");
-
-      Assert.assertNotNull(res.get(0).field("out"));
-      Assert.assertNotNull(((ODocument) res.get(0).field("out")).field("a"));
-      Assert.assertNull(((ODocument) res.get(0).field("out")).field("in_B"));
+      Assert.assertNotNull(res.get(0).<ODocument>field("child").field("c"));
+      Assert.assertNull(res.get(0).<ODocument>field("child").field("d"));
+      Assert.assertNotNull(res.get(0).<ODocument>field("child").field("e"));
     } finally {
-      database.command("drop class A unsafe ").close();
-      database.command("drop class B unsafe ").close();
+      database.command("drop class A").close();
+      database.command("drop class B").close();
     }
   }
 
   @Test
   public void testSimpleExpandExclude() {
     try {
-      database.command("create class A extends V").close();
-      database.command("create class B extends E").close();
-      database.command("create class C extends E").close();
-      OIdentifiable id =
-          database.command("insert into A (a,b) values ('a1','b1')").next().getRecordId();
-      Assert.assertNotNull(id);
-      OIdentifiable id2 =
-          database.command("insert into A (a,b) values ('a2','b2')").next().getRecordId();
-      Assert.assertNotNull(id2);
-      OIdentifiable id3 =
-          database.command("insert into A (a,b) values ('a3','b3')").next().getRecordId();
-      Assert.assertNotNull(id3);
-      database
-          .command("create edge B from " + id.getIdentity() + " to " + id2.getIdentity())
-          .close();
-      database
-          .command("create edge C from " + id2.getIdentity() + " to " + id3.getIdentity())
-          .close();
+      var rootElement = database.newInstance("A");
+      rootElement.setProperty("a", "a");
+      rootElement.setProperty("b", "b");
+
+      var childElement = database.newInstance("B");
+      childElement.setProperty("c", "c");
+      childElement.setProperty("d", "d");
+      childElement.setProperty("e", "e");
+
+      rootElement.setProperty("child", childElement, OType.LINK);
+      childElement.setProperty("root", List.of(rootElement), OType.LINKLIST);
+
+      rootElement.save();
 
       List<ODocument> res =
           executeQuery(
-              "select out.exclude('in_B') as out from (select expand(in_C) from "
-                  + id3.getIdentity()
+              "select child.exclude('d') as link from (select expand(root) from "
+                  + childElement.getIdentity()
                   + " )");
       Assert.assertEquals(res.size(), 1);
-      ODocument ele = res.get(0);
-      Assert.assertNotNull(ele.field("out"));
-      Assert.assertEquals(((ODocument) ele.field("out")).field("a"), "a2");
-      Assert.assertNull(((ODocument) ele.field("out")).field("in_B"));
+
+      ODocument root = res.get(0);
+      Assert.assertNotNull(root.field("link"));
+
+      Assert.assertNull(root.<ODocument>field("link").field("d"));
+      Assert.assertNotNull(root.<ODocument>field("link").field("c"));
+      Assert.assertNotNull(root.<ODocument>field("link").field("e"));
 
     } finally {
-      database.command("drop class A unsafe ").close();
-      database.command("drop class B unsafe ").close();
-      database.command("drop class C unsafe ").close();
+      database.command("drop class A").close();
+      database.command("drop class B").close();
     }
   }
 

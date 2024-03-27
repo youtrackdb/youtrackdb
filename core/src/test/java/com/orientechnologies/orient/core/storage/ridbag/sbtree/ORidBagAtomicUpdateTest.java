@@ -226,7 +226,6 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
     ridBag.add(docTwo);
 
     rootDoc.save(db.getClusterNameById(db.getDefaultClusterId()));
-    db.commit();
 
     Assert.assertEquals(ridBag.size(), 2);
     Assert.assertEquals(rootDoc.getVersion(), version);

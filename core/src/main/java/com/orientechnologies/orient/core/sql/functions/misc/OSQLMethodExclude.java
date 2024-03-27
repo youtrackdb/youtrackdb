@@ -22,7 +22,9 @@ package com.orientechnologies.orient.core.sql.functions.misc;
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.id.OEmptyRecordId;
 import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.method.misc.OAbstractSQLMethod;
@@ -119,6 +121,12 @@ public class OSQLMethodExclude extends OAbstractSQLMethod {
 
   private Object copy(final ODocument document, final Object[] iFieldNames) {
     final ODocument doc = document.copy();
+
+    ORecordInternal.setIdentity(doc, new OEmptyRecordId());
+    ORecordInternal.setVersion(doc, -1);
+    ORecordInternal.unsetDirty(doc);
+    doc.setTrackingChanges(false);
+
     for (Object iFieldName : iFieldNames) {
       if (iFieldName != null) {
         final String fieldName = iFieldName.toString();

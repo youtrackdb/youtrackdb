@@ -153,9 +153,10 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   @Override
   public OBinaryResponse executeCreateDatabase(OCreateDatabaseRequest request) {
 
-    if (server.existsDatabase(request.getDatabaseName()))
+    if (server.existsDatabase(request.getDatabaseName())) {
       throw new ODatabaseException(
           "Database named '" + request.getDatabaseName() + "' already exists");
+    }
     if (request.getBackupPath() != null && !"".equals(request.getBackupPath().trim())) {
       server.restore(request.getDatabaseName(), request.getBackupPath());
     } else {
@@ -217,14 +218,18 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     ODocument clusterConfig = new ODocument();
 
     final String operation = req.field("operation");
-    if (operation == null) throw new IllegalArgumentException("Cluster operation is null");
+    if (operation == null) {
+      throw new IllegalArgumentException("Cluster operation is null");
+    }
 
     if (operation.equals("status")) {
       final OServerPlugin plugin = server.getPlugin("cluster");
-      if (plugin != null && plugin instanceof ODistributedServerManager)
+      if (plugin != null && plugin instanceof ODistributedServerManager) {
         clusterConfig = ((ODistributedServerManager) plugin).getClusterConfiguration();
-    } else
+      }
+    } else {
       throw new IllegalArgumentException("Cluster operation '" + operation + "' is not supported");
+    }
 
     return new ODistributedStatusResponse(clusterConfig);
   }
@@ -247,10 +252,11 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   @Override
   public OBinaryResponse executeAddCluster(OAddClusterRequest request) {
     final int num;
-    if (request.getRequestedId() < 0)
+    if (request.getRequestedId() < 0) {
       num = connection.getDatabase().addCluster(request.getClusterName());
-    else
+    } else {
       num = connection.getDatabase().addCluster(request.getClusterName(), request.getRequestedId());
+    }
 
     return new OAddClusterResponse(num);
   }
@@ -258,12 +264,13 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   @Override
   public OBinaryResponse executeDropCluster(ODropClusterRequest request) {
     final String clusterName = connection.getDatabase().getClusterNameById(request.getClusterId());
-    if (clusterName == null)
+    if (clusterName == null) {
       throw new IllegalArgumentException(
           "Cluster "
               + request.getClusterId()
               + " does not exist anymore. Refresh the db structure or just reconnect to the"
               + " database");
+    }
 
     boolean result = connection.getDatabase().dropCluster(clusterName);
     return new ODropClusterResponse(result);
@@ -426,7 +433,9 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
       if (collectionManager != null) {
         changedIds = new HashMap<>(collectionManager.changedIds());
         collectionManager.clearChangedIds();
-      } else changedIds = new HashMap<>();
+      } else {
+        changedIds = new HashMap<>();
+      }
 
       return new OCreateRecordResponse(
           (ORecordId) record.getIdentity(), record.getVersion(), changedIds);
@@ -451,17 +460,23 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
       } catch (ORecordNotFoundException e) {
         // MAINTAIN COHERENT THE BEHAVIOR FOR ALL THE STORAGE TYPES
         if (e.getCause() instanceof OOfflineClusterException)
-          //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
+        //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
+        {
           throw (OOfflineClusterException) e.getCause();
+        }
       }
 
-      if (currentRecord == null) throw new ORecordNotFoundException(request.getRid());
+      if (currentRecord == null) {
+        throw new ORecordNotFoundException(request.getRid());
+      }
 
       ((ODocument) currentRecord).merge((ODocument) newRecord, false, false);
       if (request.isUpdateContent()) {
         ((ODocument) currentRecord).setDirty();
       }
-    } else currentRecord = newRecord;
+    } else {
+      currentRecord = newRecord;
+    }
 
     ORecordInternal.setVersion(currentRecord, request.getVersion());
 
@@ -483,7 +498,9 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
       if (collectionManager != null) {
         changedIds = new HashMap<>(collectionManager.changedIds());
         collectionManager.clearChangedIds();
-      } else changedIds = new HashMap<>();
+      } else {
+        changedIds = new HashMap<>();
+      }
 
       return new OUpdateRecordResponse(newVersion, changedIds);
     }
@@ -500,12 +517,16 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
       if (record != null) {
         database.delete(request.getRid(), request.getVersion());
         result = 1;
-      } else result = 0;
+      } else {
+        result = 0;
+      }
     } catch (ORecordNotFoundException e) {
       // MAINTAIN COHERENT THE BEHAVIOR FOR ALL THE STORAGE TYPES
       if (e.getCause() instanceof OOfflineClusterException)
-        //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
+      //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
+      {
         throw (OOfflineClusterException) e.getCause();
+      }
       result = 0;
     }
 
@@ -590,11 +611,13 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
         liveListener = new OLiveCommandResultListener(server, connection, cmdResultListener);
         listener = new OSyncCommandResultListener(null);
         command.setResultListener(liveListener);
-      } else if (asynch) {
-        listener = new OAsyncCommandResultListener(connection, cmdResultListener);
-        command.setResultListener(listener);
       } else {
-        listener = new OSyncCommandResultListener(null);
+        if (asynch) {
+          listener = new OAsyncCommandResultListener(connection, cmdResultListener);
+          command.setResultListener(listener);
+        } else {
+          listener = new OSyncCommandResultListener(null);
+        }
       }
 
       final long serverTimeout =
@@ -604,8 +627,10 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
               .getValueAsLong(OGlobalConfiguration.COMMAND_TIMEOUT);
 
       if (serverTimeout > 0 && command.getTimeoutTime() > serverTimeout)
-        // FORCE THE SERVER'S TIMEOUT
+      // FORCE THE SERVER'S TIMEOUT
+      {
         command.setTimeout(serverTimeout, command.getTimeoutStrategy());
+      }
 
       // REQUEST CAN'T MODIFY THE RESULT, SO IT'S CACHEABLE
       command.setCacheableResult(true);
@@ -622,8 +647,11 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
       } else {
         // SYNCHRONOUS
         final Object result;
-        if (params == null) result = commandRequest.execute();
-        else result = commandRequest.execute(params);
+        if (params == null) {
+          result = commandRequest.execute();
+        } else {
+          result = commandRequest.execute(params);
+        }
 
         // FETCHPLAN HAS TO BE ASSIGNED AGAIN, because it can be changed by SQL statement
         listener.setFetchPlan(commandRequest.getFetchPlan());
@@ -756,9 +784,10 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
                   entry.getKey(), (ORecordId) entry.getValue().getIdentity()));
           // IF THE NEW OBJECT HAS VERSION > 0 MEANS THAT HAS BEEN UPDATED IN THE SAME TX. THIS
           // HAPPENS FOR GRAPHS
-          if (entry.getValue().getVersion() > 0)
+          if (entry.getValue().getVersion() > 0) {
             tx.getUpdatedRecords()
                 .put((ORecordId) entry.getValue().getIdentity(), entry.getValue());
+          }
         }
         final List<OUpdatedRecordResponse> updatedRecords =
             new ArrayList<>(tx.getUpdatedRecords().size());
@@ -775,18 +804,23 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
         return new OCommitResponse(createdRecords, updatedRecords, changedIds);
       } catch (final RuntimeException e) {
         if (connection != null && connection.getDatabase() != null) {
-          if (connection.getDatabase().getTransaction().isActive())
+          if (connection.getDatabase().getTransaction().isActive()) {
             connection.getDatabase().rollback(true);
+          }
 
           final OSBTreeCollectionManager collectionManager =
               connection.getDatabase().getSbTreeCollectionManager();
-          if (collectionManager != null) collectionManager.clearChangedIds();
+          if (collectionManager != null) {
+            collectionManager.clearChangedIds();
+          }
         }
         throw e;
       }
     } catch (final RuntimeException e) {
       // Error during TX initialization, possibly index constraints violation.
-      if (tx.isActive()) tx.rollback(true, -1);
+      if (tx.isActive()) {
+        tx.rollback(true, -1);
+      }
       throw e;
     }
   }
@@ -810,8 +844,9 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
       }
 
       String value;
-      if (cfg.isHidden()) value = "<hidden>";
-      else
+      if (cfg.isHidden()) {
+        value = "<hidden>";
+      } else {
         try {
           OContextConfiguration config =
               connection.getProtocol().getServer().getContextConfiguration();
@@ -819,6 +854,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
         } catch (Exception e) {
           value = "";
         }
+      }
       configs.put(key, value);
     }
     return new OListGlobalConfigurationsResponse(configs);
@@ -994,7 +1030,9 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
               request.getImporPath(),
               iText -> {
                 OLogManager.instance().debug(OConnectionBinaryExecutor.this, iText);
-                if (iText != null) result.add(iText);
+                if (iText != null) {
+                  result.add(iText);
+                }
               });
       imp.setOptions(request.getOptions());
       imp.importDatabase();
@@ -1010,10 +1048,11 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   @Override
   public OBinaryResponse executeConnect(OConnectRequest request) {
     OBinaryProtocolHelper.checkProtocolVersion(this, request.getProtocolVersion());
-    if (request.getProtocolVersion() > 36)
+    if (request.getProtocolVersion() > 36) {
       throw new OConfigurationException(
           "You can use connect as first operation only for protocol  < 37 please use handshake for"
               + " protocol >= 37");
+    }
     connection.getData().driverName = request.getDriverName();
     connection.getData().driverVersion = request.getDriverVersion();
     connection.getData().protocolVersion = request.getProtocolVersion();
@@ -1039,9 +1078,10 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     connection.setServerUser(
         server.authenticateUser(request.getUsername(), request.getPassword(), "server.connect"));
 
-    if (connection.getServerUser() == null)
+    if (connection.getServerUser() == null) {
       throw new OSecurityAccessException(
           "Wrong user/password to [connect] to the remote OrientDB Server instance");
+    }
     byte[] token = null;
     if (connection.getData().protocolVersion > OChannelBinaryProtocol.PROTOCOL_VERSION_26) {
       connection.getData().serverUsername = connection.getServerUser().getName();
@@ -1049,7 +1089,9 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
       if (Boolean.TRUE.equals(connection.getTokenBased())) {
         token = server.getTokenHandler().getSignedBinaryToken(null, null, connection.getData());
-      } else token = OCommonConst.EMPTY_BYTE_ARRAY;
+      } else {
+        token = OCommonConst.EMPTY_BYTE_ARRAY;
+      }
     }
 
     return new OConnectResponse(connection.getId(), token);
@@ -1069,9 +1111,10 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     connection.setServerUser(
         server.authenticateUser(request.getUsername(), request.getPassword(), "server.connect"));
 
-    if (connection.getServerUser() == null)
+    if (connection.getServerUser() == null) {
       throw new OSecurityAccessException(
           "Wrong user/password to [connect] to the remote OrientDB Server instance");
+    }
 
     byte[] token = null;
     if (connection.getData().protocolVersion > OChannelBinaryProtocol.PROTOCOL_VERSION_26) {
@@ -1080,7 +1123,9 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
       if (Boolean.TRUE.equals(connection.getTokenBased())) {
         token = server.getTokenHandler().getSignedBinaryToken(null, null, connection.getData());
-      } else token = OCommonConst.EMPTY_BYTE_ARRAY;
+      } else {
+        token = OCommonConst.EMPTY_BYTE_ARRAY;
+      }
     }
 
     return new OConnectResponse(connection.getId(), token);
@@ -1089,10 +1134,11 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   @Override
   public OBinaryResponse executeDatabaseOpen(OOpenRequest request) {
     OBinaryProtocolHelper.checkProtocolVersion(this, request.getProtocolVersion());
-    if (request.getProtocolVersion() > 36)
+    if (request.getProtocolVersion() > 36) {
       throw new OConfigurationException(
           "You can use open as first operation only for protocol  < 37 please use handshake for"
               + " protocol >= 37");
+    }
     connection.getData().driverName = request.getDriverName();
     connection.getData().driverVersion = request.getDriverVersion();
     connection.getData().protocolVersion = request.getProtocolVersion();
@@ -1144,7 +1190,9 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     final byte[] tokenToSend;
     if (Boolean.TRUE.equals(connection.getTokenBased())) {
       tokenToSend = token;
-    } else tokenToSend = OCommonConst.EMPTY_BYTE_ARRAY;
+    } else {
+      tokenToSend = OCommonConst.EMPTY_BYTE_ARRAY;
+    }
 
     final OServerPlugin plugin = server.getPlugin("cluster");
     byte[] distriConf = null;
@@ -1269,14 +1317,16 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
     if (cfg != null) {
       cfg.setValue(request.getValue());
-      if (!cfg.isChangeableAtRuntime())
+      if (!cfg.isChangeableAtRuntime()) {
         throw new OConfigurationException(
             "Property '"
                 + request.getKey()
                 + "' cannot be changed at runtime. Change the setting at startup");
-    } else
+      }
+    } else {
       throw new OConfigurationException(
           "Property '" + request.getKey() + "' was not found in global configuration");
+    }
 
     return new OSetGlobalConfigurationResponse();
   }
@@ -1284,16 +1334,19 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   public static byte[] getRecordBytes(OClientConnection connection, final ORecord iRecord) {
     final byte[] stream;
     String dbSerializerName = null;
-    if (ODatabaseRecordThreadLocal.instance().getIfDefined() != null)
+    if (ODatabaseRecordThreadLocal.instance().getIfDefined() != null) {
       dbSerializerName =
           ((ODatabaseDocumentInternal) iRecord.getDatabase()).getSerializer().toString();
+    }
     String name = connection.getData().getSerializationImpl();
     if (ORecordInternal.getRecordType(iRecord) == ODocument.RECORD_TYPE
         && (dbSerializerName == null || !dbSerializerName.equals(name))) {
       ((ODocument) iRecord).deserializeFields();
       ORecordSerializer ser = ORecordSerializerFactory.instance().getFormat(name);
       stream = ser.toStream(iRecord);
-    } else stream = iRecord.toStream();
+    } else {
+      stream = iRecord.toStream();
+    }
 
     return stream;
   }
@@ -1339,21 +1392,23 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
       } else {
         rs = database.query(request.getStatement(), request.getPositionalParameters());
       }
-    } else if (OQueryRequest.COMMAND == request.getOperationType()) {
-      if (request.isNamedParams()) {
-        rs = database.command(request.getStatement(), request.getNamedParameters());
-      } else {
-        rs = database.command(request.getStatement(), request.getPositionalParameters());
-      }
     } else {
-      if (request.isNamedParams()) {
-        rs =
-            database.execute(
-                request.getLanguage(), request.getStatement(), request.getNamedParameters());
+      if (OQueryRequest.COMMAND == request.getOperationType()) {
+        if (request.isNamedParams()) {
+          rs = database.command(request.getStatement(), request.getNamedParameters());
+        } else {
+          rs = database.command(request.getStatement(), request.getPositionalParameters());
+        }
       } else {
-        rs =
-            database.execute(
-                request.getLanguage(), request.getStatement(), request.getPositionalParameters());
+        if (request.isNamedParams()) {
+          rs =
+              database.execute(
+                  request.getLanguage(), request.getStatement(), request.getNamedParameters());
+        } else {
+          rs =
+              database.execute(
+                  request.getLanguage(), request.getStatement(), request.getPositionalParameters());
+        }
       }
     }
 
@@ -1602,8 +1657,9 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   @Override
   public OBinaryResponse executeFetchTransaction(OFetchTransactionRequest request) {
     ODatabaseDocumentInternal database = connection.getDatabase();
-    if (!database.getTransaction().isActive())
+    if (!database.getTransaction().isActive()) {
       throw new ODatabaseException("No Transaction Active");
+    }
     OTransactionOptimistic tx = (OTransactionOptimistic) database.getTransaction();
     return new OFetchTransactionResponse(
         tx.getId(), tx.getRecordOperations(), tx.getIndexOperations(), tx.getUpdatedRids());
@@ -1612,8 +1668,9 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   @Override
   public OBinaryResponse executeFetchTransaction38(OFetchTransaction38Request request) {
     ODatabaseDocumentInternal database = connection.getDatabase();
-    if (!database.getTransaction().isActive())
+    if (!database.getTransaction().isActive()) {
       throw new ODatabaseException("No Transaction Active");
+    }
     OTransactionOptimistic tx = (OTransactionOptimistic) database.getTransaction();
     return new OFetchTransaction38Response(
         tx.getId(),

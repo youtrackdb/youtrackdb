@@ -91,7 +91,7 @@ public class TestNetworkSerializerIndipendency {
       document.field("name", "something");
       document.field("surname", "something-else");
       document = dbTx.save(document, dbTx.getClusterNameById(dbTx.getDefaultClusterId()));
-      dbTx.commit();
+
       ODocument doc = dbTx.load(document.getIdentity());
       assertEquals(doc.fields(), document.fields());
       assertEquals(doc.<Object>field("name"), document.field("name"));

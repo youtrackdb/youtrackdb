@@ -23,6 +23,5 @@ public class OCommitStatementExecutionTest extends BaseMemoryDatabase {
     Assert.assertEquals("commit", item.getProperty("operation"));
     Assert.assertFalse(result.hasNext());
     Assert.assertTrue(db.getTransaction() == null || !db.getTransaction().isActive());
-    db.commit();
   }
 }

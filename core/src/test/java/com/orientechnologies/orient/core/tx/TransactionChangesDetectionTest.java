@@ -133,7 +133,6 @@ public class TransactionChangesDetectionTest {
     assertEquals(1, currentTx.getTxStartCounter());
     database.commit();
     assertEquals(0, currentTx.getTxStartCounter());
-    database.commit();
     assertFalse(currentTx.isActive());
   }
 
@@ -146,7 +145,6 @@ public class TransactionChangesDetectionTest {
     assertEquals(2, currentTx.getTxStartCounter());
     database.commit(true);
     assertEquals(0, currentTx.getTxStartCounter());
-    database.commit();
     assertFalse(currentTx.isActive());
   }
 }

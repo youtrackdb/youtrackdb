@@ -415,18 +415,6 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
       database.rollback();
 
       database.begin();
-
-      final ODocument externalDocFour = new ODocument("NestedTxRollbackTwo");
-      externalDocFour.field("v", "val4");
-      externalDocFour.save();
-
-      database.commit();
-
-      final ODocument externalDocThree = new ODocument("NestedTxRollbackTwo");
-      externalDocThree.field("v", "val3");
-      externalDocThree.save();
-
-      database.commit();
       Assert.fail();
     } catch (ORollbackException e) {
       database.rollback();

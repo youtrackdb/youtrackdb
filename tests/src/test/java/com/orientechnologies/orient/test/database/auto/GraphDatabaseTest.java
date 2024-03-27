@@ -158,7 +158,6 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
 
   public void testNotDuplicatedIndexTxChanges() throws IOException {
     database.setAutoStartTx(false);
-    database.commit();
     OClass oc = database.getVertexType("vertexA");
     if (oc == null) oc = database.createVertexType("vertexA");
     if (!oc.existsProperty("name")) oc.createProperty("name", OType.STRING);

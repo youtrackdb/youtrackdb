@@ -125,7 +125,6 @@ public class SQLGraphFunctionsTest {
                         + " set f='fieldValue';")
                 .stream()
                 .iterator();
-        session.commit();
 
         List<OElement> result =
             session.query("select outE() from tc1").stream().map(OResult::toElement).toList();

@@ -21,7 +21,6 @@
 package com.orientechnologies.orient.core.tx;
 
 import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.ODatabase.OPERATION_MODE;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
@@ -58,6 +57,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class OTransactionOptimistic extends OTransactionRealAbstract {
+
   private static final AtomicInteger txSerial = new AtomicInteger();
   protected boolean changed = true;
   private boolean alreadyCleared = false;
@@ -82,22 +82,18 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
     if (txStartCounter < 0) {
       throw new OTransactionException("Invalid value of TX counter: " + txStartCounter);
     }
+
     if (txStartCounter == 0) {
       status = TXSTATUS.BEGUN;
       database.getLocalCache().clear();
+    } else {
+      if (status == TXSTATUS.ROLLED_BACK || status == TXSTATUS.ROLLBACKING) {
+        throw new ORollbackException(
+            "Impossible to start a new transaction because the current was rolled back");
+      }
     }
-    txStartCounter++;
 
-    if (txStartCounter > 1) {
-      OLogManager.instance()
-          .debug(
-              this,
-              "Transaction with ID "
-                  + getId()
-                  + " was already started "
-                  + txStartCounter
-                  + " times, and will be reused.");
-    }
+    txStartCounter++;
   }
 
   public void commit() {
@@ -124,11 +120,11 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
 
     if (txStartCounter == 0) {
       doCommit();
-    } else if (txStartCounter > 0) {
-      OLogManager.instance()
-          .debug(this, "Nested transaction was closed but transaction itself was not committed.");
     } else {
-      throw new OTransactionException("Transaction was committed more times than it was started.");
+      if (txStartCounter < 0) {
+        throw new OTransactionException(
+            "Transaction was committed more times than it was started.");
+      }
     }
   }
 
@@ -176,22 +172,14 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
     status = TXSTATUS.ROLLBACKING;
 
     if (!force && txStartCounter > 0) {
-      OLogManager.instance()
-          .debug(
-              this,
-              "Nested transaction was closed but transaction itself was scheduled for rollback.");
       return;
-    }
-
-    if (txStartCounter < 0) {
-      throw new OTransactionException(
-          "Transaction was rolled back more times than it was started.");
     }
 
     if (database.isRemote()) {
       final OStorage storage = database.getStorage();
       ((OStorageProxy) storage).rollback(OTransactionOptimistic.this);
     }
+
     internalRollback();
   }
 
@@ -386,62 +374,67 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
   }
 
   public void deleteRecord(final ORecord iRecord, final OPERATION_MODE iMode) {
-    var rid = iRecord.getIdentity();
+    try {
+      var rid = iRecord.getIdentity();
 
-    if (!iRecord.getIdentity().isValid()) {
-      // newly created but not saved record
-      if (rid.getClusterId() == -1 && rid.getClusterPosition() == -1) {
-        database.triggerRecordDeletionListeners(iRecord);
-      }
-
-      return;
-    }
-
-    Set<ORecord> records = ORecordInternal.getDirtyManager(iRecord).getUpdateRecords();
-    final Set<ORecord> newRecords = ORecordInternal.getDirtyManager(iRecord).getNewRecords();
-    var recordsMap = new HashMap<>(16);
-
-    if (records != null) {
-      for (ORecord rec : records) {
-        rec = rec.getRecord();
-        var prev = recordsMap.put(rec.getIdentity(), rec);
-
-        if (prev != null && prev != rec) {
-          var db = getDatabase();
-          throw new IllegalStateException(
-              "Database :"
-                  + db.getName()
-                  + " .For record "
-                  + rec
-                  + " second instance of record  "
-                  + prev
-                  + " was registered in dirty manager, such case may lead to data corruption");
+      if (!iRecord.getIdentity().isValid()) {
+        // newly created but not saved record
+        if (rid.getClusterId() == -1 && rid.getClusterPosition() == -1) {
+          database.triggerRecordDeletionListeners(iRecord);
         }
 
-        saveRecord(rec, null, ODatabaseSession.OPERATION_MODE.SYNCHRONOUS, false, null, null);
+        return;
       }
-    }
 
-    if (newRecords != null) {
-      for (ORecord rec : newRecords) {
-        rec = rec.getRecord();
-        var prev = recordsMap.put(rec.getIdentity(), rec);
-        if (prev != null && prev != rec) {
-          var db = getDatabase();
-          throw new IllegalStateException(
-              "Database :"
-                  + db.getName()
-                  + " .For record "
-                  + rec
-                  + " second instance of record  "
-                  + prev
-                  + " was registered in dirty manager, such case may lead to data corruption");
+      Set<ORecord> records = ORecordInternal.getDirtyManager(iRecord).getUpdateRecords();
+      final Set<ORecord> newRecords = ORecordInternal.getDirtyManager(iRecord).getNewRecords();
+      var recordsMap = new HashMap<>(16);
+
+      if (records != null) {
+        for (ORecord rec : records) {
+          rec = rec.getRecord();
+          var prev = recordsMap.put(rec.getIdentity(), rec);
+
+          if (prev != null && prev != rec) {
+            var db = getDatabase();
+            throw new IllegalStateException(
+                "Database :"
+                    + db.getName()
+                    + " .For record "
+                    + rec
+                    + " second instance of record  "
+                    + prev
+                    + " was registered in dirty manager, such case may lead to data corruption");
+          }
+
+          saveRecord(rec, null, ODatabaseSession.OPERATION_MODE.SYNCHRONOUS, false, null, null);
         }
-        saveRecord(rec, null, ODatabaseSession.OPERATION_MODE.SYNCHRONOUS, false, null, null);
       }
-    }
 
-    addRecord(iRecord, ORecordOperation.DELETED, null);
+      if (newRecords != null) {
+        for (ORecord rec : newRecords) {
+          rec = rec.getRecord();
+          var prev = recordsMap.put(rec.getIdentity(), rec);
+          if (prev != null && prev != rec) {
+            var db = getDatabase();
+            throw new IllegalStateException(
+                "Database :"
+                    + db.getName()
+                    + " .For record "
+                    + rec
+                    + " second instance of record  "
+                    + prev
+                    + " was registered in dirty manager, such case may lead to data corruption");
+          }
+          saveRecord(rec, null, ODatabaseSession.OPERATION_MODE.SYNCHRONOUS, false, null, null);
+        }
+      }
+
+      addRecord(iRecord, ORecordOperation.DELETED, null);
+    } catch (Exception e) {
+      rollback(true, 0);
+      throw e;
+    }
   }
 
   public ORecord saveRecord(
@@ -451,105 +444,119 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
       final boolean iForceCreate,
       final ORecordCallback<? extends Number> iRecordCreatedCallback,
       final ORecordCallback<Integer> iRecordUpdatedCallback) {
-    if (passedRecord == null) {
-      return null;
-    }
-    if (passedRecord.isUnloaded()) {
-      return passedRecord;
-    }
-    // fetch primary record if the record is a proxy record.
-    passedRecord = passedRecord.getRecord();
-
-    var recordsMap = new HashMap<>(16);
-    recordsMap.put(passedRecord.getIdentity(), passedRecord);
-
-    ORecordOperation recordOperation = null;
-    boolean originalSaved = false;
-    final ODirtyManager dirtyManager = ORecordInternal.getDirtyManager(passedRecord);
-    do {
-      final Set<ORecord> newRecord = dirtyManager.getNewRecords();
-      final Set<ORecord> updatedRecord = dirtyManager.getUpdateRecords();
-      dirtyManager.clear();
-      if (newRecord != null) {
-        for (ORecord rec : newRecord) {
-          rec = rec.getRecord();
-
-          var prev = recordsMap.put(rec.getIdentity(), rec);
-          if (prev != null && prev != rec) {
-            var db = getDatabase();
-            throw new IllegalStateException(
-                "Database :"
-                    + db.getName()
-                    + " .For record "
-                    + rec
-                    + " second instance of record  "
-                    + prev
-                    + " was registered in dirty manager, such case may lead to data corruption");
-          }
-
-          if (rec instanceof ODocument)
-            ODocumentInternal.convertAllMultiValuesToTrackedVersions((ODocument) rec);
-          if (rec == passedRecord) {
-            recordOperation = addRecord(rec, ORecordOperation.CREATED, iClusterName);
-            originalSaved = true;
-          } else addRecord(rec, ORecordOperation.CREATED, database.getClusterName(rec));
-        }
+    try {
+      if (passedRecord == null) {
+        return null;
       }
-      if (updatedRecord != null) {
-        for (ORecord rec : updatedRecord) {
-          rec = rec.getRecord();
+      if (passedRecord.isUnloaded()) {
+        return passedRecord;
+      }
+      // fetch primary record if the record is a proxy record.
+      passedRecord = passedRecord.getRecord();
 
-          var prev = recordsMap.put(rec.getIdentity(), rec);
-          if (prev != null && prev != rec) {
-            var db = getDatabase();
-            throw new IllegalStateException(
-                "Database :"
-                    + db.getName()
-                    + " .For record "
-                    + rec
-                    + " second instance of record  "
-                    + prev
-                    + " was registered in dirty manager, such case may lead to data corruption");
-          }
+      var recordsMap = new HashMap<>(16);
+      recordsMap.put(passedRecord.getIdentity(), passedRecord);
 
-          if (rec instanceof ODocument)
-            ODocumentInternal.convertAllMultiValuesToTrackedVersions((ODocument) rec);
-          if (rec == passedRecord) {
-            final byte operation;
-            if (iForceCreate) {
-              operation = ORecordOperation.CREATED;
-            } else {
-              operation =
-                  passedRecord.getIdentity().isValid()
-                      ? ORecordOperation.UPDATED
-                      : ORecordOperation.CREATED;
+      ORecordOperation recordOperation = null;
+      boolean originalSaved = false;
+      final ODirtyManager dirtyManager = ORecordInternal.getDirtyManager(passedRecord);
+      do {
+        final Set<ORecord> newRecord = dirtyManager.getNewRecords();
+        final Set<ORecord> updatedRecord = dirtyManager.getUpdateRecords();
+        dirtyManager.clear();
+        if (newRecord != null) {
+          for (ORecord rec : newRecord) {
+            rec = rec.getRecord();
+
+            var prev = recordsMap.put(rec.getIdentity(), rec);
+            if (prev != null && prev != rec) {
+              var db = getDatabase();
+              throw new IllegalStateException(
+                  "Database :"
+                      + db.getName()
+                      + " .For record "
+                      + rec
+                      + " second instance of record  "
+                      + prev
+                      + " was registered in dirty manager, such case may lead to data corruption");
             }
-            recordOperation = addRecord(rec, operation, iClusterName);
-            originalSaved = true;
-          } else addRecord(rec, ORecordOperation.UPDATED, database.getClusterName(rec));
+
+            if (rec instanceof ODocument) {
+              ODocumentInternal.convertAllMultiValuesToTrackedVersions((ODocument) rec);
+            }
+            if (rec == passedRecord) {
+              recordOperation = addRecord(rec, ORecordOperation.CREATED, iClusterName);
+              originalSaved = true;
+            } else {
+              addRecord(rec, ORecordOperation.CREATED, database.getClusterName(rec));
+            }
+          }
+        }
+        if (updatedRecord != null) {
+          for (ORecord rec : updatedRecord) {
+            rec = rec.getRecord();
+
+            var prev = recordsMap.put(rec.getIdentity(), rec);
+            if (prev != null && prev != rec) {
+              var db = getDatabase();
+              throw new IllegalStateException(
+                  "Database :"
+                      + db.getName()
+                      + " .For record "
+                      + rec
+                      + " second instance of record  "
+                      + prev
+                      + " was registered in dirty manager, such case may lead to data corruption");
+            }
+
+            if (rec instanceof ODocument) {
+              ODocumentInternal.convertAllMultiValuesToTrackedVersions((ODocument) rec);
+            }
+            if (rec == passedRecord) {
+              final byte operation;
+              if (iForceCreate) {
+                operation = ORecordOperation.CREATED;
+              } else {
+                operation =
+                    passedRecord.getIdentity().isValid()
+                        ? ORecordOperation.UPDATED
+                        : ORecordOperation.CREATED;
+              }
+              recordOperation = addRecord(rec, operation, iClusterName);
+              originalSaved = true;
+            } else {
+              addRecord(rec, ORecordOperation.UPDATED, database.getClusterName(rec));
+            }
+          }
+        }
+      } while (dirtyManager.getNewRecords() != null || dirtyManager.getUpdateRecords() != null);
+
+      if (!originalSaved && passedRecord.isDirty()) {
+        final byte operation;
+        if (iForceCreate) {
+          operation = ORecordOperation.CREATED;
+        } else {
+          operation =
+              passedRecord.getIdentity().isValid()
+                  ? ORecordOperation.UPDATED
+                  : ORecordOperation.CREATED;
+        }
+        recordOperation = addRecord(passedRecord, operation, iClusterName);
+      }
+      if (recordOperation != null) {
+        if (iRecordCreatedCallback != null) {
+          //noinspection unchecked
+          recordOperation.createdCallback = (ORecordCallback<Long>) iRecordCreatedCallback;
+        }
+        if (iRecordUpdatedCallback != null) {
+          recordOperation.updatedCallback = iRecordUpdatedCallback;
         }
       }
-    } while (dirtyManager.getNewRecords() != null || dirtyManager.getUpdateRecords() != null);
-
-    if (!originalSaved && passedRecord.isDirty()) {
-      final byte operation;
-      if (iForceCreate) {
-        operation = ORecordOperation.CREATED;
-      } else {
-        operation =
-            passedRecord.getIdentity().isValid()
-                ? ORecordOperation.UPDATED
-                : ORecordOperation.CREATED;
-      }
-      recordOperation = addRecord(passedRecord, operation, iClusterName);
+      return passedRecord;
+    } catch (Exception e) {
+      rollback(true, 0);
+      throw e;
     }
-    if (recordOperation != null) {
-      if (iRecordCreatedCallback != null)
-        //noinspection unchecked
-        recordOperation.createdCallback = (ORecordCallback<Long>) iRecordCreatedCallback;
-      if (iRecordUpdatedCallback != null) recordOperation.updatedCallback = iRecordUpdatedCallback;
-    }
-    return passedRecord;
   }
 
   @Override
@@ -717,14 +724,25 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
 
   private void doCommit() {
     if (status == TXSTATUS.ROLLED_BACK || status == TXSTATUS.ROLLBACKING) {
+      if (status == TXSTATUS.ROLLBACKING) {
+        internalRollback();
+      }
+
       throw new ORollbackException(
           "Given transaction was rolled back, and thus cannot be committed.");
     }
-    status = TXSTATUS.COMMITTING;
 
-    if (sentToServer || !allEntries.isEmpty() || !indexEntries.isEmpty()) {
-      database.internalCommit(this);
+    try {
+      status = TXSTATUS.COMMITTING;
+
+      if (sentToServer || !allEntries.isEmpty() || !indexEntries.isEmpty()) {
+        database.internalCommit(this);
+      }
+    } catch (Exception e) {
+      rollback(true, 0);
+      throw e;
     }
+
     invokeCallbacks();
     close();
     status = TXSTATUS.COMPLETED;
@@ -738,9 +756,11 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
           && recordOperation.createdCallback != null) {
         recordOperation.createdCallback.call(
             new ORecordId(identity), identity.getClusterPosition());
-      } else if (recordOperation.type == ORecordOperation.UPDATED
-          && recordOperation.updatedCallback != null) {
-        recordOperation.updatedCallback.call(new ORecordId(identity), record.getVersion());
+      } else {
+        if (recordOperation.type == ORecordOperation.UPDATED
+            && recordOperation.updatedCallback != null) {
+          recordOperation.updatedCallback.call(new ORecordId(identity), record.getVersion());
+        }
       }
     }
   }
@@ -796,6 +816,7 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
     if (!(change.getRecord() instanceof ODocument rec)) {
       return;
     }
+
     switch (change.getType()) {
       case ORecordOperation.CREATED:
         {

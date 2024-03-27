@@ -32,9 +32,8 @@ public class DateBinaryComparatorTest extends BaseMemoryDatabase {
       document.field("date", new SimpleDateFormat(dateFormat).parse(dateValue));
       document.save();
     } catch (ParseException e) {
-      e.printStackTrace();
+      throw new RuntimeException(e);
     }
-    db.commit();
   }
 
   @Test
