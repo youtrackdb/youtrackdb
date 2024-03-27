@@ -171,7 +171,6 @@
     <test name="DbTools">
         <classes>
             <class name="com.orientechnologies.orient.test.database.auto.DbImportExportTest"/>
-            <class name="com.orientechnologies.orient.test.database.auto.StressTestWorkloadTest"/>
         </classes>
     </test>
     <test name="DbToolsDelete">

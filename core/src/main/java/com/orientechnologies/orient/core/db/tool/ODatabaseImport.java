@@ -100,8 +100,11 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
-/** Import data from a file into a database. */
+/**
+ * Import data from a file into a database.
+ */
 public class ODatabaseImport extends ODatabaseImpExpAbstract {
+
   public static final String EXPORT_IMPORT_CLASS_NAME = "___exportImportRIDMap";
   public static final String EXPORT_IMPORT_INDEX_NAME = EXPORT_IMPORT_CLASS_NAME + "Index";
 
@@ -185,16 +188,27 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
 
   @Override
   protected void parseSetting(final String option, final List<String> items) {
-    if (option.equalsIgnoreCase("-deleteRIDMapping"))
+    if (option.equalsIgnoreCase("-deleteRIDMapping")) {
       deleteRIDMapping = Boolean.parseBoolean(items.get(0));
-    else if (option.equalsIgnoreCase("-preserveClusterIDs"))
-      preserveClusterIDs = Boolean.parseBoolean(items.get(0));
-    else if (option.equalsIgnoreCase("-merge")) merge = Boolean.parseBoolean(items.get(0));
-    else if (option.equalsIgnoreCase("-migrateLinks"))
-      migrateLinks = Boolean.parseBoolean(items.get(0));
-    else if (option.equalsIgnoreCase("-rebuildIndexes"))
-      rebuildIndexes = Boolean.parseBoolean(items.get(0));
-    else super.parseSetting(option, items);
+    } else {
+      if (option.equalsIgnoreCase("-preserveClusterIDs")) {
+        preserveClusterIDs = Boolean.parseBoolean(items.get(0));
+      } else {
+        if (option.equalsIgnoreCase("-merge")) {
+          merge = Boolean.parseBoolean(items.get(0));
+        } else {
+          if (option.equalsIgnoreCase("-migrateLinks")) {
+            migrateLinks = Boolean.parseBoolean(items.get(0));
+          } else {
+            if (option.equalsIgnoreCase("-rebuildIndexes")) {
+              rebuildIndexes = Boolean.parseBoolean(items.get(0));
+            } else {
+              super.parseSetting(option, items);
+            }
+          }
+        }
+      }
+    }
   }
 
   public ODatabaseImport importDatabase() {
@@ -216,7 +230,9 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
 
       for (final OIndex index :
           database.getMetadata().getIndexManagerInternal().getIndexes(database)) {
-        if (index.isAutomatic()) indexesToRebuild.add(index.getName());
+        if (index.isAutomatic()) {
+          indexesToRebuild.add(index.getName());
+        }
       }
 
       boolean clustersImported = false;
@@ -225,17 +241,35 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
 
         if (tag.equals("info")) {
           importInfo();
-        } else if (tag.equals("clusters")) {
-          importClusters();
-          clustersImported = true;
-        } else if (tag.equals("schema")) importSchema(clustersImported);
-        else if (tag.equals("records")) importRecords();
-        else if (tag.equals("indexes")) importIndexes();
-        else if (tag.equals("manualIndexes")) importManualIndexes();
-        else if (tag.equals("brokenRids")) {
-          processBrokenRids();
-        } else
-          throw new ODatabaseImportException("Invalid format. Found unsupported tag '" + tag + "'");
+        } else {
+          if (tag.equals("clusters")) {
+            importClusters();
+            clustersImported = true;
+          } else {
+            if (tag.equals("schema")) {
+              importSchema(clustersImported);
+            } else {
+              if (tag.equals("records")) {
+                importRecords();
+              } else {
+                if (tag.equals("indexes")) {
+                  importIndexes();
+                } else {
+                  if (tag.equals("manualIndexes")) {
+                    importManualIndexes();
+                  } else {
+                    if (tag.equals("brokenRids")) {
+                      processBrokenRids();
+                    } else {
+                      throw new ODatabaseImportException(
+                          "Invalid format. Found unsupported tag '" + tag + "'");
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
       if (rebuildIndexes) {
         rebuildIndexes();
@@ -304,15 +338,18 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
         final ORecordId recordId = new ORecordId(jsonReader.getValue());
         brokenRids.add(recordId);
 
-        if (jsonReader.lastChar() == ']') break;
+        if (jsonReader.lastChar() == ']') {
+          break;
+        }
       }
     }
     if (migrateLinks) {
-      if (exporterVersion >= 12)
+      if (exporterVersion >= 12) {
         listener.onMessage(
             brokenRids.size()
                 + " were detected as broken during database export, links on those records will be"
                 + " removed from result database");
+      }
       migrateLinksInImportedDocuments(brokenRids);
     }
   }
@@ -406,13 +443,24 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
     database.dropCluster(OMetadataDefault.CLUSTER_MANUAL_INDEX_NAME);
 
     final OSchema schema = database.getMetadata().getSchema();
-    if (schema.existsClass(OUser.CLASS_NAME)) schema.dropClass(OUser.CLASS_NAME);
-    if (schema.existsClass(ORole.CLASS_NAME)) schema.dropClass(ORole.CLASS_NAME);
-    if (schema.existsClass(OSecurityShared.RESTRICTED_CLASSNAME))
+    if (schema.existsClass(OUser.CLASS_NAME)) {
+      schema.dropClass(OUser.CLASS_NAME);
+    }
+    if (schema.existsClass(ORole.CLASS_NAME)) {
+      schema.dropClass(ORole.CLASS_NAME);
+    }
+    if (schema.existsClass(OSecurityShared.RESTRICTED_CLASSNAME)) {
       schema.dropClass(OSecurityShared.RESTRICTED_CLASSNAME);
-    if (schema.existsClass(OFunction.CLASS_NAME)) schema.dropClass(OFunction.CLASS_NAME);
-    if (schema.existsClass("ORIDs")) schema.dropClass("ORIDs");
-    if (schema.existsClass(OClassTrigger.CLASSNAME)) schema.dropClass(OClassTrigger.CLASSNAME);
+    }
+    if (schema.existsClass(OFunction.CLASS_NAME)) {
+      schema.dropClass(OFunction.CLASS_NAME);
+    }
+    if (schema.existsClass("ORIDs")) {
+      schema.dropClass("ORIDs");
+    }
+    if (schema.existsClass(OClassTrigger.CLASSNAME)) {
+      schema.dropClass(OClassTrigger.CLASSNAME);
+    }
 
     database.dropCluster(OStorage.CLUSTER_DEFAULT_NAME);
 
@@ -431,23 +479,31 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
     jsonReader.readNext(OJSONReader.BEGIN_OBJECT);
     while (jsonReader.lastChar() != '}') {
       final String fieldName = jsonReader.readString(OJSONReader.FIELD_ASSIGNMENT);
-      if (fieldName.equals("exporter-version"))
+      if (fieldName.equals("exporter-version")) {
         exporterVersion = jsonReader.readInteger(OJSONReader.NEXT_IN_OBJECT);
-      else if (fieldName.equals("schemaRecordId"))
-        schemaRecordId = new ORecordId(jsonReader.readString(OJSONReader.NEXT_IN_OBJECT));
-      else if (fieldName.equals("indexMgrRecordId"))
-        indexMgrRecordId = new ORecordId(jsonReader.readString(OJSONReader.NEXT_IN_OBJECT));
-      else jsonReader.readNext(OJSONReader.NEXT_IN_OBJECT);
+      } else {
+        if (fieldName.equals("schemaRecordId")) {
+          schemaRecordId = new ORecordId(jsonReader.readString(OJSONReader.NEXT_IN_OBJECT));
+        } else {
+          if (fieldName.equals("indexMgrRecordId")) {
+            indexMgrRecordId = new ORecordId(jsonReader.readString(OJSONReader.NEXT_IN_OBJECT));
+          } else {
+            jsonReader.readNext(OJSONReader.NEXT_IN_OBJECT);
+          }
+        }
+      }
     }
     jsonReader.readNext(OJSONReader.COMMA_SEPARATOR);
 
-    if (schemaRecordId == null)
+    if (schemaRecordId == null) {
       schemaRecordId =
           new ORecordId(database.getStorageInfo().getConfiguration().getSchemaRecordId());
+    }
 
-    if (indexMgrRecordId == null)
+    if (indexMgrRecordId == null) {
       indexMgrRecordId =
           new ORecordId(database.getStorageInfo().getConfiguration().getIndexMgrRecordId());
+    }
 
     listener.onMessage("OK");
   }
@@ -528,7 +584,9 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
       jsonReader.readString(OJSONReader.FIELD_ASSIGNMENT);
       final String indexName = jsonReader.readString(OJSONReader.NEXT_IN_ARRAY);
 
-      if (indexName == null || indexName.length() == 0) return;
+      if (indexName == null || indexName.length() == 0) {
+        return;
+      }
 
       listener.onMessage("\n- Index '" + indexName + "'...");
 
@@ -591,7 +649,9 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
       if (index != null) {
         listener.onMessage("OK (" + tot + " entries)");
         n++;
-      } else listener.onMessage("ERR, the index wasn't found in configuration");
+      } else {
+        listener.onMessage("ERR, the index wasn't found in configuration");
+      }
 
       jsonReader.readNext(OJSONReader.END_OBJECT);
       jsonReader.readNext(OJSONReader.NEXT_IN_ARRAY);
@@ -695,7 +755,9 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
         if (jsonReader.isContent("\"default-cluster-id\"")) {
           next = jsonReader.readString(OJSONReader.NEXT_IN_OBJECT);
           classDefClusterId = Integer.parseInt(next);
-        } else classDefClusterId = database.getDefaultClusterId();
+        } else {
+          classDefClusterId = database.getDefaultClusterId();
+        }
 
         int realClassDefClusterId = classDefClusterId;
         if (!clusterToClusterMapping.isEmpty()
@@ -725,19 +787,24 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
         OClassImpl cls = (OClassImpl) database.getMetadata().getSchema().getClass(className);
 
         if (cls != null) {
-          if (cls.getDefaultClusterId() != realClassDefClusterId)
+          if (cls.getDefaultClusterId() != realClassDefClusterId) {
             cls.setDefaultClusterId(realClassDefClusterId);
-        } else if (clustersImported) {
-          cls =
-              (OClassImpl)
-                  database
-                      .getMetadata()
-                      .getSchema()
-                      .createClass(className, new int[] {realClassDefClusterId});
-        } else if (className.equalsIgnoreCase("ORestricted")) {
-          cls = (OClassImpl) database.getMetadata().getSchema().createAbstractClass(className);
+          }
         } else {
-          cls = (OClassImpl) database.getMetadata().getSchema().createClass(className);
+          if (clustersImported) {
+            cls =
+                (OClassImpl)
+                    database
+                        .getMetadata()
+                        .getSchema()
+                        .createClass(className, new int[] {realClassDefClusterId});
+          } else {
+            if (className.equalsIgnoreCase("ORestricted")) {
+              cls = (OClassImpl) database.getMetadata().getSchema().createAbstractClass(className);
+            } else {
+              cls = (OClassImpl) database.getMetadata().getSchema().createClass(className);
+            }
+          }
         }
 
         if (clustersImported) {
@@ -772,7 +839,9 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
             }
             case "\"short-name\"" -> {
               final String shortName = jsonReader.readString(OJSONReader.NEXT_IN_OBJECT);
-              if (!cls.getName().equalsIgnoreCase(shortName)) cls.setShortName(shortName);
+              if (!cls.getName().equalsIgnoreCase(shortName)) {
+                cls.setShortName(shortName);
+              }
             }
             case "\"super-class\"" -> {
               // @compatibility <2.1 SINGLE CLASS ONLY
@@ -804,7 +873,9 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
               while (jsonReader.lastChar() != ']') {
                 importProperty(cls);
 
-                if (jsonReader.lastChar() == '}') jsonReader.readNext(OJSONReader.NEXT_IN_ARRAY);
+                if (jsonReader.lastChar() == '}') {
+                  jsonReader.readNext(OJSONReader.NEXT_IN_ARRAY);
+                }
               }
               jsonReader.readNext(OJSONReader.NEXT_IN_OBJECT);
             }
@@ -858,7 +929,9 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
   private void importProperty(final OClass iClass) throws IOException, ParseException {
     jsonReader.readNext(OJSONReader.NEXT_OBJ_IN_ARRAY);
 
-    if (jsonReader.lastChar() == ']') return;
+    if (jsonReader.lastChar() == ']') {
+      return;
+    }
 
     final String propName =
         jsonReader
@@ -897,22 +970,55 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
       jsonReader.readNext(OJSONReader.FIELD_ASSIGNMENT);
 
       attrib = jsonReader.getValue();
-      if (!attrib.equals("\"customFields\""))
+      if (!attrib.equals("\"customFields\"")) {
         value =
             jsonReader.readString(
                 OJSONReader.NEXT_IN_OBJECT, false, OJSONReader.DEFAULT_JUMP, null, false);
+      }
 
-      if (attrib.equals("\"min\"")) min = value;
-      else if (attrib.equals("\"max\"")) max = value;
-      else if (attrib.equals("\"linked-class\"")) linkedClass = value;
-      else if (attrib.equals("\"mandatory\"")) mandatory = Boolean.parseBoolean(value);
-      else if (attrib.equals("\"readonly\"")) readonly = Boolean.parseBoolean(value);
-      else if (attrib.equals("\"not-null\"")) notNull = Boolean.parseBoolean(value);
-      else if (attrib.equals("\"linked-type\"")) linkedType = OType.valueOf(value);
-      else if (attrib.equals("\"collate\"")) collate = value;
-      else if (attrib.equals("\"default-value\"")) defaultValue = value;
-      else if (attrib.equals("\"customFields\"")) customFields = importCustomFields();
-      else if (attrib.equals("\"regexp\"")) regexp = value;
+      if (attrib.equals("\"min\"")) {
+        min = value;
+      } else {
+        if (attrib.equals("\"max\"")) {
+          max = value;
+        } else {
+          if (attrib.equals("\"linked-class\"")) {
+            linkedClass = value;
+          } else {
+            if (attrib.equals("\"mandatory\"")) {
+              mandatory = Boolean.parseBoolean(value);
+            } else {
+              if (attrib.equals("\"readonly\"")) {
+                readonly = Boolean.parseBoolean(value);
+              } else {
+                if (attrib.equals("\"not-null\"")) {
+                  notNull = Boolean.parseBoolean(value);
+                } else {
+                  if (attrib.equals("\"linked-type\"")) {
+                    linkedType = OType.valueOf(value);
+                  } else {
+                    if (attrib.equals("\"collate\"")) {
+                      collate = value;
+                    } else {
+                      if (attrib.equals("\"default-value\"")) {
+                        defaultValue = value;
+                      } else {
+                        if (attrib.equals("\"customFields\"")) {
+                          customFields = importCustomFields();
+                        } else {
+                          if (attrib.equals("\"regexp\"")) {
+                            regexp = value;
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
 
     OPropertyImpl prop = (OPropertyImpl) iClass.getProperty(propName);
@@ -924,12 +1030,24 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
     prop.setReadonly(readonly);
     prop.setNotNull(notNull);
 
-    if (min != null) prop.setMin(min);
-    if (max != null) prop.setMax(max);
-    if (linkedClass != null) linkedClasses.put(prop, linkedClass);
-    if (linkedType != null) prop.setLinkedType(linkedType);
-    if (collate != null) prop.setCollate(collate);
-    if (regexp != null) prop.setRegexp(regexp);
+    if (min != null) {
+      prop.setMin(min);
+    }
+    if (max != null) {
+      prop.setMax(max);
+    }
+    if (linkedClass != null) {
+      linkedClasses.put(prop, linkedClass);
+    }
+    if (linkedType != null) {
+      prop.setLinkedType(linkedType);
+    }
+    if (collate != null) {
+      prop.setCollate(collate);
+    }
+    if (regexp != null) {
+      prop.setRegexp(regexp);
+    }
     if (defaultValue != null) {
       prop.setDefaultValue(value);
     }
@@ -983,22 +1101,28 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
               .checkContent("\"name\"")
               .readString(OJSONReader.COMMA_SEPARATOR);
 
-      if (name.length() == 0) name = null;
+      if (name.length() == 0) {
+        name = null;
+      }
 
       name = OClassImpl.decodeClassName(name);
       if (name != null)
-        // CHECK IF THE CLUSTER IS INCLUDED
+      // CHECK IF THE CLUSTER IS INCLUDED
+      {
         if (includeClusters != null) {
           if (!includeClusters.contains(name)) {
             jsonReader.readNext(OJSONReader.NEXT_IN_ARRAY);
             continue;
           }
-        } else if (excludeClusters != null) {
-          if (excludeClusters.contains(name)) {
-            jsonReader.readNext(OJSONReader.NEXT_IN_ARRAY);
-            continue;
+        } else {
+          if (excludeClusters != null) {
+            if (excludeClusters.contains(name)) {
+              jsonReader.readNext(OJSONReader.NEXT_IN_ARRAY);
+              continue;
+            }
           }
         }
+      }
 
       int clusterIdFromJson;
       if (exporterVersion < 9) {
@@ -1012,21 +1136,24 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
                 .readNext(OJSONReader.FIELD_ASSIGNMENT)
                 .checkContent("\"type\"")
                 .readString(OJSONReader.NEXT_IN_OBJECT);
-      } else
+      } else {
         clusterIdFromJson =
             jsonReader
                 .readNext(OJSONReader.FIELD_ASSIGNMENT)
                 .checkContent("\"id\"")
                 .readInteger(OJSONReader.NEXT_IN_OBJECT);
+      }
 
       String type;
-      if (jsonReader.lastChar() == ',')
+      if (jsonReader.lastChar() == ',') {
         type =
             jsonReader
                 .readNext(OJSONReader.FIELD_ASSIGNMENT)
                 .checkContent("\"type\"")
                 .readString(OJSONReader.NEXT_IN_OBJECT);
-      else type = "PHYSICAL";
+      } else {
+        type = "PHYSICAL";
+      }
 
       if (jsonReader.lastChar() == ',') {
         rid =
@@ -1035,7 +1162,9 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
                     .readNext(OJSONReader.FIELD_ASSIGNMENT)
                     .checkContent("\"rid\"")
                     .readString(OJSONReader.NEXT_IN_OBJECT));
-      } else rid = null;
+      } else {
+        rid = null;
+      }
 
       listener.onMessage(
           "\n- Creating cluster " + (name != null ? "'" + name + "'" : "NULL") + "...");
@@ -1043,14 +1172,17 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
       int createdClusterId = name != null ? database.getClusterIdByName(name) : -1;
       if (createdClusterId == -1) {
         // CREATE IT
-        if (!preserveClusterIDs) createdClusterId = database.addCluster(name);
-        else if (getDatabase().getClusterNameById(clusterIdFromJson) == null) {
-          createdClusterId = database.addCluster(name, clusterIdFromJson, null);
-          assert createdClusterId == clusterIdFromJson;
-        } else {
+        if (!preserveClusterIDs) {
           createdClusterId = database.addCluster(name);
-          listener.onMessage(
-              "\n- WARNING cluster with id " + clusterIdFromJson + " already exists");
+        } else {
+          if (getDatabase().getClusterNameById(clusterIdFromJson) == null) {
+            createdClusterId = database.addCluster(name, clusterIdFromJson, null);
+            assert createdClusterId == clusterIdFromJson;
+          } else {
+            createdClusterId = database.addCluster(name);
+            listener.onMessage(
+                "\n- WARNING cluster with id " + clusterIdFromJson + " already exists");
+          }
         }
       }
 
@@ -1061,7 +1193,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
             database.dropCluster(name);
             database.addCluster("temp_" + createdClusterId, null);
             createdClusterId = database.addCluster(name);
-          } else
+          } else {
             throw new OConfigurationException(
                 "Imported cluster '"
                     + name
@@ -1074,12 +1206,14 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
                     + "' that has "
                     + database.countClusterElements(createdClusterId - 1)
                     + " records");
+          }
         } else {
 
           final OClass clazz =
               database.getMetadata().getSchema().getClassByClusterId(createdClusterId);
-          if (clazz instanceof OClassEmbedded)
+          if (clazz instanceof OClassEmbedded) {
             ((OClassEmbedded) clazz).removeClusterId(createdClusterId, true);
+          }
 
           database.dropCluster(createdClusterId);
           createdClusterId = database.addCluster(name, clusterIdFromJson, null);
@@ -1097,7 +1231,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
 
     listener.onMessage("\nRebuilding indexes of truncated clusters ...");
 
-    for (final String indexName : indexesToRebuild)
+    for (final String indexName : indexesToRebuild) {
       database
           .getMetadata()
           .getIndexManagerInternal()
@@ -1115,12 +1249,15 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
                 @Override
                 public boolean onProgress(Object iTask, long iCounter, float iPercent) {
                   final long now = System.currentTimeMillis();
-                  if (last == 0) last = now;
-                  else if (now - last > 1000) {
-                    listener.onMessage(
-                        String.format(
-                            "\nIndex '%s' is rebuilding (%.2f/100)", indexName, iPercent));
+                  if (last == 0) {
                     last = now;
+                  } else {
+                    if (now - last > 1000) {
+                      listener.onMessage(
+                          String.format(
+                              "\nIndex '%s' is rebuilding (%.2f/100)", indexName, iPercent));
+                      last = now;
+                    }
                   }
                   return true;
                 }
@@ -1130,6 +1267,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
                   listener.onMessage(" Index " + indexName + " was successfully rebuilt.");
                 }
               });
+    }
     listener.onMessage("\nDone " + indexesToRebuild.size() + " indexes were rebuilt.");
 
     if (recreateManualIndex) {
@@ -1213,9 +1351,10 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
                     maxRidbagStringSizeBeforeLazyImport,
                     skippedPartsIndexes);
           }
-        } else
+        } else {
           throw OException.wrapException(
               new ODatabaseImportException("Error on importing record"), e);
+        }
       }
 
       // Incorrect record format, skip this record
@@ -1237,11 +1376,13 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
           recordsBeforeImport.remove(record.getIdentity());
           return null;
         }
-      } else if (excludeClusters != null) {
-        if (excludeClusters.contains(
-            database.getClusterNameById(record.getIdentity().getClusterId()))) {
-          recordsBeforeImport.remove(record.getIdentity());
-          return null;
+      } else {
+        if (excludeClusters != null) {
+          if (excludeClusters.contains(
+              database.getClusterNameById(record.getIdentity().getClusterId()))) {
+            recordsBeforeImport.remove(record.getIdentity());
+            return null;
+          }
         }
       }
 
@@ -1290,7 +1431,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
         return null;
       }
 
-      final ORID rid = record.getIdentity();
+      final ORID rid = record.getIdentity().copy();
 
       final int clusterId = rid.getClusterId();
 
@@ -1324,9 +1465,11 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
 
         if (!preserveRids
             && record instanceof ODocument
-            && ODocumentInternal.getImmutableSchemaClass(database, ((ODocument) record)) != null)
+            && ODocumentInternal.getImmutableSchemaClass(database, ((ODocument) record)) != null) {
           record.save();
-        else record.save(database.getClusterNameById(clusterId));
+        } else {
+          record.save(database.getClusterNameById(clusterId));
+        }
 
         if (!rid.equals(record.getIdentity())) {
           // SAVE IT ONLY IF DIFFERENT
@@ -1349,7 +1492,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
       }
 
     } catch (Exception t) {
-      if (record != null)
+      if (record != null) {
         OLogManager.instance()
             .error(
                 this,
@@ -1360,7 +1503,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
                     + ", column "
                     + jsonReader.getColumnNumber(),
                 t);
-      else
+      } else {
         OLogManager.instance()
             .error(
                 this,
@@ -1369,6 +1512,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
                     + ", column "
                     + jsonReader.getColumnNumber(),
                 t);
+      }
 
       if (!(t instanceof ODatabaseException)) {
         throw t;
@@ -1426,8 +1570,9 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
         ++lastLapRecords;
         ++totalRecords;
 
-        if (rid.getClusterId() != lastRid.getClusterId() || involvedClusters.isEmpty())
+        if (rid.getClusterId() != lastRid.getClusterId() || involvedClusters.isEmpty()) {
           involvedClusters.add(database.getClusterNameById(rid.getClusterId()));
+        }
         lastRid = rid;
       }
 
@@ -1569,29 +1714,47 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
 
       while (jsonReader.lastChar() != '}') {
         final String fieldName = jsonReader.readString(OJSONReader.FIELD_ASSIGNMENT);
-        if (fieldName.equals("name")) indexName = jsonReader.readString(OJSONReader.NEXT_IN_OBJECT);
-        else if (fieldName.equals("type"))
-          indexType = jsonReader.readString(OJSONReader.NEXT_IN_OBJECT);
-        else if (fieldName.equals("algorithm"))
-          indexAlgorithm = jsonReader.readString(OJSONReader.NEXT_IN_OBJECT);
-        else if (fieldName.equals("clustersToIndex")) clustersToIndex = importClustersToIndex();
-        else if (fieldName.equals("definition")) {
-          indexDefinition = importIndexDefinition();
-          jsonReader.readNext(OJSONReader.NEXT_IN_OBJECT);
-        } else if (fieldName.equals("metadata")) {
-          final String jsonMetadata = jsonReader.readString(OJSONReader.END_OBJECT, true);
-          metadata = new ODocument().fromJSON(jsonMetadata);
-          jsonReader.readNext(OJSONReader.NEXT_IN_OBJECT);
-        } else if (fieldName.equals("engineProperties")) {
-          final String jsonEngineProperties = jsonReader.readString(OJSONReader.END_OBJECT, true);
-          Map<String, Object> map =
-              ((ODocument) new ODocument().fromJSON(jsonEngineProperties)).toMap();
-          if (map != null) {
-            map.replaceAll((k, v) -> v);
+        if (fieldName.equals("name")) {
+          indexName = jsonReader.readString(OJSONReader.NEXT_IN_OBJECT);
+        } else {
+          if (fieldName.equals("type")) {
+            indexType = jsonReader.readString(OJSONReader.NEXT_IN_OBJECT);
+          } else {
+            if (fieldName.equals("algorithm")) {
+              indexAlgorithm = jsonReader.readString(OJSONReader.NEXT_IN_OBJECT);
+            } else {
+              if (fieldName.equals("clustersToIndex")) {
+                clustersToIndex = importClustersToIndex();
+              } else {
+                if (fieldName.equals("definition")) {
+                  indexDefinition = importIndexDefinition();
+                  jsonReader.readNext(OJSONReader.NEXT_IN_OBJECT);
+                } else {
+                  if (fieldName.equals("metadata")) {
+                    final String jsonMetadata = jsonReader.readString(OJSONReader.END_OBJECT, true);
+                    metadata = new ODocument().fromJSON(jsonMetadata);
+                    jsonReader.readNext(OJSONReader.NEXT_IN_OBJECT);
+                  } else {
+                    if (fieldName.equals("engineProperties")) {
+                      final String jsonEngineProperties =
+                          jsonReader.readString(OJSONReader.END_OBJECT, true);
+                      Map<String, Object> map =
+                          ((ODocument) new ODocument().fromJSON(jsonEngineProperties)).toMap();
+                      if (map != null) {
+                        map.replaceAll((k, v) -> v);
+                      }
+                      jsonReader.readNext(OJSONReader.NEXT_IN_OBJECT);
+                    } else {
+                      if (fieldName.equals("blueprintsIndexClass")) {
+                        blueprintsIndexClass = jsonReader.readString(OJSONReader.NEXT_IN_OBJECT);
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
-          jsonReader.readNext(OJSONReader.NEXT_IN_OBJECT);
-        } else if (fieldName.equals("blueprintsIndexClass"))
-          blueprintsIndexClass = jsonReader.readString(OJSONReader.NEXT_IN_OBJECT);
+        }
       }
       jsonReader.readNext(OJSONReader.NEXT_IN_ARRAY);
 
@@ -1621,7 +1784,9 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
       final Set<String> clustersToIndex,
       OIndexDefinition indexDefinition,
       final ODocument metadata) {
-    if (indexName == null) throw new IllegalArgumentException("Index name is missing");
+    if (indexName == null) {
+      throw new IllegalArgumentException("Index name is missing");
+    }
 
     // drop automatically created indexes
     if (!indexName.equalsIgnoreCase(EXPORT_IMPORT_INDEX_NAME)) {
@@ -1633,12 +1798,14 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
 
       for (final String clusterName : clustersToIndex) {
         int id = database.getClusterIdByName(clusterName);
-        if (id != -1) clusterIds.add(id);
-        else
+        if (id != -1) {
+          clusterIds.add(id);
+        } else {
           listener.onMessage(
               String.format(
                   "found not existent cluster '%s' in index '%s' configuration, skipping",
                   clusterName, indexName));
+        }
       }
       int[] clusterIdsToIndex = new int[clusterIds.size()];
 
@@ -1741,7 +1908,9 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
     for (String clusterName : clusterNames) {
       if (OMetadataDefault.CLUSTER_INDEX_NAME.equals(clusterName)
           || OMetadataDefault.CLUSTER_INTERNAL_NAME.equals(clusterName)
-          || OMetadataDefault.CLUSTER_MANUAL_INDEX_NAME.equals(clusterName)) continue;
+          || OMetadataDefault.CLUSTER_MANUAL_INDEX_NAME.equals(clusterName)) {
+        continue;
+      }
 
       long documents = 0;
       String prefix = "";
