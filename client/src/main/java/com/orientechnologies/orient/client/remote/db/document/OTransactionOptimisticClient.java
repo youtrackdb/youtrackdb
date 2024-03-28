@@ -29,7 +29,9 @@ import java.util.NavigableMap;
 import java.util.Set;
 import java.util.TreeMap;
 
-/** Created by tglman on 03/01/17. */
+/**
+ * Created by tglman on 03/01/17.
+ */
 public class OTransactionOptimisticClient extends OTransactionOptimistic {
 
   private Set<String> indexChanged = new HashSet<>();
@@ -45,8 +47,9 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
     this.allEntries = new LinkedHashMap<ORID, ORecordOperation>();
     int createCount = -2; // Start from -2 because temporary rids start from -2
     for (ORecordOperation38Response operation : operations) {
-      if (!operation.getOldId().equals(operation.getId()))
+      if (!operation.getOldId().equals(operation.getId())) {
         updatedRids.put(operation.getId().copy(), operation.getOldId());
+      }
 
       ORecordAbstract record = null;
       ORecordOperation op = oldEntries.get(operation.getOldId());
@@ -54,7 +57,7 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
         record = op.getRecord();
       }
       if (record == null) {
-        record = (ORecordAbstract) getDatabase().getLocalCache().findRecord(operation.getOldId());
+        record = getDatabase().getLocalCache().findRecord(operation.getOldId());
       }
       if (record != null) {
         ORecordInternal.unsetDirty(record);
@@ -64,6 +67,7 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
             Orient.instance()
                 .getRecordFactoryManager()
                 .newInstance(operation.getRecordType(), operation.getOldId(), database);
+        ORecordInternal.unsetDirty(record);
       }
       if (operation.getType() == ORecordOperation.UPDATED
           && operation.getRecordType() == ODocument.RECORD_TYPE) {
@@ -84,7 +88,9 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
       getDatabase().getLocalCache().updateRecord(record);
       boolean callHook = checkCallHook(oldEntries, operation.getId(), operation.getType());
       addRecord(record, operation.getType(), null, callHook);
-      if (operation.getType() == ORecordOperation.CREATED) createCount--;
+      if (operation.getType() == ORecordOperation.CREATED) {
+        createCount--;
+      }
     }
     newObjectCounter = createCount;
 
@@ -94,8 +100,9 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
       for (Map.Entry<Object, OTransactionIndexChangesPerKey> keyChange :
           change.getKeyChanges().changesPerKey.entrySet()) {
         Object key = keyChange.getKey();
-        if (key instanceof OIdentifiable && ((OIdentifiable) key).getIdentity().isNew())
+        if (key instanceof OIdentifiable && ((OIdentifiable) key).getIdentity().isNew()) {
           key = ((OIdentifiable) key).getRecord();
+        }
         OTransactionIndexChangesPerKey singleChange = new OTransactionIndexChangesPerKey(key);
         keyChange
             .getValue()
@@ -116,7 +123,9 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
 
   public void addRecord(
       ORecord iRecord, final byte iStatus, final String iClusterName, boolean callHook) {
-    if (iStatus != ORecordOperation.LOADED) changedDocuments.remove(iRecord);
+    if (iStatus != ORecordOperation.LOADED && iRecord instanceof ODocument document) {
+      changedDocuments.remove(document);
+    }
 
     try {
       if (callHook) {
@@ -131,7 +140,7 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
             }
             break;
           case ORecordOperation.LOADED:
-            /** Read hooks already invoked in {@link ODatabaseDocumentInternal#executeReadRecord} */
+            /* Read hooks already invoked in {@link ODatabaseDocumentInternal#executeReadRecord} */
             break;
           case ORecordOperation.UPDATED:
             {

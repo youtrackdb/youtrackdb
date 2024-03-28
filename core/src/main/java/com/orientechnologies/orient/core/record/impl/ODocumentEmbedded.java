@@ -1,6 +1,7 @@
 package com.orientechnologies.orient.core.record.impl;
 
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.record.ORecordInternal;
 
 public class ODocumentEmbedded extends ODocument {
 
@@ -29,6 +30,10 @@ public class ODocumentEmbedded extends ODocument {
 
   @Override
   public ODocumentEmbedded copy() {
-    return (ODocumentEmbedded) copyTo(new ODocumentEmbedded());
+    var doc = new ODocumentEmbedded();
+    ORecordInternal.unsetDirty(doc);
+    var newDoc = (ODocumentEmbedded) copyTo(doc);
+    newDoc.dirty = true;
+    return newDoc;
   }
 }

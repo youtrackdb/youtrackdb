@@ -11,6 +11,7 @@ import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializerFactory;
 import java.util.ArrayList;
@@ -357,7 +358,9 @@ public abstract class ODocumentSchemafullSerializationTest extends BaseMemoryInt
     document.field("name", "test");
 
     byte[] res = serializer.toStream(document);
-    ODocument extr = new ODocument().fromStream(res);
+    ODocument extr = new ODocument();
+    ORecordInternal.unsetDirty(extr);
+    extr.fromStream(res);
     assertEquals(OType.STRING, extr.fieldType("name"));
   }
 }

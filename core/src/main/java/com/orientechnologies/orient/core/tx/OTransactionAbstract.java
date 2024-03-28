@@ -26,7 +26,7 @@ import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.Set;
 
 public abstract class OTransactionAbstract implements OTransaction {
+
   protected ODatabaseDocumentInternal database;
   protected TXSTATUS status = TXSTATUS.INVALID;
   protected ISOLATION_LEVEL isolationLevel = ISOLATION_LEVEL.READ_COMMITTED;
@@ -48,9 +49,10 @@ public abstract class OTransactionAbstract implements OTransaction {
    *
    * @see #getRecord(ORID)
    */
-  public static final ORecord DELETED_RECORD = new ORecordBytes();
+  public static final ORecordAbstract DELETED_RECORD = new ORecordBytes();
 
   public static final class LockedRecordMetadata {
+
     private final OStorage.LOCKING_STRATEGY strategy;
     private int locksCount;
 
@@ -94,9 +96,10 @@ public abstract class OTransactionAbstract implements OTransaction {
 
   @Override
   public OTransaction setIsolationLevel(final ISOLATION_LEVEL isolationLevel) {
-    if (isolationLevel == ISOLATION_LEVEL.REPEATABLE_READ && getDatabase().isRemote())
+    if (isolationLevel == ISOLATION_LEVEL.REPEATABLE_READ && getDatabase().isRemote()) {
       throw new IllegalArgumentException(
           "Remote storage does not support isolation level '" + isolationLevel + "'");
+    }
 
     this.isolationLevel = isolationLevel;
     return this;
@@ -116,7 +119,9 @@ public abstract class OTransactionAbstract implements OTransaction {
     return database;
   }
 
-  /** Closes the transaction and releases all the acquired locks. */
+  /**
+   * Closes the transaction and releases all the acquired locks.
+   */
   @Override
   public void close() {
     for (Map.Entry<ORID, LockedRecordMetadata> lock : locks.entrySet()) {
@@ -125,8 +130,10 @@ public abstract class OTransactionAbstract implements OTransaction {
 
         if (lockedRecordMetadata.strategy.equals(OStorage.LOCKING_STRATEGY.EXCLUSIVE_LOCK)) {
           ((OAbstractPaginatedStorage) getDatabase().getStorage()).releaseWriteLock(lock.getKey());
-        } else if (lockedRecordMetadata.strategy.equals(OStorage.LOCKING_STRATEGY.SHARED_LOCK)) {
-          ((OAbstractPaginatedStorage) getDatabase().getStorage()).releaseReadLock(lock.getKey());
+        } else {
+          if (lockedRecordMetadata.strategy.equals(OStorage.LOCKING_STRATEGY.SHARED_LOCK)) {
+            ((OAbstractPaginatedStorage) getDatabase().getStorage()).releaseReadLock(lock.getKey());
+          }
         }
       } catch (Exception e) {
         OLogManager.instance()
@@ -156,7 +163,9 @@ public abstract class OTransactionAbstract implements OTransaction {
     final ORID rid = record.getIdentity();
     final LockedRecordMetadata lockedRecordMetadata = locks.get(rid);
 
-    if (lockedRecordMetadata == null || lockedRecordMetadata.locksCount == 0) return null;
+    if (lockedRecordMetadata == null || lockedRecordMetadata.locksCount == 0) {
+      return null;
+    }
 
     return lockedRecordMetadata.strategy;
   }
@@ -176,10 +185,12 @@ public abstract class OTransactionAbstract implements OTransaction {
     if (lockedRecordMetadata == null) {
       lockedRecordMetadata = new OTransactionAbstract.LockedRecordMetadata(lockingStrategy);
       addItem = true;
-    } else if (lockedRecordMetadata.strategy != lockingStrategy) {
-      assert lockedRecordMetadata.locksCount == 0;
-      lockedRecordMetadata = new OTransactionAbstract.LockedRecordMetadata(lockingStrategy);
-      addItem = true;
+    } else {
+      if (lockedRecordMetadata.strategy != lockingStrategy) {
+        assert lockedRecordMetadata.locksCount == 0;
+        lockedRecordMetadata = new OTransactionAbstract.LockedRecordMetadata(lockingStrategy);
+        addItem = true;
+      }
     }
     lockedRecordMetadata.locksCount++;
     if (addItem) {

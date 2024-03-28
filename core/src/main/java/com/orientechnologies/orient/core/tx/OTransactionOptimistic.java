@@ -226,7 +226,7 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
       }
 
       // DELEGATE TO THE STORAGE, NO TOMBSTONES SUPPORT IN TX MODE
-      final ORecord record =
+      final ORecordAbstract record =
           database.executeReadRecord(
               (ORecordId) rid,
               iRecord,
@@ -289,7 +289,7 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
     }
 
     // DELEGATE TO THE STORAGE, NO TOMBSTONES SUPPORT IN TX MODE
-    final ORecord record =
+    final ORecordAbstract record =
         database.executeReadRecord(
             (ORecordId) rid,
             null,
@@ -339,7 +339,7 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
       }
 
       // DELEGATE TO THE STORAGE, NO TOMBSTONES SUPPORT IN TX MODE
-      final ORecord record;
+      final ORecordAbstract record;
       try {
         record =
             database.executeReadRecord(
@@ -373,7 +373,7 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
     return loadRecord(rid, record, fetchPlan, ignoreCache, false, OStorage.LOCKING_STRATEGY.NONE);
   }
 
-  public void deleteRecord(final ORecord iRecord, final OPERATION_MODE iMode) {
+  public void deleteRecord(final ORecordAbstract iRecord, final OPERATION_MODE iMode) {
     try {
       var rid = iRecord.getIdentity();
 
@@ -386,12 +386,12 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
         return;
       }
 
-      Set<ORecord> records = ORecordInternal.getDirtyManager(iRecord).getUpdateRecords();
-      final Set<ORecord> newRecords = ORecordInternal.getDirtyManager(iRecord).getNewRecords();
+      var records = ORecordInternal.getDirtyManager(iRecord).getUpdateRecords();
+      final var newRecords = ORecordInternal.getDirtyManager(iRecord).getNewRecords();
       var recordsMap = new HashMap<>(16);
 
       if (records != null) {
-        for (ORecord rec : records) {
+        for (var rec : records) {
           rec = rec.getRecord();
           var prev = recordsMap.put(rec.getIdentity(), rec);
 
@@ -412,7 +412,7 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
       }
 
       if (newRecords != null) {
-        for (ORecord rec : newRecords) {
+        for (var rec : newRecords) {
           rec = rec.getRecord();
           var prev = recordsMap.put(rec.getIdentity(), rec);
           if (prev != null && prev != rec) {
@@ -438,7 +438,7 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
   }
 
   public ORecord saveRecord(
-      ORecord passedRecord,
+      ORecordAbstract passedRecord,
       final String iClusterName,
       final OPERATION_MODE iMode,
       final boolean iForceCreate,
@@ -461,11 +461,11 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
       boolean originalSaved = false;
       final ODirtyManager dirtyManager = ORecordInternal.getDirtyManager(passedRecord);
       do {
-        final Set<ORecord> newRecord = dirtyManager.getNewRecords();
-        final Set<ORecord> updatedRecord = dirtyManager.getUpdateRecords();
+        final var newRecord = dirtyManager.getNewRecords();
+        final var updatedRecord = dirtyManager.getUpdateRecords();
         dirtyManager.clear();
         if (newRecord != null) {
-          for (ORecord rec : newRecord) {
+          for (ORecordAbstract rec : newRecord) {
             rec = rec.getRecord();
 
             var prev = recordsMap.put(rec.getIdentity(), rec);
@@ -493,7 +493,7 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
           }
         }
         if (updatedRecord != null) {
-          for (ORecord rec : updatedRecord) {
+          for (var rec : updatedRecord) {
             rec = rec.getRecord();
 
             var prev = recordsMap.put(rec.getIdentity(), rec);
@@ -584,7 +584,7 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
     status = iStatus;
   }
 
-  public ORecordOperation addRecord(ORecord iRecord, byte iStatus, String iClusterName) {
+  public ORecordOperation addRecord(ORecordAbstract iRecord, byte iStatus, String iClusterName) {
     changed = true;
     checkTransactionValid();
 
@@ -606,7 +606,7 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
           {
             OIdentifiable res = database.beforeCreateOperations(iRecord, iClusterName);
             if (res != null) {
-              iRecord = (ORecord) res;
+              iRecord = (ORecordAbstract) res;
             }
           }
           break;
@@ -617,7 +617,7 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
           {
             OIdentifiable res = database.beforeUpdateOperations(iRecord, iClusterName);
             if (res != null) {
-              iRecord = (ORecord) res;
+              iRecord = (ORecordAbstract) res;
             }
           }
           break;

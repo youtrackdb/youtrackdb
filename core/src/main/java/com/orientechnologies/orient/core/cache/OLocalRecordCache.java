@@ -25,7 +25,7 @@ import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordVersionHelper;
 
 /**
@@ -63,7 +63,7 @@ public class OLocalRecordCache extends OAbstractRecordCache {
    *
    * @param record record that should be cached
    */
-  public void updateRecord(final ORecord record) {
+  public void updateRecord(final ORecordAbstract record) {
     assert !record.isProxy() && !record.isUnloaded();
     var rid = record.getIdentity();
     if (rid.getClusterId() != excludedCluster
@@ -91,8 +91,8 @@ public class OLocalRecordCache extends OAbstractRecordCache {
    * @param rid unique identifier of record
    * @return record stored in cache if any, otherwise - {@code null}
    */
-  public ORecord findRecord(final ORID rid) {
-    ORecord record;
+  public ORecordAbstract findRecord(final ORID rid) {
+    ORecordAbstract record;
     record = underlying.get(rid);
 
     if (record != null)

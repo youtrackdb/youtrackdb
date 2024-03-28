@@ -113,7 +113,6 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
   private final Map<OPropertyImpl, String> linkedClasses = new HashMap<>();
   private final Map<OClass, List<String>> superClasses = new HashMap<>();
   private OJSONReader jsonReader;
-  private ORecord record;
   private boolean schemaImported = false;
   private int exporterVersion = -1;
   private ORID schemaRecordId;
@@ -1308,7 +1307,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
       value = value.substring(1);
     }
 
-    record = null;
+    ORecord record = null;
 
     // big ridbags (ie. supernodes) sometimes send the system OOM, so they have to be discarded at
     // this stage
@@ -1321,7 +1320,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
         record =
             ORecordSerializerJSON.INSTANCE.fromString(
                 value,
-                record,
+                null,
                 null,
                 null,
                 false,
@@ -1597,8 +1596,6 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
         lastLapRecords = 0;
         involvedClusters.clear();
       }
-
-      record = null;
     }
 
     if (!merge) {

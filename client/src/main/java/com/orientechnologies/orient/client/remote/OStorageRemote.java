@@ -195,8 +195,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-/** This object is bound to each remote ODatabase instances. */
+/**
+ * This object is bound to each remote ODatabase instances.
+ */
 public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStorage {
+
   @Deprecated public static final String PARAM_CONNECTION_STRATEGY = "connectionStrategy";
 
   public static final String DRIVER_NAME = "OrientDB Java";
@@ -270,13 +273,16 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
 
     this.name = normalizeName(name);
 
-    if (OStringSerializerHelper.contains(this.name, ','))
+    if (OStringSerializerHelper.contains(this.name, ',')) {
       throw new IllegalArgumentException("Invalid character in storage name: " + this.name);
+    }
 
     url = buildUrl(hosts.getUrls().toArray(new String[] {}), name);
 
     stateLock = new ReentrantReadWriteLock();
-    if (status != null) this.status = status;
+    if (status != null) {
+      this.status = status;
+    }
 
     configuration = null;
 
@@ -301,18 +307,24 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     if (OStringSerializerHelper.contains(name, '/')) {
       name = name.substring(name.lastIndexOf("/") + 1);
 
-      if (OStringSerializerHelper.contains(name, '\\'))
+      if (OStringSerializerHelper.contains(name, '\\')) {
         return name.substring(name.lastIndexOf("\\") + 1);
-      else return name;
+      } else {
+        return name;
+      }
 
-    } else if (OStringSerializerHelper.contains(name, '\\')) {
-      name = name.substring(name.lastIndexOf("\\") + 1);
-
-      if (OStringSerializerHelper.contains(name, '/'))
-        return name.substring(name.lastIndexOf("/") + 1);
-      else return name;
     } else {
-      return name;
+      if (OStringSerializerHelper.contains(name, '\\')) {
+        name = name.substring(name.lastIndexOf("\\") + 1);
+
+        if (OStringSerializerHelper.contains(name, '/')) {
+          return name.substring(name.lastIndexOf("/") + 1);
+        } else {
+          return name;
+        }
+      } else {
+        return name;
+      }
     }
   }
 
@@ -350,9 +362,12 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
       int retry) {
     final int pMode;
     if (mode == 1 && callback == null)
-      // ASYNCHRONOUS MODE NO ANSWER
+    // ASYNCHRONOUS MODE NO ANSWER
+    {
       pMode = 2;
-    else pMode = mode;
+    } else {
+      pMode = mode;
+    }
     request.setMode((byte) pMode);
     return baseNetworkOperation(
         (network, session) -> {
@@ -379,31 +394,33 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
             }
             ret = response;
             connectionManager.release(network);
-          } else if (pMode == 1) {
-            // ASYNC
-            asynchExecutor.submit(
-                () -> {
-                  try {
-                    try {
-                      beginResponse(network, session);
-                      response.read(network, session);
-                    } finally {
-                      endResponse(network);
-                    }
-                    callback.call(recordId, response);
-                    connectionManager.release(network);
-                  } catch (Exception e) {
-                    connectionManager.remove(network);
-                    OLogManager.instance().error(this, "Exception on async query", e);
-                  } catch (Error e) {
-                    connectionManager.remove(network);
-                    OLogManager.instance().error(this, "Exception on async query", e);
-                    throw e;
-                  }
-                });
           } else {
-            // NO RESPONSE
-            connectionManager.release(network);
+            if (pMode == 1) {
+              // ASYNC
+              asynchExecutor.submit(
+                  () -> {
+                    try {
+                      try {
+                        beginResponse(network, session);
+                        response.read(network, session);
+                      } finally {
+                        endResponse(network);
+                      }
+                      callback.call(recordId, response);
+                      connectionManager.release(network);
+                    } catch (Exception e) {
+                      connectionManager.remove(network);
+                      OLogManager.instance().error(this, "Exception on async query", e);
+                    } catch (Error e) {
+                      connectionManager.remove(network);
+                      OLogManager.instance().error(this, "Exception on async query", e);
+                      throw e;
+                    }
+                  });
+            } else {
+              // NO RESPONSE
+              connectionManager.release(network);
+            }
           }
           return ret;
         },
@@ -432,12 +449,16 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
           int prev = network.getSocketTimeout();
           T response = request.createResponse();
           try {
-            if (timeout > 0) network.setSocketTimeout(timeout);
+            if (timeout > 0) {
+              network.setSocketTimeout(timeout);
+            }
             beginResponse(network, session);
             response.read(network, session);
           } finally {
             endResponse(network);
-            if (timeout > 0) network.setSocketTimeout(prev);
+            if (timeout > 0) {
+              network.setSocketTimeout(prev);
+            }
           }
           connectionManager.release(network);
           return response;
@@ -459,16 +480,19 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   public <T> T baseNetworkOperation(
       final OStorageRemoteOperation<T> operation, final String errorMessage, int retry) {
     OStorageRemoteSession session = getCurrentSession();
-    if (session.commandExecuting)
+    if (session.commandExecuting) {
       throw new ODatabaseException(
           "Cannot execute the request because an asynchronous operation is in progress. Please use"
               + " a different connection");
+    }
 
     String serverUrl = null;
     do {
       OChannelBinaryAsynchClient network = null;
 
-      if (serverUrl == null) serverUrl = getNextAvailableServerURL(false, session);
+      if (serverUrl == null) {
+        serverUrl = getNextAvailableServerURL(false, session);
+      }
 
       do {
         try {
@@ -496,7 +520,9 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
             session.removeServerSession(nodeSession.getServerURL());
           }
           openRemoteDatabase(network);
-          if (!network.tryLock()) continue;
+          if (!network.tryLock()) {
+            continue;
+          }
         }
 
         return operation.execute(network, session);
@@ -547,8 +573,9 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
                 e.getMessage());
         OLogManager.instance().debug(this, "I/O error stack: ", e);
         connectionManager.remove(network);
-        if (--retry <= 0) throw OException.wrapException(new OIOException(e.getMessage()), e);
-        else {
+        if (--retry <= 0) {
+          throw OException.wrapException(new OIOException(e.getMessage()), e);
+        } else {
           try {
             Thread.sleep(connectionRetryDelay);
           } catch (InterruptedException e1) {
@@ -574,7 +601,9 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     return false;
   }
 
-  /** Supported only in embedded storage. Use <code>SELECT FROM metadata:storage</code> instead. */
+  /**
+   * Supported only in embedded storage. Use <code>SELECT FROM metadata:storage</code> instead.
+   */
   public String getCreatedAtVersion() {
     throw new UnsupportedOperationException(
         "Supported only in embedded storage. Use 'SELECT FROM metadata:storage' instead.");
@@ -614,8 +643,9 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
         }
 
         String strategy = conf.getValueAsString(OGlobalConfiguration.CLIENT_CONNECTION_STRATEGY);
-        if (strategy != null)
+        if (strategy != null) {
           connectionStrategy = CONNECTION_STRATEGY.valueOf(strategy.toUpperCase(Locale.ENGLISH));
+        }
 
         openRemoteDatabase();
 
@@ -630,11 +660,13 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     } catch (Exception e) {
       removeUser();
       if (e instanceof RuntimeException)
-        // PASS THROUGH
+      // PASS THROUGH
+      {
         throw (RuntimeException) e;
-      else
+      } else {
         throw OException.wrapException(
             new OStorageException("Cannot open the remote storage: " + name), e);
+      }
     }
   }
 
@@ -667,7 +699,9 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   }
 
   public void close(final boolean iForce) {
-    if (status == STATUS.CLOSED) return;
+    if (status == STATUS.CLOSED) {
+      return;
+    }
 
     final OStorageRemoteSession session = getCurrentSession();
     if (session != null) {
@@ -678,17 +712,25 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
           config = configuration.getContextConfiguration();
         }
         session.closeAllSessions(connectionManager, config);
-        if (!checkForClose(iForce)) return;
+        if (!checkForClose(iForce)) {
+          return;
+        }
       } else {
-        if (!iForce) return;
+        if (!iForce) {
+          return;
+        }
       }
       sessions.remove(session);
-      if (!checkForClose(iForce)) return;
+      if (!checkForClose(iForce)) {
+        return;
+      }
     }
   }
 
   public void shutdown() {
-    if (status == STATUS.CLOSED || status == STATUS.CLOSING) return;
+    if (status == STATUS.CLOSED || status == STATUS.CLOSING) {
+      return;
+    }
 
     // FROM HERE FORWARD COMPLETELY CLOSE THE STORAGE
     for (Entry<Integer, OLiveQueryClientListener> listener : liveQueryListener.entrySet()) {
@@ -698,7 +740,9 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
 
     stateLock.writeLock().lock();
     try {
-      if (status == STATUS.CLOSED) return;
+      if (status == STATUS.CLOSED) {
+        return;
+      }
 
       status = STATUS.CLOSING;
       close(true);
@@ -727,9 +771,13 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   }
 
   private boolean checkForClose(final boolean force) {
-    if (status == STATUS.CLOSED) return false;
+    if (status == STATUS.CLOSED) {
+      return false;
+    }
 
-    if (status == STATUS.CLOSED) return false;
+    if (status == STATUS.CLOSED) {
+      return false;
+    }
 
     final int remainingUsers = getUsers() > 0 ? removeUser() : 0;
 
@@ -745,11 +793,12 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   }
 
   public int removeUser() {
-    if (users.get() < 1)
+    if (users.get() < 1) {
       throw new IllegalStateException(
           "Cannot remove user of the remote storage '"
               + toString()
               + "' because no user is using it");
+    }
 
     return users.decrementAndGet();
   }
@@ -822,7 +871,9 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
       for (Entry<UUID, OBonsaiCollectionPointer> coll : changes.entrySet()) {
         collectionManager.updateCollectionPointer(coll.getKey(), coll.getValue());
       }
-      if (ORecordSerializationContext.getDepth() <= 1) collectionManager.clearPendingCollections();
+      if (ORecordSerializationContext.getDepth() <= 1) {
+        collectionManager.clearPendingCollections();
+      }
     }
   }
 
@@ -842,8 +893,10 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
       final int recordVersion)
       throws ORecordNotFoundException {
     if (getCurrentSession().commandExecuting)
-      // PENDING NETWORK OPERATION, CAN'T EXECUTE IT NOW
+    // PENDING NETWORK OPERATION, CAN'T EXECUTE IT NOW
+    {
       return new OStorageOperationResult<ORawBuffer>(null);
+    }
 
     OReadRecordIfVersionIsNotLatestRequest request =
         new OReadRecordIfVersionIsNotLatestRequest(rid, recordVersion, fetchPlan, ignoreCache);
@@ -868,8 +921,10 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
       final ORecordCallback<ORawBuffer> iCallback) {
 
     if (getCurrentSession().commandExecuting)
-      // PENDING NETWORK OPERATION, CAN'T EXECUTE IT NOW
+    // PENDING NETWORK OPERATION, CAN'T EXECUTE IT NOW
+    {
       return new OStorageOperationResult<ORawBuffer>(null);
+    }
 
     OReadRecordRequest request = new OReadRecordRequest(iIgnoreCache, iRid, iFetchPlan, false);
     OReadRecordResponse response = networkOperation(request, "Error on read record " + iRid);
@@ -948,15 +1003,18 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
       final int iMode,
       final ORecordCallback<Boolean> iCallback) {
     ORecordCallback<ODeleteRecordResponse> realCallback = null;
-    if (iCallback != null)
+    if (iCallback != null) {
       realCallback = (iRID, response) -> iCallback.call(iRID, response.getResult());
+    }
 
     final ODeleteRecordRequest request = new ODeleteRecordRequest(iRid, iVersion);
     final ODeleteRecordResponse response =
         asyncNetworkOperationNoRetry(
             request, iMode, iRid, realCallback, "Error on delete record " + iRid);
     Boolean resDelete = null;
-    if (response != null) resDelete = response.getResult();
+    if (response != null) {
+      resDelete = response.getResult();
+    }
     return new OStorageOperationResult<Boolean>(resDelete);
   }
 
@@ -967,15 +1025,18 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
       final ORecordCallback<Boolean> callback) {
 
     ORecordCallback<OCleanOutRecordResponse> realCallback = null;
-    if (callback != null)
+    if (callback != null) {
       realCallback = (iRID, response) -> callback.call(iRID, response.getResult());
+    }
 
     final OCleanOutRecordRequest request = new OCleanOutRecordRequest(recordVersion, recordId);
     final OCleanOutRecordResponse response =
         asyncNetworkOperationNoRetry(
             request, iMode, recordId, realCallback, "Error on delete record " + recordId);
     Boolean result = null;
-    if (response != null) result = response.getResult();
+    if (response != null) {
+      result = response.getResult();
+    }
     return result != null ? result : false;
   }
 
@@ -1095,7 +1156,9 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     return response.getCount();
   }
 
-  /** Execute the command remotely and get the results back. */
+  /**
+   * Execute the command remotely and get the results back.
+   */
   public Object command(final OCommandRequestText iCommand) {
 
     final boolean live = iCommand instanceof OLiveQuery;
@@ -1382,27 +1445,36 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
       iTx.updateIdentityAfterCommit(created.getCurrentRid(), created.getCreatedRid());
       ORecordOperation rop = iTx.getRecordEntry(created.getCurrentRid());
       if (rop != null) {
-        if (created.getVersion() > rop.getRecord().getVersion() + 1)
+        if (created.getVersion() > rop.getRecord().getVersion() + 1) {
           // IN CASE OF REMOTE CONFLICT STRATEGY FORCE UNLOAD DUE TO INVALID CONTENT
-          rop.getRecord().unload();
+          var record = rop.getRecord();
+          ORecordInternal.unsetDirty(record);
+          record.unload();
+        }
         ORecordInternal.setVersion(rop.getRecord(), created.getVersion());
       }
     }
     for (OCommit37Response.OUpdatedRecordResponse updated : response.getUpdated()) {
       ORecordOperation rop = iTx.getRecordEntry(updated.getRid());
       if (rop != null) {
-        if (updated.getVersion() > rop.getRecord().getVersion() + 1)
+        if (updated.getVersion() > rop.getRecord().getVersion() + 1) {
           // IN CASE OF REMOTE CONFLICT STRATEGY FORCE UNLOAD DUE TO INVALID CONTENT
-          rop.getRecord().unload();
+          var record = rop.getRecord();
+          ORecordInternal.unsetDirty(record);
+          record.unload();
+        }
+
         ORecordInternal.setVersion(rop.getRecord(), updated.getVersion());
       }
     }
+
     updateCollectionsFromChanges(
         ((OTransactionOptimistic) iTx).getDatabase().getSbTreeCollectionManager(),
         response.getCollectionChanges());
     // SET ALL THE RECORDS AS UNDIRTY
-    for (ORecordOperation txEntry : iTx.getRecordOperations())
+    for (ORecordOperation txEntry : iTx.getRecordOperations()) {
       ORecordInternal.unsetDirty(txEntry.getRecord());
+    }
 
     // UPDATE THE CACHE ONLY IF THE ITERATOR ALLOWS IT.
     OTransactionAbstract.updateCacheFromEntries(
@@ -1428,12 +1500,18 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     stateLock.readLock().lock();
     try {
 
-      if (iClusterName == null) return -1;
+      if (iClusterName == null) {
+        return -1;
+      }
 
-      if (Character.isDigit(iClusterName.charAt(0))) return Integer.parseInt(iClusterName);
+      if (Character.isDigit(iClusterName.charAt(0))) {
+        return Integer.parseInt(iClusterName);
+      }
 
       final OCluster cluster = clusterMap.get(iClusterName.toLowerCase(Locale.ENGLISH));
-      if (cluster == null) return -1;
+      if (cluster == null) {
+        return -1;
+      }
 
       return cluster.getId();
     } finally {
@@ -1513,7 +1591,9 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
 
     ODropClusterResponse response =
         networkOperationNoRetry(request, "Error on removing of cluster");
-    if (response.getResult()) removeClusterFromConfiguration(iClusterId);
+    if (response.getResult()) {
+      removeClusterFromConfiguration(iClusterId);
+    }
     return response.getResult();
   }
 
@@ -1523,8 +1603,10 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     try {
 
       if (clusterId == ORID.CLUSTER_ID_INVALID)
-        // GET THE DEFAULT CLUSTER
+      // GET THE DEFAULT CLUSTER
+      {
         clusterId = defaultClusterId;
+      }
 
       if (clusterId >= clusters.length) {
         stateLock.readLock().unlock();
@@ -1570,7 +1652,9 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     stateLock.readLock().lock();
     try {
 
-      if (iClusterId >= clusters.length) return null;
+      if (iClusterId >= clusters.length) {
+        return null;
+      }
 
       final OCluster cluster = clusters[iClusterId];
       return cluster != null ? cluster.getName() : null;
@@ -1608,15 +1692,21 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     return clusterConfiguration;
   }
 
-  /** Ends the request and unlock the write lock */
+  /**
+   * Ends the request and unlock the write lock
+   */
   public void endRequest(final OChannelBinaryAsynchClient iNetwork) throws IOException {
-    if (iNetwork == null) return;
+    if (iNetwork == null) {
+      return;
+    }
 
     iNetwork.flush();
     iNetwork.releaseWriteLock();
   }
 
-  /** End response reached: release the channel in the pool to being reused */
+  /**
+   * End response reached: release the channel in the pool to being reused
+   */
   public void endResponse(final OChannelBinaryAsynchClient iNetwork) throws IOException {
     iNetwork.endResponse();
   }
@@ -1656,7 +1746,9 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
 
   public String getUserName() {
     final OStorageRemoteSession session = getCurrentSession();
-    if (session == null) return null;
+    if (session == null) {
+      return null;
+    }
     return session.connectionUserName;
   }
 
@@ -1931,8 +2023,10 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   protected String useNewServerURL(final String iUrl) {
     int pos = iUrl.indexOf('/');
     if (pos >= iUrl.length() - 1)
-      // IGNORE ENDING /
+    // IGNORE ENDING /
+    {
       pos = -1;
+    }
 
     final String url = pos > -1 ? iUrl.substring(0, pos) : iUrl;
     String newUrl = serverURLs.removeAndGet(url);
@@ -1944,7 +2038,9 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     return newUrl;
   }
 
-  /** Parse the URLs. Multiple URLs must be separated by semicolon (;) */
+  /**
+   * Parse the URLs. Multiple URLs must be separated by semicolon (;)
+   */
   protected void parseServerURLs() {
     this.name = serverURLs.parseServerUrls(this.url, getClientConfiguration());
   }
@@ -1967,7 +2063,9 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
       boolean iIsConnectOperation, OStorageRemoteSession session) {
 
     OContextConfiguration config = null;
-    if (configuration != null) config = configuration.getContextConfiguration();
+    if (configuration != null) {
+      config = configuration.getContextConfiguration();
+    }
     return serverURLs.getNextAvailableServerURL(
         iIsConnectOperation, session, config, connectionStrategy);
   }
@@ -2045,10 +2143,14 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   }
 
   public void updateStorageConfiguration(OStorageConfiguration storageConfiguration) {
-    if (status != STATUS.OPEN) return;
+    if (status != STATUS.OPEN) {
+      return;
+    }
     stateLock.writeLock().lock();
     try {
-      if (status != STATUS.OPEN) return;
+      if (status != STATUS.OPEN) {
+        return;
+      }
       this.configuration = storageConfiguration;
       final List<OStorageClusterConfiguration> configClusters = storageConfiguration.getClusters();
       OCluster[] clusters = new OCluster[configClusters.size()];
@@ -2060,7 +2162,9 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
           if (clusterName != null) {
             clusterName = clusterName.toLowerCase(Locale.ENGLISH);
             cluster.configure(clusterId, clusterName);
-            if (clusterId >= clusters.length) clusters = Arrays.copyOf(clusters, clusterId + 1);
+            if (clusterId >= clusters.length) {
+              clusters = Arrays.copyOf(clusters, clusterId + 1);
+            }
             clusters[clusterId] = cluster;
           }
         }
@@ -2069,11 +2173,14 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
       this.clusters = clusters;
       clusterMap.clear();
       for (int i = 0; i < clusters.length; ++i) {
-        if (clusters[i] != null) clusterMap.put(clusters[i].getName(), clusters[i]);
+        if (clusters[i] != null) {
+          clusterMap.put(clusters[i].getName(), clusters[i]);
+        }
       }
       final OCluster defaultCluster = clusterMap.get(OStorage.CLUSTER_DEFAULT_NAME);
-      if (defaultCluster != null)
+      if (defaultCluster != null) {
         defaultClusterId = clusterMap.get(OStorage.CLUSTER_DEFAULT_NAME).getId();
+      }
     } finally {
       stateLock.writeLock().unlock();
     }
@@ -2081,10 +2188,13 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
 
   protected OStorageRemoteSession getCurrentSession() {
     ODatabaseDocumentInternal db = null;
-    if (ODatabaseRecordThreadLocal.instance() != null)
+    if (ODatabaseRecordThreadLocal.instance() != null) {
       db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    }
     ODatabaseDocumentInternal internal = ODatabaseDocumentTxInternal.getInternal(db);
-    if (internal == null || !(internal instanceof ODatabaseDocumentRemote)) return null;
+    if (internal == null || !(internal instanceof ODatabaseDocumentRemote)) {
+      return null;
+    }
     ODatabaseDocumentRemote remote = (ODatabaseDocumentRemote) internal;
     OStorageRemoteSession session = remote.getSessionMetadata();
     if (session == null) {
@@ -2096,17 +2206,22 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   }
 
   public boolean isClosed() {
-    if (status == STATUS.CLOSED) return true;
+    if (status == STATUS.CLOSED) {
+      return true;
+    }
     final OStorageRemoteSession session = getCurrentSession();
-    if (session == null) return false;
+    if (session == null) {
+      return false;
+    }
     return session.isClosed();
   }
 
   public OStorageRemote copy(
       final ODatabaseDocumentRemote source, final ODatabaseDocumentRemote dest) {
     ODatabaseDocumentInternal origin = null;
-    if (ODatabaseRecordThreadLocal.instance() != null)
+    if (ODatabaseRecordThreadLocal.instance() != null) {
       origin = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    }
 
     origin = ODatabaseDocumentTxInternal.getInternal(origin);
 
@@ -2159,7 +2274,9 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
         final OClusterRemote cluster = new OClusterRemote();
         cluster.configure(clusterId, iClusterName.toLowerCase(Locale.ENGLISH));
 
-        if (clusters.length <= clusterId) clusters = Arrays.copyOf(clusters, clusterId + 1);
+        if (clusters.length <= clusterId) {
+          clusters = Arrays.copyOf(clusters, clusterId + 1);
+        }
         clusters[cluster.getId()] = cluster;
         clusterMap.put(cluster.getName().toLowerCase(Locale.ENGLISH), cluster);
       }

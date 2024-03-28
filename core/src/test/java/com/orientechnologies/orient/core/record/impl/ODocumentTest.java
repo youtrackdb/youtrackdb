@@ -56,6 +56,7 @@ public class ODocumentTest {
 
     assertNotNull(doc2.getOwner());
 
+    ORecordInternal.unsetDirty(doc2);
     doc1.copyTo(doc2);
 
     assertEquals(doc2.<Object>field("integer2"), null);

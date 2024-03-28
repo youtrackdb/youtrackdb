@@ -22,6 +22,7 @@ package com.orientechnologies.orient.core.cache;
 
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import java.util.function.BiConsumer;
 
@@ -30,7 +31,7 @@ import java.util.function.BiConsumer;
  *
  * @author Luca Garulli (l.garulli--(at)--orientdb.com) (l.garulli-at-orientdb.com)
  */
-public class ORecordCacheWeakRefs extends OAbstractMapCache<ORIDsWeakValuesHashMap<ORecord>>
+public class ORecordCacheWeakRefs extends OAbstractMapCache<ORIDsWeakValuesHashMap<ORecordAbstract>>
     implements ORecordCache {
   private static final BiConsumer<ORID, ORecord> UNLOAD_RECORDS_CONSUMER =
       (rid, record) -> {
@@ -43,20 +44,20 @@ public class ORecordCacheWeakRefs extends OAbstractMapCache<ORIDsWeakValuesHashM
   }
 
   @Override
-  public ORecord get(final ORID rid) {
+  public ORecordAbstract get(final ORID rid) {
     if (!isEnabled()) return null;
 
     return cache.get(rid);
   }
 
   @Override
-  public ORecord put(final ORecord record) {
+  public ORecordAbstract put(final ORecordAbstract record) {
     if (!isEnabled()) return null;
     return cache.put(record.getIdentity(), record);
   }
 
   @Override
-  public ORecord remove(final ORID rid) {
+  public ORecordAbstract remove(final ORID rid) {
     if (!isEnabled()) return null;
     return cache.remove(rid);
   }

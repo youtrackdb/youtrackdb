@@ -26,6 +26,7 @@ import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
+import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.OEmptyRecordId;
 import com.orientechnologies.orient.core.id.OImmutableRecordId;
@@ -44,12 +45,14 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 import java.util.WeakHashMap;
+import javax.annotation.Nonnull;
 
-@SuppressWarnings({"unchecked", "serial"})
+@SuppressWarnings({"unchecked"})
 public abstract class ORecordAbstract implements ORecord {
+
   public static final String BASE_FORMAT =
       "rid,version,class,type,attribSameRow,keepTypes,alwaysFetchEmbedded";
-  public static final String DEFAULT_FORMAT = BASE_FORMAT + "," + "fetchPlan:*:0";
+  private static final String DEFAULT_FORMAT = BASE_FORMAT + "," + "fetchPlan:*:0";
   public static final String OLD_FORMAT_WITH_LATE_TYPES = BASE_FORMAT + "," + "fetchPlan:*:0";
   // TODO: take new format
   // public static final String DEFAULT_FORMAT = OLD_FORMAT_WITH_LATE_TYPES;
@@ -70,7 +73,8 @@ public abstract class ORecordAbstract implements ORecord {
 
   private long loadingCounter;
 
-  public ORecordAbstract() {}
+  public ORecordAbstract() {
+  }
 
   public void convertToProxyRecord(ORecordAbstract primaryRecord) {
     if (dirty) {
@@ -126,7 +130,7 @@ public abstract class ORecordAbstract implements ORecord {
     return null;
   }
 
-  public ORecord getRecord() {
+  public ORecordAbstract getRecord() {
     checkForLoading();
     if (primaryRecord != null) {
       return primaryRecord.getRecord();
@@ -167,7 +171,9 @@ public abstract class ORecordAbstract implements ORecord {
 
     source = null;
     setDirty();
-    if (recordId != null) recordId.reset();
+    if (recordId != null) {
+      recordId.reset();
+    }
 
     return this;
   }
@@ -178,7 +184,9 @@ public abstract class ORecordAbstract implements ORecord {
       return primaryRecord.toStream();
     }
 
-    if (source == null) source = recordFormat.toStream(this);
+    if (source == null) {
+      source = recordFormat.toStream(this);
+    }
 
     return source;
   }
@@ -189,7 +197,10 @@ public abstract class ORecordAbstract implements ORecord {
       return primaryRecord;
     }
 
-    dirty = false;
+    if (dirty) {
+      throw new ODatabaseException("Cannot call fromStream() on dirty records");
+    }
+
     contentChanged = false;
     dirtyManager = null;
     source = iRecordBuffer;
@@ -205,7 +216,10 @@ public abstract class ORecordAbstract implements ORecord {
       return primaryRecord;
     }
 
-    dirty = false;
+    if (dirty) {
+      throw new ODatabaseException("Cannot call fromStream() on dirty records");
+    }
+
     contentChanged = false;
     dirtyManager = null;
     source = iRecordBuffer;
@@ -304,7 +318,7 @@ public abstract class ORecordAbstract implements ORecord {
   public final <RET extends ORecord> RET fromJSON(final InputStream iContentResult)
       throws IOException {
     if (primaryRecord != null) {
-      primaryRecord = (ORecordAbstract) primaryRecord.getRecord();
+      primaryRecord = primaryRecord.getRecord();
       primaryRecord.fromJSON(iContentResult);
       return (RET) primaryRecord;
     }
@@ -323,7 +337,7 @@ public abstract class ORecordAbstract implements ORecord {
   public String toJSON() {
     checkForLoading();
     if (primaryRecord != null) {
-      primaryRecord = (ORecordAbstract) primaryRecord.getRecord();
+      primaryRecord = primaryRecord.getRecord();
       return primaryRecord.toJSON();
     }
 
@@ -333,7 +347,7 @@ public abstract class ORecordAbstract implements ORecord {
   public String toJSON(final String format) {
     checkForLoading();
     if (primaryRecord != null) {
-      primaryRecord = (ORecordAbstract) primaryRecord.getRecord();
+      primaryRecord = primaryRecord.getRecord();
       return primaryRecord.toJSON(format);
     }
 
@@ -345,7 +359,7 @@ public abstract class ORecordAbstract implements ORecord {
   public void toJSON(final String format, final OutputStream stream) throws IOException {
     checkForLoading();
     if (primaryRecord != null) {
-      primaryRecord = (ORecordAbstract) primaryRecord.getRecord();
+      primaryRecord = primaryRecord.getRecord();
       primaryRecord.toJSON(format, stream);
       return;
     }
@@ -356,7 +370,7 @@ public abstract class ORecordAbstract implements ORecord {
   public void toJSON(final OutputStream stream) throws IOException {
     checkForLoading();
     if (primaryRecord != null) {
-      primaryRecord = (ORecordAbstract) primaryRecord.getRecord();
+      primaryRecord = primaryRecord.getRecord();
       primaryRecord.toJSON(stream);
       return;
     }
@@ -368,7 +382,7 @@ public abstract class ORecordAbstract implements ORecord {
   public String toString() {
     checkForLoading();
     if (primaryRecord != null) {
-      primaryRecord = (ORecordAbstract) primaryRecord.getRecord();
+      primaryRecord = primaryRecord.getRecord();
       return "Proxy for { " + primaryRecord + " }";
     }
 
@@ -378,10 +392,9 @@ public abstract class ORecordAbstract implements ORecord {
         + recordVersion;
   }
 
-  public int getVersion() {
-    checkForLoading();
+  public final int getVersion() {
     if (primaryRecord != null) {
-      primaryRecord = (ORecordAbstract) primaryRecord.getRecord();
+      primaryRecord = primaryRecord.getRecord();
       return primaryRecord.getVersion();
     }
 
@@ -389,10 +402,9 @@ public abstract class ORecordAbstract implements ORecord {
     return recordVersion;
   }
 
-  protected void setVersion(final int iVersion) {
-    checkForLoading();
+  protected final void setVersion(final int iVersion) {
     if (primaryRecord != null) {
-      primaryRecord = (ORecordAbstract) primaryRecord.getRecord();
+      primaryRecord = primaryRecord.getRecord();
       primaryRecord.setVersion(iVersion);
       return;
     }
@@ -402,7 +414,7 @@ public abstract class ORecordAbstract implements ORecord {
 
   public ORecordAbstract unload() {
     if (primaryRecord != null) {
-      primaryRecord = (ORecordAbstract) primaryRecord.getRecord();
+      primaryRecord = primaryRecord.getRecord();
       primaryRecord.unload();
       return primaryRecord;
     }
@@ -427,13 +439,14 @@ public abstract class ORecordAbstract implements ORecord {
 
   public ORecord load() {
     if (primaryRecord != null) {
-      primaryRecord = (ORecordAbstract) primaryRecord.getRecord();
+      primaryRecord = primaryRecord.getRecord();
       return primaryRecord.load();
     }
 
-    if (!getIdentity().isValid())
+    if (!getIdentity().isValid()) {
       throw new ORecordNotFoundException(
           getIdentity(), "The record has no id, probably it's new or transient yet ");
+    }
 
     final ORecord result = getDatabase().load(this);
 
@@ -448,7 +461,7 @@ public abstract class ORecordAbstract implements ORecord {
     return ODatabaseRecordThreadLocal.instance().get();
   }
 
-  public ODatabaseDocumentInternal getDatabaseIfDefined() {
+  public static ODatabaseDocumentInternal getDatabaseIfDefined() {
     return ODatabaseRecordThreadLocal.instance().getIfDefined();
   }
 
@@ -484,13 +497,14 @@ public abstract class ORecordAbstract implements ORecord {
       throws ORecordNotFoundException {
     if (primaryRecord != null) {
       primaryRecord.reload(fetchPlan, ignoreCache, force);
-      primaryRecord = (ORecordAbstract) primaryRecord.getRecord();
+      primaryRecord = primaryRecord.getRecord();
       return primaryRecord;
     }
 
-    if (!getIdentity().isValid())
+    if (!getIdentity().isValid()) {
       throw new ORecordNotFoundException(
           getIdentity(), "The record has no id. It is probably new or still transient");
+    }
 
     try {
       getDatabase().reload(this, fetchPlan, ignoreCache, force);
@@ -509,7 +523,7 @@ public abstract class ORecordAbstract implements ORecord {
 
   public ORecordAbstract save() {
     if (primaryRecord != null) {
-      primaryRecord = (ORecordAbstract) primaryRecord.getRecord();
+      primaryRecord = primaryRecord.getRecord();
       return primaryRecord.save();
     }
 
@@ -518,7 +532,7 @@ public abstract class ORecordAbstract implements ORecord {
 
   public ORecordAbstract save(final String iClusterName) {
     if (primaryRecord != null) {
-      primaryRecord = (ORecordAbstract) primaryRecord.getRecord();
+      primaryRecord = primaryRecord.getRecord();
       return primaryRecord.save(iClusterName);
     }
 
@@ -527,7 +541,7 @@ public abstract class ORecordAbstract implements ORecord {
 
   public ORecordAbstract save(boolean forceCreate) {
     if (primaryRecord != null) {
-      primaryRecord = (ORecordAbstract) primaryRecord.getRecord();
+      primaryRecord = primaryRecord.getRecord();
       return primaryRecord.save(forceCreate);
     }
 
@@ -537,7 +551,7 @@ public abstract class ORecordAbstract implements ORecord {
 
   public ORecordAbstract save(String iClusterName, boolean forceCreate) {
     if (primaryRecord != null) {
-      primaryRecord = (ORecordAbstract) primaryRecord.getRecord();
+      primaryRecord = primaryRecord.getRecord();
       return primaryRecord.save(iClusterName, forceCreate);
     }
 
@@ -548,10 +562,11 @@ public abstract class ORecordAbstract implements ORecord {
   public ORecordAbstract delete() {
     checkForLoading();
     if (primaryRecord != null) {
-      primaryRecord = (ORecordAbstract) primaryRecord.getRecord();
+      primaryRecord = primaryRecord.getRecord();
       return primaryRecord.delete();
     }
 
+    //noinspection resource
     getDatabase().delete(this);
     return this;
   }
@@ -559,7 +574,7 @@ public abstract class ORecordAbstract implements ORecord {
   public int getSize() {
     checkForLoading();
     if (primaryRecord != null) {
-      primaryRecord = (ORecordAbstract) primaryRecord.getRecord();
+      primaryRecord = primaryRecord.getRecord();
       return primaryRecord.getSize();
     }
 
@@ -570,11 +585,12 @@ public abstract class ORecordAbstract implements ORecord {
   public void lock(final boolean iExclusive) {
     checkForLoading();
     if (primaryRecord != null) {
-      primaryRecord = (ORecordAbstract) primaryRecord.getRecord();
+      primaryRecord = primaryRecord.getRecord();
       primaryRecord.lock(iExclusive);
       return;
     }
 
+    //noinspection deprecation
     ODatabaseRecordThreadLocal.instance()
         .get()
         .getTransaction()
@@ -589,7 +605,7 @@ public abstract class ORecordAbstract implements ORecord {
   public boolean isLocked() {
     checkForLoading();
     if (primaryRecord != null) {
-      primaryRecord = (ORecordAbstract) primaryRecord.getRecord();
+      primaryRecord = primaryRecord.getRecord();
       return primaryRecord.isLocked();
     }
 
@@ -600,10 +616,11 @@ public abstract class ORecordAbstract implements ORecord {
   public OStorage.LOCKING_STRATEGY lockingStrategy() {
     checkForLoading();
     if (primaryRecord != null) {
-      primaryRecord = (ORecordAbstract) primaryRecord.getRecord();
+      primaryRecord = primaryRecord.getRecord();
       return primaryRecord.lockingStrategy();
     }
 
+    //noinspection deprecation
     return ODatabaseRecordThreadLocal.instance().get().getTransaction().lockingStrategy(this);
   }
 
@@ -611,11 +628,12 @@ public abstract class ORecordAbstract implements ORecord {
   public void unlock() {
     checkForLoading();
     if (primaryRecord != null) {
-      primaryRecord = (ORecordAbstract) primaryRecord.getRecord();
+      primaryRecord = primaryRecord.getRecord();
       primaryRecord.unlock();
       return;
     }
 
+    //noinspection deprecation
     ODatabaseRecordThreadLocal.instance().get().getTransaction().unlockRecord(this);
   }
 
@@ -623,7 +641,7 @@ public abstract class ORecordAbstract implements ORecord {
   public int hashCode() {
     checkForLoading();
     if (primaryRecord != null) {
-      primaryRecord = (ORecordAbstract) primaryRecord.getRecord();
+      primaryRecord = primaryRecord.getRecord();
       return primaryRecord.hashCode();
     }
 
@@ -634,14 +652,20 @@ public abstract class ORecordAbstract implements ORecord {
   public boolean equals(final Object obj) {
     checkForLoading();
     if (primaryRecord != null) {
-      primaryRecord = (ORecordAbstract) primaryRecord.getRecord();
+      primaryRecord = primaryRecord.getRecord();
       return primaryRecord.equals(obj);
     }
 
-    if (this == obj) return true;
-    if (obj == null) return false;
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
 
-    if (obj instanceof OIdentifiable) return recordId.equals(((OIdentifiable) obj).getIdentity());
+    if (obj instanceof OIdentifiable) {
+      return recordId.equals(((OIdentifiable) obj).getIdentity());
+    }
 
     return false;
   }
@@ -649,24 +673,26 @@ public abstract class ORecordAbstract implements ORecord {
   public int compare(final OIdentifiable iFirst, final OIdentifiable iSecond) {
     checkForLoading();
     if (primaryRecord != null) {
-      primaryRecord = (ORecordAbstract) primaryRecord.getRecord();
+      primaryRecord = primaryRecord.getRecord();
       return primaryRecord.compare(iFirst, iSecond);
     }
 
-    if (iFirst == null || iSecond == null) return -1;
+    if (iFirst == null || iSecond == null) {
+      return -1;
+    }
     return iFirst.compareTo(iSecond);
   }
 
-  public int compareTo(final OIdentifiable iOther) {
+  public int compareTo(@Nonnull final OIdentifiable iOther) {
     checkForLoading();
     if (primaryRecord != null) {
-      primaryRecord = (ORecordAbstract) primaryRecord.getRecord();
+      primaryRecord = primaryRecord.getRecord();
       return primaryRecord.compareTo(iOther);
     }
 
-    if (iOther == null) return 1;
-
-    if (recordId == null) return iOther.getIdentity() == null ? 0 : 1;
+    if (recordId == null) {
+      return iOther.getIdentity() == null ? 0 : 1;
+    }
 
     return recordId.compareTo(iOther.getIdentity());
   }
@@ -674,7 +700,7 @@ public abstract class ORecordAbstract implements ORecord {
   public ORecordElement.STATUS getInternalStatus() {
     checkForLoading();
     if (primaryRecord != null) {
-      primaryRecord = (ORecordAbstract) primaryRecord.getRecord();
+      primaryRecord = primaryRecord.getRecord();
       return primaryRecord.getInternalStatus();
     }
 
@@ -685,7 +711,7 @@ public abstract class ORecordAbstract implements ORecord {
   public boolean exists() {
     checkForLoading();
     if (primaryRecord != null) {
-      primaryRecord = (ORecordAbstract) primaryRecord.getRecord();
+      primaryRecord = primaryRecord.getRecord();
       return primaryRecord.exists();
     }
 
@@ -694,7 +720,7 @@ public abstract class ORecordAbstract implements ORecord {
 
   public void setInternalStatus(final ORecordElement.STATUS iStatus) {
     if (primaryRecord != null) {
-      primaryRecord = (ORecordAbstract) primaryRecord.getRecord();
+      primaryRecord = primaryRecord.getRecord();
       primaryRecord.setInternalStatus(iStatus);
       return;
     }
@@ -705,8 +731,12 @@ public abstract class ORecordAbstract implements ORecord {
   public ORecordAbstract copyTo(final ORecordAbstract cloned) {
     checkForLoading();
     if (primaryRecord != null) {
-      primaryRecord = (ORecordAbstract) primaryRecord.getRecord();
+      primaryRecord = primaryRecord.getRecord();
       return primaryRecord.copyTo(cloned);
+    }
+
+    if (cloned.dirty) {
+      throw new ODatabaseException("Cannot copy to dirty records");
     }
 
     cloned.source = source;
@@ -718,6 +748,7 @@ public abstract class ORecordAbstract implements ORecord {
     cloned.dirty = false;
     cloned.contentChanged = false;
     cloned.dirtyManager = null;
+
     return cloned;
   }
 
@@ -727,15 +758,25 @@ public abstract class ORecordAbstract implements ORecord {
       return primaryRecord.fill(iRid, iVersion, iBuffer, iDirty);
     }
 
+    if (dirty) {
+      throw new ODatabaseException("Cannot call fill() on dirty records");
+    }
+
     recordId.setClusterId(iRid.getClusterId());
     recordId.setClusterPosition(iRid.getClusterPosition());
     recordVersion = iVersion;
     status = ORecordElement.STATUS.LOADED;
     source = iBuffer;
     size = iBuffer != null ? iBuffer.length : 0;
+    dirtyManager = null;
+
     if (source != null && source.length > 0) {
       dirty = iDirty;
       contentChanged = iDirty;
+    }
+
+    if (dirty) {
+      getDirtyManager().setDirty(this);
     }
 
     return this;
@@ -751,30 +792,39 @@ public abstract class ORecordAbstract implements ORecord {
       return primaryRecord.fill(iRid, iVersion, iBuffer, iDirty, db);
     }
 
+    if (dirty) {
+      throw new ODatabaseException("Cannot call fill() on dirty records");
+    }
+
     recordId.setClusterId(iRid.getClusterId());
     recordId.setClusterPosition(iRid.getClusterPosition());
     recordVersion = iVersion;
     status = ORecordElement.STATUS.LOADED;
     source = iBuffer;
     size = iBuffer != null ? iBuffer.length : 0;
+    dirtyManager = null;
+
     if (source != null && source.length > 0) {
       dirty = iDirty;
       contentChanged = iDirty;
     }
 
+    if (dirty) {
+      getDirtyManager().setDirty(this);
+    }
+
     return this;
   }
 
-  protected ORecordAbstract setIdentity(final int iClusterId, final long iClusterPosition) {
-    checkForLoading();
+  protected final ORecordAbstract setIdentity(final int iClusterId, final long iClusterPosition) {
     if (primaryRecord != null) {
-      primaryRecord = (ORecordAbstract) primaryRecord.getRecord();
+      primaryRecord = primaryRecord.getRecord();
       return primaryRecord.setIdentity(iClusterId, iClusterPosition);
     }
 
-    if (recordId == null || recordId == OImmutableRecordId.EMPTY_RECORD_ID)
+    if (recordId == null || recordId == OImmutableRecordId.EMPTY_RECORD_ID) {
       recordId = new ORecordId(iClusterId, iClusterPosition);
-    else {
+    } else {
       recordId.setClusterId(iClusterId);
       recordId.setClusterPosition(iClusterPosition);
     }
@@ -783,42 +833,45 @@ public abstract class ORecordAbstract implements ORecord {
 
   protected void unsetDirty() {
     if (primaryRecord != null) {
-      primaryRecord = (ORecordAbstract) primaryRecord.getRecord();
+      primaryRecord = primaryRecord.getRecord();
       primaryRecord.unsetDirty();
       return;
     }
 
     contentChanged = false;
     dirty = false;
+    dirtyManager = null;
   }
 
   protected abstract byte getRecordType();
 
-  protected void onBeforeIdentityChanged() {
+  void onBeforeIdentityChanged() {
     checkForLoading();
     if (primaryRecord != null) {
-      primaryRecord = (ORecordAbstract) primaryRecord.getRecord();
+      primaryRecord = primaryRecord.getRecord();
       primaryRecord.onBeforeIdentityChanged();
       return;
     }
 
     if (newIdentityChangeListeners != null) {
-      for (OIdentityChangeListener changeListener : newIdentityChangeListeners)
+      for (OIdentityChangeListener changeListener : newIdentityChangeListeners) {
         changeListener.onBeforeIdentityChange(this);
+      }
     }
   }
 
-  protected void onAfterIdentityChanged() {
+  void onAfterIdentityChanged() {
     checkForLoading();
     if (primaryRecord != null) {
-      primaryRecord = (ORecordAbstract) primaryRecord.getRecord();
+      primaryRecord = primaryRecord.getRecord();
       primaryRecord.onAfterIdentityChanged();
       return;
     }
 
     if (newIdentityChangeListeners != null) {
-      for (OIdentityChangeListener changeListener : newIdentityChangeListeners)
+      for (OIdentityChangeListener changeListener : newIdentityChangeListeners) {
         changeListener.onAfterIdentityChange(this);
+      }
     }
   }
 
@@ -826,29 +879,31 @@ public abstract class ORecordAbstract implements ORecord {
     return ODatabaseRecordThreadLocal.instance().getIfDefined();
   }
 
-  protected void addIdentityChangeListener(OIdentityChangeListener identityChangeListener) {
+  void addIdentityChangeListener(OIdentityChangeListener identityChangeListener) {
     checkForLoading();
     if (primaryRecord != null) {
-      primaryRecord = (ORecordAbstract) primaryRecord.getRecord();
+      primaryRecord = primaryRecord.getRecord();
       primaryRecord.addIdentityChangeListener(identityChangeListener);
       return;
     }
 
-    if (newIdentityChangeListeners == null)
+    if (newIdentityChangeListeners == null) {
       newIdentityChangeListeners = Collections.newSetFromMap(new WeakHashMap<>());
+    }
     newIdentityChangeListeners.add(identityChangeListener);
   }
 
-  protected void removeIdentityChangeListener(OIdentityChangeListener identityChangeListener) {
+  void removeIdentityChangeListener(OIdentityChangeListener identityChangeListener) {
     checkForLoading();
     if (primaryRecord != null) {
-      primaryRecord = (ORecordAbstract) primaryRecord.getRecord();
+      primaryRecord = primaryRecord.getRecord();
       primaryRecord.removeIdentityChangeListener(identityChangeListener);
       return;
     }
 
-    if (newIdentityChangeListeners != null)
+    if (newIdentityChangeListeners != null) {
       newIdentityChangeListeners.remove(identityChangeListener);
+    }
   }
 
   protected void setup(ODatabaseDocumentInternal db) {
@@ -866,7 +921,7 @@ public abstract class ORecordAbstract implements ORecord {
   protected void checkForLoading() {
     if (primaryRecord != null) {
       primaryRecord.checkForLoading();
-      primaryRecord = (ORecordAbstract) primaryRecord.getRecord();
+      primaryRecord = primaryRecord.getRecord();
       return;
     }
 
@@ -936,12 +991,14 @@ public abstract class ORecordAbstract implements ORecord {
 
     if (this.dirtyManager == null) {
       this.dirtyManager = new ODirtyManager();
-      if (this.getIdentity().isNew() && getOwner() == null) this.dirtyManager.setDirty(this);
+      if (this.getIdentity().isNew() && getOwner() == null) {
+        this.dirtyManager.setDirty(this);
+      }
     }
     return this.dirtyManager;
   }
 
-  protected void setDirtyManager(ODirtyManager dirtyManager) {
+  void setDirtyManager(ODirtyManager dirtyManager) {
     checkForLoading();
     if (primaryRecord != null) {
       primaryRecord.setDirtyManager(dirtyManager);
@@ -952,8 +1009,9 @@ public abstract class ORecordAbstract implements ORecord {
       dirtyManager.merge(this.dirtyManager);
     }
     this.dirtyManager = dirtyManager;
-    if (this.getIdentity().isNew() && getOwner() == null && this.dirtyManager != null)
+    if (this.getIdentity().isNew() && getOwner() == null && this.dirtyManager != null) {
       this.dirtyManager.setDirty(this);
+    }
   }
 
   protected void track(OIdentifiable id) {
@@ -967,7 +1025,7 @@ public abstract class ORecordAbstract implements ORecord {
 
   protected void unTrack(OIdentifiable id) {
     if (primaryRecord != null) {
-      primaryRecord = (ORecordAbstract) primaryRecord.getRecord();
+      primaryRecord = primaryRecord.getRecord();
       primaryRecord.unTrack(id);
       return;
     }

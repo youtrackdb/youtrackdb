@@ -4968,12 +4968,13 @@ public abstract class OAbstractPaginatedStorage
   private OStorageOperationResult<OPhysicalPosition> doCreateRecord(
       final OAtomicOperation atomicOperation,
       final ORecordId rid,
-      final byte[] content,
+      @Nonnull final byte[] content,
       int recordVersion,
       final byte recordType,
       final ORecordCallback<Long> callback,
       final OCluster cluster,
       final OPhysicalPosition allocated) {
+    //noinspection ConstantValue
     if (content == null) {
       throw new IllegalArgumentException("Record is null");
     }

@@ -231,7 +231,7 @@ public class OTransactionNoTx extends OTransactionAbstract {
    * @param iRecordUpdatedCallback
    */
   public ORecord saveRecord(
-      final ORecord iRecord,
+      final ORecordAbstract iRecord,
       final String iClusterName,
       final OPERATION_MODE iMode,
       boolean iForceCreate,
@@ -273,7 +273,7 @@ public class OTransactionNoTx extends OTransactionAbstract {
   }
 
   /** Deletes the record. */
-  public void deleteRecord(final ORecord iRecord, final OPERATION_MODE iMode) {
+  public void deleteRecord(final ORecordAbstract iRecord, final OPERATION_MODE iMode) {
     if (!iRecord.getIdentity().isPersistent()) {
       database.callbackHooks(TYPE.BEFORE_DELETE, iRecord);
       database.callbackHooks(TYPE.AFTER_DELETE, iRecord);
@@ -319,7 +319,7 @@ public class OTransactionNoTx extends OTransactionAbstract {
     return 0;
   }
 
-  public ORecord getRecord(final ORID rid) {
+  public ORecordAbstract getRecord(final ORID rid) {
     return null;
   }
 

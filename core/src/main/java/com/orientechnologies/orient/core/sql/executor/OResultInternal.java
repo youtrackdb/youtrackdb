@@ -9,6 +9,7 @@ import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.record.impl.OBlob;
@@ -29,8 +30,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
-/** Created by luigidellaquila on 06/07/16. */
+/**
+ * Created by luigidellaquila on 06/07/16.
+ */
 public class OResultInternal implements OResult {
+
   protected Map<String, Object> content;
   protected Map<String, Object> temporaryContent;
   protected Map<String, Object> metadata;
@@ -129,8 +133,10 @@ public class OResultInternal implements OResult {
     T result = null;
     if (content != null && content.containsKey(name)) {
       result = (T) wrap(content.get(name));
-    } else if (isElement()) {
-      result = (T) wrap((T) ODocumentInternal.rawPropertyRead((OElement) element, name));
+    } else {
+      if (isElement()) {
+        result = (T) wrap((T) ODocumentInternal.rawPropertyRead((OElement) element, name));
+      }
     }
     if (result instanceof OIdentifiable && ((OIdentifiable) result).getIdentity().isPersistent()) {
       result = (T) ((OIdentifiable) result).getIdentity();
@@ -144,8 +150,10 @@ public class OResultInternal implements OResult {
     Object result = null;
     if (content != null && content.containsKey(name)) {
       result = content.get(name);
-    } else if (isElement()) {
-      result = ODocumentInternal.rawPropertyRead((OElement) element, name);
+    } else {
+      if (isElement()) {
+        result = ODocumentInternal.rawPropertyRead((OElement) element, name);
+      }
     }
 
     if (result instanceof OResult) {
@@ -165,8 +173,10 @@ public class OResultInternal implements OResult {
     Object result = null;
     if (content != null && content.containsKey(name)) {
       result = content.get(name);
-    } else if (isElement()) {
-      result = ODocumentInternal.rawPropertyRead((OElement) element, name);
+    } else {
+      if (isElement()) {
+        result = ODocumentInternal.rawPropertyRead((OElement) element, name);
+      }
     }
 
     if (result instanceof OResult) {
@@ -186,8 +196,10 @@ public class OResultInternal implements OResult {
     Object result = null;
     if (content != null && content.containsKey(name)) {
       result = content.get(name);
-    } else if (isElement()) {
-      result = ODocumentInternal.rawPropertyRead((OElement) element, name);
+    } else {
+      if (isElement()) {
+        result = ODocumentInternal.rawPropertyRead((OElement) element, name);
+      }
     }
 
     if (result instanceof OResult) {
@@ -207,8 +219,10 @@ public class OResultInternal implements OResult {
     Object result = null;
     if (content != null && content.containsKey(name)) {
       result = content.get(name);
-    } else if (isElement()) {
-      result = ODocumentInternal.rawPropertyRead((OElement) element, name);
+    } else {
+      if (isElement()) {
+        result = ODocumentInternal.rawPropertyRead((OElement) element, name);
+      }
     }
 
     if (result instanceof OResult) {
@@ -230,16 +244,22 @@ public class OResultInternal implements OResult {
       }
       elem.getSchemaType().ifPresent(x -> result.setProperty("@class", x.getName()));
       return result;
-    } else if (isEmbeddedList(input)) {
-      return ((List) input).stream().map(OResultInternal::wrap).collect(Collectors.toList());
-    } else if (isEmbeddedSet(input)) {
-      return ((Set) input).stream().map(OResultInternal::wrap).collect(Collectors.toSet());
-    } else if (isEmbeddedMap(input)) {
-      Map result = new HashMap();
-      for (Map.Entry<Object, Object> o : ((Map<Object, Object>) input).entrySet()) {
-        result.put(o.getKey(), wrap(o.getValue()));
+    } else {
+      if (isEmbeddedList(input)) {
+        return ((List) input).stream().map(OResultInternal::wrap).collect(Collectors.toList());
+      } else {
+        if (isEmbeddedSet(input)) {
+          return ((Set) input).stream().map(OResultInternal::wrap).collect(Collectors.toSet());
+        } else {
+          if (isEmbeddedMap(input)) {
+            Map result = new HashMap();
+            for (Map.Entry<Object, Object> o : ((Map<Object, Object>) input).entrySet()) {
+              result.put(o.getKey(), wrap(o.getValue()));
+            }
+            return result;
+          }
+        }
       }
-      return result;
     }
     return input;
   }
@@ -260,10 +280,12 @@ public class OResultInternal implements OResult {
     loadElement();
     if (isElement()) {
       return ((OElement) element).getPropertyNames();
-    } else if (content != null) {
-      return new LinkedHashSet<>(content.keySet());
     } else {
-      return Collections.emptySet();
+      if (content != null) {
+        return new LinkedHashSet<>(content.keySet());
+      } else {
+        return Collections.emptySet();
+      }
     }
   }
 
@@ -319,27 +341,33 @@ public class OResultInternal implements OResult {
     for (String s : getPropertyNames()) {
       if (s == null) {
         continue;
-      } else if (s.equalsIgnoreCase("@rid")) {
-        Object newRid = getProperty(s);
-        if (newRid instanceof OIdentifiable) {
-          newRid = ((OIdentifiable) newRid).getIdentity();
-        } else {
-          continue;
-        }
-        ORecordId oldId = (ORecordId) doc.getIdentity();
-        oldId.setClusterId(((ORID) newRid).getClusterId());
-        oldId.setClusterPosition(((ORID) newRid).getClusterPosition());
-      } else if (s.equalsIgnoreCase("@version")) {
-        Object v = getProperty(s);
-        if (v instanceof Number) {
-          ORecordInternal.setVersion(doc, ((Number) v).intValue());
-        } else {
-          continue;
-        }
-      } else if (s.equalsIgnoreCase("@class")) {
-        doc.setClassName(getProperty(s));
       } else {
-        doc.setProperty(s, convertToElement(getProperty(s)));
+        if (s.equalsIgnoreCase("@rid")) {
+          Object newRid = getProperty(s);
+          if (newRid instanceof OIdentifiable) {
+            newRid = ((OIdentifiable) newRid).getIdentity();
+          } else {
+            continue;
+          }
+          ORecordId oldId = (ORecordId) doc.getIdentity();
+          oldId.setClusterId(((ORID) newRid).getClusterId());
+          oldId.setClusterPosition(((ORID) newRid).getClusterPosition());
+        } else {
+          if (s.equalsIgnoreCase("@version")) {
+            Object v = getProperty(s);
+            if (v instanceof Number) {
+              ORecordInternal.setVersion(doc, ((Number) v).intValue());
+            } else {
+              continue;
+            }
+          } else {
+            if (s.equalsIgnoreCase("@class")) {
+              doc.setClassName(getProperty(s));
+            } else {
+              doc.setProperty(s, convertToElement(getProperty(s)));
+            }
+          }
+        }
       }
     }
     return doc;
@@ -514,11 +542,16 @@ public class OResultInternal implements OResult {
 
   public void bindToCache(ODatabaseDocumentInternal db) {
     if (isRecord()) {
-      ORecord rec = element.getRecord();
-      ORecord cached = db.getLocalCache().findRecord(rec.getIdentity());
+      ORecordAbstract rec = element.getRecord();
+      ORecordAbstract cached = db.getLocalCache().findRecord(rec.getIdentity());
+
+      if (cached == rec) {
+        return;
+      }
+
       if (cached != null) {
         if (!cached.isDirty()) {
-          cached.fromStream(rec.toStream());
+          rec.copyTo(cached);
         }
         element = cached;
       } else {

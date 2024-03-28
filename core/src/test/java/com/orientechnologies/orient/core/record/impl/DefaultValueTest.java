@@ -9,6 +9,7 @@ import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.util.ODateHelper;
 import java.util.Date;
@@ -29,6 +30,7 @@ public class DefaultValueTest extends BaseMemoryDatabase {
 
     byte[] val = doc.toStream();
     ODocument doc1 = new ODocument();
+    ORecordInternal.unsetDirty(doc1);
     doc1.fromStream(val);
     doc1.deserializeFields();
     assertEquals((String) doc.field("name"), (String) doc1.field("name"));

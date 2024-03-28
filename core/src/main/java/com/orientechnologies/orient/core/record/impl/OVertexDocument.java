@@ -6,6 +6,7 @@ import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.ORecordAbstract;
+import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.OVertex;
 import java.util.Set;
 import javax.annotation.Nonnull;
@@ -143,7 +144,12 @@ public class OVertexDocument extends ODocument implements OVertexInternal {
       return ((OVertexDocument) primaryRecord).copy();
     }
 
-    return (OVertexDocument) copyTo(new OVertexDocument());
+    var newDoc = new OVertexDocument();
+    ORecordInternal.unsetDirty(newDoc);
+    copyTo(newDoc);
+    newDoc.dirty = true;
+
+    return newDoc;
   }
 
   @Override

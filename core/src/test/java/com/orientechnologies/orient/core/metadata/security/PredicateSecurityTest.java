@@ -12,6 +12,7 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.OElement;
+import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.stream.Stream;
@@ -23,6 +24,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class PredicateSecurityTest {
+
   private static String DB_NAME = PredicateSecurityTest.class.getSimpleName();
   private static OrientDB orient;
   private ODatabaseSession db;
@@ -235,7 +237,9 @@ public class PredicateSecurityTest {
     } catch (OSecurityException ex) {
     }
 
+    ORecordInternal.unsetDirty(elem);
     elem = elem.reload(null, true, true);
+
     Assert.assertEquals("foo", elem.getProperty("name"));
   }
 
@@ -304,6 +308,7 @@ public class PredicateSecurityTest {
     } catch (OSecurityException ex) {
     }
 
+    ORecordInternal.unsetDirty(elem);
     elem = elem.reload(null, true, true);
     Assert.assertEquals("foo", elem.getProperty("name"));
   }

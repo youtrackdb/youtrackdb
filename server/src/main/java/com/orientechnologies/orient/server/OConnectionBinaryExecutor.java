@@ -38,6 +38,7 @@ import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.query.live.OLiveQueryHookV2;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.OBlob;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -688,7 +689,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
     for (ORecordOperationRequest operation : operations) {
 
-      final ORecord record;
+      final ORecordAbstract record;
       ORecordId current;
       switch (operation.getType()) {
         case ORecordOperation.CREATED:
@@ -778,10 +779,10 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
         }
         final List<OCreatedRecordResponse> createdRecords =
             new ArrayList<>(tx.getCreatedRecords().size());
-        for (Entry<ORecordId, ORecord> entry : tx.getCreatedRecords().entrySet()) {
+        for (var entry : tx.getCreatedRecords().entrySet()) {
           createdRecords.add(
               new OCreatedRecordResponse(
-                  entry.getKey(), (ORecordId) entry.getValue().getIdentity()));
+                  (ORecordId) entry.getKey(), (ORecordId) entry.getValue().getIdentity()));
           // IF THE NEW OBJECT HAS VERSION > 0 MEANS THAT HAS BEEN UPDATED IN THE SAME TX. THIS
           // HAPPENS FOR GRAPHS
           if (entry.getValue().getVersion() > 0) {
@@ -1559,16 +1560,16 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     database.commit();
     List<OCommit37Response.OCreatedRecordResponse> createdRecords =
         new ArrayList<>(tx.getCreatedRecords().size());
-    for (Entry<ORecordId, ORecord> entry : tx.getCreatedRecords().entrySet()) {
-      ORecord record = entry.getValue();
+    for (var entry : tx.getCreatedRecords().entrySet()) {
+      var record = entry.getValue();
       createdRecords.add(
           new OCommit37Response.OCreatedRecordResponse(
-              entry.getKey(), (ORecordId) record.getIdentity(), record.getVersion()));
+              (ORecordId) entry.getKey(), (ORecordId) record.getIdentity(), record.getVersion()));
     }
 
     List<OCommit37Response.OUpdatedRecordResponse> updatedRecords =
         new ArrayList<>(tx.getUpdatedRecords().size());
-    for (Entry<ORecordId, ORecord> entry : tx.getUpdatedRecords().entrySet()) {
+    for (var entry : tx.getUpdatedRecords().entrySet()) {
       updatedRecords.add(
           new OCommit37Response.OUpdatedRecordResponse(
               entry.getKey(), entry.getValue().getVersion()));
@@ -1622,16 +1623,16 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     database.commit();
     List<OCommit37Response.OCreatedRecordResponse> createdRecords =
         new ArrayList<>(tx.getCreatedRecords().size());
-    for (Entry<ORecordId, ORecord> entry : tx.getCreatedRecords().entrySet()) {
-      ORecord record = entry.getValue();
+    for (var entry : tx.getCreatedRecords().entrySet()) {
+      var record = entry.getValue();
       createdRecords.add(
           new OCommit37Response.OCreatedRecordResponse(
-              entry.getKey(), (ORecordId) record.getIdentity(), record.getVersion()));
+              (ORecordId) entry.getKey(), (ORecordId) record.getIdentity(), record.getVersion()));
     }
 
     List<OCommit37Response.OUpdatedRecordResponse> updatedRecords =
         new ArrayList<>(tx.getUpdatedRecords().size());
-    for (Entry<ORecordId, ORecord> entry : tx.getUpdatedRecords().entrySet()) {
+    for (var entry : tx.getUpdatedRecords().entrySet()) {
       updatedRecords.add(
           new OCommit37Response.OUpdatedRecordResponse(
               entry.getKey(), entry.getValue().getVersion()));

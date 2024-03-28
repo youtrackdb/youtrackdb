@@ -24,6 +24,7 @@ import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
 import com.orientechnologies.orient.core.storage.ORawBuffer;
@@ -79,7 +80,9 @@ public final class OReadRecordResponse implements OBinaryResponse {
   @Override
   public void read(OChannelDataInput network, OStorageRemoteSession session) throws IOException {
     ORecordSerializerNetworkV37Client serializer = ORecordSerializerNetworkV37Client.INSTANCE;
-    if (network.readByte() == 0) return;
+    if (network.readByte() == 0) {
+      return;
+    }
 
     final ORawBuffer buffer;
     final byte type = network.readByte();
@@ -89,13 +92,21 @@ public final class OReadRecordResponse implements OBinaryResponse {
 
     // TODO: This should not be here, move it in a callback or similar
     final ODatabaseDocument database = ODatabaseRecordThreadLocal.instance().getIfDefined();
-    ORecord record;
+    ORecordAbstract record;
     while (network.readByte() == 2) {
-      record = (ORecord) OMessageHelper.readIdentifiable(network, serializer);
+      record = (ORecordAbstract) OMessageHelper.readIdentifiable(network, serializer);
 
-      if (database != null)
-        // PUT IN THE CLIENT LOCAL CACHE
-        database.getLocalCache().updateRecord(record);
+      if (database != null && record != null) {
+        var cacheRecord = database.getLocalCache().findRecord(record.getIdentity());
+
+        if (cacheRecord != record) {
+          if (cacheRecord != null) {
+            record.copyTo(cacheRecord);
+          } else {
+            database.getLocalCache().updateRecord(record);
+          }
+        }
+      }
     }
     result = buffer;
   }

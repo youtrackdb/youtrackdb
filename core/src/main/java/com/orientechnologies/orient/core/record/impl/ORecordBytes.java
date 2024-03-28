@@ -22,6 +22,7 @@ package com.orientechnologies.orient.core.record.impl;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
+import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.ORecordAbstract;
@@ -97,6 +98,10 @@ public class ORecordBytes extends ORecordAbstract implements OBlob {
     if (primaryRecord != null) {
       ((ORecordBytes) primaryRecord).fromStream(iRecordBuffer);
       return this;
+    }
+
+    if (dirty) {
+      throw new ODatabaseException("Cannot call fromStream() on dirty records");
     }
 
     source = iRecordBuffer;

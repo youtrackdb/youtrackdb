@@ -9,6 +9,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.metadata.security.OPropertyAccess;
+import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import java.util.Arrays;
@@ -42,6 +43,7 @@ public class OPropertyAccessTest {
     ODocument doc = new ODocument();
     doc.setProperty("name", "one value");
     ODocument doc1 = new ODocument();
+    ORecordInternal.unsetDirty(doc1);
     doc1.fromStream(doc.toStream());
     assertEquals("one value", doc1.getProperty("name"));
     assertEquals("one value", doc1.field("name"));
@@ -97,6 +99,7 @@ public class OPropertyAccessTest {
     Set<String> toHide = new HashSet<>();
     toHide.add("name");
     ODocument doc = new ODocument();
+    ORecordInternal.unsetDirty(doc);
     doc.fromStream(docPre.toStream());
     ODocumentInternal.setPropertyAccess(doc, new OPropertyAccess(toHide));
     assertArrayEquals(new String[] {}, doc.getPropertyNames().toArray());

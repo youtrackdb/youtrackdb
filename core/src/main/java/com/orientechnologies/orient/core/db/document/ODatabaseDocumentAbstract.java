@@ -1036,6 +1036,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
 
   /**
    * This method is internal, it can be subject to signature change or be removed, do not use.
+   *
    * @Internal
    */
   public final <RET extends ORecord> RET executeReadRecord(
@@ -1053,6 +1054,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     getMetadata().makeThreadLocalSchemaSnapshot();
     if (iRecord != null) {
       iRecord.incrementLoading();
+      ORecordInternal.unsetDirty(iRecord);
     }
     try {
       checkSecurity(
@@ -1061,13 +1063,13 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
           getClusterNameById(rid.getClusterId()));
 
       // SEARCH IN LOCAL TX
-      ORecord record = getTransaction().getRecord(rid);
+      var record = getTransaction().getRecord(rid);
       if (record == OTransactionAbstract.DELETED_RECORD) {
         // DELETED IN TX
         return null;
       }
 
-      ORecord cachedRecord = getLocalCache().findRecord(rid);
+      var cachedRecord = getLocalCache().findRecord(rid);
       assert cachedRecord == null || !cachedRecord.isProxy();
 
       if (record == null && !ignoreCache) {
@@ -1116,6 +1118,10 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       }
 
       if (cachedRecord != null) {
+        if (cachedRecord.isDirty()) {
+          throw new IllegalStateException("Cached record is dirty");
+        }
+
         record = cachedRecord;
       }
 
@@ -1145,6 +1151,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
             Orient.instance()
                 .getRecordFactoryManager()
                 .newInstance(recordBuffer.recordType, rid, this);
+        ORecordInternal.unsetDirty(record);
       }
       assert !record.isProxy();
 
@@ -1617,10 +1624,9 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
    * record as modified, while others cannot access to it since it's locked.
    *
    * <p>If MVCC is enabled and the version of the document is different by the version stored in
-   * the
-   * database, then a {@link OConcurrentModificationException} exception is thrown.Before to save
-   * the document it must be valid following the constraints declared in the schema if any (can work
-   * also in schema-less mode). To validate the document the {@link ODocument#validate()} is
+   * the database, then a {@link OConcurrentModificationException} exception is thrown.Before to
+   * save the document it must be valid following the constraints declared in the schema if any (can
+   * work also in schema-less mode). To validate the document the {@link ODocument#validate()} is
    * called.
    *
    * @param iRecord Record to save.
@@ -1646,10 +1652,9 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
    * record as modified, while others cannot access to it since it's locked.
    *
    * <p>If MVCC is enabled and the version of the document is different by the version stored in
-   * the
-   * database, then a {@link OConcurrentModificationException} exception is thrown.Before to save
-   * the document it must be valid following the constraints declared in the schema if any (can work
-   * also in schema-less mode). To validate the document the {@link ODocument#validate()} is
+   * the database, then a {@link OConcurrentModificationException} exception is thrown.Before to
+   * save the document it must be valid following the constraints declared in the schema if any (can
+   * work also in schema-less mode). To validate the document the {@link ODocument#validate()} is
    * called.
    *
    * @param iRecord                Record to save.
@@ -1685,10 +1690,9 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
    * it since it's locked.
    *
    * <p>If MVCC is enabled and the version of the document is different by the version stored in
-   * the
-   * database, then a {@link OConcurrentModificationException} exception is thrown. Before to save
-   * the document it must be valid following the constraints declared in the schema if any (can work
-   * also in schema-less mode). To validate the document the {@link ODocument#validate()} is
+   * the database, then a {@link OConcurrentModificationException} exception is thrown. Before to
+   * save the document it must be valid following the constraints declared in the schema if any (can
+   * work also in schema-less mode). To validate the document the {@link ODocument#validate()} is
    * called.
    *
    * @param iRecord      Record to save
@@ -1716,10 +1720,9 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
    * it since it's locked.
    *
    * <p>If MVCC is enabled and the version of the document is different by the version stored in
-   * the
-   * database, then a {@link OConcurrentModificationException} exception is thrown. Before to save
-   * the document it must be valid following the constraints declared in the schema if any (can work
-   * also in schema-less mode). To validate the document the {@link ODocument#validate()} is
+   * the database, then a {@link OConcurrentModificationException} exception is thrown. Before to
+   * save the document it must be valid following the constraints declared in the schema if any (can
+   * work also in schema-less mode). To validate the document the {@link ODocument#validate()} is
    * called.
    *
    * @param iRecord                Record to save
@@ -1766,18 +1769,23 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       }
     }
     return saveInternal(
-        iRecord, iClusterName, iMode, iForceCreate, iRecordCreatedCallback, iRecordUpdatedCallback);
+        (ORecordAbstract) iRecord,
+        iClusterName,
+        iMode,
+        iForceCreate,
+        iRecordCreatedCallback,
+        iRecordUpdatedCallback);
   }
 
   private <RET extends ORecord> RET saveInternal(
-      ORecord iRecord,
+      ORecordAbstract iRecord,
       String iClusterName,
       OPERATION_MODE iMode,
       boolean iForceCreate,
       ORecordCallback<? extends Number> iRecordCreatedCallback,
       ORecordCallback<Integer> iRecordUpdatedCallback) {
 
-    if (!(iRecord instanceof ODocument)) {
+    if (!(iRecord instanceof ODocument document)) {
       assignAndCheckCluster(iRecord, iClusterName);
       return (RET)
           currentTx.saveRecord(
@@ -2077,6 +2085,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
 
   /**
    * This method is internal, it can be subject to signature change or be removed, do not use.
+   *
    * @Internal
    */
   @Override
@@ -2388,7 +2397,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   }
 
   protected synchronized void closeActiveQueries() {
-    while (activeQueries.size() > 0) {
+    while (!activeQueries.isEmpty()) {
       this.activeQueries
           .values()
           .iterator()

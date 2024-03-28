@@ -20,7 +20,6 @@
 package com.orientechnologies.orient.core.db.record;
 
 import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.storage.ORecordCallback;
 import java.util.Locale;
@@ -82,8 +81,8 @@ public class ORecordOperation implements Comparable {
   }
 
   public ORecordAbstract getRecord() {
-    if (record instanceof ORecord) {
-      return (ORecordAbstract) record;
+    if (record instanceof ORecordAbstract recordAbstract) {
+      return recordAbstract;
     }
     return record != null ? record.getRecord() : null;
   }

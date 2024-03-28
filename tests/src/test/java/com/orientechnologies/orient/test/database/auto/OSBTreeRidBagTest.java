@@ -153,11 +153,12 @@ public class OSBTreeRidBagTest extends ORidBagTest {
     doc.field("ridBag", bag);
     doc.save(database.getClusterNameById(database.getDefaultClusterId()));
 
+    bag = doc.field("ridBag");
     bag.remove(cygni);
 
     Set<ODocument> result = new HashSet<ODocument>();
     for (OIdentifiable identifiable : bag) {
-      result.add((ODocument) identifiable.getRecord());
+      result.add(identifiable.getRecord());
     }
 
     Assert.assertEquals(result, expectedResult);

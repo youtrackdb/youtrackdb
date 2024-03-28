@@ -280,7 +280,7 @@ public class OModifiableDistributedConfiguration extends ODistributedConfigurati
   }
 
   public void override(final ODocument newCfg) {
-    configuration.fromStream(newCfg.toStream());
+    newCfg.copyTo(configuration);
     incrementVersion();
   }
 }

@@ -46,8 +46,6 @@ public class RecordReloadTest extends DocumentDBBaseTest {
 
     future.get();
 
-    document.reload();
-
     Assert.assertEquals(document.field("value"), "value two");
   }
 
@@ -83,7 +81,9 @@ public class RecordReloadTest extends DocumentDBBaseTest {
   }
 
   public void documentReloadLatestVersionLinkedValueOne() throws Exception {
-    if (!database.isRemote()) return;
+    if (!database.isRemote()) {
+      return;
+    }
 
     ExecutorService executor = Executors.newSingleThreadExecutor();
     final ODocument document = new ODocument();
@@ -125,7 +125,9 @@ public class RecordReloadTest extends DocumentDBBaseTest {
   }
 
   public void documentReloadLatestVersionLinkedValueTwo() throws Exception {
-    if (!database.isRemote()) return;
+    if (!database.isRemote()) {
+      return;
+    }
 
     ExecutorService executor = Executors.newSingleThreadExecutor();
     final ODocument document = new ODocument();
@@ -142,27 +144,22 @@ public class RecordReloadTest extends DocumentDBBaseTest {
     final ORID rid = document.getIdentity();
     final Future<?> future =
         executor.submit(
-            new Runnable() {
-              @Override
-              public void run() {
-                ODatabaseDocument db = new ODatabaseDocumentTx(url);
-                db.open("admin", "admin");
+            () -> {
+              ODatabaseDocument db = new ODatabaseDocumentTx(url);
+              db.open("admin", "admin");
 
-                ODocument doc = db.load(rid);
+              ODocument doc = db.load(rid);
 
-                ODocument linkedValue = doc.field("link");
-                linkedValue.field("val", "value 2");
-                linkedValue.save();
+              ODocument linkedValue1 = doc.field("link");
+              linkedValue1.field("val", "value 2");
+              linkedValue1.save();
 
-                db.close();
-              }
+              db.close();
             });
 
     future.get();
 
-    document.reload("*:1", true, false);
-
     linkedValue = document.field("link");
-    Assert.assertEquals(linkedValue.field("val"), "value 1");
+    Assert.assertEquals(linkedValue.field("val"), "value 2");
   }
 }

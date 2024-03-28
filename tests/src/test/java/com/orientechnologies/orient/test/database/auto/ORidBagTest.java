@@ -528,6 +528,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     document.save();
 
     ODocument copy = new ODocument();
+    ORecordInternal.unsetDirty(copy);
     copy.fromStream(document.toStream());
     ORecordInternal.setIdentity(copy, new ORecordId(document.getIdentity()));
     ORecordInternal.setVersion(copy, document.getVersion());

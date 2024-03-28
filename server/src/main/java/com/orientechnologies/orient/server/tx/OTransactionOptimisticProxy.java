@@ -32,6 +32,7 @@ import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.index.OCompositeKey;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
@@ -46,7 +47,7 @@ import java.util.Map.Entry;
 public class OTransactionOptimisticProxy extends OTransactionOptimistic {
   private final Map<ORID, ORecordOperation> tempEntries =
       new LinkedHashMap<ORID, ORecordOperation>();
-  private final Map<ORecordId, ORecord> createdRecords = new HashMap<ORecordId, ORecord>();
+  private final Map<ORID, ORecordAbstract> createdRecords = new HashMap<>();
   private final Map<ORecordId, ORecord> updatedRecords = new HashMap<ORecordId, ORecord>();
   @Deprecated private final int clientTxId;
   private final short protocolVersion;
@@ -185,8 +186,8 @@ public class OTransactionOptimisticProxy extends OTransactionOptimistic {
   }
 
   @Override
-  public ORecord getRecord(final ORID rid) {
-    ORecord record = super.getRecord(rid);
+  public ORecordAbstract getRecord(final ORID rid) {
+    var record = super.getRecord(rid);
     if (record == OTransactionAbstract.DELETED_RECORD) return record;
     else if (record == null && rid.isNew())
       // SEARCH BETWEEN CREATED RECORDS
@@ -251,7 +252,7 @@ public class OTransactionOptimisticProxy extends OTransactionOptimistic {
     }
   }
 
-  public Map<ORecordId, ORecord> getCreatedRecords() {
+  public Map<ORID, ORecordAbstract> getCreatedRecords() {
     return createdRecords;
   }
 

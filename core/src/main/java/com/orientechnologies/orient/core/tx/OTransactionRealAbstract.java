@@ -33,6 +33,7 @@ import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
@@ -55,7 +56,7 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
       new HashMap<>();
   protected int id;
   protected int newObjectCounter = -2;
-  protected Map<String, Object> userData = new HashMap<>();
+  private final Map<String, Object> userData = new HashMap<>();
   private Map<ORID, LockedRecordMetadata> noTxLocks;
   @Nullable private OTxMetadataHolder metadata = null;
 
@@ -67,7 +68,7 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
 
   @Nullable private List<byte[]> serializedOperations;
 
-  protected OTransactionRealAbstract(final ODatabaseDocumentInternal database, final int id) {
+  OTransactionRealAbstract(final ODatabaseDocumentInternal database, final int id) {
     super(database);
     this.id = id;
   }
@@ -146,7 +147,7 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
     return entry;
   }
 
-  public ORecord getRecord(final ORID rid) {
+  public ORecordAbstract getRecord(final ORID rid) {
     final ORecordOperation e = getRecordEntry(rid);
     if (e != null) {
       if (e.type == ORecordOperation.DELETED) {
@@ -252,15 +253,13 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
       final ODocument indexDoc = new ODocument().setTrackingChanges(false);
       ODocumentInternal.addOwner(indexDoc, result);
 
-      //noinspection deprecation
       result.field(indexEntry.getKey(), indexDoc, OType.EMBEDDED);
 
-      if (indexEntry.getValue().cleared) { // noinspection deprecation
+      if (indexEntry.getValue().cleared) {
         indexDoc.field("clear", Boolean.TRUE);
       }
 
       final List<ODocument> entries = new ArrayList<>();
-      //noinspection deprecation
       indexDoc.field("entries", entries, OType.EMBEDDEDLIST);
 
       // STORE INDEX ENTRIES
@@ -270,7 +269,6 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
         }
       }
 
-      //noinspection deprecation
       indexDoc.field(
           "nullEntries", serializeIndexChangeEntry(indexEntry.getValue().nullKeyChanges, indexDoc));
     }
@@ -458,7 +456,7 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
     }
   }
 
-  protected ODocument serializeIndexChangeEntry(
+  private ODocument serializeIndexChangeEntry(
       OTransactionIndexChangesPerKey entry, final ODocument indexDoc) {
     // SERIALIZE KEY
 
@@ -469,14 +467,10 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
       if (entry.key instanceof OCompositeKey) {
         final List<Object> keys = ((OCompositeKey) entry.key).getKeys();
 
-        //noinspection deprecation
         keyContainer.field("key", keys, OType.EMBEDDEDLIST);
-        //noinspection deprecation
         keyContainer.field("binary", false);
       } else {
-        //noinspection deprecation
         keyContainer.field("key", entry.key);
-        //noinspection deprecation
         keyContainer.field("binary", false);
       }
 
@@ -494,7 +488,6 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
         ODocumentInternal.addOwner(changeDoc, indexDoc);
 
         // SERIALIZE OPERATION
-        //noinspection deprecation
         changeDoc.field("o", e.getOperation().ordinal());
 
         if (e.getValue() instanceof ORecord && e.getValue().getIdentity().isNew()) {
@@ -506,7 +499,6 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
           }
         }
 
-        //noinspection deprecation
         changeDoc.field("v", e.getValue() != null ? e.getValue().getIdentity() : null);
 
         operations.add(changeDoc);
@@ -515,7 +507,6 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
     ODocument res = new ODocument();
     res.setTrackingChanges(false);
     ODocumentInternal.addOwner(res, indexDoc);
-    //noinspection deprecation
     return res.setAllowChainedAccess(false)
         .field("k", keyContainer, OType.EMBEDDED)
         .field("ops", operations, OType.EMBEDDEDLIST);
@@ -629,10 +620,10 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
 
   private static class KeyChangesUpdateRecord {
 
-    public final OTransactionIndexChangesPerKey keyChanges;
-    public final OTransactionIndexChanges indexChanges;
+    final OTransactionIndexChangesPerKey keyChanges;
+    final OTransactionIndexChanges indexChanges;
 
-    public KeyChangesUpdateRecord(
+    KeyChangesUpdateRecord(
         OTransactionIndexChangesPerKey keyChanges, OTransactionIndexChanges indexChanges) {
       this.keyChanges = keyChanges;
       this.indexChanges = indexChanges;
@@ -651,7 +642,7 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
     this.noTxLocks = noTxLocks;
   }
 
-  public Map<ORID, LockedRecordMetadata> getNoTxLocks() {
+  Map<ORID, LockedRecordMetadata> getNoTxLocks() {
     return noTxLocks;
   }
 

@@ -94,24 +94,30 @@ public class OSQLMethodExclude extends OAbstractSQLMethod {
     if (iThis != null) {
       if (iThis instanceof ORecordId) {
         iThis = ((ORecordId) iThis).getRecord();
-      } else if (iThis instanceof OResult result) {
-        iThis = result.asElement();
+      } else {
+        if (iThis instanceof OResult result) {
+          iThis = result.asElement();
+        }
       }
       if (iThis instanceof ODocument) {
         // ACT ON SINGLE DOCUMENT
         return copy((ODocument) iThis, iParams);
-      } else if (iThis instanceof Map) {
-        // ACT ON SINGLE MAP
-        return copy((Map) iThis, iParams);
-      } else if (OMultiValue.isMultiValue(iThis)) {
-        // ACT ON MULTIPLE DOCUMENTS
-        final List<Object> result = new ArrayList<Object>(OMultiValue.getSize(iThis));
-        for (Object o : OMultiValue.getMultiValueIterable(iThis, false)) {
-          if (o instanceof OIdentifiable) {
-            result.add(copy((ODocument) ((OIdentifiable) o).getRecord(), iParams));
+      } else {
+        if (iThis instanceof Map) {
+          // ACT ON SINGLE MAP
+          return copy((Map) iThis, iParams);
+        } else {
+          if (OMultiValue.isMultiValue(iThis)) {
+            // ACT ON MULTIPLE DOCUMENTS
+            final List<Object> result = new ArrayList<Object>(OMultiValue.getSize(iThis));
+            for (Object o : OMultiValue.getMultiValueIterable(iThis, false)) {
+              if (o instanceof OIdentifiable) {
+                result.add(copy((ODocument) ((OIdentifiable) o).getRecord(), iParams));
+              }
+            }
+            return result;
           }
         }
-        return result;
       }
     }
 
@@ -134,12 +140,18 @@ public class OSQLMethodExclude extends OAbstractSQLMethod {
           final String fieldPart = fieldName.substring(0, fieldName.length() - 1);
           final List<String> toExclude = new ArrayList<String>();
           for (String f : doc.fieldNames()) {
-            if (f.startsWith(fieldPart)) toExclude.add(f);
+            if (f.startsWith(fieldPart)) {
+              toExclude.add(f);
+            }
           }
 
-          for (String f : toExclude) doc.removeField(f);
+          for (String f : toExclude) {
+            doc.removeField(f);
+          }
 
-        } else doc.removeField(fieldName);
+        } else {
+          doc.removeField(fieldName);
+        }
       }
     }
     doc.deserializeFields();
@@ -148,6 +160,12 @@ public class OSQLMethodExclude extends OAbstractSQLMethod {
 
   private Object copy(final Map map, final Object[] iFieldNames) {
     final ODocument doc = new ODocument().fields(map);
+
+    ORecordInternal.setIdentity(doc, new OEmptyRecordId());
+    ORecordInternal.setVersion(doc, -1);
+    ORecordInternal.unsetDirty(doc);
+    doc.setTrackingChanges(false);
+
     for (Object iFieldName : iFieldNames) {
       if (iFieldName != null) {
         final String fieldName = iFieldName.toString();
@@ -156,12 +174,18 @@ public class OSQLMethodExclude extends OAbstractSQLMethod {
           final String fieldPart = fieldName.substring(0, fieldName.length() - 1);
           final List<String> toExclude = new ArrayList<String>();
           for (String f : doc.fieldNames()) {
-            if (f.startsWith(fieldPart)) toExclude.add(f);
+            if (f.startsWith(fieldPart)) {
+              toExclude.add(f);
+            }
           }
 
-          for (String f : toExclude) doc.removeField(f);
+          for (String f : toExclude) {
+            doc.removeField(f);
+          }
 
-        } else doc.removeField(fieldName);
+        } else {
+          doc.removeField(fieldName);
+        }
       }
     }
     return doc;

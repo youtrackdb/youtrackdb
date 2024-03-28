@@ -15,7 +15,7 @@ import com.orientechnologies.orient.core.metadata.schema.OSchemaEmbedded;
 import com.orientechnologies.orient.core.metadata.sequence.OSequenceLibraryImpl;
 import com.orientechnologies.orient.core.query.live.OLiveQueryHook;
 import com.orientechnologies.orient.core.query.live.OLiveQueryHookV2;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.schedule.OSchedulerImpl;
@@ -27,7 +27,9 @@ import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedSt
 import java.util.HashMap;
 import java.util.Map;
 
-/** Created by tglman on 13/06/17. */
+/**
+ * Created by tglman on 13/06/17.
+ */
 public class OSharedContextEmbedded extends OSharedContext {
 
   protected Map<String, DistributedQueryContext> activeDistributedQueries;
@@ -124,7 +126,7 @@ public class OSharedContextEmbedded extends OSharedContext {
     executionPlanCache.invalidate();
     liveQueryOps.close();
     liveQueryOpsV2.close();
-    activeDistributedQueries.values().forEach(x -> x.close());
+    activeDistributedQueries.values().forEach(DistributedQueryContext::close);
     loaded = false;
   }
 
@@ -157,7 +159,7 @@ public class OSharedContextEmbedded extends OSharedContext {
     // create geospatial classes
     try {
       OIndexFactory factory = OIndexes.getFactory(OClass.INDEX_TYPE.SPATIAL.toString(), "LUCENE");
-      if (factory != null && factory instanceof ODatabaseLifecycleListener) {
+      if (factory instanceof ODatabaseLifecycleListener) {
         ((ODatabaseLifecycleListener) factory).onCreate(database);
       }
     } catch (OIndexException x) {
@@ -205,10 +207,6 @@ public class OSharedContextEmbedded extends OSharedContext {
 
   /**
    * Store a configuration with a key, without checking eventual update version.
-   *
-   * @param session
-   * @param name
-   * @param value
    */
   public synchronized void saveConfig(ODatabaseSession session, String name, ODocument value) {
     OScenarioThreadLocal.executeAsDistributed(
@@ -218,13 +216,14 @@ public class OSharedContextEmbedded extends OSharedContext {
           String id = storage.getConfiguration().getProperty(propertyName);
           if (id != null) {
             ORecordId recordId = new ORecordId(id);
-            ORecord record = session.load(recordId, null, false);
+            ORecordAbstract record = session.load(recordId, null, false);
             if (record == null) {
               record = new ODocument();
+              ORecordInternal.unsetDirty(record);
             }
 
             var recordVersion = record.getVersion();
-            record.fromStream(value.toStream());
+            value.copyTo(record);
 
             ORecordInternal.setIdentity(record, recordId);
             ORecordInternal.setVersion(record, recordVersion);
@@ -233,7 +232,8 @@ public class OSharedContextEmbedded extends OSharedContext {
             session.save(record, "internal");
           } else {
             var record = new ODocument();
-            record.fromStream(value.toStream());
+            ORecordInternal.unsetDirty(record);
+            value.copyTo(record);
             record.setDirty();
 
             ORID recordId = session.save(record, "internal").getIdentity();

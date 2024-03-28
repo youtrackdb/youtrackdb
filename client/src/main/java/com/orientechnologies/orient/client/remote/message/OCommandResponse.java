@@ -34,6 +34,7 @@ import com.orientechnologies.orient.core.exception.OStorageException;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
@@ -47,6 +48,7 @@ import java.io.IOException;
 import java.util.*;
 
 public final class OCommandResponse implements OBinaryResponse {
+
   private final boolean asynch;
   private final OCommandResultListener listener;
   private final ODatabaseDocumentInternal database;
@@ -87,8 +89,11 @@ public final class OCommandResponse implements OBinaryResponse {
   public void write(OChannelDataOutput channel, int protocolVersion, ORecordSerializer serializer)
       throws IOException {
     if (asynch) {
-      if (params == null) result = database.command(command).execute();
-      else result = database.command(command).execute(params);
+      if (params == null) {
+        result = database.command(command).execute();
+      } else {
+        result = database.command(command).execute(params);
+      }
 
       // FETCHPLAN HAS TO BE ASSIGNED AGAIN, because it can be changed by SQL statement
       channel.writeByte((byte) 0); // NO MORE RECORDS
@@ -127,72 +132,102 @@ public final class OCommandResponse implements OBinaryResponse {
     if (result == null) {
       // NULL VALUE
       channel.writeByte((byte) 'n');
-    } else if (result instanceof OIdentifiable) {
-      // RECORD
-      channel.writeByte((byte) 'r');
-      if (load && result instanceof ORecordId) result = ((ORecordId) result).getRecord();
-
-      if (listener != null) listener.result(result);
-      OMessageHelper.writeIdentifiable(channel, (OIdentifiable) result, recordSerializer);
-    } else if (result instanceof ODocumentWrapper) {
-      // RECORD
-      channel.writeByte((byte) 'r');
-      final ODocument doc = ((ODocumentWrapper) result).getDocument();
-      if (listener != null) listener.result(doc);
-      OMessageHelper.writeIdentifiable(channel, doc, recordSerializer);
-    } else if (!isRecordResultSet) {
-      writeSimpleValue(channel, listener, result, protocolVersion, recordSerializer);
-    } else if (OMultiValue.isMultiValue(result)) {
-      final byte collectionType = result instanceof Set ? (byte) 's' : (byte) 'l';
-      channel.writeByte(collectionType);
-      channel.writeInt(OMultiValue.getSize(result));
-      for (Object o : OMultiValue.getMultiValueIterable(result, false)) {
-        try {
-          if (load && o instanceof ORecordId) o = ((ORecordId) o).getRecord();
-          if (listener != null) listener.result(o);
-
-          OMessageHelper.writeIdentifiable(channel, (OIdentifiable) o, recordSerializer);
-        } catch (Exception e) {
-          OLogManager.instance().warn(this, "Cannot serialize record: " + o);
-          OMessageHelper.writeIdentifiable(channel, null, recordSerializer);
-          // WRITE NULL RECORD TO AVOID BREAKING PROTOCOL
-        }
-      }
-    } else if (OMultiValue.isIterable(result)) {
-      if (protocolVersion >= OChannelBinaryProtocol.PROTOCOL_VERSION_32) {
-        channel.writeByte((byte) 'i');
-        for (Object o : OMultiValue.getMultiValueIterable(result)) {
-          try {
-            if (load && o instanceof ORecordId) o = ((ORecordId) o).getRecord();
-            if (listener != null) listener.result(o);
-
-            channel.writeByte((byte) 1); // ONE MORE RECORD
-            OMessageHelper.writeIdentifiable(channel, (OIdentifiable) o, recordSerializer);
-          } catch (Exception e) {
-            OLogManager.instance().warn(this, "Cannot serialize record: " + o);
-          }
-        }
-        channel.writeByte((byte) 0); // NO MORE RECORD
-      } else {
-        // OLD RELEASES: TRANSFORM IN A COLLECTION
-        final byte collectionType = result instanceof Set ? (byte) 's' : (byte) 'l';
-        channel.writeByte(collectionType);
-        channel.writeInt(OMultiValue.getSize(result));
-        for (Object o : OMultiValue.getMultiValueIterable(result)) {
-          try {
-            if (load && o instanceof ORecordId) o = ((ORecordId) o).getRecord();
-            if (listener != null) listener.result(o);
-
-            OMessageHelper.writeIdentifiable(channel, (OIdentifiable) o, recordSerializer);
-          } catch (Exception e) {
-            OLogManager.instance().warn(this, "Cannot serialize record: " + o);
-          }
-        }
-      }
-
     } else {
-      // ANY OTHER (INCLUDING LITERALS)
-      writeSimpleValue(channel, listener, result, protocolVersion, recordSerializer);
+      if (result instanceof OIdentifiable) {
+        // RECORD
+        channel.writeByte((byte) 'r');
+        if (load && result instanceof ORecordId) {
+          result = ((ORecordId) result).getRecord();
+        }
+
+        if (listener != null) {
+          listener.result(result);
+        }
+        OMessageHelper.writeIdentifiable(channel, (OIdentifiable) result, recordSerializer);
+      } else {
+        if (result instanceof ODocumentWrapper) {
+          // RECORD
+          channel.writeByte((byte) 'r');
+          final ODocument doc = ((ODocumentWrapper) result).getDocument();
+          if (listener != null) {
+            listener.result(doc);
+          }
+          OMessageHelper.writeIdentifiable(channel, doc, recordSerializer);
+        } else {
+          if (!isRecordResultSet) {
+            writeSimpleValue(channel, listener, result, protocolVersion, recordSerializer);
+          } else {
+            if (OMultiValue.isMultiValue(result)) {
+              final byte collectionType = result instanceof Set ? (byte) 's' : (byte) 'l';
+              channel.writeByte(collectionType);
+              channel.writeInt(OMultiValue.getSize(result));
+              for (Object o : OMultiValue.getMultiValueIterable(result, false)) {
+                try {
+                  if (load && o instanceof ORecordId) {
+                    o = ((ORecordId) o).getRecord();
+                  }
+                  if (listener != null) {
+                    listener.result(o);
+                  }
+
+                  OMessageHelper.writeIdentifiable(channel, (OIdentifiable) o, recordSerializer);
+                } catch (Exception e) {
+                  OLogManager.instance().warn(this, "Cannot serialize record: " + o);
+                  OMessageHelper.writeIdentifiable(channel, null, recordSerializer);
+                  // WRITE NULL RECORD TO AVOID BREAKING PROTOCOL
+                }
+              }
+            } else {
+              if (OMultiValue.isIterable(result)) {
+                if (protocolVersion >= OChannelBinaryProtocol.PROTOCOL_VERSION_32) {
+                  channel.writeByte((byte) 'i');
+                  for (Object o : OMultiValue.getMultiValueIterable(result)) {
+                    try {
+                      if (load && o instanceof ORecordId) {
+                        o = ((ORecordId) o).getRecord();
+                      }
+                      if (listener != null) {
+                        listener.result(o);
+                      }
+
+                      channel.writeByte((byte) 1); // ONE MORE RECORD
+                      OMessageHelper.writeIdentifiable(
+                          channel, (OIdentifiable) o, recordSerializer);
+                    } catch (Exception e) {
+                      OLogManager.instance().warn(this, "Cannot serialize record: " + o);
+                    }
+                  }
+                  channel.writeByte((byte) 0); // NO MORE RECORD
+                } else {
+                  // OLD RELEASES: TRANSFORM IN A COLLECTION
+                  final byte collectionType = result instanceof Set ? (byte) 's' : (byte) 'l';
+                  channel.writeByte(collectionType);
+                  channel.writeInt(OMultiValue.getSize(result));
+                  for (Object o : OMultiValue.getMultiValueIterable(result)) {
+                    try {
+                      if (load && o instanceof ORecordId) {
+                        o = ((ORecordId) o).getRecord();
+                      }
+                      if (listener != null) {
+                        listener.result(o);
+                      }
+
+                      OMessageHelper.writeIdentifiable(
+                          channel, (OIdentifiable) o, recordSerializer);
+                    } catch (Exception e) {
+                      OLogManager.instance().warn(this, "Cannot serialize record: " + o);
+                    }
+                  }
+                }
+
+              } else {
+                // ANY OTHER (INCLUDING LITERALS)
+                writeSimpleValue(channel, listener, result, protocolVersion, recordSerializer);
+              }
+            }
+          }
+        }
+      }
     }
   }
 
@@ -209,7 +244,9 @@ public final class OCommandResponse implements OBinaryResponse {
       ODocument document = new ODocument();
       document.field("result", result);
       OMessageHelper.writeIdentifiable(channel, document, recordSerializer);
-      if (listener != null) listener.linkdedBySimpleValue(document);
+      if (listener != null) {
+        listener.linkdedBySimpleValue(document);
+      }
     } else {
       channel.writeByte((byte) 'a');
       final StringBuilder value = new StringBuilder(64);
@@ -238,22 +275,41 @@ public final class OCommandResponse implements OBinaryResponse {
 
         // ASYNCH: READ ONE RECORD AT TIME
         while ((status = network.readByte()) > 0) {
-          final ORecord record = (ORecord) OMessageHelper.readIdentifiable(network, serializer);
-          if (record == null) continue;
+          final ORecordAbstract record =
+              (ORecordAbstract) OMessageHelper.readIdentifiable(network, serializer);
+          if (record == null) {
+            continue;
+          }
 
           switch (status) {
             case 1:
               // PUT AS PART OF THE RESULT SET. INVOKE THE LISTENER
               if (addNextRecord) {
                 addNextRecord = listener.result(record);
-                database.getLocalCache().updateRecord(record);
+
+                var cachedRecord = database.getLocalCache().findRecord(record.getIdentity());
+                if (cachedRecord != record) {
+                  if (cachedRecord != null) {
+                    record.copyTo(cachedRecord);
+                  } else {
+                    database.getLocalCache().updateRecord(record);
+                  }
+                }
               }
               break;
 
             case 2:
-              if (record.getIdentity().getClusterId() == -2) temporaryResults.add(record);
-              // PUT IN THE CLIENT LOCAL CACHE
-              database.getLocalCache().updateRecord(record);
+              if (record.getIdentity().getClusterId() == -2) {
+                temporaryResults.add(record);
+              }
+              var cachedRecord = database.getLocalCache().findRecord(record.getIdentity());
+              if (cachedRecord != record) {
+                if (cachedRecord != null) {
+                  record.copyTo(cachedRecord);
+                } else {
+                  database.getLocalCache().updateRecord(record);
+                }
+              }
           }
         }
       } else {
@@ -311,7 +367,9 @@ public final class OCommandResponse implements OBinaryResponse {
     } finally {
       // TODO: this is here because we allow query in end listener.
       session.commandExecuting = false;
-      if (listener != null && !live) listener.end();
+      if (listener != null && !live) {
+        listener.end();
+      }
     }
   }
 
@@ -331,23 +389,41 @@ public final class OCommandResponse implements OBinaryResponse {
 
       case 'r':
         result = OMessageHelper.readIdentifiable(network, serializer);
-        if (result instanceof ORecord) database.getLocalCache().updateRecord((ORecord) result);
+        if (result instanceof ORecordAbstract record) {
+          var cachedRecord = database.getLocalCache().findRecord(record.getIdentity());
+          if (cachedRecord != record) {
+            if (cachedRecord != null) {
+              record.copyTo(cachedRecord);
+            } else {
+              database.getLocalCache().updateRecord(record);
+            }
+          }
+        }
         break;
 
       case 'l':
       case 's':
         final int tot = network.readInt();
-        final Collection<OIdentifiable> coll;
-
-        coll =
-            type == 's'
-                ? new HashSet<OIdentifiable>(tot)
-                : new OBasicLegacyResultSet<OIdentifiable>(tot);
+        Collection<OIdentifiable> coll =
+            type == 's' ? new HashSet<>(tot) : new OBasicLegacyResultSet<>(tot);
         for (int i = 0; i < tot; ++i) {
           final OIdentifiable resultItem = OMessageHelper.readIdentifiable(network, serializer);
-          if (resultItem instanceof ORecord)
-            database.getLocalCache().updateRecord((ORecord) resultItem);
-          coll.add(resultItem);
+          if (resultItem instanceof ORecordAbstract record) {
+            var rid = record.getIdentity();
+            var cacheRecord = database.getLocalCache().findRecord(rid);
+
+            if (cacheRecord != record) {
+              if (cacheRecord != null) {
+                record.copyTo(cacheRecord);
+                coll.add(cacheRecord);
+              } else {
+                database.getLocalCache().updateRecord(record);
+                coll.add(resultItem);
+              }
+            } else {
+              coll.add(resultItem);
+            }
+          }
         }
 
         result = coll;
@@ -357,10 +433,25 @@ public final class OCommandResponse implements OBinaryResponse {
         byte status;
         while ((status = network.readByte()) > 0) {
           final OIdentifiable record = OMessageHelper.readIdentifiable(network, serializer);
-          if (record == null) continue;
+          if (record == null) {
+            continue;
+          }
           if (status == 1) {
-            if (record instanceof ORecord) database.getLocalCache().updateRecord((ORecord) record);
-            coll.add(record);
+            if (record instanceof ORecordAbstract rec) {
+              var cachedRecord = database.getLocalCache().findRecord(rec.getIdentity());
+
+              if (cachedRecord != rec) {
+                if (cachedRecord != null) {
+                  rec.copyTo(cachedRecord);
+                  coll.add(cachedRecord);
+                } else {
+                  database.getLocalCache().updateRecord(rec);
+                  coll.add(rec);
+                }
+              } else {
+                coll.add(rec);
+              }
+            }
           }
         }
         result = coll;
@@ -379,11 +470,23 @@ public final class OCommandResponse implements OBinaryResponse {
     // LOAD THE FETCHED RECORDS IN CACHE
     byte status;
     while ((status = network.readByte()) > 0) {
-      final ORecord record = (ORecord) OMessageHelper.readIdentifiable(network, serializer);
+      ORecordAbstract record =
+          (ORecordAbstract) OMessageHelper.readIdentifiable(network, serializer);
       if (record != null && status == 2) {
         // PUT IN THE CLIENT LOCAL CACHE
-        database.getLocalCache().updateRecord(record);
-        if (record.getIdentity().getClusterId() == -2) temporaryResults.add(record);
+        var cachedRecord = database.getLocalCache().findRecord(record.getIdentity());
+        if (cachedRecord != record) {
+          if (cachedRecord != null) {
+            record.copyTo(cachedRecord);
+            record = cachedRecord;
+          } else {
+            database.getLocalCache().updateRecord(record);
+          }
+        }
+
+        if (record.getIdentity().getClusterId() == -2) {
+          temporaryResults.add(record);
+        }
       }
     }
 

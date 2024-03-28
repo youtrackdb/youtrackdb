@@ -93,7 +93,9 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
   public void deserializePartial(
       final ODocument document, final BytesContainer bytes, final String[] iFields) {
     final String className = readString(bytes);
-    if (className.length() != 0) ODocumentInternal.fillClassNameIfNeeded(document, className);
+    if (className.length() != 0) {
+      ODocumentInternal.fillClassNameIfNeeded(document, className);
+    }
 
     String fieldName;
     OType type;
@@ -127,7 +129,9 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
 
   public void deserialize(final ODocument document, final BytesContainer bytes) {
     final String className = readString(bytes);
-    if (className.length() != 0) ODocumentInternal.fillClassNameIfNeeded(document, className);
+    if (className.length() != 0) {
+      ODocumentInternal.fillClassNameIfNeeded(document, className);
+    }
 
     String fieldName;
     OType type;
@@ -205,11 +209,18 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
   protected OClass serializeClass(final ODocument document, final BytesContainer bytes) {
     final OClass clazz = ODocumentInternal.getImmutableSchemaClass(document);
     String name = null;
-    if (clazz != null) name = clazz.getName();
-    if (name == null) name = document.getClassName();
+    if (clazz != null) {
+      name = clazz.getName();
+    }
+    if (name == null) {
+      name = document.getClassName();
+    }
 
-    if (name != null) writeString(bytes, name);
-    else writeEmptyString(bytes);
+    if (name != null) {
+      writeString(bytes, name);
+    } else {
+      writeEmptyString(bytes);
+    }
     return clazz;
   }
 
@@ -286,7 +297,9 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
           } catch (Exception e) {
             throw new RuntimeException(e);
           }
-        } else ODocumentInternal.addOwner((ODocument) value, owner);
+        } else {
+          ODocumentInternal.addOwner((ODocument) value, owner);
+        }
 
         break;
       case EMBEDDEDSET:
@@ -330,9 +343,11 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
           Class<?> clazz = Class.forName(className);
           OSerializableStream stream = (OSerializableStream) clazz.newInstance();
           stream.fromStream(readBinary(bytes));
-          if (stream instanceof OSerializableWrapper)
+          if (stream instanceof OSerializableWrapper) {
             value = ((OSerializableWrapper) stream).getSerializable();
-          else value = stream;
+          } else {
+            value = stream;
+          }
         } catch (Exception e) {
           throw new RuntimeException(e);
         }
@@ -347,8 +362,12 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
     final OSBTreeCollectionManager sbTreeCollectionManager =
         ODatabaseRecordThreadLocal.instance().get().getSbTreeCollectionManager();
     UUID uuid = null;
-    if (sbTreeCollectionManager != null) uuid = sbTreeCollectionManager.listenForChanges(bag);
-    if (uuid == null) uuid = new UUID(-1, -1);
+    if (sbTreeCollectionManager != null) {
+      uuid = sbTreeCollectionManager.listenForChanges(bag);
+    }
+    if (uuid == null) {
+      uuid = new UUID(-1, -1);
+    }
     int uuidPos = bytes.alloc(OUUIDSerializer.UUID_SIZE);
     OUUIDSerializer.INSTANCE.serialize(uuid, bytes.bytes, uuidPos);
     if (bag.isToSerializeEmbedded()) {
@@ -358,14 +377,19 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
       Iterator<OIdentifiable> iterator = bag.rawIterator();
       while (iterator.hasNext()) {
         OIdentifiable itemValue = iterator.next();
-        if (itemValue == null) writeNullLink(bytes);
-        else writeOptimizedLink(bytes, itemValue);
+        if (itemValue == null) {
+          writeNullLink(bytes);
+        } else {
+          writeOptimizedLink(bytes, itemValue);
+        }
       }
     } else {
       int pos = bytes.alloc(1);
       bytes.bytes[pos] = 2;
       OBonsaiCollectionPointer pointer = bag.getPointer();
-      if (pointer == null) pointer = OBonsaiCollectionPointer.INVALID;
+      if (pointer == null) {
+        pointer = OBonsaiCollectionPointer.INVALID;
+      }
       OVarIntSerializer.write(bytes, pointer.getFileId());
       OVarIntSerializer.write(bytes, pointer.getRootPointer().getPageIndex());
       OVarIntSerializer.write(bytes, pointer.getRootPointer().getPageOffset());
@@ -388,7 +412,9 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
   protected ORidBag readRidBag(BytesContainer bytes) {
     UUID uuid = OUUIDSerializer.INSTANCE.deserialize(bytes.bytes, bytes.offset);
     bytes.skip(OUUIDSerializer.UUID_SIZE);
-    if (uuid.getMostSignificantBits() == -1 && uuid.getLeastSignificantBits() == -1) uuid = null;
+    if (uuid.getMostSignificantBits() == -1 && uuid.getLeastSignificantBits() == -1) {
+      uuid = null;
+    }
     byte b = bytes.bytes[bytes.offset];
     bytes.skip(1);
     if (b == 1) {
@@ -398,8 +424,11 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
       int size = OVarIntSerializer.readAsInteger(bytes);
       for (int i = 0; i < size; i++) {
         OIdentifiable id = readOptimizedLink(bytes);
-        if (id.equals(NULL_RECORD_ID)) bag.add(null);
-        else bag.add(id);
+        if (id.equals(NULL_RECORD_ID)) {
+          bag.add(null);
+        } else {
+          bag.add(id);
+        }
       }
       bag.disableTracking(null);
       bag.transactionClear();
@@ -421,9 +450,10 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
       }
 
       OBonsaiCollectionPointer pointer = null;
-      if (fileId != -1)
+      if (fileId != -1) {
         pointer =
             new OBonsaiCollectionPointer(fileId, new OBonsaiBucketPointer(pageIndex, pageOffset));
+      }
       return new ORidBag(pointer, changes, uuid);
     }
   }
@@ -444,8 +474,11 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
       OType keyType = readOType(bytes);
       Object key = deserializeValue(bytes, keyType, result);
       OIdentifiable value = readOptimizedLink(bytes);
-      if (value.equals(NULL_RECORD_ID)) result.putInternal(key, null);
-      else result.putInternal(key, value);
+      if (value.equals(NULL_RECORD_ID)) {
+        result.putInternal(key, null);
+      } else {
+        result.putInternal(key, value);
+      }
     }
     return result;
   }
@@ -470,8 +503,11 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
     final int items = OVarIntSerializer.readAsInteger(bytes);
     for (int i = 0; i < items; i++) {
       OIdentifiable id = readOptimizedLink(bytes);
-      if (id.equals(NULL_RECORD_ID)) found.addInternal(null);
-      else found.addInternal(id);
+      if (id.equals(NULL_RECORD_ID)) {
+        found.addInternal(null);
+      } else {
+        found.addInternal(id);
+      }
     }
     return found;
   }
@@ -481,8 +517,11 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
     final int items = OVarIntSerializer.readAsInteger(bytes);
     for (int i = 0; i < items; i++) {
       OIdentifiable id = readOptimizedLink(bytes);
-      if (id.equals(NULL_RECORD_ID)) found.addInternal(null);
-      else found.addInternal(id);
+      if (id.equals(NULL_RECORD_ID)) {
+        found.addInternal(null);
+      } else {
+        found.addInternal(id);
+      }
     }
     return found;
   }
@@ -492,7 +531,9 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
         new ORecordId(OVarIntSerializer.readAsInteger(bytes), OVarIntSerializer.readAsLong(bytes));
     if (id.isTemporary()) {
       OIdentifiable persRef = id.getRecord();
-      if (persRef != null) return persRef;
+      if (persRef != null) {
+        return persRef;
+      }
     }
     return id;
   }
@@ -502,8 +543,11 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
     final int items = OVarIntSerializer.readAsInteger(bytes);
     for (int i = 0; i < items; i++) {
       OType itemType = readOType(bytes);
-      if (itemType == null) found.addInternal(null);
-      else found.addInternal(deserializeValue(bytes, itemType, found));
+      if (itemType == null) {
+        found.addInternal(null);
+      } else {
+        found.addInternal(deserializeValue(bytes, itemType, found));
+      }
     }
     return found;
   }
@@ -513,15 +557,19 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
     final int items = OVarIntSerializer.readAsInteger(bytes);
     for (int i = 0; i < items; i++) {
       OType itemType = readOType(bytes);
-      if (itemType == null) found.addInternal(null);
-      else found.addInternal(deserializeValue(bytes, itemType, found));
+      if (itemType == null) {
+        found.addInternal(null);
+      } else {
+        found.addInternal(deserializeValue(bytes, itemType, found));
+      }
     }
     return found;
   }
 
   private OType getLinkedType(ODocument document, OType type, String key) {
-    if (type != OType.EMBEDDEDLIST && type != OType.EMBEDDEDSET && type != OType.EMBEDDEDMAP)
+    if (type != OType.EMBEDDEDLIST && type != OType.EMBEDDEDSET && type != OType.EMBEDDEDMAP) {
       return null;
+    }
     OClass immutableClass = ODocumentInternal.getImmutableSchemaClass(document);
     if (immutableClass != null) {
       OProperty prop = immutableClass.getProperty(key);
@@ -566,13 +614,17 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
       case DATETIME:
         if (value instanceof Long) {
           OVarIntSerializer.write(bytes, (Long) value);
-        } else OVarIntSerializer.write(bytes, ((Date) value).getTime());
+        } else {
+          OVarIntSerializer.write(bytes, ((Date) value).getTime());
+        }
         break;
       case DATE:
         long dateValue;
         if (value instanceof Long) {
           dateValue = (Long) value;
-        } else dateValue = ((Date) value).getTime();
+        } else {
+          dateValue = ((Date) value).getTime();
+        }
         dateValue =
             convertDayToTimezone(
                 ODateHelper.getDatabaseTimeZone(), TimeZone.getTimeZone("GMT"), dateValue);
@@ -589,9 +641,11 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
         break;
       case EMBEDDEDSET:
       case EMBEDDEDLIST:
-        if (value.getClass().isArray())
+        if (value.getClass().isArray()) {
           writeEmbeddedCollection(bytes, Arrays.asList(OMultiValue.array(value)), linkedType);
-        else writeEmbeddedCollection(bytes, (Collection<?>) value, linkedType);
+        } else {
+          writeEmbeddedCollection(bytes, (Collection<?>) value, linkedType);
+        }
         break;
       case DECIMAL:
         BigDecimal decimalValue = (BigDecimal) value;
@@ -607,8 +661,9 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
         writeLinkCollection(bytes, ridCollection);
         break;
       case LINK:
-        if (!(value instanceof OIdentifiable))
+        if (!(value instanceof OIdentifiable)) {
           throw new OValidationException("Value '" + value + "' is not a OIdentifiable");
+        }
 
         writeOptimizedLink(bytes, (OIdentifiable) value);
         break;
@@ -622,8 +677,9 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
         writeRidBag(bytes, (ORidBag) value);
         break;
       case CUSTOM:
-        if (!(value instanceof OSerializableStream))
+        if (!(value instanceof OSerializableStream)) {
           value = new OSerializableWrapper((Serializable) value);
+        }
         writeString(bytes, value.getClass().getName());
         writeBinary(bytes, ((OSerializableStream) value).toStream());
         break;
@@ -647,8 +703,10 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
             && ((ORecordLazyMultiValue) map).isAutoConvertToRecord();
 
     if (disabledAutoConversion)
-      // AVOID TO FETCH RECORD
+    // AVOID TO FETCH RECORD
+    {
       ((ORecordLazyMultiValue) map).setAutoConvertToRecord(false);
+    }
 
     try {
       final int fullPos = OVarIntSerializer.write(bytes, map.size());
@@ -658,13 +716,18 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
         final OType type = OType.STRING;
         writeOType(bytes, bytes.alloc(1), type);
         writeString(bytes, entry.getKey().toString());
-        if (entry.getValue() == null) writeNullLink(bytes);
-        else writeOptimizedLink(bytes, entry.getValue());
+        if (entry.getValue() == null) {
+          writeNullLink(bytes);
+        } else {
+          writeOptimizedLink(bytes, entry.getValue());
+        }
       }
       return fullPos;
 
     } finally {
-      if (disabledAutoConversion) ((ORecordLazyMultiValue) map).setAutoConvertToRecord(true);
+      if (disabledAutoConversion) {
+        ((ORecordLazyMultiValue) map).setAutoConvertToRecord(true);
+      }
     }
   }
 
@@ -699,7 +762,9 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
   protected int writeOptimizedLink(final BytesContainer bytes, OIdentifiable link) {
     if (!link.getIdentity().isPersistent()) {
       final ORecord real = link.getRecord();
-      if (real != null) link = real;
+      if (real != null) {
+        link = real;
+      }
     }
     final int pos = OVarIntSerializer.write(bytes, link.getIdentity().getClusterId());
     OVarIntSerializer.write(bytes, link.getIdentity().getClusterPosition());
@@ -715,18 +780,25 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
             && ((ORecordLazyMultiValue) value).isAutoConvertToRecord();
 
     if (disabledAutoConversion)
-      // AVOID TO FETCH RECORD
+    // AVOID TO FETCH RECORD
+    {
       ((ORecordLazyMultiValue) value).setAutoConvertToRecord(false);
+    }
 
     try {
       for (OIdentifiable itemValue : value) {
         // TODO: handle the null links
-        if (itemValue == null) writeNullLink(bytes);
-        else writeOptimizedLink(bytes, itemValue);
+        if (itemValue == null) {
+          writeNullLink(bytes);
+        } else {
+          writeOptimizedLink(bytes, itemValue);
+        }
       }
 
     } finally {
-      if (disabledAutoConversion) ((ORecordLazyMultiValue) value).setAutoConvertToRecord(true);
+      if (disabledAutoConversion) {
+        ((ORecordLazyMultiValue) value).setAutoConvertToRecord(true);
+      }
     }
 
     return pos;
@@ -743,8 +815,11 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
         continue;
       }
       OType type;
-      if (linkedType == null) type = getTypeFromValueEmbedded(itemValue);
-      else type = linkedType;
+      if (linkedType == null) {
+        type = getTypeFromValueEmbedded(itemValue);
+      } else {
+        type = linkedType;
+      }
       if (type != null) {
         writeOType(bytes, bytes.alloc(1), type);
         serializeValue(bytes, itemValue, type, null);
@@ -762,9 +837,13 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
     OType type = entry.type;
     if (type == null) {
       final OProperty prop = entry.property;
-      if (prop != null) type = prop.getType();
+      if (prop != null) {
+        type = prop.getType();
+      }
     }
-    if (type == null || OType.ANY == type) type = OType.getTypeByValue(entry.value);
+    if (type == null || OType.ANY == type) {
+      type = OType.getTypeByValue(entry.value);
+    }
     return type;
   }
 
@@ -772,7 +851,9 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
     OType type = OType.getTypeByValue(fieldValue);
     if (type == OType.LINK
         && fieldValue instanceof ODocument
-        && !((ODocument) fieldValue).getIdentity().isValid()) type = OType.EMBEDDED;
+        && !((ODocument) fieldValue).getIdentity().isValid()) {
+      type = OType.EMBEDDED;
+    }
     return type;
   }
 
@@ -857,23 +938,33 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
 
   @Override
   public ORecord fromStream(byte[] iSource, ORecord iRecord, String[] iFields) {
-    if (iSource == null || iSource.length == 0) return iRecord;
+    if (iSource == null || iSource.length == 0) {
+      return iRecord;
+    }
     if (iRecord == null) {
       iRecord = new ODocument();
-    } else if (iRecord instanceof OBlob) {
-      iRecord.fromStream(iSource);
-      return iRecord;
-    } else if (iRecord instanceof ORecordFlat) {
-      iRecord.fromStream(iSource);
-      return iRecord;
+    } else {
+      if (iRecord instanceof OBlob) {
+        ORecordInternal.unsetDirty(iRecord);
+        ORecordInternal.fill(iRecord, iRecord.getIdentity(), iRecord.getVersion(), iSource, true);
+        return iRecord;
+      } else {
+        if (iRecord instanceof ORecordFlat) {
+          ORecordInternal.unsetDirty(iRecord);
+          ORecordInternal.fill(iRecord, iRecord.getIdentity(), iRecord.getVersion(), iSource, true);
+          return iRecord;
+        }
+      }
     }
     ORecordInternal.setRecordSerializer(iRecord, this);
     BytesContainer container = new BytesContainer(iSource);
 
     try {
-      if (iFields != null && iFields.length > 0)
+      if (iFields != null && iFields.length > 0) {
         deserializePartial((ODocument) iRecord, container, iFields);
-      else deserialize((ODocument) iRecord, container);
+      } else {
+        deserialize((ODocument) iRecord, container);
+      }
     } catch (RuntimeException e) {
       OLogManager.instance()
           .warn(
@@ -890,15 +981,17 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
   public byte[] toStream(ORecord iSource) {
     if (iSource instanceof OBlob) {
       return iSource.toStream();
-    } else if (iSource instanceof ORecordFlat) {
-      return iSource.toStream();
     } else {
-      final BytesContainer container = new BytesContainer();
+      if (iSource instanceof ORecordFlat) {
+        return iSource.toStream();
+      } else {
+        final BytesContainer container = new BytesContainer();
 
-      ODocument doc = (ODocument) iSource;
-      // SERIALIZE RECORD
-      serialize(doc, container);
-      return container.fitBytes();
+        ODocument doc = (ODocument) iSource;
+        // SERIALIZE RECORD
+        serialize(doc, container);
+        return container.fitBytes();
+      }
     }
   }
 
@@ -924,7 +1017,9 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
 
   @Override
   public String[] getFieldNames(ODocument reference, byte[] iSource) {
-    if (iSource == null || iSource.length == 0) return new String[0];
+    if (iSource == null || iSource.length == 0) {
+      return new String[0];
+    }
 
     final BytesContainer container = new BytesContainer(iSource);
 

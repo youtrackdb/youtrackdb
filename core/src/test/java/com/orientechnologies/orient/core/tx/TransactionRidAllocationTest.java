@@ -13,6 +13,7 @@ import com.orientechnologies.orient.core.exception.OConcurrentCreateException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import java.util.ArrayList;
@@ -21,7 +22,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by tglman on 28/08/17. */
+/**
+ * Created by tglman on 28/08/17.
+ */
 public class TransactionRidAllocationTest {
 
   private OrientDB orientDB;
@@ -101,7 +104,8 @@ public class TransactionRidAllocationTest {
     second.begin();
     OTransactionOptimistic transactionOptimistic = (OTransactionOptimistic) second.getTransaction();
     for (ORecordOperation operation : transaction.getRecordOperations()) {
-      transactionOptimistic.addRecord(operation.getRecord().copy(), operation.getType(), null);
+      transactionOptimistic.addRecord(
+          (ORecordAbstract) operation.getRecord().copy(), operation.getType(), null);
     }
     ((OAbstractPaginatedStorage) second.getStorage()).preallocateRids(transactionOptimistic);
     db.activateOnCurrentThread();
@@ -153,7 +157,8 @@ public class TransactionRidAllocationTest {
     second.begin();
     OTransactionOptimistic transactionOptimistic = (OTransactionOptimistic) second.getTransaction();
     for (ORecordOperation operation : transaction.getRecordOperations()) {
-      transactionOptimistic.addRecord(operation.getRecord().copy(), operation.getType(), null);
+      transactionOptimistic.addRecord(
+          (ORecordAbstract) operation.getRecord().copy(), operation.getType(), null);
     }
     ((OAbstractPaginatedStorage) second.getStorage()).preallocateRids(transactionOptimistic);
   }

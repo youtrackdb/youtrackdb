@@ -36,6 +36,7 @@ import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper.ODbRelatedCall;
@@ -790,13 +791,6 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
       final int clusterId1 =
           makeDbCall(databaseOne, database -> database.getClusterIdByName(clusterName));
 
-      databaseOne.activateOnCurrentThread();
-      @SuppressWarnings("ObjectAllocationInLoop")
-      final ODocument doc1 = new ODocument();
-      databaseTwo.activateOnCurrentThread();
-      @SuppressWarnings("ObjectAllocationInLoop")
-      final ODocument doc2 = new ODocument();
-
       @SuppressWarnings("ObjectAllocationInLoop")
       final ORecordId rid1 = new ORecordId(clusterId1);
 
@@ -823,6 +817,13 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
         for (OPhysicalPosition physicalPosition : physicalPositions) {
           try {
             recordsCounter++;
+
+            databaseOne.activateOnCurrentThread();
+            @SuppressWarnings("ObjectAllocationInLoop")
+            final ODocument doc1 = new ODocument();
+            databaseTwo.activateOnCurrentThread();
+            @SuppressWarnings("ObjectAllocationInLoop")
+            final ODocument doc2 = new ODocument();
 
             final long position = physicalPosition.clusterPosition;
             rid1.setClusterPosition(position);
@@ -925,7 +926,7 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
                           makeDbCall(
                               databaseOne,
                               database -> {
-                                doc1.reset();
+                                ORecordInternal.unsetDirty(doc1);
                                 doc1.fromStream(buffer1.buffer);
                                 return null;
                               });
@@ -933,7 +934,7 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
                           makeDbCall(
                               databaseTwo,
                               database -> {
-                                doc2.reset();
+                                ORecordInternal.unsetDirty(doc2);
                                 doc2.fromStream(buffer2.buffer);
                                 return null;
                               });

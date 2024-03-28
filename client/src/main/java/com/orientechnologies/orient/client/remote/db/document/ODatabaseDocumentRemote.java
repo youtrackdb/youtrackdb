@@ -69,6 +69,7 @@ import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.metadata.sequence.OSequenceAction;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -101,7 +102,9 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-/** Created by tglman on 30/06/16. */
+/**
+ * Created by tglman on 30/06/16.
+ */
 public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
 
   protected OStorageRemoteSession sessionMetadata;
@@ -571,19 +574,21 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
           protected void checkTransactionValid() {}
         };
     tx.begin();
-    Set<ORecord> records = ORecordInternal.getDirtyManager((ORecord) record).getUpdateRecords();
+    Set<ORecordAbstract> records =
+        ORecordInternal.getDirtyManager((ORecord) record).getUpdateRecords();
     if (records != null) {
-      for (ORecord rec : records) {
+      for (var rec : records) {
         tx.saveRecord(rec, null, ODatabase.OPERATION_MODE.SYNCHRONOUS, false, null, null);
       }
     }
-    Set<ORecord> newRecords = ORecordInternal.getDirtyManager((ORecord) record).getNewRecords();
+    Set<ORecordAbstract> newRecords =
+        ORecordInternal.getDirtyManager((ORecord) record).getNewRecords();
     if (newRecords != null) {
-      for (ORecord rec : newRecords) {
+      for (var rec : newRecords) {
         tx.saveRecord(rec, null, ODatabase.OPERATION_MODE.SYNCHRONOUS, false, null, null);
       }
     }
-    tx.deleteRecord((ORecord) record, iMode);
+    tx.deleteRecord((ORecordAbstract) record, iMode);
     tx.commit();
   }
 
@@ -596,12 +601,14 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
         ((ODocument) id).validate();
       }
       return id;
-    } else if (res == ORecordHook.RESULT.RECORD_REPLACED) {
-      ORecord replaced = OHookReplacedRecordThreadLocal.INSTANCE.get();
-      if (replaced instanceof ODocument) {
-        ((ODocument) replaced).validate();
+    } else {
+      if (res == ORecordHook.RESULT.RECORD_REPLACED) {
+        ORecord replaced = OHookReplacedRecordThreadLocal.INSTANCE.get();
+        if (replaced instanceof ODocument) {
+          ((ODocument) replaced).validate();
+        }
+        return replaced;
       }
-      return replaced;
     }
     return null;
   }
@@ -615,12 +622,14 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
         ((ODocument) id).validate();
       }
       return id;
-    } else if (res == ORecordHook.RESULT.RECORD_REPLACED) {
-      ORecord replaced = OHookReplacedRecordThreadLocal.INSTANCE.get();
-      if (replaced instanceof ODocument) {
-        ((ODocument) replaced).validate();
+    } else {
+      if (res == ORecordHook.RESULT.RECORD_REPLACED) {
+        ORecord replaced = OHookReplacedRecordThreadLocal.INSTANCE.get();
+        if (replaced instanceof ODocument) {
+          ((ODocument) replaced).validate();
+        }
+        return replaced;
       }
-      return replaced;
     }
     return null;
   }
@@ -689,7 +698,12 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
         };
     tx.begin();
     tx.saveRecord(
-        iRecord, iClusterName, iMode, iForceCreate, iRecordCreatedCallback, iRecordUpdatedCallback);
+        (ORecordAbstract) iRecord,
+        iClusterName,
+        iMode,
+        iForceCreate,
+        iRecordCreatedCallback,
+        iRecordUpdatedCallback);
     tx.commit();
 
     return iRecord;
@@ -778,10 +792,11 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
   private ORecord fillRecordFromNetwork(
       ORID recordId, byte recordType, int version, byte[] buffer) {
     beforeReadOperations(recordId);
-    ORecord toFillRecord = getLocalCache().findRecord(recordId);
+    ORecordAbstract toFillRecord = getLocalCache().findRecord(recordId);
     if (toFillRecord == null) {
       toFillRecord =
           Orient.instance().getRecordFactoryManager().newInstance(recordType, recordId, this);
+      ORecordInternal.unsetDirty(toFillRecord);
     }
     ORecordInternal.fill(toFillRecord, recordId, version, buffer, false);
     getLocalCache().updateRecord(toFillRecord);
@@ -816,13 +831,15 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
     if (record instanceof OVertex) {
       reload(record, "in*:2 out*:2");
       OVertexInternal.deleteLinks((OVertex) record);
-    } else if (record instanceof OEdge) {
-      reload(record, "in:1 out:1");
-      OEdgeDocument.deleteLinks((OEdge) record);
+    } else {
+      if (record instanceof OEdge) {
+        reload(record, "in:1 out:1");
+        OEdgeDocument.deleteLinks((OEdge) record);
+      }
     }
 
     try {
-      currentTx.deleteRecord(record, OPERATION_MODE.SYNCHRONOUS);
+      currentTx.deleteRecord((ORecordAbstract) record, OPERATION_MODE.SYNCHRONOUS);
       if (newTx) {
         //noinspection resource
         commit();
@@ -878,21 +895,27 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
     return this;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public long countClusterElements(int iClusterId, boolean countTombstones) {
     checkIfActive();
     return getStorageRemote().count(iClusterId, countTombstones);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public long countClusterElements(int[] iClusterIds, boolean countTombstones) {
     checkIfActive();
     return getStorageRemote().count(iClusterIds, countTombstones);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public long countClusterElements(final String iClusterName) {
     checkIfActive();
@@ -1045,7 +1068,9 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
     return getStorageRemote().getRecordMetadata(rid);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void freeze(final boolean throwException) {
     checkOpenness();
@@ -1059,13 +1084,17 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
     return;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void freeze() {
     freeze(false);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void release() {
     checkOpenness();
@@ -1102,7 +1131,9 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
         "restore is not supported against remote instance. Use OrientDB instance command instead");
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   public OSBTreeCollectionManager getSbTreeCollectionManager() {
     return getStorageRemote().getSBtreeCollectionManager();
   }
@@ -1203,7 +1234,9 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
     return filterClusters.stream().map((c) -> getClusterIdByName(c)).mapToInt(i -> i).toArray();
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void truncateCluster(String clusterName) {
     command("truncate cluster " + clusterName).close();

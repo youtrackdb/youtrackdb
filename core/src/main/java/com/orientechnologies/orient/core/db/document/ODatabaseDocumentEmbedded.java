@@ -87,6 +87,7 @@ import com.orientechnologies.orient.core.query.live.OLiveQueryListenerV2;
 import com.orientechnologies.orient.core.query.live.OLiveQueryMonitorEmbedded;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.record.impl.OEdgeDocument;
@@ -131,7 +132,9 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-/** Created by tglman on 27/06/16. */
+/**
+ * Created by tglman on 27/06/16.
+ */
 public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     implements OQueryLifecycleListener {
 
@@ -176,21 +179,26 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     try {
 
       status = STATUS.OPEN;
-      if (initialized) return;
+      if (initialized) {
+        return;
+      }
 
       ORecordSerializerFactory serializerFactory = ORecordSerializerFactory.instance();
       String serializeName = getStorageInfo().getConfiguration().getRecordSerializer();
-      if (serializeName == null)
+      if (serializeName == null) {
         throw new ODatabaseException(
             "Impossible to open database from version before 2.x use export import instead");
+      }
       serializer = serializerFactory.getFormat(serializeName);
-      if (serializer == null)
+      if (serializer == null) {
         throw new ODatabaseException(
             "RecordSerializer with name '" + serializeName + "' not found ");
+      }
       if (getStorageInfo().getConfiguration().getRecordSerializerVersion()
-          > serializer.getMinSupportedVersion())
+          > serializer.getMinSupportedVersion()) {
         throw new ODatabaseException(
             "Persistent record serializer version is not support by the current implementation");
+      }
 
       localCache.startup();
 
@@ -219,8 +227,11 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
         final OSecurityUser usr;
 
         usr = security.securityAuthenticate(this, authenticationInfo);
-        if (usr != null) user = new OImmutableUser(security.getVersion(this), usr);
-        else user = null;
+        if (usr != null) {
+          user = new OImmutableUser(security.getVersion(this), usr);
+        } else {
+          user = null;
+        }
 
         checkSecurity(ORule.ResourceGeneric.DATABASE, ORole.PERMISSION_READ);
       }
@@ -254,8 +265,11 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
         } else {
           usr = security.getUser(this, iUserName);
         }
-        if (usr != null) user = new OImmutableUser(security.getVersion(this), usr);
-        else user = null;
+        if (usr != null) {
+          user = new OImmutableUser(security.getVersion(this), usr);
+        } else {
+          user = null;
+        }
 
         checkSecurity(ORule.ResourceGeneric.DATABASE, ORole.PERMISSION_READ);
       }
@@ -283,7 +297,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
    *
    * @param iToken Authentication token
    * @return The Database instance itself giving a "fluent interface". Useful to call multiple
-   *     methods in chain.
+   * methods in chain.
    */
   @Deprecated
   public <DB extends ODatabase> DB open(final OToken iToken) {
@@ -295,12 +309,15 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     throw new UnsupportedOperationException("Deprecated Method");
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   public void internalCreate(OrientDBConfig config, OSharedContext ctx) {
     ORecordSerializer serializer = ORecordSerializerFactory.instance().getDefaultRecordSerializer();
-    if (serializer.toString().equals("ORecordDocument2csv"))
+    if (serializer.toString().equals("ORecordDocument2csv")) {
       throw new ODatabaseException(
           "Impossible to create the database with ORecordDocument2csv serializer");
+    }
     storage.setRecordSerializer(serializer.toString(), serializer.getCurrentVersion());
     storage.setProperty(OStatement.CUSTOM_STRICT_SQL, "true");
 
@@ -319,14 +336,17 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
   public void callOnCreateListeners() {
     // WAKE UP DB LIFECYCLE LISTENER
     for (Iterator<ODatabaseLifecycleListener> it = Orient.instance().getDbLifecycleListeners();
-        it.hasNext(); ) it.next().onCreate(getDatabaseOwner());
+        it.hasNext(); ) {
+      it.next().onCreate(getDatabaseOwner());
+    }
 
     // WAKE UP LISTENERS
-    for (ODatabaseListener listener : browseListeners())
+    for (ODatabaseListener listener : browseListeners()) {
       try {
         listener.onCreate(this);
       } catch (Exception ignore) {
       }
+    }
   }
 
   protected void createMetadata(OSharedContext shared) {
@@ -353,20 +373,27 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
   public <DB extends ODatabase> DB set(final ATTRIBUTES iAttribute, final Object iValue) {
     checkIfActive();
 
-    if (iAttribute == null) throw new IllegalArgumentException("attribute is null");
+    if (iAttribute == null) {
+      throw new IllegalArgumentException("attribute is null");
+    }
 
     final String stringValue = OIOUtils.getStringContent(iValue != null ? iValue.toString() : null);
     final OStorage storage = getStorage();
     switch (iAttribute) {
       case STATUS:
-        if (stringValue == null) throw new IllegalArgumentException("DB status can't be null");
+        if (stringValue == null) {
+          throw new IllegalArgumentException("DB status can't be null");
+        }
         setStatus(STATUS.valueOf(stringValue.toUpperCase(Locale.ENGLISH)));
         break;
 
       case DEFAULTCLUSTERID:
         if (iValue != null) {
-          if (iValue instanceof Number) storage.setDefaultClusterId(((Number) iValue).intValue());
-          else storage.setDefaultClusterId(storage.getClusterIdByName(iValue.toString()));
+          if (iValue instanceof Number) {
+            storage.setDefaultClusterId(((Number) iValue).intValue());
+          } else {
+            storage.setDefaultClusterId(storage.getClusterIdByName(iValue.toString()));
+          }
         }
         break;
 
@@ -374,7 +401,9 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
         throw new IllegalArgumentException("Database type cannot be changed at run-time");
 
       case DATEFORMAT:
-        if (stringValue == null) throw new IllegalArgumentException("date format is null");
+        if (stringValue == null) {
+          throw new IllegalArgumentException("date format is null");
+        }
 
         // CHECK FORMAT
         new SimpleDateFormat(stringValue).format(new Date());
@@ -383,7 +412,9 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
         break;
 
       case DATETIMEFORMAT:
-        if (stringValue == null) throw new IllegalArgumentException("date format is null");
+        if (stringValue == null) {
+          throw new IllegalArgumentException("date format is null");
+        }
 
         // CHECK FORMAT
         new SimpleDateFormat(stringValue).format(new Date());
@@ -392,7 +423,9 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
         break;
 
       case TIMEZONE:
-        if (stringValue == null) throw new IllegalArgumentException("Timezone can't be null");
+        if (stringValue == null) {
+          throw new IllegalArgumentException("Timezone can't be null");
+        }
 
         // for backward compatibility, until 2.1.13 OrientDB accepted timezones in lowercase as well
         TimeZone timeZoneValue = TimeZone.getTimeZone(stringValue.toUpperCase(Locale.ENGLISH));
@@ -420,14 +453,18 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
         if (indx < 0) {
           if ("clear".equalsIgnoreCase(stringValue)) {
             clearCustomInternal();
-          } else
+          } else {
             throw new IllegalArgumentException(
                 "Syntax error: expected <name> = <value> or clear, instead found: " + iValue);
+          }
         } else {
           String customName = stringValue.substring(0, indx).trim();
           String customValue = stringValue.substring(indx + 1).trim();
-          if (customValue.isEmpty()) removeCustomInternal(customName);
-          else setCustomInternal(customName, customValue);
+          if (customValue.isEmpty()) {
+            removeCustomInternal(customName);
+          } else {
+            setCustomInternal(customName, customValue);
+          }
         }
         break;
 
@@ -437,11 +474,16 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
 
       case MINIMUMCLUSTERS:
         if (iValue != null) {
-          if (iValue instanceof Number) storage.setMinimumClusters(((Number) iValue).intValue());
-          else storage.setMinimumClusters(Integer.parseInt(stringValue));
+          if (iValue instanceof Number) {
+            storage.setMinimumClusters(((Number) iValue).intValue());
+          } else {
+            storage.setMinimumClusters(Integer.parseInt(stringValue));
+          }
         } else
-          // DEFAULT = 1
+        // DEFAULT = 1
+        {
           storage.setMinimumClusters(1);
+        }
 
         break;
 
@@ -473,11 +515,14 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
   private void setCustomInternal(final String iName, final String iValue) {
     final OStorage storage = getStorage();
     if (iValue == null || "null".equalsIgnoreCase(iValue))
-      // REMOVE
+    // REMOVE
+    {
       storage.removeProperty(iName);
-    else
-      // SET
+    } else
+    // SET
+    {
       storage.setProperty(iName, iValue);
+    }
   }
 
   public <DB extends ODatabase> DB setCustom(final String name, final Object iValue) {
@@ -488,14 +533,19 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     } else {
       String customName = name;
       String customValue = iValue == null ? null : "" + iValue;
-      if (customName == null || customValue.isEmpty()) removeCustomInternal(customName);
-      else setCustomInternal(customName, customValue);
+      if (customName == null || customValue.isEmpty()) {
+        removeCustomInternal(customName);
+      } else {
+        setCustomInternal(customName, customValue);
+      }
     }
 
     return (DB) this;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public <DB extends ODatabase> DB create(String incrementalBackupPath) {
     throw new UnsupportedOperationException("use OrientDB");
@@ -507,7 +557,9 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     throw new UnsupportedOperationException("use OrientDB");
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void drop() {
     throw new UnsupportedOperationException("use OrientDB");
@@ -853,8 +905,8 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
   }
 
   /**
-   * This method is internal, it can be subject to signature change or be removed, do not
-   * use. @Internal
+   * This method is internal, it can be subject to signature change or be removed, do not use.
+   * @Internal
    */
   public void executeDeleteRecord(
       OIdentifiable identifiable,
@@ -867,15 +919,20 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
 
     final ORecordId rid = (ORecordId) identifiable.getIdentity();
 
-    if (rid == null)
+    if (rid == null) {
       throw new ODatabaseException(
           "Cannot delete record because it has no identity. Probably was created from scratch or"
               + " contains projections of fields rather than a full record");
+    }
 
-    if (!rid.isValid()) return;
+    if (!rid.isValid()) {
+      return;
+    }
 
-    ORecord record = identifiable.getRecord();
-    if (record == null) return;
+    var record = (ORecordAbstract) identifiable.getRecord();
+    if (record == null) {
+      return;
+    }
     if (record instanceof ODocument) {
       if (record.getInternalStatus() == ORecordElement.STATUS.NOT_LOADED) {
         record = load(identifiable.getIdentity());
@@ -942,13 +999,15 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
         ((ODocument) id).validate();
       }
       return id;
-    } else if (res == ORecordHook.RESULT.RECORD_REPLACED
-        || triggerChanged == ORecordHook.RESULT.RECORD_REPLACED) {
-      ORecord replaced = OHookReplacedRecordThreadLocal.INSTANCE.get();
-      if (replaced instanceof ODocument) {
-        ((ODocument) replaced).validate();
+    } else {
+      if (res == ORecordHook.RESULT.RECORD_REPLACED
+          || triggerChanged == ORecordHook.RESULT.RECORD_REPLACED) {
+        ORecord replaced = OHookReplacedRecordThreadLocal.INSTANCE.get();
+        if (replaced instanceof ODocument) {
+          ((ODocument) replaced).validate();
+        }
+        return replaced;
       }
-      return replaced;
     }
     return null;
   }
@@ -974,11 +1033,13 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
           triggerChanged = OClassTrigger.onRecordBeforeUpdate(doc, this);
         }
         if (clazz.isRestricted()) {
-          if (!ORestrictedAccessHook.isAllowed(this, doc, ORestrictedOperation.ALLOW_UPDATE, true))
+          if (!ORestrictedAccessHook.isAllowed(
+              this, doc, ORestrictedOperation.ALLOW_UPDATE, true)) {
             throw new OSecurityException(
                 "Cannot update record "
                     + doc.getIdentity()
                     + ": the resource has restricted access");
+          }
         }
         if (clazz.isFunction()) {
           OFunctionLibraryImpl.validateFunctionRecord(doc);
@@ -999,13 +1060,15 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
         ((ODocument) id).validate();
       }
       return id;
-    } else if (res == ORecordHook.RESULT.RECORD_REPLACED
-        || triggerChanged == ORecordHook.RESULT.RECORD_REPLACED) {
-      ORecord replaced = OHookReplacedRecordThreadLocal.INSTANCE.get();
-      if (replaced instanceof ODocument) {
-        ((ODocument) replaced).validate();
+    } else {
+      if (res == ORecordHook.RESULT.RECORD_REPLACED
+          || triggerChanged == ORecordHook.RESULT.RECORD_REPLACED) {
+        ORecord replaced = OHookReplacedRecordThreadLocal.INSTANCE.get();
+        if (replaced instanceof ODocument) {
+          ((ODocument) replaced).validate();
+        }
+        return replaced;
       }
-      return replaced;
     }
 
     if (changed) {
@@ -1022,12 +1085,13 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
    * an exclusive lock is acquired against the record. Current transaction will continue to see the
    * record as deleted, while others cannot access to it since it's locked.
    *
-   * <p>If MVCC is enabled and the version of the document is different by the version stored in the
+   * <p>If MVCC is enabled and the version of the document is different by the version stored in
+   * the
    * database, then a {@link OConcurrentModificationException} exception is thrown.
    *
    * @param record record to delete
    * @return The Database instance itself giving a "fluent interface". Useful to call multiple
-   *     methods in chain.
+   * methods in chain.
    * @see #setMVCC(boolean), {@link #isMVCC()}
    */
   public ODatabaseDocumentAbstract delete(ORecord record) {
@@ -1046,8 +1110,10 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     if (record instanceof OElement) {
       if (((OElement) record).isVertex()) {
         OVertexInternal.deleteLinks(((OElement) record).toVertex());
-      } else if (((OElement) record).isEdge()) {
-        OEdgeDocument.deleteLinks(((OElement) record).toEdge());
+      } else {
+        if (((OElement) record).isEdge()) {
+          OEdgeDocument.deleteLinks(((OElement) record).toEdge());
+        }
       }
     }
 
@@ -1060,7 +1126,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     }
 
     try {
-      currentTx.deleteRecord(record, OPERATION_MODE.SYNCHRONOUS);
+      currentTx.deleteRecord((ORecordAbstract) record, OPERATION_MODE.SYNCHRONOUS);
       if (newTx) {
         //noinspection resource
         commit();
@@ -1068,7 +1134,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     } catch (OException e) {
       throw e;
     } catch (Exception e) {
-      if (record instanceof ODocument)
+      if (record instanceof ODocument) {
         throw OException.wrapException(
             new ODatabaseException(
                 "Error on deleting record "
@@ -1077,9 +1143,10 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
                     + ((ODocument) record).getClassName()
                     + "'"),
             e);
-      else
+      } else {
         throw OException.wrapException(
             new ODatabaseException("Error on deleting record " + record.getIdentity()), e);
+      }
     }
     return this;
   }
@@ -1095,11 +1162,13 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
           OClassTrigger.onRecordBeforeDelete(doc, this);
         }
         if (clazz.isRestricted()) {
-          if (!ORestrictedAccessHook.isAllowed(this, doc, ORestrictedOperation.ALLOW_DELETE, true))
+          if (!ORestrictedAccessHook.isAllowed(
+              this, doc, ORestrictedOperation.ALLOW_DELETE, true)) {
             throw new OSecurityException(
                 "Cannot delete record "
                     + doc.getIdentity()
                     + ": the resource has restricted access");
+          }
         }
         if (!getSharedContext().getSecurity().canDelete(this, doc)) {
           throw new OSecurityException(
@@ -1274,7 +1343,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
       tx.begin();
 
       tx.saveRecord(
-          iRecord,
+          (ORecordAbstract) iRecord,
           iClusterName,
           iMode,
           iForceCreate,
@@ -1293,15 +1362,17 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     if (clusterId == ORID.CLUSTER_ID_INVALID) {
       // COMPUTE THE CLUSTER ID
       OClass schemaClass = null;
-      if (record instanceof ODocument)
+      if (record instanceof ODocument) {
         schemaClass = ODocumentInternal.getImmutableSchemaClass(this, (ODocument) record);
+      }
       if (schemaClass != null) {
         // FIND THE RIGHT CLUSTER AS CONFIGURED IN CLASS
-        if (schemaClass.isAbstract())
+        if (schemaClass.isAbstract()) {
           throw new OSchemaException(
               "Document belongs to abstract class '"
                   + schemaClass.getName()
                   + "' and cannot be saved");
+        }
         clusterId = schemaClass.getClusterForNewInstance((ODocument) record);
         return getClusterNameById(clusterId);
       } else {
@@ -1371,11 +1442,15 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     final ORID rid = new ORecordId(iRecord.getIdentity());
     OTransactionAbstract transaction = (OTransactionAbstract) getTransaction();
     if (!transaction.isLockedRecord(iRecord)) {
-      if (lockingStrategy == OStorage.LOCKING_STRATEGY.EXCLUSIVE_LOCK)
+      if (lockingStrategy == OStorage.LOCKING_STRATEGY.EXCLUSIVE_LOCK) {
         ((OAbstractPaginatedStorage) getStorage()).acquireWriteLock(rid, timeout);
-      else if (lockingStrategy == OStorage.LOCKING_STRATEGY.SHARED_LOCK)
-        ((OAbstractPaginatedStorage) getStorage()).acquireReadLock(rid, timeout);
-      else throw new IllegalStateException("Unsupported locking strategy " + lockingStrategy);
+      } else {
+        if (lockingStrategy == OStorage.LOCKING_STRATEGY.SHARED_LOCK) {
+          ((OAbstractPaginatedStorage) getStorage()).acquireReadLock(rid, timeout);
+        } else {
+          throw new IllegalStateException("Unsupported locking strategy " + lockingStrategy);
+        }
+      }
     }
     transaction.trackLockedRecord(iRecord.getIdentity(), lockingStrategy);
   }
@@ -1386,10 +1461,13 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     OTransactionAbstract transaction = (OTransactionAbstract) getTransaction();
     OStorage.LOCKING_STRATEGY strategy = transaction.trackUnlockRecord(rid);
 
-    if (strategy == OStorage.LOCKING_STRATEGY.EXCLUSIVE_LOCK)
+    if (strategy == OStorage.LOCKING_STRATEGY.EXCLUSIVE_LOCK) {
       ((OAbstractPaginatedStorage) getStorage()).releaseWriteLock(rid);
-    else if (strategy == OStorage.LOCKING_STRATEGY.SHARED_LOCK)
-      ((OAbstractPaginatedStorage) getStorage()).releaseReadLock(rid);
+    } else {
+      if (strategy == OStorage.LOCKING_STRATEGY.SHARED_LOCK) {
+        ((OAbstractPaginatedStorage) getStorage()).releaseReadLock(rid);
+      }
+    }
   }
 
   @Override
@@ -1426,7 +1504,9 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
         "Not supported yet."); // To change body of generated methods, choose Tools | Templates.
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   public <DB extends ODatabaseDocument> DB checkSecurity(
       final ORule.ResourceGeneric resourceGeneric,
       final String resourceSpecific,
@@ -1436,7 +1516,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
         user.allow(resourceGeneric, resourceSpecific, iOperation);
       } catch (OSecurityAccessException e) {
 
-        if (OLogManager.instance().isDebugEnabled())
+        if (OLogManager.instance().isDebugEnabled()) {
           OLogManager.instance()
               .debug(
                   this,
@@ -1445,6 +1525,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
                   resourceGeneric,
                   resourceSpecific,
                   iOperation);
+        }
 
         throw e;
       }
@@ -1452,7 +1533,9 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     return (DB) this;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   public <DB extends ODatabaseDocument> DB checkSecurity(
       final ORule.ResourceGeneric iResourceGeneric,
       final int iOperation,
@@ -1467,7 +1550,9 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     return (DB) this;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   public <DB extends ODatabaseDocument> DB checkSecurity(
       final ORule.ResourceGeneric iResourceGeneric,
       final int iOperation,
@@ -1489,8 +1574,9 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     final ORule.ResourceGeneric resourceGeneric =
         ORule.mapLegacyResourceToGenericResource(iResource);
 
-    if (resourceSpecific == null || resourceSpecific.equals("*"))
+    if (resourceSpecific == null || resourceSpecific.equals("*")) {
       checkSecurity(resourceGeneric, null, iOperation);
+    }
 
     return checkSecurity(resourceGeneric, resourceSpecific, iOperation);
   }
@@ -1501,8 +1587,9 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
       final String iResourceGeneric, final int iOperation, final Object iResourceSpecific) {
     final ORule.ResourceGeneric resourceGeneric =
         ORule.mapLegacyResourceToGenericResource(iResourceGeneric);
-    if (iResourceSpecific == null || iResourceSpecific.equals("*"))
+    if (iResourceSpecific == null || iResourceSpecific.equals("*")) {
       return checkSecurity(resourceGeneric, iOperation, (Object) null);
+    }
 
     return checkSecurity(resourceGeneric, iOperation, iResourceSpecific);
   }
@@ -1572,7 +1659,9 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     }
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public long countClusterElements(int iClusterId, boolean countTombstones) {
     final String name = getClusterNameById(iClusterId);
@@ -1584,7 +1673,9 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     return getStorage().count(iClusterId, countTombstones);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public long countClusterElements(int[] iClusterIds, boolean countTombstones) {
     checkIfActive();
@@ -1596,15 +1687,18 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     return getStorage().count(iClusterIds, countTombstones);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public long countClusterElements(final String iClusterName) {
     checkSecurity(ORule.ResourceGeneric.CLUSTER, ORole.PERMISSION_READ, iClusterName);
     checkIfActive();
 
     final int clusterId = getClusterIdByName(iClusterName);
-    if (clusterId < 0)
+    if (clusterId < 0) {
       throw new IllegalArgumentException("Cluster '" + iClusterName + "' was not found");
+    }
     return getStorage().count(clusterId);
   }
 
@@ -1614,8 +1708,12 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     final int clusterId = getClusterIdByName(iClusterName);
     OSchemaProxy schema = metadata.getSchema();
     OClass clazz = schema.getClassByClusterId(clusterId);
-    if (clazz != null) clazz.removeClusterId(clusterId);
-    if (schema.getBlobClusters().contains(clusterId)) schema.removeBlobCluster(iClusterName);
+    if (clazz != null) {
+      clazz.removeClusterId(clusterId);
+    }
+    if (schema.getBlobClusters().contains(clusterId)) {
+      schema.removeBlobCluster(iClusterName);
+    }
     getLocalCache().freeCluster(clusterId);
     checkForClusterPermissions(iClusterName);
     return dropClusterInternal(iClusterName);
@@ -1634,10 +1732,13 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
 
     OSchemaProxy schema = metadata.getSchema();
     final OClass clazz = schema.getClassByClusterId(clusterId);
-    if (clazz != null) clazz.removeClusterId(clusterId);
+    if (clazz != null) {
+      clazz.removeClusterId(clusterId);
+    }
     getLocalCache().freeCluster(clusterId);
-    if (schema.getBlobClusters().contains(clusterId))
+    if (schema.getBlobClusters().contains(clusterId)) {
       schema.removeBlobCluster(getClusterNameById(clusterId));
+    }
 
     checkForClusterPermissions(getClusterNameById(clusterId));
 
@@ -1722,7 +1823,9 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     return getStorage().getRecordMetadata(rid);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void freeze(final boolean throwException) {
     checkOpenness();
@@ -1750,13 +1853,17 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
             "db." + getName() + ".freeze", "Time to freeze the database", startTime, "db.*.freeze");
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void freeze() {
     freeze(false);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void release() {
     checkOpenness();
@@ -1788,8 +1895,9 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
 
   private OFreezableStorageComponent getFreezableStorage() {
     OStorage s = getStorage();
-    if (s instanceof OFreezableStorageComponent) return (OFreezableStorageComponent) s;
-    else {
+    if (s instanceof OFreezableStorageComponent) {
+      return (OFreezableStorageComponent) s;
+    } else {
       OLogManager.instance()
           .error(
               this, "Storage of type " + s.getType() + " does not support freeze operation", null);
@@ -1828,7 +1936,9 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     }
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   public OSBTreeCollectionManager getSbTreeCollectionManager() {
     return getStorage().getSBtreeCollectionManager();
   }
@@ -1850,7 +1960,9 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
   }
 
   public void internalClose(boolean recycle) {
-    if (status != STATUS.OPEN) return;
+    if (status != STATUS.OPEN) {
+      return;
+    }
 
     checkIfActive();
 
@@ -1875,7 +1987,9 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
       if (!recycle) {
         sharedContext = null;
 
-        if (getStorage() != null) getStorage().close();
+        if (getStorage() != null) {
+          getStorage().close();
+        }
       }
 
     } finally {
@@ -1939,9 +2053,13 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     }
     long count = 0;
     for (int id : clusterIds) {
-      if (id < 0) continue;
+      if (id < 0) {
+        continue;
+      }
       final String clusterName = getClusterNameById(id);
-      if (clusterName == null) continue;
+      if (clusterName == null) {
+        continue;
+      }
       count += truncateClusterInternal(clusterName);
     }
     return count;

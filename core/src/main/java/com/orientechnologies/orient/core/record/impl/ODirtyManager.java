@@ -21,6 +21,7 @@ package com.orientechnologies.orient.core.record.impl;
 
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import java.util.Collections;
 import java.util.IdentityHashMap;
@@ -32,18 +33,18 @@ import java.util.Set;
 public class ODirtyManager {
 
   private ODirtyManager overrider;
-  private Set<ORecord> newRecords;
-  private Set<ORecord> updateRecords;
+  private Set<ORecordAbstract> newRecords;
+  private Set<ORecordAbstract> updateRecords;
 
-  public void setDirty(ORecord record) {
+  public void setDirty(ORecordAbstract record) {
     ODirtyManager real = getReal();
     if (record.getIdentity().isNew() && !record.getIdentity().isTemporary()) {
       if (real.newRecords == null)
-        real.newRecords = Collections.newSetFromMap(new IdentityHashMap<ORecord, Boolean>());
+        real.newRecords = Collections.newSetFromMap(new IdentityHashMap<>());
       real.newRecords.add(record);
     } else {
       if (real.updateRecords == null)
-        real.updateRecords = Collections.newSetFromMap(new IdentityHashMap<ORecord, Boolean>());
+        real.updateRecords = Collections.newSetFromMap(new IdentityHashMap<>());
       real.updateRecords.add(record);
     }
   }
@@ -57,11 +58,11 @@ public class ODirtyManager {
     return real;
   }
 
-  public Set<ORecord> getNewRecords() {
+  public Set<ORecordAbstract> getNewRecords() {
     return getReal().newRecords;
   }
 
-  public Set<ORecord> getUpdateRecords() {
+  public Set<ORecordAbstract> getUpdateRecords() {
     return getReal().updateRecords;
   }
 
@@ -83,7 +84,8 @@ public class ODirtyManager {
    * @param source
    * @return
    */
-  private static Set<ORecord> mergeSet(Set<ORecord> target, Set<ORecord> source) {
+  private static Set<ORecordAbstract> mergeSet(
+      Set<ORecordAbstract> target, Set<ORecordAbstract> source) {
     if (source != null) {
       if (target == null) {
         return source;

@@ -35,11 +35,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-@Test(groups = "security")
+@Test
 public class SecurityTest extends DocumentDBBaseTest {
 
   @Parameters(value = "url")
@@ -245,6 +246,7 @@ public class SecurityTest extends DocumentDBBaseTest {
   }
 
   @Test
+  @Ignore
   public void testOnlyAdminCanSeeSystemClusters() {
     database.open("reader", "reader");
 

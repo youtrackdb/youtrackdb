@@ -97,9 +97,7 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
 
     database.getRawGraph().getMetadata().getSchema().reload();
 
-    result =
-        database.getRawGraph().query("select from GraphVehicle").stream()
-            .collect(Collectors.toList());
+    result = database.getRawGraph().query("select from GraphVehicle").stream().toList();
     Assert.assertEquals(result.size(), 2);
 
     Edge edge1 = null;
