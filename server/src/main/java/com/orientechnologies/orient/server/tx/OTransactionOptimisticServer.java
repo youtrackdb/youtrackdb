@@ -33,8 +33,7 @@ import java.util.*;
  */
 public class OTransactionOptimisticServer extends OTransactionOptimistic {
 
-  protected final Map<ORID, ORecordOperation> tempEntries =
-      new LinkedHashMap<ORID, ORecordOperation>();
+  protected final Map<ORID, ORecordOperation> tempEntries = new LinkedHashMap<>();
   protected final Map<ORID, ORecordAbstract> createdRecords = new HashMap<>();
   protected final Map<ORecordId, ORecordAbstract> updatedRecords = new HashMap<>();
   protected final Set<ORID> deletedRecord = new HashSet<>();
@@ -185,7 +184,7 @@ public class OTransactionOptimisticServer extends OTransactionOptimistic {
         var rec = entry.getValue().getRecord();
         if (rec != cachedRecord) {
           if (cachedRecord != null) {
-            rec.copyTo((ORecordAbstract) cachedRecord);
+            rec.copyTo(cachedRecord);
           } else {
             database.getLocalCache().updateRecord(rec.getRecord());
           }

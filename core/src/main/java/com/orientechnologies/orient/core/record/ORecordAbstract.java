@@ -73,8 +73,7 @@ public abstract class ORecordAbstract implements ORecord {
 
   private long loadingCounter;
 
-  public ORecordAbstract() {
-  }
+  public ORecordAbstract() {}
 
   public void convertToProxyRecord(ORecordAbstract primaryRecord) {
     if (dirty) {
