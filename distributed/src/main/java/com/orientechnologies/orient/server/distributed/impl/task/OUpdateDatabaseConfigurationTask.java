@@ -22,6 +22,7 @@ package com.orientechnologies.orient.server.distributed.impl.task;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.distributed.db.OrientDBDistributed;
 import com.orientechnologies.orient.server.OServer;
@@ -41,12 +42,13 @@ import java.io.IOException;
  * @author Luca Garulli (l.garulli--at---orientdb.com)
  */
 public class OUpdateDatabaseConfigurationTask extends OAbstractRemoteTask {
+
   public static final int FACTORYID = 24;
 
   private String databaseName;
   private ODocument configuration;
 
-  public OUpdateDatabaseConfigurationTask() {}
+  OUpdateDatabaseConfigurationTask() {}
 
   public OUpdateDatabaseConfigurationTask(final String databaseName, final ODocument cfg) {
     this.databaseName = databaseName;
@@ -97,7 +99,9 @@ public class OUpdateDatabaseConfigurationTask extends OAbstractRemoteTask {
     final int length = in.readInt();
     final byte[] stream = new byte[length];
     in.readFully(stream);
-    configuration = new ODocument().fromStream(stream);
+    var doc = new ODocument();
+    ORecordInternal.unsetDirty(doc);
+    configuration = doc.fromStream(stream);
   }
 
   @Override
