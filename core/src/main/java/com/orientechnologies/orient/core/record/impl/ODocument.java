@@ -1566,6 +1566,7 @@ public class ODocument extends ORecordAbstract
 
     destination.dirty = dirty; // LEAVE IT AS LAST TO AVOID SOMETHING SET THE FLAG TO TRUE
     destination.contentChanged = contentChanged;
+    destination.dirtyManager = dirtyManager;
 
     return destination;
   }

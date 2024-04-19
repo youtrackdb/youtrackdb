@@ -187,19 +187,19 @@
                             <skip>true</skip>
                         </configuration>
                     </execution>
-<!--                    <execution>-->
-<!--                        <id>test-embedded</id>-->
-<!--                        <goals>-->
-<!--                            <goal>test</goal>-->
-<!--                        </goals>-->
-<!--                        <configuration>-->
-<!--                            <suiteXmlFiles>-->
-<!--                                <suiteXmlFile>-->
-<!--                                    src/test/java/com/orientechnologies/orient/test/database/auto/embedded-test-db-from-scratch.xml-->
-<!--                                </suiteXmlFile>-->
-<!--                            </suiteXmlFiles>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
+                    <execution>
+                        <id>test-embedded</id>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <suiteXmlFiles>
+                                <suiteXmlFile>
+                                    src/test/java/com/orientechnologies/orient/test/database/auto/embedded-test-db-from-scratch.xml
+                                </suiteXmlFile>
+                            </suiteXmlFiles>
+                        </configuration>
+                    </execution>
                     <execution>
                         <id>test-remote</id>
                         <goals>
