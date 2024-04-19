@@ -64,9 +64,6 @@ public class OLuceneGraphTxTest extends OLuceneBaseTest {
     resultSet = db.command("select from City where search_class('London') =true ");
     assertThat(resultSet).hasSize(0);
 
-    db.commit();
-
-    //
     resultSet = db.command("select from City where search_class('Berlin') =true ");
     assertThat(resultSet).hasSize(1);
 

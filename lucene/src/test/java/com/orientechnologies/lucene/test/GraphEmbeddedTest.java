@@ -26,7 +26,9 @@ import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by enricorisa on 03/09/14. */
+/**
+ * Created by enricorisa on 03/09/14.
+ */
 public class GraphEmbeddedTest extends BaseLuceneTest {
 
   public GraphEmbeddedTest() {}
@@ -40,7 +42,6 @@ public class GraphEmbeddedTest extends BaseLuceneTest {
     type.createProperty("name", OType.STRING);
 
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE").close();
-    db.commit();
   }
 
   @Test
@@ -71,11 +72,9 @@ public class GraphEmbeddedTest extends BaseLuceneTest {
 
   @Test
   public void testGetVericesFilterClass() {
-
     OClass v = db.getClass("V");
     v.createProperty("name", OType.STRING);
     db.command("CREATE INDEX V.name ON V(name) NOTUNIQUE");
-    db.commit();
 
     OClass oneClass = db.createVertexClass("One");
     OClass twoClass = db.createVertexClass("Two");
@@ -88,24 +87,8 @@ public class GraphEmbeddedTest extends BaseLuceneTest {
     two.setProperty("name", "Same");
     db.save(two);
 
-    db.commit();
-
     OResultSet resultSet = db.query("SELECT from One where name = 'Same' ");
 
     Assertions.assertThat(resultSet).hasSize(1);
-
-    //    graph.addVertex("class:Two", new Object[] { "name", "Same" });
-    //
-    //    graph.commit();
-    //
-    //    Iterable<Vertex> vertexes = graph.getVertices("One", new String[] { "name" }, new Object[]
-    // { "Same" });
-    //
-    //    int size = 0;
-    //    for (Vertex v : vertexes) {
-    //      size++;
-    //      Assert.assertNotNull(v);
-    //    }
-    //    Assert.assertEquals(1, size);
   }
 }
