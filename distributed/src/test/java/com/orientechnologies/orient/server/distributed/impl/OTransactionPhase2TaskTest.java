@@ -87,7 +87,7 @@ public class OTransactionPhase2TaskTest {
     List<ORecordOperation> doc1Ops = new ArrayList<>();
     doc1Ops.add(new ORecordOperation(doc1, ORecordOperation.UPDATED));
 
-    OElement doc2 = db.load(id.getIdentity());
+    OElement doc2 = doc1.copy();
     doc2.setProperty("value", "2");
     List<ORecordOperation> doc2Ops = new ArrayList<>();
     doc2Ops.add(new ORecordOperation(doc2, ORecordOperation.UPDATED));
