@@ -31,14 +31,16 @@ import com.orientechnologies.orient.etl.OETLBaseTest;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by frank on 23/11/2015. */
+/**
+ * Created by frank on 23/11/2015.
+ */
 public class OETLMergeTransformerTest extends OETLBaseTest {
 
   @Before
   public void loadData() {}
 
   @Test
-  public void shouldUpdateExistingVertices() throws Exception {
+  public void shouldUpdateExistingVertices() {
     // update graph with CSV: avoid num to be casted to integer forcing string
     configure(
         " {source: { content: { value: 'num,name\n10000,FirstNameUpdated' } }, "
@@ -58,14 +60,11 @@ public class OETLMergeTransformerTest extends OETLBaseTest {
     personClass.createProperty("num", OType.INTEGER);
     personClass.createIndex("Person.num", OClass.INDEX_TYPE.UNIQUE, "num");
 
-    db.commit();
-
     // prepare graph
     OVertex person = db.newVertex("Person");
     person.setProperty("num", 10000);
     person.setProperty("name", "FirstName");
     person.save();
-    db.commit();
     db.close();
 
     // verify
@@ -103,7 +102,7 @@ public class OETLMergeTransformerTest extends OETLBaseTest {
   }
 
   @Test
-  public void shouldMergeVertexOnDuplitcatedInputSet() throws Exception {
+  public void shouldMergeVertexOnDuplitcatedInputSet() {
 
     // CSV contains duplicated data
     configure(
@@ -124,7 +123,6 @@ public class OETLMergeTransformerTest extends OETLBaseTest {
 
     personClass.createIndex("Person.num", OClass.INDEX_TYPE.UNIQUE, "num");
 
-    db.commit();
     db.close();
 
     // run processor

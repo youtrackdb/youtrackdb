@@ -38,7 +38,7 @@ public class OETLLoadTransformerTest extends OETLBaseTest {
   public void loadData() {}
 
   @Test
-  public void shouldNotUpdateExistingVertices() throws Exception {
+  public void shouldNotUpdateExistingVertices() {
     // update graph with CSV: avoid num to be casted to integer forcing string
     configure(
         " {source: { content: { value: 'num,name\n10000,FirstNameUpdated' } }, "
@@ -58,14 +58,11 @@ public class OETLLoadTransformerTest extends OETLBaseTest {
     personClass.createProperty("num", OType.INTEGER);
     personClass.createIndex("Person.num", OClass.INDEX_TYPE.UNIQUE, "num");
 
-    db.commit();
-
     // prepare graph
     OVertex person = db.newVertex("Person");
     person.setProperty("num", 10000);
     person.setProperty("name", "FirstName");
     person.save();
-    db.commit();
     db.close();
 
     // verify
@@ -103,7 +100,7 @@ public class OETLLoadTransformerTest extends OETLBaseTest {
   }
 
   @Test
-  public void shouldLoadVertexOnDuplicatedInputSet() throws Exception {
+  public void shouldLoadVertexOnDuplicatedInputSet() {
 
     // CSV contains duplicated data
     configure(
@@ -124,7 +121,6 @@ public class OETLLoadTransformerTest extends OETLBaseTest {
 
     personClass.createIndex("Person.num", OClass.INDEX_TYPE.UNIQUE, "num");
 
-    db.commit();
     db.close();
 
     // run processor
@@ -143,12 +139,14 @@ public class OETLLoadTransformerTest extends OETLBaseTest {
   }
 
   @Test
-  public void loadVerticesCreateEdges() throws Exception {
+  public void loadVerticesCreateEdges() {
     String csv =
-        "depot,store,StartDate,EndDate\n"
-            + "BK,1431,20150212,99991231\n"
-            + "BK,1432,20150119,99991231\n"
-            + "DL,1438,20170506,99991231\n";
+        """
+            depot,store,StartDate,EndDate
+            BK,1431,20150212,99991231
+            BK,1432,20150119,99991231
+            DL,1438,20170506,99991231
+            """;
 
     // CSV contains duplicated data
     configure(
@@ -192,8 +190,6 @@ public class OETLLoadTransformerTest extends OETLBaseTest {
     OVertex v1438 = db.newVertex("SupplyChainNode");
     v1438.setProperty("id", "1438");
     v1438.save();
-
-    db.commit();
     db.close();
 
     // run processor

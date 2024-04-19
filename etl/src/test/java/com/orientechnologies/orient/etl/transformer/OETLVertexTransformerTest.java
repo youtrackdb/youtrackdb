@@ -34,13 +34,11 @@ import org.junit.Test;
  */
 public class OETLVertexTransformerTest extends OETLBaseTest {
 
-  public void createClasses(ODatabaseDocument db) {
+  private static void createClasses(ODatabaseDocument db) {
 
     OClass person = db.createVertexClass("Person");
     person.createProperty("name", OType.STRING);
     person.createIndex("Person.name", OClass.INDEX_TYPE.UNIQUE, "name");
-
-    db.commit();
   }
 
   @Test
