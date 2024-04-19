@@ -52,6 +52,7 @@ import java.util.Set;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class ORuntimeResult {
+
   private final Object fieldValue;
   private final Map<String, Object> projections;
   private final ODocument value;
@@ -73,6 +74,7 @@ public class ORuntimeResult {
     // ASSIGN A TEMPORARY RID TO ALLOW PAGINATION IF ANY
     ((ORecordId) doc.getIdentity()).setClusterId(-2);
     ((ORecordId) doc.getIdentity()).setClusterPosition(iProgressive);
+    ORecordInternal.unsetDirty(doc);
     return doc;
   }
 
@@ -97,9 +99,10 @@ public class ORuntimeResult {
     final ODocument inputDocument = (ODocument) record;
 
     if (iProjections.isEmpty())
-      // SELECT * CASE
+    // SELECT * CASE
+    {
       inputDocument.copyTo(iValue);
-    else {
+    } else {
 
       for (Entry<String, Object> projection : iProjections.entrySet()) {
         final String prjName = projection.getKey();
@@ -118,120 +121,153 @@ public class ORuntimeResult {
           // CONTINUE WITH NEXT ITEM
           continue;
 
-        } else if (v instanceof OSQLFilterItemVariable || v instanceof OSQLFilterItemField) {
-          final OSQLFilterItemAbstract var = (OSQLFilterItemAbstract) v;
-          final OPair<OSQLMethodRuntime, Object[]> last = var.getLastChainOperator();
-          if (last != null
-              && last.getKey().getMethod() instanceof OSQLMethodField
-              && last.getValue() != null
-              && last.getValue().length == 1
-              && last.getValue()[0].equals("*")) {
-            final Object value =
-                ((OSQLFilterItemAbstract) v).getValue(inputDocument, iValue, iContext);
-            if (inputDocument != null
-                && value != null
-                && inputDocument instanceof ODocument
-                && value instanceof ODocument) {
-              // COPY FIELDS WITH PROJECTION NAME AS PREFIX
-              for (String fieldName : ((ODocument) value).fieldNames()) {
-                iValue.field(prjName + fieldName, ((ODocument) value).<Object>field(fieldName));
-              }
-            }
-            projectionValue = null;
-          } else
-            // RETURN A VARIABLE FROM THE CONTEXT
-            projectionValue =
-                ((OSQLFilterItemAbstract) v).getValue(inputDocument, iValue, iContext);
-
-        } else if (v instanceof OSQLFunctionRuntime) {
-          final OSQLFunctionRuntime f = (OSQLFunctionRuntime) v;
-          projectionValue = f.execute(inputDocument, inputDocument, iValue, iContext);
         } else {
-          if (v == null) {
-            // SIMPLE NULL VALUE: SET IT IN DOCUMENT
-            iValue.field(prjName, v);
-            continue;
-          }
-          projectionValue = v;
-        }
-
-        if (projectionValue != null)
-          if (projectionValue instanceof ORidBag)
-            iValue.field(prjName, new ORidBag((ORidBag) projectionValue));
-          else if (projectionValue instanceof OIdentifiable
-              && !(projectionValue instanceof ORID)
-              && !(projectionValue instanceof ORecord))
-            iValue.field(prjName, ((OIdentifiable) projectionValue).<ORecord>getRecord());
-          else if (projectionValue instanceof Iterator) {
-            boolean link = true;
-            // make temporary value typical case graph database elemenet's iterator edges
-            if (projectionValue instanceof OResettable) ((OResettable) projectionValue).reset();
-
-            final List<Object> iteratorValues = new ArrayList<Object>();
-            final Iterator projectionValueIterator = (Iterator) projectionValue;
-            while (projectionValueIterator.hasNext()) {
-              Object value = projectionValueIterator.next();
-              if (value instanceof OIdentifiable) {
-                value = ((OIdentifiable) value).getRecord();
-                if (value != null && !((OIdentifiable) value).getIdentity().isPersistent())
-                  link = false;
-              }
-
-              if (value != null) iteratorValues.add(value);
-            }
-
-            iValue.field(prjName, iteratorValues, link ? OType.LINKLIST : OType.EMBEDDEDLIST);
-          } else if (projectionValue instanceof ODocument
-              && ((ODocument) projectionValue).getIdentity().getClusterId() < 0) {
-            iValue.field(prjName, projectionValue, OType.EMBEDDED);
-          } else if (projectionValue instanceof Set<?>) {
-            OType type = OType.getTypeByValue(projectionValue);
-            if (type == OType.LINKSET
-                && !entriesPersistent((Collection<OIdentifiable>) projectionValue))
-              type = OType.EMBEDDEDSET;
-            iValue.field(prjName, projectionValue, type);
-          } else if (projectionValue instanceof Map<?, ?>) {
-            OType type = OType.getTypeByValue(projectionValue);
-            if (type == OType.LINKMAP
-                && !entriesPersistent(((Map<?, OIdentifiable>) projectionValue).values()))
-              type = OType.EMBEDDEDMAP;
-            iValue.field(prjName, projectionValue, type);
-          } else if (projectionValue instanceof List<?>) {
-            OType type = OType.getTypeByValue(projectionValue);
-            if (type == OType.LINKLIST
-                && !entriesPersistent((Collection<OIdentifiable>) projectionValue))
-              type = OType.EMBEDDEDLIST;
-            iValue.field(prjName, projectionValue, type);
-
-          } else if (projectionValue instanceof Iterable
-              && !(projectionValue instanceof OIdentifiable)) {
-            Iterator iterator = ((Iterable) projectionValue).iterator();
-            boolean link = true;
-            // make temporary value typical case graph database elemenet's iterator edges
-            if (iterator instanceof OResettable) {
-              ((OResettable) iterator).reset();
-            }
-
-            final List<Object> iteratorValues = new ArrayList<Object>();
-            final Iterator projectionValueIterator = (Iterator) iterator;
-            while (projectionValueIterator.hasNext()) {
-              Object value = projectionValueIterator.next();
-              if (value instanceof OIdentifiable) {
-                value = ((OIdentifiable) value).getRecord();
-                if (value != null && !((OIdentifiable) value).getIdentity().isPersistent()) {
-                  link = false;
+          if (v instanceof OSQLFilterItemVariable || v instanceof OSQLFilterItemField) {
+            final OSQLFilterItemAbstract var = (OSQLFilterItemAbstract) v;
+            final OPair<OSQLMethodRuntime, Object[]> last = var.getLastChainOperator();
+            if (last != null
+                && last.getKey().getMethod() instanceof OSQLMethodField
+                && last.getValue() != null
+                && last.getValue().length == 1
+                && last.getValue()[0].equals("*")) {
+              final Object value =
+                  ((OSQLFilterItemAbstract) v).getValue(inputDocument, iValue, iContext);
+              if (inputDocument != null
+                  && value != null
+                  && inputDocument instanceof ODocument
+                  && value instanceof ODocument) {
+                // COPY FIELDS WITH PROJECTION NAME AS PREFIX
+                for (String fieldName : ((ODocument) value).fieldNames()) {
+                  iValue.field(prjName + fieldName, ((ODocument) value).<Object>field(fieldName));
                 }
               }
-
-              if (value != null) {
-                iteratorValues.add(value);
-              }
+              projectionValue = null;
+            } else
+            // RETURN A VARIABLE FROM THE CONTEXT
+            {
+              projectionValue =
+                  ((OSQLFilterItemAbstract) v).getValue(inputDocument, iValue, iContext);
             }
 
-            iValue.field(prjName, iteratorValues, link ? OType.LINKLIST : OType.EMBEDDEDLIST);
           } else {
-            iValue.field(prjName, projectionValue);
+            if (v instanceof OSQLFunctionRuntime) {
+              final OSQLFunctionRuntime f = (OSQLFunctionRuntime) v;
+              projectionValue = f.execute(inputDocument, inputDocument, iValue, iContext);
+            } else {
+              if (v == null) {
+                // SIMPLE NULL VALUE: SET IT IN DOCUMENT
+                iValue.field(prjName, v);
+                continue;
+              }
+              projectionValue = v;
+            }
           }
+        }
+
+        if (projectionValue != null) {
+          if (projectionValue instanceof ORidBag) {
+            iValue.field(prjName, new ORidBag((ORidBag) projectionValue));
+          } else {
+            if (projectionValue instanceof OIdentifiable
+                && !(projectionValue instanceof ORID)
+                && !(projectionValue instanceof ORecord)) {
+              iValue.field(prjName, ((OIdentifiable) projectionValue).<ORecord>getRecord());
+            } else {
+              if (projectionValue instanceof Iterator) {
+                boolean link = true;
+                // make temporary value typical case graph database elemenet's iterator edges
+                if (projectionValue instanceof OResettable) {
+                  ((OResettable) projectionValue).reset();
+                }
+
+                final List<Object> iteratorValues = new ArrayList<Object>();
+                final Iterator projectionValueIterator = (Iterator) projectionValue;
+                while (projectionValueIterator.hasNext()) {
+                  Object value = projectionValueIterator.next();
+                  if (value instanceof OIdentifiable) {
+                    value = ((OIdentifiable) value).getRecord();
+                    if (value != null && !((OIdentifiable) value).getIdentity().isPersistent()) {
+                      link = false;
+                    }
+                  }
+
+                  if (value != null) {
+                    iteratorValues.add(value);
+                  }
+                }
+
+                iValue.field(prjName, iteratorValues, link ? OType.LINKLIST : OType.EMBEDDEDLIST);
+              } else {
+                if (projectionValue instanceof ODocument
+                    && ((ODocument) projectionValue).getIdentity().getClusterId() < 0) {
+                  iValue.field(prjName, projectionValue, OType.EMBEDDED);
+                } else {
+                  if (projectionValue instanceof Set<?>) {
+                    OType type = OType.getTypeByValue(projectionValue);
+                    if (type == OType.LINKSET
+                        && !entriesPersistent((Collection<OIdentifiable>) projectionValue)) {
+                      type = OType.EMBEDDEDSET;
+                    }
+                    iValue.field(prjName, projectionValue, type);
+                  } else {
+                    if (projectionValue instanceof Map<?, ?>) {
+                      OType type = OType.getTypeByValue(projectionValue);
+                      if (type == OType.LINKMAP
+                          && !entriesPersistent(
+                              ((Map<?, OIdentifiable>) projectionValue).values())) {
+                        type = OType.EMBEDDEDMAP;
+                      }
+                      iValue.field(prjName, projectionValue, type);
+                    } else {
+                      if (projectionValue instanceof List<?>) {
+                        OType type = OType.getTypeByValue(projectionValue);
+                        if (type == OType.LINKLIST
+                            && !entriesPersistent((Collection<OIdentifiable>) projectionValue)) {
+                          type = OType.EMBEDDEDLIST;
+                        }
+                        iValue.field(prjName, projectionValue, type);
+
+                      } else {
+                        if (projectionValue instanceof Iterable
+                            && !(projectionValue instanceof OIdentifiable)) {
+                          Iterator iterator = ((Iterable) projectionValue).iterator();
+                          boolean link = true;
+                          // make temporary value typical case graph database elemenet's iterator
+                          // edges
+                          if (iterator instanceof OResettable) {
+                            ((OResettable) iterator).reset();
+                          }
+
+                          final List<Object> iteratorValues = new ArrayList<Object>();
+                          final Iterator projectionValueIterator = (Iterator) iterator;
+                          while (projectionValueIterator.hasNext()) {
+                            Object value = projectionValueIterator.next();
+                            if (value instanceof OIdentifiable) {
+                              value = ((OIdentifiable) value).getRecord();
+                              if (value != null
+                                  && !((OIdentifiable) value).getIdentity().isPersistent()) {
+                                link = false;
+                              }
+                            }
+
+                            if (value != null) {
+                              iteratorValues.add(value);
+                            }
+                          }
+
+                          iValue.field(
+                              prjName, iteratorValues, link ? OType.LINKLIST : OType.EMBEDDEDLIST);
+                        } else {
+                          iValue.field(prjName, projectionValue);
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
 
@@ -249,7 +285,9 @@ public class ORuntimeResult {
       }
     } else {
       for (OIdentifiable rec : projectionValue) {
-        if (rec != null && !rec.getIdentity().isPersistent()) return false;
+        if (rec != null && !rec.getIdentity().isPersistent()) {
+          return false;
+        }
       }
     }
     return true;
@@ -271,14 +309,18 @@ public class ORuntimeResult {
 
             Object fieldValue = f.getResult();
 
-            if (fieldValue != null) iValue.field(projection.getKey(), fieldValue);
+            if (fieldValue != null) {
+              iValue.field(projection.getKey(), fieldValue);
+            }
           }
         }
       }
 
       if (canExcludeResult && iValue.isEmpty())
-        // RESULT EXCLUDED FOR EMPTY RECORD
+      // RESULT EXCLUDED FOR EMPTY RECORD
+      {
         return null;
+      }
 
       // AVOID SAVING OF TEMP RECORD
       ORecordInternal.unsetDirty(iValue);
@@ -307,7 +349,7 @@ public class ORuntimeResult {
   /**
    * Set a single value. This is useful in case of query optimization like with indexes
    *
-   * @param iName Field name
+   * @param iName  Field name
    * @param iValue Field value
    */
   public void applyValue(final String iName, final Object iValue) {
