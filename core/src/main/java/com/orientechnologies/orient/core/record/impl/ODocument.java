@@ -3011,21 +3011,7 @@ public class ODocument extends ORecordAbstract
 
   /**
    * Resets the record values and class type to being reused. It's like you create a ODocument from
-   * scratch. This method is handy when you want to insert a bunch of documents and don't want to
-   * strain GC.
-   *
-   * <p>
-   *
-   * <p>The following code will create a new document in database. <code> doc.clear(); doc.save();
-   * </code>
-   *
-   * <p>
-   *
-   * <p>IMPORTANT! This can be used only if no transactions are begun.
-   *
-   * @return this
-   * @throws IllegalStateException if transaction is begun.
-   * @see #clear()
+   * scratch.
    */
   @Override
   public ODocument reset() {

@@ -409,7 +409,7 @@ public class SchemaTest extends DocumentDBBaseTest {
     ODocument document = new ODocument("RenameClassTest");
     document.save();
 
-    document.reset();
+    document = new ODocument("RenameClassTest");
 
     document.setClassName("RenameClassTest");
     document.save();

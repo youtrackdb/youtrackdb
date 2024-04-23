@@ -811,7 +811,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   }
 
   public void testReset() {
-    final ODocument document = new ODocument("DocumentTrackingTestClass");
+    ODocument document = new ODocument("DocumentTrackingTestClass");
 
     final List<String> list = new ArrayList<String>();
     list.add("value1");
@@ -826,7 +826,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     final List<String> trackedList = document.field("embeddedlist");
     trackedList.add("value2");
 
-    document.reset();
+    document = new ODocument("DocumentTrackingTestClass");
 
     Assert.assertEquals(document.getDirtyFields(), new String[] {});
     Assert.assertTrue(document.isDirty());

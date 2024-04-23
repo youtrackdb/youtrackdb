@@ -67,6 +67,7 @@ import java.util.zip.GZIPOutputStream;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class ODatabaseExport extends ODatabaseImpExpAbstract {
+
   public static final int EXPORTER_VERSION = 13;
 
   protected OJSONWriter writer;
@@ -83,7 +84,9 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
       throws IOException {
     super(iDatabase, iFileName, iListener);
 
-    if (fileName == null) throw new IllegalArgumentException("file name missing");
+    if (fileName == null) {
+      throw new IllegalArgumentException("file name missing");
+    }
 
     if (!fileName.endsWith(".gz")) {
       fileName += ".gz";
@@ -134,12 +137,24 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
 
       long time = System.nanoTime();
 
-      if (includeInfo) exportInfo();
-      if (includeClusterDefinitions) exportClusters();
-      if (includeSchema) exportSchema();
-      if (includeRecords) exportRecords();
-      if (includeIndexDefinitions) exportIndexDefinitions();
-      if (includeManualIndexes) exportManualIndexes();
+      if (includeInfo) {
+        exportInfo();
+      }
+      if (includeClusterDefinitions) {
+        exportClusters();
+      }
+      if (includeSchema) {
+        exportSchema();
+      }
+      if (includeRecords) {
+        exportRecords();
+      }
+      if (includeIndexDefinitions) {
+        exportIndexDefinitions();
+      }
+      if (includeManualIndexes) {
+        exportManualIndexes();
+      }
 
       listener.onMessage(
           "\n\nDatabase export completed in " + ((System.nanoTime() - time) / 1000000) + "ms");
@@ -156,7 +171,7 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
     return this;
   }
 
-  private long exportRecords() throws IOException {
+  private void exportRecords() throws IOException {
     long totalFoundRecords = 0;
     long totalExportedRecords = 0;
 
@@ -201,16 +216,24 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
       if (clusterName != null) {
         // CHECK IF THE CLUSTER IS INCLUDED
         if (includeClusters != null) {
-          if (!includeClusters.contains(clusterName.toUpperCase(Locale.ENGLISH))) continue;
+          if (!includeClusters.contains(clusterName.toUpperCase(Locale.ENGLISH))) {
+            continue;
+          }
         } else if (excludeClusters != null) {
-          if (excludeClusters.contains(clusterName.toUpperCase(Locale.ENGLISH))) continue;
+          if (excludeClusters.contains(clusterName.toUpperCase(Locale.ENGLISH))) {
+            continue;
+          }
         }
 
         if (excludeClusters != null
-            && excludeClusters.contains(clusterName.toUpperCase(Locale.ENGLISH))) continue;
+            && excludeClusters.contains(clusterName.toUpperCase(Locale.ENGLISH))) {
+          continue;
+        }
 
         clusterExportedRecordsTot = database.countClusterElements(clusterName);
-      } else if (includeClusters != null && !includeClusters.isEmpty()) continue;
+      } else if (includeClusters != null && !includeClusters.isEmpty()) {
+        continue;
+      }
 
       listener.onMessage(
           "\n- Cluster "
@@ -225,26 +248,31 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
         try {
           ORecordIteratorCluster<ORecord> it = database.browseCluster(clusterName);
 
-          for (; it.hasNext(); ) {
-
+          while (it.hasNext()) {
             rec = it.next();
-            if (rec instanceof ODocument) {
+            if (rec instanceof ODocument doc) {
               // CHECK IF THE CLASS OF THE DOCUMENT IS INCLUDED
-              ODocument doc = (ODocument) rec;
               final String className =
                   doc.getClassName() != null
                       ? doc.getClassName().toUpperCase(Locale.ENGLISH)
                       : null;
               if (includeClasses != null) {
-                if (!includeClasses.contains(className)) continue;
+                if (!includeClasses.contains(className)) {
+                  continue;
+                }
               } else if (excludeClasses != null) {
-                if (excludeClasses.contains(className)) continue;
+                if (excludeClasses.contains(className)) {
+                  continue;
+                }
               }
-            } else if (includeClasses != null && !includeClasses.isEmpty()) continue;
+            } else if (includeClasses != null && !includeClasses.isEmpty()) {
+              continue;
+            }
 
             if (exportRecord(
-                clusterExportedRecordsTot, clusterExportedRecordsCurrent, rec, brokenRids))
+                clusterExportedRecordsTot, clusterExportedRecordsCurrent, rec, brokenRids)) {
               clusterExportedRecordsCurrent++;
+            }
           }
 
           brokenRids.addAll(it.getBrokenRIDs());
@@ -264,12 +292,13 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
             OLogManager.instance()
                 .error(
                     this,
-                    "\n"
-                        + "Error on exporting record %s. It seems corrupted; size: %d bytes, raw"
-                        + " content (as string):\n"
-                        + "==========\n"
-                        + "%s\n"
-                        + "==========",
+                    """
+
+                        Error on exporting record %s. It seems corrupted; size: %d bytes, raw\
+                         content (as string):
+                        ==========
+                        %s
+                        ==========""",
                     t,
                     rec.getIdentity(),
                     buffer.length,
@@ -307,13 +336,13 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
       writer.append(rid.toString());
     }
     writer.endCollection(level, true);
-
-    return totalExportedRecords;
   }
 
   public void close() {
 
-    if (writer == null) return;
+    if (writer == null) {
+      return;
+    }
 
     try {
       writer.endObject();
@@ -327,7 +356,8 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
     }
 
     if (tempFileName != null) // may be null if writing to an output stream w/o file
-    try {
+    {
+      try {
         OFileUtils.atomicMoveWithFallback(Paths.get(tempFileName), Paths.get(fileName), this);
       } catch (IOException e) {
         OLogManager.instance()
@@ -336,24 +366,28 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
         throw new ODatabaseExportException(
             "Error on exporting database '" + database.getName() + "' to: " + fileName, e);
       }
+    }
   }
 
   private int getMaxClusterId() {
     int totalCluster = -1;
     for (String clusterName : database.getClusterNames()) {
-      if (database.getClusterIdByName(clusterName) > totalCluster)
+      if (database.getClusterIdByName(clusterName) > totalCluster) {
         totalCluster = database.getClusterIdByName(clusterName);
+      }
     }
     return totalCluster;
   }
 
   @Override
   protected void parseSetting(final String option, final List<String> items) {
-    if (option.equalsIgnoreCase("-compressionLevel"))
+    if (option.equalsIgnoreCase("-compressionLevel")) {
       compressionLevel = Integer.parseInt(items.get(0));
-    else if (option.equalsIgnoreCase("-compressionBuffer"))
+    } else if (option.equalsIgnoreCase("-compressionBuffer")) {
       compressionBuffer = Integer.parseInt(items.get(0));
-    else super.parseSetting(option, items);
+    } else {
+      super.parseSetting(option, items);
+    }
   }
 
   private void exportClusters() throws IOException {
@@ -369,13 +403,19 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
       final String clusterName = database.getClusterNameById(clusterId);
 
       // exclude removed clusters
-      if (clusterName == null) continue;
+      if (clusterName == null) {
+        continue;
+      }
 
       // CHECK IF THE CLUSTER IS INCLUDED
       if (includeClusters != null) {
-        if (!includeClusters.contains(clusterName.toUpperCase(Locale.ENGLISH))) continue;
+        if (!includeClusters.contains(clusterName.toUpperCase(Locale.ENGLISH))) {
+          continue;
+        }
       } else if (excludeClusters != null) {
-        if (excludeClusters.contains(clusterName.toUpperCase(Locale.ENGLISH))) continue;
+        if (excludeClusters.contains(clusterName.toUpperCase(Locale.ENGLISH))) {
+          continue;
+        }
       }
 
       writer.beginObject(2, true, null);
@@ -401,7 +441,9 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
     writer.writeAttribute(2, true, "exporter-version", EXPORTER_VERSION);
     writer.writeAttribute(2, true, "engine-version", OConstants.getVersion());
     final String engineBuild = OConstants.getBuildNumber();
-    if (engineBuild != null) writer.writeAttribute(2, true, "engine-build", engineBuild);
+    if (engineBuild != null) {
+      writer.writeAttribute(2, true, "engine-build", engineBuild);
+    }
     writer.writeAttribute(2, true, "storage-config-version", OStorageConfiguration.CURRENT_VERSION);
     writer.writeAttribute(2, true, "schema-version", OSchemaShared.CURRENT_VERSION_NUMBER);
     writer.writeAttribute(
@@ -437,20 +479,26 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
 
       // CHECK TO FILTER CLASS
       if (includeClasses != null) {
-        if (!includeClasses.contains(clsName)) continue;
+        if (!includeClasses.contains(clsName)) {
+          continue;
+        }
       } else if (excludeClasses != null) {
-        if (excludeClasses.contains(clsName)) continue;
+        if (excludeClasses.contains(clsName)) {
+          continue;
+        }
       }
 
       listener.onMessage("\n- Index " + index.getName() + "...");
       writer.beginObject(2, true, null);
       writer.writeAttribute(3, true, "name", index.getName());
       writer.writeAttribute(3, true, "type", index.getType());
-      if (index.getAlgorithm() != null)
+      if (index.getAlgorithm() != null) {
         writer.writeAttribute(3, true, "algorithm", index.getAlgorithm());
+      }
 
-      if (!index.getClusters().isEmpty())
+      if (!index.getClusters().isEmpty()) {
         writer.writeAttribute(3, true, "clustersToIndex", index.getClusters());
+      }
 
       if (index.getDefinition() != null) {
         writer.beginObject(4, true, "definition");
@@ -462,12 +510,15 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
       }
 
       final ODocument metadata = index.getMetadata();
-      if (metadata != null) writer.writeAttribute(4, true, "metadata", metadata);
+      if (metadata != null) {
+        writer.writeAttribute(4, true, "metadata", metadata);
+      }
 
       final ODocument configuration = index.getConfiguration();
-      if (configuration.field("blueprintsIndexClass") != null)
+      if (configuration.field("blueprintsIndexClass") != null) {
         writer.writeAttribute(
             4, true, "blueprintsIndexClass", configuration.field("blueprintsIndexClass"));
+      }
 
       writer.endObject(2, true);
       listener.onMessage("OK");
@@ -486,7 +537,7 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
 
     final Collection<? extends OIndex> indexes = indexManager.getIndexes(database);
 
-    ODocument exportEntry = new ODocument();
+    ODocument exportEntry;
 
     int manualIndexes = 0;
     for (OIndex index : indexes) {
@@ -507,11 +558,13 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
         int i = 0;
         while (indexContent.hasNext()) {
           OResult indexEntry = indexContent.next();
-          if (i > 0) writer.append(",");
+          if (i > 0) {
+            writer.append(",");
+          }
 
           final OIndexDefinition indexDefinition = index.getDefinition();
 
-          exportEntry.reset();
+          exportEntry = new ODocument();
           exportEntry.setLazyLoad(false);
 
           if (indexDefinition instanceof ORuntimeKeyIndexDefinition
@@ -554,6 +607,7 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
 
     writer.beginObject(1, true, "schema");
     final OSchema schema = (database.getMetadata()).getImmutableSchemaSnapshot();
+    //noinspection deprecation
     writer.writeAttribute(2, true, "version", schema.getVersion());
     writer.writeAttribute(2, false, "blob-clusters", database.getBlobClusterIds());
     if (!schema.getClasses().isEmpty()) {
@@ -565,63 +619,96 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
       for (OClass cls : classes) {
         // CHECK TO FILTER CLASS
         if (includeClasses != null) {
-          if (!includeClasses.contains(cls.getName().toUpperCase(Locale.ENGLISH))) continue;
+          if (!includeClasses.contains(cls.getName().toUpperCase(Locale.ENGLISH))) {
+            continue;
+          }
         } else if (excludeClasses != null) {
-          if (excludeClasses.contains(cls.getName().toUpperCase(Locale.ENGLISH))) continue;
+          if (excludeClasses.contains(cls.getName().toUpperCase(Locale.ENGLISH))) {
+            continue;
+          }
         }
 
         writer.beginObject(3, true, null);
         writer.writeAttribute(0, false, "name", cls.getName());
         writer.writeAttribute(0, false, "default-cluster-id", cls.getDefaultClusterId());
         writer.writeAttribute(0, false, "cluster-ids", cls.getClusterIds());
-        if (cls.getOverSize() > 1)
+        if (cls.getOverSize() > 1) {
           writer.writeAttribute(0, false, "oversize", cls.getClassOverSize());
-        if (cls.isStrictMode()) writer.writeAttribute(0, false, "strictMode", cls.isStrictMode());
-        if (!cls.getSuperClasses().isEmpty())
+        }
+        if (cls.isStrictMode()) {
+          writer.writeAttribute(0, false, "strictMode", cls.isStrictMode());
+        }
+        if (!cls.getSuperClasses().isEmpty()) {
           writer.writeAttribute(0, false, "super-classes", cls.getSuperClassesNames());
-        if (cls.getShortName() != null)
+        }
+        if (cls.getShortName() != null) {
           writer.writeAttribute(0, false, "short-name", cls.getShortName());
-        if (cls.isAbstract()) writer.writeAttribute(0, false, "abstract", cls.isAbstract());
+        }
+        if (cls.isAbstract()) {
+          writer.writeAttribute(0, false, "abstract", cls.isAbstract());
+        }
         writer.writeAttribute(
             0, false, "cluster-selection", cls.getClusterSelection().getName()); // @SINCE 1.7
 
         if (!cls.properties().isEmpty()) {
           writer.beginCollection(4, true, "properties");
 
-          final List<OProperty> properties = new ArrayList<OProperty>(cls.declaredProperties());
+          final List<OProperty> properties = new ArrayList<>(cls.declaredProperties());
           Collections.sort(properties);
 
           for (OProperty p : properties) {
             writer.beginObject(5, true, null);
             writer.writeAttribute(0, false, "name", p.getName());
             writer.writeAttribute(0, false, "type", p.getType().toString());
-            if (p.isMandatory()) writer.writeAttribute(0, false, "mandatory", p.isMandatory());
-            if (p.isReadonly()) writer.writeAttribute(0, false, "readonly", p.isReadonly());
-            if (p.isNotNull()) writer.writeAttribute(0, false, "not-null", p.isNotNull());
-            if (p.getLinkedClass() != null)
+            if (p.isMandatory()) {
+              writer.writeAttribute(0, false, "mandatory", p.isMandatory());
+            }
+            if (p.isReadonly()) {
+              writer.writeAttribute(0, false, "readonly", p.isReadonly());
+            }
+            if (p.isNotNull()) {
+              writer.writeAttribute(0, false, "not-null", p.isNotNull());
+            }
+            if (p.getLinkedClass() != null) {
               writer.writeAttribute(0, false, "linked-class", p.getLinkedClass().getName());
-            if (p.getLinkedType() != null)
+            }
+            if (p.getLinkedType() != null) {
               writer.writeAttribute(0, false, "linked-type", p.getLinkedType().toString());
-            if (p.getMin() != null) writer.writeAttribute(0, false, "min", p.getMin());
-            if (p.getMax() != null) writer.writeAttribute(0, false, "max", p.getMax());
-            if (p.getCollate() != null)
+            }
+            if (p.getMin() != null) {
+              writer.writeAttribute(0, false, "min", p.getMin());
+            }
+            if (p.getMax() != null) {
+              writer.writeAttribute(0, false, "max", p.getMax());
+            }
+            if (p.getCollate() != null) {
               writer.writeAttribute(0, false, "collate", p.getCollate().getName());
-            if (p.getDefaultValue() != null)
+            }
+            if (p.getDefaultValue() != null) {
               writer.writeAttribute(0, false, "default-value", p.getDefaultValue());
-            if (p.getRegexp() != null) writer.writeAttribute(0, false, "regexp", p.getRegexp());
+            }
+            if (p.getRegexp() != null) {
+              writer.writeAttribute(0, false, "regexp", p.getRegexp());
+            }
             final Set<String> customKeys = p.getCustomKeys();
             final Map<String, String> custom = new HashMap<>();
-            for (String key : customKeys) custom.put(key, p.getCustom(key));
+            for (String key : customKeys) {
+              custom.put(key, p.getCustom(key));
+            }
 
-            if (!custom.isEmpty()) writer.writeAttribute(0, false, "customFields", custom);
+            if (!custom.isEmpty()) {
+              writer.writeAttribute(0, false, "customFields", custom);
+            }
 
             writer.endObject(0, false);
           }
           writer.endCollection(4, true);
         }
         final Set<String> customKeys = cls.getCustomKeys();
-        final Map<String, String> custom = new HashMap<String, String>();
-        for (String key : customKeys) custom.put(key, cls.getCustom(key));
+        final Map<String, String> custom = new HashMap<>();
+        for (String key : customKeys) {
+          custom.put(key, cls.getCustom(key));
+        }
 
         if (!custom.isEmpty()) {
           writer.writeAttribute(0, false, "customFields", custom);
@@ -637,46 +724,54 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
   }
 
   private boolean exportRecord(long recordTot, long recordNum, ORecord rec, Set<ORID> brokenRids) {
-    if (rec != null)
+    if (rec != null) {
       try {
-        if (rec.getIdentity().isValid()) rec.reload();
-        if (useLineFeedForRecords) writer.append("\n");
-        if (recordExported > 0) writer.append(",");
+        if (rec.getIdentity().isValid()) {
+          rec.reload();
+        }
+        if (useLineFeedForRecords) {
+          writer.append("\n");
+        }
+        if (recordExported > 0) {
+          writer.append(",");
+        }
 
         final String format = ORecordAbstract.BASE_FORMAT + ",dateAsLong";
-        ORecordSerializerJSON.INSTANCE.toString(rec, writer, format == null ? "" : format);
+        ORecordSerializerJSON.INSTANCE.toString(rec, writer, format);
 
         recordExported++;
         recordNum++;
 
-        if (recordTot > 10 && (recordNum + 1) % (recordTot / 10) == 0) listener.onMessage(".");
+        if (recordTot > 10 && (recordNum + 1) % (recordTot / 10) == 0) {
+          listener.onMessage(".");
+        }
 
         return true;
       } catch (final Exception t) {
-        if (rec != null) {
-          final ORID rid = rec.getIdentity().copy();
+        final ORID rid = rec.getIdentity().copy();
 
-          if (rid != null) {
-            brokenRids.add(rid);
-          }
-
-          final byte[] buffer = rec.toStream();
-
-          OLogManager.instance()
-              .error(
-                  this,
-                  "\n"
-                      + "Error on exporting record %s. It seems corrupted; size: %d bytes, raw"
-                      + " content (as string):\n"
-                      + "==========\n"
-                      + "%s\n"
-                      + "==========",
-                  t,
-                  rec.getIdentity(),
-                  buffer.length,
-                  new String(buffer));
+        if (rid != null) {
+          brokenRids.add(rid);
         }
+
+        final byte[] buffer = rec.toStream();
+
+        OLogManager.instance()
+            .error(
+                this,
+                """
+
+                    Error on exporting record %s. It seems corrupted; size: %d bytes, raw\
+                     content (as string):
+                    ==========
+                    %s
+                    ==========""",
+                t,
+                rec.getIdentity(),
+                buffer.length,
+                new String(buffer));
       }
+    }
 
     return false;
   }

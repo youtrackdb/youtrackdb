@@ -77,17 +77,6 @@ public class ORecordBytes extends ORecordAbstract implements OBlob {
     super.convertToProxyRecord(primaryRecord);
   }
 
-  public ORecordBytes reset(final byte[] iSource) {
-    if (primaryRecord != null) {
-      ((ORecordBytes) primaryRecord).reset(iSource);
-      return this;
-    }
-
-    reset();
-    source = iSource;
-    return this;
-  }
-
   @Override
   public ORecordBytes copy() {
     return (ORecordBytes) copyTo(new ORecordBytes());

@@ -105,7 +105,7 @@ public class ODocumentTest {
     assertEquals(doc.fieldType("string"), OType.STRING);
     assertEquals(doc.fieldType("binary"), OType.BINARY);
 
-    doc.reset();
+    doc = new ODocument();
 
     assertEquals(doc.fieldType("integer"), null);
     assertEquals(doc.fieldType("string"), null);

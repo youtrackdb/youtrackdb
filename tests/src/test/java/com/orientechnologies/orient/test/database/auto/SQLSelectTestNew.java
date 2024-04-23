@@ -64,6 +64,7 @@ import org.testng.annotations.Test;
 @Test(groups = "sql-select")
 @SuppressWarnings("unchecked")
 public class SQLSelectTestNew extends AbstractSelectTest {
+
   private ODocument record = new ODocument();
 
   @Parameters(value = "url")
@@ -83,7 +84,9 @@ public class SQLSelectTestNew extends AbstractSelectTest {
 
     if (!database.getMetadata().getSchema().existsClass("company")) {
       database.getMetadata().getSchema().createClass("company", 1);
-      for (int i = 0; i < 20; ++i) new ODocument("company").field("id", i).save();
+      for (int i = 0; i < 20; ++i) {
+        new ODocument("company").field("id", i).save();
+      }
     }
 
     database.getMetadata().getSchema().getOrCreateClass("Account");
@@ -351,9 +354,10 @@ public class SQLSelectTestNew extends AbstractSelectTest {
       Assert.assertEquals(customReferencesBack.size(), 2);
       Assert.assertTrue(customReferencesBack.get(0) instanceof ODocument);
       Assert.assertTrue(customReferencesBack.get(1) instanceof ODocument);
-    } else
+    } else {
       Assert.assertTrue(
           false, "Wrong type received: " + resultset.get(0).field("customReferences"));
+    }
 
     resultset =
         executeQuery(
@@ -429,7 +433,7 @@ public class SQLSelectTestNew extends AbstractSelectTest {
 
   @Test
   public void queryCollectionContainsInRecords() {
-    record.reset();
+    record = new ODocument();
     record.setClassName("Animal");
     record.field("name", "Cat");
 
@@ -520,7 +524,7 @@ public class SQLSelectTestNew extends AbstractSelectTest {
 
   @Test
   public void queryCollectionInNumbers() {
-    record.reset();
+    record = new ODocument();
     record.setClassName("Animal");
     record.field("name", "Cat");
 
@@ -580,11 +584,15 @@ public class SQLSelectTestNew extends AbstractSelectTest {
     boolean isNullSegment = true; // NULL VALUES AT THE BEGINNING!
     for (ODocument d : result) {
       final String fieldValue = d.field("name");
-      if (fieldValue != null) isNullSegment = false;
-      else Assert.assertTrue(isNullSegment);
+      if (fieldValue != null) {
+        isNullSegment = false;
+      } else {
+        Assert.assertTrue(isNullSegment);
+      }
 
-      if (lastName != null && fieldValue != null)
+      if (lastName != null && fieldValue != null) {
         Assert.assertTrue(fieldValue.compareTo(lastName) >= 0);
+      }
       lastName = fieldValue;
     }
   }
@@ -681,8 +689,9 @@ public class SQLSelectTestNew extends AbstractSelectTest {
 
     String lastName = null;
     for (ODocument d : result) {
-      if (lastName != null && d.field("name") != null)
+      if (lastName != null && d.field("name") != null) {
         Assert.assertTrue(((String) d.field("name")).compareTo(lastName) >= 0);
+      }
       lastName = d.field("name");
     }
   }
@@ -696,8 +705,9 @@ public class SQLSelectTestNew extends AbstractSelectTest {
 
     String lastName = null;
     for (ODocument d : result) {
-      if (lastName != null && d.field("name") != null)
+      if (lastName != null && d.field("name") != null) {
         Assert.assertTrue(((String) d.field("name")).compareTo(lastName) >= 0);
+      }
       lastName = d.field("name");
     }
   }
@@ -712,8 +722,9 @@ public class SQLSelectTestNew extends AbstractSelectTest {
 
     String lastName = null;
     for (ODocument d : result) {
-      if (lastName != null && d.field("name") != null)
+      if (lastName != null && d.field("name") != null) {
         Assert.assertTrue(((String) d.field("name")).compareTo(lastName) <= 0);
+      }
       lastName = d.field("name");
     }
   }
@@ -1070,7 +1081,9 @@ public class SQLSelectTestNew extends AbstractSelectTest {
 
     for (ODocument d : resultset) {
       Assert.assertTrue(d.fields() <= 1);
-      if (d.fields() == 1) Assert.assertTrue(d.containsField("name"));
+      if (d.fields() == 1) {
+        Assert.assertTrue(d.containsField("name"));
+      }
     }
   }
 
@@ -1148,28 +1161,33 @@ public class SQLSelectTestNew extends AbstractSelectTest {
   public void queryMathOperators() {
     List<ODocument> result = executeQuery("select * from account where id < 3 + 4", database);
     Assert.assertFalse(result.isEmpty());
-    for (int i = 0; i < result.size(); ++i)
+    for (int i = 0; i < result.size(); ++i) {
       Assert.assertTrue(((Number) result.get(i).field("id")).intValue() < 3 + 4);
+    }
 
     result = executeQuery("select * from account where id < 10 - 3", database);
     Assert.assertFalse(result.isEmpty());
-    for (int i = 0; i < result.size(); ++i)
+    for (int i = 0; i < result.size(); ++i) {
       Assert.assertTrue(((Number) result.get(i).field("id")).intValue() < 10 - 3);
+    }
 
     result = executeQuery("select * from account where id < 3 * 2", database);
     Assert.assertFalse(result.isEmpty());
-    for (int i = 0; i < result.size(); ++i)
+    for (int i = 0; i < result.size(); ++i) {
       Assert.assertTrue(((Number) result.get(i).field("id")).intValue() < 3 * 2);
+    }
 
     result = executeQuery("select * from account where id < 120 / 20", database);
     Assert.assertFalse(result.isEmpty());
-    for (int i = 0; i < result.size(); ++i)
+    for (int i = 0; i < result.size(); ++i) {
       Assert.assertTrue(((Number) result.get(i).field("id")).intValue() < 120 / 20);
+    }
 
     result = executeQuery("select * from account where id < 27 % 10", database);
     Assert.assertFalse(result.isEmpty());
-    for (int i = 0; i < result.size(); ++i)
+    for (int i = 0; i < result.size(); ++i) {
       Assert.assertTrue(((Number) result.get(i).field("id")).intValue() < 27 % 10);
+    }
 
     result = executeQuery("select * from account where id = id * 1", database);
     Assert.assertFalse(result.isEmpty());
@@ -1190,7 +1208,9 @@ public class SQLSelectTestNew extends AbstractSelectTest {
             7);
 
     System.out.println("testBetweenWithParameters:");
-    for (ODocument d : result) System.out.println(d);
+    for (ODocument d : result) {
+      System.out.println(d);
+    }
 
     Assert.assertEquals(result.size(), 4, "Found: " + result);
 
@@ -1711,7 +1731,9 @@ public class SQLSelectTestNew extends AbstractSelectTest {
     for (ODocument d : result) {
       ORID rid = d.getIdentity();
 
-      if (lastRid != null) Assert.assertTrue(rid.compareTo(lastRid) < 0);
+      if (lastRid != null) {
+        Assert.assertTrue(rid.compareTo(lastRid) < 0);
+      }
       lastRid = rid;
     }
 
@@ -1745,7 +1767,9 @@ public class SQLSelectTestNew extends AbstractSelectTest {
     for (ODocument document : indexValuesResult) {
       String name = document.field("name");
 
-      if (lastName != null) Assert.assertTrue(lastName.compareTo(name) <= 0);
+      if (lastName != null) {
+        Assert.assertTrue(lastName.compareTo(name) <= 0);
+      }
 
       lastName = name;
       Assert.assertTrue(classResult.remove(document));
@@ -1778,7 +1802,9 @@ public class SQLSelectTestNew extends AbstractSelectTest {
     for (ODocument document : indexValuesResult) {
       String name = document.field("name");
 
-      if (lastName != null) Assert.assertTrue(lastName.compareTo(name) <= 0);
+      if (lastName != null) {
+        Assert.assertTrue(lastName.compareTo(name) <= 0);
+      }
 
       lastName = name;
       Assert.assertTrue(classResult.remove(document));
@@ -1811,7 +1837,9 @@ public class SQLSelectTestNew extends AbstractSelectTest {
     for (ODocument document : indexValuesResult) {
       String name = document.field("name");
 
-      if (lastName != null) Assert.assertTrue(lastName.compareTo(name) >= 0);
+      if (lastName != null) {
+        Assert.assertTrue(lastName.compareTo(name) >= 0);
+      }
 
       lastName = name;
       Assert.assertTrue(classResult.remove(document));
@@ -1914,7 +1942,9 @@ public class SQLSelectTestNew extends AbstractSelectTest {
         database.browseCluster(database.getClusterNameById(clusterId));
 
     for (int i = 0; i < 100; i++) {
-      if (!iteratorCluster.hasNext()) break;
+      if (!iteratorCluster.hasNext()) {
+        break;
+      }
 
       ODocument doc = iteratorCluster.next();
       positions.add(doc.getIdentity().getClusterPosition());

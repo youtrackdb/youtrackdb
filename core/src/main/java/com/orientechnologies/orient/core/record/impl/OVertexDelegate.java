@@ -197,12 +197,6 @@ public class OVertexDelegate implements OVertexInternal {
   }
 
   @Override
-  public <RET extends ORecord> RET reset() {
-    element.reset();
-    return (RET) this;
-  }
-
-  @Override
   public <RET extends ORecord> RET unload() {
     element.unload();
     return (RET) this;

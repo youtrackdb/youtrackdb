@@ -157,6 +157,9 @@ public abstract class ORecordAbstract implements ORecord {
     return this;
   }
 
+  /**
+   * Resets the record to be reused. The record is fresh like just created.
+   */
   public ORecordAbstract reset() {
     checkForLoading();
     if (primaryRecord != null) {
