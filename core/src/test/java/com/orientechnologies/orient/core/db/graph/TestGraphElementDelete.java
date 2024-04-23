@@ -74,15 +74,15 @@ public class TestGraphElementDelete {
 
     var saveLatch = new CountDownLatch(1);
     new Thread(
-        () -> {
-          try (var database =
-              orientDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
-            OElement instance = database.load(edge.getIdentity());
-            instance.setProperty("one", "two");
-            database.save(instance);
-            saveLatch.countDown();
-          }
-        })
+            () -> {
+              try (var database =
+                  orientDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
+                OElement instance = database.load(edge.getIdentity());
+                instance.setProperty("one", "two");
+                database.save(instance);
+                saveLatch.countDown();
+              }
+            })
         .start();
 
     database.begin();
