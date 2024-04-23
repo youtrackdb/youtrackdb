@@ -19,7 +19,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by tglman on 20/02/17. */
+/**
+ * Created by tglman on 20/02/17.
+ */
 public class TestGraphElementDelete {
 
   private OrientDB orientDB;
@@ -72,21 +74,23 @@ public class TestGraphElementDelete {
 
     var saveLatch = new CountDownLatch(1);
     new Thread(
-            () -> {
-              try (var database =
-                  orientDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
-                OElement instance = database.load(edge.getIdentity());
-                instance.setProperty("one", "two");
-                database.save(instance);
-                saveLatch.countDown();
-              }
-            })
+        () -> {
+          try (var database =
+              orientDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
+            OElement instance = database.load(edge.getIdentity());
+            instance.setProperty("one", "two");
+            database.save(instance);
+            saveLatch.countDown();
+          }
+        })
         .start();
 
+    database.begin();
     OElement instance = database.load(edge.getIdentity());
     saveLatch.await();
     try {
       database.delete(instance);
+      database.commit();
       Assert.fail();
     } catch (OConcurrentModificationException e) {
     }
