@@ -146,6 +146,11 @@ public class OResultBinary implements OResult {
   }
 
   @Override
+  public OElement asElement() {
+    return toDocument();
+  }
+
+  @Override
   public OElement toElement() {
     return toDocument();
   }

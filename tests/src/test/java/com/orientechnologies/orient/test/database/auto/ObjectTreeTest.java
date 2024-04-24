@@ -64,7 +64,7 @@ import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-@Test(groups = {"record-object"})
+@Test
 public class ObjectTreeTest extends ObjectDBBaseTest {
   protected long startRecordNumber;
   private long beginCities;

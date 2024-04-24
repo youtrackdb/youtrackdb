@@ -39,35 +39,35 @@ public class OScheduledEventBuilder extends ODocumentWrapper {
   }
 
   public OScheduledEventBuilder setFunction(final OFunction function) {
-    document.field(OScheduledEvent.PROP_FUNC, function);
+    getDocument().field(OScheduledEvent.PROP_FUNC, function);
     return this;
   }
 
   public OScheduledEventBuilder setRule(final String rule) {
-    document.field(OScheduledEvent.PROP_RULE, rule);
+    getDocument().field(OScheduledEvent.PROP_RULE, rule);
     return this;
   }
 
   public OScheduledEventBuilder setArguments(final Map<Object, Object> arguments) {
-    document.field(OScheduledEvent.PROP_ARGUMENTS, arguments);
+    getDocument().field(OScheduledEvent.PROP_ARGUMENTS, arguments);
     return this;
   }
 
   public OScheduledEventBuilder setStartTime(final Date startTime) {
-    document.field(OScheduledEvent.PROP_STARTTIME, startTime);
+    getDocument().field(OScheduledEvent.PROP_STARTTIME, startTime);
     return this;
   }
 
   public OScheduledEvent build() {
-    return new OScheduledEvent(document);
+    return new OScheduledEvent(getDocument());
   }
 
   public String toString() {
-    return document.toString();
+    return getDocument().toString();
   }
 
   public OScheduledEventBuilder setName(final String name) {
-    document.field(OScheduledEvent.PROP_NAME, name);
+    getDocument().field(OScheduledEvent.PROP_NAME, name);
     return this;
   }
 }

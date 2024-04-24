@@ -64,10 +64,10 @@ public class GEOTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "checkGeoIndexes")
   public void queryCreatePoints() {
-    ODocument point = new ODocument();
+    ODocument point;
 
     for (int i = 0; i < 10000; ++i) {
-      point.reset();
+      point = new ODocument();
       point.setClassName("MapPoint");
 
       point.field("x", (52.20472d + i / 100d));
@@ -124,8 +124,9 @@ public class GEOTest extends DocumentDBBaseTest {
 
     Double lastDistance = null;
     for (ODocument d : result) {
-      if (lastDistance != null && d.field("distance") != null)
+      if (lastDistance != null && d.field("distance") != null) {
         Assert.assertTrue(((Double) d.field("distance")).compareTo(lastDistance) <= 0);
+      }
       lastDistance = d.field("distance");
     }
   }

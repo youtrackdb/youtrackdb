@@ -137,7 +137,8 @@ public class HookTxTest extends ORecordHookAbstract {
     database.delete(p);
     database.commit();
 
-    expectedHookState += RECORD_BEFORE_DELETE + RECORD_AFTER_DELETE;
+    expectedHookState +=
+        RECORD_BEFORE_DELETE + RECORD_AFTER_DELETE + RECORD_BEFORE_READ + RECORD_AFTER_READ;
     Assert.assertEquals(callbackCount, expectedHookState);
 
     database.unregisterHook(this);

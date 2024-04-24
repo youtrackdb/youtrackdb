@@ -50,7 +50,7 @@ public class ORemoteTreeRidBag implements ORidBagDelegate {
   /** Entries with not valid id. */
   private int size;
 
-  private OSimpleMultiValueTracker<OIdentifiable, OIdentifiable> tracker =
+  private final OSimpleMultiValueTracker<OIdentifiable, OIdentifiable> tracker =
       new OSimpleMultiValueTracker<>(this);
 
   private boolean autoConvertToRecord = true;

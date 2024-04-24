@@ -658,6 +658,10 @@ public class ORecordSerializerBinaryV1 implements ODocumentSerializer {
       // FIXME: changed to support only string key on map
       OType type = OType.STRING;
       writeOType(bytes, bytes.alloc(1), type);
+      var key = entry.getKey();
+      if (key == null) {
+        throw new OSerializationException("Maps with null keys are not supported");
+      }
       writeString(bytes, entry.getKey().toString());
       final Object value = entry.getValue();
       if (value != null) {
@@ -1124,7 +1128,12 @@ public class ORecordSerializerBinaryV1 implements ODocumentSerializer {
       } catch (Exception e) {
         throw new RuntimeException(e);
       }
-    } else ODocumentInternal.addOwner((ODocument) value, owner);
+    } else {
+      var doc = (ODocument) value;
+      ODocumentInternal.addOwner(doc, owner);
+      ORecordInternal.unsetDirty(doc);
+    }
+
     return value;
   }
 

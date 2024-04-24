@@ -109,17 +109,21 @@ public class ODatabaseDocumentTxPooled extends ODatabaseDocumentTx implements OD
 
   /**
    * @return <code>true</code> if database is obtained from the pool and <code>false</code>
-   *     otherwise.
+   * otherwise.
    */
   @Override
   public boolean isPooled() {
     return true;
   }
 
-  /** Avoid to close it but rather release itself to the owner pool. */
+  /**
+   * Avoid to close it but rather release itself to the owner pool.
+   */
   @Override
   public void close() {
-    if (isClosed()) return;
+    if (isClosed()) {
+      return;
+    }
 
     checkOpenness();
 
@@ -129,7 +133,9 @@ public class ODatabaseDocumentTxPooled extends ODatabaseDocumentTx implements OD
     }
 
     try {
-      commit(true);
+      if (getTransaction().isActive()) {
+        commit(true);
+      }
     } catch (Exception e) {
       OLogManager.instance().error(this, "Error on releasing database '%s' in pool", e, getName());
     }
@@ -157,10 +163,11 @@ public class ODatabaseDocumentTxPooled extends ODatabaseDocumentTx implements OD
 
   //  @Override
   protected void checkOpenness() {
-    if (ownerPool == null)
+    if (ownerPool == null) {
       throw new ODatabaseException(
           "Database instance has been released to the pool. Get another database instance from the"
               + " pool with the right username and password");
+    }
 
     //    super.checkOpenness();
   }

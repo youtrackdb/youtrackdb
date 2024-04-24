@@ -32,9 +32,9 @@ public class TestOrderByIndexPropDesc extends BaseMemoryDatabase {
   }
 
   private void test(int count) {
-    ODocument doc = db.newInstance();
+    ODocument doc;
     for (int i = 0; i < count; i++) {
-      doc.reset();
+      doc = db.newInstance();
       doc.setClassName(DOCUMENT_CLASS_NAME);
       doc.field(PROP_INDEXED_STRING, i);
       db.save(doc);

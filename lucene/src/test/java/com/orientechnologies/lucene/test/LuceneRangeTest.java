@@ -77,10 +77,7 @@ public class LuceneRangeTest extends BaseLuceneTest {
 
   @Test
   public void shouldUseRangeQueryOnSingleDateField() {
-
-    db.commit();
     db.command("create index Person.date on Person(date) FULLTEXT ENGINE LUCENE").close();
-    db.commit();
 
     assertThat(
             db.getMetadata()
@@ -116,8 +113,6 @@ public class LuceneRangeTest extends BaseLuceneTest {
                 .getInternal()
                 .size())
         .isEqualTo(10);
-
-    db.commit();
 
     String today = DateTools.timeToString(System.currentTimeMillis(), DateTools.Resolution.MINUTE);
     String fiveDaysAgo =
@@ -169,8 +164,6 @@ public class LuceneRangeTest extends BaseLuceneTest {
                 .size())
         .isEqualTo(10);
 
-    db.commit();
-
     String today = DateTools.timeToString(System.currentTimeMillis(), DateTools.Resolution.MINUTE);
     String fiveDaysAgo =
         DateTools.timeToString(
@@ -211,7 +204,6 @@ public class LuceneRangeTest extends BaseLuceneTest {
         .isEqualTo(10);
 
     int cluster = db.getMetadata().getSchema().getClass("Person").getClusterIds()[1];
-    db.commit();
 
     OResultSet results =
         db.command("SELECT FROM Person WHERE name LUCENE '+_CLUSTER:" + cluster + "'");

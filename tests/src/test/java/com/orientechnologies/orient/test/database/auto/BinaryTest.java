@@ -69,9 +69,7 @@ public class BinaryTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "testMixedCreateExternal")
   public void testMixedReadExternal() {
-    ODocument doc = new ODocument(rid);
-    doc.reload();
-
+    ODocument doc = rid.getRecord();
     Assert.assertEquals("Binary data", new String(((OBlob) doc.field("binary")).toStream()));
   }
 }

@@ -44,7 +44,7 @@ public class SecMaskTest {
       doc.field("name", "this is secmask put on top - " + i);
       doc.setClassName("Account");
       doc.save();
-      doc.reset();
+      doc = new ODocument();
       if (i % 100000 == 0) {
         double time = (double) (System.nanoTime() - block) / 1000000;
         System.out.println(i * 100 / ndoc + "%.\t" + time + "\t" + 100000.0d / time + " docs/ms");

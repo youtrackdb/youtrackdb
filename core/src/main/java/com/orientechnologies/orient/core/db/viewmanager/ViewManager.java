@@ -12,6 +12,7 @@ import com.orientechnologies.orient.core.db.OrientDBInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentEmbedded;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
+import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.index.OClassIndexManager;
 import com.orientechnologies.orient.core.index.OCompositeIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -459,8 +460,8 @@ public class ViewManager {
       }
       return result;
     } catch (Exception e) {
-      e.printStackTrace();
-      return null;
+      throw OException.wrapException(
+          new ODatabaseException("Error on creating indexes for view " + view.getName()), e);
     }
   }
 

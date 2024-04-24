@@ -53,6 +53,15 @@ public interface OEdgeInternal extends OEdge, OElementInternal {
   }
 
   @Override
+  default boolean isUnloaded() {
+    var baseDocument = getBaseDocument();
+    if (baseDocument != null) {
+      return baseDocument.isUnloaded();
+    }
+    return true;
+  }
+
+  @Override
   default boolean exists() {
     var baseDocument = getBaseDocument();
     if (baseDocument == null) {

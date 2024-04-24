@@ -1,12 +1,13 @@
 package com.orientechnologies.orient.core.sql.select;
 
 import com.orientechnologies.BaseMemoryDatabase;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
+import com.orientechnologies.orient.core.sql.executor.OResult;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -17,39 +18,31 @@ public class TestSqlEmbeddedResult extends BaseMemoryDatabase {
     db.getMetadata().getSchema().createClass("Test");
     ODocument doc = new ODocument("Test");
     ODocument doc1 = new ODocument();
-    doc1.field("format", 1);
+    doc1.setProperty("format", 1);
     Set<ODocument> docs = new HashSet<ODocument>();
     docs.add(doc1);
-    doc.field("rel", docs);
+    doc.setProperty("rel", docs);
     // doc
     db.save(doc);
 
-    List<ODocument> res =
-        db.query(
-            new OSQLSynchQuery<Object>(
-                "select $Pics[0] as el FROM Test LET $Pics = (select expand( rel.include('format'))"
-                    + " from $current)"));
+    List<OElement> res =
+        db
+            .query(
+                "select $current as el " + " from (select expand(rel.include('format')) from Test)")
+            .stream()
+            .map(OResult::toElement)
+            .collect(Collectors.toList());
     Assert.assertEquals(res.size(), 1);
-    ODocument ele = res.get(0);
-    Assert.assertNotNull(ele.field("el"));
-
-    byte[] bt = ele.toStream();
-    ODocument read = new ODocument(bt);
-    Assert.assertNotNull(read.field("el"));
-    Assert.assertEquals(read.fieldType("el"), OType.EMBEDDED);
+    OElement ele = res.get(0);
+    Assert.assertTrue(ele.getProperty("el") instanceof ODocument);
 
     res =
-        db.query(
-            new OSQLSynchQuery<Object>(
-                "select $Pics as el FROM Test LET $Pics = (select expand( rel.include('format'))"
-                    + " from $current)"));
+        db.query("select rel as el " + " from (select rel from Test)").stream()
+            .map(OResult::toElement)
+            .toList();
 
     Assert.assertEquals(res.size(), 1);
     ele = res.get(0);
-    Assert.assertNotNull(ele.field("el"));
-    bt = ele.toStream();
-    read = new ODocument(bt);
-    Assert.assertNotNull(read.field("el"));
-    Assert.assertEquals(read.fieldType("el"), OType.EMBEDDEDLIST);
+    Assert.assertTrue(ele.getProperty("el") instanceof Set<?>);
   }
 }

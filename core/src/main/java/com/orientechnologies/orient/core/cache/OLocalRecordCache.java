@@ -23,8 +23,9 @@ import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordVersionHelper;
 
 /**
@@ -62,12 +63,24 @@ public class OLocalRecordCache extends OAbstractRecordCache {
    *
    * @param record record that should be cached
    */
-  public void updateRecord(final ORecord record) {
-    if (record.getIdentity().getClusterId() != excludedCluster
-        && record.getIdentity().isValid()
+  public void updateRecord(final ORecordAbstract record) {
+    assert !record.isProxy() && !record.isUnloaded();
+    var rid = record.getIdentity();
+    if (rid.getClusterId() != excludedCluster
+        && !rid.isTemporary()
+        && rid.isValid()
         && !record.isDirty()
         && !ORecordVersionHelper.isTombstone(record.getVersion())) {
-      if (underlying.get(record.getIdentity()) != record) underlying.put(record);
+      var loadedRecord = underlying.get(rid);
+      if (loadedRecord == null) {
+        underlying.put(record);
+      } else if (loadedRecord != record) {
+        throw new ODatabaseException(
+            "Record with id "
+                + record.getIdentity()
+                + " already registered in current session, please load "
+                + "record again using 'record = db.load(rid)' method or use another session.");
+      }
     }
   }
 
@@ -78,8 +91,8 @@ public class OLocalRecordCache extends OAbstractRecordCache {
    * @param rid unique identifier of record
    * @return record stored in cache if any, otherwise - {@code null}
    */
-  public ORecord findRecord(final ORID rid) {
-    ORecord record;
+  public ORecordAbstract findRecord(final ORID rid) {
+    ORecordAbstract record;
     record = underlying.get(rid);
 
     if (record != null)
@@ -96,6 +109,7 @@ public class OLocalRecordCache extends OAbstractRecordCache {
               1L,
               "db.*.cache.level1.cache.notFound");
 
+    assert record == null || !record.isProxy();
     return record;
   }
 

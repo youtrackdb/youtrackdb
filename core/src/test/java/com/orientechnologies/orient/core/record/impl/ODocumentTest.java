@@ -28,6 +28,7 @@ import org.junit.Test;
  * @author Artem Orobets (enisher-at-gmail.com)
  */
 public class ODocumentTest {
+
   private static final String dbName = ODocumentTest.class.getSimpleName();
   private static final String defaultDbAdminCredentials = "admin";
 
@@ -43,11 +44,11 @@ public class ODocumentTest {
             .setFieldType("integer", OType.INTEGER)
             .setFieldType("string", OType.STRING)
             .setFieldType("binary", OType.BINARY);
-    ODocumentInternal.addOwner(doc2, new ODocument());
+    var owner = new ODocument();
+    ODocumentInternal.addOwner(doc2, owner);
 
     assertEquals(doc2.<Object>field("integer2"), 123);
     assertEquals(doc2.field("string"), "OrientDB");
-    //    assertEquals(doc2.field("a"), 123.3);
 
     Assertions.assertThat(doc2.<Double>field("a")).isEqualTo(123.3d);
     assertEquals(doc2.fieldType("integer"), OType.INTEGER);
@@ -56,6 +57,7 @@ public class ODocumentTest {
 
     assertNotNull(doc2.getOwner());
 
+    ORecordInternal.unsetDirty(doc2);
     doc1.copyTo(doc2);
 
     assertEquals(doc2.<Object>field("integer2"), null);
@@ -104,7 +106,7 @@ public class ODocumentTest {
     assertEquals(doc.fieldType("string"), OType.STRING);
     assertEquals(doc.fieldType("binary"), OType.BINARY);
 
-    doc.reset();
+    doc = new ODocument();
 
     assertEquals(doc.fieldType("integer"), null);
     assertEquals(doc.fieldType("string"), null);
@@ -201,7 +203,9 @@ public class ODocumentTest {
       assertEquals(doc.fieldType("binary"), OType.BINARY);
       assertEquals(doc.fieldType("link"), OType.LINK);
     } finally {
-      if (db != null) db.close();
+      if (db != null) {
+        db.close();
+      }
       if (odb != null) {
         odb.drop(dbName);
         odb.close();
@@ -251,7 +255,9 @@ public class ODocumentTest {
       doc.undo("property"); // we decided undo readonly field
       doc.save();
     } finally {
-      if (db != null) db.close();
+      if (db != null) {
+        db.close();
+      }
       if (odb != null) {
         odb.drop(dbName);
         odb.close();
@@ -301,7 +307,9 @@ public class ODocumentTest {
       assertEquals(doc.field("name"), "My Name 4");
       assertEquals(doc.field("property"), "value1");
     } finally {
-      if (db != null) db.close();
+      if (db != null) {
+        db.close();
+      }
       if (odb != null) {
         odb.drop(dbName);
         odb.close();

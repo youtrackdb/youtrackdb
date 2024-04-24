@@ -23,6 +23,7 @@ import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.serialization.serializer.OJSONWriter;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerJSON;
@@ -45,6 +46,7 @@ import org.testng.annotations.Test;
 @SuppressWarnings("unchecked")
 @Test
 public class JSONTest extends DocumentDBBaseTest {
+
   public static final String FORMAT_WITHOUT_TYPES =
       "rid,version,class,type,attribSameRow,alwaysFetchEmbedded,fetchPlan:*:0";
 
@@ -65,6 +67,7 @@ public class JSONTest extends DocumentDBBaseTest {
     documentSource.fromJSON("{\"list\" : [\"string\", null]}");
 
     final ODocument documentTarget = new ODocument();
+    ORecordInternal.unsetDirty(documentTarget);
     documentTarget.fromStream(documentSource.toStream());
 
     final OTrackedList<Object> list = documentTarget.field("list", OType.EMBEDDEDLIST);
@@ -78,6 +81,7 @@ public class JSONTest extends DocumentDBBaseTest {
     documentSource.fromJSON("{\"list\" : [true, false]}");
 
     final ODocument documentTarget = new ODocument();
+    ORecordInternal.unsetDirty(documentTarget);
     documentTarget.fromStream(documentSource.toStream());
 
     final OTrackedList<Object> list = documentTarget.field("list", OType.EMBEDDEDLIST);
@@ -91,6 +95,7 @@ public class JSONTest extends DocumentDBBaseTest {
     documentSource.fromJSON("{\"list\" : [17,42]}");
 
     final ODocument documentTarget = new ODocument();
+    ORecordInternal.unsetDirty(documentTarget);
     documentTarget.fromStream(documentSource.toStream());
 
     final OTrackedList<Object> list = documentTarget.field("list", OType.EMBEDDEDLIST);
@@ -104,11 +109,12 @@ public class JSONTest extends DocumentDBBaseTest {
     documentSource.fromJSON("{\"list\" : [100000000000,100000000001]}");
 
     final ODocument documentTarget = new ODocument();
+    ORecordInternal.unsetDirty(documentTarget);
     documentTarget.fromStream(documentSource.toStream());
 
     final OTrackedList<Object> list = documentTarget.field("list", OType.EMBEDDEDLIST);
-    Assert.assertEquals(list.get(0), 100000000000l);
-    Assert.assertEquals(list.get(1), 100000000001l);
+    Assert.assertEquals(list.get(0), 100000000000L);
+    Assert.assertEquals(list.get(1), 100000000001L);
   }
 
   @Test
@@ -117,6 +123,7 @@ public class JSONTest extends DocumentDBBaseTest {
     documentSource.fromJSON("{\"list\" : [17.3,42.7]}");
 
     final ODocument documentTarget = new ODocument();
+    ORecordInternal.unsetDirty(documentTarget);
     documentTarget.fromStream(documentSource.toStream());
 
     final OTrackedList<Object> list = documentTarget.field("list", OType.EMBEDDEDLIST);
@@ -478,7 +485,9 @@ public class JSONTest extends DocumentDBBaseTest {
       Assert.assertEquals(jsonLoaded, jsonFull);
     }
 
-    if (database.isClosed()) database.open("admin", "admin");
+    if (database.isClosed()) {
+      database.open("admin", "admin");
+    }
 
     for (ODocument doc : result) {
       doc.reload("*:1");
@@ -657,8 +666,9 @@ public class JSONTest extends DocumentDBBaseTest {
   }
 
   public void testNestedJsonCollection() {
-    if (!database.getMetadata().getSchema().existsClass("Device"))
+    if (!database.getMetadata().getSchema().existsClass("Device")) {
       database.getMetadata().getSchema().createClass("Device");
+    }
 
     database
         .command(
@@ -677,8 +687,9 @@ public class JSONTest extends DocumentDBBaseTest {
   }
 
   public void testNestedEmbeddedJson() {
-    if (!database.getMetadata().getSchema().existsClass("Device"))
+    if (!database.getMetadata().getSchema().existsClass("Device")) {
       database.getMetadata().getSchema().createClass("Device");
+    }
 
     database
         .command("insert into device (resource_id, domainset) VALUES (1, { 'domain' : 'eee' })")
@@ -689,8 +700,9 @@ public class JSONTest extends DocumentDBBaseTest {
   }
 
   public void testNestedMultiLevelEmbeddedJson() {
-    if (!database.getMetadata().getSchema().existsClass("Device"))
+    if (!database.getMetadata().getSchema().existsClass("Device")) {
       database.getMetadata().getSchema().createClass("Device");
+    }
 
     database
         .command(
@@ -958,6 +970,7 @@ public class JSONTest extends DocumentDBBaseTest {
     documentSource.fromJSON("{\"list\" : [\"string\", 42]}");
 
     ODocument documentTarget = new ODocument();
+    ORecordInternal.unsetDirty(documentTarget);
     documentTarget.fromStream(documentSource.toStream());
 
     OTrackedList<Object> list = documentTarget.field("list", OType.EMBEDDEDLIST);
@@ -1269,11 +1282,13 @@ public class JSONTest extends DocumentDBBaseTest {
   }
 
   public void testJSONTxDoc() {
-    if (!database.getMetadata().getSchema().existsClass("JSONTxDocOne"))
+    if (!database.getMetadata().getSchema().existsClass("JSONTxDocOne")) {
       database.getMetadata().getSchema().createClass("JSONTxDocOne");
+    }
 
-    if (!database.getMetadata().getSchema().existsClass("JSONTxDocTwo"))
+    if (!database.getMetadata().getSchema().existsClass("JSONTxDocTwo")) {
       database.getMetadata().getSchema().createClass("JSONTxDocTwo");
+    }
 
     ODocument adamDoc = new ODocument("JSONTxDocOne");
     adamDoc.field("name", "adam");

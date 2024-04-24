@@ -36,9 +36,10 @@ public class TestQueryRecordLockUnlock {
       doc.field("count", 0);
       doc = db.save(doc, db.getClusterNameById(db.getDefaultClusterId()));
       id = doc.getIdentity();
-      db.commit();
     } finally {
-      if (db != null) db.close();
+      if (db != null) {
+        db.close();
+      }
     }
     int thread = 10;
 
@@ -105,7 +106,9 @@ public class TestQueryRecordLockUnlock {
       id = doc.getIdentity();
       db.commit();
     } finally {
-      if (db != null) db.close();
+      if (db != null) {
+        db.close();
+      }
     }
     int thread = 10;
 
@@ -168,9 +171,10 @@ public class TestQueryRecordLockUnlock {
       doc.field("count", 0);
       doc = db.save(doc, db.getClusterNameById(db.getDefaultClusterId()));
       id = doc.getIdentity();
-      db.commit();
     } finally {
-      if (db != null) db.close();
+      if (db != null) {
+        db.close();
+      }
     }
     int thread = 10;
 

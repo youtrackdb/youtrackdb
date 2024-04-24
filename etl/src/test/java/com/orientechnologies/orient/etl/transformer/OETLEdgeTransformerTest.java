@@ -48,18 +48,18 @@ import org.junit.Test;
 public class OETLEdgeTransformerTest extends OETLBaseTest {
 
   @Before
-  public void cleanFs() throws Exception {
+  public void cleanFs() {
     OFileUtils.deleteRecursively(new File("./target/databases/etlEdgeTransformerTest"));
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     closeResources();
 
     OFileUtils.deleteRecursively(new File("./target/databases/etlEdgeTransformerTest"));
   }
 
-  public void createClasses(ODatabaseDocument db) {
+  private static void createClasses(ODatabaseDocument db) {
     db.createVertexClass("V1");
     final OClass v2 = db.createVertexClass("V2");
 
@@ -72,7 +72,6 @@ public class OETLEdgeTransformerTest extends OETLBaseTest {
 
     vertex.setProperty("name", "Luca");
     db.save(vertex);
-    db.commit();
   }
 
   @Test
@@ -118,7 +117,6 @@ public class OETLEdgeTransformerTest extends OETLBaseTest {
 
     vertex.setProperty("name", "Luca");
     db.save(vertex);
-    db.commit();
     db.close();
 
     proc.execute();
@@ -161,6 +159,7 @@ public class OETLEdgeTransformerTest extends OETLBaseTest {
     assertTrue(v.hasNext());
     assertNotNull(v.next());
     assertTrue(v.hasNext());
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
     final OVertex v1 = v.next().getVertex().get();
     assertNotNull(v1);
 
@@ -175,13 +174,10 @@ public class OETLEdgeTransformerTest extends OETLBaseTest {
 
     final OEdge e = edge.next();
     assertNotNull(e);
-    final Set<String> eProps = e.getPropertyNames();
     assertEquals(e.<Integer>getProperty("since"), Integer.valueOf(1996));
 
     final OVertex v0 = e.getVertex(ODirection.OUT);
     assertNotNull(v0);
-
-    final Set<String> v0Props = v0.getPropertyNames();
 
     assertEquals(v0.getProperty("name"), "Jay");
     assertEquals(v0.getProperty("surname"), "Miner");

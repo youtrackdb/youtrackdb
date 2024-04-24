@@ -20,6 +20,7 @@
 package com.orientechnologies.orient.core.type;
 
 import com.orientechnologies.orient.core.annotation.ODocumentInstance;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.io.Serializable;
@@ -27,17 +28,16 @@ import java.io.Serializable;
 /**
  * Base abstract class to wrap a document.
  *
- * @see ODocumentWrapperNoClass
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 @SuppressWarnings("unchecked")
 public class ODocumentWrapper implements Serializable {
-  @ODocumentInstance protected ODocument document;
+  @ODocumentInstance private ODocument document;
 
   public ODocumentWrapper() {}
 
   public ODocumentWrapper(final ORID iRID) {
-    this(new ODocument(iRID));
+    this((ODocument) iRID.getRecord());
   }
 
   public ODocumentWrapper(final String iClassName) {
@@ -62,23 +62,41 @@ public class ODocumentWrapper implements Serializable {
 
   public <RET extends ODocumentWrapper> RET load(
       final String iFetchPlan, final boolean iIgnoreCache) {
+    checkProxy();
     document = document.load(iFetchPlan, iIgnoreCache);
     return (RET) this;
   }
 
   public <RET extends ODocumentWrapper> RET reload() {
-    document.reload();
+    checkProxy();
+    if (document.isUnloaded()) {
+      document = ODatabaseSession.getActiveSession().load(document.getIdentity());
+    } else {
+      document.reload();
+    }
     return (RET) this;
   }
 
   public <RET extends ODocumentWrapper> RET reload(final String iFetchPlan) {
-    document.reload(iFetchPlan, true);
+    checkProxy();
+    if (document.isUnloaded()) {
+      document = ODatabaseSession.getActiveSession().load(document.getIdentity(), iFetchPlan);
+    } else {
+      document.reload(iFetchPlan, true);
+    }
     return (RET) this;
   }
 
   public <RET extends ODocumentWrapper> RET reload(
       final String iFetchPlan, final boolean iIgnoreCache) {
-    document.reload(iFetchPlan, iIgnoreCache);
+    checkProxy();
+    if (document.isUnloaded()) {
+      document =
+          ODatabaseSession.getActiveSession()
+              .load(document.getIdentity(), iFetchPlan, iIgnoreCache);
+    } else {
+      document.reload(iFetchPlan, iIgnoreCache);
+    }
     return (RET) this;
   }
 
@@ -88,12 +106,24 @@ public class ODocumentWrapper implements Serializable {
   }
 
   public <RET extends ODocumentWrapper> RET save(final String iClusterName) {
+    checkProxy();
     document.save(iClusterName);
     return (RET) this;
   }
 
   public ODocument getDocument() {
+    checkProxy();
     return document;
+  }
+
+  public void setDocument(ODocument document) {
+    this.document = document;
+  }
+
+  private void checkProxy() {
+    if (document != null && document.isProxy()) {
+      document = (ODocument) document.getRecord();
+    }
   }
 
   @Override

@@ -63,8 +63,11 @@ import java.util.SortedSet;
 import java.util.TimerTask;
 import java.util.TreeSet;
 
-/** @author luigi dell'aquila (l.dellaquila - at - orientdb.com) */
+/**
+ * @author luigi dell'aquila (l.dellaquila - at - orientdb.com)
+ */
 public class OTransactionPhase1Task extends OAbstractRemoteTask implements OLockKeySource {
+
   public static final int FACTORYID = 43;
   private volatile boolean hasResponse;
   private List<ORecordOperation> ops;
@@ -97,7 +100,9 @@ public class OTransactionPhase1Task extends OAbstractRemoteTask implements OLock
 
   public void genOps(List<ORecordOperation> ops) {
     for (ORecordOperation txEntry : ops) {
-      if (txEntry.type == ORecordOperation.LOADED) continue;
+      if (txEntry.type == ORecordOperation.LOADED) {
+        continue;
+      }
       ORecordOperationRequest request = new ORecordOperationRequest();
       request.setType(txEntry.type);
       request.setVersion(txEntry.getRecord().getVersion());
@@ -224,15 +229,17 @@ public class OTransactionPhase1Task extends OAbstractRemoteTask implements OLock
           txContext.setStatus(TIMEDOUT);
           database.register(requestId, localDistributedDatabase, txContext);
           return new OTxInvalidSequential();
-        } else if (result == ValidationResult.ALREADY_PRESENT) {
-          ONewDistributedTxContextImpl txContext =
-              new ONewDistributedTxContextImpl(
-                  (ODistributedDatabaseImpl) localDistributedDatabase, requestId, tx, id);
-          txContext.setStatus(TIMEDOUT);
-          database.register(requestId, localDistributedDatabase, txContext);
-          // This send OK to the sender even if already present, the second phase will skip the
-          // apply if already present
-          return new OTxInvalidSequential();
+        } else {
+          if (result == ValidationResult.ALREADY_PRESENT) {
+            ONewDistributedTxContextImpl txContext =
+                new ONewDistributedTxContextImpl(
+                    (ODistributedDatabaseImpl) localDistributedDatabase, requestId, tx, id);
+            txContext.setStatus(TIMEDOUT);
+            database.register(requestId, localDistributedDatabase, txContext);
+            // This send OK to the sender even if already present, the second phase will skip the
+            // apply if already present
+            return new OTxInvalidSequential();
+          }
         }
       }
       if (database.beginDistributedTx(requestId, id, tx, isCoordinator, retryCount)) {
@@ -285,6 +292,8 @@ public class OTransactionPhase1Task extends OAbstractRemoteTask implements OLock
   }
 
   private void convert(ODatabaseDocumentInternal database) {
+    ops.clear();
+
     for (ORecordOperationRequest req : operations) {
       byte type = req.getType();
       if (type == ORecordOperation.LOADED) {
@@ -516,15 +525,17 @@ public class OTransactionPhase1Task extends OAbstractRemoteTask implements OLock
       } else {
         return ((ORID) key).getIdentity().copy();
       }
-    } else if (key instanceof OCompositeKey) {
-      OCompositeKey cKey = (OCompositeKey) key;
-      OCompositeKey newKey = new OCompositeKey();
-      for (Object subKey : cKey.getKeys()) {
-        newKey.addKey(mapKey(subKey));
-      }
-      return newKey;
     } else {
-      return key;
+      if (key instanceof OCompositeKey) {
+        OCompositeKey cKey = (OCompositeKey) key;
+        OCompositeKey newKey = new OCompositeKey();
+        for (Object subKey : cKey.getKeys()) {
+          newKey.addKey(mapKey(subKey));
+        }
+        return newKey;
+      } else {
+        return key;
+      }
     }
   }
 }

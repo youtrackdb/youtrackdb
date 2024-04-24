@@ -39,7 +39,7 @@ public final class OSimpleMultiValueTracker<K, V> {
   private OMultiValueChangeTimeLine<K, V> transactionTimeLine;
 
   public OSimpleMultiValueTracker(ORecordElement element) {
-    this.element = new WeakReference<ORecordElement>(element);
+    this.element = new WeakReference<>(element);
   }
 
   public void addNoDirty(K key, V value) {
@@ -92,7 +92,7 @@ public final class OSimpleMultiValueTracker<K, V> {
     }
 
     if (timeLine == null) {
-      timeLine = new OMultiValueChangeTimeLine<Object, Object>();
+      timeLine = new OMultiValueChangeTimeLine<>();
     }
     timeLine.addCollectionChangeEvent((OMultiValueChangeEvent<Object, Object>) event);
 

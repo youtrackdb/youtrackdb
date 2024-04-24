@@ -104,12 +104,10 @@ public class ORecordIteratorClusters<REC extends ORecord> extends OIdentifiableI
 
     if (liveUpdated) updateClusterRange();
 
-    ORecord record = getRecord();
-
     // ITERATE UNTIL THE PREVIOUS GOOD RECORD
     while (currentClusterIdx > -1) {
       while (prevPosition()) {
-        currentRecord = readCurrentRecord(record, 0);
+        currentRecord = readCurrentRecord(0);
 
         if (currentRecord != null)
           if (include(currentRecord))
@@ -149,18 +147,15 @@ public class ORecordIteratorClusters<REC extends ORecord> extends OIdentifiableI
     // COMPUTE THE NUMBER OF RECORDS TO BROWSE
     if (liveUpdated) updateClusterRange();
 
-    ORecord record = getRecord();
-
     // ITERATE UNTIL THE NEXT GOOD RECORD
     while (currentClusterIdx < clusterIds.length) {
       while (nextPosition()) {
         if (outsideOfTheRange(current)) continue;
 
         try {
-          currentRecord = readCurrentRecord(record, 0);
+          currentRecord = readCurrentRecord(0);
         } catch (Exception e) {
-          if ((e instanceof RuntimeException) && (e instanceof OHighLevelException))
-            throw (RuntimeException) e;
+          if (e instanceof OHighLevelException) throw (RuntimeException) e;
 
           OLogManager.instance().error(this, "Error during read of record", e);
 
@@ -219,7 +214,7 @@ public class ORecordIteratorClusters<REC extends ORecord> extends OIdentifiableI
         }
 
       record = getTransactionEntry();
-      if (record == null) record = readCurrentRecord(null, +1);
+      if (record == null) record = readCurrentRecord(+1);
 
       if (record != null)
         // FOUND
@@ -258,8 +253,6 @@ public class ORecordIteratorClusters<REC extends ORecord> extends OIdentifiableI
         currentRecord = null;
       }
 
-    ORecord record = getRecord();
-
     // MOVE BACKWARD IN THE CURRENT CLUSTER
     while (hasPrevious()) {
       if (currentRecord != null)
@@ -270,15 +263,15 @@ public class ORecordIteratorClusters<REC extends ORecord> extends OIdentifiableI
           currentRecord = null;
         }
 
-      record = getTransactionEntry();
-      if (record == null) record = readCurrentRecord(null, -1);
+      var record = getTransactionEntry();
+      if (record == null) record = readCurrentRecord(-1);
 
       if (record != null)
         // FOUND
         if (include(record)) return (REC) record;
     }
 
-    record = getTransactionEntry();
+    var record = getTransactionEntry();
     if (record != null) return (REC) record;
 
     return null;
@@ -303,8 +296,7 @@ public class ORecordIteratorClusters<REC extends ORecord> extends OIdentifiableI
     resetCurrentPosition();
     nextPosition();
 
-    final ORecord record = getRecord();
-    currentRecord = readCurrentRecord(record, 0);
+    currentRecord = readCurrentRecord(0);
 
     if (currentRecord != null && !include(currentRecord)) {
       currentRecord = null;
@@ -334,8 +326,7 @@ public class ORecordIteratorClusters<REC extends ORecord> extends OIdentifiableI
     resetCurrentPosition();
     prevPosition();
 
-    final ORecord record = getRecord();
-    currentRecord = readCurrentRecord(record, 0);
+    currentRecord = readCurrentRecord(0);
 
     if (currentRecord != null && !include(currentRecord)) {
       currentRecord = null;
@@ -365,14 +356,6 @@ public class ORecordIteratorClusters<REC extends ORecord> extends OIdentifiableI
     }
 
     return this;
-  }
-
-  public ORID getBeginRange() {
-    return beginRange;
-  }
-
-  public ORID getEndRange() {
-    return endRange;
   }
 
   public int[] getClusterIds() {
@@ -440,8 +423,6 @@ public class ORecordIteratorClusters<REC extends ORecord> extends OIdentifiableI
   private boolean outsideOfTheRange(ORID orid) {
     if (beginRange != null && orid.compareTo(beginRange) < 0) return true;
 
-    if (endRange != null && orid.compareTo(endRange) > 0) return true;
-
-    return false;
+    return endRange != null && orid.compareTo(endRange) > 0;
   }
 }

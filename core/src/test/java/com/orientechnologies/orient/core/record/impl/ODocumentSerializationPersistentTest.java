@@ -33,12 +33,12 @@ public class ODocumentSerializationPersistentTest extends BaseMemoryInternalData
     super.beforeTest();
 
     final ODocument doc = new ODocument();
-    doc.field("name", "Artem");
+    doc.setProperty("name", "Artem");
 
     final ODocument linkedDoc = new ODocument();
 
-    doc.field("country", linkedDoc);
-    doc.field("numbers", Arrays.asList(0, 1, 2, 3, 4, 5));
+    doc.setProperty("country", linkedDoc, OType.LINK);
+    doc.setProperty("numbers", Arrays.asList(0, 1, 2, 3, 4, 5));
     doc.save(db.getClusterNameById(db.getDefaultClusterId()));
     docId = doc.getIdentity();
     linkedId = linkedDoc.getIdentity();
@@ -80,13 +80,13 @@ public class ODocumentSerializationPersistentTest extends BaseMemoryInternalData
     rids.add(new ORecordId(2, 6));
     List<ODocument> docs = new ArrayList<ODocument>();
     ODocument doc1 = new ODocument();
-    doc1.field("rids", rids);
+    doc1.setProperty("rids", rids);
     docs.add(doc1);
     ODocument doc2 = new ODocument();
-    doc2.field("text", "text");
+    doc2.setProperty("text", "text");
     docs.add(doc2);
-    doc.field("emb", docs, OType.EMBEDDEDLIST);
-    doc.field("some", "test");
+    doc.setProperty("emb", docs, OType.EMBEDDEDLIST);
+    doc.setProperty("some", "test");
 
     byte[] res = db.getSerializer().toStream(doc);
     db.getSerializer().fromStream(res, new ODocument(), new String[] {});

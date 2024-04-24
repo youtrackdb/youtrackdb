@@ -102,7 +102,6 @@ public class ORecordSerializerBinary implements ORecordSerializer {
         serializerByVersion[iSource[0]].deserializePartial((ODocument) iRecord, container, iFields);
       else serializerByVersion[iSource[0]].deserialize((ODocument) iRecord, container);
     } catch (RuntimeException e) {
-      e.printStackTrace();
       OLogManager.instance()
           .warn(
               this,

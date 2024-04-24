@@ -68,6 +68,7 @@ public class ODocumentEntry {
     return created;
   }
 
+  @SuppressWarnings({"CloneDoesntDeclareCloneNotSupportedException", "MethodDoesntCallSuperMethod"})
   protected ODocumentEntry clone() {
     final ODocumentEntry entry = new ODocumentEntry();
     entry.type = type;
@@ -83,8 +84,10 @@ public class ODocumentEntry {
   }
 
   public OMultiValueChangeTimeLine<Object, Object> getTimeLine() {
-    if (!isChanged() && value instanceof OTrackedMultiValue) {
-      return ((OTrackedMultiValue) value).getTimeLine();
+    //noinspection rawtypes
+    if (!changed && value instanceof OTrackedMultiValue trackedMultiValue) {
+      //noinspection unchecked
+      return trackedMultiValue.getTimeLine();
     } else {
       return null;
     }
@@ -103,18 +106,20 @@ public class ODocumentEntry {
   }
 
   public void removeTimeline() {
-    if (value instanceof OTrackedMultiValue) {
-      ((OTrackedMultiValue) value).disableTracking(null);
+    //noinspection rawtypes
+    if (value instanceof OTrackedMultiValue trackedMultiValue) {
+      trackedMultiValue.disableTracking(null);
     }
   }
 
-  public void replaceListener(ODocument document, Object oldValue) {
+  public void replaceListener(ODocument document) {
     enableTracking(document);
   }
 
   public boolean enableTracking(ODocument document) {
-    if (value instanceof OTrackedMultiValue) {
-      ((OTrackedMultiValue) value).enableTracking(document);
+    //noinspection rawtypes
+    if (value instanceof OTrackedMultiValue trackedMultiValue) {
+      trackedMultiValue.enableTracking(document);
       return true;
     } else {
       return false;
@@ -122,27 +127,30 @@ public class ODocumentEntry {
   }
 
   public void disableTracking(ODocument document, Object fieldValue) {
-    if (fieldValue instanceof OTrackedMultiValue) {
-      ((OTrackedMultiValue) fieldValue).disableTracking(document);
+    //noinspection rawtypes
+    if (fieldValue instanceof OTrackedMultiValue trackedMultiValue) {
+      trackedMultiValue.disableTracking(document);
     }
   }
 
   public boolean isTrackedModified() {
-    if (value instanceof OTrackedMultiValue) {
-      return ((OTrackedMultiValue) value).isModified();
+    //noinspection rawtypes
+    if (value instanceof OTrackedMultiValue trackedMultiValue) {
+      return trackedMultiValue.isModified();
     }
-    if (value instanceof ODocument && ((ODocument) value).isEmbedded()) {
-      return ((ODocument) value).isDirty();
+    if (value instanceof ODocument document && document.isEmbedded()) {
+      return document.isDirty();
     }
     return false;
   }
 
   public boolean isTxTrackedModified() {
-    if (value instanceof OTrackedMultiValue) {
-      return ((OTrackedMultiValue) value).isTransactionModified();
+    //noinspection rawtypes
+    if (value instanceof OTrackedMultiValue trackedMultiValue) {
+      return trackedMultiValue.isTransactionModified();
     }
-    if (value instanceof ODocument && ((ODocument) value).isEmbedded()) {
-      return ((ODocument) value).isDirty();
+    if (value instanceof ODocument document && document.isEmbedded()) {
+      return document.isDirty();
     }
     return false;
   }
@@ -167,7 +175,7 @@ public class ODocumentEntry {
 
   public void undo() {
     if (isChanged()) {
-      value = original;
+      this.value = original;
       unmarkChanged();
       original = null;
       exists = true;
@@ -175,8 +183,9 @@ public class ODocumentEntry {
   }
 
   public void transactionClear() {
-    if (value instanceof OTrackedMultiValue) {
-      ((OTrackedMultiValue) value).transactionClear();
+    //noinspection rawtypes
+    if (value instanceof OTrackedMultiValue trackedMultiValue) {
+      trackedMultiValue.transactionClear();
     }
     this.txCreated = false;
     this.txChanged = false;
@@ -190,6 +199,7 @@ public class ODocumentEntry {
     return txCreated;
   }
 
+  @SuppressWarnings("BooleanMethodIsAlwaysInverted")
   public boolean isTxExists() {
     return txExists;
   }

@@ -397,9 +397,8 @@ public class OEdgeDelegate implements OEdgeInternal {
   }
 
   @Override
-  public <RET extends ORecord> RET reset() {
-    if (element != null) element.reset();
-    return (RET) this;
+  public boolean isProxy() {
+    return true;
   }
 
   @Override

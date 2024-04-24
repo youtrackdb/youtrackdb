@@ -46,7 +46,7 @@ public class OTrackedMap<T> extends LinkedHashMap<Object, T>
   private boolean dirty = false;
   private boolean transactionDirty = false;
 
-  private OSimpleMultiValueTracker<Object, T> tracker = new OSimpleMultiValueTracker<>(this);
+  private final OSimpleMultiValueTracker<Object, T> tracker = new OSimpleMultiValueTracker<>(this);
 
   public OTrackedMap(
       final ORecordElement iRecord, final Map<Object, T> iOrigin, final Class<?> cls) {

@@ -113,12 +113,9 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
 
   @Test
   public void shouldUseRangeQueryOnSingleDateField() {
-
-    db.commit();
     //noinspection EmptyTryBlock
     try (OResultSet command =
         db.command("create index Person.date on Person(date) FULLTEXT ENGINE LUCENE")) {}
-    db.commit();
 
     assertThat(
             db.getMetadata()
@@ -216,8 +213,6 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
                 .getInternal()
                 .size())
         .isEqualTo(10);
-
-    db.commit();
 
     String today = DateTools.timeToString(System.currentTimeMillis(), DateTools.Resolution.MINUTE);
     String fiveDaysAgo =

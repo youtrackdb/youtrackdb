@@ -121,7 +121,7 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
     final int accountClusterId = database.getClusterIdByName("Account");
 
     for (long i = startRecordNumber; i < startRecordNumber + TOT_RECORDS; ++i) {
-      record.reset();
+      record = database.newInstance();
 
       record.setClassName("Account");
       record.field("id", i);
@@ -139,14 +139,15 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
     }
 
     long startRecordNumberL = database.countClusterElements("Company");
-    final ODocument doc = new ODocument();
+    ODocument doc = new ODocument();
+
     for (long i = startRecordNumberL; i < startRecordNumberL + TOT_RECORDS_COMPANY; ++i) {
       doc.setClassName("Company");
       doc.field("id", i);
       doc.field("name", "Microsoft" + i);
       doc.field("employees", (int) (100000 + i));
       database.save(doc);
-      doc.reset();
+      doc = new ODocument();
     }
   }
 
@@ -690,7 +691,7 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
 
     final long total = startRecordNumber + TOT_RECORDS;
     for (long i = startRecordNumber; i < total; ++i) {
-      record.reset();
+      record = database.newInstance();
       record.setClassName("Account");
 
       record.field("id", i);

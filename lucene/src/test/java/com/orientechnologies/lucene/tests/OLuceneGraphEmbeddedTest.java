@@ -38,7 +38,6 @@ public class OLuceneGraphEmbeddedTest extends OLuceneBaseTest {
     type.createProperty("name", OType.STRING);
 
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE");
-    db.commit();
   }
 
   @Test
@@ -78,7 +77,6 @@ public class OLuceneGraphEmbeddedTest extends OLuceneBaseTest {
     OClass v = db.getClass("V");
     v.createProperty("name", OType.STRING);
     db.command("CREATE INDEX V.name ON V(name) NOTUNIQUE");
-    db.commit();
 
     OClass oneClass = db.createVertexClass("One");
     OClass twoClass = db.createVertexClass("Two");
@@ -90,8 +88,6 @@ public class OLuceneGraphEmbeddedTest extends OLuceneBaseTest {
     OVertex two = db.newVertex(twoClass);
     two.setProperty("name", "Same");
     db.save(two);
-
-    db.commit();
 
     OResultSet resultSet = db.query("SELECT from One where name = 'Same' ");
 

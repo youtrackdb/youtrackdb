@@ -596,7 +596,6 @@ public class ObjectDetachingTest extends ObjectDBBaseTest {
     Assert.assertTrue(next.equals(EnumTest.ENUM1) || next.equals(EnumTest.ENUM3));
     next = (EnumTest) it.next();
     Assert.assertTrue(next.equals(EnumTest.ENUM1) || next.equals(EnumTest.ENUM3));
-    ;
 
     Assert.assertEquals(loadedJavaObj.enumMap.size(), 2);
     Assert.assertEquals(loadedJavaObj.enumMap.get("1"), EnumTest.ENUM2);

@@ -2050,7 +2050,7 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
 
     OClass edgeClass = db.createEdgeClass(edgeClassName);
 
-    db.newEdge(doc1, doc2, edgeClass);
+    db.newEdge(doc1, doc2, edgeClass).save();
     String queryString =
         "SELECT $x, name FROM " + vertexClassName + " let $x = out(\"" + edgeClassName + "\")";
     OResultSet resultSet = db.query(queryString);

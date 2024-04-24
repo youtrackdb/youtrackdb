@@ -54,6 +54,11 @@ public class OVertexDelegate implements OVertexInternal {
   }
 
   @Override
+  public boolean isProxy() {
+    return true;
+  }
+
+  @Override
   public Optional<OVertex> asVertex() {
     return Optional.of(this);
   }
@@ -189,12 +194,6 @@ public class OVertexDelegate implements OVertexInternal {
   @Override
   public boolean detach() {
     return element.detach();
-  }
-
-  @Override
-  public <RET extends ORecord> RET reset() {
-    element.reset();
-    return (RET) this;
   }
 
   @Override

@@ -84,7 +84,7 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
 
     document.field("some", "String");
     db.save(document);
-    db.commit();
+
     oClass.createProperty("some", OType.INTEGER);
   }
 
@@ -98,7 +98,6 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
     list.add(new ODocument("Test4"));
     document.field("some", list);
     db.save(document);
-    db.commit();
     oClass.createProperty("some", OType.EMBEDDEDLIST);
   }
 
@@ -112,7 +111,6 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
     list.add(new ODocument("Test5"));
     document.field("somelinkset", list);
     db.save(document);
-    db.commit();
     oClass.createProperty("somelinkset", OType.EMBEDDEDSET);
   }
 
@@ -126,7 +124,6 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
     list.add(new ODocument("Test6"));
     document.field("someembededset", list, OType.EMBEDDEDSET);
     db.save(document);
-    db.commit();
     oClass.createProperty("someembededset", OType.LINKSET);
   }
 
@@ -140,7 +137,7 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
     list.add(new ODocument("Test7"));
     document.field("someembeddedlist", list, OType.EMBEDDEDLIST);
     db.save(document);
-    db.commit();
+
     oClass.createProperty("someembeddedlist", OType.LINKLIST);
   }
 
@@ -154,7 +151,6 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
     map.put("test", new ODocument("Test8"));
     document.field("someembededmap", map, OType.EMBEDDEDMAP);
     db.save(document);
-    db.commit();
     oClass.createProperty("someembededmap", OType.LINKMAP);
   }
 
@@ -168,7 +164,6 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
     map.put("test", new ODocument("Test8"));
     document.field("somelinkmap", map, OType.LINKMAP);
     db.save(document);
-    db.commit();
     oClass.createProperty("somelinkmap", OType.EMBEDDEDMAP);
   }
 
@@ -186,7 +181,6 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
     document.field("test5", 3.0D);
     document.field("test6", 4);
     db.save(document);
-    db.commit();
     oClass.createProperty("test1", OType.INTEGER);
     oClass.createProperty("test2", OType.LONG);
     oClass.createProperty("test3", OType.DOUBLE);
@@ -222,7 +216,7 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
     document.field("test5", new HashMap<String, ODocument>(), OType.EMBEDDEDMAP);
     document.field("test6", new HashMap<String, ODocument>(), OType.LINKMAP);
     db.save(document);
-    db.commit();
+
     oClass.createProperty("test1", OType.LINKLIST);
     oClass.createProperty("test2", OType.EMBEDDEDLIST);
     oClass.createProperty("test3", OType.LINKSET);
@@ -337,7 +331,6 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
     document.field("test5", 3.0D);
     document.field("test6", 4);
     db.save(document);
-    db.commit();
 
     oClass.getProperty("test1").setType(OType.INTEGER);
     oClass.getProperty("test2").setType(OType.LONG);
@@ -382,7 +375,6 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
     document.field("test5", 3.0D);
     document.field("test6", 4);
     db.save(document);
-    db.commit();
 
     oClass.getProperty("test1").setName("test1a");
     oClass.getProperty("test2").setName("test2a");
@@ -420,7 +412,6 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
     document.field("test5", new HashMap<String, ODocument>(), OType.EMBEDDEDMAP);
     document.field("test6", new HashMap<String, ODocument>(), OType.LINKMAP);
     db.save(document);
-    db.commit();
     oClass.createProperty("test1", OType.LINKLIST);
     oClass.createProperty("test2", OType.EMBEDDEDLIST);
     oClass.createProperty("test3", OType.LINKSET);

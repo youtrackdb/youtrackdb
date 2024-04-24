@@ -27,6 +27,8 @@ import java.util.Set;
 import javax.annotation.Nullable;
 
 /**
+ * Implementation of a generic element. It's bound to the record and allows to read and write
+ * values. It's schema aware.
  * @author Luigi Dell'Aquila
  */
 public interface OElement extends ORecord {

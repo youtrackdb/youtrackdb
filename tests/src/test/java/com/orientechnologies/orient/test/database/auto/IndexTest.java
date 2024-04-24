@@ -61,7 +61,7 @@ import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @SuppressWarnings({"deprecation", "unchecked"})
-@Test(groups = {"index"})
+@Test
 public class IndexTest extends ObjectDBBaseTest {
   @Parameters(value = "url")
   public IndexTest(@Optional String url) {
@@ -1684,7 +1684,6 @@ public class IndexTest extends ObjectDBBaseTest {
     session.save(session.newEdge(parent2, child2, "preservingIdentityInIndexTxEdge"));
     child2.setProperty("name", "pokus2");
     session.save(child2);
-    session.commit();
 
     {
       fieldClass = session.getClass("PreservingIdentityInIndexTxChild");

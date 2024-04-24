@@ -74,7 +74,7 @@ public class OSequenceOrdered extends OSequence {
             if (tillEnd <= (delta / 100.f) || tillEnd <= 1) {
               String warningMessage =
                   "Non-recyclable sequence: "
-                      + getName()
+                      + getSequenceName(doc)
                       + " reaching limt, current value: "
                       + newValue
                       + " limit value: "

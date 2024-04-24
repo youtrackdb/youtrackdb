@@ -97,9 +97,7 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
 
     database.getRawGraph().getMetadata().getSchema().reload();
 
-    result =
-        database.getRawGraph().query("select from GraphVehicle").stream()
-            .collect(Collectors.toList());
+    result = database.getRawGraph().query("select from GraphVehicle").stream().toList();
     Assert.assertEquals(result.size(), 2);
 
     Edge edge1 = null;
@@ -158,7 +156,6 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
 
   public void testNotDuplicatedIndexTxChanges() throws IOException {
     database.setAutoStartTx(false);
-    database.commit();
     OClass oc = database.getVertexType("vertexA");
     if (oc == null) oc = database.createVertexType("vertexA");
     if (!oc.existsProperty("name")) oc.createProperty("name", OType.STRING);

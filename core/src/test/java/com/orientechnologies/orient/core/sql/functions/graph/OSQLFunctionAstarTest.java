@@ -83,6 +83,7 @@ public class OSQLFunctionAstarTest {
 
     OFunction cf = graph.getMetadata().getFunctionLibrary().createFunction("myCustomHeuristic");
     cf.setCode("return 1;");
+    cf.save();
 
     v0 = graph.newVertex();
     v1 = graph.newVertex();

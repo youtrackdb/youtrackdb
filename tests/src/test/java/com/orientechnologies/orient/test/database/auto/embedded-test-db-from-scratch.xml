@@ -1,3 +1,4 @@
+<!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd">
 <suite name="Paginated Local Test Suite" verbose="2" parallel="false">
     <test name="DbCreation">
         <classes>
@@ -170,7 +171,6 @@
     <test name="DbTools">
         <classes>
             <class name="com.orientechnologies.orient.test.database.auto.DbImportExportTest"/>
-            <class name="com.orientechnologies.orient.test.database.auto.StressTestWorkloadTest"/>
         </classes>
     </test>
     <test name="DbToolsDelete">

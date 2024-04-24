@@ -3074,7 +3074,6 @@ public class OConsoleDatabaseApp extends OConsoleApplication
             iFetchPlan,
             true,
             false,
-            false,
             OStorage.LOCKING_STRATEGY.NONE,
             new SimpleRecordReader(false));
     displayRecord(null);

@@ -22,60 +22,65 @@ package com.orientechnologies.orient.core.cache;
 
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.ORecord;
-import java.lang.ref.WeakReference;
-import java.util.WeakHashMap;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
+import com.orientechnologies.orient.core.record.ORecordInternal;
+import java.util.function.BiConsumer;
 
 /**
- * @author Artem Orobets (enisher-at-gmail.com)
+ * Cache implementation that uses Soft References.
+ *
+ * @author Luca Garulli (l.garulli--(at)--orientdb.com) (l.garulli-at-orientdb.com)
  */
-public class ORecordCacheWeakRefs
-    extends OAbstractMapCache<WeakHashMap<ORID, WeakReference<ORecord>>> implements ORecordCache {
+public class ORecordCacheWeakRefs extends OAbstractMapCache<ORIDsWeakValuesHashMap<ORecordAbstract>>
+    implements ORecordCache {
+  private static final BiConsumer<ORID, ORecord> UNLOAD_RECORDS_CONSUMER =
+      (rid, record) -> {
+        ORecordInternal.unsetDirty(record);
+        record.unload();
+      };
 
   public ORecordCacheWeakRefs() {
-    super(new WeakHashMap<ORID, WeakReference<ORecord>>());
+    super(new ORIDsWeakValuesHashMap<>());
   }
 
   @Override
-  public ORecord get(final ORID rid) {
+  public ORecordAbstract get(final ORID rid) {
     if (!isEnabled()) return null;
 
-    final WeakReference<ORecord> value;
-    value = cache.get(rid);
-    return get(value);
+    return cache.get(rid);
   }
 
   @Override
-  public ORecord put(final ORecord record) {
+  public ORecordAbstract put(final ORecordAbstract record) {
     if (!isEnabled()) return null;
-    final WeakReference<ORecord> value;
-    value = cache.put(record.getIdentity(), new WeakReference<ORecord>(record));
-    return get(value);
+    return cache.put(record.getIdentity(), record);
   }
 
   @Override
-  public ORecord remove(final ORID rid) {
+  public ORecordAbstract remove(final ORID rid) {
     if (!isEnabled()) return null;
-    final WeakReference<ORecord> value;
-    value = cache.remove(rid);
-    return get(value);
+    return cache.remove(rid);
   }
 
-  private ORecord get(WeakReference<ORecord> value) {
-    if (value == null) return null;
-    else return value.get();
-  }
-
-  public void clearRecords() {
-    for (WeakReference<ORecord> recRef : cache.values()) {
-      ORecord rec = recRef.get();
-      if (rec != null) {
-        rec.clear();
-      }
-    }
+  @Override
+  public void unloadRecords() {
+    cache.forEach(UNLOAD_RECORDS_CONSUMER);
   }
 
   @Override
   public void shutdown() {
-    cache = new WeakHashMap<ORID, WeakReference<ORecord>>();
+    clear();
+  }
+
+  @Override
+  public void clear() {
+    cache.clear();
+    cache = new ORIDsWeakValuesHashMap<>();
+  }
+
+  public void clearRecords() {
+    for (ORecord rec : cache.values()) {
+      rec.clear();
+    }
   }
 }

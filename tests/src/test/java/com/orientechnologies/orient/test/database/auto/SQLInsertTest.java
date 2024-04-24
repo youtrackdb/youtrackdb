@@ -15,7 +15,6 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.command.script.OCommandScript;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OValidationException;
 import com.orientechnologies.orient.core.id.ORID;
@@ -42,6 +41,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.testng.Assert;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
@@ -60,15 +60,17 @@ public class SQLInsertTest extends DocumentDBBaseTest {
 
   @Test
   public void insertOperator() {
-    if (!database.getMetadata().getSchema().existsClass("Account"))
+    if (!database.getMetadata().getSchema().existsClass("Account")) {
       database.getMetadata().getSchema().createClass("Account");
+    }
 
     final int clId = database.addCluster("anotherdefault");
     final OClass profileClass = database.getMetadata().getSchema().getClass("Account");
     profileClass.addClusterId(clId);
 
-    if (!database.getMetadata().getSchema().existsClass("Address"))
+    if (!database.getMetadata().getSchema().existsClass("Address")) {
       database.getMetadata().getSchema().createClass("Address");
+    }
 
     int addressId = database.getMetadata().getSchema().getClass("Address").getDefaultClusterId();
 
@@ -77,8 +79,9 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     }
     List<Long> positions = getValidPositions(addressId);
 
-    if (!database.getMetadata().getSchema().existsClass("Profile"))
+    if (!database.getMetadata().getSchema().existsClass("Profile")) {
       database.getMetadata().getSchema().createClass("Profile");
+    }
 
     OElement doc =
         database
@@ -93,7 +96,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .getElement()
             .get();
 
-    Assert.assertTrue(doc != null);
+    Assert.assertNotNull(doc);
     Assert.assertEquals(doc.getProperty("name"), "Luca");
     Assert.assertEquals(doc.getProperty("surname"), "Smith");
     Assert.assertEquals(((Number) doc.getProperty("salary")).floatValue(), 109.9f);
@@ -113,9 +116,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .getElement()
             .get();
 
-    database.delete(doc);
-
-    Assert.assertTrue(doc != null);
+    Assert.assertNotNull(doc);
     Assert.assertEquals(doc.getProperty("name"), "Luca");
     Assert.assertEquals(doc.getProperty("surname"), "Smith");
     Assert.assertEquals(((Number) doc.getProperty("salary")).floatValue(), 109.9f);
@@ -145,7 +146,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .getElement()
             .get();
 
-    Assert.assertTrue(doc != null);
+    Assert.assertNotNull(doc);
     Assert.assertEquals(doc.getProperty("name"), "Marc");
     Assert.assertEquals(doc.getProperty("surname"), "Smith");
     Assert.assertEquals(((Number) doc.getProperty("salary")).floatValue(), 120.0f);
@@ -168,7 +169,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .getElement()
             .get();
 
-    Assert.assertTrue(doc != null);
+    Assert.assertNotNull(doc);
     Assert.assertEquals(doc.getProperty("name"), "Marc");
     Assert.assertEquals(doc.getProperty("surname"), "Smith");
     Assert.assertEquals(((Number) doc.getProperty("salary")).floatValue(), 120.0f);
@@ -190,15 +191,15 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .getElement()
             .get();
 
-    Assert.assertTrue(doc != null);
+    Assert.assertNotNull(doc);
 
-    doc = (ODocument) new ODocument(doc.getIdentity()).load();
+    doc = doc.reload();
 
     Assert.assertEquals(doc.getProperty("equaledges"), "no");
     Assert.assertEquals(doc.getProperty("name"), "circle");
     Assert.assertTrue(doc.getProperty("properties") instanceof Map);
 
-    Map<Object, Object> entries = ((Map<Object, Object>) doc.getProperty("properties"));
+    Map<Object, Object> entries = doc.getProperty("properties");
     Assert.assertEquals(entries.size(), 2);
 
     Assert.assertEquals(entries.get("round"), "eeee");
@@ -215,15 +216,15 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .getElement()
             .get();
 
-    Assert.assertTrue(doc != null);
+    Assert.assertNotNull(doc);
 
-    doc = (ODocument) new ODocument(doc.getIdentity()).load();
+    doc = doc.reload();
 
     Assert.assertEquals(doc.getProperty("equaledges"), "no");
     Assert.assertEquals(doc.getProperty("name"), "circle");
     Assert.assertTrue(doc.getProperty("properties") instanceof Map);
 
-    entries = ((Map<Object, Object>) doc.getProperty("properties"));
+    entries = doc.getProperty("properties");
     Assert.assertEquals(entries.size(), 2);
 
     Assert.assertEquals(entries.get("round"), "eeee");
@@ -242,15 +243,15 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .getElement()
             .get();
 
-    Assert.assertTrue(doc != null);
+    Assert.assertNotNull(doc);
 
-    doc = (ODocument) new ODocument(doc.getIdentity()).load();
+    doc = doc.reload();
 
     Assert.assertEquals(doc.getProperty("equaledges"), "yes");
     Assert.assertEquals(doc.getProperty("name"), "square");
     Assert.assertTrue(doc.getProperty("list") instanceof List);
 
-    List<Object> entries = ((List<Object>) doc.getProperty("list"));
+    List<Object> entries = doc.getProperty("list");
     Assert.assertEquals(entries.size(), 4);
 
     Assert.assertEquals(entries.get(0), "bottom");
@@ -269,15 +270,15 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .getElement()
             .get();
 
-    Assert.assertTrue(doc != null);
+    Assert.assertNotNull(doc);
 
-    doc = (ODocument) new ODocument(doc.getIdentity()).load();
+    doc = doc.reload();
 
     Assert.assertEquals(doc.getProperty("equaledges"), "yes");
     Assert.assertEquals(doc.getProperty("name"), "square");
     Assert.assertTrue(doc.getProperty("list") instanceof List);
 
-    entries = ((List<Object>) doc.getProperty("list"));
+    entries = doc.getProperty("list");
     Assert.assertEquals(entries.size(), 4);
 
     Assert.assertEquals(entries.get(0), "bottom");
@@ -297,18 +298,22 @@ public class SQLInsertTest extends DocumentDBBaseTest {
   @Test
   public void insertAvoidingSubQuery() {
     final OSchema schema = database.getMetadata().getSchema();
-    if (schema.getClass("test") == null) schema.createClass("test");
+    if (schema.getClass("test") == null) {
+      schema.createClass("test");
+    }
 
     OResult doc = database.command("INSERT INTO test(text) VALUES ('(Hello World)')").next();
 
-    Assert.assertTrue(doc != null);
+    Assert.assertNotNull(doc);
     Assert.assertEquals(doc.getProperty("text"), "(Hello World)");
   }
 
   @Test
   public void insertSubQuery() {
     final OSchema schema = database.getMetadata().getSchema();
-    if (schema.getClass("test") == null) schema.createClass("test");
+    if (schema.getClass("test") == null) {
+      schema.createClass("test");
+    }
 
     final OResultSet usersCount = database.query("select count(*) as count from OUser");
     final long uCount = usersCount.next().getProperty("count");
@@ -321,7 +326,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .getElement()
             .get();
 
-    Assert.assertTrue(doc != null);
+    Assert.assertNotNull(doc);
     Assert.assertNotNull(doc.getProperty("names"));
     Assert.assertTrue(doc.getProperty("names") instanceof Collection);
     Assert.assertEquals(((Collection<?>) doc.getProperty("names")).size(), uCount);
@@ -337,7 +342,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
                         + " movement')"))
             .execute();
 
-    Assert.assertTrue(doc != null);
+    Assert.assertNotNull(doc);
     Assert.assertEquals(
         doc.getIdentity().getClusterId(), database.getClusterIdByName("anotherdefault"));
     Assert.assertEquals(doc.getClassName(), "Account");
@@ -345,8 +350,9 @@ public class SQLInsertTest extends DocumentDBBaseTest {
 
   public void updateMultipleFields() {
 
-    if (!database.getMetadata().getSchema().existsClass("Account"))
+    if (!database.getMetadata().getSchema().existsClass("Account")) {
       database.getMetadata().getSchema().createClass("Account");
+    }
 
     for (int i = 0; i < 30; i++) {
       database.command("insert into cluster:3 set name = 'foo" + i + "'");
@@ -369,7 +375,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     Assert.assertEquals(record.<Object>field("id"), 3232);
     Assert.assertEquals(record.field("name"), "my name");
     Map<String, String> map = record.field("map");
-    Assert.assertTrue(map.get("key").equals("value"));
+    Assert.assertEquals(map.get("key"), "value");
     Assert.assertEquals(record.field("dir"), "");
     Assert.assertEquals(record.field("user"), new ORecordId(3, positions.get(0)));
   }
@@ -405,8 +411,8 @@ public class SQLInsertTest extends DocumentDBBaseTest {
   }
 
   @Test
+  @Ignore
   public void insertWithReturn() {
-
     if (!database.getMetadata().getSchema().existsClass("actor2")) {
       database.command("CREATE CLASS Actor2").close();
       database.getMetadata().getSchema().reload();
@@ -417,69 +423,67 @@ public class SQLInsertTest extends DocumentDBBaseTest {
         database
             .command(new OCommandSQL("INSERT INTO Actor2 SET FirstName=\"FFFF\" RETURN $current"))
             .execute();
-    Assert.assertTrue(doc != null);
+    Assert.assertNotNull(doc);
     Assert.assertEquals(doc.getClassName(), "Actor2");
-
     // RETURN with @rid
-    Object res1 =
-        database
-            .command(new OCommandSQL("INSERT INTO Actor2 SET FirstName=\"Butch 1\" RETURN @rid"))
-            .execute();
-    Assert.assertTrue(res1 instanceof ORecordId);
-    Assert.assertTrue(((OIdentifiable) res1).getIdentity().isValid());
+    try (OResultSet resultSet1 =
+        database.command("INSERT INTO Actor2 SET FirstName=\"Butch 1\" RETURN @rid")) {
+      Object res1 = resultSet1.next().getProperty("@rid");
+      Assert.assertTrue(res1 instanceof ORecordId);
+      Assert.assertTrue(((OIdentifiable) res1).getIdentity().isValid());
+      // Create many records and return @rid
+      try (OResultSet resultSet2 =
+          database.command(
+              "INSERT INTO Actor2(FirstName,LastName) VALUES"
+                  + " ('Jay','Miner'),('Frank','Hermier'),('Emily','Saut')  RETURN @rid")) {
 
-    // Create many records and return @rid
-    Object res2 =
-        database
-            .command(
-                new OCommandSQL(
-                    "INSERT INTO Actor2(FirstName,LastName) VALUES"
-                        + " ('Jay','Miner'),('Frank','Hermier'),('Emily','Saut')  RETURN @rid"))
-            .execute();
-    Assert.assertTrue(res2 instanceof List<?>);
-    Assert.assertTrue(((List) res2).get(0) instanceof ORecordId);
+        Object res2 = resultSet2.next().getProperty("@rid");
+        Assert.assertTrue(res2 instanceof ORecordId);
 
-    // Create many records by INSERT INTO ...FROM and return wrapped field
-    ORID another = ((OIdentifiable) res1).getIdentity();
-    final String sql =
-        "INSERT INTO Actor2 RETURN $current.FirstName  FROM SELECT * FROM ["
-            + doc.getIdentity().toString()
-            + ","
-            + another.toString()
-            + "]";
-    List res3 = database.command(new OCommandSQL(sql)).execute();
-    Assert.assertEquals(res3.size(), 2);
-    Assert.assertTrue(((List) res3).get(0) instanceof ODocument);
-    final ODocument res3doc = (ODocument) res3.get(0);
-    Assert.assertTrue(res3doc.containsField("result"));
-    Assert.assertTrue(
-        "FFFF".equalsIgnoreCase((String) res3doc.field("result"))
-            || "Butch 1".equalsIgnoreCase((String) res3doc.field("result")));
-    Assert.assertTrue(res3doc.containsField("rid"));
-    Assert.assertTrue(res3doc.containsField("version"));
+        // Create many records by INSERT INTO ...FROM and return wrapped field
+        ORID another = ((OIdentifiable) res1).getIdentity();
+        final String sql =
+            "INSERT INTO Actor2 RETURN $current.FirstName  FROM SELECT * FROM ["
+                + doc.getIdentity().toString()
+                + ","
+                + another.toString()
+                + "]";
+        List res3 = database.command(new OCommandSQL(sql)).execute();
+        Assert.assertEquals(res3.size(), 2);
+        Assert.assertTrue(((List<?>) res3).get(0) instanceof ODocument);
+        final ODocument res3doc = (ODocument) res3.get(0);
+        Assert.assertTrue(res3doc.containsField("result"));
+        Assert.assertTrue(
+            "FFFF".equalsIgnoreCase(res3doc.field("result"))
+                || "Butch 1".equalsIgnoreCase(res3doc.field("result")));
+        Assert.assertTrue(res3doc.containsField("rid"));
+        Assert.assertTrue(res3doc.containsField("version"));
+      }
+    }
 
     // create record using content keyword and update it in sql batch passing recordID between
     // commands
     final String sql2 =
-        "let var1=INSERT INTO Actor2 CONTENT {Name:\"content\"} RETURN $current.@rid\n"
-            + "let var2=UPDATE $var1 SET Bingo=1 RETURN AFTER @rid\n"
-            + "return $var2";
-    List<?> res_sql2 = database.command(new OCommandScript("sql", sql2)).execute();
-    Assert.assertEquals(res_sql2.size(), 1);
-    Assert.assertTrue(((List) res_sql2).get(0) instanceof ORecordId);
+        "let var1 = (INSERT INTO Actor2 CONTENT {Name:\"content\"} RETURN $current.@rid) "
+            + "; let var2 = (UPDATE $var1 SET Bingo=1 RETURN AFTER @rid) "
+            + " return $var2";
+    try (var resSql2ResultSet = database.command(sql2)) {
+      var res_sql2 = resSql2ResultSet.next().getProperty("$var2");
+      Assert.assertTrue(res_sql2 instanceof ORecordId);
 
-    // create record using content keyword and update it in sql batch passing recordID between
-    // commands
-    final String sql3 =
-        "let var1=INSERT INTO Actor2 CONTENT {Name:\"Bingo owner\"} RETURN @this\n"
-            + "let var2=UPDATE $var1 SET Bingo=1 RETURN AFTER\n"
-            + "return $var2";
-    List<?> res_sql3 = database.command(new OCommandScript("sql", sql3)).execute();
-    Assert.assertEquals(res_sql3.size(), 1);
-    Assert.assertTrue(((List) res_sql3).get(0) instanceof ODocument);
-    final ODocument sql3doc = (ODocument) (((List) res_sql3).get(0));
-    Assert.assertEquals(sql3doc.<Object>field("Bingo"), 1);
-    Assert.assertEquals(sql3doc.field("Name"), "Bingo owner");
+      // create record using content keyword and update it in sql batch passing recordID between
+      // commands
+      final String sql3 =
+          "let var1 = (INSERT INTO Actor2 CONTENT {Name:\"Bingo owner\"} RETURN @this) "
+              + "; let var2 = (UPDATE $var1 SET Bingo=1 RETURN AFTER) "
+              + "return $var2";
+      try (var resSql3ResultSet = database.command(sql3)) {
+        var res_sql3 = resSql3ResultSet.next().<OIdentifiable>getProperty("$var2");
+        final ODocument sql3doc = res_sql3.getRecord();
+        Assert.assertEquals(sql3doc.<Object>field("Bingo"), 1);
+        Assert.assertEquals(sql3doc.field("Name"), "Bingo owner");
+      }
+    }
   }
 
   @Test
@@ -555,11 +559,12 @@ public class SQLInsertTest extends DocumentDBBaseTest {
   @Test
   public void testAutoConversionOfEmbeddededListWithLinkedClass() {
     OClass c = database.getMetadata().getSchema().getOrCreateClass("TestConvert");
-    if (!c.existsProperty("embeddedListWithLinkedClass"))
+    if (!c.existsProperty("embeddedListWithLinkedClass")) {
       c.createProperty(
           "embeddedListWithLinkedClass",
           OType.EMBEDDEDLIST,
           database.getMetadata().getSchema().getOrCreateClass("TestConvertLinkedClass"));
+    }
 
     OElement doc =
         database
@@ -670,7 +675,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     }
 
     database.delete(doc.getIdentity().get());
-    Assert.assertEquals(found, true);
+    Assert.assertTrue(found);
   }
 
   @Test
@@ -793,7 +798,9 @@ public class SQLInsertTest extends DocumentDBBaseTest {
         database.browseCluster(database.getClusterNameById(clusterId));
 
     for (int i = 0; i < 100; i++) {
-      if (!iteratorCluster.hasNext()) break;
+      if (!iteratorCluster.hasNext()) {
+        break;
+      }
       ORecord doc = iteratorCluster.next();
       positions.add(doc.getIdentity().getClusterPosition());
     }

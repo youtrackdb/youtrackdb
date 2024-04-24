@@ -242,6 +242,11 @@ public interface OVertexInternal extends OVertex, OElementInternal {
   }
 
   @Override
+  default boolean isUnloaded() {
+    return getBaseDocument().isUnloaded();
+  }
+
+  @Override
   default Iterable<OEdge> getEdges(ODirection direction) {
     var prefixes =
         switch (direction) {

@@ -32,7 +32,6 @@ public class OLuceneMetadataFieldsTest extends OLuceneBaseTest {
         .isEqualTo(585);
 
     int cluster = db.getMetadata().getSchema().getClass("Song").getClusterIds()[1];
-    db.commit();
 
     OResultSet results =
         db.query("SELECT FROM Song WHERE search_class('+_CLUSTER:" + cluster + "')=true ");

@@ -233,7 +233,6 @@ public class LuceneListIndexingTest extends BaseLuceneTest {
     final OVertex vertex = db.newVertex("C1");
     vertex.setProperty("p1", "testing");
     db.save(vertex);
-    db.commit();
 
     OResultSet search = db.query("SELECT from C1 WHERE p1 LUCENE \"tested\"");
 

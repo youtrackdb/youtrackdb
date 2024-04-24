@@ -91,13 +91,13 @@ public class SQLUpdateEdgeTest extends BaseMemoryDatabase {
   @Test
   public void testUpdateEdgeOfTypeE() {
     // issue #6378
-    OVertex v1 = db.command("create vertex").next().getVertex().get();
-    OVertex v2 = db.command("create vertex").next().getVertex().get();
-    OVertex v3 = db.command("create vertex").next().getVertex().get();
+    OVertex v1 = db.command("create vertex").next().toVertex();
+    OVertex v2 = db.command("create vertex").next().toVertex();
+    OVertex v3 = db.command("create vertex").next().toVertex();
 
     OResultSet edges =
         db.command("create edge E from " + v1.getIdentity() + " to " + v2.getIdentity());
-    OEdge edge = edges.next().getEdge().get();
+    OEdge edge = edges.next().toEdge();
 
     db.command("UPDATE EDGE " + edge.getIdentity() + " SET in = " + v3.getIdentity());
 

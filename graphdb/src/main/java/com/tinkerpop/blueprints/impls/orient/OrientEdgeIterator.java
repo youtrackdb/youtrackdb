@@ -27,6 +27,7 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.iterator.OLazyWrapperIterator;
 import com.orientechnologies.orient.core.metadata.schema.OImmutableClass;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.tinkerpop.blueprints.Direction;
@@ -99,7 +100,7 @@ public class OrientEdgeIterator extends OLazyWrapperIterator<OrientEdge> {
 
     OImmutableClass immutableSchema = ODocumentInternal.getImmutableSchemaClass(value);
     if (immutableSchema == null) {
-      ODatabaseDocument db = value.getDatabaseIfDefined();
+      ODatabaseDocument db = ORecordAbstract.getDatabaseIfDefined();
       if (db == null) {
         return null;
       }

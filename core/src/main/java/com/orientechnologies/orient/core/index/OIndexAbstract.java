@@ -765,7 +765,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
 
     if (im.getIndexDefinition() != null) {
 
-      final ODocument indexDefDocument = im.getIndexDefinition().toStream();
+      final ODocument indexDefDocument = im.getIndexDefinition().toStream(new ODocument());
       if (!indexDefDocument.hasOwners()) ODocumentInternal.addOwner(indexDefDocument, document);
 
       document.field(OIndexInternal.INDEX_DEFINITION, indexDefDocument, OType.EMBEDDED);

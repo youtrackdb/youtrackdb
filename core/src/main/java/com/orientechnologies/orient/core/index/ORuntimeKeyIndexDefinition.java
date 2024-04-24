@@ -27,6 +27,7 @@ import com.orientechnologies.orient.core.serialization.serializer.binary.OBinary
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nonnull;
 
 /**
  * Index definition that use the serializer specified at run-time not based on type. This is useful
@@ -35,7 +36,6 @@ import java.util.List;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class ORuntimeKeyIndexDefinition<T> extends OAbstractIndexDefinition {
-  private static final long serialVersionUID = -8855918974071833818L;
   private transient OBinarySerializer<T> serializer;
 
   @SuppressWarnings("unchecked")
@@ -82,28 +82,27 @@ public class ORuntimeKeyIndexDefinition<T> extends OAbstractIndexDefinition {
   }
 
   @Override
-  public ODocument toStream() {
-    serializeToStream();
+  public @Nonnull ODocument toStream(@Nonnull ODocument document) {
+    serializeToStream(document);
     return document;
   }
 
   @Override
-  protected void serializeToStream() {
-    super.serializeToStream();
+  protected void serializeToStream(ODocument document) {
+    super.serializeToStream(document);
 
-    document.field("keySerializerId", serializer.getId());
-    document.field("collate", collate.getName());
-    document.field("nullValuesIgnored", isNullValuesIgnored());
+    document.setProperty("keySerializerId", serializer.getId());
+    document.setProperty("collate", collate.getName());
+    document.setProperty("nullValuesIgnored", isNullValuesIgnored());
   }
 
-  public void fromStream(ODocument document) {
-    this.document = document;
-    serializeFromStream();
+  public void fromStream(@Nonnull ODocument document) {
+    serializeFromStream(document);
   }
 
   @Override
-  protected void serializeFromStream() {
-    super.serializeFromStream();
+  protected void serializeFromStream(ODocument document) {
+    super.serializeFromStream(document);
 
     final byte keySerializerId = ((Number) document.field("keySerializerId")).byteValue();
     //noinspection unchecked

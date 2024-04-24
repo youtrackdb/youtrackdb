@@ -106,7 +106,7 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
   public void deserializePartial(
       final ODocument document, final BytesContainer bytes, final String[] iFields) {
     final String className = readString(bytes);
-    if (className.length() != 0) ODocumentInternal.fillClassNameIfNeeded(document, className);
+    if (!className.isEmpty()) ODocumentInternal.fillClassNameIfNeeded(document, className);
 
     // TRANSFORMS FIELDS FOM STRINGS TO BYTE[]
     final byte[][] fields = new byte[iFields.length][];

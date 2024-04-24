@@ -191,6 +191,7 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
   @SuppressWarnings("unchecked")
   @Override
   public void serialize(final ODocument document, final BytesContainer bytes) {
+    ORecordInternal.checkForLoading(document);
     OImmutableSchema schema = ODocumentInternal.getImmutableSchema(document);
     OPropertyEncryption encryption = ODocumentInternal.getPropertyEncryption(document);
 

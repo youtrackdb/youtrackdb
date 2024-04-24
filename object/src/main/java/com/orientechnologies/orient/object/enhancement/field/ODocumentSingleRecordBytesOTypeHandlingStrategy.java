@@ -14,6 +14,7 @@
 package com.orientechnologies.orient.object.enhancement.field;
 
 import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ORecordBytes;
 
@@ -43,7 +44,9 @@ public class ODocumentSingleRecordBytesOTypeHandlingStrategy
     }
 
     if (bytes != null) {
-      recordBytes.fromStream(bytes);
+      ORecordInternal.unsetDirty(recordBytes);
+      ORecordInternal.fill(
+          recordBytes, recordBytes.getIdentity(), recordBytes.getVersion(), bytes, true);
     }
 
     return iRecord;

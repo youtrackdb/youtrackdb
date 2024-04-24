@@ -151,6 +151,7 @@ public class GraphRecoveringTest {
           for (String f : v.<ODocument>getRecord().fieldNames()) {
             if (f.startsWith(OVertex.DIRECTION_OUT_PREFIX)) {
               v.<ODocument>getRecord().removeField(f);
+              v.save();
             }
           }
         }

@@ -74,7 +74,7 @@ public class HookTest extends ObjectDBBaseTest {
     // TEST HOOKS ON CREATE
     Assert.assertEquals(callbackCount, 0);
     database.save(p);
-    Assert.assertEquals(callbackCount, 11);
+    Assert.assertEquals(callbackCount, 46);
   }
 
   @Test(dependsOnMethods = "testHookCreate")
@@ -86,11 +86,11 @@ public class HookTest extends ObjectDBBaseTest {
     Assert.assertEquals(result.size(), 1);
 
     for (int i = 0; i < result.size(); ++i) {
-      Assert.assertEquals(callbackCount, 46);
+      Assert.assertEquals(callbackCount, 81);
 
       p = result.get(i);
     }
-    Assert.assertEquals(callbackCount, 46);
+    Assert.assertEquals(callbackCount, 81);
   }
 
   @Test(dependsOnMethods = "testHookRead")
@@ -98,14 +98,14 @@ public class HookTest extends ObjectDBBaseTest {
     // TEST HOOKS ON UPDATE
     p.setValue(p.getValue() + 1000);
     database.save(p);
-    Assert.assertEquals(callbackCount, 136);
+    Assert.assertEquals(callbackCount, 206);
   }
 
   @Test(dependsOnMethods = "testHookUpdate")
   public void testHookDelete() {
     // TEST HOOKS ON DELETE
     database.delete(p);
-    Assert.assertEquals(callbackCount, 266);
+    Assert.assertEquals(callbackCount, 336);
   }
 
   @Test(dependsOnMethods = "testHookDelete")

@@ -33,6 +33,7 @@ import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
@@ -47,6 +48,7 @@ import javax.annotation.Nullable;
 
 public abstract class OTransactionRealAbstract extends OTransactionAbstract
     implements OTransactionInternal {
+
   protected Map<ORID, ORID> updatedRids = new HashMap<>();
   protected Map<ORID, ORecordOperation> allEntries = new LinkedHashMap<>();
   protected Map<String, OTransactionIndexChanges> indexEntries = new LinkedHashMap<>();
@@ -54,7 +56,7 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
       new HashMap<>();
   protected int id;
   protected int newObjectCounter = -2;
-  protected Map<String, Object> userData = new HashMap<>();
+  private final Map<String, Object> userData = new HashMap<>();
   private Map<ORID, LockedRecordMetadata> noTxLocks;
   @Nullable private OTxMetadataHolder metadata = null;
 
@@ -66,15 +68,20 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
 
   @Nullable private List<byte[]> serializedOperations;
 
-  protected OTransactionRealAbstract(final ODatabaseDocumentInternal database, final int id) {
+  OTransactionRealAbstract(final ODatabaseDocumentInternal database, final int id) {
     super(database);
     this.id = id;
   }
 
   @Override
   public void addChangedDocument(ODocument document) {
-    if (getRecord(document.getIdentity()) == null) {
-      changedDocuments.add(document);
+    try {
+      if (getRecord(document.getIdentity()) == null) {
+        changedDocuments.add((ODocument) document.getRecord());
+      }
+    } catch (Exception e) {
+      rollback(true, 0);
+      throw e;
     }
   }
 
@@ -82,7 +89,7 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
     super.close();
     for (final ORecordOperation recordOperation : getRecordOperations()) {
       final ORecord record = recordOperation.getRecord();
-      if (record instanceof ODocument document) {
+      if (record instanceof ODocument document && !document.isUnloaded()) {
         if (document.isDirty()) {
           document.undo();
         }
@@ -140,53 +147,73 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
     return entry;
   }
 
-  public ORecord getRecord(final ORID rid) {
+  public ORecordAbstract getRecord(final ORID rid) {
     final ORecordOperation e = getRecordEntry(rid);
-    if (e != null)
-      if (e.type == ORecordOperation.DELETED) return OTransactionAbstract.DELETED_RECORD;
-      else return e.getRecord();
+    if (e != null) {
+      if (e.type == ORecordOperation.DELETED) {
+        return OTransactionAbstract.DELETED_RECORD;
+      } else {
+        return e.getRecord();
+      }
+    }
     return null;
   }
 
-  /** Called by class iterator. */
+  /**
+   * Called by class iterator.
+   */
   public List<ORecordOperation> getNewRecordEntriesByClass(
       final OClass iClass, final boolean iPolymorphic) {
     final List<ORecordOperation> result = new ArrayList<>();
 
     if (iClass == null)
-      // RETURN ALL THE RECORDS
+    // RETURN ALL THE RECORDS
+    {
       for (ORecordOperation entry : allEntries.values()) {
-        if (entry.type == ORecordOperation.CREATED) result.add(entry);
+        if (entry.type == ORecordOperation.CREATED) {
+          result.add(entry);
+        }
       }
-    else {
+    } else {
       // FILTER RECORDS BY CLASSNAME
       for (ORecordOperation entry : allEntries.values()) {
-        if (entry.type == ORecordOperation.CREATED)
+        if (entry.type == ORecordOperation.CREATED) {
           if (entry.getRecord() != null && entry.getRecord() instanceof ODocument) {
             if (iPolymorphic) {
               if (iClass.isSuperClassOf(
-                  ODocumentInternal.getImmutableSchemaClass(((ODocument) entry.getRecord()))))
+                  ODocumentInternal.getImmutableSchemaClass(((ODocument) entry.getRecord())))) {
                 result.add(entry);
-            } else if (iClass.getName().equals(((ODocument) entry.getRecord()).getClassName()))
-              result.add(entry);
+              }
+            } else {
+              if (iClass.getName().equals(((ODocument) entry.getRecord()).getClassName())) {
+                result.add(entry);
+              }
+            }
           }
+        }
       }
     }
 
     return result;
   }
 
-  /** Called by cluster iterator. */
+  /**
+   * Called by cluster iterator.
+   */
   public List<ORecordOperation> getNewRecordEntriesByClusterIds(final int[] iIds) {
     final List<ORecordOperation> result = new ArrayList<>();
 
     if (iIds == null)
-      // RETURN ALL THE RECORDS
+    // RETURN ALL THE RECORDS
+    {
       for (ORecordOperation entry : allEntries.values()) {
-        if (entry.type == ORecordOperation.CREATED) result.add(entry);
+        if (entry.type == ORecordOperation.CREATED) {
+          result.add(entry);
+        }
       }
-    else
-      // FILTER RECORDS BY ID
+    } else
+    // FILTER RECORDS BY ID
+    {
       for (ORecordOperation entry : allEntries.values()) {
         for (int id : iIds) {
           if (entry.getRecord() != null
@@ -197,6 +224,7 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
           }
         }
       }
+    }
 
     return result;
   }
@@ -209,7 +237,9 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
   public List<String> getInvolvedIndexes() {
     List<String> list = null;
     for (String indexName : indexEntries.keySet()) {
-      if (list == null) list = new ArrayList<>();
+      if (list == null) {
+        list = new ArrayList<>();
+      }
       list.add(indexName);
     }
     return list;
@@ -223,23 +253,22 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
       final ODocument indexDoc = new ODocument().setTrackingChanges(false);
       ODocumentInternal.addOwner(indexDoc, result);
 
-      //noinspection deprecation
       result.field(indexEntry.getKey(), indexDoc, OType.EMBEDDED);
 
-      if (indexEntry.getValue().cleared) { // noinspection deprecation
+      if (indexEntry.getValue().cleared) {
         indexDoc.field("clear", Boolean.TRUE);
       }
 
       final List<ODocument> entries = new ArrayList<>();
-      //noinspection deprecation
       indexDoc.field("entries", entries, OType.EMBEDDEDLIST);
 
       // STORE INDEX ENTRIES
       for (OTransactionIndexChangesPerKey entry : indexEntry.getValue().changesPerKey.values()) {
-        if (!entry.clientTrackOnly) entries.add(serializeIndexChangeEntry(entry, indexDoc));
+        if (!entry.clientTrackOnly) {
+          entries.add(serializeIndexChangeEntry(entry, indexDoc));
+        }
       }
 
-      //noinspection deprecation
       indexDoc.field(
           "nullEntries", serializeIndexChangeEntry(indexEntry.getValue().nullKeyChanges, indexDoc));
     }
@@ -253,13 +282,17 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
     return indexEntries;
   }
 
-  /** Buffer sizes index changes to be flushed at commit time. */
+  /**
+   * Buffer sizes index changes to be flushed at commit time.
+   */
   public OTransactionIndexChanges getIndexChanges(final String iIndexName) {
     return indexEntries.get(iIndexName);
   }
 
   public OTransactionIndexChanges getIndexChangesInternal(final String indexName) {
-    if (getDatabase().isRemote()) return null;
+    if (getDatabase().isRemote()) {
+      return null;
+    }
     return getIndexChanges(indexName);
   }
 
@@ -272,7 +305,9 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
     addIndexEntry(delegate, iIndexName, iOperation, key, iValue, false);
   }
 
-  /** Bufferizes index changes to be flushed at commit time. */
+  /**
+   * Bufferizes index changes to be flushed at commit time.
+   */
   public void addIndexEntry(
       final OIndex delegate,
       final String iIndexName,
@@ -280,44 +315,53 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
       final Object key,
       final OIdentifiable iValue,
       boolean clientTrackOnly) {
-    OTransactionIndexChanges indexEntry = indexEntries.get(iIndexName);
-    if (indexEntry == null) {
-      indexEntry = new OTransactionIndexChanges();
-      indexEntries.put(iIndexName, indexEntry);
-    }
-
-    if (iOperation == OPERATION.CLEAR) {
-      indexEntry.setCleared();
-    } else {
-      OTransactionIndexChangesPerKey changes = indexEntry.getChangesPerKey(key);
-      changes.clientTrackOnly = clientTrackOnly;
-      changes.add(iValue, iOperation);
-
-      if (changes.key == key
-          && key instanceof ChangeableIdentity changeableIdentity
-          && changeableIdentity.canChangeIdentity()) {
-        changeableIdentity.addIdentityChangeListener(indexEntry);
+    try {
+      OTransactionIndexChanges indexEntry = indexEntries.get(iIndexName);
+      if (indexEntry == null) {
+        indexEntry = new OTransactionIndexChanges();
+        indexEntries.put(iIndexName, indexEntry);
       }
 
-      if (iValue == null) return;
+      if (iOperation == OPERATION.CLEAR) {
+        indexEntry.setCleared();
+      } else {
+        OTransactionIndexChangesPerKey changes = indexEntry.getChangesPerKey(key);
+        changes.clientTrackOnly = clientTrackOnly;
+        changes.add(iValue, iOperation);
 
-      List<OTransactionRecordIndexOperation> transactionIndexOperations =
-          recordIndexOperations.get(iValue.getIdentity());
+        if (changes.key == key
+            && key instanceof ChangeableIdentity changeableIdentity
+            && changeableIdentity.canChangeIdentity()) {
+          changeableIdentity.addIdentityChangeListener(indexEntry);
+        }
 
-      if (transactionIndexOperations == null) {
-        transactionIndexOperations = new ArrayList<>();
-        recordIndexOperations.put(iValue.getIdentity().copy(), transactionIndexOperations);
+        if (iValue == null) {
+          return;
+        }
+
+        List<OTransactionRecordIndexOperation> transactionIndexOperations =
+            recordIndexOperations.get(iValue.getIdentity());
+
+        if (transactionIndexOperations == null) {
+          transactionIndexOperations = new ArrayList<>();
+          recordIndexOperations.put(iValue.getIdentity().copy(), transactionIndexOperations);
+        }
+
+        transactionIndexOperations.add(
+            new OTransactionRecordIndexOperation(iIndexName, key, iOperation));
       }
-
-      transactionIndexOperations.add(
-          new OTransactionRecordIndexOperation(iIndexName, key, iOperation));
+    } catch (Exception e) {
+      rollback(true, 0);
+      throw e;
     }
   }
 
   public void updateIdentityAfterCommit(final ORID oldRid, final ORID newRid) {
     if (oldRid.equals(newRid))
-      // NO CHANGE, IGNORE IT
+    // NO CHANGE, IGNORE IT
+    {
       return;
+    }
 
     // XXX: Identity update may mutate the index keys, so we have to identify and reinsert
     // potentially affected index keys to keep
@@ -328,12 +372,15 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
     for (Entry<String, OTransactionIndexChanges> entry : indexEntries.entrySet()) {
       final OIndex index = indexManager.getIndex(database, entry.getKey());
-      if (index == null)
+      if (index == null) {
         throw new OTransactionException(
             "Cannot find index '" + entry.getValue() + "' while committing transaction");
+      }
 
       final Dependency[] fieldRidDependencies = getIndexFieldRidDependencies(index);
-      if (!isIndexMayDependOnRids(fieldRidDependencies)) continue;
+      if (!isIndexMayDependOnRids(fieldRidDependencies)) {
+        continue;
+      }
 
       final OTransactionIndexChanges indexChanges = entry.getValue();
       for (final Iterator<OTransactionIndexChangesPerKey> iterator =
@@ -374,8 +421,9 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
 
     // Reinsert the potentially affected index keys.
 
-    for (KeyChangesUpdateRecord record : keyRecordsToReinsert)
+    for (KeyChangesUpdateRecord record : keyRecordsToReinsert) {
       record.indexChanges.changesPerKey.put(record.keyChanges.key, record.keyChanges);
+    }
 
     // Update the indexes.
 
@@ -385,14 +433,18 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
     if (transactionIndexOperations != null) {
       for (final OTransactionRecordIndexOperation indexOperation : transactionIndexOperations) {
         OTransactionIndexChanges indexEntryChanges = indexEntries.get(indexOperation.index);
-        if (indexEntryChanges == null) continue;
+        if (indexEntryChanges == null) {
+          continue;
+        }
         final OTransactionIndexChangesPerKey keyChanges;
         if (indexOperation.key == null) {
           keyChanges = indexEntryChanges.nullKeyChanges;
         } else {
           keyChanges = indexEntryChanges.changesPerKey.get(indexOperation.key);
         }
-        if (keyChanges != null) updateChangesIdentity(oldRid, newRid, keyChanges);
+        if (keyChanges != null) {
+          updateChangesIdentity(oldRid, newRid, keyChanges);
+        }
       }
     }
   }
@@ -404,7 +456,7 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
     }
   }
 
-  protected ODocument serializeIndexChangeEntry(
+  private ODocument serializeIndexChangeEntry(
       OTransactionIndexChangesPerKey entry, final ODocument indexDoc) {
     // SERIALIZE KEY
 
@@ -415,18 +467,16 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
       if (entry.key instanceof OCompositeKey) {
         final List<Object> keys = ((OCompositeKey) entry.key).getKeys();
 
-        //noinspection deprecation
         keyContainer.field("key", keys, OType.EMBEDDEDLIST);
-        //noinspection deprecation
         keyContainer.field("binary", false);
       } else {
-        //noinspection deprecation
         keyContainer.field("key", entry.key);
-        //noinspection deprecation
         keyContainer.field("binary", false);
       }
 
-    } else keyContainer = null;
+    } else {
+      keyContainer = null;
+    }
 
     final List<ODocument> operations = new ArrayList<>();
 
@@ -438,16 +488,17 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
         ODocumentInternal.addOwner(changeDoc, indexDoc);
 
         // SERIALIZE OPERATION
-        //noinspection deprecation
         changeDoc.field("o", e.getOperation().ordinal());
 
         if (e.getValue() instanceof ORecord && e.getValue().getIdentity().isNew()) {
           final ORecord saved = getRecord(e.getValue().getIdentity());
-          if (saved != null) e.setValue(saved);
-          else ((ORecord) e.getValue()).save();
+          if (saved != null) {
+            e.setValue(saved);
+          } else {
+            ((ORecord) e.getValue()).save();
+          }
         }
 
-        //noinspection deprecation
         changeDoc.field("v", e.getValue() != null ? e.getValue().getIdentity() : null);
 
         operations.add(changeDoc);
@@ -456,7 +507,6 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
     ODocument res = new ODocument();
     res.setTrackingChanges(false);
     ODocumentInternal.addOwner(res, indexDoc);
-    //noinspection deprecation
     return res.setAllowChainedAccess(false)
         .field("k", keyContainer, OType.EMBEDDED)
         .field("ops", operations, OType.EMBEDDEDLIST);
@@ -464,10 +514,15 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
 
   private void updateChangesIdentity(
       ORID oldRid, ORID newRid, OTransactionIndexChangesPerKey changesPerKey) {
-    if (changesPerKey == null) return;
+    if (changesPerKey == null) {
+      return;
+    }
 
-    for (final OTransactionIndexEntry indexEntry : changesPerKey.getEntriesAsList())
-      if (indexEntry.getValue().getIdentity().equals(oldRid)) indexEntry.setValue(newRid);
+    for (final OTransactionIndexEntry indexEntry : changesPerKey.getEntriesAsList()) {
+      if (indexEntry.getValue().getIdentity().equals(oldRid)) {
+        indexEntry.setValue(newRid);
+      }
+    }
   }
 
   @Override
@@ -490,15 +545,19 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
     final OType[] types = definition.getTypes();
     final Dependency[] dependencies = new Dependency[types.length];
 
-    for (int i = 0; i < types.length; ++i) dependencies[i] = getTypeRidDependency(types[i]);
+    for (int i = 0; i < types.length; ++i) {
+      dependencies[i] = getTypeRidDependency(types[i]);
+    }
 
     return dependencies;
   }
 
   private static boolean isIndexMayDependOnRids(Dependency[] fieldDependencies) {
-    if (fieldDependencies == null) return true;
+    if (fieldDependencies == null) {
+      return true;
+    }
 
-    for (Dependency dependency : fieldDependencies)
+    for (Dependency dependency : fieldDependencies) {
       switch (dependency) {
         case Unknown:
         case Yes:
@@ -506,6 +565,7 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
         case No:
           break; // do nothing
       }
+    }
 
     return false;
   }
@@ -514,9 +574,12 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
       Object key, ORID rid, Dependency[] keyDependencies) {
     if (key instanceof OCompositeKey) {
       final List<Object> subKeys = ((OCompositeKey) key).getKeys();
-      for (int i = 0; i < subKeys.size(); ++i)
+      for (int i = 0; i < subKeys.size(); ++i) {
         if (isIndexKeyMayDependOnRid(
-            subKeys.get(i), rid, keyDependencies == null ? null : keyDependencies[i])) return true;
+            subKeys.get(i), rid, keyDependencies == null ? null : keyDependencies[i])) {
+          return true;
+        }
+      }
       return false;
     }
 
@@ -524,9 +587,13 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
   }
 
   private static boolean isIndexKeyMayDependOnRid(Object key, ORID rid, Dependency dependency) {
-    if (dependency == Dependency.No) return false;
+    if (dependency == Dependency.No) {
+      return false;
+    }
 
-    if (key instanceof OIdentifiable) return key.equals(rid);
+    if (key instanceof OIdentifiable) {
+      return key.equals(rid);
+    }
 
     return dependency == Dependency.Unknown || dependency == null;
   }
@@ -552,10 +619,11 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
   }
 
   private static class KeyChangesUpdateRecord {
-    public final OTransactionIndexChangesPerKey keyChanges;
-    public final OTransactionIndexChanges indexChanges;
 
-    public KeyChangesUpdateRecord(
+    final OTransactionIndexChangesPerKey keyChanges;
+    final OTransactionIndexChanges indexChanges;
+
+    KeyChangesUpdateRecord(
         OTransactionIndexChangesPerKey keyChanges, OTransactionIndexChanges indexChanges) {
       this.keyChanges = keyChanges;
       this.indexChanges = indexChanges;
@@ -574,7 +642,7 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
     this.noTxLocks = noTxLocks;
   }
 
-  public Map<ORID, LockedRecordMetadata> getNoTxLocks() {
+  Map<ORID, LockedRecordMetadata> getNoTxLocks() {
     return noTxLocks;
   }
 
@@ -630,5 +698,10 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
         updatedRids.put(oldNew, op.getKey());
       }
     }
+  }
+
+  @Override
+  public boolean isUnloadCachedRecords() {
+    return false;
   }
 }

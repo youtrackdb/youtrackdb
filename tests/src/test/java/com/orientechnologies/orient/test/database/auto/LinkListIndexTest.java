@@ -19,8 +19,10 @@ import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-/** @since 21.03.12 */
-@Test(groups = {"index"})
+/**
+ * @since 21.03.12
+ */
+@Test
 public class LinkListIndexTest extends DocumentDBBaseTest {
 
   @Parameters(value = "url")
@@ -329,7 +331,7 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
       database.begin();
       ODocument loadedDocument = database.load(document.getIdentity());
       loadedDocument.<List<OIdentifiable>>field("linkCollection").add(docThree.getIdentity());
-      document.save();
+      loadedDocument.save();
       database.commit();
     } catch (Exception e) {
       database.rollback();

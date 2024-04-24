@@ -49,7 +49,7 @@ public class OTrackedSet<T> extends LinkedHashSet<T>
   private boolean dirty = false;
   private boolean transactionDirty = false;
 
-  private OSimpleMultiValueTracker<T, T> tracker = new OSimpleMultiValueTracker<>(this);
+  private final OSimpleMultiValueTracker<T, T> tracker = new OSimpleMultiValueTracker<>(this);
 
   public OTrackedSet(
       final ORecordElement iRecord, final Collection<? extends T> iOrigin, final Class<?> cls) {

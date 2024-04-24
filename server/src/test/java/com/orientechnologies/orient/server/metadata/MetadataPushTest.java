@@ -18,7 +18,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by tglman on 23/05/17. */
+/**
+ * Created by tglman on 23/05/17.
+ */
 public class MetadataPushTest {
 
   private static final String SERVER_DIRECTORY = "./target/metadata-push";
@@ -68,7 +70,14 @@ public class MetadataPushTest {
     database.activateOnCurrentThread();
     database.command(" ALTER DATABASE LOCALELANGUAGE  ?", Locale.GERMANY.getLanguage());
     // Push done in background for now, do not guarantee update before command return.
-    Thread.sleep(500);
+    for (int i = 0; i < 50; i++) {
+      Thread.sleep(100);
+      secondDatabase.activateOnCurrentThread();
+      if (secondDatabase.get(ODatabase.ATTRIBUTES.LOCALELANGUAGE) != null) {
+        break;
+      }
+    }
+
     secondDatabase.activateOnCurrentThread();
     assertEquals(
         secondDatabase.get(ODatabase.ATTRIBUTES.LOCALELANGUAGE), Locale.GERMANY.getLanguage());
@@ -79,7 +88,14 @@ public class MetadataPushTest {
     database.activateOnCurrentThread();
     database.command(" create class X");
     // Push done in background for now, do not guarantee update before command return.
-    Thread.sleep(500);
+    for (int i = 0; i < 50; i++) {
+      Thread.sleep(100);
+      secondDatabase.activateOnCurrentThread();
+      if (secondDatabase.getMetadata().getSchema().existsClass("X")) {
+        break;
+      }
+    }
+
     secondDatabase.activateOnCurrentThread();
     assertTrue(secondDatabase.getMetadata().getSchema().existsClass("X"));
   }
@@ -91,8 +107,15 @@ public class MetadataPushTest {
     database.command(" create property X.y STRING");
     database.command(" create index X.y on X(y) NOTUNIQUE");
     // Push done in background for now, do not guarantee update before command return.
-    Thread.sleep(500);
-    secondDatabase.activateOnCurrentThread();
+    for (int i = 0; i < 50; i++) {
+      Thread.sleep(100);
+      secondDatabase.activateOnCurrentThread();
+
+      if (secondDatabase.getMetadata().getIndexManagerInternal().existsIndex("X.y")) {
+        break;
+      }
+    }
+
     assertTrue(secondDatabase.getMetadata().getIndexManagerInternal().existsIndex("X.y"));
   }
 
@@ -101,7 +124,14 @@ public class MetadataPushTest {
     database.activateOnCurrentThread();
     database.command("CREATE FUNCTION test \"print('\\nTest!')\"");
     // Push done in background for now, do not guarantee update before command return.
-    Thread.sleep(500);
+    for (int i = 0; i < 50; i++) {
+      Thread.sleep(100);
+      secondDatabase.activateOnCurrentThread();
+      if (secondDatabase.getMetadata().getFunctionLibrary().getFunction("test") != null) {
+        break;
+      }
+    }
+
     secondDatabase.activateOnCurrentThread();
     assertNotNull(secondDatabase.getMetadata().getFunctionLibrary().getFunction("test"));
   }
@@ -111,7 +141,14 @@ public class MetadataPushTest {
     database.activateOnCurrentThread();
     database.command("CREATE SEQUENCE test TYPE CACHED");
     // Push done in background for now, do not guarantee update before command return.
-    Thread.sleep(500);
+    for (int i = 0; i < 50; i++) {
+      Thread.sleep(100);
+      secondDatabase.activateOnCurrentThread();
+      if (secondDatabase.getMetadata().getSequenceLibrary().getSequence("test") != null) {
+        break;
+      }
+    }
+
     secondDatabase.activateOnCurrentThread();
     assertNotNull(secondDatabase.getMetadata().getSequenceLibrary().getSequence("test"));
   }

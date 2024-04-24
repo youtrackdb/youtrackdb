@@ -61,6 +61,7 @@ public class OFetchTransaction38Response implements OBinaryResponse {
         ODocument doc = (ODocument) txEntry.getRecord();
         OStorageOperationResult<ORawBuffer> result =
             database.getStorage().readRecord((ORecordId) doc.getIdentity(), "", false, false, null);
+
         ODocument docFromPersistence = new ODocument(doc.getIdentity());
         docFromPersistence.fromStream(result.getResult().getBuffer());
         request.setOriginal(

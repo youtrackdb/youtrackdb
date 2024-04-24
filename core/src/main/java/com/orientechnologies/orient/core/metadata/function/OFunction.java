@@ -71,48 +71,48 @@ public class OFunction extends ODocumentWrapper {
   }
 
   public String getName() {
-    return document.field("name");
+    return getDocument().field("name");
   }
 
   public OFunction setName(final String iName) {
-    document.field("name", iName);
+    getDocument().field("name", iName);
     return this;
   }
 
   public String getCode() {
-    return document.field("code");
+    return getDocument().field("code");
   }
 
   public OFunction setCode(final String iCode) {
-    document.field("code", iCode);
+    getDocument().field("code", iCode);
     return this;
   }
 
   public String getLanguage() {
-    return document.field("language");
+    return getDocument().field("language");
   }
 
   public OFunction setLanguage(final String iLanguage) {
-    document.field("language", iLanguage);
+    getDocument().field("language", iLanguage);
     return this;
   }
 
   public List<String> getParameters() {
-    return document.field("parameters");
+    return getDocument().field("parameters");
   }
 
   public OFunction setParameters(final List<String> iParameters) {
-    document.field("parameters", iParameters);
+    getDocument().field("parameters", iParameters);
     return this;
   }
 
   public boolean isIdempotent() {
-    final Boolean idempotent = document.field("idempotent");
+    final Boolean idempotent = getDocument().field("idempotent");
     return idempotent != null && idempotent;
   }
 
   public OFunction setIdempotent(final boolean iIdempotent) {
-    document.field("idempotent", iIdempotent);
+    getDocument().field("idempotent", iIdempotent);
     return this;
   }
 
@@ -248,7 +248,7 @@ public class OFunction extends ODocumentWrapper {
   }
 
   public ORID getId() {
-    return document.getIdentity();
+    return getDocument().getIdentity();
   }
 
   @Override

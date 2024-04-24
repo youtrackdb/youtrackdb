@@ -19,6 +19,7 @@ package com.orientechnologies.orient.core.schedule;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OrientDBInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentAbstract;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
@@ -80,7 +81,7 @@ public class OSchedulerImpl {
     if (event != null) {
 
       try {
-        event.getDocument().reload();
+        ODatabaseSession.getActiveSession().load(event.getDocument().getIdentity(), null, true);
       } catch (ORecordNotFoundException ignore) {
         // ALREADY DELETED, JUST RETURN
         return;

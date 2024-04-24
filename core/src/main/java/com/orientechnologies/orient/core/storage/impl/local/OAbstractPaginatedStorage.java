@@ -268,9 +268,7 @@ public abstract class OAbstractPaginatedStorage
   private final Striped<Semaphore> lockManager = Striped.semaphore(1024, Integer.MAX_VALUE);
   protected volatile OSBTreeCollectionManagerShared sbTreeCollectionManager;
 
-  /**
-   * Lock is used to atomically update record versions.
-   */
+  /** Lock is used to atomically update record versions. */
   private final Striped<Lock> recordVersionManager = Striped.lazyWeakLock(1024);
 
   private final Map<String, OCluster> clusterMap = new HashMap<>();
@@ -2258,7 +2256,7 @@ public abstract class OAbstractPaginatedStorage
    * another node where all the rids are already allocated in the other node.
    *
    * @param transaction the transaction to commit
-   * @param allocated   true if the operation is pre-allocated commit
+   * @param allocated true if the operation is pre-allocated commit
    * @return The list of operations applied by the transaction
    */
   protected List<ORecordOperation> commit(
@@ -3287,9 +3285,9 @@ public abstract class OAbstractPaginatedStorage
    * Puts the given value under the given key into this storage for the index with the given index
    * id. Validates the operation using the provided validator.
    *
-   * @param indexId   the index id of the index to put the value into.
-   * @param key       the key to put the value under.
-   * @param value     the value to put.
+   * @param indexId the index id of the index to put the value into.
+   * @param key the key to put the value under.
+   * @param value the value to put.
    * @param validator the operation validator.
    * @return {@code true} if the validator allowed the put, {@code false} otherwise.
    * @see IndexEngineValidator#validate(Object, Object, Object)
@@ -3709,7 +3707,10 @@ public abstract class OAbstractPaginatedStorage
     assert atomicOperationsManager.getCurrentOperation() == null;
 
     OTransactionAbstract.updateCacheFromEntries(
-        clientTx.getDatabase(), clientTx.getRecordOperations(), false);
+        clientTx.getDatabase(),
+        clientTx.getRecordOperations(),
+        false,
+        clientTx.isUnloadCachedRecords());
 
     txRollback.increment();
   }
@@ -4084,9 +4085,7 @@ public abstract class OAbstractPaginatedStorage
     }
   }
 
-  /**
-   * Executes the command request and return the result back.
-   */
+  /** Executes the command request and return the result back. */
   @Override
   public final Object command(final OCommandRequestText command) {
     try {
@@ -4508,9 +4507,7 @@ public abstract class OAbstractPaginatedStorage
       byte[] iv)
       throws IOException;
 
-  /**
-   * Checks if the storage is open. If it's closed an exception is raised.
-   */
+  /** Checks if the storage is open. If it's closed an exception is raised. */
   protected final void checkOpennessAndMigration() {
     checkErrorState();
 
@@ -4893,7 +4890,8 @@ public abstract class OAbstractPaginatedStorage
     atomicOperationsManager.endAtomicOperation(null);
     assert atomicOperationsManager.getCurrentOperation() == null;
 
-    OTransactionAbstract.updateCacheFromEntries(txi.getDatabase(), recordOperations, true);
+    OTransactionAbstract.updateCacheFromEntries(
+        txi.getDatabase(), recordOperations, true, txi.isUnloadCachedRecords());
     txCommit.increment();
   }
 
@@ -4970,12 +4968,13 @@ public abstract class OAbstractPaginatedStorage
   private OStorageOperationResult<OPhysicalPosition> doCreateRecord(
       final OAtomicOperation atomicOperation,
       final ORecordId rid,
-      final byte[] content,
+      @Nonnull final byte[] content,
       int recordVersion,
       final byte recordType,
       final ORecordCallback<Long> callback,
       final OCluster cluster,
       final OPhysicalPosition allocated) {
+    //noinspection ConstantValue
     if (content == null) {
       throw new IllegalArgumentException("Record is null");
     }
@@ -5688,7 +5687,6 @@ public abstract class OAbstractPaginatedStorage
 
               ORecordInternal.setVersion(rec, ppos.recordVersion);
             } else {
-              // USE -2 AS VERSION TO AVOID INCREMENTING THE VERSION
               final OStorageOperationResult<Integer> updateRes =
                   doUpdateRecord(
                       atomicOperation,

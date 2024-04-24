@@ -92,9 +92,10 @@ public class ORecordFactoryManager {
     }
   }
 
-  public ORecord newInstance(final byte iRecordType, ORID rid, ODatabaseDocumentInternal database) {
+  public ORecordAbstract newInstance(
+      final byte iRecordType, ORID rid, ODatabaseDocumentInternal database) {
     try {
-      return getFactory(iRecordType).newRecord(rid, database);
+      return (ORecordAbstract) getFactory(iRecordType).newRecord(rid, database);
     } catch (Exception e) {
       throw new IllegalArgumentException("Unsupported record type: " + iRecordType, e);
     }

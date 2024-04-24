@@ -29,10 +29,10 @@ import com.orientechnologies.orient.core.tx.OTransactionOptimistic;
 import java.io.Serializable;
 
 /**
- * Generic record representation. The object can be reused across multiple calls to the database by
- * using the {@link #reset()} method.
+ * Generic record representation.
  */
 public interface ORecord extends ORecordElement, OIdentifiable, Serializable, OSerializableStream {
+
   /**
    * Removes all the dependencies with other records. All the relationships remain in form of
    * RecordID. If some links contain dirty records, the detach cannot be complete and this method
@@ -43,30 +43,38 @@ public interface ORecord extends ORecordElement, OIdentifiable, Serializable, OS
   boolean detach();
 
   /**
-   * Resets the record to be reused. The record is fresh like just created. Use this method to
-   * recycle records avoiding the creation of them stressing the JVM Garbage Collector.
-   *
-   * @return The Object instance itself giving a "fluent interface". Useful to call multiple methods
-   *     in chain.
-   */
-  <RET extends ORecord> RET reset();
-
-  /**
    * Unloads current record. All information are lost but the record identity. At the next access
    * the record will be auto-reloaded. Useful to free memory or to avoid to keep an old version of
    * it.
    *
    * @return The Object instance itself giving a "fluent interface". Useful to call multiple methods
-   *     in chain.
+   * in chain.
    */
   <RET extends ORecord> RET unload();
+
+  /**
+   * Returns true if the record is unloaded.
+   *
+   * @return true if the record is unloaded.
+   * @see #unload()
+   */
+  boolean isUnloaded();
+
+  /**
+   * Returns <code>true</code> if records servers as proxy for the real record in the storage. In
+   * such case it is recommended to call {@link #getRecord()} method to get the real record.
+   * Accessing of real record will increase system performance.
+   *
+   * @return <code>true</code> if records servers as proxy for the real record in the storage.
+   */
+  boolean isProxy();
 
   /**
    * All the fields are deleted but the record identity is maintained. Use this to remove all the
    * document's fields.
    *
    * @return The Object instance itself giving a "fluent interface". Useful to call multiple methods
-   *     in chain.
+   * in chain.
    */
   <RET extends ORecord> RET clear();
 
@@ -74,11 +82,13 @@ public interface ORecord extends ORecordElement, OIdentifiable, Serializable, OS
    * Creates a copy of the record. All the record contents are copied.
    *
    * @return The Object instance itself giving a "fluent interface". Useful to call multiple methods
-   *     in chain.
+   * in chain.
    */
   ORecord copy();
 
-  /** Returns the record identity as &lt;cluster-id&gt;:&lt;cluster-position&gt; */
+  /**
+   * Returns the record identity as &lt;cluster-id&gt;:&lt;cluster-position&gt;
+   */
   ORID getIdentity();
 
   /**
@@ -86,15 +96,13 @@ public interface ORecord extends ORecordElement, OIdentifiable, Serializable, OS
    * At every change the storage increment the version number. Version number is used by Optimistic
    * transactions to check if the record is changed in the meanwhile of the transaction.
    *
-   * @see OTransactionOptimistic
    * @return The version number. 0 if it's a brand new record.
+   * @see OTransactionOptimistic
    */
   int getVersion();
 
   /**
    * Returns the database where the record belongs.
-   *
-   * @return
    */
   ODatabaseDocument getDatabase();
 
@@ -111,7 +119,7 @@ public interface ORecord extends ORecordElement, OIdentifiable, Serializable, OS
    * content. If the record does not exist a ORecordNotFoundException exception is thrown.
    *
    * @return The record loaded or itself if the record has been reloaded from the storage. Useful to
-   *     call methods in chain.
+   * call methods in chain.
    */
   <RET extends ORecord> RET load() throws ORecordNotFoundException;
 
@@ -121,7 +129,7 @@ public interface ORecord extends ORecordElement, OIdentifiable, Serializable, OS
    * thrown.
    *
    * @return The Object instance itself giving a "fluent interface". Useful to call multiple methods
-   *     in chain.
+   * in chain.
    */
   <RET extends ORecord> RET reload() throws ORecordNotFoundException;
 
@@ -137,7 +145,7 @@ public interface ORecord extends ORecordElement, OIdentifiable, Serializable, OS
    * continue to see the record as modified, while others cannot access to it since it's locked.
    *
    * @return The Object instance itself giving a "fluent interface". Useful to call multiple methods
-   *     in chain.
+   * in chain.
    */
   <RET extends ORecord> RET save();
 
@@ -151,7 +159,7 @@ public interface ORecord extends ORecordElement, OIdentifiable, Serializable, OS
    * access to it since it's locked.
    *
    * @return The Object instance itself giving a "fluent interface". Useful to call multiple methods
-   *     in chain.
+   * in chain.
    */
   <RET extends ORecord> RET save(String iCluster);
 
@@ -168,7 +176,7 @@ public interface ORecord extends ORecordElement, OIdentifiable, Serializable, OS
    * continue to see the record as deleted, while others cannot access to it since it's locked.
    *
    * @return The Object instance itself giving a "fluent interface". Useful to call multiple methods
-   *     in chain.
+   * in chain.
    */
   ORecord delete();
 
@@ -177,7 +185,7 @@ public interface ORecord extends ORecordElement, OIdentifiable, Serializable, OS
    *
    * @param iJson Object content in JSON format
    * @return The Object instance itself giving a "fluent interface". Useful to call multiple methods
-   *     in chain.
+   * in chain.
    */
   <RET extends ORecord> RET fromJSON(String iJson);
 
@@ -192,16 +200,16 @@ public interface ORecord extends ORecordElement, OIdentifiable, Serializable, OS
    * Exports the record in JSON format specifying additional formatting settings.
    *
    * @param iFormat Format settings separated by comma. Available settings are:
-   *     <ul>
-   *       <li><b>rid</b>: exports the record's id as property "@rid"
-   *       <li><b>version</b>: exports the record's version as property "@version"
-   *       <li><b>class</b>: exports the record's class as property "@class"
-   *       <li><b>attribSameRow</b>: exports all the record attributes in the same row
-   *       <li><b>indent:&lt;level&gt;</b>: Indents the output if the &lt;level&gt; specified.
-   *           Default is 0
-   *     </ul>
-   *     Example: "rid,version,class,indent:6" exports record id, version and class properties along
-   *     with record properties using an indenting level equals of 6.
+   *                <ul>
+   *                  <li><b>rid</b>: exports the record's id as property "@rid"
+   *                  <li><b>version</b>: exports the record's version as property "@version"
+   *                  <li><b>class</b>: exports the record's class as property "@class"
+   *                  <li><b>attribSameRow</b>: exports all the record attributes in the same row
+   *                  <li><b>indent:&lt;level&gt;</b>: Indents the output if the &lt;level&gt; specified.
+   *                      Default is 0
+   *                </ul>
+   *                Example: "rid,version,class,indent:6" exports record id, version and class properties along
+   *                with record properties using an indenting level equals of 6.
    * @return Object content in JSON format
    */
   String toJSON(String iFormat);
@@ -228,8 +236,8 @@ public interface ORecord extends ORecordElement, OIdentifiable, Serializable, OS
   void setInternalStatus(STATUS iStatus);
 
   /**
-   * Checks if the record exists in the database.
-   * It adheres the same rules {@link ODatabaseDocument#exists(ORID)}.
+   * Checks if the record exists in the database. It adheres the same rules
+   * {@link ODatabaseDocument#exists(ORID)}.
    *
    * @return true if the record exists, otherwise false
    */

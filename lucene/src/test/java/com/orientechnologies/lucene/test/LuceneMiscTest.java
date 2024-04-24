@@ -117,7 +117,6 @@ public class LuceneMiscTest extends BaseLuceneTest {
 
     OClass authorOf = schema.createClass("AuthorOf", e);
     authorOf.createProperty("in", OType.LINK, song);
-    db.commit();
 
     db.command("create index AuthorOf.in on AuthorOf (in) NOTUNIQUE").close();
     db.command("create index Song.title on Song (title) FULLTEXT ENGINE LUCENE").close();

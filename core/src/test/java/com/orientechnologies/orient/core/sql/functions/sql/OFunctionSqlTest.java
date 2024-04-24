@@ -19,7 +19,7 @@ public class OFunctionSqlTest extends BaseMemoryDatabase {
     ODocument doc1 = new ODocument("Test");
     doc1.field("name", "Enrico");
     db.save(doc1);
-    doc1.reset();
+    doc1 = new ODocument("Test");
     doc1.setClassName("Test");
     doc1.field("name", "Luca");
     db.save(doc1);
@@ -46,7 +46,7 @@ public class OFunctionSqlTest extends BaseMemoryDatabase {
     ODocument doc1 = new ODocument("Test");
     doc1.field("name", "Enrico");
     db.save(doc1);
-    doc1.reset();
+    doc1 = new ODocument("Test");
     doc1.setClassName("Test");
     doc1.field("name", "Luca");
     db.save(doc1);

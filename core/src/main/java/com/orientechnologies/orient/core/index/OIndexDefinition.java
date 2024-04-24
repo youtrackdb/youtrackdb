@@ -23,6 +23,7 @@ import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.util.List;
+import javax.annotation.Nonnull;
 
 /**
  * Presentation of index that is used information and contained in document {@link
@@ -107,14 +108,15 @@ public interface OIndexDefinition extends OIndexCallback {
    *
    * @return Document that contains internal index state.
    */
-  ODocument toStream();
+  @Nonnull
+  ODocument toStream(@Nonnull ODocument document);
 
   /**
    * Deserialize internal index state from document.
    *
    * @param document Serialized index presentation.
    */
-  void fromStream(ODocument document);
+  void fromStream(@Nonnull ODocument document);
 
   String toCreateIndexDDL(String indexName, String indexType, String engine);
 

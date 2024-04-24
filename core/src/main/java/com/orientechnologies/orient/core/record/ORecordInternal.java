@@ -42,6 +42,10 @@ public class ORecordInternal {
     return rec;
   }
 
+  public static void checkForLoading(ORecord record) {
+    ((ORecordAbstract) record).checkForLoading();
+  }
+
   public static ORecordAbstract fill(
       final ORecord record,
       final ORID iRid,

@@ -24,6 +24,5 @@ public class ORollbackStatementExecutionTest extends BaseMemoryDatabase {
     Assert.assertEquals("rollback", item.getProperty("operation"));
     Assert.assertFalse(result.hasNext());
     Assert.assertTrue(db.getTransaction() == null || !db.getTransaction().isActive());
-    db.commit();
   }
 }

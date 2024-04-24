@@ -84,7 +84,7 @@ public class OPropertyIndexDefinitionTest {
 
     propertyIndex = new OPropertyIndexDefinition("tesClass", "fOne", OType.INTEGER);
 
-    final ODocument docToStore = propertyIndex.toStream();
+    final ODocument docToStore = propertyIndex.toStream(new ODocument());
     database.save(docToStore, database.getClusterNameById(database.getDefaultClusterId()));
 
     final ODocument docToLoad = database.load(docToStore.getIdentity());
@@ -98,7 +98,7 @@ public class OPropertyIndexDefinitionTest {
 
   @Test
   public void testIndexReload() {
-    final ODocument docToStore = propertyIndex.toStream();
+    final ODocument docToStore = propertyIndex.toStream(new ODocument());
 
     final OPropertyIndexDefinition result = new OPropertyIndexDefinition();
     result.fromStream(docToStore);

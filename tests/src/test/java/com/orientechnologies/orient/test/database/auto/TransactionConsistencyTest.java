@@ -555,9 +555,6 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
       Assert.assertEquals(result.size(), 1);
       // Step 4c
       database.delete(result.get(0));
-
-      // Step 6
-      database.commit();
     } finally {
       database.close();
     }
@@ -591,8 +588,6 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
 
       var sees = database.newEdge(foo, bar, "Sees");
       sees.save();
-
-      database.commit();
 
       var foos = database.query("select * from Foo").stream().toList();
       Assert.assertEquals(foos.size(), 1);
@@ -765,8 +760,6 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
       account.setAddresses(addresses);
 
       account = database.save(account);
-
-      database.commit();
 
       String originalName = account.getName();
 

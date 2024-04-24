@@ -58,8 +58,6 @@ public class LuceneGraphTXTest extends BaseLuceneTest {
     results = db.command("select from City where name lucene 'London'");
     Assert.assertEquals(results.stream().count(), 0);
 
-    db.commit();
-
     // Assert After Commit
     results = db.command("select from City where name lucene 'Berlin'");
     Assert.assertEquals(results.stream().count(), 1);

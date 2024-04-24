@@ -16,6 +16,7 @@ import com.orientechnologies.orient.core.db.OMetadataUpdateListener;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
 import com.orientechnologies.orient.core.index.OIndexManagerShared;
 import com.orientechnologies.orient.core.metadata.schema.OSchemaShared;
+import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.server.network.protocol.binary.ONetworkProtocolBinary;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -140,9 +141,11 @@ public class OPushManager implements OMetadataUpdateListener {
 
   @Override
   public void onIndexManagerUpdate(String database, OIndexManagerAbstract indexManager) {
-    OPushIndexManagerRequest request =
-        new OPushIndexManagerRequest(((OIndexManagerShared) indexManager).toNetworkStream());
+    var document = ((OIndexManagerShared) indexManager).toNetworkStream();
+    OPushIndexManagerRequest request = new OPushIndexManagerRequest(document);
     this.indexManager.send(database, request, this);
+    ORecordInternal.unsetDirty(document);
+    document.unload();
   }
 
   @Override

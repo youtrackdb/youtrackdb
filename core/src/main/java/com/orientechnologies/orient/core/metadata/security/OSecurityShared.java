@@ -761,8 +761,8 @@ public class OSecurityShared implements OSecurityInternal {
         ORule.ResourceGeneric.CLUSTER,
         OMetadataDefault.CLUSTER_INTERNAL_NAME,
         ORole.PERMISSION_READ);
-    readerRole.addRule(ORule.ResourceGeneric.CLUSTER, "orole", ORole.PERMISSION_NONE);
-    readerRole.addRule(ORule.ResourceGeneric.CLUSTER, "ouser", ORole.PERMISSION_NONE);
+    readerRole.addRule(ORule.ResourceGeneric.CLUSTER, "orole", ORole.PERMISSION_READ);
+    readerRole.addRule(ORule.ResourceGeneric.CLUSTER, "ouser", ORole.PERMISSION_READ);
     readerRole.addRule(ORule.ResourceGeneric.CLASS, null, ORole.PERMISSION_READ);
     readerRole.addRule(ORule.ResourceGeneric.CLASS, "OUser", ORole.PERMISSION_NONE);
     readerRole.addRule(ORule.ResourceGeneric.CLUSTER, null, ORole.PERMISSION_READ);

@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.tx;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabase.OPERATION_MODE;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
@@ -28,9 +28,11 @@ import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.storage.ORecordCallback;
 import com.orientechnologies.orient.core.storage.OStorage;
+import com.orientechnologies.orient.core.storage.OStorage.LOCKING_STRATEGY;
 import java.util.List;
 
 public interface OTransaction {
@@ -85,30 +87,28 @@ public interface OTransaction {
   @Deprecated
   ORecord loadRecord(
       ORID iRid,
-      ORecord iRecord,
+      ORecordAbstract iRecord,
       String iFetchPlan,
       boolean ignoreCache,
       boolean loadTombstone,
-      final OStorage.LOCKING_STRATEGY iLockingStrategy);
+      final LOCKING_STRATEGY iLockingStrategy);
 
   @Deprecated
   ORecord loadRecord(
       ORID iRid,
-      ORecord iRecord,
+      ORecordAbstract iRecord,
       String iFetchPlan,
       boolean ignoreCache,
       boolean iUpdateCache,
       boolean loadTombstone,
-      final OStorage.LOCKING_STRATEGY iLockingStrategy);
+      final LOCKING_STRATEGY iLockingStrategy);
 
-  ORecord loadRecord(ORID iRid, ORecord iRecord, String iFetchPlan, boolean ignoreCache);
+  ORecord loadRecord(ORID iRid, ORecordAbstract iRecord, String iFetchPlan, boolean ignoreCache);
 
   boolean exists(ORID rid);
 
-  ORecord reloadRecord(ORID iRid, ORecord iRecord, String iFetchPlan, boolean ignoreCache);
-
   ORecord reloadRecord(
-      ORID iRid, ORecord iRecord, String iFetchPlan, boolean ignoreCache, boolean force);
+      ORID iRid, ORecordAbstract iRecord, String iFetchPlan, boolean ignoreCache, boolean force);
 
   ORecord loadRecordIfVersionIsNotLatest(
       ORID rid, int recordVersion, String fetchPlan, boolean ignoreCache)
@@ -198,9 +198,9 @@ public interface OTransaction {
    * @return the record saved.
    */
   ORecord saveRecord(
-      ORecord record,
+      ORecordAbstract record,
       String clusterName,
-      ODatabaseSession.OPERATION_MODE operationMode,
+      OPERATION_MODE operationMode,
       boolean forceCreate,
       ORecordCallback<? extends Number> createdCallback,
       ORecordCallback<Integer> updatedCallback);
@@ -211,7 +211,7 @@ public interface OTransaction {
    * @param record the record to delete.
    * @param mode the operation mode.
    */
-  void deleteRecord(ORecord record, ODatabaseSession.OPERATION_MODE mode);
+  void deleteRecord(ORecordAbstract record, OPERATION_MODE mode);
 
   /**
    * Resolves a record with the given RID in the context of this transaction.
@@ -220,7 +220,7 @@ public interface OTransaction {
    * @return the resolved record, or {@code null} if no record is found, or {@link
    *     OTransactionAbstract#DELETED_RECORD} if the record was deleted in this transaction.
    */
-  ORecord getRecord(ORID rid);
+  ORecordAbstract getRecord(ORID rid);
 
   /**
    * Adds the transactional index entry in this transaction.

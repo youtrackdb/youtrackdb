@@ -36,13 +36,13 @@ import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper.ODbRelatedCall;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.storage.OPhysicalPosition;
 import com.orientechnologies.orient.core.storage.ORawBuffer;
-import com.orientechnologies.orient.core.storage.OStorage;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -52,6 +52,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 public class ODatabaseCompare extends ODatabaseImpExpAbstract {
+
   private final ODatabaseDocumentInternal databaseOne;
   private final ODatabaseDocumentInternal databaseTwo;
 
@@ -150,7 +151,9 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
                   return null;
                 }
               };
-        } else listener.onMessage("\nMapping data were not found.");
+        } else {
+          listener.onMessage("\nMapping data were not found.");
+        }
       }
 
       compareClusters();
@@ -484,22 +487,26 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
         listener.onMessage(
             "\n- WARN: Index definition for index " + indexOne.getName() + " for DB2 is not null.");
         continue;
-      } else if (indexOne.getDefinition() != null && indexTwo.getDefinition() == null) {
-        ok = false;
-        listener.onMessage(
-            "\n- ERR: Index definition for index " + indexOne.getName() + " for DB2 is null.");
-        ++differences;
-        continue;
-      } else if (indexOne.getDefinition() != null
-          && !indexOne.getDefinition().equals(indexTwo.getDefinition())) {
-        ok = false;
-        listener.onMessage(
-            "\n- ERR: Index definitions for index " + indexOne.getName() + " are different.");
-        listener.onMessage("\n--- DB1: " + indexOne.getDefinition());
-        listener.onMessage("\n--- DB2: " + indexTwo.getDefinition());
-        listener.onMessage("\n");
-        ++differences;
-        continue;
+      } else {
+        if (indexOne.getDefinition() != null && indexTwo.getDefinition() == null) {
+          ok = false;
+          listener.onMessage(
+              "\n- ERR: Index definition for index " + indexOne.getName() + " for DB2 is null.");
+          ++differences;
+          continue;
+        } else {
+          if (indexOne.getDefinition() != null
+              && !indexOne.getDefinition().equals(indexTwo.getDefinition())) {
+            ok = false;
+            listener.onMessage(
+                "\n- ERR: Index definitions for index " + indexOne.getName() + " are different.");
+            listener.onMessage("\n--- DB1: " + indexOne.getDefinition());
+            listener.onMessage("\n--- DB2: " + indexTwo.getDefinition());
+            listener.onMessage("\n");
+            ++differences;
+            continue;
+          }
+        }
       }
 
       final long indexOneSize =
@@ -531,36 +538,40 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
                   + " for DB1 is null but for DB2 is not.");
           listener.onMessage("\n");
           ++differences;
-        } else if (metadataOne != null && metadataTwo == null) {
-          ok = false;
-          listener.onMessage(
-              "\n- ERR: Metadata for index "
-                  + indexOne.getName()
-                  + " for DB1 is not null but for DB2 is null.");
-          listener.onMessage("\n");
-          ++differences;
-        } else if (metadataOne != null
-            && !ODocumentHelper.hasSameContentOf(
-                metadataOne, databaseOne, metadataTwo, databaseTwo, ridMapper)) {
-          ok = false;
-          listener.onMessage(
-              "\n- ERR: Metadata for index "
-                  + indexOne.getName()
-                  + " for DB1 and for DB2 are different.");
-          makeDbCall(
-              databaseOne,
-              database -> {
-                listener.onMessage("\n--- M1: " + metadataOne);
-                return null;
-              });
-          makeDbCall(
-              databaseTwo,
-              database -> {
-                listener.onMessage("\n--- M2: " + metadataTwo);
-                return null;
-              });
-          listener.onMessage("\n");
-          ++differences;
+        } else {
+          if (metadataOne != null && metadataTwo == null) {
+            ok = false;
+            listener.onMessage(
+                "\n- ERR: Metadata for index "
+                    + indexOne.getName()
+                    + " for DB1 is not null but for DB2 is null.");
+            listener.onMessage("\n");
+            ++differences;
+          } else {
+            if (metadataOne != null
+                && !ODocumentHelper.hasSameContentOf(
+                    metadataOne, databaseOne, metadataTwo, databaseTwo, ridMapper)) {
+              ok = false;
+              listener.onMessage(
+                  "\n- ERR: Metadata for index "
+                      + indexOne.getName()
+                      + " for DB1 and for DB2 are different.");
+              makeDbCall(
+                  databaseOne,
+                  database -> {
+                    listener.onMessage("\n--- M1: " + metadataOne);
+                    return null;
+                  });
+              makeDbCall(
+                  databaseTwo,
+                  database -> {
+                    listener.onMessage("\n--- M2: " + metadataTwo);
+                    return null;
+                  });
+              listener.onMessage("\n");
+              ++differences;
+            }
+          }
         }
       }
 
@@ -592,7 +603,9 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
       }
     }
 
-    if (ok) listener.onMessage("OK");
+    if (ok) {
+      listener.onMessage("OK");
+    }
   }
 
   private static int compareIndexStreams(
@@ -685,9 +698,15 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
     for (final String clusterName : clusterNames1) {
       // CHECK IF THE CLUSTER IS INCLUDED
       if (includeClusters != null) {
-        if (!includeClusters.contains(clusterName)) continue;
-      } else if (excludeClusters != null) {
-        if (excludeClusters.contains(clusterName)) continue;
+        if (!includeClusters.contains(clusterName)) {
+          continue;
+        }
+      } else {
+        if (excludeClusters != null) {
+          if (excludeClusters.contains(clusterName)) {
+            continue;
+          }
+        }
       }
 
       ok = true;
@@ -740,7 +759,9 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
         ok = false;
       }
 
-      if (ok) listener.onMessage("OK");
+      if (ok) {
+        listener.onMessage("OK");
+      }
     }
 
     listener.onMessage("\n\nShallow analysis done.");
@@ -756,40 +777,24 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
     for (final String clusterName : clusterNames1) {
       // CHECK IF THE CLUSTER IS INCLUDED
       if (includeClusters != null) {
-        if (!includeClusters.contains(clusterName)) continue;
-      } else if (excludeClusters != null) {
-        if (excludeClusters.contains(clusterName)) continue;
+        if (!includeClusters.contains(clusterName)) {
+          continue;
+        }
+      } else {
+        if (excludeClusters != null) {
+          if (excludeClusters.contains(clusterName)) {
+            continue;
+          }
+        }
       }
 
       final int clusterId1 =
           makeDbCall(databaseOne, database -> database.getClusterIdByName(clusterName));
 
-      final long[] db1Range =
-          makeDbCall(databaseOne, database -> database.getClusterDataRange(clusterId1));
-      final long[] db2Range =
-          makeDbCall(databaseTwo, database -> database.getClusterDataRange(clusterId1));
-
-      final long db1Max = db1Range[1];
-      final long db2Max = db2Range[1];
-
-      databaseOne.activateOnCurrentThread();
-      @SuppressWarnings("ObjectAllocationInLoop")
-      final ODocument doc1 = new ODocument();
-      databaseTwo.activateOnCurrentThread();
-      @SuppressWarnings("ObjectAllocationInLoop")
-      final ODocument doc2 = new ODocument();
-
       @SuppressWarnings("ObjectAllocationInLoop")
       final ORecordId rid1 = new ORecordId(clusterId1);
 
-      // TODO why this maximums can be different?
-      final long clusterMax = Math.max(db1Max, db2Max);
-
-      final OStorage storage;
-
-      ODatabaseDocumentInternal selectedDatabase;
-      if (clusterMax == db1Max) selectedDatabase = databaseOne;
-      else selectedDatabase = databaseTwo;
+      ODatabaseDocumentInternal selectedDatabase = databaseOne;
 
       OPhysicalPosition[] physicalPositions =
           makeDbCall(
@@ -803,6 +808,7 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
           makeDbCall(databaseOne, database -> database.getStorageInfo().getConfiguration());
       OStorageConfiguration configuration2 =
           makeDbCall(databaseTwo, database -> database.getStorageInfo().getConfiguration());
+
       String storageType1 = makeDbCall(databaseOne, database -> database.getStorage().getType());
       String storageType2 = makeDbCall(databaseTwo, database -> database.getStorage().getType());
 
@@ -812,17 +818,28 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
           try {
             recordsCounter++;
 
+            databaseOne.activateOnCurrentThread();
+            @SuppressWarnings("ObjectAllocationInLoop")
+            final ODocument doc1 = new ODocument();
+            databaseTwo.activateOnCurrentThread();
+            @SuppressWarnings("ObjectAllocationInLoop")
+            final ODocument doc2 = new ODocument();
+
             final long position = physicalPosition.clusterPosition;
             rid1.setClusterPosition(position);
 
             final ORecordId rid2;
-            if (ridMapper == null) rid2 = rid1;
-            else {
+            if (ridMapper == null) {
+              rid2 = rid1;
+            } else {
               final ORID newRid = ridMapper.map(rid1);
-              if (newRid == null) rid2 = rid1;
-              else
-                //noinspection ObjectAllocationInLoop
+              if (newRid == null) {
+                rid2 = rid1;
+              } else
+              //noinspection ObjectAllocationInLoop
+              {
                 rid2 = new ORecordId(newRid);
+              }
             }
 
             if (skipRecord(
@@ -850,151 +867,163 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
             //noinspection StatementWithEmptyBody
             if (buffer1 == null && buffer2 == null) {
               // BOTH RECORD NULL, OK
-            } else if (buffer1 == null) {
-              // REC1 NULL
-              listener.onMessage("\n- ERR: RID=" + clusterId1 + ":" + position + " is null in DB1");
-              ++differences;
-            } else if (buffer2 == null) {
-              // REC2 NULL
-              listener.onMessage("\n- ERR: RID=" + clusterId1 + ":" + position + " is null in DB2");
-              ++differences;
             } else {
-              if (buffer1.recordType != buffer2.recordType) {
+              if (buffer1 == null) {
+                // REC1 NULL
                 listener.onMessage(
-                    "\n- ERR: RID="
-                        + clusterId1
-                        + ":"
-                        + position
-                        + " recordType is different: "
-                        + (char) buffer1.recordType
-                        + " <-> "
-                        + (char) buffer2.recordType);
+                    "\n- ERR: RID=" + clusterId1 + ":" + position + " is null in DB1");
                 ++differences;
-              }
-
-              //noinspection StatementWithEmptyBody
-              if (buffer1.buffer == null && buffer2.buffer == null) {
-                // Both null so both equals
-              } else if (buffer1.buffer == null) {
-                listener.onMessage(
-                    "\n- ERR: RID="
-                        + clusterId1
-                        + ":"
-                        + position
-                        + " content is different: null <-> "
-                        + buffer2.buffer.length);
-                ++differences;
-
-              } else if (buffer2.buffer == null) {
-                listener.onMessage(
-                    "\n- ERR: RID="
-                        + clusterId1
-                        + ":"
-                        + position
-                        + " content is different: "
-                        + buffer1.buffer.length
-                        + " <-> null");
-                ++differences;
-
               } else {
-                if (buffer1.recordType == ODocument.RECORD_TYPE) {
-                  // DOCUMENT: TRY TO INSTANTIATE AND COMPARE
-
-                  makeDbCall(
-                      databaseOne,
-                      database -> {
-                        doc1.reset();
-                        doc1.fromStream(buffer1.buffer);
-                        return null;
-                      });
-
-                  makeDbCall(
-                      databaseTwo,
-                      database -> {
-                        doc2.reset();
-                        doc2.fromStream(buffer2.buffer);
-                        return null;
-                      });
-
-                  if (rid1.toString().equals(configuration1.getSchemaRecordId())
-                      && rid1.toString().equals(configuration2.getSchemaRecordId())) {
-                    makeDbCall(
-                        databaseOne,
-                        database -> {
-                          convertSchemaDoc(doc1);
-                          return null;
-                        });
-
-                    makeDbCall(
-                        databaseTwo,
-                        database -> {
-                          convertSchemaDoc(doc2);
-                          return null;
-                        });
-                  }
-
-                  if (!ODocumentHelper.hasSameContentOf(
-                      doc1, databaseOne, doc2, databaseTwo, ridMapper)) {
+                if (buffer2 == null) {
+                  // REC2 NULL
+                  listener.onMessage(
+                      "\n- ERR: RID=" + clusterId1 + ":" + position + " is null in DB2");
+                  ++differences;
+                } else {
+                  if (buffer1.recordType != buffer2.recordType) {
                     listener.onMessage(
                         "\n- ERR: RID="
                             + clusterId1
                             + ":"
                             + position
-                            + " document content is different");
-                    //noinspection ObjectAllocationInLoop
-                    listener.onMessage("\n--- REC1: " + new String(buffer1.buffer));
-                    //noinspection ObjectAllocationInLoop
-                    listener.onMessage("\n--- REC2: " + new String(buffer2.buffer));
-                    listener.onMessage("\n");
+                            + " recordType is different: "
+                            + (char) buffer1.recordType
+                            + " <-> "
+                            + (char) buffer2.recordType);
                     ++differences;
                   }
-                } else {
-                  if (buffer1.buffer.length != buffer2.buffer.length) {
-                    // CHECK IF THE TRIMMED SIZE IS THE SAME
-                    @SuppressWarnings("ObjectAllocationInLoop")
-                    final String rec1 = new String(buffer1.buffer).trim();
-                    @SuppressWarnings("ObjectAllocationInLoop")
-                    final String rec2 = new String(buffer2.buffer).trim();
 
-                    if (rec1.length() != rec2.length()) {
+                  //noinspection StatementWithEmptyBody
+                  if (buffer1.buffer == null && buffer2.buffer == null) {
+                    // Both null so both equals
+                  } else {
+                    if (buffer1.buffer == null) {
                       listener.onMessage(
                           "\n- ERR: RID="
                               + clusterId1
                               + ":"
                               + position
-                              + " content length is different: "
-                              + buffer1.buffer.length
-                              + " <-> "
+                              + " content is different: null <-> "
                               + buffer2.buffer.length);
-
-                      if (buffer1.recordType == ODocument.RECORD_TYPE)
-                        listener.onMessage("\n--- REC1: " + rec1);
-                      if (buffer2.recordType == ODocument.RECORD_TYPE)
-                        listener.onMessage("\n--- REC2: " + rec2);
-                      listener.onMessage("\n");
-
                       ++differences;
-                    }
-                  } else {
-                    // CHECK BYTE PER BYTE
-                    for (int b = 0; b < buffer1.buffer.length; ++b) {
-                      if (buffer1.buffer[b] != buffer2.buffer[b]) {
+
+                    } else {
+                      if (buffer2.buffer == null) {
                         listener.onMessage(
                             "\n- ERR: RID="
                                 + clusterId1
                                 + ":"
                                 + position
-                                + " content is different at byte #"
-                                + b
-                                + ": "
-                                + buffer1.buffer[b]
-                                + " <-> "
-                                + buffer2.buffer[b]);
-                        listener.onMessage("\n--- REC1: " + new String(buffer1.buffer));
-                        listener.onMessage("\n--- REC2: " + new String(buffer2.buffer));
-                        listener.onMessage("\n");
+                                + " content is different: "
+                                + buffer1.buffer.length
+                                + " <-> null");
                         ++differences;
-                        break;
+
+                      } else {
+                        if (buffer1.recordType == ODocument.RECORD_TYPE) {
+                          // DOCUMENT: TRY TO INSTANTIATE AND COMPARE
+
+                          makeDbCall(
+                              databaseOne,
+                              database -> {
+                                ORecordInternal.unsetDirty(doc1);
+                                doc1.fromStream(buffer1.buffer);
+                                return null;
+                              });
+
+                          makeDbCall(
+                              databaseTwo,
+                              database -> {
+                                ORecordInternal.unsetDirty(doc2);
+                                doc2.fromStream(buffer2.buffer);
+                                return null;
+                              });
+
+                          if (rid1.toString().equals(configuration1.getSchemaRecordId())
+                              && rid1.toString().equals(configuration2.getSchemaRecordId())) {
+                            makeDbCall(
+                                databaseOne,
+                                database -> {
+                                  convertSchemaDoc(doc1);
+                                  return null;
+                                });
+
+                            makeDbCall(
+                                databaseTwo,
+                                database -> {
+                                  convertSchemaDoc(doc2);
+                                  return null;
+                                });
+                          }
+
+                          if (!ODocumentHelper.hasSameContentOf(
+                              doc1, databaseOne, doc2, databaseTwo, ridMapper)) {
+                            listener.onMessage(
+                                "\n- ERR: RID="
+                                    + clusterId1
+                                    + ":"
+                                    + position
+                                    + " document content is different");
+                            //noinspection ObjectAllocationInLoop
+                            listener.onMessage("\n--- REC1: " + new String(buffer1.buffer));
+                            //noinspection ObjectAllocationInLoop
+                            listener.onMessage("\n--- REC2: " + new String(buffer2.buffer));
+                            listener.onMessage("\n");
+                            ++differences;
+                          }
+                        } else {
+                          if (buffer1.buffer.length != buffer2.buffer.length) {
+                            // CHECK IF THE TRIMMED SIZE IS THE SAME
+                            @SuppressWarnings("ObjectAllocationInLoop")
+                            final String rec1 = new String(buffer1.buffer).trim();
+                            @SuppressWarnings("ObjectAllocationInLoop")
+                            final String rec2 = new String(buffer2.buffer).trim();
+
+                            if (rec1.length() != rec2.length()) {
+                              listener.onMessage(
+                                  "\n- ERR: RID="
+                                      + clusterId1
+                                      + ":"
+                                      + position
+                                      + " content length is different: "
+                                      + buffer1.buffer.length
+                                      + " <-> "
+                                      + buffer2.buffer.length);
+
+                              if (buffer1.recordType == ODocument.RECORD_TYPE) {
+                                listener.onMessage("\n--- REC1: " + rec1);
+                              }
+                              if (buffer2.recordType == ODocument.RECORD_TYPE) {
+                                listener.onMessage("\n--- REC2: " + rec2);
+                              }
+                              listener.onMessage("\n");
+
+                              ++differences;
+                            }
+                          } else {
+                            // CHECK BYTE PER BYTE
+                            for (int b = 0; b < buffer1.buffer.length; ++b) {
+                              if (buffer1.buffer[b] != buffer2.buffer[b]) {
+                                listener.onMessage(
+                                    "\n- ERR: RID="
+                                        + clusterId1
+                                        + ":"
+                                        + position
+                                        + " content is different at byte #"
+                                        + b
+                                        + ": "
+                                        + buffer1.buffer[b]
+                                        + " <-> "
+                                        + buffer2.buffer[b]);
+                                listener.onMessage("\n--- REC1: " + new String(buffer1.buffer));
+                                listener.onMessage("\n--- REC2: " + new String(buffer2.buffer));
+                                listener.onMessage("\n");
+                                ++differences;
+                                break;
+                              }
+                            }
+                          }
+                        }
                       }
                     }
                   }
@@ -1015,13 +1044,14 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
                     database
                         .getStorage()
                         .higherPhysicalPositions(clusterId1, curPosition[curPosition.length - 1]));
-        if (recordsCounter % 10000 == 0)
+        if (recordsCounter % 10000 == 0) {
           listener.onMessage(
               "\n"
                   + recordsCounter
                   + " records were processed for cluster "
                   + clusterName
                   + " ...");
+        }
       }
 
       listener.onMessage(
@@ -1041,9 +1071,13 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
       String storageType1,
       String storageType2) {
     if (rid1.equals(new ORecordId(configuration1.getIndexMgrRecordId()))
-        || rid2.equals(new ORecordId(configuration2.getIndexMgrRecordId()))) return true;
+        || rid2.equals(new ORecordId(configuration2.getIndexMgrRecordId()))) {
+      return true;
+    }
     if (rid1.equals(new ORecordId(configuration1.getSchemaRecordId()))
-        || rid2.equals(new ORecordId(configuration2.getSchemaRecordId()))) return true;
+        || rid2.equals(new ORecordId(configuration2.getSchemaRecordId()))) {
+      return true;
+    }
     if ((rid1.getClusterId() == 0 && rid1.getClusterPosition() == 0)
         || (rid2.getClusterId() == 0 && rid2.getClusterPosition() == 0)) {
       // Skip the compare of raw structure if the storage type are different, due the fact
@@ -1055,10 +1089,6 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
 
   public void setCompareIndexMetadata(boolean compareIndexMetadata) {
     this.compareIndexMetadata = compareIndexMetadata;
-  }
-
-  public boolean isCompareEntriesForAutomaticIndexes() {
-    return compareEntriesForAutomaticIndexes;
   }
 
   public void setCompareEntriesForAutomaticIndexes(boolean compareEntriesForAutomaticIndexes) {
@@ -1076,20 +1106,5 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
         classDoc.setFieldType("properties", OType.EMBEDDEDSET);
       }
     }
-  }
-
-  private void reportIndexDiff(
-      OIndex indexOne, Object key, final Object indexOneValue, final Object indexTwoValue) {
-    listener.onMessage(
-        "\n- ERR: Entry values for key '"
-            + key
-            + "' are different for index "
-            + indexOne.getName());
-    listener.onMessage(
-        "\n--- DB1: " + makeDbCall(databaseOne, database -> indexOneValue.toString()));
-    listener.onMessage(
-        "\n--- DB2: " + makeDbCall(databaseOne, database -> indexTwoValue.toString()));
-    listener.onMessage("\n");
-    ++differences;
   }
 }

@@ -220,11 +220,13 @@ public abstract class OSequence {
 
   private int maxRetry = DEF_MAX_RETRY;
 
-  protected OSequence(ODocument iDocument) {
-    Objects.requireNonNull(iDocument);
-    iDocument.reload();
+  protected OSequence(ODocument document) {
+    if (!document.isDirty()) {
+      document.reload();
+    }
 
-    docRid = iDocument.getIdentity();
+    Objects.requireNonNull(document);
+    docRid = document.getIdentity();
   }
 
   protected OSequence(CreateParams params, @Nonnull String name) {
@@ -259,7 +261,6 @@ public abstract class OSequence {
 
   public boolean updateParams(CreateParams params) throws ODatabaseException {
     var doc = getDatabase().<ODocument>load(docRid, null, true);
-    doc.reload();
     var result = updateParams(doc, params, false);
     doc.save();
     return result;
@@ -452,7 +453,7 @@ public abstract class OSequence {
                   updateLock.lock();
                   try {
                     db.begin();
-                    var doc = db.<ODocument>load(docRid, null, true);
+                    var doc = docRid.<ODocument>getRecord();
                     var result = callable.apply(db, doc);
                     doc.save();
                     db.commit();
@@ -500,7 +501,7 @@ public abstract class OSequence {
                 updateLock.lock();
                 try {
                   db.begin();
-                  var doc = db.<ODocument>load(docRid, null, true);
+                  var doc = docRid.<ODocument>getRecord();
                   var result = callable.apply(db, doc);
                   doc.save();
                   db.commit();

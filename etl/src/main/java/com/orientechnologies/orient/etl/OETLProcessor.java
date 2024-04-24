@@ -207,7 +207,7 @@ public class OETLProcessor implements AutoCloseable {
                           new OETLPipelineWorker(
                               queue,
                               new OETLPipeline(
-                                  this, transformers, loader, logLevel, maxRetries, haltOnError)),
+                                  this, transformers, loader, maxRetries, haltOnError)),
                           executor))
               .collect(Collectors.toList());
 

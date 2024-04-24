@@ -44,7 +44,7 @@ public class OTrackedList<T> extends ArrayList<T>
   private final boolean embeddedCollection;
   private boolean dirty = false;
   private boolean transactionDirty = false;
-  private OSimpleMultiValueTracker<Integer, T> tracker = new OSimpleMultiValueTracker<>(this);
+  private final OSimpleMultiValueTracker<Integer, T> tracker = new OSimpleMultiValueTracker<>(this);
 
   public OTrackedList(
       final ORecordElement iRecord,

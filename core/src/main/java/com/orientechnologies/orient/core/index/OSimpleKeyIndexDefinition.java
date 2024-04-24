@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nonnull;
 
 public class OSimpleKeyIndexDefinition extends OAbstractIndexDefinition {
   private OType[] keyTypes;
@@ -106,14 +107,14 @@ public class OSimpleKeyIndexDefinition extends OAbstractIndexDefinition {
   }
 
   @Override
-  public ODocument toStream() {
-    serializeToStream();
+  public @Nonnull ODocument toStream(@Nonnull ODocument document) {
+    serializeToStream(document);
     return document;
   }
 
   @Override
-  protected void serializeToStream() {
-    super.serializeToStream();
+  protected void serializeToStream(ODocument document) {
+    super.serializeToStream(document);
 
     final List<String> keyTypeNames = new ArrayList<>(keyTypes.length);
 
@@ -131,14 +132,13 @@ public class OSimpleKeyIndexDefinition extends OAbstractIndexDefinition {
   }
 
   @Override
-  public void fromStream(ODocument document) {
-    this.document = document;
-    serializeFromStream();
+  public void fromStream(@Nonnull ODocument document) {
+    serializeFromStream(document);
   }
 
   @Override
-  protected void serializeFromStream() {
-    super.serializeFromStream();
+  protected void serializeFromStream(ODocument document) {
+    super.serializeFromStream(document);
 
     final List<String> keyTypeNames = document.field("keyTypes");
     keyTypes = new OType[keyTypeNames.size()];

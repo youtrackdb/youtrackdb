@@ -23,6 +23,7 @@ package com.orientechnologies.orient.core.db;
 import com.orientechnologies.orient.core.enterprise.OEnterpriseEndpoint;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.OToken;
+import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.OStorageInfo;
 import java.util.*;
@@ -154,4 +155,6 @@ public interface ODatabaseInternal<T> extends ODatabase<T> {
   default TimerTask createInterruptTimerTask() {
     return null;
   }
+
+  void triggerRecordDeletionListeners(ORecord record);
 }

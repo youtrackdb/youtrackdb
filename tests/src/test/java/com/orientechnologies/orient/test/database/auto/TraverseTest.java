@@ -429,16 +429,14 @@ public class TraverseTest extends DocumentDBBaseTest {
   @Test
   public void traverseAndCheckDepthInSelect() {
     List<ODocument> result1 =
-        database
-            .command(
-                new OSQLSynchQuery<ODocument>(
-                    "select *, $depth as d from ( traverse out_married  from "
-                        + tomCruise.getIdentity()
-                        + " while $depth < 2)"))
-            .execute();
+        executeQuery(
+            "select *, $depth as d from ( traverse out_married  from "
+                + tomCruise.getIdentity()
+                + " while $depth < 2)");
     Assert.assertEquals(result1.size(), 2);
+
     boolean found = false;
-    Integer i = 0;
+    int i = 0;
     for (ODocument doc : result1) {
       Integer depth = doc.field("d");
       Assert.assertEquals(depth, i++);

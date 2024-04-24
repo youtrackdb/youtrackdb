@@ -51,51 +51,6 @@ public class ClassIteratorTest extends BaseMemoryDatabase {
   }
 
   @Test
-  public void testIteratorShouldReuseRecordWithoutNPE() {
-
-    // Use class iterator.
-    // browseClass() returns all documents in RecordID order
-    // (including subclasses, which shouldn't exist for Person)
-    final ORecordIteratorClass<ODocument> personIter = db.browseClass("Person");
-
-    // Setting this to true causes the bug. Setting to false it works fine.
-    personIter.setReuseSameRecord(true);
-
-    int docNum = 0;
-    // Explicit iterator loop.
-    while (personIter.hasNext()) {
-      final ODocument personDoc = personIter.next();
-      Assert.assertTrue(names.contains(personDoc.field("First")));
-      Assert.assertTrue(names.remove(personDoc.field("First")));
-      System.out.printf("Doc %d: %s\n", docNum++, personDoc.toString());
-    }
-
-    Assert.assertTrue(names.isEmpty());
-  }
-
-  @Test
-  public void testIteratorShouldReuseRecordWithoutNPEUsingForEach() throws Exception {
-    // Use class iterator.
-    // browseClass() returns all documents in RecordID order
-    // (including subclasses, which shouldn't exist for Person)
-    final ORecordIteratorClass<ODocument> personIter = db.browseClass("Person");
-
-    // Setting this to true causes the bug. Setting to false it works fine.
-    personIter.setReuseSameRecord(true);
-
-    // Shorthand iterator loop.
-    int docNum = 0;
-    for (final ODocument personDoc : personIter) {
-      Assert.assertTrue(names.contains(personDoc.field("First")));
-      Assert.assertTrue(names.remove(personDoc.field("First")));
-
-      System.out.printf("Doc %d: %s\n", docNum++, personDoc.toString());
-    }
-
-    Assert.assertTrue(names.isEmpty());
-  }
-
-  @Test
   public void testDescendentOrderIteratorWithMultipleClusters() throws Exception {
     final OClass personClass = db.getMetadata().getSchema().getClass("Person");
 

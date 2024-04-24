@@ -27,7 +27,6 @@ import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.etl.loader.OETLLoader;
 import com.orientechnologies.orient.etl.transformer.OETLTransformer;
 import java.util.List;
-import java.util.logging.Level;
 
 /**
  * ETL pipeline: sequence of OETLTransformer and a OETLLoader.
@@ -35,27 +34,25 @@ import java.util.logging.Level;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com) (l.garulli-at-orientdb.com)
  */
 public class OETLPipeline {
+
   protected final OETLProcessor processor;
   protected final List<OETLTransformer> transformers;
   protected final OETLLoader loader;
   protected final OCommandContext context;
-  protected final Level logLevel;
-  protected final int maxRetries;
-  protected boolean haltOnError;
+  private final int maxRetries;
+  private final boolean haltOnError;
 
   protected ODatabasePool pool;
 
-  public OETLPipeline(
+  OETLPipeline(
       final OETLProcessor processor,
       final List<OETLTransformer> transformers,
       final OETLLoader loader,
-      final Level logLevel,
       final int maxRetries,
       final boolean haltOnError) {
     this.processor = processor;
     this.transformers = transformers;
     this.loader = loader;
-    this.logLevel = logLevel;
     this.maxRetries = maxRetries;
     this.haltOnError = haltOnError;
 
@@ -81,7 +78,9 @@ public class OETLPipeline {
   }
 
   protected ODatabaseDocument acquire() {
-    if (pool == null) return null;
+    if (pool == null) {
+      return null;
+    }
     ODatabaseDocument db = pool.acquire();
     db.activateOnCurrentThread();
     return db;
@@ -111,7 +110,10 @@ public class OETLPipeline {
             loader.load(db, current, context);
           }
 
-          db.commit();
+          if (db.getTransaction().isActive()) {
+            db.commit();
+          }
+
           return current;
         } catch (ONeedRetryException e) {
           loader.rollback(db);

@@ -27,6 +27,7 @@ import com.orientechnologies.orient.core.sql.OCommandExecutorSQLCreateIndex;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nonnull;
 
 /** Index implementation bound to one schema class property. */
 public class OPropertyIndexDefinition extends OAbstractIndexDefinition {
@@ -126,19 +127,18 @@ public class OPropertyIndexDefinition extends OAbstractIndexDefinition {
     return new OType[] {keyType};
   }
 
-  public void fromStream(ODocument document) {
-    this.document = document;
-    serializeFromStream();
+  public void fromStream(@Nonnull ODocument document) {
+    serializeFromStream(document);
   }
 
   @Override
-  public final ODocument toStream() {
-    serializeToStream();
+  public final @Nonnull ODocument toStream(@Nonnull ODocument document) {
+    serializeToStream(document);
     return document;
   }
 
-  protected void serializeToStream() {
-    super.serializeToStream();
+  protected void serializeToStream(ODocument document) {
+    super.serializeToStream(document);
 
     document.setPropertyWithoutValidation("className", className);
     document.setPropertyWithoutValidation("field", field);
@@ -147,8 +147,8 @@ public class OPropertyIndexDefinition extends OAbstractIndexDefinition {
     document.setPropertyWithoutValidation("nullValuesIgnored", isNullValuesIgnored());
   }
 
-  protected void serializeFromStream() {
-    super.serializeFromStream();
+  protected void serializeFromStream(ODocument document) {
+    super.serializeFromStream(document);
 
     className = document.field("className");
     field = document.field("field");

@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.db.record;
 
 import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.storage.ORecordCallback;
 import java.util.Locale;
 
@@ -30,8 +30,6 @@ import java.util.Locale;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class ORecordOperation implements Comparable {
-
-  private static final long serialVersionUID = 1L;
 
   public static final byte LOADED = 0;
   public static final byte UPDATED = 1;
@@ -82,7 +80,10 @@ public class ORecordOperation implements Comparable {
     return record;
   }
 
-  public ORecord getRecord() {
+  public ORecordAbstract getRecord() {
+    if (record instanceof ORecordAbstract recordAbstract) {
+      return recordAbstract;
+    }
     return record != null ? record.getRecord() : null;
   }
 
