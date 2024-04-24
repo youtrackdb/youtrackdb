@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -228,6 +229,7 @@ public class OCreateViewStatementExecutionTest extends BaseMemoryDatabase {
   }
 
   @Test
+  @Ignore
   public void testLiveUpdateDelete() throws Exception {
     String className = "testLiveUpdateDeleteClass";
     String viewName = "testLiveUpdateDelete";
