@@ -38,4 +38,24 @@ public class BaseMemoryDatabase {
     context.drop(databaseName);
     context.close();
   }
+
+  public static void assertWithTimeout(ODatabaseSession session, Runnable runnable)
+      throws Exception {
+    for (int i = 0; i < 300; i++) {
+      try {
+        session.begin();
+        runnable.run();
+        session.commit();
+        return;
+      } catch (AssertionError e) {
+        session.rollback();
+        Thread.sleep(100);
+      } catch (Exception e) {
+        session.rollback();
+        throw e;
+      }
+    }
+
+    runnable.run();
+  }
 }

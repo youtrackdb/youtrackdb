@@ -13,7 +13,6 @@ import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.OVertex;
-import java.util.concurrent.CountDownLatch;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -72,22 +71,24 @@ public class TestGraphElementDelete {
     OEdge edge = vertex.addEdge(vertex1, "E");
     database.save(edge);
 
-    var saveLatch = new CountDownLatch(1);
-    new Thread(
+    database.begin();
+    OElement instance = database.load(edge.getIdentity());
+
+    var th =
+        new Thread(
             () -> {
               try (var database =
                   orientDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
-                OElement instance = database.load(edge.getIdentity());
-                instance.setProperty("one", "two");
-                database.save(instance);
-                saveLatch.countDown();
+                database.begin();
+                OElement element = database.load(edge.getIdentity());
+                element.setProperty("one", "two");
+                database.save(element);
+                database.commit();
               }
-            })
-        .start();
+            });
+    th.start();
+    th.join();
 
-    database.begin();
-    OElement instance = database.load(edge.getIdentity());
-    saveLatch.await();
     try {
       database.delete(instance);
       database.commit();

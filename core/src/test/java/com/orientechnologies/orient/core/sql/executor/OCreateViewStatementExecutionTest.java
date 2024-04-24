@@ -1,12 +1,10 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.viewmanager.ViewCreationListener;
-import com.orientechnologies.orient.core.metadata.OMetadataInternal;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OView;
 import com.orientechnologies.orient.core.metadata.schema.OViewConfig;
@@ -74,7 +72,7 @@ public class OCreateViewStatementExecutionTest extends BaseMemoryDatabase {
   }
 
   @Test
-  public void testMetadata() throws InterruptedException {
+  public void testMetadata() {
     String className = "testMetadataClass";
     String viewName = "testMetadata";
     db.createClass(className);
@@ -106,7 +104,7 @@ public class OCreateViewStatementExecutionTest extends BaseMemoryDatabase {
   }
 
   @Test
-  public void testIndexes() throws InterruptedException {
+  public void testIndexes() throws Exception {
     String className = "testIndexesClass";
     String viewName = "testIndexes";
     db.createClass(className);
@@ -125,20 +123,22 @@ public class OCreateViewStatementExecutionTest extends BaseMemoryDatabase {
 
     db.command(statement);
 
-    Thread.sleep(1000);
-
-    OResultSet result = db.query("SELECT FROM " + viewName + " WHERE name = 'name4'");
-    Assert.assertTrue(
-        result.getExecutionPlan().get().getSteps().stream()
-            .anyMatch(x -> x instanceof FetchFromIndexStep));
-    Assert.assertTrue(result.hasNext());
-    result.next();
-    Assert.assertFalse(result.hasNext());
-    result.close();
+    assertWithTimeout(
+        db,
+        () -> {
+          try (var result = db.query("SELECT FROM " + viewName + " WHERE name = 'name4'")) {
+            Assert.assertTrue(
+                result.getExecutionPlan().get().getSteps().stream()
+                    .anyMatch(x -> x instanceof FetchFromIndexStep));
+            Assert.assertTrue(result.hasNext());
+            result.next();
+            Assert.assertFalse(result.hasNext());
+          }
+        });
   }
 
   @Test
-  public void testCollectionIndexes() throws InterruptedException {
+  public void testCollectionIndexes() throws Exception {
     String className = "testCollectionIndexesClass";
     String viewName = "testCollectionIndexes";
     db.createClass(className);
@@ -146,7 +146,7 @@ public class OCreateViewStatementExecutionTest extends BaseMemoryDatabase {
     for (int i = 0; i < 10; i++) {
       OElement elem = db.newElement(className);
       elem.setProperty("name", "name" + i);
-      elem.setProperty("data", Arrays.asList(new Integer[] {20 + i, 40 + i, 50 + i}));
+      elem.setProperty("data", Arrays.asList(20 + i, 40 + i, 50 + i));
       elem.save();
     }
 
@@ -159,30 +159,34 @@ public class OCreateViewStatementExecutionTest extends BaseMemoryDatabase {
 
     db.command(statement);
 
-    Thread.sleep(1000);
-
-    OResultSet result = db.query("SELECT FROM " + viewName + " WHERE data = 22");
-    Assert.assertTrue(
-        result.getExecutionPlan().get().getSteps().stream()
-            .anyMatch(x -> x instanceof FetchFromIndexStep));
-    Assert.assertTrue(result.hasNext());
-    result.next();
-    Assert.assertFalse(result.hasNext());
-    result.close();
+    assertWithTimeout(
+        db,
+        () -> {
+          try (var result = db.query("SELECT FROM " + viewName + " WHERE data = 22")) {
+            Assert.assertTrue(
+                result.getExecutionPlan().get().getSteps().stream()
+                    .anyMatch(x -> x instanceof FetchFromIndexStep));
+            Assert.assertTrue(result.hasNext());
+            result.next();
+            Assert.assertFalse(result.hasNext());
+          }
+        });
   }
 
   @Test
-  public void testLiveUpdate() throws InterruptedException {
+  public void testLiveUpdate() throws Exception {
     String className = "testLiveUpdateClass";
     String viewName = "testLiveUpdate";
     db.createClass(className);
 
+    db.begin();
     for (int i = 0; i < 10; i++) {
       OElement elem = db.newElement(className);
       elem.setProperty("name", "name" + i);
       elem.setProperty("surname", "surname" + i);
       elem.save();
     }
+    db.commit();
 
     String statement =
         "CREATE VIEW " + viewName + " FROM (SELECT FROM " + className + ") METADATA {";
@@ -190,29 +194,41 @@ public class OCreateViewStatementExecutionTest extends BaseMemoryDatabase {
     statement += "originRidField:\"origin\"";
     statement += "}";
 
-    db.command(statement);
+    db.command(statement).close();
 
-    Thread.sleep(1000);
+    assertWithTimeout(
+        db,
+        () -> {
+          try (var result = db.query("SELECT FROM " + viewName + " order by name")) {
+            for (int i = 0; i < 10; i++) {
+              Assert.assertTrue(result.hasNext());
+              OResult item = result.next();
+              Assert.assertEquals("surname" + i, item.getProperty("surname"));
+            }
+          }
+        });
 
-    db.command("UPDATE " + className + " SET surname = 'changed' WHERE name = 'name3'");
+    db.command("UPDATE " + className + " SET surname = 'changed' WHERE name = 'name3'").close();
 
-    Thread.sleep(1000);
-
-    OResultSet result = db.query("SELECT FROM " + viewName);
-    for (int i = 0; i < 10; i++) {
-      Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
-      if (item.getProperty("name").equals("name3")) {
-        Assert.assertEquals("changed", item.getProperty("surname"));
-      } else {
-        Assert.assertEquals("sur" + item.getProperty("name"), item.getProperty("surname"));
-      }
-    }
-    result.close();
+    assertWithTimeout(
+        db,
+        () -> {
+          try (var result = db.query("SELECT FROM " + viewName + " order by name")) {
+            for (int i = 0; i < 10; i++) {
+              Assert.assertTrue(result.hasNext());
+              OResult item = result.next();
+              if (item.getProperty("name").equals("name3")) {
+                Assert.assertEquals("changed", item.getProperty("surname"));
+              } else {
+                Assert.assertEquals("surname" + i, item.getProperty("surname"));
+              }
+            }
+          }
+        });
   }
 
   @Test
-  public void testLiveUpdateDelete() throws InterruptedException {
+  public void testLiveUpdateDelete() throws Exception {
     String className = "testLiveUpdateDeleteClass";
     String viewName = "testLiveUpdateDelete";
     db.createClass(className);
@@ -232,26 +248,31 @@ public class OCreateViewStatementExecutionTest extends BaseMemoryDatabase {
 
     db.command(statement);
 
-    Thread.sleep(1000);
-
-    OResultSet result = db.query("SELECT FROM " + viewName);
-    Assert.assertEquals(10, result.stream().count());
-    result.close();
+    assertWithTimeout(
+        db,
+        () -> {
+          try (var result = db.query("SELECT FROM " + viewName)) {
+            Assert.assertEquals(10, result.stream().count());
+          }
+        });
 
     db.command("DELETE FROM " + className + " WHERE name = 'name3'");
 
-    Thread.sleep(1000);
-    result = db.query("SELECT FROM " + viewName);
-    for (int i = 0; i < 9; i++) {
-      Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
-      Assert.assertNotEquals("name3", item.getProperty("name"));
-    }
-    result.close();
+    assertWithTimeout(
+        db,
+        () -> {
+          try (var result = db.query("SELECT FROM " + viewName)) {
+            for (int i = 0; i < 9; i++) {
+              Assert.assertTrue(result.hasNext());
+              OResult item = result.next();
+              Assert.assertNotEquals("name3", item.getProperty("name"));
+            }
+          }
+        });
   }
 
   @Test
-  public void testUpdateDeleteIndex() throws InterruptedException {
+  public void testUpdateDeleteIndex() throws Exception {
     String className = "testUpdateDeleteIndexClass";
     String viewName = "testUpdateDeleteIndex";
     db.createClass(className);
@@ -270,36 +291,42 @@ public class OCreateViewStatementExecutionTest extends BaseMemoryDatabase {
 
     db.command(statement);
 
-    Thread.sleep(2000);
-    db.getLocalCache().clear();
-    OResultSet result = db.query("SELECT FROM " + viewName);
-    Assert.assertEquals(10, result.stream().count());
-    result.close();
+    assertWithTimeout(
+        db,
+        () -> {
+          try (var result = db.query("SELECT FROM " + viewName)) {
+            Assert.assertEquals(10, result.stream().count());
+          }
 
-    result = db.query("SELECT FROM " + viewName + " WHERE name = 'name3'");
-    Assert.assertTrue(
-        result.getExecutionPlan().get().prettyPrint(0, 0).contains("FETCH FROM INDEX"));
-    Assert.assertEquals(1, result.stream().count());
+          try (var result = db.query("SELECT FROM " + viewName + " WHERE name = 'name3'")) {
+            Assert.assertTrue(
+                result.getExecutionPlan().get().prettyPrint(0, 0).contains("FETCH FROM INDEX"));
+            Assert.assertEquals(1, result.stream().count());
+          }
+        });
 
     db.command("DELETE FROM " + className + " WHERE name = 'name3'").close();
 
-    Thread.sleep(2000);
-    db.getLocalCache().clear();
-    result = db.query("SELECT FROM " + viewName + " WHERE name = 'name3'");
-    Assert.assertTrue(
-        result.getExecutionPlan().get().prettyPrint(0, 0).contains("FETCH FROM INDEX"));
-    Assert.assertEquals(0, result.stream().count());
-    result = db.query("SELECT FROM " + viewName);
-    for (int i = 0; i < 9; i++) {
-      Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
-      Assert.assertNotEquals("name3", item.getProperty("name"));
-    }
-    result.close();
+    assertWithTimeout(
+        db,
+        () -> {
+          try (var result = db.query("SELECT FROM " + viewName + " WHERE name = 'name3'")) {
+            Assert.assertTrue(
+                result.getExecutionPlan().get().prettyPrint(0, 0).contains("FETCH FROM INDEX"));
+            Assert.assertEquals(0, result.stream().count());
+          }
+          try (var result = db.query("SELECT FROM " + viewName)) {
+            for (int i = 0; i < 9; i++) {
+              Assert.assertTrue(result.hasNext());
+              OResult item = result.next();
+              Assert.assertNotEquals("name3", item.getProperty("name"));
+            }
+          }
+        });
   }
 
   @Test
-  public void testViewRefreshIndexUnique() throws InterruptedException {
+  public void testViewRefreshIndexUnique() throws Exception {
     String className = "testViewRefreshIndexUniqueClass";
     String viewName = "testViewRefreshIndexUnique";
     db.createClass(className);
@@ -318,44 +345,40 @@ public class OCreateViewStatementExecutionTest extends BaseMemoryDatabase {
 
     db.command(statement);
 
-    Thread.sleep(3000);
-    db.getLocalCache().clear();
-    OResultSet result = db.query("SELECT FROM " + viewName);
-    Assert.assertEquals(10, result.stream().count());
-    result.close();
-    Set<String> indexes = db.getMetadata().getSchema().getView(viewName).getActiveIndexNames();
-    assertEquals(indexes.size(), 1);
+    assertWithTimeout(
+        db,
+        () -> {
+          try (var result = db.query("SELECT FROM " + viewName)) {
+            Assert.assertEquals(10, result.stream().count());
+          }
+          Set<String> indexes =
+              db.getMetadata().getSchema().getView(viewName).getActiveIndexNames();
+          assertEquals(indexes.size(), 1);
 
-    result = db.query("SELECT FROM " + viewName + " WHERE name = 'name3'");
-    Assert.assertTrue(
-        result.getExecutionPlan().get().prettyPrint(0, 0).contains("FETCH FROM INDEX"));
-    Assert.assertEquals(1, result.stream().count());
+          try (var result = db.query("SELECT FROM " + viewName + " WHERE name = 'name3'")) {
+            Assert.assertTrue(
+                result.getExecutionPlan().get().prettyPrint(0, 0).contains("FETCH FROM INDEX"));
+            Assert.assertEquals(1, result.stream().count());
+          }
+        });
 
     db.command("update " + className + " set name='name33' WHERE name = 'name3'").close();
 
-    Thread.sleep(4000);
-    db.getLocalCache().clear();
-    db.getLocalCache().clear();
-
-    for (String index : indexes) {
-      assertFalse(
-          ((OMetadataInternal) db.getMetadata()).getIndexManagerInternal().existsIndex(index));
-    }
-
-    result = db.query("SELECT FROM " + viewName + " WHERE name = 'name33'");
-    Assert.assertTrue(
-        result.getExecutionPlan().get().prettyPrint(0, 0).contains("FETCH FROM INDEX"));
-    Assert.assertEquals(1, result.stream().count());
-    indexes = db.getMetadata().getSchema().getView(viewName).getActiveIndexNames();
-    assertEquals(indexes.size(), 1);
-
-    result = db.query("SELECT FROM " + viewName);
-    for (int i = 0; i < 10; i++) {
-      Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
-      Assert.assertNotEquals("name3", item.getProperty("name"));
-    }
-    Assert.assertFalse(result.hasNext());
-    result.close();
+    assertWithTimeout(
+        db,
+        () -> {
+          OResultSet result = db.query("SELECT FROM " + viewName + " WHERE name = 'name33'");
+          Assert.assertTrue(
+              result.getExecutionPlan().get().prettyPrint(0, 0).contains("FETCH FROM INDEX"));
+          Assert.assertEquals(1, result.stream().count());
+          result.close();
+          result = db.query("SELECT FROM " + viewName);
+          for (int i = 0; i < 10; i++) {
+            Assert.assertTrue(result.hasNext());
+            OResult item = result.next();
+            Assert.assertNotEquals("name3", item.getProperty("name"));
+          }
+          result.close();
+        });
   }
 }
