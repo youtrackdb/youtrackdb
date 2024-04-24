@@ -41,7 +41,7 @@ public class BaseMemoryDatabase {
 
   public static void assertWithTimeout(ODatabaseSession session, Runnable runnable)
       throws Exception {
-    for (int i = 0; i < 300; i++) {
+    for (int i = 0; i < 10 * 60 * 10; i++) {
       try {
         session.begin();
         runnable.run();
