@@ -235,12 +235,14 @@ public class OCreateViewStatementExecutionTest extends BaseMemoryDatabase {
     String viewName = "testLiveUpdateDelete";
     db.createClass(className);
 
+    db.begin();
     for (int i = 0; i < 10; i++) {
       OElement elem = db.newElement(className);
       elem.setProperty("name", "name" + i);
       elem.setProperty("surname", "surname" + i);
       elem.save();
     }
+    db.commit();
 
     String statement =
         "CREATE VIEW " + viewName + " FROM (SELECT FROM " + className + ") METADATA {";

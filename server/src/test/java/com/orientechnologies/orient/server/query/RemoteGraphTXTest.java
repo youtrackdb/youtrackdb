@@ -9,7 +9,9 @@ import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by wolf4ood on 1/03/19. */
+/**
+ * Created by wolf4ood on 1/03/19.
+ */
 public class RemoteGraphTXTest extends BaseServerMemoryDatabase {
 
   public void beforeTest() {
@@ -21,20 +23,21 @@ public class RemoteGraphTXTest extends BaseServerMemoryDatabase {
 
   @Test
   public void itShouldDeleteEdgesInTx() {
-
     db.command("create vertex FirstV set id = '1'").close();
     db.command("create vertex SecondV set id = '2'").close();
+
+    db.begin();
     try (OResultSet resultSet =
         db.command(
             "create edge TestEdge  from ( select from FirstV where id = '1') to ( select from"
                 + " SecondV where id = '2')")) {
       OResult result = resultSet.stream().iterator().next();
 
-      Assert.assertEquals(true, result.isEdge());
+      Assert.assertTrue(result.isEdge());
     }
+    db.commit();
 
     db.begin();
-
     db
         .command(
             "delete edge TestEdge from (select from FirstV where id = :param1) to (select from"
@@ -47,16 +50,16 @@ public class RemoteGraphTXTest extends BaseServerMemoryDatabase {
             })
         .stream()
         .collect(Collectors.toList());
-
     db.commit();
 
+    db.begin();
     Assert.assertEquals(0, db.query("select from TestEdge").stream().count());
-
     List<OResult> results =
         db.query("select bothE().size() as count from V").stream().collect(Collectors.toList());
 
     for (OResult result : results) {
       Assert.assertEquals(0, (int) result.getProperty("count"));
     }
+    db.commit();
   }
 }
