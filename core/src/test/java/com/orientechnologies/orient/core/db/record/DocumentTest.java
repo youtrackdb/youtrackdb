@@ -81,6 +81,7 @@ public class DocumentTest extends BaseMemoryDatabase {
     Assert.assertEquals(doc.field("some"), "3");
   }
 
+
   @Test
   public void testEval() {
     ODocument doc = new ODocument();
@@ -91,6 +92,7 @@ public class DocumentTest extends BaseMemoryDatabase {
 
     Assert.assertEquals(amountPlusVat.longValue(), 360l);
   }
+
 
   @Test
   public void testEvalInContext() {
