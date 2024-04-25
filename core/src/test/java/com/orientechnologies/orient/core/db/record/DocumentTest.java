@@ -31,6 +31,7 @@ import org.junit.Test;
 
 public class DocumentTest extends BaseMemoryDatabase {
 
+  @Test
   public void testFromMapNotSaved() {
     final ODocument doc = new ODocument();
     doc.field("name", "Jay");
@@ -42,6 +43,7 @@ public class DocumentTest extends BaseMemoryDatabase {
     Assert.assertEquals(map.get("surname"), "Miner");
   }
 
+  @Test
   public void testFromMapWithClass() {
     final ODocument doc = new ODocument("OUser");
     doc.field("name", "Jay");
@@ -54,6 +56,7 @@ public class DocumentTest extends BaseMemoryDatabase {
     Assert.assertEquals(map.get("@class"), "OUser");
   }
 
+  @Test
   public void testFromMapWithClassAndRid() {
     final ODocument doc = new ODocument("V");
     doc.field("name", "Jay");
@@ -78,6 +81,7 @@ public class DocumentTest extends BaseMemoryDatabase {
     Assert.assertEquals(doc.field("some"), "3");
   }
 
+
   @Test
   public void testEval() {
     ODocument doc = new ODocument();
@@ -89,6 +93,7 @@ public class DocumentTest extends BaseMemoryDatabase {
     Assert.assertEquals(amountPlusVat.longValue(), 360l);
   }
 
+
   @Test
   public void testEvalInContext() {
     ODocument doc = new ODocument();
@@ -98,6 +103,6 @@ public class DocumentTest extends BaseMemoryDatabase {
     OCommandContext context = new OBasicCommandContext().setVariable("vat", 20);
     Number amountPlusVat = (Number) doc.eval("amount * (100 + $vat) / 100", context);
 
-    Assert.assertEquals(amountPlusVat.longValue(), 360l);
+    Assert.assertEquals(amountPlusVat.longValue(), 360L);
   }
 }
