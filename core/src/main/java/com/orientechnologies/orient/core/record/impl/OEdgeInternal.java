@@ -134,6 +134,16 @@ public interface OEdgeInternal extends OEdge, OElementInternal {
     return baseDocument.getPropertyWithoutValidation(name);
   }
 
+  @Override
+  default <RET> RET getPropertyOnLoadValue(String name) {
+    var baseDocument = getBaseDocument();
+    if (baseDocument == null) {
+      return null;
+    }
+
+    return baseDocument.getPropertyOnLoadValue(name);
+  }
+
   @Nullable
   @Override
   default OIdentifiable getLinkPropertyWithoutValidation(String name) {

@@ -24,6 +24,7 @@ import com.orientechnologies.orient.core.db.record.OMultiValueChangeTimeLine;
 import com.orientechnologies.orient.core.db.record.OTrackedMultiValue;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OType;
+import java.util.*;
 
 /**
  * Document entry. Used by ODocument.
@@ -44,6 +45,8 @@ public class ODocumentEntry {
   private boolean txChanged = false;
   private boolean txExists = true;
   private boolean txCreated = false;
+  private Object onLoadValue;
+  private boolean hasOnLoadValue = false;
 
   public ODocumentEntry() {}
 
@@ -53,6 +56,7 @@ public class ODocumentEntry {
 
   public void setChanged(final boolean changed) {
     this.changed = changed;
+    checkAndStoreOnLoadValue();
   }
 
   public boolean exists() {
@@ -158,6 +162,7 @@ public class ODocumentEntry {
   public void markChanged() {
     this.changed = true;
     this.txChanged = true;
+    checkAndStoreOnLoadValue();
   }
 
   public void unmarkChanged() {
@@ -189,6 +194,32 @@ public class ODocumentEntry {
     }
     this.txCreated = false;
     this.txChanged = false;
+    this.hasOnLoadValue = false;
+    this.onLoadValue = null;
+  }
+
+  public Object getOnLoadValue() {
+    if (!hasOnLoadValue && !(value instanceof OTrackedMultiValue<?, ?>)) {
+      return value;
+    }
+
+
+    if (hasOnLoadValue) {
+      //noinspection rawtypes
+      if (onLoadValue instanceof OTrackedMultiValue trackedOnLoadValue) {
+        //noinspection unchecked
+        return trackedOnLoadValue.returnOriginalState(
+            trackedOnLoadValue.getTransactionTimeLine().getMultiValueChangeEvents());
+      } else {
+        return onLoadValue;
+      }
+    } else {
+      //noinspection rawtypes
+      OTrackedMultiValue trackedOnLoadValue = (OTrackedMultiValue) value;
+      //noinspection unchecked
+      return trackedOnLoadValue.returnOriginalState(
+          trackedOnLoadValue.getTransactionTimeLine().getMultiValueChangeEvents());
+    }
   }
 
   public boolean isTxChanged() {
@@ -202,5 +233,12 @@ public class ODocumentEntry {
   @SuppressWarnings("BooleanMethodIsAlwaysInverted")
   public boolean isTxExists() {
     return txExists;
+  }
+
+  private void checkAndStoreOnLoadValue(){
+    if (changed && !hasOnLoadValue) {
+      onLoadValue = original;
+      hasOnLoadValue = true;
+    }
   }
 }

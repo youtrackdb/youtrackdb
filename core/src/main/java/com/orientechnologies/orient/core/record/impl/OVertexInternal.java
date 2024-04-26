@@ -82,6 +82,11 @@ public interface OVertexInternal extends OVertex, OElementInternal {
     return getBaseDocument().getPropertyWithoutValidation(name);
   }
 
+  @Override
+  default <RET> RET getPropertyOnLoadValue(String name) {
+    return getBaseDocument().getPropertyOnLoadValue(name);
+  }
+
   @Nullable
   @Override
   default OIdentifiable getLinkPropertyWithoutValidation(String name) {

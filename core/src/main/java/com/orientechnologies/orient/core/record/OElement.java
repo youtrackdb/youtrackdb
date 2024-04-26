@@ -51,6 +51,14 @@ public interface OElement extends ORecord {
   <RET> RET getProperty(String name);
 
   /**
+   * Gets a property value on time of transaction start.
+   * @param name the property name
+   * @param <RET>
+   * @return Returns property value on time of transaction start.
+   */
+  <RET> RET getPropertyOnLoadValue(String name);
+
+  /**
    * This method similar to {@link #getProperty(String)} bun unlike before mentioned method it does
    * not load link automatically.
    *

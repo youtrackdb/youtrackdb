@@ -584,6 +584,27 @@ public class ODocument extends ORecordAbstract
     return convertToGraphElement(value);
   }
 
+  @Override
+  public <RET> RET getPropertyOnLoadValue(String name) {
+    checkForLoading();
+
+    if (primaryRecord != null) {
+      return ((ODocument) primaryRecord).getPropertyOnLoadValue(name);
+    }
+    if (name == null) {
+      return null;
+    }
+
+    OVertexInternal.checkPropertyName(name);
+
+    var field = fields.get(name);
+    if (field != null){
+      return (RET) field.getOnLoadValue();
+    } else {
+      return getPropertyWithoutValidation(name);
+    }
+  }
+
   private static <RET> RET convertToGraphElement(RET value) {
     if (value instanceof OElement) {
       if (((OElement) value).isVertex()) {
@@ -3429,7 +3450,7 @@ public class ODocument extends ORecordAbstract
         }
 
         if (allFound)
-        // ALL THE REQUESTED FIELDS HAVE BEEN LOADED BEFORE AND AVAILABLE, AVOID UNMARSHALLIGN
+        // ALL THE REQUESTED FIELDS HAVE BEEN LOADED BEFORE AND AVAILABLE, AVOID UNMARSHALLING
         {
           return true;
         }
