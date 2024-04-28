@@ -3,14 +3,13 @@ package com.orientechnologies.orient.core.record.impl;
 import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.OVertex;
-import org.junit.Assert;
-import org.junit.Test;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.IntStream;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class GetPropertyOnLoadValueTest extends BaseMemoryDatabase {
 
@@ -41,11 +40,12 @@ public class GetPropertyOnLoadValueTest extends BaseMemoryDatabase {
     OVertex doc = db.newVertex("test");
 
     IntStream.rangeClosed(1, 8)
-        .forEach(i -> {
-          OVertex linked = db.newVertex("test");
-          linked.setProperty("name", i + "");
-          doc.addEdge(linked, "myLink");
-        });
+        .forEach(
+            i -> {
+              OVertex linked = db.newVertex("test");
+              linked.setProperty("name", i + "");
+              doc.addEdge(linked, "myLink");
+            });
     doc.save();
     db.commit();
     db.begin();
@@ -86,6 +86,4 @@ public class GetPropertyOnLoadValueTest extends BaseMemoryDatabase {
     Set<Integer> onLoad = doc.getPropertyOnLoadValue("set");
     Assert.assertEquals(3, onLoad.size());
   }
-
-
 }

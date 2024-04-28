@@ -598,7 +598,7 @@ public class ODocument extends ORecordAbstract
     OVertexInternal.checkPropertyName(name);
 
     var field = fields.get(name);
-    if (field != null){
+    if (field != null) {
       return (RET) field.getOnLoadValue();
     } else {
       return getPropertyWithoutValidation(name);

@@ -203,7 +203,6 @@ public class ODocumentEntry {
       return value;
     }
 
-
     if (hasOnLoadValue) {
       //noinspection rawtypes
       if (onLoadValue instanceof OTrackedMultiValue trackedOnLoadValue) {
@@ -235,7 +234,7 @@ public class ODocumentEntry {
     return txExists;
   }
 
-  private void checkAndStoreOnLoadValue(){
+  private void checkAndStoreOnLoadValue() {
     if (changed && !hasOnLoadValue) {
       onLoadValue = original;
       hasOnLoadValue = true;
