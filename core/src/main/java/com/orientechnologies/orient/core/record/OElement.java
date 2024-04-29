@@ -51,9 +51,10 @@ public interface OElement extends ORecord {
   <RET> RET getProperty(String name);
 
   /**
-   * Gets a property value on time of transaction start.
-   * @param name the property name
+   * Gets a property value on time of transaction start. This will work for scalar values, and collections of scalar values. Will throw exception in case of called with name starting with {@code #OVertex.DIRECTION_OUT_PREFIX} or {@code #OVertex.DIRECTION_IN_PREFIX}.
+   * @param name the property name*
    * @param <RET>
+   * @throws IllegalArgumentException if name starts with {@code #OVertex.DIRECTION_OUT_PREFIX} or {@code #OVertex.DIRECTION_IN_PREFIX}.
    * @return Returns property value on time of transaction start.
    */
   <RET> RET getPropertyOnLoadValue(String name);

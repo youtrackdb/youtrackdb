@@ -206,18 +206,25 @@ public class ODocumentEntry {
     if (hasOnLoadValue) {
       //noinspection rawtypes
       if (onLoadValue instanceof OTrackedMultiValue trackedOnLoadValue) {
+        //noinspection rawtypes
+        OMultiValueChangeTimeLine transactionTimeLine = trackedOnLoadValue.getTransactionTimeLine();
         //noinspection unchecked
-        return trackedOnLoadValue.returnOriginalState(
-            trackedOnLoadValue.getTransactionTimeLine().getMultiValueChangeEvents());
+        return transactionTimeLine != null
+            ? trackedOnLoadValue.returnOriginalState(
+                transactionTimeLine.getMultiValueChangeEvents())
+            : onLoadValue;
       } else {
         return onLoadValue;
       }
     } else {
       //noinspection rawtypes
       OTrackedMultiValue trackedOnLoadValue = (OTrackedMultiValue) value;
+      //noinspection rawtypes
+      OMultiValueChangeTimeLine transactionTimeLine = trackedOnLoadValue.getTransactionTimeLine();
       //noinspection unchecked
-      return trackedOnLoadValue.returnOriginalState(
-          trackedOnLoadValue.getTransactionTimeLine().getMultiValueChangeEvents());
+      return transactionTimeLine != null
+          ? trackedOnLoadValue.returnOriginalState(transactionTimeLine.getMultiValueChangeEvents())
+          : trackedOnLoadValue;
     }
   }
 
