@@ -3,6 +3,8 @@ package com.orientechnologies.orient.core.schedule;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
+import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.common.concur.ONeedRetryException;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
@@ -14,7 +16,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -24,8 +25,6 @@ import org.junit.Test;
  */
 public class OSchedulerTest {
 
-  // FIXME: Randomly failing test.
-  @Ignore
   @Test
   public void scheduleSQLFunction() throws Exception {
     try (OrientDB context = createContext()) {
@@ -33,28 +32,31 @@ public class OSchedulerTest {
           context.cachedPool("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD).acquire();
       createLogEvent(db);
 
-      Thread.sleep(2000);
-
-      Long count = getLogCounter(db);
-
-      Assert.assertTrue(count >= 2 && count <= 3);
+      BaseMemoryDatabase.assertWithTimeout(
+          db,
+          () -> {
+            Long count = getLogCounter(db);
+            Assert.assertTrue(count >= 2 && count <= 3);
+          });
     }
   }
 
   @Test
-  @Ignore
   public void scheduleWithDbClosed() throws Exception {
     OrientDB context = createContext();
-    ODatabaseSession db = context.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
-    createLogEvent(db);
-    db.close();
+    {
+      ODatabaseSession db = context.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+      createLogEvent(db);
+      db.close();
+    }
 
-    Thread.sleep(2000);
-
-    db = context.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
-    Long count = getLogCounter(db);
-
-    Assert.assertTrue(count >= 2);
+    var db = context.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    BaseMemoryDatabase.assertWithTimeout(
+        db,
+        () -> {
+          Long count = getLogCounter(db);
+          Assert.assertTrue(count >= 2);
+        });
 
     db.close();
     context.close();
@@ -141,50 +143,61 @@ public class OSchedulerTest {
 
   @Test
   public void eventBySQL() throws Exception {
-
     OrientDB context = createContext();
-    final ODatabaseSession db =
-        context.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
-    try {
+    try (context;
+        ODatabaseSession db =
+            context.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
       OFunction func = createFunction(db);
-
       // CREATE NEW EVENT
       db.command(
               "insert into oschedule set name = 'test', function = ?, rule = \"0/1 * * * * ?\"",
               func.getId())
           .close();
 
-      Thread.sleep(2500);
+      BaseMemoryDatabase.assertWithTimeout(
+          db,
+          () -> {
+            long count = getLogCounter(db);
+            Assert.assertTrue(count >= 2);
+          });
 
-      long count = getLogCounter(db);
-
+      final long count = getLogCounter(db);
       Assert.assertTrue(count >= 2);
 
-      // UPDATE
-      db.command("update oschedule set rule = \"0/2 * * * * ?\" where name = 'test'", func.getId())
-          .close();
+      int retryCount = 10;
+      while (true) {
+        try {
+          db.command(
+                  "update oschedule set rule = \"0/2 * * * * ?\" where name = 'test'", func.getId())
+              .close();
+          break;
+        } catch (ONeedRetryException e) {
+          retryCount--;
+          //noinspection BusyWait
+          Thread.sleep(10);
+        }
+        Assert.assertTrue(retryCount >= 0);
+      }
 
-      Thread.sleep(4000);
+      BaseMemoryDatabase.assertWithTimeout(
+          db,
+          () -> {
+            long newCount = getLogCounter(db);
+            Assert.assertTrue(newCount - count > 1);
+          });
 
       long newCount = getLogCounter(db);
-
       Assert.assertTrue(newCount - count > 1);
-      //      Assert.assertTrue(newCount - count <= 2);
 
       // DELETE
       db.command("delete from oschedule where name = 'test'", func.getId()).close();
 
-      Thread.sleep(3000);
-
-      count = newCount;
-
-      newCount = getLogCounter(db);
-
-      Assert.assertTrue(newCount - count <= 1);
-
-    } finally {
-      db.close();
-      context.close();
+      BaseMemoryDatabase.assertWithTimeout(
+          db,
+          () -> {
+            var counter = getLogCounter(db);
+            Assert.assertTrue(counter - newCount <= 1);
+          });
     }
   }
 
