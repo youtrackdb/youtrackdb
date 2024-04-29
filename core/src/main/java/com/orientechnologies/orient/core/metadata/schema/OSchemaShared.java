@@ -917,8 +917,10 @@ public abstract class OSchemaShared implements OCloseable {
         new Callable<Object>() {
           @Override
           public Object call() {
+            database.begin();
             ODocument document = toStream();
             database.save(document, OMetadataDefault.CLUSTER_INTERNAL_NAME);
+            database.commit();
             return null;
           }
         });

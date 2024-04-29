@@ -2,6 +2,7 @@ package com.orientechnologies.orient.core.metadata.schema;
 
 import static org.junit.Assert.assertTrue;
 
+import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
@@ -63,7 +64,7 @@ public class OViewTest {
   }
 
   @Test
-  public void testCloseDatabase() throws InterruptedException {
+  public void testCloseDatabase() throws Exception {
     orientdb.execute(
         "create database view_close plocal users (admin identified by 'adminpwd' role admin)");
     try (ODatabaseSession session = orientdb.open("view_close", "admin", "adminpwd")) {
@@ -76,20 +77,26 @@ public class OViewTest {
           .close();
       session.command("insert into test set name='abc'").close();
 
-      Thread.sleep(2000);
-      try (OResultSet result = session.query("select from test_view where name='abc'")) {
-        String execution = result.getExecutionPlan().get().prettyPrint(0, 0);
-        assertTrue(execution.contains("FETCH FROM INDEX"));
-      }
+      BaseMemoryDatabase.assertWithTimeout(
+          session,
+          () -> {
+            try (OResultSet result = session.query("select from test_view where name='abc'")) {
+              String execution = result.getExecutionPlan().get().prettyPrint(0, 0);
+              assertTrue(execution.contains("FETCH FROM INDEX"));
+            }
+          });
     }
 
     OrientDBInternal.extract(orientdb).forceDatabaseClose("view_close");
     try (ODatabaseSession session = orientdb.open("view_close", "admin", "adminpwd")) {
-      Thread.sleep(2000);
-      try (OResultSet result = session.query("select from test_view where name='abc'")) {
-        String execution = result.getExecutionPlan().get().prettyPrint(0, 0);
-        assertTrue(execution.contains("FETCH FROM INDEX"));
-      }
+      BaseMemoryDatabase.assertWithTimeout(
+          session,
+          () -> {
+            try (OResultSet result = session.query("select from test_view where name='abc'")) {
+              String execution = result.getExecutionPlan().get().prettyPrint(0, 0);
+              assertTrue(execution.contains("FETCH FROM INDEX"));
+            }
+          });
     }
   }
 }

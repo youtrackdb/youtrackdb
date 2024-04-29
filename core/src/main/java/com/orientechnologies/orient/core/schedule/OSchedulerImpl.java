@@ -44,6 +44,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since Mar 28, 2013
  */
 public class OSchedulerImpl {
+
   private ConcurrentHashMap<String, OScheduledEvent> events =
       new ConcurrentHashMap<String, OScheduledEvent>();
 
@@ -54,12 +55,16 @@ public class OSchedulerImpl {
   }
 
   public void scheduleEvent(final OScheduledEvent event) {
-    if (event.getDocument().getIdentity().isNew())
-      // FIST TIME: SAVE IT
+    var db = event.getDocument().getDatabase();
+
+    if (event.getDocument().getIdentity().isNew()) {
+      db.begin();
       event.save();
+      db.commit();
+    }
 
     if (events.putIfAbsent(event.getName(), event) == null) {
-      String database = event.getDocument().getDatabase().getName();
+      String database = db.getName();
       event.schedule(database, "admin", orientDB);
     }
   }
@@ -98,7 +103,10 @@ public class OSchedulerImpl {
                       "Deleting scheduled event '%s' rid=%s...",
                       event,
                       event.getDocument().getIdentity());
+              var db = event.getDocument().getDatabase();
+              db.begin();
               event.getDocument().delete();
+              db.commit();
               return null;
             }
           },
@@ -110,7 +118,9 @@ public class OSchedulerImpl {
 
   public void updateEvent(final OScheduledEvent event) {
     final OScheduledEvent oldEvent = events.remove(event.getName());
-    if (oldEvent != null) oldEvent.interrupt();
+    if (oldEvent != null) {
+      oldEvent.interrupt();
+    }
     scheduleEvent(event);
     OLogManager.instance()
         .debug(
@@ -150,8 +160,12 @@ public class OSchedulerImpl {
   }
 
   public void create(ODatabaseDocumentInternal database) {
-    if (database.getMetadata().getImmutableSchemaSnapshot().existsClass(OScheduledEvent.CLASS_NAME))
+    if (database
+        .getMetadata()
+        .getImmutableSchemaSnapshot()
+        .existsClass(OScheduledEvent.CLASS_NAME)) {
       return;
+    }
     final OClass f = database.getMetadata().getSchema().createClass(OScheduledEvent.CLASS_NAME);
     f.createProperty(OScheduledEvent.PROP_NAME, OType.STRING, (OType) null, true)
         .setMandatory(true)
@@ -190,8 +204,9 @@ public class OSchedulerImpl {
         // UPDATED EVENT
         final Set<String> dirtyFields = new HashSet<String>(Arrays.asList(doc.getDirtyFields()));
 
-        if (dirtyFields.contains(OScheduledEvent.PROP_NAME))
+        if (dirtyFields.contains(OScheduledEvent.PROP_NAME)) {
           throw new OValidationException("Scheduled event cannot change name");
+        }
 
         if (dirtyFields.contains(OScheduledEvent.PROP_RULE)) {
           // RULE CHANGED, STOP CURRENT EVENT AND RESCHEDULE IT

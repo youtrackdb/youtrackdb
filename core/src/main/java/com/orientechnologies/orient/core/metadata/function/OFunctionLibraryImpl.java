@@ -49,6 +49,7 @@ import java.util.regex.Pattern;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OFunctionLibraryImpl {
+
   public static final String CLASSNAME = "OFunction";
   protected final Map<String, OFunction> functions = new ConcurrentHashMap<String, OFunction>();
   private AtomicBoolean needReload = new AtomicBoolean(false);
@@ -68,8 +69,9 @@ public class OFunctionLibraryImpl {
     final Map<String, OCallable<Object, Map<Object, Object>>> callbacks =
         new HashMap<String, OCallable<Object, Map<Object, Object>>>();
     for (Map.Entry<String, OFunction> entry : functions.entrySet()) {
-      if (entry.getValue().getCallback() != null)
+      if (entry.getValue().getCallback() != null) {
         callbacks.put(entry.getKey(), entry.getValue().getCallback());
+      }
     }
 
     functions.clear();
@@ -81,7 +83,9 @@ public class OFunctionLibraryImpl {
           OResult res = result.next();
           ODocument d = (ODocument) res.getElement().get();
           // skip the function records which do not contain real data
-          if (d.fields() == 0) continue;
+          if (d.fields() == 0) {
+            continue;
+          }
 
           final OFunction f = new OFunction(d);
 
@@ -124,9 +128,12 @@ public class OFunctionLibraryImpl {
     init(database);
     reloadIfNeeded(ODatabaseRecordThreadLocal.instance().get());
 
+    database.begin();
     final OFunction f = new OFunction().setName(iName);
     try {
       f.save();
+      functions.put(iName.toUpperCase(Locale.ENGLISH), f);
+      database.commit();
     } catch (ORecordDuplicatedException ex) {
       OLogManager.instance().error(this, "Exception is suppressed, original exception is ", ex);
 
@@ -135,7 +142,7 @@ public class OFunctionLibraryImpl {
           new OFunctionDuplicatedException("Function with name '" + iName + "' already exist"),
           null);
     }
-    functions.put(iName.toUpperCase(Locale.ENGLISH), f);
+
     return f;
   }
 
@@ -147,7 +154,9 @@ public class OFunctionLibraryImpl {
     if (db.getMetadata().getSchema().existsClass("OFunction")) {
       final OClass f = db.getMetadata().getSchema().getClass("OFunction");
       OProperty prop = f.getProperty("name");
-      if (prop.getAllIndexes().isEmpty()) prop.createIndex(OClass.INDEX_TYPE.UNIQUE_HASH_INDEX);
+      if (prop.getAllIndexes().isEmpty()) {
+        prop.createIndex(OClass.INDEX_TYPE.UNIQUE_HASH_INDEX);
+      }
       return;
     }
 
