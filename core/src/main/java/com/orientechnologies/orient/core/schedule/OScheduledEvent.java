@@ -43,6 +43,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @since Mar 28, 2013
  */
 public class OScheduledEvent extends ODocumentWrapper {
+
   public static final String CLASS_NAME = "OSchedule";
 
   public static final String PROP_NAME = "name";
@@ -59,7 +60,9 @@ public class OScheduledEvent extends ODocumentWrapper {
   private volatile TimerTask timer;
   private final AtomicLong nextExecutionId;
 
-  /** Creates a scheduled event object from a configuration. */
+  /**
+   * Creates a scheduled event object from a configuration.
+   */
   public OScheduledEvent(final ODocument doc) {
     super(doc);
     running = new AtomicBoolean(false);
@@ -76,13 +79,17 @@ public class OScheduledEvent extends ODocumentWrapper {
     synchronized (this) {
       final TimerTask t = timer;
       timer = null;
-      if (t != null) t.cancel();
+      if (t != null) {
+        t.cancel();
+      }
     }
   }
 
   public OFunction getFunction() {
     final OFunction fun = getFunctionSafe();
-    if (fun == null) throw new OCommandScriptException("Function cannot be null");
+    if (fun == null) {
+      throw new OCommandScriptException("Function cannot be null");
+    }
     return fun;
   }
 
@@ -163,8 +170,11 @@ public class OScheduledEvent extends ODocumentWrapper {
           function = (OFunction) funcDoc;
           // OVERWRITE FUNCTION ID
           document.field(PROP_FUNC, function.getId());
-        } else if (funcDoc instanceof ODocument) function = new OFunction((ODocument) funcDoc);
-        else if (funcDoc instanceof ORecordId) function = new OFunction((ORecordId) funcDoc);
+        } else if (funcDoc instanceof ODocument) {
+          function = new OFunction((ODocument) funcDoc);
+        } else if (funcDoc instanceof ORecordId) {
+          function = new OFunction((ORecordId) funcDoc);
+        }
       }
     }
     return function;
@@ -264,21 +274,28 @@ public class OScheduledEvent extends ODocumentWrapper {
     private boolean executeEvent() {
       for (int retry = 0; retry < 10; ++retry) {
         var eventDoc = event.getDocument();
-        try {
-          if (isEventAlreadyExecuted()) break;
+        var db = eventDoc.getDatabase();
 
+        try {
+          if (isEventAlreadyExecuted()) {
+            break;
+          }
+
+          db.begin();
           eventDoc.field(PROP_STATUS, STATUS.RUNNING);
           eventDoc.field(PROP_STARTTIME, System.currentTimeMillis());
           eventDoc.field(PROP_EXEC_ID, event.nextExecutionId.get());
 
           eventDoc.save();
+          db.commit();
 
           // OK
           return true;
         } catch (ONeedRetryException e) {
-          eventDoc.unload();
           // CONCURRENT UPDATE, PROBABLY EXECUTED BY ANOTHER SERVER
-          if (isEventAlreadyExecuted()) break;
+          if (isEventAlreadyExecuted()) {
+            break;
+          }
 
           OLogManager.instance()
               .info(
@@ -354,7 +371,9 @@ public class OScheduledEvent extends ODocumentWrapper {
           ODatabaseSession.getActiveSession().load(rec.getIdentity(), null, true);
 
       final Long currentExecutionId = updated.field(PROP_EXEC_ID);
-      if (currentExecutionId == null) return false;
+      if (currentExecutionId == null) {
+        return false;
+      }
 
       if (currentExecutionId >= event.nextExecutionId.get()) {
         OLogManager.instance()
