@@ -4,6 +4,7 @@ import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.db.ODatabase;
@@ -66,90 +67,75 @@ public class MetadataPushTest {
   }
 
   @Test
-  public void testStorageUpdate() throws InterruptedException {
+  public void testStorageUpdate() throws Exception {
     database.activateOnCurrentThread();
     database.command(" ALTER DATABASE LOCALELANGUAGE  ?", Locale.GERMANY.getLanguage());
     // Push done in background for now, do not guarantee update before command return.
-    for (int i = 0; i < 50; i++) {
-      Thread.sleep(100);
-      secondDatabase.activateOnCurrentThread();
-      if (secondDatabase.get(ODatabase.ATTRIBUTES.LOCALELANGUAGE) != null) {
-        break;
-      }
-    }
-
     secondDatabase.activateOnCurrentThread();
-    assertEquals(
-        secondDatabase.get(ODatabase.ATTRIBUTES.LOCALELANGUAGE), Locale.GERMANY.getLanguage());
+    BaseMemoryDatabase.assertWithTimeout(
+        secondDatabase,
+        () -> {
+          secondDatabase.activateOnCurrentThread();
+          assertEquals(
+              secondDatabase.get(ODatabase.ATTRIBUTES.LOCALELANGUAGE),
+              Locale.GERMANY.getLanguage());
+        });
   }
 
   @Test
-  public void testSchemaUpdate() throws InterruptedException {
+  public void testSchemaUpdate() throws Exception {
     database.activateOnCurrentThread();
     database.command(" create class X");
-    // Push done in background for now, do not guarantee update before command return.
-    for (int i = 0; i < 50; i++) {
-      Thread.sleep(100);
-      secondDatabase.activateOnCurrentThread();
-      if (secondDatabase.getMetadata().getSchema().existsClass("X")) {
-        break;
-      }
-    }
 
+    // Push done in background for now, do not guarantee update before command return.
     secondDatabase.activateOnCurrentThread();
-    assertTrue(secondDatabase.getMetadata().getSchema().existsClass("X"));
+    BaseMemoryDatabase.assertWithTimeout(
+        secondDatabase,
+        () -> {
+          secondDatabase.activateOnCurrentThread();
+          assertTrue(secondDatabase.getMetadata().getSchema().existsClass("X"));
+        });
   }
 
   @Test
-  public void testIndexManagerUpdate() throws InterruptedException {
+  public void testIndexManagerUpdate() throws Exception {
     database.activateOnCurrentThread();
     database.command(" create class X");
     database.command(" create property X.y STRING");
     database.command(" create index X.y on X(y) NOTUNIQUE");
     // Push done in background for now, do not guarantee update before command return.
-    for (int i = 0; i < 50; i++) {
-      Thread.sleep(100);
-      secondDatabase.activateOnCurrentThread();
-
-      if (secondDatabase.getMetadata().getIndexManagerInternal().existsIndex("X.y")) {
-        break;
-      }
-    }
-
-    assertTrue(secondDatabase.getMetadata().getIndexManagerInternal().existsIndex("X.y"));
+    secondDatabase.activateOnCurrentThread();
+    BaseMemoryDatabase.assertWithTimeout(
+        secondDatabase,
+        () ->
+            assertTrue(secondDatabase.getMetadata().getIndexManagerInternal().existsIndex("X.y")));
   }
 
   @Test
-  public void testFunctionUpdate() throws InterruptedException {
+  public void testFunctionUpdate() throws Exception {
     database.activateOnCurrentThread();
     database.command("CREATE FUNCTION test \"print('\\nTest!')\"");
     // Push done in background for now, do not guarantee update before command return.
-    for (int i = 0; i < 50; i++) {
-      Thread.sleep(100);
-      secondDatabase.activateOnCurrentThread();
-      if (secondDatabase.getMetadata().getFunctionLibrary().getFunction("test") != null) {
-        break;
-      }
-    }
-
     secondDatabase.activateOnCurrentThread();
-    assertNotNull(secondDatabase.getMetadata().getFunctionLibrary().getFunction("test"));
+    BaseMemoryDatabase.assertWithTimeout(
+        secondDatabase,
+        () -> {
+          secondDatabase.activateOnCurrentThread();
+          assertNotNull(secondDatabase.getMetadata().getFunctionLibrary().getFunction("test"));
+        });
   }
 
   @Test
-  public void testSequencesUpdate() throws InterruptedException {
+  public void testSequencesUpdate() throws Exception {
     database.activateOnCurrentThread();
     database.command("CREATE SEQUENCE test TYPE CACHED");
     // Push done in background for now, do not guarantee update before command return.
-    for (int i = 0; i < 50; i++) {
-      Thread.sleep(100);
-      secondDatabase.activateOnCurrentThread();
-      if (secondDatabase.getMetadata().getSequenceLibrary().getSequence("test") != null) {
-        break;
-      }
-    }
-
     secondDatabase.activateOnCurrentThread();
-    assertNotNull(secondDatabase.getMetadata().getSequenceLibrary().getSequence("test"));
+    BaseMemoryDatabase.assertWithTimeout(
+        secondDatabase,
+        () -> {
+          secondDatabase.activateOnCurrentThread();
+          assertNotNull(secondDatabase.getMetadata().getSequenceLibrary().getSequence("test"));
+        });
   }
 }

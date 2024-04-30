@@ -4,6 +4,7 @@ import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -39,7 +40,7 @@ public class BaseMemoryDatabase {
     context.close();
   }
 
-  public static void assertWithTimeout(ODatabaseSession session, Runnable runnable)
+  public static void assertWithTimeout(ODatabaseDocument session, Runnable runnable)
       throws Exception {
     for (int i = 0; i < 10 * 60 * 10; i++) {
       try {
