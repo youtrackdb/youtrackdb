@@ -97,21 +97,8 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.lang.ref.WeakReference;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -582,6 +569,30 @@ public class ODocument extends ORecordAbstract
     }
 
     return convertToGraphElement(value);
+  }
+
+  @Override
+  public <RET> RET getPropertyOnLoadValue(String name) {
+    checkForLoading();
+
+    if (primaryRecord != null) {
+      return ((ODocument) primaryRecord).getPropertyOnLoadValue(name);
+    }
+    Objects.requireNonNull(name, "Name argument is required.");
+
+    OVertexInternal.checkPropertyName(name);
+
+    var field = fields.get(name);
+    if (field != null) {
+      RET onLoadValue = (RET) field.getOnLoadValue();
+      if (onLoadValue instanceof ORidBag) {
+        throw new IllegalArgumentException(
+            "getPropertyOnLoadValue(name) is not designed to work with Edge properties");
+      }
+      return onLoadValue;
+    } else {
+      return getPropertyWithoutValidation(name);
+    }
   }
 
   private static <RET> RET convertToGraphElement(RET value) {
@@ -3429,7 +3440,7 @@ public class ODocument extends ORecordAbstract
         }
 
         if (allFound)
-        // ALL THE REQUESTED FIELDS HAVE BEEN LOADED BEFORE AND AVAILABLE, AVOID UNMARSHALLIGN
+        // ALL THE REQUESTED FIELDS HAVE BEEN LOADED BEFORE AND AVAILABLE, AVOID UNMARSHALLING
         {
           return true;
         }

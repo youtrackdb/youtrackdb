@@ -32,7 +32,7 @@ import java.util.ListIterator;
 
 /**
  * Implementation of ArrayList bound to a source ORecord object to keep track of changes for literal
- * types. This avoid to call the makeDirty() by hand when the list is changed.
+ * types. This avoids to call the makeDirty() by hand when the list is changed.
  *
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
