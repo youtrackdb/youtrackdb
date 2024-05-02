@@ -3685,7 +3685,7 @@ public class ODocument extends ORecordAbstract
   /**
    * Validates the record following the declared constraints defined in schema such as mandatory,
    * notNull, min, max, regexp, etc. If the schema is not defined for the current class or there are
-   * not constraints then the validation is ignored.
+   * no constraints then the validation is ignored.
    *
    * @throws OValidationException if the document breaks some validation constraints defined in the
    *                              schema
@@ -4079,7 +4079,7 @@ public class ODocument extends ORecordAbstract
     return fields != null && fields.containsKey(iFiledName);
   }
 
-  void autoConvertValues() {
+  public void autoConvertValues() {
     checkForLoading();
     if (primaryRecord != null) {
       ((ODocument) primaryRecord).autoConvertValues();
@@ -4093,6 +4093,9 @@ public class ODocument extends ORecordAbstract
         OClass linkedClass = prop.getLinkedClass();
         if (type == OType.EMBEDDED && linkedClass != null) {
           convertToEmbeddedType(prop);
+          continue;
+        }
+        if (fields == null){
           continue;
         }
         final ODocumentEntry entry = fields.get(prop.getName());
