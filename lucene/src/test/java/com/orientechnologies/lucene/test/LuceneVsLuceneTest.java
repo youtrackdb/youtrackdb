@@ -80,7 +80,7 @@ public class LuceneVsLuceneTest extends BaseLuceneTest {
   }
 
   private File getPath() {
-    return new File("./target/databases/" + name.getMethodName());
+    return new File("./target/databases/" + dbName);
   }
 
   @Test

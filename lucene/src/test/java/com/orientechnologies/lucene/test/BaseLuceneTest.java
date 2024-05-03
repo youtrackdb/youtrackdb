@@ -31,14 +31,18 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
 
-/** Created by enricorisa on 19/09/14. */
+/**
+ * Created by enricorisa on 19/09/14.
+ */
 public abstract class BaseLuceneTest {
+
   @Rule public TestName name = new TestName();
 
   protected ODatabaseDocumentInternal db;
   protected OrientDB context;
 
   protected ODatabaseType type;
+  protected String dbName;
 
   @Before
   public void setupDatabase() throws Throwable {
@@ -54,32 +58,32 @@ public abstract class BaseLuceneTest {
       path = "embedded:.";
     }
     context = new OrientDB(path, OrientDBConfig.defaultConfig());
+    dbName = getClass().getSimpleName() + "_" + name.getMethodName();
 
-    if (context.exists(name.getMethodName())) {
-      context.drop(name.getMethodName());
+    if (context.exists(dbName)) {
+      context.drop(dbName);
     }
     context.execute(
         "create database ? " + type.toString() + " users(admin identified by 'admin' role admin) ",
-        name.getMethodName());
+        dbName);
 
-    db = (ODatabaseDocumentInternal) context.open(name.getMethodName(), "admin", "admin");
+    db = (ODatabaseDocumentInternal) context.open(dbName, "admin", "admin");
     db.set(ODatabaseSession.ATTRIBUTES.MINIMUMCLUSTERS, 8);
   }
 
   public ODatabaseSession openDatabase() {
-    return context.open(name.getMethodName(), "admin", "admin");
+    return context.open(dbName, "admin", "admin");
   }
 
   public void createDatabase() {
     context.execute(
-        "create database ? " + type + " users(admin identified by 'admin' role admin) ",
-        name.getMethodName());
+        "create database ? " + type + " users(admin identified by 'admin' role admin) ", dbName);
   }
 
   @After
   public void dropDatabase() {
     db.activateOnCurrentThread();
-    context.drop(name.getMethodName());
+    context.drop(dbName);
   }
 
   protected String getScriptFromStream(final InputStream scriptStream) {

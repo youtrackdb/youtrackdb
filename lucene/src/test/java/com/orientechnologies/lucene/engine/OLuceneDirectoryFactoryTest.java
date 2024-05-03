@@ -45,17 +45,15 @@ public class OLuceneDirectoryFactoryTest extends BaseLuceneTest {
         new OrientDB("embedded:./target/testDatabase/", OrientDBConfig.defaultConfig())) {
       ctx.execute(
           "create database "
-              + name.getMethodName()
+              + dbName
               + " plocal users (admin identified by 'adminpwd' role admin)");
       ODatabaseDocumentInternal db =
-          (ODatabaseDocumentInternal) ctx.open(name.getMethodName(), "admin", "adminpwd");
+          (ODatabaseDocumentInternal) ctx.open(dbName, "admin", "adminpwd");
       Directory directory = fc.createDirectory(db.getStorage(), "index.name", meta).getDirectory();
       assertThat(directory).isInstanceOf(NIOFSDirectory.class);
-      assertThat(
-              new File(
-                  "./target/testDatabase/" + name.getMethodName() + "/luceneIndexes/index.name"))
+      assertThat(new File("./target/testDatabase/" + dbName + "/luceneIndexes/index.name"))
           .exists();
-      ctx.drop(name.getMethodName());
+      ctx.drop(dbName);
     }
   }
 
@@ -66,17 +64,15 @@ public class OLuceneDirectoryFactoryTest extends BaseLuceneTest {
         new OrientDB("embedded:./target/testDatabase/", OrientDBConfig.defaultConfig())) {
       ctx.execute(
           "create database "
-              + name.getMethodName()
+              + dbName
               + " plocal users (admin identified by 'adminpwd' role admin)");
       ODatabaseDocumentInternal db =
-          (ODatabaseDocumentInternal) ctx.open(name.getMethodName(), "admin", "adminpwd");
+          (ODatabaseDocumentInternal) ctx.open(dbName, "admin", "adminpwd");
       Directory directory = fc.createDirectory(db.getStorage(), "index.name", meta).getDirectory();
       assertThat(directory).isInstanceOf(MMapDirectory.class);
-      assertThat(
-              new File(
-                  "./target/testDatabase/" + name.getMethodName() + "/luceneIndexes/index.name"))
+      assertThat(new File("./target/testDatabase/" + dbName + "/luceneIndexes/index.name"))
           .exists();
-      ctx.drop(name.getMethodName());
+      ctx.drop(dbName);
     }
   }
 
@@ -87,13 +83,13 @@ public class OLuceneDirectoryFactoryTest extends BaseLuceneTest {
         new OrientDB("embedded:./target/testDatabase/", OrientDBConfig.defaultConfig())) {
       ctx.execute(
           "create database "
-              + name.getMethodName()
+              + dbName
               + " plocal users (admin identified by 'adminpwd' role admin)");
       ODatabaseDocumentInternal db =
-          (ODatabaseDocumentInternal) ctx.open(name.getMethodName(), "admin", "adminpwd");
+          (ODatabaseDocumentInternal) ctx.open(dbName, "admin", "adminpwd");
       Directory directory = fc.createDirectory(db.getStorage(), "index.name", meta).getDirectory();
       assertThat(directory).isInstanceOf(RAMDirectory.class);
-      ctx.drop(name.getMethodName());
+      ctx.drop(dbName);
     }
   }
 
@@ -104,15 +100,15 @@ public class OLuceneDirectoryFactoryTest extends BaseLuceneTest {
         new OrientDB("embedded:./target/testDatabase/", OrientDBConfig.defaultConfig())) {
       ctx.execute(
           "create database "
-              + name.getMethodName()
+              + dbName
               + " memory users (admin identified by 'adminpwd' role admin)");
       ODatabaseDocumentInternal db =
-          (ODatabaseDocumentInternal) ctx.open(name.getMethodName(), "admin", "adminpwd");
+          (ODatabaseDocumentInternal) ctx.open(dbName, "admin", "adminpwd");
       final Directory directory =
           fc.createDirectory(db.getStorage(), "index.name", meta).getDirectory();
       // 'ODatabaseType.MEMORY' and 'DIRECTORY_RAM' determines the RAMDirectory.
       assertThat(directory).isInstanceOf(RAMDirectory.class);
-      ctx.drop(name.getMethodName());
+      ctx.drop(dbName);
     }
   }
 
@@ -123,16 +119,16 @@ public class OLuceneDirectoryFactoryTest extends BaseLuceneTest {
         new OrientDB("embedded:./target/testDatabase/", OrientDBConfig.defaultConfig())) {
       ctx.execute(
           "create database "
-              + name.getMethodName()
+              + dbName
               + " memory users (admin identified by 'adminpwd' role admin)");
       ODatabaseDocumentInternal db =
-          (ODatabaseDocumentInternal) ctx.open(name.getMethodName(), "admin", "adminpwd");
+          (ODatabaseDocumentInternal) ctx.open(dbName, "admin", "adminpwd");
       final Directory directory =
           fc.createDirectory(db.getStorage(), "index.name", meta).getDirectory();
       // 'ODatabaseType.MEMORY' plus 'DIRECTORY_MMAP' leads to the same result as just
       // 'DIRECTORY_RAM'.
       assertThat(directory).isInstanceOf(RAMDirectory.class);
-      ctx.drop(name.getMethodName());
+      ctx.drop(dbName);
     }
   }
 }
