@@ -43,48 +43,44 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.NIOFSDirectory;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Created by enricorisa on 08/10/14. */
+/**
+ * Created by enricorisa on 08/10/14.
+ */
 @RunWith(JUnit4.class)
 public class LuceneVsLuceneTest extends BaseLuceneTest {
 
   private IndexWriter indexWriter;
   private OLucenePerFieldAnalyzerWrapper analyzer;
+  private Directory directory;
 
   @Before
-  public void init() {
-    InputStream stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
+  public void init() throws IOException {
+    directory = NIOFSDirectory.open(getPath().toPath());
 
-    db.execute("sql", getScriptFromStream(stream)).close();
+    try (InputStream stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql")) {
+      db.execute("sql", getScriptFromStream(stream)).close();
+      OFileUtils.deleteRecursively(getPath().getAbsoluteFile());
 
-    OFileUtils.deleteRecursively(getPath().getAbsoluteFile());
-    try {
-      Directory dir = getDirectory();
       analyzer = new OLucenePerFieldAnalyzerWrapper(new StandardAnalyzer());
-
       analyzer.add("title", new StandardAnalyzer()).add("Song.title", new StandardAnalyzer());
 
       IndexWriterConfig iwc = new IndexWriterConfig(analyzer);
       iwc.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
-      indexWriter = new IndexWriter(dir, iwc);
+      indexWriter = new IndexWriter(directory, iwc);
 
-    } catch (IOException e) {
-      e.printStackTrace();
+      db.command("create index Song.title on Song (title) FULLTEXT ENGINE LUCENE").close();
     }
-    db.command("create index Song.title on Song (title) FULLTEXT ENGINE LUCENE").close();
   }
 
   private File getPath() {
-    return new File("./target/databases/" + name.getMethodName());
-  }
-
-  protected Directory getDirectory() throws IOException {
-    return NIOFSDirectory.open(getPath().toPath());
+    return new File("./target/databases/" + dbName);
   }
 
   @Test
@@ -105,24 +101,33 @@ public class LuceneVsLuceneTest extends BaseLuceneTest {
     indexWriter.commit();
     indexWriter.close();
 
-    IndexReader reader = DirectoryReader.open(getDirectory());
-    assertThat(reader.numDocs()).isEqualTo(Long.valueOf(db.countClass("Song")).intValue());
+    try (IndexReader reader = DirectoryReader.open(directory)) {
+      assertThat(reader.numDocs()).isEqualTo(Long.valueOf(db.countClass("Song")).intValue());
 
-    IndexSearcher searcher = new IndexSearcher(reader);
+      IndexSearcher searcher = new IndexSearcher(reader);
 
-    Query query = new MultiFieldQueryParser(new String[] {"title"}, analyzer).parse("down the");
-    final TopDocs docs = searcher.search(query, Integer.MAX_VALUE);
-    ScoreDoc[] hits = docs.scoreDocs;
+      Query query = new MultiFieldQueryParser(new String[] {"title"}, analyzer).parse("down the");
+      final TopDocs docs = searcher.search(query, Integer.MAX_VALUE);
+      ScoreDoc[] hits = docs.scoreDocs;
 
-    OResultSet oDocs =
-        db.query("select *,$score from Song where title LUCENE \"down the\" order by $score desc");
+      OResultSet oDocs =
+          db.query(
+              "select *,$score from Song where title LUCENE \"down the\" order by $score desc");
 
-    int i = 0;
-    for (ScoreDoc hit : hits) {
-      assertThat(oDocs.next().<Float>getProperty("$score")).isEqualTo(hit.score);
-      i++;
+      int i = 0;
+      for (ScoreDoc hit : hits) {
+        assertThat(oDocs.next().<Float>getProperty("$score")).isEqualTo(hit.score);
+        i++;
+      }
+      Assert.assertEquals(i, hits.length);
     }
-    Assert.assertEquals(i, hits.length);
-    reader.close();
+  }
+
+  @After
+  public void after() throws IOException {
+    indexWriter.close();
+    analyzer.close();
+
+    directory.close();
   }
 }
