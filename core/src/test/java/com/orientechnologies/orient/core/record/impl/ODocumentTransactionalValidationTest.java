@@ -7,14 +7,12 @@ import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.OVertex;
+import java.util.Arrays;
+import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.List;
-
 public class ODocumentTransactionalValidationTest extends BaseMemoryInternalDatabase {
-
 
   @Test(expected = OValidationException.class)
   public void simpleConstraintShouldBeCheckedOnCommitFalseTest() {
@@ -83,26 +81,26 @@ public class ODocumentTransactionalValidationTest extends BaseMemoryInternalData
   }
 
   @Test(expected = OValidationException.class)
-  public void requiredLinkBagNegativeTest(){
+  public void requiredLinkBagNegativeTest() {
     OClass edgeClass = db.createEdgeClass("lst");
     OClass clazz = db.createVertexClass("Validation");
     OClass linkClass = db.createVertexClass("links");
-    String edgePropertyName = OVertex.getDirectEdgeLinkFieldName(ODirection.OUT, edgeClass.getName());
-    clazz.createProperty(edgePropertyName, OType.LINKBAG, linkClass)
-        .setMandatory(true);
+    String edgePropertyName =
+        OVertex.getDirectEdgeLinkFieldName(ODirection.OUT, edgeClass.getName());
+    clazz.createProperty(edgePropertyName, OType.LINKBAG, linkClass).setMandatory(true);
     db.begin();
     db.newVertex(clazz.getName()).save();
     db.commit();
   }
 
   @Test
-  public void requiredLinkBagPositiveTest(){
+  public void requiredLinkBagPositiveTest() {
     OClass edgeClass = db.createEdgeClass("lst");
     OClass clazz = db.createVertexClass("Validation");
     OClass linkClass = db.createVertexClass("links");
-    String edgePropertyName = OVertex.getDirectEdgeLinkFieldName(ODirection.OUT, edgeClass.getName());
-    clazz.createProperty(edgePropertyName, OType.LINKBAG, linkClass)
-        .setMandatory(true);
+    String edgePropertyName =
+        OVertex.getDirectEdgeLinkFieldName(ODirection.OUT, edgeClass.getName());
+    clazz.createProperty(edgePropertyName, OType.LINKBAG, linkClass).setMandatory(true);
     db.begin();
     OVertex vrt = db.newVertex(clazz.getName());
     OVertex link = db.newVertex(linkClass.getName());
@@ -112,13 +110,13 @@ public class ODocumentTransactionalValidationTest extends BaseMemoryInternalData
   }
 
   @Test(expected = OValidationException.class)
-  public void requiredLinkBagFailsIfBecomesEmpty(){
+  public void requiredLinkBagFailsIfBecomesEmpty() {
     OClass edgeClass = db.createEdgeClass("lst");
     OClass clazz = db.createVertexClass("Validation");
     OClass linkClass = db.createVertexClass("links");
-    String edgePropertyName = OVertex.getDirectEdgeLinkFieldName(ODirection.OUT, edgeClass.getName());
-    clazz.createProperty(edgePropertyName, OType.LINKBAG, linkClass)
-        .setMandatory(true).setMin("1");
+    String edgePropertyName =
+        OVertex.getDirectEdgeLinkFieldName(ODirection.OUT, edgeClass.getName());
+    clazz.createProperty(edgePropertyName, OType.LINKBAG, linkClass).setMandatory(true).setMin("1");
     db.begin();
     OVertex vrt = db.newVertex(clazz.getName());
     OVertex link = db.newVertex(linkClass.getName());
@@ -134,13 +132,12 @@ public class ODocumentTransactionalValidationTest extends BaseMemoryInternalData
   }
 
   @Test(expected = OValidationException.class)
-  public void requiredArrayFailsIfBecomesEmpty(){
+  public void requiredArrayFailsIfBecomesEmpty() {
     OClass clazz = db.createVertexClass("Validation");
-    clazz.createProperty("arr", OType.EMBEDDEDLIST)
-        .setMandatory(true).setMin("1");
+    clazz.createProperty("arr", OType.EMBEDDEDLIST).setMandatory(true).setMin("1");
     db.begin();
     OVertex vrt = db.newVertex(clazz.getName());
-    vrt.setProperty("arr", Arrays.asList(1,2,3));
+    vrt.setProperty("arr", Arrays.asList(1, 2, 3));
     vrt.save();
     db.commit();
     db.begin();
@@ -151,15 +148,14 @@ public class ODocumentTransactionalValidationTest extends BaseMemoryInternalData
     db.commit();
   }
 
-
   @Test
-  public void requiredLinkBagCanBeEmptyDuringTransaction(){
+  public void requiredLinkBagCanBeEmptyDuringTransaction() {
     OClass edgeClass = db.createEdgeClass("lst");
     OClass clazz = db.createVertexClass("Validation");
     OClass linkClass = db.createVertexClass("links");
-    String edgePropertyName = OVertex.getDirectEdgeLinkFieldName(ODirection.OUT, edgeClass.getName());
-    clazz.createProperty(edgePropertyName, OType.LINKBAG, linkClass)
-        .setMandatory(true);
+    String edgePropertyName =
+        OVertex.getDirectEdgeLinkFieldName(ODirection.OUT, edgeClass.getName());
+    clazz.createProperty(edgePropertyName, OType.LINKBAG, linkClass).setMandatory(true);
     db.begin();
     OVertex vrt = db.newVertex(clazz.getName());
     OVertex link = db.newVertex(linkClass.getName());
@@ -178,7 +174,9 @@ public class ODocumentTransactionalValidationTest extends BaseMemoryInternalData
     db.commit();
     db.begin();
     vrt.load();
-    Assert.assertEquals(link2.getIdentity(), vrt.getVertices(ODirection.OUT, edgeClass).iterator().next().getIdentity());
+    Assert.assertEquals(
+        link2.getIdentity(),
+        vrt.getVertices(ODirection.OUT, edgeClass).iterator().next().getIdentity());
     db.commit();
   }
 
@@ -194,8 +192,8 @@ public class ODocumentTransactionalValidationTest extends BaseMemoryInternalData
     vertex.save();
     db.commit();
     db.begin();
-    float actual = ((OVertex)vertex.reload()).getProperty("dbl");
-    Assert.assertEquals( 2.39, actual, 0.01);
+    float actual = ((OVertex) vertex.reload()).getProperty("dbl");
+    Assert.assertEquals(2.39, actual, 0.01);
     db.commit();
   }
 
@@ -209,6 +207,4 @@ public class ODocumentTransactionalValidationTest extends BaseMemoryInternalData
     vertex.save();
     db.commit();
   }
-
-
 }

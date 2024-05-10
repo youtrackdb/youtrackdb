@@ -19,6 +19,8 @@
  */
 package com.orientechnologies.orient.core.record.impl;
 
+import static com.orientechnologies.orient.core.config.OGlobalConfiguration.DB_CUSTOM_SUPPORT;
+
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.io.OIOUtils;
@@ -53,17 +55,14 @@ import com.orientechnologies.orient.core.sql.OSQLHelper;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.filter.OSQLPredicate;
 import com.orientechnologies.orient.core.tx.OTransaction;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.*;
 import java.lang.ref.WeakReference;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
-
-import static com.orientechnologies.orient.core.config.OGlobalConfiguration.DB_CUSTOM_SUPPORT;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Document representation to handle values dynamically. Can be used in schema-less, schema-mixed
@@ -1228,7 +1227,9 @@ public class ODocument extends ORecordAbstract
     }
 
     if (p.isReadonly() && !ORecordVersionHelper.isTombstone(iRecord.getVersion())) {
-      if (entry != null && (entry.isTxChanged() || entry.isTxTrackedModified()) && !entry.isTxCreated()) {
+      if (entry != null
+          && (entry.isTxChanged() || entry.isTxTrackedModified())
+          && !entry.isTxCreated()) {
         // check if the field is actually changed by equal.
         // this is due to a limitation in the merge algorithm used server side marking all
         // non-simple fields as dirty
@@ -2566,7 +2567,9 @@ public class ODocument extends ORecordAbstract
 
     final Set<String> dirtyFields = new HashSet<>();
     for (Entry<String, ODocumentEntry> entry : fields.entrySet()) {
-      if (entry.getValue().isTxChanged() || entry.getValue().isTxTrackedModified() || entry.getValue().isTxCreated()) {
+      if (entry.getValue().isTxChanged()
+          || entry.getValue().isTxTrackedModified()
+          || entry.getValue().isTxCreated()) {
         dirtyFields.add(entry.getKey());
       }
     }
@@ -4081,7 +4084,7 @@ public class ODocument extends ORecordAbstract
           convertToEmbeddedType(prop);
           continue;
         }
-        if (fields == null){
+        if (fields == null) {
           continue;
         }
         final ODocumentEntry entry = fields.get(prop.getName());
