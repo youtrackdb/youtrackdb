@@ -1233,7 +1233,7 @@ public class ODocument extends ORecordAbstract
         // check if the field is actually changed by equal.
         // this is due to a limitation in the merge algorithm used server side marking all
         // non-simple fields as dirty
-        Object orgVal = entry.original;
+        Object orgVal = entry.getOnLoadValue();
         boolean simple =
             fieldValue != null ? OType.isSimpleType(fieldValue) : OType.isSimpleType(orgVal);
         if ((simple)

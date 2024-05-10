@@ -976,6 +976,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
           changed = true;
         }
         if (clazz.isOuser()) {
+          doc.validate();
           changed = OUser.encodePassword(this, doc);
         }
         if (clazz.isTriggered()) {

@@ -137,7 +137,9 @@ public class SchemaTest extends DocumentDBBaseTest {
   @Test(expectedExceptions = OValidationException.class)
   public void checkErrorOnUserNoPasswd() {
 
+    database.begin();
     database.getMetadata().getSecurity().createUser("error", null, (String) null);
+    database.commit();
   }
 
   @Test
