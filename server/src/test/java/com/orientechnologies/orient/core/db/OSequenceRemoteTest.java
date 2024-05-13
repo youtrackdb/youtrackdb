@@ -38,11 +38,14 @@ public class OSequenceRemoteTest extends AbstractRemoteTest {
 
     db.getMetadata().reload();
 
+    db.begin();
     for (int i = 0; i < 10; i++) {
       OVertex person = db.newVertex("Person");
       person.setProperty("name", "Foo" + i);
+      person.setProperty("id", 1000 + i);
       person.save();
     }
+    db.commit();
 
     assertThat(db.countClass("Person")).isEqualTo(10);
   }
