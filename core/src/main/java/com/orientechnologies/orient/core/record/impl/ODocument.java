@@ -33,54 +33,20 @@ import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentAbstract;
 import com.orientechnologies.orient.core.db.document.RecordListenersManager;
-import com.orientechnologies.orient.core.db.record.OAutoConvertToRecord;
-import com.orientechnologies.orient.core.db.record.ODetachable;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
-import com.orientechnologies.orient.core.db.record.OMultiValueChangeTimeLine;
-import com.orientechnologies.orient.core.db.record.ORecordElement;
-import com.orientechnologies.orient.core.db.record.ORecordLazyList;
-import com.orientechnologies.orient.core.db.record.ORecordLazyMap;
-import com.orientechnologies.orient.core.db.record.ORecordLazyMultiValue;
-import com.orientechnologies.orient.core.db.record.ORecordLazySet;
-import com.orientechnologies.orient.core.db.record.OTrackedList;
-import com.orientechnologies.orient.core.db.record.OTrackedMap;
-import com.orientechnologies.orient.core.db.record.OTrackedMultiValue;
-import com.orientechnologies.orient.core.db.record.OTrackedSet;
+import com.orientechnologies.orient.core.db.record.*;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.exception.OConfigurationException;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.OQueryParsingException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.exception.OSchemaException;
-import com.orientechnologies.orient.core.exception.OSecurityException;
-import com.orientechnologies.orient.core.exception.OValidationException;
+import com.orientechnologies.orient.core.exception.*;
 import com.orientechnologies.orient.core.id.OEmptyRecordId;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.iterator.OEmptyMapEntryIterator;
 import com.orientechnologies.orient.core.metadata.OMetadataInternal;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OGlobalProperty;
-import com.orientechnologies.orient.core.metadata.schema.OImmutableClass;
-import com.orientechnologies.orient.core.metadata.schema.OImmutableProperty;
-import com.orientechnologies.orient.core.metadata.schema.OImmutableSchema;
-import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.metadata.schema.OSchemaShared;
-import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.metadata.schema.*;
 import com.orientechnologies.orient.core.metadata.security.OIdentity;
 import com.orientechnologies.orient.core.metadata.security.OPropertyAccess;
 import com.orientechnologies.orient.core.metadata.security.OPropertyEncryption;
 import com.orientechnologies.orient.core.metadata.security.OSecurityInternal;
-import com.orientechnologies.orient.core.record.OEdge;
-import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
-import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.ORecordSchemaAware;
-import com.orientechnologies.orient.core.record.ORecordVersionHelper;
-import com.orientechnologies.orient.core.record.OVertex;
+import com.orientechnologies.orient.core.record.*;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializerFactory;
@@ -89,12 +55,7 @@ import com.orientechnologies.orient.core.sql.OSQLHelper;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.filter.OSQLPredicate;
 import com.orientechnologies.orient.core.tx.OTransaction;
-import java.io.ByteArrayOutputStream;
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
+import java.io.*;
 import java.lang.ref.WeakReference;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -999,7 +960,7 @@ public class ODocument extends ORecordAbstract
     OSecurityInternal security = internal.getSharedContext().getSecurity();
     for (Entry<String, ODocumentEntry> mapEntry : iRecord.fields.entrySet()) {
       ODocumentEntry entry = mapEntry.getValue();
-      if (entry != null && (entry.isChanged() || entry.isTrackedModified())) {
+      if (entry != null && (entry.isTxChanged() || entry.isTxTrackedModified())) {
         if (!security.isAllowedWrite(internal, iRecord, mapEntry.getKey())) {
           throw new OSecurityException(
               String.format(
@@ -1266,11 +1227,13 @@ public class ODocument extends ORecordAbstract
     }
 
     if (p.isReadonly() && !ORecordVersionHelper.isTombstone(iRecord.getVersion())) {
-      if (entry != null && (entry.isChanged() || entry.isTrackedModified()) && !entry.isCreated()) {
+      if (entry != null
+          && (entry.isTxChanged() || entry.isTxTrackedModified())
+          && !entry.isTxCreated()) {
         // check if the field is actually changed by equal.
-        // this is due to a limitation in the merge algorithm used server side marking all non
-        // simple fields as dirty
-        Object orgVal = entry.original;
+        // this is due to a limitation in the merge algorithm used server side marking all
+        // non-simple fields as dirty
+        Object orgVal = entry.getOnLoadValue();
         boolean simple =
             fieldValue != null ? OType.isSimpleType(fieldValue) : OType.isSimpleType(orgVal);
         if ((simple)
@@ -2588,6 +2551,32 @@ public class ODocument extends ORecordAbstract
   }
 
   /**
+   * Retrieves the array of dirty fields for the transaction of this document.
+   *
+   * @return The array of dirty fields.
+   */
+  public String[] getTxDirtyFields() {
+    checkForLoading();
+    if (primaryRecord != null) {
+      return ((ODocument) primaryRecord).getTxDirtyFields();
+    }
+
+    if (fields == null || fields.isEmpty()) {
+      return EMPTY_STRINGS;
+    }
+
+    final Set<String> dirtyFields = new HashSet<>();
+    for (Entry<String, ODocumentEntry> entry : fields.entrySet()) {
+      if (entry.getValue().isTxChanged()
+          || entry.getValue().isTxTrackedModified()
+          || entry.getValue().isTxCreated()) {
+        dirtyFields.add(entry.getKey());
+      }
+    }
+    return dirtyFields.toArray(new String[0]);
+  }
+
+  /**
    * Returns the original value of a field before it has been changed.
    *
    * @param iFieldName Property name to retrieve the original value
@@ -3685,7 +3674,7 @@ public class ODocument extends ORecordAbstract
   /**
    * Validates the record following the declared constraints defined in schema such as mandatory,
    * notNull, min, max, regexp, etc. If the schema is not defined for the current class or there are
-   * not constraints then the validation is ignored.
+   * no constraints then the validation is ignored.
    *
    * @throws OValidationException if the document breaks some validation constraints defined in the
    *                              schema
@@ -4079,7 +4068,7 @@ public class ODocument extends ORecordAbstract
     return fields != null && fields.containsKey(iFiledName);
   }
 
-  void autoConvertValues() {
+  public void autoConvertValues() {
     checkForLoading();
     if (primaryRecord != null) {
       ((ODocument) primaryRecord).autoConvertValues();
@@ -4093,6 +4082,9 @@ public class ODocument extends ORecordAbstract
         OClass linkedClass = prop.getLinkedClass();
         if (type == OType.EMBEDDED && linkedClass != null) {
           convertToEmbeddedType(prop);
+          continue;
+        }
+        if (fields == null) {
           continue;
         }
         final ODocumentEntry entry = fields.get(prop.getName());

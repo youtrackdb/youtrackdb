@@ -47,25 +47,31 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
   @Test
   public void openDb() {
     createBasicTestSchema();
-
-    record = database.newInstance("Whiz");
+    database.begin();
     account = new ODocument("Account");
+    account.save();
     account.field("id", "1234567890");
+    database.commit();
   }
 
   @Test(dependsOnMethods = "openDb", expectedExceptions = OValidationException.class)
   public void validationMandatory() {
+    database.begin();
+    record = database.newInstance("Whiz");
     record.clear();
     record.save();
+    database.commit();
   }
 
   @Test(dependsOnMethods = "validationMandatory", expectedExceptions = OValidationException.class)
   public void validationMinString() {
-    record.clear();
+    database.begin();
+    record = database.newInstance("Whiz");
     record.field("account", account);
     record.field("id", 23723);
     record.field("text", "");
     record.save();
+    database.commit();
   }
 
   @Test(
@@ -73,7 +79,8 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
       expectedExceptions = OValidationException.class,
       expectedExceptionsMessageRegExp = "(?s).*more.*than.*")
   public void validationMaxString() {
-    record.clear();
+    database.begin();
+    record = database.newInstance("Whiz");
     record.field("account", account);
     record.field("id", 23723);
     record.field(
@@ -81,6 +88,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
         "clfdkkjsd hfsdkjhf fjdkghjkfdhgjdfh gfdgjfdkhgfd skdjaksdjf skdjf sdkjfsd jfkldjfkjsdf"
             + " kljdk fsdjf kldjgjdhjg khfdjgk hfjdg hjdfhgjkfhdgj kfhdjghrjg");
     record.save();
+    database.commit();
   }
 
   @Test(
@@ -88,28 +96,34 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
       expectedExceptions = OValidationException.class,
       expectedExceptionsMessageRegExp = "(?s).*precedes.*")
   public void validationMinDate() throws ParseException {
-    record.clear();
+    database.begin();
+    record = database.newInstance("Whiz");
     record.field("account", account);
     record.field("date", new SimpleDateFormat("dd/MM/yyyy").parse("01/33/1976"));
     record.field("text", "test");
     record.save();
+    database.commit();
   }
 
   @Test(dependsOnMethods = "validationMinDate", expectedExceptions = OValidationException.class)
   public void validationEmbeddedType() throws ParseException {
-    record.clear();
+    database.begin();
+    record = database.newInstance("Whiz");
     record.field("account", database.getUser());
     record.save();
+    database.commit();
   }
 
   @Test(
       dependsOnMethods = "validationEmbeddedType",
       expectedExceptions = OValidationException.class)
   public void validationStrictClass() throws ParseException {
+    database.begin();
     ODocument doc = new ODocument("StrictTest");
     doc.field("id", 122112);
     doc.field("antani", "122112");
     doc.save();
+    database.commit();
   }
 
   @Test(dependsOnMethods = "validationStrictClass")

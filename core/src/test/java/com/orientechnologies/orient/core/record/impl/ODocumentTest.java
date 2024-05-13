@@ -239,7 +239,7 @@ public class ODocumentTest {
       classA.createProperty("name", OType.STRING);
       OProperty property = classA.createProperty("property", OType.STRING);
       property.setReadonly(true);
-
+      db.begin();
       ODocument doc = new ODocument(classA);
       doc.field("name", "My Name");
       doc.field("property", "value1");
@@ -254,6 +254,7 @@ public class ODocumentTest {
       doc.field("property", "value4");
       doc.undo("property"); // we decided undo readonly field
       doc.save();
+      db.commit();
     } finally {
       if (db != null) {
         db.close();

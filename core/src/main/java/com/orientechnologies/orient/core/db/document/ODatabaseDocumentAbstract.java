@@ -1616,7 +1616,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   }
 
   /**
-   * Saves a document to the database. Behavior depends by the current running transaction if any.
+   * Saves a document to the database. Behavior depends on the current running transaction if any.
    * If no transaction is running then changes apply immediately. If an Optimistic transaction is
    * running then the record will be changed at commit time. The current transaction will continue
    * to see the record as modified, while others not. If a Pessimistic transaction is running, then
@@ -1797,11 +1797,11 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
               iRecordUpdatedCallback);
     }
 
-    ODocument doc = (ODocument) iRecord;
+    ODocument doc = document;
     ODocumentInternal.checkClass(doc, this);
-    //  IN TX THE VALIDATION MAY BE RUN TWICE BUT IS CORRECT BECAUSE OF DIFFERENT RECORD STATUS
+
     try {
-      doc.validate();
+      doc.autoConvertValues();
     } catch (OValidationException e) {
       doc.undo();
       throw e;
