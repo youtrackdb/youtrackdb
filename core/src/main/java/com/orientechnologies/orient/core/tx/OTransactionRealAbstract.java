@@ -58,8 +58,7 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
   protected int newObjectCounter = -2;
   private final Map<String, Object> userData = new HashMap<>();
   private Map<ORID, LockedRecordMetadata> noTxLocks;
-  @Nullable
-  private OTxMetadataHolder metadata = null;
+  @Nullable private OTxMetadataHolder metadata = null;
 
   /**
    * token This set is used to track which documents are changed during tx, if documents are changed
@@ -67,8 +66,7 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
    */
   protected final Set<ODocument> changedDocuments = new HashSet<>();
 
-  @Nullable
-  private List<byte[]> serializedOperations;
+  @Nullable private List<byte[]> serializedOperations;
 
   OTransactionRealAbstract(final ODatabaseDocumentInternal database, final int id) {
     super(database);
@@ -128,11 +126,9 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
     return id;
   }
 
-  public void clearRecordEntries() {
-  }
+  public void clearRecordEntries() {}
 
-  public void restore() {
-  }
+  public void restore() {}
 
   @Override
   public int getEntryCount() {
@@ -396,7 +392,7 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
 
       final OTransactionIndexChanges indexChanges = entry.getValue();
       for (final Iterator<OTransactionIndexChangesPerKey> iterator =
-          indexChanges.changesPerKey.values().iterator();
+              indexChanges.changesPerKey.values().iterator();
           iterator.hasNext(); ) {
         final OTransactionIndexChangesPerKey keyChanges = iterator.next();
         if (isIndexKeyMayDependOnRid(keyChanges.key, oldRid, fieldRidDependencies)) {
@@ -616,8 +612,8 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
       case CUSTOM, ANY -> Dependency.Unknown;
       case EMBEDDED, LINK -> Dependency.Yes;
       case LINKLIST, LINKSET, LINKMAP, LINKBAG, EMBEDDEDLIST, EMBEDDEDSET, EMBEDDEDMAP ->
-        // under normal conditions, collection field type is already resolved to its
-        // component type
+          // under normal conditions, collection field type is already resolved to its
+          // component type
           throw new IllegalStateException("Collection field type is not allowed here");
       default -> // all other primitive types which doesn't depend on rids
           Dependency.No;
