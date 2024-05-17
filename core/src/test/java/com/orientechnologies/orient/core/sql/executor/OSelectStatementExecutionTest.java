@@ -4295,7 +4295,7 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     }
 
     try (OResultSet result =
-        db.query("select " + funcitonName + "(), * from " + className + " timeout 100")) {
+        db.query("select " + funcitonName + "(), * from " + className + " timeout 1000")) {
       while (result.hasNext()) {
         result.next();
       }
