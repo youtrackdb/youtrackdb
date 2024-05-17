@@ -211,7 +211,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -268,7 +270,9 @@ public abstract class OAbstractPaginatedStorage
   private final Striped<Semaphore> lockManager = Striped.semaphore(1024, Integer.MAX_VALUE);
   protected volatile OSBTreeCollectionManagerShared sbTreeCollectionManager;
 
-  /** Lock is used to atomically update record versions. */
+  /**
+   * Lock is used to atomically update record versions.
+   */
   private final Striped<Lock> recordVersionManager = Striped.lazyWeakLock(1024);
 
   private final Map<String, OCluster> clusterMap = new HashMap<>();
@@ -336,6 +340,9 @@ public abstract class OAbstractPaginatedStorage
 
   private volatile int backupRunning = 0;
   private volatile int ddlRunning = 0;
+
+  protected final Lock backupLock = new ReentrantLock();
+  protected final Condition backupIsDone = backupLock.newCondition();
 
   public OAbstractPaginatedStorage(
       final String name, final String filePath, final int id, OrientDBInternal context) {
@@ -2256,7 +2263,7 @@ public abstract class OAbstractPaginatedStorage
    * another node where all the rids are already allocated in the other node.
    *
    * @param transaction the transaction to commit
-   * @param allocated true if the operation is pre-allocated commit
+   * @param allocated   true if the operation is pre-allocated commit
    * @return The list of operations applied by the transaction
    */
   protected List<ORecordOperation> commit(
@@ -3285,9 +3292,9 @@ public abstract class OAbstractPaginatedStorage
    * Puts the given value under the given key into this storage for the index with the given index
    * id. Validates the operation using the provided validator.
    *
-   * @param indexId the index id of the index to put the value into.
-   * @param key the key to put the value under.
-   * @param value the value to put.
+   * @param indexId   the index id of the index to put the value into.
+   * @param key       the key to put the value under.
+   * @param value     the value to put.
    * @param validator the operation validator.
    * @return {@code true} if the validator allowed the put, {@code false} otherwise.
    * @see IndexEngineValidator#validate(Object, Object, Object)
@@ -4085,7 +4092,9 @@ public abstract class OAbstractPaginatedStorage
     }
   }
 
-  /** Executes the command request and return the result back. */
+  /**
+   * Executes the command request and return the result back.
+   */
   @Override
   public final Object command(final OCommandRequestText command) {
     try {
@@ -4473,7 +4482,7 @@ public abstract class OAbstractPaginatedStorage
   protected abstract OLogSequenceNumber copyWALToIncrementalBackup(
       ZipOutputStream zipOutputStream, long startSegment) throws IOException;
 
-  @SuppressWarnings("unused")
+  @SuppressWarnings({"unused", "BooleanMethodIsAlwaysInverted"})
   protected abstract boolean isWriteAllowedDuringIncrementalBackup();
 
   @SuppressWarnings("unused")
@@ -4507,7 +4516,9 @@ public abstract class OAbstractPaginatedStorage
       byte[] iv)
       throws IOException;
 
-  /** Checks if the storage is open. If it's closed an exception is raised. */
+  /**
+   * Checks if the storage is open. If it's closed an exception is raised.
+   */
   protected final void checkOpennessAndMigration() {
     checkErrorState();
 
@@ -5554,10 +5565,10 @@ public abstract class OAbstractPaginatedStorage
   }
 
   @SuppressWarnings("unused")
-  protected void closeClusters(final boolean onDelete) throws IOException {
+  protected void closeClusters() throws IOException {
     for (final OCluster cluster : clusters) {
       if (cluster != null) {
-        cluster.close(!onDelete);
+        cluster.close(true);
       }
     }
     clusters.clear();
@@ -5565,19 +5576,10 @@ public abstract class OAbstractPaginatedStorage
   }
 
   @SuppressWarnings("unused")
-  protected void closeIndexes(final OAtomicOperation atomicOperation, final boolean onDelete) {
+  protected void closeIndexes(final OAtomicOperation atomicOperation) {
     for (final OBaseIndexEngine engine : indexEngines) {
       if (engine != null) {
-        if (onDelete) {
-          try {
-            engine.delete(atomicOperation);
-          } catch (final IOException e) {
-            OLogManager.instance()
-                .error(this, "Can not delete index engine " + engine.getName(), e);
-          }
-        } else {
-          engine.close();
-        }
+        engine.close();
       }
     }
 
@@ -6935,23 +6937,36 @@ public abstract class OAbstractPaginatedStorage
     }
   }
 
-  public synchronized void startDDL() {
-    waitBackup();
-    this.ddlRunning += 1;
-  }
-
-  public synchronized void endDDL() {
-    assert this.ddlRunning > 0;
-    this.ddlRunning -= 1;
-    if (this.ddlRunning == 0) {
-      this.notifyAll();
+  public void startDDL() {
+    backupLock.lock();
+    try {
+      waitBackup();
+      //noinspection NonAtomicOperationOnVolatileField
+      this.ddlRunning += 1;
+    } finally {
+      backupLock.unlock();
     }
   }
 
-  private synchronized void waitBackup() {
+  public void endDDL() {
+    backupLock.lock();
+    try {
+      assert this.ddlRunning > 0;
+      //noinspection NonAtomicOperationOnVolatileField
+      this.ddlRunning -= 1;
+
+      if (this.ddlRunning == 0) {
+        backupIsDone.signalAll();
+      }
+    } finally {
+      backupLock.unlock();
+    }
+  }
+
+  private void waitBackup() {
     while (isIcrementalBackupRunning()) {
       try {
-        this.wait();
+        backupIsDone.await();
       } catch (InterruptedException e) {
         throw OException.wrapException(
             new OInterruptedException("Interrupted wait for backup to finish"), e);
@@ -6973,32 +6988,45 @@ public abstract class OAbstractPaginatedStorage
   }
 
   @SuppressWarnings("unused")
-  protected synchronized void endBackup() {
-    assert this.backupRunning > 0;
-    this.backupRunning -= 1;
-    if (this.backupRunning == 0) {
-      this.notifyAll();
+  protected void endBackup() {
+    backupLock.lock();
+    try {
+      assert this.backupRunning > 0;
+      //noinspection NonAtomicOperationOnVolatileField
+      this.backupRunning -= 1;
+
+      if (this.backupRunning == 0) {
+        backupIsDone.signalAll();
+      }
+    } finally {
+      backupLock.unlock();
     }
   }
 
-  public synchronized boolean isIcrementalBackupRunning() {
+  public boolean isIcrementalBackupRunning() {
     return this.backupRunning > 0;
   }
 
-  protected synchronized boolean isDDLRunning() {
+  protected boolean isDDLRunning() {
     return this.ddlRunning > 0;
   }
 
   @SuppressWarnings("unused")
-  protected synchronized void startBackup() {
-    while (isDDLRunning()) {
-      try {
-        this.wait();
-      } catch (InterruptedException e) {
-        throw OException.wrapException(
-            new OInterruptedException("Interrupted wait for backup to finish"), e);
+  protected void startBackup() {
+    backupLock.lock();
+    try {
+      while (isDDLRunning()) {
+        try {
+          backupIsDone.await();
+        } catch (InterruptedException e) {
+          throw OException.wrapException(
+              new OInterruptedException("Interrupted wait for backup to finish"), e);
+        }
       }
+      //noinspection NonAtomicOperationOnVolatileField
+      this.backupRunning += 1;
+    } finally {
+      backupLock.unlock();
     }
-    this.backupRunning += 1;
   }
 }

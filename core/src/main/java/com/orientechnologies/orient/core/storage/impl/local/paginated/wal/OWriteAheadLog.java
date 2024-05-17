@@ -32,7 +32,7 @@ import java.util.Map;
  * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 6/25/14
  */
-public interface OWriteAheadLog {
+public interface OWriteAheadLog extends AutoCloseable {
   String MASTER_RECORD_EXTENSION = ".wmr";
   String WAL_SEGMENT_EXTENSION = ".wal";
 
