@@ -166,10 +166,6 @@ public class ODirectMemoryStorage extends OAbstractPaginatedStorage {
   }
 
   @Override
-  protected void addFileToDirectory(
-      final String name, final InputStream stream, final File directory) {}
-
-  @Override
   protected OWriteAheadLog createWalFromIBUFiles(
       final File directory,
       final OContextConfiguration contextConfiguration,

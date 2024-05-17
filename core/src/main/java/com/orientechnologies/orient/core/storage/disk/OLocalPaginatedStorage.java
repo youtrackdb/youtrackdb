@@ -515,16 +515,18 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
     return walDirectory;
   }
 
-  @Override
-  protected void addFileToDirectory(
-      final String name, final InputStream stream, final java.io.File directory)
+  private void addFileToDirectory(final String name, final InputStream stream, final File directory)
       throws IOException {
     final byte[] buffer = new byte[4096];
 
     int rb = -1;
     int bl = 0;
 
-    final java.io.File walBackupFile = new java.io.File(directory, name);
+    final File walBackupFile = new File(directory, name);
+    if (!walBackupFile.toPath().normalize().startsWith(directory.toPath().normalize())) {
+      throw new IllegalStateException("Bad zip entry " + name);
+    }
+
     try (final FileOutputStream outputStream = new FileOutputStream(walBackupFile)) {
       try (final BufferedOutputStream bufferedOutputStream =
           new BufferedOutputStream(outputStream)) {
@@ -939,8 +941,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
   }
 
   @Override
-  public void fullIncrementalBackup(final OutputStream stream)
-      throws UnsupportedOperationException {
+  public void fullIncrementalBackup(final OutputStream stream) {
     try {
       incrementalBackup(stream, null, false);
     } catch (IOException e) {

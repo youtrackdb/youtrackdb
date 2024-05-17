@@ -4505,10 +4505,6 @@ public abstract class OAbstractPaginatedStorage
   protected abstract File createWalTempDirectory();
 
   @SuppressWarnings("unused")
-  protected abstract void addFileToDirectory(String name, InputStream stream, File directory)
-      throws IOException;
-
-  @SuppressWarnings("unused")
   protected abstract OWriteAheadLog createWalFromIBUFiles(
       File directory,
       final OContextConfiguration contextConfiguration,
