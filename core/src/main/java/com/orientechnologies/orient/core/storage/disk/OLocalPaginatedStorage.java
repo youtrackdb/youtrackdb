@@ -1850,6 +1850,14 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
       final long expectedFileId = OLongSerializer.INSTANCE.deserialize(binaryFileId, 0);
       long fileId;
 
+      var rootDirectory = getStoragePath();
+      if (!rootDirectory
+          .resolve(zipEntry.getName())
+          .normalize()
+          .startsWith(rootDirectory.normalize())) {
+        throw new IllegalStateException("Bad zip entry " + zipEntry.getName());
+      }
+
       if (!writeCache.exists(zipEntry.getName())) {
         fileId = readCache.addFile(zipEntry.getName(), expectedFileId, writeCache);
       } else {
