@@ -3,11 +3,8 @@ package com.orientechnologies.orient.core.sql.method.misc;
 import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.orient.core.record.impl.ODocument;
-
 import java.util.*;
 import java.util.stream.IntStream;
-
-import jnr.ffi.annotations.In;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -122,8 +119,7 @@ public class OSQLMethodAsSetTest {
   @Test
   public void testIterableOrder() {
 
-    var values = new ArrayList<Integer>(IntStream.rangeClosed(0, 1000)
-        .boxed().toList());
+    var values = new ArrayList<Integer>(IntStream.rangeClosed(0, 1000).boxed().toList());
     Random rnd = new Random();
     var seed = System.currentTimeMillis();
     rnd.setSeed(seed);
@@ -136,6 +132,4 @@ public class OSQLMethodAsSetTest {
     Assert.assertTrue(result instanceof Set<?>);
     Assert.assertEquals(values, ((Set<?>) result).stream().toList());
   }
-
-
 }
