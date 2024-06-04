@@ -18,16 +18,9 @@ import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.record.impl.OElementInternal;
 import com.orientechnologies.orient.core.serialization.OSerializableStream;
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 
 /**
@@ -249,7 +242,12 @@ public class OResultInternal implements OResult {
         return ((List) input).stream().map(OResultInternal::wrap).collect(Collectors.toList());
       } else {
         if (isEmbeddedSet(input)) {
-          return ((Set) input).stream().map(OResultInternal::wrap).collect(Collectors.toSet());
+          Stream mappedSet = ((Set) input).stream().map(OResultInternal::wrap);
+          if (input instanceof LinkedHashSet<?>) {
+            return mappedSet.collect(Collectors.toCollection(LinkedHashSet::new));
+          } else {
+            return mappedSet.collect(Collectors.toSet());
+          }
         } else {
           if (isEmbeddedMap(input)) {
             Map result = new HashMap();
