@@ -57,6 +57,7 @@ public class OSQLMethodAsSetTest {
     assertEquals(result, expected);
   }
 
+  @Test
   public void testIterable() {
     // The expected behavior is to return a set with all of the elements
     // of the iterable in it.
@@ -74,6 +75,7 @@ public class OSQLMethodAsSetTest {
     assertEquals(result, expected);
   }
 
+  @Test
   public void testIterator() {
     // The expected behavior is to return a set with all of the elements
     // of the iterator in it.
@@ -91,6 +93,7 @@ public class OSQLMethodAsSetTest {
     assertEquals(result, expected);
   }
 
+  @Test
   public void testODocument() {
     // The expected behavior is to return a set with only the single
     // ODocument in it.
@@ -106,13 +109,14 @@ public class OSQLMethodAsSetTest {
     assertEquals(result, expected);
   }
 
+  @Test
   public void testOtherSingleValue() {
     // The expected behavior is to return a set with only the single
     // element in it.
 
-    Object result = function.execute(null, null, null, new Integer(4), null);
+    Object result = function.execute(null, null, null, 4, null);
     HashSet<Object> expected = new HashSet<Object>();
-    expected.add(new Integer(4));
+    expected.add(4);
     assertEquals(result, expected);
   }
 
