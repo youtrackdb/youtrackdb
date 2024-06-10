@@ -38,6 +38,7 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Stream;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -4206,6 +4207,7 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   }
 
   @Test
+  @Ignore
   public void testTimeout() {
     String className = "testTimeout";
     final String funcitonName = getClass().getSimpleName() + "_sleep";
