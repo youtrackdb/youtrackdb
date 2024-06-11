@@ -36,6 +36,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.collections4.IterableUtils;
 
 public interface OVertexInternal extends OVertex, OElementInternal {
+
   @Nonnull
   ODocument getBaseDocument();
 
@@ -75,6 +76,11 @@ public interface OVertexInternal extends OVertex, OElementInternal {
     checkPropertyName(name);
 
     return getBaseDocument().getPropertyWithoutValidation(name);
+  }
+
+  @Override
+  default <RET> RET getPropertyWithoutValidation(String name, boolean lazyLoading) {
+    return getBaseDocument().getPropertyWithoutValidation(name, lazyLoading);
   }
 
   @Override
@@ -176,10 +182,6 @@ public interface OVertexInternal extends OVertex, OElementInternal {
   }
 
   static boolean isConnectionToEdge(ODirection direction, String propertyName) {
-    if (propertyName.endsWith(DIRECT_LINK_SUFFIX)) {
-      return false;
-    }
-
     return switch (direction) {
       case OUT -> propertyName.startsWith(DIRECTION_OUT_PREFIX);
       case IN -> propertyName.startsWith(DIRECTION_IN_PREFIX);
@@ -195,7 +197,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
       return IterableUtils.chainedIterable(
           getVertices(ODirection.OUT, type), getVertices(ODirection.IN, type));
     } else {
-      Iterable<OEdge> edges = getEdgesInternal(direction, type, true);
+      Iterable<OEdge> edges = getEdgesInternal(direction, type);
       return new OEdgeToVertexIterable(edges, direction);
     }
   }
@@ -218,9 +220,21 @@ public interface OVertexInternal extends OVertex, OElementInternal {
   }
 
   @Override
+  default OEdge addLightWeightEdge(OVertex to) {
+    return addLightWeightEdge(to, OEdgeInternal.CLASS_NAME);
+  }
+
+  @Override
   default OEdge addEdge(OVertex to, String type) {
     ODatabaseDocument db = getDatabase();
     return db.newEdge(this, to, type == null ? OEdgeInternal.CLASS_NAME : type);
+  }
+
+  @Override
+  default OEdge addLightWeightEdge(OVertex to, String label) {
+    ODatabaseDocumentInternal db = (ODatabaseDocumentInternal) getDatabase();
+
+    return db.addLightweightEdge(this, to, label);
   }
 
   @Override
@@ -233,6 +247,19 @@ public interface OVertexInternal extends OVertex, OElementInternal {
     }
 
     return addEdge(to, className);
+  }
+
+  @Override
+  default OEdge addLightWeightEdge(OVertex to, OClass label) {
+    final String className;
+
+    if (label != null) {
+      className = label.getName();
+    } else {
+      className = OEdgeInternal.CLASS_NAME;
+    }
+
+    return addLightWeightEdge(to, className);
   }
 
   @Override
@@ -265,7 +292,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
     var doc = getBaseDocument();
     for (var prefix : prefixes) {
       for (String fieldName : doc.calculatePropertyNames()) {
-        if (fieldName.startsWith(prefix) && !fieldName.endsWith(DIRECT_LINK_SUFFIX)) {
+        if (fieldName.startsWith(prefix)) {
           if (fieldName.equals(prefix)) {
             candidateClasses.add(OEdgeInternal.CLASS_NAME);
           } else {
@@ -285,11 +312,10 @@ public interface OVertexInternal extends OVertex, OElementInternal {
 
   @Override
   default Iterable<OEdge> getEdges(ODirection direction, String... labels) {
-    return getEdgesInternal(direction, labels, false);
+    return getEdgesInternal(direction, labels);
   }
 
-  private Iterable<OEdge> getEdgesInternal(
-      ODirection direction, String[] labels, boolean useDirectLinks) {
+  private Iterable<OEdge> getEdgesInternal(ODirection direction, String[] labels) {
     var db = (ODatabaseDocumentInternal) getDatabase();
     var schema = db.getMetadata().getImmutableSchemaSnapshot();
 
@@ -313,10 +339,6 @@ public interface OVertexInternal extends OVertex, OElementInternal {
 
     var iterables = new ArrayList<Iterable<OEdge>>(fieldNames.size());
     for (var fieldName : fieldNames) {
-      if (fieldName.endsWith(DIRECT_LINK_SUFFIX)) {
-        continue;
-      }
-
       final OPair<ODirection, String> connection =
           getConnection(schema, direction, fieldName, labels);
       if (connection == null)
@@ -327,18 +349,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
 
       Object fieldValue;
 
-      if (useDirectLinks) {
-        var directConnectionFieldName = getDirectEdgeLinkFieldName(fieldName);
-        var directConnectionLink = doc.getPropertyWithoutValidation(directConnectionFieldName);
-
-        if (directConnectionLink != null) {
-          fieldValue = doc.getPropertyWithoutValidation(directConnectionFieldName);
-        } else {
-          fieldValue = doc.getPropertyWithoutValidation(fieldName);
-        }
-      } else {
-        fieldValue = doc.getPropertyWithoutValidation(fieldName);
-      }
+      fieldValue = doc.getPropertyWithoutValidation(fieldName);
 
       if (fieldValue != null) {
         if (fieldValue instanceof OIdentifiable) {
@@ -640,11 +651,6 @@ public interface OVertexInternal extends OVertex, OElementInternal {
           // REPLACE WITH NEW VERTEX
           ((OElementInternal) oe)
               .setPropertyWithoutValidation(OEdgeInternal.DIRECTION_OUT, newIdentity);
-
-          var directInFieldName = getDirectEdgeLinkFieldName(inFieldName);
-          if (inRecord.hasProperty(directInFieldName)) {
-            replaceLinks(inRecord, directInFieldName, oldIdentity, newIdentity);
-          }
         }
 
         db.save(oe);
@@ -678,12 +684,8 @@ public interface OVertexInternal extends OVertex, OElementInternal {
         } else {
           // REPLACE WITH NEW VERTEX
           ((OEdgeInternal) ine).setPropertyWithoutValidation(OEdge.DIRECTION_IN, newIdentity);
-          var directOutFieldName = getDirectEdgeLinkFieldName(outFieldName);
-
-          if (outRecord.hasProperty(directOutFieldName)) {
-            replaceLinks(outRecord, directOutFieldName, oldIdentity, newIdentity);
-          }
         }
+
         db.save(ine);
       }
 
@@ -793,7 +795,9 @@ public interface OVertexInternal extends OVertex, OElementInternal {
     }
   }
 
-  /** updates old and new vertices connected to an edge after out/in update on the edge itself */
+  /**
+   * updates old and new vertices connected to an edge after out/in update on the edge itself
+   */
   static void changeVertexEdgePointers(
       ODocument edge,
       OIdentifiable prevInVertex,
@@ -804,23 +808,11 @@ public interface OVertexInternal extends OVertex, OElementInternal {
 
     if (currentInVertex != prevInVertex) {
       changeVertexEdgePointersOneDirection(
-          edge,
-          prevInVertex,
-          currentInVertex,
-          prevOutVertex,
-          currentOutVertex,
-          edgeClass,
-          ODirection.IN);
+          edge, prevInVertex, currentInVertex, edgeClass, ODirection.IN);
     }
     if (currentOutVertex != prevOutVertex) {
       changeVertexEdgePointersOneDirection(
-          edge,
-          prevOutVertex,
-          currentOutVertex,
-          prevInVertex,
-          currentInVertex,
-          edgeClass,
-          ODirection.OUT);
+          edge, prevOutVertex, currentOutVertex, edgeClass, ODirection.OUT);
     }
   }
 
@@ -828,12 +820,8 @@ public interface OVertexInternal extends OVertex, OElementInternal {
       ODocument edge,
       OIdentifiable prevInVertex,
       OIdentifiable currentInVertex,
-      OIdentifiable prevOutVertex,
-      OIdentifiable currentOutVertex,
       String edgeClass,
       ODirection direction) {
-    var prevOppositeVertex = prevOutVertex != null ? prevOutVertex : currentOutVertex;
-
     if (prevInVertex != null) {
       var inFieldName = OVertex.getEdgeLinkFieldName(direction, edgeClass);
       var prevRecord = prevInVertex.<ODocument>getRecord();
@@ -846,35 +834,9 @@ public interface OVertexInternal extends OVertex, OElementInternal {
       var currentRecord = currentInVertex.<ODocument>getRecord();
       createLink(currentRecord, edge, inFieldName);
 
-      var outFieldName = OVertex.getEdgeLinkFieldName(direction, edgeClass);
-      var directLinkFieldName = OVertexInternal.getDirectEdgeLinkFieldName(outFieldName);
-
-      var prevDirectLink = prevRecord.<ORidBag>getPropertyWithoutValidation(directLinkFieldName);
-
-      if (prevDirectLink != null) {
-        removeVertexLink(
-            prevRecord, directLinkFieldName, prevDirectLink, edgeClass, prevOppositeVertex);
-      }
-
       prevRecord.save();
       currentRecord.save();
     }
-
-    var prevOppositeVertexDoc = prevOppositeVertex.<ODocument>getRecord();
-    var outFieldName = OVertex.getEdgeLinkFieldName(direction.opposite(), edgeClass);
-    var directLinkFieldName = OVertexInternal.getDirectEdgeLinkFieldName(outFieldName);
-
-    var prevDirectLink =
-        prevOppositeVertexDoc.<ORidBag>getPropertyWithoutValidation(directLinkFieldName);
-    if (prevDirectLink != null) {
-      removeVertexLink(
-          prevOppositeVertexDoc, directLinkFieldName, prevDirectLink, edgeClass, prevInVertex);
-    }
-
-    var currentOppositeVertexDoc = currentOutVertex.<ODocument>getRecord();
-    createLink(currentOppositeVertexDoc, currentInVertex, directLinkFieldName);
-
-    currentOppositeVertexDoc.save();
   }
 
   private String[] resolveAliases(OSchema schema, String[] labels) {
@@ -947,8 +909,6 @@ public interface OVertexInternal extends OVertex, OElementInternal {
       return;
     }
 
-    // it is lightweight edge,direct links were introduced after lightweight edges were deprecated
-    // so we do not need to check their presence
     removeVertexLink(from, outFieldName, outLink, label, to);
     removeVertexLink(toInternal.getBaseDocument(), inFieldName, inLink, label, getIdentity());
   }
@@ -971,7 +931,9 @@ public interface OVertexInternal extends OVertex, OElementInternal {
     }
   }
 
-  /** Creates a link between a vertices and a Graph Element. */
+  /**
+   * Creates a link between a vertices and a Graph Element.
+   */
   static void createLink(
       final ODocument fromVertex, final OIdentifiable to, final String fieldName) {
     final Object out;
@@ -1062,21 +1024,11 @@ public interface OVertexInternal extends OVertex, OElementInternal {
     OIdentifiable edgeId = ((OIdentifiable) edge).getIdentity();
 
     removeLinkFromEdge(
-        vertex,
-        edge,
-        OVertex.getEdgeLinkFieldName(direction, className),
-        edgeId,
-        className,
-        direction);
+        vertex, edge, OVertex.getEdgeLinkFieldName(direction, className), edgeId, direction);
   }
 
   private static void removeLinkFromEdge(
-      ODocument vertex,
-      OEdge edge,
-      String edgeField,
-      OIdentifiable edgeId,
-      String className,
-      ODirection direction) {
+      ODocument vertex, OEdge edge, String edgeField, OIdentifiable edgeId, ODirection direction) {
     Object edgeProp = vertex.getPropertyWithoutValidation(edgeField);
     ORID oppositeVertexId = null;
     if (direction == ODirection.IN) {
@@ -1097,12 +1049,6 @@ public interface OVertexInternal extends OVertex, OElementInternal {
     }
 
     removeEdgeLinkFromProperty(vertex, edge, edgeField, edgeId, edgeProp);
-
-    var directConnectionFiledName = getDirectEdgeLinkFieldName(edgeField);
-    var directLink = vertex.getPropertyWithoutValidation(directConnectionFiledName);
-    if (directLink != null && oppositeVertexId != null) {
-      removeVertexLink(vertex, directConnectionFiledName, directLink, className, oppositeVertexId);
-    }
   }
 
   private static void removeEdgeLinkFromProperty(
@@ -1132,32 +1078,5 @@ public interface OVertexInternal extends OVertex, OElementInternal {
 
   static void removeOutgoingEdge(OVertex vertex, OEdge edge) {
     removeLinkFromEdge(((OVertexInternal) vertex).getBaseDocument(), edge, ODirection.OUT);
-  }
-
-  static String getDirectEdgeLinkFieldName(final String fieldName) {
-    return fieldName + DIRECT_LINK_SUFFIX;
-  }
-
-  static void validateConnectionType(OVertex vertex, String className, String fieldName) {
-    var fromClassOpt = vertex.getSchemaType();
-    assert fromClassOpt.isPresent();
-    var fromClass = fromClassOpt.get();
-
-    var property = fromClass.getProperty(fieldName);
-    if (property != null) {
-      var propertyType = property.getType();
-      if (propertyType != OType.LINKBAG
-          && propertyType != OType.LINKLIST
-          && propertyType != OType.LINKSET
-          && propertyType != OType.LINK) {
-        throw new IllegalStateException(
-            "Property "
-                + fieldName
-                + " for edge "
-                + className
-                + " already defined and has type that can not be used for edge creation - "
-                + propertyType);
-      }
-    }
   }
 }

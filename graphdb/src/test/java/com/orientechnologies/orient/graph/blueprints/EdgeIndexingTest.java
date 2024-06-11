@@ -18,7 +18,9 @@ import org.junit.Test;
  */
 public class EdgeIndexingTest {
 
-  /** Test many to one connection type. Many vertices can be connected to only one. */
+  /**
+   * Test many to one connection type. Many vertices can be connected to only one.
+   */
   @Test
   public void testOutLinksUniqueness() {
     final String url = "memory:.";
@@ -26,13 +28,12 @@ public class EdgeIndexingTest {
     try (var orientDB = new OrientDB(url, OrientDBConfig.defaultConfig())) {
       orientDB.execute(
           "create database ? memory users (admin identified by 'admin' role admin)", dbName);
-
       try (var session = orientDB.open(dbName, "admin", "admin")) {
-        session.createEdgeClass("link");
+        session.createLightweightEdgeClass("link");
         var vertexClass = session.createVertexClass("IndexedOutVertex");
         var property =
             vertexClass.createProperty(
-                OVertex.getDirectEdgeLinkFieldName(ODirection.OUT, "link"), OType.LINKBAG);
+                OVertex.getEdgeLinkFieldName(ODirection.OUT, "link"), OType.LINKBAG);
         property.createIndex(INDEX_TYPE.UNIQUE);
 
         session.begin();
@@ -41,8 +42,8 @@ public class EdgeIndexingTest {
         var vertexInOne = session.newVertex();
         var vertexInTwo = session.newVertex();
 
-        vertexOutOne.addEdge(vertexInOne, "link");
-        vertexOutOne.addEdge(vertexInTwo, "link");
+        vertexOutOne.addLightWeightEdge(vertexInOne, "link");
+        vertexOutOne.addLightWeightEdge(vertexInTwo, "link");
 
         vertexOutOne.save();
 
@@ -51,7 +52,7 @@ public class EdgeIndexingTest {
         session.begin();
 
         var vertexOutTwo = session.newVertex("IndexedOutVertex");
-        vertexOutTwo.addEdge(vertexInTwo, "link");
+        vertexOutTwo.addLightWeightEdge(vertexInTwo, "link");
 
         vertexOutTwo.save();
         try {
@@ -59,12 +60,15 @@ public class EdgeIndexingTest {
           // in vertex can be linked by only one out vertex.
           Assert.fail();
         } catch (ORecordDuplicatedException e) {
+          // success
         }
       }
     }
   }
 
-  /** Test many to one connection type. Many vertices can be connected to only one. */
+  /**
+   * Test many to one connection type. Many vertices can be connected to only one.
+   */
   @Test
   public void testOutLinksUniquenessTwo() {
     final String url = "memory:.";
@@ -73,12 +77,11 @@ public class EdgeIndexingTest {
       orientDB.execute(
           "create database ? memory users (admin identified by 'admin' role admin)", dbName);
       try (var session = orientDB.open(dbName, "admin", "admin")) {
-        session.createEdgeClass("link");
+        session.createLightweightEdgeClass("link");
         OClass outVertexClass = session.createVertexClass("IndexedOutVertex");
-
         var property =
             outVertexClass.createProperty(
-                OVertex.getDirectEdgeLinkFieldName(ODirection.OUT, "link"), OType.LINKBAG);
+                OVertex.getEdgeLinkFieldName(ODirection.OUT, "link"), OType.LINKBAG);
         property.createIndex(INDEX_TYPE.UNIQUE);
 
         session.begin();
@@ -88,12 +91,12 @@ public class EdgeIndexingTest {
         var vertexInOne = session.newVertex();
         var vertexInTwo = session.newVertex();
 
-        vertexOutOne.addEdge(vertexInOne, "link");
-        vertexOutOne.addEdge(vertexInTwo, "link");
+        vertexOutOne.addLightWeightEdge(vertexInOne, "link");
+        vertexOutOne.addLightWeightEdge(vertexInTwo, "link");
         vertexOutOne.save();
 
         var vertexOutTwo = session.newVertex("IndexedOutVertex");
-        vertexOutTwo.addEdge(vertexInTwo, "link");
+        vertexOutTwo.addLightWeightEdge(vertexInTwo, "link");
 
         vertexOutTwo.save();
         try {
@@ -102,12 +105,15 @@ public class EdgeIndexingTest {
           // in vertex can be linked by only one out vertex.
           Assert.fail();
         } catch (ORecordDuplicatedException e) {
+          // success
         }
       }
     }
   }
 
-  /** Test that "out_vertex" has edges to only single "in_vertex". */
+  /**
+   * Test that "out_vertex" has edges to only single "in_vertex".
+   */
   @Test
   public void testOutLinksUniquenessThree() {
     final String url = "memory:.";
@@ -116,12 +122,12 @@ public class EdgeIndexingTest {
       orientDB.execute(
           "create database ? memory users (admin identified by 'admin' role admin)", dbName);
       try (var session = orientDB.open(dbName, "admin", "admin")) {
-        session.createEdgeClass("link");
+        session.createLightweightEdgeClass("link");
 
         OClass inVertexType = session.createVertexClass("IndexedInVertex");
         var in_link =
             inVertexType.createProperty(
-                OVertex.getDirectEdgeLinkFieldName(ODirection.IN, "link"), OType.LINKBAG);
+                OVertex.getEdgeLinkFieldName(ODirection.IN, "link"), OType.LINKBAG);
 
         inVertexType.createIndex("uniqueLinkIndex", "unique", in_link.getName());
 
@@ -132,8 +138,8 @@ public class EdgeIndexingTest {
         var vertexInOne = session.newVertex("IndexedInVertex");
         var vertexInTwo = session.newVertex("IndexedInVertex");
 
-        vertexOutOne.addEdge(vertexInOne, "link");
-        vertexOutOne.addEdge(vertexInTwo, "link");
+        vertexOutOne.addLightWeightEdge(vertexInOne, "link");
+        vertexOutOne.addLightWeightEdge(vertexInTwo, "link");
 
         vertexOutOne.save();
 
@@ -142,12 +148,15 @@ public class EdgeIndexingTest {
           Assert.fail();
           // in vertex can be linked by only one out vertex.
         } catch (ORecordDuplicatedException e) {
+          // success
         }
       }
     }
   }
 
-  /** Test that "out_vertex" has singe and only single edge to "in_vertex". */
+  /**
+   * Test that "out_vertex" has singe and only single edge to "in_vertex".
+   */
   @Test
   public void testOutLinksUniquenessFour() {
     final String url = "memory:.";
@@ -176,6 +185,7 @@ public class EdgeIndexingTest {
           Assert.fail();
           // in vertex can be linked by only one out vertex.
         } catch (ORecordDuplicatedException e) {
+          // success
         }
       }
     }

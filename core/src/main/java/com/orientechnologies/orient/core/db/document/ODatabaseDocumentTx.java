@@ -52,6 +52,7 @@ import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.record.impl.OBlob;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.OEdgeInternal;
 import com.orientechnologies.orient.core.record.impl.ORecordBytes;
 import com.orientechnologies.orient.core.serialization.serializer.binary.OBinarySerializerFactory;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
@@ -93,7 +94,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-/** Created by tglman on 20/07/16. @Deprecated use {@link OrientDB} instead. */
+/**
+ * Created by tglman on 20/07/16. @Deprecated use {@link OrientDB} instead.
+ */
 @Deprecated
 public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
 
@@ -612,6 +615,13 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
   }
 
   @Override
+  public OEdgeInternal addLightweightEdge(OVertex from, OVertex to, String className) {
+    checkOpenness();
+
+    return internal.addLightweightEdge(from, to, className);
+  }
+
+  @Override
   public OElement newElement(String className) {
     checkOpenness();
     return internal.newElement(className);
@@ -633,9 +643,8 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
     return internal.isUseLightweightEdges();
   }
 
-  @Deprecated
   public void setUseLightweightEdges(boolean b) {
-    throw new UnsupportedOperationException("Creation of lightweight edges is not supported");
+    internal.setUseLightweightEdges(b);
   }
 
   @Override
@@ -644,7 +653,9 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
     return internal.newInstance();
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   @Deprecated
   public ODictionary<ORecord> getDictionary() {
@@ -1405,8 +1416,7 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
     return new ORecordBytes();
   }
 
-  @Deprecated
-  public OEdge newLightweightEdge(String iClassName, OVertex from, OVertex to) {
+  public OEdgeInternal newLightweightEdge(String iClassName, OVertex from, OVertex to) {
     checkOpenness();
     return internal.newLightweightEdge(iClassName, from, to);
   }

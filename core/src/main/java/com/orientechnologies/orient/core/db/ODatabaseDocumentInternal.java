@@ -36,6 +36,7 @@ import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.OVertex;
+import com.orientechnologies.orient.core.record.impl.OEdgeInternal;
 import com.orientechnologies.orient.core.serialization.serializer.binary.OBinarySerializerFactory;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.sql.executor.OExecutionPlan;
@@ -185,15 +186,13 @@ public interface ODatabaseDocumentInternal extends ODatabaseSession, ODatabaseIn
    * @param from       the starting vertex of the edge
    * @param to         the ending vertex of the edge
    * @return the new lightweight edge
-   * @deprecated This method is deprecated and will be removed in future versions. Use
-   * newRegularEdge instead.
    */
-  @Deprecated
-  OEdge newLightweightEdge(String iClassName, OVertex from, OVertex to);
+  OEdgeInternal newLightweightEdge(String iClassName, OVertex from, OVertex to);
+
+  OEdgeInternal addLightweightEdge(OVertex from, OVertex to, String className);
 
   OEdge newRegularEdge(String iClassName, OVertex from, OVertex to);
 
-  @Deprecated
   void setUseLightweightEdges(boolean b);
 
   ODatabaseDocumentInternal cleanOutRecord(ORID rid, int version);

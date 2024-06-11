@@ -490,6 +490,11 @@ public class ODocument extends ORecordAbstract
 
   @Override
   public <RET> RET getPropertyWithoutValidation(String name) {
+    return getPropertyWithoutValidation(name, isLazyLoad());
+  }
+
+  @Override
+  public <RET> RET getPropertyWithoutValidation(String name, boolean lazyLoad) {
     checkForLoading();
     if (primaryRecord != null) {
       return ((ODocument) primaryRecord).getPropertyWithoutValidation(name);

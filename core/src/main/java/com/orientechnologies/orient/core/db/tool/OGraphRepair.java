@@ -357,13 +357,8 @@ public class OGraphRepair {
         for (String fieldName : vertex.fieldNames()) {
           final OPair<ODirection, String> connection =
               OVertexInternal.getConnection(
-                  db.getMetadata().getSchema(), ODirection.BOTH, fieldName, null);
-          if (connection == null)
-          // SKIP THIS FIELD
-          {
-            continue;
-          }
-          if (fieldName.endsWith(OVertex.DIRECT_LINK_SUFFIX)) {
+                  db.getMetadata().getSchema(), ODirection.BOTH, fieldName);
+          if (connection == null) {
             continue;
           }
 

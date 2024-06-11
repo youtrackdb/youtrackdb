@@ -24,43 +24,29 @@ import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.OEdgeInternal;
-import com.orientechnologies.orient.core.record.impl.OVertexInternal;
 import java.util.Set;
 import javax.annotation.Nullable;
 
 /**
  * OVertex interface represents a vertex in a graph database. Unlike non-typed record it treats some
- * property names differently, namely properties with names starting with prefixes {@code
- * #DIRECTION_IN_PREFIX} and {@code #DIRECTION_OUT_PREFIX} are considered as booked and should not
- * be used by users directly.
+ * property names differently, namely properties with names starting with prefixes
+ * {@code #DIRECTION_IN_PREFIX} and {@code #DIRECTION_OUT_PREFIX} are considered as booked and
+ * should not be used by users directly.
  */
 public interface OVertex extends OElement {
-  /** The name of the class of the vertex record */
+
+  /**
+   * The name of the class of the vertex record
+   */
   String CLASS_NAME = OClass.VERTEX_CLASS_NAME;
 
   /**
-   * A constant variable representing the suffix used for properties in a graph that connect
-   * vertices directly without using edge records. Each edge is represented by two types of
-   * properties: one that used to connect edge records and another that used to connect vertices
-   * directly.
-   */
-  String DIRECT_LINK_SUFFIX = "_direct_link";
-
-  /**
-   * A constant variable representing the prefix used for outbound edges in a graph. Each edge is
-   * represented by two types of properties: one that used to connect edge records and another that
-   * used to connect vertices directly.
-   *
-   * @see #DIRECT_LINK_SUFFIX
+   * A constant variable representing the prefix used for outbound edges in a graph.
    */
   String DIRECTION_OUT_PREFIX = "out_";
 
   /**
-   * A constant variable representing the prefix used for inbound edges in a graph. Each edge is
-   * represented by two types of properties: one that used to connect edge records and another that
-   * used to connect vertices directly.
-   *
-   * @see #DIRECT_LINK_SUFFIX
+   * A constant variable representing the prefix used for inbound edges in a graph.
    */
   String DIRECTION_IN_PREFIX = "in_";
 
@@ -91,7 +77,7 @@ public interface OVertex extends OElement {
    * @param name the name of the link property
    * @return the link property value, or null if the property does not exist
    * @throws IllegalArgumentException if booked property name is used or requested property is not a
-   *     link.
+   *                                  link.
    * @see #getProperty(String)
    */
   @Nullable
@@ -99,9 +85,9 @@ public interface OVertex extends OElement {
   OIdentifiable getLinkProperty(String name);
 
   /**
-   * Check if a property exists in the Element. if the property name starts with {@link
-   * #DIRECTION_IN_PREFIX} or {@link #DIRECTION_OUT_PREFIX} method throws {@link
-   * IllegalArgumentException}. Those names are used to manage edges.
+   * Check if a property exists in the Element. if the property name starts with
+   * {@link #DIRECTION_IN_PREFIX} or {@link #DIRECTION_OUT_PREFIX} method throws
+   * {@link IllegalArgumentException}. Those names are used to manage edges.
    *
    * @param propertyName Name of the property to check.
    * @return true if exists otherwise false.
@@ -110,31 +96,31 @@ public interface OVertex extends OElement {
   boolean hasProperty(final String propertyName);
 
   /**
-   * Sets a property value, if the property name starts with {@link #DIRECTION_IN_PREFIX} or {@link
-   * #DIRECTION_OUT_PREFIX} update of such property is aborted. Those names are used to
+   * Sets a property value, if the property name starts with {@link #DIRECTION_IN_PREFIX} or
+   * {@link #DIRECTION_OUT_PREFIX} update of such property is aborted. Those names are used to
    *
-   * @param name the property name
+   * @param name  the property name
    * @param value the property value
    * @throws IllegalArgumentException if booked property name is used.
    */
   void setProperty(String name, Object value);
 
   /**
-   * Sets a property value, if the property name starts with {@link #DIRECTION_IN_PREFIX} or {@link
-   * #DIRECTION_OUT_PREFIX} update of such property is aborted. Those names are used to manage
-   * edges.
+   * Sets a property value, if the property name starts with {@link #DIRECTION_IN_PREFIX} or
+   * {@link #DIRECTION_OUT_PREFIX} update of such property is aborted. Those names are used to
+   * manage edges.
    *
-   * @param name the property name
-   * @param value the property value
+   * @param name      the property name
+   * @param value     the property value
    * @param fieldType Forced type (not auto-determined)
    * @throws IllegalArgumentException if booked property name is used.
    */
   void setProperty(String name, Object value, OType... fieldType);
 
   /**
-   * Remove a property, if the property name starts with {@link #DIRECTION_IN_PREFIX} or {@link
-   * #DIRECTION_OUT_PREFIX} removal of such property is aborted. Those names are used to manage
-   * edges.
+   * Remove a property, if the property name starts with {@link #DIRECTION_IN_PREFIX} or
+   * {@link #DIRECTION_OUT_PREFIX} removal of such property is aborted. Those names are used to
+   * manage edges.
    *
    * @param name the property name
    * @throws IllegalArgumentException if booked property name is used.
@@ -170,7 +156,7 @@ public interface OVertex extends OElement {
    * label(s).
    *
    * @param direction the direction of the edges to retrieve (OUT, IN, or BOTH)
-   * @param label the label(s) of the edges to retrieve
+   * @param label     the label(s) of the edges to retrieve
    * @return an iterable collection of edges connected to the vertex
    */
   Iterable<OEdge> getEdges(ODirection direction, String... label);
@@ -180,7 +166,7 @@ public interface OVertex extends OElement {
    * label(s).
    *
    * @param direction the direction of the edges to retrieve (OUT, IN, or BOTH)
-   * @param label the label(s) of the edges to retrieve
+   * @param label     the label(s) of the edges to retrieve
    * @return an iterable collection of edges connected to the vertex
    */
   Iterable<OEdge> getEdges(ODirection direction, OClass... label);
@@ -198,7 +184,7 @@ public interface OVertex extends OElement {
    * specified label(s).
    *
    * @param direction the direction of the vertices to retrieve (OUT, IN, or BOTH)
-   * @param label the label(s) of the vertices to retrieve
+   * @param label     the label(s) of the vertices to retrieve
    * @return an iterable collection of vertices connected to the current vertex
    */
   Iterable<OVertex> getVertices(ODirection direction, String... label);
@@ -208,7 +194,7 @@ public interface OVertex extends OElement {
    * specified label(s).
    *
    * @param direction the direction of the vertices to retrieve (OUT, IN, or BOTH)
-   * @param label the label(s) of the vertices to retrieve
+   * @param label     the label(s) of the vertices to retrieve
    * @return an iterable collection of vertices connected to the current vertex
    */
   Iterable<OVertex> getVertices(ODirection direction, OClass... label);
@@ -224,7 +210,7 @@ public interface OVertex extends OElement {
   /**
    * Deletes an edge between this vertex and the specified vertex with the given label.
    *
-   * @param to the vertex to which the edge is connected
+   * @param to    the vertex to which the edge is connected
    * @param label the label of the edge to delete
    * @throws IllegalArgumentException if the label is not an edge class
    */
@@ -233,7 +219,7 @@ public interface OVertex extends OElement {
   /**
    * Deletes an edge between this vertex and the specified vertex with the given label.
    *
-   * @param to the vertex to which the edge is connected
+   * @param to    the vertex to which the edge is connected
    * @param label the label of the edge to delete
    */
   void deleteEdge(OVertex to, OClass label);
@@ -248,27 +234,57 @@ public interface OVertex extends OElement {
   OEdge addEdge(OVertex to);
 
   /**
-   * Adds an edge between the current vertex and the specified vertex.
+   * Adds a lightweight edge (one that does not require associated record)
+   * between the current vertex and the specified vertex. Edge will be created without
+   * any specific label. It is recommended to use labeled edges instead.
    *
    * @param to the vertex to which the edge is connected
+   * @return the created edge
+   */
+  OEdge addLightWeightEdge(OVertex to);
+
+  /**
+   * Adds an edge between the current vertex and the specified vertex.
+   *
+   * @param to    the vertex to which the edge is connected
    * @param label the label of the edge (optional)
    * @return the created edge
    */
   OEdge addEdge(OVertex to, String label);
 
   /**
+   * Adds a lightweight edge (one that does not require associated record)
+   * between the current vertex and the specified vertex.
+   *
+   * @param to    the vertex to which the edge is connected
+   * @param label the label of the edge (optional)
+   * @return the created edge
+   */
+  OEdge addLightWeightEdge(OVertex to, String label);
+
+  /**
    * Adds an edge between the current vertex and the specified vertex with the given label.
    *
-   * @param to the vertex to which the edge is connected
+   * @param to    the vertex to which the edge is connected
    * @param label the label of the edge
    * @return the created edge
    */
   OEdge addEdge(OVertex to, OClass label);
 
   /**
+   * Adds a lightweight edge (one that does not require associated record)
+   * between the current vertex and the specified vertex with the given label.
+   *
+   * @param to    the vertex to which the edge is connected
+   * @param label the label of the edge
+   * @return the created edge
+   */
+  OEdge addLightWeightEdge(OVertex to, OClass label);
+
+  /**
    * Moves the vertex to the specified class and cluster.
    *
-   * @param className the name of the class to move the vertex to
+   * @param className   the name of the class to move the vertex to
    * @param clusterName the name of the cluster to move the vertex to
    * @return the new RecordID of the moved vertex
    */
@@ -278,7 +294,7 @@ public interface OVertex extends OElement {
    * Removes all edges connected to the vertex in the given direction.
    *
    * @param direction the direction of the edges to remove (OUT, IN, or BOTH)
-   * @param labels the labels of the edges to remove
+   * @param labels    the labels of the edges to remove
    */
   default void removeEdges(ODirection direction, OClass... labels) {
     var edges = getEdges(direction, labels);
@@ -291,7 +307,7 @@ public interface OVertex extends OElement {
    * Removes all edges connected to the vertex in the given direction.
    *
    * @param direction the direction of the edges to remove (OUT, IN, or BOTH)
-   * @param labels the labels of the edges to remove
+   * @param labels    the labels of the edges to remove
    */
   default void removeEdges(ODirection direction, String... labels) {
     var edges = getEdges(direction, labels);
@@ -341,16 +357,5 @@ public interface OVertex extends OElement {
     }
 
     return prefix + className;
-  }
-
-  /**
-   * Returns the name of the field used to store the direct link to the vertex record.
-   *
-   * @param direction the direction of the edge
-   * @param className the name of the edge class
-   * @return the name of the field used to store the direct link to the vertex record
-   */
-  static String getDirectEdgeLinkFieldName(final ODirection direction, final String className) {
-    return OVertexInternal.getDirectEdgeLinkFieldName(getEdgeLinkFieldName(direction, className));
   }
 }
