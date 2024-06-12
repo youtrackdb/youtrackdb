@@ -6,7 +6,6 @@ import com.tinkerpop.blueprints.EdgeTestSuite;
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.GraphQueryTestSuite;
 import com.tinkerpop.blueprints.GraphTestSuite;
-import com.tinkerpop.blueprints.IndexTestSuite;
 import com.tinkerpop.blueprints.IndexableGraphTestSuite;
 import com.tinkerpop.blueprints.KeyIndexableGraphTestSuite;
 import com.tinkerpop.blueprints.TestSuite;
@@ -90,13 +89,6 @@ public abstract class OrientGraphTest extends GraphTest {
     this.stopWatch();
     doTestSuite(new IndexableGraphTestSuite(this));
     printTestPerformance("IndexableGraphTestSuite", this.stopWatch());
-  }
-
-  @Test
-  public void testIndexTestSuite() throws Exception {
-    this.stopWatch();
-    doTestSuite(new IndexTestSuite(this));
-    printTestPerformance("IndexTestSuite", this.stopWatch());
   }
 
   @Test

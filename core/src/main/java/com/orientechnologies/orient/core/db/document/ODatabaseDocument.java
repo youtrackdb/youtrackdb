@@ -35,6 +35,7 @@ import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.record.impl.OBlob;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.OEdgeInternal;
 
 /**
  * Generic interface for document based Database implementations.
@@ -385,7 +386,7 @@ public interface ODatabaseDocument extends ODatabase<ORecord> {
    * @param type the edge type
    * @return the edge
    */
-  OEdge newEdge(OVertex from, OVertex to, String type);
+  OEdgeInternal newEdge(OVertex from, OVertex to, String type);
 
   /**
    * Creates a new Vertex of type V

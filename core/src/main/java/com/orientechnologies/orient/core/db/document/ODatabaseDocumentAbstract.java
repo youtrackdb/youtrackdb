@@ -1403,7 +1403,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   }
 
   @Override
-  public OEdge newEdge(OVertex from, OVertex to, String type) {
+  public OEdgeInternal newEdge(OVertex from, OVertex to, String type) {
     OClass cl = getMetadata().getImmutableSchemaSnapshot().getClass(type);
     if (cl == null || !cl.isEdgeType()) {
       throw new IllegalArgumentException(type + " is not an edge class");
@@ -1479,11 +1479,12 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
         final OClass edgeType = schema.getClass(className);
         className = edgeType.getName();
 
+        var useLightweightEdges = forceLightweight || isUseLightweightEdges();
         var createLightweightEdge =
-            (forceLightweight || isUseLightweightEdges())
+            useLightweightEdges
                 && !forceRegular
                 && (edgeType.isAbstract() || className.equals(OEdgeInternal.CLASS_NAME));
-        if (forceLightweight && !createLightweightEdge) {
+        if (useLightweightEdges && !createLightweightEdge) {
           throw new IllegalArgumentException(
               "Cannot create lightweight edge for class "
                   + className

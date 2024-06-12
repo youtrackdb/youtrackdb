@@ -597,7 +597,7 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
   }
 
   @Override
-  public OEdge newEdge(OVertex from, OVertex to, String type) {
+  public OEdgeInternal newEdge(OVertex from, OVertex to, String type) {
     checkOpenness();
     return internal.newEdge(from, to, type);
   }
