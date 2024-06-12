@@ -86,6 +86,7 @@ import com.orientechnologies.orient.core.record.impl.OBlob;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentEmbedded;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.OEdgeDelegate;
 import com.orientechnologies.orient.core.record.impl.OEdgeDocument;
 import com.orientechnologies.orient.core.record.impl.OEdgeInternal;
 import com.orientechnologies.orient.core.record.impl.ORecordBytes;
@@ -1389,7 +1390,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     return new OVertexDocument(this, iClassName);
   }
 
-  private OEdge newEdgeInternal(final String iClassName) {
+  private OEdgeInternal newEdgeInternal(final String iClassName) {
     return new OEdgeDocument(this, iClassName);
   }
 
@@ -1402,12 +1403,23 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   }
 
   @Override
-  public OEdge newEdge(OVertex from, OVertex to, String type) {
+  public OEdgeInternal newEdge(OVertex from, OVertex to, String type) {
     OClass cl = getMetadata().getImmutableSchemaSnapshot().getClass(type);
     if (cl == null || !cl.isEdgeType()) {
       throw new IllegalArgumentException(type + " is not an edge class");
     }
-    return addEdgeInternal(from, to, type, false);
+
+    return addEdgeInternal(from, to, type, false, false);
+  }
+
+  @Override
+  public OEdgeInternal addLightweightEdge(OVertex from, OVertex to, String className) {
+    OClass cl = getMetadata().getImmutableSchemaSnapshot().getClass(className);
+    if (cl == null || !cl.isEdgeType()) {
+      throw new IllegalArgumentException(className + " is not an edge class");
+    }
+
+    return addEdgeInternal(from, to, className, false, true);
   }
 
   @Override
@@ -1418,18 +1430,19 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     return newEdge(from, to, type.getName());
   }
 
-  private OEdge addEdgeInternal(
+  private OEdgeInternal addEdgeInternal(
       final OVertex currentVertex,
       final OVertex inVertex,
       String className,
       boolean forceRegular,
-      final Object... fields) {
-    Objects.requireNonNull(currentVertex);
-    Objects.requireNonNull(inVertex);
+      boolean forceLightweight) {
+    Objects.requireNonNull(currentVertex, "From vertex is null");
+    Objects.requireNonNull(inVertex, "To vertex is null");
 
     OEdgeInternal edge = null;
     ODocument outDocument = null;
     ODocument inDocument = null;
+    boolean outDocumentModified = false;
 
     if (checkDeletedInTx(currentVertex)) {
       throw new ORecordNotFoundException(
@@ -1442,10 +1455,9 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
           inVertex.getIdentity(), "The vertex " + inVertex.getIdentity() + " has been deleted");
     }
 
-    final int maxRetries = 1; // TODO
+    final int maxRetries = 1;
     for (int retry = 0; retry < maxRetries; ++retry) {
       try {
-        // TEMPORARY STATIC LOCK TO AVOID MT PROBLEMS AGAINST OMVRBTreeRID
         outDocument = currentVertex.getRecord();
         if (outDocument == null) {
           throw new IllegalArgumentException(
@@ -1458,85 +1470,61 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
               "source vertex is invalid (rid=" + inVertex.getIdentity() + ")");
         }
 
-        if (!ODocumentInternal.getImmutableSchemaClass(this, outDocument).isVertexType()) {
-          throw new IllegalArgumentException("source record is not a vertex");
-        }
-
-        if (!ODocumentInternal.getImmutableSchemaClass(this, outDocument).isVertexType()) {
-          throw new IllegalArgumentException("destination record is not a vertex");
-        }
-
+        @SuppressWarnings("UnnecessaryLocalVariable")
         OVertex to = inVertex;
+        @SuppressWarnings("UnnecessaryLocalVariable")
         OVertex from = currentVertex;
 
         OSchema schema = getMetadata().getImmutableSchemaSnapshot();
         final OClass edgeType = schema.getClass(className);
-        if (edgeType == null)
-        // AUTO CREATE CLASS
-        {
-          schema.createClass(className);
-        } else
-        // OVERWRITE CLASS NAME BECAUSE ATTRIBUTES ARE CASE SENSITIVE
-        {
-          className = edgeType.getName();
+        className = edgeType.getName();
+
+        var useLightweightEdges = forceLightweight || isUseLightweightEdges();
+        var createLightweightEdge =
+            useLightweightEdges
+                && !forceRegular
+                && (edgeType.isAbstract() || className.equals(OEdgeInternal.CLASS_NAME));
+        if (useLightweightEdges && !createLightweightEdge) {
+          throw new IllegalArgumentException(
+              "Cannot create lightweight edge for class "
+                  + className
+                  + " because it is not abstract");
         }
 
         final String outFieldName = OVertex.getEdgeLinkFieldName(ODirection.OUT, className);
         final String inFieldName = OVertex.getEdgeLinkFieldName(ODirection.IN, className);
 
-        // since the label for the edge can potentially get re-assigned
-        // before being pushed into the OrientEdge, the
-        // null check has to go here.
-        if (className == null) {
-          throw new IllegalArgumentException("Class " + className + " cannot be found");
-        }
+        if (createLightweightEdge) {
+          edge = newLightweightEdge(className, from, to);
+          OVertexInternal.createLink(from.getRecord(), to.getRecord(), outFieldName);
+          OVertexInternal.createLink(to.getRecord(), from.getRecord(), inFieldName);
+        } else {
+          edge = newEdgeInternal(className);
+          edge.setPropertyWithoutValidation(OEdgeInternal.DIRECTION_OUT, currentVertex.getRecord());
+          edge.setPropertyWithoutValidation(OEdge.DIRECTION_IN, inDocument.getRecord());
 
-        OVertexInternal.validateConnectionType(from, className, outFieldName);
-        OVertexInternal.validateConnectionType(to, className, inFieldName);
-
-        // CREATE THE EDGE DOCUMENT TO STORE FIELDS TOO
-        edge = (OEdgeInternal) newEdgeInternal(className);
-        edge.setPropertyWithoutValidation(OEdgeInternal.DIRECTION_OUT, currentVertex.getRecord());
-        edge.setPropertyWithoutValidation(OEdgeInternal.DIRECTION_IN, inDocument.getRecord());
-
-        if (fields != null) {
-          for (int i = 0; i < fields.length; i += 2) {
-            String fieldName = "" + fields[i];
-            if (fields.length <= i + 1) {
-              break;
-            }
-            Object fieldValue = fields[i + 1];
-            edge.setProperty(fieldName, fieldValue);
+          if (!outDocumentModified) {
+            // OUT-VERTEX ---> IN-VERTEX/EDGE
+            OVertexInternal.createLink(outDocument, edge.getRecord(), outFieldName);
           }
+
+          // IN-VERTEX ---> OUT-VERTEX/EDGE
+          OVertexInternal.createLink(inDocument, edge.getRecord(), inFieldName);
         }
-
-        // OUT-VERTEX ---> IN-VERTEX/EDGE
-        OVertexInternal.createLink(outDocument, edge.getRecord(), outFieldName);
-
-        // IN-VERTEX ---> OUT-VERTEX/EDGE
-        OVertexInternal.createLink(inDocument, edge.getRecord(), inFieldName);
-
-        var directOutFieldName = OVertexInternal.getDirectEdgeLinkFieldName(outFieldName);
-        var directInFieldName = OVertexInternal.getDirectEdgeLinkFieldName(inFieldName);
-
-        // Direct connection between OUT-VERTEX ---> IN-VERTEX/EDGE
-        OVertexInternal.createLink(outDocument, inDocument, directOutFieldName);
-        // Direct connection between IN-VERTEX ---> OUT-VERTEX/EDGE
-        OVertexInternal.createLink(inDocument, outDocument, directInFieldName);
-
         // OK
         break;
       } catch (ONeedRetryException ignore) {
         // RETRY
-        if (outDocument != null) {
-          outDocument = load(outDocument.getIdentity());
-        }
-
-        if (inDocument != null) {
-          inDocument = load(inDocument.getIdentity());
+        if (!outDocumentModified) {
+          if (outDocument != null) {
+            outDocument.reload();
+          }
+        } else if (inDocument != null) {
+          inDocument.reload();
         }
       }
     }
+
     return edge;
   }
 
@@ -2351,33 +2339,35 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     return false;
   }
 
-  @Deprecated
   public void setUseLightweightEdges(boolean b) {
-    throw new UnsupportedOperationException("Creation of lightweight edges is not supported");
+    this.setCustom("useLightweightEdges", b);
   }
 
-  @Deprecated
-  public OEdge newLightweightEdge(String iClassName, OVertex from, OVertex to) {
-    throw new UnsupportedOperationException();
+  public OEdgeInternal newLightweightEdge(String iClassName, OVertex from, OVertex to) {
+    OImmutableClass clazz =
+        (OImmutableClass) getMetadata().getImmutableSchemaSnapshot().getClass(iClassName);
+
+    return new OEdgeDelegate(from, to, clazz, iClassName);
   }
 
   public OEdge newRegularEdge(String iClassName, OVertex from, OVertex to) {
     OClass cl = getMetadata().getImmutableSchemaSnapshot().getClass(iClassName);
+
     if (cl == null || !cl.isEdgeType()) {
       throw new IllegalArgumentException(iClassName + " is not an edge class");
     }
-    return addEdgeInternal(from, to, iClassName, true);
+
+    return addEdgeInternal(from, to, iClassName, true, false);
   }
 
   public synchronized void queryStarted(String id, OQueryDatabaseState state) {
     if (this.activeQueries.size() > 1 && this.activeQueries.size() % 10 == 0) {
-      StringBuilder msg = new StringBuilder();
-      msg.append("This database instance has ");
-      msg.append(activeQueries.size());
-      msg.append(
-          " open command/query result sets, please make sure you close them with"
-              + " OResultSet.close()");
-      OLogManager.instance().warn(this, msg.toString(), null);
+      String msg =
+          "This database instance has "
+              + activeQueries.size()
+              + " open command/query result sets, please make sure you close them with"
+              + " OResultSet.close()";
+      OLogManager.instance().warn(this, msg);
       if (OLogManager.instance().isDebugEnabled()) {
         activeQueries.values().stream()
             .map(pendingQuery -> pendingQuery.getResultSet().getExecutionPlan())

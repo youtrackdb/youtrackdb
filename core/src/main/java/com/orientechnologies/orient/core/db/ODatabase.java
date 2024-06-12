@@ -550,6 +550,42 @@ public interface ODatabase<T> extends OBackupable, Closeable {
   }
 
   /**
+   * Creates a new abstract class in the schema
+   *
+   * @param className the class name
+   * @param superclasses a list of superclasses for the class (can be empty)
+   * @return the class with the given name
+   * @throws OSchemaException if a class with this name already exists or if one of the superclasses
+   *     does not exist.
+   */
+  default OClass createAbstractClass(String className, String... superclasses)
+      throws OSchemaException {
+    OSchema schema = getMetadata().getSchema();
+    schema.reload();
+    OClass[] superclassInstances = null;
+    if (superclasses != null) {
+      superclassInstances = new OClass[superclasses.length];
+      for (int i = 0; i < superclasses.length; i++) {
+        String superclass = superclasses[i];
+        OClass superclazz = schema.getClass(superclass);
+        if (superclazz == null) {
+          throw new OSchemaException("Class " + superclass + " does not exist");
+        }
+        superclassInstances[i] = superclazz;
+      }
+    }
+    OClass result = schema.getClass(className);
+    if (result != null) {
+      throw new OSchemaException("Class " + className + " already exists");
+    }
+    if (superclassInstances == null) {
+      return schema.createAbstractClass(className);
+    } else {
+      return schema.createAbstractClass(className, superclassInstances);
+    }
+  }
+
+  /**
    * Loads the entity and return it.
    *
    * @param iObject The entity to load. If the entity was already loaded it will be reloaded and all

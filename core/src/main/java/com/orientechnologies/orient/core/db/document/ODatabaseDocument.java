@@ -35,6 +35,7 @@ import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.record.impl.OBlob;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.OEdgeInternal;
 
 /**
  * Generic interface for document based Database implementations.
@@ -63,7 +64,7 @@ public interface ODatabaseDocument extends ODatabase<ORecord> {
    * the returned instance starts from record id with position 0 until the end. Base classes are
    * worked at first.
    *
-   * @param iClassName Class name to iterate
+   * @param iClassName   Class name to iterate
    * @param iPolymorphic Consider also the instances of the subclasses or not
    * @return Iterator of ODocument instances
    */
@@ -102,7 +103,7 @@ public interface ODatabaseDocument extends ODatabase<ORecord> {
   /**
    * Counts the entities contained in the specified class.
    *
-   * @param iClassName Class name
+   * @param iClassName   Class name
    * @param iPolymorphic True if consider also the sub classes, otherwise false
    * @return Total entities
    */
@@ -122,7 +123,9 @@ public interface ODatabaseDocument extends ODatabase<ORecord> {
    */
   void freeze();
 
-  /** Allows to execute write-related commands on DB. Called after {@link #freeze()} command. */
+  /**
+   * Allows to execute write-related commands on DB. Called after {@link #freeze()} command.
+   */
   void release();
 
   /**
@@ -134,9 +137,10 @@ public interface ODatabaseDocument extends ODatabase<ORecord> {
    *
    * <p>IMPORTANT: This command is not reentrant.
    *
-   * @param throwException If <code>true</code> {@link
-   *     com.orientechnologies.common.concur.lock.OModificationOperationProhibitedException}
-   *     exception will be thrown in case of write command will be performed.
+   * @param throwException If <code>true</code>
+   *                       {@link
+   *                       com.orientechnologies.common.concur.lock.OModificationOperationProhibitedException}
+   *                       exception will be thrown in case of write command will be performed.
    */
   void freeze(boolean throwException);
 
@@ -185,12 +189,13 @@ public interface ODatabaseDocument extends ODatabase<ORecord> {
    * instance, then it's returned as is, otherwise a new ORecord is created with the identity
    * received and returned.
    *
-   * @param iIdentifiable
    * @return A ORecord instance
    */
   <RET extends ORecord> RET getRecord(OIdentifiable iIdentifiable);
 
-  /** Returns the default record type for this kind of database. */
+  /**
+   * Returns the default record type for this kind of database.
+   */
   byte getRecordType();
 
   /**
@@ -213,10 +218,9 @@ public interface ODatabaseDocument extends ODatabase<ORecord> {
    * Checks if the operation on a resource is allowed for the current user.
    *
    * @param resourceGeneric Generic Resource where to execute the operation
-   * @param resourceGeneric Specific resource name where to execute the operation
-   * @param iOperation Operation to execute against the resource
+   * @param iOperation      Operation to execute against the resource
    * @return The Database instance itself giving a "fluent interface". Useful to call multiple
-   *     methods in chain.
+   * methods in chain.
    */
   <DB extends ODatabaseDocument> DB checkSecurity(
       ORule.ResourceGeneric resourceGeneric, String resourceSpecific, int iOperation);
@@ -230,11 +234,11 @@ public interface ODatabaseDocument extends ODatabase<ORecord> {
    *   <li>Access to the specific target resource
    * </ol>
    *
-   * @param iResourceGeneric Resource where to execute the operation, i.e.: database.clusters
-   * @param iOperation Operation to execute against the resource
+   * @param iResourceGeneric  Resource where to execute the operation, i.e.: database.clusters
+   * @param iOperation        Operation to execute against the resource
    * @param iResourceSpecific Target resource, i.e.: "employee" to specify the cluster name.
    * @return The Database instance itself giving a "fluent interface". Useful to call multiple
-   *     methods in chain.
+   * methods in chain.
    */
   <DB extends ODatabaseDocument> DB checkSecurity(
       ORule.ResourceGeneric iResourceGeneric, int iOperation, Object iResourceSpecific);
@@ -248,12 +252,12 @@ public interface ODatabaseDocument extends ODatabase<ORecord> {
    *   <li>Access to the specific target resources
    * </ol>
    *
-   * @param iResourceGeneric Resource where to execute the operation, i.e.: database.clusters
-   * @param iOperation Operation to execute against the resource
+   * @param iResourceGeneric   Resource where to execute the operation, i.e.: database.clusters
+   * @param iOperation         Operation to execute against the resource
    * @param iResourcesSpecific Target resources as an array of Objects, i.e.: ["employee", 2] to
-   *     specify cluster name and id.
+   *                           specify cluster name and id.
    * @return The Database instance itself giving a "fluent interface". Useful to call multiple
-   *     methods in chain.
+   * methods in chain.
    */
   <DB extends ODatabaseDocument> DB checkSecurity(
       ORule.ResourceGeneric iResourceGeneric, int iOperation, Object... iResourcesSpecific);
@@ -272,17 +276,17 @@ public interface ODatabaseDocument extends ODatabase<ORecord> {
    *
    * @param iEnabled True to enable, false to disable
    * @return The Database instance itself giving a "fluent interface". Useful to call multiple
-   *     methods in chain.
+   * methods in chain.
    */
   <DB extends ODatabaseDocument> DB setValidationEnabled(boolean iEnabled);
 
   /**
    * Checks if the operation on a resource is allowed for the current user.
    *
-   * @param iResource Resource where to execute the operation
+   * @param iResource  Resource where to execute the operation
    * @param iOperation Operation to execute against the resource
    * @return The Database instance itself giving a "fluent interface". Useful to call multiple
-   *     methods in chain.
+   * methods in chain.
    */
   @Deprecated
   <DB extends ODatabaseDocument> DB checkSecurity(String iResource, int iOperation);
@@ -296,11 +300,11 @@ public interface ODatabaseDocument extends ODatabase<ORecord> {
    *   <li>Access to the specific target resource
    * </ol>
    *
-   * @param iResourceGeneric Resource where to execute the operation, i.e.: database.clusters
-   * @param iOperation Operation to execute against the resource
+   * @param iResourceGeneric  Resource where to execute the operation, i.e.: database.clusters
+   * @param iOperation        Operation to execute against the resource
    * @param iResourceSpecific Target resource, i.e.: "employee" to specify the cluster name.
    * @return The Database instance itself giving a "fluent interface". Useful to call multiple
-   *     methods in chain.
+   * methods in chain.
    */
   @Deprecated
   <DB extends ODatabaseDocument> DB checkSecurity(
@@ -315,12 +319,12 @@ public interface ODatabaseDocument extends ODatabase<ORecord> {
    *   <li>Access to the specific target resources
    * </ol>
    *
-   * @param iResourceGeneric Resource where to execute the operation, i.e.: database.clusters
-   * @param iOperation Operation to execute against the resource
+   * @param iResourceGeneric   Resource where to execute the operation, i.e.: database.clusters
+   * @param iOperation         Operation to execute against the resource
    * @param iResourcesSpecific Target resources as an array of Objects, i.e.: ["employee", 2] to
-   *     specify cluster name and id.
+   *                           specify cluster name and id.
    * @return The Database instance itself giving a "fluent interface". Useful to call multiple
-   *     methods in chain.
+   * methods in chain.
    */
   @Deprecated
   <DB extends ODatabaseDocument> DB checkSecurity(
@@ -328,7 +332,7 @@ public interface ODatabaseDocument extends ODatabase<ORecord> {
 
   /**
    * @return <code>true</code> if database is obtained from the pool and <code>false</code>
-   *     otherwise.
+   * otherwise.
    */
   boolean isPooled();
 
@@ -336,7 +340,7 @@ public interface ODatabaseDocument extends ODatabase<ORecord> {
    * Add a cluster for blob records.
    *
    * @param iClusterName Cluster name
-   * @param iParameters Additional parameters to pass to the factories
+   * @param iParameters  Additional parameters to pass to the factories
    * @return Cluster id
    */
   int addBlobCluster(String iClusterName, Object... iParameters);
@@ -350,14 +354,14 @@ public interface ODatabaseDocument extends ODatabase<ORecord> {
   OElement newEmbeddedElement(final String className);
 
   default OElement reload(OElement element) {
-    return (OElement) reload(element, null, true);
+    return reload(element, null, true);
   }
 
   /**
    * Creates a new Edge of type E
    *
    * @param from the starting point vertex
-   * @param to the endpoint vertex
+   * @param to   the endpoint vertex
    * @return the edge
    */
   default OEdge newEdge(OVertex from, OVertex to) {
@@ -368,7 +372,7 @@ public interface ODatabaseDocument extends ODatabase<ORecord> {
    * Creates a new Edge
    *
    * @param from the starting point vertex
-   * @param to the endpoint vertex
+   * @param to   the endpoint vertex
    * @param type the edge type
    * @return the edge
    */
@@ -378,16 +382,14 @@ public interface ODatabaseDocument extends ODatabase<ORecord> {
    * Creates a new Edge
    *
    * @param from the starting point vertex
-   * @param to the endpoint vertex
+   * @param to   the endpoint vertex
    * @param type the edge type
    * @return the edge
    */
-  OEdge newEdge(OVertex from, OVertex to, String type);
+  OEdgeInternal newEdge(OVertex from, OVertex to, String type);
 
   /**
    * Creates a new Vertex of type V
-   *
-   * @return
    */
   default OVertex newVertex() {
     return newVertex("V");
@@ -397,7 +399,6 @@ public interface ODatabaseDocument extends ODatabase<ORecord> {
    * Creates a new Vertex
    *
    * @param type the vertex type
-   * @return
    */
   OVertex newVertex(OClass type);
 
@@ -405,7 +406,6 @@ public interface ODatabaseDocument extends ODatabase<ORecord> {
    * Creates a new Vertex
    *
    * @param type the vertex type (class name)
-   * @return
    */
   OVertex newVertex(String type);
 
@@ -415,7 +415,7 @@ public interface ODatabaseDocument extends ODatabase<ORecord> {
    * @param className the class name
    * @return The object representing the class in the schema
    * @throws OSchemaException if the class already exists or if V class is not defined (Eg. if it
-   *     was deleted from the schema)
+   *                          was deleted from the schema)
    */
   default OClass createVertexClass(String className) throws OSchemaException {
     return createClass(className, "V");
@@ -427,7 +427,7 @@ public interface ODatabaseDocument extends ODatabase<ORecord> {
    * @param className the class name
    * @return The object representing the class in the schema
    * @throws OSchemaException if the class already exists or if E class is not defined (Eg. if it
-   *     was deleted from the schema)
+   *                          was deleted from the schema)
    */
   default OClass createEdgeClass(String className) {
     var edgeClass = createClass(className, "E");
@@ -439,10 +439,22 @@ public interface ODatabaseDocument extends ODatabase<ORecord> {
   }
 
   /**
+   * Creates a new edge class for lightweight edge (an abstract class that extends E)
+   *
+   * @param className the class name
+   * @return The object representing the class in the schema
+   * @throws OSchemaException if the class already exists or if E class is not defined (Eg. if it
+   *                          was deleted from the schema)
+   */
+  default OClass createLightweightEdgeClass(String className) {
+    return createAbstractClass(className, "E");
+  }
+
+  /**
    * If a class with given name already exists, it's just returned, otherwise the method creates a
    * new class and returns it.
    *
-   * @param className the class name
+   * @param className    the class name
    * @param superclasses a list of superclasses for the class (can be empty)
    * @return the class with the given name
    * @throws OSchemaException if one of the superclasses does not exist in the schema

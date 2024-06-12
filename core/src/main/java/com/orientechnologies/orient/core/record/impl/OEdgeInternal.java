@@ -124,7 +124,6 @@ public interface OEdgeInternal extends OEdge, OElementInternal {
     return baseDocument.getPropertyNamesWithoutFiltration();
   }
 
-  @Override
   default <RET> RET getPropertyWithoutValidation(String name) {
     var baseDocument = getBaseDocument();
     if (baseDocument == null) {
@@ -132,6 +131,16 @@ public interface OEdgeInternal extends OEdge, OElementInternal {
     }
 
     return baseDocument.getPropertyWithoutValidation(name);
+  }
+
+  @Override
+  default <RET> RET getPropertyWithoutValidation(String name, boolean lazyLoading) {
+    var baseDocument = getBaseDocument();
+    if (baseDocument == null) {
+      return null;
+    }
+
+    return baseDocument.getPropertyWithoutValidation(name, lazyLoading);
   }
 
   @Override

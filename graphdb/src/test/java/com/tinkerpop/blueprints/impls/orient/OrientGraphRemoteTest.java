@@ -8,7 +8,6 @@ import com.orientechnologies.orient.server.OServer;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Graph;
-import com.tinkerpop.blueprints.IndexTestSuite;
 import com.tinkerpop.blueprints.IndexableGraphTestSuite;
 import com.tinkerpop.blueprints.KeyIndexableGraphTestSuite;
 import com.tinkerpop.blueprints.TestSuite;
@@ -148,15 +147,6 @@ public abstract class OrientGraphRemoteTest extends OrientGraphTest {
     this.stopWatch();
     doTestSuite(new IndexableGraphTestSuite(this));
     printTestPerformance("IndexableGraphTestSuite", this.stopWatch());
-  }
-
-  @Test
-  @Ignore
-  @Override
-  public void testIndexTestSuite() throws Exception {
-    this.stopWatch();
-    doTestSuite(new IndexTestSuite(this));
-    printTestPerformance("IndexTestSuite", this.stopWatch());
   }
 
   @Test
