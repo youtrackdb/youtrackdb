@@ -1435,7 +1435,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       final OVertex inVertex,
       String className,
       boolean forceRegular,
-      boolean preferLightweight) {
+      boolean forceLightweight) {
     Objects.requireNonNull(currentVertex, "From vertex is null");
     Objects.requireNonNull(inVertex, "To vertex is null");
 
@@ -1476,10 +1476,19 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
         OVertex from = currentVertex;
 
         OSchema schema = getMetadata().getImmutableSchemaSnapshot();
-        var createLightweightEdge = (preferLightweight || isUseLightweightEdges()) && !forceRegular;
-
         final OClass edgeType = schema.getClass(className);
         className = edgeType.getName();
+
+        var createLightweightEdge =
+            (forceLightweight || isUseLightweightEdges())
+                && !forceRegular
+                && (edgeType.isAbstract() || className.equals(OEdgeInternal.CLASS_NAME));
+        if (forceLightweight && !createLightweightEdge) {
+          throw new IllegalArgumentException(
+              "Cannot create lightweight edge for class "
+                  + className
+                  + " because it is not abstract");
+        }
 
         final String outFieldName = OVertex.getEdgeLinkFieldName(ODirection.OUT, className);
         final String inFieldName = OVertex.getEdgeLinkFieldName(ODirection.IN, className);
