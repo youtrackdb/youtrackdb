@@ -544,9 +544,11 @@ public class ODocument extends ORecordAbstract
     if (primaryRecord != null) {
       return ((ODocument) primaryRecord).getPropertyOnLoadValue(name);
     }
-    Objects.requireNonNull(name, "Name argument is required.");
 
+    Objects.requireNonNull(name, "Name argument is required.");
     OVertexInternal.checkPropertyName(name);
+
+    checkForFields();
 
     var field = fields.get(name);
     if (field != null) {
