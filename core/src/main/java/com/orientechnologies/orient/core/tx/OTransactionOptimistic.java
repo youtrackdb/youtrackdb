@@ -101,22 +101,6 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
   }
 
   /**
-   * Clears unfinished changes and commit the transaction.
-   */
-  public void abort() {
-    revert();
-    commit();
-  }
-
-  /**
-   * Clears unfinished changes
-   */
-  public void revert() {
-    invalidateChangesInCache();
-    clearUnfinishedChanges();
-  }
-
-  /**
    * The transaction is reentrant. If {@code begin()} has been called several times, the actual
    * commit happens only after the same amount of {@code commit()} calls
    *
@@ -395,17 +379,6 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
 
   public void deleteRecord(final ORecordAbstract iRecord, final OPERATION_MODE iMode) {
     try {
-      var rid = iRecord.getIdentity();
-
-      if (!iRecord.getIdentity().isValid()) {
-        // newly created but not saved record
-        if (rid.getClusterId() == -1 && rid.getClusterPosition() == -1) {
-          database.triggerRecordDeletionListeners(iRecord);
-        }
-
-        return;
-      }
-
       var records = ORecordInternal.getDirtyManager(iRecord).getUpdateRecords();
       final var newRecords = ORecordInternal.getDirtyManager(iRecord).getNewRecords();
       var recordsMap = new HashMap<>(16);

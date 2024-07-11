@@ -21,7 +21,6 @@
 package com.orientechnologies.orient.core.db;
 
 import com.orientechnologies.orient.core.db.document.OQueryDatabaseState;
-import com.orientechnologies.orient.core.db.document.RecordListenersManager;
 import com.orientechnologies.orient.core.db.document.RecordReader;
 import com.orientechnologies.orient.core.db.record.OCurrentStorageComponentsFactory;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
@@ -326,9 +325,4 @@ public interface ODatabaseDocumentInternal extends ODatabaseSession, ODatabaseIn
   public long truncateClass(String name, boolean polimorfic);
 
   public long truncateClusterInternal(String name);
-
-  void registerRecordDeletionListener(
-      ORecord record, RecordListenersManager.RecordListener listener);
-
-  void removeRecordDeletionListener(ORecord record, RecordListenersManager.RecordListener listener);
 }
