@@ -359,7 +359,6 @@ public class ODocument extends ORecordAbstract
 
   @Override
   public boolean isVertex() {
-    checkForLoading();
     if (primaryRecord != null) {
       return ((ODocument) primaryRecord).isVertex();
     }
@@ -367,16 +366,17 @@ public class ODocument extends ORecordAbstract
     if (this instanceof OVertex) {
       return true;
     }
+
     OClass type = this.getImmutableSchemaClass();
     if (type == null) {
       return false;
     }
+
     return type.isVertexType();
   }
 
   @Override
   public boolean isEdge() {
-    checkForLoading();
     if (primaryRecord != null) {
       return ((ODocument) primaryRecord).isEdge();
     }
@@ -384,10 +384,12 @@ public class ODocument extends ORecordAbstract
     if (this instanceof OEdge) {
       return true;
     }
+
     OClass type = this.getImmutableSchemaClass();
     if (type == null) {
       return false;
     }
+
     return type.isEdgeType();
   }
 
@@ -3906,7 +3908,6 @@ public class ODocument extends ORecordAbstract
   }
 
   protected OImmutableClass getImmutableSchemaClass() {
-    checkForLoading();
     if (primaryRecord != null) {
       return ((ODocument) primaryRecord).getImmutableSchemaClass();
     }
@@ -3915,7 +3916,6 @@ public class ODocument extends ORecordAbstract
   }
 
   protected OImmutableClass getImmutableSchemaClass(ODatabaseDocumentInternal database) {
-    checkForLoading();
     if (primaryRecord != null) {
       return ((ODocument) primaryRecord).getImmutableSchemaClass(database);
     }
@@ -3924,6 +3924,7 @@ public class ODocument extends ORecordAbstract
       if (className == null) {
         fetchClassName();
       }
+
       if (className != null) {
         if (database == null) {
           database = getDatabaseIfDefined();
@@ -4590,11 +4591,8 @@ public class ODocument extends ORecordAbstract
 
   private void fetchClassName() {
     final ODatabaseDocumentInternal database = getDatabaseIfDefinedInternal();
-    if (recordId != null && database != null && database.getStorageVersions() != null) {
-      if (recordId.getClusterId() < 0) {
-
-        checkForFields(ODocumentHelper.ATTRIBUTE_CLASS);
-      } else {
+    if (recordId != null && database != null) {
+      if (recordId.getClusterId() >= 0) {
         final OSchema schema = database.getMetadata().getImmutableSchemaSnapshot();
         if (schema != null) {
           OClass clazz = schema.getClassByClusterId(recordId.getClusterId());
@@ -4603,10 +4601,6 @@ public class ODocument extends ORecordAbstract
           }
         }
       }
-    } else {
-      // CLASS NOT FOUND: CHECK IF NEED LOADING AND UNMARSHALLING
-      checkForLoading();
-      checkForFields(ODocumentHelper.ATTRIBUTE_CLASS);
     }
   }
 
