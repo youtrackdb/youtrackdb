@@ -40,7 +40,6 @@ import com.orientechnologies.orient.core.db.ODatabaseListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.OScenarioThreadLocal;
 import com.orientechnologies.orient.core.db.OSharedContext;
-import com.orientechnologies.orient.core.db.document.RecordListenersManager.RecordListener;
 import com.orientechnologies.orient.core.db.record.OCurrentStorageComponentsFactory;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
@@ -133,8 +132,6 @@ import java.util.concurrent.ConcurrentHashMap;
 @SuppressWarnings("unchecked")
 public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabaseListener>
     implements ODatabaseDocumentInternal {
-
-  private final RecordListenersManager recordDeleteListenersManager = new RecordListenersManager();
 
   protected final Map<String, Object> properties = new HashMap<String, Object>();
   protected Map<ORecordHook, ORecordHook.HOOK_POSITION> unmodifiableHooks;
@@ -553,17 +550,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     return registerHook(iHookImpl, ORecordHook.HOOK_POSITION.REGULAR);
   }
 
-  @Override
-  public void registerRecordDeletionListener(
-      ORecord record, RecordListenersManager.RecordListener listener) {
-    recordDeleteListenersManager.addRecordListener(record, listener);
-  }
-
-  @Override
-  public void removeRecordDeletionListener(ORecord record, RecordListener listener) {
-    recordDeleteListenersManager.removeRecordListener(record, listener);
-  }
-
   /**
    * {@inheritDoc}
    */
@@ -600,11 +586,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
    * @return True if the input record is changed, otherwise false
    */
   public ORecordHook.RESULT callbackHooks(final ORecordHook.TYPE type, final OIdentifiable id) {
-    if (type == ORecordHook.TYPE.AFTER_DELETE) {
-      var record = id.getRecord();
-      triggerRecordDeletionListeners(record);
-    }
-
     if (id == null || hooks.isEmpty() || id.getIdentity().getClusterId() == 0) {
       return ORecordHook.RESULT.RECORD_NOT_CHANGED;
     }
@@ -674,12 +655,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     }
   }
 
-  @Override
-  public void triggerRecordDeletionListeners(ORecord record) {
-    recordDeleteListenersManager.triggerRecordListeners(record);
-    recordDeleteListenersManager.clearRecordListeners(record);
-  }
-
   /**
    * {@inheritDoc}
    */
@@ -706,7 +681,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
 
   @Override
   public void close() {
-    recordDeleteListenersManager.clear();
     internalClose(false);
   }
 

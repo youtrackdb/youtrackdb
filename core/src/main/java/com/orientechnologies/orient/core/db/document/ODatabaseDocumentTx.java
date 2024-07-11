@@ -24,7 +24,6 @@ import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.OrientDBConfigBuilder;
 import com.orientechnologies.orient.core.db.OrientDBInternal;
-import com.orientechnologies.orient.core.db.document.RecordListenersManager.RecordListener;
 import com.orientechnologies.orient.core.db.record.OCurrentStorageComponentsFactory;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.dictionary.ODictionary;
@@ -99,8 +98,6 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 @Deprecated
 public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
-
-  private final RecordListenersManager recordDeleteListenersManager = new RecordListenersManager();
 
   protected static ConcurrentMap<String, OrientDBInternal> embedded = new ConcurrentHashMap<>();
   protected static ConcurrentMap<String, OrientDBInternal> remote = new ConcurrentHashMap<>();
@@ -363,17 +360,6 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
   }
 
   @Override
-  public void registerRecordDeletionListener(
-      ORecord record, RecordListenersManager.RecordListener listener) {
-    recordDeleteListenersManager.addRecordListener(record, listener);
-  }
-
-  @Override
-  public void removeRecordDeletionListener(ORecord record, RecordListener listener) {
-    recordDeleteListenersManager.removeRecordListener(record, listener);
-  }
-
-  @Override
   public <DB extends ODatabase<?>> DB registerHook(
       ORecordHook iHookImpl, ORecordHook.HOOK_POSITION iPosition) {
     checkOpenness();
@@ -544,15 +530,6 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
       return null;
     }
     return internal.getSharedContext();
-  }
-
-  @Override
-  public void triggerRecordDeletionListeners(ORecord record) {
-    if (internal == null) {
-      return;
-    }
-
-    internal.triggerRecordDeletionListeners(record);
   }
 
   @Override
@@ -1166,9 +1143,8 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
 
   @Override
   public void close() {
-    recordDeleteListenersManager.clear();
-
     clearOwner();
+
     if (internal != null) {
       delegateStorage = internal.getStorage();
       internal.close();

@@ -388,8 +388,8 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
    * @param iPojo                    :- the object to detach
    * @param returnNonProxiedInstance :- defines if the return object will be a proxied instance or
    *                                 not. If set to TRUE and the object does not contains @Id and
-   *                                 @Version fields it could procude data replication
    * @return the object serialized or with detached data
+   * @Version fields it could procude data replication
    */
   public <RET> RET detach(final Object iPojo, boolean returnNonProxiedInstance) {
     return (RET) OObjectEntitySerializer.detach(iPojo, this, returnNonProxiedInstance);
@@ -404,8 +404,8 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
    * @param iPojo                    :- the object to detach
    * @param returnNonProxiedInstance :- defines if the return object will be a proxied instance or
    *                                 not. If set to TRUE and the object does not contains @Id and
-   *                                 @Version fields it could procude data replication
    * @return the object serialized or with detached data
+   * @Version fields it could procude data replication
    */
   public <RET> RET detachAll(final Object iPojo, boolean returnNonProxiedInstance) {
     return detachAll(
@@ -543,8 +543,7 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
    * or map of objects) is passed, then each single object is stored separately.
    *
    * <p>Before to use the specified cluster a check is made to know if is allowed and figures in
-   * the
-   * configured and the record is valid following the constraints declared in the schema.
+   * the configured and the record is valid following the constraints declared in the schema.
    *
    * @see ODocument#validate()
    */
@@ -560,8 +559,7 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
    * objects) is passed, then each single object is stored separately.
    *
    * <p>Before to use the specified cluster a check is made to know if is allowed and figures in
-   * the
-   * configured and the record is valid following the constraints declared in the schema.
+   * the configured and the record is valid following the constraints declared in the schema.
    *
    * @see ODocument#validate()
    */
@@ -1104,11 +1102,6 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
   @Override
   public OSharedContext getSharedContext() {
     return underlying.getSharedContext();
-  }
-
-  @Override
-  public void triggerRecordDeletionListeners(ORecord record) {
-    underlying.triggerRecordDeletionListeners(record);
   }
 
   /**
