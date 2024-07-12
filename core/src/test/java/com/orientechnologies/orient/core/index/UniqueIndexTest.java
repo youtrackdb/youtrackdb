@@ -150,7 +150,7 @@ public class UniqueIndexTest extends BaseMemoryDatabase {
       db.save(toUp);
       Assert.fail("Expected record duplicate exception");
     } catch (ORecordDuplicatedException ex) {
-      //ignore
+      // ignore
     }
     ODocument fromDb = db.load(id.getIdentity());
     Assert.assertEquals(fromDb.field("MailAddress"), "jane@doe.com");
@@ -186,7 +186,7 @@ public class UniqueIndexTest extends BaseMemoryDatabase {
       db.save(toUp);
       Assert.fail("Expected record duplicate exception");
     } catch (ORecordDuplicatedException ex) {
-      //ignore
+      // ignore
     }
 
     final OResultSet result = db.query("select from User where MailAddress = 'john@doe.com'");
