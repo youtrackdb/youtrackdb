@@ -60,29 +60,11 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
   private Map<ORID, LockedRecordMetadata> noTxLocks;
   @Nullable private OTxMetadataHolder metadata = null;
 
-  /**
-   * token This set is used to track which documents are changed during tx, if documents are changed
-   * but not saved all changes are made during tx will be undone.
-   */
-  protected final Set<ODocument> changedDocuments = new HashSet<>();
-
   @Nullable private List<byte[]> serializedOperations;
 
   OTransactionRealAbstract(final ODatabaseDocumentInternal database, final int id) {
     super(database);
     this.id = id;
-  }
-
-  @Override
-  public void addChangedDocument(ODocument document) {
-    try {
-      if (getRecord(document.getIdentity()) == null) {
-        changedDocuments.add((ODocument) document.getRecord());
-      }
-    } catch (Exception e) {
-      rollback(true, 0);
-      throw e;
-    }
   }
 
   public void close() {
@@ -94,23 +76,6 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
   }
 
   protected void clearUnfinishedChanges() {
-    for (final ORecordOperation recordOperation : getRecordOperations()) {
-      final ORecord record = recordOperation.getRecord();
-      if (record instanceof ODocument document && !document.isUnloaded()) {
-        if (document.isDirty()) {
-          document.undo();
-        }
-        changedDocuments.remove(document);
-      }
-    }
-
-    for (ODocument changedDocument : changedDocuments) {
-      if (!changedDocument.isEmbedded()) {
-        changedDocument.undo();
-      }
-    }
-
-    changedDocuments.clear();
     updatedRids.clear();
     allEntries.clear();
     indexEntries.clear();

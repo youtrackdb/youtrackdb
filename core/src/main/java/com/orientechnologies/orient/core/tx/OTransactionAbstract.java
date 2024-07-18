@@ -21,15 +21,10 @@ package com.orientechnologies.orient.core.tx;
 
 import com.orientechnologies.common.concur.lock.OLockException;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.cache.OLocalRecordCache;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.ORecordAbstract;
-import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.record.impl.ORecordBytes;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
@@ -63,30 +58,6 @@ public abstract class OTransactionAbstract implements OTransaction {
 
   protected OTransactionAbstract(final ODatabaseDocumentInternal iDatabase) {
     database = iDatabase;
-  }
-
-  public static void updateCacheFromEntries(
-      final ODatabaseDocumentInternal database,
-      final Iterable<? extends ORecordOperation> entries,
-      boolean updateStrategy,
-      boolean unloadCachedRecords) {
-    final OLocalRecordCache dbCache = database.getLocalCache();
-
-    for (ORecordOperation txEntry : entries) {
-      if (txEntry.getRecord() instanceof ODocument) {
-        ODocumentInternal.clearTransactionTrackData((ODocument) txEntry.getRecord());
-      }
-
-      var record = txEntry.getRecord();
-      ORecordInternal.unsetDirty(record);
-      record.unload();
-    }
-
-    if (unloadCachedRecords) {
-      dbCache.unloadRecords();
-    }
-
-    dbCache.clear();
   }
 
   @Override

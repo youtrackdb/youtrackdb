@@ -347,10 +347,6 @@ public class OTransactionOptimisticServer extends OTransactionOptimistic {
     changed = true;
     checkTransactionValid();
 
-    if (iStatus != ORecordOperation.LOADED && iRecord instanceof ODocument document) {
-      changedDocuments.remove(document);
-    }
-
     boolean callHooks = checkCallHooks(oldTx, iRecord.getIdentity(), iStatus);
 
     try {

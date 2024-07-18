@@ -53,7 +53,6 @@ import com.orientechnologies.orient.core.serialization.serializer.record.binary.
 import com.orientechnologies.orient.core.sql.OSQLHelper;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.filter.OSQLPredicate;
-import com.orientechnologies.orient.core.tx.OTransaction;
 import java.io.*;
 import java.lang.ref.WeakReference;
 import java.nio.charset.StandardCharsets;
@@ -2762,33 +2761,6 @@ public class ODocument extends ORecordAbstract
     checkForFields();
 
     super.setDirty();
-
-    boolean addToChangedList = false;
-
-    ORecordElement owner;
-    if (!isEmbedded()) {
-      owner = this;
-    } else {
-      owner = getOwner();
-      while (owner != null && owner.getOwner() != null) {
-        owner = owner.getOwner();
-      }
-    }
-
-    if (owner instanceof ODocument
-        && ((ODocument) owner).isTrackingChanges()
-        && ((ODocument) owner).getIdentity().isPersistent()) {
-      addToChangedList = true;
-    }
-
-    if (addToChangedList) {
-      final ODatabaseDocumentInternal database = getDatabaseIfDefined();
-
-      if (database != null) {
-        final OTransaction transaction = database.getTransaction();
-        transaction.addChangedDocument(this);
-      }
-    }
 
     return this;
   }

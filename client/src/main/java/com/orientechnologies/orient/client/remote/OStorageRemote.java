@@ -167,7 +167,6 @@ import com.orientechnologies.orient.core.storage.cluster.OPaginatedCluster;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.ORecordSerializationContext;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
-import com.orientechnologies.orient.core.tx.OTransactionAbstract;
 import com.orientechnologies.orient.core.tx.OTransactionInternal;
 import com.orientechnologies.orient.core.tx.OTransactionOptimistic;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinary;
@@ -1476,9 +1475,6 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
       ORecordInternal.unsetDirty(txEntry.getRecord());
     }
 
-    // UPDATE THE CACHE ONLY IF THE ITERATOR ALLOWS IT.
-    OTransactionAbstract.updateCacheFromEntries(
-        iTx.getDatabase(), iTx.getRecordOperations(), true, iTx.isUnloadCachedRecords());
     return null;
   }
 

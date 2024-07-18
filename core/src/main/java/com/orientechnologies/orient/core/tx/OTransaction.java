@@ -239,13 +239,6 @@ public interface OTransaction {
       OIdentifiable value);
 
   /**
-   * Adds the given document to a set of changed documents known to this transaction.
-   *
-   * @param document the document to add.
-   */
-  void addChangedDocument(ODocument document);
-
-  /**
    * Obtains the index changes done in the context of this transaction.
    *
    * @param indexName the index name.

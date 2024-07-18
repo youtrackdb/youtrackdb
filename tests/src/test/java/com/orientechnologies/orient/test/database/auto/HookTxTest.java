@@ -32,6 +32,7 @@ import org.testng.annotations.Test;
 
 @Test(groups = "hook")
 public class HookTxTest extends ORecordHookAbstract {
+
   public static final int RECORD_BEFORE_CREATE = 3;
   public static final int RECORD_AFTER_CREATE = 5;
   public static final int RECORD_BEFORE_READ = 7;
@@ -126,7 +127,8 @@ public class HookTxTest extends ORecordHookAbstract {
 
     database.commit();
 
-    expectedHookState += RECORD_BEFORE_UPDATE + RECORD_AFTER_UPDATE;
+    expectedHookState +=
+        RECORD_BEFORE_UPDATE + RECORD_AFTER_UPDATE + RECORD_BEFORE_READ + RECORD_AFTER_READ;
     Assert.assertEquals(callbackCount, expectedHookState);
   }
 
@@ -182,8 +184,9 @@ public class HookTxTest extends ORecordHookAbstract {
   public RESULT onRecordBeforeCreate(ORecord iRecord) {
     if (iRecord instanceof ODocument
         && ((ODocument) iRecord).getClassName() != null
-        && ((ODocument) iRecord).getClassName().equals("Profile"))
+        && ((ODocument) iRecord).getClassName().equals("Profile")) {
       callbackCount += RECORD_BEFORE_CREATE;
+    }
     return RESULT.RECORD_NOT_CHANGED;
   }
 
@@ -192,8 +195,9 @@ public class HookTxTest extends ORecordHookAbstract {
   public void onRecordAfterCreate(ORecord iRecord) {
     if (iRecord instanceof ODocument
         && ((ODocument) iRecord).getClassName() != null
-        && ((ODocument) iRecord).getClassName().equals("Profile"))
+        && ((ODocument) iRecord).getClassName().equals("Profile")) {
       callbackCount += RECORD_AFTER_CREATE;
+    }
   }
 
   @Override
@@ -201,8 +205,9 @@ public class HookTxTest extends ORecordHookAbstract {
   public RESULT onRecordBeforeRead(ORecord iRecord) {
     if (iRecord instanceof ODocument
         && ((ODocument) iRecord).getClassName() != null
-        && ((ODocument) iRecord).getClassName().equals("Profile"))
+        && ((ODocument) iRecord).getClassName().equals("Profile")) {
       callbackCount += RECORD_BEFORE_READ;
+    }
     return RESULT.RECORD_NOT_CHANGED;
   }
 
@@ -211,8 +216,9 @@ public class HookTxTest extends ORecordHookAbstract {
   public void onRecordAfterRead(ORecord iRecord) {
     if (iRecord instanceof ODocument
         && ((ODocument) iRecord).getClassName() != null
-        && ((ODocument) iRecord).getClassName().equals("Profile"))
+        && ((ODocument) iRecord).getClassName().equals("Profile")) {
       callbackCount += RECORD_AFTER_READ;
+    }
   }
 
   @Override
@@ -220,8 +226,9 @@ public class HookTxTest extends ORecordHookAbstract {
   public RESULT onRecordBeforeUpdate(ORecord iRecord) {
     if (iRecord instanceof ODocument
         && ((ODocument) iRecord).getClassName() != null
-        && ((ODocument) iRecord).getClassName().equals("Profile"))
+        && ((ODocument) iRecord).getClassName().equals("Profile")) {
       callbackCount += RECORD_BEFORE_UPDATE;
+    }
     return RESULT.RECORD_NOT_CHANGED;
   }
 
@@ -230,8 +237,9 @@ public class HookTxTest extends ORecordHookAbstract {
   public void onRecordAfterUpdate(ORecord iRecord) {
     if (iRecord instanceof ODocument
         && ((ODocument) iRecord).getClassName() != null
-        && ((ODocument) iRecord).getClassName().equals("Profile"))
+        && ((ODocument) iRecord).getClassName().equals("Profile")) {
       callbackCount += RECORD_AFTER_UPDATE;
+    }
   }
 
   @Override
@@ -239,8 +247,9 @@ public class HookTxTest extends ORecordHookAbstract {
   public RESULT onRecordBeforeDelete(ORecord iRecord) {
     if (iRecord instanceof ODocument
         && ((ODocument) iRecord).getClassName() != null
-        && ((ODocument) iRecord).getClassName().equals("Profile"))
+        && ((ODocument) iRecord).getClassName().equals("Profile")) {
       callbackCount += RECORD_BEFORE_DELETE;
+    }
     return RESULT.RECORD_NOT_CHANGED;
   }
 
@@ -249,7 +258,8 @@ public class HookTxTest extends ORecordHookAbstract {
   public void onRecordAfterDelete(ORecord iRecord) {
     if (iRecord instanceof ODocument
         && ((ODocument) iRecord).getClassName() != null
-        && ((ODocument) iRecord).getClassName().equals("Profile"))
+        && ((ODocument) iRecord).getClassName().equals("Profile")) {
       callbackCount += RECORD_AFTER_DELETE;
+    }
   }
 }

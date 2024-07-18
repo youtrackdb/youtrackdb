@@ -2432,7 +2432,7 @@ public abstract class OAbstractPaginatedStorage
             if (error != null) {
               rollback(transaction, error);
             } else {
-              endStorageTx(transaction, recordOperations);
+              endStorageTx();
             }
             this.transaction.set(null);
           }
@@ -3708,12 +3708,6 @@ public abstract class OAbstractPaginatedStorage
 
     assert atomicOperationsManager.getCurrentOperation() == null;
 
-    OTransactionAbstract.updateCacheFromEntries(
-        clientTx.getDatabase(),
-        clientTx.getRecordOperations(),
-        false,
-        clientTx.isUnloadCachedRecords());
-
     txRollback.increment();
   }
 
@@ -4890,14 +4884,10 @@ public abstract class OAbstractPaginatedStorage
     }
   }
 
-  private void endStorageTx(
-      final OTransactionInternal txi, final Collection<ORecordOperation> recordOperations)
-      throws IOException {
+  private void endStorageTx() throws IOException {
     atomicOperationsManager.endAtomicOperation(null);
     assert atomicOperationsManager.getCurrentOperation() == null;
 
-    OTransactionAbstract.updateCacheFromEntries(
-        txi.getDatabase(), recordOperations, true, txi.isUnloadCachedRecords());
     txCommit.increment();
   }
 

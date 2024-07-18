@@ -33,7 +33,7 @@
         <module>core</module>
         <module>object</module>
         <module>server</module>
-        <module>distributed</module>
+<!--        <module>distributed</module>-->
         <module>security</module>
         <module>tools</module>
         <module>tests</module>

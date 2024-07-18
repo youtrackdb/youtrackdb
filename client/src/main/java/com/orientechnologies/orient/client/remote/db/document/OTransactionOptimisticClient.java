@@ -123,10 +123,6 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
 
   public void addRecord(
       ORecord iRecord, final byte iStatus, final String iClusterName, boolean callHook) {
-    if (iStatus != ORecordOperation.LOADED && iRecord instanceof ODocument document) {
-      changedDocuments.remove(document);
-    }
-
     try {
       if (callHook) {
         switch (iStatus) {

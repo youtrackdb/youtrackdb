@@ -21,6 +21,7 @@
 package com.orientechnologies.orient.core.tx;
 
 import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.orient.core.cache.OLocalRecordCache;
 import com.orientechnologies.orient.core.db.ODatabase.OPERATION_MODE;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
@@ -211,7 +212,7 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
       iRecord.incrementLoading();
     }
     try {
-      final ORecord txRecord = getRecord(rid);
+      final ORecordAbstract txRecord = getRecord(rid);
       if (txRecord == OTransactionAbstract.DELETED_RECORD) {
         // DELETED IN TX
         return null;
@@ -219,7 +220,7 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
 
       if (txRecord != null) {
         if (iRecord != null && txRecord != iRecord) {
-          iRecord.convertToProxyRecord((ORecordAbstract) txRecord);
+          iRecord.convertToProxyRecord(txRecord);
         }
 
         return txRecord;
@@ -325,7 +326,7 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
     }
     try {
 
-      final ORecord txRecord = getRecord(rid);
+      final ORecordAbstract txRecord = getRecord(rid);
       if (txRecord == OTransactionAbstract.DELETED_RECORD) {
         // DELETED IN TX
         return null;
@@ -333,7 +334,7 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
 
       if (txRecord != null) {
         if (passedRecord != null && txRecord != passedRecord) {
-          passedRecord.convertToProxyRecord((ORecordAbstract) txRecord);
+          passedRecord.convertToProxyRecord(txRecord);
         }
         return txRecord;
       }
@@ -584,9 +585,6 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
     if (iClusterName == null) {
       iClusterName = database.getClusterNameById(iRecord.getIdentity().getClusterId());
     }
-    if (iStatus != ORecordOperation.LOADED && iRecord instanceof ODocument document) {
-      changedDocuments.remove(document);
-    }
 
     try {
       final ORecordId rid = (ORecordId) iRecord.getIdentity();
@@ -773,6 +771,31 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
   public void resetChangesTracking() {
     alreadyCleared = true;
     changed = false;
+  }
+
+  @Override
+  public void close() {
+    final OLocalRecordCache dbCache = database.getLocalCache();
+    for (ORecordOperation txEntry : allEntries.values()) {
+      var record = txEntry.getRecord();
+
+      if (!record.isUnloaded()) {
+        if (record instanceof ODocument document) {
+          ODocumentInternal.clearTransactionTrackData(document);
+        }
+
+        ORecordInternal.unsetDirty(record);
+        record.unload();
+      }
+    }
+
+    if (unloadCachedRecords) {
+      dbCache.unloadRecords();
+    }
+
+    dbCache.clear();
+
+    super.close();
   }
 
   public boolean isChanged() {
