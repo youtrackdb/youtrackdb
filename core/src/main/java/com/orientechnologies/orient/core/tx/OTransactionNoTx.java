@@ -262,16 +262,6 @@ public class OTransactionNoTx extends OTransactionAbstract {
     }
   }
 
-  @Override
-  public OTransaction setIsolationLevel(final ISOLATION_LEVEL isolationLevel) {
-    if (isolationLevel != ISOLATION_LEVEL.READ_COMMITTED)
-      throw new IllegalArgumentException(
-          "Isolation level '"
-              + isolationLevel
-              + "' is not supported without an active transaction");
-    return super.setIsolationLevel(isolationLevel);
-  }
-
   /** Deletes the record. */
   public void deleteRecord(final ORecordAbstract iRecord, final OPERATION_MODE iMode) {
     if (!iRecord.getIdentity().isPersistent()) {

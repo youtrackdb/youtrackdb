@@ -380,12 +380,6 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
           return;
         note = cfg.onCreateMessage;
         break;
-      case LOADED:
-        if (!cfg.onReadEnabled)
-          // SKIP
-          return;
-        note = cfg.onReadMessage;
-        break;
       case UPDATED:
         if (!cfg.onUpdateEnabled)
           // SKIP

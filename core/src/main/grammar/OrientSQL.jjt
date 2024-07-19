@@ -347,8 +347,6 @@ TOKEN:
     |
     < FAIL: ( "F" | "f") ( "A" | "a") ( "I" | "i") ( "L" | "l") >
     |
-    < ISOLATION: ( "I" | "i") ( "S" | "s") ( "O" | "o") ( "L" | "l") ( "A" | "a") ( "T" | "t") ( "I" | "i") ( "O" | "o") ( "N" | "n") >
-    |
     < SLEEP: ( "S" | "s") ( "L" | "l") ( "E" | "e") ( "E" | "e") ( "P" | "p")  >
     |
     < CONSOLE: ( "C" | "c") ( "O" | "o") ( "N" | "n") ( "S" | "s") ( "O" | "o")  ( "L" | "l") ( "E" | "e")>
@@ -897,8 +895,6 @@ OIdentifier Identifier():
     token = <CONTINUE>
     |
     token = <FAIL>
-    |
-    token = <ISOLATION>
     |
     token = <SLEEP>
     |
@@ -4953,7 +4949,6 @@ OBeginStatement BeginStatement():
 {
     (
         <BEGIN>
-        [ <ISOLATION> jjtThis.isolation = Identifier() ]
     )
     {return jjtThis;}
 }

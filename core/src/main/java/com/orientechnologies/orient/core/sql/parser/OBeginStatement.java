@@ -5,12 +5,9 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
-import com.orientechnologies.orient.core.tx.OTransaction;
 import java.util.Map;
 
 public class OBeginStatement extends OSimpleExecStatement {
-  protected OIdentifier isolation;
-
   public OBeginStatement(int id) {
     super(id);
   }
@@ -24,56 +21,33 @@ public class OBeginStatement extends OSimpleExecStatement {
     ctx.getDatabase().begin();
     OResultInternal item = new OResultInternal();
     item.setProperty("operation", "begin");
-    if (isolation != null) {
-      ctx.getDatabase()
-          .getTransaction()
-          .setIsolationLevel(OTransaction.ISOLATION_LEVEL.valueOf(isolation.getStringValue()));
-      item.setProperty("isolation", isolation.getStringValue());
-    }
     return OExecutionStream.singleton(item);
   }
 
   @Override
   public void toString(Map<Object, Object> params, StringBuilder builder) {
     builder.append("BEGIN");
-    if (isolation != null) {
-      builder.append(" ISOLATION ");
-      isolation.toString(params, builder);
-    }
   }
 
   @Override
   public void toGenericStatement(StringBuilder builder) {
     builder.append("BEGIN");
-    if (isolation != null) {
-      builder.append(" ISOLATION ");
-      isolation.toGenericStatement(builder);
-    }
   }
 
   @Override
   public OBeginStatement copy() {
-    OBeginStatement result = new OBeginStatement(-1);
-    result.isolation = isolation == null ? null : isolation.copy();
-    return result;
+    return new OBeginStatement(-1);
   }
 
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-
-    OBeginStatement that = (OBeginStatement) o;
-
-    if (isolation != null ? !isolation.equals(that.isolation) : that.isolation != null)
-      return false;
-
-    return true;
+    return o != null && getClass() == o.getClass();
   }
 
   @Override
   public int hashCode() {
-    return isolation != null ? isolation.hashCode() : 0;
+    return 0;
   }
 }
 /* JavaCC - OriginalChecksum=aaa994acbe63cc4169fe33144d412fed (do not edit this line) */

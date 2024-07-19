@@ -231,22 +231,15 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
       }
 
       // DELEGATE TO THE STORAGE, NO TOMBSTONES SUPPORT IN TX MODE
-      final ORecordAbstract record =
-          database.executeReadRecord(
-              (ORecordId) rid,
-              iRecord,
-              -1,
-              fetchPlan,
-              ignoreCache,
-              loadTombstone,
-              lockingStrategy,
-              null);
-
-      if (record != null && isolationLevel == ISOLATION_LEVEL.REPEATABLE_READ) {
-        // KEEP THE RECORD IN TX TO ASSURE REPEATABLE READS
-        addRecord(record, ORecordOperation.LOADED, null);
-      }
-      return record;
+      return database.<ORecordAbstract>executeReadRecord(
+          (ORecordId) rid,
+          iRecord,
+          -1,
+          fetchPlan,
+          ignoreCache,
+          loadTombstone,
+          lockingStrategy,
+          null);
     } finally {
       if (iRecord != null) {
         iRecord.decrementLoading();
@@ -294,22 +287,15 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
     }
 
     // DELEGATE TO THE STORAGE, NO TOMBSTONES SUPPORT IN TX MODE
-    final ORecordAbstract record =
-        database.executeReadRecord(
-            (ORecordId) rid,
-            null,
-            recordVersion,
-            fetchPlan,
-            ignoreCache,
-            false,
-            OStorage.LOCKING_STRATEGY.NONE,
-            null);
-
-    if (record != null && isolationLevel == ISOLATION_LEVEL.REPEATABLE_READ) {
-      // KEEP THE RECORD IN TX TO ASSURE REPEATABLE READS
-      addRecord(record, ORecordOperation.LOADED, null);
-    }
-    return record;
+    return database.<ORecordAbstract>executeReadRecord(
+        (ORecordId) rid,
+        null,
+        recordVersion,
+        fetchPlan,
+        ignoreCache,
+        false,
+        LOCKING_STRATEGY.NONE,
+        null);
   }
 
   @Override
@@ -360,10 +346,6 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
         return null;
       }
 
-      if (record != null && isolationLevel == ISOLATION_LEVEL.REPEATABLE_READ) {
-        // KEEP THE RECORD IN TX TO ASSURE REPEATABLE READS
-        addRecord(record, ORecordOperation.LOADED, null);
-      }
       return record;
     } finally {
       if (passedRecord != null) {
@@ -601,9 +583,6 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
             }
           }
           break;
-        case ORecordOperation.LOADED:
-          /* Read hooks already invoked in {@link ODatabaseDocumentTx#executeReadRecord} */
-          break;
         case ORecordOperation.UPDATED:
           {
             OIdentifiable res = database.beforeUpdateOperations(iRecord, iClusterName);
@@ -637,16 +616,6 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
           txEntry.record = iRecord;
 
           switch (txEntry.type) {
-            case ORecordOperation.LOADED:
-              switch (iStatus) {
-                case ORecordOperation.UPDATED:
-                  txEntry.type = ORecordOperation.UPDATED;
-                  break;
-                case ORecordOperation.DELETED:
-                  txEntry.type = ORecordOperation.DELETED;
-                  break;
-              }
-              break;
             case ORecordOperation.UPDATED:
               if (iStatus == ORecordOperation.DELETED) {
                 txEntry.type = ORecordOperation.DELETED;
@@ -666,9 +635,6 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
         switch (iStatus) {
           case ORecordOperation.CREATED:
             database.afterCreateOperations(iRecord);
-            break;
-          case ORecordOperation.LOADED:
-            /* Read hooks already invoked in {@link ODatabaseDocumentTx#executeReadRecord} . */
             break;
           case ORecordOperation.UPDATED:
             database.afterUpdateOperations(iRecord);
@@ -900,7 +866,6 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
           OLiveQueryHookV2.addOp(doc, ORecordOperation.DELETED, database);
         }
         break;
-      case ORecordOperation.LOADED:
       default:
         break;
     }

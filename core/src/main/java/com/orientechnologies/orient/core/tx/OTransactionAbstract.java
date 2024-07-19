@@ -36,7 +36,6 @@ public abstract class OTransactionAbstract implements OTransaction {
 
   protected ODatabaseDocumentInternal database;
   protected TXSTATUS status = TXSTATUS.INVALID;
-  protected ISOLATION_LEVEL isolationLevel = ISOLATION_LEVEL.READ_COMMITTED;
   protected Map<ORID, LockedRecordMetadata> locks = new HashMap<>();
 
   /**
@@ -58,22 +57,6 @@ public abstract class OTransactionAbstract implements OTransaction {
 
   protected OTransactionAbstract(final ODatabaseDocumentInternal iDatabase) {
     database = iDatabase;
-  }
-
-  @Override
-  public ISOLATION_LEVEL getIsolationLevel() {
-    return isolationLevel;
-  }
-
-  @Override
-  public OTransaction setIsolationLevel(final ISOLATION_LEVEL isolationLevel) {
-    if (isolationLevel == ISOLATION_LEVEL.REPEATABLE_READ && getDatabase().isRemote()) {
-      throw new IllegalArgumentException(
-          "Remote storage does not support isolation level '" + isolationLevel + "'");
-    }
-
-    this.isolationLevel = isolationLevel;
-    return this;
   }
 
   public boolean isActive() {

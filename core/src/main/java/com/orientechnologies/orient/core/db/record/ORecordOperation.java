@@ -29,9 +29,8 @@ import java.util.Locale;
  *
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
-public class ORecordOperation implements Comparable {
+public class ORecordOperation implements Comparable<ORecordOperation> {
 
-  public static final byte LOADED = 0;
   public static final byte UPDATED = 1;
   public static final byte DELETED = 2;
   public static final byte CREATED = 3;
@@ -41,8 +40,6 @@ public class ORecordOperation implements Comparable {
 
   public ORecordCallback<Long> createdCallback = null;
   public ORecordCallback<Integer> updatedCallback = null;
-
-  private Object resultData;
 
   public ORecordOperation() {}
 
@@ -59,20 +56,16 @@ public class ORecordOperation implements Comparable {
 
   @Override
   public boolean equals(final Object obj) {
-    if (!(obj instanceof ORecordOperation)) return false;
+    if (!(obj instanceof ORecordOperation)) {
+      return false;
+    }
 
     return record.equals(((ORecordOperation) obj).record);
   }
 
   @Override
   public String toString() {
-    return new StringBuilder(128)
-        .append("ORecordOperation [record=")
-        .append(record)
-        .append(", type=")
-        .append(getName(type))
-        .append("]")
-        .toString();
+    return "ORecordOperation [record=" + record + ", type=" + getName(type) + "]";
   }
 
   public OIdentifiable setRecord(final OIdentifiable record) {
@@ -87,41 +80,31 @@ public class ORecordOperation implements Comparable {
     return record != null ? record.getRecord() : null;
   }
 
-  public OIdentifiable getRecordContainer() {
-    return record;
-  }
-
   public ORID getRID() {
     return record != null ? record.getIdentity() : null;
   }
 
   public static String getName(final int type) {
-    String operation = "?";
-    switch (type) {
-      case ORecordOperation.CREATED:
-        operation = "CREATE";
-        break;
-      case ORecordOperation.UPDATED:
-        operation = "UPDATE";
-        break;
-      case ORecordOperation.DELETED:
-        operation = "DELETE";
-        break;
-      case ORecordOperation.LOADED:
-        operation = "READ";
-        break;
-    }
-    return operation;
+    return switch (type) {
+      case ORecordOperation.CREATED -> "CREATE";
+      case ORecordOperation.UPDATED -> "UPDATE";
+      case ORecordOperation.DELETED -> "DELETE";
+      default -> "?";
+    };
   }
 
   public static byte getId(String iName) {
     iName = iName.toUpperCase(Locale.ENGLISH);
 
-    if (iName.startsWith("CREAT")) return ORecordOperation.CREATED;
-    else if (iName.startsWith("UPDAT")) return ORecordOperation.UPDATED;
-    else if (iName.startsWith("DELET")) return ORecordOperation.DELETED;
-    else if (iName.startsWith("READ")) return ORecordOperation.LOADED;
-    return -1;
+    if (iName.startsWith("CREAT")) {
+      return ORecordOperation.CREATED;
+    } else if (iName.startsWith("UPDAT")) {
+      return ORecordOperation.UPDATED;
+    } else if (iName.startsWith("DELET")) {
+      return ORecordOperation.DELETED;
+    } else {
+      return -1;
+    }
   }
 
   public byte getType() {
@@ -129,15 +112,7 @@ public class ORecordOperation implements Comparable {
   }
 
   @Override
-  public int compareTo(Object o) {
-    return record.compareTo(((ORecordOperation) o).record);
-  }
-
-  public Object getResultData() {
-    return resultData;
-  }
-
-  public void setResultData(Object resultData) {
-    this.resultData = resultData;
+  public int compareTo(ORecordOperation o) {
+    return record.compareTo(o.record);
   }
 }

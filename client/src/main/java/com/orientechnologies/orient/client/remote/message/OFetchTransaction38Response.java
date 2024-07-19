@@ -49,7 +49,6 @@ public class OFetchTransaction38Response implements OBinaryResponse {
     this.indexChanges = new ArrayList<>();
     List<ORecordOperation38Response> netOperations = new ArrayList<>();
     for (ORecordOperation txEntry : operations) {
-      if (txEntry.type == ORecordOperation.LOADED) continue;
       ORecordOperation38Response request = new ORecordOperation38Response();
       request.setType(txEntry.type);
       request.setVersion(txEntry.getRecord().getVersion());

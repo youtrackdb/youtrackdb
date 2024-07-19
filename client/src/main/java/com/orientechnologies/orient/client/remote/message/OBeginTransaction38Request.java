@@ -45,7 +45,6 @@ public class OBeginTransaction38Request implements OBinaryRequest<OBeginTransact
 
     if (hasContent) {
       for (ORecordOperation txEntry : operations) {
-        if (txEntry.type == ORecordOperation.LOADED) continue;
         ORecordOperationRequest request = new ORecordOperationRequest();
         request.setType(txEntry.type);
         request.setVersion(txEntry.getRecord().getVersion());

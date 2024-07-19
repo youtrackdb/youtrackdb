@@ -360,12 +360,6 @@ public class OTransactionOptimisticServer extends OTransactionOptimistic {
               }
             }
             break;
-          case ORecordOperation.LOADED:
-            /*
-             * Read hooks already invoked in {@link
-             * ODatabaseDocumentInternal#executeReadRecord}
-             */
-            break;
           case ORecordOperation.UPDATED:
             {
               OIdentifiable res = database.beforeUpdateOperations(iRecord, iClusterName);
@@ -408,16 +402,6 @@ public class OTransactionOptimisticServer extends OTransactionOptimistic {
           txEntry.record = iRecord;
 
           switch (txEntry.type) {
-            case ORecordOperation.LOADED:
-              switch (iStatus) {
-                case ORecordOperation.UPDATED:
-                  txEntry.type = ORecordOperation.UPDATED;
-                  break;
-                case ORecordOperation.DELETED:
-                  txEntry.type = ORecordOperation.DELETED;
-                  break;
-              }
-              break;
             case ORecordOperation.UPDATED:
               if (iStatus == ORecordOperation.DELETED) {
                 txEntry.type = ORecordOperation.DELETED;
@@ -439,13 +423,6 @@ public class OTransactionOptimisticServer extends OTransactionOptimistic {
             case ORecordOperation.CREATED:
               database.afterCreateOperations(iRecord);
               break;
-            case ORecordOperation.LOADED:
-              /*
-               * Read hooks already invoked in {@link
-               * ODatabaseDocumentInternal#executeReadRecord}
-               * .
-               */
-              break;
             case ORecordOperation.UPDATED:
               database.afterUpdateOperations(iRecord);
               break;
@@ -459,13 +436,6 @@ public class OTransactionOptimisticServer extends OTransactionOptimistic {
               if (iRecord instanceof ODocument) {
                 OClassIndexManager.checkIndexesAfterCreate((ODocument) iRecord, getDatabase());
               }
-              break;
-            case ORecordOperation.LOADED:
-              /*
-               * Read hooks already invoked in {@link
-               * ODatabaseDocumentInternal#executeReadRecord}
-               * .
-               */
               break;
             case ORecordOperation.UPDATED:
               if (iRecord instanceof ODocument) {

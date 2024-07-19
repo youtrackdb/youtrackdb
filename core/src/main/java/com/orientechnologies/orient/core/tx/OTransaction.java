@@ -36,6 +36,7 @@ import com.orientechnologies.orient.core.storage.OStorage.LOCKING_STRATEGY;
 import java.util.List;
 
 public interface OTransaction {
+
   enum TXTYPE {
     NOTX,
     OPTIMISTIC,
@@ -51,11 +52,6 @@ public interface OTransaction {
     ROLLED_BACK
   }
 
-  enum ISOLATION_LEVEL {
-    READ_COMMITTED,
-    REPEATABLE_READ
-  }
-
   void begin();
 
   void commit();
@@ -63,19 +59,6 @@ public interface OTransaction {
   void commit(boolean force);
 
   void rollback();
-
-  /** Returns the current isolation level. */
-  ISOLATION_LEVEL getIsolationLevel();
-
-  /**
-   * Changes the isolation level. Default is READ_COMMITTED. When REPEATABLE_READ is set, any record
-   * read from the storage is cached in memory to guarantee the repeatable reads. This affects the
-   * used RAM and speed (because JVM Garbage Collector job).
-   *
-   * @param iIsolationLevel Isolation level to set
-   * @return Current object to allow call in chain
-   */
-  OTransaction setIsolationLevel(ISOLATION_LEVEL iIsolationLevel);
 
   void rollback(boolean force, int commitLevelDiff);
 
@@ -186,15 +169,15 @@ public interface OTransaction {
   /**
    * Saves the given record in this transaction.
    *
-   * @param record the record to save.
-   * @param clusterName record's cluster name.
-   * @param operationMode the operation mode.
-   * @param forceCreate the force creation flag, {@code true} to force the creation of the record,
-   *     {@code false} to allow updates.
+   * @param record          the record to save.
+   * @param clusterName     record's cluster name.
+   * @param operationMode   the operation mode.
+   * @param forceCreate     the force creation flag, {@code true} to force the creation of the
+   *                        record, {@code false} to allow updates.
    * @param createdCallback the callback to invoke when the record save operation triggered the
-   *     creation of the record.
+   *                        creation of the record.
    * @param updatedCallback the callback to invoke when the record save operation triggered the
-   *     update of the record.
+   *                        update of the record.
    * @return the record saved.
    */
   ORecord saveRecord(
@@ -209,7 +192,7 @@ public interface OTransaction {
    * Deletes the given record in this transaction.
    *
    * @param record the record to delete.
-   * @param mode the operation mode.
+   * @param mode   the operation mode.
    */
   void deleteRecord(ORecordAbstract record, OPERATION_MODE mode);
 
@@ -217,19 +200,19 @@ public interface OTransaction {
    * Resolves a record with the given RID in the context of this transaction.
    *
    * @param rid the record RID.
-   * @return the resolved record, or {@code null} if no record is found, or {@link
-   *     OTransactionAbstract#DELETED_RECORD} if the record was deleted in this transaction.
+   * @return the resolved record, or {@code null} if no record is found, or
+   * {@link OTransactionAbstract#DELETED_RECORD} if the record was deleted in this transaction.
    */
   ORecordAbstract getRecord(ORID rid);
 
   /**
    * Adds the transactional index entry in this transaction.
    *
-   * @param index the index.
+   * @param index     the index.
    * @param indexName the index name.
    * @param operation the index operation to register.
-   * @param key the index key.
-   * @param value the index key value.
+   * @param key       the index key.
+   * @param value     the index key value.
    */
   void addIndexEntry(
       OIndex index,
@@ -252,7 +235,7 @@ public interface OTransaction {
    *
    * @param indexName the index name.
    * @return the index changes in question or {@code null} if index is not found or storage is
-   *     remote.
+   * remote.
    */
   OTransactionIndexChanges getIndexChangesInternal(String indexName);
 
@@ -267,7 +250,7 @@ public interface OTransaction {
   /**
    * Sets the custom value by its name stored in the context of this transaction.
    *
-   * @param name the value name.
+   * @param name  the value name.
    * @param value the value to store.
    */
   void setCustomData(String name, Object value);

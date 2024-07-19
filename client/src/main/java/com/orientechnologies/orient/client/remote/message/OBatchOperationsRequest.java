@@ -45,7 +45,6 @@ public class OBatchOperationsRequest implements OBinaryRequest<OBatchOperationsR
     this.txId = txId;
     List<ORecordOperationRequest> netOperations = new ArrayList<>();
     for (ORecordOperation txEntry : operations) {
-      if (txEntry.type == ORecordOperation.LOADED) continue;
       ORecordOperationRequest request = new ORecordOperationRequest();
       request.setType(txEntry.type);
       request.setVersion(txEntry.getRecord().getVersion());
