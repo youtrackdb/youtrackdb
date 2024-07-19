@@ -15,7 +15,6 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.db.ODatabase.OPERATION_MODE;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
@@ -39,7 +38,6 @@ import com.orientechnologies.orient.core.serialization.serializer.record.ORecord
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerSchemaAware2CSV;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
-import com.orientechnologies.orient.core.storage.ORecordCallback;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
@@ -49,7 +47,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 import org.testng.Assert;
 import org.testng.annotations.Optional;
@@ -61,6 +58,7 @@ import org.testng.annotations.Test;
     groups = {"crud", "record-vobject"},
     singleThreaded = true)
 public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
+
   private static final int TOT_RECORDS = 100;
   private static final int TOT_RECORDS_COMPANY = 10;
 
@@ -79,11 +77,12 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
     final ODatabaseDocument[] dbs = new ODatabaseDocumentTx[pool.getMaxPartitonSize()];
 
     for (int i = 0; i < 10; ++i) {
-      for (int db = 0; db < dbs.length; ++db)
-        //noinspection resource
+      for (int db = 0; db < dbs.length; ++db) {
         dbs[db] = pool.acquire();
-      //noinspection deprecation
-      for (ODatabaseDocument oDatabaseDocumentTx : dbs) oDatabaseDocumentTx.close();
+      }
+      for (ODatabaseDocument oDatabaseDocumentTx : dbs) {
+        oDatabaseDocumentTx.close();
+      }
     }
 
     pool.close();
@@ -92,21 +91,26 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
   @Test
   public void cleanAll() {
     record = database.newInstance();
-
-    if (!database.existsCluster("Account"))
+    if (!database.existsCluster("Account")) {
       database.getMetadata().getSchema().createClass("Account", 1, (OClass[]) null);
+    }
 
     startRecordNumber = database.countClusterElements("Account");
 
     // DELETE ALL THE RECORDS IN THE CLUSTER
-    while (database.countClusterElements("Account") > 0)
-      for (ODocument rec : database.<ODocument>browseCluster("Account"))
-        if (rec != null) rec.delete();
+    while (database.countClusterElements("Account") > 0) {
+      for (ODocument rec : database.<ODocument>browseCluster("Account")) {
+        if (rec != null) {
+          rec.delete();
+        }
+      }
+    }
 
     Assert.assertEquals(database.countClusterElements("Account"), 0);
 
-    if (!database.existsCluster("Company"))
+    if (!database.existsCluster("Company")) {
       database.getMetadata().getSchema().createClass("Company", 1, (OClass[]) null);
+    }
   }
 
   @Test(dependsOnMethods = "cleanAll")
@@ -114,7 +118,9 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
     startRecordNumber = database.countClusterElements("Account");
 
     byte[] binary = new byte[100];
-    for (int b = 0; b < binary.length; ++b) binary[b] = (byte) b;
+    for (int b = 0; b < binary.length; ++b) {
+      binary[b] = (byte) b;
+    }
 
     String base64 = Base64.getEncoder().encodeToString(binary);
 
@@ -163,7 +169,9 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
 
     Set<Integer> ids = new HashSet<>();
 
-    for (int i = 0; i < TOT_RECORDS; i++) ids.add(i);
+    for (int i = 0; i < TOT_RECORDS; i++) {
+      ids.add(i);
+    }
 
     ORecordIteratorCluster<ODocument> it = database.browseCluster("Account");
     for (it.last(); it.hasPrevious(); ) {
@@ -181,7 +189,9 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
 
         binary = rec.field("binary", OType.BINARY);
 
-        for (int b = 0; b < binary.length; ++b) Assert.assertEquals(binary[b], (byte) b);
+        for (int b = 0; b < binary.length; ++b) {
+          Assert.assertEquals(binary[b], (byte) b);
+        }
       }
     }
 
@@ -193,7 +203,9 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
     int i = 0;
     for (ODocument rec : database.<ODocument>browseCluster("Account")) {
 
-      if (i % 2 == 0) rec.field("location", "Spain");
+      if (i % 2 == 0) {
+        rec.field("location", "Spain");
+      }
 
       rec.field("price", i + 100);
 
@@ -209,8 +221,11 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
       int price = ((Number) rec.field("price")).intValue();
       Assert.assertTrue(price - 100 >= 0);
 
-      if ((price - 100) % 2 == 0) Assert.assertEquals(rec.field("location"), "Spain");
-      else Assert.assertEquals(rec.field("location"), "Italy");
+      if ((price - 100) % 2 == 0) {
+        Assert.assertEquals(rec.field("location"), "Spain");
+      } else {
+        Assert.assertEquals(rec.field("location"), "Italy");
+      }
     }
   }
 
@@ -685,71 +700,6 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
   }
 
   @Test(dependsOnMethods = "cleanAll")
-  public void asynchInsertion() {
-    startRecordNumber = database.countClusterElements("Account");
-    final AtomicInteger callBackCalled = new AtomicInteger();
-
-    final long total = startRecordNumber + TOT_RECORDS;
-    for (long i = startRecordNumber; i < total; ++i) {
-      record = database.newInstance();
-      record.setClassName("Account");
-
-      record.field("id", i);
-      record.field("name", "Asynch insertion test");
-      record.field("location", "Italy");
-      record.field("salary", (i + 300));
-
-      database.save(
-          record,
-          OPERATION_MODE.ASYNCHRONOUS,
-          false,
-          (ORecordCallback<Long>) (iRID, iParameter) -> callBackCalled.incrementAndGet(),
-          null);
-    }
-
-    while (callBackCalled.intValue() < total) {
-      try {
-        Thread.sleep(100);
-      } catch (InterruptedException ignored) {
-      }
-    }
-
-    Assert.assertEquals(callBackCalled.intValue(), total);
-
-    // WAIT UNTIL ALL RECORD ARE INSERTED. USE A NEW DATABASE CONNECTION
-    // TO AVOID TO ENQUEUE THE COUNT ITSELF
-    final Thread t =
-        new Thread(
-            () -> {
-              //noinspection deprecation
-              try (final ODatabaseDocument db =
-                  new ODatabaseDocumentTx(url).open("admin", "admin")) {
-                long tot;
-                while (db.countClusterElements("Account") < startRecordNumber + TOT_RECORDS) {
-                  // System.out.println("Asynchronous insertion: found " + tot + " records but
-                  // waiting till " + (startRecordNumber +
-                  // TOT_RECORDS)
-                  // + " is reached");
-                  try {
-                    Thread.sleep(100);
-                  } catch (InterruptedException ignored) {
-                  }
-                }
-              }
-            });
-    t.start();
-    try {
-      t.join();
-    } catch (InterruptedException ignored) {
-    }
-
-    if (database.countClusterElements("Account") > 0)
-      for (ODocument d : database.browseClass("Account")) {
-        if (d.field("name").equals("Asynch insertion test")) d.delete();
-      }
-  }
-
-  @Test(dependsOnMethods = "cleanAll")
   public void testEmbeddeDocumentInTx() {
     ODocument bank = database.newInstance("Account");
     database.begin();
@@ -818,7 +768,9 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
     Assert.assertEquals(changedDoc2.field("name"), "MyBankChained");
 
     Collection<Integer> intEmbeddeds = changedDoc2.field("embeddeds.total");
-    for (Integer e : intEmbeddeds) Assert.assertEquals(e.intValue(), 200);
+    for (Integer e : intEmbeddeds) {
+      Assert.assertEquals(e.intValue(), 200);
+    }
 
     ODocument changedDoc3 = bank.field("linked.total", 300);
     // MUST CHANGE THE LINKED DOCUMENT
@@ -833,7 +785,9 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
 
     ((ODocument) bank.field("linked")).delete();
     //noinspection unchecked
-    for (ODocument l : (Collection<ODocument>) bank.field("linkeds")) l.delete();
+    for (ODocument l : (Collection<ODocument>) bank.field("linkeds")) {
+      l.delete();
+    }
     bank.delete();
   }
 
@@ -930,7 +884,9 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(linkList.size(), 5);
 
-    for (int i = 5; i < 10; i++) Assert.assertEquals(linkList.get(i - 5), allDocs.get(i));
+    for (int i = 5; i < 10; i++) {
+      Assert.assertEquals(linkList.get(i - 5), allDocs.get(i));
+    }
 
     doc.save();
 
@@ -939,7 +895,9 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
     linkList = doc.field("linkList");
     Assert.assertEquals(linkList.size(), 5);
 
-    for (int i = 5; i < 10; i++) Assert.assertEquals(linkList.get(i - 5), allDocs.get(i));
+    for (int i = 5; i < 10; i++) {
+      Assert.assertEquals(linkList.get(i - 5), allDocs.get(i));
+    }
   }
 
   public void testRemoveAndReload() {

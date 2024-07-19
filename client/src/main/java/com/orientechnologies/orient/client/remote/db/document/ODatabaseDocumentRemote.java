@@ -80,7 +80,6 @@ import com.orientechnologies.orient.core.serialization.serializer.record.ORecord
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
-import com.orientechnologies.orient.core.storage.ORecordCallback;
 import com.orientechnologies.orient.core.storage.ORecordMetadata;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.OStorageInfo;
@@ -336,8 +335,6 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
       case OPTIMISTIC:
         currentTx = new OTransactionOptimisticClient(this);
         break;
-      case PESSIMISTIC:
-        throw new UnsupportedOperationException("Pessimistic transaction");
     }
     currentTx.begin();
     return this;
@@ -563,11 +560,7 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
 
   @Override
   public void executeDeleteRecord(
-      OIdentifiable record,
-      int iVersion,
-      boolean iRequired,
-      OPERATION_MODE iMode,
-      boolean prohibitTombstones) {
+      OIdentifiable record, int iVersion, boolean iRequired, boolean prohibitTombstones) {
     OTransactionOptimisticClient tx =
         new OTransactionOptimisticClient(this) {
           @Override
@@ -578,17 +571,17 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
         ORecordInternal.getDirtyManager((ORecord) record).getUpdateRecords();
     if (records != null) {
       for (var rec : records) {
-        tx.saveRecord(rec, null, ODatabase.OPERATION_MODE.SYNCHRONOUS, false, null, null);
+        tx.saveRecord(rec, null);
       }
     }
     Set<ORecordAbstract> newRecords =
         ORecordInternal.getDirtyManager((ORecord) record).getNewRecords();
     if (newRecords != null) {
       for (var rec : newRecords) {
-        tx.saveRecord(rec, null, ODatabase.OPERATION_MODE.SYNCHRONOUS, false, null, null);
+        tx.saveRecord(rec, null);
       }
     }
-    tx.deleteRecord((ORecordAbstract) record, iMode);
+    tx.deleteRecord((ORecordAbstract) record);
     tx.commit();
   }
 
@@ -684,26 +677,14 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
   }
 
   @Override
-  public ORecord saveAll(
-      ORecord iRecord,
-      String iClusterName,
-      OPERATION_MODE iMode,
-      boolean iForceCreate,
-      ORecordCallback<? extends Number> iRecordCreatedCallback,
-      ORecordCallback<Integer> iRecordUpdatedCallback) {
+  public ORecord saveAll(ORecord iRecord, String iClusterName) {
     OTransactionOptimisticClient tx =
         new OTransactionOptimisticClient(this) {
           @Override
           protected void checkTransactionValid() {}
         };
     tx.begin();
-    tx.saveRecord(
-        (ORecordAbstract) iRecord,
-        iClusterName,
-        iMode,
-        iForceCreate,
-        iRecordCreatedCallback,
-        iRecordUpdatedCallback);
+    tx.saveRecord((ORecordAbstract) iRecord, iClusterName);
     tx.commit();
 
     return iRecord;
@@ -839,7 +820,7 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
     }
 
     try {
-      currentTx.deleteRecord((ORecordAbstract) record, OPERATION_MODE.SYNCHRONOUS);
+      currentTx.deleteRecord((ORecordAbstract) record);
       if (newTx) {
         //noinspection resource
         commit();

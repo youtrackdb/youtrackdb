@@ -19,7 +19,6 @@
  */
 package com.orientechnologies.orient.core.tx;
 
-import com.orientechnologies.orient.core.db.ODatabase.OPERATION_MODE;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
@@ -30,17 +29,14 @@ import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.storage.ORecordCallback;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.OStorage.LOCKING_STRATEGY;
 import java.util.List;
 
 public interface OTransaction {
-
   enum TXTYPE {
     NOTX,
     OPTIMISTIC,
-    PESSIMISTIC
   }
 
   enum TXSTATUS {
@@ -169,32 +165,18 @@ public interface OTransaction {
   /**
    * Saves the given record in this transaction.
    *
-   * @param record          the record to save.
-   * @param clusterName     record's cluster name.
-   * @param operationMode   the operation mode.
-   * @param forceCreate     the force creation flag, {@code true} to force the creation of the
-   *                        record, {@code false} to allow updates.
-   * @param createdCallback the callback to invoke when the record save operation triggered the
-   *                        creation of the record.
-   * @param updatedCallback the callback to invoke when the record save operation triggered the
-   *                        update of the record.
+   * @param record      the record to save.
+   * @param clusterName record's cluster name.
    * @return the record saved.
    */
-  ORecord saveRecord(
-      ORecordAbstract record,
-      String clusterName,
-      OPERATION_MODE operationMode,
-      boolean forceCreate,
-      ORecordCallback<? extends Number> createdCallback,
-      ORecordCallback<Integer> updatedCallback);
+  ORecord saveRecord(ORecordAbstract record, String clusterName);
 
   /**
    * Deletes the given record in this transaction.
    *
    * @param record the record to delete.
-   * @param mode   the operation mode.
    */
-  void deleteRecord(ORecordAbstract record, OPERATION_MODE mode);
+  void deleteRecord(ORecordAbstract record);
 
   /**
    * Resolves a record with the given RID in the context of this transaction.

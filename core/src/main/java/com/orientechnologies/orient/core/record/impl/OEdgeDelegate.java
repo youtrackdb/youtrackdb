@@ -482,26 +482,6 @@ public class OEdgeDelegate implements OEdgeInternal {
   }
 
   @Override
-  public <RET extends ORecord> RET save(boolean forceCreate) {
-    if (element != null) {
-      element.save(forceCreate);
-    } else {
-      vIn.save();
-    }
-    return (RET) this;
-  }
-
-  @Override
-  public <RET extends ORecord> RET save(String iCluster, boolean forceCreate) {
-    if (element != null) {
-      element.save(iCluster, forceCreate);
-    } else {
-      vIn.save();
-    }
-    return (RET) this;
-  }
-
-  @Override
   public <RET extends ORecord> RET fromJSON(String iJson) {
     if (element == null) {
       promoteToRegularEdge();

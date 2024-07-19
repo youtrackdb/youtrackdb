@@ -40,7 +40,6 @@ import com.orientechnologies.orient.core.serialization.serializer.binary.OBinary
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.sql.executor.OExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
-import com.orientechnologies.orient.core.storage.ORecordCallback;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.OStorage.LOCKING_STRATEGY;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
@@ -137,7 +136,6 @@ public interface ODatabaseDocumentInternal extends ODatabaseSession, ODatabaseIn
       OIdentifiable record,
       final int iVersion,
       final boolean iRequired,
-      final OPERATION_MODE iMode,
       boolean prohibitTombstones);
 
   void setDefaultTransactionMode(Map<ORID, OTransactionAbstract.LockedRecordMetadata> noTxLocks);
@@ -256,13 +254,7 @@ public interface ODatabaseDocumentInternal extends ODatabaseSession, ODatabaseIn
 
   void internalClose(boolean recycle);
 
-  ORecord saveAll(
-      ORecord iRecord,
-      String iClusterName,
-      OPERATION_MODE iMode,
-      boolean iForceCreate,
-      ORecordCallback<? extends Number> iRecordCreatedCallback,
-      ORecordCallback<Integer> iRecordUpdatedCallback);
+  ORecord saveAll(ORecord iRecord, String iClusterName);
 
   String getClusterName(final ORecord record);
 

@@ -21,7 +21,6 @@ package com.orientechnologies.orient.core.tx;
 
 import com.orientechnologies.common.concur.ONeedRetryException;
 import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.orient.core.db.ODatabase.OPERATION_MODE;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.document.LatestVersionRecordReader;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
@@ -36,7 +35,6 @@ import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.storage.ORecordCallback;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.OStorage.LOCKING_STRATEGY;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChanges.OPERATION;
@@ -222,30 +220,10 @@ public class OTransactionNoTx extends OTransactionAbstract {
         new LatestVersionRecordReader());
   }
 
-  /**
-   * Update the record.
-   *
-   * @param iRecord
-   * @param iForceCreate
-   * @param iRecordCreatedCallback
-   * @param iRecordUpdatedCallback
-   */
-  public ORecord saveRecord(
-      final ORecordAbstract iRecord,
-      final String iClusterName,
-      final OPERATION_MODE iMode,
-      boolean iForceCreate,
-      final ORecordCallback<? extends Number> iRecordCreatedCallback,
-      ORecordCallback<Integer> iRecordUpdatedCallback) {
+  public ORecord saveRecord(final ORecordAbstract iRecord, final String iClusterName) {
     try {
 
-      return database.saveAll(
-          iRecord,
-          iClusterName,
-          iMode,
-          iForceCreate,
-          iRecordCreatedCallback,
-          iRecordUpdatedCallback);
+      return database.saveAll(iRecord, iClusterName);
 
     } catch (Exception e) {
       // REMOVE IT FROM THE CACHE TO AVOID DIRTY RECORDS
@@ -256,14 +234,13 @@ public class OTransactionNoTx extends OTransactionAbstract {
 
       throw OException.wrapException(
           new ODatabaseException(
-              "Error during saving of record"
-                  + (iRecord != null ? " with rid " + iRecord.getIdentity() : "")),
+              "Error during saving of record" + " with rid " + iRecord.getIdentity()),
           e);
     }
   }
 
   /** Deletes the record. */
-  public void deleteRecord(final ORecordAbstract iRecord, final OPERATION_MODE iMode) {
+  public void deleteRecord(final ORecordAbstract iRecord) {
     if (!iRecord.getIdentity().isPersistent()) {
       database.callbackHooks(TYPE.BEFORE_DELETE, iRecord);
       database.callbackHooks(TYPE.AFTER_DELETE, iRecord);
@@ -271,18 +248,13 @@ public class OTransactionNoTx extends OTransactionAbstract {
     }
 
     try {
-      database.executeDeleteRecord(iRecord, iRecord.getVersion(), true, iMode, false);
+      database.executeDeleteRecord(iRecord, iRecord.getVersion(), true, false);
     } catch (Exception e) {
       // REMOVE IT FROM THE CACHE TO AVOID DIRTY RECORDS
       final ORecordId rid = (ORecordId) iRecord.getIdentity();
       if (rid.isValid()) database.getLocalCache().freeRecord(rid);
 
-      if (e instanceof RuntimeException) throw (RuntimeException) e;
-      throw OException.wrapException(
-          new ODatabaseException(
-              "Error during deletion of record"
-                  + (iRecord != null ? " with rid " + iRecord.getIdentity() : "")),
-          e);
+      throw (RuntimeException) e;
     }
   }
 
@@ -304,10 +276,6 @@ public class OTransactionNoTx extends OTransactionAbstract {
   }
 
   public void clearRecordEntries() {}
-
-  public int getRecordEntriesSize() {
-    return 0;
-  }
 
   public ORecordAbstract getRecord(final ORID rid) {
     return null;

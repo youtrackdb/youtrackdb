@@ -264,18 +264,6 @@ public class OVertexDelegate implements OVertexInternal {
   }
 
   @Override
-  public <RET extends ORecord> RET save(boolean forceCreate) {
-    element.save(forceCreate);
-    return (RET) this;
-  }
-
-  @Override
-  public <RET extends ORecord> RET save(String iCluster, boolean forceCreate) {
-    element.save(iCluster, forceCreate);
-    return (RET) this;
-  }
-
-  @Override
   public <RET extends ORecord> RET fromJSON(String iJson) {
     element.fromJSON(iJson);
     return (RET) this;

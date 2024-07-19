@@ -42,7 +42,6 @@ import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.query.OQuery;
 import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
-import com.orientechnologies.orient.core.storage.ORecordCallback;
 import com.orientechnologies.orient.core.storage.ORecordMetadata;
 import com.orientechnologies.orient.core.tx.OTransaction;
 import com.orientechnologies.orient.core.util.OBackupable;
@@ -474,12 +473,6 @@ public interface ODatabase<T> extends OBackupable, Closeable {
    */
   void freeze(boolean throwException);
 
-  enum OPERATION_MODE {
-    SYNCHRONOUS,
-    ASYNCHRONOUS,
-    ASYNCHRONOUS_NOANSWER
-  }
-
   /**
    * Creates a new entity instance.
    *
@@ -590,7 +583,6 @@ public interface ODatabase<T> extends OBackupable, Closeable {
    *
    * @param iObject The entity to load. If the entity was already loaded it will be reloaded and all
    *     the changes will be lost.
-   * @return
    */
   <RET extends T> RET load(T iObject);
 
@@ -721,25 +713,6 @@ public interface ODatabase<T> extends OBackupable, Closeable {
   <RET extends T> RET save(T iObject);
 
   /**
-   * Saves an entity specifying the mode. If the entity is not dirty, then the operation will be
-   * ignored. For custom entity implementations assure to set the entity as dirty. If the cluster
-   * does not exist, an error will be thrown.
-   *
-   * @param iObject The entity to save
-   * @param iMode Mode of save: synchronous (default) or asynchronous
-   * @param iForceCreate Flag that indicates that record should be created. If record with current
-   *     rid already exists, exception is thrown
-   * @param iRecordCreatedCallback
-   * @param iRecordUpdatedCallback
-   */
-  <RET extends T> RET save(
-      T iObject,
-      OPERATION_MODE iMode,
-      boolean iForceCreate,
-      ORecordCallback<? extends Number> iRecordCreatedCallback,
-      ORecordCallback<Integer> iRecordUpdatedCallback);
-
-  /**
    * Saves an entity in the specified cluster in synchronous mode. If the entity is not dirty, then
    * the operation will be ignored. For custom entity implementations assure to set the entity as
    * dirty. If the cluster does not exist, an error will be thrown.
@@ -749,27 +722,6 @@ public interface ODatabase<T> extends OBackupable, Closeable {
    * @return The saved entity.
    */
   <RET extends T> RET save(T iObject, String iClusterName);
-
-  /**
-   * Saves an entity in the specified cluster specifying the mode. If the entity is not dirty, then
-   * the operation will be ignored. For custom entity implementations assure to set the entity as
-   * dirty. If the cluster does not exist, an error will be thrown.
-   *
-   * @param iObject The entity to save
-   * @param iClusterName Name of the cluster where to save
-   * @param iMode Mode of save: synchronous (default) or asynchronous
-   * @param iForceCreate Flag that indicates that record should be created. If record with current
-   *     rid already exists, exception is thrown
-   * @param iRecordCreatedCallback
-   * @param iRecordUpdatedCallback
-   */
-  <RET extends T> RET save(
-      T iObject,
-      String iClusterName,
-      OPERATION_MODE iMode,
-      boolean iForceCreate,
-      ORecordCallback<? extends Number> iRecordCreatedCallback,
-      ORecordCallback<Integer> iRecordUpdatedCallback);
 
   /**
    * Deletes an entity from the database in synchronous mode.

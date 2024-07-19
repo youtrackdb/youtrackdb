@@ -21,7 +21,6 @@ package com.orientechnologies.orient.core.record;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.io.OIOUtils;
-import com.orientechnologies.orient.core.db.ODatabase;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
@@ -529,7 +528,8 @@ public abstract class ORecordAbstract implements ORecord {
       return primaryRecord.save();
     }
 
-    return save(false);
+    getDatabase().save(this);
+    return this;
   }
 
   public ORecordAbstract save(final String iClusterName) {
@@ -538,27 +538,8 @@ public abstract class ORecordAbstract implements ORecord {
       return primaryRecord.save(iClusterName);
     }
 
-    return save(iClusterName, false);
-  }
-
-  public ORecordAbstract save(boolean forceCreate) {
-    if (primaryRecord != null) {
-      primaryRecord = primaryRecord.getRecord();
-      return primaryRecord.save(forceCreate);
-    }
-
-    getDatabase().save(this, ODatabase.OPERATION_MODE.SYNCHRONOUS, forceCreate, null, null);
+    getDatabase().save(this, iClusterName);
     return this;
-  }
-
-  public ORecordAbstract save(String iClusterName, boolean forceCreate) {
-    if (primaryRecord != null) {
-      primaryRecord = primaryRecord.getRecord();
-      return primaryRecord.save(iClusterName, forceCreate);
-    }
-
-    return getDatabase()
-        .save(this, iClusterName, ODatabase.OPERATION_MODE.SYNCHRONOUS, forceCreate, null, null);
   }
 
   public ORecordAbstract delete() {

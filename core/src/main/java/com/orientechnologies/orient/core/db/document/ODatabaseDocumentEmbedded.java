@@ -104,7 +104,6 @@ import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.parser.OLocalResultSet;
 import com.orientechnologies.orient.core.sql.parser.OLocalResultSetLifecycleDecorator;
 import com.orientechnologies.orient.core.sql.parser.OStatement;
-import com.orientechnologies.orient.core.storage.ORecordCallback;
 import com.orientechnologies.orient.core.storage.ORecordMetadata;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.OStorageInfo;
@@ -906,13 +905,13 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
 
   /**
    * This method is internal, it can be subject to signature change or be removed, do not use.
+   *
    * @Internal
    */
   public void executeDeleteRecord(
       OIdentifiable identifiable,
       final int iVersion,
       final boolean iRequired,
-      final OPERATION_MODE iMode,
       boolean prohibitTombstones) {
     checkOpenness();
     checkIfActive();
@@ -944,7 +943,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
       tx.setNoTxLocks(trans.getInternalLocks());
       this.currentTx = tx;
       tx.begin();
-      tx.deleteRecord(record, iMode);
+      tx.deleteRecord(record);
       commit();
     } finally {
       this.currentTx = trans;
@@ -1087,8 +1086,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
    * record as deleted, while others cannot access to it since it's locked.
    *
    * <p>If MVCC is enabled and the version of the document is different by the version stored in
-   * the
-   * database, then a {@link OConcurrentModificationException} exception is thrown.
+   * the database, then a {@link OConcurrentModificationException} exception is thrown.
    *
    * @param record record to delete
    * @return The Database instance itself giving a "fluent interface". Useful to call multiple
@@ -1127,7 +1125,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     }
 
     try {
-      currentTx.deleteRecord((ORecordAbstract) record, OPERATION_MODE.SYNCHRONOUS);
+      currentTx.deleteRecord((ORecordAbstract) record);
       if (newTx) {
         //noinspection resource
         commit();
@@ -1329,13 +1327,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
   }
 
   @Override
-  public ORecord saveAll(
-      ORecord iRecord,
-      String iClusterName,
-      OPERATION_MODE iMode,
-      boolean iForceCreate,
-      ORecordCallback<? extends Number> iRecordCreatedCallback,
-      ORecordCallback<Integer> iRecordUpdatedCallback) {
+  public ORecord saveAll(ORecord iRecord, String iClusterName) {
     OTransactionAbstract trans = (OTransactionAbstract) this.currentTx;
     try {
       OTransactionOptimistic tx = new OTransactionOptimistic(this, false);
@@ -1343,13 +1335,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
       this.currentTx = tx;
       tx.begin();
 
-      tx.saveRecord(
-          (ORecordAbstract) iRecord,
-          iClusterName,
-          iMode,
-          iForceCreate,
-          iRecordCreatedCallback,
-          iRecordUpdatedCallback);
+      tx.saveRecord((ORecordAbstract) iRecord, iClusterName);
       commit();
     } finally {
       this.currentTx = trans;

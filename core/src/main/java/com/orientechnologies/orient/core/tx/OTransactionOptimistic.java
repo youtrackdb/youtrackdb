@@ -22,9 +22,7 @@ package com.orientechnologies.orient.core.tx;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.cache.OLocalRecordCache;
-import com.orientechnologies.orient.core.db.ODatabase.OPERATION_MODE;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
@@ -47,7 +45,6 @@ import com.orientechnologies.orient.core.record.impl.ODirtyManager;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.schedule.OScheduledEvent;
-import com.orientechnologies.orient.core.storage.ORecordCallback;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.OStorage.LOCKING_STRATEGY;
 import com.orientechnologies.orient.core.storage.OStorageProxy;
@@ -360,7 +357,7 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
     return loadRecord(rid, record, fetchPlan, ignoreCache, false, OStorage.LOCKING_STRATEGY.NONE);
   }
 
-  public void deleteRecord(final ORecordAbstract iRecord, final OPERATION_MODE iMode) {
+  public void deleteRecord(final ORecordAbstract iRecord) {
     try {
       var records = ORecordInternal.getDirtyManager(iRecord).getUpdateRecords();
       final var newRecords = ORecordInternal.getDirtyManager(iRecord).getNewRecords();
@@ -383,7 +380,7 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
                     + " was registered in dirty manager, such case may lead to data corruption");
           }
 
-          saveRecord(rec, null, ODatabaseSession.OPERATION_MODE.SYNCHRONOUS, false, null, null);
+          saveRecord(rec, null);
         }
       }
 
@@ -402,7 +399,7 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
                     + prev
                     + " was registered in dirty manager, such case may lead to data corruption");
           }
-          saveRecord(rec, null, ODatabaseSession.OPERATION_MODE.SYNCHRONOUS, false, null, null);
+          saveRecord(rec, null);
         }
       }
 
@@ -413,13 +410,7 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
     }
   }
 
-  public ORecord saveRecord(
-      ORecordAbstract passedRecord,
-      final String iClusterName,
-      final OPERATION_MODE iMode,
-      final boolean iForceCreate,
-      final ORecordCallback<? extends Number> iRecordCreatedCallback,
-      final ORecordCallback<Integer> iRecordUpdatedCallback) {
+  public ORecord saveRecord(ORecordAbstract passedRecord, final String clusterName) {
     try {
       if (passedRecord == null) {
         return null;
@@ -433,7 +424,6 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
       var recordsMap = new HashMap<>(16);
       recordsMap.put(passedRecord.getIdentity(), passedRecord);
 
-      ORecordOperation recordOperation = null;
       boolean originalSaved = false;
       final ODirtyManager dirtyManager = ORecordInternal.getDirtyManager(passedRecord);
       do {
@@ -461,7 +451,7 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
               ODocumentInternal.convertAllMultiValuesToTrackedVersions((ODocument) rec);
             }
             if (rec == passedRecord) {
-              recordOperation = addRecord(rec, ORecordOperation.CREATED, iClusterName);
+              addRecord(rec, ORecordOperation.CREATED, clusterName);
               originalSaved = true;
             } else {
               addRecord(rec, ORecordOperation.CREATED, database.getClusterName(rec));
@@ -489,16 +479,12 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
               ODocumentInternal.convertAllMultiValuesToTrackedVersions((ODocument) rec);
             }
             if (rec == passedRecord) {
-              final byte operation;
-              if (iForceCreate) {
-                operation = ORecordOperation.CREATED;
-              } else {
-                operation =
-                    passedRecord.getIdentity().isValid()
-                        ? ORecordOperation.UPDATED
-                        : ORecordOperation.CREATED;
-              }
-              recordOperation = addRecord(rec, operation, iClusterName);
+              final byte operation =
+                  passedRecord.getIdentity().isValid()
+                      ? ORecordOperation.UPDATED
+                      : ORecordOperation.CREATED;
+
+              addRecord(rec, operation, clusterName);
               originalSaved = true;
             } else {
               addRecord(rec, ORecordOperation.UPDATED, database.getClusterName(rec));
@@ -508,25 +494,11 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
       } while (dirtyManager.getNewRecords() != null || dirtyManager.getUpdateRecords() != null);
 
       if (!originalSaved && passedRecord.isDirty()) {
-        final byte operation;
-        if (iForceCreate) {
-          operation = ORecordOperation.CREATED;
-        } else {
-          operation =
-              passedRecord.getIdentity().isValid()
-                  ? ORecordOperation.UPDATED
-                  : ORecordOperation.CREATED;
-        }
-        recordOperation = addRecord(passedRecord, operation, iClusterName);
-      }
-      if (recordOperation != null) {
-        if (iRecordCreatedCallback != null) {
-          //noinspection unchecked
-          recordOperation.createdCallback = (ORecordCallback<Long>) iRecordCreatedCallback;
-        }
-        if (iRecordUpdatedCallback != null) {
-          recordOperation.updatedCallback = iRecordUpdatedCallback;
-        }
+        final byte operation =
+            passedRecord.getIdentity().isValid()
+                ? ORecordOperation.UPDATED
+                : ORecordOperation.CREATED;
+        addRecord(passedRecord, operation, clusterName);
       }
       return passedRecord;
     } catch (Exception e) {
@@ -700,26 +672,8 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
       throw e;
     }
 
-    invokeCallbacks();
     close();
     status = TXSTATUS.COMPLETED;
-  }
-
-  private void invokeCallbacks() {
-    for (final ORecordOperation recordOperation : allEntries.values()) {
-      final ORecord record = recordOperation.getRecord();
-      final ORID identity = record.getIdentity();
-      if (recordOperation.type == ORecordOperation.CREATED
-          && recordOperation.createdCallback != null) {
-        recordOperation.createdCallback.call(
-            new ORecordId(identity), identity.getClusterPosition());
-      } else {
-        if (recordOperation.type == ORecordOperation.UPDATED
-            && recordOperation.updatedCallback != null) {
-          recordOperation.updatedCallback.call(new ORecordId(identity), record.getVersion());
-        }
-      }
-    }
   }
 
   @Override

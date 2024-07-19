@@ -59,7 +59,6 @@ import com.orientechnologies.orient.core.serialization.serializer.record.ORecord
 import com.orientechnologies.orient.core.shutdown.OShutdownHandler;
 import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
-import com.orientechnologies.orient.core.storage.ORecordCallback;
 import com.orientechnologies.orient.core.storage.ORecordMetadata;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.OStorage.LOCKING_STRATEGY;
@@ -240,14 +239,6 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
     this.ownerProtection = true;
   }
 
-  public static ORecordSerializer getDefaultSerializer() {
-    return ODatabaseDocumentAbstract.getDefaultSerializer();
-  }
-
-  public static void setDefaultSerializer(ORecordSerializer defaultSerializer) {
-    ODatabaseDocumentAbstract.setDefaultSerializer(defaultSerializer);
-  }
-
   @Override
   public OCurrentStorageComponentsFactory getStorageVersions() {
     if (internal == null) {
@@ -330,13 +321,9 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
 
   @Override
   public void executeDeleteRecord(
-      OIdentifiable record,
-      int iVersion,
-      boolean iRequired,
-      OPERATION_MODE iMode,
-      boolean prohibitTombstones) {
+      OIdentifiable record, int iVersion, boolean iRequired, boolean prohibitTombstones) {
     checkOpenness();
-    internal.executeDeleteRecord(record, iVersion, iRequired, iMode, prohibitTombstones);
+    internal.executeDeleteRecord(record, iVersion, iRequired, prohibitTombstones);
   }
 
   @Override
@@ -705,34 +692,9 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
   }
 
   @Override
-  public <RET extends ORecord> RET save(
-      ORecord iObject,
-      OPERATION_MODE iMode,
-      boolean iForceCreate,
-      ORecordCallback<? extends Number> iRecordCreatedCallback,
-      ORecordCallback<Integer> iRecordUpdatedCallback) {
-    checkOpenness();
-    return internal.save(
-        iObject, iMode, iForceCreate, iRecordCreatedCallback, iRecordUpdatedCallback);
-  }
-
-  @Override
   public <RET extends ORecord> RET save(ORecord iObject, String iClusterName) {
     checkOpenness();
     return internal.save(iObject, iClusterName);
-  }
-
-  @Override
-  public <RET extends ORecord> RET save(
-      ORecord iObject,
-      String iClusterName,
-      OPERATION_MODE iMode,
-      boolean iForceCreate,
-      ORecordCallback<? extends Number> iRecordCreatedCallback,
-      ORecordCallback<Integer> iRecordUpdatedCallback) {
-    checkOpenness();
-    return internal.save(
-        iObject, iClusterName, iMode, iForceCreate, iRecordCreatedCallback, iRecordUpdatedCallback);
   }
 
   @Override
@@ -1662,15 +1624,8 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
     internal.internalClose(true);
   }
 
-  public ORecord saveAll(
-      ORecord iRecord,
-      String iClusterName,
-      OPERATION_MODE iMode,
-      boolean iForceCreate,
-      ORecordCallback<? extends Number> iRecordCreatedCallback,
-      ORecordCallback<Integer> iRecordUpdatedCallback) {
-    return internal.saveAll(
-        iRecord, iClusterName, iMode, iForceCreate, iRecordCreatedCallback, iRecordUpdatedCallback);
+  public ORecord saveAll(ORecord iRecord, String iClusterName) {
+    return internal.saveAll(iRecord, iClusterName);
   }
 
   @Override
