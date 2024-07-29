@@ -34,7 +34,6 @@ import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.impl.ODirtyManager;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerJSON;
-import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.cluster.OOfflineClusterException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -562,62 +561,6 @@ public abstract class ORecordAbstract implements ORecord {
     }
 
     return size;
-  }
-
-  @Override
-  public void lock(final boolean iExclusive) {
-    checkForLoading();
-    if (primaryRecord != null) {
-      primaryRecord = primaryRecord.getRecord();
-      primaryRecord.lock(iExclusive);
-      return;
-    }
-
-    //noinspection deprecation
-    ODatabaseRecordThreadLocal.instance()
-        .get()
-        .getTransaction()
-        .lockRecord(
-            this,
-            iExclusive
-                ? OStorage.LOCKING_STRATEGY.EXCLUSIVE_LOCK
-                : OStorage.LOCKING_STRATEGY.SHARED_LOCK);
-  }
-
-  @Override
-  public boolean isLocked() {
-    checkForLoading();
-    if (primaryRecord != null) {
-      primaryRecord = primaryRecord.getRecord();
-      return primaryRecord.isLocked();
-    }
-
-    return ODatabaseRecordThreadLocal.instance().get().getTransaction().isLockedRecord(this);
-  }
-
-  @Override
-  public OStorage.LOCKING_STRATEGY lockingStrategy() {
-    checkForLoading();
-    if (primaryRecord != null) {
-      primaryRecord = primaryRecord.getRecord();
-      return primaryRecord.lockingStrategy();
-    }
-
-    //noinspection deprecation
-    return ODatabaseRecordThreadLocal.instance().get().getTransaction().lockingStrategy(this);
-  }
-
-  @Override
-  public void unlock() {
-    checkForLoading();
-    if (primaryRecord != null) {
-      primaryRecord = primaryRecord.getRecord();
-      primaryRecord.unlock();
-      return;
-    }
-
-    //noinspection deprecation
-    ODatabaseRecordThreadLocal.instance().get().getTransaction().unlockRecord(this);
   }
 
   @Override

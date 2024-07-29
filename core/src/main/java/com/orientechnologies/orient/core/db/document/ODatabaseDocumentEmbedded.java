@@ -20,7 +20,6 @@
 
 package com.orientechnologies.orient.core.db.document;
 
-import com.orientechnologies.common.concur.lock.OLockException;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
@@ -129,7 +128,6 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by tglman on 27/06/16.
@@ -940,7 +938,6 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     OTransactionAbstract trans = (OTransactionAbstract) this.currentTx;
     try {
       OTransactionOptimistic tx = new OTransactionOptimistic(this, false);
-      tx.setNoTxLocks(trans.getInternalLocks());
       this.currentTx = tx;
       tx.begin();
       tx.deleteRecord(record);
@@ -1331,7 +1328,6 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     OTransactionAbstract trans = (OTransactionAbstract) this.currentTx;
     try {
       OTransactionOptimistic tx = new OTransactionOptimistic(this, false);
-      tx.setNoTxLocks(trans.getInternalLocks());
       this.currentTx = tx;
       tx.begin();
 
@@ -1417,71 +1413,6 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
                   + ")"),
           t);
     }
-  }
-
-  @Override
-  public void internalLockRecord(OIdentifiable iRecord, OStorage.LOCKING_STRATEGY lockingStrategy) {
-    internalLockRecord(iRecord, lockingStrategy, 0);
-  }
-
-  public void internalLockRecord(
-      OIdentifiable iRecord, OStorage.LOCKING_STRATEGY lockingStrategy, long timeout) {
-    final ORID rid = new ORecordId(iRecord.getIdentity());
-    OTransactionAbstract transaction = (OTransactionAbstract) getTransaction();
-    if (!transaction.isLockedRecord(iRecord)) {
-      if (lockingStrategy == OStorage.LOCKING_STRATEGY.EXCLUSIVE_LOCK) {
-        ((OAbstractPaginatedStorage) getStorage()).acquireWriteLock(rid, timeout);
-      } else {
-        if (lockingStrategy == OStorage.LOCKING_STRATEGY.SHARED_LOCK) {
-          ((OAbstractPaginatedStorage) getStorage()).acquireReadLock(rid, timeout);
-        } else {
-          throw new IllegalStateException("Unsupported locking strategy " + lockingStrategy);
-        }
-      }
-    }
-    transaction.trackLockedRecord(iRecord.getIdentity(), lockingStrategy);
-  }
-
-  @Override
-  public void internalUnlockRecord(OIdentifiable iRecord) {
-    final ORID rid = iRecord.getIdentity();
-    OTransactionAbstract transaction = (OTransactionAbstract) getTransaction();
-    OStorage.LOCKING_STRATEGY strategy = transaction.trackUnlockRecord(rid);
-
-    if (strategy == OStorage.LOCKING_STRATEGY.EXCLUSIVE_LOCK) {
-      ((OAbstractPaginatedStorage) getStorage()).releaseWriteLock(rid);
-    } else {
-      if (strategy == OStorage.LOCKING_STRATEGY.SHARED_LOCK) {
-        ((OAbstractPaginatedStorage) getStorage()).releaseReadLock(rid);
-      }
-    }
-  }
-
-  @Override
-  public <RET extends ORecord> RET lock(ORID recordId) throws OLockException {
-    checkOpenness();
-    checkIfActive();
-    pessimisticLockChecks(recordId);
-    internalLockRecord(recordId, OStorage.LOCKING_STRATEGY.EXCLUSIVE_LOCK);
-    return load(recordId, null, true);
-  }
-
-  @Override
-  public <RET extends ORecord> RET lock(ORID recordId, long timeout, TimeUnit timeoutUnit)
-      throws OLockException {
-    checkOpenness();
-    checkIfActive();
-    pessimisticLockChecks(recordId);
-    internalLockRecord(
-        recordId, OStorage.LOCKING_STRATEGY.EXCLUSIVE_LOCK, timeoutUnit.toMillis(timeout));
-    return load(recordId, null, true);
-  }
-
-  @Override
-  public void unlock(ORID recordId) throws OLockException {
-    checkOpenness();
-    checkIfActive();
-    internalUnlockRecord(recordId);
   }
 
   @Override

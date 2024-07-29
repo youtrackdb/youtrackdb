@@ -22,13 +22,11 @@ package com.orientechnologies.orient.core.iterator;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
-import com.orientechnologies.orient.core.metadata.OMetadataInternal;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OClassImpl;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import com.orientechnologies.orient.core.storage.OStorage;
 import java.util.Arrays;
 
 /**
@@ -47,16 +45,9 @@ public class ORecordIteratorClass<REC extends ORecord> extends ORecordIteratorCl
   public ORecordIteratorClass(
       final ODatabaseDocumentInternal iDatabase,
       final String iClassName,
-      final boolean iPolymorphic) {
-    this(iDatabase, iClassName, iPolymorphic, true);
-  }
-
-  public ORecordIteratorClass(
-      final ODatabaseDocumentInternal iDatabase,
-      final String iClassName,
       final boolean iPolymorphic,
       boolean begin) {
-    this(iDatabase, iClassName, iPolymorphic, OStorage.LOCKING_STRATEGY.DEFAULT);
+    this(iDatabase, iClassName, iPolymorphic);
     if (begin) begin();
   }
 
@@ -64,14 +55,10 @@ public class ORecordIteratorClass<REC extends ORecord> extends ORecordIteratorCl
   public ORecordIteratorClass(
       final ODatabaseDocumentInternal iDatabase,
       final String iClassName,
-      final boolean iPolymorphic,
-      final OStorage.LOCKING_STRATEGY iLockingStrategy) {
-    super(iDatabase, iLockingStrategy);
+      final boolean iPolymorphic) {
+    super(iDatabase);
 
-    targetClass =
-        ((OMetadataInternal) database.getMetadata())
-            .getImmutableSchemaSnapshot()
-            .getClass(iClassName);
+    targetClass = database.getMetadata().getImmutableSchemaSnapshot().getClass(iClassName);
     if (targetClass == null)
       throw new IllegalArgumentException(
           "Class '" + iClassName + "' was not found in database schema");

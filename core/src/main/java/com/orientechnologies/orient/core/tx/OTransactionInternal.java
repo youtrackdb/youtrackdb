@@ -22,9 +22,6 @@ package com.orientechnologies.orient.core.tx;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.metadata.schema.OImmutableClass;
-import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import java.io.IOException;
 import java.util.*;
 import javax.annotation.Nullable;
@@ -73,10 +70,6 @@ public interface OTransactionInternal extends OTransaction {
    */
   void updateIdentityAfterCommit(ORID oldRID, ORID rid);
 
-  /** Retrieve if log is enabled for the transaction */
-  @Deprecated
-  boolean isUsingLog();
-
   /**
    * Extract a single change from a specified record id.
    *
@@ -85,22 +78,7 @@ public interface OTransactionInternal extends OTransaction {
    */
   ORecordOperation getRecordEntry(ORID currentRid);
 
-  Set<ORID> getLockedRecords();
-
   void setDatabase(ODatabaseDocumentInternal database);
-
-  default boolean isSequenceTransaction() {
-    for (ORecordOperation txEntry : getRecordOperations()) {
-      if (txEntry.record != null && txEntry.record.getRecord() instanceof ODocument) {
-        ODocument doc = txEntry.record.getRecord();
-        OImmutableClass docClass = ODocumentInternal.getImmutableSchemaClass(doc);
-        if (docClass != null && !docClass.isSequence()) {
-          return false;
-        }
-      }
-    }
-    return true;
-  }
 
   @Nullable
   default byte[] getMetadata() {

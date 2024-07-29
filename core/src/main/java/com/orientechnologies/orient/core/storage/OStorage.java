@@ -26,7 +26,6 @@ import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
 import com.orientechnologies.orient.core.db.OrientDBInternal;
 import com.orientechnologies.orient.core.db.record.OCurrentStorageComponentsFactory;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.storage.cluster.OPaginatedCluster;
@@ -60,21 +59,6 @@ public interface OStorage extends OBackupable, OStorageInfo {
     OPENING,
   }
 
-  public enum LOCKING_STRATEGY {
-    NONE,
-    DEFAULT,
-    SHARED_LOCK,
-    EXCLUSIVE_LOCK,
-
-    @SuppressWarnings("DeprecatedIsStillUsed")
-    @Deprecated
-    KEEP_SHARED_LOCK,
-
-    @SuppressWarnings("DeprecatedIsStillUsed")
-    @Deprecated
-    KEEP_EXCLUSIVE_LOCK
-  }
-
   void open(
       String iUserName, String iUserPassword, final OContextConfiguration contextConfiguration);
 
@@ -101,10 +85,6 @@ public interface OStorage extends OBackupable, OStorageInfo {
       ORecordCallback<ORawBuffer> iCallback);
 
   boolean recordExists(ORID rid);
-
-  OStorageOperationResult<ORawBuffer> readRecordIfVersionIsNotLatest(
-      ORecordId rid, String fetchPlan, boolean ignoreCache, int recordVersion)
-      throws ORecordNotFoundException;
 
   OStorageOperationResult<Boolean> deleteRecord(
       ORecordId iRecordId, int iVersion, int iMode, ORecordCallback<Boolean> iCallback);

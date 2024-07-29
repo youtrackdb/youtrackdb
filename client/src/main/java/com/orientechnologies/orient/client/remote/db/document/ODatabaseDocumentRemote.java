@@ -20,16 +20,12 @@
 
 package com.orientechnologies.orient.client.remote.db.document;
 
-import static com.orientechnologies.orient.core.storage.OStorage.LOCKING_STRATEGY.EXCLUSIVE_LOCK;
-
-import com.orientechnologies.common.concur.lock.OLockException;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.client.remote.OLiveQueryClientListener;
 import com.orientechnologies.orient.client.remote.ORemoteQueryResult;
 import com.orientechnologies.orient.client.remote.OStorageRemote;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
-import com.orientechnologies.orient.client.remote.message.OLockRecordResponse;
 import com.orientechnologies.orient.client.remote.message.ORemoteResultSet;
 import com.orientechnologies.orient.client.remote.metadata.schema.OSchemaRemote;
 import com.orientechnologies.orient.core.Orient;
@@ -99,7 +95,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by tglman on 30/06/16.
@@ -330,7 +325,7 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
 
     switch (iType) {
       case NOTX:
-        setDefaultTransactionMode(null);
+        setDefaultTransactionMode();
         break;
       case OPTIMISTIC:
         currentTx = new OTransactionOptimisticClient(this);
@@ -723,73 +718,6 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
   public String getClusterName(final ORecord record) {
     // DON'T ASSIGN CLUSTER WITH REMOTE: SERVER KNOWS THE RIGHT CLUSTER BASED ON LOCALITY
     return null;
-  }
-
-  @Override
-  public void internalLockRecord(OIdentifiable iRecord, OStorage.LOCKING_STRATEGY lockingStrategy) {
-    checkAndSendTransaction();
-    OStorageRemote remote = getStorageRemote();
-    // -1 value means default timeout
-    remote.lockRecord(iRecord, lockingStrategy, -1);
-  }
-
-  @Override
-  public void internalUnlockRecord(OIdentifiable iRecord) {
-    OStorageRemote remote = getStorageRemote();
-    remote.unlockRecord(iRecord.getIdentity());
-  }
-
-  @Override
-  public <RET extends ORecord> RET lock(ORID recordId) throws OLockException {
-    checkOpenness();
-    checkIfActive();
-    pessimisticLockChecks(recordId);
-    checkAndSendTransaction();
-    OStorageRemote remote = getStorageRemote();
-    // -1 value means default timeout
-    OLockRecordResponse response = remote.lockRecord(recordId, EXCLUSIVE_LOCK, -1);
-    ORecord record =
-        fillRecordFromNetwork(
-            recordId, response.getRecordType(), response.getVersion(), response.getRecord());
-    return (RET) record;
-  }
-
-  @Override
-  public <RET extends ORecord> RET lock(ORID recordId, long timeout, TimeUnit timeoutUnit)
-      throws OLockException {
-    checkOpenness();
-    checkIfActive();
-    pessimisticLockChecks(recordId);
-    checkAndSendTransaction();
-    OStorageRemote remote = getStorageRemote();
-    OLockRecordResponse response =
-        remote.lockRecord(recordId, EXCLUSIVE_LOCK, timeoutUnit.toMillis(timeout));
-    ORecord record =
-        fillRecordFromNetwork(
-            recordId, response.getRecordType(), response.getVersion(), response.getRecord());
-    return (RET) record;
-  }
-
-  private ORecord fillRecordFromNetwork(
-      ORID recordId, byte recordType, int version, byte[] buffer) {
-    beforeReadOperations(recordId);
-    ORecordAbstract toFillRecord = getLocalCache().findRecord(recordId);
-    if (toFillRecord == null) {
-      toFillRecord =
-          Orient.instance().getRecordFactoryManager().newInstance(recordType, recordId, this);
-      ORecordInternal.unsetDirty(toFillRecord);
-    }
-    ORecordInternal.fill(toFillRecord, recordId, version, buffer, false);
-    getLocalCache().updateRecord(toFillRecord);
-    afterReadOperations(recordId);
-    return toFillRecord;
-  }
-
-  @Override
-  public void unlock(ORID recordId) throws OLockException {
-    checkOpenness();
-    checkIfActive();
-    internalUnlockRecord(recordId);
   }
 
   @Override

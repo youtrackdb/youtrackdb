@@ -2,7 +2,6 @@ package com.orientechnologies.orient.core.db.document;
 
 import static com.orientechnologies.orient.core.db.document.ODatabaseDocumentTxInternal.closeAllOnShutdown;
 
-import com.orientechnologies.common.concur.lock.OLockException;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.cache.OLocalRecordCache;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
@@ -29,7 +28,6 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.dictionary.ODictionary;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OTransactionException;
 import com.orientechnologies.orient.core.hook.ORecordHook;
 import com.orientechnologies.orient.core.id.ORID;
@@ -61,12 +59,10 @@ import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.storage.ORecordMetadata;
 import com.orientechnologies.orient.core.storage.OStorage;
-import com.orientechnologies.orient.core.storage.OStorage.LOCKING_STRATEGY;
 import com.orientechnologies.orient.core.storage.OStorageInfo;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
 import com.orientechnologies.orient.core.tx.OTransaction;
-import com.orientechnologies.orient.core.tx.OTransactionAbstract;
 import com.orientechnologies.orient.core.tx.OTransactionInternal;
 import com.orientechnologies.orient.core.util.OURLConnection;
 import com.orientechnologies.orient.core.util.OURLHelper;
@@ -87,7 +83,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -278,14 +273,6 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
   }
 
   @Override
-  public <RET extends ORecord> RET loadIfVersionIsNotLatest(
-      ORID rid, int recordVersion, String fetchPlan, boolean ignoreCache)
-      throws ORecordNotFoundException {
-    checkOpenness();
-    return internal.loadIfVersionIsNotLatest(rid, recordVersion, fetchPlan, ignoreCache);
-  }
-
-  @Override
   public void reloadUser() {
     checkOpenness();
     internal.reloadUser();
@@ -305,18 +292,10 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
       String fetchPlan,
       boolean ignoreCache,
       boolean loadTombstones,
-      LOCKING_STRATEGY lockingStrategy,
       RecordReader recordReader) {
     checkOpenness();
     return internal.executeReadRecord(
-        rid,
-        iRecord,
-        recordVersion,
-        fetchPlan,
-        ignoreCache,
-        loadTombstones,
-        lockingStrategy,
-        recordReader);
+        rid, iRecord, recordVersion, fetchPlan, ignoreCache, loadTombstones, recordReader);
   }
 
   @Override
@@ -327,10 +306,9 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
   }
 
   @Override
-  public void setDefaultTransactionMode(
-      Map<ORID, OTransactionAbstract.LockedRecordMetadata> noTxLocks) {
+  public void setDefaultTransactionMode() {
     checkOpenness();
-    internal.setDefaultTransactionMode(noTxLocks);
+    internal.setDefaultTransactionMode();
   }
 
   @Override
@@ -1636,35 +1614,6 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
   @Override
   public OView getViewFromCluster(int cluster) {
     return internal.getViewFromCluster(cluster);
-  }
-
-  @Override
-  public void internalLockRecord(OIdentifiable iRecord, OStorage.LOCKING_STRATEGY lockingStrategy) {
-    internal.internalLockRecord(iRecord, lockingStrategy);
-  }
-
-  @Override
-  public void internalUnlockRecord(OIdentifiable iRecord) {
-    internal.internalUnlockRecord(iRecord);
-  }
-
-  @Override
-  public <RET extends ORecord> RET lock(ORID recordId) throws OLockException {
-    checkOpenness();
-    return internal.lock(recordId);
-  }
-
-  @Override
-  public <RET extends ORecord> RET lock(ORID recordId, long timeout, TimeUnit timeoutUnit)
-      throws OLockException {
-    checkOpenness();
-    return internal.lock(recordId, timeout, timeoutUnit);
-  }
-
-  @Override
-  public void unlock(ORID recordId) throws OLockException {
-    checkOpenness();
-    internal.unlock(recordId);
   }
 
   @Override

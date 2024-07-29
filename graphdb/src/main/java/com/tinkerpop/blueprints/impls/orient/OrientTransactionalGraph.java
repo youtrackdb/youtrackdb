@@ -210,7 +210,6 @@ public abstract class OrientTransactionalGraph extends OrientBaseGraph
               + "Disable auto transactions for the graph before starting a manual transaction.");
 
     getDatabase().begin();
-    getDatabase().getTransaction().setUsingLog(settings.isUseLog());
   }
 
   @Override
@@ -226,7 +225,6 @@ public abstract class OrientTransactionalGraph extends OrientBaseGraph
 
     if (!txBegun) {
       getDatabase().begin();
-      getDatabase().getTransaction().setUsingLog(settings.isUseLog());
     }
   }
 
@@ -234,7 +232,6 @@ public abstract class OrientTransactionalGraph extends OrientBaseGraph
     final boolean txBegun = getDatabase().getTransaction().isActive();
     if (!txBegun) {
       getDatabase().begin();
-      getDatabase().getTransaction().setUsingLog(settings.isUseLog());
     }
   }
 }

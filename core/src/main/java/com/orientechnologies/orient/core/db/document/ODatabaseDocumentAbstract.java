@@ -96,8 +96,6 @@ import com.orientechnologies.orient.core.serialization.serializer.record.ORecord
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializerFactory;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.storage.ORawBuffer;
-import com.orientechnologies.orient.core.storage.OStorage;
-import com.orientechnologies.orient.core.storage.OStorage.LOCKING_STRATEGY;
 import com.orientechnologies.orient.core.storage.OStorageInfo;
 import com.orientechnologies.orient.core.storage.OStorageOperationResult;
 import com.orientechnologies.orient.core.storage.cluster.OOfflineClusterException;
@@ -275,7 +273,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
         iFetchPlan,
         iIgnoreCache,
         false,
-        OStorage.LOCKING_STRATEGY.DEFAULT,
         new SimpleRecordReader(prefetchRecords));
   }
 
@@ -318,11 +315,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     checkIfActive();
     final int clusterId = getClusterIdByName(iClusterName);
     return new ORecordIteratorCluster<REC>(
-        this,
-        clusterId,
-        startClusterPosition,
-        endClusterPosition,
-        OStorage.LOCKING_STRATEGY.DEFAULT);
+        this, clusterId, startClusterPosition, endClusterPosition);
   }
 
   @Override
@@ -839,13 +832,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   public <RET extends ORecord> RET load(final ORecord iRecord, final String iFetchPlan) {
     checkIfActive();
     return (RET)
-        currentTx.loadRecord(
-            iRecord.getIdentity(),
-            (ORecordAbstract) iRecord,
-            iFetchPlan,
-            false,
-            false,
-            OStorage.LOCKING_STRATEGY.DEFAULT);
+        currentTx.loadRecord(iRecord.getIdentity(), (ORecordAbstract) iRecord, iFetchPlan, false);
   }
 
   @SuppressWarnings("unchecked")
@@ -874,15 +861,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   public <RET extends ORecord> RET load(final ORID iRecordId, final String iFetchPlan) {
     checkIfActive();
     return (RET) currentTx.loadRecord(iRecordId, null, iFetchPlan, false);
-  }
-
-  @SuppressWarnings("unchecked")
-  public <RET extends ORecord> RET loadIfVersionIsNotLatest(
-      final ORID rid, final int recordVersion, String fetchPlan, boolean ignoreCache)
-      throws ORecordNotFoundException {
-    checkIfActive();
-    return (RET)
-        currentTx.loadRecordIfVersionIsNotLatest(rid, recordVersion, fetchPlan, ignoreCache);
   }
 
   @SuppressWarnings("unchecked")
@@ -956,11 +934,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       currentTx.begin();
       return;
     }
-    Map<ORID, OTransactionAbstract.LockedRecordMetadata> noTxLockedRecords = null;
 
-    if (!currentTx.isActive() && iTx instanceof OTransactionOptimistic) {
-      noTxLockedRecords = ((OTransactionAbstract) currentTx).getInternalLocks();
-    }
     currentTx.rollback(true, 0);
 
     // WAKE UP LISTENERS
@@ -976,9 +950,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     }
 
     currentTx = iTx;
-    if (iTx instanceof OTransactionOptimistic) {
-      ((OTransactionOptimistic) iTx).setNoTxLocks(noTxLockedRecords);
-    }
     currentTx.begin();
   }
 
@@ -994,7 +965,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
         iFetchPlan,
         iIgnoreCache,
         false,
-        OStorage.LOCKING_STRATEGY.NONE,
         new SimpleRecordReader(prefetchRecords));
   }
 
@@ -1020,7 +990,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       final String fetchPlan,
       final boolean ignoreCache,
       final boolean loadTombstones,
-      final LOCKING_STRATEGY lockingStrategy,
       RecordReader recordReader) {
     checkOpenness();
     checkIfActive();
@@ -1056,24 +1025,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
         OFetchHelper.checkFetchPlanValid(fetchPlan);
         if (beforeReadOperations(record)) {
           return null;
-        }
-
-        if (lockingStrategy == OStorage.LOCKING_STRATEGY.KEEP_SHARED_LOCK) {
-          OLogManager.instance()
-              .warn(
-                  this,
-                  "You use deprecated record locking strategy: %s it may lead to deadlocks "
-                      + lockingStrategy);
-          record.lock(false);
-        } else {
-          if (lockingStrategy == OStorage.LOCKING_STRATEGY.KEEP_EXCLUSIVE_LOCK) {
-            OLogManager.instance()
-                .warn(
-                    this,
-                    "You use deprecated record locking strategy: %s it may lead to deadlocks "
-                        + lockingStrategy);
-            record.lock(true);
-          }
         }
 
         afterReadOperations(record);
@@ -1285,7 +1236,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
 
     switch (iType) {
       case NOTX:
-        setDefaultTransactionMode(null);
+        setDefaultTransactionMode();
         break;
 
       case OPTIMISTIC:
@@ -1297,10 +1248,9 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     return this;
   }
 
-  public void setDefaultTransactionMode(
-      Map<ORID, OTransactionAbstract.LockedRecordMetadata> noTxLocks) {
+  public void setDefaultTransactionMode() {
     if (!(currentTx instanceof OTransactionNoTx)) {
-      currentTx = new OTransactionNoTx(this, noTxLocks);
+      currentTx = new OTransactionNoTx(this);
     }
   }
 
@@ -1566,11 +1516,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     checkSecurity(ORule.ResourceGeneric.CLUSTER, ORole.PERMISSION_READ, iClusterName);
 
     return new ORecordIteratorCluster<ODocument>(
-        this,
-        getClusterIdByName(iClusterName),
-        startClusterPosition,
-        endClusterPosition,
-        OStorage.LOCKING_STRATEGY.DEFAULT);
+        this, getClusterIdByName(iClusterName), startClusterPosition, endClusterPosition);
   }
 
   /**
@@ -2101,7 +2047,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   }
 
   protected void init() {
-    currentTx = new OTransactionNoTx(this, null);
+    currentTx = new OTransactionNoTx(this);
   }
 
   public void checkIfActive() {

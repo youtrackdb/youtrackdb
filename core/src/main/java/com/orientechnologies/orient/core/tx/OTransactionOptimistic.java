@@ -46,12 +46,9 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.schedule.OScheduledEvent;
 import com.orientechnologies.orient.core.storage.OStorage;
-import com.orientechnologies.orient.core.storage.OStorage.LOCKING_STRATEGY;
 import com.orientechnologies.orient.core.storage.OStorageProxy;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class OTransactionOptimistic extends OTransactionRealAbstract {
@@ -59,7 +56,6 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
   private static final AtomicInteger txSerial = new AtomicInteger();
   protected boolean changed = true;
   private boolean alreadyCleared = false;
-  private boolean usingLog = true;
   protected int txStartCounter;
   private boolean sentToServer = false;
 
@@ -190,9 +186,8 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
       final ORecordAbstract iRecord,
       final String fetchPlan,
       final boolean ignoreCache,
-      final boolean loadTombstone,
-      final LOCKING_STRATEGY lockingStrategy) {
-    return loadRecord(rid, iRecord, fetchPlan, ignoreCache, true, loadTombstone, lockingStrategy);
+      final boolean loadTombstone) {
+    return loadRecord(rid, iRecord, fetchPlan, ignoreCache, true, loadTombstone);
   }
 
   public ORecord loadRecord(
@@ -201,8 +196,7 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
       final String fetchPlan,
       final boolean ignoreCache,
       final boolean iUpdateCache,
-      final boolean loadTombstone,
-      final LOCKING_STRATEGY lockingStrategy) {
+      final boolean loadTombstone) {
     checkTransactionValid();
 
     if (iRecord != null) {
@@ -229,14 +223,7 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
 
       // DELEGATE TO THE STORAGE, NO TOMBSTONES SUPPORT IN TX MODE
       return database.<ORecordAbstract>executeReadRecord(
-          (ORecordId) rid,
-          iRecord,
-          -1,
-          fetchPlan,
-          ignoreCache,
-          loadTombstone,
-          lockingStrategy,
-          null);
+          (ORecordId) rid, iRecord, -1, fetchPlan, ignoreCache, loadTombstone, null);
     } finally {
       if (iRecord != null) {
         iRecord.decrementLoading();
@@ -258,41 +245,6 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
     }
 
     return database.executeExists(rid);
-  }
-
-  @Override
-  public ORecord loadRecordIfVersionIsNotLatest(
-      ORID rid, final int recordVersion, String fetchPlan, boolean ignoreCache)
-      throws ORecordNotFoundException {
-    checkTransactionValid();
-
-    final ORecord txRecord = getRecord(rid);
-    if (txRecord == OTransactionAbstract.DELETED_RECORD) {
-      // DELETED IN TX
-      throw new ORecordNotFoundException(rid);
-    }
-
-    if (txRecord != null) {
-      if (txRecord.getVersion() > recordVersion) {
-        return txRecord;
-      } else {
-        return null;
-      }
-    }
-    if (rid.isTemporary()) {
-      throw new ORecordNotFoundException(rid);
-    }
-
-    // DELEGATE TO THE STORAGE, NO TOMBSTONES SUPPORT IN TX MODE
-    return database.<ORecordAbstract>executeReadRecord(
-        (ORecordId) rid,
-        null,
-        recordVersion,
-        fetchPlan,
-        ignoreCache,
-        false,
-        LOCKING_STRATEGY.NONE,
-        null);
   }
 
   @Override
@@ -331,14 +283,7 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
       try {
         record =
             database.executeReadRecord(
-                (ORecordId) rid,
-                passedRecord,
-                -1,
-                fetchPlan,
-                ignoreCache,
-                false,
-                OStorage.LOCKING_STRATEGY.NONE,
-                null);
+                (ORecordId) rid, passedRecord, -1, fetchPlan, ignoreCache, false, null);
       } catch (final ORecordNotFoundException ignore) {
         return null;
       }
@@ -354,7 +299,7 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
   @Override
   public ORecord loadRecord(
       ORID rid, ORecordAbstract record, String fetchPlan, boolean ignoreCache) {
-    return loadRecord(rid, record, fetchPlan, ignoreCache, false, OStorage.LOCKING_STRATEGY.NONE);
+    return loadRecord(rid, record, fetchPlan, ignoreCache, false);
   }
 
   public void deleteRecord(final ORecordAbstract iRecord) {
@@ -518,14 +463,6 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
         + ", idxEntries="
         + indexEntries.size()
         + ']';
-  }
-
-  public boolean isUsingLog() {
-    return usingLog;
-  }
-
-  public void setUsingLog(final boolean useLog) {
-    this.usingLog = useLog;
   }
 
   public void setStatus(final TXSTATUS iStatus) {
@@ -724,16 +661,6 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
 
   public boolean isAlreadyCleared() {
     return alreadyCleared;
-  }
-
-  public Set<ORID> getLockedRecords() {
-    if (getNoTxLocks() != null) {
-      final Set<ORID> rids = new HashSet<>(getNoTxLocks().keySet());
-      rids.addAll(locks.keySet());
-      return rids;
-    } else {
-      return locks.keySet();
-    }
   }
 
   public void setSentToServer(boolean sentToServer) {

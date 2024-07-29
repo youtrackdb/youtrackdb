@@ -21,7 +21,6 @@ package com.orientechnologies.orient.object.db;
 
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.concur.ONeedRetryException;
-import com.orientechnologies.common.concur.lock.OLockException;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.OCommonConst;
@@ -86,7 +85,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import javassist.util.proxy.Proxy;
 import javassist.util.proxy.ProxyObject;
@@ -432,48 +430,6 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
     } finally {
       record.setInternalStatus(ORecordElement.STATUS.LOADED);
     }
-  }
-
-  @Override
-  public <RET> RET lock(ORID recordId) throws OLockException {
-    checkOpenness();
-    if (recordId == null) {
-      return null;
-    }
-
-    // GET THE ASSOCIATED DOCUMENT
-    final ODocument record = (ODocument) underlying.lock(recordId);
-    if (record == null) {
-      return null;
-    }
-
-    return (RET)
-        OObjectEntityEnhancer.getInstance()
-            .getProxiedInstance(record.getClassName(), entityManager, record, null);
-  }
-
-  @Override
-  public <RET> RET lock(ORID recordId, long timeout, TimeUnit timeoutUnit) throws OLockException {
-    checkOpenness();
-    if (recordId == null) {
-      return null;
-    }
-
-    // GET THE ASSOCIATED DOCUMENT
-    final ODocument record = (ODocument) underlying.lock(recordId, timeout, timeoutUnit);
-    if (record == null) {
-      return null;
-    }
-
-    return (RET)
-        OObjectEntityEnhancer.getInstance()
-            .getProxiedInstance(record.getClassName(), entityManager, record, null);
-  }
-
-  @Override
-  public void unlock(ORID recordId) throws OLockException {
-    checkOpenness();
-    underlying.unlock(recordId);
   }
 
   public <RET> RET load(final ORID recordId) {

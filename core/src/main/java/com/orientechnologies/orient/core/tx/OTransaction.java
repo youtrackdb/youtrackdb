@@ -22,18 +22,16 @@ package com.orientechnologies.orient.core.tx;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.storage.OStorage;
-import com.orientechnologies.orient.core.storage.OStorage.LOCKING_STRATEGY;
 import java.util.List;
 
 public interface OTransaction {
+
   enum TXTYPE {
     NOTX,
     OPTIMISTIC,
@@ -63,35 +61,12 @@ public interface OTransaction {
   @Deprecated
   void clearRecordEntries();
 
-  @Deprecated
-  ORecord loadRecord(
-      ORID iRid,
-      ORecordAbstract iRecord,
-      String iFetchPlan,
-      boolean ignoreCache,
-      boolean loadTombstone,
-      final LOCKING_STRATEGY iLockingStrategy);
-
-  @Deprecated
-  ORecord loadRecord(
-      ORID iRid,
-      ORecordAbstract iRecord,
-      String iFetchPlan,
-      boolean ignoreCache,
-      boolean iUpdateCache,
-      boolean loadTombstone,
-      final LOCKING_STRATEGY iLockingStrategy);
-
   ORecord loadRecord(ORID iRid, ORecordAbstract iRecord, String iFetchPlan, boolean ignoreCache);
 
   boolean exists(ORID rid);
 
   ORecord reloadRecord(
       ORID iRid, ORecordAbstract iRecord, String iFetchPlan, boolean ignoreCache, boolean force);
-
-  ORecord loadRecordIfVersionIsNotLatest(
-      ORID rid, int recordVersion, String fetchPlan, boolean ignoreCache)
-      throws ORecordNotFoundException;
 
   TXSTATUS getStatus();
 
@@ -113,23 +88,6 @@ public interface OTransaction {
   @Deprecated
   void clearIndexEntries();
 
-  boolean isUsingLog();
-
-  /**
-   * If you set this flag to false, you are unable to
-   *
-   * <ol>
-   *   <li>Rollback data changes in case of exception
-   *   <li>Restore data in case of server crash
-   * </ol>
-   *
-   * <p>So you practically unable to work in multithreaded environment and keep data consistent.
-   *
-   * @deprecated This option has no effect
-   */
-  @Deprecated
-  void setUsingLog(boolean useLog);
-
   void close();
 
   /**
@@ -143,17 +101,6 @@ public interface OTransaction {
   void updateIdentityAfterCommit(final ORID oldRid, final ORID newRid);
 
   int amountOfNestedTxs();
-
-  boolean isLockedRecord(OIdentifiable iRecord);
-
-  @Deprecated
-  OStorage.LOCKING_STRATEGY lockingStrategy(OIdentifiable iRecord);
-
-  @Deprecated
-  OTransaction lockRecord(OIdentifiable iRecord, OStorage.LOCKING_STRATEGY iLockingStrategy);
-
-  @Deprecated
-  OTransaction unlockRecord(OIdentifiable iRecord);
 
   int getEntryCount();
 

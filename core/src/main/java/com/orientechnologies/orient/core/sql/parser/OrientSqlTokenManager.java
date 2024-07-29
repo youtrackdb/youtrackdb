@@ -16,211 +16,211 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
       int pos, long active0, long active1, long active2, long active3, long active4) {
     switch (pos) {
       case 0:
-        if ((active4 & 0x8000L) != 0L) {
-          jjmatchedKind = 259;
+        if ((active4 & 0x4000L) != 0L) {
+          jjmatchedKind = 258;
           return 31;
         }
-        if ((active0 & 0x80L) != 0L || (active3 & 0x10040000000L) != 0L) return 2;
-        if ((active3 & 0x100L) != 0L) return 1120;
-        if ((active4 & 0x10000L) != 0L) {
-          jjmatchedKind = 259;
+        if ((active3 & 0x80L) != 0L) return 1117;
+        if ((active0 & 0x80L) != 0L || (active3 & 0x8020000000L) != 0L) return 2;
+        if ((active4 & 0x8000L) != 0L) {
+          jjmatchedKind = 258;
           return 912;
         }
-        if ((active3 & 0x400L) != 0L) return 37;
-        if ((active3 & 0x200L) != 0L) return 31;
-        if ((active3 & 0x4014000000L) != 0L || (active4 & 0xffe0000L) != 0L) return 1214;
-        if ((active3 & 0xc000000000080L) != 0L) return 13;
+        if ((active3 & 0x200L) != 0L) return 37;
+        if ((active3 & 0x100L) != 0L) return 31;
+        if ((active3 & 0x6000000000040L) != 0L) return 13;
+        if ((active3 & 0x200a000000L) != 0L || (active4 & 0x7ff0000L) != 0L) return 1211;
         return -1;
       case 1:
         if ((active0 & 0x80L) != 0L) return 0;
-        if ((active4 & 0x8000L) != 0L) {
+        if ((active4 & 0x4000L) != 0L) {
           if (jjmatchedPos != 1) {
-            jjmatchedKind = 259;
+            jjmatchedKind = 258;
             jjmatchedPos = 1;
           }
           return 31;
         }
-        if ((active4 & 0x10000L) != 0L) {
+        if ((active4 & 0x8000L) != 0L) {
           if (jjmatchedPos != 1) {
-            jjmatchedKind = 259;
+            jjmatchedKind = 258;
             jjmatchedPos = 1;
           }
           return 967;
         }
         return -1;
       case 2:
-        if ((active4 & 0x10000L) != 0L) {
+        if ((active4 & 0x4000L) != 0L) {
+          if (jjmatchedPos < 1) {
+            jjmatchedKind = 258;
+            jjmatchedPos = 1;
+          }
+          return -1;
+        }
+        if ((active4 & 0x8000L) != 0L) {
           if (jjmatchedPos != 2) {
-            jjmatchedKind = 259;
+            jjmatchedKind = 258;
             jjmatchedPos = 2;
           }
           return 31;
         }
-        if ((active4 & 0x8000L) != 0L) {
-          if (jjmatchedPos < 1) {
-            jjmatchedKind = 259;
-            jjmatchedPos = 1;
-          }
-          return -1;
-        }
         return -1;
       case 3:
         if ((active4 & 0x8000L) != 0L) {
+          jjmatchedKind = 258;
+          jjmatchedPos = 3;
+          return 31;
+        }
+        if ((active4 & 0x4000L) != 0L) {
           if (jjmatchedPos < 1) {
-            jjmatchedKind = 259;
+            jjmatchedKind = 258;
             jjmatchedPos = 1;
           }
           return -1;
         }
-        if ((active4 & 0x10000L) != 0L) {
-          jjmatchedKind = 259;
-          jjmatchedPos = 3;
-          return 31;
-        }
         return -1;
       case 4:
-        if ((active4 & 0x10000L) != 0L) {
+        if ((active4 & 0x8000L) != 0L) {
           if (jjmatchedPos != 4) {
-            jjmatchedKind = 259;
+            jjmatchedKind = 258;
             jjmatchedPos = 4;
           }
           return 31;
         }
-        if ((active4 & 0x8000L) != 0L) {
+        if ((active4 & 0x4000L) != 0L) {
           if (jjmatchedPos < 1) {
-            jjmatchedKind = 259;
+            jjmatchedKind = 258;
             jjmatchedPos = 1;
           }
           return -1;
         }
         return -1;
       case 5:
-        if ((active4 & 0x10000L) != 0L) {
+        if ((active4 & 0x8000L) != 0L) {
           if (jjmatchedPos < 4) {
-            jjmatchedKind = 259;
+            jjmatchedKind = 258;
             jjmatchedPos = 4;
           }
           return -1;
         }
-        if ((active4 & 0x8000L) != 0L) {
+        if ((active4 & 0x4000L) != 0L) {
           if (jjmatchedPos < 1) {
-            jjmatchedKind = 259;
+            jjmatchedKind = 258;
             jjmatchedPos = 1;
           }
           return -1;
         }
         return -1;
       case 6:
-        if ((active4 & 0x10000L) != 0L) {
+        if ((active4 & 0x8000L) != 0L) {
           if (jjmatchedPos < 4) {
-            jjmatchedKind = 259;
+            jjmatchedKind = 258;
             jjmatchedPos = 4;
           }
           return -1;
         }
-        if ((active4 & 0x8000L) != 0L) {
+        if ((active4 & 0x4000L) != 0L) {
           if (jjmatchedPos < 1) {
-            jjmatchedKind = 259;
+            jjmatchedKind = 258;
             jjmatchedPos = 1;
           }
           return -1;
         }
         return -1;
       case 7:
-        if ((active4 & 0x10000L) != 0L) {
+        if ((active4 & 0x8000L) != 0L) {
           if (jjmatchedPos < 4) {
-            jjmatchedKind = 259;
+            jjmatchedKind = 258;
             jjmatchedPos = 4;
           }
           return -1;
         }
-        if ((active4 & 0x8000L) != 0L) {
+        if ((active4 & 0x4000L) != 0L) {
           if (jjmatchedPos < 1) {
-            jjmatchedKind = 259;
+            jjmatchedKind = 258;
             jjmatchedPos = 1;
           }
           return -1;
         }
         return -1;
       case 8:
-        if ((active4 & 0x10000L) != 0L) {
+        if ((active4 & 0x8000L) != 0L) {
           if (jjmatchedPos < 4) {
-            jjmatchedKind = 259;
+            jjmatchedKind = 258;
             jjmatchedPos = 4;
           }
           return -1;
         }
-        if ((active4 & 0x8000L) != 0L) {
+        if ((active4 & 0x4000L) != 0L) {
           if (jjmatchedPos < 1) {
-            jjmatchedKind = 259;
+            jjmatchedKind = 258;
             jjmatchedPos = 1;
           }
           return -1;
         }
         return -1;
       case 9:
-        if ((active4 & 0x10000L) != 0L) {
+        if ((active4 & 0x8000L) != 0L) {
           if (jjmatchedPos < 4) {
-            jjmatchedKind = 259;
+            jjmatchedKind = 258;
             jjmatchedPos = 4;
           }
           return -1;
         }
-        if ((active4 & 0x8000L) != 0L) {
+        if ((active4 & 0x4000L) != 0L) {
           if (jjmatchedPos < 1) {
-            jjmatchedKind = 259;
+            jjmatchedKind = 258;
             jjmatchedPos = 1;
           }
           return -1;
         }
         return -1;
       case 10:
-        if ((active4 & 0x10000L) != 0L) {
+        if ((active4 & 0x8000L) != 0L) {
           if (jjmatchedPos < 4) {
-            jjmatchedKind = 259;
+            jjmatchedKind = 258;
             jjmatchedPos = 4;
           }
           return -1;
         }
-        if ((active4 & 0x8000L) != 0L) {
+        if ((active4 & 0x4000L) != 0L) {
           if (jjmatchedPos < 1) {
-            jjmatchedKind = 259;
+            jjmatchedKind = 258;
             jjmatchedPos = 1;
           }
           return -1;
         }
         return -1;
       case 11:
-        if ((active4 & 0x8000L) != 0L) {
+        if ((active4 & 0x4000L) != 0L) {
           if (jjmatchedPos < 1) {
-            jjmatchedKind = 259;
+            jjmatchedKind = 258;
             jjmatchedPos = 1;
           }
           return -1;
         }
         return -1;
       case 12:
-        if ((active4 & 0x8000L) != 0L) {
+        if ((active4 & 0x4000L) != 0L) {
           if (jjmatchedPos < 1) {
-            jjmatchedKind = 259;
+            jjmatchedKind = 258;
             jjmatchedPos = 1;
           }
           return -1;
         }
         return -1;
       case 13:
-        if ((active4 & 0x8000L) != 0L) {
+        if ((active4 & 0x4000L) != 0L) {
           if (jjmatchedPos < 1) {
-            jjmatchedKind = 259;
+            jjmatchedKind = 258;
             jjmatchedPos = 1;
           }
           return -1;
         }
         return -1;
       case 14:
-        if ((active4 & 0x8000L) != 0L) {
+        if ((active4 & 0x4000L) != 0L) {
           if (jjmatchedPos < 1) {
-            jjmatchedKind = 259;
+            jjmatchedKind = 258;
             jjmatchedPos = 1;
           }
           return -1;
@@ -246,79 +246,79 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
   private int jjMoveStringLiteralDfa0_0() {
     switch (curChar) {
       case 33:
-        jjmatchedKind = 207;
-        return jjMoveStringLiteralDfa1_0(0x0L, 0x200000L, 0x0L);
-      case 35:
-        return jjStopAtPos(0, 270);
-      case 36:
-        return jjStartNfaWithStates_0(0, 201, 31);
-      case 37:
-        jjmatchedKind = 227;
-        return jjMoveStringLiteralDfa1_0(0x0L, 0x100000000000L, 0x0L);
-      case 38:
-        jjmatchedKind = 223;
-        return jjMoveStringLiteralDfa1_0(0x0L, 0x20001000000L, 0x0L);
-      case 40:
-        return jjStopAtPos(0, 191);
-      case 41:
-        return jjStopAtPos(0, 192);
-      case 42:
-        jjmatchedKind = 221;
-        return jjMoveStringLiteralDfa1_0(0x0L, 0x8000000000L, 0x0L);
-      case 43:
-        jjmatchedKind = 219;
-        return jjMoveStringLiteralDfa1_0(0x0L, 0x2002000000L, 0x0L);
-      case 44:
-        return jjStopAtPos(0, 198);
-      case 45:
-        jjmatchedKind = 220;
-        return jjMoveStringLiteralDfa1_0(0x0L, 0x4004000000L, 0xffe0000L);
-      case 46:
-        jjmatchedKind = 199;
-        return jjMoveStringLiteralDfa1_0(0x0L, 0xc000000000000L, 0x0L);
-      case 47:
-        jjmatchedKind = 222;
-        return jjMoveStringLiteralDfa1_0(0x80L, 0x10000000000L, 0x0L);
-      case 58:
-        return jjStopAtPos(0, 210);
-      case 59:
-        return jjStopAtPos(0, 197);
-      case 60:
-        jjmatchedKind = 205;
-        return jjMoveStringLiteralDfa1_0(0x0L, 0x201000480000L, 0x0L);
-      case 61:
-        jjmatchedKind = 203;
-        return jjMoveStringLiteralDfa1_0(0x0L, 0x1000L, 0x0L);
-      case 62:
         jjmatchedKind = 206;
-        return jjMoveStringLiteralDfa1_0(0x0L, 0x3c00000100000L, 0x0L);
-      case 63:
-        jjmatchedKind = 209;
-        return jjMoveStringLiteralDfa1_0(0x0L, 0x100000000L, 0x0L);
-      case 64:
-        return jjStartNfaWithStates_0(0, 200, 1120);
-      case 91:
-        return jjStopAtPos(0, 195);
-      case 93:
-        return jjStopAtPos(0, 196);
-      case 94:
+        return jjMoveStringLiteralDfa1_0(0x0L, 0x100000L, 0x0L);
+      case 35:
+        return jjStopAtPos(0, 269);
+      case 36:
+        return jjStartNfaWithStates_0(0, 200, 31);
+      case 37:
         jjmatchedKind = 226;
         return jjMoveStringLiteralDfa1_0(0x0L, 0x80000000000L, 0x0L);
-      case 95:
-        return jjMoveStringLiteralDfa1_0(0x0L, 0x0L, 0x8000L);
-      case 96:
-        return jjStartNfaWithStates_0(0, 202, 37);
-      case 114:
-        return jjMoveStringLiteralDfa1_0(0x0L, 0x0L, 0x10000L);
-      case 123:
-        return jjStopAtPos(0, 193);
-      case 124:
-        jjmatchedKind = 225;
-        return jjMoveStringLiteralDfa1_0(0x0L, 0x40000800000L, 0x0L);
-      case 125:
+      case 38:
+        jjmatchedKind = 222;
+        return jjMoveStringLiteralDfa1_0(0x0L, 0x10000800000L, 0x0L);
+      case 40:
+        return jjStopAtPos(0, 190);
+      case 41:
+        return jjStopAtPos(0, 191);
+      case 42:
+        jjmatchedKind = 220;
+        return jjMoveStringLiteralDfa1_0(0x0L, 0x4000000000L, 0x0L);
+      case 43:
+        jjmatchedKind = 218;
+        return jjMoveStringLiteralDfa1_0(0x0L, 0x1001000000L, 0x0L);
+      case 44:
+        return jjStopAtPos(0, 197);
+      case 45:
+        jjmatchedKind = 219;
+        return jjMoveStringLiteralDfa1_0(0x0L, 0x2002000000L, 0x7ff0000L);
+      case 46:
+        jjmatchedKind = 198;
+        return jjMoveStringLiteralDfa1_0(0x0L, 0x6000000000000L, 0x0L);
+      case 47:
+        jjmatchedKind = 221;
+        return jjMoveStringLiteralDfa1_0(0x80L, 0x8000000000L, 0x0L);
+      case 58:
+        return jjStopAtPos(0, 209);
+      case 59:
+        return jjStopAtPos(0, 196);
+      case 60:
+        jjmatchedKind = 204;
+        return jjMoveStringLiteralDfa1_0(0x0L, 0x100800240000L, 0x0L);
+      case 61:
+        jjmatchedKind = 202;
+        return jjMoveStringLiteralDfa1_0(0x0L, 0x800L, 0x0L);
+      case 62:
+        jjmatchedKind = 205;
+        return jjMoveStringLiteralDfa1_0(0x0L, 0x1e00000080000L, 0x0L);
+      case 63:
+        jjmatchedKind = 208;
+        return jjMoveStringLiteralDfa1_0(0x0L, 0x80000000L, 0x0L);
+      case 64:
+        return jjStartNfaWithStates_0(0, 199, 1117);
+      case 91:
         return jjStopAtPos(0, 194);
+      case 93:
+        return jjStopAtPos(0, 195);
+      case 94:
+        jjmatchedKind = 225;
+        return jjMoveStringLiteralDfa1_0(0x0L, 0x40000000000L, 0x0L);
+      case 95:
+        return jjMoveStringLiteralDfa1_0(0x0L, 0x0L, 0x4000L);
+      case 96:
+        return jjStartNfaWithStates_0(0, 201, 37);
+      case 114:
+        return jjMoveStringLiteralDfa1_0(0x0L, 0x0L, 0x8000L);
+      case 123:
+        return jjStopAtPos(0, 192);
+      case 124:
+        jjmatchedKind = 224;
+        return jjMoveStringLiteralDfa1_0(0x0L, 0x20000400000L, 0x0L);
+      case 125:
+        return jjStopAtPos(0, 193);
       case 126:
-        return jjStopAtPos(0, 208);
+        return jjStopAtPos(0, 207);
       default:
         return jjMoveNfa_0(3, 0);
     }
@@ -333,34 +333,35 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
     }
     switch (curChar) {
       case 38:
-        if ((active3 & 0x1000000L) != 0L) return jjStopAtPos(1, 216);
+        if ((active3 & 0x800000L) != 0L) return jjStopAtPos(1, 215);
         break;
       case 42:
         if ((active0 & 0x80L) != 0L) return jjStartNfaWithStates_0(1, 7, 0);
         break;
       case 43:
-        if ((active3 & 0x2000000L) != 0L) return jjStopAtPos(1, 217);
+        if ((active3 & 0x1000000L) != 0L) return jjStopAtPos(1, 216);
         break;
       case 45:
-        if ((active3 & 0x4000000L) != 0L) return jjStopAtPos(1, 218);
+        if ((active3 & 0x2000000L) != 0L) return jjStopAtPos(1, 217);
         break;
       case 46:
-        if ((active3 & 0x8000000000000L) != 0L) {
-          jjmatchedKind = 243;
+        if ((active3 & 0x4000000000000L) != 0L) {
+          jjmatchedKind = 242;
           jjmatchedPos = 1;
         }
-        return jjMoveStringLiteralDfa2_0(active0, 0L, active3, 0x4000000000000L, active4, 0L);
+        return jjMoveStringLiteralDfa2_0(active0, 0L, active3, 0x2000000000000L, active4, 0L);
       case 60:
-        if ((active3 & 0x1000000000L) != 0L) {
-          jjmatchedKind = 228;
+        if ((active3 & 0x800000000L) != 0L) {
+          jjmatchedKind = 227;
           jjmatchedPos = 1;
         }
-        return jjMoveStringLiteralDfa2_0(active0, 0L, active3, 0x200000000000L, active4, 0L);
+        return jjMoveStringLiteralDfa2_0(active0, 0L, active3, 0x100000000000L, active4, 0L);
       case 61:
-        if ((active3 & 0x1000L) != 0L) return jjStopAtPos(1, 204);
+        if ((active3 & 0x800L) != 0L) return jjStopAtPos(1, 203);
+        else if ((active3 & 0x40000L) != 0L) return jjStopAtPos(1, 210);
         else if ((active3 & 0x80000L) != 0L) return jjStopAtPos(1, 211);
         else if ((active3 & 0x100000L) != 0L) return jjStopAtPos(1, 212);
-        else if ((active3 & 0x200000L) != 0L) return jjStopAtPos(1, 213);
+        else if ((active3 & 0x1000000000L) != 0L) return jjStopAtPos(1, 228);
         else if ((active3 & 0x2000000000L) != 0L) return jjStopAtPos(1, 229);
         else if ((active3 & 0x4000000000L) != 0L) return jjStopAtPos(1, 230);
         else if ((active3 & 0x8000000000L) != 0L) return jjStopAtPos(1, 231);
@@ -368,36 +369,35 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
         else if ((active3 & 0x20000000000L) != 0L) return jjStopAtPos(1, 233);
         else if ((active3 & 0x40000000000L) != 0L) return jjStopAtPos(1, 234);
         else if ((active3 & 0x80000000000L) != 0L) return jjStopAtPos(1, 235);
-        else if ((active3 & 0x100000000000L) != 0L) return jjStopAtPos(1, 236);
         break;
       case 62:
-        if ((active3 & 0x400000L) != 0L) return jjStopAtPos(1, 214);
-        else if ((active3 & 0x1000000000000L) != 0L) {
-          jjmatchedKind = 240;
+        if ((active3 & 0x200000L) != 0L) return jjStopAtPos(1, 213);
+        else if ((active3 & 0x800000000000L) != 0L) {
+          jjmatchedKind = 239;
           jjmatchedPos = 1;
         }
-        return jjMoveStringLiteralDfa2_0(active0, 0L, active3, 0x2c00000000000L, active4, 0L);
+        return jjMoveStringLiteralDfa2_0(active0, 0L, active3, 0x1600000000000L, active4, 0L);
       case 63:
-        if ((active3 & 0x100000000L) != 0L) return jjStopAtPos(1, 224);
+        if ((active3 & 0x80000000L) != 0L) return jjStopAtPos(1, 223);
         break;
       case 95:
-        return jjMoveStringLiteralDfa2_0(active0, 0L, active3, 0L, active4, 0x8000L);
+        return jjMoveStringLiteralDfa2_0(active0, 0L, active3, 0L, active4, 0x4000L);
       case 97:
-        return jjMoveStringLiteralDfa2_0(active0, 0L, active3, 0L, active4, 0x400000L);
+        return jjMoveStringLiteralDfa2_0(active0, 0L, active3, 0L, active4, 0x200000L);
       case 100:
-        return jjMoveStringLiteralDfa2_0(active0, 0L, active3, 0L, active4, 0x40000L);
-      case 102:
-        return jjMoveStringLiteralDfa2_0(active0, 0L, active3, 0L, active4, 0x7000000L);
-      case 108:
-        return jjMoveStringLiteralDfa2_0(active0, 0L, active3, 0L, active4, 0x280000L);
-      case 109:
-        return jjMoveStringLiteralDfa2_0(active0, 0L, active3, 0L, active4, 0x8100000L);
-      case 111:
-        return jjMoveStringLiteralDfa2_0(active0, 0L, active3, 0L, active4, 0x810000L);
-      case 115:
         return jjMoveStringLiteralDfa2_0(active0, 0L, active3, 0L, active4, 0x20000L);
+      case 102:
+        return jjMoveStringLiteralDfa2_0(active0, 0L, active3, 0L, active4, 0x3800000L);
+      case 108:
+        return jjMoveStringLiteralDfa2_0(active0, 0L, active3, 0L, active4, 0x140000L);
+      case 109:
+        return jjMoveStringLiteralDfa2_0(active0, 0L, active3, 0L, active4, 0x4080000L);
+      case 111:
+        return jjMoveStringLiteralDfa2_0(active0, 0L, active3, 0L, active4, 0x408000L);
+      case 115:
+        return jjMoveStringLiteralDfa2_0(active0, 0L, active3, 0L, active4, 0x10000L);
       case 124:
-        if ((active3 & 0x800000L) != 0L) return jjStopAtPos(1, 215);
+        if ((active3 & 0x400000L) != 0L) return jjStopAtPos(1, 214);
         break;
       default:
         break;
@@ -417,33 +417,33 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
     }
     switch (curChar) {
       case 46:
-        if ((active3 & 0x4000000000000L) != 0L) return jjStopAtPos(2, 242);
+        if ((active3 & 0x2000000000000L) != 0L) return jjStopAtPos(2, 241);
         break;
       case 61:
-        if ((active3 & 0x200000000000L) != 0L) return jjStopAtPos(2, 237);
-        else if ((active3 & 0x400000000000L) != 0L) return jjStopAtPos(2, 238);
+        if ((active3 & 0x100000000000L) != 0L) return jjStopAtPos(2, 236);
+        else if ((active3 & 0x200000000000L) != 0L) return jjStopAtPos(2, 237);
         break;
       case 62:
-        if ((active3 & 0x2000000000000L) != 0L) {
-          jjmatchedKind = 241;
+        if ((active3 & 0x1000000000000L) != 0L) {
+          jjmatchedKind = 240;
           jjmatchedPos = 2;
         }
-        return jjMoveStringLiteralDfa3_0(active3, 0x800000000000L, active4, 0L);
+        return jjMoveStringLiteralDfa3_0(active3, 0x400000000000L, active4, 0L);
       case 64:
-        return jjMoveStringLiteralDfa3_0(active3, 0L, active4, 0x8000L);
+        return jjMoveStringLiteralDfa3_0(active3, 0L, active4, 0x4000L);
       case 97:
-        return jjMoveStringLiteralDfa3_0(active3, 0L, active4, 0x80000L);
+        return jjMoveStringLiteralDfa3_0(active3, 0L, active4, 0x40000L);
       case 98:
-        if ((active4 & 0x40000L) != 0L) return jjStopAtPos(2, 274);
+        if ((active4 & 0x20000L) != 0L) return jjStopAtPos(2, 273);
         break;
       case 101:
-        return jjMoveStringLiteralDfa3_0(active3, 0L, active4, 0x8120000L);
+        return jjMoveStringLiteralDfa3_0(active3, 0L, active4, 0x4090000L);
       case 108:
-        return jjMoveStringLiteralDfa3_0(active3, 0L, active4, 0x400000L);
+        return jjMoveStringLiteralDfa3_0(active3, 0L, active4, 0x200000L);
       case 111:
-        return jjMoveStringLiteralDfa3_0(active3, 0L, active4, 0x1200000L);
+        return jjMoveStringLiteralDfa3_0(active3, 0L, active4, 0x900000L);
       case 117:
-        return jjMoveStringLiteralDfa3_0(active3, 0L, active4, 0x6810000L);
+        return jjMoveStringLiteralDfa3_0(active3, 0L, active4, 0x3408000L);
       default:
         break;
     }
@@ -461,21 +461,21 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
     }
     switch (curChar) {
       case 61:
-        if ((active3 & 0x800000000000L) != 0L) return jjStopAtPos(3, 239);
+        if ((active3 & 0x400000000000L) != 0L) return jjStopAtPos(3, 238);
         break;
       case 99:
-        return jjMoveStringLiteralDfa4_0(active3, 0L, active4, 0x200000L);
-      case 108:
-        if ((active4 & 0x400000L) != 0L) return jjStopAtPos(3, 278);
-        return jjMoveStringLiteralDfa4_0(active3, 0L, active4, 0x6000000L);
-      case 110:
-        return jjMoveStringLiteralDfa4_0(active3, 0L, active4, 0x10000L);
-      case 114:
-        return jjMoveStringLiteralDfa4_0(active3, 0L, active4, 0x9028000L);
-      case 115:
         return jjMoveStringLiteralDfa4_0(active3, 0L, active4, 0x100000L);
+      case 108:
+        if ((active4 & 0x200000L) != 0L) return jjStopAtPos(3, 277);
+        return jjMoveStringLiteralDfa4_0(active3, 0L, active4, 0x3000000L);
+      case 110:
+        return jjMoveStringLiteralDfa4_0(active3, 0L, active4, 0x8000L);
+      case 114:
+        return jjMoveStringLiteralDfa4_0(active3, 0L, active4, 0x4814000L);
+      case 115:
+        return jjMoveStringLiteralDfa4_0(active3, 0L, active4, 0x80000L);
       case 116:
-        return jjMoveStringLiteralDfa4_0(active3, 0L, active4, 0x880000L);
+        return jjMoveStringLiteralDfa4_0(active3, 0L, active4, 0x440000L);
       default:
         break;
     }
@@ -493,27 +493,27 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
     }
     switch (curChar) {
       case 99:
-        return jjMoveStringLiteralDfa5_0(active4, 0x1000000L);
+        return jjMoveStringLiteralDfa5_0(active4, 0x800000L);
       case 100:
-        return jjMoveStringLiteralDfa5_0(active4, 0x10000L);
+        return jjMoveStringLiteralDfa5_0(active4, 0x8000L);
       case 101:
-        return jjMoveStringLiteralDfa5_0(active4, 0x88000L);
+        return jjMoveStringLiteralDfa5_0(active4, 0x44000L);
       case 103:
-        return jjMoveStringLiteralDfa5_0(active4, 0x8000000L);
+        return jjMoveStringLiteralDfa5_0(active4, 0x4000000L);
       case 107:
-        return jjMoveStringLiteralDfa5_0(active4, 0x200000L);
+        return jjMoveStringLiteralDfa5_0(active4, 0x100000L);
       case 108:
-        if ((active4 & 0x2000000L) != 0L) {
-          jjmatchedKind = 281;
+        if ((active4 & 0x1000000L) != 0L) {
+          jjmatchedKind = 280;
           jjmatchedPos = 4;
         }
-        return jjMoveStringLiteralDfa5_0(active4, 0x4000000L);
+        return jjMoveStringLiteralDfa5_0(active4, 0x2000000L);
       case 112:
-        return jjMoveStringLiteralDfa5_0(active4, 0x800000L);
+        return jjMoveStringLiteralDfa5_0(active4, 0x400000L);
       case 115:
-        return jjMoveStringLiteralDfa5_0(active4, 0x100000L);
+        return jjMoveStringLiteralDfa5_0(active4, 0x80000L);
       case 118:
-        return jjMoveStringLiteralDfa5_0(active4, 0x20000L);
+        return jjMoveStringLiteralDfa5_0(active4, 0x10000L);
       default:
         break;
     }
@@ -530,24 +530,24 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
     }
     switch (curChar) {
       case 45:
-        return jjMoveStringLiteralDfa6_0(active4, 0x10000L);
-      case 95:
-        return jjMoveStringLiteralDfa6_0(active4, 0x4000000L);
-      case 97:
-        return jjMoveStringLiteralDfa6_0(active4, 0x100000L);
-      case 99:
         return jjMoveStringLiteralDfa6_0(active4, 0x8000L);
-      case 101:
-        if ((active4 & 0x1000000L) != 0L) return jjStopAtPos(5, 280);
-        else if ((active4 & 0x8000000L) != 0L) return jjStopAtPos(5, 283);
-        return jjMoveStringLiteralDfa6_0(active4, 0x20000L);
-      case 110:
+      case 95:
+        return jjMoveStringLiteralDfa6_0(active4, 0x2000000L);
+      case 97:
         return jjMoveStringLiteralDfa6_0(active4, 0x80000L);
+      case 99:
+        return jjMoveStringLiteralDfa6_0(active4, 0x4000L);
+      case 101:
+        if ((active4 & 0x800000L) != 0L) return jjStopAtPos(5, 279);
+        else if ((active4 & 0x4000000L) != 0L) return jjStopAtPos(5, 282);
+        return jjMoveStringLiteralDfa6_0(active4, 0x10000L);
+      case 110:
+        return jjMoveStringLiteralDfa6_0(active4, 0x40000L);
       case 115:
-        if ((active4 & 0x200000L) != 0L) return jjStopAtPos(5, 277);
+        if ((active4 & 0x100000L) != 0L) return jjStopAtPos(5, 276);
         break;
       case 117:
-        return jjMoveStringLiteralDfa6_0(active4, 0x800000L);
+        return jjMoveStringLiteralDfa6_0(active4, 0x400000L);
       default:
         break;
     }
@@ -564,15 +564,15 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
     }
     switch (curChar) {
       case 99:
-        return jjMoveStringLiteralDfa7_0(active4, 0x80000L);
+        return jjMoveStringLiteralDfa7_0(active4, 0x40000L);
       case 103:
-        return jjMoveStringLiteralDfa7_0(active4, 0x100000L);
+        return jjMoveStringLiteralDfa7_0(active4, 0x80000L);
       case 111:
-        return jjMoveStringLiteralDfa7_0(active4, 0x8000L);
+        return jjMoveStringLiteralDfa7_0(active4, 0x4000L);
       case 114:
-        return jjMoveStringLiteralDfa7_0(active4, 0x4030000L);
+        return jjMoveStringLiteralDfa7_0(active4, 0x2018000L);
       case 116:
-        return jjMoveStringLiteralDfa7_0(active4, 0x800000L);
+        return jjMoveStringLiteralDfa7_0(active4, 0x400000L);
       default:
         break;
     }
@@ -589,18 +589,18 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
     }
     switch (curChar) {
       case 61:
-        return jjMoveStringLiteralDfa8_0(active4, 0x800000L);
+        return jjMoveStringLiteralDfa8_0(active4, 0x400000L);
       case 101:
-        return jjMoveStringLiteralDfa8_0(active4, 0x4100000L);
+        return jjMoveStringLiteralDfa8_0(active4, 0x2080000L);
       case 111:
-        return jjMoveStringLiteralDfa8_0(active4, 0x10000L);
-      case 114:
         return jjMoveStringLiteralDfa8_0(active4, 0x8000L);
+      case 114:
+        return jjMoveStringLiteralDfa8_0(active4, 0x4000L);
       case 115:
-        if ((active4 & 0x20000L) != 0L) return jjStopAtPos(7, 273);
+        if ((active4 & 0x10000L) != 0L) return jjStopAtPos(7, 272);
         break;
       case 121:
-        if ((active4 & 0x80000L) != 0L) return jjStopAtPos(7, 275);
+        if ((active4 & 0x40000L) != 0L) return jjStopAtPos(7, 274);
         break;
       default:
         break;
@@ -618,16 +618,16 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
     }
     switch (curChar) {
       case 98:
-        return jjMoveStringLiteralDfa9_0(active4, 0x10000L);
-      case 100:
         return jjMoveStringLiteralDfa9_0(active4, 0x8000L);
+      case 100:
+        return jjMoveStringLiteralDfa9_0(active4, 0x4000L);
       case 112:
-        return jjMoveStringLiteralDfa9_0(active4, 0x4000000L);
+        return jjMoveStringLiteralDfa9_0(active4, 0x2000000L);
       case 115:
-        if ((active4 & 0x100000L) != 0L) return jjStopAtPos(8, 276);
+        if ((active4 & 0x80000L) != 0L) return jjStopAtPos(8, 275);
         break;
       case 116:
-        return jjMoveStringLiteralDfa9_0(active4, 0x800000L);
+        return jjMoveStringLiteralDfa9_0(active4, 0x400000L);
       default:
         break;
     }
@@ -644,13 +644,13 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
     }
     switch (curChar) {
       case 101:
-        return jjMoveStringLiteralDfa10_0(active4, 0x800000L);
+        return jjMoveStringLiteralDfa10_0(active4, 0x400000L);
       case 105:
-        return jjMoveStringLiteralDfa10_0(active4, 0x10000L);
-      case 108:
-        return jjMoveStringLiteralDfa10_0(active4, 0x4000000L);
-      case 109:
         return jjMoveStringLiteralDfa10_0(active4, 0x8000L);
+      case 108:
+        return jjMoveStringLiteralDfa10_0(active4, 0x2000000L);
+      case 109:
+        return jjMoveStringLiteralDfa10_0(active4, 0x4000L);
       default:
         break;
     }
@@ -667,12 +667,12 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
     }
     switch (curChar) {
       case 97:
-        return jjMoveStringLiteralDfa11_0(active4, 0x4008000L);
+        return jjMoveStringLiteralDfa11_0(active4, 0x2004000L);
       case 110:
-        if ((active4 & 0x10000L) != 0L) return jjStopAtPos(10, 272);
+        if ((active4 & 0x8000L) != 0L) return jjStopAtPos(10, 271);
         break;
       case 120:
-        return jjMoveStringLiteralDfa11_0(active4, 0x800000L);
+        return jjMoveStringLiteralDfa11_0(active4, 0x400000L);
       default:
         break;
     }
@@ -689,11 +689,11 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
     }
     switch (curChar) {
       case 99:
-        return jjMoveStringLiteralDfa12_0(active4, 0x4000000L);
+        return jjMoveStringLiteralDfa12_0(active4, 0x2000000L);
       case 112:
-        return jjMoveStringLiteralDfa12_0(active4, 0x8000L);
+        return jjMoveStringLiteralDfa12_0(active4, 0x4000L);
       case 116:
-        if ((active4 & 0x800000L) != 0L) return jjStopAtPos(11, 279);
+        if ((active4 & 0x400000L) != 0L) return jjStopAtPos(11, 278);
         break;
       default:
         break;
@@ -711,9 +711,9 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
     }
     switch (curChar) {
       case 64:
-        return jjMoveStringLiteralDfa13_0(active4, 0x8000L);
+        return jjMoveStringLiteralDfa13_0(active4, 0x4000L);
       case 101:
-        if ((active4 & 0x4000000L) != 0L) return jjStopAtPos(12, 282);
+        if ((active4 & 0x2000000L) != 0L) return jjStopAtPos(12, 281);
         break;
       default:
         break;
@@ -731,7 +731,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
     }
     switch (curChar) {
       case 95:
-        return jjMoveStringLiteralDfa14_0(active4, 0x8000L);
+        return jjMoveStringLiteralDfa14_0(active4, 0x4000L);
       default:
         break;
     }
@@ -748,7 +748,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
     }
     switch (curChar) {
       case 95:
-        return jjMoveStringLiteralDfa15_0(active4, 0x8000L);
+        return jjMoveStringLiteralDfa15_0(active4, 0x4000L);
       default:
         break;
     }
@@ -765,7 +765,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
     }
     switch (curChar) {
       case 95:
-        if ((active4 & 0x8000L) != 0L) return jjStopAtPos(15, 271);
+        if ((active4 & 0x4000L) != 0L) return jjStopAtPos(15, 270);
         break;
       default:
         break;
@@ -791,7 +791,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
 
   private int jjMoveNfa_0(int startState, int curPos) {
     int startsAt = 0;
-    jjnewStateCnt = 1241;
+    jjnewStateCnt = 1238;
     int i = 1;
     jjstateSet[0] = startState;
     int kind = 0x7fffffff;
@@ -810,35 +810,35 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               else if (curChar == 45) jjAddStates(10, 13);
               else if (curChar == 39) jjCheckNAddStates(14, 18);
               else if (curChar == 36) {
-                if (kind > 259) kind = 259;
+                if (kind > 258) kind = 258;
                 jjCheckNAdd(31);
               } else if (curChar == 34) jjCheckNAddStates(19, 21);
               else if (curChar == 46) jjCheckNAdd(13);
               else if (curChar == 47) jjstateSet[jjnewStateCnt++] = 2;
               if ((0x3fe000000000000L & l) != 0L) {
-                if (kind > 176) kind = 176;
+                if (kind > 175) kind = 175;
                 jjCheckNAddStates(22, 29);
               } else if (curChar == 48) {
-                if (kind > 176) kind = 176;
+                if (kind > 175) kind = 175;
                 jjCheckNAddStates(30, 42);
               } else if (curChar == 34) jjstateSet[jjnewStateCnt++] = 6;
-              break;
-            case 1214:
-              if ((0x3fe000000000000L & l) != 0L) jjCheckNAddStates(43, 45);
-              else if (curChar == 48) jjCheckNAddStates(46, 49);
-              if ((0x3fe000000000000L & l) != 0L) jjCheckNAddStates(50, 52);
-              else if (curChar == 48) jjCheckNAddStates(53, 56);
               break;
             case 967:
             case 31:
               if ((0x3ff000000000000L & l) == 0L) break;
-              if (kind > 259) kind = 259;
+              if (kind > 258) kind = 258;
               jjCheckNAdd(31);
               break;
             case 912:
               if ((0x3ff000000000000L & l) == 0L) break;
-              if (kind > 259) kind = 259;
+              if (kind > 258) kind = 258;
               jjCheckNAdd(31);
+              break;
+            case 1211:
+              if ((0x3fe000000000000L & l) != 0L) jjCheckNAddStates(43, 45);
+              else if (curChar == 48) jjCheckNAddStates(46, 49);
+              if ((0x3fe000000000000L & l) != 0L) jjCheckNAddStates(50, 52);
+              else if (curChar == 48) jjCheckNAddStates(53, 56);
               break;
             case 0:
               if (curChar == 42) jjstateSet[jjnewStateCnt++] = 1;
@@ -850,7 +850,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if (curChar == 42) jjstateSet[jjnewStateCnt++] = 0;
               break;
             case 10:
-              if (curChar == 34 && kind > 167) kind = 167;
+              if (curChar == 34 && kind > 166) kind = 166;
               break;
             case 11:
               if (curChar == 34) jjstateSet[jjnewStateCnt++] = 6;
@@ -860,7 +860,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               break;
             case 13:
               if ((0x3ff000000000000L & l) == 0L) break;
-              if (kind > 180) kind = 180;
+              if (kind > 179) kind = 179;
               jjCheckNAddStates(57, 59);
               break;
             case 15:
@@ -868,7 +868,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               break;
             case 16:
               if ((0x3ff000000000000L & l) == 0L) break;
-              if (kind > 180) kind = 180;
+              if (kind > 179) kind = 179;
               jjCheckNAddTwoStates(16, 17);
               break;
             case 18:
@@ -881,7 +881,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x808400000000L & l) != 0L) jjCheckNAddStates(19, 21);
               break;
             case 22:
-              if (curChar == 34 && kind > 186) kind = 186;
+              if (curChar == 34 && kind > 185) kind = 185;
               break;
             case 23:
               if ((0xff000000000000L & l) != 0L) jjCheckNAddStates(60, 63);
@@ -897,7 +897,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               break;
             case 30:
               if (curChar != 36) break;
-              if (kind > 259) kind = 259;
+              if (kind > 258) kind = 258;
               jjCheckNAdd(31);
               break;
             case 38:
@@ -905,12 +905,12 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               break;
             case 39:
               if (curChar != 36) break;
-              if (kind > 267) kind = 267;
+              if (kind > 266) kind = 266;
               jjCheckNAdd(40);
               break;
             case 40:
               if ((0x3ff000000000000L & l) == 0L) break;
-              if (kind > 267) kind = 267;
+              if (kind > 266) kind = 266;
               jjCheckNAdd(40);
               break;
             case 53:
@@ -933,7 +933,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               break;
             case 61:
               if ((0x3ff000000000000L & l) == 0L) break;
-              if (kind > 180) kind = 180;
+              if (kind > 179) kind = 179;
               jjCheckNAddTwoStates(61, 17);
               break;
             case 62:
@@ -941,12 +941,12 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               break;
             case 63:
               if (curChar != 46) break;
-              if (kind > 180) kind = 180;
+              if (kind > 179) kind = 179;
               jjCheckNAddStates(67, 69);
               break;
             case 64:
               if ((0x3ff000000000000L & l) == 0L) break;
-              if (kind > 180) kind = 180;
+              if (kind > 179) kind = 179;
               jjCheckNAddStates(67, 69);
               break;
             case 66:
@@ -954,23 +954,23 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               break;
             case 67:
               if ((0x3ff000000000000L & l) == 0L) break;
-              if (kind > 180) kind = 180;
+              if (kind > 179) kind = 179;
               jjCheckNAddTwoStates(67, 17);
               break;
             case 302:
-              if (curChar == 58 && kind > 261) kind = 261;
+              if (curChar == 58 && kind > 260) kind = 260;
               break;
             case 313:
               if (curChar == 58) jjAddStates(70, 71);
               break;
             case 315:
               if (curChar != 36) break;
-              if (kind > 262) kind = 262;
+              if (kind > 261) kind = 261;
               jjCheckNAddTwoStates(316, 317);
               break;
             case 316:
               if ((0x3ff000000000000L & l) == 0L) break;
-              if (kind > 262) kind = 262;
+              if (kind > 261) kind = 261;
               jjCheckNAddTwoStates(316, 317);
               break;
             case 317:
@@ -978,12 +978,12 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               break;
             case 318:
               if (curChar != 36) break;
-              if (kind > 262) kind = 262;
+              if (kind > 261) kind = 261;
               jjCheckNAddTwoStates(317, 319);
               break;
             case 319:
               if ((0x3ff000000000000L & l) == 0L) break;
-              if (kind > 262) kind = 262;
+              if (kind > 261) kind = 261;
               jjCheckNAddTwoStates(317, 319);
               break;
             case 348:
@@ -991,12 +991,12 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               break;
             case 350:
               if (curChar != 36) break;
-              if (kind > 263) kind = 263;
+              if (kind > 262) kind = 262;
               jjCheckNAddTwoStates(351, 352);
               break;
             case 351:
               if ((0x3ff000000000000L & l) == 0L) break;
-              if (kind > 263) kind = 263;
+              if (kind > 262) kind = 262;
               jjCheckNAddTwoStates(351, 352);
               break;
             case 352:
@@ -1004,12 +1004,12 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               break;
             case 353:
               if (curChar != 36) break;
-              if (kind > 263) kind = 263;
+              if (kind > 262) kind = 262;
               jjCheckNAddTwoStates(352, 354);
               break;
             case 354:
               if ((0x3ff000000000000L & l) == 0L) break;
-              if (kind > 263) kind = 263;
+              if (kind > 262) kind = 262;
               jjCheckNAddTwoStates(352, 354);
               break;
             case 384:
@@ -1017,12 +1017,12 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               break;
             case 386:
               if (curChar != 36) break;
-              if (kind > 264) kind = 264;
+              if (kind > 263) kind = 263;
               jjCheckNAddTwoStates(387, 388);
               break;
             case 387:
               if ((0x3ff000000000000L & l) == 0L) break;
-              if (kind > 264) kind = 264;
+              if (kind > 263) kind = 263;
               jjCheckNAddTwoStates(387, 388);
               break;
             case 388:
@@ -1030,12 +1030,12 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               break;
             case 389:
               if (curChar != 36) break;
-              if (kind > 264) kind = 264;
+              if (kind > 263) kind = 263;
               jjCheckNAddTwoStates(388, 390);
               break;
             case 390:
               if ((0x3ff000000000000L & l) == 0L) break;
-              if (kind > 264) kind = 264;
+              if (kind > 263) kind = 263;
               jjCheckNAddTwoStates(388, 390);
               break;
             case 563:
@@ -1043,12 +1043,12 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               break;
             case 564:
               if (curChar != 36) break;
-              if (kind > 265) kind = 265;
+              if (kind > 264) kind = 264;
               jjCheckNAdd(565);
               break;
             case 565:
               if ((0x3ff000000000000L & l) == 0L) break;
-              if (kind > 265) kind = 265;
+              if (kind > 264) kind = 264;
               jjCheckNAdd(565);
               break;
             case 572:
@@ -1056,230 +1056,230 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               break;
             case 573:
               if ((0x3fe000000000000L & l) == 0L) break;
-              if (kind > 266) kind = 266;
+              if (kind > 265) kind = 265;
               jjCheckNAddTwoStates(574, 575);
               break;
             case 574:
               if ((0x3ff000000000000L & l) == 0L) break;
-              if (kind > 266) kind = 266;
+              if (kind > 265) kind = 265;
               jjCheckNAddTwoStates(574, 575);
               break;
             case 576:
               if (curChar != 48) break;
-              if (kind > 266) kind = 266;
+              if (kind > 265) kind = 265;
               jjCheckNAddStates(78, 80);
               break;
             case 578:
               if ((0x3ff000000000000L & l) == 0L) break;
-              if (kind > 266) kind = 266;
+              if (kind > 265) kind = 265;
               jjCheckNAddTwoStates(578, 575);
               break;
             case 579:
               if ((0xff000000000000L & l) == 0L) break;
-              if (kind > 266) kind = 266;
+              if (kind > 265) kind = 265;
               jjCheckNAddTwoStates(579, 575);
               break;
-            case 1168:
+            case 1165:
               if ((0x3fe000000000000L & l) == 0L) break;
-              if (kind > 176) kind = 176;
+              if (kind > 175) kind = 175;
               jjCheckNAddStates(22, 29);
               break;
-            case 1169:
+            case 1166:
               if ((0x3ff000000000000L & l) == 0L) break;
-              if (kind > 176) kind = 176;
-              jjCheckNAddTwoStates(1169, 1170);
+              if (kind > 175) kind = 175;
+              jjCheckNAddTwoStates(1166, 1167);
               break;
-            case 1171:
+            case 1168:
               if ((0x3ff000000000000L & l) != 0L) jjCheckNAddStates(50, 52);
               break;
-            case 1173:
+            case 1170:
               if (curChar == 46) jjCheckNAddStates(81, 83);
               break;
-            case 1174:
-              if (curChar == 45) jjCheckNAddTwoStates(1175, 1178);
+            case 1171:
+              if (curChar == 45) jjCheckNAddTwoStates(1172, 1175);
+              break;
+            case 1172:
+              if ((0x3fe000000000000L & l) == 0L) break;
+              if (kind > 186) kind = 186;
+              jjCheckNAddTwoStates(1173, 1174);
+              break;
+            case 1173:
+              if ((0x3ff000000000000L & l) == 0L) break;
+              if (kind > 186) kind = 186;
+              jjCheckNAddTwoStates(1173, 1174);
               break;
             case 1175:
-              if ((0x3fe000000000000L & l) == 0L) break;
-              if (kind > 187) kind = 187;
-              jjCheckNAddTwoStates(1176, 1177);
-              break;
-            case 1176:
-              if ((0x3ff000000000000L & l) == 0L) break;
-              if (kind > 187) kind = 187;
-              jjCheckNAddTwoStates(1176, 1177);
-              break;
-            case 1178:
               if (curChar != 48) break;
-              if (kind > 187) kind = 187;
+              if (kind > 186) kind = 186;
               jjCheckNAddStates(84, 86);
               break;
-            case 1180:
+            case 1177:
               if ((0x3ff000000000000L & l) == 0L) break;
-              if (kind > 187) kind = 187;
-              jjCheckNAddTwoStates(1180, 1177);
+              if (kind > 186) kind = 186;
+              jjCheckNAddTwoStates(1177, 1174);
               break;
-            case 1181:
+            case 1178:
               if ((0xff000000000000L & l) == 0L) break;
-              if (kind > 187) kind = 187;
-              jjCheckNAddTwoStates(1181, 1177);
+              if (kind > 186) kind = 186;
+              jjCheckNAddTwoStates(1178, 1174);
               break;
-            case 1182:
-              if (curChar == 46) jjstateSet[jjnewStateCnt++] = 1173;
+            case 1179:
+              if (curChar == 46) jjstateSet[jjnewStateCnt++] = 1170;
               break;
-            case 1183:
+            case 1180:
               if ((0x3ff000000000000L & l) != 0L) jjCheckNAddStates(43, 45);
               break;
-            case 1185:
+            case 1182:
               if (curChar == 46) jjCheckNAddStates(87, 89);
               break;
-            case 1186:
-              if (curChar == 45) jjCheckNAddTwoStates(1187, 1190);
+            case 1183:
+              if (curChar == 45) jjCheckNAddTwoStates(1184, 1187);
+              break;
+            case 1184:
+              if ((0x3fe000000000000L & l) == 0L) break;
+              if (kind > 187) kind = 187;
+              jjCheckNAddTwoStates(1185, 1186);
+              break;
+            case 1185:
+              if ((0x3ff000000000000L & l) == 0L) break;
+              if (kind > 187) kind = 187;
+              jjCheckNAddTwoStates(1185, 1186);
               break;
             case 1187:
-              if ((0x3fe000000000000L & l) == 0L) break;
-              if (kind > 188) kind = 188;
-              jjCheckNAddTwoStates(1188, 1189);
-              break;
-            case 1188:
-              if ((0x3ff000000000000L & l) == 0L) break;
-              if (kind > 188) kind = 188;
-              jjCheckNAddTwoStates(1188, 1189);
-              break;
-            case 1190:
               if (curChar != 48) break;
-              if (kind > 188) kind = 188;
+              if (kind > 187) kind = 187;
               jjCheckNAddStates(90, 92);
               break;
-            case 1192:
+            case 1189:
               if ((0x3ff000000000000L & l) == 0L) break;
-              if (kind > 188) kind = 188;
-              jjCheckNAddTwoStates(1192, 1189);
+              if (kind > 187) kind = 187;
+              jjCheckNAddTwoStates(1189, 1186);
+              break;
+            case 1190:
+              if ((0xff000000000000L & l) == 0L) break;
+              if (kind > 187) kind = 187;
+              jjCheckNAddTwoStates(1190, 1186);
+              break;
+            case 1191:
+              if (curChar == 46) jjstateSet[jjnewStateCnt++] = 1182;
+              break;
+            case 1192:
+              if (curChar == 46) jjstateSet[jjnewStateCnt++] = 1191;
               break;
             case 1193:
-              if ((0xff000000000000L & l) == 0L) break;
-              if (kind > 188) kind = 188;
-              jjCheckNAddTwoStates(1193, 1189);
-              break;
-            case 1194:
-              if (curChar == 46) jjstateSet[jjnewStateCnt++] = 1185;
-              break;
-            case 1195:
-              if (curChar == 46) jjstateSet[jjnewStateCnt++] = 1194;
-              break;
-            case 1196:
               if (curChar == 39) jjCheckNAddStates(14, 18);
               break;
+            case 1194:
+              if ((0xffffff7fffffdbffL & l) != 0L) jjCheckNAdd(1195);
+              break;
+            case 1195:
+              if (curChar == 39 && kind > 184) kind = 184;
+              break;
             case 1197:
-              if ((0xffffff7fffffdbffL & l) != 0L) jjCheckNAdd(1198);
+              if ((0x808400000000L & l) != 0L) jjCheckNAdd(1195);
               break;
             case 1198:
-              if (curChar == 39 && kind > 185) kind = 185;
+              if ((0xff000000000000L & l) != 0L) jjCheckNAddTwoStates(1199, 1195);
+              break;
+            case 1199:
+              if ((0xff000000000000L & l) != 0L) jjCheckNAdd(1195);
               break;
             case 1200:
-              if ((0x808400000000L & l) != 0L) jjCheckNAdd(1198);
+              if ((0xf000000000000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1201;
               break;
             case 1201:
-              if ((0xff000000000000L & l) != 0L) jjCheckNAddTwoStates(1202, 1198);
+              if ((0xff000000000000L & l) != 0L) jjCheckNAdd(1199);
               break;
             case 1202:
-              if ((0xff000000000000L & l) != 0L) jjCheckNAdd(1198);
-              break;
-            case 1203:
-              if ((0xf000000000000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1204;
-              break;
-            case 1204:
-              if ((0xff000000000000L & l) != 0L) jjCheckNAdd(1202);
-              break;
-            case 1205:
               if ((0xffffff7fffffdbffL & l) != 0L) jjCheckNAddStates(93, 95);
               break;
-            case 1207:
+            case 1204:
               if ((0x808400000000L & l) != 0L) jjCheckNAddStates(93, 95);
               break;
-            case 1208:
-              if (curChar == 39 && kind > 186) kind = 186;
+            case 1205:
+              if (curChar == 39 && kind > 185) kind = 185;
               break;
-            case 1209:
+            case 1206:
               if ((0xff000000000000L & l) != 0L) jjCheckNAddStates(96, 99);
               break;
-            case 1210:
+            case 1207:
               if ((0xff000000000000L & l) != 0L) jjCheckNAddStates(93, 95);
               break;
-            case 1211:
-              if ((0xf000000000000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1212;
+            case 1208:
+              if ((0xf000000000000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1209;
               break;
-            case 1212:
-              if ((0xff000000000000L & l) != 0L) jjCheckNAdd(1210);
+            case 1209:
+              if ((0xff000000000000L & l) != 0L) jjCheckNAdd(1207);
               break;
-            case 1213:
+            case 1210:
               if (curChar == 45) jjAddStates(10, 13);
               break;
-            case 1215:
+            case 1212:
               if ((0x3fe000000000000L & l) != 0L) jjCheckNAddStates(43, 45);
               break;
-            case 1216:
+            case 1213:
               if (curChar == 48) jjCheckNAddStates(53, 56);
               break;
-            case 1218:
+            case 1215:
               if ((0x3ff000000000000L & l) != 0L) jjCheckNAddStates(100, 102);
               break;
-            case 1219:
+            case 1216:
               if ((0xff000000000000L & l) != 0L) jjCheckNAddStates(103, 105);
               break;
-            case 1220:
+            case 1217:
               if (curChar == 48) jjCheckNAddStates(46, 49);
               break;
-            case 1222:
+            case 1219:
               if ((0x3ff000000000000L & l) != 0L) jjCheckNAddStates(106, 108);
               break;
-            case 1223:
+            case 1220:
               if ((0xff000000000000L & l) != 0L) jjCheckNAddStates(109, 111);
               break;
-            case 1224:
+            case 1221:
               if (curChar != 48) break;
-              if (kind > 176) kind = 176;
+              if (kind > 175) kind = 175;
               jjCheckNAddStates(30, 42);
               break;
-            case 1226:
+            case 1223:
               if ((0x3ff000000000000L & l) == 0L) break;
-              if (kind > 176) kind = 176;
-              jjCheckNAddTwoStates(1226, 1170);
+              if (kind > 175) kind = 175;
+              jjCheckNAddTwoStates(1223, 1167);
               break;
-            case 1227:
+            case 1224:
               if ((0xff000000000000L & l) == 0L) break;
-              if (kind > 176) kind = 176;
-              jjCheckNAddTwoStates(1227, 1170);
+              if (kind > 175) kind = 175;
+              jjCheckNAddTwoStates(1224, 1167);
               break;
-            case 1229:
+            case 1226:
               if ((0x3ff000000000000L & l) != 0L) jjAddStates(112, 113);
               break;
+            case 1227:
+              if (curChar == 46) jjCheckNAdd(1228);
+              break;
+            case 1228:
+              if ((0x3ff000000000000L & l) != 0L) jjCheckNAddTwoStates(1228, 1229);
+              break;
             case 1230:
-              if (curChar == 46) jjCheckNAdd(1231);
+              if ((0x280000000000L & l) != 0L) jjCheckNAdd(1231);
               break;
             case 1231:
-              if ((0x3ff000000000000L & l) != 0L) jjCheckNAddTwoStates(1231, 1232);
+              if ((0x3ff000000000000L & l) == 0L) break;
+              if (kind > 179) kind = 179;
+              jjCheckNAddTwoStates(1231, 17);
               break;
             case 1233:
-              if ((0x280000000000L & l) != 0L) jjCheckNAdd(1234);
-              break;
-            case 1234:
-              if ((0x3ff000000000000L & l) == 0L) break;
-              if (kind > 180) kind = 180;
-              jjCheckNAddTwoStates(1234, 17);
-              break;
-            case 1236:
               if ((0x3ff000000000000L & l) != 0L) jjCheckNAddStates(114, 116);
               break;
+            case 1234:
+              if (curChar == 46) jjCheckNAdd(1235);
+              break;
+            case 1236:
+              if ((0x280000000000L & l) != 0L) jjCheckNAdd(1237);
+              break;
             case 1237:
-              if (curChar == 46) jjCheckNAdd(1238);
-              break;
-            case 1239:
-              if ((0x280000000000L & l) != 0L) jjCheckNAdd(1240);
-              break;
-            case 1240:
               if ((0x3ff000000000000L & l) == 0L) break;
-              if (kind > 180) kind = 180;
-              jjCheckNAddTwoStates(1240, 17);
+              if (kind > 179) kind = 179;
+              jjCheckNAddTwoStates(1237, 17);
               break;
             default:
               break;
@@ -1293,31 +1293,44 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0xfffffffeffffffffL & l) != 0L) jjCheckNAddStates(0, 2);
               if (curChar == 92) jjCheckNAdd(34);
               break;
+            case 1117:
+              if ((0x4000000040000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1163;
+              else if ((0x4000000040L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1158;
+              else if ((0x10000000100000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1141;
+              else if ((0x8000000080000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1137;
+              else if ((0x40000000400000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1130;
+              else if ((0x800000008L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1125;
+              if ((0x4000000040000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1152;
+              else if ((0x10000000100000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1118;
+              if ((0x4000000040000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1147;
+              if ((0x4000000040000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1144;
+              if ((0x4000000040000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1122;
+              break;
             case 3:
               if ((0x7fffffe87fffffeL & l) != 0L) {
-                if (kind > 259) kind = 259;
+                if (kind > 258) kind = 258;
                 jjCheckNAdd(31);
               } else if (curChar == 64) jjAddStates(117, 127);
               else if (curChar == 96) jjCheckNAddTwoStates(33, 37);
-              if ((0x100000001000L & l) != 0L) jjAddStates(128, 134);
-              else if ((0x400000004L & l) != 0L) jjAddStates(135, 141);
-              else if ((0x8000000080L & l) != 0L) jjAddStates(142, 143);
-              else if ((0x400000004000L & l) != 0L) jjAddStates(144, 151);
-              else if ((0x800000008000L & l) != 0L) jjAddStates(152, 159);
-              else if ((0x4000000040000L & l) != 0L) jjAddStates(160, 171);
-              else if ((0x1000000010000L & l) != 0L) jjAddStates(172, 179);
-              else if ((0x200000002L & l) != 0L) jjAddStates(180, 188);
-              else if ((0x80000000800000L & l) != 0L) jjAddStates(189, 192);
-              else if ((0x4000000040L & l) != 0L) jjAddStates(193, 200);
-              else if ((0x20000000200000L & l) != 0L) jjAddStates(201, 207);
-              else if ((0x2000000020L & l) != 0L) jjAddStates(208, 216);
-              else if ((0x40000000400000L & l) != 0L) jjAddStates(217, 220);
-              else if ((0x1000000010L & l) != 0L) jjAddStates(221, 231);
-              else if ((0x800000008L & l) != 0L) jjAddStates(232, 254);
-              else if ((0x20000000200L & l) != 0L) jjAddStates(255, 269);
-              else if ((0x200000002000L & l) != 0L) jjAddStates(270, 276);
-              else if ((0x10000000100000L & l) != 0L) jjAddStates(277, 282);
-              else if ((0x8000000080000L & l) != 0L) jjAddStates(283, 300);
+              if ((0x100000001000L & l) != 0L) jjAddStates(128, 133);
+              else if ((0x400000004L & l) != 0L) jjAddStates(134, 140);
+              else if ((0x8000000080L & l) != 0L) jjAddStates(141, 142);
+              else if ((0x400000004000L & l) != 0L) jjAddStates(143, 150);
+              else if ((0x800000008000L & l) != 0L) jjAddStates(151, 158);
+              else if ((0x4000000040000L & l) != 0L) jjAddStates(159, 170);
+              else if ((0x1000000010000L & l) != 0L) jjAddStates(171, 178);
+              else if ((0x200000002L & l) != 0L) jjAddStates(179, 187);
+              else if ((0x80000000800000L & l) != 0L) jjAddStates(188, 191);
+              else if ((0x4000000040L & l) != 0L) jjAddStates(192, 199);
+              else if ((0x20000000200000L & l) != 0L) jjAddStates(200, 206);
+              else if ((0x2000000020L & l) != 0L) jjAddStates(207, 215);
+              else if ((0x40000000400000L & l) != 0L) jjAddStates(216, 219);
+              else if ((0x1000000010L & l) != 0L) jjAddStates(220, 230);
+              else if ((0x800000008L & l) != 0L) jjAddStates(231, 253);
+              else if ((0x20000000200L & l) != 0L) jjAddStates(254, 268);
+              else if ((0x200000002000L & l) != 0L) jjAddStates(269, 275);
+              else if ((0x10000000100000L & l) != 0L) jjAddStates(276, 281);
+              else if ((0x8000000080000L & l) != 0L) jjAddStates(282, 299);
               else if ((0x80000000800L & l) != 0L) jjstateSet[jjnewStateCnt++] = 28;
               else if ((0x10000000100L & l) != 0L) jjstateSet[jjnewStateCnt++] = 5;
               if (curChar == 73) jjCheckNAddTwoStates(51, 50);
@@ -1326,7 +1339,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               break;
             case 967:
               if ((0x7fffffe87fffffeL & l) != 0L) {
-                if (kind > 259) kind = 259;
+                if (kind > 258) kind = 258;
                 jjCheckNAdd(31);
               }
               if ((0x100000001000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 975;
@@ -1334,7 +1347,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               break;
             case 912:
               if ((0x7fffffe87fffffeL & l) != 0L) {
-                if (kind > 259) kind = 259;
+                if (kind > 258) kind = 258;
                 jjCheckNAdd(31);
               }
               if ((0x20000000200L & l) != 0L) jjstateSet[jjnewStateCnt++] = 977;
@@ -1350,19 +1363,6 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 918;
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 913;
               break;
-            case 1120:
-              if ((0x4000000040000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1166;
-              else if ((0x4000000040L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1161;
-              else if ((0x10000000100000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1144;
-              else if ((0x8000000080000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1140;
-              else if ((0x40000000400000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1133;
-              else if ((0x800000008L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1128;
-              if ((0x4000000040000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1155;
-              else if ((0x10000000100000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1121;
-              if ((0x4000000040000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1150;
-              if ((0x4000000040000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1147;
-              if ((0x4000000040000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1125;
-              break;
             case 1:
               if (kind > 6) kind = 6;
               break;
@@ -1370,7 +1370,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x10000000100L & l) != 0L) jjstateSet[jjnewStateCnt++] = 5;
               break;
             case 5:
-              if ((0x200000002L & l) != 0L && kind > 146) kind = 146;
+              if ((0x200000002L & l) != 0L && kind > 145) kind = 145;
               break;
             case 6:
               if (curChar == 64) jjstateSet[jjnewStateCnt++] = 7;
@@ -1385,16 +1385,16 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x1000000010L & l) != 0L) jjstateSet[jjnewStateCnt++] = 10;
               break;
             case 14:
-              if ((0x2000000020L & l) != 0L) jjAddStates(301, 302);
+              if ((0x2000000020L & l) != 0L) jjAddStates(300, 301);
               break;
             case 17:
-              if ((0x5000000050L & l) != 0L && kind > 180) kind = 180;
+              if ((0x5000000050L & l) != 0L && kind > 179) kind = 179;
               break;
             case 19:
               if ((0xffffffffefffffffL & l) != 0L) jjCheckNAddStates(19, 21);
               break;
             case 20:
-              if (curChar == 92) jjAddStates(303, 305);
+              if (curChar == 92) jjAddStates(302, 304);
               break;
             case 21:
               if ((0x14404410000000L & l) != 0L) jjCheckNAddStates(19, 21);
@@ -1406,16 +1406,16 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 29;
               break;
             case 29:
-              if ((0x200000002000000L & l) != 0L && kind > 256) kind = 256;
+              if ((0x200000002000000L & l) != 0L && kind > 255) kind = 255;
               break;
             case 30:
               if ((0x7fffffe87fffffeL & l) == 0L) break;
-              if (kind > 259) kind = 259;
+              if (kind > 258) kind = 258;
               jjCheckNAdd(31);
               break;
             case 31:
               if ((0x7fffffe87fffffeL & l) == 0L) break;
-              if (kind > 259) kind = 259;
+              if (kind > 258) kind = 258;
               jjCheckNAdd(31);
               break;
             case 32:
@@ -1431,12 +1431,12 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if (curChar == 92) jjCheckNAdd(34);
               break;
             case 36:
-              if (curChar == 96 && kind > 260) kind = 260;
+              if (curChar == 96 && kind > 259) kind = 259;
               break;
             case 39:
             case 40:
               if ((0x7fffffe87fffffeL & l) == 0L) break;
-              if (kind > 267) kind = 267;
+              if (kind > 266) kind = 266;
               jjCheckNAdd(40);
               break;
             case 41:
@@ -1467,25 +1467,25 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if (curChar == 105) jjCheckNAddTwoStates(50, 51);
               break;
             case 50:
-              if (curChar == 115 && kind > 247) kind = 247;
+              if (curChar == 115 && kind > 246) kind = 246;
               break;
             case 51:
-              if (curChar == 83 && kind > 247) kind = 247;
+              if (curChar == 83 && kind > 246) kind = 246;
               break;
             case 52:
               if (curChar == 73) jjCheckNAddTwoStates(51, 50);
               break;
             case 55:
-              if ((0x2000000020L & l) != 0L) jjAddStates(306, 307);
+              if ((0x2000000020L & l) != 0L) jjAddStates(305, 306);
               break;
             case 59:
-              if ((0x2000000020L & l) != 0L) jjAddStates(308, 309);
+              if ((0x2000000020L & l) != 0L) jjAddStates(307, 308);
               break;
             case 65:
-              if ((0x2000000020L & l) != 0L) jjAddStates(310, 311);
+              if ((0x2000000020L & l) != 0L) jjAddStates(309, 310);
               break;
             case 68:
-              if ((0x8000000080000L & l) != 0L) jjAddStates(283, 300);
+              if ((0x8000000080000L & l) != 0L) jjAddStates(282, 299);
               break;
             case 69:
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 70;
@@ -1536,7 +1536,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x8000000080L & l) != 0L) jjstateSet[jjnewStateCnt++] = 85;
               break;
             case 85:
-              if ((0x200000002000000L & l) != 0L && kind > 66) kind = 66;
+              if ((0x200000002000000L & l) != 0L && kind > 65) kind = 65;
               break;
             case 86:
               if ((0x20000000200000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 87;
@@ -1563,7 +1563,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x8000000080000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 94;
               break;
             case 94:
-              if ((0x8000000080000L & l) != 0L && kind > 76) kind = 76;
+              if ((0x8000000080000L & l) != 0L && kind > 75) kind = 75;
               break;
             case 95:
               if ((0x20000000200000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 96;
@@ -1596,7 +1596,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 105;
               break;
             case 105:
-              if ((0x8000000080000L & l) != 0L && kind > 78) kind = 78;
+              if ((0x8000000080000L & l) != 0L && kind > 77) kind = 77;
               break;
             case 106:
               if ((0x10000000100000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 107;
@@ -1614,7 +1614,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x8000000080L & l) != 0L) jjstateSet[jjnewStateCnt++] = 111;
               break;
             case 111:
-              if ((0x2000000020L & l) != 0L && kind > 83) kind = 83;
+              if ((0x2000000020L & l) != 0L && kind > 82) kind = 82;
               break;
             case 112:
               if ((0x10000000100L & l) != 0L) jjstateSet[jjnewStateCnt++] = 113;
@@ -1638,7 +1638,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x200000002000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 119;
               break;
             case 119:
-              if ((0x2000000020L & l) != 0L && kind > 95) kind = 95;
+              if ((0x2000000020L & l) != 0L && kind > 94) kind = 94;
               break;
             case 120:
               if ((0x10000000100000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 121;
@@ -1665,7 +1665,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x1000000010L & l) != 0L) jjstateSet[jjnewStateCnt++] = 128;
               break;
             case 128:
-              if ((0x2000000020L & l) != 0L && kind > 97) kind = 97;
+              if ((0x2000000020L & l) != 0L && kind > 96) kind = 96;
               break;
             case 129:
               if ((0x100000001000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 130;
@@ -1677,7 +1677,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 132;
               break;
             case 132:
-              if ((0x1000000010000L & l) != 0L && kind > 136) kind = 136;
+              if ((0x1000000010000L & l) != 0L && kind > 135) kind = 135;
               break;
             case 133:
               if ((0x10000000100L & l) != 0L) jjstateSet[jjnewStateCnt++] = 134;
@@ -1692,7 +1692,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 137;
               break;
             case 137:
-              if ((0x1000000010L & l) != 0L && kind > 139) kind = 139;
+              if ((0x1000000010L & l) != 0L && kind > 138) kind = 138;
               break;
             case 138:
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 139;
@@ -1713,7 +1713,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x800000008L & l) != 0L) jjstateSet[jjnewStateCnt++] = 144;
               break;
             case 144:
-              if ((0x2000000020L & l) != 0L && kind > 141) kind = 141;
+              if ((0x2000000020L & l) != 0L && kind > 140) kind = 140;
               break;
             case 145:
               if ((0x10000000100000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 146;
@@ -1725,7 +1725,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x4000000040000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 148;
               break;
             case 148:
-              if ((0x10000000100000L & l) != 0L && kind > 142) kind = 142;
+              if ((0x10000000100000L & l) != 0L && kind > 141) kind = 141;
               break;
             case 149:
               if ((0x10000000100000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 150;
@@ -1740,7 +1740,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x20000000200000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 153;
               break;
             case 153:
-              if ((0x8000000080000L & l) != 0L && kind > 147) kind = 147;
+              if ((0x8000000080000L & l) != 0L && kind > 146) kind = 146;
               break;
             case 154:
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 155;
@@ -1755,7 +1755,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 158;
               break;
             case 158:
-              if ((0x4000000040000L & l) != 0L && kind > 148) kind = 148;
+              if ((0x4000000040000L & l) != 0L && kind > 147) kind = 147;
               break;
             case 159:
               if ((0x200000002000000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 160;
@@ -1764,7 +1764,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x400000004000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 161;
               break;
             case 161:
-              if ((0x800000008L & l) != 0L && kind > 149) kind = 149;
+              if ((0x800000008L & l) != 0L && kind > 148) kind = 148;
               break;
             case 162:
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 163;
@@ -1785,7 +1785,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x10000000100000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 168;
               break;
             case 168:
-              if ((0x200000002000000L & l) != 0L && kind > 160) kind = 160;
+              if ((0x200000002000000L & l) != 0L && kind > 159) kind = 159;
               break;
             case 169:
               if ((0x200000002000000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 170;
@@ -1800,10 +1800,10 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 173;
               break;
             case 173:
-              if ((0x200000002000L & l) != 0L && kind > 163) kind = 163;
+              if ((0x200000002000L & l) != 0L && kind > 162) kind = 162;
               break;
             case 174:
-              if ((0x10000000100000L & l) != 0L) jjAddStates(277, 282);
+              if ((0x10000000100000L & l) != 0L) jjAddStates(276, 281);
               break;
             case 175:
               if ((0x4000000040000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 176;
@@ -1866,7 +1866,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x10000000100000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 195;
               break;
             case 195:
-              if ((0x2000000020L & l) != 0L && kind > 86) kind = 86;
+              if ((0x2000000020L & l) != 0L && kind > 85) kind = 85;
               break;
             case 196:
               if ((0x200000002000000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 197;
@@ -1875,7 +1875,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x1000000010000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 198;
               break;
             case 198:
-              if ((0x2000000020L & l) != 0L && kind > 116) kind = 116;
+              if ((0x2000000020L & l) != 0L && kind > 115) kind = 115;
               break;
             case 199:
               if ((0x4000000040000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 200;
@@ -1884,10 +1884,10 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x20000000200000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 201;
               break;
             case 201:
-              if ((0x2000000020L & l) != 0L && kind > 189) kind = 189;
+              if ((0x2000000020L & l) != 0L && kind > 188) kind = 188;
               break;
             case 202:
-              if ((0x200000002000L & l) != 0L) jjAddStates(270, 276);
+              if ((0x200000002000L & l) != 0L) jjAddStates(269, 275);
               break;
             case 203:
               if ((0x200000002L & l) != 0L) jjstateSet[jjnewStateCnt++] = 204;
@@ -1932,7 +1932,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x10000000100000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 217;
               break;
             case 217:
-              if ((0x10000000100L & l) != 0L && kind > 73) kind = 73;
+              if ((0x10000000100L & l) != 0L && kind > 72) kind = 72;
               break;
             case 218:
               if ((0x20000000200L & l) != 0L) jjstateSet[jjnewStateCnt++] = 219;
@@ -1953,7 +1953,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x10000000100000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 224;
               break;
             case 224:
-              if ((0x10000000100L & l) != 0L && kind > 74) kind = 74;
+              if ((0x10000000100L & l) != 0L && kind > 73) kind = 73;
               break;
             case 225:
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 226;
@@ -1974,7 +1974,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x10000000100000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 231;
               break;
             case 231:
-              if ((0x200000002L & l) != 0L && kind > 107) kind = 107;
+              if ((0x200000002L & l) != 0L && kind > 106) kind = 106;
               break;
             case 232:
               if ((0x800000008000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 233;
@@ -1983,7 +1983,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x40000000400000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 234;
               break;
             case 234:
-              if ((0x2000000020L & l) != 0L && kind > 152) kind = 152;
+              if ((0x2000000020L & l) != 0L && kind > 151) kind = 151;
               break;
             case 235:
               if ((0x200000002L & l) != 0L) jjstateSet[jjnewStateCnt++] = 236;
@@ -2001,10 +2001,10 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 240;
               break;
             case 240:
-              if ((0x8000000080000L & l) != 0L && kind > 255) kind = 255;
+              if ((0x8000000080000L & l) != 0L && kind > 254) kind = 254;
               break;
             case 241:
-              if ((0x20000000200L & l) != 0L) jjAddStates(255, 269);
+              if ((0x20000000200L & l) != 0L) jjAddStates(254, 268);
               break;
             case 242:
               if ((0x400000004000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 243;
@@ -2064,10 +2064,10 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 261;
               break;
             case 261:
-              if ((0x100000001000000L & l) != 0L && kind > 108) kind = 108;
+              if ((0x100000001000000L & l) != 0L && kind > 107) kind = 107;
               break;
             case 262:
-              if ((0x1000000010L & l) != 0L && kind > 112) kind = 112;
+              if ((0x1000000010L & l) != 0L && kind > 111) kind = 111;
               break;
             case 263:
               if ((0x400000004000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 264;
@@ -2085,7 +2085,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x8000000080000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 268;
               break;
             case 268:
-              if ((0x2000000020L & l) != 0L && kind > 117) kind = 117;
+              if ((0x2000000020L & l) != 0L && kind > 116) kind = 116;
               break;
             case 269:
               if ((0x1000000010L & l) != 0L) jjstateSet[jjnewStateCnt++] = 270;
@@ -2112,10 +2112,10 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x400000004000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 277;
               break;
             case 277:
-              if ((0x10000000100000L & l) != 0L && kind > 127) kind = 127;
+              if ((0x10000000100000L & l) != 0L && kind > 126) kind = 126;
               break;
             case 278:
-              if ((0x4000000040L & l) != 0L && kind > 132) kind = 132;
+              if ((0x4000000040L & l) != 0L && kind > 131) kind = 131;
               break;
             case 279:
               if ((0x1000000010L & l) != 0L) jjstateSet[jjnewStateCnt++] = 280;
@@ -2142,10 +2142,10 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 287;
               break;
             case 287:
-              if ((0x1000000010L & l) != 0L && kind > 155) kind = 155;
+              if ((0x1000000010L & l) != 0L && kind > 154) kind = 154;
               break;
             case 288:
-              if ((0x400000004000L & l) != 0L && kind > 245) kind = 245;
+              if ((0x400000004000L & l) != 0L && kind > 244) kind = 244;
               break;
             case 289:
               if ((0x400000004000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 290;
@@ -2172,7 +2172,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x800000008000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 297;
               break;
             case 297:
-              if ((0x4000000040L & l) != 0L && kind > 257) kind = 257;
+              if ((0x4000000040L & l) != 0L && kind > 256) kind = 256;
               break;
             case 298:
               if ((0x400000004000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 299;
@@ -2222,13 +2222,13 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
             case 315:
             case 316:
               if ((0x7fffffe87fffffeL & l) == 0L) break;
-              if (kind > 262) kind = 262;
+              if (kind > 261) kind = 261;
               jjCheckNAddTwoStates(316, 317);
               break;
             case 318:
             case 319:
               if ((0x7fffffe87fffffeL & l) == 0L) break;
-              if (kind > 262) kind = 262;
+              if (kind > 261) kind = 261;
               jjCheckNAddTwoStates(317, 319);
               break;
             case 320:
@@ -2321,13 +2321,13 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
             case 350:
             case 351:
               if ((0x7fffffe87fffffeL & l) == 0L) break;
-              if (kind > 263) kind = 263;
+              if (kind > 262) kind = 262;
               jjCheckNAddTwoStates(351, 352);
               break;
             case 353:
             case 354:
               if ((0x7fffffe87fffffeL & l) == 0L) break;
-              if (kind > 263) kind = 263;
+              if (kind > 262) kind = 262;
               jjCheckNAddTwoStates(352, 354);
               break;
             case 355:
@@ -2423,13 +2423,13 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
             case 386:
             case 387:
               if ((0x7fffffe87fffffeL & l) == 0L) break;
-              if (kind > 264) kind = 264;
+              if (kind > 263) kind = 263;
               jjCheckNAddTwoStates(387, 388);
               break;
             case 389:
             case 390:
               if ((0x7fffffe87fffffeL & l) == 0L) break;
-              if (kind > 264) kind = 264;
+              if (kind > 263) kind = 263;
               jjCheckNAddTwoStates(388, 390);
               break;
             case 391:
@@ -2478,7 +2478,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if (curChar == 95) jjstateSet[jjnewStateCnt++] = 404;
               break;
             case 406:
-              if ((0x800000008L & l) != 0L) jjAddStates(232, 254);
+              if ((0x800000008L & l) != 0L) jjAddStates(231, 253);
               break;
             case 407:
               if ((0x4000000040000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 408;
@@ -2523,7 +2523,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x10000000100L & l) != 0L) jjstateSet[jjnewStateCnt++] = 421;
               break;
             case 421:
-              if ((0x2000000020L & l) != 0L && kind > 59) kind = 59;
+              if ((0x2000000020L & l) != 0L && kind > 58) kind = 58;
               break;
             case 422:
               if ((0x200000002000000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 423;
@@ -2535,7 +2535,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x100000001000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 425;
               break;
             case 425:
-              if ((0x2000000020L & l) != 0L && kind > 60) kind = 60;
+              if ((0x2000000020L & l) != 0L && kind > 59) kind = 59;
               break;
             case 426:
               if ((0x100000001000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 427;
@@ -2547,7 +2547,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x8000000080000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 429;
               break;
             case 429:
-              if ((0x8000000080000L & l) != 0L && kind > 75) kind = 75;
+              if ((0x8000000080000L & l) != 0L && kind > 74) kind = 74;
               break;
             case 430:
               if ((0x100000001000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 431;
@@ -2565,7 +2565,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 435;
               break;
             case 435:
-              if ((0x8000000080000L & l) != 0L && kind > 77) kind = 77;
+              if ((0x8000000080000L & l) != 0L && kind > 76) kind = 76;
               break;
             case 436:
               if ((0x100000001000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 437;
@@ -2586,7 +2586,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x4000000040000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 442;
               break;
             case 442:
-              if ((0x8000000080000L & l) != 0L && kind > 91) kind = 91;
+              if ((0x8000000080000L & l) != 0L && kind > 90) kind = 90;
               break;
             case 443:
               if ((0x20000000200000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 444;
@@ -2601,7 +2601,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x800000008000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 447;
               break;
             case 447:
-              if ((0x200000002000L & l) != 0L && kind > 100) kind = 100;
+              if ((0x200000002000L & l) != 0L && kind > 99) kind = 99;
               break;
             case 448:
               if ((0x100000001000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 449;
@@ -2646,7 +2646,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x800000008000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 462;
               break;
             case 462:
-              if ((0x400000004000L & l) != 0L && kind > 101) kind = 101;
+              if ((0x400000004000L & l) != 0L && kind > 100) kind = 100;
               break;
             case 463:
               if ((0x800000008000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 464;
@@ -2664,7 +2664,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x10000000100000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 468;
               break;
             case 468:
-              if ((0x2000000020L & l) != 0L && kind > 109) kind = 109;
+              if ((0x2000000020L & l) != 0L && kind > 108) kind = 108;
               break;
             case 469:
               if ((0x800000008000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 470;
@@ -2679,7 +2679,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x20000000200L & l) != 0L) jjstateSet[jjnewStateCnt++] = 473;
               break;
             case 473:
-              if ((0x10000000100000L & l) != 0L && kind > 130) kind = 130;
+              if ((0x10000000100000L & l) != 0L && kind > 129) kind = 129;
               break;
             case 474:
               if ((0x800000008000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 475;
@@ -2700,7 +2700,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x20000000200000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 480;
               break;
             case 480:
-              if ((0x2000000020L & l) != 0L && kind > 134) kind = 134;
+              if ((0x2000000020L & l) != 0L && kind > 133) kind = 133;
               break;
             case 481:
               if ((0x800000008000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 482;
@@ -2718,7 +2718,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x100000001000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 486;
               break;
             case 486:
-              if ((0x2000000020L & l) != 0L && kind > 137) kind = 137;
+              if ((0x2000000020L & l) != 0L && kind > 136) kind = 136;
               break;
             case 487:
               if ((0x800000008000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 488;
@@ -2730,7 +2730,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x400000004000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 490;
               break;
             case 490:
-              if ((0x10000000100000L & l) != 0L && kind > 144) kind = 144;
+              if ((0x10000000100000L & l) != 0L && kind > 143) kind = 143;
               break;
             case 491:
               if ((0x800000008000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 492;
@@ -2751,7 +2751,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x400000004000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 497;
               break;
             case 497:
-              if ((0x8000000080000L & l) != 0L && kind > 249) kind = 249;
+              if ((0x8000000080000L & l) != 0L && kind > 248) kind = 248;
               break;
             case 498:
               if ((0x800000008000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 499;
@@ -2781,7 +2781,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x100000001000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 507;
               break;
             case 507:
-              if ((0x100000001000L & l) != 0L && kind > 250) kind = 250;
+              if ((0x100000001000L & l) != 0L && kind > 249) kind = 249;
               break;
             case 508:
               if ((0x800000008000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 509;
@@ -2811,7 +2811,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x400000004000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 517;
               break;
             case 517:
-              if ((0x200000002000000L & l) != 0L && kind > 251) kind = 251;
+              if ((0x200000002000000L & l) != 0L && kind > 250) kind = 250;
               break;
             case 518:
               if ((0x800000008000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 519;
@@ -2841,7 +2841,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 527;
               break;
             case 527:
-              if ((0x200000002000000L & l) != 0L && kind > 252) kind = 252;
+              if ((0x200000002000000L & l) != 0L && kind > 251) kind = 251;
               break;
             case 528:
               if ((0x800000008000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 529;
@@ -2877,7 +2877,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x20000000200000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 539;
               break;
             case 539:
-              if ((0x2000000020L & l) != 0L && kind > 253) kind = 253;
+              if ((0x2000000020L & l) != 0L && kind > 252) kind = 252;
               break;
             case 540:
               if ((0x800000008000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 541;
@@ -2910,7 +2910,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x100000001000000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 550;
               break;
             case 550:
-              if ((0x10000000100000L & l) != 0L && kind > 254) kind = 254;
+              if ((0x10000000100000L & l) != 0L && kind > 253) kind = 253;
               break;
             case 551:
               if ((0x100000001000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 552;
@@ -2928,7 +2928,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 556;
               break;
             case 556:
-              if ((0x4000000040000L & l) != 0L && kind > 258) kind = 258;
+              if ((0x4000000040000L & l) != 0L && kind > 257) kind = 257;
               break;
             case 557:
               if ((0x100000001000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 558;
@@ -2951,7 +2951,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
             case 564:
             case 565:
               if ((0x7fffffe87fffffeL & l) == 0L) break;
-              if (kind > 265) kind = 265;
+              if (kind > 264) kind = 264;
               jjCheckNAdd(565);
               break;
             case 566:
@@ -2973,18 +2973,18 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x4000000040000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 572;
               break;
             case 575:
-              if ((0x100000001000L & l) != 0L && kind > 266) kind = 266;
+              if ((0x100000001000L & l) != 0L && kind > 265) kind = 265;
               break;
             case 577:
               if ((0x100000001000000L & l) != 0L) jjCheckNAdd(578);
               break;
             case 578:
               if ((0x7e0000007eL & l) == 0L) break;
-              if (kind > 266) kind = 266;
+              if (kind > 265) kind = 265;
               jjCheckNAddTwoStates(578, 575);
               break;
             case 580:
-              if ((0x1000000010L & l) != 0L) jjAddStates(221, 231);
+              if ((0x1000000010L & l) != 0L) jjAddStates(220, 230);
               break;
             case 581:
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 582;
@@ -3056,7 +3056,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x8000000080000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 604;
               break;
             case 604:
-              if ((0x10000000100000L & l) != 0L && kind > 67) kind = 67;
+              if ((0x10000000100000L & l) != 0L && kind > 66) kind = 66;
               break;
             case 605:
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 606;
@@ -3086,7 +3086,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x800000008000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 614;
               break;
             case 614:
-              if ((0x400000004000L & l) != 0L && kind > 102) kind = 102;
+              if ((0x400000004000L & l) != 0L && kind > 101) kind = 101;
               break;
             case 615:
               if ((0x4000000040000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 616;
@@ -3095,7 +3095,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x800000008000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 617;
               break;
             case 617:
-              if ((0x1000000010000L & l) != 0L && kind > 104) kind = 104;
+              if ((0x1000000010000L & l) != 0L && kind > 103) kind = 103;
               break;
             case 618:
               if ((0x200000002L & l) != 0L) jjstateSet[jjnewStateCnt++] = 619;
@@ -3116,7 +3116,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x8000000080000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 624;
               break;
             case 624:
-              if ((0x2000000020L & l) != 0L && kind > 113) kind = 113;
+              if ((0x2000000020L & l) != 0L && kind > 112) kind = 112;
               break;
             case 625:
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 626;
@@ -3134,7 +3134,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x100000001000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 630;
               break;
             case 630:
-              if ((0x10000000100000L & l) != 0L && kind > 140) kind = 140;
+              if ((0x10000000100000L & l) != 0L && kind > 139) kind = 139;
               break;
             case 631:
               if ((0x20000000200L & l) != 0L) jjstateSet[jjnewStateCnt++] = 632;
@@ -3155,7 +3155,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x800000008L & l) != 0L) jjstateSet[jjnewStateCnt++] = 637;
               break;
             case 637:
-              if ((0x10000000100000L & l) != 0L && kind > 145) kind = 145;
+              if ((0x10000000100000L & l) != 0L && kind > 144) kind = 144;
               break;
             case 638:
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 639;
@@ -3182,7 +3182,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x200000002L & l) != 0L) jjstateSet[jjnewStateCnt++] = 646;
               break;
             case 646:
-              if ((0x8000000080000L & l) != 0L && kind > 153) kind = 153;
+              if ((0x8000000080000L & l) != 0L && kind > 152) kind = 152;
               break;
             case 647:
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 648;
@@ -3221,10 +3221,10 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 659;
               break;
             case 659:
-              if ((0x4000000040000L & l) != 0L && kind > 162) kind = 162;
+              if ((0x4000000040000L & l) != 0L && kind > 161) kind = 161;
               break;
             case 660:
-              if ((0x40000000400000L & l) != 0L) jjAddStates(217, 220);
+              if ((0x40000000400000L & l) != 0L) jjAddStates(216, 219);
               break;
             case 661:
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 662;
@@ -3275,10 +3275,10 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 677;
               break;
             case 677:
-              if ((0x80000000800000L & l) != 0L && kind > 79) kind = 79;
+              if ((0x80000000800000L & l) != 0L && kind > 78) kind = 78;
               break;
             case 678:
-              if ((0x2000000020L & l) != 0L) jjAddStates(208, 216);
+              if ((0x2000000020L & l) != 0L) jjAddStates(207, 215);
               break;
             case 679:
               if ((0x1000000010L & l) != 0L) jjstateSet[jjnewStateCnt++] = 680;
@@ -3311,7 +3311,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x800000008000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 689;
               break;
             case 689:
-              if ((0x400000004000L & l) != 0L && kind > 81) kind = 81;
+              if ((0x400000004000L & l) != 0L && kind > 80) kind = 80;
               break;
             case 690:
               if ((0x100000001000000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 691;
@@ -3329,7 +3329,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x1000000010L & l) != 0L) jjstateSet[jjnewStateCnt++] = 695;
               break;
             case 695:
-              if ((0x8000000080000L & l) != 0L && kind > 90) kind = 90;
+              if ((0x8000000080000L & l) != 0L && kind > 89) kind = 89;
               break;
             case 696:
               if ((0x400000004000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 697;
@@ -3356,7 +3356,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x800000008000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 704;
               break;
             case 704:
-              if ((0x400000004000L & l) != 0L && kind > 103) kind = 103;
+              if ((0x400000004000L & l) != 0L && kind > 102) kind = 102;
               break;
             case 705:
               if ((0x400000004000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 706;
@@ -3371,7 +3371,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x400000004000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 709;
               break;
             case 709:
-              if ((0x2000000020L & l) != 0L && kind > 110) kind = 110;
+              if ((0x2000000020L & l) != 0L && kind > 109) kind = 109;
               break;
             case 710:
               if ((0x100000001000000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 711;
@@ -3389,7 +3389,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x20000000200L & l) != 0L) jjstateSet[jjnewStateCnt++] = 715;
               break;
             case 715:
-              if ((0x400000004000L & l) != 0L && kind > 118) kind = 118;
+              if ((0x400000004000L & l) != 0L && kind > 117) kind = 117;
               break;
             case 716:
               if ((0x100000001000000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 717;
@@ -3407,7 +3407,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x10000000100000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 721;
               break;
             case 721:
-              if ((0x2000000020L & l) != 0L && kind > 122) kind = 122;
+              if ((0x2000000020L & l) != 0L && kind > 121) kind = 121;
               break;
             case 722:
               if ((0x100000001000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 723;
@@ -3416,7 +3416,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x8000000080000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 724;
               break;
             case 724:
-              if ((0x2000000020L & l) != 0L && kind > 133) kind = 133;
+              if ((0x2000000020L & l) != 0L && kind > 132) kind = 132;
               break;
             case 725:
               if ((0x100000001000000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 726;
@@ -3431,10 +3431,10 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x10000000100000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 729;
               break;
             case 729:
-              if ((0x8000000080000L & l) != 0L && kind > 150) kind = 150;
+              if ((0x8000000080000L & l) != 0L && kind > 149) kind = 149;
               break;
             case 730:
-              if ((0x20000000200000L & l) != 0L) jjAddStates(201, 207);
+              if ((0x20000000200000L & l) != 0L) jjAddStates(200, 206);
               break;
             case 731:
               if ((0x1000000010000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 732;
@@ -3479,7 +3479,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x4000000040L & l) != 0L) jjstateSet[jjnewStateCnt++] = 745;
               break;
             case 745:
-              if ((0x2000000020L & l) != 0L && kind > 64) kind = 64;
+              if ((0x2000000020L & l) != 0L && kind > 63) kind = 63;
               break;
             case 746:
               if ((0x400000004000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 747;
@@ -3494,7 +3494,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x400000004000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 750;
               break;
             case 750:
-              if ((0x1000000010L & l) != 0L && kind > 72) kind = 72;
+              if ((0x1000000010L & l) != 0L && kind > 71) kind = 71;
               break;
             case 751:
               if ((0x1000000010000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 752;
@@ -3518,7 +3518,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x100000001000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 758;
               break;
             case 758:
-              if ((0x2000000020L & l) != 0L && kind > 80) kind = 80;
+              if ((0x2000000020L & l) != 0L && kind > 79) kind = 79;
               break;
             case 759:
               if ((0x8000000080000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 760;
@@ -3527,7 +3527,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 761;
               break;
             case 761:
-              if ((0x4000000040000L & l) != 0L && kind > 157) kind = 157;
+              if ((0x4000000040000L & l) != 0L && kind > 156) kind = 156;
               break;
             case 762:
               if ((0x8000000080000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 763;
@@ -3539,10 +3539,10 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x4000000040000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 765;
               break;
             case 765:
-              if ((0x8000000080000L & l) != 0L && kind > 158) kind = 158;
+              if ((0x8000000080000L & l) != 0L && kind > 157) kind = 157;
               break;
             case 766:
-              if ((0x4000000040L & l) != 0L) jjAddStates(193, 200);
+              if ((0x4000000040L & l) != 0L) jjAddStates(192, 199);
               break;
             case 767:
               if ((0x4000000040000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 768;
@@ -3584,7 +3584,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x400000004000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 780;
               break;
             case 780:
-              if ((0x1000000010L & l) != 0L && kind > 88) kind = 88;
+              if ((0x1000000010L & l) != 0L && kind > 87) kind = 87;
               break;
             case 781:
               if ((0x800000008000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 782;
@@ -3596,7 +3596,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x800000008L & l) != 0L) jjstateSet[jjnewStateCnt++] = 784;
               break;
             case 784:
-              if ((0x2000000020L & l) != 0L && kind > 106) kind = 106;
+              if ((0x2000000020L & l) != 0L && kind > 105) kind = 105;
               break;
             case 785:
               if ((0x20000000200000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 786;
@@ -3617,7 +3617,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x800000008000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 791;
               break;
             case 791:
-              if ((0x400000004000L & l) != 0L && kind > 125) kind = 125;
+              if ((0x400000004000L & l) != 0L && kind > 124) kind = 124;
               break;
             case 792:
               if ((0x200000002L & l) != 0L) jjstateSet[jjnewStateCnt++] = 793;
@@ -3626,7 +3626,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x20000000200L & l) != 0L) jjstateSet[jjnewStateCnt++] = 794;
               break;
             case 794:
-              if ((0x100000001000L & l) != 0L && kind > 135) kind = 135;
+              if ((0x100000001000L & l) != 0L && kind > 134) kind = 134;
               break;
             case 795:
               if ((0x800000008000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 796;
@@ -3644,7 +3644,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x800000008L & l) != 0L) jjstateSet[jjnewStateCnt++] = 800;
               break;
             case 800:
-              if ((0x10000000100L & l) != 0L && kind > 151) kind = 151;
+              if ((0x10000000100L & l) != 0L && kind > 150) kind = 150;
               break;
             case 801:
               if ((0x200000002L & l) != 0L) jjstateSet[jjnewStateCnt++] = 802;
@@ -3656,10 +3656,10 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x8000000080000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 804;
               break;
             case 804:
-              if ((0x2000000020L & l) != 0L && kind > 190) kind = 190;
+              if ((0x2000000020L & l) != 0L && kind > 189) kind = 189;
               break;
             case 805:
-              if ((0x80000000800000L & l) != 0L) jjAddStates(189, 192);
+              if ((0x80000000800000L & l) != 0L) jjAddStates(188, 191);
               break;
             case 806:
               if ((0x10000000100L & l) != 0L) jjstateSet[jjnewStateCnt++] = 807;
@@ -3692,7 +3692,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x20000000200L & l) != 0L) jjstateSet[jjnewStateCnt++] = 816;
               break;
             case 816:
-              if ((0x10000000100000L & l) != 0L && kind > 56) kind = 56;
+              if ((0x10000000100000L & l) != 0L && kind > 55) kind = 55;
               break;
             case 817:
               if ((0x20000000200L & l) != 0L) jjstateSet[jjnewStateCnt++] = 818;
@@ -3707,10 +3707,10 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x20000000200L & l) != 0L) jjstateSet[jjnewStateCnt++] = 821;
               break;
             case 821:
-              if ((0x400000004000L & l) != 0L && kind > 71) kind = 71;
+              if ((0x400000004000L & l) != 0L && kind > 70) kind = 70;
               break;
             case 822:
-              if ((0x200000002L & l) != 0L) jjAddStates(180, 188);
+              if ((0x200000002L & l) != 0L) jjAddStates(179, 187);
               break;
             case 823:
               if ((0x1000000010L & l) != 0L) jjstateSet[jjnewStateCnt++] = 824;
@@ -3764,7 +3764,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x800000008L & l) != 0L) jjstateSet[jjnewStateCnt++] = 840;
               break;
             case 840:
-              if ((0x10000000100000L & l) != 0L && kind > 92) kind = 92;
+              if ((0x10000000100000L & l) != 0L && kind > 91) kind = 91;
               break;
             case 841:
               if ((0x100000001000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 842;
@@ -3776,7 +3776,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 844;
               break;
             case 844:
-              if ((0x4000000040000L & l) != 0L && kind > 93) kind = 93;
+              if ((0x4000000040000L & l) != 0L && kind > 92) kind = 92;
               break;
             case 845:
               if ((0x1000000010L & l) != 0L) jjstateSet[jjnewStateCnt++] = 846;
@@ -3803,16 +3803,16 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 853;
               break;
             case 853:
-              if ((0x4000000040000L & l) != 0L && kind > 98) kind = 98;
+              if ((0x4000000040000L & l) != 0L && kind > 97) kind = 97;
               break;
             case 854:
               if ((0x100000001000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 855;
               break;
             case 855:
-              if ((0x100000001000L & l) != 0L && kind > 123) kind = 123;
+              if ((0x100000001000L & l) != 0L && kind > 122) kind = 122;
               break;
             case 856:
-              if ((0x1000000010000L & l) != 0L) jjAddStates(172, 179);
+              if ((0x1000000010000L & l) != 0L) jjAddStates(171, 178);
               break;
             case 857:
               if ((0x20000000200000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 858;
@@ -3839,7 +3839,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 865;
               break;
             case 865:
-              if ((0x100000001000L & l) != 0L && kind > 65) kind = 65;
+              if ((0x100000001000L & l) != 0L && kind > 64) kind = 64;
               break;
             case 866:
               if ((0x4000000040000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 867;
@@ -3857,7 +3857,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x100000001000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 871;
               break;
             case 871:
-              if ((0x2000000020L & l) != 0L && kind > 82) kind = 82;
+              if ((0x2000000020L & l) != 0L && kind > 81) kind = 81;
               break;
             case 872:
               if ((0x800000008000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 873;
@@ -3887,7 +3887,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x20000000200L & l) != 0L) jjstateSet[jjnewStateCnt++] = 881;
               break;
             case 881:
-              if ((0x800000008L & l) != 0L && kind > 87) kind = 87;
+              if ((0x800000008L & l) != 0L && kind > 86) kind = 86;
               break;
             case 882:
               if ((0x4000000040000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 883;
@@ -3908,7 +3908,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x10000000100000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 888;
               break;
             case 888:
-              if ((0x200000002000000L & l) != 0L && kind > 105) kind = 105;
+              if ((0x200000002000000L & l) != 0L && kind > 104) kind = 104;
               break;
             case 889:
               if ((0x200000002L & l) != 0L) jjstateSet[jjnewStateCnt++] = 890;
@@ -3935,7 +3935,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x4000000040000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 897;
               break;
             case 897:
-              if ((0x8000000080000L & l) != 0L && kind > 126) kind = 126;
+              if ((0x8000000080000L & l) != 0L && kind > 125) kind = 125;
               break;
             case 898:
               if ((0x200000002L & l) != 0L) jjstateSet[jjnewStateCnt++] = 899;
@@ -3959,7 +3959,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x200000002L & l) != 0L) jjstateSet[jjnewStateCnt++] = 905;
               break;
             case 905:
-              if ((0x8000000080000L & l) != 0L && kind > 154) kind = 154;
+              if ((0x8000000080000L & l) != 0L && kind > 153) kind = 153;
               break;
             case 906:
               if ((0x800000008000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 907;
@@ -3974,10 +3974,10 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x800000008L & l) != 0L) jjstateSet[jjnewStateCnt++] = 910;
               break;
             case 910:
-              if ((0x200000002000000L & l) != 0L && kind > 161) kind = 161;
+              if ((0x200000002000000L & l) != 0L && kind > 160) kind = 160;
               break;
             case 911:
-              if ((0x4000000040000L & l) != 0L) jjAddStates(160, 171);
+              if ((0x4000000040000L & l) != 0L) jjAddStates(159, 170);
               break;
             case 913:
               if ((0x200000002000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 914;
@@ -4019,7 +4019,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x4000000040000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 926;
               break;
             case 926:
-              if ((0x1000000010L & l) != 0L && kind > 55) kind = 55;
+              if ((0x1000000010L & l) != 0L && kind > 54) kind = 54;
               break;
             case 927:
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 928;
@@ -4031,7 +4031,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x4000000040000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 930;
               break;
             case 930:
-              if ((0x200000002000000L & l) != 0L && kind > 57) kind = 57;
+              if ((0x200000002000000L & l) != 0L && kind > 56) kind = 56;
               break;
             case 931:
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 932;
@@ -4058,7 +4058,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 939;
               break;
             case 939:
-              if ((0x8000000080000L & l) != 0L && kind > 89) kind = 89;
+              if ((0x8000000080000L & l) != 0L && kind > 88) kind = 88;
               break;
             case 940:
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 941;
@@ -4094,7 +4094,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 951;
               break;
             case 951:
-              if ((0x4000000040000L & l) != 0L && kind > 99) kind = 99;
+              if ((0x4000000040000L & l) != 0L && kind > 98) kind = 98;
               break;
             case 952:
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 953;
@@ -4112,7 +4112,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x100000001000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 957;
               break;
             case 957:
-              if ((0x1000000010L & l) != 0L && kind > 111) kind = 111;
+              if ((0x1000000010L & l) != 0L && kind > 110) kind = 110;
               break;
             case 958:
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 959;
@@ -4127,7 +4127,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x80000000800L & l) != 0L) jjstateSet[jjnewStateCnt++] = 962;
               break;
             case 962:
-              if ((0x2000000020L & l) != 0L && kind > 120) kind = 120;
+              if ((0x2000000020L & l) != 0L && kind > 119) kind = 119;
               break;
             case 963:
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 964;
@@ -4136,7 +4136,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x200000002L & l) != 0L) jjstateSet[jjnewStateCnt++] = 965;
               break;
             case 965:
-              if ((0x1000000010L & l) != 0L && kind > 121) kind = 121;
+              if ((0x1000000010L & l) != 0L && kind > 120) kind = 120;
               break;
             case 966:
               if ((0x800000008000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 967;
@@ -4154,7 +4154,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x800000008L & l) != 0L) jjstateSet[jjnewStateCnt++] = 972;
               break;
             case 972:
-              if ((0x80000000800L & l) != 0L && kind > 131) kind = 131;
+              if ((0x80000000800L & l) != 0L && kind > 130) kind = 130;
               break;
             case 973:
               if ((0x800000008000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 974;
@@ -4163,16 +4163,16 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x100000001000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 975;
               break;
             case 975:
-              if ((0x2000000020L & l) != 0L && kind > 156) kind = 156;
+              if ((0x2000000020L & l) != 0L && kind > 155) kind = 155;
               break;
             case 976:
               if ((0x20000000200L & l) != 0L) jjstateSet[jjnewStateCnt++] = 977;
               break;
             case 977:
-              if ((0x1000000010L & l) != 0L && kind > 159) kind = 159;
+              if ((0x1000000010L & l) != 0L && kind > 158) kind = 158;
               break;
             case 978:
-              if ((0x800000008000L & l) != 0L) jjAddStates(152, 159);
+              if ((0x800000008000L & l) != 0L) jjAddStates(151, 158);
               break;
             case 979:
               if ((0x4000000040000L & l) != 0L && kind > 36) kind = 36;
@@ -4205,13 +4205,13 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x10000000100000L & l) != 0L && kind > 45) kind = 45;
               break;
             case 989:
-              if ((0x400000004000L & l) != 0L && kind > 84) kind = 84;
+              if ((0x400000004000L & l) != 0L && kind > 83) kind = 83;
               break;
             case 990:
               if ((0x4000000040L & l) != 0L) jjstateSet[jjnewStateCnt++] = 991;
               break;
             case 991:
-              if ((0x4000000040L & l) != 0L && kind > 85) kind = 85;
+              if ((0x4000000040L & l) != 0L && kind > 84) kind = 84;
               break;
             case 992:
               if ((0x40000000400000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 993;
@@ -4232,7 +4232,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x400000004000000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 998;
               break;
             case 998:
-              if ((0x2000000020L & l) != 0L && kind > 96) kind = 96;
+              if ((0x2000000020L & l) != 0L && kind > 95) kind = 95;
               break;
             case 999:
               if ((0x1000000010000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1000;
@@ -4253,7 +4253,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x400000004000000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1005;
               break;
             case 1005:
-              if ((0x2000000020L & l) != 0L && kind > 114) kind = 114;
+              if ((0x2000000020L & l) != 0L && kind > 113) kind = 113;
               break;
             case 1006:
               if ((0x1000000010000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1007;
@@ -4274,10 +4274,10 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x200000002L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1012;
               break;
             case 1012:
-              if ((0x100000001000L & l) != 0L && kind > 143) kind = 143;
+              if ((0x100000001000L & l) != 0L && kind > 142) kind = 142;
               break;
             case 1013:
-              if ((0x400000004000L & l) != 0L) jjAddStates(144, 151);
+              if ((0x400000004000L & l) != 0L) jjAddStates(143, 150);
               break;
             case 1014:
               if ((0x20000000200000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1015;
@@ -4304,7 +4304,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x10000000100L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1022;
               break;
             case 1022:
-              if ((0x2000000020L & l) != 0L && kind > 61) kind = 61;
+              if ((0x2000000020L & l) != 0L && kind > 60) kind = 60;
               break;
             case 1023:
               if ((0x800000008000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1024;
@@ -4322,7 +4322,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x20000000200L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1028;
               break;
             case 1028:
-              if ((0x10000000100000L & l) != 0L && kind > 62) kind = 62;
+              if ((0x10000000100000L & l) != 0L && kind > 61) kind = 61;
               break;
             case 1029:
               if ((0x800000008000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1030;
@@ -4340,7 +4340,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x100000001000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1034;
               break;
             case 1034:
-              if ((0x2000000020L & l) != 0L && kind > 63) kind = 63;
+              if ((0x2000000020L & l) != 0L && kind > 62) kind = 62;
               break;
             case 1035:
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1036;
@@ -4349,7 +4349,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x200000002L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1037;
               break;
             case 1037:
-              if ((0x4000000040000L & l) != 0L && kind > 70) kind = 70;
+              if ((0x4000000040000L & l) != 0L && kind > 69) kind = 69;
               break;
             case 1038:
               if ((0x200000002L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1039;
@@ -4358,7 +4358,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x200000002000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1040;
               break;
             case 1040:
-              if ((0x2000000020L & l) != 0L && kind > 94) kind = 94;
+              if ((0x2000000020L & l) != 0L && kind > 93) kind = 93;
               break;
             case 1041:
               if ((0x800000008000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1042;
@@ -4367,16 +4367,16 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x400000004000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1043;
               break;
             case 1043:
-              if ((0x2000000020L & l) != 0L && kind > 124) kind = 124;
+              if ((0x2000000020L & l) != 0L && kind > 123) kind = 123;
               break;
             case 1044:
               if ((0x800000008000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1045;
               break;
             case 1045:
-              if ((0x10000000100000L & l) != 0L && kind > 244) kind = 244;
+              if ((0x10000000100000L & l) != 0L && kind > 243) kind = 243;
               break;
             case 1046:
-              if ((0x8000000080L & l) != 0L) jjAddStates(142, 143);
+              if ((0x8000000080L & l) != 0L) jjAddStates(141, 142);
               break;
             case 1047:
               if ((0x4000000040000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1048;
@@ -4400,10 +4400,10 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x400000004000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1054;
               break;
             case 1054:
-              if ((0x10000000100000L & l) != 0L && kind > 119) kind = 119;
+              if ((0x10000000100000L & l) != 0L && kind > 118) kind = 118;
               break;
             case 1055:
-              if ((0x400000004L & l) != 0L) jjAddStates(135, 141);
+              if ((0x400000004L & l) != 0L) jjAddStates(134, 140);
               break;
             case 1056:
               if ((0x200000002000000L & l) != 0L && kind > 41) kind = 41;
@@ -4469,7 +4469,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x8000000080000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1077;
               break;
             case 1077:
-              if ((0x10000000100000L & l) != 0L && kind > 68) kind = 68;
+              if ((0x10000000100000L & l) != 0L && kind > 67) kind = 67;
               break;
             case 1078:
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1079;
@@ -4481,7 +4481,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x20000000200L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1081;
               break;
             case 1081:
-              if ((0x400000004000L & l) != 0L && kind > 129) kind = 129;
+              if ((0x400000004000L & l) != 0L && kind > 128) kind = 128;
               break;
             case 1082:
               if ((0x100000001000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1083;
@@ -4490,7 +4490,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x800000008000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1084;
               break;
             case 1084:
-              if ((0x400000004L & l) != 0L && kind > 138) kind = 138;
+              if ((0x400000004L & l) != 0L && kind > 137) kind = 137;
               break;
             case 1085:
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1086;
@@ -4508,10 +4508,10 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1090;
               break;
             case 1090:
-              if ((0x400000004000L & l) != 0L && kind > 248) kind = 248;
+              if ((0x400000004000L & l) != 0L && kind > 247) kind = 247;
               break;
             case 1091:
-              if ((0x100000001000L & l) != 0L) jjAddStates(128, 134);
+              if ((0x100000001000L & l) != 0L) jjAddStates(128, 133);
               break;
             case 1092:
               if ((0x20000000200L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1093;
@@ -4526,305 +4526,296 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
               if ((0x10000000100000L & l) != 0L && kind > 42) kind = 42;
               break;
             case 1096:
-              if ((0x800000008000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1097;
+              if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1097;
               break;
             case 1097:
-              if ((0x800000008L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1098;
+              if ((0x10000000100000L & l) != 0L && kind > 57) kind = 57;
               break;
             case 1098:
-              if ((0x80000000800L & l) != 0L && kind > 54) kind = 54;
+              if ((0x20000000200000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1099;
               break;
             case 1099:
-              if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1100;
+              if ((0x800000008L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1100;
               break;
             case 1100:
-              if ((0x10000000100000L & l) != 0L && kind > 58) kind = 58;
+              if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1101;
               break;
             case 1101:
-              if ((0x20000000200000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1102;
+              if ((0x400000004000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1102;
               break;
             case 1102:
-              if ((0x800000008L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1103;
+              if ((0x2000000020L & l) != 0L && kind > 68) kind = 68;
               break;
             case 1103:
-              if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1104;
+              if ((0x20000000200L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1104;
               break;
             case 1104:
               if ((0x400000004000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1105;
               break;
             case 1105:
-              if ((0x2000000020L & l) != 0L && kind > 69) kind = 69;
+              if ((0x80000000800L & l) != 0L && kind > 114) kind = 114;
               break;
             case 1106:
-              if ((0x20000000200L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1107;
+              if ((0x200000002L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1107;
               break;
             case 1107:
               if ((0x400000004000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1108;
               break;
             case 1108:
-              if ((0x80000000800L & l) != 0L && kind > 115) kind = 115;
+              if ((0x8000000080L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1109;
               break;
             case 1109:
-              if ((0x200000002L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1110;
+              if ((0x20000000200000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1110;
               break;
             case 1110:
-              if ((0x400000004000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1111;
+              if ((0x200000002L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1111;
               break;
             case 1111:
               if ((0x8000000080L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1112;
               break;
             case 1112:
-              if ((0x20000000200000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1113;
+              if ((0x2000000020L & l) != 0L && kind > 127) kind = 127;
               break;
             case 1113:
-              if ((0x200000002L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1114;
+              if ((0x20000000200L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1114;
               break;
             case 1114:
-              if ((0x8000000080L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1115;
+              if ((0x80000000800L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1115;
               break;
             case 1115:
-              if ((0x2000000020L & l) != 0L && kind > 128) kind = 128;
+              if ((0x2000000020L & l) != 0L && kind > 245) kind = 245;
               break;
             case 1116:
-              if ((0x20000000200L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1117;
-              break;
-            case 1117:
-              if ((0x80000000800L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1118;
-              break;
-            case 1118:
-              if ((0x2000000020L & l) != 0L && kind > 246) kind = 246;
-              break;
-            case 1119:
               if (curChar == 64) jjAddStates(117, 127);
               break;
+            case 1118:
+              if ((0x10000000100L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1119;
+              break;
+            case 1119:
+              if ((0x20000000200L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1120;
+              break;
+            case 1120:
+              if ((0x8000000080000L & l) != 0L && kind > 163) kind = 163;
+              break;
             case 1121:
-              if ((0x10000000100L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1122;
+              if ((0x4000000040000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1122;
               break;
             case 1122:
-              if ((0x20000000200L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1123;
+            case 1150:
+              if ((0x20000000200L & l) != 0L) jjCheckNAdd(1123);
               break;
             case 1123:
-              if ((0x8000000080000L & l) != 0L && kind > 164) kind = 164;
+              if ((0x1000000010L & l) != 0L && kind > 164) kind = 164;
               break;
             case 1124:
-              if ((0x4000000040000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1125;
+              if ((0x800000008L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1125;
               break;
             case 1125:
-            case 1153:
-              if ((0x20000000200L & l) != 0L) jjCheckNAdd(1126);
+              if ((0x100000001000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1126;
               break;
             case 1126:
-              if ((0x1000000010L & l) != 0L && kind > 165) kind = 165;
+              if ((0x200000002L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1127;
               break;
             case 1127:
-              if ((0x800000008L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1128;
+              if ((0x8000000080000L & l) != 0L) jjCheckNAdd(1128);
               break;
             case 1128:
-              if ((0x100000001000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1129;
+              if ((0x8000000080000L & l) != 0L && kind > 164) kind = 164;
               break;
             case 1129:
-              if ((0x200000002L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1130;
+              if ((0x40000000400000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1130;
               break;
             case 1130:
-              if ((0x8000000080000L & l) != 0L) jjCheckNAdd(1131);
+              if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1131;
               break;
             case 1131:
-              if ((0x8000000080000L & l) != 0L && kind > 165) kind = 165;
+              if ((0x4000000040000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1132;
               break;
             case 1132:
-              if ((0x40000000400000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1133;
+              if ((0x8000000080000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1133;
               break;
             case 1133:
-              if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1134;
+              if ((0x20000000200L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1134;
               break;
             case 1134:
-              if ((0x4000000040000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1135;
+              if ((0x800000008000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1135;
               break;
             case 1135:
-              if ((0x8000000080000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1136;
+              if ((0x400000004000L & l) != 0L && kind > 164) kind = 164;
               break;
             case 1136:
-              if ((0x20000000200L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1137;
+              if ((0x8000000080000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1137;
               break;
             case 1137:
-              if ((0x800000008000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1138;
+              if ((0x20000000200L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1138;
               break;
             case 1138:
-              if ((0x400000004000L & l) != 0L && kind > 165) kind = 165;
+              if ((0x400000004000000L & l) != 0L) jjCheckNAdd(1139);
               break;
             case 1139:
-              if ((0x8000000080000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1140;
+              if ((0x2000000020L & l) != 0L && kind > 164) kind = 164;
               break;
             case 1140:
-              if ((0x20000000200L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1141;
+              if ((0x10000000100000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1141;
               break;
             case 1141:
-              if ((0x400000004000000L & l) != 0L) jjCheckNAdd(1142);
+              if ((0x200000002000000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1142;
               break;
             case 1142:
-              if ((0x2000000020L & l) != 0L && kind > 165) kind = 165;
+              if ((0x1000000010000L & l) != 0L) jjCheckNAdd(1139);
               break;
             case 1143:
-              if ((0x10000000100000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1144;
+              if ((0x4000000040000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1144;
               break;
             case 1144:
-              if ((0x200000002000000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1145;
+              if ((0x200000002L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1145;
               break;
             case 1145:
-              if ((0x1000000010000L & l) != 0L) jjCheckNAdd(1142);
+              if ((0x80000000800000L & l) != 0L && kind > 164) kind = 164;
               break;
             case 1146:
               if ((0x4000000040000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1147;
               break;
             case 1147:
-              if ((0x200000002L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1148;
+              if ((0x20000000200L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1148;
               break;
             case 1148:
-              if ((0x80000000800000L & l) != 0L && kind > 165) kind = 165;
+              if ((0x1000000010L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1149;
               break;
             case 1149:
-              if ((0x4000000040000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1150;
-              break;
-            case 1150:
-              if ((0x20000000200L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1151;
+              if (curChar == 95) jjstateSet[jjnewStateCnt++] = 1150;
               break;
             case 1151:
-              if ((0x1000000010L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1152;
+              if ((0x4000000040000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1152;
               break;
             case 1152:
-              if (curChar == 95) jjstateSet[jjnewStateCnt++] = 1153;
+              if ((0x20000000200L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1153;
+              break;
+            case 1153:
+              if ((0x1000000010L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1154;
               break;
             case 1154:
-              if ((0x4000000040000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1155;
+              if (curChar == 95) jjstateSet[jjnewStateCnt++] = 1155;
               break;
             case 1155:
-              if ((0x20000000200L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1156;
+              if ((0x1000000010000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1156;
               break;
             case 1156:
-              if ((0x1000000010L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1157;
+              if ((0x800000008000L & l) != 0L) jjCheckNAdd(1128);
               break;
             case 1157:
-              if (curChar == 95) jjstateSet[jjnewStateCnt++] = 1158;
+              if ((0x4000000040L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1158;
               break;
             case 1158:
-              if ((0x1000000010000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1159;
+              if ((0x20000000200L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1159;
               break;
             case 1159:
-              if ((0x800000008000L & l) != 0L) jjCheckNAdd(1131);
+              if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1160;
               break;
             case 1160:
-              if ((0x4000000040L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1161;
+              if ((0x100000001000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1161;
               break;
             case 1161:
-              if ((0x20000000200L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1162;
+              if ((0x1000000010L & l) != 0L) jjCheckNAdd(1128);
               break;
             case 1162:
-              if ((0x2000000020L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1163;
+              if ((0x4000000040000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1163;
               break;
             case 1163:
-              if ((0x100000001000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1164;
+              if ((0x20000000200L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1164;
               break;
             case 1164:
-              if ((0x1000000010L & l) != 0L) jjCheckNAdd(1131);
-              break;
-            case 1165:
-              if ((0x4000000040000L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1166;
-              break;
-            case 1166:
-              if ((0x20000000200L & l) != 0L) jjstateSet[jjnewStateCnt++] = 1167;
+              if ((0x1000000010L & l) != 0L && kind > 165) kind = 165;
               break;
             case 1167:
-              if ((0x1000000010L & l) != 0L && kind > 166) kind = 166;
+              if ((0x100000001000L & l) != 0L && kind > 175) kind = 175;
               break;
-            case 1170:
-              if ((0x100000001000L & l) != 0L && kind > 176) kind = 176;
+            case 1169:
+              if ((0x100000001000L & l) != 0L) jjCheckNAdd(1179);
               break;
-            case 1172:
-              if ((0x100000001000L & l) != 0L) jjCheckNAdd(1182);
+            case 1174:
+              if ((0x100000001000L & l) != 0L && kind > 186) kind = 186;
+              break;
+            case 1176:
+              if ((0x100000001000000L & l) != 0L) jjCheckNAdd(1177);
               break;
             case 1177:
+              if ((0x7e0000007eL & l) == 0L) break;
+              if (kind > 186) kind = 186;
+              jjCheckNAddTwoStates(1177, 1174);
+              break;
+            case 1181:
+              if ((0x100000001000L & l) != 0L) jjCheckNAdd(1192);
+              break;
+            case 1186:
               if ((0x100000001000L & l) != 0L && kind > 187) kind = 187;
               break;
-            case 1179:
-              if ((0x100000001000000L & l) != 0L) jjCheckNAdd(1180);
-              break;
-            case 1180:
-              if ((0x7e0000007eL & l) == 0L) break;
-              if (kind > 187) kind = 187;
-              jjCheckNAddTwoStates(1180, 1177);
-              break;
-            case 1184:
-              if ((0x100000001000L & l) != 0L) jjCheckNAdd(1195);
+            case 1188:
+              if ((0x100000001000000L & l) != 0L) jjCheckNAdd(1189);
               break;
             case 1189:
-              if ((0x100000001000L & l) != 0L && kind > 188) kind = 188;
-              break;
-            case 1191:
-              if ((0x100000001000000L & l) != 0L) jjCheckNAdd(1192);
-              break;
-            case 1192:
               if ((0x7e0000007eL & l) == 0L) break;
-              if (kind > 188) kind = 188;
-              jjCheckNAddTwoStates(1192, 1189);
+              if (kind > 187) kind = 187;
+              jjCheckNAddTwoStates(1189, 1186);
+              break;
+            case 1194:
+              if ((0xffffffffefffffffL & l) != 0L) jjCheckNAdd(1195);
+              break;
+            case 1196:
+              if (curChar == 92) jjAddStates(311, 313);
               break;
             case 1197:
-              if ((0xffffffffefffffffL & l) != 0L) jjCheckNAdd(1198);
+              if ((0x14404410000000L & l) != 0L) jjCheckNAdd(1195);
               break;
-            case 1199:
-              if (curChar == 92) jjAddStates(312, 314);
-              break;
-            case 1200:
-              if ((0x14404410000000L & l) != 0L) jjCheckNAdd(1198);
-              break;
-            case 1205:
+            case 1202:
               if ((0xffffffffefffffffL & l) != 0L) jjCheckNAddStates(93, 95);
               break;
-            case 1206:
-              if (curChar == 92) jjAddStates(315, 317);
+            case 1203:
+              if (curChar == 92) jjAddStates(314, 316);
               break;
-            case 1207:
+            case 1204:
               if ((0x14404410000000L & l) != 0L) jjCheckNAddStates(93, 95);
               break;
-            case 1217:
-              if ((0x100000001000000L & l) != 0L) jjCheckNAdd(1218);
+            case 1214:
+              if ((0x100000001000000L & l) != 0L) jjCheckNAdd(1215);
               break;
-            case 1218:
+            case 1215:
               if ((0x7e0000007eL & l) != 0L) jjCheckNAddStates(100, 102);
               break;
-            case 1221:
-              if ((0x100000001000000L & l) != 0L) jjCheckNAdd(1222);
+            case 1218:
+              if ((0x100000001000000L & l) != 0L) jjCheckNAdd(1219);
               break;
-            case 1222:
+            case 1219:
               if ((0x7e0000007eL & l) != 0L) jjCheckNAddStates(106, 108);
               break;
+            case 1222:
+              if ((0x100000001000000L & l) != 0L) jjCheckNAdd(1223);
+              break;
+            case 1223:
+              if ((0x7e0000007eL & l) == 0L) break;
+              if (kind > 175) kind = 175;
+              jjCheckNAddTwoStates(1223, 1167);
+              break;
             case 1225:
-              if ((0x100000001000000L & l) != 0L) jjCheckNAdd(1226);
+              if ((0x100000001000000L & l) != 0L) jjCheckNAddTwoStates(1226, 1227);
               break;
             case 1226:
-              if ((0x7e0000007eL & l) == 0L) break;
-              if (kind > 176) kind = 176;
-              jjCheckNAddTwoStates(1226, 1170);
+              if ((0x7e0000007eL & l) != 0L) jjCheckNAddTwoStates(1226, 1227);
               break;
             case 1228:
-              if ((0x100000001000000L & l) != 0L) jjCheckNAddTwoStates(1229, 1230);
+              if ((0x7e0000007eL & l) != 0L) jjAddStates(317, 318);
               break;
             case 1229:
-              if ((0x7e0000007eL & l) != 0L) jjCheckNAddTwoStates(1229, 1230);
-              break;
-            case 1231:
-              if ((0x7e0000007eL & l) != 0L) jjAddStates(318, 319);
+              if ((0x1000000010000L & l) != 0L) jjAddStates(319, 320);
               break;
             case 1232:
-              if ((0x1000000010000L & l) != 0L) jjAddStates(320, 321);
+              if ((0x100000001000000L & l) != 0L) jjCheckNAdd(1233);
               break;
-            case 1235:
-              if ((0x100000001000000L & l) != 0L) jjCheckNAdd(1236);
-              break;
-            case 1236:
+            case 1233:
               if ((0x7e0000007eL & l) != 0L) jjCheckNAddStates(114, 116);
               break;
-            case 1238:
-              if ((0x1000000010000L & l) != 0L) jjAddStates(322, 323);
+            case 1235:
+              if ((0x1000000010000L & l) != 0L) jjAddStates(321, 322);
               break;
             default:
               break;
@@ -4848,10 +4839,10 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
             case 19:
               if (jjCanMove_0(hiByte, i1, i2, l1, l2)) jjAddStates(19, 21);
               break;
-            case 1197:
-              if (jjCanMove_0(hiByte, i1, i2, l1, l2)) jjstateSet[jjnewStateCnt++] = 1198;
+            case 1194:
+              if (jjCanMove_0(hiByte, i1, i2, l1, l2)) jjstateSet[jjnewStateCnt++] = 1195;
               break;
-            case 1205:
+            case 1202:
               if (jjCanMove_0(hiByte, i1, i2, l1, l2)) jjAddStates(93, 95);
               break;
             default:
@@ -4865,7 +4856,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
         kind = 0x7fffffff;
       }
       ++curPos;
-      if ((i = jjnewStateCnt) == (startsAt = 1241 - (jjnewStateCnt = startsAt))) return curPos;
+      if ((i = jjnewStateCnt) == (startsAt = 1238 - (jjnewStateCnt = startsAt))) return curPos;
       try {
         curChar = input_stream.readChar();
       } catch (java.io.IOException e) {
@@ -4925,27 +4916,27 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
   }
 
   static final int[] jjnextStates = {
-    33, 35, 36, 54, 55, 17, 58, 59, 62, 63, 1214, 1215, 1216, 1220, 1197, 1199,
-    1205, 1206, 1208, 19, 20, 22, 1169, 1170, 1171, 1172, 1182, 1183, 1184, 1195, 1225, 1227,
-    1170, 1228, 1235, 1221, 1223, 1172, 1182, 1217, 1219, 1184, 1195, 1183, 1184, 1195, 1221, 1223,
-    1172, 1182, 1171, 1172, 1182, 1217, 1219, 1184, 1195, 13, 14, 17, 19, 20, 24, 22,
+    33, 35, 36, 54, 55, 17, 58, 59, 62, 63, 1211, 1212, 1213, 1217, 1194, 1196,
+    1202, 1203, 1205, 19, 20, 22, 1166, 1167, 1168, 1169, 1179, 1180, 1181, 1192, 1222, 1224,
+    1167, 1225, 1232, 1218, 1220, 1169, 1179, 1214, 1216, 1181, 1192, 1180, 1181, 1192, 1218, 1220,
+    1169, 1179, 1168, 1169, 1179, 1214, 1216, 1181, 1192, 13, 14, 17, 19, 20, 24, 22,
     54, 55, 17, 64, 65, 17, 334, 315, 369, 350, 405, 386, 573, 576, 577, 579,
-    575, 1174, 1175, 1178, 1179, 1181, 1177, 1186, 1187, 1190, 1191, 1193, 1189, 1205, 1206, 1208,
-    1205, 1206, 1210, 1208, 1218, 1184, 1195, 1219, 1184, 1195, 1222, 1172, 1182, 1223, 1172, 1182,
-    1229, 1230, 1236, 1237, 1238, 1120, 1124, 1127, 1132, 1139, 1143, 1146, 1149, 1154, 1160, 1165,
-    1092, 1096, 1099, 1101, 1106, 1109, 1116, 1056, 1057, 1061, 1066, 1078, 1082, 1085, 1047, 1051,
-    1014, 1017, 1023, 1029, 1035, 1038, 1041, 1044, 979, 980, 984, 989, 990, 992, 999, 1006,
-    912, 917, 922, 927, 931, 940, 952, 958, 963, 966, 973, 976, 857, 859, 866, 872,
-    882, 889, 898, 906, 823, 825, 827, 829, 830, 834, 841, 845, 854, 806, 810, 814,
-    817, 767, 770, 778, 781, 785, 792, 795, 801, 731, 736, 741, 746, 751, 759, 762,
-    679, 682, 690, 696, 705, 710, 716, 722, 725, 661, 666, 670, 675, 581, 586, 592,
-    595, 605, 615, 618, 625, 631, 638, 647, 407, 412, 418, 422, 426, 430, 436, 443,
-    448, 463, 469, 474, 481, 487, 491, 498, 508, 518, 528, 540, 551, 557, 566, 242,
-    247, 250, 258, 262, 263, 269, 278, 279, 288, 289, 298, 303, 335, 370, 203, 207,
-    211, 218, 225, 232, 235, 175, 182, 183, 189, 196, 199, 69, 74, 76, 79, 86,
-    95, 106, 112, 120, 129, 133, 138, 145, 149, 154, 159, 162, 169, 15, 16, 21,
-    23, 25, 56, 57, 60, 61, 66, 67, 1200, 1201, 1203, 1207, 1209, 1211, 1231, 1232,
-    1233, 1234, 1239, 1240,
+    575, 1171, 1172, 1175, 1176, 1178, 1174, 1183, 1184, 1187, 1188, 1190, 1186, 1202, 1203, 1205,
+    1202, 1203, 1207, 1205, 1215, 1181, 1192, 1216, 1181, 1192, 1219, 1169, 1179, 1220, 1169, 1179,
+    1226, 1227, 1233, 1234, 1235, 1117, 1121, 1124, 1129, 1136, 1140, 1143, 1146, 1151, 1157, 1162,
+    1092, 1096, 1098, 1103, 1106, 1113, 1056, 1057, 1061, 1066, 1078, 1082, 1085, 1047, 1051, 1014,
+    1017, 1023, 1029, 1035, 1038, 1041, 1044, 979, 980, 984, 989, 990, 992, 999, 1006, 912,
+    917, 922, 927, 931, 940, 952, 958, 963, 966, 973, 976, 857, 859, 866, 872, 882,
+    889, 898, 906, 823, 825, 827, 829, 830, 834, 841, 845, 854, 806, 810, 814, 817,
+    767, 770, 778, 781, 785, 792, 795, 801, 731, 736, 741, 746, 751, 759, 762, 679,
+    682, 690, 696, 705, 710, 716, 722, 725, 661, 666, 670, 675, 581, 586, 592, 595,
+    605, 615, 618, 625, 631, 638, 647, 407, 412, 418, 422, 426, 430, 436, 443, 448,
+    463, 469, 474, 481, 487, 491, 498, 508, 518, 528, 540, 551, 557, 566, 242, 247,
+    250, 258, 262, 263, 269, 278, 279, 288, 289, 298, 303, 335, 370, 203, 207, 211,
+    218, 225, 232, 235, 175, 182, 183, 189, 196, 199, 69, 74, 76, 79, 86, 95,
+    106, 112, 120, 129, 133, 138, 145, 149, 154, 159, 162, 169, 15, 16, 21, 23,
+    25, 56, 57, 60, 61, 66, 67, 1197, 1198, 1200, 1204, 1206, 1208, 1228, 1229, 1230,
+    1231, 1236, 1237,
   };
 
   private static final boolean jjCanMove_0(int hiByte, int i1, int i2, long l1, long l2) {
@@ -4961,7 +4952,6 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
   /** Token literal values. */
   public static final String[] jjstrLiteralImages = {
     "",
-    null,
     null,
     null,
     null,
@@ -5274,11 +5264,11 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
         -1,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1,
   };
 
   static final long[] jjtoToken = {
-    0xfffffffffffff801L, 0xffffffffffffffffL, 0xfe1100ffffffffffL, 0xffffffffffffffffL, 0xfffcfffL,
+    0xfffffffffffff801L, 0xffffffffffffffffL, 0xff08807fffffffffL, 0xffffffffffffffffL, 0x7ffe7ffL,
   };
   static final long[] jjtoSkip = {
     0x33eL, 0x0L, 0x0L, 0x0L, 0x0L,
@@ -5290,8 +5280,8 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
     0x4c0L, 0x0L, 0x0L, 0x0L, 0x0L,
   };
   protected CharStream input_stream;
-  private final int[] jjrounds = new int[1241];
-  private final int[] jjstateSet = new int[2482];
+  private final int[] jjrounds = new int[1238];
+  private final int[] jjstateSet = new int[2476];
   private final StringBuilder jjimage = new StringBuilder();
   private StringBuilder image = jjimage;
   private int jjimageLen;
@@ -5320,7 +5310,7 @@ public class OrientSqlTokenManager implements OrientSqlConstants {
   private void ReInitRounds() {
     int i;
     jjround = 0x80000001;
-    for (i = 1241; i-- > 0; ) jjrounds[i] = 0x80000000;
+    for (i = 1238; i-- > 0; ) jjrounds[i] = 0x80000000;
   }
 
   /** Reinitialise parser. */

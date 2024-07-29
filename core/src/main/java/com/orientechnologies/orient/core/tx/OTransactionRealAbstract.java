@@ -57,7 +57,6 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
   protected int id;
   protected int newObjectCounter = -2;
   private final Map<String, Object> userData = new HashMap<>();
-  private Map<ORID, LockedRecordMetadata> noTxLocks;
   @Nullable private OTxMetadataHolder metadata = null;
 
   @Nullable private List<byte[]> serializedOperations;
@@ -68,8 +67,6 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
   }
 
   public void close() {
-    super.close();
-
     clearUnfinishedChanges();
 
     status = TXSTATUS.INVALID;
@@ -83,7 +80,7 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
 
     newObjectCounter = -2;
 
-    database.setDefaultTransactionMode(getNoTxLocks());
+    database.setDefaultTransactionMode();
     userData.clear();
   }
 
@@ -609,14 +606,6 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
 
   public int getNewObjectCounter() {
     return newObjectCounter;
-  }
-
-  public void setNoTxLocks(Map<ORID, LockedRecordMetadata> noTxLocks) {
-    this.noTxLocks = noTxLocks;
-  }
-
-  Map<ORID, LockedRecordMetadata> getNoTxLocks() {
-    return noTxLocks;
   }
 
   @Override

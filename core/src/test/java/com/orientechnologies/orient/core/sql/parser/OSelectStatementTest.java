@@ -768,17 +768,6 @@ public class OSelectStatementTest {
   }
 
   @Test
-  public void testLockRecord() {
-    checkRightSyntax("select from V LOCK RECORD");
-    checkRightSyntax("select from V LOCK NONE");
-    checkRightSyntax("select from V LOCK DEFAULT");
-    checkRightSyntax("select from V LOCK SHARED");
-
-    checkWrongSyntax("select from V LOCK RECORD FOO");
-    checkWrongSyntax("select from V LOCK FOO");
-  }
-
-  @Test
   public void testContainsAny() {
     checkRightSyntax("select from V WHERE foo containsany ['foo', 'bar']");
     checkRightSyntax("select from V WHERE foo CONTAINSANY ['foo', 'bar']");
