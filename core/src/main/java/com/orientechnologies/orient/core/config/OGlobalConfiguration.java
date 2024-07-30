@@ -445,13 +445,6 @@ public enum OGlobalConfiguration { // ENVIRONMENT
           + " purposes only. Never touch it if you don't know what you doing.",
       Integer.class,
       null),
-
-  STORAGE_PESSIMISTIC_LOCKING(
-      "storage.pessimisticLock",
-      "Set the approach of the pessimistic locking, valid options: none, modification, readwrite",
-      String.class,
-      "none"),
-
   /**
    * @deprecated WAL can not be disabled because that is very unsafe for consistency and durability
    */

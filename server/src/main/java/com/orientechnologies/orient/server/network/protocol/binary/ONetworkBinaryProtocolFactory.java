@@ -119,9 +119,6 @@ public class ONetworkBinaryProtocolFactory {
       case OChannelBinaryProtocol.REQUEST_RECORD_EXISTS:
         return new ORecordExistsRequest();
 
-      case OChannelBinaryProtocol.REQUEST_RECORD_LOAD_IF_VERSION_NOT_LATEST:
-        return new OReadRecordIfVersionIsNotLatestRequest();
-
       case OChannelBinaryProtocol.REQUEST_RECORD_CREATE:
         return new OCreateRecordRequest();
 
@@ -217,9 +214,6 @@ public class ONetworkBinaryProtocolFactory {
       case OChannelBinaryProtocol.SUBSCRIBE_PUSH:
         return new OSubscribeRequest();
 
-      case OChannelBinaryProtocol.EXPERIMENTAL:
-        return new OExperimentalRequest();
-
       case OChannelBinaryProtocol.UNSUBSCRIBE_PUSH:
         return new OUnsubscribeRequest();
 
@@ -300,9 +294,6 @@ public class ONetworkBinaryProtocolFactory {
 
       case OChannelBinaryProtocol.REQUEST_RECORD_LOAD:
         return new OReadRecordRequest();
-
-      case OChannelBinaryProtocol.REQUEST_RECORD_LOAD_IF_VERSION_NOT_LATEST:
-        return new OReadRecordIfVersionIsNotLatestRequest();
 
       case OChannelBinaryProtocol.REQUEST_RECORD_CREATE:
         return new OCreateRecordRequest();

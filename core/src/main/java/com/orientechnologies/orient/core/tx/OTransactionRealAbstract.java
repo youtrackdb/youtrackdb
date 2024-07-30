@@ -57,14 +57,7 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
   protected int id;
   protected int newObjectCounter = -2;
   private final Map<String, Object> userData = new HashMap<>();
-  private Map<ORID, LockedRecordMetadata> noTxLocks;
   @Nullable private OTxMetadataHolder metadata = null;
-
-  /**
-   * token This set is used to track which documents are changed during tx, if documents are changed
-   * but not saved all changes are made during tx will be undone.
-   */
-  protected final Set<ODocument> changedDocuments = new HashSet<>();
 
   @Nullable private List<byte[]> serializedOperations;
 
@@ -73,44 +66,13 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
     this.id = id;
   }
 
-  @Override
-  public void addChangedDocument(ODocument document) {
-    try {
-      if (getRecord(document.getIdentity()) == null) {
-        changedDocuments.add((ODocument) document.getRecord());
-      }
-    } catch (Exception e) {
-      rollback(true, 0);
-      throw e;
-    }
-  }
-
   public void close() {
-    super.close();
-
     clearUnfinishedChanges();
 
     status = TXSTATUS.INVALID;
   }
 
   protected void clearUnfinishedChanges() {
-    for (final ORecordOperation recordOperation : getRecordOperations()) {
-      final ORecord record = recordOperation.getRecord();
-      if (record instanceof ODocument document && !document.isUnloaded()) {
-        if (document.isDirty()) {
-          document.undo();
-        }
-        changedDocuments.remove(document);
-      }
-    }
-
-    for (ODocument changedDocument : changedDocuments) {
-      if (!changedDocument.isEmbedded()) {
-        changedDocument.undo();
-      }
-    }
-
-    changedDocuments.clear();
     updatedRids.clear();
     allEntries.clear();
     indexEntries.clear();
@@ -118,7 +80,7 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
 
     newObjectCounter = -2;
 
-    database.setDefaultTransactionMode(getNoTxLocks());
+    database.setDefaultTransactionMode();
     userData.clear();
   }
 
@@ -644,14 +606,6 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
 
   public int getNewObjectCounter() {
     return newObjectCounter;
-  }
-
-  public void setNoTxLocks(Map<ORID, LockedRecordMetadata> noTxLocks) {
-    this.noTxLocks = noTxLocks;
-  }
-
-  Map<ORID, LockedRecordMetadata> getNoTxLocks() {
-    return noTxLocks;
   }
 
   @Override

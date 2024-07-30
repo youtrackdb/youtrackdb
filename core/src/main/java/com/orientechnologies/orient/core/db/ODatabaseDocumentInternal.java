@@ -24,7 +24,6 @@ import com.orientechnologies.orient.core.db.document.OQueryDatabaseState;
 import com.orientechnologies.orient.core.db.document.RecordReader;
 import com.orientechnologies.orient.core.db.record.OCurrentStorageComponentsFactory;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.hook.ORecordHook;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -40,13 +39,9 @@ import com.orientechnologies.orient.core.serialization.serializer.binary.OBinary
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.sql.executor.OExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
-import com.orientechnologies.orient.core.storage.ORecordCallback;
-import com.orientechnologies.orient.core.storage.OStorage;
-import com.orientechnologies.orient.core.storage.OStorage.LOCKING_STRATEGY;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
 import com.orientechnologies.orient.core.tx.OTransaction;
-import com.orientechnologies.orient.core.tx.OTransactionAbstract;
 import com.orientechnologies.orient.core.tx.OTransactionData;
 import com.orientechnologies.orient.core.tx.OTransactionInternal;
 import java.util.Map;
@@ -82,10 +77,6 @@ public interface ODatabaseDocumentInternal extends ODatabaseSession, ODatabaseIn
   void setSerializer(ORecordSerializer serializer);
 
   int assignAndCheckCluster(ORecord record, String iClusterName);
-
-  <RET extends ORecord> RET loadIfVersionIsNotLatest(
-      final ORID rid, final int recordVersion, String fetchPlan, boolean ignoreCache)
-      throws ORecordNotFoundException;
 
   void reloadUser();
 
@@ -128,7 +119,6 @@ public interface ODatabaseDocumentInternal extends ODatabaseSession, ODatabaseIn
       final String fetchPlan,
       final boolean ignoreCache,
       final boolean loadTombstones,
-      final LOCKING_STRATEGY lockingStrategy,
       RecordReader recordReader);
 
   boolean executeExists(ORID rid);
@@ -137,10 +127,9 @@ public interface ODatabaseDocumentInternal extends ODatabaseSession, ODatabaseIn
       OIdentifiable record,
       final int iVersion,
       final boolean iRequired,
-      final OPERATION_MODE iMode,
       boolean prohibitTombstones);
 
-  void setDefaultTransactionMode(Map<ORID, OTransactionAbstract.LockedRecordMetadata> noTxLocks);
+  void setDefaultTransactionMode();
 
   @Override
   OMetadataInternal getMetadata();
@@ -256,13 +245,7 @@ public interface ODatabaseDocumentInternal extends ODatabaseSession, ODatabaseIn
 
   void internalClose(boolean recycle);
 
-  ORecord saveAll(
-      ORecord iRecord,
-      String iClusterName,
-      OPERATION_MODE iMode,
-      boolean iForceCreate,
-      ORecordCallback<? extends Number> iRecordCreatedCallback,
-      ORecordCallback<Integer> iRecordUpdatedCallback);
+  ORecord saveAll(ORecord iRecord, String iClusterName);
 
   String getClusterName(final ORecord record);
 
@@ -271,10 +254,6 @@ public interface ODatabaseDocumentInternal extends ODatabaseSession, ODatabaseIn
   }
 
   OView getViewFromCluster(int cluster);
-
-  void internalLockRecord(OIdentifiable iRecord, OStorage.LOCKING_STRATEGY lockingStrategy);
-
-  void internalUnlockRecord(OIdentifiable iRecord);
 
   <T> T sendSequenceAction(OSequenceAction action) throws ExecutionException, InterruptedException;
 

@@ -44,7 +44,6 @@ public class TransactionChangesDetectionTest {
     database.save(new ODocument("test"));
     assertTrue(currentTx.isChanged());
     assertFalse(currentTx.isAlreadyCleared());
-    assertTrue(currentTx.isUsingLog());
     assertEquals(1, currentTx.getEntryCount());
     assertEquals(OTransaction.TXSTATUS.BEGUN, currentTx.getStatus());
 

@@ -55,7 +55,6 @@ public abstract class OCommandExecutorSQLAbstract extends OCommandExecutorAbstra
   public static final String KEYWORD_SKIP = "SKIP";
   public static final String KEYWORD_OFFSET = "OFFSET";
   public static final String KEYWORD_TIMEOUT = "TIMEOUT";
-  public static final String KEYWORD_LOCK = "LOCK";
   public static final String KEYWORD_RETURN = "RETURN";
   public static final String KEYWORD_KEY = "key";
   public static final String KEYWORD_RID = "rid";
@@ -147,25 +146,6 @@ public abstract class OCommandExecutorSQLAbstract extends OCommandExecutorAbstra
       else parserGoBack();
 
     return true;
-  }
-
-  /** Parses the lock keyword if found. */
-  protected String parseLock() throws OCommandSQLParsingException {
-    final String lockStrategy = parserNextWord(true);
-
-    if (!lockStrategy.equalsIgnoreCase("DEFAULT")
-        && !lockStrategy.equalsIgnoreCase("NONE")
-        && !lockStrategy.equalsIgnoreCase("RECORD"))
-      throwParsingException(
-          "Invalid "
-              + KEYWORD_LOCK
-              + " value set to '"
-              + lockStrategy
-              + "' but it should be NONE (default) or RECORD. Example: "
-              + KEYWORD_LOCK
-              + " RECORD");
-
-    return lockStrategy;
   }
 
   protected Set<String> getInvolvedClustersOfClasses(final Collection<String> iClassNames) {

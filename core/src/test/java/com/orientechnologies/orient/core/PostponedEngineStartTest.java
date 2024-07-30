@@ -30,7 +30,6 @@ import com.orientechnologies.orient.core.db.record.OCurrentStorageComponentsFact
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.engine.OEngine;
 import com.orientechnologies.orient.core.engine.OEngineAbstract;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.storage.OCluster;
@@ -304,13 +303,6 @@ public class PostponedEngineStartTest {
         @Override
         public boolean recordExists(ORID rid) {
           return false;
-        }
-
-        @Override
-        public OStorageOperationResult<ORawBuffer> readRecordIfVersionIsNotLatest(
-            ORecordId rid, String fetchPlan, boolean ignoreCache, int recordVersion)
-            throws ORecordNotFoundException {
-          return null;
         }
 
         @Override

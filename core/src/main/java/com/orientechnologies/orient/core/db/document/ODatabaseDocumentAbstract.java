@@ -96,9 +96,6 @@ import com.orientechnologies.orient.core.serialization.serializer.record.ORecord
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializerFactory;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.storage.ORawBuffer;
-import com.orientechnologies.orient.core.storage.ORecordCallback;
-import com.orientechnologies.orient.core.storage.OStorage;
-import com.orientechnologies.orient.core.storage.OStorage.LOCKING_STRATEGY;
 import com.orientechnologies.orient.core.storage.OStorageInfo;
 import com.orientechnologies.orient.core.storage.OStorageOperationResult;
 import com.orientechnologies.orient.core.storage.cluster.OOfflineClusterException;
@@ -276,7 +273,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
         iFetchPlan,
         iIgnoreCache,
         false,
-        OStorage.LOCKING_STRATEGY.DEFAULT,
         new SimpleRecordReader(prefetchRecords));
   }
 
@@ -319,11 +315,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     checkIfActive();
     final int clusterId = getClusterIdByName(iClusterName);
     return new ORecordIteratorCluster<REC>(
-        this,
-        clusterId,
-        startClusterPosition,
-        endClusterPosition,
-        OStorage.LOCKING_STRATEGY.DEFAULT);
+        this, clusterId, startClusterPosition, endClusterPosition);
   }
 
   @Override
@@ -840,13 +832,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   public <RET extends ORecord> RET load(final ORecord iRecord, final String iFetchPlan) {
     checkIfActive();
     return (RET)
-        currentTx.loadRecord(
-            iRecord.getIdentity(),
-            (ORecordAbstract) iRecord,
-            iFetchPlan,
-            false,
-            false,
-            OStorage.LOCKING_STRATEGY.DEFAULT);
+        currentTx.loadRecord(iRecord.getIdentity(), (ORecordAbstract) iRecord, iFetchPlan, false);
   }
 
   @SuppressWarnings("unchecked")
@@ -875,15 +861,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   public <RET extends ORecord> RET load(final ORID iRecordId, final String iFetchPlan) {
     checkIfActive();
     return (RET) currentTx.loadRecord(iRecordId, null, iFetchPlan, false);
-  }
-
-  @SuppressWarnings("unchecked")
-  public <RET extends ORecord> RET loadIfVersionIsNotLatest(
-      final ORID rid, final int recordVersion, String fetchPlan, boolean ignoreCache)
-      throws ORecordNotFoundException {
-    checkIfActive();
-    return (RET)
-        currentTx.loadRecordIfVersionIsNotLatest(rid, recordVersion, fetchPlan, ignoreCache);
   }
 
   @SuppressWarnings("unchecked")
@@ -957,11 +934,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       currentTx.begin();
       return;
     }
-    Map<ORID, OTransactionAbstract.LockedRecordMetadata> noTxLockedRecords = null;
 
-    if (!currentTx.isActive() && iTx instanceof OTransactionOptimistic) {
-      noTxLockedRecords = ((OTransactionAbstract) currentTx).getInternalLocks();
-    }
     currentTx.rollback(true, 0);
 
     // WAKE UP LISTENERS
@@ -977,9 +950,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     }
 
     currentTx = iTx;
-    if (iTx instanceof OTransactionOptimistic) {
-      ((OTransactionOptimistic) iTx).setNoTxLocks(noTxLockedRecords);
-    }
     currentTx.begin();
   }
 
@@ -995,7 +965,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
         iFetchPlan,
         iIgnoreCache,
         false,
-        OStorage.LOCKING_STRATEGY.NONE,
         new SimpleRecordReader(prefetchRecords));
   }
 
@@ -1021,7 +990,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       final String fetchPlan,
       final boolean ignoreCache,
       final boolean loadTombstones,
-      final LOCKING_STRATEGY lockingStrategy,
       RecordReader recordReader) {
     checkOpenness();
     checkIfActive();
@@ -1057,24 +1025,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
         OFetchHelper.checkFetchPlanValid(fetchPlan);
         if (beforeReadOperations(record)) {
           return null;
-        }
-
-        if (lockingStrategy == OStorage.LOCKING_STRATEGY.KEEP_SHARED_LOCK) {
-          OLogManager.instance()
-              .warn(
-                  this,
-                  "You use deprecated record locking strategy: %s it may lead to deadlocks "
-                      + lockingStrategy);
-          record.lock(false);
-        } else {
-          if (lockingStrategy == OStorage.LOCKING_STRATEGY.KEEP_EXCLUSIVE_LOCK) {
-            OLogManager.instance()
-                .warn(
-                    this,
-                    "You use deprecated record locking strategy: %s it may lead to deadlocks "
-                        + lockingStrategy);
-            record.lock(true);
-          }
         }
 
         afterReadOperations(record);
@@ -1286,25 +1236,21 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
 
     switch (iType) {
       case NOTX:
-        setDefaultTransactionMode(null);
+        setDefaultTransactionMode();
         break;
 
       case OPTIMISTIC:
         currentTx = new OTransactionOptimistic(this);
         break;
-
-      case PESSIMISTIC:
-        throw new UnsupportedOperationException("Pessimistic transaction");
     }
 
     currentTx.begin();
     return this;
   }
 
-  public void setDefaultTransactionMode(
-      Map<ORID, OTransactionAbstract.LockedRecordMetadata> noTxLocks) {
+  public void setDefaultTransactionMode() {
     if (!(currentTx instanceof OTransactionNoTx)) {
-      currentTx = new OTransactionNoTx(this, noTxLocks);
+      currentTx = new OTransactionNoTx(this);
     }
   }
 
@@ -1570,11 +1516,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     checkSecurity(ORule.ResourceGeneric.CLUSTER, ORole.PERMISSION_READ, iClusterName);
 
     return new ORecordIteratorCluster<ODocument>(
-        this,
-        getClusterIdByName(iClusterName),
-        startClusterPosition,
-        endClusterPosition,
-        OStorage.LOCKING_STRATEGY.DEFAULT);
+        this, getClusterIdByName(iClusterName), startClusterPosition, endClusterPosition);
   }
 
   /**
@@ -1602,44 +1544,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
    */
   @Override
   public <RET extends ORecord> RET save(final ORecord iRecord) {
-    return save(iRecord, null, OPERATION_MODE.SYNCHRONOUS, false, null, null);
-  }
-
-  /**
-   * Saves a document to the database. Behavior depends by the current running transaction if any.
-   * If no transaction is running then changes apply immediately. If an Optimistic transaction is
-   * running then the record will be changed at commit time. The current transaction will continue
-   * to see the record as modified, while others not. If a Pessimistic transaction is running, then
-   * an exclusive lock is acquired against the record. Current transaction will continue to see the
-   * record as modified, while others cannot access to it since it's locked.
-   *
-   * <p>If MVCC is enabled and the version of the document is different by the version stored in
-   * the database, then a {@link OConcurrentModificationException} exception is thrown.Before to
-   * save the document it must be valid following the constraints declared in the schema if any (can
-   * work also in schema-less mode). To validate the document the {@link ODocument#validate()} is
-   * called.
-   *
-   * @param iRecord                Record to save.
-   * @param iForceCreate           Flag that indicates that record should be created. If record with
-   *                               current rid already exists, exception is thrown
-   * @param iRecordCreatedCallback callback that is called after creation of new record
-   * @param iRecordUpdatedCallback callback that is called after record update
-   * @return The Database instance itself giving a "fluent interface". Useful to call multiple
-   * methods in chain.
-   * @throws OConcurrentModificationException if the version of the document is different by the
-   *                                          version contained in the database.
-   * @throws OValidationException             if the document breaks some validation constraints
-   *                                          defined in the schema
-   * @see #setMVCC(boolean), {@link #isMVCC()}
-   */
-  @Override
-  public <RET extends ORecord> RET save(
-      final ORecord iRecord,
-      final OPERATION_MODE iMode,
-      boolean iForceCreate,
-      final ORecordCallback<? extends Number> iRecordCreatedCallback,
-      ORecordCallback<Integer> iRecordUpdatedCallback) {
-    return save(iRecord, null, iMode, iForceCreate, iRecordCreatedCallback, iRecordUpdatedCallback);
+    return save(iRecord, null);
   }
 
   /**
@@ -1668,48 +1573,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
    * @see #setMVCC(boolean), {@link #isMVCC()}, ODocument#validate()
    */
   @Override
-  public <RET extends ORecord> RET save(final ORecord iRecord, final String iClusterName) {
-    return save(iRecord, iClusterName, OPERATION_MODE.SYNCHRONOUS, false, null, null);
-  }
-
-  /**
-   * Saves a document specifying a cluster where to store the record. Behavior depends by the
-   * current running transaction if any. If no transaction is running then changes apply
-   * immediately. If an Optimistic transaction is running then the record will be changed at commit
-   * time. The current transaction will continue to see the record as modified, while others not. If
-   * a Pessimistic transaction is running, then an exclusive lock is acquired against the record.
-   * Current transaction will continue to see the record as modified, while others cannot access to
-   * it since it's locked.
-   *
-   * <p>If MVCC is enabled and the version of the document is different by the version stored in
-   * the database, then a {@link OConcurrentModificationException} exception is thrown. Before to
-   * save the document it must be valid following the constraints declared in the schema if any (can
-   * work also in schema-less mode). To validate the document the {@link ODocument#validate()} is
-   * called.
-   *
-   * @param iRecord                Record to save
-   * @param iClusterName           Cluster name where to save the record
-   * @param iMode                  Mode of save: synchronous (default) or asynchronous
-   * @param iForceCreate           Flag that indicates that record should be created. If record with
-   *                               current rid already exists, exception is thrown
-   * @param iRecordCreatedCallback callback that is called after creation of new record
-   * @param iRecordUpdatedCallback callback that is called after record update
-   * @return The Database instance itself giving a "fluent interface". Useful to call multiple
-   * methods in chain.
-   * @throws OConcurrentModificationException if the version of the document is different by the
-   *                                          version contained in the database.
-   * @throws OValidationException             if the document breaks some validation constraints
-   *                                          defined in the schema
-   * @see #setMVCC(boolean), {@link #isMVCC()}, ODocument#validate()
-   */
-  @Override
-  public <RET extends ORecord> RET save(
-      ORecord iRecord,
-      String iClusterName,
-      final OPERATION_MODE iMode,
-      boolean iForceCreate,
-      final ORecordCallback<? extends Number> iRecordCreatedCallback,
-      ORecordCallback<Integer> iRecordUpdatedCallback) {
+  public <RET extends ORecord> RET save(ORecord iRecord, String iClusterName) {
     checkOpenness();
 
     if (iRecord.isUnloaded()) {
@@ -1730,33 +1594,14 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
         iRecord = iRecord.getRecord();
       }
     }
-    return saveInternal(
-        (ORecordAbstract) iRecord,
-        iClusterName,
-        iMode,
-        iForceCreate,
-        iRecordCreatedCallback,
-        iRecordUpdatedCallback);
+    return saveInternal((ORecordAbstract) iRecord, iClusterName);
   }
 
-  private <RET extends ORecord> RET saveInternal(
-      ORecordAbstract iRecord,
-      String iClusterName,
-      OPERATION_MODE iMode,
-      boolean iForceCreate,
-      ORecordCallback<? extends Number> iRecordCreatedCallback,
-      ORecordCallback<Integer> iRecordUpdatedCallback) {
+  private <RET extends ORecord> RET saveInternal(ORecordAbstract record, String clusterName) {
 
-    if (!(iRecord instanceof ODocument document)) {
-      assignAndCheckCluster(iRecord, iClusterName);
-      return (RET)
-          currentTx.saveRecord(
-              iRecord,
-              iClusterName,
-              iMode,
-              iForceCreate,
-              iRecordCreatedCallback,
-              iRecordUpdatedCallback);
+    if (!(record instanceof ODocument document)) {
+      assignAndCheckCluster(record, clusterName);
+      return (RET) currentTx.saveRecord(record, clusterName);
     }
 
     ODocument doc = document;
@@ -1770,12 +1615,12 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     }
     ODocumentInternal.convertAllMultiValuesToTrackedVersions(doc);
 
-    if (iForceCreate || !doc.getIdentity().isValid()) {
+    if (!doc.getIdentity().isValid()) {
       if (doc.getClassName() != null) {
         checkSecurity(ORule.ResourceGeneric.CLASS, ORole.PERMISSION_CREATE, doc.getClassName());
       }
 
-      assignAndCheckCluster(doc, iClusterName);
+      assignAndCheckCluster(doc, clusterName);
 
     } else {
       // UPDATE: CHECK ACCESS ON SCHEMA CLASS NAME (IF ANY)
@@ -1787,16 +1632,8 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     if (!getSerializer().equals(ORecordInternal.getRecordSerializer(doc))) {
       ORecordInternal.setRecordSerializer(doc, getSerializer());
     }
-    doc =
-        (ODocument)
-            currentTx.saveRecord(
-                iRecord,
-                iClusterName,
-                iMode,
-                iForceCreate,
-                iRecordCreatedCallback,
-                iRecordUpdatedCallback);
 
+    doc = (ODocument) currentTx.saveRecord(record, clusterName);
     return (RET) doc;
   }
 
@@ -2210,7 +2047,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   }
 
   protected void init() {
-    currentTx = new OTransactionNoTx(this, null);
+    currentTx = new OTransactionNoTx(this);
   }
 
   public void checkIfActive() {

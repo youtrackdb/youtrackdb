@@ -34,7 +34,7 @@ import java.util.TreeMap;
  */
 public class OTransactionOptimisticClient extends OTransactionOptimistic {
 
-  private Set<String> indexChanged = new HashSet<>();
+  private final Set<String> indexChanged = new HashSet<>();
 
   public OTransactionOptimisticClient(ODatabaseDocumentInternal iDatabase) {
     super(iDatabase);
@@ -44,7 +44,7 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
       List<ORecordOperation38Response> operations, List<IndexChange> indexChanges) {
 
     Map<ORID, ORecordOperation> oldEntries = this.allEntries;
-    this.allEntries = new LinkedHashMap<ORID, ORecordOperation>();
+    this.allEntries = new LinkedHashMap<>();
     int createCount = -2; // Start from -2 because temporary rids start from -2
     for (ORecordOperation38Response operation : operations) {
       if (!operation.getOldId().equals(operation.getId())) {
@@ -123,10 +123,6 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
 
   public void addRecord(
       ORecord iRecord, final byte iStatus, final String iClusterName, boolean callHook) {
-    if (iStatus != ORecordOperation.LOADED && iRecord instanceof ODocument document) {
-      changedDocuments.remove(document);
-    }
-
     try {
       if (callHook) {
         switch (iStatus) {
@@ -138,9 +134,6 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
                 changed = true;
               }
             }
-            break;
-          case ORecordOperation.LOADED:
-            /* Read hooks already invoked in {@link ODatabaseDocumentInternal#executeReadRecord} */
             break;
           case ORecordOperation.UPDATED:
             {
@@ -172,31 +165,17 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
           txEntry.record = iRecord;
 
           switch (txEntry.type) {
-            case ORecordOperation.LOADED:
-              switch (iStatus) {
-                case ORecordOperation.UPDATED:
-                  txEntry.type = ORecordOperation.UPDATED;
-                  break;
-                case ORecordOperation.DELETED:
-                  txEntry.type = ORecordOperation.DELETED;
-                  break;
-              }
-              break;
             case ORecordOperation.UPDATED:
-              switch (iStatus) {
-                case ORecordOperation.DELETED:
-                  txEntry.type = ORecordOperation.DELETED;
-                  break;
+              if (iStatus == ORecordOperation.DELETED) {
+                txEntry.type = ORecordOperation.DELETED;
               }
               break;
             case ORecordOperation.DELETED:
               break;
             case ORecordOperation.CREATED:
-              switch (iStatus) {
-                case ORecordOperation.DELETED:
-                  allEntries.remove(rid);
-                  // txEntry.type = ORecordOperation.DELETED;
-                  break;
+              if (iStatus == ORecordOperation.DELETED) {
+                allEntries.remove(rid);
+                // txEntry.type = ORecordOperation.DELETED;
               }
               break;
           }
@@ -205,11 +184,6 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
           switch (iStatus) {
             case ORecordOperation.CREATED:
               database.callbackHooks(ORecordHook.TYPE.AFTER_CREATE, iRecord);
-              break;
-            case ORecordOperation.LOADED:
-              /**
-               * Read hooks already invoked in {@link ODatabaseDocumentInternal#executeReadRecord} .
-               */
               break;
             case ORecordOperation.UPDATED:
               database.callbackHooks(ORecordHook.TYPE.AFTER_UPDATE, iRecord);

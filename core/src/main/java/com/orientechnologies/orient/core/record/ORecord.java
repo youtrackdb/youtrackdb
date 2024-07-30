@@ -163,10 +163,6 @@ public interface ORecord extends ORecordElement, OIdentifiable, Serializable, OS
    */
   <RET extends ORecord> RET save(String iCluster);
 
-  <RET extends ORecord> RET save(boolean forceCreate);
-
-  <RET extends ORecord> RET save(String iCluster, boolean forceCreate);
-
   /**
    * Deletes the record from the database. Behavior depends by the current running transaction if
    * any. If no transaction is running then the record is deleted immediately. If an Optimistic

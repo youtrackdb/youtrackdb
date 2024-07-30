@@ -74,7 +74,6 @@ public class OETLOrientDBLoader extends OETLAbstractLoader {
   private AtomicLong batchCounter = new AtomicLong(0);
   protected DB_TYPE dbType = DOCUMENT;
   private boolean wal = true;
-  private boolean txUseLog = false;
   protected boolean skipDuplicates = false;
 
   public OETLOrientDBLoader() {}
@@ -152,7 +151,6 @@ public class OETLOrientDBLoader extends OETLAbstractLoader {
           log(Level.DEBUG, "committing document batch %d", progress.get());
           db.commit();
           db.begin();
-          db.getTransaction().setUsingLog(txUseLog);
           batchCounter.set(0);
         }
       }
@@ -415,9 +413,6 @@ public class OETLOrientDBLoader extends OETLAbstractLoader {
     }
     if (conf.containsField("wal")) {
       wal = conf.<Boolean>field("wal");
-    }
-    if (conf.containsField("txUseLog")) {
-      txUseLog = conf.<Boolean>field("txUseLog");
     }
     if (conf.containsField("batchCommit")) {
       batchCommitSize = conf.<Integer>field("batchCommit");

@@ -22,7 +22,6 @@ package com.orientechnologies.orient.core.command.script;
 import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.orient.core.db.ODatabase;
 import com.orientechnologies.orient.core.db.ODatabase.ATTRIBUTES;
-import com.orientechnologies.orient.core.db.ODatabase.OPERATION_MODE;
 import com.orientechnologies.orient.core.db.ODatabase.STATUS;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseInternal;
@@ -40,10 +39,11 @@ import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.query.OSQLQuery;
-import com.orientechnologies.orient.core.storage.ORecordCallback;
 import com.orientechnologies.orient.core.tx.OTransaction;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -58,15 +58,11 @@ import java.util.Map.Entry;
 @SuppressWarnings("unchecked")
 @Deprecated
 public class OScriptDocumentDatabaseWrapper {
+
   protected ODatabaseDocumentInternal database;
 
   public OScriptDocumentDatabaseWrapper(final ODatabaseDocumentInternal database) {
     this.database = database;
-  }
-
-  public void switchUser(final String iUserName, final String iUserPassword) {
-    if (!database.isClosed()) database.close();
-    database.open(iUserName, iUserPassword);
   }
 
   public OIdentifiable[] query(final String iText) {
@@ -75,22 +71,28 @@ public class OScriptDocumentDatabaseWrapper {
 
   public OIdentifiable[] query(final String iText, final Object... iParameters) {
     try (OResultSet rs = database.query(iText, iParameters)) {
-      return rs.stream().map(x -> x.toElement()).toArray(size -> new OIdentifiable[size]);
+      return rs.stream().map(OResult::toElement).toArray(OIdentifiable[]::new);
     }
   }
 
   public OIdentifiable[] query(final OSQLQuery iQuery, final Object... iParameters) {
-    final List<OIdentifiable> res = database.query(iQuery, convertParameters(iParameters));
-    if (res == null) return OCommonConst.EMPTY_IDENTIFIABLE_ARRAY;
-    return res.toArray(new OIdentifiable[res.size()]);
+    final List<OIdentifiable> res = database.query(iQuery, Arrays.asList(iParameters));
+    if (res == null) {
+      return OCommonConst.EMPTY_IDENTIFIABLE_ARRAY;
+    }
+    return res.toArray(new OIdentifiable[0]);
   }
 
-  /** To maintain the compatibility with JS API. */
+  /**
+   * To maintain the compatibility with JS API.
+   */
   public Object executeCommand(final String iText) {
     return command(iText, (Object[]) null);
   }
 
-  /** To maintain the compatibility with JS API. */
+  /**
+   * To maintain the compatibility with JS API.
+   */
   public Object executeCommand(final String iText, final Object... iParameters) {
     return command(iText, iParameters);
   }
@@ -250,16 +252,6 @@ public class OScriptDocumentDatabaseWrapper {
     database.setUser(user);
   }
 
-  public ODocument save(
-      ORecord iRecord,
-      OPERATION_MODE iMode,
-      boolean iForceCreate,
-      final ORecordCallback<? extends Number> iRecordCreatedCallback,
-      ORecordCallback<Integer> iRecordUpdatedCallback) {
-    return database.save(
-        iRecord, iMode, iForceCreate, iRecordCreatedCallback, iRecordUpdatedCallback);
-  }
-
   public OMetadata getMetadata() {
     return database.getMetadata();
   }
@@ -364,17 +356,6 @@ public class OScriptDocumentDatabaseWrapper {
     return database.getSize();
   }
 
-  public ODocument save(
-      ORecord iRecord,
-      String iClusterName,
-      OPERATION_MODE iMode,
-      boolean iForceCreate,
-      final ORecordCallback<? extends Number> iRecordCreatedCallback,
-      ORecordCallback<Integer> iRecordUpdatedCallback) {
-    return database.save(
-        iRecord, iClusterName, iMode, iForceCreate, iRecordCreatedCallback, iRecordUpdatedCallback);
-  }
-
   public ODatabaseDocument delete(ODocument iRecord) {
     return (ODatabaseDocument) database.delete(iRecord);
   }
@@ -393,18 +374,5 @@ public class OScriptDocumentDatabaseWrapper {
 
   public String getType() {
     return database.getType();
-  }
-
-  protected Object[] convertParameters(final Object[] iParameters) {
-    if (iParameters != null)
-      for (int i = 0; i < iParameters.length; ++i) {
-        final Object p = iParameters[i];
-        if (p != null) {
-          // if (p instanceof sun.org.mozilla.javascript.internal.IdScriptableObject) {
-          // iParameters[i] = ((sun.org.mozilla.javascript.internal.NativeDate) p).to;
-          // }
-        }
-      }
-    return iParameters;
   }
 }

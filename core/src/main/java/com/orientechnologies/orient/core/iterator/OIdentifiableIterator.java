@@ -56,7 +56,6 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
   protected boolean liveUpdated = false;
   protected long limit = -1;
   protected long browsedRecords = 0;
-  protected OStorage.LOCKING_STRATEGY lockingStrategy = OStorage.LOCKING_STRATEGY.NONE;
   protected long totalAvailableRecords;
   protected List<ORecordOperation> txEntries;
   protected int currentTxEntryPosition = -1;
@@ -79,10 +78,8 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
    * @deprecated usage of this constructor may lead to deadlocks.
    */
   @Deprecated
-  public OIdentifiableIterator(
-      final ODatabaseDocumentInternal iDatabase, final OStorage.LOCKING_STRATEGY iLockingStrategy) {
+  public OIdentifiableIterator(final ODatabaseDocumentInternal iDatabase) {
     database = iDatabase;
-    lockingStrategy = iLockingStrategy;
 
     dbStorage = database.getStorage();
     current.setClusterPosition(ORID.CLUSTER_POS_INVALID); // DEFAULT = START FROM THE BEGIN

@@ -58,8 +58,6 @@ import com.orientechnologies.orient.client.remote.message.ODeleteRecordRequest;
 import com.orientechnologies.orient.client.remote.message.ODeleteRecordResponse;
 import com.orientechnologies.orient.client.remote.message.ODropClusterRequest;
 import com.orientechnologies.orient.client.remote.message.ODropClusterResponse;
-import com.orientechnologies.orient.client.remote.message.OExperimentalRequest;
-import com.orientechnologies.orient.client.remote.message.OExperimentalResponse;
 import com.orientechnologies.orient.client.remote.message.OFetchTransaction38Request;
 import com.orientechnologies.orient.client.remote.message.OFetchTransaction38Response;
 import com.orientechnologies.orient.client.remote.message.OFloorPhysicalPositionsRequest;
@@ -77,8 +75,6 @@ import com.orientechnologies.orient.client.remote.message.OImportResponse;
 import com.orientechnologies.orient.client.remote.message.OIncrementalBackupRequest;
 import com.orientechnologies.orient.client.remote.message.OIncrementalBackupResponse;
 import com.orientechnologies.orient.client.remote.message.OLiveQueryPushRequest;
-import com.orientechnologies.orient.client.remote.message.OLockRecordRequest;
-import com.orientechnologies.orient.client.remote.message.OLockRecordResponse;
 import com.orientechnologies.orient.client.remote.message.OLowerPhysicalPositionsRequest;
 import com.orientechnologies.orient.client.remote.message.OLowerPhysicalPositionsResponse;
 import com.orientechnologies.orient.client.remote.message.OOpen37Request;
@@ -92,8 +88,6 @@ import com.orientechnologies.orient.client.remote.message.OPushStorageConfigurat
 import com.orientechnologies.orient.client.remote.message.OQueryNextPageRequest;
 import com.orientechnologies.orient.client.remote.message.OQueryRequest;
 import com.orientechnologies.orient.client.remote.message.OQueryResponse;
-import com.orientechnologies.orient.client.remote.message.OReadRecordIfVersionIsNotLatestRequest;
-import com.orientechnologies.orient.client.remote.message.OReadRecordIfVersionIsNotLatestResponse;
 import com.orientechnologies.orient.client.remote.message.OReadRecordRequest;
 import com.orientechnologies.orient.client.remote.message.OReadRecordResponse;
 import com.orientechnologies.orient.client.remote.message.ORebeginTransaction38Request;
@@ -115,8 +109,6 @@ import com.orientechnologies.orient.client.remote.message.OSubscribeLiveQueryRes
 import com.orientechnologies.orient.client.remote.message.OSubscribeSchemaRequest;
 import com.orientechnologies.orient.client.remote.message.OSubscribeSequencesRequest;
 import com.orientechnologies.orient.client.remote.message.OSubscribeStorageConfigurationRequest;
-import com.orientechnologies.orient.client.remote.message.OUnlockRecordRequest;
-import com.orientechnologies.orient.client.remote.message.OUnlockRecordResponse;
 import com.orientechnologies.orient.client.remote.message.OUnsubscribeLiveQueryRequest;
 import com.orientechnologies.orient.client.remote.message.OUnsubscribeRequest;
 import com.orientechnologies.orient.client.remote.message.OUpdateRecordRequest;
@@ -137,10 +129,8 @@ import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.OrientDBInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTxInternal;
 import com.orientechnologies.orient.core.db.record.OCurrentStorageComponentsFactory;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OSecurityException;
 import com.orientechnologies.orient.core.exception.OStorageException;
 import com.orientechnologies.orient.core.id.ORID;
@@ -167,7 +157,6 @@ import com.orientechnologies.orient.core.storage.cluster.OPaginatedCluster;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.ORecordSerializationContext;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
-import com.orientechnologies.orient.core.tx.OTransactionAbstract;
 import com.orientechnologies.orient.core.tx.OTransactionInternal;
 import com.orientechnologies.orient.core.tx.OTransactionOptimistic;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinary;
@@ -886,26 +875,6 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     return response.getMetadata();
   }
 
-  public OStorageOperationResult<ORawBuffer> readRecordIfVersionIsNotLatest(
-      final ORecordId rid,
-      final String fetchPlan,
-      final boolean ignoreCache,
-      final int recordVersion)
-      throws ORecordNotFoundException {
-    if (getCurrentSession().commandExecuting)
-    // PENDING NETWORK OPERATION, CAN'T EXECUTE IT NOW
-    {
-      return new OStorageOperationResult<ORawBuffer>(null);
-    }
-
-    OReadRecordIfVersionIsNotLatestRequest request =
-        new OReadRecordIfVersionIsNotLatestRequest(rid, recordVersion, fetchPlan, ignoreCache);
-    OReadRecordIfVersionIsNotLatestResponse response =
-        networkOperation(request, "Error on read record " + rid);
-
-    return new OStorageOperationResult<ORawBuffer>(response.getResult());
-  }
-
   @Override
   public boolean recordExists(ORID rid) {
     var request = new ORecordExistsRequest(rid);
@@ -1434,11 +1403,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     unstickToSession();
     final OCommit38Request request =
         new OCommit38Request(
-            iTx.getId(),
-            true,
-            iTx.isUsingLog(),
-            iTx.getRecordOperations(),
-            iTx.getIndexOperations());
+            iTx.getId(), true, true, iTx.getRecordOperations(), iTx.getIndexOperations());
 
     final OCommit37Response response = networkOperationNoRetry(request, "Error on commit");
     for (OCommit37Response.OCreatedRecordResponse created : response.getCreated()) {
@@ -1476,9 +1441,6 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
       ORecordInternal.unsetDirty(txEntry.getRecord());
     }
 
-    // UPDATE THE CACHE ONLY IF THE ITERATOR ALLOWS IT.
-    OTransactionAbstract.updateCacheFromEntries(
-        iTx.getDatabase(), iTx.getRecordOperations(), true, iTx.isUnloadCachedRecords());
     return null;
   }
 
@@ -2291,7 +2253,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
         new OBeginTransaction38Request(
             transaction.getId(),
             true,
-            transaction.isUsingLog(),
+            true,
             transaction.getRecordOperations(),
             transaction.getIndexOperations());
     OBeginTransactionResponse response =
@@ -2307,7 +2269,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     ORebeginTransaction38Request request =
         new ORebeginTransaction38Request(
             transaction.getId(),
-            transaction.isUsingLog(),
+            true,
             transaction.getRecordOperations(),
             transaction.getIndexOperations());
     OBeginTransactionResponse response =
@@ -2499,23 +2461,6 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
         }
       }
     }
-  }
-
-  public OLockRecordResponse lockRecord(
-      OIdentifiable iRecord, LOCKING_STRATEGY lockingStrategy, long timeout) {
-    OExperimentalRequest request =
-        new OExperimentalRequest(
-            new OLockRecordRequest(iRecord.getIdentity(), lockingStrategy, timeout));
-    OExperimentalResponse response = networkOperation(request, "Error locking record");
-    OLockRecordResponse realResponse = (OLockRecordResponse) response.getResponse();
-    return realResponse;
-  }
-
-  public void unlockRecord(OIdentifiable iRecord) {
-    OExperimentalRequest request =
-        new OExperimentalRequest(new OUnlockRecordRequest(iRecord.getIdentity()));
-    OExperimentalResponse response = networkOperation(request, "Error locking record");
-    OUnlockRecordResponse realResponse = (OUnlockRecordResponse) response.getResponse();
   }
 
   public void returnSocket(OChannelBinary network) {

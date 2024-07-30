@@ -52,6 +52,7 @@ import org.testng.annotations.Test;
 @Test
 @SuppressWarnings("unchecked")
 public class SQLSelectTest extends AbstractSelectTest {
+
   @Parameters(value = "url")
   public SQLSelectTest(@Optional String url) {
     super(url);
@@ -69,7 +70,9 @@ public class SQLSelectTest extends AbstractSelectTest {
 
     if (!database.getMetadata().getSchema().existsClass("company")) {
       database.getMetadata().getSchema().createClass("company", 1);
-      for (int i = 0; i < 20; ++i) new ODocument("company").field("id", i).save();
+      for (int i = 0; i < 20; ++i) {
+        new ODocument("company").field("id", i).save();
+      }
     }
 
     database.getMetadata().getSchema().getOrCreateClass("Account");
@@ -542,7 +545,7 @@ public class SQLSelectTest extends AbstractSelectTest {
       boolean found = false;
       for (Object fieldValue :
           record.getPropertyNames().stream().map(record::getProperty).toArray()) {
-        if (fieldValue != null && fieldValue.toString().startsWith("N")) {
+        if (fieldValue != null && fieldValue.toString().toLowerCase(Locale.ROOT).startsWith("n")) {
           found = true;
           break;
         }
@@ -568,10 +571,15 @@ public class SQLSelectTest extends AbstractSelectTest {
     boolean isNullSegment = true; // NULL VALUES AT THE BEGINNING!
     for (ODocument d : result) {
       final String fieldValue = d.field("name");
-      if (fieldValue != null) isNullSegment = false;
-      else Assert.assertTrue(isNullSegment);
+      if (fieldValue != null) {
+        isNullSegment = false;
+      } else {
+        Assert.assertTrue(isNullSegment);
+      }
 
-      if (lastName != null) Assert.assertTrue(fieldValue.compareTo(lastName) >= 0);
+      if (lastName != null) {
+        Assert.assertTrue(fieldValue.compareTo(lastName) >= 0);
+      }
       lastName = fieldValue;
     }
   }
@@ -667,8 +675,9 @@ public class SQLSelectTest extends AbstractSelectTest {
 
     String lastName = null;
     for (ODocument d : result) {
-      if (lastName != null && d.field("name") != null)
+      if (lastName != null && d.field("name") != null) {
         Assert.assertTrue(((String) d.field("name")).compareTo(lastName) >= 0);
+      }
       lastName = d.field("name");
     }
   }
@@ -682,8 +691,9 @@ public class SQLSelectTest extends AbstractSelectTest {
 
     String lastName = null;
     for (ODocument d : result) {
-      if (lastName != null && d.field("name") != null)
+      if (lastName != null && d.field("name") != null) {
         Assert.assertTrue(((String) d.field("name")).compareTo(lastName) >= 0);
+      }
       lastName = d.field("name");
     }
   }
@@ -697,8 +707,9 @@ public class SQLSelectTest extends AbstractSelectTest {
 
     String lastName = null;
     for (ODocument d : result) {
-      if (lastName != null && d.field("name") != null)
+      if (lastName != null && d.field("name") != null) {
         Assert.assertTrue(((String) d.field("name")).compareTo(lastName) <= 0);
+      }
       lastName = d.field("name");
     }
   }
@@ -882,7 +893,9 @@ public class SQLSelectTest extends AbstractSelectTest {
 
     for (ODocument d : resultset) {
       Assert.assertTrue(d.fields() <= 1);
-      if (d.fields() == 1) Assert.assertTrue(d.containsField("name"));
+      if (d.fields() == 1) {
+        Assert.assertTrue(d.containsField("name"));
+      }
     }
   }
 
@@ -937,28 +950,33 @@ public class SQLSelectTest extends AbstractSelectTest {
   public void queryMathOperators() {
     List<ODocument> result = executeQuery("select * from account where id < 3 + 4");
     Assert.assertFalse(result.isEmpty());
-    for (ODocument document : result)
+    for (ODocument document : result) {
       Assert.assertTrue(((Number) document.field("id")).intValue() < 3 + 4);
+    }
 
     result = executeQuery("select * from account where id < 10 - 3");
     Assert.assertFalse(result.isEmpty());
-    for (ODocument document : result)
+    for (ODocument document : result) {
       Assert.assertTrue(((Number) document.field("id")).intValue() < 10 - 3);
+    }
 
     result = executeQuery("select * from account where id < 3 * 2");
     Assert.assertFalse(result.isEmpty());
-    for (ODocument document : result)
+    for (ODocument document : result) {
       Assert.assertTrue(((Number) document.field("id")).intValue() < 3 * 2);
+    }
 
     result = executeQuery("select * from account where id < 120 / 20");
     Assert.assertFalse(result.isEmpty());
-    for (ODocument document : result)
+    for (ODocument document : result) {
       Assert.assertTrue(((Number) document.field("id")).intValue() < 120 / 20);
+    }
 
     result = executeQuery("select * from account where id < 27 % 10");
     Assert.assertFalse(result.isEmpty());
-    for (ODocument document : result)
+    for (ODocument document : result) {
       Assert.assertTrue(((Number) document.field("id")).intValue() < 27 % 10);
+    }
 
     result = executeQuery("select * from account where id = id * 1");
     Assert.assertFalse(result.isEmpty());
@@ -978,7 +996,9 @@ public class SQLSelectTest extends AbstractSelectTest {
             7);
 
     System.out.println("testBetweenWithParameters:");
-    for (ODocument d : result) System.out.println(d);
+    for (ODocument d : result) {
+      System.out.println(d);
+    }
 
     Assert.assertEquals(result.size(), 4, "Found: " + result);
 
@@ -1313,7 +1333,9 @@ public class SQLSelectTest extends AbstractSelectTest {
     for (ODocument d : result) {
       ORID rid = d.getIdentity();
 
-      if (lastRid != null) Assert.assertTrue(rid.compareTo(lastRid) < 0);
+      if (lastRid != null) {
+        Assert.assertTrue(rid.compareTo(lastRid) < 0);
+      }
       lastRid = rid;
     }
 
@@ -1410,7 +1432,9 @@ public class SQLSelectTest extends AbstractSelectTest {
         database.browseCluster(database.getClusterNameById(clusterId));
 
     for (int i = 0; i < 100; i++) {
-      if (!iteratorCluster.hasNext()) break;
+      if (!iteratorCluster.hasNext()) {
+        break;
+      }
 
       ODocument doc = iteratorCluster.next();
       positions.add(doc.getIdentity().getClusterPosition());

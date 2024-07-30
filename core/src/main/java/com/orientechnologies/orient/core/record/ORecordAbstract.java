@@ -21,7 +21,6 @@ package com.orientechnologies.orient.core.record;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.io.OIOUtils;
-import com.orientechnologies.orient.core.db.ODatabase;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
@@ -35,7 +34,6 @@ import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.impl.ODirtyManager;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerJSON;
-import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.cluster.OOfflineClusterException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -529,7 +527,8 @@ public abstract class ORecordAbstract implements ORecord {
       return primaryRecord.save();
     }
 
-    return save(false);
+    getDatabase().save(this);
+    return this;
   }
 
   public ORecordAbstract save(final String iClusterName) {
@@ -538,27 +537,8 @@ public abstract class ORecordAbstract implements ORecord {
       return primaryRecord.save(iClusterName);
     }
 
-    return save(iClusterName, false);
-  }
-
-  public ORecordAbstract save(boolean forceCreate) {
-    if (primaryRecord != null) {
-      primaryRecord = primaryRecord.getRecord();
-      return primaryRecord.save(forceCreate);
-    }
-
-    getDatabase().save(this, ODatabase.OPERATION_MODE.SYNCHRONOUS, forceCreate, null, null);
+    getDatabase().save(this, iClusterName);
     return this;
-  }
-
-  public ORecordAbstract save(String iClusterName, boolean forceCreate) {
-    if (primaryRecord != null) {
-      primaryRecord = primaryRecord.getRecord();
-      return primaryRecord.save(iClusterName, forceCreate);
-    }
-
-    return getDatabase()
-        .save(this, iClusterName, ODatabase.OPERATION_MODE.SYNCHRONOUS, forceCreate, null, null);
   }
 
   public ORecordAbstract delete() {
@@ -581,62 +561,6 @@ public abstract class ORecordAbstract implements ORecord {
     }
 
     return size;
-  }
-
-  @Override
-  public void lock(final boolean iExclusive) {
-    checkForLoading();
-    if (primaryRecord != null) {
-      primaryRecord = primaryRecord.getRecord();
-      primaryRecord.lock(iExclusive);
-      return;
-    }
-
-    //noinspection deprecation
-    ODatabaseRecordThreadLocal.instance()
-        .get()
-        .getTransaction()
-        .lockRecord(
-            this,
-            iExclusive
-                ? OStorage.LOCKING_STRATEGY.EXCLUSIVE_LOCK
-                : OStorage.LOCKING_STRATEGY.SHARED_LOCK);
-  }
-
-  @Override
-  public boolean isLocked() {
-    checkForLoading();
-    if (primaryRecord != null) {
-      primaryRecord = primaryRecord.getRecord();
-      return primaryRecord.isLocked();
-    }
-
-    return ODatabaseRecordThreadLocal.instance().get().getTransaction().isLockedRecord(this);
-  }
-
-  @Override
-  public OStorage.LOCKING_STRATEGY lockingStrategy() {
-    checkForLoading();
-    if (primaryRecord != null) {
-      primaryRecord = primaryRecord.getRecord();
-      return primaryRecord.lockingStrategy();
-    }
-
-    //noinspection deprecation
-    return ODatabaseRecordThreadLocal.instance().get().getTransaction().lockingStrategy(this);
-  }
-
-  @Override
-  public void unlock() {
-    checkForLoading();
-    if (primaryRecord != null) {
-      primaryRecord = primaryRecord.getRecord();
-      primaryRecord.unlock();
-      return;
-    }
-
-    //noinspection deprecation
-    ODatabaseRecordThreadLocal.instance().get().getTransaction().unlockRecord(this);
   }
 
   @Override

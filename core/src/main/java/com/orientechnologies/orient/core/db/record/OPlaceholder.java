@@ -19,13 +19,11 @@
  */
 package com.orientechnologies.orient.core.db.record;
 
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.id.OEmptyRecordId;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.serialization.OStreamable;
-import com.orientechnologies.orient.core.storage.OStorage;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -37,10 +35,13 @@ import java.io.IOException;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OPlaceholder implements OIdentifiable, OStreamable {
+
   private ORecordId rid;
   private int recordVersion;
 
-  /** Empty constructor used by serialization */
+  /**
+   * Empty constructor used by serialization
+   */
   public OPlaceholder() {}
 
   public OPlaceholder(final ORecordId rid, final int version) {
@@ -65,7 +66,9 @@ public class OPlaceholder implements OIdentifiable, OStreamable {
 
   @Override
   public boolean equals(final Object obj) {
-    if (!(obj instanceof OPlaceholder)) return false;
+    if (!(obj instanceof OPlaceholder)) {
+      return false;
+    }
 
     final OPlaceholder other = (OPlaceholder) obj;
 
@@ -109,32 +112,5 @@ public class OPlaceholder implements OIdentifiable, OStreamable {
 
     this.rid = rid.copy();
     recordVersion = in.readInt();
-  }
-
-  @Override
-  public void lock(final boolean iExclusive) {
-    ODatabaseRecordThreadLocal.instance()
-        .get()
-        .getTransaction()
-        .lockRecord(
-            this,
-            iExclusive
-                ? OStorage.LOCKING_STRATEGY.EXCLUSIVE_LOCK
-                : OStorage.LOCKING_STRATEGY.SHARED_LOCK);
-  }
-
-  @Override
-  public boolean isLocked() {
-    return ODatabaseRecordThreadLocal.instance().get().getTransaction().isLockedRecord(this);
-  }
-
-  @Override
-  public OStorage.LOCKING_STRATEGY lockingStrategy() {
-    return ODatabaseRecordThreadLocal.instance().get().getTransaction().lockingStrategy(this);
-  }
-
-  @Override
-  public void unlock() {
-    ODatabaseRecordThreadLocal.instance().get().getTransaction().unlockRecord(this);
   }
 }

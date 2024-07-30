@@ -63,7 +63,6 @@ public class OChannelBinaryProtocol {
   public static final byte REQUEST_COMMAND = 41;
   public static final byte REQUEST_POSITIONS_CEILING = 42; // since 1.3.0
   public static final byte REQUEST_RECORD_HIDE = 43; // since 1.7
-  public static final byte REQUEST_RECORD_LOAD_IF_VERSION_NOT_LATEST = 44; // since 2.1
   public static final byte REQUEST_QUERY = 45; // since 3.0
   public static final byte REQUEST_CLOSE_QUERY = 46; // since 3.0
   public static final byte REQUEST_QUERY_NEXT_PAGE = 47; // since 3.0
@@ -97,7 +96,6 @@ public class OChannelBinaryProtocol {
 
   public static final byte SUBSCRIBE_PUSH = 100;
   public static final byte UNSUBSCRIBE_PUSH = 101;
-  public static final byte EXPERIMENTAL = 102;
 
   // REMOTE SB-TREE COLLECTIONS
   public static final byte REQUEST_CREATE_SBTREE_BONSAI = 110;

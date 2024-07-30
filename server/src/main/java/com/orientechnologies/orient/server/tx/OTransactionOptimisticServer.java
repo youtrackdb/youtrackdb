@@ -45,7 +45,6 @@ public class OTransactionOptimisticServer extends OTransactionOptimistic {
   public OTransactionOptimisticServer(
       ODatabaseDocumentInternal database,
       int txId,
-      boolean usingLong,
       List<ORecordOperationRequest> operations,
       List<IndexChange> indexChanges) {
     super(database);
@@ -54,7 +53,7 @@ public class OTransactionOptimisticServer extends OTransactionOptimistic {
           ((OTransactionRealAbstract) database.getTransaction()).getNewObjectCounter();
     }
     clientTxId = txId;
-    this.setUsingLog(usingLong);
+
     this.operations = operations;
     this.indexChanges = indexChanges;
     if (database.getTransaction().isActive()) {
@@ -347,10 +346,6 @@ public class OTransactionOptimisticServer extends OTransactionOptimistic {
     changed = true;
     checkTransactionValid();
 
-    if (iStatus != ORecordOperation.LOADED && iRecord instanceof ODocument document) {
-      changedDocuments.remove(document);
-    }
-
     boolean callHooks = checkCallHooks(oldTx, iRecord.getIdentity(), iStatus);
 
     try {
@@ -363,12 +358,6 @@ public class OTransactionOptimisticServer extends OTransactionOptimistic {
                 iRecord = (ORecord) res;
               }
             }
-            break;
-          case ORecordOperation.LOADED:
-            /*
-             * Read hooks already invoked in {@link
-             * ODatabaseDocumentInternal#executeReadRecord}
-             */
             break;
           case ORecordOperation.UPDATED:
             {
@@ -412,16 +401,6 @@ public class OTransactionOptimisticServer extends OTransactionOptimistic {
           txEntry.record = iRecord;
 
           switch (txEntry.type) {
-            case ORecordOperation.LOADED:
-              switch (iStatus) {
-                case ORecordOperation.UPDATED:
-                  txEntry.type = ORecordOperation.UPDATED;
-                  break;
-                case ORecordOperation.DELETED:
-                  txEntry.type = ORecordOperation.DELETED;
-                  break;
-              }
-              break;
             case ORecordOperation.UPDATED:
               if (iStatus == ORecordOperation.DELETED) {
                 txEntry.type = ORecordOperation.DELETED;
@@ -443,13 +422,6 @@ public class OTransactionOptimisticServer extends OTransactionOptimistic {
             case ORecordOperation.CREATED:
               database.afterCreateOperations(iRecord);
               break;
-            case ORecordOperation.LOADED:
-              /*
-               * Read hooks already invoked in {@link
-               * ODatabaseDocumentInternal#executeReadRecord}
-               * .
-               */
-              break;
             case ORecordOperation.UPDATED:
               database.afterUpdateOperations(iRecord);
               break;
@@ -463,13 +435,6 @@ public class OTransactionOptimisticServer extends OTransactionOptimistic {
               if (iRecord instanceof ODocument) {
                 OClassIndexManager.checkIndexesAfterCreate((ODocument) iRecord, getDatabase());
               }
-              break;
-            case ORecordOperation.LOADED:
-              /*
-               * Read hooks already invoked in {@link
-               * ODatabaseDocumentInternal#executeReadRecord}
-               * .
-               */
               break;
             case ORecordOperation.UPDATED:
               if (iRecord instanceof ODocument) {

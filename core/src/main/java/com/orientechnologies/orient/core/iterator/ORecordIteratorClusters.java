@@ -25,7 +25,6 @@ import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.storage.OStorage;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 
@@ -45,17 +44,10 @@ public class ORecordIteratorClusters<REC extends ORecord> extends OIdentifiableI
   protected ORID beginRange;
   protected ORID endRange;
 
-  public ORecordIteratorClusters(
-      final ODatabaseDocumentInternal iDatabase, final int[] iClusterIds) {
-    this(iDatabase, iClusterIds, OStorage.LOCKING_STRATEGY.NONE);
-  }
-
   @Deprecated
   public ORecordIteratorClusters(
-      final ODatabaseDocumentInternal iDatabase,
-      final int[] iClusterIds,
-      final OStorage.LOCKING_STRATEGY iLockingStrategy) {
-    super(iDatabase, iLockingStrategy);
+      final ODatabaseDocumentInternal iDatabase, final int[] iClusterIds) {
+    super(iDatabase);
 
     checkForSystemClusters(iDatabase, iClusterIds);
 
@@ -67,9 +59,8 @@ public class ORecordIteratorClusters<REC extends ORecord> extends OIdentifiableI
   }
 
   @Deprecated
-  protected ORecordIteratorClusters(
-      final ODatabaseDocumentInternal iDatabase, final OStorage.LOCKING_STRATEGY iLockingStrategy) {
-    super(iDatabase, iLockingStrategy);
+  protected ORecordIteratorClusters(final ODatabaseDocumentInternal iDatabase) {
+    super(iDatabase);
   }
 
   public ORecordIteratorClusters<REC> setRange(final ORID iBegin, final ORID iEnd) {

@@ -24,7 +24,6 @@ import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.storage.OStorage;
 import java.util.Iterator;
 
 /**
@@ -34,28 +33,15 @@ import java.util.Iterator;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class ORecordIteratorCluster<REC extends ORecord> extends OIdentifiableIterator<REC> {
+
   private ORecord currentRecord;
 
   public ORecordIteratorCluster(final ODatabaseDocumentInternal iDatabase, final int iClusterId) {
-    this(
-        iDatabase,
-        iClusterId,
-        ORID.CLUSTER_POS_INVALID,
-        ORID.CLUSTER_POS_INVALID,
-        OStorage.LOCKING_STRATEGY.DEFAULT);
-  }
-
-  public ORecordIteratorCluster(
-      final ODatabaseDocumentInternal iDatabase,
-      final int iClusterId,
-      final long firstClusterEntry,
-      final long lastClusterEntry) {
-    this(
-        iDatabase, iClusterId, firstClusterEntry, lastClusterEntry, OStorage.LOCKING_STRATEGY.NONE);
+    this(iDatabase, iClusterId, ORID.CLUSTER_POS_INVALID, ORID.CLUSTER_POS_INVALID);
   }
 
   protected ORecordIteratorCluster(final ODatabaseDocumentInternal database) {
-    super(database, OStorage.LOCKING_STRATEGY.NONE);
+    super(database);
   }
 
   @Deprecated
@@ -63,30 +49,37 @@ public class ORecordIteratorCluster<REC extends ORecord> extends OIdentifiableIt
       final ODatabaseDocumentInternal iDatabase,
       final int iClusterId,
       final long firstClusterEntry,
-      final long lastClusterEntry,
-      final OStorage.LOCKING_STRATEGY iLockingStrategy) {
-    super(iDatabase, iLockingStrategy);
+      final long lastClusterEntry) {
+    super(iDatabase);
 
-    if (iClusterId == ORID.CLUSTER_ID_INVALID)
+    if (iClusterId == ORID.CLUSTER_ID_INVALID) {
       throw new IllegalArgumentException("The clusterId is invalid");
+    }
 
     checkForSystemClusters(iDatabase, new int[] {iClusterId});
 
     current.setClusterId(iClusterId);
     final long[] range = database.getClusterDataRange(current.getClusterId());
 
-    if (firstClusterEntry == ORID.CLUSTER_POS_INVALID) this.firstClusterEntry = range[0];
-    else this.firstClusterEntry = firstClusterEntry > range[0] ? firstClusterEntry : range[0];
+    if (firstClusterEntry == ORID.CLUSTER_POS_INVALID) {
+      this.firstClusterEntry = range[0];
+    } else {
+      this.firstClusterEntry = firstClusterEntry > range[0] ? firstClusterEntry : range[0];
+    }
 
-    if (lastClusterEntry == ORID.CLUSTER_POS_INVALID) this.lastClusterEntry = range[1];
-    else this.lastClusterEntry = lastClusterEntry < range[1] ? lastClusterEntry : range[1];
+    if (lastClusterEntry == ORID.CLUSTER_POS_INVALID) {
+      this.lastClusterEntry = range[1];
+    } else {
+      this.lastClusterEntry = lastClusterEntry < range[1] ? lastClusterEntry : range[1];
+    }
 
     totalAvailableRecords = database.countClusterElements(current.getClusterId());
 
     txEntries = iDatabase.getTransaction().getNewRecordEntriesByClusterIds(new int[] {iClusterId});
 
     if (txEntries != null)
-      // ADJUST TOTAL ELEMENT BASED ON CURRENT TRANSACTION'S ENTRIES
+    // ADJUST TOTAL ELEMENT BASED ON CURRENT TRANSACTION'S ENTRIES
+    {
       for (ORecordOperation entry : txEntries) {
         switch (entry.type) {
           case ORecordOperation.CREATED:
@@ -98,6 +91,7 @@ public class ORecordIteratorCluster<REC extends ORecord> extends OIdentifiableIt
             break;
         }
       }
+    }
 
     begin();
   }
@@ -113,8 +107,10 @@ public class ORecordIteratorCluster<REC extends ORecord> extends OIdentifiableIt
     }
 
     if (limit > -1 && browsedRecords >= limit)
-      // LIMIT REACHED
+    // LIMIT REACHED
+    {
       return false;
+    }
 
     boolean thereAreRecordsToBrowse = getCurrentEntry() > firstClusterEntry;
 
@@ -129,8 +125,10 @@ public class ORecordIteratorCluster<REC extends ORecord> extends OIdentifiableIt
     checkDirection(true);
 
     if (Thread.interrupted())
-      // INTERRUPTED
+    // INTERRUPTED
+    {
       return false;
+    }
 
     updateRangesOnLiveUpdate();
 
@@ -139,10 +137,14 @@ public class ORecordIteratorCluster<REC extends ORecord> extends OIdentifiableIt
     }
 
     if (limit > -1 && browsedRecords >= limit)
-      // LIMIT REACHED
+    // LIMIT REACHED
+    {
       return false;
+    }
 
-    if (browsedRecords >= totalAvailableRecords) return false;
+    if (browsedRecords >= totalAvailableRecords) {
+      return false;
+    }
 
     if (!(current.getClusterPosition() < ORID.CLUSTER_POS_INVALID)
         && getCurrentEntry() < lastClusterEntry) {
@@ -153,11 +155,15 @@ public class ORecordIteratorCluster<REC extends ORecord> extends OIdentifiableIt
         currentRecord = null;
       }
 
-      if (currentRecord != null) return true;
+      if (currentRecord != null) {
+        return true;
+      }
     }
 
     // CHECK IN TX IF ANY
-    if (txEntries != null) return txEntries.size() - (currentTxEntryPosition + 1) > 0;
+    if (txEntries != null) {
+      return txEntries.size() - (currentTxEntryPosition + 1) > 0;
+    }
 
     return false;
   }
@@ -167,7 +173,7 @@ public class ORecordIteratorCluster<REC extends ORecord> extends OIdentifiableIt
    * position available.
    *
    * @return the previous record found, otherwise the NoSuchElementException exception is thrown
-   *     when no more records are found.
+   * when no more records are found.
    */
   @SuppressWarnings("unchecked")
   @Override
@@ -198,7 +204,7 @@ public class ORecordIteratorCluster<REC extends ORecord> extends OIdentifiableIt
    * available.
    *
    * @return the next record found, otherwise the NoSuchElementException exception is thrown when no
-   *     more records are found.
+   * more records are found.
    */
   @SuppressWarnings("unchecked")
   public REC next() {
@@ -218,7 +224,9 @@ public class ORecordIteratorCluster<REC extends ORecord> extends OIdentifiableIt
       }
 
       record = getTransactionEntry();
-      if (record != null) return (REC) record;
+      if (record != null) {
+        return (REC) record;
+      }
     }
 
     return null;

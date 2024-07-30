@@ -53,7 +53,6 @@ import com.orientechnologies.orient.core.serialization.serializer.record.binary.
 import com.orientechnologies.orient.core.sql.OSQLHelper;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.filter.OSQLPredicate;
-import com.orientechnologies.orient.core.tx.OTransaction;
 import java.io.*;
 import java.lang.ref.WeakReference;
 import java.nio.charset.StandardCharsets;
@@ -2496,32 +2495,6 @@ public class ODocument extends ORecordAbstract
   }
 
   /**
-   * Retrieves the array of dirty fields for the transaction of this document.
-   *
-   * @return The array of dirty fields.
-   */
-  public String[] getTxDirtyFields() {
-    checkForLoading();
-    if (primaryRecord != null) {
-      return ((ODocument) primaryRecord).getTxDirtyFields();
-    }
-
-    if (fields == null || fields.isEmpty()) {
-      return EMPTY_STRINGS;
-    }
-
-    final Set<String> dirtyFields = new HashSet<>();
-    for (Entry<String, ODocumentEntry> entry : fields.entrySet()) {
-      if (entry.getValue().isTxChanged()
-          || entry.getValue().isTxTrackedModified()
-          || entry.getValue().isTxCreated()) {
-        dirtyFields.add(entry.getKey());
-      }
-    }
-    return dirtyFields.toArray(new String[0]);
-  }
-
-  /**
    * Returns the original value of a field before it has been changed.
    *
    * @param iFieldName Property name to retrieve the original value
@@ -2762,33 +2735,6 @@ public class ODocument extends ORecordAbstract
     checkForFields();
 
     super.setDirty();
-
-    boolean addToChangedList = false;
-
-    ORecordElement owner;
-    if (!isEmbedded()) {
-      owner = this;
-    } else {
-      owner = getOwner();
-      while (owner != null && owner.getOwner() != null) {
-        owner = owner.getOwner();
-      }
-    }
-
-    if (owner instanceof ODocument
-        && ((ODocument) owner).isTrackingChanges()
-        && ((ODocument) owner).getIdentity().isPersistent()) {
-      addToChangedList = true;
-    }
-
-    if (addToChangedList) {
-      final ODatabaseDocumentInternal database = getDatabaseIfDefined();
-
-      if (database != null) {
-        final OTransaction transaction = database.getTransaction();
-        transaction.addChangedDocument(this);
-      }
-    }
 
     return this;
   }
@@ -3271,7 +3217,7 @@ public class ODocument extends ORecordAbstract
       return ((ODocument) primaryRecord).save();
     }
 
-    return (ODocument) save(null, false);
+    return (ODocument) super.save();
   }
 
   @Override
@@ -3280,22 +3226,7 @@ public class ODocument extends ORecordAbstract
       return ((ODocument) primaryRecord).save(iClusterName);
     }
 
-    return (ODocument) save(iClusterName, false);
-  }
-
-  @Override
-  public ORecordAbstract save(final String iClusterName, final boolean forceCreate) {
-    if (primaryRecord != null) {
-      return primaryRecord.save(iClusterName, forceCreate);
-    }
-    return getDatabase()
-        .save(
-            this,
-            iClusterName,
-            ODatabaseSession.OPERATION_MODE.SYNCHRONOUS,
-            forceCreate,
-            null,
-            null);
+    return (ODocument) super.save(iClusterName);
   }
 
   /*
@@ -4686,7 +4617,6 @@ public class ODocument extends ORecordAbstract
       return;
     }
 
-    var db = getDatabaseIfDefined();
     for (final Map.Entry<String, ODocumentEntry> field : fields.entrySet()) {
       var docEntry = field.getValue();
 
