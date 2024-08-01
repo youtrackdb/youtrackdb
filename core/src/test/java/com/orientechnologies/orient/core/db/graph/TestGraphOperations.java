@@ -10,7 +10,9 @@ import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by tglman on 20/02/17. */
+/**
+ * Created by tglman on 20/02/17.
+ */
 public class TestGraphOperations extends BaseMemoryDatabase {
 
   @Test
@@ -24,6 +26,7 @@ public class TestGraphOperations extends BaseMemoryDatabase {
 
     key.createIndex(OClass.INDEX_TYPE.UNIQUE);
 
+    db.begin();
     OVertex vertex = db.newVertex("TestVertex");
 
     OVertex vertex1 = db.newVertex("TestVertex");
@@ -32,20 +35,25 @@ public class TestGraphOperations extends BaseMemoryDatabase {
 
     edge.setProperty("key", "unique");
     db.save(vertex);
+    db.commit();
 
     try {
+      db.begin();
       edge = vertex.addEdge(vertex1, "TestLabel");
       edge.setProperty("key", "unique");
       db.save(edge);
+      db.commit();
       Assert.fail("It should not be inserted  a duplicated edge");
     } catch (ORecordDuplicatedException e) {
 
     }
 
+    db.begin();
     edge = vertex.addEdge(vertex1, "TestLabel");
 
     edge.setProperty("key", "notunique");
 
     db.save(edge);
+    db.commit();
   }
 }

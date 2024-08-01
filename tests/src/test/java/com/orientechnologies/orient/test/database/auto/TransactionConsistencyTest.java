@@ -60,7 +60,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
   public void test1RollbackOnConcurrentException() throws IOException {
     database1 = new ODatabaseDocumentTx(url).open("admin", "admin");
 
-    database1.begin(TXTYPE.OPTIMISTIC);
+    database1.begin();
 
     // Create docA.
     ODocument vDocA_db1 = database1.newInstance();
@@ -82,7 +82,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     int vDocB_version = -1;
 
     database2 = new ODatabaseDocumentTx(url).open("admin", "admin");
-    database2.begin(TXTYPE.OPTIMISTIC);
+    database2.begin();
     try {
       // Get docA and update in db2 transaction context
       ODocument vDocA_db2 = database2.load(vDocA_Rid);
@@ -92,7 +92,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
       // Concurrent update docA via database1 -> will throw OConcurrentModificationException at
       // database2.commit().
       database1.activateOnCurrentThread();
-      database1.begin(TXTYPE.OPTIMISTIC);
+      database1.begin();
       try {
         vDocA_db1.field(NAME, "docA_v3");
         database1.save(vDocA_db1);
@@ -152,7 +152,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     ORID vDocA_Rid = vDocA_db1.getIdentity().copy();
 
     database2 = new ODatabaseDocumentTx(url).open("admin", "admin");
-    database2.begin(TXTYPE.OPTIMISTIC);
+    database2.begin();
     try {
       // Get docA and update in db2 transaction context
       ODocument vDocA_db2 = database2.load(vDocA_Rid);
@@ -160,7 +160,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
       database2.save(vDocA_db2);
 
       database1.activateOnCurrentThread();
-      database1.begin(TXTYPE.OPTIMISTIC);
+      database1.begin();
       try {
         vDocA_db1.field(NAME, "docA_v3");
         database1.save(vDocA_db1);
@@ -210,7 +210,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     ORID vDocA_Rid = vDocA_db1.getIdentity().copy();
 
     database2 = new ODatabaseDocumentTx(url).open("admin", "admin");
-    database2.begin(TXTYPE.OPTIMISTIC);
+    database2.begin();
     try {
       // Get docA and update in db2 transaction context
       ODocument vDocA_db2 = database2.load(vDocA_Rid);
@@ -218,7 +218,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
       database2.save(vDocA_db2);
 
       database1.activateOnCurrentThread();
-      database1.begin(TXTYPE.OPTIMISTIC);
+      database1.begin();
       try {
         vDocA_db1.field(NAME, "docA_v3");
         database1.save(vDocA_db1);
@@ -259,7 +259,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database1 = new ODatabaseDocumentTx(url).open("admin", "admin");
 
     // Create docA in db1
-    database1.begin(TXTYPE.OPTIMISTIC);
+    database1.begin();
     ODocument vDocA_db1 = database1.newInstance();
     vDocA_db1.field(NAME, "docA");
     database1.save(vDocA_db1, database1.getClusterNameById(database1.getDefaultClusterId()));
@@ -270,7 +270,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
 
     // Update docA in db2
     database2 = new ODatabaseDocumentTx(url).open("admin", "admin");
-    database2.begin(TXTYPE.OPTIMISTIC);
+    database2.begin();
     ODocument vDocA_db2 = database2.load(vDocA_Rid);
     vDocA_db2.field(NAME, "docA_v2");
     database2.save(vDocA_db2);
@@ -278,7 +278,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
 
     // Later... read docA with db1.
     database1.activateOnCurrentThread();
-    database1.begin(TXTYPE.OPTIMISTIC);
+    database1.begin();
     ODocument vDocA_db1_later = database1.load(vDocA_Rid, null, true);
     Assert.assertEquals(vDocA_db1_later.field(NAME), "docA_v2");
     database1.commit();
@@ -763,7 +763,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
 
       String originalName = account.getName();
 
-      database.begin(TXTYPE.OPTIMISTIC);
+      database.begin();
 
       Assert.assertEquals(account.getAddresses().size(), 2);
       account

@@ -63,6 +63,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public abstract class OSchemaShared implements OCloseable {
+
   private static final int NOT_EXISTENT_CLUSTER_ID = -1;
   public static final int CURRENT_VERSION_NUMBER = 4;
   public static final int VERSION_NUMBER_V4 = 4;
@@ -107,7 +108,9 @@ public abstract class OSchemaShared implements OCloseable {
   public OSchemaShared() {}
 
   public static Character checkClassNameIfValid(String iName) throws OSchemaException {
-    if (iName == null) throw new IllegalArgumentException("Name is null");
+    if (iName == null) {
+      throw new IllegalArgumentException("Name is null");
+    }
 
     //    iName = iName.trim();
     //
@@ -128,38 +131,50 @@ public abstract class OSchemaShared implements OCloseable {
   }
 
   public static Character checkFieldNameIfValid(String iName) {
-    if (iName == null) throw new IllegalArgumentException("Name is null");
+    if (iName == null) {
+      throw new IllegalArgumentException("Name is null");
+    }
 
     iName = iName.trim();
 
     final int nameSize = iName.length();
 
-    if (nameSize == 0) throw new IllegalArgumentException("Name is empty");
+    if (nameSize == 0) {
+      throw new IllegalArgumentException("Name is empty");
+    }
 
     for (int i = 0; i < nameSize; ++i) {
       final char c = iName.charAt(i);
       if (c == ':' || c == ',' || c == ';' || c == ' ' || c == '=')
-        // INVALID CHARACTER
+      // INVALID CHARACTER
+      {
         return c;
+      }
     }
 
     return null;
   }
 
   public static Character checkIndexNameIfValid(String iName) {
-    if (iName == null) throw new IllegalArgumentException("Name is null");
+    if (iName == null) {
+      throw new IllegalArgumentException("Name is null");
+    }
 
     iName = iName.trim();
 
     final int nameSize = iName.length();
 
-    if (nameSize == 0) throw new IllegalArgumentException("Name is empty");
+    if (nameSize == 0) {
+      throw new IllegalArgumentException("Name is empty");
+    }
 
     for (int i = 0; i < nameSize; ++i) {
       final char c = iName.charAt(i);
       if (c == ':' || c == ',' || c == ';' || c == ' ' || c == '=')
-        // INVALID CHARACTER
+      // INVALID CHARACTER
+      {
         return c;
+      }
     }
 
     return null;
@@ -171,7 +186,9 @@ public abstract class OSchemaShared implements OCloseable {
       // all the other cases are already protected by a write lock
       acquireSchemaReadLock();
       try {
-        if (snapshot == null) snapshot = new OImmutableSchema(this, database);
+        if (snapshot == null) {
+          snapshot = new OImmutableSchema(this, database);
+        }
       } finally {
         releaseSchemaReadLock();
       }
@@ -214,13 +231,19 @@ public abstract class OSchemaShared implements OCloseable {
     }
   }
 
-  /** Callback invoked when the schema is loaded, after all the initializations. */
+  /**
+   * Callback invoked when the schema is loaded, after all the initializations.
+   */
   public void onPostIndexManagement() {
     for (OClass c : classes.values()) {
-      if (c instanceof OClassImpl) ((OClassImpl) c).onPostIndexManagement();
+      if (c instanceof OClassImpl) {
+        ((OClassImpl) c).onPostIndexManagement();
+      }
     }
     for (OClass c : views.values()) {
-      if (c instanceof OClassImpl) ((OClassImpl) c).onPostIndexManagement();
+      if (c instanceof OClassImpl) {
+        ((OClassImpl) c).onPostIndexManagement();
+      }
     }
   }
 
@@ -302,30 +325,35 @@ public abstract class OSchemaShared implements OCloseable {
   void checkClusterCanBeAdded(int clusterId, OClass cls) {
     acquireSchemaReadLock();
     try {
-      if (clusterId < 0) return;
+      if (clusterId < 0) {
+        return;
+      }
 
-      if (blobClusters.contains(clusterId))
+      if (blobClusters.contains(clusterId)) {
         throw new OSchemaException("Cluster with id " + clusterId + " already belongs to Blob");
+      }
 
       final OClass existingCls = clustersToClasses.get(clusterId);
 
-      if (existingCls != null && (cls == null || !cls.equals(existingCls)))
+      if (existingCls != null && (cls == null || !cls.equals(existingCls))) {
         throw new OSchemaException(
             "Cluster with id "
                 + clusterId
                 + " already belongs to the class '"
                 + clustersToClasses.get(clusterId)
                 + "'");
+      }
 
       final OView existingView = clustersToViews.get(clusterId);
 
-      if (existingView != null && (cls == null || !cls.equals(existingView)))
+      if (existingView != null && (cls == null || !cls.equals(existingView))) {
         throw new OSchemaException(
             "Cluster with id "
                 + clusterId
                 + " already belongs to the view '"
                 + clustersToViews.get(clusterId)
                 + "'");
+      }
 
     } finally {
       releaseSchemaReadLock();
@@ -359,7 +387,9 @@ public abstract class OSchemaShared implements OCloseable {
 
   public abstract void dropView(ODatabaseDocumentInternal database, final String viewName);
 
-  /** Reloads the schema inside a storage's shared lock. */
+  /**
+   * Reloads the schema inside a storage's shared lock.
+   */
   public void reload(ODatabaseDocumentInternal database) {
     lock.writeLock().lock();
     try {
@@ -375,7 +405,9 @@ public abstract class OSchemaShared implements OCloseable {
   }
 
   public boolean existsClass(final String iClassName) {
-    if (iClassName == null) return false;
+    if (iClassName == null) {
+      return false;
+    }
 
     acquireSchemaReadLock();
     try {
@@ -386,7 +418,9 @@ public abstract class OSchemaShared implements OCloseable {
   }
 
   public boolean existsView(final String viewName) {
-    if (viewName == null) return false;
+    if (viewName == null) {
+      return false;
+    }
 
     acquireSchemaReadLock();
     try {
@@ -402,7 +436,9 @@ public abstract class OSchemaShared implements OCloseable {
    * @see com.orientechnologies.orient.core.metadata.schema.OSchema#getClass(java.lang.Class)
    */
   public OClass getClass(final Class<?> iClass) {
-    if (iClass == null) return null;
+    if (iClass == null) {
+      return null;
+    }
 
     return getClass(iClass.getSimpleName());
   }
@@ -413,7 +449,9 @@ public abstract class OSchemaShared implements OCloseable {
    * @see com.orientechnologies.orient.core.metadata.schema.OSchema#getClass(java.lang.String)
    */
   public OClass getClass(final String iClassName) {
-    if (iClassName == null) return null;
+    if (iClassName == null) {
+      return null;
+    }
 
     acquireSchemaReadLock();
     try {
@@ -424,7 +462,9 @@ public abstract class OSchemaShared implements OCloseable {
   }
 
   public OView getView(final String viewName) {
-    if (viewName == null) return null;
+    if (viewName == null) {
+      return null;
+    }
 
     acquireSchemaReadLock();
     try {
@@ -490,9 +530,10 @@ public abstract class OSchemaShared implements OCloseable {
       final String newName,
       final OClass cls) {
 
-    if (oldName != null && oldName.equalsIgnoreCase(newName))
+    if (oldName != null && oldName.equalsIgnoreCase(newName)) {
       throw new IllegalArgumentException(
           "Class '" + oldName + "' cannot be renamed with the same name");
+    }
 
     acquireSchemaWriteLock(database);
     try {
@@ -500,11 +541,16 @@ public abstract class OSchemaShared implements OCloseable {
 
       if (newName != null
           && (classes.containsKey(newName.toLowerCase(Locale.ENGLISH))
-              || views.containsKey(newName.toLowerCase(Locale.ENGLISH))))
+              || views.containsKey(newName.toLowerCase(Locale.ENGLISH)))) {
         throw new IllegalArgumentException("Class '" + newName + "' is already present in schema");
+      }
 
-      if (oldName != null) classes.remove(oldName.toLowerCase(Locale.ENGLISH));
-      if (newName != null) classes.put(newName.toLowerCase(Locale.ENGLISH), cls);
+      if (oldName != null) {
+        classes.remove(oldName.toLowerCase(Locale.ENGLISH));
+      }
+      if (newName != null) {
+        classes.put(newName.toLowerCase(Locale.ENGLISH), cls);
+      }
 
     } finally {
       releaseSchemaWriteLock(database);
@@ -517,9 +563,10 @@ public abstract class OSchemaShared implements OCloseable {
       final String newName,
       final OView view) {
 
-    if (oldName != null && oldName.equalsIgnoreCase(newName))
+    if (oldName != null && oldName.equalsIgnoreCase(newName)) {
       throw new IllegalArgumentException(
           "View '" + oldName + "' cannot be renamed with the same name");
+    }
 
     acquireSchemaWriteLock(database);
     try {
@@ -527,18 +574,25 @@ public abstract class OSchemaShared implements OCloseable {
 
       if (newName != null
           && (classes.containsKey(newName.toLowerCase(Locale.ENGLISH))
-              || views.containsKey(newName.toLowerCase(Locale.ENGLISH))))
+              || views.containsKey(newName.toLowerCase(Locale.ENGLISH)))) {
         throw new IllegalArgumentException("View '" + newName + "' is already present in schema");
+      }
 
-      if (oldName != null) views.remove(oldName.toLowerCase(Locale.ENGLISH));
-      if (newName != null) views.put(newName.toLowerCase(Locale.ENGLISH), view);
+      if (oldName != null) {
+        views.remove(oldName.toLowerCase(Locale.ENGLISH));
+      }
+      if (newName != null) {
+        views.put(newName.toLowerCase(Locale.ENGLISH), view);
+      }
 
     } finally {
       releaseSchemaWriteLock(database);
     }
   }
 
-  /** Binds ODocument to POJO. */
+  /**
+   * Binds ODocument to POJO.
+   */
   public void fromStream(ODocument document) {
     lock.writeLock().lock();
     modificationCounter.increment();
@@ -597,8 +651,9 @@ public abstract class OSchemaShared implements OCloseable {
 
         newClasses.put(cls.getName().toLowerCase(Locale.ENGLISH), cls);
 
-        if (cls.getShortName() != null)
+        if (cls.getShortName() != null) {
           newClasses.put(cls.getShortName().toLowerCase(Locale.ENGLISH), cls);
+        }
 
         addClusterClassMap(cls);
       }
@@ -615,12 +670,15 @@ public abstract class OSchemaShared implements OCloseable {
       for (ODocument c : storedClasses) {
         superClassNames = c.field("superClasses");
         legacySuperClassName = c.field("superClass");
-        if (superClassNames == null) superClassNames = new ArrayList<String>();
+        if (superClassNames == null) {
+          superClassNames = new ArrayList<String>();
+        }
         //        else
         //          superClassNames = new HashSet<String>(superClassNames);
 
-        if (legacySuperClassName != null && !superClassNames.contains(legacySuperClassName))
+        if (legacySuperClassName != null && !superClassNames.contains(legacySuperClassName)) {
           superClassNames.add(legacySuperClassName);
+        }
 
         if (!superClassNames.isEmpty()) {
           // HAS A SUPER CLASS or CLASSES
@@ -631,7 +689,7 @@ public abstract class OSchemaShared implements OCloseable {
 
             superClass = classes.get(superClassName.toLowerCase(Locale.ENGLISH));
 
-            if (superClass == null)
+            if (superClass == null) {
               throw new OConfigurationException(
                   "Super class '"
                       + superClassName
@@ -639,6 +697,7 @@ public abstract class OSchemaShared implements OCloseable {
                       + cls.getName()
                       + "' but was not found in schema. Remove the dependency or create the class"
                       + " to continue.");
+            }
             superClasses.add(superClass);
           }
           cls.setSuperClassesInternal(superClasses);
@@ -665,8 +724,9 @@ public abstract class OSchemaShared implements OCloseable {
 
           newViews.put(view.getName().toLowerCase(Locale.ENGLISH), view);
 
-          if (view.getShortName() != null)
+          if (view.getShortName() != null) {
             newViews.put(view.getShortName().toLowerCase(Locale.ENGLISH), view);
+          }
 
           addClusterViewMap(view);
         }
@@ -681,7 +741,9 @@ public abstract class OSchemaShared implements OCloseable {
 
       if (!hasGlobalProperties) {
         ODatabaseDocumentInternal database = ODatabaseRecordThreadLocal.instance().get();
-        if (database.getStorage() instanceof OAbstractPaginatedStorage) saveInternal(database);
+        if (database.getStorage() instanceof OAbstractPaginatedStorage) {
+          saveInternal(database);
+        }
       }
 
     } finally {
@@ -703,20 +765,25 @@ public abstract class OSchemaShared implements OCloseable {
       document.field("schemaVersion", CURRENT_VERSION_NUMBER);
 
       Set<ODocument> cc = new HashSet<ODocument>();
-      for (OClass c : classes.values()) cc.add(((OClassImpl) c).toNetworkStream());
+      for (OClass c : classes.values()) {
+        cc.add(((OClassImpl) c).toNetworkStream());
+      }
 
       document.field("classes", cc, OType.EMBEDDEDSET);
 
       // TODO: this should trigger a netowork protocol version change
       Set<ODocument> vv = new HashSet<ODocument>();
-      for (OView v : views.values()) vv.add(((OViewImpl) v).toNetworkStream());
+      for (OView v : views.values()) {
+        vv.add(((OViewImpl) v).toNetworkStream());
+      }
 
       document.field("views", vv, OType.EMBEDDEDSET);
 
       List<ODocument> globalProperties = new ArrayList<ODocument>();
       for (OGlobalProperty globalProperty : properties) {
-        if (globalProperty != null)
+        if (globalProperty != null) {
           globalProperties.add(((OGlobalPropertyImpl) globalProperty).toDocument());
+        }
       }
       document.field("globalProperties", globalProperties, OType.EMBEDDEDLIST);
       document.field("blobClusters", blobClusters, OType.EMBEDDEDSET);
@@ -726,7 +793,9 @@ public abstract class OSchemaShared implements OCloseable {
     }
   }
 
-  /** Binds POJO to ODocument. */
+  /**
+   * Binds POJO to ODocument.
+   */
   public ODocument toStream() {
     lock.readLock().lock();
     try {
@@ -735,24 +804,33 @@ public abstract class OSchemaShared implements OCloseable {
 
       // This steps is needed because in classes there are duplicate due to aliases
       Set<OClassImpl> realClases = new HashSet<OClassImpl>();
-      for (OClass c : classes.values()) realClases.add(((OClassImpl) c));
+      for (OClass c : classes.values()) {
+        realClases.add(((OClassImpl) c));
+      }
 
       Set<ODocument> classesDocuments = new HashSet<ODocument>();
-      for (OClassImpl c : realClases) classesDocuments.add(c.toStream());
+      for (OClassImpl c : realClases) {
+        classesDocuments.add(c.toStream());
+      }
       document.field("classes", classesDocuments, OType.EMBEDDEDSET);
 
       // This steps is needed because in views there are duplicate due to aliases
       Set<OViewImpl> realViews = new HashSet<OViewImpl>();
-      for (OView v : views.values()) realViews.add(((OViewImpl) v));
+      for (OView v : views.values()) {
+        realViews.add(((OViewImpl) v));
+      }
 
       Set<ODocument> viewsDocuments = new HashSet<ODocument>();
-      for (OClassImpl c : realViews) viewsDocuments.add(c.toStream());
+      for (OClassImpl c : realViews) {
+        viewsDocuments.add(c.toStream());
+      }
       document.field("views", viewsDocuments, OType.EMBEDDEDSET);
 
       List<ODocument> globalProperties = new ArrayList<ODocument>();
       for (OGlobalProperty globalProperty : properties) {
-        if (globalProperty != null)
+        if (globalProperty != null) {
           globalProperties.add(((OGlobalPropertyImpl) globalProperty).toDocument());
+        }
       }
       document.field("globalProperties", globalProperties, OType.EMBEDDEDLIST);
       document.field("blobClusters", blobClusters, OType.EMBEDDEDSET);
@@ -791,7 +869,9 @@ public abstract class OSchemaShared implements OCloseable {
       final int clusterId = database.getClusterIdByName(clusterName);
       final Set<OClass> result = new HashSet<OClass>();
       for (OClass c : classes.values()) {
-        if (OArrays.contains(c.getPolymorphicClusterIds(), clusterId)) result.add(c);
+        if (OArrays.contains(c.getPolymorphicClusterIds(), clusterId)) {
+          result.add(c);
+        }
       }
 
       return result;
@@ -809,7 +889,9 @@ public abstract class OSchemaShared implements OCloseable {
       final int clusterId = database.getClusterIdByName(clusterName);
       final Set<OView> result = new HashSet<OView>();
       for (OView c : views.values()) {
-        if (OArrays.contains(c.getPolymorphicClusterIds(), clusterId)) result.add(c);
+        if (OArrays.contains(c.getPolymorphicClusterIds(), clusterId)) {
+          result.add(c);
+        }
       }
 
       return result;
@@ -823,8 +905,9 @@ public abstract class OSchemaShared implements OCloseable {
     lock.writeLock().lock();
     try {
       identity = new ORecordId(database.getStorageInfo().getConfiguration().getSchemaRecordId());
-      if (!identity.isValid())
+      if (!identity.isValid()) {
         throw new OSchemaNotCreatedException("Schema is not created and cannot be loaded");
+      }
       ODocument document = identity.getRecord();
       document = database.reload(document, "*:-1 index:0", true);
       fromStream(document);
@@ -839,7 +922,9 @@ public abstract class OSchemaShared implements OCloseable {
   public void create(final ODatabaseDocumentInternal database) {
     lock.writeLock().lock();
     try {
-      ODocument document = database.save(new ODocument(), OMetadataDefault.CLUSTER_INTERNAL_NAME);
+      ODocument document =
+          database.computeInTx(
+              () -> database.save(new ODocument(), OMetadataDefault.CLUSTER_INTERNAL_NAME));
       this.identity = document.getIdentity();
       database.getStorage().setSchemaRecordId(document.getIdentity().toString());
       snapshot = new OImmutableSchema(this, database);
@@ -866,7 +951,9 @@ public abstract class OSchemaShared implements OCloseable {
   }
 
   public OGlobalProperty getGlobalPropertyById(int id) {
-    if (id >= properties.size()) return null;
+    if (id >= properties.size()) {
+      return null;
+    }
     return properties.get(id);
   }
 
@@ -874,8 +961,9 @@ public abstract class OSchemaShared implements OCloseable {
       final String name, final OType type, final Integer id) {
     OGlobalProperty global;
     if (id < properties.size() && (global = properties.get(id)) != null) {
-      if (!global.getName().equals(name) || !global.getType().equals(type))
+      if (!global.getName().equals(name) || !global.getType().equals(type)) {
         throw new OSchemaException("A property with id " + id + " already exist ");
+      }
       return global;
     }
 
@@ -933,7 +1021,9 @@ public abstract class OSchemaShared implements OCloseable {
 
   protected void addClusterClassMap(final OClass cls) {
     for (int clusterId : cls.getClusterIds()) {
-      if (clusterId < 0) continue;
+      if (clusterId < 0) {
+        continue;
+      }
 
       clustersToClasses.put(clusterId, cls);
     }
@@ -941,14 +1031,18 @@ public abstract class OSchemaShared implements OCloseable {
 
   protected void addClusterViewMap(final OView cls) {
     for (int clusterId : cls.getClusterIds()) {
-      if (clusterId < 0) continue;
+      if (clusterId < 0) {
+        continue;
+      }
 
       clustersToViews.put(clusterId, cls);
     }
   }
 
   private void ensurePropertiesSize(int size) {
-    while (properties.size() <= size) properties.add(null);
+    while (properties.size() <= size) {
+      properties.add(null);
+    }
   }
 
   public int addBlobCluster(ODatabaseDocumentInternal database, int clusterId) {

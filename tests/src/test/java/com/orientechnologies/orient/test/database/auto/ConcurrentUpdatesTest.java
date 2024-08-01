@@ -74,7 +74,7 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
 
               db.open("admin", "admin");
               try {
-                db.begin(TXTYPE.OPTIMISTIC);
+                db.begin();
 
                 ODocument vDoc1 = db.load(rid1, null, true);
                 vDoc1.field(threadName, vDoc1.field(threadName) + ";" + i);

@@ -46,6 +46,7 @@ import java.util.stream.Collectors;
  * @author S. Colin Leister
  */
 public class ODefaultSecuritySystem implements OSecuritySystem {
+
   private boolean enabled = false; // Defaults to not
   // enabled at
   // first.
@@ -107,58 +108,61 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   }
 
   public void createSystemRoles(ODatabaseSession session) {
-    OSecurity security = session.getMetadata().getSecurity();
-    if (security.getRole("root") == null) {
-      ORole root = security.createRole("root", ORole.ALLOW_MODES.DENY_ALL_BUT);
-      for (ORule.ResourceGeneric resource : ORule.ResourceGeneric.values()) {
-        root.addRule(resource, null, ORole.PERMISSION_ALL);
-      }
-      // Do not allow root to have access to audit log class by default.
-      root.addRule(ORule.ResourceGeneric.CLASS, "OAuditingLog", ORole.PERMISSION_NONE);
-      root.addRule(ORule.ResourceGeneric.CLUSTER, "oauditinglog", ORole.PERMISSION_NONE);
-      root.save();
-    }
-    if (security.getRole("guest") == null) {
-      ORole guest = security.createRole("guest", ORole.ALLOW_MODES.DENY_ALL_BUT);
-      guest.addRule(ResourceGeneric.SERVER, "listDatabases", ORole.PERMISSION_ALL);
-      guest.save();
-    }
-    // for monitoring/logging purposes, intended to connect from external monitoring systems
-    if (security.getRole("monitor") == null) {
-      ORole guest = security.createRole("monitor", ORole.ALLOW_MODES.DENY_ALL_BUT);
-      guest.addRule(ResourceGeneric.CLASS, null, ORole.PERMISSION_READ);
-      guest.addRule(ResourceGeneric.CLUSTER, null, ORole.PERMISSION_READ);
-      guest.addRule(ResourceGeneric.SYSTEM_CLUSTERS, null, ORole.PERMISSION_READ);
-      guest.addRule(ResourceGeneric.SCHEMA, null, ORole.PERMISSION_READ);
-      guest.addRule(ResourceGeneric.FUNCTION, null, ORole.PERMISSION_ALL);
-      guest.addRule(ResourceGeneric.COMMAND, null, ORole.PERMISSION_ALL);
-      guest.addRule(ResourceGeneric.COMMAND_GREMLIN, null, ORole.PERMISSION_ALL);
-      guest.addRule(ResourceGeneric.DATABASE, null, ORole.PERMISSION_READ);
-      guest.addRule(ResourceGeneric.SERVER, null, ORole.PERMISSION_READ);
-      guest.save();
-    }
-    // a separate role for accessing the auditing logs
-    if (security.getRole("auditor") == null) {
-      ORole auditor = security.createRole("auditor", OSecurityRole.ALLOW_MODES.DENY_ALL_BUT);
-      auditor.addRule(ORule.ResourceGeneric.DATABASE, null, ORole.PERMISSION_READ);
-      auditor.addRule(ORule.ResourceGeneric.SCHEMA, null, ORole.PERMISSION_READ);
-      auditor.addRule(ORule.ResourceGeneric.CLASS, null, ORole.PERMISSION_READ);
-      auditor.addRule(ORule.ResourceGeneric.CLUSTER, null, ORole.PERMISSION_READ);
-      auditor.addRule(ORule.ResourceGeneric.CLUSTER, "orole", ORole.PERMISSION_NONE);
-      auditor.addRule(ORule.ResourceGeneric.CLUSTER, "ouser", ORole.PERMISSION_NONE);
-      auditor.addRule(ORule.ResourceGeneric.CLASS, "OUser", ORole.PERMISSION_NONE);
-      auditor.addRule(ORule.ResourceGeneric.CLASS, "orole", ORole.PERMISSION_NONE);
-      auditor.addRule(ORule.ResourceGeneric.SYSTEM_CLUSTERS, null, ORole.PERMISSION_NONE);
-      auditor.addRule(
-          ORule.ResourceGeneric.CLASS,
-          "OAuditingLog",
-          ORole.PERMISSION_CREATE + ORole.PERMISSION_READ + ORole.PERMISSION_UPDATE);
-      auditor.addRule(
-          ORule.ResourceGeneric.CLUSTER,
-          "oauditinglog",
-          ORole.PERMISSION_CREATE + ORole.PERMISSION_READ + ORole.PERMISSION_UPDATE);
-      auditor.save();
-    }
+    session.executeInTx(
+        () -> {
+          OSecurity security = session.getMetadata().getSecurity();
+          if (security.getRole("root") == null) {
+            ORole root = security.createRole("root", ORole.ALLOW_MODES.DENY_ALL_BUT);
+            for (ORule.ResourceGeneric resource : ORule.ResourceGeneric.values()) {
+              root.addRule(resource, null, ORole.PERMISSION_ALL);
+            }
+            // Do not allow root to have access to audit log class by default.
+            root.addRule(ORule.ResourceGeneric.CLASS, "OAuditingLog", ORole.PERMISSION_NONE);
+            root.addRule(ORule.ResourceGeneric.CLUSTER, "oauditinglog", ORole.PERMISSION_NONE);
+            root.save();
+          }
+          if (security.getRole("guest") == null) {
+            ORole guest = security.createRole("guest", ORole.ALLOW_MODES.DENY_ALL_BUT);
+            guest.addRule(ResourceGeneric.SERVER, "listDatabases", ORole.PERMISSION_ALL);
+            guest.save();
+          }
+          // for monitoring/logging purposes, intended to connect from external monitoring systems
+          if (security.getRole("monitor") == null) {
+            ORole guest = security.createRole("monitor", ORole.ALLOW_MODES.DENY_ALL_BUT);
+            guest.addRule(ResourceGeneric.CLASS, null, ORole.PERMISSION_READ);
+            guest.addRule(ResourceGeneric.CLUSTER, null, ORole.PERMISSION_READ);
+            guest.addRule(ResourceGeneric.SYSTEM_CLUSTERS, null, ORole.PERMISSION_READ);
+            guest.addRule(ResourceGeneric.SCHEMA, null, ORole.PERMISSION_READ);
+            guest.addRule(ResourceGeneric.FUNCTION, null, ORole.PERMISSION_ALL);
+            guest.addRule(ResourceGeneric.COMMAND, null, ORole.PERMISSION_ALL);
+            guest.addRule(ResourceGeneric.COMMAND_GREMLIN, null, ORole.PERMISSION_ALL);
+            guest.addRule(ResourceGeneric.DATABASE, null, ORole.PERMISSION_READ);
+            guest.addRule(ResourceGeneric.SERVER, null, ORole.PERMISSION_READ);
+            guest.save();
+          }
+          // a separate role for accessing the auditing logs
+          if (security.getRole("auditor") == null) {
+            ORole auditor = security.createRole("auditor", OSecurityRole.ALLOW_MODES.DENY_ALL_BUT);
+            auditor.addRule(ORule.ResourceGeneric.DATABASE, null, ORole.PERMISSION_READ);
+            auditor.addRule(ORule.ResourceGeneric.SCHEMA, null, ORole.PERMISSION_READ);
+            auditor.addRule(ORule.ResourceGeneric.CLASS, null, ORole.PERMISSION_READ);
+            auditor.addRule(ORule.ResourceGeneric.CLUSTER, null, ORole.PERMISSION_READ);
+            auditor.addRule(ORule.ResourceGeneric.CLUSTER, "orole", ORole.PERMISSION_NONE);
+            auditor.addRule(ORule.ResourceGeneric.CLUSTER, "ouser", ORole.PERMISSION_NONE);
+            auditor.addRule(ORule.ResourceGeneric.CLASS, "OUser", ORole.PERMISSION_NONE);
+            auditor.addRule(ORule.ResourceGeneric.CLASS, "orole", ORole.PERMISSION_NONE);
+            auditor.addRule(ORule.ResourceGeneric.SYSTEM_CLUSTERS, null, ORole.PERMISSION_NONE);
+            auditor.addRule(
+                ORule.ResourceGeneric.CLASS,
+                "OAuditingLog",
+                ORole.PERMISSION_CREATE + ORole.PERMISSION_READ + ORole.PERMISSION_UPDATE);
+            auditor.addRule(
+                ORule.ResourceGeneric.CLUSTER,
+                "oauditinglog",
+                ORole.PERMISSION_CREATE + ORole.PERMISSION_READ + ORole.PERMISSION_UPDATE);
+            auditor.save();
+          }
+        });
   }
 
   private void initDefultAuthenticators() {
@@ -206,8 +210,11 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   // Some external security implementations may permit falling back to a
   // default authentication mode if external authentication fails.
   public boolean isDefaultAllowed() {
-    if (isEnabled()) return allowDefault;
-    else return true; // If the security system is disabled return the original system default.
+    if (isEnabled()) {
+      return allowDefault;
+    } else {
+      return true; // If the security system is disabled return the original system default.
+    }
   }
 
   @Override
@@ -217,7 +224,9 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
       for (OSecurityAuthenticator sa : getEnabledAuthenticators()) {
         OSecurityUser principal = sa.authenticate(session, authenticationInfo);
 
-        if (principal != null) return principal;
+        if (principal != null) {
+          return principal;
+        }
       }
     } catch (Exception ex) {
       OLogManager.instance().error(this, "ODefaultServerSecurity.authenticate()", ex);
@@ -234,18 +243,21 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
       // Kerberos
       // tickets.
       if (username != null && !username.isEmpty()) {
-        if (debug)
+        if (debug) {
           OLogManager.instance()
               .info(
                   this,
                   "ODefaultServerSecurity.authenticate() ** Authenticating username: %s",
                   username);
+        }
       }
 
       for (OSecurityAuthenticator sa : getEnabledAuthenticators()) {
         OSecurityUser principal = sa.authenticate(session, username, password);
 
-        if (principal != null) return principal;
+        if (principal != null) {
+          return principal;
+        }
       }
 
     } catch (Exception ex) {
@@ -276,9 +288,11 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
     String header = null;
 
     // Default to Basic.
-    if (databaseName != null)
+    if (databaseName != null) {
       header = "WWW-Authenticate: Basic realm=\"OrientDB db-" + databaseName + "\"";
-    else header = "WWW-Authenticate: Basic realm=\"OrientDB Server\"";
+    } else {
+      header = "WWW-Authenticate: Basic realm=\"OrientDB Server\"";
+    }
 
     if (isEnabled()) {
       StringBuilder sb = new StringBuilder();
@@ -309,9 +323,11 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
     Map<String, String> headers = new HashMap<>();
 
     // Default to Basic.
-    if (databaseName != null)
+    if (databaseName != null) {
       headers.put("WWW-Authenticate", "Basic realm=\"OrientDB db-" + databaseName + "\"");
-    else headers.put("WWW-Authenticate", "Basic realm=\"OrientDB Server\"");
+    } else {
+      headers.put("WWW-Authenticate", "Basic realm=\"OrientDB Server\"");
+    }
 
     if (isEnabled()) {
 
@@ -397,11 +413,12 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
               .getSystemDatabase()
               .execute(
                   (resultset) -> {
-                    if (resultset != null && resultset.hasNext())
+                    if (resultset != null && resultset.hasNext()) {
                       return new OImmutableUser(
                           0,
                           new OSystemUser(
                               (ODocument) resultset.next().getElement().get().getRecord(), dbName));
+                    }
                     return null;
                   },
                   "select from OUser where name = ? limit 1 fetchplan roles:1",
@@ -414,11 +431,15 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   // This will first look for a user in the security.json "users" array and then check if a resource
   // matches.
   public boolean isAuthorized(final String username, final String resource) {
-    if (username == null || resource == null) return false;
+    if (username == null || resource == null) {
+      return false;
+    }
 
     // Walk through the list of OSecurityAuthenticators.
     for (OSecurityAuthenticator sa : getEnabledAuthenticators()) {
-      if (sa.isAuthorized(username, resource)) return true;
+      if (sa.isAuthorized(username, resource)) {
+        return true;
+      }
     }
     return false;
   }
@@ -449,8 +470,11 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   // OSecuritySystem (via OServerSecurity)
   // Indicates if passwords should be stored for users.
   public boolean arePasswordsStored() {
-    if (isEnabled()) return storePasswords;
-    else return true; // If the security system is disabled return the original system default.
+    if (isEnabled()) {
+      return storePasswords;
+    } else {
+      return true; // If the security system is disabled return the original system default.
+    }
   }
 
   // OSecuritySystem (via OServerSecurity)
@@ -459,7 +483,9 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
     if (isEnabled()) {
       OSecurityAuthenticator priAuth = getPrimaryAuthenticator();
 
-      if (priAuth != null) return priAuth.isSingleSignOnSupported();
+      if (priAuth != null) {
+        return priAuth.isSingleSignOnSupported();
+      }
     }
 
     return false;
@@ -485,7 +511,9 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
     }
   }
 
-  /** OServerSecurity Interface * */
+  /**
+   * OServerSecurity Interface *
+   */
 
   // OServerSecurity
   public OAuditingService getAuditing() {
@@ -496,9 +524,13 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   public OSecurityAuthenticator getAuthenticator(final String authMethod) {
     for (OSecurityAuthenticator am : getAuthenticatorsList()) {
       // If authMethod is null or an empty string, then return the first OSecurityAuthenticator.
-      if (authMethod == null || authMethod.isEmpty()) return am;
+      if (authMethod == null || authMethod.isEmpty()) {
+        return am;
+      }
 
-      if (am.getName() != null && am.getName().equalsIgnoreCase(authMethod)) return am;
+      if (am.getName() != null && am.getName().equalsIgnoreCase(authMethod)) {
+        return am;
+      }
     }
 
     return null;
@@ -509,7 +541,9 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   public OSecurityAuthenticator getPrimaryAuthenticator() {
     if (isEnabled()) {
       List<OSecurityAuthenticator> auth = getAuthenticatorsList();
-      if (auth.size() > 0) return auth.get(0);
+      if (auth.size() > 0) {
+        return auth.get(0);
+      }
     }
 
     return null;
@@ -522,7 +556,9 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
     // Walk through the list of OSecurityAuthenticators.
     for (OSecurityAuthenticator sa : getEnabledAuthenticators()) {
       userCfg = sa.getUser(username);
-      if (userCfg != null) break;
+      if (userCfg != null) {
+        break;
+      }
     }
 
     return userCfg;
@@ -565,7 +601,9 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
       OSecurityUser user,
       final String message) {
     synchronized (auditingSynch) {
-      if (auditingService != null) auditingService.log(operation, dbName, user, message);
+      if (auditingService != null) {
+        auditingService.log(operation, dbName, user, message);
+      }
     }
   }
 
@@ -647,12 +685,14 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   }
 
   public void reloadComponent(OSecurityUser user, final String name, final ODocument jsonConfig) {
-    if (name == null || name.isEmpty())
+    if (name == null || name.isEmpty()) {
       throw new OSecuritySystemException(
           "ODefaultServerSecurity.reloadComponent() name is null or empty");
-    if (jsonConfig == null)
+    }
+    if (jsonConfig == null) {
       throw new OSecuritySystemException(
           "ODefaultServerSecurity.reloadComponent() Configuration document is null");
+    }
 
     if (name.equalsIgnoreCase("auditing")) {
       auditingDoc = jsonConfig;
@@ -694,7 +734,9 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
             // defaults to enabled if "enabled" is missing
             boolean enabled = true;
 
-            if (authMethodDoc.containsField("enabled")) enabled = authMethodDoc.field("enabled");
+            if (authMethodDoc.containsField("enabled")) {
+              enabled = authMethodDoc.field("enabled");
+            }
 
             if (enabled) {
               Class<?> authClass = getClass(authMethodDoc);
@@ -830,7 +872,9 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
             OSystemVariableResolver.resolveSystemVariables("${ORIENTDB_HOME}/config/security.json");
 
         String ssf = OGlobalConfiguration.SERVER_SECURITY_FILE.getValueAsString();
-        if (ssf != null) configFile = ssf;
+        if (ssf != null) {
+          configFile = ssf;
+        }
 
         File f = new File(configFile);
         OIOUtils.writeFile(f, configDoc.toJSON("prettyPrint"));
@@ -863,7 +907,9 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
 
             securityDoc = new ODocument().fromJSON(new String(buffer), "noMap");
           } finally {
-            if (fis != null) fis.close();
+            if (fis != null) {
+              fis.close();
+            }
           }
         } else {
           if (file.exists()) {

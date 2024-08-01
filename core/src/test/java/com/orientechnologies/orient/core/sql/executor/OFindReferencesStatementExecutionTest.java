@@ -21,19 +21,24 @@ public class OFindReferencesStatementExecutionTest extends BaseMemoryDatabase {
     String name2 = "testLink2";
     db.getMetadata().getSchema().createClass(name);
     db.getMetadata().getSchema().createClass(name2);
+
+    db.begin();
     ODocument linked = new ODocument(name);
     linked.field("foo", "bar");
     linked.save();
+    db.commit();
 
     Set<ORID> ridsToMatch = new HashSet<>();
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = new ODocument(name2);
       doc.field("counter", i);
       if (i % 2 == 0) {
         doc.field("link", linked);
       }
       doc.save();
+      db.commit();
       if (i % 2 == 0) {
         ridsToMatch.add(doc.getIdentity());
       }

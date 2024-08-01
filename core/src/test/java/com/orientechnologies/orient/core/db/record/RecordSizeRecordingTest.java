@@ -20,7 +20,9 @@ public class RecordSizeRecordingTest {
       try (ODatabaseSession session = orientDB.open("test", "admin", "admin")) {
         long size = session.getSize();
         assertNotEquals(0, size);
+        session.begin();
         session.save(new ORecordBytes(new byte[10]));
+        session.commit();
         assertEquals(session.getSize(), size + 10);
       }
     }

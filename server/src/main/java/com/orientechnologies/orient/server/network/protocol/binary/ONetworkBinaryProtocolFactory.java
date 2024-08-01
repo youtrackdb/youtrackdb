@@ -125,9 +125,6 @@ public class ONetworkBinaryProtocolFactory {
       case OChannelBinaryProtocol.REQUEST_RECORD_UPDATE:
         return new OUpdateRecordRequest();
 
-      case OChannelBinaryProtocol.REQUEST_RECORD_DELETE:
-        return new ODeleteRecordRequest();
-
       case OChannelBinaryProtocol.REQUEST_POSITIONS_HIGHER:
         return new OHigherPhysicalPositionsRequest();
 
@@ -232,9 +229,6 @@ public class ONetworkBinaryProtocolFactory {
       case OChannelBinaryProtocol.REQUEST_TX_ROLLBACK:
         return new ORollbackTransactionRequest();
 
-      case OChannelBinaryProtocol.REQUEST_BATCH_OPERATIONS:
-        return new OBatchOperationsRequest();
-
       case OChannelBinaryProtocol.REQUEST_DB_OPEN:
         return new OOpen37Request();
 
@@ -300,9 +294,6 @@ public class ONetworkBinaryProtocolFactory {
 
       case OChannelBinaryProtocol.REQUEST_RECORD_UPDATE:
         return new OUpdateRecordRequest();
-
-      case OChannelBinaryProtocol.REQUEST_RECORD_DELETE:
-        return new ODeleteRecordRequest();
 
       case OChannelBinaryProtocol.REQUEST_POSITIONS_HIGHER:
         return new OHigherPhysicalPositionsRequest();

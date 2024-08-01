@@ -2050,7 +2050,7 @@ public abstract class OrientBaseGraph extends OrientConfigurableGraph
                 msg.toString());
       }
       committed = raw.getTransaction().amountOfNestedTxs();
-      raw.commit(true);
+      raw.commit();
     } else {
       committed = 0;
     }

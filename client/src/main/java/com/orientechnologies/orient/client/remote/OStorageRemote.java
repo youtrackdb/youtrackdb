@@ -54,8 +54,6 @@ import com.orientechnologies.orient.client.remote.message.OCountRequest;
 import com.orientechnologies.orient.client.remote.message.OCountResponse;
 import com.orientechnologies.orient.client.remote.message.OCreateRecordRequest;
 import com.orientechnologies.orient.client.remote.message.OCreateRecordResponse;
-import com.orientechnologies.orient.client.remote.message.ODeleteRecordRequest;
-import com.orientechnologies.orient.client.remote.message.ODeleteRecordResponse;
 import com.orientechnologies.orient.client.remote.message.ODropClusterRequest;
 import com.orientechnologies.orient.client.remote.message.ODropClusterResponse;
 import com.orientechnologies.orient.client.remote.message.OFetchTransaction38Request;
@@ -964,27 +962,6 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
       updateCollectionsFromChanges(collectionManager, response.getChanges());
     }
     return new OStorageOperationResult<Integer>(resVersion);
-  }
-
-  public OStorageOperationResult<Boolean> deleteRecord(
-      final ORecordId iRid,
-      final int iVersion,
-      final int iMode,
-      final ORecordCallback<Boolean> iCallback) {
-    ORecordCallback<ODeleteRecordResponse> realCallback = null;
-    if (iCallback != null) {
-      realCallback = (iRID, response) -> iCallback.call(iRID, response.getResult());
-    }
-
-    final ODeleteRecordRequest request = new ODeleteRecordRequest(iRid, iVersion);
-    final ODeleteRecordResponse response =
-        asyncNetworkOperationNoRetry(
-            request, iMode, iRid, realCallback, "Error on delete record " + iRid);
-    Boolean resDelete = null;
-    if (response != null) {
-      resDelete = response.getResult();
-    }
-    return new OStorageOperationResult<Boolean>(resDelete);
   }
 
   public boolean cleanOutRecord(

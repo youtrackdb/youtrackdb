@@ -27,7 +27,6 @@ import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.command.script.OCommandScript;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -201,12 +200,14 @@ public class OCommandExecutorSQLUpdateTest extends BaseMemoryDatabase {
   public void testBooleanListNamedParameter() {
     db.getMetadata().getSchema().createClass("test");
 
+    db.begin();
     ODocument doc = new ODocument("test");
     doc.field("id", 1);
     doc.field("boolean", false);
     doc.field("integerList", Collections.EMPTY_LIST);
     doc.field("booleanList", Collections.EMPTY_LIST);
     db.save(doc);
+    db.commit();
 
     Map<String, Object> params = new HashMap<String, Object>();
 
@@ -241,6 +242,7 @@ public class OCommandExecutorSQLUpdateTest extends BaseMemoryDatabase {
 
     db.command("CREATE class test").close();
 
+    db.begin();
     final ODocument test = new ODocument("test");
     test.field("id", "id1");
     test.field("count", 20);
@@ -250,9 +252,9 @@ public class OCommandExecutorSQLUpdateTest extends BaseMemoryDatabase {
     test.field("map", nestedCound);
 
     db.save(test);
+    db.commit();
 
     OElement queried = db.query("SELECT FROM test WHERE id = \"id1\"").next().getElement().get();
-    ;
 
     db.command("UPDATE test set count += 2").close();
     queried.reload();
@@ -280,10 +282,11 @@ public class OCommandExecutorSQLUpdateTest extends BaseMemoryDatabase {
 
     db.command("CREATE class test").close();
 
+    db.begin();
     final ODocument test = new ODocument("test");
     test.field("text", "initial value");
-
     db.save(test);
+    db.commit();
 
     OElement queried = db.query("SELECT FROM test").next().getElement().get();
     assertEquals(queried.getProperty("text"), "initial value");
@@ -301,10 +304,12 @@ public class OCommandExecutorSQLUpdateTest extends BaseMemoryDatabase {
 
     db.command("CREATE class test").close();
 
+    db.begin();
     final ODocument test = new ODocument("test");
     test.field("text", "initial value");
 
     db.save(test);
+    db.commit();
 
     OElement queried = db.query("SELECT FROM test").next().getElement().get();
     assertEquals(queried.getProperty("text"), "initial value");
@@ -443,9 +448,12 @@ public class OCommandExecutorSQLUpdateTest extends BaseMemoryDatabase {
     // issue #5564
     db.command("CREATE class Foo").close();
 
+    db.begin();
     ODocument d = new ODocument("Foo");
     d.field("name", "foo");
     d.save();
+    db.commit();
+
     db.command("update Foo MERGE {\"a\":1}").close();
     db.command("update Foo CONTENT {\"a\":1}").close();
 
@@ -462,12 +470,17 @@ public class OCommandExecutorSQLUpdateTest extends BaseMemoryDatabase {
     // issue #5564
     db.command("CREATE class Foo").close();
 
+    db.begin();
     ODocument d = new ODocument("Foo");
     d.field("name", "foo");
     d.save();
+    db.commit();
+
+    db.begin();
     d = new ODocument("Foo");
     d.field("name", "bar");
     d.save();
+    db.commit();
 
     OResultSet result = db.command("update Foo set surname = 'baz' return count");
 
@@ -482,28 +495,30 @@ public class OCommandExecutorSQLUpdateTest extends BaseMemoryDatabase {
     db.command("CREATE INDEX TestLinked.id ON TestLinked (id) UNIQUE_HASH_INDEX ENGINE HASH_INDEX")
         .close();
 
+    db.begin();
     ODocument state = new ODocument("TestLinked");
     state.setProperty("id", "idvalue");
     db.save(state);
+    db.commit();
 
+    db.begin();
     ODocument d = new ODocument("TestSource");
     d.setProperty("name", "foo");
     d.setProperty("linked", state);
     db.save(d);
-
-    ((ODatabaseDocumentInternal) db).getLocalCache().clear();
+    db.commit();
 
     db.command(
             "Update TestSource set flag = true , linked.flag = true return after *, linked:{*} as"
                 + " infoLinked  where name = \"foo\"")
         .close();
-    ((ODatabaseDocumentInternal) db).getLocalCache().clear();
+    db.getLocalCache().clear();
 
     OResultSet result = db.query("select from TestLinked where id = \"idvalue\"");
     while (result.hasNext()) {
       OResult res = result.next();
       assertTrue(res.hasProperty("flag"));
-      assertTrue((Boolean) res.getProperty("flag"));
+      assertTrue(res.getProperty("flag"));
     }
   }
 }

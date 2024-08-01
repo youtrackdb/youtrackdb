@@ -33,10 +33,16 @@ public class HookRegisterRemoveTest extends BaseMemoryDatabase {
         };
     db.registerHook(iHookImpl);
 
+    db.begin();
     db.save(new ODocument().field("test", "test"), db.getClusterNameById(db.getDefaultClusterId()));
+    db.commit();
     assertEquals(3, integer.get());
     db.unregisterHook(iHookImpl);
+
+    db.begin();
     db.save(new ODocument(), db.getClusterNameById(db.getDefaultClusterId()));
+    db.commit();
+
     assertEquals(3, integer.get());
   }
 }

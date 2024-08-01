@@ -38,9 +38,14 @@ public class OCreateViewStatementExecutionTest extends BaseMemoryDatabase {
     String viewName = "testOriginFieldView";
     db.createClass(className);
 
-    OElement elem = db.newElement(className);
-    elem.setProperty("name", "foo");
-    elem.save();
+    OElement elem =
+        db.computeInTx(
+            () -> {
+              var e = db.newElement(className);
+              e.setProperty("name", "foo");
+              e.save();
+              return e;
+            });
 
     OViewConfig cfg = new OViewConfig(viewName, "SELECT FROM " + className);
     cfg.setOriginRidField("origin");
@@ -110,12 +115,15 @@ public class OCreateViewStatementExecutionTest extends BaseMemoryDatabase {
     String viewName = "testIndexes";
     db.createClass(className);
 
-    for (int i = 0; i < 10; i++) {
-      OElement elem = db.newElement(className);
-      elem.setProperty("name", "name" + i);
-      elem.setProperty("surname", "surname" + i);
-      elem.save();
-    }
+    db.executeInTx(
+        () -> {
+          for (int i = 0; i < 10; i++) {
+            OElement elem = db.newElement(className);
+            elem.setProperty("name", "name" + i);
+            elem.setProperty("surname", "surname" + i);
+            elem.save();
+          }
+        });
 
     String statement =
         "CREATE VIEW " + viewName + " FROM (SELECT FROM " + className + ") METADATA {";
@@ -144,12 +152,15 @@ public class OCreateViewStatementExecutionTest extends BaseMemoryDatabase {
     String viewName = "testCollectionIndexes";
     db.createClass(className);
 
-    for (int i = 0; i < 10; i++) {
-      OElement elem = db.newElement(className);
-      elem.setProperty("name", "name" + i);
-      elem.setProperty("data", Arrays.asList(20 + i, 40 + i, 50 + i));
-      elem.save();
-    }
+    db.executeInTx(
+        () -> {
+          for (int i = 0; i < 10; i++) {
+            OElement elem = db.newElement(className);
+            elem.setProperty("name", "name" + i);
+            elem.setProperty("data", Arrays.asList(20 + i, 40 + i, 50 + i));
+            elem.save();
+          }
+        });
 
     String statement =
         "CREATE VIEW " + viewName + " FROM (SELECT FROM " + className + ") METADATA {";
@@ -281,12 +292,15 @@ public class OCreateViewStatementExecutionTest extends BaseMemoryDatabase {
     String viewName = "testUpdateDeleteIndex";
     db.createClass(className);
 
-    for (int i = 0; i < 10; i++) {
-      OElement elem = db.newElement(className);
-      elem.setProperty("name", "name" + i);
-      elem.setProperty("surname", "surname" + i);
-      elem.save();
-    }
+    db.executeInTx(
+        () -> {
+          for (int i = 0; i < 10; i++) {
+            OElement elem = db.newElement(className);
+            elem.setProperty("name", "name" + i);
+            elem.setProperty("surname", "surname" + i);
+            elem.save();
+          }
+        });
 
     String statement =
         "CREATE VIEW " + viewName + " FROM (SELECT FROM " + className + ") METADATA {";
@@ -335,12 +349,15 @@ public class OCreateViewStatementExecutionTest extends BaseMemoryDatabase {
     String viewName = "testViewRefreshIndexUnique";
     db.createClass(className);
 
-    for (int i = 0; i < 10; i++) {
-      OElement elem = db.newElement(className);
-      elem.setProperty("name", "name" + i);
-      elem.setProperty("surname", "surname" + i);
-      elem.save();
-    }
+    db.executeInTx(
+        () -> {
+          for (int i = 0; i < 10; i++) {
+            OElement elem = db.newElement(className);
+            elem.setProperty("name", "name" + i);
+            elem.setProperty("surname", "surname" + i);
+            elem.save();
+          }
+        });
 
     String statement =
         "CREATE VIEW " + viewName + " FROM (SELECT FROM " + className + ") METADATA {";

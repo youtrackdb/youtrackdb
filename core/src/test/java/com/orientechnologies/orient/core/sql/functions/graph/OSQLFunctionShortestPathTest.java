@@ -47,6 +47,7 @@ public class OSQLFunctionShortestPathTest {
     graph.createEdgeClass("Edge1");
     graph.createEdgeClass("Edge2");
 
+    graph.begin();
     vertices.put(1, graph.newVertex().save());
     vertices.put(2, graph.newVertex().save());
     vertices.put(3, graph.newVertex().save());
@@ -70,6 +71,7 @@ public class OSQLFunctionShortestPathTest {
         graph.newEdge(vertices.get(i - 2), vertices.get(i), "Edge1").save();
       }
     }
+    graph.commit();
   }
 
   @Test

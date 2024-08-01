@@ -142,7 +142,9 @@ public class TransactionRidAllocationTest {
             orientDB.open("secondTest", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     // THIS OFFSET FIRST DB FROM THE SECOND
     for (int i = 0; i < 20; i++) {
+      second.begin();
       second.save(second.newVertex("V"));
+      second.commit();
     }
 
     db.activateOnCurrentThread();

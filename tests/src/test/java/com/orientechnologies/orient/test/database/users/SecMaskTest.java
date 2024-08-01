@@ -27,7 +27,7 @@ public class SecMaskTest {
   }
 
   public static void insert() {
-    database.begin(TXTYPE.NOTX);
+    database.begin();
     long ndoc = 1000000;
     ODocument doc = new ODocument();
 

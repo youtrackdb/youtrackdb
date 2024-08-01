@@ -27,8 +27,10 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testRequiredValidation() {
+    db.begin();
     ODocument doc = new ODocument();
     OIdentifiable id = db.save(doc, db.getClusterNameById(db.getDefaultClusterId())).getIdentity();
+    db.commit();
 
     OClass embeddedClazz = db.getMetadata().getSchema().createClass("EmbeddedValidation");
     embeddedClazz.createProperty("int", OType.INTEGER).setMandatory(true);
@@ -157,7 +159,9 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     }
     d = new ODocument(clazzNotVertex);
     checkField(d, "embeddedSimple", db.newVertex());
+    db.begin();
     checkField(d, "embeddedSimple", db.newEdge(db.newVertex(), db.newVertex()));
+    db.commit();
   }
 
   @Test
@@ -385,8 +389,11 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testMinValidation() {
+    db.begin();
     ODocument doc = new ODocument();
     OIdentifiable id = db.save(doc, db.getClusterNameById(db.getDefaultClusterId())).getIdentity();
+    db.commit();
+
     OClass clazz = db.getMetadata().getSchema().createClass("Validation");
     clazz.createProperty("int", OType.INTEGER).setMin("11");
     clazz.createProperty("long", OType.LONG).setMin("11");
@@ -476,8 +483,11 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testNotNullValidation() {
+    db.begin();
     ODocument doc = new ODocument();
     OIdentifiable id = db.save(doc, db.getClusterNameById(db.getDefaultClusterId())).getIdentity();
+    db.commit();
+
     OClass clazz = db.getMetadata().getSchema().createClass("Validation");
     clazz.createProperty("int", OType.INTEGER).setNotNull(true);
     clazz.createProperty("long", OType.LONG).setNotNull(true);
@@ -659,8 +669,11 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
 
     Map<String, ODocument> map = new HashMap<String, ODocument>();
     map.put("a", new ODocument(clazz1));
+
+    db.begin();
     d.field("linkMap", map);
     db.save(d);
+    db.commit();
 
     try {
       ODocument newD = d.copy();

@@ -2,6 +2,7 @@ package com.orientechnologies.orient.core.metadata.sequence;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
@@ -19,10 +20,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExternalResource;
 
-/** Created by frank on 22/04/2016. */
+/**
+ * Created by frank on 22/04/2016.
+ */
 public class OSequenceTest {
 
-  private ODatabaseDocument db;
+  private ODatabaseSession db;
 
   @Rule
   public ExternalResource resource =
@@ -256,11 +259,14 @@ public class OSequenceTest {
             + " \"sequence('personIdSequence').next()\");");
     db.command("CREATE INDEX Person.id ON Person (id) UNIQUE");
 
-    for (int i = 0; i < 10; i++) {
-      OVertex person = db.newVertex("Person");
-      person.setProperty("name", "Foo" + i);
-      person.save();
-    }
+    db.executeInTx(
+        () -> {
+          for (int i = 0; i < 10; i++) {
+            OVertex person = db.newVertex("Person");
+            person.setProperty("name", "Foo" + i);
+            person.save();
+          }
+        });
 
     assertThat(db.countClass("Person")).isEqualTo(10);
   }

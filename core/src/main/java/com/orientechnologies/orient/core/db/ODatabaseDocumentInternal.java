@@ -123,12 +123,6 @@ public interface ODatabaseDocumentInternal extends ODatabaseSession, ODatabaseIn
 
   boolean executeExists(ORID rid);
 
-  void executeDeleteRecord(
-      OIdentifiable record,
-      final int iVersion,
-      final boolean iRequired,
-      boolean prohibitTombstones);
-
   void setDefaultTransactionMode();
 
   @Override
@@ -244,8 +238,6 @@ public interface ODatabaseDocumentInternal extends ODatabaseSession, ODatabaseIn
   }
 
   void internalClose(boolean recycle);
-
-  ORecord saveAll(ORecord iRecord, String iClusterName);
 
   String getClusterName(final ORecord record);
 

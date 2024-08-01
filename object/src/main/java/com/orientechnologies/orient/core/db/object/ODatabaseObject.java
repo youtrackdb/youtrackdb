@@ -19,9 +19,7 @@
  */
 package com.orientechnologies.orient.core.db.object;
 
-import com.orientechnologies.common.concur.ONeedRetryException;
 import com.orientechnologies.orient.core.db.ODatabase;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OUserObject2RecordHandler;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.entity.OEntityManager;
@@ -32,7 +30,6 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.object.metadata.OMetadataObject;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 /**
  * Generic interface for object based Database implementations. Binds to/from Document and POJOs.
@@ -204,16 +201,6 @@ public interface ODatabaseObject extends ODatabase<Object>, OUserObject2RecordHa
   <RET extends List<?>> RET objectCommand(String iCommand, Map<String, Object> iArgs);
 
   <T> T newInstance(final Class<T> iType, Object... iArgs);
-
-  @Override
-  default <T> T executeWithRetry(int nRetries, Function<ODatabaseSession, T> function)
-      throws IllegalStateException,
-          IllegalArgumentException,
-          ONeedRetryException,
-          UnsupportedOperationException {
-    throw new UnsupportedOperationException();
-    // TODO test it before enabling it!
-  }
 
   ODatabaseDocument getUnderlying();
 

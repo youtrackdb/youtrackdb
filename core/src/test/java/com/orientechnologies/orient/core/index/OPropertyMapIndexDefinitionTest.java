@@ -214,8 +214,10 @@ public class OPropertyMapIndexDefinitionTest {
         new OPropertyMapIndexDefinition(
             "tesClass", "fOne", OType.STRING, OPropertyMapIndexDefinition.INDEX_BY.KEY);
 
+    database.begin();
     final ODocument docToStore = propertyIndexByKey.toStream(new ODocument());
     database.save(docToStore, database.getClusterNameById(database.getDefaultClusterId()));
+    database.commit();
 
     final ODocument docToLoad = database.load(docToStore.getIdentity());
 
@@ -235,8 +237,10 @@ public class OPropertyMapIndexDefinitionTest {
         new OPropertyMapIndexDefinition(
             "tesClass", "fOne", OType.INTEGER, OPropertyMapIndexDefinition.INDEX_BY.VALUE);
 
+    database.begin();
     final ODocument docToStore = propertyIndexByValue.toStream(new ODocument());
     database.save(docToStore, database.getClusterNameById(database.getDefaultClusterId()));
+    database.commit();
 
     final ODocument docToLoad = database.load(docToStore.getIdentity());
 

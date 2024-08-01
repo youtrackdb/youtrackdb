@@ -11,7 +11,9 @@ import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by tglman on 15/04/16. */
+/**
+ * Created by tglman on 15/04/16.
+ */
 public class TestBinaryRecordsQuery extends BaseMemoryDatabase {
 
   @Before
@@ -22,7 +24,9 @@ public class TestBinaryRecordsQuery extends BaseMemoryDatabase {
 
   @Test
   public void testSelectBinary() {
+    db.begin();
     db.save(new ORecordBytes("blabla".getBytes()), "BlobCluster");
+    db.commit();
 
     OResultSet res = db.query("select from cluster:BlobCluster");
 
@@ -31,7 +35,9 @@ public class TestBinaryRecordsQuery extends BaseMemoryDatabase {
 
   @Test
   public void testSelectRidBinary() {
-    ORecord rec = db.save(new ORecordBytes("blabla".getBytes()), "BlobCluster");
+    db.begin();
+    db.save(new ORecordBytes("blabla".getBytes()), "BlobCluster");
+    db.commit();
 
     OResultSet res = db.query("select @rid from cluster:BlobCluster");
     assertEquals(1, res.stream().count());
@@ -39,7 +45,9 @@ public class TestBinaryRecordsQuery extends BaseMemoryDatabase {
 
   @Test
   public void testDeleteBinary() {
+    db.begin();
     ORecord rec = db.save(new ORecordBytes("blabla".getBytes()), "BlobCluster");
+    db.commit();
 
     OResultSet res = db.command("delete from (select from cluster:BlobCluster)");
     db.getLocalCache().clear();
@@ -50,12 +58,17 @@ public class TestBinaryRecordsQuery extends BaseMemoryDatabase {
 
   @Test
   public void testSelectDeleteBinary() {
+    db.begin();
     ORecord rec = db.save(new ORecordBytes("blabla".getBytes()), "BlobCluster");
+    db.commit();
 
     db.getMetadata().getSchema().createClass("RecordPointer");
+
+    db.begin();
     ODocument doc = new ODocument("RecordPointer");
     doc.field("ref", rec);
     db.save(doc);
+    db.commit();
 
     OResultSet res =
         db.command("delete from cluster:BlobCluster where @rid in (select ref from RecordPointer)");
@@ -67,17 +80,24 @@ public class TestBinaryRecordsQuery extends BaseMemoryDatabase {
 
   @Test
   public void testDeleteFromSelectBinary() {
+    db.begin();
     ORecord rec = db.save(new ORecordBytes("blabla".getBytes()), "BlobCluster");
     ORecord rec1 = db.save(new ORecordBytes("blabla".getBytes()), "BlobCluster");
+    db.commit();
 
     db.getMetadata().getSchema().createClass("RecordPointer");
+
+    db.begin();
     ODocument doc = new ODocument("RecordPointer");
     doc.field("ref", rec);
     db.save(doc);
+    db.commit();
 
+    db.begin();
     ODocument doc1 = new ODocument("RecordPointer");
     doc1.field("ref", rec1);
     db.save(doc1);
+    db.commit();
 
     OResultSet res = db.command("delete from (select expand(ref) from RecordPointer)");
     db.getLocalCache().clear();

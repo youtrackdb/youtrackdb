@@ -43,7 +43,8 @@ public abstract class OTransactionAbstract implements OTransaction {
   public boolean isActive() {
     return status != TXSTATUS.INVALID
         && status != TXSTATUS.COMPLETED
-        && status != TXSTATUS.ROLLED_BACK;
+        && status != TXSTATUS.ROLLED_BACK
+        && status != TXSTATUS.ROLLBACKING;
   }
 
   public TXSTATUS getStatus() {

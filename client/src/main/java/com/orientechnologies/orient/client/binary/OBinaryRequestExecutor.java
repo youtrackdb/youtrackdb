@@ -45,8 +45,6 @@ public interface OBinaryRequestExecutor {
 
   OBinaryResponse executeUpdateRecord(OUpdateRecordRequest request);
 
-  OBinaryResponse executeDeleteRecord(ODeleteRecordRequest request);
-
   OBinaryResponse executeHigherPosition(OHigherPhysicalPositionsRequest request);
 
   OBinaryResponse executeCeilingPosition(OCeilingPhysicalPositionsRequest request);
@@ -58,8 +56,6 @@ public interface OBinaryRequestExecutor {
   OBinaryResponse executeCommand(OCommandRequest request);
 
   OBinaryResponse executeCommit(OCommitRequest request);
-
-  OBinaryResponse executeBatchOperations(OBatchOperationsRequest request);
 
   OBinaryResponse executeGetGlobalConfiguration(OGetGlobalConfigurationRequest request);
 

@@ -306,12 +306,6 @@ public class PostponedEngineStartTest {
         }
 
         @Override
-        public OStorageOperationResult<Boolean> deleteRecord(
-            ORecordId iRecordId, int iVersion, int iMode, ORecordCallback<Boolean> iCallback) {
-          return null;
-        }
-
-        @Override
         public ORecordMetadata getRecordMetadata(ORID rid) {
           return null;
         }

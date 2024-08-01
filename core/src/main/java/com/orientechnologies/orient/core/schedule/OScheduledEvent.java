@@ -255,7 +255,7 @@ public class OScheduledEvent extends ODocumentWrapper {
                     "Executing scheduled event '%s' executionId=%d...",
                     event.getName(),
                     event.nextExecutionId.get());
-            executeEventFunction();
+            executeEventFunction(db);
           }
 
         } finally {
@@ -333,7 +333,7 @@ public class OScheduledEvent extends ODocumentWrapper {
       return false;
     }
 
-    private void executeEventFunction() {
+    private void executeEventFunction(ODatabaseSession session) {
       Object result = null;
       try {
         result = event.function.execute(event.getArguments());
@@ -346,16 +346,19 @@ public class OScheduledEvent extends ODocumentWrapper {
                 event.nextExecutionId.get(),
                 result);
         for (int retry = 0; retry < 10; ++retry) {
-          var eventDoc = event.getDocument();
-          try {
-            eventDoc.field(PROP_STATUS, STATUS.WAITING);
-            eventDoc.save();
-          } catch (ONeedRetryException e) {
-            eventDoc.unload();
-          } catch (Exception e) {
-            OLogManager.instance()
-                .error(this, "Error on saving status for event '%s'", e, event.getName());
-          }
+          session.executeInTx(
+              () -> {
+                var eventDoc = event.getDocument();
+                try {
+                  eventDoc.field(PROP_STATUS, STATUS.WAITING);
+                  eventDoc.save();
+                } catch (ONeedRetryException e) {
+                  eventDoc.unload();
+                } catch (Exception e) {
+                  OLogManager.instance()
+                      .error(this, "Error on saving status for event '%s'", e, event.getName());
+                }
+              });
         }
       }
     }

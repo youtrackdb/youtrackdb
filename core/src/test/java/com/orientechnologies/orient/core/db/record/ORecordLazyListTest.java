@@ -44,6 +44,8 @@ public class ORecordLazyListTest {
     OClass itemClass = schema.createClass("ItemClass");
     itemClass.createProperty("name", OType.STRING);
     itemsProp.setLinkedClass(itemClass);
+
+    dbSession.begin();
     ODocument doc1 = new ODocument(itemClass).field("name", "Doc1").save();
     ODocument doc2 = new ODocument(itemClass).field("name", "Doc2").save();
     ODocument doc3 = new ODocument(itemClass).field("name", "Doc3").save();
@@ -51,6 +53,7 @@ public class ORecordLazyListTest {
     ODocument mainDoc = new ODocument(mainClass).field("name", "Main Doc");
     mainDoc.field("items", Arrays.asList(doc1, doc2, doc3));
     mainDoc.save();
+    dbSession.commit();
 
     mainDoc = (ODocument) mainDoc.reload();
     Collection<ODocument> origItems = mainDoc.field("items");

@@ -15,9 +15,11 @@ public class ODeleteVertexStatementExecutionTest extends BaseMemoryDatabase {
     String className = "testDeleteSingleVertex";
     db.createVertexClass(className);
     for (int i = 0; i < 10; i++) {
+      db.begin();
       OVertex v1 = db.newVertex(className);
       v1.setProperty("name", "a" + i);
       v1.save();
+      db.commit();
     }
 
     db.command("DELETE VERTEX " + className + " WHERE name = 'a3'").close();
@@ -31,9 +33,11 @@ public class ODeleteVertexStatementExecutionTest extends BaseMemoryDatabase {
     String className = "testDeleteAllVertices";
     db.createVertexClass(className);
     for (int i = 0; i < 10; i++) {
+      db.begin();
       OVertex v1 = db.newVertex(className);
       v1.setProperty("name", "a" + i);
       v1.save();
+      db.commit();
     }
 
     db.command("DELETE VERTEX " + className).close();
@@ -47,17 +51,21 @@ public class ODeleteVertexStatementExecutionTest extends BaseMemoryDatabase {
     String className1 = "testDeleteAllVertices1";
     db.createVertexClass(className1);
     for (int i = 0; i < 10; i++) {
+      db.begin();
       OVertex v1 = db.newVertex(className1);
       v1.setProperty("name", "a" + i);
       v1.save();
+      db.commit();
     }
 
     String className2 = "testDeleteAllVertices2";
     db.createVertexClass(className2);
     for (int i = 0; i < 10; i++) {
+      db.begin();
       OVertex v1 = db.newVertex(className2);
       v1.setProperty("name", "a" + i);
       v1.save();
+      db.commit();
     }
 
     db.command("DELETE VERTEX " + className1).close();

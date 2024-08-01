@@ -86,9 +86,6 @@ public interface OStorage extends OBackupable, OStorageInfo {
 
   boolean recordExists(ORID rid);
 
-  OStorageOperationResult<Boolean> deleteRecord(
-      ORecordId iRecordId, int iVersion, int iMode, ORecordCallback<Boolean> iCallback);
-
   ORecordMetadata getRecordMetadata(final ORID rid);
 
   boolean cleanOutRecord(

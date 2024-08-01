@@ -1153,9 +1153,6 @@ OStatement StatementInternal():
                 LOOKAHEAD(TruncateClusterStatement())
                 result = TruncateClusterStatement()
                 |
-                LOOKAHEAD(TruncateRecordStatement())
-                result = TruncateRecordStatement()
-                |
                 LOOKAHEAD(2)
                 result = AlterSequenceStatement()
                 |
@@ -3941,29 +3938,6 @@ OTruncateClusterStatement TruncateClusterStatement():
 	[ <UNSAFE> {jjtThis.unsafe = true;} ]
 	{ return jjtThis; }
 }
-
-OTruncateRecordStatement TruncateRecordStatement():
-{ ORid lastRecord; }
-{
-	<TRUNCATE> <RECORD>
-	(
-		jjtThis.record = Rid()
-		|
-		(
-			<LBRACKET> { jjtThis.records = new ArrayList<ORid>(); }
-			[
-				lastRecord = Rid() { jjtThis.addRecord(lastRecord); }
-				(
-					<COMMA>
-					lastRecord = Rid() { jjtThis.addRecord(lastRecord); }
-				)*
-			]
-			<RBRACKET>
-		)
-	)
-	{ return jjtThis; }
-}
-
 
 OFindReferencesStatement FindReferencesStatement():
 { SimpleNode lastTarget; }

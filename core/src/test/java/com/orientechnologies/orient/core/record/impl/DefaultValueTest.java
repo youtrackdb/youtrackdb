@@ -46,8 +46,11 @@ public class DefaultValueTest extends BaseMemoryDatabase {
     OProperty some = classA.createProperty("id", OType.STRING);
     some.setDefaultValue("uuid()");
 
+    db.begin();
     ODocument doc = new ODocument(classA);
     ODocument saved = db.save(doc);
+    db.commit();
+
     assertNotNull(saved.field("date"));
     assertTrue(saved.field("date") instanceof Date);
     assertNotNull(saved.field("id"));
@@ -71,8 +74,11 @@ public class DefaultValueTest extends BaseMemoryDatabase {
 
     String value = "2000-01-01 00:00:00";
 
+    db.begin();
     ODocument doc = new ODocument(classA);
     ODocument saved = db.save(doc);
+    db.commit();
+
     assertNotNull(saved.field("date"));
     assertTrue(saved.field("date") instanceof Date);
     assertNotNull(saved.field("id"));
@@ -93,8 +99,11 @@ public class DefaultValueTest extends BaseMemoryDatabase {
     OProperty prop = classA.createProperty("date", OType.DATE);
     prop.setDefaultValue(ODateHelper.getDateTimeFormatInstance().format(new Date()));
 
+    db.begin();
     ODocument doc = new ODocument().fromJSON("{'@class':'ClassA','other':'other'}");
     ODocument saved = db.save(doc);
+    db.commit();
+
     assertNotNull(saved.field("date"));
     assertTrue(saved.field("date") instanceof Date);
     assertNotNull(saved.field("other"));
@@ -109,9 +118,12 @@ public class DefaultValueTest extends BaseMemoryDatabase {
     prop.setDefaultValue(ODateHelper.getDateTimeFormatInstance().format(new Date()));
 
     String value1 = ODateHelper.getDateTimeFormatInstance().format(new Date());
+    db.begin();
     ODocument doc =
         new ODocument().fromJSON("{'@class':'ClassA','date':'" + value1 + "','other':'other'}");
     ODocument saved = db.save(doc);
+    db.commit();
+
     assertNotNull(saved.field("date"));
     assertEquals(ODateHelper.getDateTimeFormatInstance().format(saved.field("date")), value1);
     assertNotNull(saved.field("other"));
@@ -127,8 +139,11 @@ public class DefaultValueTest extends BaseMemoryDatabase {
     prop.setReadonly(true);
     prop.setDefaultValue(ODateHelper.getDateTimeFormatInstance().format(new Date()));
 
+    db.begin();
     ODocument doc = new ODocument().fromJSON("{'@class':'ClassA','other':'other'}");
     ODocument saved = db.save(doc);
+    db.commit();
+
     assertNotNull(saved.field("date"));
     assertTrue(saved.field("date") instanceof Date);
     assertNotNull(saved.field("other"));
@@ -147,7 +162,9 @@ public class DefaultValueTest extends BaseMemoryDatabase {
     String value1 = ODateHelper.getDateTimeFormatInstance().format(new Date());
     ODocument doc =
         new ODocument().fromJSON("{'@class':'ClassA','date':'" + value1 + "','other':'other'}");
+    db.begin();
     ODocument saved = db.save(doc);
+    db.commit();
     assertNotNull(saved.field("date"));
     assertEquals(ODateHelper.getDateTimeFormatInstance().format(saved.field("date")), value1);
     assertNotNull(saved.field("other"));
@@ -163,8 +180,11 @@ public class DefaultValueTest extends BaseMemoryDatabase {
     prop.setReadonly(true);
     prop.setDefaultValue(ODateHelper.getDateTimeFormatInstance().format(new Date()));
 
+    db.begin();
     ODocument doc = new ODocument().fromJSON("{'@class':'ClassA','other':'other'}");
     ODocument saved = db.save(doc);
+    db.commit();
+
     assertNotNull(saved.field("date"));
     assertTrue(saved.field("date") instanceof Date);
     assertNotNull(saved.field("other"));
@@ -172,7 +192,11 @@ public class DefaultValueTest extends BaseMemoryDatabase {
     ODocument doc1 =
         new ODocument().fromJSON("{'@class':'ClassA','date':'" + val + "','other':'other1'}");
     saved.merge(doc1, true, true);
+
+    db.begin();
     saved = db.save(saved);
+    db.commit();
+
     assertNotNull(saved.field("date"));
     assertEquals(ODateHelper.getDateTimeFormatInstance().format(saved.field("date")), val);
     assertEquals(saved.field("other"), "other1");

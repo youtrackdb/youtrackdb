@@ -38,6 +38,7 @@ public class TestImportRewriteLinks {
         cls.createProperty("value", OType.STRING);
         cls.createIndex(EXPORT_IMPORT_INDEX_NAME, OClass.INDEX_TYPE.DICTIONARY, "key");
 
+        session.begin();
         new ODocument(EXPORT_IMPORT_CLASS_NAME)
             .field("key", new ORecordId(10, 4).toString())
             .field("value", new ORecordId(10, 3).toString())
@@ -57,6 +58,7 @@ public class TestImportRewriteLinks {
             .field("key", new ORecordId(51, 1).toString())
             .field("value", new ORecordId(61, 1).toString())
             .save();
+        session.commit();
 
         final Set<ORID> brokenRids = new HashSet<>();
 

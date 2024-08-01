@@ -168,11 +168,13 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
 
     String rowModel = "{\"letter\": \"%s\", \"number\": %d}";
     for (int i = 0; i < 26; ++i) {
+      db.begin();
       String l = String.valueOf((char) ('A' + i));
       String json = String.format(rowModel, l, i);
       ODocument doc = db.newInstance("alphabet");
       doc.fromJSON(json);
       doc.save();
+      db.commit();
     }
 
     db.command("create class OCommandExecutorSQLSelectTest_aggregations").close();
@@ -188,6 +190,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     db.command("CREATE PROPERTY CollateOnLinked.name String").close();
     db.command("ALTER PROPERTY CollateOnLinked.name collate ci").close();
 
+    db.begin();
     ODocument doc = new ODocument("CollateOnLinked");
     doc.field("name", "foo");
     doc.save();
@@ -195,6 +198,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     ODocument doc2 = new ODocument("CollateOnLinked2");
     doc2.field("linked", doc.getIdentity());
     doc2.save();
+    db.commit();
   }
 
   private static void initComplexFilterInSquareBrackets(ODatabaseDocument db) {
@@ -301,6 +305,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
         "laskdf lkajsd flaksjdf laksjd flakjsd flkasjd flkajsd flkajsd flkajsd flkajsd flkajsd"
             + " flkjas;lkj a;ldskjf laksdj asdklasdjf lskdaj fladsd";
     for (int i = 0; i < ORDER_SKIP_LIMIT_ITEMS; i++) {
+      db.begin();
       ODocument doc = new ODocument("MassiveOrderSkipLimit");
       doc.field("nnum", i);
       doc.field("aaa", fieldValue);
@@ -311,6 +316,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
       doc.field("dgd", fieldValue);
 
       doc.save();
+      db.commit();
     }
   }
 
@@ -318,6 +324,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     db.command("create class ExpandSkipLimit clusters 1").close();
 
     for (int i = 0; i < 5; i++) {
+      db.begin();
       ODocument doc = new ODocument("ExpandSkipLimit");
       doc.field("nnum", i);
       doc.save();
@@ -326,6 +333,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
       parent.field("num", i);
       parent.field("linked", doc);
       parent.save();
+      db.commit();
     }
   }
 

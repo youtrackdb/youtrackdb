@@ -720,11 +720,6 @@ public class OSBTreeRidBag implements ORidBagDelegate {
     return result;
   }
 
-  @Override
-  public int getSerializedSize(byte[] stream, int offset) {
-    return getSerializedSize();
-  }
-
   private void rearrangeChanges() {
     ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
     for (Entry<OIdentifiable, Change> change : this.changes.entrySet()) {

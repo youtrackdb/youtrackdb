@@ -16,21 +16,29 @@ public class OCommandExecutorSQLTruncateTest extends BaseMemoryDatabase {
     OClass vcl = db.getMetadata().getSchema().createClass("A");
     db.getMetadata().getSchema().createClass("ab", vcl);
 
+    db.begin();
     ODocument doc = new ODocument("A");
     db.save(doc);
+    db.commit();
+
+    db.begin();
     doc = new ODocument("ab");
     db.save(doc);
-    OResultSet ret = db.command("truncate class A ");
+    db.commit();
 
+    OResultSet ret = db.command("truncate class A ");
     assertEquals((long) ret.next().getProperty("count"), 1L);
   }
 
   @Test
   public void testTruncateAPI() throws IOException {
-    OClass vcl = db.getMetadata().getSchema().createClass("A");
+    db.getMetadata().getSchema().createClass("A");
 
+    db.begin();
     ODocument doc = new ODocument("A");
     db.save(doc);
+    db.commit();
+
     db.getMetadata().getSchema().getClasses().stream()
         .filter(oClass -> !oClass.getName().startsWith("OSecurity")) //
         .forEach(
@@ -46,10 +54,16 @@ public class OCommandExecutorSQLTruncateTest extends BaseMemoryDatabase {
     OClass vcl = db.getMetadata().getSchema().createClass("A");
     db.getMetadata().getSchema().createClass("ab", vcl);
 
+    db.begin();
     ODocument doc = new ODocument("A");
     db.save(doc);
+    db.commit();
+
+    db.begin();
     doc = new ODocument("ab");
     db.save(doc);
+    db.commit();
+
     try (OResultSet res = db.command("truncate class A POLYMORPHIC")) {
       assertEquals((long) res.next().getProperty("count"), 1L);
       assertEquals((long) res.next().getProperty("count"), 1L);

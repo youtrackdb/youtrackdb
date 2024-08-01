@@ -197,7 +197,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
     database.open("admin", "admin");
     Assert.assertEquals(onOpen, 1);
 
-    database.begin(TXTYPE.OPTIMISTIC);
+    database.begin();
     Assert.assertEquals(onBeforeTxBegin, baseOnBeforeTxBegin + 1);
 
     database
@@ -207,7 +207,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
     Assert.assertEquals(onBeforeTxCommit, baseOnBeforeTxCommit + 1);
     Assert.assertEquals(onAfterTxCommit, baseOnAfterTxCommit + 1);
 
-    database.begin(TXTYPE.OPTIMISTIC);
+    database.begin();
     Assert.assertEquals(onBeforeTxBegin, baseOnBeforeTxBegin + 2);
 
     database
@@ -235,7 +235,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
     database.open("admin", "admin");
     Assert.assertEquals(onOpen, 1);
 
-    database.begin(TXTYPE.OPTIMISTIC);
+    database.begin();
     Assert.assertEquals(onBeforeTxBegin, 1);
 
     database
@@ -245,7 +245,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
     Assert.assertEquals(onBeforeTxCommit, 1);
     Assert.assertEquals(onAfterTxCommit, 1);
 
-    database.begin(TXTYPE.OPTIMISTIC);
+    database.begin();
     Assert.assertEquals(onBeforeTxBegin, 2);
 
     database
@@ -270,7 +270,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
 
     database.open("admin", "admin");
 
-    database.begin(TXTYPE.OPTIMISTIC);
+    database.begin();
     ODocument rec =
         database
             .<ODocument>newInstance()
@@ -280,7 +280,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
 
     final DocumentChangeListener cl = new DocumentChangeListener(database);
 
-    database.begin(TXTYPE.OPTIMISTIC);
+    database.begin();
     rec.field("surname", "Miner").save();
     database.commit();
 

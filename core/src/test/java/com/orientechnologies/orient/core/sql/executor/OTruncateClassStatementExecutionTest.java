@@ -38,13 +38,17 @@ public class OTruncateClassStatementExecutionTest extends BaseMemoryInternalData
 
     db.command("truncate class test_class");
 
+    db.begin();
     db.save(new ODocument(testClass).field("name", "x").field("data", Arrays.asList(1, 2)));
     db.save(new ODocument(testClass).field("name", "y").field("data", Arrays.asList(3, 0)));
+    db.commit();
 
     db.command("truncate class test_class").close();
 
+    db.begin();
     db.save(new ODocument(testClass).field("name", "x").field("data", Arrays.asList(5, 6, 7)));
     db.save(new ODocument(testClass).field("name", "y").field("data", Arrays.asList(8, 9, -1)));
+    db.commit();
 
     OResultSet result = db.query("select from test_class");
     //    Assert.assertEquals(result.size(), 2);
@@ -187,8 +191,10 @@ public class OTruncateClassStatementExecutionTest extends BaseMemoryInternalData
 
     db.command("truncate class test_class");
 
+    db.begin();
     db.save(new ODocument(testClass).field("name", "x").field("data", Arrays.asList(1, 2)));
     db.save(new ODocument(testClass).field("name", "y").field("data", Arrays.asList(3, 0)));
+    db.commit();
 
     OResultSet result = db.query("select from test_class");
     Assert.assertEquals(toList(result).size(), 2);

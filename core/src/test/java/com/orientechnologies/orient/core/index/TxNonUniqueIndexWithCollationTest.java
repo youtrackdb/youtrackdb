@@ -47,6 +47,7 @@ public class TxNonUniqueIndexWithCollationTest extends BaseMemoryDatabase {
         .setCollate("ci")
         .createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
 
+    db.begin();
     OElement user = db.newElement("user");
     user.setProperty("name", "abc");
     db.save(user);
@@ -59,6 +60,7 @@ public class TxNonUniqueIndexWithCollationTest extends BaseMemoryDatabase {
     user = db.newElement("user");
     user.setProperty("name", "abz");
     db.save(user);
+    db.commit();
   }
 
   @Test

@@ -23,9 +23,13 @@ public class TestOrderBy extends BaseMemoryDatabase {
     db.set(ATTRIBUTES.LOCALECOUNTRY, Locale.GERMANY.getCountry());
     db.set(ATTRIBUTES.LOCALELANGUAGE, Locale.GERMANY.getLanguage());
     db.getMetadata().getSchema().createClass("test");
+
+    db.begin();
     ORecord res1 = db.save(new ODocument("test").field("name", "Ähhhh"));
     ORecord res2 = db.save(new ODocument("test").field("name", "Ahhhh"));
     ORecord res3 = db.save(new ODocument("test").field("name", "Zebra"));
+    db.commit();
+
     List<OResult> queryRes =
         db.query("select from test order by name").stream().collect(Collectors.toList());
     assertEquals(queryRes.get(0).getIdentity().get(), res2.getIdentity());

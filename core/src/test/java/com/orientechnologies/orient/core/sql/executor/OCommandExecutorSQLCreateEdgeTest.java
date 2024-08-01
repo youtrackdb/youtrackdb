@@ -24,12 +24,14 @@ public class OCommandExecutorSQLCreateEdgeTest extends BaseMemoryDatabase {
     schema.createClass("Owner", schema.getClass("V"));
     schema.createClass("link", schema.getClass("E"));
 
+    db.begin();
     owner1 = new ODocument("Owner");
     owner1.field("id", 1);
     owner1.save();
     owner2 = new ODocument("Owner");
     owner2.field("id", 2);
     owner2.save();
+    db.commit();
   }
 
   @Test

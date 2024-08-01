@@ -304,7 +304,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
       final byte[] record =
           ((OClusterBasedStorageConfiguration)
-                  connection.getDatabase().getStorageInfo().getConfiguration())
+              connection.getDatabase().getStorageInfo().getConfiguration())
               .toStream(connection.getData().protocolVersion, StandardCharsets.UTF_8);
 
       response = new OReadRecordResponse(OBlob.RECORD_TYPE, 0, record, new HashSet<>());
@@ -446,35 +446,6 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   }
 
   @Override
-  public OBinaryResponse executeDeleteRecord(ODeleteRecordRequest request) {
-
-    int result;
-    ODatabaseDocumentInternal database = connection.getDatabase();
-    try {
-      ORecord record = database.load(request.getRid());
-      if (record != null) {
-        database.delete(request.getRid(), request.getVersion());
-        result = 1;
-      } else {
-        result = 0;
-      }
-    } catch (ORecordNotFoundException e) {
-      // MAINTAIN COHERENT THE BEHAVIOR FOR ALL THE STORAGE TYPES
-      if (e.getCause() instanceof OOfflineClusterException)
-      //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
-      {
-        throw (OOfflineClusterException) e.getCause();
-      }
-      result = 0;
-    }
-
-    if (request.getMode() < 2) {
-      return new ODeleteRecordResponse(result == 1);
-    }
-    return null;
-  }
-
-  @Override
   public OBinaryResponse executeHigherPosition(OHigherPhysicalPositionsRequest request) {
     OPhysicalPosition[] nextPositions =
         connection
@@ -609,82 +580,6 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     } finally {
       connection.getDatabase().swapTx(oldTx);
     }
-  }
-
-  @Override
-  public OBinaryResponse executeBatchOperations(OBatchOperationsRequest request) {
-
-    ODatabaseDocumentInternal database = connection.getDatabase();
-
-    OTransaction transaction = database.getTransaction();
-
-    List<ORecordOperationRequest> operations = request.getOperations();
-
-    List<OCommit37Response.OCreatedRecordResponse> createdRecords = new ArrayList<>();
-    List<OCommit37Response.OUpdatedRecordResponse> updatedRecords = new ArrayList<>();
-    List<OCommit37Response.ODeletedRecordResponse> deletedRecords = new ArrayList<>();
-
-    for (ORecordOperationRequest operation : operations) {
-
-      final ORecordAbstract record;
-      ORecordId current;
-      switch (operation.getType()) {
-        case ORecordOperation.CREATED:
-          record =
-              Orient.instance()
-                  .getRecordFactoryManager()
-                  .newInstance(operation.getRecordType(), operation.getId(), database);
-          connection.getData().getSerializer().fromStream(operation.getRecord(), record, null);
-          current = (ORecordId) record.getIdentity();
-          OCreateRecordResponse createRecordResponse =
-              (OCreateRecordResponse)
-                  executeCreateRecord(
-                      new OCreateRecordRequest(
-                          record, (ORecordId) operation.getId(), operation.getRecordType()));
-          if (transaction.isActive()) {
-            ((OTransactionOptimisticServer) transaction)
-                .getCreatedRecords()
-                .put((ORecordId) record.getIdentity(), record);
-          }
-          createdRecords.add(
-              new OCommit37Response.OCreatedRecordResponse(
-                  current, createRecordResponse.getIdentity(), createRecordResponse.getVersion()));
-          break;
-        case ORecordOperation.UPDATED:
-          record =
-              Orient.instance()
-                  .getRecordFactoryManager()
-                  .newInstance(operation.getRecordType(), operation.getId(), database);
-          connection.getData().getSerializer().fromStream(operation.getRecord(), record, null);
-          current = (ORecordId) record.getIdentity();
-          OUpdateRecordResponse updateRecordResponse =
-              (OUpdateRecordResponse)
-                  executeUpdateRecord(
-                      new OUpdateRecordRequest(
-                          (ORecordId) operation.getId(),
-                          record,
-                          operation.getVersion(),
-                          true,
-                          operation.getRecordType()));
-          if (transaction.isActive()) {
-            ((OTransactionOptimisticServer) transaction)
-                .getUpdatedRecords()
-                .put((ORecordId) record.getIdentity(), record);
-          }
-          updatedRecords.add(
-              new OCommit37Response.OUpdatedRecordResponse(
-                  current, updateRecordResponse.getVersion()));
-          break;
-
-        case ORecordOperation.DELETED:
-          executeDeleteRecord(
-              new ODeleteRecordRequest((ORecordId) operation.getId(), operation.getVersion()));
-          deletedRecords.add(new OCommit37Response.ODeletedRecordResponse(operation.getId()));
-          break;
-      }
-    }
-    return new OBatchOperationsResponse(
-        database.getTransaction().getId(), createdRecords, updatedRecords, deletedRecords);
   }
 
   @Override

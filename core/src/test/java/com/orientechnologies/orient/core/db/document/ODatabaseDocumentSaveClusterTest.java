@@ -8,7 +8,9 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by tglman on 04/11/15. */
+/**
+ * Created by tglman on 04/11/15.
+ */
 public class ODatabaseDocumentSaveClusterTest extends BaseMemoryDatabase {
 
   @Test(expected = IllegalArgumentException.class)
@@ -34,7 +36,7 @@ public class ODatabaseDocumentSaveClusterTest extends BaseMemoryDatabase {
     int res = db.addCluster("test_one");
     clazz.addCluster("test_one");
 
-    ORecord saved = db.save(new ODocument("test"), "test_one");
+    ORecord saved = db.computeInTx(() -> db.save(new ODocument("test"), "test_one"));
     Assert.assertEquals(saved.getIdentity().getClusterId(), res);
   }
 
@@ -44,7 +46,7 @@ public class ODatabaseDocumentSaveClusterTest extends BaseMemoryDatabase {
     int res = db.addCluster("test_one");
     clazz.addCluster("test_one");
 
-    ORecord saved = db.save(new ODocument("test"), "test_one");
+    ORecord saved = db.computeInTx(() -> db.save(new ODocument("test"), "test_one"));
     Assert.assertEquals(saved.getIdentity().getClusterId(), res);
     db.getMetadata().getSchema().dropClass(clazz.getName());
     Assert.assertFalse(db.existsCluster("test_one"));

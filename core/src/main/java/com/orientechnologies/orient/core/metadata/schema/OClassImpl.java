@@ -26,6 +26,7 @@ import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OSchemaException;
@@ -68,6 +69,7 @@ import java.util.Set;
  */
 @SuppressWarnings("unchecked")
 public abstract class OClassImpl implements OClass {
+
   protected static final int NOT_EXISTENT_CLUSTER_ID = -1;
   protected final OSchemaShared owner;
   protected final Map<String, OProperty> properties = new HashMap<String, OProperty>();
@@ -118,7 +120,9 @@ public abstract class OClassImpl implements OClass {
     clusterSelection = owner.getClusterSelectionFactory().newInstanceOfDefaultClass();
   }
 
-  /** Constructor used in unmarshalling. */
+  /**
+   * Constructor used in unmarshalling.
+   */
   protected OClassImpl(final OSchemaShared iOwner, final String iName) {
     name = iName;
     owner = iOwner;
@@ -852,7 +856,9 @@ public abstract class OClassImpl implements OClass {
     }
   }
 
-  /** Truncates all the clusters the class uses. */
+  /**
+   * Truncates all the clusters the class uses.
+   */
   public void truncate() {
     ODatabaseDocumentInternal db = getDatabase();
     db.truncateClass(name, false);
@@ -1359,7 +1365,7 @@ public abstract class OClassImpl implements OClass {
   }
 
   public void fireDatabaseMigration(
-      final ODatabaseDocument database, final String propertyName, final OType type) {
+      final ODatabaseSession database, final String propertyName, final OType type) {
     final boolean strictSQL =
         ((ODatabaseInternal) database).getStorageInfo().getConfiguration().isStrictSql();
 
@@ -1373,20 +1379,23 @@ public abstract class OClassImpl implements OClass {
                 + type.name()
                 + "\"")) {
       while (result.hasNext()) {
-        ODocument record = (ODocument) result.next().getElement().get();
-        record.field(propertyName, record.field(propertyName), type);
-        database.save(record);
+        database.executeInTx(
+            () -> {
+              ODocument record = (ODocument) result.next().getElement().get();
+              record.field(propertyName, record.field(propertyName), type);
+              database.save(record);
+            });
       }
     }
   }
 
   public void firePropertyNameMigration(
-      final ODatabaseDocument database,
+      final ODatabaseSession database,
       final String propertyName,
       final String newPropertyName,
       final OType type) {
     final boolean strictSQL =
-        ((ODatabaseInternal) database).getStorageInfo().getConfiguration().isStrictSql();
+        ((ODatabaseInternal<?>) database).getStorageInfo().getConfiguration().isStrictSql();
 
     try (OResultSet result =
         database.query(
@@ -1396,10 +1405,13 @@ public abstract class OClassImpl implements OClass {
                 + getEscapedName(propertyName, strictSQL)
                 + " is not null ")) {
       while (result.hasNext()) {
-        ODocument record = (ODocument) result.next().getElement().get();
-        record.setFieldType(propertyName, type);
-        record.field(newPropertyName, record.field(propertyName), type);
-        database.save(record);
+        database.executeInTx(
+            () -> {
+              ODocument record = (ODocument) result.next().getElement().get();
+              record.setFieldType(propertyName, type);
+              record.field(newPropertyName, record.field(propertyName), type);
+              database.save(record);
+            });
       }
     }
   }
@@ -1776,7 +1788,9 @@ public abstract class OClassImpl implements OClass {
     return ODatabaseRecordThreadLocal.instance().get();
   }
 
-  /** Add different cluster id to the "polymorphic cluster ids" array. */
+  /**
+   * Add different cluster id to the "polymorphic cluster ids" array.
+   */
   protected void addPolymorphicClusterIds(final OClassImpl iBaseClass) {
     IntRBTreeSet clusters = new IntRBTreeSet(polymorphicClusterIds);
 

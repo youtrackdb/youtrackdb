@@ -199,7 +199,9 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
   public void create(ODatabaseDocumentInternal database) {
     acquireExclusiveLock();
     try {
-      ODocument document = database.save(new ODocument(), OMetadataDefault.CLUSTER_INTERNAL_NAME);
+      ODocument document =
+          database.computeInTx(
+              () -> database.save(new ODocument(), OMetadataDefault.CLUSTER_INTERNAL_NAME));
       identity = document.getIdentity();
       database.getStorage().setIndexMgrRecordId(document.getIdentity().toString());
     } finally {

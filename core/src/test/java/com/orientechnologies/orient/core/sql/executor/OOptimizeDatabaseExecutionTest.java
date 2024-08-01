@@ -21,13 +21,17 @@ public class OOptimizeDatabaseExecutionTest extends BaseMemoryDatabase {
     String eClass = "testCreateSingleEdgeE";
     schema.createClass(eClass, schema.getClass("E"));
 
+    db.begin();
     OVertex v1 = db.newVertex(vClass);
     v1.setProperty("name", "v1");
     v1.save();
+    db.commit();
 
+    db.begin();
     OVertex v2 = db.newVertex(vClass);
     v2.setProperty("name", "v2");
     v2.save();
+    db.commit();
 
     OResultSet createREs =
         db.command(

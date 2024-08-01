@@ -19,13 +19,10 @@
  */
 package com.orientechnologies.orient.core.tx;
 
-import com.orientechnologies.common.concur.ONeedRetryException;
-import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.hook.ORecordHook.TYPE;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -35,6 +32,7 @@ import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChanges.OPERATION;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -48,9 +46,13 @@ public class OTransactionNoTx extends OTransactionAbstract {
     super(iDatabase);
   }
 
-  public void begin() {}
+  public void begin() {
+    throw new UnsupportedOperationException("Begin is not supported in no tx mode");
+  }
 
-  public void commit() {}
+  public void commit() {
+    throw new UnsupportedOperationException("Commit is not supported in no tx mode");
+  }
 
   @Override
   public int getEntryCount() {
@@ -58,9 +60,13 @@ public class OTransactionNoTx extends OTransactionAbstract {
   }
 
   @Override
-  public void commit(boolean force) {}
+  public void commit(boolean force) {
+    throw new UnsupportedOperationException("Commit is not supported in no tx mode");
+  }
 
-  public void rollback() {}
+  public void rollback() {
+    throw new UnsupportedOperationException("Rollback is not supported in no tx mode");
+  }
 
   @Deprecated
   public ORecord loadRecord(
@@ -174,91 +180,54 @@ public class OTransactionNoTx extends OTransactionAbstract {
   }
 
   public ORecord saveRecord(final ORecordAbstract iRecord, final String iClusterName) {
-    try {
-
-      return database.saveAll(iRecord, iClusterName);
-
-    } catch (Exception e) {
-      // REMOVE IT FROM THE CACHE TO AVOID DIRTY RECORDS
-      final ORecordId rid = (ORecordId) iRecord.getIdentity();
-      if (rid.isValid()) {
-        database.getLocalCache().freeRecord(rid);
-      }
-
-      if (e instanceof ONeedRetryException) {
-        throw (ONeedRetryException) e;
-      }
-
-      throw OException.wrapException(
-          new ODatabaseException(
-              "Error during saving of record" + " with rid " + iRecord.getIdentity()),
-          e);
-    }
+    throw new ODatabaseException("Cannot save record in no tx mode");
   }
 
   /**
    * Deletes the record.
    */
   public void deleteRecord(final ORecordAbstract iRecord) {
-    if (!iRecord.getIdentity().isPersistent()) {
-      database.callbackHooks(TYPE.BEFORE_DELETE, iRecord);
-      database.callbackHooks(TYPE.AFTER_DELETE, iRecord);
-      return;
-    }
-
-    try {
-      database.executeDeleteRecord(iRecord, iRecord.getVersion(), true, false);
-    } catch (Exception e) {
-      // REMOVE IT FROM THE CACHE TO AVOID DIRTY RECORDS
-      final ORecordId rid = (ORecordId) iRecord.getIdentity();
-      if (rid.isValid()) {
-        database.getLocalCache().freeRecord(rid);
-      }
-
-      throw (RuntimeException) e;
-    }
+    throw new ODatabaseException("Cannot delete record in no tx mode");
   }
 
   public Collection<ORecordOperation> getCurrentRecordEntries() {
-    return null;
+    return Collections.emptyList();
   }
 
   public Collection<ORecordOperation> getRecordOperations() {
-    return null;
+    return Collections.emptyList();
   }
 
   public List<ORecordOperation> getNewRecordEntriesByClass(
       final OClass iClass, final boolean iPolymorphic) {
-    return null;
+    return Collections.emptyList();
   }
 
   public List<ORecordOperation> getNewRecordEntriesByClusterIds(final int[] iIds) {
-    return null;
+    return Collections.emptyList();
   }
 
-  public void clearRecordEntries() {}
+  public void clearRecordEntries() {
+    throw new UnsupportedOperationException("clearRecordEntries");
+  }
 
   public ORecordAbstract getRecord(final ORID rid) {
     return null;
   }
 
   public ORecordOperation getRecordEntry(final ORID rid) {
-    return null;
-  }
-
-  public boolean isUsingLog() {
-    return false;
+    throw new UnsupportedOperationException("getRecordEntry");
   }
 
   @Override
-  public void setCustomData(String iName, Object iValue) {}
+  public void setCustomData(String iName, Object iValue) {
+    throw new UnsupportedOperationException("setCustomData");
+  }
 
   @Override
   public Object getCustomData(String iName) {
-    return null;
+    throw new UnsupportedOperationException("getCustomData");
   }
-
-  public void setUsingLog(final boolean useLog) {}
 
   public ODocument getIndexChanges() {
     return null;
@@ -270,22 +239,12 @@ public class OTransactionNoTx extends OTransactionAbstract {
       final OPERATION status,
       final Object key,
       final OIdentifiable value) {
-    switch (status) {
-      case CLEAR:
-        delegate.clear();
-        break;
-
-      case PUT:
-        delegate.put(key, value);
-        break;
-
-      case REMOVE:
-        delegate.remove(key, value);
-        break;
-    }
+    throw new UnsupportedOperationException("addIndexEntry");
   }
 
-  public void clearIndexEntries() {}
+  public void clearIndexEntries() {
+    throw new UnsupportedOperationException("clearIndexEntries");
+  }
 
   @Override
   public void close() {}
@@ -299,10 +258,12 @@ public class OTransactionNoTx extends OTransactionAbstract {
   }
 
   public List<String> getInvolvedIndexes() {
-    return null;
+    return Collections.emptyList();
   }
 
-  public void updateIdentityAfterCommit(ORID oldRid, ORID newRid) {}
+  public void updateIdentityAfterCommit(ORID oldRid, ORID newRid) {
+    throw new UnsupportedOperationException("updateIdentityAfterCommit");
+  }
 
   @Override
   public int amountOfNestedTxs() {
@@ -310,7 +271,9 @@ public class OTransactionNoTx extends OTransactionAbstract {
   }
 
   @Override
-  public void rollback(boolean force, int commitLevelDiff) {}
+  public void rollback(boolean force, int commitLevelDiff) {
+    throw new UnsupportedOperationException("Rollback is not supported in no tx mode");
+  }
 
   @Override
   public OTransactionIndexChanges getIndexChangesInternal(String indexName) {

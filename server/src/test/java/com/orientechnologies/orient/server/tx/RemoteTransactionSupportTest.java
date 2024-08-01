@@ -366,7 +366,7 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
 
   @Test
   public void testProperIndexingOnDoubleInternalBegin() {
-    db.begin(OTransaction.TXTYPE.OPTIMISTIC);
+    db.begin();
 
     OElement idx = db.newElement("IndexedTx");
     idx.setProperty("name", FIELD_VALUE);

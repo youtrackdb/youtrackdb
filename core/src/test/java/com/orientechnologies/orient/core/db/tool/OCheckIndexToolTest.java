@@ -19,17 +19,21 @@ public class OCheckIndexToolTest extends BaseMemoryInternalDatabase {
     db.command("create property Foo.name STRING").close();
     db.command("create index Foo.name on Foo (name) NOTUNIQUE").close();
 
+    db.begin();
     ODocument doc = db.newInstance("Foo");
     doc.field("name", "a");
     doc.save();
+    db.commit();
 
     ORID rid = doc.getIdentity();
 
     int N_RECORDS = 100000;
     for (int i = 0; i < N_RECORDS; i++) {
+      db.begin();
       doc = db.newInstance("Foo");
       doc.field("name", "x" + i);
       doc.save();
+      db.commit();
     }
 
     OIndex idx = db.getMetadata().getIndexManagerInternal().getIndex(db, "Foo.name");

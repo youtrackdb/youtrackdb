@@ -14,6 +14,7 @@ import java.util.UUID;
 import org.junit.Test;
 
 public class CheckHookCallCountTest extends BaseMemoryDatabase {
+
   private final String CLASS_NAME = "Data";
   private final String FIELD_ID = "ID";
   private final String FIELD_STATUS = "STATUS";
@@ -29,10 +30,12 @@ public class CheckHookCallCountTest extends BaseMemoryDatabase {
     db.registerHook(hook);
 
     String id = UUID.randomUUID().toString();
+    db.begin();
     ODocument first = new ODocument(CLASS_NAME);
     first.field(FIELD_ID, id);
     first.field(FIELD_STATUS, STATUS);
     db.save(first);
+    db.commit();
 
     db
         .query("SELECT FROM " + CLASS_NAME + " WHERE " + FIELD_STATUS + " = '" + STATUS + "'")
@@ -52,10 +55,14 @@ public class CheckHookCallCountTest extends BaseMemoryDatabase {
     oClass.createProperty("a", OType.INTEGER);
     oClass.createProperty("b", OType.INTEGER);
     oClass.createProperty("c", OType.INTEGER);
+
+    db.begin();
     ODocument doc = new ODocument(oClass);
     doc.field("a", 2);
     doc.field("b", 2);
     doc.save();
+    db.commit();
+
     doc.reload();
     assertEquals(Integer.valueOf(2), doc.field("a"));
     assertEquals(Integer.valueOf(2), doc.field("b"));
@@ -92,10 +99,12 @@ public class CheckHookCallCountTest extends BaseMemoryDatabase {
     assertEquals(Integer.valueOf(2), doc.field("b"));
     assertEquals(Integer.valueOf(4), doc.field("c"));
 
+    db.begin();
     doc = new ODocument(oClass);
     doc.field("a", 3);
     doc.field("b", 3);
-    doc.save(); // FAILING here: infinite recursion
+    doc.save();
+    db.commit(); // FAILING here: infinite recursion
 
     assertEquals(Integer.valueOf(3), doc.field("a"));
     assertEquals(Integer.valueOf(3), doc.field("b"));
@@ -103,6 +112,7 @@ public class CheckHookCallCountTest extends BaseMemoryDatabase {
   }
 
   public class TestHook extends ODocumentHookAbstract {
+
     public int readCount;
 
     @Override

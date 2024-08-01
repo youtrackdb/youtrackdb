@@ -15,7 +15,6 @@ import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.storage.OStorage;
-import com.orientechnologies.orient.core.tx.OTransaction;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -271,7 +270,7 @@ public class LocalPaginatedStorageRestoreTx {
 
         for (int i = 0; i < 20000; i++) {
           try {
-            db.begin(OTransaction.TXTYPE.OPTIMISTIC);
+            db.begin();
 
             ODocument docOne = new ODocument(classOne);
             docOne.field("intProp", random.nextInt());

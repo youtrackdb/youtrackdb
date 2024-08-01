@@ -661,9 +661,4 @@ public abstract class OTransactionRealAbstract extends OTransactionAbstract
       }
     }
   }
-
-  @Override
-  public boolean isUnloadCachedRecords() {
-    return false;
-  }
 }

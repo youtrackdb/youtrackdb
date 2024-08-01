@@ -60,6 +60,7 @@ public class GraphRecoveringTest {
     session.createEdgeClass("E1");
     session.createEdgeClass("E2");
 
+    session.begin();
     var v0 = session.newVertex();
     v0.setProperty("key", 0);
     var v1 = session.newVertex("V1");
@@ -74,6 +75,7 @@ public class GraphRecoveringTest {
     v0.save();
     v1.save();
     v2.save();
+    session.commit();
   }
 
   @Test
@@ -113,8 +115,10 @@ public class GraphRecoveringTest {
                 .map(OResult::toElement)
                 .map(OElement::toEdge)
                 .toList()) {
+          session.begin();
           e.<ODocument>getRecord().removeField("out");
           e.save();
+          session.commit();
         }
 
         final TestListener eventListener = new TestListener();
@@ -150,8 +154,10 @@ public class GraphRecoveringTest {
                 .toList()) {
           for (String f : v.<ODocument>getRecord().fieldNames()) {
             if (f.startsWith(OVertex.DIRECTION_OUT_PREFIX)) {
+              session.begin();
               v.<ODocument>getRecord().removeField(f);
               v.save();
+              session.commit();
             }
           }
         }

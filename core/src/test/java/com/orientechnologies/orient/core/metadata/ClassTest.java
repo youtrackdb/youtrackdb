@@ -20,6 +20,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class ClassTest extends BaseMemoryInternalDatabase {
+
   public static final String SHORTNAME_CLASS_NAME = "TestShortName";
 
   @Test
@@ -108,6 +109,7 @@ public class ClassTest extends BaseMemoryInternalDatabase {
     final int clusterId = db.addCluster("classthree");
     classTwo.addClusterId(clusterId);
 
+    db.begin();
     ODocument document = new ODocument("ClassTwo");
     document.save("classthree");
 
@@ -116,6 +118,7 @@ public class ClassTest extends BaseMemoryInternalDatabase {
 
     document = new ODocument("ClassOne");
     document.save();
+    db.commit();
 
     assertEquals(db.countClass("ClassTwo"), 2);
     assertEquals(db.countClass("ClassOne"), 1);

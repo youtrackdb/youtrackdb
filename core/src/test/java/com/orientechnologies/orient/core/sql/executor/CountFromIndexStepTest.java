@@ -48,9 +48,11 @@ public class CountFromIndexStepTest extends TestUtilsFixture {
     clazz.createIndex(indexName, OClass.INDEX_TYPE.NOTUNIQUE, PROPERTY_NAME);
 
     for (int i = 0; i < 20; i++) {
+      db.begin();
       ODocument document = new ODocument(className);
       document.field(PROPERTY_NAME, PROPERTY_VALUE);
       document.save();
+      db.commit();
     }
   }
 

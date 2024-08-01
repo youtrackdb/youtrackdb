@@ -51,6 +51,7 @@ import javax.annotation.Nonnull;
  * @since 3/2/2015
  */
 public abstract class OSequence {
+
   private static final ExecutorService sequenceExecutor =
       new OThreadPoolExecutorWithLogging(
           0,
@@ -88,6 +89,7 @@ public abstract class OSequence {
   public static final SequenceOrderType DEFAULT_ORDER_TYPE = SequenceOrderType.ORDER_POSITIVE;
 
   public static class CreateParams {
+
     protected Long start = DEFAULT_START;
     protected Integer increment = DEFAULT_INCREMENT;
     // significant only for cached sequences
@@ -231,20 +233,29 @@ public abstract class OSequence {
 
   protected OSequence(CreateParams params, @Nonnull String name) {
     Objects.requireNonNull(name);
-    var document = new ODocument(CLASS_NAME);
+    var db = getDatabase();
 
-    if (params == null) {
-      params = new CreateParams().setDefaults();
-    }
+    docRid =
+        db.computeInTx(
+            () -> {
+              var document = new ODocument(CLASS_NAME);
 
-    initSequence(document, params);
-    setName(document, name);
-    document.save();
+              CreateParams currentParams;
+              if (params == null) {
+                currentParams = new CreateParams().setDefaults();
+              } else {
+                currentParams = params;
+              }
 
-    docRid = document.getIdentity();
+              initSequence(document, currentParams);
+              setName(document, name);
+              document.save();
+
+              return document.getIdentity();
+            });
   }
 
-  protected final void initSequence(ODocument document, OSequence.CreateParams params) {
+  private void initSequence(ODocument document, OSequence.CreateParams params) {
     setStart(document, params.start);
     setIncrement(document, params.increment);
     if (params.currentValue == null) {
@@ -260,10 +271,14 @@ public abstract class OSequence {
   }
 
   public boolean updateParams(CreateParams params) throws ODatabaseException {
-    var doc = getDatabase().<ODocument>load(docRid, null, true);
-    var result = updateParams(doc, params, false);
-    doc.save();
-    return result;
+    var db = getDatabase();
+    return db.computeInTx(
+        () -> {
+          var doc = db.<ODocument>load(docRid, null, true);
+          var result = updateParams(doc, params, false);
+          doc.save();
+          return result;
+        });
   }
 
   boolean updateParams(ODocument document, CreateParams params, boolean executeViaDistributed)

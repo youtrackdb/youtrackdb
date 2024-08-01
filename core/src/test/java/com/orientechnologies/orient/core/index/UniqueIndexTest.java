@@ -135,19 +135,25 @@ public class UniqueIndexTest extends BaseMemoryDatabase {
     OClass userClass = schema.createClass("User");
     userClass.createProperty("MailAddress", OType.STRING).createIndex(OClass.INDEX_TYPE.UNIQUE);
 
+    db.begin();
     ODocument john = new ODocument("User");
     john.field("MailAddress", "john@doe.com");
     db.save(john);
+    db.commit();
 
+    db.begin();
     ODocument jane = new ODocument("User");
     jane.field("MailAddress", "jane@doe.com");
     ODocument id = jane.save();
     db.save(jane);
+    db.commit();
 
     try {
+      db.begin();
       ODocument toUp = db.load(id.getIdentity());
       toUp.field("MailAddress", "john@doe.com");
       db.save(toUp);
+      db.commit();
       Assert.fail("Expected record duplicate exception");
     } catch (ORecordDuplicatedException ex) {
       // ignore
@@ -162,28 +168,35 @@ public class UniqueIndexTest extends BaseMemoryDatabase {
     OClass userClass = schema.createClass("User");
     userClass.createProperty("MailAddress", OType.STRING).createIndex(OClass.INDEX_TYPE.UNIQUE);
 
+    db.begin();
     ODocument jane = new ODocument("User");
     jane.field("MailAddress", "jane@doe.com");
     jane.save();
+    db.commit();
 
     final ORID rid = jane.getIdentity();
 
     reOpen("admin", "adminpwd");
 
+    db.begin();
     ODocument joneJane = db.load(rid);
 
     joneJane.field("MailAddress", "john@doe.com");
     joneJane.field("@version", -1);
 
     joneJane.save();
+    db.commit();
 
     reOpen("admin", "adminpwd");
 
     try {
+      db.begin();
       ODocument toUp = new ODocument("User");
       toUp.field("MailAddress", "john@doe.com");
 
       db.save(toUp);
+      db.commit();
+
       Assert.fail("Expected record duplicate exception");
     } catch (ORecordDuplicatedException ex) {
       // ignore

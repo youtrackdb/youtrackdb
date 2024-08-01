@@ -120,4 +120,6 @@ public interface ORecordCache {
   void unloadRecords();
 
   void clearRecords();
+
+  void unloadNotModifiedRecords();
 }

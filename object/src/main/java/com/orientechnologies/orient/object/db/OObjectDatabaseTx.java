@@ -20,7 +20,6 @@
 package com.orientechnologies.orient.object.db;
 
 import com.orientechnologies.common.collection.OMultiValue;
-import com.orientechnologies.common.concur.ONeedRetryException;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.OCommonConst;
@@ -31,7 +30,6 @@ import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
 import com.orientechnologies.orient.core.db.ODatabase;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseListener;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseWrapperAbstract;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
@@ -68,7 +66,6 @@ import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.storage.OStorageInfo;
 import com.orientechnologies.orient.core.tx.OTransaction;
-import com.orientechnologies.orient.core.tx.OTransactionNoTx;
 import com.orientechnologies.orient.object.dictionary.ODictionaryWrapper;
 import com.orientechnologies.orient.object.enhancement.OObjectEntityEnhancer;
 import com.orientechnologies.orient.object.enhancement.OObjectEntitySerializer;
@@ -85,7 +82,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import javassist.util.proxy.Proxy;
 import javassist.util.proxy.ProxyObject;
 
@@ -587,12 +583,6 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
     return this;
   }
 
-  @Override
-  public ODatabaseObject delete(final ORID iRID, final int iVersion) {
-    deleteRecord(iRID, iVersion, false);
-    return this;
-  }
-
   public ODatabaseObject delete(final ORecord iRecord) {
     underlying.delete(iRecord);
     return this;
@@ -635,25 +625,10 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
     return this;
   }
 
-  public OObjectDatabaseTx begin(final OTransaction.TXTYPE iType) {
-    underlying.begin(iType);
-    return this;
-  }
-
-  public OObjectDatabaseTx begin(final OTransaction iTx) {
-    underlying.begin(iTx);
-    return this;
-  }
-
   @Override
   public OObjectDatabaseTx commit() {
     // BY PASS DOCUMENT DB
-    return commit(false);
-  }
-
-  @Override
-  public OObjectDatabaseTx commit(boolean force) throws OTransactionException {
-    underlying.commit(force);
+    underlying.commit();
 
     if (getTransaction().isActive()) {
       return this;
@@ -973,31 +948,7 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
     handler.getOrphans().clear();
   }
 
-  private boolean deleteRecord(ORID iRID, final int iVersion, boolean prohibitTombstones) {
-    checkOpenness();
 
-    if (iRID == null) {
-      return true;
-    }
-
-    ODocument record = iRID.getRecord();
-    if (record != null) {
-      Object iPojo = getUserObjectByRecord(record, null);
-
-      deleteCascade(record);
-
-      if (prohibitTombstones) {
-        underlying.cleanOutRecord(iRID, iVersion);
-      } else {
-        underlying.delete(iRID, iVersion);
-      }
-
-      if (getTransaction() instanceof OTransactionNoTx) {
-        unregisterPojo(iPojo, record);
-      }
-    }
-    return false;
-  }
 
   @Override
   public int addBlobCluster(String iClusterName, Object... iParameters) {
@@ -1394,15 +1345,6 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
   public OResultSet execute(String language, String script, Map<String, ?> args)
       throws OCommandExecutionException, OCommandScriptException {
     return underlying.execute(language, script, args);
-  }
-
-  @Override
-  public <T> T executeWithRetry(int nRetries, Function<ODatabaseSession, T> function)
-      throws IllegalStateException,
-          IllegalArgumentException,
-          ONeedRetryException,
-          UnsupportedOperationException {
-    return underlying.executeWithRetry(nRetries, function);
   }
 
   @Override

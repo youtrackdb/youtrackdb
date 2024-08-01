@@ -20,9 +20,13 @@
 package com.orientechnologies.orient.core.db;
 
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import java.util.function.Supplier;
 
-/** Session for database operations with a specific user. */
+/**
+ * Session for database operations with a specific user.
+ */
 public interface ODatabaseSession extends ODatabaseDocument {
+
   /**
    * Returns the active session for the current thread.
    *
@@ -34,4 +38,8 @@ public interface ODatabaseSession extends ODatabaseDocument {
     final ODatabaseRecordThreadLocal tl = ODatabaseRecordThreadLocal.instance();
     return tl.get();
   }
+
+  void executeInTx(Runnable runnable);
+
+  <T> T computeInTx(Supplier<T> supplier);
 }

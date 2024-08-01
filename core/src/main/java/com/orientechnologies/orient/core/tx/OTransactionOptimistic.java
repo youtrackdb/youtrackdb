@@ -59,17 +59,8 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
   protected int txStartCounter;
   private boolean sentToServer = false;
 
-  private final boolean unloadCachedRecords;
-
   public OTransactionOptimistic(final ODatabaseDocumentInternal iDatabase) {
     super(iDatabase, txSerial.incrementAndGet());
-    this.unloadCachedRecords = true;
-  }
-
-  public OTransactionOptimistic(
-      final ODatabaseDocumentInternal iDatabase, boolean unloadCachedRecords) {
-    super(iDatabase, txSerial.incrementAndGet());
-    this.unloadCachedRecords = unloadCachedRecords;
   }
 
   public void begin() {
@@ -79,7 +70,10 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
 
     if (txStartCounter == 0) {
       status = TXSTATUS.BEGUN;
-      database.getLocalCache().clear();
+
+      var localCache = database.getLocalCache();
+      localCache.unloadNotModifiedRecords();
+      localCache.clear();
     } else {
       if (status == TXSTATUS.ROLLED_BACK || status == TXSTATUS.ROLLBACKING) {
         throw new ORollbackException(
@@ -147,16 +141,9 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
       rec.unload();
     }
 
-    if (unloadCachedRecords) {
-      database.getLocalCache().unloadRecords();
-    }
-
-    database.getLocalCache().clear();
-  }
-
-  @Override
-  public boolean isUnloadCachedRecords() {
-    return unloadCachedRecords;
+    var localCache = database.getLocalCache();
+    localCache.unloadRecords();
+    localCache.clear();
   }
 
   @Override
@@ -646,10 +633,7 @@ public class OTransactionOptimistic extends OTransactionRealAbstract {
       }
     }
 
-    if (unloadCachedRecords) {
-      dbCache.unloadRecords();
-    }
-
+    dbCache.unloadRecords();
     dbCache.clear();
 
     super.close();

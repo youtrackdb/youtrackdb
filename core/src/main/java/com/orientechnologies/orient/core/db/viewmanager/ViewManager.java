@@ -57,6 +57,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class ViewManager {
+
   private final OrientDBInternal orientDB;
   private final String dbName;
   private boolean viewsExist = false;
@@ -147,7 +148,9 @@ public class ViewManager {
         new TimerTask() {
           @Override
           public void run() {
-            if (closed) return;
+            if (closed) {
+              return;
+            }
             orientDB.executeNoAuthorization(
                 dbName,
                 (db) -> {
@@ -280,9 +283,9 @@ public class ViewManager {
    * Checks if the view could need an update based on watch rules
    *
    * @param view view name
-   * @param db db instance
+   * @param db   db instance
    * @return true if there are no watch rules for this view; true if there are watch rules and some
-   *     of them happened since last update; true if the view was never updated; false otherwise.
+   * of them happened since last update; true if the view was never updated; false otherwise.
    */
   private boolean needsUpdateBasedOnWatchRules(OView view, ODatabaseDocumentInternal db) {
     if (view == null) {
@@ -611,6 +614,7 @@ public class ViewManager {
   }
 
   private class ViewUpdateListener implements OLiveQueryResultListener {
+
     private final String viewName;
 
     public ViewUpdateListener(String name) {
@@ -652,28 +656,31 @@ public class ViewManager {
 
     private void updateViewRow(
         OElement viewRow, OResult origin, OView view, ODatabaseDocumentInternal db) {
-      OStatement stm = OStatementCache.get(view.getQuery(), db);
-      if (stm instanceof OSelectStatement) {
-        OProjection projection = ((OSelectStatement) stm).getProjection();
-        if (projection == null
-            || (projection.getItems().size() == 0 && projection.getItems().get(0).isAll())) {
-          for (String s : origin.getPropertyNames()) {
-            if ("@rid".equalsIgnoreCase(s)
-                || "@class".equalsIgnoreCase(s)
-                || "@version".equalsIgnoreCase(s)) {
-              continue;
+      db.executeInTx(
+          () -> {
+            OStatement stm = OStatementCache.get(view.getQuery(), db);
+            if (stm instanceof OSelectStatement) {
+              OProjection projection = ((OSelectStatement) stm).getProjection();
+              if (projection == null
+                  || (projection.getItems().isEmpty() && projection.getItems().get(0).isAll())) {
+                for (String s : origin.getPropertyNames()) {
+                  if ("@rid".equalsIgnoreCase(s)
+                      || "@class".equalsIgnoreCase(s)
+                      || "@version".equalsIgnoreCase(s)) {
+                    continue;
+                  }
+                  Object value = origin.getProperty(s);
+                  viewRow.setProperty(s, value);
+                }
+              } else {
+                for (OProjectionItem oProjectionItem : projection.getItems()) {
+                  Object value = oProjectionItem.execute(origin, new OBasicCommandContext());
+                  viewRow.setProperty(oProjectionItem.getProjectionAliasAsString(), value);
+                }
+              }
+              viewRow.save();
             }
-            Object value = origin.getProperty(s);
-            viewRow.setProperty(s, value);
-          }
-        } else {
-          for (OProjectionItem oProjectionItem : projection.getItems()) {
-            Object value = oProjectionItem.execute(origin, new OBasicCommandContext());
-            viewRow.setProperty(oProjectionItem.getProjectionAliasAsString(), value);
-          }
-        }
-        viewRow.save();
-      }
+          });
     }
 
     @Override

@@ -17,6 +17,7 @@ public class DirtyManagerReferenceCleanTest extends BaseMemoryDatabase {
 
   @Test
   public void testReferDeletedDocument() {
+    db.begin();
     ODocument doc = new ODocument();
     ODocument doc1 = new ODocument();
     doc1.field("aa", "aa");
@@ -24,6 +25,7 @@ public class DirtyManagerReferenceCleanTest extends BaseMemoryDatabase {
     doc.field("bb");
 
     OIdentifiable id = doc.save(db.getClusterNameById(db.getDefaultClusterId()));
+    db.commit();
 
     doc = db.load(id.getIdentity());
     doc1 = doc.field("ref");

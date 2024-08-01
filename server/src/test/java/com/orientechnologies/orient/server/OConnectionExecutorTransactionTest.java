@@ -5,8 +5,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
-import com.orientechnologies.orient.client.remote.message.OBatchOperationsRequest;
-import com.orientechnologies.orient.client.remote.message.OBatchOperationsResponse;
 import com.orientechnologies.orient.client.remote.message.OBeginTransactionRequest;
 import com.orientechnologies.orient.client.remote.message.OBeginTransactionResponse;
 import com.orientechnologies.orient.client.remote.message.OCommit37Request;
@@ -48,11 +46,15 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-/** Created by tglman on 29/12/16. */
+/**
+ * Created by tglman on 29/12/16.
+ */
 public class OConnectionExecutorTransactionTest {
 
-  @Mock private OServer server;
-  @Mock private OClientConnection connection;
+  @Mock
+  private OServer server;
+  @Mock
+  private OClientConnection connection;
 
   private OrientDB orientDb;
   private ODatabaseDocumentInternal database;
@@ -319,84 +321,6 @@ public class OConnectionExecutorTransactionTest {
   }
 
   @Test
-  public void testBeginBatchUpdateCommitTransaction() {
-
-    ODocument rec = database.save(new ODocument("test").field("name", "foo"));
-
-    OConnectionBinaryExecutor executor = new OConnectionBinaryExecutor(connection, server);
-
-    OBeginTransactionRequest request =
-        new OBeginTransactionRequest(10, true, true, new ArrayList<>(), new HashMap<>());
-    OBinaryResponse response = request.execute(executor);
-
-    assertTrue(database.getTransaction().isActive());
-    assertTrue(response instanceof OBeginTransactionResponse);
-
-    List<ORecordOperation> operations = new ArrayList<>();
-
-    rec.field("name", "bar");
-
-    operations.add(new ORecordOperation(rec, ORecordOperation.UPDATED));
-
-    OBatchOperationsRequest batchRequest = new OBatchOperationsRequest(10, operations);
-    OBinaryResponse batchResponse = batchRequest.execute(executor);
-    assertTrue(batchResponse instanceof OBatchOperationsResponse);
-
-    assertEquals(1, ((OBatchOperationsResponse) batchResponse).getUpdated().size());
-    assertTrue(database.getTransaction().isActive());
-
-    OCommit37Request commit = new OCommit37Request(10, false, true, null, new HashMap<>());
-    OBinaryResponse commitResponse = commit.execute(executor);
-    assertFalse(database.getTransaction().isActive());
-    assertTrue(commitResponse instanceof OCommit37Response);
-
-    assertEquals(((OCommit37Response) commitResponse).getUpdated().size(), 1);
-
-    assertEquals(1, database.countClass("test"));
-
-    ODocument document = database.browseClass("test").iterator().next();
-
-    assertEquals("bar", document.field("name"));
-  }
-
-  @Test
-  public void testBeginBatchCreateCommitTransaction() {
-    OConnectionBinaryExecutor executor = new OConnectionBinaryExecutor(connection, server);
-
-    List<ORecordOperation> operations = new ArrayList<>();
-    ODocument rec = new ODocument("test");
-    operations.add(new ORecordOperation(rec, ORecordOperation.CREATED));
-    assertFalse(database.getTransaction().isActive());
-
-    OBeginTransactionRequest request =
-        new OBeginTransactionRequest(10, true, true, operations, new HashMap<>());
-    OBinaryResponse response = request.execute(executor);
-
-    assertTrue(database.getTransaction().isActive());
-    assertTrue(response instanceof OBeginTransactionResponse);
-
-    operations = new ArrayList<>();
-    rec = new ODocument("test");
-    operations.add(new ORecordOperation(rec, ORecordOperation.CREATED));
-
-    OBatchOperationsRequest batchRequest = new OBatchOperationsRequest(10, operations);
-    OBinaryResponse batchResponse = batchRequest.execute(executor);
-    assertTrue(batchResponse instanceof OBatchOperationsResponse);
-    assertTrue(database.getTransaction().isActive());
-
-    assertEquals(1, ((OBatchOperationsResponse) batchResponse).getCreated().size());
-
-    OCommit37Request commit = new OCommit37Request(10, false, true, null, new HashMap<>());
-    OBinaryResponse commitResponse = commit.execute(executor);
-    assertFalse(database.getTransaction().isActive());
-    assertTrue(commitResponse instanceof OCommit37Response);
-
-    assertEquals(2, ((OCommit37Response) commitResponse).getCreated().size());
-
-    assertEquals(2, database.countClass("test"));
-  }
-
-  @Test
   public void testEmptyBeginCommitTransaction() {
 
     ODocument rec = database.save(new ODocument("test").field("name", "foo"));
@@ -427,96 +351,6 @@ public class OConnectionExecutorTransactionTest {
     assertEquals(1, ((OCommit37Response) commitResponse).getUpdated().size());
     assertEquals(1, ((OCommit37Response) commitResponse).getCreated().size());
     assertEquals(2, database.countClass("test"));
-  }
-
-  @Test
-  public void testBeginBatchDeleteCommitTransaction() {
-
-    ODocument rec = database.save(new ODocument("test").field("name", "foo"));
-
-    OConnectionBinaryExecutor executor = new OConnectionBinaryExecutor(connection, server);
-
-    List<ORecordOperation> operations = new ArrayList<>();
-
-    OBeginTransactionRequest request =
-        new OBeginTransactionRequest(10, false, true, operations, new HashMap<>());
-    OBinaryResponse response = request.execute(executor);
-
-    assertTrue(database.getTransaction().isActive());
-    assertTrue(response instanceof OBeginTransactionResponse);
-
-    operations = new ArrayList<>();
-
-    operations.add(new ORecordOperation(rec, ORecordOperation.DELETED));
-
-    OBatchOperationsRequest batchRequest = new OBatchOperationsRequest(10, operations);
-    OBinaryResponse batchResponse = batchRequest.execute(executor);
-    assertTrue(batchResponse instanceof OBatchOperationsResponse);
-    assertEquals(((OBatchOperationsResponse) batchResponse).getDeleted().size(), 1);
-    assertEquals(
-        ((OBatchOperationsResponse) batchResponse).getDeleted().get(0).getRid(), rec.getIdentity());
-    assertTrue(database.getTransaction().isActive());
-
-    OCommit37Request commit = new OCommit37Request(10, false, true, null, new HashMap<>());
-    OBinaryResponse commitResponse = commit.execute(executor);
-    assertFalse(database.getTransaction().isActive());
-    assertTrue(commitResponse instanceof OCommit37Response);
-
-    assertEquals(0, database.countClass("test"));
-  }
-
-  @Test
-  public void testBeginBatchComplexCommitTransaction() {
-    ODocument toUpdate = database.save(new ODocument("test").field("name", "foo"));
-    ODocument toDelete = database.save(new ODocument("test").field("name", "delete"));
-
-    OConnectionBinaryExecutor executor = new OConnectionBinaryExecutor(connection, server);
-
-    List<ORecordOperation> operations = new ArrayList<>();
-
-    OBeginTransactionRequest request =
-        new OBeginTransactionRequest(10, true, true, operations, new HashMap<>());
-    OBinaryResponse response = request.execute(executor);
-
-    assertTrue(database.getTransaction().isActive());
-    assertTrue(response instanceof OBeginTransactionResponse);
-
-    operations = new ArrayList<>();
-    ODocument toInsert = new ODocument("test").field("name", "insert");
-    toUpdate.field("name", "update");
-    operations.add(new ORecordOperation(toInsert, ORecordOperation.CREATED));
-    operations.add(new ORecordOperation(toDelete, ORecordOperation.DELETED));
-    operations.add(new ORecordOperation(toUpdate, ORecordOperation.UPDATED));
-
-    OBatchOperationsRequest batchRequest = new OBatchOperationsRequest(10, operations);
-    OBinaryResponse batchResponse = batchRequest.execute(executor);
-    assertTrue(batchResponse instanceof OBatchOperationsResponse);
-    assertTrue(database.getTransaction().isActive());
-
-    assertEquals(1, ((OBatchOperationsResponse) batchResponse).getCreated().size());
-    assertEquals(1, ((OBatchOperationsResponse) batchResponse).getUpdated().size());
-
-    OCommit37Request commit = new OCommit37Request(10, false, true, null, new HashMap<>());
-    OBinaryResponse commitResponse = commit.execute(executor);
-    assertFalse(database.getTransaction().isActive());
-    assertTrue(commitResponse instanceof OCommit37Response);
-
-    assertEquals(1, ((OCommit37Response) commitResponse).getCreated().size());
-
-    assertEquals(1, ((OCommit37Response) commitResponse).getUpdated().size());
-
-    assertEquals(1, ((OCommit37Response) commitResponse).getDeleted().size());
-
-    assertEquals(2, database.countClass("test"));
-
-    OResultSet query = database.query("select from test where name = 'update'");
-
-    List<OResult> results = query.stream().collect(Collectors.toList());
-
-    assertEquals(1, results.size());
-
-    assertEquals("update", results.get(0).getProperty("name"));
-    query.close();
   }
 
   @Test
@@ -562,55 +396,6 @@ public class OConnectionExecutorTransactionTest {
     assertEquals(1, results.size());
 
     assertEquals("update", results.get(0).getProperty("name"));
-
-    query.close();
-  }
-
-  @Test
-  public void testBeginBatchQueryRollbackTransaction() {
-
-    OConnectionBinaryExecutor executor = new OConnectionBinaryExecutor(connection, server);
-
-    ODocument test = new ODocument("test");
-
-    ORecordInternal.setIdentity(test, -1, -2);
-    // Begin Op
-    List<ORecordOperation> operations = new ArrayList<>();
-    operations.add(new ORecordOperation(test, ORecordOperation.CREATED));
-    OBeginTransactionRequest request =
-        new OBeginTransactionRequest(10, true, true, operations, new HashMap<>());
-    OBinaryResponse response = request.execute(executor);
-
-    assertTrue(database.getTransaction().isActive());
-    assertTrue(response instanceof OBeginTransactionResponse);
-    OBeginTransactionResponse txResponse = (OBeginTransactionResponse) response;
-    assertEquals(0, txResponse.getUpdatedIds().size());
-
-    // Batch Op
-
-    operations = new ArrayList<>();
-
-    test = new ODocument("test");
-
-    ORecordInternal.setIdentity(test, -1, -3);
-
-    operations.add(new ORecordOperation(test, ORecordOperation.CREATED));
-
-    OBatchOperationsRequest batchRequest = new OBatchOperationsRequest(10, operations);
-    OBinaryResponse response1 = batchRequest.execute(executor);
-    assertTrue(response1 instanceof OBatchOperationsResponse);
-
-    OBatchOperationsResponse batchResponse = (OBatchOperationsResponse) response1;
-
-    assertEquals(1, batchResponse.getCreated().size());
-
-    OResultSet query = database.query("select from test ");
-
-    System.out.println(query.getExecutionPlan().get().prettyPrint(1, 1));
-
-    assertEquals(2, query.stream().count());
-
-    assertEquals(2, database.countClass("test"));
 
     query.close();
   }

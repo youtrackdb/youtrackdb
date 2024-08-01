@@ -40,6 +40,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @since 3/2/2015
  */
 public class OSequenceLibraryImpl {
+
   private final Map<String, OSequence> sequences = new ConcurrentHashMap<String, OSequence>();
   private final AtomicBoolean reloadNeeded = new AtomicBoolean(false);
 
@@ -104,11 +105,7 @@ public class OSequenceLibraryImpl {
     validateSequenceNoExists(key);
 
     final OSequence sequence = OSequenceHelper.createSequence(sequenceType, params, iName);
-
     sequences.put(key, sequence);
-    if (database.getTransaction().isActive()) {
-      this.reloadNeeded.set(true);
-    }
 
     return sequence;
   }
@@ -132,13 +129,17 @@ public class OSequenceLibraryImpl {
     init(database);
 
     String name = OSequence.getSequenceName(iDocument);
-    if (name == null) return;
+    if (name == null) {
+      return;
+    }
 
     name = name.toUpperCase(Locale.ENGLISH);
 
     final OSequence seq = getSequence(database, name);
 
-    if (seq != null) return;
+    if (seq != null) {
+      return;
+    }
 
     final OSequence sequence = OSequenceHelper.createSequence(iDocument);
 
@@ -149,7 +150,9 @@ public class OSequenceLibraryImpl {
   public void onSequenceDropped(
       final ODatabaseDocumentInternal database, final ODocument iDocument) {
     String name = OSequence.getSequenceName(iDocument);
-    if (name == null) return;
+    if (name == null) {
+      return;
+    }
 
     name = name.toUpperCase(Locale.ENGLISH);
 

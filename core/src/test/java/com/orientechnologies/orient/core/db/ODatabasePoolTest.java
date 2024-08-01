@@ -9,14 +9,15 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.junit.Test;
 
 public class ODatabasePoolTest {
+
   @Test
   public void testPool() {
     final OrientDB orientDb =
         OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
     final ODatabasePool pool =
         new ODatabasePool(orientDb, "test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
-    final ODatabaseDocument db = pool.acquire();
-    db.save(new ODocument(), db.getClusterNameById(db.getDefaultClusterId()));
+    var db = pool.acquire();
+    db.executeInTx(() -> db.save(new ODocument(), db.getClusterNameById(db.getDefaultClusterId())));
     db.close();
     pool.close();
     orientDb.close();

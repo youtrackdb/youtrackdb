@@ -26,9 +26,11 @@ public class OElementTest extends BaseMemoryDatabase {
   @Test
   public void testLoadAndSave() {
     db.createClassIfNotExist("TestLoadAndSave");
+    db.begin();
     OElement elem = db.newElement("TestLoadAndSave");
     elem.setProperty("name", "foo");
     db.save(elem);
+    db.commit();
 
     OResultSet result = db.query("select from TestLoadAndSave where name = 'foo'");
     Assert.assertTrue(result.hasNext());

@@ -20,6 +20,7 @@ public class ODeleteEdgeStatementExecutionTest extends BaseMemoryDatabase {
 
     OVertex prev = null;
     for (int i = 0; i < 10; i++) {
+      db.begin();
       OVertex v1 = db.newVertex(vertexClassName);
       v1.setProperty("name", "a" + i);
       v1.save();
@@ -27,6 +28,7 @@ public class ODeleteEdgeStatementExecutionTest extends BaseMemoryDatabase {
         prev.addEdge(v1, edgeClassName).save();
       }
       prev = v1;
+      db.commit();
     }
 
     OResultSet rs = db.query("SELECT expand(out()) FROM " + vertexClassName);
@@ -70,6 +72,7 @@ public class ODeleteEdgeStatementExecutionTest extends BaseMemoryDatabase {
 
     OVertex prev = null;
     for (int i = 0; i < 10; i++) {
+      db.begin();
       OVertex v1 = db.newVertex(vertexClassName);
       v1.setProperty("name", "a" + i);
       v1.save();
@@ -77,6 +80,7 @@ public class ODeleteEdgeStatementExecutionTest extends BaseMemoryDatabase {
         prev.addEdge(v1, edgeClassName).save();
       }
       prev = v1;
+      db.commit();
     }
 
     OResultSet rs = db.query("SELECT expand(out()) FROM " + vertexClassName);

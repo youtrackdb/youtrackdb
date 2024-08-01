@@ -14,12 +14,15 @@ import java.util.Map;
 import java.util.Set;
 import org.junit.Test;
 
-/** Created by tglman on 11/03/16. */
+/**
+ * Created by tglman on 11/03/16.
+ */
 public class ODocumentTrackingNestedCollectionsTest extends BaseMemoryDatabase {
 
   @Test
   public void testTrackingNestedSet() {
 
+    db.begin();
     ORID orid;
     ODocument document = new ODocument();
     Set objects = new HashSet();
@@ -32,7 +35,9 @@ public class ODocumentTrackingNestedCollectionsTest extends BaseMemoryDatabase {
     objects.add(subObjects);
 
     document.save(db.getClusterNameById(db.getDefaultClusterId()));
+    db.commit();
 
+    db.begin();
     orid = document.getIdentity();
     objects = document.field("objects");
     subObjects = (Set) objects.iterator().next();
@@ -41,6 +46,7 @@ public class ODocumentTrackingNestedCollectionsTest extends BaseMemoryDatabase {
     subObjects.add(nestedDoc);
 
     document.save(db.getClusterNameById(db.getDefaultClusterId()));
+    db.commit();
     db.getLocalCache().clear();
 
     document = db.load(orid);
@@ -53,6 +59,7 @@ public class ODocumentTrackingNestedCollectionsTest extends BaseMemoryDatabase {
   @Test
   public void testChangesValuesNestedTrackingSet() {
 
+    db.begin();
     ODocument document = new ODocument();
     Set objects = new HashSet();
 
@@ -64,6 +71,7 @@ public class ODocumentTrackingNestedCollectionsTest extends BaseMemoryDatabase {
     subObjects.add(nestedDoc);
 
     document.save(db.getClusterNameById(db.getDefaultClusterId()));
+    db.commit();
 
     objects = document.field("objects");
     subObjects = (Set) objects.iterator().next();
@@ -81,6 +89,7 @@ public class ODocumentTrackingNestedCollectionsTest extends BaseMemoryDatabase {
   @Test
   public void testChangesValuesNestedTrackingList() {
 
+    db.begin();
     ODocument document = new ODocument();
     List objects = new ArrayList();
 
@@ -92,6 +101,7 @@ public class ODocumentTrackingNestedCollectionsTest extends BaseMemoryDatabase {
     subObjects.add(nestedDoc);
 
     document.save(db.getClusterNameById(db.getDefaultClusterId()));
+    db.commit();
 
     objects = document.field("objects");
     subObjects = (List) objects.iterator().next();
@@ -109,7 +119,7 @@ public class ODocumentTrackingNestedCollectionsTest extends BaseMemoryDatabase {
 
   @Test
   public void testChangesValuesNestedTrackingMap() {
-
+    db.begin();
     ODocument document = new ODocument();
     Map objects = new HashMap();
 
@@ -121,6 +131,7 @@ public class ODocumentTrackingNestedCollectionsTest extends BaseMemoryDatabase {
     subObjects.put("one", nestedDoc);
 
     document.save(db.getClusterNameById(db.getDefaultClusterId()));
+    db.commit();
 
     objects = document.field("objects");
     subObjects = (Map) objects.values().iterator().next();

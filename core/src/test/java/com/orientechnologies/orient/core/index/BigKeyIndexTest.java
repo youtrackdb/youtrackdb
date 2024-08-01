@@ -17,6 +17,7 @@ public class BigKeyIndexTest extends BaseMemoryDatabase {
     prop.createIndex(INDEX_TYPE.NOTUNIQUE);
 
     for (int i = 0; i < 100; i++) {
+      db.begin();
       ODocument doc = db.newInstance("One");
       StringBuilder bigValue = new StringBuilder(i % 1000 + "one10000");
       for (int z = 0; z < 218; z++) {
@@ -25,6 +26,7 @@ public class BigKeyIndexTest extends BaseMemoryDatabase {
       doc.setProperty("two", bigValue.toString());
 
       db.save(doc);
+      db.commit();
     }
   }
 
@@ -34,6 +36,7 @@ public class BigKeyIndexTest extends BaseMemoryDatabase {
     OProperty prop = cl.createProperty("two", OType.STRING);
     prop.createIndex(INDEX_TYPE.NOTUNIQUE);
 
+    db.begin();
     ODocument doc = db.newInstance("One");
     StringBuilder bigValue = new StringBuilder();
     for (int z = 0; z < 5000; z++) {
@@ -41,5 +44,6 @@ public class BigKeyIndexTest extends BaseMemoryDatabase {
     }
     doc.setProperty("two", bigValue.toString());
     db.save(doc);
+    db.commit();
   }
 }

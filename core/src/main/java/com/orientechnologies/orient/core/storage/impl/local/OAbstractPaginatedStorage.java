@@ -2002,8 +2002,7 @@ public abstract class OAbstractPaginatedStorage
     return idGen;
   }
 
-  @Override
-  public final OStorageOperationResult<Boolean> deleteRecord(
+  private final OStorageOperationResult<Boolean> deleteRecord(
       final ORecordId rid,
       final int version,
       final int mode,

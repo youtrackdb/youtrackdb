@@ -16,8 +16,10 @@ public class CountFromClassStepTest extends TestUtilsFixture {
   public void shouldCountRecordsOfClass() {
     String className = createClassInstance().getName();
     for (int i = 0; i < 20; i++) {
+      db.begin();
       ODocument document = new ODocument(className);
       document.save();
+      db.commit();
     }
 
     OIdentifier classIdentifier = new OIdentifier(className);

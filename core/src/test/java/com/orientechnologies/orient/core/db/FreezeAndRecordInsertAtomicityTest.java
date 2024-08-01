@@ -55,7 +55,9 @@ public class FreezeAndRecordInsertAtomicityTest {
 
   static {
     String buildDirectory = System.getProperty("buildDirectory");
-    if (buildDirectory == null) buildDirectory = "./target";
+    if (buildDirectory == null) {
+      buildDirectory = "./target";
+    }
 
     URL =
         "plocal:"
@@ -116,23 +118,18 @@ public class FreezeAndRecordInsertAtomicityTest {
                   final OIndex index =
                       db.getMetadata().getIndexManagerInternal().getIndex(db, "Person.name");
 
-                  for (int i1 = 0; i1 < ITERATIONS; ++i1)
-                    switch (random.nextInt(3)) {
+                  for (int i1 = 0; i1 < ITERATIONS; ++i1) {
+                    switch (random.nextInt(2)) {
                       case 0:
-                        db.<ODocument>newInstance("Person")
-                            .field("name", "name-" + thread + "-" + i1)
-                            .save();
+                        var val = i1;
+                        db.executeInTx(
+                            () ->
+                                db.<ODocument>newInstance("Person")
+                                    .field("name", "name-" + thread + "-" + val)
+                                    .save());
                         break;
 
                       case 1:
-                        db.begin();
-                        db.<ODocument>newInstance("Person")
-                            .field("name", "name-" + thread + "-" + i1)
-                            .save();
-                        db.commit();
-                        break;
-
-                      case 2:
                         db.freeze();
                         try {
                           for (ODocument document : db.browseClass("Person")) {
@@ -147,6 +144,7 @@ public class FreezeAndRecordInsertAtomicityTest {
 
                         break;
                     }
+                  }
                 } catch (RuntimeException | Error e) {
                   e.printStackTrace();
                   throw e;
@@ -158,6 +156,8 @@ public class FreezeAndRecordInsertAtomicityTest {
 
     countDownLatch.await();
 
-    for (Future<?> future : futures) future.get(); // propagate exceptions, if there are any
+    for (Future<?> future : futures) {
+      future.get(); // propagate exceptions, if there are any
+    }
   }
 }

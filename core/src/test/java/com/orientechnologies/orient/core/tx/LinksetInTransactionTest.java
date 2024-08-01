@@ -16,6 +16,7 @@ public class LinksetInTransactionTest extends BaseMemoryDatabase {
     db.createClass("WithLinks").createProperty("links", OType.LINKSET);
     db.createClass("Linked");
 
+    db.begin();
     /* A link must already be there */
     OElement withLinks1 = db.newInstance("WithLinks");
     OElement link1 = db.newInstance("Linked");
@@ -24,6 +25,7 @@ public class LinksetInTransactionTest extends BaseMemoryDatabase {
     set.add(link1);
     withLinks1.setProperty("links", set);
     withLinks1.save();
+    db.commit();
 
     /* Only in transaction - without transaction all OK */
     db.begin();

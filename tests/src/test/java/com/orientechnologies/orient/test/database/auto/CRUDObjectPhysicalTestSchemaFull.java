@@ -585,7 +585,7 @@ public class CRUDObjectPhysicalTestSchemaFull extends ObjectDBBaseTest {
     JavaSimpleTestClass javaObj = new JavaSimpleTestClass();
     Date date = new Date();
     javaObj.setDateField(date);
-    database.begin(TXTYPE.OPTIMISTIC);
+    database.begin();
     JavaSimpleTestClass dbEntry = database.save(javaObj);
     database.commit();
     database.detachAll(dbEntry, false);

@@ -25,13 +25,17 @@ public class OCreateEdgeStatementExecutionTest extends BaseMemoryDatabase {
     String eClass = "testCreateSingleEdgeE";
     schema.createClass(eClass, schema.getClass("E"));
 
+    db.begin();
     OVertex v1 = db.newVertex(vClass);
     v1.setProperty("name", "v1");
     v1.save();
+    db.commit();
 
+    db.begin();
     OVertex v2 = db.newVertex(vClass);
     v2.setProperty("name", "v2");
     v2.save();
+    db.commit();
 
     OResultSet createREs =
         db.command(
@@ -64,13 +68,17 @@ public class OCreateEdgeStatementExecutionTest extends BaseMemoryDatabase {
     String eClass = "testCreateEdgeWithPropertyE";
     schema.createClass(eClass, schema.getClass("E"));
 
+    db.begin();
     OVertex v1 = db.newVertex(vClass);
     v1.setProperty("name", "v1");
     v1.save();
+    db.commit();
 
+    db.begin();
     OVertex v2 = db.newVertex(vClass);
     v2.setProperty("name", "v2");
     v2.save();
+    db.commit();
 
     OResultSet createREs =
         db.command(
@@ -102,9 +110,11 @@ public class OCreateEdgeStatementExecutionTest extends BaseMemoryDatabase {
     schema.createClass(eClass, schema.getClass("E"));
 
     for (int i = 0; i < 4; i++) {
+      db.begin();
       OVertex v1 = db.newVertex(vClass);
       v1.setProperty("name", "v" + i);
       v1.save();
+      db.commit();
     }
 
     OResultSet createREs =
@@ -158,15 +168,19 @@ public class OCreateEdgeStatementExecutionTest extends BaseMemoryDatabase {
     db.command("CREATE INDEX " + eClass + "out_in ON " + eclazz + " (out, in) UNIQUE");
 
     for (int i = 0; i < 2; i++) {
+      db.begin();
       OVertex v1 = db.newVertex(vClass1);
       v1.setProperty("name", "v" + i);
       v1.save();
+      db.commit();
     }
 
     for (int i = 0; i < 2; i++) {
+      db.begin();
       OVertex v1 = db.newVertex(vClass2);
       v1.setProperty("name", "v" + i);
       v1.save();
+      db.commit();
     }
 
     db.command(
@@ -224,15 +238,19 @@ public class OCreateEdgeStatementExecutionTest extends BaseMemoryDatabase {
     db.command("CREATE INDEX " + eClass + "out_in ON " + eclazz + " (out, in) UNIQUE");
 
     for (int i = 0; i < 2; i++) {
+      db.begin();
       OVertex v1 = db.newVertex(vClass1);
       v1.setProperty("name", "v" + i);
       v1.save();
+      db.commit();
     }
 
     for (int i = 0; i < 2; i++) {
+      db.begin();
       OVertex v1 = db.newVertex(vClass2);
       v1.setProperty("name", "v" + i);
       v1.save();
+      db.commit();
     }
 
     db.command(
@@ -289,15 +307,19 @@ public class OCreateEdgeStatementExecutionTest extends BaseMemoryDatabase {
     db.command("CREATE INDEX " + eClass + "out_in ON " + eclazz + " (out, in) UNIQUE");
 
     for (int i = 0; i < 2; i++) {
+      db.begin();
       OVertex v1 = db.newVertex(vClass1);
       v1.setProperty("name", "v" + i);
       v1.save();
+      db.commit();
     }
 
     for (int i = 0; i < 2; i++) {
+      db.begin();
       OVertex v1 = db.newVertex(vClass2);
       v1.setProperty("name", "v" + i);
       v1.save();
+      db.commit();
     }
 
     db.command(
@@ -337,23 +359,27 @@ public class OCreateEdgeStatementExecutionTest extends BaseMemoryDatabase {
     OSchema schema = db.getMetadata().getSchema();
 
     String vClass1 = "testUpsertNoIndexV1";
-    OClass vclazz1 = schema.createClass(vClass1, schema.getClass("V"));
+    schema.createClass(vClass1, schema.getClass("V"));
 
     String vClass2 = "testUpsertNoIndexV2";
-    OClass vclazz2 = schema.createClass(vClass2, schema.getClass("V"));
+    schema.createClass(vClass2, schema.getClass("V"));
 
     String eClass = "testUpsertNoIndexE";
 
     for (int i = 0; i < 2; i++) {
+      db.begin();
       OVertex v1 = db.newVertex(vClass1);
       v1.setProperty("name", "v" + i);
       v1.save();
+      db.commit();
     }
 
     for (int i = 0; i < 2; i++) {
+      db.begin();
       OVertex v1 = db.newVertex(vClass2);
       v1.setProperty("name", "v" + i);
       v1.save();
+      db.commit();
     }
 
     try {
@@ -382,9 +408,11 @@ public class OCreateEdgeStatementExecutionTest extends BaseMemoryDatabase {
     db.createEdgeClass(eClass);
 
     for (int i = 0; i < 2; i++) {
+      db.begin();
       OVertex v1 = db.newVertex(vClass1);
       v1.setProperty("name", "v" + i);
       v1.save();
+      db.commit();
     }
 
     db.command(

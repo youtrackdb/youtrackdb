@@ -366,40 +366,44 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
    */
   @SuppressWarnings("unchecked")
   public boolean result(final Object iRecord) {
-    final ODocument record = ((OIdentifiable) iRecord).getRecord();
+    var database = getDatabase();
+    return database.computeInTx(
+        () -> {
+          final ODocument record = ((OIdentifiable) iRecord).getRecord();
 
-    if (isUpdateEdge() && !isRecordInstanceOf(iRecord, "E")) {
-      throw new OCommandExecutionException(
-          "Using UPDATE EDGE on a record that is not an instance of E");
-    }
-    if (compiledFilter != null) {
-      // ADDITIONAL FILTERING
-      if (!(Boolean) compiledFilter.evaluate(record, null, context)) {
-        return false;
-      }
-    }
+          if (isUpdateEdge() && !isRecordInstanceOf(iRecord, "E")) {
+            throw new OCommandExecutionException(
+                "Using UPDATE EDGE on a record that is not an instance of E");
+          }
+          if (compiledFilter != null) {
+            // ADDITIONAL FILTERING
+            if (!(Boolean) compiledFilter.evaluate(record, null, context)) {
+              return false;
+            }
+          }
 
-    parameters.reset();
+          parameters.reset();
 
-    returnHandler.beforeUpdate(record);
+          returnHandler.beforeUpdate(record);
 
-    boolean updated = handleContent(record);
-    updated |= handleMerge(record);
-    updated |= handleSetEntries(record);
-    updated |= handleIncrementEntries(record);
-    updated |= handleAddEntries(record);
-    updated |= handlePutEntries(record);
-    updated |= handleRemoveEntries(record);
+          boolean updated = handleContent(record);
+          updated |= handleMerge(record);
+          updated |= handleSetEntries(record);
+          updated |= handleIncrementEntries(record);
+          updated |= handleAddEntries(record);
+          updated |= handlePutEntries(record);
+          updated |= handleRemoveEntries(record);
 
-    if (updated) {
-      handleUpdateEdge(record);
-      record.setDirty();
-      record.save();
-      returnHandler.afterUpdate(record);
-      this.updated = true;
-    }
+          if (updated) {
+            handleUpdateEdge(record);
+            record.setDirty();
+            record.save();
+            returnHandler.afterUpdate(record);
+            this.updated = true;
+          }
 
-    return true;
+          return true;
+        });
   }
 
   /**

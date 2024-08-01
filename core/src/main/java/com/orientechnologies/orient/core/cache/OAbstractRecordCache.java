@@ -112,6 +112,10 @@ public abstract class OAbstractRecordCache {
     underlying.unloadRecords();
   }
 
+  public void unloadNotModifiedRecords() {
+    underlying.unloadNotModifiedRecords();
+  }
+
   /**
    * Total number of cached entries
    *

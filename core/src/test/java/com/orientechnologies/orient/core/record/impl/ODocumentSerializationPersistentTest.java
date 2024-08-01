@@ -32,6 +32,7 @@ public class ODocumentSerializationPersistentTest extends BaseMemoryInternalData
   public void beforeTest() {
     super.beforeTest();
 
+    db.begin();
     final ODocument doc = new ODocument();
     doc.setProperty("name", "Artem");
 
@@ -40,6 +41,8 @@ public class ODocumentSerializationPersistentTest extends BaseMemoryInternalData
     doc.setProperty("country", linkedDoc, OType.LINK);
     doc.setProperty("numbers", Arrays.asList(0, 1, 2, 3, 4, 5));
     doc.save(db.getClusterNameById(db.getDefaultClusterId()));
+    db.commit();
+
     docId = doc.getIdentity();
     linkedId = linkedDoc.getIdentity();
   }

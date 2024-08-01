@@ -34,7 +34,9 @@ public class SBTreeBagDeleteTest extends BaseMemoryInternalDatabase {
     for (int i = 0; i < size; i++) bag.add(new ORecordId(10, i));
     doc.field("bag", bag);
 
+    db.begin();
     ORID id = db.save(doc, db.getClusterNameById(db.getDefaultClusterId())).getIdentity();
+    db.commit();
 
     bag = doc.field("bag");
     OBonsaiCollectionPointer pointer = bag.getPointer();
@@ -47,32 +49,6 @@ public class SBTreeBagDeleteTest extends BaseMemoryInternalDatabase {
     assertNull(doc);
 
     Thread.sleep(100);
-    OSBTreeBonsai<OIdentifiable, Integer> tree =
-        db.getSbTreeCollectionManager().loadSBTree(pointer);
-    assertEquals(0, tree.getRealBagSize(Collections.emptyMap()));
-  }
-
-  @Test
-  public void testDeleteRidbagNoTx() throws InterruptedException {
-    ODocument doc = new ODocument();
-    ORidBag bag = new ORidBag();
-    int size =
-        OGlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValueAsInteger() * 2;
-    for (int i = 0; i < size; i++) bag.add(new ORecordId(10, i));
-    doc.field("bag", bag);
-
-    ORID id = db.save(doc, db.getClusterNameById(db.getDefaultClusterId())).getIdentity();
-
-    bag = doc.field("bag");
-    OBonsaiCollectionPointer pointer = bag.getPointer();
-
-    db.delete(doc);
-
-    doc = db.load(id);
-    assertNull(doc);
-
-    Thread.sleep(100);
-
     OSBTreeBonsai<OIdentifiable, Integer> tree =
         db.getSbTreeCollectionManager().loadSBTree(pointer);
     assertEquals(0, tree.getRealBagSize(Collections.emptyMap()));

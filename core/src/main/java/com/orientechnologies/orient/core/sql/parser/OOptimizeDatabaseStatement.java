@@ -79,97 +79,82 @@ public class OOptimizeDatabaseStatement extends OSimpleExecStatement {
     final ODatabaseDocumentInternal db = getDatabase();
 
     long transformed = 0;
-    if (db.getTransaction().isActive()) db.commit();
+    final long totalEdges = db.countClass("E");
+    long browsedEdges = 0;
+    long lastLapBrowsed = 0;
+    long lastLapTime = System.currentTimeMillis();
 
-    db.begin();
+    for (ODocument doc : db.browseClass("E")) {
+      if (Thread.currentThread().isInterrupted()) {
+        break;
+      }
 
-    try {
+      browsedEdges++;
 
-      final long totalEdges = db.countClass("E");
-      long browsedEdges = 0;
-      long lastLapBrowsed = 0;
-      long lastLapTime = System.currentTimeMillis();
+      if (doc != null) {
+        if (doc.fields() == 2) {
+          final ORID edgeIdentity = doc.getIdentity();
 
-      for (ODocument doc : db.browseClass("E")) {
-        if (Thread.currentThread().isInterrupted()) break;
+          final ODocument outV = doc.getPropertyWithoutValidation("out");
+          final ODocument inV = doc.getPropertyWithoutValidation("in");
 
-        browsedEdges++;
-
-        if (doc != null) {
-          if (doc.fields() == 2) {
-            final ORID edgeIdentity = doc.getIdentity();
-
-            final ODocument outV = doc.getPropertyWithoutValidation("out");
-            final ODocument inV = doc.getPropertyWithoutValidation("in");
-
-            // OUTGOING
-            final Object outField = outV.getPropertyWithoutValidation("out_" + doc.getClassName());
-            if (outField instanceof ORidBag) {
-              final Iterator<OIdentifiable> it = ((ORidBag) outField).iterator();
-              while (it.hasNext()) {
-                OIdentifiable v = it.next();
-                if (edgeIdentity.equals(v)) {
-                  // REPLACE EDGE RID WITH IN-VERTEX RID
-                  it.remove();
-                  ((ORidBag) outField).add(inV.getIdentity());
-                  break;
-                }
+          // OUTGOING
+          final Object outField = outV.getPropertyWithoutValidation("out_" + doc.getClassName());
+          if (outField instanceof ORidBag) {
+            final Iterator<OIdentifiable> it = ((ORidBag) outField).iterator();
+            while (it.hasNext()) {
+              OIdentifiable v = it.next();
+              if (edgeIdentity.equals(v)) {
+                // REPLACE EDGE RID WITH IN-VERTEX RID
+                it.remove();
+                ((ORidBag) outField).add(inV.getIdentity());
+                break;
               }
             }
+          }
 
-            outV.save();
+          outV.save();
 
-            // INCOMING
-            final Object inField = inV.getPropertyWithoutValidation("in_" + doc.getClassName());
-            if (outField instanceof ORidBag) {
-              final Iterator<OIdentifiable> it = ((ORidBag) inField).iterator();
-              while (it.hasNext()) {
-                OIdentifiable v = it.next();
-                if (edgeIdentity.equals(v)) {
-                  // REPLACE EDGE RID WITH IN-VERTEX RID
-                  it.remove();
-                  ((ORidBag) inField).add(outV.getIdentity());
-                  break;
-                }
+          // INCOMING
+          final Object inField = inV.getPropertyWithoutValidation("in_" + doc.getClassName());
+          if (outField instanceof ORidBag) {
+            final Iterator<OIdentifiable> it = ((ORidBag) inField).iterator();
+            while (it.hasNext()) {
+              OIdentifiable v = it.next();
+              if (edgeIdentity.equals(v)) {
+                // REPLACE EDGE RID WITH IN-VERTEX RID
+                it.remove();
+                ((ORidBag) inField).add(outV.getIdentity());
+                break;
               }
             }
+          }
 
-            inV.save();
+          inV.save();
 
-            doc.delete();
+          doc.delete();
 
-            if (++transformed % batch == 0) {
-              db.commit();
-              db.begin();
-            }
+          final long now = System.currentTimeMillis();
 
-            final long now = System.currentTimeMillis();
+          if (verbose() && (now - lastLapTime > 2000)) {
+            final long elapsed = now - lastLapTime;
 
-            if (verbose() && (now - lastLapTime > 2000)) {
-              final long elapsed = now - lastLapTime;
+            OLogManager.instance()
+                .info(
+                    this,
+                    "Browsed %,d of %,d edges, transformed %,d so far (%,d edges/sec)",
+                    browsedEdges,
+                    totalEdges,
+                    transformed,
+                    (((browsedEdges - lastLapBrowsed) * 1000 / elapsed)));
 
-              OLogManager.instance()
-                  .info(
-                      this,
-                      "Browsed %,d of %,d edges, transformed %,d so far (%,d edges/sec)",
-                      browsedEdges,
-                      totalEdges,
-                      transformed,
-                      (((browsedEdges - lastLapBrowsed) * 1000 / elapsed)));
-
-              lastLapTime = System.currentTimeMillis();
-              lastLapBrowsed = browsedEdges;
-            }
+            lastLapTime = System.currentTimeMillis();
+            lastLapBrowsed = browsedEdges;
           }
         }
       }
-
-      // LAST COMMIT
-      db.commit();
-
-    } finally {
-      if (db.getTransaction().isActive()) db.rollback();
     }
+
     return "Transformed " + transformed + " regular edges in lightweight edges";
   }
 
@@ -193,12 +178,18 @@ public class OOptimizeDatabaseStatement extends OSimpleExecStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OOptimizeDatabaseStatement that = (OOptimizeDatabaseStatement) o;
 
-    if (options != null ? !options.equals(that.options) : that.options != null) return false;
+    if (options != null ? !options.equals(that.options) : that.options != null) {
+      return false;
+    }
 
     return true;
   }

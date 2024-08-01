@@ -66,7 +66,6 @@ import com.orientechnologies.orient.core.metadata.sequence.OSequenceAction;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.ORecordAbstract;
-import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
@@ -80,7 +79,6 @@ import com.orientechnologies.orient.core.storage.ORecordMetadata;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.OStorageInfo;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
-import com.orientechnologies.orient.core.tx.OTransaction;
 import com.orientechnologies.orient.core.tx.OTransactionAbstract;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChanges;
 import com.orientechnologies.orient.core.tx.OTransactionInternal;
@@ -293,46 +291,6 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
     for (ODatabaseListener listener : config.getListeners()) {
       registerListener(listener);
     }
-  }
-
-  public ODatabaseDocumentAbstract begin(final OTransaction.TXTYPE iType) {
-    checkOpenness();
-    checkIfActive();
-    if (currentTx.isActive()) {
-      if (iType == OTransaction.TXTYPE.OPTIMISTIC && currentTx instanceof OTransactionOptimistic) {
-        currentTx.begin();
-        return this;
-      }
-      currentTx.rollback(true, 0);
-    }
-
-    // CHECK IT'S NOT INSIDE A HOOK
-    if (!inHook.isEmpty()) {
-      throw new IllegalStateException("Cannot begin a transaction while a hook is executing");
-    }
-
-    // WAKE UP LISTENERS
-    for (ODatabaseListener listener : browseListeners()) {
-      try {
-        listener.onBeforeTxBegin(this);
-      } catch (Exception t) {
-        OLogManager.instance().error(this, "Error before tx begin", t);
-      } catch (Error e) {
-        OLogManager.instance().error(this, "Error before tx begin", e);
-        throw e;
-      }
-    }
-
-    switch (iType) {
-      case NOTX:
-        setDefaultTransactionMode();
-        break;
-      case OPTIMISTIC:
-        currentTx = new OTransactionOptimisticClient(this);
-        break;
-    }
-    currentTx.begin();
-    return this;
   }
 
   public OStorageRemoteSession getSessionMetadata() {
@@ -554,33 +512,6 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
   }
 
   @Override
-  public void executeDeleteRecord(
-      OIdentifiable record, int iVersion, boolean iRequired, boolean prohibitTombstones) {
-    OTransactionOptimisticClient tx =
-        new OTransactionOptimisticClient(this) {
-          @Override
-          protected void checkTransactionValid() {}
-        };
-    tx.begin();
-    Set<ORecordAbstract> records =
-        ORecordInternal.getDirtyManager((ORecord) record).getUpdateRecords();
-    if (records != null) {
-      for (var rec : records) {
-        tx.saveRecord(rec, null);
-      }
-    }
-    Set<ORecordAbstract> newRecords =
-        ORecordInternal.getDirtyManager((ORecord) record).getNewRecords();
-    if (newRecords != null) {
-      for (var rec : newRecords) {
-        tx.saveRecord(rec, null);
-      }
-    }
-    tx.deleteRecord((ORecordAbstract) record);
-    tx.commit();
-  }
-
-  @Override
   public OIdentifiable beforeCreateOperations(OIdentifiable id, String iClusterName) {
     checkSecurity(ORole.PERMISSION_CREATE, id, iClusterName);
     ORecordHook.RESULT res = callbackHooks(ORecordHook.TYPE.BEFORE_CREATE, id);
@@ -669,20 +600,6 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
   @Override
   public void afterReadOperations(OIdentifiable identifiable) {
     callbackHooks(ORecordHook.TYPE.AFTER_READ, identifiable);
-  }
-
-  @Override
-  public ORecord saveAll(ORecord iRecord, String iClusterName) {
-    OTransactionOptimisticClient tx =
-        new OTransactionOptimisticClient(this) {
-          @Override
-          protected void checkTransactionValid() {}
-        };
-    tx.begin();
-    tx.saveRecord((ORecordAbstract) iRecord, iClusterName);
-    tx.commit();
-
-    return iRecord;
   }
 
   @Override
