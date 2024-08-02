@@ -39,6 +39,7 @@ public class OObjectBinaryDataStorageTest {
     // setup
     this.createDb(ODocumentFieldHandlingStrategyFactory.SIMPLE);
 
+    databaseTx.begin();
     Driver hunt = new Driver();
     hunt.setName("James Hunt");
     byte[] huntUglyPicture = randomBytes(1024 * 32);
@@ -46,6 +47,8 @@ public class OObjectBinaryDataStorageTest {
 
     // exercise
     Driver savedHunt = this.databaseTx.save(hunt);
+    databaseTx.commit();
+
     Driver loadedHunt = this.databaseTx.load(new ORecordId(savedHunt.getId()));
 
     // verify
@@ -62,6 +65,7 @@ public class OObjectBinaryDataStorageTest {
     // setup
     this.createDb(ODocumentFieldHandlingStrategyFactory.SINGLE_ORECORD_BYTES);
 
+    databaseTx.begin();
     Driver lauda = new Driver();
     lauda.setName("Niki Lauda");
     byte[] laudaRealisticPicture = randomBytes(1024 * 64);
@@ -69,6 +73,8 @@ public class OObjectBinaryDataStorageTest {
 
     // exercise
     Driver savedLauda = this.databaseTx.save(lauda);
+    databaseTx.commit();
+
     Driver loadedLauda = this.databaseTx.load(new ORecordId(savedLauda.getId()));
 
     // verify
@@ -90,8 +96,11 @@ public class OObjectBinaryDataStorageTest {
     byte[] prostUglyPicture = randomBytes(1024 * 128 + 1);
     prost.setImageData(prostUglyPicture);
 
+    databaseTx.begin();
     // exercise
     Driver savedProst = this.databaseTx.save(prost);
+    databaseTx.commit();
+
     Driver loadedProst = this.databaseTx.load(new ORecordId(savedProst.getId()));
 
     // verify
@@ -108,6 +117,7 @@ public class OObjectBinaryDataStorageTest {
     // setup
     this.createDb(-1);
 
+    databaseTx.begin();
     Driver monzasGorilla = new Driver();
     monzasGorilla.setName("Vittorio Brambilla");
     byte[] brambillaPicture = randomBytes(1024 * 32);
@@ -115,6 +125,8 @@ public class OObjectBinaryDataStorageTest {
 
     // exercise
     Driver savedBrambilla = this.databaseTx.save(monzasGorilla);
+    databaseTx.commit();
+
     Driver loadedBrambilla = this.databaseTx.load(new ORecordId(savedBrambilla.getId()));
 
     // verify
@@ -132,6 +144,7 @@ public class OObjectBinaryDataStorageTest {
     // setup
     this.createDb(ODocumentFieldHandlingStrategyFactory.SIMPLE);
 
+    databaseTx.begin();
     Driver ronnie = this.databaseTx.newInstance(Driver.class);
     ronnie.setName("Ronnie Peterson");
     byte[] ronniePicture = randomBytes(1024 * 32);
@@ -139,6 +152,8 @@ public class OObjectBinaryDataStorageTest {
 
     // exercise
     Driver savedRonnie = this.databaseTx.save(ronnie);
+    databaseTx.commit();
+
     Driver loadedRonnie = this.databaseTx.load(new ORecordId(savedRonnie.getId()));
 
     // verify

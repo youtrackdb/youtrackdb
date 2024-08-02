@@ -30,19 +30,26 @@ public class OObjectEntitySerializerTest {
 
   @Test
   public void testCallbacksHierarchy() {
+    databaseTx.begin();
     ExactEntity entity = new ExactEntity();
     databaseTx.save(entity);
+    databaseTx.commit();
 
     assertTrue(entity.callbackExecuted());
   }
 
   @Test
   public void testCallbacksHierarchyUpdate() {
+    databaseTx.begin();
     ExactEntity entity = new ExactEntity();
     entity = databaseTx.save(entity);
+    databaseTx.commit();
 
+    databaseTx.begin();
     entity.reset();
     databaseTx.save(entity);
+    databaseTx.commit();
+
     assertTrue(entity.callbackExecuted());
   }
 }

@@ -37,11 +37,14 @@ public class SimpleParentChildTest {
 
   @Test
   public void testParentChild() {
+    database.begin();
     SimpleChild sc = new SimpleChild();
     sc.setName("aa");
     SimpleParent sa = new SimpleParent();
     sa.setChild(sc);
     SimpleParent ret = database.save(sa);
+    database.commit();
+
     database.getLocalCache().clear();
     ODocument doc = ((OObjectDatabaseTx) database).getUnderlying().load(ret.getId().getIdentity());
     assertEquals(doc.fieldType("child"), OType.LINK);
@@ -49,21 +52,26 @@ public class SimpleParentChildTest {
 
   @Test
   public void testWithSets() {
+    database.begin();
     ObjectWithSet parent = new ObjectWithSet();
     ObjectWithSet child = new ObjectWithSet();
     parent.addFriend(child);
     child.setName("child1");
     ObjectWithSet savedParent = database.save(parent);
+    database.commit();
+
     String parentId = savedParent.getId();
 
     this.database.close();
     this.database = new OObjectDatabaseTx(url);
     this.database.open("admin", "admin");
 
+    database.begin();
     ObjectWithSet retrievedParent = this.database.load(new ORecordId(parentId));
     ObjectWithSet retrievedChild = retrievedParent.getFriends().iterator().next();
     retrievedChild.setName("child2");
     this.database.save(retrievedParent);
+    database.commit();
 
     this.database.close();
     this.database = new OObjectDatabaseTx(url);

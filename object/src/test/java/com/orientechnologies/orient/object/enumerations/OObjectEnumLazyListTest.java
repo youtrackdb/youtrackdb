@@ -83,6 +83,7 @@ public class OObjectEnumLazyListTest {
   }
 
   private EntityWithEnumList getTestObject() {
+    databaseTx.begin();
     EntityWithEnumList toSave = new EntityWithEnumList();
 
     List<TESTENUM> enumList = new ArrayList<TESTENUM>();
@@ -97,6 +98,7 @@ public class OObjectEnumLazyListTest {
     toSave.setEnumList(enumList);
 
     EntityWithEnumList proxiedEntitiy = databaseTx.save(toSave);
+    databaseTx.commit();
 
     return proxiedEntitiy;
   }
