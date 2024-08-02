@@ -21,7 +21,9 @@ import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-/** Created by luigidellaquila on 28/11/16. */
+/**
+ * Created by luigidellaquila on 28/11/16.
+ */
 public class CreateEdgesStep extends AbstractExecutionStep {
 
   private final OIdentifier targetClass;
@@ -145,9 +147,23 @@ public class CreateEdgesStep extends AbstractExecutionStep {
                   edgeToUpdate = existingEdge;
                 }
               }
+
               if (edgeToUpdate == null) {
                 edgeToUpdate = currentFrom.addEdge(currentTo, targetClass.getStringValue());
+                if (targetCluster != null) {
+                  if (edgeToUpdate.isLightweight()) {
+                    throw new OCommandExecutionException(
+                        "Cannot set target cluster on lightweight edges");
+                  }
+
+                  edgeToUpdate.save(targetCluster.getStringValue());
+                }
               }
+
+              currentFrom.save();
+              currentTo.save();
+              edgeToUpdate.save();
+
               return new OUpdatableResult(edgeToUpdate);
             });
   }

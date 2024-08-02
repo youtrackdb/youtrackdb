@@ -17,7 +17,6 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
-import com.orientechnologies.orient.core.tx.OTransaction;
 import com.orientechnologies.orient.server.BaseServerMemoryDatabase;
 import com.orientechnologies.orient.server.OClientConnection;
 import java.util.ArrayList;

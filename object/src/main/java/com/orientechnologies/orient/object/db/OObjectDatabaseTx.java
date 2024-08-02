@@ -948,8 +948,6 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
     handler.getOrphans().clear();
   }
 
-
-
   @Override
   public int addBlobCluster(String iClusterName, Object... iParameters) {
     return getUnderlying().addBlobCluster(iClusterName, iParameters);

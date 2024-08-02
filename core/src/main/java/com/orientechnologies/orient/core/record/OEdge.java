@@ -86,10 +86,7 @@ public interface OEdge extends OElement {
    * Checks if the edge is lightweight.
    *
    * @return true if the edge is lightweight, false otherwise.
-   * @deprecated Lightweight edges are prohibited and used only for binary compatibility.
    */
-  @SuppressWarnings("DeprecatedIsStillUsed")
-  @Deprecated
   boolean isLightweight();
 
   /**

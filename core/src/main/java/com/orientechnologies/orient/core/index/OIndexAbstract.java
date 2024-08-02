@@ -675,6 +675,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
               while (iterator.hasNext()) {
                 ORawPair<Object, ORID> pair = iterator.next();
                 remove(pair.first, pair.second);
+                count++;
                 if (count % 1000 == 0) {
                   database.commit();
                   database.begin();
@@ -997,29 +998,41 @@ public abstract class OIndexAbstract implements OIndexInternal {
               + ")");
     }
     ODatabaseDocumentInternal database = getDatabase();
-    database.begin();
-    for (final ORecord record : database.browseCluster(clusterName)) {
-      if (Thread.interrupted()) {
-        throw new OCommandExecutionException("The index rebuild has been interrupted");
-      }
 
-      if (record instanceof ODocument) {
-        final ODocument doc = (ODocument) record;
-        OClassIndexManager.reIndex(doc, this);
-        ++documentIndexed;
+    var initTx = database.getTransaction().isActive();
+    if (initTx) {
+      database.begin();
+    }
+
+    try {
+      for (final ORecord record : database.browseCluster(clusterName)) {
+        if (Thread.interrupted()) {
+          throw new OCommandExecutionException("The index rebuild has been interrupted");
+        }
+
+        if (record instanceof ODocument) {
+          final ODocument doc = (ODocument) record;
+          OClassIndexManager.reIndex(doc, this);
+          ++documentIndexed;
+        }
+
+        if (documentIndexed > 0 && documentIndexed % 1000 == 0) {
+          database.commit();
+          database.begin();
+        }
+
+        documentNum++;
+
+        if (iProgressListener != null) {
+          iProgressListener.onProgress(
+              this, documentNum, (float) (documentNum * 100.0 / documentTotal));
+        }
       }
-      if (documentIndexed % 1000 == 0) {
+    } finally {
+      if (initTx) {
         database.commit();
-        database.begin();
-      }
-      documentNum++;
-
-      if (iProgressListener != null) {
-        iProgressListener.onProgress(
-            this, documentNum, (float) (documentNum * 100.0 / documentTotal));
       }
     }
-    database.commit();
 
     return new long[] {documentNum, documentIndexed};
   }

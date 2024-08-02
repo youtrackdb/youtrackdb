@@ -126,7 +126,6 @@ public class OEdgeDocument extends ODocument implements OEdgeInternal {
   public boolean isLightweight() {
     checkForLoading();
     if (primaryRecord != null) {
-      //noinspection deprecation
       return ((OEdgeInternal) primaryRecord).isLightweight();
     }
     // LIGHTWEIGHT EDGES MANAGED BY OEdgeDelegate, IN FUTURE MAY BE WE NEED TO HANDLE THEM WITH THIS

@@ -51,10 +51,8 @@ import org.mockito.MockitoAnnotations;
  */
 public class OConnectionExecutorTransactionTest {
 
-  @Mock
-  private OServer server;
-  @Mock
-  private OClientConnection connection;
+  @Mock private OServer server;
+  @Mock private OClientConnection connection;
 
   private OrientDB orientDb;
   private ODatabaseDocumentInternal database;
