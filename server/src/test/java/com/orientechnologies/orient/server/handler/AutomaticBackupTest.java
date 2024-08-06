@@ -115,7 +115,10 @@ public class AutomaticBackupTest {
         .execute("create database ? plocal users (admin identified by 'admin' role admin)", DBNAME);
     database = server.getDatabases().openNoAuthorization(DBNAME);
 
+    database.createClass("TestBackup");
+    database.begin();
     new ODocument("TestBackup").field("name", DBNAME).save();
+    database.commit();
   }
 
   @After

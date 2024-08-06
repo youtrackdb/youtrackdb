@@ -337,6 +337,14 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
   }
 
   @Override
+  public ODatabaseDocumentRemote begin() {
+    super.begin();
+    storage.beginTransaction(this, (OTransactionOptimistic) this.currentTx);
+
+    return this;
+  }
+
+  @Override
   public OResultSet query(String query, Object... args) {
     checkOpenness();
     checkAndSendTransaction();
@@ -409,6 +417,11 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
       reload();
     }
     return result.getResult();
+  }
+
+  @Override
+  protected OTransactionOptimistic newTxInstance() {
+    return new OTransactionOptimisticClient(this);
   }
 
   @Override

@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.patch;
 
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.id.OEmptyRecordId;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
@@ -28,6 +28,7 @@ import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
 import com.orientechnologies.orient.server.network.protocol.http.command.OServerCommandDocumentAbstract;
 
 public class OServerCommandPatchDocument extends OServerCommandDocumentAbstract {
+
   private static final String[] NAMES = {"PATCH|document/*"};
 
   @Override
@@ -37,7 +38,7 @@ public class OServerCommandPatchDocument extends OServerCommandDocumentAbstract 
 
     iRequest.getData().commandInfo = "Edit Document";
 
-    ODatabaseDocument db = null;
+    ODatabaseSession db = null;
     com.orientechnologies.orient.core.id.ORecordId recordId;
     final com.orientechnologies.orient.core.record.impl.ODocument doc;
 
@@ -51,24 +52,32 @@ public class OServerCommandPatchDocument extends OServerCommandDocumentAbstract 
             parametersPos > -1 ? urlParts[2].substring(0, parametersPos) : urlParts[2];
         recordId = new com.orientechnologies.orient.core.id.ORecordId(rid);
 
-        if (!recordId.isValid())
+        if (!recordId.isValid()) {
           throw new IllegalArgumentException("Invalid Record ID in request: " + recordId);
-      } else recordId = new OEmptyRecordId();
+        }
+      } else {
+        recordId = new OEmptyRecordId();
+      }
 
       // UNMARSHALL DOCUMENT WITH REQUEST CONTENT
       doc = new com.orientechnologies.orient.core.record.impl.ODocument();
       doc.fromJSON(iRequest.getContent());
 
       if (iRequest.getIfMatch() != null)
-        // USE THE IF-MATCH HTTP HEADER AS VERSION
+      // USE THE IF-MATCH HTTP HEADER AS VERSION
+      {
         ORecordInternal.setVersion(doc, Integer.parseInt(iRequest.getIfMatch()));
+      }
 
-      if (!recordId.isValid())
+      if (!recordId.isValid()) {
         recordId = (com.orientechnologies.orient.core.id.ORecordId) doc.getIdentity();
-      else ORecordInternal.setIdentity(doc, recordId);
+      } else {
+        ORecordInternal.setIdentity(doc, recordId);
+      }
 
-      if (!recordId.isValid())
+      if (!recordId.isValid()) {
         throw new IllegalArgumentException("Invalid Record ID in request: " + recordId);
+      }
 
       final com.orientechnologies.orient.core.record.impl.ODocument currentDocument =
           db.load(recordId);
@@ -83,11 +92,14 @@ public class OServerCommandPatchDocument extends OServerCommandDocumentAbstract 
         return false;
       }
 
-      boolean partialUpdateMode = true;
-      currentDocument.merge(doc, partialUpdateMode, false);
-      ORecordInternal.setVersion(currentDocument, doc.getVersion());
+      db.executeInTx(
+          () -> {
+            boolean partialUpdateMode = true;
+            currentDocument.merge(doc, partialUpdateMode, false);
+            ORecordInternal.setVersion(currentDocument, doc.getVersion());
 
-      currentDocument.save();
+            currentDocument.save();
+          });
 
       iResponse.send(
           OHttpUtils.STATUS_OK_CODE,
@@ -97,7 +109,9 @@ public class OServerCommandPatchDocument extends OServerCommandDocumentAbstract 
           OHttpUtils.HEADER_ETAG + doc.getVersion());
 
     } finally {
-      if (db != null) db.close();
+      if (db != null) {
+        db.close();
+      }
     }
     return false;
   }

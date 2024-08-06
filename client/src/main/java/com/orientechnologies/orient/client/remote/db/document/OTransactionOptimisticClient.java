@@ -43,12 +43,12 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
   public void replaceContent(
       List<ORecordOperation38Response> operations, List<IndexChange> indexChanges) {
 
-    Map<ORID, ORecordOperation> oldEntries = this.allEntries;
-    this.allEntries = new LinkedHashMap<>();
+    Map<ORID, ORecordOperation> oldEntries = this.recordOperations;
+    this.recordOperations = new LinkedHashMap<>();
     int createCount = -2; // Start from -2 because temporary rids start from -2
     for (ORecordOperation38Response operation : operations) {
       if (!operation.getOldId().equals(operation.getId())) {
-        updatedRids.put(operation.getId().copy(), operation.getOldId());
+        txGeneratedRealRecordIdMap.put(operation.getId().copy(), operation.getOldId());
       }
 
       ORecordAbstract record = null;
@@ -92,7 +92,7 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
         createCount--;
       }
     }
-    newObjectCounter = createCount;
+    newRecordsPositionsGenerator = createCount;
 
     for (IndexChange change : indexChanges) {
       NavigableMap<Object, OTransactionIndexChangesPerKey> changesPerKey =
@@ -158,7 +158,7 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
           if (!(rid.isTemporary() && iStatus != ORecordOperation.CREATED)) {
             // NEW ENTRY: JUST REGISTER IT
             txEntry = new ORecordOperation(iRecord, iStatus);
-            allEntries.put(rid.copy(), txEntry);
+            recordOperations.put(rid.copy(), txEntry);
           }
         } else {
           // UPDATE PREVIOUS STATUS
@@ -174,7 +174,7 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
               break;
             case ORecordOperation.CREATED:
               if (iStatus == ORecordOperation.DELETED) {
-                allEntries.remove(rid);
+                recordOperations.remove(rid);
                 // txEntry.type = ORecordOperation.DELETED;
               }
               break;

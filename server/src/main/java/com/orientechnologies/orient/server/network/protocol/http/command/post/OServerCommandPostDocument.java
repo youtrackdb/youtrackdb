@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.ORecordInternal;
@@ -30,6 +30,7 @@ import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
 import com.orientechnologies.orient.server.network.protocol.http.command.OServerCommandDocumentAbstract;
 
 public class OServerCommandPostDocument extends OServerCommandDocumentAbstract {
+
   private static final String[] NAMES = {"POST|document/*"};
 
   @Override
@@ -38,30 +39,37 @@ public class OServerCommandPostDocument extends OServerCommandDocumentAbstract {
 
     iRequest.getData().commandInfo = "Create document";
 
-    ODatabaseDocument db = null;
+    ODatabaseSession db = null;
 
-    ODocument doc;
+    ODocument d;
 
     try {
       db = getProfiledDatabaseInstance(iRequest);
 
-      doc = new ODocument().fromJSON(iRequest.getContent());
-      ORecordInternal.setVersion(doc, 0);
+      d =
+          db.computeInTx(
+              () -> {
+                ODocument doc = new ODocument().fromJSON(iRequest.getContent());
+                ORecordInternal.setVersion(doc, 0);
 
-      // ASSURE TO MAKE THE RECORD ID INVALID
-      ((ORecordId) doc.getIdentity()).setClusterPosition(ORID.CLUSTER_POS_INVALID);
+                // ASSURE TO MAKE THE RECORD ID INVALID
+                ((ORecordId) doc.getIdentity()).setClusterPosition(ORID.CLUSTER_POS_INVALID);
 
-      doc.save();
+                doc.save();
+                return doc;
+              });
 
       iResponse.send(
           OHttpUtils.STATUS_CREATED_CODE,
           OHttpUtils.STATUS_CREATED_DESCRIPTION,
           OHttpUtils.CONTENT_JSON,
-          doc.toJSON(),
-          OHttpUtils.HEADER_ETAG + doc.getVersion());
+          d.toJSON(),
+          OHttpUtils.HEADER_ETAG + d.getVersion());
 
     } finally {
-      if (db != null) db.close();
+      if (db != null) {
+        db.close();
+      }
     }
     return false;
   }

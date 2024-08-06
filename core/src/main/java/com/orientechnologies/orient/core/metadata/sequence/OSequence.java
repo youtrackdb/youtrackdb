@@ -456,9 +456,9 @@ public abstract class OSequence {
 
   protected <T> T callRetry(
       final BiFunction<ODatabaseSession, ODocument, T> callable, final String method) {
+
     var oldDb = getDatabase();
     var db = oldDb.copy();
-    oldDb.activateOnCurrentThread();
     var future =
         sequenceExecutor.submit(
             () -> {
@@ -467,12 +467,13 @@ public abstract class OSequence {
                 for (int retry = 0; retry < maxRetry; ++retry) {
                   updateLock.lock();
                   try {
-                    db.begin();
-                    var doc = docRid.<ODocument>getRecord();
-                    var result = callable.apply(db, doc);
-                    doc.save();
-                    db.commit();
-                    return result;
+                    return db.computeInTx(
+                        () -> {
+                          var doc = docRid.<ODocument>getRecord();
+                          var result = callable.apply(db, doc);
+                          doc.save();
+                          return result;
+                        });
                   } catch (OConcurrentModificationException ignore) {
                     try {
                       //noinspection BusyWait
@@ -515,12 +516,14 @@ public abstract class OSequence {
                 }
                 updateLock.lock();
                 try {
-                  db.begin();
-                  var doc = docRid.<ODocument>getRecord();
-                  var result = callable.apply(db, doc);
-                  doc.save();
-                  db.commit();
-                  return result;
+                  return db.computeInTx(
+                      () -> {
+                        var doc = docRid.<ODocument>getRecord();
+                        var result = callable.apply(db, doc);
+                        doc.save();
+                        db.commit();
+                        return result;
+                      });
                 } catch (Exception e) {
                   throw OException.wrapException(
                       new OSequenceException(

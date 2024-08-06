@@ -1378,36 +1378,16 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
 
   public List<ORecordOperation> commit(final OTransactionInternal iTx) {
     unstickToSession();
+
     final OCommit38Request request =
         new OCommit38Request(
             iTx.getId(), true, true, iTx.getRecordOperations(), iTx.getIndexOperations());
 
     final OCommit37Response response = networkOperationNoRetry(request, "Error on commit");
-    for (OCommit37Response.OCreatedRecordResponse created : response.getCreated()) {
-      iTx.updateIdentityAfterCommit(created.getCurrentRid(), created.getCreatedRid());
-      ORecordOperation rop = iTx.getRecordEntry(created.getCurrentRid());
-      if (rop != null) {
-        if (created.getVersion() > rop.getRecord().getVersion() + 1) {
-          // IN CASE OF REMOTE CONFLICT STRATEGY FORCE UNLOAD DUE TO INVALID CONTENT
-          var record = rop.getRecord();
-          ORecordInternal.unsetDirty(record);
-          record.unload();
-        }
-        ORecordInternal.setVersion(rop.getRecord(), created.getVersion());
-      }
-    }
-    for (OCommit37Response.OUpdatedRecordResponse updated : response.getUpdated()) {
-      ORecordOperation rop = iTx.getRecordEntry(updated.getRid());
-      if (rop != null) {
-        if (updated.getVersion() > rop.getRecord().getVersion() + 1) {
-          // IN CASE OF REMOTE CONFLICT STRATEGY FORCE UNLOAD DUE TO INVALID CONTENT
-          var record = rop.getRecord();
-          ORecordInternal.unsetDirty(record);
-          record.unload();
-        }
 
-        ORecordInternal.setVersion(rop.getRecord(), updated.getVersion());
-      }
+    // two pass iteration, we update cluster ids, and then update positions
+    for (var updatedPair : response.getUpdatedRids()) {
+      iTx.updateIdentityAfterCommit(updatedPair.first(), updatedPair.second());
     }
 
     updateCollectionsFromChanges(

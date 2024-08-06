@@ -64,6 +64,7 @@ import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollection
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
 import com.orientechnologies.orient.core.tx.OTransaction;
 import com.orientechnologies.orient.core.tx.OTransactionInternal;
+import com.orientechnologies.orient.core.tx.OTransactionOptimistic;
 import com.orientechnologies.orient.core.util.OURLConnection;
 import com.orientechnologies.orient.core.util.OURLHelper;
 import it.unimi.dsi.fastutil.ints.IntSet;
@@ -266,6 +267,11 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
       return ORecordSerializerFactory.instance().getDefaultRecordSerializer();
     }
     return internal.getSerializer();
+  }
+
+  @Override
+  public void begin(OTransactionOptimistic tx) {
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -701,11 +707,6 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
     checkOpenness();
     internal.begin();
     return this;
-  }
-
-  @Override
-  public void rawBegin(OTransaction transaction) {
-    throw new UnsupportedOperationException("private api");
   }
 
   @Override

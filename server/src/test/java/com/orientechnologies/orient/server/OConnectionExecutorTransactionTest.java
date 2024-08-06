@@ -128,7 +128,8 @@ public class OConnectionExecutorTransactionTest {
     OBinaryResponse commitResponse = commit.execute(executor);
     assertFalse(database.getTransaction().isActive());
     assertTrue(commitResponse instanceof OCommit37Response);
-    assertEquals(((OCommit37Response) commitResponse).getCreated().size(), 1);
+
+    assertEquals(((OCommit37Response) commitResponse).getUpdatedRids().size(), 1);
   }
 
   @Test
@@ -157,7 +158,7 @@ public class OConnectionExecutorTransactionTest {
     OBinaryResponse commitResponse = commit.execute(executor);
     assertFalse(database.getTransaction().isActive());
     assertTrue(commitResponse instanceof OCommit37Response);
-    assertEquals(((OCommit37Response) commitResponse).getCreated().size(), 2);
+    assertEquals(((OCommit37Response) commitResponse).getUpdatedRids().size(), 2);
   }
 
   @Test
@@ -229,7 +230,7 @@ public class OConnectionExecutorTransactionTest {
     OBinaryResponse commitResponse = commit.execute(executor);
     assertFalse(database.getTransaction().isActive());
     assertTrue(commitResponse instanceof OCommit37Response);
-    assertEquals(((OCommit37Response) commitResponse).getCreated().size(), 3);
+    assertEquals(((OCommit37Response) commitResponse).getUpdatedRids().size(), 3);
   }
 
   @Test
@@ -264,7 +265,10 @@ public class OConnectionExecutorTransactionTest {
   @Test
   public void testBeginChangeFetchTransaction() {
 
+    database.begin();
     database.save(new ODocument("test"));
+    database.commit();
+
     OConnectionBinaryExecutor executor = new OConnectionBinaryExecutor(connection, server);
 
     List<ORecordOperation> operations = new ArrayList<>();
@@ -321,9 +325,11 @@ public class OConnectionExecutorTransactionTest {
   @Test
   public void testEmptyBeginCommitTransaction() {
 
+    database.begin();
     ODocument rec = database.save(new ODocument("test").field("name", "foo"));
-    OConnectionBinaryExecutor executor = new OConnectionBinaryExecutor(connection, server);
+    database.commit();
 
+    OConnectionBinaryExecutor executor = new OConnectionBinaryExecutor(connection, server);
     OBeginTransactionRequest request = new OBeginTransactionRequest(10, false, true, null, null);
     OBinaryResponse response = request.execute(executor);
     assertTrue(database.getTransaction().isActive());
@@ -346,8 +352,7 @@ public class OConnectionExecutorTransactionTest {
     OBinaryResponse commitResponse = commit.execute(executor);
     assertFalse(database.getTransaction().isActive());
     assertTrue(commitResponse instanceof OCommit37Response);
-    assertEquals(1, ((OCommit37Response) commitResponse).getUpdated().size());
-    assertEquals(1, ((OCommit37Response) commitResponse).getCreated().size());
+    assertEquals(1, ((OCommit37Response) commitResponse).getUpdatedRids().size());
     assertEquals(2, database.countClass("test"));
   }
 
@@ -380,10 +385,9 @@ public class OConnectionExecutorTransactionTest {
     assertFalse(database.getTransaction().isActive());
     assertTrue(commitResponse instanceof OCommit37Response);
 
-    assertEquals(1, ((OCommit37Response) commitResponse).getCreated().size());
+    assertEquals(1, ((OCommit37Response) commitResponse).getUpdatedRids().size());
 
-    assertTrue(
-        ((OCommit37Response) commitResponse).getCreated().get(0).getCurrentRid().isTemporary());
+    assertTrue(((OCommit37Response) commitResponse).getUpdatedRids().get(0).first().isTemporary());
 
     assertEquals(1, database.countClass("test"));
 

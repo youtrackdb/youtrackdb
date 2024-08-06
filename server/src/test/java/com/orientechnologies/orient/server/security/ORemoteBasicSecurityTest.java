@@ -45,7 +45,9 @@ public class ORemoteBasicSecurityTest {
             + " identified by 'reader' role reader, writer identified by 'writer' role writer)");
     try (ODatabaseSession session = orientDB.open("test", "admin", "admin")) {
       session.createClass("one");
+      session.begin();
       session.save(new ODocument("one"));
+      session.commit();
     }
     orientDB.close();
   }
@@ -55,7 +57,9 @@ public class ORemoteBasicSecurityTest {
     // CREATE A SEPARATE CONTEXT TO MAKE SURE IT LOAD STAFF FROM SCRATCH
     try (OrientDB writerOrient = new OrientDB("remote:localhost", OrientDBConfig.defaultConfig())) {
       try (ODatabaseSession writer = writerOrient.open("test", "writer", "writer")) {
+        writer.begin();
         writer.save(new ODocument("one"));
+        writer.commit();
         try (OResultSet rs = writer.query("select from one")) {
           assertEquals(rs.stream().count(), 2);
         }

@@ -87,10 +87,12 @@ public class TestNetworkSerializerIndipendency {
       ODatabaseDocumentAbstract.setDefaultSerializer(ORecordSerializerSchemaAware2CSV.INSTANCE);
       dbTx = new ODatabaseDocumentTx("remote:localhost/test");
       dbTx.open("admin", "admin");
+      dbTx.begin();
       ODocument document = new ODocument();
       document.field("name", "something");
       document.field("surname", "something-else");
       document = dbTx.save(document, dbTx.getClusterNameById(dbTx.getDefaultClusterId()));
+      dbTx.commit();
 
       ODocument doc = dbTx.load(document.getIdentity());
       assertEquals(doc.fields(), document.fields());

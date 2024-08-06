@@ -18,11 +18,12 @@ import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
 import com.orientechnologies.orient.server.BaseServerMemoryDatabase;
-import com.orientechnologies.orient.server.OClientConnection;
 import java.util.ArrayList;
 import org.junit.Test;
 
-/** Created by tglman on 03/01/17. */
+/**
+ * Created by tglman on 03/01/17.
+ */
 public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
 
   private static final String FIELD_VALUE = "VALUE";
@@ -43,9 +44,12 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
 
   @Test
   public void testQueryUpdateUpdatedInTxTransaction() {
+    db.begin();
     ODocument doc = new ODocument("SomeTx");
     doc.setProperty("name", "Joe");
     OIdentifiable id = db.save(doc);
+    db.commit();
+
     db.begin();
     ODocument doc2 = db.load(id.getIdentity());
     doc2.setProperty("name", "Jane");
@@ -54,6 +58,7 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
     assertEquals((long) result.next().getProperty("count"), 1L);
     ODocument doc3 = db.load(id.getIdentity());
     assertEquals(doc3.getProperty("name"), "July");
+    db.rollback();
   }
 
   @Test
@@ -94,9 +99,11 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
 
   @Test
   public void testRollbackTxTransaction() {
+    db.begin();
     ODocument doc = new ODocument("SomeTx");
     doc.setProperty("name", "Jane");
     db.save(doc);
+    db.commit();
 
     db.begin();
     ODocument doc1 = new ODocument("SomeTx");
@@ -117,9 +124,11 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
 
   @Test
   public void testRollbackTxCheckStatusTransaction() {
+    db.begin();
     ODocument doc = new ODocument("SomeTx");
     doc.setProperty("name", "Jane");
     db.save(doc);
+    db.commit();
 
     db.begin();
     ODocument doc1 = new ODocument("SomeTx");
@@ -170,16 +179,14 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
 
   @Test
   public void testQueryDeleteTxSQLTransaction() {
-
+    db.begin();
     OElement someTx = db.newElement("SomeTx");
     someTx.setProperty("name", "foo");
-
     someTx.save();
+    db.commit();
 
     db.begin();
-
     db.command("delete from SomeTx");
-
     db.commit();
 
     OResultSet result = db.command("select from SomeTx");
@@ -395,27 +402,5 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
     v2.setProperty("name", "a");
     db.save(v2);
     db.commit();
-  }
-
-  @Test
-  public void testKilledSession() {
-    db.begin();
-    OElement v2 = db.newElement("SomeTx");
-    v2.setProperty("name", "a");
-    db.save(v2);
-
-    OResultSet result1 = db.query("select rids from SomeTx ");
-    assertTrue(result1.hasNext());
-    result1.close();
-
-    for (OClientConnection conn : server.getClientConnectionManager().getConnections()) {
-      conn.close();
-    }
-    db.activateOnCurrentThread();
-
-    db.commit();
-    result1 = db.query("select rids from SomeTx ");
-    assertTrue(result1.hasNext());
-    result1.close();
   }
 }

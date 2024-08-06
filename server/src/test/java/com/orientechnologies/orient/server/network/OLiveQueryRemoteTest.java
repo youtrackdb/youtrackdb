@@ -111,11 +111,17 @@ public class OLiveQueryRemoteTest {
   @Test
   public void testRidSelect() throws InterruptedException {
     MyLiveQueryListener listener = new MyLiveQueryListener(new CountDownLatch(1));
+    db.begin();
     OVertex item = db.newVertex();
     item.save();
-    OLiveQueryMonitor live = db.live("LIVE SELECT FROM " + item.getIdentity(), listener);
+    db.commit();
+
+    db.live("LIVE SELECT FROM " + item.getIdentity(), listener);
+    db.begin();
     item.setProperty("x", "z");
     item.save();
+    db.commit();
+
     Assert.assertTrue(listener.latch.await(10, TimeUnit.SECONDS));
   }
 

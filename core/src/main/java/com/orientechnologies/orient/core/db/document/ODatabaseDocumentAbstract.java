@@ -149,7 +149,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   protected OLocalRecordCache localCache;
   protected OCurrentStorageComponentsFactory componentsFactory;
   protected boolean initialized = false;
-  protected OTransaction currentTx;
+  protected OTransactionAbstract currentTx;
 
   protected final ORecordHook[][] hooksByScope =
       new ORecordHook[ORecordHook.SCOPE.values().length][];
@@ -917,39 +917,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     return componentsFactory.binarySerializerFactory;
   }
 
-  public OTransaction swapTx(OTransaction newTx) {
-    OTransaction old = getTransaction();
-    currentTx = newTx;
-    return old;
-  }
-
-  public void rawBegin(final OTransaction iTx) {
-    checkOpenness();
-    checkIfActive();
-
-    if (currentTx.isActive() && iTx.equals(currentTx)) {
-      currentTx.begin();
-      return;
-    }
-
-    currentTx.rollback(true, 0);
-
-    // WAKE UP LISTENERS
-    for (ODatabaseListener listener : browseListeners()) {
-      try {
-        listener.onBeforeTxBegin(this);
-      } catch (Exception e) {
-        final String message = "Error before the transaction begin";
-
-        OLogManager.instance().error(this, message, e);
-        throw OException.wrapException(new OTransactionBlockedException(message), e);
-      }
-    }
-
-    currentTx = iTx;
-    currentTx.begin();
-  }
-
   /**
    * {@inheritDoc}
    */
@@ -1202,10 +1169,17 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   }
 
   public ODatabaseDocumentAbstract begin() {
-    return begin(OTransaction.TXTYPE.OPTIMISTIC);
+    if (currentTx.isActive()) {
+      currentTx.begin();
+
+      return this;
+    }
+
+    begin(newTxInstance());
+    return this;
   }
 
-  private ODatabaseDocumentAbstract begin(final OTransaction.TXTYPE iType) {
+  public void begin(OTransactionOptimistic transaction) {
     checkOpenness();
     checkIfActive();
 
@@ -1215,11 +1189,10 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     }
 
     if (currentTx.isActive()) {
-      if (iType == OTransaction.TXTYPE.OPTIMISTIC && currentTx instanceof OTransactionOptimistic) {
+      if (currentTx instanceof OTransactionOptimistic) {
         currentTx.begin();
-        return this;
+        return;
       }
-      currentTx.rollback(true, 0);
     }
 
     // WAKE UP LISTENERS
@@ -1231,18 +1204,13 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       }
     }
 
-    switch (iType) {
-      case NOTX:
-        setDefaultTransactionMode();
-        break;
-
-      case OPTIMISTIC:
-        currentTx = new OTransactionOptimistic(this);
-        break;
-    }
+    currentTx = transaction;
 
     currentTx.begin();
-    return this;
+  }
+
+  protected OTransactionOptimistic newTxInstance() {
+    return new OTransactionOptimistic(this);
   }
 
   public void setDefaultTransactionMode() {
@@ -1957,16 +1925,14 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   @Override
   public ODatabaseDocumentAbstract activateOnCurrentThread() {
     final ODatabaseRecordThreadLocal tl = ODatabaseRecordThreadLocal.instance();
-    if (tl != null) {
-      tl.set(this);
-    }
+    tl.set(this);
     return this;
   }
 
   @Override
   public boolean isActiveOnCurrentThread() {
     final ODatabaseRecordThreadLocal tl = ODatabaseRecordThreadLocal.instance();
-    final ODatabaseDocumentInternal db = tl != null ? tl.getIfDefined() : null;
+    final ODatabaseDocumentInternal db = tl.getIfDefined();
     return db == this;
   }
 
@@ -2249,6 +2215,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   @Override
   public void executeInTx(Runnable runnable) {
     var ok = false;
+    activateOnCurrentThread();
     begin();
     try {
       runnable.run();
@@ -2267,6 +2234,8 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   @SuppressWarnings("resource")
   @Override
   public <T> T computeInTx(Supplier<T> supplier) {
+    activateOnCurrentThread();
+
     var ok = false;
     begin();
     try {

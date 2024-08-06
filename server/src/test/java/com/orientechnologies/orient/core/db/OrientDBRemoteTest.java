@@ -63,7 +63,9 @@ public class OrientDBRemoteTest {
     }
 
     ODatabaseDocument db = factory.open("test", "admin", "admin");
+    db.begin();
     db.save(new ODocument(), db.getClusterNameById(db.getDefaultClusterId()));
+    db.commit();
     db.close();
   }
 
@@ -90,7 +92,9 @@ public class OrientDBRemoteTest {
 
     ODatabasePool pool = new ODatabasePool(factory, "test", "admin", "admin");
     ODatabaseDocument db = pool.acquire();
+    db.begin();
     db.save(new ODocument(), db.getClusterNameById(db.getDefaultClusterId()));
+    db.commit();
     db.close();
     pool.close();
   }
