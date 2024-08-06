@@ -459,6 +459,8 @@ public abstract class OSequence {
 
     var oldDb = getDatabase();
     var db = oldDb.copy();
+    oldDb.activateOnCurrentThread();
+
     var future =
         sequenceExecutor.submit(
             () -> {
@@ -521,7 +523,6 @@ public abstract class OSequence {
                         var doc = docRid.<ODocument>getRecord();
                         var result = callable.apply(db, doc);
                         doc.save();
-                        db.commit();
                         return result;
                       });
                 } catch (Exception e) {

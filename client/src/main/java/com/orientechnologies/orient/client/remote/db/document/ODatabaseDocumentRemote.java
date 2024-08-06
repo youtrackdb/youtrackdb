@@ -321,14 +321,18 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
   }
 
   private void checkAndSendTransaction() {
+
     if (this.currentTx.isActive() && ((OTransactionOptimistic) this.currentTx).isChanged()) {
+      var optimistic = (OTransactionOptimistic) this.currentTx;
+
       if (((OTransactionOptimistic) this.getTransaction()).isAlreadyCleared()) {
-        storage.reBeginTransaction(this, (OTransactionOptimistic) this.currentTx);
+        storage.reBeginTransaction(this, optimistic);
       } else {
-        storage.beginTransaction(this, (OTransactionOptimistic) this.currentTx);
+        storage.beginTransaction(this, optimistic);
       }
-      ((OTransactionOptimistic) this.currentTx).resetChangesTracking();
-      ((OTransactionOptimistic) this.currentTx).setSentToServer(true);
+
+      optimistic.resetChangesTracking();
+      optimistic.setSentToServer(true);
     }
   }
 
@@ -339,7 +343,12 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
   @Override
   public ODatabaseDocumentRemote begin() {
     super.begin();
-    storage.beginTransaction(this, (OTransactionOptimistic) this.currentTx);
+
+    var optimistic = (OTransactionOptimistic) this.currentTx;
+    storage.beginTransaction(this, optimistic);
+
+    optimistic.resetChangesTracking();
+    optimistic.setSentToServer(true);
 
     return this;
   }

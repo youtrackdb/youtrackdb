@@ -9,6 +9,7 @@ import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.message.*;
+import com.orientechnologies.orient.client.remote.message.tx.ORecordOperationRequest;
 import com.orientechnologies.orient.core.OConstants;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.command.OCommandResultListener;
@@ -1383,7 +1384,17 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
           tx.getId(), serverTransaction.getTxGeneratedRealRecordIdMap());
     }
 
-    database.begin(new OTransactionOptimisticServer(database, request.getTxId()));
+    var serverTransaction =
+        doExecuteBeginTransaction(request.getTxId(), database, recordOperations);
+    return new OBeginTransactionResponse(
+        tx.getId(), serverTransaction.getTxGeneratedRealRecordIdMap());
+  }
+
+  private static OTransactionOptimisticServer doExecuteBeginTransaction(
+      int txId,
+      ODatabaseDocumentInternal database,
+      List<ORecordOperationRequest> recordOperations) {
+    database.begin(new OTransactionOptimisticServer(database, txId));
     var serverTransaction = (OTransactionOptimisticServer) database.getTransaction();
 
     try {
@@ -1393,9 +1404,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
           ? (OOfflineClusterException) e.getCause()
           : e;
     }
-
-    return new OBeginTransactionResponse(
-        tx.getId(), serverTransaction.getTxGeneratedRealRecordIdMap());
+    return serverTransaction;
   }
 
   @Override
@@ -1411,8 +1420,9 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     var tx = database.getTransaction();
 
     if (!tx.isActive()) {
-      throw new ODatabaseException("There is no active transaction on server.");
+      tx = doExecuteBeginTransaction(request.getTxId(), database, recordOperations);
     }
+
     if (tx.getId() != request.getTxId()) {
       throw new ODatabaseException(
           "Invalid transaction id, expected " + tx.getId() + " but received " + request.getTxId());
@@ -1487,8 +1497,9 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     var tx = database.getTransaction();
 
     if (!tx.isActive()) {
-      throw new ODatabaseException("There is no active transaction on server.");
+      tx = doExecuteBeginTransaction(request.getTxId(), database, recordOperations);
     }
+
     if (tx.getId() != request.getTxId()) {
       throw new ODatabaseException(
           "Invalid transaction id, expected " + tx.getId() + " but received " + request.getTxId());

@@ -2235,7 +2235,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   @Override
   public <T> T computeInTx(Supplier<T> supplier) {
     activateOnCurrentThread();
-
     var ok = false;
     begin();
     try {
