@@ -19,7 +19,6 @@
  */
 package com.orientechnologies.orient.core.record.impl;
 
-import com.orientechnologies.orient.core.db.document.RecordListenersManager;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeTimeLine;
 import com.orientechnologies.orient.core.db.record.OTrackedMultiValue;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
@@ -38,7 +37,6 @@ public class ODocumentEntry {
   public Object original;
   public OType type;
   public OProperty property;
-  public RecordListenersManager.RecordListener recordDeletionListener;
   private boolean changed = false;
   private boolean exists = true;
   private boolean created = false;

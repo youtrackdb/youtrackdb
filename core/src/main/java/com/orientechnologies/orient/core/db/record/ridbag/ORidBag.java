@@ -95,6 +95,7 @@ public class ORidBag
         OTrackedMultiValue<OIdentifiable, OIdentifiable>,
         OCollection<OIdentifiable>,
         ORecordElement {
+
   private ORidBagDelegate delegate;
   private ORecordId ownerRecord;
   private String fieldName;
@@ -166,7 +167,7 @@ public class ORidBag
    *
    * @param identifiable Object to check.
    * @return true if ridbag contains at leas one instance with the same rid as passed in
-   *     identifiable.
+   * identifiable.
    */
   public boolean contains(OIdentifiable identifiable) {
     return delegate.contains(identifiable);
@@ -240,7 +241,9 @@ public class ORidBag
   }
 
   public boolean isToSerializeEmbedded() {
-    if (isEmbedded()) return true;
+    if (isEmbedded()) {
+      return true;
+    }
     if (getOwner() instanceof ORecord && !((ORecord) getOwner()).getIdentity().isPersistent()) {
       return true;
     }
@@ -404,7 +407,7 @@ public class ORidBag
   @Override
   public Object returnOriginalState(
       List<OMultiValueChangeEvent<OIdentifiable, OIdentifiable>> multiValueChangeEvents) {
-    return delegate.returnOriginalState(multiValueChangeEvents);
+    return new ORidBag((ORidBagDelegate) delegate.returnOriginalState(multiValueChangeEvents));
   }
 
   @Override
@@ -464,7 +467,9 @@ public class ORidBag
     }
   }
 
-  /** IMPORTANT! Only for internal usage. */
+  /**
+   * IMPORTANT! Only for internal usage.
+   */
   public boolean tryMerge(final ORidBag otherValue, boolean iMergeSingleItemsOfMultiValueFields) {
     if (!isEmbedded() && !otherValue.isEmbedded()) {
       final OSBTreeRidBag thisTree = (OSBTreeRidBag) delegate;

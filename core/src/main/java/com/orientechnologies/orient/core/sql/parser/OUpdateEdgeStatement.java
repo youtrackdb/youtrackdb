@@ -42,7 +42,6 @@ public class OUpdateEdgeStatement extends OUpdateStatement {
     result.returnAfter = returnAfter;
     result.returnProjection = returnProjection == null ? null : returnProjection.copy();
     result.whereClause = whereClause == null ? null : whereClause.copy();
-    result.lockRecord = lockRecord;
     result.limit = limit == null ? null : limit.copy();
     result.timeout = timeout == null ? null : timeout.copy();
     return result;

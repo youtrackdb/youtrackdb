@@ -2,7 +2,6 @@ package com.orientechnologies.orient.core.db.document;
 
 import static com.orientechnologies.orient.core.db.document.ODatabaseDocumentTxInternal.closeAllOnShutdown;
 
-import com.orientechnologies.common.concur.lock.OLockException;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.cache.OLocalRecordCache;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
@@ -24,13 +23,11 @@ import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.OrientDBConfigBuilder;
 import com.orientechnologies.orient.core.db.OrientDBInternal;
-import com.orientechnologies.orient.core.db.document.RecordListenersManager.RecordListener;
 import com.orientechnologies.orient.core.db.record.OCurrentStorageComponentsFactory;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.dictionary.ODictionary;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OTransactionException;
 import com.orientechnologies.orient.core.hook.ORecordHook;
 import com.orientechnologies.orient.core.id.ORID;
@@ -52,6 +49,7 @@ import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.record.impl.OBlob;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.OEdgeInternal;
 import com.orientechnologies.orient.core.record.impl.ORecordBytes;
 import com.orientechnologies.orient.core.serialization.serializer.binary.OBinarySerializerFactory;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
@@ -59,15 +57,12 @@ import com.orientechnologies.orient.core.serialization.serializer.record.ORecord
 import com.orientechnologies.orient.core.shutdown.OShutdownHandler;
 import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
-import com.orientechnologies.orient.core.storage.ORecordCallback;
 import com.orientechnologies.orient.core.storage.ORecordMetadata;
 import com.orientechnologies.orient.core.storage.OStorage;
-import com.orientechnologies.orient.core.storage.OStorage.LOCKING_STRATEGY;
 import com.orientechnologies.orient.core.storage.OStorageInfo;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
 import com.orientechnologies.orient.core.tx.OTransaction;
-import com.orientechnologies.orient.core.tx.OTransactionAbstract;
 import com.orientechnologies.orient.core.tx.OTransactionInternal;
 import com.orientechnologies.orient.core.util.OURLConnection;
 import com.orientechnologies.orient.core.util.OURLHelper;
@@ -88,16 +83,15 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-/** Created by tglman on 20/07/16. @Deprecated use {@link OrientDB} instead. */
+/**
+ * Created by tglman on 20/07/16. @Deprecated use {@link OrientDB} instead.
+ */
 @Deprecated
 public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
-
-  private final RecordListenersManager recordDeleteListenersManager = new RecordListenersManager();
 
   protected static ConcurrentMap<String, OrientDBInternal> embedded = new ConcurrentHashMap<>();
   protected static ConcurrentMap<String, OrientDBInternal> remote = new ConcurrentHashMap<>();
@@ -240,14 +234,6 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
     this.ownerProtection = true;
   }
 
-  public static ORecordSerializer getDefaultSerializer() {
-    return ODatabaseDocumentAbstract.getDefaultSerializer();
-  }
-
-  public static void setDefaultSerializer(ORecordSerializer defaultSerializer) {
-    ODatabaseDocumentAbstract.setDefaultSerializer(defaultSerializer);
-  }
-
   @Override
   public OCurrentStorageComponentsFactory getStorageVersions() {
     if (internal == null) {
@@ -287,14 +273,6 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
   }
 
   @Override
-  public <RET extends ORecord> RET loadIfVersionIsNotLatest(
-      ORID rid, int recordVersion, String fetchPlan, boolean ignoreCache)
-      throws ORecordNotFoundException {
-    checkOpenness();
-    return internal.loadIfVersionIsNotLatest(rid, recordVersion, fetchPlan, ignoreCache);
-  }
-
-  @Override
   public void reloadUser() {
     checkOpenness();
     internal.reloadUser();
@@ -314,36 +292,23 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
       String fetchPlan,
       boolean ignoreCache,
       boolean loadTombstones,
-      LOCKING_STRATEGY lockingStrategy,
       RecordReader recordReader) {
     checkOpenness();
     return internal.executeReadRecord(
-        rid,
-        iRecord,
-        recordVersion,
-        fetchPlan,
-        ignoreCache,
-        loadTombstones,
-        lockingStrategy,
-        recordReader);
+        rid, iRecord, recordVersion, fetchPlan, ignoreCache, loadTombstones, recordReader);
   }
 
   @Override
   public void executeDeleteRecord(
-      OIdentifiable record,
-      int iVersion,
-      boolean iRequired,
-      OPERATION_MODE iMode,
-      boolean prohibitTombstones) {
+      OIdentifiable record, int iVersion, boolean iRequired, boolean prohibitTombstones) {
     checkOpenness();
-    internal.executeDeleteRecord(record, iVersion, iRequired, iMode, prohibitTombstones);
+    internal.executeDeleteRecord(record, iVersion, iRequired, prohibitTombstones);
   }
 
   @Override
-  public void setDefaultTransactionMode(
-      Map<ORID, OTransactionAbstract.LockedRecordMetadata> noTxLocks) {
+  public void setDefaultTransactionMode() {
     checkOpenness();
-    internal.setDefaultTransactionMode(noTxLocks);
+    internal.setDefaultTransactionMode();
   }
 
   @Override
@@ -357,17 +322,6 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
     checkOpenness();
     internal.registerHook(iHookImpl);
     return (DB) this;
-  }
-
-  @Override
-  public void registerRecordDeletionListener(
-      ORecord record, RecordListenersManager.RecordListener listener) {
-    recordDeleteListenersManager.addRecordListener(record, listener);
-  }
-
-  @Override
-  public void removeRecordDeletionListener(ORecord record, RecordListener listener) {
-    recordDeleteListenersManager.removeRecordListener(record, listener);
   }
 
   @Override
@@ -544,15 +498,6 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
   }
 
   @Override
-  public void triggerRecordDeletionListeners(ORecord record) {
-    if (internal == null) {
-      return;
-    }
-
-    internal.triggerRecordDeletionListeners(record);
-  }
-
-  @Override
   public ORecordIteratorClass<ODocument> browseClass(String iClassName) {
     checkOpenness();
     return internal.browseClass(iClassName);
@@ -594,7 +539,7 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
   }
 
   @Override
-  public OEdge newEdge(OVertex from, OVertex to, String type) {
+  public OEdgeInternal newEdge(OVertex from, OVertex to, String type) {
     checkOpenness();
     return internal.newEdge(from, to, type);
   }
@@ -609,6 +554,13 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
   public OElement newElement() {
     checkOpenness();
     return internal.newInstance();
+  }
+
+  @Override
+  public OEdgeInternal addLightweightEdge(OVertex from, OVertex to, String className) {
+    checkOpenness();
+
+    return internal.addLightweightEdge(from, to, className);
   }
 
   @Override
@@ -633,9 +585,8 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
     return internal.isUseLightweightEdges();
   }
 
-  @Deprecated
   public void setUseLightweightEdges(boolean b) {
-    throw new UnsupportedOperationException("Creation of lightweight edges is not supported");
+    internal.setUseLightweightEdges(b);
   }
 
   @Override
@@ -644,7 +595,9 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
     return internal.newInstance();
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   @Deprecated
   public ODictionary<ORecord> getDictionary() {
@@ -717,34 +670,9 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
   }
 
   @Override
-  public <RET extends ORecord> RET save(
-      ORecord iObject,
-      OPERATION_MODE iMode,
-      boolean iForceCreate,
-      ORecordCallback<? extends Number> iRecordCreatedCallback,
-      ORecordCallback<Integer> iRecordUpdatedCallback) {
-    checkOpenness();
-    return internal.save(
-        iObject, iMode, iForceCreate, iRecordCreatedCallback, iRecordUpdatedCallback);
-  }
-
-  @Override
   public <RET extends ORecord> RET save(ORecord iObject, String iClusterName) {
     checkOpenness();
     return internal.save(iObject, iClusterName);
-  }
-
-  @Override
-  public <RET extends ORecord> RET save(
-      ORecord iObject,
-      String iClusterName,
-      OPERATION_MODE iMode,
-      boolean iForceCreate,
-      ORecordCallback<? extends Number> iRecordCreatedCallback,
-      ORecordCallback<Integer> iRecordUpdatedCallback) {
-    checkOpenness();
-    return internal.save(
-        iObject, iClusterName, iMode, iForceCreate, iRecordCreatedCallback, iRecordUpdatedCallback);
   }
 
   @Override
@@ -1155,9 +1083,8 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
 
   @Override
   public void close() {
-    recordDeleteListenersManager.clear();
-
     clearOwner();
+
     if (internal != null) {
       delegateStorage = internal.getStorage();
       internal.close();
@@ -1405,8 +1332,7 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
     return new ORecordBytes();
   }
 
-  @Deprecated
-  public OEdge newLightweightEdge(String iClassName, OVertex from, OVertex to) {
+  public OEdgeInternal newLightweightEdge(String iClassName, OVertex from, OVertex to) {
     checkOpenness();
     return internal.newLightweightEdge(iClassName, from, to);
   }
@@ -1676,15 +1602,8 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
     internal.internalClose(true);
   }
 
-  public ORecord saveAll(
-      ORecord iRecord,
-      String iClusterName,
-      OPERATION_MODE iMode,
-      boolean iForceCreate,
-      ORecordCallback<? extends Number> iRecordCreatedCallback,
-      ORecordCallback<Integer> iRecordUpdatedCallback) {
-    return internal.saveAll(
-        iRecord, iClusterName, iMode, iForceCreate, iRecordCreatedCallback, iRecordUpdatedCallback);
+  public ORecord saveAll(ORecord iRecord, String iClusterName) {
+    return internal.saveAll(iRecord, iClusterName);
   }
 
   @Override
@@ -1695,35 +1614,6 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
   @Override
   public OView getViewFromCluster(int cluster) {
     return internal.getViewFromCluster(cluster);
-  }
-
-  @Override
-  public void internalLockRecord(OIdentifiable iRecord, OStorage.LOCKING_STRATEGY lockingStrategy) {
-    internal.internalLockRecord(iRecord, lockingStrategy);
-  }
-
-  @Override
-  public void internalUnlockRecord(OIdentifiable iRecord) {
-    internal.internalUnlockRecord(iRecord);
-  }
-
-  @Override
-  public <RET extends ORecord> RET lock(ORID recordId) throws OLockException {
-    checkOpenness();
-    return internal.lock(recordId);
-  }
-
-  @Override
-  public <RET extends ORecord> RET lock(ORID recordId, long timeout, TimeUnit timeoutUnit)
-      throws OLockException {
-    checkOpenness();
-    return internal.lock(recordId, timeout, timeoutUnit);
-  }
-
-  @Override
-  public void unlock(ORID recordId) throws OLockException {
-    checkOpenness();
-    internal.unlock(recordId);
   }
 
   @Override

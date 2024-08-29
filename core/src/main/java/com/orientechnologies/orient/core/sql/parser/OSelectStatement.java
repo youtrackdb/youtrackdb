@@ -15,7 +15,6 @@ import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.executor.OSelectExecutionPlanner;
-import com.orientechnologies.orient.core.storage.OStorage;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,8 +35,6 @@ public class OSelectStatement extends OStatement {
   protected OSkip skip;
 
   protected OLimit limit;
-
-  protected OStorage.LOCKING_STRATEGY lockRecord = null;
 
   protected OFetchPlan fetchPlan;
 
@@ -113,14 +110,6 @@ public class OSelectStatement extends OStatement {
     this.limit = limit;
   }
 
-  public OStorage.LOCKING_STRATEGY getLockRecord() {
-    return lockRecord;
-  }
-
-  public void setLockRecord(OStorage.LOCKING_STRATEGY lockRecord) {
-    this.lockRecord = lockRecord;
-  }
-
   public OFetchPlan getFetchPlan() {
     return fetchPlan;
   }
@@ -180,24 +169,6 @@ public class OSelectStatement extends OStatement {
 
     if (limit != null) {
       limit.toString(params, builder);
-    }
-
-    if (lockRecord != null) {
-      builder.append(" LOCK ");
-      switch (lockRecord) {
-        case DEFAULT:
-          builder.append("DEFAULT");
-          break;
-        case EXCLUSIVE_LOCK:
-          builder.append("RECORD");
-          break;
-        case SHARED_LOCK:
-          builder.append("SHARED");
-          break;
-        case NONE:
-          builder.append("NONE");
-          break;
-      }
     }
 
     if (fetchPlan != null) {
@@ -261,24 +232,6 @@ public class OSelectStatement extends OStatement {
 
     if (limit != null) {
       limit.toGenericStatement(builder);
-    }
-
-    if (lockRecord != null) {
-      builder.append(" LOCK ");
-      switch (lockRecord) {
-        case DEFAULT:
-          builder.append("DEFAULT");
-          break;
-        case EXCLUSIVE_LOCK:
-          builder.append("RECORD");
-          break;
-        case SHARED_LOCK:
-          builder.append("SHARED");
-          break;
-        case NONE:
-          builder.append("NONE");
-          break;
-      }
     }
 
     if (fetchPlan != null) {
@@ -412,7 +365,6 @@ public class OSelectStatement extends OStatement {
     result.unwind = unwind == null ? null : unwind.copy();
     result.skip = skip == null ? null : skip.copy();
     result.limit = limit == null ? null : limit.copy();
-    result.lockRecord = lockRecord;
     result.fetchPlan = fetchPlan == null ? null : fetchPlan.copy();
     result.letClause = letClause == null ? null : letClause.copy();
     result.timeout = timeout == null ? null : timeout.copy();
@@ -439,7 +391,6 @@ public class OSelectStatement extends OStatement {
     if (unwind != null ? !unwind.equals(that.unwind) : that.unwind != null) return false;
     if (skip != null ? !skip.equals(that.skip) : that.skip != null) return false;
     if (limit != null ? !limit.equals(that.limit) : that.limit != null) return false;
-    if (lockRecord != that.lockRecord) return false;
     if (fetchPlan != null ? !fetchPlan.equals(that.fetchPlan) : that.fetchPlan != null)
       return false;
     if (letClause != null ? !letClause.equals(that.letClause) : that.letClause != null)
@@ -461,7 +412,6 @@ public class OSelectStatement extends OStatement {
     result = 31 * result + (unwind != null ? unwind.hashCode() : 0);
     result = 31 * result + (skip != null ? skip.hashCode() : 0);
     result = 31 * result + (limit != null ? limit.hashCode() : 0);
-    result = 31 * result + (lockRecord != null ? lockRecord.hashCode() : 0);
     result = 31 * result + (fetchPlan != null ? fetchPlan.hashCode() : 0);
     result = 31 * result + (letClause != null ? letClause.hashCode() : 0);
     result = 31 * result + (timeout != null ? timeout.hashCode() : 0);
@@ -551,9 +501,6 @@ public class OSelectStatement extends OStatement {
     if (limit != null) {
       result.setProperty("limit", limit.serialize());
     }
-    if (lockRecord != null) {
-      result.setProperty("lockRecord", lockRecord.toString());
-    }
     if (fetchPlan != null) {
       result.setProperty("fetchPlan", fetchPlan.serialize());
     }
@@ -600,9 +547,6 @@ public class OSelectStatement extends OStatement {
     if (fromResult.getProperty("limit") != null) {
       limit = new OLimit(-1);
       limit.deserialize(fromResult.getProperty("limit"));
-    }
-    if (fromResult.getProperty("lockRecord") != null) {
-      lockRecord = OStorage.LOCKING_STRATEGY.valueOf(fromResult.getProperty("lockRecord"));
     }
     if (fromResult.getProperty("fetchPlan") != null) {
       fetchPlan = new OFetchPlan(-1);

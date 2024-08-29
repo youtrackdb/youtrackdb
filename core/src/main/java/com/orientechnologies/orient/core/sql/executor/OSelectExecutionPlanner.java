@@ -109,7 +109,6 @@ public class OSelectExecutionPlanner {
     info.unwind = this.statement.getUnwind() == null ? null : this.statement.getUnwind().copy();
     info.skip = this.statement.getSkip();
     info.limit = this.statement.getLimit();
-    info.lockRecord = this.statement.getLockRecord();
     info.timeout = this.statement.getTimeout() == null ? null : this.statement.getTimeout().copy();
     if (info.timeout == null
         && ctx.getDatabase().getConfiguration().getValueAsLong(OGlobalConfiguration.COMMAND_TIMEOUT)
@@ -166,8 +165,6 @@ public class OSelectExecutionPlanner {
     // TODO optimization: in most cases the projections can be calculated on remote nodes
     buildDistributedExecutionPlan(result, info, ctx, enableProfiling);
 
-    handleLockRecord(result, info, ctx, enableProfiling);
-
     handleProjectionsBlock(result, info, ctx, enableProfiling);
 
     if (info.timeout != null) {
@@ -183,16 +180,6 @@ public class OSelectExecutionPlanner {
           statement.getOriginalStatement(), result, (ODatabaseDocumentInternal) ctx.getDatabase());
     }
     return result;
-  }
-
-  private void handleLockRecord(
-      OSelectExecutionPlan result,
-      QueryPlanningInfo info,
-      OCommandContext ctx,
-      boolean enableProfiling) {
-    if (info.lockRecord != null) {
-      result.chain(new LockRecordStep(info.lockRecord, ctx, enableProfiling));
-    }
   }
 
   public static void handleProjectionsBlock(
@@ -1888,7 +1875,27 @@ public class OSelectExecutionPlanner {
     if (!info.orderApplied
         && info.orderBy != null
         && info.orderBy.getItems() != null
-        && info.orderBy.getItems().size() > 0) {
+        && !info.orderBy.getItems().isEmpty()) {
+
+      if (info.target != null
+          && info.target.getItem().getIdentifier() != null
+          && info.target.getItem().getIdentifier().getValue() != null) {
+        OClass targetClass =
+            getSchemaFromContext(ctx).getClass(info.target.getItem().getIdentifier().getValue());
+        if (targetClass != null) {
+          info.orderBy
+              .getItems()
+              .forEach(
+                  item -> {
+                    OProperty possibleEdgeProperty =
+                        targetClass.getProperty("out_" + item.getAlias());
+                    if (possibleEdgeProperty != null
+                        && possibleEdgeProperty.getType() == OType.LINKBAG) {
+                      item.setEdge(true);
+                    }
+                  });
+        }
+      }
       plan.chain(
           new OrderByStep(
               info.orderBy,

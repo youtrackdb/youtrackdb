@@ -21,7 +21,6 @@ package com.orientechnologies.orient.core.db.record;
 
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.storage.OStorage;
 import java.util.Comparator;
 
 /**
@@ -31,6 +30,7 @@ import java.util.Comparator;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OIdentifiable extends Comparable<OIdentifiable>, Comparator<OIdentifiable> {
+
   /**
    * Returns the record identity.
    *
@@ -44,12 +44,4 @@ public interface OIdentifiable extends Comparable<OIdentifiable>, Comparator<OId
    * @return ORecord instance
    */
   <T extends ORecord> T getRecord();
-
-  void lock(boolean iExclusive);
-
-  boolean isLocked();
-
-  OStorage.LOCKING_STRATEGY lockingStrategy();
-
-  void unlock();
 }

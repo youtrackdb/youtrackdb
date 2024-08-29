@@ -24,7 +24,6 @@ import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
@@ -40,7 +39,6 @@ import com.orientechnologies.orient.core.record.impl.OBlob;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.serialization.OSerializableStream;
-import com.orientechnologies.orient.core.storage.OStorage;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Element;
 import com.tinkerpop.blueprints.util.ElementHelper;
@@ -236,7 +234,7 @@ public abstract class OrientElement
     final OrientBaseGraph graph = getGraph();
     if (key.equals("_class"))
       return (T) ODocumentInternal.getImmutableSchemaClass(getRecord()).getName();
-    else if (key.equals("_version")) return (T) new Integer(getRecord().getVersion());
+    else if (key.equals("_version")) return (T) Integer.valueOf(getRecord().getVersion());
     else if (key.equals("_rid")) return (T) rawElement.getIdentity().toString();
 
     final ODocument record = getRecord();
@@ -342,48 +340,6 @@ public abstract class OrientElement
   @Override
   public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException {
     rawElement = (OIdentifiable) in.readObject();
-  }
-
-  /**
-   * (Blueprints Extension) Locks current Element to prevent concurrent access. If lock is
-   * exclusive, then no concurrent threads can read/write it. If the lock is shared, then concurrent
-   * threads can only read Element properties, but can't change them. Locks can be freed by
-   * calling @unlock or when the current transaction is closed (committed or rollbacked).
-   *
-   * @param iExclusive True = Exclusive Lock, False = Shared Lock
-   * @see #lock(boolean)
-   */
-  @Override
-  public void lock(final boolean iExclusive) {
-    ODatabaseRecordThreadLocal.instance()
-        .get()
-        .getTransaction()
-        .lockRecord(
-            this,
-            iExclusive
-                ? OStorage.LOCKING_STRATEGY.EXCLUSIVE_LOCK
-                : OStorage.LOCKING_STRATEGY.SHARED_LOCK);
-  }
-
-  /** (Blueprints Extension) Checks if an Element is locked */
-  @Override
-  public boolean isLocked() {
-    return ODatabaseRecordThreadLocal.instance().get().getTransaction().isLockedRecord(this);
-  }
-
-  @Override
-  public OStorage.LOCKING_STRATEGY lockingStrategy() {
-    return ODatabaseRecordThreadLocal.instance().get().getTransaction().lockingStrategy(this);
-  }
-
-  /**
-   * (Blueprints Extension) Unlocks previous acquired @lock against the Element.
-   *
-   * @see #lock(boolean)
-   */
-  @Override
-  public void unlock() {
-    ODatabaseRecordThreadLocal.instance().get().getTransaction().unlockRecord(this);
   }
 
   /** (Blueprints Extension) Returns the record's identity. */

@@ -6,10 +6,13 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabase.ATTRIBUTES;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.record.ODirection;
+import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.text.Collator;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 
@@ -27,6 +30,7 @@ public class OOrderByItem {
   // calculated at run time
   private OCollate collateStrategy;
   private Collator stringCollator;
+  private boolean isEdge;
 
   public String getAlias() {
     return alias;
@@ -93,8 +97,20 @@ public class OOrderByItem {
       aVal = a.getProperty(recordAttr);
       bVal = b.getProperty(recordAttr);
     } else if (alias != null) {
-      aVal = a.getProperty(alias);
-      bVal = b.getProperty(alias);
+      if (isEdge) {
+        OVertex aElement = (OVertex) a.asElement();
+        Iterator<OVertex> aIter =
+            aElement != null ? aElement.getVertices(ODirection.OUT, alias).iterator() : null;
+        aVal = (aIter != null && aIter.hasNext()) ? aIter.next() : null;
+
+        OVertex bElement = (OVertex) b.asElement();
+        Iterator<OVertex> bIter =
+            bElement != null ? bElement.getVertices(ODirection.OUT, alias).iterator() : null;
+        bVal = (bIter != null && bIter.hasNext()) ? bIter.next() : null;
+      } else {
+        aVal = a.getProperty(alias);
+        bVal = b.getProperty(alias);
+      }
     }
     if (aVal == null && bVal == null) {
       aVal = a.getMetadata(alias);
@@ -182,6 +198,7 @@ public class OOrderByItem {
     result.rid = rid == null ? null : rid.copy();
     result.type = type;
     result.collate = this.collate == null ? null : collate.copy();
+    result.setEdge(this.isEdge);
     return result;
   }
 
@@ -297,5 +314,9 @@ public class OOrderByItem {
       builder.append(" COLLATE ");
       collate.toGenericStatement(builder);
     }
+  }
+
+  public void setEdge(boolean isEdge) {
+    this.isEdge = isEdge;
   }
 }

@@ -41,8 +41,6 @@ public interface OBinaryRequestExecutor {
 
   OBinaryResponse executeRecordExists(ORecordExistsRequest request);
 
-  OBinaryResponse executeReadRecordIfNotLastest(OReadRecordIfVersionIsNotLatestRequest request);
-
   OBinaryResponse executeCreateRecord(OCreateRecordRequest request);
 
   OBinaryResponse executeUpdateRecord(OUpdateRecordRequest request);
@@ -141,12 +139,6 @@ public interface OBinaryRequestExecutor {
   OBinaryResponse executeSubscribeFunctions(OSubscribeFunctionsRequest request);
 
   OBinaryResponse executeSubscribeSequences(OSubscribeSequencesRequest request);
-
-  OBinaryResponse executeExperimental(OExperimentalRequest request);
-
-  OBinaryResponse executeLockRecord(OLockRecordRequest request);
-
-  OBinaryResponse executeUnlockRecord(OUnlockRecordRequest request);
 
   OBinaryResponse executeBeginTransaction38(OBeginTransaction38Request request);
 

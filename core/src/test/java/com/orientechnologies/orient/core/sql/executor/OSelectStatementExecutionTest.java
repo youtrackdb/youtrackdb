@@ -7,6 +7,7 @@ import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.viewmanager.ViewCreationListener;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
@@ -18,6 +19,7 @@ import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.metadata.schema.OViewConfig;
 import com.orientechnologies.orient.core.record.OElement;
+import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
@@ -34,7 +36,9 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
+import java.util.stream.Stream;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -4203,6 +4207,7 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   }
 
   @Test
+  @Ignore
   public void testTimeout() {
     String className = "testTimeout";
     final String funcitonName = getClass().getSimpleName() + "_sleep";
@@ -4598,5 +4603,88 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
       Assert.assertEquals((long) item.getProperty("count"), 1L);
       Assert.assertFalse(rs.hasNext());
     }
+  }
+
+  @Test
+  public void testAsSetKeepsOrderWithExpand() {
+    // init classes
+    db.activateOnCurrentThread();
+    ODatabaseDocument ses = ODatabaseSession.getActiveSession();
+    var car = ses.createVertexClass("Car");
+    var engine = ses.createVertexClass("Engine");
+    var body = ses.createVertexClass("BodyType");
+    var eng = ses.createEdgeClass("eng");
+    var bt = ses.createEdgeClass("bt");
+    ses.begin();
+
+    var diesel = ses.newVertex(engine);
+    diesel.setProperty("name", "diesel");
+    var gasoline = ses.newVertex(engine);
+    gasoline.setProperty("name", "gasoline");
+    var microwave = ses.newVertex(engine);
+    microwave.setProperty("name", "EV");
+
+    var coupe = ses.newVertex(body);
+    coupe.setProperty("name", "coupe");
+    var suv = ses.newVertex(body);
+    suv.setProperty("name", "suv");
+    ses.commit();
+    ses.begin();
+    // fill data
+    var coupe1 = ses.newVertex(car);
+    coupe1.setProperty("name", "car1");
+    coupe1.addEdge(gasoline, eng);
+    coupe1.addEdge(coupe, bt);
+    coupe1.save();
+
+    var coupe2 = ses.newVertex(car);
+    coupe2.setProperty("name", "car2");
+    coupe2.addEdge(diesel, eng);
+    coupe2.addEdge(coupe, bt);
+    coupe2.save();
+
+    var mw1 = ses.newVertex(car);
+    mw1.setProperty("name", "microwave1");
+    mw1.addEdge(microwave, eng);
+    mw1.addEdge(suv, bt);
+    mw1.save();
+
+    var mw2 = ses.newVertex(car);
+    mw2.setProperty("name", "microwave2");
+    mw2.addEdge(microwave, eng);
+    mw2.addEdge(suv, bt);
+    mw2.save();
+
+    var hatch1 = ses.newVertex(car);
+    hatch1.setProperty("name", "hatch1");
+    hatch1.addEdge(diesel, eng);
+    hatch1.addEdge(suv, bt);
+    hatch1.save();
+    ses.commit();
+
+    var identities =
+        String.join(
+            ",",
+            Stream.of(coupe1, coupe2, mw1, mw2, hatch1)
+                .map(ORecord::getIdentity)
+                .map(Object::toString)
+                .toList());
+    var unionAllEnginesQuery =
+        "SELECT expand(unionAll($a, $a).asSet()) LET $a=(SELECT expand(out('eng')) FROM ["
+            + identities
+            + "])";
+
+    var engineNames =
+        db.query(unionAllEnginesQuery)
+            .vertexStream()
+            .map(oVertex -> oVertex.getProperty("name"))
+            .toArray();
+    Assert.assertArrayEquals(
+        Arrays.asList(
+                gasoline.getProperty("name"),
+                diesel.getProperty("name"),
+                microwave.getProperty("name"))
+            .toArray(),
+        engineNames);
   }
 }

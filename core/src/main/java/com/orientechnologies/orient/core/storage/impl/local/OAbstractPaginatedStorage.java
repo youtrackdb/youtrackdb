@@ -55,7 +55,6 @@ import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.OrientDBInternal;
 import com.orientechnologies.orient.core.db.record.OCurrentStorageComponentsFactory;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
@@ -164,7 +163,6 @@ import com.orientechnologies.orient.core.storage.ridbag.sbtree.OIndexRIDContaine
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManagerShared;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeRidBag;
-import com.orientechnologies.orient.core.tx.OTransactionAbstract;
 import com.orientechnologies.orient.core.tx.OTransactionData;
 import com.orientechnologies.orient.core.tx.OTransactionId;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChanges;
@@ -205,7 +203,6 @@ import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -219,6 +216,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import java.util.zip.ZipOutputStream;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
@@ -267,7 +265,6 @@ public abstract class OAbstractPaginatedStorage
         OThreadPoolExecutors.newSingleThreadScheduledPool("Fuzzy Checkpoint", storageThreadGroup);
   }
 
-  private final Striped<Semaphore> lockManager = Striped.semaphore(1024, Integer.MAX_VALUE);
   protected volatile OSBTreeCollectionManagerShared sbTreeCollectionManager;
 
   /**
@@ -282,7 +279,7 @@ public abstract class OAbstractPaginatedStorage
   private final AtomicBoolean walVacuumInProgress = new AtomicBoolean();
 
   protected volatile OWriteAheadLog writeAheadLog;
-  private OStorageRecoverListener recoverListener;
+  @Nullable private OStorageRecoverListener recoverListener;
 
   protected volatile OReadCache readCache;
   protected volatile OWriteCache writeCache;
@@ -293,9 +290,6 @@ public abstract class OAbstractPaginatedStorage
   private volatile int defaultClusterId = -1;
   protected volatile OAtomicOperationsManager atomicOperationsManager;
   private volatile boolean wereNonTxOperationsPerformedInPreviousOpen;
-  private volatile boolean modificationLock;
-  private volatile boolean readLock;
-
   private final int id;
 
   private final Map<String, OBaseIndexEngine> indexEngineNameMap = new HashMap<>();
@@ -575,8 +569,6 @@ public abstract class OAbstractPaginatedStorage
                 "Cannot open the storage '" + name + "' because it does not exist in path: " + url);
           }
 
-          initLockingStrategy(contextConfiguration);
-
           readIv();
 
           initWalAndDiskCache(contextConfiguration);
@@ -742,17 +734,6 @@ public abstract class OAbstractPaginatedStorage
   @SuppressWarnings("unused")
   protected abstract byte[] getIv();
 
-  private void initLockingStrategy(final OContextConfiguration contextConfiguration) {
-    final String lockKind =
-        contextConfiguration.getValueAsString(OGlobalConfiguration.STORAGE_PESSIMISTIC_LOCKING);
-    if (OrientDBConfig.LOCK_TYPE_MODIFICATION.equals(lockKind)) {
-      modificationLock = true;
-    } else if (OrientDBConfig.LOCK_TYPE_READWRITE.equals(lockKind)) {
-      modificationLock = true;
-      readLock = true;
-    }
-  }
-
   /**
    * @inheritDoc
    */
@@ -840,7 +821,6 @@ public abstract class OAbstractPaginatedStorage
 
   private void checkRidBagsPresence(final OAtomicOperation operation) {
     for (final OCluster cluster : clusters) {
-      // FIXME: this should not be needed, no null clusters should be in the clusters list
       if (cluster != null) {
         final int clusterId = cluster.getId();
 
@@ -928,7 +908,6 @@ public abstract class OAbstractPaginatedStorage
     }
 
     uuid = UUID.randomUUID();
-    initLockingStrategy(contextConfiguration);
     initIv();
 
     initWalAndDiskCache(contextConfiguration);
@@ -1883,7 +1862,7 @@ public abstract class OAbstractPaginatedStorage
           finalClusterId = clusterId;
         }
         return new Iterator<>() {
-          private OClusterBrowsePage page;
+          @Nullable private OClusterBrowsePage page;
           private long lastPos = -1;
 
           @Override
@@ -1959,24 +1938,6 @@ public abstract class OAbstractPaginatedStorage
       final ORecordCallback<ORawBuffer> iCallback) {
     try {
       return new OStorageOperationResult<>(readRecord(rid, prefetchRecords));
-    } catch (final RuntimeException ee) {
-      throw logAndPrepareForRethrow(ee);
-    } catch (final Error ee) {
-      throw logAndPrepareForRethrow(ee, false);
-    } catch (final Throwable t) {
-      throw logAndPrepareForRethrow(t, false);
-    }
-  }
-
-  @Override
-  public final OStorageOperationResult<ORawBuffer> readRecordIfVersionIsNotLatest(
-      final ORecordId rid,
-      final String fetchPlan,
-      final boolean ignoreCache,
-      final int recordVersion)
-      throws ORecordNotFoundException {
-    try {
-      return new OStorageOperationResult<>(readRecordIfNotLatest(rid, recordVersion));
     } catch (final RuntimeException ee) {
       throw logAndPrepareForRethrow(ee);
     } catch (final Error ee) {
@@ -2333,24 +2294,6 @@ public abstract class OAbstractPaginatedStorage
       final List<ORecordOperation> result = new ArrayList<>(8);
       stateLock.readLock().lock();
       try {
-
-        if (modificationLock) {
-          final List<ORID> recordLocks = new ArrayList<>();
-          for (final ORecordOperation recordOperation : recordOperations) {
-            if (recordOperation.type == ORecordOperation.UPDATED
-                || recordOperation.type == ORecordOperation.DELETED) {
-              recordLocks.add(recordOperation.getRID());
-            }
-          }
-          final Set<ORID> locked = transaction.getLockedRecords();
-          if (locked != null) {
-            recordLocks.removeAll(locked);
-          }
-          Collections.sort(recordLocks);
-          for (final ORID rid : recordLocks) {
-            acquireWriteLock(rid);
-          }
-        }
         try {
           checkOpennessAndMigration();
 
@@ -2435,9 +2378,9 @@ public abstract class OAbstractPaginatedStorage
             }
           } finally {
             if (error != null) {
-              rollback(transaction, error);
+              rollback(error);
             } else {
-              endStorageTx(transaction, recordOperations);
+              endStorageTx();
             }
             this.transaction.set(null);
           }
@@ -2446,27 +2389,7 @@ public abstract class OAbstractPaginatedStorage
           database.getMetadata().clearThreadLocalSchemaSnapshot();
         }
       } finally {
-        try {
-          if (modificationLock) {
-            final List<ORID> recordLocks = new ArrayList<>();
-            for (final ORecordOperation recordOperation : recordOperations) {
-              if (recordOperation.type == ORecordOperation.UPDATED
-                  || recordOperation.type == ORecordOperation.DELETED) {
-                recordLocks.add(recordOperation.getRID());
-              }
-            }
-
-            final Set<ORID> locked = transaction.getLockedRecords();
-            if (locked != null) {
-              recordLocks.removeAll(locked);
-            }
-            for (final ORID rid : recordLocks) {
-              releaseWriteLock(rid);
-            }
-          }
-        } finally {
-          stateLock.readLock().unlock();
-        }
+        stateLock.readLock().unlock();
       }
 
       if (OLogManager.instance().isDebugEnabled()) {
@@ -3706,18 +3629,11 @@ public abstract class OAbstractPaginatedStorage
     return engine.hasRangeQuerySupport();
   }
 
-  private void rollback(final OTransactionInternal clientTx, final Throwable error)
-      throws IOException {
+  private void rollback(final Throwable error) throws IOException {
     assert transaction.get() != null;
     atomicOperationsManager.endAtomicOperation(error);
 
     assert atomicOperationsManager.getCurrentOperation() == null;
-
-    OTransactionAbstract.updateCacheFromEntries(
-        clientTx.getDatabase(),
-        clientTx.getRecordOperations(),
-        false,
-        clientTx.isUnloadCachedRecords());
 
     txRollback.increment();
   }
@@ -4319,118 +4235,6 @@ public abstract class OAbstractPaginatedStorage
     }
   }
 
-  public void acquireWriteLock(final ORID rid, final long timeout) {
-    if (!modificationLock) {
-      throw new ODatabaseException(
-          "Record write locks are off by configuration, set the configuration"
-              + " \"storage.pessimisticLock\" to \""
-              + OrientDBConfig.LOCK_TYPE_READWRITE
-              + "\" for enable them");
-    }
-
-    try {
-      if (timeout > 0) {
-        if (lockManager.get(rid).tryAcquire(Integer.MAX_VALUE, timeout, TimeUnit.MILLISECONDS)) {
-          throw new OStorageException("Timeout on acquiring lock for record " + rid);
-        }
-      } else {
-        lockManager.get(rid).acquire(Integer.MAX_VALUE);
-      }
-    } catch (final RuntimeException ee) {
-      throw logAndPrepareForRethrow(ee);
-    } catch (final Error ee) {
-      throw logAndPrepareForRethrow(ee);
-    } catch (final Throwable t) {
-      throw logAndPrepareForRethrow(t);
-    }
-  }
-
-  public final void acquireWriteLock(final ORID rid) {
-    if (!modificationLock) {
-      throw new ODatabaseException(
-          "Record write locks are off by configuration, set the configuration"
-              + " \"storage.pessimisticLock\" to \""
-              + OrientDBConfig.LOCK_TYPE_MODIFICATION
-              + "\" for enable them");
-    }
-
-    try {
-      lockManager.get(rid).acquire(Integer.MAX_VALUE);
-    } catch (final RuntimeException ee) {
-      throw logAndPrepareForRethrow(ee);
-    } catch (final Error ee) {
-      throw logAndPrepareForRethrow(ee);
-    } catch (final Throwable t) {
-      throw logAndPrepareForRethrow(t);
-    }
-  }
-
-  public final void releaseWriteLock(final ORID rid) {
-    try {
-      lockManager.get(rid).release(Integer.MAX_VALUE);
-    } catch (final RuntimeException ee) {
-      throw logAndPrepareForRethrow(ee);
-    } catch (final Error ee) {
-      throw logAndPrepareForRethrow(ee);
-    } catch (final Throwable t) {
-      throw logAndPrepareForRethrow(t);
-    }
-  }
-
-  public final void acquireReadLock(final ORID rid) {
-    if (!readLock) {
-      throw new ODatabaseException(
-          "Record read locks are off by configuration, set the configuration"
-              + " \"storage.pessimisticLock\" to \""
-              + OrientDBConfig.LOCK_TYPE_READWRITE
-              + "\" for enable them");
-    }
-
-    try {
-      lockManager.get(rid).acquire();
-    } catch (final RuntimeException ee) {
-      throw logAndPrepareForRethrow(ee);
-    } catch (final Error ee) {
-      throw logAndPrepareForRethrow(ee);
-    } catch (final Throwable t) {
-      throw logAndPrepareForRethrow(t);
-    }
-  }
-
-  public void acquireReadLock(final ORID rid, final long timeout) {
-    if (!readLock) {
-      throw new ODatabaseException(
-          "Record read locks are off by configuration, set the configuration"
-              + " \"storage.pessimisticLock\" to \""
-              + OrientDBConfig.LOCK_TYPE_READWRITE
-              + "\" for enable them");
-    }
-
-    try {
-      if (!lockManager.get(rid).tryAcquire(timeout, TimeUnit.MILLISECONDS)) {
-        throw new OStorageException("Timeout on acquiring lock for record " + rid);
-      }
-    } catch (final RuntimeException ee) {
-      throw logAndPrepareForRethrow(ee);
-    } catch (final Error ee) {
-      throw logAndPrepareForRethrow(ee);
-    } catch (final Throwable t) {
-      throw logAndPrepareForRethrow(t);
-    }
-  }
-
-  public final void releaseReadLock(final ORID rid) {
-    try {
-      lockManager.get(rid).release();
-    } catch (final RuntimeException ee) {
-      throw logAndPrepareForRethrow(ee);
-    } catch (final Error ee) {
-      throw logAndPrepareForRethrow(ee);
-    } catch (final Throwable t) {
-      throw logAndPrepareForRethrow(t);
-    }
-  }
-
   @Override
   public final ORecordConflictStrategy getRecordConflictStrategy() {
     return recordConflictStrategy;
@@ -4746,15 +4550,6 @@ public abstract class OAbstractPaginatedStorage
 
     stateLock.readLock().lock();
     try {
-
-      if (readLock) {
-        final ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
-        if (db == null
-            || !((OTransactionAbstract) db.getTransaction()).getLockedRecords().contains(rid)) {
-          acquireReadLock(rid);
-        }
-      }
-
       final ORawBuffer buff;
       checkOpennessAndMigration();
 
@@ -4762,17 +4557,7 @@ public abstract class OAbstractPaginatedStorage
       buff = doReadRecordIfNotLatest(cluster, rid, recordVersion);
       return buff;
     } finally {
-      try {
-        if (readLock) {
-          final ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
-          if (db == null
-              || !((OTransactionAbstract) db.getTransaction()).getLockedRecords().contains(rid)) {
-            releaseReadLock(rid);
-          }
-        }
-      } finally {
-        stateLock.readLock().unlock();
-      }
+      stateLock.readLock().unlock();
     }
   }
 
@@ -4804,14 +4589,6 @@ public abstract class OAbstractPaginatedStorage
     stateLock.readLock().lock();
     try {
       checkOpennessAndMigration();
-      if (readLock) {
-        final ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
-        if (db == null
-            || !((OTransactionAbstract) db.getTransaction()).getLockedRecords().contains(rid)) {
-          acquireReadLock(rid);
-        }
-      }
-
       final OCluster cluster;
       try {
         cluster = doGetAndCheckCluster(rid.getClusterId());
@@ -4820,17 +4597,7 @@ public abstract class OAbstractPaginatedStorage
       }
       return doReadRecord(cluster, rid, prefetchRecords);
     } finally {
-      try {
-        if (readLock) {
-          final ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
-          if (db == null
-              || !((OTransactionAbstract) db.getTransaction()).getLockedRecords().contains(rid)) {
-            releaseReadLock(rid);
-          }
-        }
-      } finally {
-        stateLock.readLock().unlock();
-      }
+      stateLock.readLock().unlock();
     }
   }
 
@@ -4861,14 +4628,6 @@ public abstract class OAbstractPaginatedStorage
     stateLock.readLock().lock();
     try {
       checkOpennessAndMigration();
-      if (readLock) {
-        final ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
-        if (db == null
-            || !((OTransactionAbstract) db.getTransaction()).getLockedRecords().contains(rid)) {
-          acquireReadLock(rid);
-        }
-      }
-
       final OCluster cluster;
       try {
         cluster = doGetAndCheckCluster(rid.getClusterId());
@@ -4877,28 +4636,14 @@ public abstract class OAbstractPaginatedStorage
       }
       return doRecordExists(cluster, rid);
     } finally {
-      try {
-        if (readLock) {
-          final ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
-          if (db == null
-              || !((OTransactionAbstract) db.getTransaction()).getLockedRecords().contains(rid)) {
-            releaseReadLock(rid);
-          }
-        }
-      } finally {
-        stateLock.readLock().unlock();
-      }
+      stateLock.readLock().unlock();
     }
   }
 
-  private void endStorageTx(
-      final OTransactionInternal txi, final Collection<ORecordOperation> recordOperations)
-      throws IOException {
+  private void endStorageTx() throws IOException {
     atomicOperationsManager.endAtomicOperation(null);
     assert atomicOperationsManager.getCurrentOperation() == null;
 
-    OTransactionAbstract.updateCacheFromEntries(
-        txi.getDatabase(), recordOperations, true, txi.isUnloadCachedRecords());
     txCommit.increment();
   }
 
@@ -5657,8 +5402,6 @@ public abstract class OAbstractPaginatedStorage
       }
 
       switch (txEntry.type) {
-        case ORecordOperation.LOADED:
-          break;
         case ORecordOperation.CREATED:
           {
             final byte[] stream;
@@ -5723,7 +5466,6 @@ public abstract class OAbstractPaginatedStorage
                     ORecordInternal.getRecordType(rec),
                     null,
                     cluster);
-            txEntry.setResultData(updateRes.getResult());
             ORecordInternal.setVersion(rec, updateRes.getResult());
             if (updateRes.getModifiedRecordContent() != null) {
               ORecordInternal.fill(
@@ -5734,8 +5476,13 @@ public abstract class OAbstractPaginatedStorage
           }
         case ORecordOperation.DELETED:
           {
-            if (rec instanceof ODocument) {
-              ORidBagDeleter.deleteAllRidBags((ODocument) rec);
+            if (rec instanceof ODocument doc) {
+              doc.incrementLoading();
+              try {
+                ORidBagDeleter.deleteAllRidBags(doc);
+              } finally {
+                doc.decrementLoading();
+              }
             }
             doDeleteRecord(atomicOperation, rid, rec.getVersion(), cluster);
             break;

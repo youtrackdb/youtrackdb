@@ -23,7 +23,6 @@ package com.orientechnologies.orient.core.db;
 import com.orientechnologies.orient.core.enterprise.OEnterpriseEndpoint;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.OToken;
-import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.OStorageInfo;
 import java.util.*;
@@ -40,14 +39,16 @@ public interface ODatabaseInternal<T> extends ODatabase<T> {
 
   OStorageInfo getStorageInfo();
 
-  /** Set user for current database instance. */
+  /**
+   * Set user for current database instance.
+   */
   void setUser(OSecurityUser user);
 
   /**
    * Internal only: replace the storage with a new one.
    *
    * @param iNewStorage The new storage to use. Usually it's a wrapped instance of the current
-   *     cluster.
+   *                    cluster.
    */
   void replaceStorage(OStorage iNewStorage);
 
@@ -60,7 +61,9 @@ public interface ODatabaseInternal<T> extends ODatabase<T> {
    */
   ODatabaseInternal<?> getDatabaseOwner();
 
-  /** Internal. Sets the database owner. */
+  /**
+   * Internal. Sets the database owner.
+   */
   ODatabaseInternal<?> setDatabaseOwner(ODatabaseInternal<?> iOwner);
 
   /**
@@ -71,7 +74,9 @@ public interface ODatabaseInternal<T> extends ODatabase<T> {
    */
   <DB extends ODatabase> DB getUnderlying();
 
-  /** Internal method. Don't call it directly unless you're building an internal component. */
+  /**
+   * Internal method. Don't call it directly unless you're building an internal component.
+   */
   void setInternal(ATTRIBUTES attribute, Object iValue);
 
   /**
@@ -79,7 +84,7 @@ public interface ODatabaseInternal<T> extends ODatabase<T> {
    *
    * @param iToken Authentication token
    * @return The Database instance itself giving a "fluent interface". Useful to call multiple
-   *     methods in chain.
+   * methods in chain.
    */
   @Deprecated
   <DB extends ODatabase> DB open(final OToken iToken);
@@ -155,6 +160,4 @@ public interface ODatabaseInternal<T> extends ODatabase<T> {
   default TimerTask createInterruptTimerTask() {
     return null;
   }
-
-  void triggerRecordDeletionListeners(ORecord record);
 }

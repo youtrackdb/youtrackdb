@@ -45,7 +45,7 @@ public class OCommandExecutorSQLScriptTest extends BaseMemoryDatabase {
   @Test
   public void testTx() throws Exception {
     StringBuilder script = new StringBuilder();
-    script.append("begin isolation REPEATABLE_READ\n");
+    script.append("begin\n");
     script.append("let $a = insert into V set test = 'sql script test'\n");
     script.append("commit retry 10\n");
     script.append("return $a\n");

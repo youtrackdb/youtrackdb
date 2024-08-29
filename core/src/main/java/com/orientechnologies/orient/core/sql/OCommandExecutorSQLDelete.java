@@ -47,8 +47,6 @@ import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
 import com.orientechnologies.orient.core.sql.parser.ODeleteStatement;
 import com.orientechnologies.orient.core.sql.query.OSQLAsynchQuery;
 import com.orientechnologies.orient.core.sql.query.OSQLQuery;
-import com.orientechnologies.orient.core.storage.OStorage;
-import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -61,6 +59,7 @@ import java.util.Map;
  */
 public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
     implements OCommandDistributedReplicateRequest, OCommandResultListener {
+
   public static final String NAME = "DELETE FROM";
   public static final String KEYWORD_DELETE = "DELETE";
   private static final String VALUE_NOT_FOUND = "_not_found_";
@@ -68,7 +67,6 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
   private OSQLQuery<ODocument> query;
   private String indexName = null;
   private int recordCount = 0;
-  private String lockStrategy = "NONE";
   private String returning = "COUNT";
   private List<ORecord> allDeletedRecords;
 
@@ -105,9 +103,10 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
       parserRequiredKeyword(OCommandExecutorSQLDelete.KEYWORD_FROM);
 
       String subjectName = parserRequiredWord(false, "Syntax error", " =><,\r\n");
-      if (subjectName == null)
+      if (subjectName == null) {
         throwSyntaxErrorException(
             "Invalid subject name. Expected cluster, class, index or sub-query");
+      }
 
       if (OStringParser.startsWithIgnoreCase(
           subjectName, OCommandExecutorSQLAbstract.INDEX_PREFIX)) {
@@ -118,21 +117,25 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
           while (!parserIsEnded()) {
             final String word = parserGetLastWord();
 
-            if (word.equals(KEYWORD_LOCK)) lockStrategy = parseLock();
-            else if (word.equals(KEYWORD_RETURN)) returning = parseReturn();
-            else if (word.equals(KEYWORD_UNSAFE)) unsafe = true;
-            else if (word.equalsIgnoreCase(KEYWORD_WHERE))
+            if (word.equals(KEYWORD_RETURN)) {
+              returning = parseReturn();
+            } else if (word.equals(KEYWORD_UNSAFE)) {
+              unsafe = true;
+            } else if (word.equalsIgnoreCase(KEYWORD_WHERE)) {
               compiledFilter =
                   OSQLEngine.getInstance()
                       .parseCondition(
                           parserText.substring(parserGetCurrentPosition()),
                           getContext(),
                           KEYWORD_WHERE);
+            }
 
             parserNextWord(true);
           }
 
-        } else parserSetCurrentPosition(-1);
+        } else {
+          parserSetCurrentPosition(-1);
+        }
 
       } else if (subjectName.startsWith("(")) {
         subjectName = subjectName.trim();
@@ -145,16 +148,18 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
           while (!parserIsEnded()) {
             final String word = parserGetLastWord();
 
-            if (word.equals(KEYWORD_LOCK)) lockStrategy = parseLock();
-            else if (word.equals(KEYWORD_RETURN)) returning = parseReturn();
-            else if (word.equals(KEYWORD_UNSAFE)) unsafe = true;
-            else if (word.equalsIgnoreCase(KEYWORD_WHERE))
+            if (word.equals(KEYWORD_RETURN)) {
+              returning = parseReturn();
+            } else if (word.equals(KEYWORD_UNSAFE)) {
+              unsafe = true;
+            } else if (word.equalsIgnoreCase(KEYWORD_WHERE)) {
               compiledFilter =
                   OSQLEngine.getInstance()
                       .parseCondition(
                           parserText.substring(parserGetCurrentPosition()),
                           getContext(),
                           KEYWORD_WHERE);
+            }
 
             parserNextWord(true);
           }
@@ -165,9 +170,9 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
         while (!parserIsEnded()) {
           final String word = parserGetLastWord();
 
-          if (word.equals(KEYWORD_LOCK)) lockStrategy = parseLock();
-          else if (word.equals(KEYWORD_RETURN)) returning = parseReturn();
-          else {
+          if (word.equals(KEYWORD_RETURN)) {
+            returning = parseReturn();
+          } else {
             parserGoBack();
             break;
           }
@@ -199,11 +204,14 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
   }
 
   public Object execute(final Map<Object, Object> iArgs) {
-    if (query == null && indexName == null)
+    if (query == null && indexName == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
+    }
 
-    if (!returning.equalsIgnoreCase("COUNT")) allDeletedRecords = new ArrayList<ORecord>();
+    if (!returning.equalsIgnoreCase("COUNT")) {
+      allDeletedRecords = new ArrayList<ORecord>();
+    }
 
     if (query != null) {
       // AGAINST CLUSTERS AND CLASSES
@@ -211,23 +219,25 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
 
       Object prevLockValue = query.getContext().getVariable("$locking");
 
-      if (lockStrategy.equals("RECORD"))
-        query.getContext().setVariable("$locking", OStorage.LOCKING_STRATEGY.EXCLUSIVE_LOCK);
-
       query.execute(iArgs);
 
       query.getContext().setVariable("$locking", prevLockValue);
 
       if (returning.equalsIgnoreCase("COUNT"))
-        // RETURNS ONLY THE COUNT
+      // RETURNS ONLY THE COUNT
+      {
         return recordCount;
-      else
-        // RETURNS ALL THE DELETED RECORDS
+      } else
+      // RETURNS ALL THE DELETED RECORDS
+      {
         return allDeletedRecords;
+      }
 
     } else {
       // AGAINST INDEXES
-      if (compiledFilter != null) compiledFilter.bindParameters(iArgs);
+      if (compiledFilter != null) {
+        compiledFilter.bindParameters(iArgs);
+      }
 
       final ODatabaseDocumentInternal database = getDatabase();
       final OIndexInternal index =
@@ -236,8 +246,9 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
               .getIndexManagerInternal()
               .getIndex(database, indexName)
               .getInternal();
-      if (index == null)
+      if (index == null) {
         throw new OCommandExecutionException("Target index '" + indexName + "' not found");
+      }
 
       OIndexAbstract.manualIndexesWarning();
 
@@ -258,7 +269,9 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
             final ORawPair<Object, ORID> entry = cursor.next();
             OIdentifiable rec = entry.second;
             rec = rec.getRecord();
-            if (rec != null) allDeletedRecords.add((ORecord) rec);
+            if (rec != null) {
+              allDeletedRecords.add((ORecord) rec);
+            }
           }
 
           index.clear();
@@ -268,9 +281,10 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
 
       } else {
         if (KEYWORD_KEY.equalsIgnoreCase(compiledFilter.getRootCondition().getLeft().toString()))
-          // FOUND KEY ONLY
+        // FOUND KEY ONLY
+        {
           key = getIndexKey(index.getDefinition(), compiledFilter.getRootCondition().getRight());
-        else if (KEYWORD_RID.equalsIgnoreCase(
+        } else if (KEYWORD_RID.equalsIgnoreCase(
             compiledFilter.getRootCondition().getLeft().toString())) {
           // BY RID
           value = OSQLHelper.getValue(compiledFilter.getRootCondition().getRight());
@@ -279,25 +293,32 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
           // KEY AND VALUE
           final OSQLFilterCondition leftCondition =
               (OSQLFilterCondition) compiledFilter.getRootCondition().getLeft();
-          if (KEYWORD_KEY.equalsIgnoreCase(leftCondition.getLeft().toString()))
+          if (KEYWORD_KEY.equalsIgnoreCase(leftCondition.getLeft().toString())) {
             key = getIndexKey(index.getDefinition(), leftCondition.getRight());
+          }
 
           final OSQLFilterCondition rightCondition =
               (OSQLFilterCondition) compiledFilter.getRootCondition().getRight();
-          if (KEYWORD_RID.equalsIgnoreCase(rightCondition.getLeft().toString()))
+          if (KEYWORD_RID.equalsIgnoreCase(rightCondition.getLeft().toString())) {
             value = OSQLHelper.getValue(rightCondition.getRight());
+          }
         }
 
         final boolean result;
         if (value != VALUE_NOT_FOUND) {
           assert key != null;
           result = index.remove(key, (OIdentifiable) value);
-        } else result = index.remove(key);
+        } else {
+          result = index.remove(key);
+        }
 
-        if (returning.equalsIgnoreCase("COUNT")) return result ? 1 : 0;
-        else
-          // TODO: REFACTOR INDEX TO RETURN DELETED ITEMS
+        if (returning.equalsIgnoreCase("COUNT")) {
+          return result ? 1 : 0;
+        } else
+        // TODO: REFACTOR INDEX TO RETURN DELETED ITEMS
+        {
           throw new UnsupportedOperationException();
+        }
       }
     }
   }
@@ -309,7 +330,9 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
         .getValueAsLong(OGlobalConfiguration.DISTRIBUTED_COMMAND_TASK_SYNCH_TIMEOUT);
   }
 
-  /** Deletes the current record. */
+  /**
+   * Deletes the current record.
+   */
   public boolean result(final Object iRecord) {
     final ORecordAbstract record = ((OIdentifiable) iRecord).getRecord();
 
@@ -319,42 +342,41 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
             this.compiledFilter.evaluate(record, (ODocument) record, getContext()))) {
       return true;
     }
-    try {
-      if (record.getIdentity().isValid()) {
-        if (returning.equalsIgnoreCase("BEFORE")) allDeletedRecords.add(record);
+    if (record.getIdentity().isValid()) {
+      if (returning.equalsIgnoreCase("BEFORE")) {
+        allDeletedRecords.add(record);
+      }
 
-        // RESET VERSION TO DISABLE MVCC AVOIDING THE CONCURRENT EXCEPTION IF LOCAL CACHE IS NOT
-        // UPDATED
-        //        ORecordInternal.setVersion(record, -1);
+      // RESET VERSION TO DISABLE MVCC AVOIDING THE CONCURRENT EXCEPTION IF LOCAL CACHE IS NOT
+      // UPDATED
+      //        ORecordInternal.setVersion(record, -1);
 
-        if (!unsafe && record instanceof ODocument) {
-          // CHECK IF ARE VERTICES OR EDGES
-          final OClass cls = ODocumentInternal.getImmutableSchemaClass(((ODocument) record));
-          if (cls != null) {
-            if (cls.isSubClassOf("V"))
-              // FOUND VERTEX
-              throw new OCommandExecutionException(
-                  "'DELETE' command cannot delete vertices. Use 'DELETE VERTEX' command instead, or"
-                      + " apply the 'UNSAFE' keyword to force it");
-            else if (cls.isSubClassOf("E"))
-              // FOUND EDGE
-              throw new OCommandExecutionException(
-                  "'DELETE' command cannot delete edges. Use 'DELETE EDGE' command instead, or"
-                      + " apply the 'UNSAFE' keyword to force it");
+      if (!unsafe && record instanceof ODocument) {
+        // CHECK IF ARE VERTICES OR EDGES
+        final OClass cls = ODocumentInternal.getImmutableSchemaClass(((ODocument) record));
+        if (cls != null) {
+          if (cls.isSubClassOf("V"))
+          // FOUND VERTEX
+          {
+            throw new OCommandExecutionException(
+                "'DELETE' command cannot delete vertices. Use 'DELETE VERTEX' command instead, or"
+                    + " apply the 'UNSAFE' keyword to force it");
+          } else if (cls.isSubClassOf("E"))
+          // FOUND EDGE
+          {
+            throw new OCommandExecutionException(
+                "'DELETE' command cannot delete edges. Use 'DELETE EDGE' command instead, or"
+                    + " apply the 'UNSAFE' keyword to force it");
           }
         }
-
-        record.delete();
-
-        recordCount++;
-        return true;
       }
-      return false;
-    } finally {
-      if (lockStrategy.equalsIgnoreCase("RECORD"))
-        ((OAbstractPaginatedStorage) getDatabase().getStorage())
-            .releaseWriteLock(record.getIdentity());
+
+      record.delete();
+
+      recordCount++;
+      return true;
     }
+    return false;
   }
 
   public String getSyntax() {
@@ -370,11 +392,13 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
     return ORole.PERMISSION_DELETE;
   }
 
-  /** Parses the returning keyword if found. */
+  /**
+   * Parses the returning keyword if found.
+   */
   protected String parseReturn() throws OCommandSQLParsingException {
     final String returning = parserNextWord(true);
 
-    if (!returning.equalsIgnoreCase("COUNT") && !returning.equalsIgnoreCase("BEFORE"))
+    if (!returning.equalsIgnoreCase("COUNT") && !returning.equalsIgnoreCase("BEFORE")) {
       throwParsingException(
           "Invalid "
               + KEYWORD_RETURN
@@ -383,6 +407,7 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
               + "' but it should be COUNT (default), BEFORE. Example: "
               + KEYWORD_RETURN
               + " BEFORE");
+    }
 
     return returning;
   }

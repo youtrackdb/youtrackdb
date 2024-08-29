@@ -21,13 +21,10 @@ package com.orientechnologies.orient.core.tx;
 
 import com.orientechnologies.common.concur.ONeedRetryException;
 import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.orient.core.db.ODatabase.OPERATION_MODE;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.document.LatestVersionRecordReader;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.hook.ORecordHook.TYPE;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -36,13 +33,9 @@ import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.storage.ORecordCallback;
-import com.orientechnologies.orient.core.storage.OStorage;
-import com.orientechnologies.orient.core.storage.OStorage.LOCKING_STRATEGY;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChanges.OPERATION;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 /**
  * No operation transaction.
@@ -50,12 +43,9 @@ import java.util.Map;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OTransactionNoTx extends OTransactionAbstract {
-  public OTransactionNoTx(
-      final ODatabaseDocumentInternal iDatabase, Map<ORID, LockedRecordMetadata> noTxLocks) {
+
+  public OTransactionNoTx(final ODatabaseDocumentInternal iDatabase) {
     super(iDatabase);
-    if (noTxLocks != null) {
-      setLocks(noTxLocks);
-    }
   }
 
   public void begin() {}
@@ -78,8 +68,7 @@ public class OTransactionNoTx extends OTransactionAbstract {
       final ORecordAbstract iRecord,
       final String iFetchPlan,
       final boolean ignoreCache,
-      final boolean loadTombstone,
-      final LOCKING_STRATEGY iLockingStrategy) {
+      final boolean loadTombstone) {
     if (iRid.isNew()) {
       return null;
     }
@@ -89,14 +78,7 @@ public class OTransactionNoTx extends OTransactionAbstract {
     }
     try {
       return database.executeReadRecord(
-          (ORecordId) iRid,
-          iRecord,
-          -1,
-          iFetchPlan,
-          ignoreCache,
-          loadTombstone,
-          iLockingStrategy,
-          null);
+          (ORecordId) iRid, iRecord, -1, iFetchPlan, ignoreCache, loadTombstone, null);
     } finally {
       if (iRecord != null) {
         iRecord.decrementLoading();
@@ -111,23 +93,17 @@ public class OTransactionNoTx extends OTransactionAbstract {
       final String iFetchPlan,
       final boolean ignoreCache,
       final boolean iUpdateCache,
-      final boolean loadTombstone,
-      final LOCKING_STRATEGY iLockingStrategy) {
-    if (iRid.isNew()) return null;
+      final boolean loadTombstone) {
+    if (iRid.isNew()) {
+      return null;
+    }
 
     if (iRecord != null) {
       iRecord.incrementLoading();
     }
     try {
       return database.executeReadRecord(
-          (ORecordId) iRid,
-          iRecord,
-          -1,
-          iFetchPlan,
-          ignoreCache,
-          loadTombstone,
-          iLockingStrategy,
-          null);
+          (ORecordId) iRid, iRecord, -1, iFetchPlan, ignoreCache, loadTombstone, null);
     } finally {
       if (iRecord != null) {
         iRecord.decrementLoading();
@@ -140,21 +116,16 @@ public class OTransactionNoTx extends OTransactionAbstract {
       final ORecordAbstract iRecord,
       final String iFetchPlan,
       final boolean ignoreCache) {
-    if (iRid.isNew()) return null;
+    if (iRid.isNew()) {
+      return null;
+    }
 
     if (iRecord != null) {
       iRecord.incrementLoading();
     }
     try {
       return database.executeReadRecord(
-          (ORecordId) iRid,
-          iRecord,
-          -1,
-          iFetchPlan,
-          ignoreCache,
-          false,
-          OStorage.LOCKING_STRATEGY.NONE,
-          null);
+          (ORecordId) iRid, iRecord, -1, iFetchPlan, ignoreCache, false, null);
     } finally {
       if (iRecord != null) {
         iRecord.decrementLoading();
@@ -174,7 +145,9 @@ public class OTransactionNoTx extends OTransactionAbstract {
   @Override
   public ORecord reloadRecord(
       ORID rid, ORecordAbstract record, String fetchPlan, boolean ignoreCache, boolean force) {
-    if (rid.isNew()) return null;
+    if (rid.isNew()) {
+      return null;
+    }
 
     if (record != null) {
       record.incrementLoading();
@@ -182,19 +155,14 @@ public class OTransactionNoTx extends OTransactionAbstract {
     try {
       final ORecord loadedRecord =
           database.executeReadRecord(
-              (ORecordId) rid,
-              record,
-              -1,
-              fetchPlan,
-              ignoreCache,
-              false,
-              OStorage.LOCKING_STRATEGY.NONE,
-              null);
+              (ORecordId) rid, record, -1, fetchPlan, ignoreCache, false, null);
 
       if (force) {
         return loadedRecord;
       } else {
-        if (loadedRecord == null) return record;
+        if (loadedRecord == null) {
+          return record;
+        }
 
         return loadedRecord;
       }
@@ -205,75 +173,33 @@ public class OTransactionNoTx extends OTransactionAbstract {
     }
   }
 
-  @Override
-  public ORecord loadRecordIfVersionIsNotLatest(
-      ORID rid, int recordVersion, String fetchPlan, boolean ignoreCache)
-      throws ORecordNotFoundException {
-    if (rid.isNew()) return null;
-
-    return database.executeReadRecord(
-        (ORecordId) rid,
-        null,
-        recordVersion,
-        fetchPlan,
-        ignoreCache,
-        false,
-        OStorage.LOCKING_STRATEGY.NONE,
-        new LatestVersionRecordReader());
-  }
-
-  /**
-   * Update the record.
-   *
-   * @param iRecord
-   * @param iForceCreate
-   * @param iRecordCreatedCallback
-   * @param iRecordUpdatedCallback
-   */
-  public ORecord saveRecord(
-      final ORecordAbstract iRecord,
-      final String iClusterName,
-      final OPERATION_MODE iMode,
-      boolean iForceCreate,
-      final ORecordCallback<? extends Number> iRecordCreatedCallback,
-      ORecordCallback<Integer> iRecordUpdatedCallback) {
+  public ORecord saveRecord(final ORecordAbstract iRecord, final String iClusterName) {
     try {
 
-      return database.saveAll(
-          iRecord,
-          iClusterName,
-          iMode,
-          iForceCreate,
-          iRecordCreatedCallback,
-          iRecordUpdatedCallback);
+      return database.saveAll(iRecord, iClusterName);
 
     } catch (Exception e) {
       // REMOVE IT FROM THE CACHE TO AVOID DIRTY RECORDS
       final ORecordId rid = (ORecordId) iRecord.getIdentity();
-      if (rid.isValid()) database.getLocalCache().freeRecord(rid);
+      if (rid.isValid()) {
+        database.getLocalCache().freeRecord(rid);
+      }
 
-      if (e instanceof ONeedRetryException) throw (ONeedRetryException) e;
+      if (e instanceof ONeedRetryException) {
+        throw (ONeedRetryException) e;
+      }
 
       throw OException.wrapException(
           new ODatabaseException(
-              "Error during saving of record"
-                  + (iRecord != null ? " with rid " + iRecord.getIdentity() : "")),
+              "Error during saving of record" + " with rid " + iRecord.getIdentity()),
           e);
     }
   }
 
-  @Override
-  public OTransaction setIsolationLevel(final ISOLATION_LEVEL isolationLevel) {
-    if (isolationLevel != ISOLATION_LEVEL.READ_COMMITTED)
-      throw new IllegalArgumentException(
-          "Isolation level '"
-              + isolationLevel
-              + "' is not supported without an active transaction");
-    return super.setIsolationLevel(isolationLevel);
-  }
-
-  /** Deletes the record. */
-  public void deleteRecord(final ORecordAbstract iRecord, final OPERATION_MODE iMode) {
+  /**
+   * Deletes the record.
+   */
+  public void deleteRecord(final ORecordAbstract iRecord) {
     if (!iRecord.getIdentity().isPersistent()) {
       database.callbackHooks(TYPE.BEFORE_DELETE, iRecord);
       database.callbackHooks(TYPE.AFTER_DELETE, iRecord);
@@ -281,18 +207,15 @@ public class OTransactionNoTx extends OTransactionAbstract {
     }
 
     try {
-      database.executeDeleteRecord(iRecord, iRecord.getVersion(), true, iMode, false);
+      database.executeDeleteRecord(iRecord, iRecord.getVersion(), true, false);
     } catch (Exception e) {
       // REMOVE IT FROM THE CACHE TO AVOID DIRTY RECORDS
       final ORecordId rid = (ORecordId) iRecord.getIdentity();
-      if (rid.isValid()) database.getLocalCache().freeRecord(rid);
+      if (rid.isValid()) {
+        database.getLocalCache().freeRecord(rid);
+      }
 
-      if (e instanceof RuntimeException) throw (RuntimeException) e;
-      throw OException.wrapException(
-          new ODatabaseException(
-              "Error during deletion of record"
-                  + (iRecord != null ? " with rid " + iRecord.getIdentity() : "")),
-          e);
+      throw (RuntimeException) e;
     }
   }
 
@@ -314,10 +237,6 @@ public class OTransactionNoTx extends OTransactionAbstract {
   }
 
   public void clearRecordEntries() {}
-
-  public int getRecordEntriesSize() {
-    return 0;
-  }
 
   public ORecordAbstract getRecord(final ORID rid) {
     return null;
@@ -366,12 +285,10 @@ public class OTransactionNoTx extends OTransactionAbstract {
     }
   }
 
-  @Override
-  public void addChangedDocument(ODocument document) {
-    // do nothing
-  }
-
   public void clearIndexEntries() {}
+
+  @Override
+  public void close() {}
 
   public OTransactionIndexChanges getIndexChanges(final String iName) {
     return null;

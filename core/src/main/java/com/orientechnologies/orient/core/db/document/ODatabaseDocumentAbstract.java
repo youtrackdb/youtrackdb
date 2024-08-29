@@ -40,7 +40,6 @@ import com.orientechnologies.orient.core.db.ODatabaseListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.OScenarioThreadLocal;
 import com.orientechnologies.orient.core.db.OSharedContext;
-import com.orientechnologies.orient.core.db.document.RecordListenersManager.RecordListener;
 import com.orientechnologies.orient.core.db.record.OCurrentStorageComponentsFactory;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
@@ -86,6 +85,7 @@ import com.orientechnologies.orient.core.record.impl.OBlob;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentEmbedded;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.OEdgeDelegate;
 import com.orientechnologies.orient.core.record.impl.OEdgeDocument;
 import com.orientechnologies.orient.core.record.impl.OEdgeInternal;
 import com.orientechnologies.orient.core.record.impl.ORecordBytes;
@@ -96,9 +96,6 @@ import com.orientechnologies.orient.core.serialization.serializer.record.ORecord
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializerFactory;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.storage.ORawBuffer;
-import com.orientechnologies.orient.core.storage.ORecordCallback;
-import com.orientechnologies.orient.core.storage.OStorage;
-import com.orientechnologies.orient.core.storage.OStorage.LOCKING_STRATEGY;
 import com.orientechnologies.orient.core.storage.OStorageInfo;
 import com.orientechnologies.orient.core.storage.OStorageOperationResult;
 import com.orientechnologies.orient.core.storage.cluster.OOfflineClusterException;
@@ -132,8 +129,6 @@ import java.util.concurrent.ConcurrentHashMap;
 @SuppressWarnings("unchecked")
 public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabaseListener>
     implements ODatabaseDocumentInternal {
-
-  private final RecordListenersManager recordDeleteListenersManager = new RecordListenersManager();
 
   protected final Map<String, Object> properties = new HashMap<String, Object>();
   protected Map<ORecordHook, ORecordHook.HOOK_POSITION> unmodifiableHooks;
@@ -278,7 +273,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
         iFetchPlan,
         iIgnoreCache,
         false,
-        OStorage.LOCKING_STRATEGY.DEFAULT,
         new SimpleRecordReader(prefetchRecords));
   }
 
@@ -321,11 +315,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     checkIfActive();
     final int clusterId = getClusterIdByName(iClusterName);
     return new ORecordIteratorCluster<REC>(
-        this,
-        clusterId,
-        startClusterPosition,
-        endClusterPosition,
-        OStorage.LOCKING_STRATEGY.DEFAULT);
+        this, clusterId, startClusterPosition, endClusterPosition);
   }
 
   @Override
@@ -552,17 +542,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     return registerHook(iHookImpl, ORecordHook.HOOK_POSITION.REGULAR);
   }
 
-  @Override
-  public void registerRecordDeletionListener(
-      ORecord record, RecordListenersManager.RecordListener listener) {
-    recordDeleteListenersManager.addRecordListener(record, listener);
-  }
-
-  @Override
-  public void removeRecordDeletionListener(ORecord record, RecordListener listener) {
-    recordDeleteListenersManager.removeRecordListener(record, listener);
-  }
-
   /**
    * {@inheritDoc}
    */
@@ -599,11 +578,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
    * @return True if the input record is changed, otherwise false
    */
   public ORecordHook.RESULT callbackHooks(final ORecordHook.TYPE type, final OIdentifiable id) {
-    if (type == ORecordHook.TYPE.AFTER_DELETE) {
-      var record = id.getRecord();
-      triggerRecordDeletionListeners(record);
-    }
-
     if (id == null || hooks.isEmpty() || id.getIdentity().getClusterId() == 0) {
       return ORecordHook.RESULT.RECORD_NOT_CHANGED;
     }
@@ -673,12 +647,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     }
   }
 
-  @Override
-  public void triggerRecordDeletionListeners(ORecord record) {
-    recordDeleteListenersManager.triggerRecordListeners(record);
-    recordDeleteListenersManager.clearRecordListeners(record);
-  }
-
   /**
    * {@inheritDoc}
    */
@@ -705,7 +673,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
 
   @Override
   public void close() {
-    recordDeleteListenersManager.clear();
     internalClose(false);
   }
 
@@ -865,13 +832,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   public <RET extends ORecord> RET load(final ORecord iRecord, final String iFetchPlan) {
     checkIfActive();
     return (RET)
-        currentTx.loadRecord(
-            iRecord.getIdentity(),
-            (ORecordAbstract) iRecord,
-            iFetchPlan,
-            false,
-            false,
-            OStorage.LOCKING_STRATEGY.DEFAULT);
+        currentTx.loadRecord(iRecord.getIdentity(), (ORecordAbstract) iRecord, iFetchPlan, false);
   }
 
   @SuppressWarnings("unchecked")
@@ -900,15 +861,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   public <RET extends ORecord> RET load(final ORID iRecordId, final String iFetchPlan) {
     checkIfActive();
     return (RET) currentTx.loadRecord(iRecordId, null, iFetchPlan, false);
-  }
-
-  @SuppressWarnings("unchecked")
-  public <RET extends ORecord> RET loadIfVersionIsNotLatest(
-      final ORID rid, final int recordVersion, String fetchPlan, boolean ignoreCache)
-      throws ORecordNotFoundException {
-    checkIfActive();
-    return (RET)
-        currentTx.loadRecordIfVersionIsNotLatest(rid, recordVersion, fetchPlan, ignoreCache);
   }
 
   @SuppressWarnings("unchecked")
@@ -982,11 +934,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       currentTx.begin();
       return;
     }
-    Map<ORID, OTransactionAbstract.LockedRecordMetadata> noTxLockedRecords = null;
 
-    if (!currentTx.isActive() && iTx instanceof OTransactionOptimistic) {
-      noTxLockedRecords = ((OTransactionAbstract) currentTx).getInternalLocks();
-    }
     currentTx.rollback(true, 0);
 
     // WAKE UP LISTENERS
@@ -1002,9 +950,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     }
 
     currentTx = iTx;
-    if (iTx instanceof OTransactionOptimistic) {
-      ((OTransactionOptimistic) iTx).setNoTxLocks(noTxLockedRecords);
-    }
     currentTx.begin();
   }
 
@@ -1020,7 +965,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
         iFetchPlan,
         iIgnoreCache,
         false,
-        OStorage.LOCKING_STRATEGY.NONE,
         new SimpleRecordReader(prefetchRecords));
   }
 
@@ -1046,7 +990,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       final String fetchPlan,
       final boolean ignoreCache,
       final boolean loadTombstones,
-      final LOCKING_STRATEGY lockingStrategy,
       RecordReader recordReader) {
     checkOpenness();
     checkIfActive();
@@ -1082,24 +1025,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
         OFetchHelper.checkFetchPlanValid(fetchPlan);
         if (beforeReadOperations(record)) {
           return null;
-        }
-
-        if (lockingStrategy == OStorage.LOCKING_STRATEGY.KEEP_SHARED_LOCK) {
-          OLogManager.instance()
-              .warn(
-                  this,
-                  "You use deprecated record locking strategy: %s it may lead to deadlocks "
-                      + lockingStrategy);
-          record.lock(false);
-        } else {
-          if (lockingStrategy == OStorage.LOCKING_STRATEGY.KEEP_EXCLUSIVE_LOCK) {
-            OLogManager.instance()
-                .warn(
-                    this,
-                    "You use deprecated record locking strategy: %s it may lead to deadlocks "
-                        + lockingStrategy);
-            record.lock(true);
-          }
         }
 
         afterReadOperations(record);
@@ -1311,25 +1236,21 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
 
     switch (iType) {
       case NOTX:
-        setDefaultTransactionMode(null);
+        setDefaultTransactionMode();
         break;
 
       case OPTIMISTIC:
         currentTx = new OTransactionOptimistic(this);
         break;
-
-      case PESSIMISTIC:
-        throw new UnsupportedOperationException("Pessimistic transaction");
     }
 
     currentTx.begin();
     return this;
   }
 
-  public void setDefaultTransactionMode(
-      Map<ORID, OTransactionAbstract.LockedRecordMetadata> noTxLocks) {
+  public void setDefaultTransactionMode() {
     if (!(currentTx instanceof OTransactionNoTx)) {
-      currentTx = new OTransactionNoTx(this, noTxLocks);
+      currentTx = new OTransactionNoTx(this);
     }
   }
 
@@ -1389,7 +1310,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     return new OVertexDocument(this, iClassName);
   }
 
-  private OEdge newEdgeInternal(final String iClassName) {
+  private OEdgeInternal newEdgeInternal(final String iClassName) {
     return new OEdgeDocument(this, iClassName);
   }
 
@@ -1402,12 +1323,23 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   }
 
   @Override
-  public OEdge newEdge(OVertex from, OVertex to, String type) {
+  public OEdgeInternal newEdge(OVertex from, OVertex to, String type) {
     OClass cl = getMetadata().getImmutableSchemaSnapshot().getClass(type);
     if (cl == null || !cl.isEdgeType()) {
       throw new IllegalArgumentException(type + " is not an edge class");
     }
-    return addEdgeInternal(from, to, type, false);
+
+    return addEdgeInternal(from, to, type, false, false);
+  }
+
+  @Override
+  public OEdgeInternal addLightweightEdge(OVertex from, OVertex to, String className) {
+    OClass cl = getMetadata().getImmutableSchemaSnapshot().getClass(className);
+    if (cl == null || !cl.isEdgeType()) {
+      throw new IllegalArgumentException(className + " is not an edge class");
+    }
+
+    return addEdgeInternal(from, to, className, false, true);
   }
 
   @Override
@@ -1418,18 +1350,19 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     return newEdge(from, to, type.getName());
   }
 
-  private OEdge addEdgeInternal(
+  private OEdgeInternal addEdgeInternal(
       final OVertex currentVertex,
       final OVertex inVertex,
       String className,
       boolean forceRegular,
-      final Object... fields) {
-    Objects.requireNonNull(currentVertex);
-    Objects.requireNonNull(inVertex);
+      boolean forceLightweight) {
+    Objects.requireNonNull(currentVertex, "From vertex is null");
+    Objects.requireNonNull(inVertex, "To vertex is null");
 
     OEdgeInternal edge = null;
     ODocument outDocument = null;
     ODocument inDocument = null;
+    boolean outDocumentModified = false;
 
     if (checkDeletedInTx(currentVertex)) {
       throw new ORecordNotFoundException(
@@ -1442,10 +1375,9 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
           inVertex.getIdentity(), "The vertex " + inVertex.getIdentity() + " has been deleted");
     }
 
-    final int maxRetries = 1; // TODO
+    final int maxRetries = 1;
     for (int retry = 0; retry < maxRetries; ++retry) {
       try {
-        // TEMPORARY STATIC LOCK TO AVOID MT PROBLEMS AGAINST OMVRBTreeRID
         outDocument = currentVertex.getRecord();
         if (outDocument == null) {
           throw new IllegalArgumentException(
@@ -1458,85 +1390,61 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
               "source vertex is invalid (rid=" + inVertex.getIdentity() + ")");
         }
 
-        if (!ODocumentInternal.getImmutableSchemaClass(this, outDocument).isVertexType()) {
-          throw new IllegalArgumentException("source record is not a vertex");
-        }
-
-        if (!ODocumentInternal.getImmutableSchemaClass(this, outDocument).isVertexType()) {
-          throw new IllegalArgumentException("destination record is not a vertex");
-        }
-
+        @SuppressWarnings("UnnecessaryLocalVariable")
         OVertex to = inVertex;
+        @SuppressWarnings("UnnecessaryLocalVariable")
         OVertex from = currentVertex;
 
         OSchema schema = getMetadata().getImmutableSchemaSnapshot();
         final OClass edgeType = schema.getClass(className);
-        if (edgeType == null)
-        // AUTO CREATE CLASS
-        {
-          schema.createClass(className);
-        } else
-        // OVERWRITE CLASS NAME BECAUSE ATTRIBUTES ARE CASE SENSITIVE
-        {
-          className = edgeType.getName();
+        className = edgeType.getName();
+
+        var useLightweightEdges = forceLightweight || isUseLightweightEdges();
+        var createLightweightEdge =
+            useLightweightEdges
+                && !forceRegular
+                && (edgeType.isAbstract() || className.equals(OEdgeInternal.CLASS_NAME));
+        if (useLightweightEdges && !createLightweightEdge) {
+          throw new IllegalArgumentException(
+              "Cannot create lightweight edge for class "
+                  + className
+                  + " because it is not abstract");
         }
 
         final String outFieldName = OVertex.getEdgeLinkFieldName(ODirection.OUT, className);
         final String inFieldName = OVertex.getEdgeLinkFieldName(ODirection.IN, className);
 
-        // since the label for the edge can potentially get re-assigned
-        // before being pushed into the OrientEdge, the
-        // null check has to go here.
-        if (className == null) {
-          throw new IllegalArgumentException("Class " + className + " cannot be found");
-        }
+        if (createLightweightEdge) {
+          edge = newLightweightEdge(className, from, to);
+          OVertexInternal.createLink(from.getRecord(), to.getRecord(), outFieldName);
+          OVertexInternal.createLink(to.getRecord(), from.getRecord(), inFieldName);
+        } else {
+          edge = newEdgeInternal(className);
+          edge.setPropertyWithoutValidation(OEdgeInternal.DIRECTION_OUT, currentVertex.getRecord());
+          edge.setPropertyWithoutValidation(OEdge.DIRECTION_IN, inDocument.getRecord());
 
-        OVertexInternal.validateConnectionType(from, className, outFieldName);
-        OVertexInternal.validateConnectionType(to, className, inFieldName);
-
-        // CREATE THE EDGE DOCUMENT TO STORE FIELDS TOO
-        edge = (OEdgeInternal) newEdgeInternal(className);
-        edge.setPropertyWithoutValidation(OEdgeInternal.DIRECTION_OUT, currentVertex.getRecord());
-        edge.setPropertyWithoutValidation(OEdgeInternal.DIRECTION_IN, inDocument.getRecord());
-
-        if (fields != null) {
-          for (int i = 0; i < fields.length; i += 2) {
-            String fieldName = "" + fields[i];
-            if (fields.length <= i + 1) {
-              break;
-            }
-            Object fieldValue = fields[i + 1];
-            edge.setProperty(fieldName, fieldValue);
+          if (!outDocumentModified) {
+            // OUT-VERTEX ---> IN-VERTEX/EDGE
+            OVertexInternal.createLink(outDocument, edge.getRecord(), outFieldName);
           }
+
+          // IN-VERTEX ---> OUT-VERTEX/EDGE
+          OVertexInternal.createLink(inDocument, edge.getRecord(), inFieldName);
         }
-
-        // OUT-VERTEX ---> IN-VERTEX/EDGE
-        OVertexInternal.createLink(outDocument, edge.getRecord(), outFieldName);
-
-        // IN-VERTEX ---> OUT-VERTEX/EDGE
-        OVertexInternal.createLink(inDocument, edge.getRecord(), inFieldName);
-
-        var directOutFieldName = OVertexInternal.getDirectEdgeLinkFieldName(outFieldName);
-        var directInFieldName = OVertexInternal.getDirectEdgeLinkFieldName(inFieldName);
-
-        // Direct connection between OUT-VERTEX ---> IN-VERTEX/EDGE
-        OVertexInternal.createLink(outDocument, inDocument, directOutFieldName);
-        // Direct connection between IN-VERTEX ---> OUT-VERTEX/EDGE
-        OVertexInternal.createLink(inDocument, outDocument, directInFieldName);
-
         // OK
         break;
       } catch (ONeedRetryException ignore) {
         // RETRY
-        if (outDocument != null) {
-          outDocument = load(outDocument.getIdentity());
-        }
-
-        if (inDocument != null) {
-          inDocument = load(inDocument.getIdentity());
+        if (!outDocumentModified) {
+          if (outDocument != null) {
+            outDocument.reload();
+          }
+        } else if (inDocument != null) {
+          inDocument.reload();
         }
       }
     }
+
     return edge;
   }
 
@@ -1608,11 +1516,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     checkSecurity(ORule.ResourceGeneric.CLUSTER, ORole.PERMISSION_READ, iClusterName);
 
     return new ORecordIteratorCluster<ODocument>(
-        this,
-        getClusterIdByName(iClusterName),
-        startClusterPosition,
-        endClusterPosition,
-        OStorage.LOCKING_STRATEGY.DEFAULT);
+        this, getClusterIdByName(iClusterName), startClusterPosition, endClusterPosition);
   }
 
   /**
@@ -1640,44 +1544,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
    */
   @Override
   public <RET extends ORecord> RET save(final ORecord iRecord) {
-    return save(iRecord, null, OPERATION_MODE.SYNCHRONOUS, false, null, null);
-  }
-
-  /**
-   * Saves a document to the database. Behavior depends by the current running transaction if any.
-   * If no transaction is running then changes apply immediately. If an Optimistic transaction is
-   * running then the record will be changed at commit time. The current transaction will continue
-   * to see the record as modified, while others not. If a Pessimistic transaction is running, then
-   * an exclusive lock is acquired against the record. Current transaction will continue to see the
-   * record as modified, while others cannot access to it since it's locked.
-   *
-   * <p>If MVCC is enabled and the version of the document is different by the version stored in
-   * the database, then a {@link OConcurrentModificationException} exception is thrown.Before to
-   * save the document it must be valid following the constraints declared in the schema if any (can
-   * work also in schema-less mode). To validate the document the {@link ODocument#validate()} is
-   * called.
-   *
-   * @param iRecord                Record to save.
-   * @param iForceCreate           Flag that indicates that record should be created. If record with
-   *                               current rid already exists, exception is thrown
-   * @param iRecordCreatedCallback callback that is called after creation of new record
-   * @param iRecordUpdatedCallback callback that is called after record update
-   * @return The Database instance itself giving a "fluent interface". Useful to call multiple
-   * methods in chain.
-   * @throws OConcurrentModificationException if the version of the document is different by the
-   *                                          version contained in the database.
-   * @throws OValidationException             if the document breaks some validation constraints
-   *                                          defined in the schema
-   * @see #setMVCC(boolean), {@link #isMVCC()}
-   */
-  @Override
-  public <RET extends ORecord> RET save(
-      final ORecord iRecord,
-      final OPERATION_MODE iMode,
-      boolean iForceCreate,
-      final ORecordCallback<? extends Number> iRecordCreatedCallback,
-      ORecordCallback<Integer> iRecordUpdatedCallback) {
-    return save(iRecord, null, iMode, iForceCreate, iRecordCreatedCallback, iRecordUpdatedCallback);
+    return save(iRecord, null);
   }
 
   /**
@@ -1706,48 +1573,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
    * @see #setMVCC(boolean), {@link #isMVCC()}, ODocument#validate()
    */
   @Override
-  public <RET extends ORecord> RET save(final ORecord iRecord, final String iClusterName) {
-    return save(iRecord, iClusterName, OPERATION_MODE.SYNCHRONOUS, false, null, null);
-  }
-
-  /**
-   * Saves a document specifying a cluster where to store the record. Behavior depends by the
-   * current running transaction if any. If no transaction is running then changes apply
-   * immediately. If an Optimistic transaction is running then the record will be changed at commit
-   * time. The current transaction will continue to see the record as modified, while others not. If
-   * a Pessimistic transaction is running, then an exclusive lock is acquired against the record.
-   * Current transaction will continue to see the record as modified, while others cannot access to
-   * it since it's locked.
-   *
-   * <p>If MVCC is enabled and the version of the document is different by the version stored in
-   * the database, then a {@link OConcurrentModificationException} exception is thrown. Before to
-   * save the document it must be valid following the constraints declared in the schema if any (can
-   * work also in schema-less mode). To validate the document the {@link ODocument#validate()} is
-   * called.
-   *
-   * @param iRecord                Record to save
-   * @param iClusterName           Cluster name where to save the record
-   * @param iMode                  Mode of save: synchronous (default) or asynchronous
-   * @param iForceCreate           Flag that indicates that record should be created. If record with
-   *                               current rid already exists, exception is thrown
-   * @param iRecordCreatedCallback callback that is called after creation of new record
-   * @param iRecordUpdatedCallback callback that is called after record update
-   * @return The Database instance itself giving a "fluent interface". Useful to call multiple
-   * methods in chain.
-   * @throws OConcurrentModificationException if the version of the document is different by the
-   *                                          version contained in the database.
-   * @throws OValidationException             if the document breaks some validation constraints
-   *                                          defined in the schema
-   * @see #setMVCC(boolean), {@link #isMVCC()}, ODocument#validate()
-   */
-  @Override
-  public <RET extends ORecord> RET save(
-      ORecord iRecord,
-      String iClusterName,
-      final OPERATION_MODE iMode,
-      boolean iForceCreate,
-      final ORecordCallback<? extends Number> iRecordCreatedCallback,
-      ORecordCallback<Integer> iRecordUpdatedCallback) {
+  public <RET extends ORecord> RET save(ORecord iRecord, String iClusterName) {
     checkOpenness();
 
     if (iRecord.isUnloaded()) {
@@ -1768,33 +1594,14 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
         iRecord = iRecord.getRecord();
       }
     }
-    return saveInternal(
-        (ORecordAbstract) iRecord,
-        iClusterName,
-        iMode,
-        iForceCreate,
-        iRecordCreatedCallback,
-        iRecordUpdatedCallback);
+    return saveInternal((ORecordAbstract) iRecord, iClusterName);
   }
 
-  private <RET extends ORecord> RET saveInternal(
-      ORecordAbstract iRecord,
-      String iClusterName,
-      OPERATION_MODE iMode,
-      boolean iForceCreate,
-      ORecordCallback<? extends Number> iRecordCreatedCallback,
-      ORecordCallback<Integer> iRecordUpdatedCallback) {
+  private <RET extends ORecord> RET saveInternal(ORecordAbstract record, String clusterName) {
 
-    if (!(iRecord instanceof ODocument document)) {
-      assignAndCheckCluster(iRecord, iClusterName);
-      return (RET)
-          currentTx.saveRecord(
-              iRecord,
-              iClusterName,
-              iMode,
-              iForceCreate,
-              iRecordCreatedCallback,
-              iRecordUpdatedCallback);
+    if (!(record instanceof ODocument document)) {
+      assignAndCheckCluster(record, clusterName);
+      return (RET) currentTx.saveRecord(record, clusterName);
     }
 
     ODocument doc = document;
@@ -1808,12 +1615,12 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     }
     ODocumentInternal.convertAllMultiValuesToTrackedVersions(doc);
 
-    if (iForceCreate || !doc.getIdentity().isValid()) {
+    if (!doc.getIdentity().isValid()) {
       if (doc.getClassName() != null) {
         checkSecurity(ORule.ResourceGeneric.CLASS, ORole.PERMISSION_CREATE, doc.getClassName());
       }
 
-      assignAndCheckCluster(doc, iClusterName);
+      assignAndCheckCluster(doc, clusterName);
 
     } else {
       // UPDATE: CHECK ACCESS ON SCHEMA CLASS NAME (IF ANY)
@@ -1825,16 +1632,8 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     if (!getSerializer().equals(ORecordInternal.getRecordSerializer(doc))) {
       ORecordInternal.setRecordSerializer(doc, getSerializer());
     }
-    doc =
-        (ODocument)
-            currentTx.saveRecord(
-                iRecord,
-                iClusterName,
-                iMode,
-                iForceCreate,
-                iRecordCreatedCallback,
-                iRecordUpdatedCallback);
 
+    doc = (ODocument) currentTx.saveRecord(record, clusterName);
     return (RET) doc;
   }
 
@@ -2248,7 +2047,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   }
 
   protected void init() {
-    currentTx = new OTransactionNoTx(this, null);
+    currentTx = new OTransactionNoTx(this);
   }
 
   public void checkIfActive() {
@@ -2351,33 +2150,35 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     return false;
   }
 
-  @Deprecated
   public void setUseLightweightEdges(boolean b) {
-    throw new UnsupportedOperationException("Creation of lightweight edges is not supported");
+    this.setCustom("useLightweightEdges", b);
   }
 
-  @Deprecated
-  public OEdge newLightweightEdge(String iClassName, OVertex from, OVertex to) {
-    throw new UnsupportedOperationException();
+  public OEdgeInternal newLightweightEdge(String iClassName, OVertex from, OVertex to) {
+    OImmutableClass clazz =
+        (OImmutableClass) getMetadata().getImmutableSchemaSnapshot().getClass(iClassName);
+
+    return new OEdgeDelegate(from, to, clazz, iClassName);
   }
 
   public OEdge newRegularEdge(String iClassName, OVertex from, OVertex to) {
     OClass cl = getMetadata().getImmutableSchemaSnapshot().getClass(iClassName);
+
     if (cl == null || !cl.isEdgeType()) {
       throw new IllegalArgumentException(iClassName + " is not an edge class");
     }
-    return addEdgeInternal(from, to, iClassName, true);
+
+    return addEdgeInternal(from, to, iClassName, true, false);
   }
 
   public synchronized void queryStarted(String id, OQueryDatabaseState state) {
     if (this.activeQueries.size() > 1 && this.activeQueries.size() % 10 == 0) {
-      StringBuilder msg = new StringBuilder();
-      msg.append("This database instance has ");
-      msg.append(activeQueries.size());
-      msg.append(
-          " open command/query result sets, please make sure you close them with"
-              + " OResultSet.close()");
-      OLogManager.instance().warn(this, msg.toString(), null);
+      String msg =
+          "This database instance has "
+              + activeQueries.size()
+              + " open command/query result sets, please make sure you close them with"
+              + " OResultSet.close()";
+      OLogManager.instance().warn(this, msg);
       if (OLogManager.instance().isDebugEnabled()) {
         activeQueries.values().stream()
             .map(pendingQuery -> pendingQuery.getResultSet().getExecutionPlan())

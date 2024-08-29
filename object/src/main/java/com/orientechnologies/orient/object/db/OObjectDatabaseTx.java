@@ -21,7 +21,6 @@ package com.orientechnologies.orient.object.db;
 
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.concur.ONeedRetryException;
-import com.orientechnologies.common.concur.lock.OLockException;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.OCommonConst;
@@ -67,7 +66,6 @@ import com.orientechnologies.orient.core.serialization.serializer.record.OSerial
 import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
-import com.orientechnologies.orient.core.storage.ORecordCallback;
 import com.orientechnologies.orient.core.storage.OStorageInfo;
 import com.orientechnologies.orient.core.tx.OTransaction;
 import com.orientechnologies.orient.core.tx.OTransactionNoTx;
@@ -87,7 +85,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import javassist.util.proxy.Proxy;
 import javassist.util.proxy.ProxyObject;
@@ -388,8 +385,8 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
    * @param iPojo                    :- the object to detach
    * @param returnNonProxiedInstance :- defines if the return object will be a proxied instance or
    *                                 not. If set to TRUE and the object does not contains @Id and
-   *                                 @Version fields it could procude data replication
    * @return the object serialized or with detached data
+   * @Version fields it could procude data replication
    */
   public <RET> RET detach(final Object iPojo, boolean returnNonProxiedInstance) {
     return (RET) OObjectEntitySerializer.detach(iPojo, this, returnNonProxiedInstance);
@@ -404,8 +401,8 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
    * @param iPojo                    :- the object to detach
    * @param returnNonProxiedInstance :- defines if the return object will be a proxied instance or
    *                                 not. If set to TRUE and the object does not contains @Id and
-   *                                 @Version fields it could procude data replication
    * @return the object serialized or with detached data
+   * @Version fields it could procude data replication
    */
   public <RET> RET detachAll(final Object iPojo, boolean returnNonProxiedInstance) {
     return detachAll(
@@ -433,48 +430,6 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
     } finally {
       record.setInternalStatus(ORecordElement.STATUS.LOADED);
     }
-  }
-
-  @Override
-  public <RET> RET lock(ORID recordId) throws OLockException {
-    checkOpenness();
-    if (recordId == null) {
-      return null;
-    }
-
-    // GET THE ASSOCIATED DOCUMENT
-    final ODocument record = (ODocument) underlying.lock(recordId);
-    if (record == null) {
-      return null;
-    }
-
-    return (RET)
-        OObjectEntityEnhancer.getInstance()
-            .getProxiedInstance(record.getClassName(), entityManager, record, null);
-  }
-
-  @Override
-  public <RET> RET lock(ORID recordId, long timeout, TimeUnit timeoutUnit) throws OLockException {
-    checkOpenness();
-    if (recordId == null) {
-      return null;
-    }
-
-    // GET THE ASSOCIATED DOCUMENT
-    final ODocument record = (ODocument) underlying.lock(recordId, timeout, timeoutUnit);
-    if (record == null) {
-      return null;
-    }
-
-    return (RET)
-        OObjectEntityEnhancer.getInstance()
-            .getProxiedInstance(record.getClassName(), entityManager, record, null);
-  }
-
-  @Override
-  public void unlock(ORID recordId) throws OLockException {
-    checkOpenness();
-    underlying.unlock(recordId);
   }
 
   public <RET> RET load(final ORID recordId) {
@@ -516,40 +471,7 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
    * single object is stored separately.
    */
   public <RET> RET save(final Object iContent) {
-    return (RET) save(iContent, (String) null, OPERATION_MODE.SYNCHRONOUS, false, null, null);
-  }
-
-  /**
-   * Saves an object to the database specifying the mode. First checks if the object is new or not.
-   * In case it's new a new ODocument is created and bound to the object, otherwise the ODocument is
-   * retrieved and updated. The object is introspected using the Java Reflection to extract the
-   * field values. <br> If a multi value (array, collection or map of objects) is passed, then each
-   * single object is stored separately.
-   */
-  public <RET> RET save(
-      final Object iContent,
-      OPERATION_MODE iMode,
-      boolean iForceCreate,
-      final ORecordCallback<? extends Number> iRecordCreatedCallback,
-      ORecordCallback<Integer> iRecordUpdatedCallback) {
-    return (RET) save(iContent, null, iMode, false, iRecordCreatedCallback, iRecordUpdatedCallback);
-  }
-
-  /**
-   * Saves an object in synchronous mode to the database forcing a record cluster where to store it.
-   * First checks if the object is new or not. In case it's new a new ODocument is created and bound
-   * to the object, otherwise the ODocument is retrieved and updated. The object is introspected
-   * using the Java Reflection to extract the field values. <br> If a multi value (array, collection
-   * or map of objects) is passed, then each single object is stored separately.
-   *
-   * <p>Before to use the specified cluster a check is made to know if is allowed and figures in
-   * the
-   * configured and the record is valid following the constraints declared in the schema.
-   *
-   * @see ODocument#validate()
-   */
-  public <RET> RET save(final Object iPojo, final String iClusterName) {
-    return (RET) save(iPojo, iClusterName, OPERATION_MODE.SYNCHRONOUS, false, null, null);
+    return save(iContent, null);
   }
 
   /**
@@ -560,18 +482,11 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
    * objects) is passed, then each single object is stored separately.
    *
    * <p>Before to use the specified cluster a check is made to know if is allowed and figures in
-   * the
-   * configured and the record is valid following the constraints declared in the schema.
+   * the configured and the record is valid following the constraints declared in the schema.
    *
    * @see ODocument#validate()
    */
-  public <RET> RET save(
-      final Object iPojo,
-      final String iClusterName,
-      OPERATION_MODE iMode,
-      boolean iForceCreate,
-      final ORecordCallback<? extends Number> iRecordCreatedCallback,
-      ORecordCallback<Integer> iRecordUpdatedCallback) {
+  public <RET> RET save(final Object iPojo, final String iClusterName) {
     checkOpenness();
     if (iPojo == null) {
       return (RET) iPojo;
@@ -595,14 +510,7 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
           // registerUserObject(iPojo, record);
           deleteOrphans((((OObjectProxyMethodHandler) ((ProxyObject) proxiedObject).getHandler())));
 
-          ODocument savedRecord =
-              underlying.save(
-                  record,
-                  iClusterName,
-                  iMode,
-                  iForceCreate,
-                  iRecordCreatedCallback,
-                  iRecordUpdatedCallback);
+          ODocument savedRecord = underlying.save(record, iClusterName);
 
           ((OObjectProxyMethodHandler) ((ProxyObject) proxiedObject).getHandler())
               .setDoc(savedRecord);
@@ -1104,11 +1012,6 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
   @Override
   public OSharedContext getSharedContext() {
     return underlying.getSharedContext();
-  }
-
-  @Override
-  public void triggerRecordDeletionListeners(ORecord record) {
-    underlying.triggerRecordDeletionListeners(record);
   }
 
   /**

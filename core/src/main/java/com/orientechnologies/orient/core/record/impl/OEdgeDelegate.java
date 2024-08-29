@@ -35,7 +35,6 @@ import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.serialization.OSerializableStream;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
-import com.orientechnologies.orient.core.storage.OStorage;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -46,6 +45,7 @@ import javax.annotation.Nullable;
  * @author Luigi Dell'Aquila
  */
 public class OEdgeDelegate implements OEdgeInternal {
+
   protected OVertex vOut;
   protected OVertex vIn;
   protected OImmutableClass lightweightEdgeType;
@@ -73,7 +73,9 @@ public class OEdgeDelegate implements OEdgeInternal {
     }
 
     final ODocument doc = getRecord();
-    if (doc == null) return null;
+    if (doc == null) {
+      return null;
+    }
 
     Object result = doc.getProperty(DIRECTION_OUT);
     if (!(result instanceof OElement)) {
@@ -115,11 +117,15 @@ public class OEdgeDelegate implements OEdgeInternal {
   @Override
   public OVertex getTo() {
     if (vIn != null)
-      // LIGHTWEIGHT EDGE
+    // LIGHTWEIGHT EDGE
+    {
       return vIn;
+    }
 
     final ODocument doc = getRecord();
-    if (doc == null) return null;
+    if (doc == null) {
+      return null;
+    }
 
     Object result = doc.getProperty(DIRECTION_IN);
     if (!(result instanceof OElement v)) {
@@ -260,8 +266,11 @@ public class OEdgeDelegate implements OEdgeInternal {
           .map(x -> x.getName())
           .forEach(name -> types.add(name));
     } else {
-      if (lightwightEdgeLabel != null) types.add(lightwightEdgeLabel);
-      else types.add("E");
+      if (lightwightEdgeLabel != null) {
+        types.add(lightwightEdgeLabel);
+      } else {
+        types.add("E");
+      }
     }
     for (String s : labels) {
       for (String type : types) {
@@ -289,28 +298,6 @@ public class OEdgeDelegate implements OEdgeInternal {
       return null;
     }
     return (T) element;
-  }
-
-  @Override
-  public void lock(boolean iExclusive) {
-    if (element != null) element.lock(iExclusive);
-  }
-
-  @Override
-  public boolean isLocked() {
-    if (element != null) return element.isLocked();
-    return false;
-  }
-
-  @Override
-  public OStorage.LOCKING_STRATEGY lockingStrategy() {
-    if (element != null) return element.lockingStrategy();
-    return OStorage.LOCKING_STRATEGY.NONE;
-  }
-
-  @Override
-  public void unlock() {
-    if (element != null) element.unlock();
   }
 
   @Override
@@ -358,41 +345,55 @@ public class OEdgeDelegate implements OEdgeInternal {
 
   @Override
   public void setInternalStatus(STATUS iStatus) {
-    if (element != null) element.setInternalStatus(iStatus);
+    if (element != null) {
+      element.setInternalStatus(iStatus);
+    }
   }
 
   @Override
   public <RET> RET setDirty() {
-    if (element != null) element.setDirty();
+    if (element != null) {
+      element.setDirty();
+    }
     return (RET) this;
   }
 
   @Override
   public void setDirtyNoChanged() {
-    if (element != null) element.setDirtyNoChanged();
+    if (element != null) {
+      element.setDirtyNoChanged();
+    }
   }
 
   @Override
   public ORecordElement getOwner() {
-    if (element != null) return element.getOwner();
+    if (element != null) {
+      return element.getOwner();
+    }
     return null;
   }
 
   @Override
   public byte[] toStream() throws OSerializationException {
-    if (element != null) return element.toStream();
+    if (element != null) {
+      return element.toStream();
+    }
     return null;
   }
 
   @Override
   public OSerializableStream fromStream(byte[] iStream) throws OSerializationException {
-    if (element != null) return element.fromStream(iStream);
+    if (element != null) {
+      return element.fromStream(iStream);
+    }
     return null;
   }
 
   @Override
   public boolean detach() {
-    if (element != null) return element.detach();
+    if (element != null) {
+      return element.detach();
+    }
     return true;
   }
 
@@ -403,13 +404,17 @@ public class OEdgeDelegate implements OEdgeInternal {
 
   @Override
   public OEdge unload() {
-    if (element != null) element.unload();
+    if (element != null) {
+      element.unload();
+    }
     return this;
   }
 
   @Override
   public OEdge clear() {
-    if (element != null) element.clear();
+    if (element != null) {
+      element.clear();
+    }
     return this;
   }
 
@@ -424,7 +429,9 @@ public class OEdgeDelegate implements OEdgeInternal {
 
   @Override
   public int getVersion() {
-    if (element != null) return element.getVersion();
+    if (element != null) {
+      return element.getVersion();
+    }
     return 1;
   }
 
@@ -439,7 +446,9 @@ public class OEdgeDelegate implements OEdgeInternal {
 
   @Override
   public boolean isDirty() {
-    if (element != null) return element.isDirty();
+    if (element != null) {
+      return element.isDirty();
+    }
     return false;
   }
 
@@ -450,14 +459,18 @@ public class OEdgeDelegate implements OEdgeInternal {
 
   @Override
   public <RET extends ORecord> RET reload() throws ORecordNotFoundException {
-    if (element != null) element.reload();
+    if (element != null) {
+      element.reload();
+    }
     return (RET) this;
   }
 
   @Override
   public <RET extends ORecord> RET reload(String fetchPlan, boolean ignoreCache, boolean force)
       throws ORecordNotFoundException {
-    if (element != null) element.reload(fetchPlan, ignoreCache, force);
+    if (element != null) {
+      element.reload(fetchPlan, ignoreCache, force);
+    }
     return (RET) this;
   }
 
@@ -475,26 +488,6 @@ public class OEdgeDelegate implements OEdgeInternal {
   public <RET extends ORecord> RET save(String iCluster) {
     if (element != null) {
       element.save(iCluster);
-    } else {
-      vIn.save();
-    }
-    return (RET) this;
-  }
-
-  @Override
-  public <RET extends ORecord> RET save(boolean forceCreate) {
-    if (element != null) {
-      element.save(forceCreate);
-    } else {
-      vIn.save();
-    }
-    return (RET) this;
-  }
-
-  @Override
-  public <RET extends ORecord> RET save(String iCluster, boolean forceCreate) {
-    if (element != null) {
-      element.save(iCluster, forceCreate);
     } else {
       vIn.save();
     }
@@ -542,7 +535,9 @@ public class OEdgeDelegate implements OEdgeInternal {
 
   @Override
   public int getSize() {
-    if (element != null) return element.getSize();
+    if (element != null) {
+      return element.getSize();
+    }
     return 0;
   }
 

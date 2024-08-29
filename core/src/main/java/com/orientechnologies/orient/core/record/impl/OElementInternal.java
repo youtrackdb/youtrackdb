@@ -17,6 +17,8 @@ public interface OElementInternal extends OElement {
 
   <RET> RET getPropertyWithoutValidation(String name);
 
+  <RET> RET getPropertyWithoutValidation(String name, boolean lazyLoading);
+
   @Nullable
   OIdentifiable getLinkPropertyWithoutValidation(String name);
 }

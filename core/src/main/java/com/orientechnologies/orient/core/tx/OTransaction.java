@@ -19,27 +19,22 @@
  */
 package com.orientechnologies.orient.core.tx;
 
-import com.orientechnologies.orient.core.db.ODatabase.OPERATION_MODE;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.storage.ORecordCallback;
-import com.orientechnologies.orient.core.storage.OStorage;
-import com.orientechnologies.orient.core.storage.OStorage.LOCKING_STRATEGY;
 import java.util.List;
 
 public interface OTransaction {
+
   enum TXTYPE {
     NOTX,
     OPTIMISTIC,
-    PESSIMISTIC
   }
 
   enum TXSTATUS {
@@ -51,11 +46,6 @@ public interface OTransaction {
     ROLLED_BACK
   }
 
-  enum ISOLATION_LEVEL {
-    READ_COMMITTED,
-    REPEATABLE_READ
-  }
-
   void begin();
 
   void commit();
@@ -64,19 +54,6 @@ public interface OTransaction {
 
   void rollback();
 
-  /** Returns the current isolation level. */
-  ISOLATION_LEVEL getIsolationLevel();
-
-  /**
-   * Changes the isolation level. Default is READ_COMMITTED. When REPEATABLE_READ is set, any record
-   * read from the storage is cached in memory to guarantee the repeatable reads. This affects the
-   * used RAM and speed (because JVM Garbage Collector job).
-   *
-   * @param iIsolationLevel Isolation level to set
-   * @return Current object to allow call in chain
-   */
-  OTransaction setIsolationLevel(ISOLATION_LEVEL iIsolationLevel);
-
   void rollback(boolean force, int commitLevelDiff);
 
   ODatabaseDocument getDatabase();
@@ -84,35 +61,12 @@ public interface OTransaction {
   @Deprecated
   void clearRecordEntries();
 
-  @Deprecated
-  ORecord loadRecord(
-      ORID iRid,
-      ORecordAbstract iRecord,
-      String iFetchPlan,
-      boolean ignoreCache,
-      boolean loadTombstone,
-      final LOCKING_STRATEGY iLockingStrategy);
-
-  @Deprecated
-  ORecord loadRecord(
-      ORID iRid,
-      ORecordAbstract iRecord,
-      String iFetchPlan,
-      boolean ignoreCache,
-      boolean iUpdateCache,
-      boolean loadTombstone,
-      final LOCKING_STRATEGY iLockingStrategy);
-
   ORecord loadRecord(ORID iRid, ORecordAbstract iRecord, String iFetchPlan, boolean ignoreCache);
 
   boolean exists(ORID rid);
 
   ORecord reloadRecord(
       ORID iRid, ORecordAbstract iRecord, String iFetchPlan, boolean ignoreCache, boolean force);
-
-  ORecord loadRecordIfVersionIsNotLatest(
-      ORID rid, int recordVersion, String fetchPlan, boolean ignoreCache)
-      throws ORecordNotFoundException;
 
   TXSTATUS getStatus();
 
@@ -134,23 +88,6 @@ public interface OTransaction {
   @Deprecated
   void clearIndexEntries();
 
-  boolean isUsingLog();
-
-  /**
-   * If you set this flag to false, you are unable to
-   *
-   * <ol>
-   *   <li>Rollback data changes in case of exception
-   *   <li>Restore data in case of server crash
-   * </ol>
-   *
-   * <p>So you practically unable to work in multithreaded environment and keep data consistent.
-   *
-   * @deprecated This option has no effect
-   */
-  @Deprecated
-  void setUsingLog(boolean useLog);
-
   void close();
 
   /**
@@ -165,17 +102,6 @@ public interface OTransaction {
 
   int amountOfNestedTxs();
 
-  boolean isLockedRecord(OIdentifiable iRecord);
-
-  @Deprecated
-  OStorage.LOCKING_STRATEGY lockingStrategy(OIdentifiable iRecord);
-
-  @Deprecated
-  OTransaction lockRecord(OIdentifiable iRecord, OStorage.LOCKING_STRATEGY iLockingStrategy);
-
-  @Deprecated
-  OTransaction unlockRecord(OIdentifiable iRecord);
-
   int getEntryCount();
 
   /**
@@ -186,50 +112,36 @@ public interface OTransaction {
   /**
    * Saves the given record in this transaction.
    *
-   * @param record the record to save.
+   * @param record      the record to save.
    * @param clusterName record's cluster name.
-   * @param operationMode the operation mode.
-   * @param forceCreate the force creation flag, {@code true} to force the creation of the record,
-   *     {@code false} to allow updates.
-   * @param createdCallback the callback to invoke when the record save operation triggered the
-   *     creation of the record.
-   * @param updatedCallback the callback to invoke when the record save operation triggered the
-   *     update of the record.
    * @return the record saved.
    */
-  ORecord saveRecord(
-      ORecordAbstract record,
-      String clusterName,
-      OPERATION_MODE operationMode,
-      boolean forceCreate,
-      ORecordCallback<? extends Number> createdCallback,
-      ORecordCallback<Integer> updatedCallback);
+  ORecord saveRecord(ORecordAbstract record, String clusterName);
 
   /**
    * Deletes the given record in this transaction.
    *
    * @param record the record to delete.
-   * @param mode the operation mode.
    */
-  void deleteRecord(ORecordAbstract record, OPERATION_MODE mode);
+  void deleteRecord(ORecordAbstract record);
 
   /**
    * Resolves a record with the given RID in the context of this transaction.
    *
    * @param rid the record RID.
-   * @return the resolved record, or {@code null} if no record is found, or {@link
-   *     OTransactionAbstract#DELETED_RECORD} if the record was deleted in this transaction.
+   * @return the resolved record, or {@code null} if no record is found, or
+   * {@link OTransactionAbstract#DELETED_RECORD} if the record was deleted in this transaction.
    */
   ORecordAbstract getRecord(ORID rid);
 
   /**
    * Adds the transactional index entry in this transaction.
    *
-   * @param index the index.
+   * @param index     the index.
    * @param indexName the index name.
    * @param operation the index operation to register.
-   * @param key the index key.
-   * @param value the index key value.
+   * @param key       the index key.
+   * @param value     the index key value.
    */
   void addIndexEntry(
       OIndex index,
@@ -237,13 +149,6 @@ public interface OTransaction {
       OTransactionIndexChanges.OPERATION operation,
       Object key,
       OIdentifiable value);
-
-  /**
-   * Adds the given document to a set of changed documents known to this transaction.
-   *
-   * @param document the document to add.
-   */
-  void addChangedDocument(ODocument document);
 
   /**
    * Obtains the index changes done in the context of this transaction.
@@ -259,7 +164,7 @@ public interface OTransaction {
    *
    * @param indexName the index name.
    * @return the index changes in question or {@code null} if index is not found or storage is
-   *     remote.
+   * remote.
    */
   OTransactionIndexChanges getIndexChangesInternal(String indexName);
 
@@ -274,7 +179,7 @@ public interface OTransaction {
   /**
    * Sets the custom value by its name stored in the context of this transaction.
    *
-   * @param name the value name.
+   * @param name  the value name.
    * @param value the value to store.
    */
   void setCustomData(String name, Object value);

@@ -11,7 +11,6 @@ import com.orientechnologies.orient.core.sql.parser.OUpdateEdgeStatement;
 import com.orientechnologies.orient.core.sql.parser.OUpdateOperations;
 import com.orientechnologies.orient.core.sql.parser.OUpdateStatement;
 import com.orientechnologies.orient.core.sql.parser.OWhereClause;
-import com.orientechnologies.orient.core.storage.OStorage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,8 +30,6 @@ public class OUpdateExecutionPlanner {
   protected boolean updateEdge = false;
 
   protected OProjection returnProjection;
-
-  public OStorage.LOCKING_STRATEGY lockRecord = null;
 
   public OLimit limit;
   public OTimeout timeout;
@@ -59,7 +56,6 @@ public class OUpdateExecutionPlanner {
         oUpdateStatement.getReturnProjection() == null
             ? null
             : oUpdateStatement.getReturnProjection().copy();
-    this.lockRecord = oUpdateStatement.getLockRecord();
     this.limit = oUpdateStatement.getLimit() == null ? null : oUpdateStatement.getLimit().copy();
     this.timeout =
         oUpdateStatement.getTimeout() == null ? null : oUpdateStatement.getTimeout().copy();
@@ -78,7 +74,6 @@ public class OUpdateExecutionPlanner {
     handleLimit(result, ctx, this.limit, enableProfiling);
     handleReturnBefore(result, ctx, this.returnBefore, enableProfiling);
     handleOperations(result, ctx, this.operations, enableProfiling);
-    handleLock(result, ctx, this.lockRecord);
     handleSave(result, ctx, enableProfiling);
     handleResultForReturnBefore(result, ctx, this.returnBefore, returnProjection, enableProfiling);
     handleResultForReturnAfter(result, ctx, this.returnAfter, returnProjection, enableProfiling);
@@ -161,9 +156,6 @@ public class OUpdateExecutionPlanner {
       result.chain(new CopyRecordContentBeforeUpdateStep(ctx, profilingEnabled));
     }
   }
-
-  private void handleLock(
-      OUpdateExecutionPlan result, OCommandContext ctx, OStorage.LOCKING_STRATEGY lockRecord) {}
 
   private void handleLimit(
       OUpdateExecutionPlan plan, OCommandContext ctx, OLimit limit, boolean profilingEnabled) {

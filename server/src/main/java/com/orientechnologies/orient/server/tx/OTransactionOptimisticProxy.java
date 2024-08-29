@@ -58,14 +58,12 @@ public class OTransactionOptimisticProxy extends OTransactionOptimistic {
   public OTransactionOptimisticProxy(
       ODatabaseDocumentInternal database,
       int txId,
-      boolean usingLong,
       List<ORecordOperationRequest> operations,
       ODocument indexChanges,
       short protocolVersion,
       ORecordSerializer serializer) {
     super(database);
     clientTxId = id;
-    setUsingLog(usingLong);
     this.operations = operations;
     this.indexChanges = indexChanges;
     this.protocolVersion = protocolVersion;

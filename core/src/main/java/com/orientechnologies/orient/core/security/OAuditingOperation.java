@@ -29,7 +29,7 @@ import com.orientechnologies.orient.core.db.record.ORecordOperation;
 public enum OAuditingOperation {
   UNSPECIFIED((byte) -1, "unspecified"),
   CREATED(ORecordOperation.CREATED, "created"),
-  LOADED(ORecordOperation.LOADED, "loaded"),
+  LOADED((byte) 0, "loaded"),
   UPDATED(ORecordOperation.UPDATED, "updated"),
   DELETED(ORecordOperation.DELETED, "deleted"),
   COMMAND((byte) 4, "command"),
@@ -42,10 +42,10 @@ public enum OAuditingOperation {
   RELOADEDSECURITY((byte) 11, "reloadedSecurity"),
   CHANGED_PWD((byte) 12, "changedPassword");
 
-  private byte byteOp = -1; // -1: unspecified;
-  private String stringOp = "unspecified";
+  private final byte byteOp; // -1: unspecified;
+  private final String stringOp;
 
-  private OAuditingOperation(byte byteOp, String stringOp) {
+  OAuditingOperation(byte byteOp, String stringOp) {
     this.byteOp = byteOp;
     this.stringOp = stringOp;
   }
@@ -59,19 +59,11 @@ public enum OAuditingOperation {
     return stringOp;
   }
 
-  public static OAuditingOperation getByString(String value) {
-    if (value == null || value.isEmpty()) return UNSPECIFIED;
-
-    for (OAuditingOperation op : values()) {
-      if (op.toString().equalsIgnoreCase(value)) return op;
-    }
-
-    return UNSPECIFIED;
-  }
-
   public static OAuditingOperation getByByte(byte value) {
     for (OAuditingOperation op : values()) {
-      if (op.getByte() == value) return op;
+      if (op.getByte() == value) {
+        return op;
+      }
     }
 
     return UNSPECIFIED;

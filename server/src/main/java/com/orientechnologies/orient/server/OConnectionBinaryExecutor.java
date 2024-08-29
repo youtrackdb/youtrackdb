@@ -77,7 +77,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -354,68 +353,6 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   }
 
   @Override
-  public OBinaryResponse executeReadRecordIfNotLastest(
-      OReadRecordIfVersionIsNotLatestRequest request) {
-
-    final ORecordId rid = request.getRid();
-    final int recordVersion = request.getRecordVersion();
-    final String fetchPlanString = request.getFetchPlan();
-
-    boolean ignoreCache = request.isIgnoreCache();
-
-    OReadRecordIfVersionIsNotLatestResponse response;
-    if (rid.getClusterId() == 0 && rid.getClusterPosition() == 0) {
-      // @COMPATIBILITY 0.9.25
-      // SEND THE DB CONFIGURATION INSTEAD SINCE IT WAS ON RECORD 0:0
-      OFetchHelper.checkFetchPlanValid(fetchPlanString);
-
-      final byte[] record =
-          ((OClusterBasedStorageConfiguration)
-                  connection.getDatabase().getStorage().getConfiguration())
-              .toStream(connection.getData().protocolVersion, StandardCharsets.UTF_8);
-
-      response =
-          new OReadRecordIfVersionIsNotLatestResponse(
-              OBlob.RECORD_TYPE, 0, record, new HashSet<>());
-
-    } else {
-      final ORecord record =
-          connection
-              .getDatabase()
-              .loadIfVersionIsNotLatest(rid, recordVersion, fetchPlanString, ignoreCache);
-
-      if (record != null) {
-        byte[] bytes = getRecordBytes(connection, record);
-        final Set<ORecord> recordsToSend = new HashSet<>();
-        if (fetchPlanString.length() > 0) {
-          // BUILD THE SERVER SIDE RECORD TO ACCES TO THE FETCH
-          // PLAN
-          if (record instanceof ODocument) {
-            final OFetchPlan fetchPlan = OFetchHelper.buildFetchPlan(fetchPlanString);
-
-            final ODocument doc = (ODocument) record;
-            final OFetchListener listener =
-                new ORemoteFetchListener() {
-                  @Override
-                  protected void sendRecord(ORecord iLinked) {
-                    recordsToSend.add(iLinked);
-                  }
-                };
-            final OFetchContext context = new ORemoteFetchContext();
-            OFetchHelper.fetch(doc, doc, fetchPlan, listener, context, "");
-          }
-        }
-        response =
-            new OReadRecordIfVersionIsNotLatestResponse(
-                ORecordInternal.getRecordType(record), record.getVersion(), bytes, recordsToSend);
-      } else {
-        response = new OReadRecordIfVersionIsNotLatestResponse((byte) 0, 0, null, null);
-      }
-    }
-    return response;
-  }
-
-  @Override
   public OBinaryResponse executeCreateRecord(OCreateRecordRequest request) {
 
     final ORecord record = request.getContent();
@@ -581,7 +518,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   public OBinaryResponse executeCommand(OCommandRequest request) {
     OTransaction oldTx = connection.getDatabase().getTransaction();
     try {
-      connection.getDatabase().swapTx(new OTransactionNoTx(connection.getDatabase(), null));
+      connection.getDatabase().swapTx(new OTransactionNoTx(connection.getDatabase()));
 
       final boolean live = request.isLive();
       final boolean asynch = request.isAsynch();
@@ -756,7 +693,6 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
         new OTransactionOptimisticProxy(
             connection.getDatabase(),
             request.getTxId(),
-            request.isUsingLong(),
             request.getOperations(),
             request.getIndexChanges(),
             connection.getData().protocolVersion,
@@ -1495,7 +1431,6 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
         new OTransactionOptimisticServer(
             connection.getDatabase(),
             request.getTxId(),
-            request.isUsingLog(),
             request.getOperations(),
             request.getIndexChanges());
     try {
@@ -1515,7 +1450,6 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
         new OTransactionOptimisticServer(
             connection.getDatabase(),
             request.getTxId(),
-            request.isUsingLog(),
             request.getOperations(),
             request.getIndexChanges());
     try {
@@ -1536,11 +1470,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     if (request.isHasContent()) {
       tx =
           new OTransactionOptimisticServer(
-              database,
-              request.getTxId(),
-              request.isUsingLog(),
-              request.getOperations(),
-              request.getIndexChanges());
+              database, request.getTxId(), request.getOperations(), request.getIndexChanges());
       try {
         database.rawBegin(tx);
       } catch (final ORecordNotFoundException e) {
@@ -1599,11 +1529,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     if (request.isHasContent()) {
       tx =
           new OTransactionOptimisticServer(
-              database,
-              request.getTxId(),
-              request.isUsingLog(),
-              request.getOperations(),
-              request.getIndexChanges());
+              database, request.getTxId(), request.getOperations(), request.getIndexChanges());
       try {
         database.rawBegin(tx);
       } catch (final ORecordNotFoundException e) {
@@ -1826,28 +1752,5 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
       return new ODistributedConnectResponse(connection.getId(), token, chosenProtocolVersion);
     }
-  }
-
-  @Override
-  public OBinaryResponse executeExperimental(OExperimentalRequest request) {
-    return new OExperimentalResponse(request.getRequest().execute(this));
-  }
-
-  @Override
-  public OBinaryResponse executeLockRecord(OLockRecordRequest request) {
-    // TODO: support properly the locking strategies.
-    ORecord record =
-        connection
-            .getDatabase()
-            .lock(request.getIdentity(), request.getTimeout(), TimeUnit.MILLISECONDS);
-    byte[] bytes = getRecordBytes(connection, record);
-    return new OLockRecordResponse(
-        ORecordInternal.getRecordType(record), record.getVersion(), bytes);
-  }
-
-  @Override
-  public OBinaryResponse executeUnlockRecord(OUnlockRecordRequest request) {
-    connection.getDatabase().getTransaction().unlockRecord(request.getIdentity());
-    return new OUnlockRecordResponse();
   }
 }
