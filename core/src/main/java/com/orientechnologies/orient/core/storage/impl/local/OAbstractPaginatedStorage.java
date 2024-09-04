@@ -163,10 +163,14 @@ import com.orientechnologies.orient.core.storage.ridbag.sbtree.OIndexRIDContaine
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManagerShared;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeRidBag;
+import com.orientechnologies.orient.core.tx.OTransactionData;
+import com.orientechnologies.orient.core.tx.OTransactionId;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChanges;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChangesPerKey;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChangesPerKey.OTransactionIndexEntry;
 import com.orientechnologies.orient.core.tx.OTransactionInternal;
+import com.orientechnologies.orient.core.tx.OTxMetadataHolder;
+import com.orientechnologies.orient.core.tx.OTxMetadataHolderImpl;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
@@ -204,7 +208,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -328,6 +334,9 @@ public abstract class OAbstractPaginatedStorage
 
   private volatile int backupRunning = 0;
   private volatile int ddlRunning = 0;
+
+  protected final Lock backupLock = new ReentrantLock();
+  protected final Condition backupIsDone = backupLock.newCondition();
 
   public OAbstractPaginatedStorage(
       final String name, final String filePath, final int id, OrientDBInternal context) {
@@ -4277,7 +4286,7 @@ public abstract class OAbstractPaginatedStorage
   protected abstract OLogSequenceNumber copyWALToIncrementalBackup(
       ZipOutputStream zipOutputStream, long startSegment) throws IOException;
 
-  @SuppressWarnings("unused")
+  @SuppressWarnings({"unused", "BooleanMethodIsAlwaysInverted"})
   protected abstract boolean isWriteAllowedDuringIncrementalBackup();
 
   @SuppressWarnings("unused")
@@ -4298,10 +4307,6 @@ public abstract class OAbstractPaginatedStorage
 
   @SuppressWarnings("unused")
   protected abstract File createWalTempDirectory();
-
-  @SuppressWarnings("unused")
-  protected abstract void addFileToDirectory(String name, InputStream stream, File directory)
-      throws IOException;
 
   @SuppressWarnings("unused")
   protected abstract OWriteAheadLog createWalFromIBUFiles(
@@ -5301,10 +5306,10 @@ public abstract class OAbstractPaginatedStorage
   }
 
   @SuppressWarnings("unused")
-  protected void closeClusters(final boolean onDelete) throws IOException {
+  protected void closeClusters() throws IOException {
     for (final OCluster cluster : clusters) {
       if (cluster != null) {
-        cluster.close(!onDelete);
+        cluster.close(true);
       }
     }
     clusters.clear();
@@ -5312,19 +5317,10 @@ public abstract class OAbstractPaginatedStorage
   }
 
   @SuppressWarnings("unused")
-  protected void closeIndexes(final OAtomicOperation atomicOperation, final boolean onDelete) {
+  protected void closeIndexes(final OAtomicOperation atomicOperation) {
     for (final OBaseIndexEngine engine : indexEngines) {
       if (engine != null) {
-        if (onDelete) {
-          try {
-            engine.delete(atomicOperation);
-          } catch (final IOException e) {
-            OLogManager.instance()
-                .error(this, "Can not delete index engine " + engine.getName(), e);
-          }
-        } else {
-          engine.close();
-        }
+        engine.close();
       }
     }
 
@@ -6590,23 +6586,130 @@ public abstract class OAbstractPaginatedStorage
     }
   }
 
-  public synchronized void startDDL() {
-    waitBackup();
-    this.ddlRunning += 1;
-  }
+  public Optional<OBackgroundNewDelta> extractTransactionsFromWal(
+      List<OTransactionId> transactionsMetadata) {
+    Map<OTransactionId, OTransactionData> finished = new HashMap<>();
+    List<OTransactionId> started = new ArrayList<>();
+    stateLock.readLock().lock();
+    try {
+      Set<OTransactionId> transactionsToRead = new HashSet<>(transactionsMetadata);
+      // we iterate till the last record is contained in wal at the moment when we call this method
+      OLogSequenceNumber beginLsn = writeAheadLog.begin();
+      Long2ObjectOpenHashMap<OTransactionData> units = new Long2ObjectOpenHashMap<>();
 
-  public synchronized void endDDL() {
-    assert this.ddlRunning > 0;
-    this.ddlRunning -= 1;
-    if (this.ddlRunning == 0) {
-      this.notifyAll();
+      writeAheadLog.addCutTillLimit(beginLsn);
+      try {
+        List<WriteableWALRecord> records = writeAheadLog.next(beginLsn, 1_000);
+        // all information about changed records is contained in atomic operation metadata
+        while (!records.isEmpty()) {
+          for (final OWALRecord record : records) {
+
+            if (record instanceof OFileCreatedWALRecord) {
+              return Optional.empty();
+            }
+
+            if (record instanceof OFileDeletedWALRecord) {
+              return Optional.empty();
+            }
+
+            if (record instanceof OAtomicUnitStartMetadataRecord) {
+              byte[] meta = ((OAtomicUnitStartMetadataRecord) record).getMetadata();
+              OTxMetadataHolder data = OTxMetadataHolderImpl.read(meta);
+              // This will not be a byte to byte compare, but should compare only the tx id not all
+              // status
+              //noinspection ConstantConditions
+              OTransactionId txId =
+                  new OTransactionId(
+                      Optional.empty(), data.getId().getPosition(), data.getId().getSequence());
+              if (transactionsToRead.contains(txId)) {
+                long unitId = ((OAtomicUnitStartMetadataRecord) record).getOperationUnitId();
+                units.put(unitId, new OTransactionData(txId));
+                started.add(txId);
+              }
+            }
+            if (record instanceof OAtomicUnitEndRecord) {
+              long opId = ((OAtomicUnitEndRecord) record).getOperationUnitId();
+              OTransactionData opes = units.remove(opId);
+              if (opes != null) {
+                transactionsToRead.remove(opes.getTransactionId());
+                finished.put(opes.getTransactionId(), opes);
+              }
+            }
+            if (record instanceof OHighLevelTransactionChangeRecord) {
+              byte[] data = ((OHighLevelTransactionChangeRecord) record).getData();
+              long unitId = ((OHighLevelTransactionChangeRecord) record).getOperationUnitId();
+              OTransactionData tx = units.get(unitId);
+              if (tx != null) {
+                tx.addRecord(data);
+              }
+            }
+            if (transactionsToRead.isEmpty() && units.isEmpty()) {
+              // all read stop scanning and return the transactions
+              List<OTransactionData> transactions = new ArrayList<>();
+              for (OTransactionId id : started) {
+                OTransactionData data = finished.get(id);
+                if (data != null) {
+                  transactions.add(data);
+                }
+              }
+              return Optional.of(new OBackgroundNewDelta(transactions));
+            }
+          }
+          records = writeAheadLog.next(records.get(records.size() - 1).getLsn(), 1_000);
+        }
+      } finally {
+        writeAheadLog.removeCutTillLimit(beginLsn);
+      }
+      if (transactionsToRead.isEmpty()) {
+        List<OTransactionData> transactions = new ArrayList<>();
+        for (OTransactionId id : started) {
+          OTransactionData data = finished.get(id);
+          if (data != null) {
+            transactions.add(data);
+          }
+        }
+        return Optional.of(new OBackgroundNewDelta(transactions));
+      } else {
+        return Optional.empty();
+      }
+    } catch (final IOException e) {
+      throw OException.wrapException(
+          new OStorageException("Error of reading of records from  WAL"), e);
+    } finally {
+      stateLock.readLock().unlock();
     }
   }
 
-  private synchronized void waitBackup() {
+  public void startDDL() {
+    backupLock.lock();
+    try {
+      waitBackup();
+      //noinspection NonAtomicOperationOnVolatileField
+      this.ddlRunning += 1;
+    } finally {
+      backupLock.unlock();
+    }
+  }
+
+  public void endDDL() {
+    backupLock.lock();
+    try {
+      assert this.ddlRunning > 0;
+      //noinspection NonAtomicOperationOnVolatileField
+      this.ddlRunning -= 1;
+
+      if (this.ddlRunning == 0) {
+        backupIsDone.signalAll();
+      }
+    } finally {
+      backupLock.unlock();
+    }
+  }
+
+  private void waitBackup() {
     while (isIcrementalBackupRunning()) {
       try {
-        this.wait();
+        backupIsDone.await();
       } catch (InterruptedException e) {
         throw OException.wrapException(
             new OInterruptedException("Interrupted wait for backup to finish"), e);
@@ -6628,32 +6731,45 @@ public abstract class OAbstractPaginatedStorage
   }
 
   @SuppressWarnings("unused")
-  protected synchronized void endBackup() {
-    assert this.backupRunning > 0;
-    this.backupRunning -= 1;
-    if (this.backupRunning == 0) {
-      this.notifyAll();
+  protected void endBackup() {
+    backupLock.lock();
+    try {
+      assert this.backupRunning > 0;
+      //noinspection NonAtomicOperationOnVolatileField
+      this.backupRunning -= 1;
+
+      if (this.backupRunning == 0) {
+        backupIsDone.signalAll();
+      }
+    } finally {
+      backupLock.unlock();
     }
   }
 
-  public synchronized boolean isIcrementalBackupRunning() {
+  public boolean isIcrementalBackupRunning() {
     return this.backupRunning > 0;
   }
 
-  protected synchronized boolean isDDLRunning() {
+  protected boolean isDDLRunning() {
     return this.ddlRunning > 0;
   }
 
   @SuppressWarnings("unused")
-  protected synchronized void startBackup() {
-    while (isDDLRunning()) {
-      try {
-        this.wait();
-      } catch (InterruptedException e) {
-        throw OException.wrapException(
-            new OInterruptedException("Interrupted wait for backup to finish"), e);
+  protected void startBackup() {
+    backupLock.lock();
+    try {
+      while (isDDLRunning()) {
+        try {
+          backupIsDone.await();
+        } catch (InterruptedException e) {
+          throw OException.wrapException(
+              new OInterruptedException("Interrupted wait for backup to finish"), e);
+        }
       }
+      //noinspection NonAtomicOperationOnVolatileField
+      this.backupRunning += 1;
+    } finally {
+      backupLock.unlock();
     }
-    this.backupRunning += 1;
   }
 }
