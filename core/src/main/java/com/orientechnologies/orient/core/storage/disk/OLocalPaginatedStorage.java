@@ -1852,6 +1852,10 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
 
       var rootDirectory = getStoragePath();
       var zipEntryPath = rootDirectory.resolve(zipEntry.getName()).normalize();
+
+      if (!zipEntryPath.startsWith(rootDirectory)) {
+        throw new IllegalStateException("Bad zip entry " + zipEntry.getName());
+      }
       if (!zipEntryPath.getParent().equals(rootDirectory)) {
         throw new IllegalStateException("Bad zip entry " + zipEntry.getName());
       }
