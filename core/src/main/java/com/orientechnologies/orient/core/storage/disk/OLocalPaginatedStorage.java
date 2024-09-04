@@ -227,7 +227,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
         OSystemVariableResolver.resolveSystemVariables(
             OFileUtils.getPath(new java.io.File(url).getPath()));
 
-    storagePath = Paths.get(OIOUtils.getPathFromDatabaseName(sp));
+    storagePath = Paths.get(OIOUtils.getPathFromDatabaseName(sp)).normalize().toAbsolutePath();
 
     deleteMaxRetries = OGlobalConfiguration.FILE_DELETE_RETRY.getValueAsInteger();
     deleteWaitTime = OGlobalConfiguration.FILE_DELETE_DELAY.getValueAsInteger();
@@ -1851,17 +1851,16 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
       long fileId;
 
       var rootDirectory = getStoragePath();
-      if (!rootDirectory
-          .resolve(zipEntry.getName())
-          .normalize()
-          .startsWith(rootDirectory.normalize())) {
+      var zipEntryPath = rootDirectory.resolve(zipEntry.getName()).normalize();
+      if (!zipEntryPath.getParent().equals(rootDirectory)) {
         throw new IllegalStateException("Bad zip entry " + zipEntry.getName());
       }
 
-      if (!writeCache.exists(zipEntry.getName())) {
-        fileId = readCache.addFile(zipEntry.getName(), expectedFileId, writeCache);
+      var fileName = zipEntryPath.getFileName().toString();
+      if (!writeCache.exists(fileName)) {
+        fileId = readCache.addFile(fileName, expectedFileId, writeCache);
       } else {
-        fileId = writeCache.fileIdByName(zipEntry.getName());
+        fileId = writeCache.fileIdByName(fileName);
       }
 
       if (!writeCache.fileIdsAreEqual(expectedFileId, fileId)) {
@@ -1880,9 +1879,9 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
 
           if (b == -1) {
             if (rb > 0) {
-              throw new OStorageException("Can not read data from file " + zipEntry.getName());
+              throw new OStorageException("Can not read data from file " + fileName);
             } else {
-              processedFiles.add(zipEntry.getName());
+              processedFiles.add(fileName);
               continue entryLoop;
             }
           }
