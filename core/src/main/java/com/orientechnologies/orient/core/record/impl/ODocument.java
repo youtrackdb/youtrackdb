@@ -19,8 +19,6 @@
  */
 package com.orientechnologies.orient.core.record.impl;
 
-import static com.orientechnologies.orient.core.config.OGlobalConfiguration.DB_CUSTOM_SUPPORT;
-
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.io.OIOUtils;
@@ -53,14 +51,17 @@ import com.orientechnologies.orient.core.serialization.serializer.record.binary.
 import com.orientechnologies.orient.core.sql.OSQLHelper;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.filter.OSQLPredicate;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.*;
 import java.lang.ref.WeakReference;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+
+import static com.orientechnologies.orient.core.config.OGlobalConfiguration.DB_CUSTOM_SUPPORT;
 
 /**
  * Document representation to handle values dynamically. Can be used in schema-less, schema-mixed
@@ -552,6 +553,9 @@ public class ODocument extends ORecordAbstract
       if (onLoadValue instanceof ORidBag) {
         throw new IllegalArgumentException(
             "getPropertyOnLoadValue(name) is not designed to work with Edge properties");
+      }
+      if (onLoadValue instanceof ORID orid){
+        return getDatabase().load(orid);
       }
       return onLoadValue;
     } else {

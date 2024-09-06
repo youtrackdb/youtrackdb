@@ -3,11 +3,12 @@ package com.orientechnologies.orient.core.record.impl;
 import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.OVertex;
+import org.junit.Assert;
+import org.junit.Test;
+
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.stream.IntStream;
-import org.junit.Assert;
-import org.junit.Test;
 
 public class GetPropertyOnLoadValueTest extends BaseMemoryDatabase {
 
@@ -83,6 +84,30 @@ public class GetPropertyOnLoadValueTest extends BaseMemoryDatabase {
     doc.save();
     Set<Integer> onLoad = doc.getPropertyOnLoadValue("set");
     Assert.assertEquals(3, onLoad.size());
+  }
+
+  @Test
+  public void testStringBlobOnLoadValue(){
+    String before = "Hello World";
+    var byteArrayBefore = before.getBytes();
+    String after = "Goodbye Cruel World";
+    var byteArrayAfter = after.getBytes();
+
+    var oBlob = new ORecordBytes(byteArrayBefore);
+    var oBlob2 = new ORecordBytes(byteArrayAfter);
+    db.createVertexClass("test");
+    db.begin();
+    OVertex doc = db.newVertex("test");
+    doc.setProperty("stringBlob", oBlob);
+    doc.save();
+    db.commit();
+    db.begin();
+    doc.load();
+    doc.setProperty("stringBlob", oBlob2);
+    doc.save();
+    ORecordBytes onLoad = doc.getPropertyOnLoadValue("stringBlob");
+    Assert.assertEquals(before, new String(onLoad.toStream()));
+    Assert.assertEquals(after, new String( ((ORecordBytes) doc.getProperty("stringBlob")).toStream()));
   }
 
   @Test
