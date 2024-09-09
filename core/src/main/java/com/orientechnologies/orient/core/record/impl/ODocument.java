@@ -554,7 +554,11 @@ public class ODocument extends ORecordAbstract
             "getPropertyOnLoadValue(name) is not designed to work with Edge properties");
       }
       if (onLoadValue instanceof ORID orid) {
-        return getDatabase().load(orid);
+        if (isLazyLoad()) {
+          return onLoadValue;
+        } else {
+          return getDatabase().load(orid);
+        }
       }
       return onLoadValue;
     } else {
