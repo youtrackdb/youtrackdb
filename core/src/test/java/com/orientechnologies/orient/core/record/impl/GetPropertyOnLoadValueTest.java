@@ -104,7 +104,7 @@ public class GetPropertyOnLoadValueTest extends BaseMemoryDatabase {
     doc.load();
     doc.setProperty("stringBlob", oBlob2);
     doc.save();
-    ORecordBytes onLoad = doc.getPropertyOnLoadValue("stringBlob");
+    ORecordBytes onLoad = db.load((ORID) (doc.getPropertyOnLoadValue("stringBlob")));
     Assert.assertEquals(before, new String(onLoad.toStream()));
     Assert.assertEquals(
         after, new String(((ORecordBytes) doc.getProperty("stringBlob")).toStream()));
