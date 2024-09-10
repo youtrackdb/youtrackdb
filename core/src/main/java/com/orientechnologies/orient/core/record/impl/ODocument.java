@@ -555,9 +555,16 @@ public class ODocument extends ORecordAbstract
       }
       if (onLoadValue instanceof ORID orid) {
         if (isLazyLoad()) {
+          return getDatabase().load(orid);
+        } else {
+          return onLoadValue;
+        }
+      }
+      if (onLoadValue instanceof ORecord record) {
+        if (isLazyLoad()) {
           return onLoadValue;
         } else {
-          return getDatabase().load(orid);
+          return (RET) record.getIdentity();
         }
       }
       return onLoadValue;
