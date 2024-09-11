@@ -53,6 +53,11 @@ public class OVertexDelegate implements OVertexInternal {
   }
 
   @Override
+  public void resetToNew() {
+    element.resetToNew();
+  }
+
+  @Override
   public boolean isProxy() {
     return true;
   }
