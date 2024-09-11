@@ -86,6 +86,35 @@ public class GetPropertyOnLoadValueTest extends BaseMemoryDatabase {
   }
 
   @Test
+  public void testStringBlobOnLoadValue() {
+    String before = "Hello World";
+    var byteArrayBefore = before.getBytes();
+    String after = "Goodbye Cruel World";
+
+    var byteArrayAfter = after.getBytes();
+    var oBlob = new ORecordBytes(byteArrayBefore);
+    var oBlob2 = new ORecordBytes(byteArrayAfter);
+    db.createVertexClass("test");
+    db.begin();
+    OVertexDocument doc = (OVertexDocument) db.newVertex("test");
+    doc.setProperty("stringBlob", oBlob);
+    doc.save();
+    db.commit();
+    db.begin();
+    doc.setLazyLoad(true);
+    doc.load();
+    doc.setProperty("stringBlob", oBlob2);
+    doc.save();
+    ORecordBytes onLoad = doc.getPropertyOnLoadValue("stringBlob");
+    Assert.assertEquals(before, new String(onLoad.toStream()));
+    Assert.assertEquals(
+        after, new String(((ORecordBytes) doc.getProperty("stringBlob")).toStream()));
+    // no lazy load
+    doc.setLazyLoad(false);
+    Assert.assertTrue(doc.getPropertyOnLoadValue("stringBlob") instanceof ORID);
+  }
+
+  @Test
   public void testRandomOnLoadValue() {
     var seed = System.currentTimeMillis();
     System.out.println("Seed is " + seed);
