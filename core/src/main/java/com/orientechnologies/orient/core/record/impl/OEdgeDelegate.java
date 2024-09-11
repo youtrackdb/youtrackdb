@@ -89,6 +89,16 @@ public class OEdgeDelegate implements OEdgeInternal {
   }
 
   @Override
+  public void resetToNew() {
+    final ODocument doc = getRecord();
+    if (doc == null) {
+      return;
+    }
+
+    doc.resetToNew();
+  }
+
+  @Override
   public OIdentifiable getFromIdentifiable() {
     if (vOut != null) {
       // LIGHTWEIGHT EDGE

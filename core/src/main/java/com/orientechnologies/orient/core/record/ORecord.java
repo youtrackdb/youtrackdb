@@ -238,4 +238,13 @@ public interface ORecord extends ORecordElement, OIdentifiable, Serializable, OS
    * @return true if the record exists, otherwise false
    */
   boolean exists();
+
+  /**
+   * Resets the record as a new record in case of its rid is {@link  ORID#isNew()} and throws
+   * exception otherwise.
+   * <p>
+   * This method can be useful if you want to reuse the record to reapply the same operations after
+   * rollback as after transaction completion all record are unloaded.
+   */
+  void resetToNew();
 }
