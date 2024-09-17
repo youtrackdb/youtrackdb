@@ -64,10 +64,10 @@ public class TransactionRidAllocationTest {
     db.save(v);
 
     ((OAbstractPaginatedStorage) db.getStorage())
-        .preallocateRids((OTransactionInternal) db.getTransaction());
+        .preallocateRids((OTransactionOptimistic) db.getTransaction());
     ORID generated = v.getIdentity();
     ((OAbstractPaginatedStorage) db.getStorage())
-        .commitPreAllocated((OTransactionInternal) db.getTransaction());
+        .commitPreAllocated((OTransactionOptimistic) db.getTransaction());
 
     final ODatabaseDocument db1 =
         orientDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -110,7 +110,7 @@ public class TransactionRidAllocationTest {
     ((OAbstractPaginatedStorage) second.getStorage()).preallocateRids(transactionOptimistic);
     db.activateOnCurrentThread();
     ((OAbstractPaginatedStorage) db.getStorage())
-        .commitPreAllocated((OTransactionInternal) db.getTransaction());
+        .commitPreAllocated((OTransactionOptimistic) db.getTransaction());
 
     ODatabaseDocument db1 = orientDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     assertNotNull(db1.load(generated));
@@ -118,7 +118,7 @@ public class TransactionRidAllocationTest {
     db1.close();
     second.activateOnCurrentThread();
     ((OAbstractPaginatedStorage) second.getStorage())
-        .commitPreAllocated((OTransactionInternal) second.getTransaction());
+        .commitPreAllocated((OTransactionOptimistic) second.getTransaction());
     second.close();
     final ODatabaseDocument db2 =
         orientDB.open("secondTest", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -186,7 +186,7 @@ public class TransactionRidAllocationTest {
       allocated.add(rec.getIdentity());
     }
     ((OAbstractPaginatedStorage) db.getStorage())
-        .commitPreAllocated((OTransactionInternal) db.getTransaction());
+        .commitPreAllocated((OTransactionOptimistic) db.getTransaction());
 
     final ODatabaseDocument db1 =
         orientDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);

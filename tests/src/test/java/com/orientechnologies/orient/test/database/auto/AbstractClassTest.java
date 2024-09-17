@@ -54,7 +54,9 @@ public class AbstractClassTest extends DocumentDBBaseTest {
   @Test
   public void testCannotCreateInstances() {
     try {
+      database.begin();
       new ODocument("AbstractPerson").save();
+      database.begin();
     } catch (OException e) {
       Throwable cause = e;
 

@@ -64,14 +64,18 @@ public class SQLSelectTest extends AbstractSelectTest {
       database.getMetadata().getSchema().createClass("Profile", 1);
 
       for (int i = 0; i < 1000; ++i) {
+        database.begin();
         database.<ODocument>newInstance("Profile").field("test", i).field("name", "N" + i).save();
+        database.commit();
       }
     }
 
     if (!database.getMetadata().getSchema().existsClass("company")) {
       database.getMetadata().getSchema().createClass("company", 1);
       for (int i = 0; i < 20; ++i) {
+        database.begin();
         new ODocument("company").field("id", i).save();
+        database.commit();
       }
     }
 
@@ -194,7 +198,9 @@ public class SQLSelectTest extends AbstractSelectTest {
     ODocument doc = new ODocument("Profile");
     doc.field("tags", tags, OType.EMBEDDEDSET);
 
+    database.begin();
     doc.save();
+    database.commit();
 
     List<ODocument> resultset =
         executeQuery("select from Profile where tags CONTAINS 'smart'", database);
@@ -202,7 +208,9 @@ public class SQLSelectTest extends AbstractSelectTest {
     Assert.assertEquals(resultset.size(), 1);
     Assert.assertEquals(resultset.get(0).getIdentity(), doc.getIdentity());
 
+    database.begin();
     doc.delete();
+    database.commit();
   }
 
   @Test
@@ -214,7 +222,9 @@ public class SQLSelectTest extends AbstractSelectTest {
     ODocument doc = new ODocument("Profile");
     doc.field("tags", tags);
 
+    database.begin();
     doc.save();
+    database.commit();
 
     List<ODocument> resultset =
         executeQuery("select from Profile where tags[0] = 'smart'", database);
@@ -228,7 +238,9 @@ public class SQLSelectTest extends AbstractSelectTest {
     Assert.assertEquals(resultset.size(), 1);
     Assert.assertEquals(resultset.get(0).getIdentity(), doc.getIdentity());
 
+    database.begin();
     doc.delete();
+    database.commit();
   }
 
   @Test
@@ -240,7 +252,9 @@ public class SQLSelectTest extends AbstractSelectTest {
     ODocument doc = new ODocument("Profile");
     doc.field("coll", coll, OType.EMBEDDEDSET);
 
+    database.begin();
     doc.save();
+    database.commit();
 
     List<ODocument> resultset =
         executeQuery(
@@ -250,7 +264,9 @@ public class SQLSelectTest extends AbstractSelectTest {
     Assert.assertEquals(
         ((List<ODocument>) resultset.get(0).field("value")).get(0).field("name"), "Jay");
 
+    database.begin();
     doc.delete();
+    database.commit();
   }
 
   @Test
@@ -262,7 +278,9 @@ public class SQLSelectTest extends AbstractSelectTest {
     ODocument doc = new ODocument("Profile");
     doc.field("coll", coll, OType.EMBEDDEDLIST);
 
+    database.begin();
     doc.save();
+    database.commit();
 
     List<ODocument> resultset =
         executeQuery(
@@ -272,7 +290,9 @@ public class SQLSelectTest extends AbstractSelectTest {
     Assert.assertEquals(
         ((ODocument) ((List) resultset.get(0).field("value")).get(0)).field("name"), "Jay");
 
+    database.begin();
     doc.delete();
+    database.commit();
   }
 
   @Test
@@ -284,7 +304,9 @@ public class SQLSelectTest extends AbstractSelectTest {
     ODocument doc = new ODocument("Profile");
     doc.field("customReferences", customReferences, OType.EMBEDDEDMAP);
 
+    database.begin();
     doc.save();
+    database.commit();
 
     List<ODocument> resultset =
         executeQuery("select from Profile where customReferences CONTAINSKEY 'first'", database);
@@ -299,7 +321,9 @@ public class SQLSelectTest extends AbstractSelectTest {
     Assert.assertEquals(resultset.size(), 1);
     Assert.assertEquals(resultset.get(0).getIdentity(), doc.getIdentity());
 
+    database.begin();
     doc.delete();
+    database.commit();
   }
 
   @Test
@@ -311,7 +335,9 @@ public class SQLSelectTest extends AbstractSelectTest {
     ODocument doc = new ODocument("Profile");
     doc.field("customReferences", customReferences, OType.EMBEDDEDMAP);
 
+    database.begin();
     doc.save();
+    database.commit();
 
     List<ODocument> resultset =
         executeQuery(
@@ -328,7 +354,9 @@ public class SQLSelectTest extends AbstractSelectTest {
     Assert.assertEquals(resultset.size(), 1);
     Assert.assertEquals(resultset.get(0).getIdentity(), doc.getIdentity());
 
+    database.begin();
     doc.delete();
+    database.commit();
   }
 
   @Test
@@ -360,12 +388,14 @@ public class SQLSelectTest extends AbstractSelectTest {
     var record = new ODocument("Animal");
     record.field("name", "Cat");
 
+    database.begin();
     Collection<ODocument> races = new HashSet<>();
     races.add(((ODocument) database.newInstance("AnimalRace")).field("name", "European"));
     races.add(((ODocument) database.newInstance("AnimalRace")).field("name", "Siamese"));
     record.field("age", 10);
     record.field("races", races);
     record.save();
+    database.commit();
 
     List<ODocument> result =
         executeQuery(
@@ -440,7 +470,9 @@ public class SQLSelectTest extends AbstractSelectTest {
             database);
     Assert.assertEquals(result.size(), 1);
 
+    database.begin();
     record.delete();
+    database.commit();
   }
 
   @Test
@@ -453,7 +485,9 @@ public class SQLSelectTest extends AbstractSelectTest {
     rates.add(200);
     record.field("rates", rates);
 
+    database.begin();
     record.save("animal");
+    database.commit();
 
     List<ODocument> result = executeQuery("select * from cluster:animal where rates in [100,200]");
 
@@ -499,7 +533,9 @@ public class SQLSelectTest extends AbstractSelectTest {
     result = executeQuery("select * from cluster:animal where rates contains 100", database);
     Assert.assertEquals(result.size(), 1);
 
+    database.begin();
     record.delete();
+    database.commit();
   }
 
   @Test
@@ -1091,7 +1127,10 @@ public class SQLSelectTest extends AbstractSelectTest {
     }
     ODocument document = new ODocument(test);
     document.field("f1", "a").field("f2", "a");
+
+    database.begin();
     database.save(document);
+    database.commit();
 
     Map<String, Object> parameters = new HashMap<>();
     parameters.put("p1", "a");
@@ -1162,6 +1201,7 @@ public class SQLSelectTest extends AbstractSelectTest {
     final Calendar oneYearAgo = Calendar.getInstance();
     oneYearAgo.add(Calendar.YEAR, -1);
 
+    database.begin();
     ODocument doc1 = new ODocument(facClass);
     doc1.field("context", "test");
     doc1.field("date", currentYear.getTime());
@@ -1171,6 +1211,7 @@ public class SQLSelectTest extends AbstractSelectTest {
     doc2.field("context", "test");
     doc2.field("date", oneYearAgo.getTime());
     doc2.save();
+    database.commit();
 
     List<ODocument> result =
         executeQuery(
@@ -1235,12 +1276,18 @@ public class SQLSelectTest extends AbstractSelectTest {
     ODocument odoc = new ODocument("Place");
     odoc.field("id", "adda");
     odoc.field("descr", "Adda");
+
+    database.begin();
     database.save(odoc);
+    database.commit();
 
     odoc = new ODocument("Place");
     odoc.field("id", "lago_di_como");
     odoc.field("descr", "Lago di Como");
+
+    database.begin();
     database.save(odoc);
+    database.commit();
 
     Map<String, Object> params = new HashMap<>();
     List<String> inputValues = new ArrayList<>();
@@ -1266,13 +1313,21 @@ public class SQLSelectTest extends AbstractSelectTest {
     ODocument odoc = new ODocument("Place");
     odoc.field("id", "adda");
     odoc.field("descr", "Adda");
+
+    database.begin();
     database.save(odoc);
+    database.commit();
+
     inputValues.add(odoc.getIdentity());
 
     odoc = new ODocument("Place");
     odoc.field("id", "lago_di_como");
     odoc.field("descr", "Lago di Como");
+
+    database.begin();
     database.save(odoc);
+    database.commit();
+
     inputValues.add(odoc.getIdentity());
 
     Map<String, Object> params = new HashMap<>();
@@ -1291,11 +1346,22 @@ public class SQLSelectTest extends AbstractSelectTest {
     database.getMetadata().getSchema().createClass("FamousPlace", 1, placeClass);
 
     ODocument firstPlace = new ODocument("Place");
+
+    database.begin();
     database.save(firstPlace);
+    database.commit();
+
     ODocument secondPlace = new ODocument("Place");
+
+    database.begin();
     database.save(secondPlace);
+    database.commit();
+
     ODocument famousPlace = new ODocument("FamousPlace");
+
+    database.begin();
     database.save(famousPlace);
+    database.commit();
 
     ORID secondPlaceId = secondPlace.getIdentity();
     ORID famousPlaceId = famousPlace.getIdentity();
@@ -1375,7 +1441,9 @@ public class SQLSelectTest extends AbstractSelectTest {
       Set<String> names =
           new HashSet<>(Arrays.asList("Luca", "Jill", "Sara", "Tania", "Gianluca", "Marco"));
       for (String n : names) {
+        database.begin();
         new ODocument("PersonMultipleClusters").field("First", n).save();
+        database.commit();
       }
 
       var query = "select from PersonMultipleClusters where @rid > ? limit 2";
@@ -1447,7 +1515,10 @@ public class SQLSelectTest extends AbstractSelectTest {
     database.command("create blob cluster binarycluster").close();
     database.reload();
     OBlob bytes = new ORecordBytes(new byte[] {1, 2, 3});
+
+    database.begin();
     database.save(bytes, "binarycluster");
+    database.commit();
 
     OResultSet result = database.query("select from cluster:binarycluster");
 

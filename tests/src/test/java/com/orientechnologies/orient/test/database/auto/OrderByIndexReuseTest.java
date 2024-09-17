@@ -49,6 +49,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
         "OrderByIndexReuseIndexFirstPropNotUnique", OClass.INDEX_TYPE.NOTUNIQUE, "firstProp");
 
     for (int i = 0; i < 100; i++) {
+      database.begin();
       ODocument document = new ODocument("OrderByIndexReuse");
       document.field("firstProp", (101 - i) / 2);
       document.field("secondProp", (101 - i) / 2);
@@ -57,6 +58,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       document.field("prop4", "prop" + (101 - i));
 
       document.save();
+      database.commit();
     }
   }
 

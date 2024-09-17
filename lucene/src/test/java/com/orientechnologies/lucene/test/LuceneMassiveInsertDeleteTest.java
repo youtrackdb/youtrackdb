@@ -52,7 +52,10 @@ public class LuceneMassiveInsertDeleteTest extends BaseLuceneTest {
     for (int i = 0; i < size; i++) {
       ODocument city = new ODocument("City");
       city.field("name", "Rome " + i);
+
+      db.begin();
       db.save(city);
+      db.commit();
     }
     String query = "select * from City where name LUCENE 'name:Rome'";
     OResultSet docs = db.query(query);

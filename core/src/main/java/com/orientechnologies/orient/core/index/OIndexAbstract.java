@@ -999,11 +999,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
     }
     ODatabaseDocumentInternal database = getDatabase();
 
-    var initTx = database.getTransaction().isActive();
-    if (initTx) {
-      database.begin();
-    }
-
+    database.begin();
     try {
       for (final ORecord record : database.browseCluster(clusterName)) {
         if (Thread.interrupted()) {
@@ -1029,9 +1025,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
         }
       }
     } finally {
-      if (initTx) {
-        database.commit();
-      }
+      database.commit();
     }
 
     return new long[] {documentNum, documentIndexed};

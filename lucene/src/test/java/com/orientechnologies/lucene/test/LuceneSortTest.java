@@ -562,7 +562,9 @@ public class LuceneSortTest extends BaseLuceneTest {
   @Test
   public void shouldIndexVeryLongDescriptionWithWildCardConfig() throws Exception {
 
+    db.begin();
     db.save(new ODocument("Person").field("description", DESCRIPTION));
+    db.commit();
 
     db.command(
             "create index Person.description on Person(description) FULLTEXT ENGINE LUCENE METADATA"
@@ -578,7 +580,9 @@ public class LuceneSortTest extends BaseLuceneTest {
   @Test
   public void shouldIndexVeryLongDescriptionWithSingleField() throws Exception {
 
+    db.begin();
     db.save(new ODocument("Person").field("description", DESCRIPTION));
+    db.commit();
 
     db.command(
             "create index Person.description on Person(description) FULLTEXT ENGINE LUCENE METADATA"

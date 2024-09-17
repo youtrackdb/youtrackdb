@@ -75,7 +75,9 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     int addressId = database.getMetadata().getSchema().getClass("Address").getDefaultClusterId();
 
     for (int i = 0; i < 30; i++) {
+      database.begin();
       new ODocument("Address").save();
+      database.commit();
     }
     List<Long> positions = getValidPositions(addressId);
 
@@ -153,7 +155,9 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     Assert.assertEquals(doc.getProperty("location"), new ORecordId(addressId, positions.get(3)));
     Assert.assertEquals(doc.getProperty("dummy"), "hooray");
 
+    database.begin();
     database.delete(doc);
+    database.commit();
 
     doc =
         database
@@ -205,7 +209,9 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     Assert.assertEquals(entries.get("round"), "eeee");
     Assert.assertEquals(entries.get("blaaa"), "zigzag");
 
+    database.begin();
     database.delete(doc);
+    database.commit();
 
     doc =
         database
@@ -259,7 +265,9 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     Assert.assertEquals(entries.get(2), "left");
     Assert.assertEquals(entries.get(3), "right");
 
+    database.begin();
     database.delete(doc);
+    database.commit();
 
     doc =
         database
@@ -674,7 +682,10 @@ public class SQLInsertTest extends DocumentDBBaseTest {
       found = true;
     }
 
+    database.begin();
     database.delete(doc.getIdentity().get());
+    database.commit();
+
     Assert.assertTrue(found);
   }
 

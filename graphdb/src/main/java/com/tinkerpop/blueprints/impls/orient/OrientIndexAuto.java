@@ -55,13 +55,20 @@ public class OrientIndexAuto<T extends OrientElement> implements OrientIndex<T> 
         generateRevertIndexName(indexClassName), OClass.INDEX_TYPE.NOTUNIQUE, ELEMENT_FIELD);
 
     final String className;
-    if (Vertex.class.isAssignableFrom(indexClass)) className = VERTEX;
-    else if (Edge.class.isAssignableFrom(indexClass)) className = EDGE;
-    else className = indexClass.getName();
+    if (Vertex.class.isAssignableFrom(indexClass)) {
+      className = VERTEX;
+    } else if (Edge.class.isAssignableFrom(indexClass)) {
+      className = EDGE;
+    } else {
+      className = indexClass.getName();
+    }
 
+    var db = graph.getRawGraph();
+    db.begin();
     final ODocument document = new ODocument(configCls);
     document.field(CLASS_NAME_FIELD, className);
     document.save();
+    db.commit();
 
     return new OrientIndexAuto<>(graph, indexName, indexClass);
   }

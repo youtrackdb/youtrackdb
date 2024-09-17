@@ -47,6 +47,7 @@ import org.testng.annotations.Test;
 
 @Test
 public class SchemaTest extends DocumentDBBaseTest {
+
   @Parameters(value = "url")
   public SchemaTest(@Optional String url) {
     super(url);
@@ -54,7 +55,9 @@ public class SchemaTest extends DocumentDBBaseTest {
 
   public void createSchema() throws IOException {
 
-    if (database.getMetadata().getSchema().existsClass("Account")) return;
+    if (database.getMetadata().getSchema().existsClass("Account")) {
+      return;
+    }
 
     createBasicTestSchema();
   }
@@ -124,7 +127,9 @@ public class SchemaTest extends DocumentDBBaseTest {
   public void checkClusters() {
 
     for (OClass cls : database.getMetadata().getSchema().getClasses()) {
-      if (!cls.isAbstract()) assert database.getClusterNameById(cls.getDefaultClusterId()) != null;
+      if (!cls.isAbstract()) {
+        assert database.getClusterNameById(cls.getDefaultClusterId()) != null;
+      }
     }
   }
 
@@ -153,9 +158,15 @@ public class SchemaTest extends DocumentDBBaseTest {
               public void run() {
                 ODatabaseRecordThreadLocal.instance().set(database);
                 ODocument doc = new ODocument("NewClass");
-                database.save(doc);
 
+                database.begin();
+                database.save(doc);
+                database.commit();
+
+                database.begin();
                 doc.delete();
+                database.commit();
+
                 database.getMetadata().getSchema().dropClass("NewClass");
               }
             });
@@ -408,6 +419,7 @@ public class SchemaTest extends DocumentDBBaseTest {
 
     OClass oClass = database.getMetadata().getSchema().createClass("RenameClassTest");
 
+    database.begin();
     ODocument document = new ODocument("RenameClassTest");
     document.save();
 
@@ -415,6 +427,7 @@ public class SchemaTest extends DocumentDBBaseTest {
 
     document.setClassName("RenameClassTest");
     document.save();
+    database.commit();
 
     OResultSet result = database.query("select from RenameClassTest");
     Assert.assertEquals(result.stream().count(), 2);
@@ -443,7 +456,9 @@ public class SchemaTest extends DocumentDBBaseTest {
       }
 
       for (int i = 0; i < 6; ++i) {
+        database.begin();
         new ODocument("multipleclusters").field("num", i).save();
+        database.commit();
       }
 
       // CHECK THERE ARE 2 RECORDS IN EACH CLUSTER (ROUND-ROBIN STRATEGY)
@@ -467,7 +482,9 @@ public class SchemaTest extends DocumentDBBaseTest {
       database.getMetadata().getSchema().reload();
 
       for (int i = 0; i < 2; ++i) {
+        database.begin();
         new ODocument("multipleclusters").field("num", i).save();
+        database.commit();
       }
 
       Assert.assertEquals(
@@ -547,25 +564,33 @@ public class SchemaTest extends DocumentDBBaseTest {
     } catch (OException e) {
 
       Throwable cause = e;
-      while (cause.getCause() != null) cause = cause.getCause();
+      while (cause.getCause() != null) {
+        cause = cause.getCause();
+      }
 
       Assert.assertTrue(cause instanceof OOfflineClusterException);
     }
 
     // TEST UPDATE RECORD -> EXCEPTION
     try {
+      database.begin();
       record.field("status", "offline").save();
-      Assert.assertTrue(false);
+      database.commit();
+      Assert.fail();
     } catch (OException e) {
       Throwable cause = e;
-      while (cause.getCause() != null) cause = cause.getCause();
+      while (cause.getCause() != null) {
+        cause = cause.getCause();
+      }
 
       Assert.assertTrue(cause instanceof OOfflineClusterException);
     }
 
     // TEST DELETE RECORD -> EXCEPTION
     try {
+      database.begin();
       record.delete();
+      database.commit();
       Assert.assertTrue(false);
     } catch (OOfflineClusterException e) {
       Assert.assertTrue(true);

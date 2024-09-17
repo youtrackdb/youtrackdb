@@ -219,7 +219,10 @@ public class LuceneSpatialMultiPolygonTest extends BaseSpatialLuceneTest {
     ODocument italy = new ODocument("Place");
     italy.field("name", "Italy");
     italy.field("location", location);
+
+    db.begin();
     db.save(italy);
+    db.commit();
 
     OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Place.location");
 

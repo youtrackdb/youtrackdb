@@ -171,12 +171,19 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
 
     ODocument doc1 = database.newInstance();
     doc1.field("INIT", "ok");
+    database.begin();
     database.save(doc1, database.getClusterNameById(database.getDefaultClusterId()));
+    database.commit();
+
     ORID rid1 = doc1.getIdentity();
 
     ODocument doc2 = database.newInstance();
     doc2.field("INIT", "ok");
+
+    database.begin();
     database.save(doc2, database.getClusterNameById(database.getDefaultClusterId()));
+    database.commit();
+
     ORID rid2 = doc2.getIdentity();
 
     OptimisticUpdateField[] ops = new OptimisticUpdateField[THREADS];
@@ -228,7 +235,11 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
 
     ODocument doc1 = database.newInstance();
     doc1.field("total", 0);
+
+    database.begin();
     database.save(doc1, database.getClusterNameById(database.getDefaultClusterId()));
+    database.commit();
+
     ORID rid1 = doc1.getIdentity();
 
     PessimisticUpdate[] ops = new PessimisticUpdate[THREADS];

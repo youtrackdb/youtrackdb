@@ -127,7 +127,9 @@ public class LuceneInsertMultithreadTest {
 
           doc.field("name", "Rome");
 
+          db.begin();
           db.save(doc);
+          db.commit();
           int commitBuf = 500;
           if (i % commitBuf == 0) {
             db.commit();

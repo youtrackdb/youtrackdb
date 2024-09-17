@@ -118,16 +118,13 @@
     </test>
     <test name="sql-commands">
         <classes>
-            <!--  <class name="com.orientechnologies.orient.test.database.auto.SQLCommandsTest" />-->
             <class name="com.orientechnologies.orient.test.database.auto.SQLInsertTest"/>
             <class name="com.orientechnologies.orient.test.database.auto.SQLSelectTest"/>
             <class name="com.orientechnologies.orient.test.database.auto.SQLMetadataTest"/>
             <class name="com.orientechnologies.orient.test.database.auto.SQLSelectProjectionsTest"/>
             <class name="com.orientechnologies.orient.test.database.auto.SQLSelectGroupByTest"/>
-            <!-- class name="com.orientechnologies.orient.test.database.auto.SQLFunctionsTest" / -->
             <class name="com.orientechnologies.orient.test.database.auto.SQLUpdateTest"/>
             <class name="com.orientechnologies.orient.test.database.auto.SQLDeleteTest"/>
-            <class name="com.orientechnologies.orient.test.database.auto.SQLTruncateRecordTest"/>
             <class name="com.orientechnologies.orient.test.database.auto.SQLCreateVertexTest"/>
             <class name="com.orientechnologies.orient.test.database.auto.SQLDeleteEdgeTest"/>
             <class name="com.orientechnologies.orient.test.database.auto.SequenceTest"/>

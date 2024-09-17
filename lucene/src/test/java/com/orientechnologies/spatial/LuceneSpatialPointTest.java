@@ -62,9 +62,12 @@ public class LuceneSpatialPointTest extends BaseSpatialLuceneTest {
     rome1.field("name", "Rome");
     rome1.field("latitude", 41.9);
     rome1.field("longitude", 12.5);
+
+    db.begin();
     db.save(rome1);
     db.save(rome);
     db.save(london);
+    db.commit();
 
     db.command(
             "insert into City set name = 'TestInsert' , location = ST_GeomFromText('" + PWKT + "')")

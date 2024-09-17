@@ -88,12 +88,15 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
       database.addBlobCluster("binary");
     }
 
-    ODatabaseDocument db2 = new ODatabaseDocumentTx(database.getURL());
+    ODatabaseDocumentInternal db2 = new ODatabaseDocumentTx(database.getURL());
     db2.open("admin", "admin");
 
     database.activateOnCurrentThread();
     OBlob record1 = new ORecordBytes("This is the first version".getBytes());
+
+    database.begin();
     record1.save("binary");
+    database.commit();
 
     try {
       database.begin();
@@ -101,16 +104,17 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
       // RE-READ THE RECORD
       record1.load();
 
-      ODatabaseRecordThreadLocal.instance().set((ODatabaseDocumentInternal) db2);
+      ODatabaseRecordThreadLocal.instance().set(db2);
       OBlob record2 = db2.load(record1.getIdentity());
-
       ORecordInternal.fill(
           record2,
           record2.getIdentity(),
           record2.getVersion(),
           "This is the second version".getBytes(),
           true);
+      db2.begin();
       record2.save();
+      db2.commit();
 
       ODatabaseRecordThreadLocal.instance().set(database);
       ORecordInternal.fill(
@@ -130,7 +134,6 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
       database.rollback();
 
     } finally {
-
       database.close();
 
       db2.activateOnCurrentThread();
@@ -145,7 +148,9 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
     }
 
     OBlob record = new ORecordBytes("This is the first version".getBytes());
+    database.begin();
     record.save();
+    database.commit();
 
     try {
       database.begin();
@@ -176,7 +181,9 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
     db2.open("admin", "admin");
 
     OBlob record1 = new ORecordBytes("This is the first version".getBytes());
+    db2.begin();
     record1.save();
+    db2.commit();
 
     try {
       ODatabaseRecordThreadLocal.instance().set(database);
@@ -368,7 +375,9 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
     }
 
     ODocument brokenDocOne = new ODocument("NestedTxRollbackOne");
+    database.begin();
     brokenDocOne.save();
+    database.commit();
     try {
       database.begin();
 
@@ -397,7 +406,10 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
 
       final ODocument externalDocThree = new ODocument("NestedTxRollbackOne");
       externalDocThree.field("v", "val3");
+
+      database.begin();
       externalDocThree.save();
+      database.commit();
 
       executorService
           .submit(
@@ -407,7 +419,10 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
                 try {
                   ODocument brokenDocTwo = db.load(brokenDocOne.getIdentity(), "*:-1", true);
                   brokenDocTwo.field("v", "vstr");
+
+                  db.begin();
                   brokenDocTwo.save();
+                  db.commit();
                 } finally {
                   db.close();
                 }

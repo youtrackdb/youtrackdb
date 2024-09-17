@@ -72,8 +72,11 @@ public class LuceneSpatialLineStringTest extends BaseSpatialLuceneTest {
                 add(Arrays.asList(0d, 5d));
               }
             }));
+
+    db.begin();
     db.save(linestring1);
     db.save(linestring2);
+    db.commit();
 
     db.command(
             "insert into Place set name = 'LineString3' , location = ST_GeomFromText('"

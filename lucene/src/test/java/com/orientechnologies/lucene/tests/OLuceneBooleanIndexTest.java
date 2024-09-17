@@ -45,7 +45,9 @@ public class OLuceneBooleanIndexTest extends OLuceneBaseTest {
     for (int i = 0; i < 1000; i++) {
       OVertex person = db.newVertex("Person");
       person.setProperty("isDeleted", i % 2 == 0);
+      db.begin();
       db.save(person);
+      db.commit();
     }
   }
 

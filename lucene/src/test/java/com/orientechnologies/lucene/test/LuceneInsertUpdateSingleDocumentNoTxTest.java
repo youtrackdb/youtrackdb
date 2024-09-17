@@ -58,15 +58,19 @@ public class LuceneInsertUpdateSingleDocumentNoTxTest extends BaseLuceneTest {
     doc.field("name", "");
     ODocument doc1 = new ODocument("City");
     doc1.field("name", "");
+    db.begin();
     doc = db.save(doc);
     doc1 = db.save(doc1);
+    db.commit();
 
     doc = db.load(doc);
     doc1 = db.load(doc1);
     doc.field("name", "Rome");
     doc1.field("name", "Rome");
+    db.begin();
     db.save(doc);
     db.save(doc1);
+    db.commit();
 
     OIndex idx = schema.getClass("City").getClassIndex("City.name");
 

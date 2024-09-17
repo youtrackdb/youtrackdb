@@ -45,7 +45,9 @@ public class OLuceneGraphTxTest extends OLuceneBaseTest {
     v.setProperty("name", "London");
 
     // save london
+    db.begin();
     db.save(v);
+    db.commit();
 
     OResultSet resultSet = db.command("select from City where search_class('London') =true ");
 
@@ -55,7 +57,9 @@ public class OLuceneGraphTxTest extends OLuceneBaseTest {
     v.setProperty("name", "Berlin");
 
     // re-save
+    db.begin();
     db.save(v);
+    db.commit();
 
     // only berlin
     resultSet = db.command("select from City where search_class('Berlin') =true ");

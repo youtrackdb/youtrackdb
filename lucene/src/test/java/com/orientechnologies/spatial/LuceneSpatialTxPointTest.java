@@ -105,7 +105,9 @@ public class LuceneSpatialTxPointTest extends BaseSpatialLuceneTest {
 
     ODocument rome = newCity("Rome", -0.1275, 51.507222);
 
+    db.begin();
     rome = db.save(rome);
+    db.commit();
 
     db.begin();
 
@@ -133,8 +135,10 @@ public class LuceneSpatialTxPointTest extends BaseSpatialLuceneTest {
     ODocument rome = newCity("Rome", 12.5, 41.9);
     ODocument london = newCity("London", -0.1275, 51.507222);
 
+    db.begin();
     rome = db.save(rome);
     london = db.save(london);
+    db.commit();
 
     db.begin();
 

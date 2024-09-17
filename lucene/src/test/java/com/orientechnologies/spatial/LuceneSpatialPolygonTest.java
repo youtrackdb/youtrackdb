@@ -82,7 +82,10 @@ public class LuceneSpatialPolygonTest extends BaseSpatialLuceneTest {
     ODocument germany = new ODocument("Place");
     germany.field("name", "Germany");
     germany.field("location", location);
+
+    db.begin();
     db.save(germany);
+    db.commit();
 
     OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Place.location");
 

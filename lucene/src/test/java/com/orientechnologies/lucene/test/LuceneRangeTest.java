@@ -42,6 +42,7 @@ public class LuceneRangeTest extends BaseLuceneTest {
             "Gabriel",
             "Sara");
     for (int i = 0; i < 10; i++) {
+      db.begin();
       db.save(
           new ODocument("Person")
               .field("name", names.get(i))
@@ -49,6 +50,7 @@ public class LuceneRangeTest extends BaseLuceneTest {
               // from today back one day a time
               .field("date", System.currentTimeMillis() - (i * 3600 * 24 * 1000))
               .field("age", i));
+      db.commit();
     }
   }
 

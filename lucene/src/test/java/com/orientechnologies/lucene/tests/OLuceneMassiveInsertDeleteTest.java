@@ -49,7 +49,10 @@ public class OLuceneMassiveInsertDeleteTest extends OLuceneBaseTest {
     for (int i = 0; i < size; i++) {
       OVertex city = db.newVertex("City");
       city.setProperty("name", "Rome " + i);
+
+      db.begin();
       db.save(city);
+      db.commit();
     }
     String query = "select * from City where search_class('name:Rome')=true";
     OResultSet docs = db.query(query);

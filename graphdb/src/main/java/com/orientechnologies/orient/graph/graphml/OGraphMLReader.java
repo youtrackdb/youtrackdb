@@ -175,7 +175,7 @@ public class OGraphMLReader {
       throws IOException {
 
     XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-
+    graph.setAutoStartTx(false);
     try {
       XMLStreamReader reader = inputFactory.createXMLStreamReader(graphMLInputStream);
 
@@ -210,6 +210,7 @@ public class OGraphMLReader {
 
       while (reader.hasNext()) {
 
+        graph.begin();
         Integer eventType = reader.next();
         if (eventType.equals(XMLEvent.START_ELEMENT)) {
           String elementName = reader.getName().getLocalPart();

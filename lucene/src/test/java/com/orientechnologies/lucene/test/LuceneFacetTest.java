@@ -50,26 +50,32 @@ public class LuceneFacetTest extends BaseLuceneTest {
     doc.field("name", "Pioneer");
     doc.field("category", "Electronic/HiFi");
 
+    db.begin();
     db.save(doc);
+    db.commit();
 
     doc = new ODocument("Item");
     doc.field("name", "Hitachi");
     doc.field("category", "Electronic/HiFi");
 
+    db.begin();
     db.save(doc);
+    db.commit();
 
     doc = new ODocument("Item");
     doc.field("name", "Philips");
     doc.field("category", "Electronic/HiFi");
 
+    db.begin();
     db.save(doc);
+    db.commit();
 
     doc = new ODocument("Item");
     doc.field("name", "HP");
     doc.field("category", "Electronic/Computer");
 
+    db.begin();
     db.save(doc);
-
     db.commit();
   }
 

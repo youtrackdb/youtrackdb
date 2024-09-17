@@ -42,7 +42,6 @@ import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
 import com.orientechnologies.orient.core.tx.OTransactionData;
-import com.orientechnologies.orient.core.tx.OTransactionInternal;
 import com.orientechnologies.orient.core.tx.OTransactionOptimistic;
 import java.util.Map;
 import java.util.Set;
@@ -225,7 +224,7 @@ public interface ODatabaseDocumentInternal extends ODatabaseSession, ODatabaseIn
    *
    * @param transaction
    */
-  void internalCommit(OTransactionInternal transaction);
+  void internalCommit(OTransactionOptimistic transaction);
 
   boolean isClusterVertex(int cluster);
 

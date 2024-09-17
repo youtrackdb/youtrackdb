@@ -207,12 +207,12 @@ public class ORecordBytes extends ORecordAbstract implements OBlob {
   }
 
   public void toOutputStream(final OutputStream out) throws IOException {
+    checkForLoading();
+
     if (primaryRecord != null) {
       ((ORecordBytes) primaryRecord).toOutputStream(out);
       return;
     }
-
-    checkForLoading();
 
     if (source.length > 0) {
       out.write(source);

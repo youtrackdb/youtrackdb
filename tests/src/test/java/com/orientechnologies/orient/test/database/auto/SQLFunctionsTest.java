@@ -143,7 +143,9 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
             .createRole("byPassRestrictedRole", ORole.ALLOW_MODES.DENY_ALL_BUT);
     byPassRestrictedRole.addRule(
         ORule.ResourceGeneric.BYPASS_RESTRICTED, null, ORole.PERMISSION_READ);
+    database.begin();
     byPassRestrictedRole.save();
+    database.commit();
 
     database
         .getMetadata()
@@ -154,11 +156,15 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
     docAdmin.field(
         "_allowRead",
         new HashSet<OIdentifiable>(Collections.singletonList(admin.getIdentity().getIdentity())));
+    database.begin();
     docAdmin.save();
+    database.commit();
 
     ODocument docReader = new ODocument("QueryCountExtendsRestrictedClass");
     docReader.field("_allowRead", new HashSet<>(Collections.singletonList(reader.getIdentity())));
+    database.begin();
     docReader.save();
+    database.commit();
 
     List<ODocument> result =
         database.query("select count(*) from QueryCountExtendsRestrictedClass").stream()
@@ -207,8 +213,11 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
     OClass indexed = database.getMetadata().getSchema().getOrCreateClass("Indexed");
     indexed.createProperty("key", OType.STRING);
     indexed.createIndex("keyed", OClass.INDEX_TYPE.NOTUNIQUE, "key");
+
+    database.begin();
     database.<ODocument>newInstance("Indexed").field("key", "one").save();
     database.<ODocument>newInstance("Indexed").field("key", "two").save();
+    database.commit();
 
     List<ODocument> result =
         database.query("select count(*) as total from Indexed where key > 'one'").stream()
@@ -509,12 +518,16 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
                   final Object[] iParams,
                   OCommandContext iContext) {
                 if (iParams[0] == null || iParams[1] == null)
-                  // CHECK BOTH EXPECTED PARAMETERS
+                // CHECK BOTH EXPECTED PARAMETERS
+                {
                   return null;
+                }
 
                 if (!(iParams[0] instanceof Number) || !(iParams[1] instanceof Number))
-                  // EXCLUDE IT FROM THE RESULT SET
+                // EXCLUDE IT FROM THE RESULT SET
+                {
                   return null;
+                }
 
                 // USE DOUBLE TO AVOID LOSS OF PRECISION
                 final double v1 = ((Number) iParams[0]).doubleValue();
@@ -579,9 +592,12 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
     for (long i = 0; i < 100; ++i) {
       sequence.add(i);
     }
+
+    database.begin();
     new ODocument("V").field("sequence", sequence).save();
     sequence.remove(0);
     new ODocument("V").field("sequence", sequence).save();
+    database.commit();
 
     List<ODocument> result =
         database.query("select first(sequence) as first from V where sequence is not null").stream()
@@ -599,9 +615,12 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
     for (long i = 0; i < 100; ++i) {
       sequence.add(i);
     }
+
+    database.begin();
     new ODocument("V").field("sequence2", sequence).save();
     sequence.remove(sequence.size() - 1);
     new ODocument("V").field("sequence2", sequence).save();
+    database.commit();
 
     List<ODocument> result =
         database.query("select last(sequence2) as last from V where sequence2 is not null").stream()

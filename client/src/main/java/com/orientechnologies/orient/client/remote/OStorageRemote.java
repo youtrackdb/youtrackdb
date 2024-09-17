@@ -1376,7 +1376,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     }
   }
 
-  public List<ORecordOperation> commit(final OTransactionInternal iTx) {
+  public List<ORecordOperation> commit(final OTransactionOptimistic iTx) {
     unstickToSession();
 
     final OCommit38Request request =
@@ -2216,7 +2216,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     OBeginTransactionResponse response =
         networkOperationNoRetry(request, "Error on remote transaction begin");
     for (Map.Entry<ORID, ORID> entry : response.getUpdatedIds().entrySet()) {
-      transaction.updateIdentityAfterCommit(entry.getKey(), entry.getValue());
+      transaction.updateIdentityAfterCommit(entry.getValue(), entry.getKey());
     }
     stickToSession();
   }
@@ -2232,7 +2232,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     OBeginTransactionResponse response =
         networkOperationNoRetry(request, "Error on remote transaction begin");
     for (Map.Entry<ORID, ORID> entry : response.getUpdatedIds().entrySet()) {
-      transaction.updateIdentityAfterCommit(entry.getKey(), entry.getValue());
+      transaction.updateIdentityAfterCommit(entry.getValue(), entry.getKey());
     }
   }
 

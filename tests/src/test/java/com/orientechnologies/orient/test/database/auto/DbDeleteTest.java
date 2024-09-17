@@ -112,9 +112,11 @@ public class DbDeleteTest extends DocumentDBBaseTest {
     indexedClass.createProperty("value", OType.STRING);
     indexedClass.createIndex("indexValue", OClass.INDEX_TYPE.UNIQUE, "value");
 
+    db.begin();
     final ODocument document = new ODocument("IndexedClass");
     document.field("value", "value");
     document.save();
+    db.commit();
 
     db.drop();
   }

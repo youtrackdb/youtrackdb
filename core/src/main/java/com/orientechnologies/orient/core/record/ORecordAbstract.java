@@ -393,12 +393,22 @@ public abstract class ORecordAbstract implements ORecord {
   }
 
   public final int getVersion() {
+    checkForLoading();
+
     if (primaryRecord != null) {
       primaryRecord = primaryRecord.getRecord();
       return primaryRecord.getVersion();
     }
 
-    // checkForLoading();
+    return recordVersion;
+  }
+
+  public final int getVersionNoLoad() {
+    if (primaryRecord != null) {
+      primaryRecord = primaryRecord.getRecord();
+      return primaryRecord.getVersion();
+    }
+
     return recordVersion;
   }
 
@@ -862,13 +872,7 @@ public abstract class ORecordAbstract implements ORecord {
         return;
       }
 
-      try {
-        getDatabase().reload(this, null, true, false);
-      } catch (OOfflineClusterException | ORecordNotFoundException e) {
-        throw e;
-      } catch (Exception e) {
-        throw OException.wrapException(new ORecordNotFoundException(getIdentity()), e);
-      }
+      getDatabase().reload(this, null, true, false);
     }
   }
 

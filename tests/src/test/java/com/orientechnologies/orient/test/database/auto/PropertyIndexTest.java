@@ -54,7 +54,9 @@ public class PropertyIndexTest extends DocumentDBBaseTest {
 
   @AfterClass
   public void afterClass() {
-    if (database.isClosed()) database.open("admin", "admin");
+    if (database.isClosed()) {
+      database.open("admin", "admin");
+    }
 
     database.command("delete from PropertyIndexTestClass");
     database.command("drop class PropertyIndexTestClass");
@@ -186,10 +188,12 @@ public class PropertyIndexTest extends DocumentDBBaseTest {
             .getInternal()
             .size();
 
+    database.begin();
     ODocument doc =
         new ODocument("PropertyIndexTestClass").fields("prop1", "testComposite3").save();
     new ODocument("PropertyIndexTestClass").fields("prop0", doc, "prop1", "testComposite1").save();
     new ODocument("PropertyIndexTestClass").fields("prop0", doc).save();
+    database.commit();
 
     Assert.assertEquals(
         database
@@ -325,7 +329,9 @@ public class PropertyIndexTest extends DocumentDBBaseTest {
 
   private OIndex containsIndex(final Collection<OIndex> indexes, final String indexName) {
     for (final OIndex index : indexes) {
-      if (index.getName().equals(indexName)) return index;
+      if (index.getName().equals(indexName)) {
+        return index;
+      }
     }
     return null;
   }

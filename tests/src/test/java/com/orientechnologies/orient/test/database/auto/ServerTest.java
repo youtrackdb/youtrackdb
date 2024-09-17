@@ -29,6 +29,7 @@ import org.testng.annotations.Test;
 
 @Test
 public class ServerTest extends DocumentDBBaseTest {
+
   private String serverURL;
 
   @Parameters(value = "url")
@@ -67,7 +68,9 @@ public class ServerTest extends DocumentDBBaseTest {
     try {
       db.open("admin", "admin");
       ODocument d = new ODocument("User");
+      db.begin();
       d.save();
+      db.commit();
     } finally {
       db.close();
     }
@@ -75,7 +78,9 @@ public class ServerTest extends DocumentDBBaseTest {
     try {
       db.open("admin", "admin");
       ODocument d = new ODocument("User");
+      db.begin();
       d.save();
+      db.commit();
     } finally {
       db.close();
     }

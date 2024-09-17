@@ -51,6 +51,8 @@ public class FetchPlanTest extends DocumentDBBaseTest {
         .createProperty("surname", OType.STRING)
         .setMandatory(true);
     database.getMetadata().getSchema().createClass("OutInFetchClass");
+
+    database.begin();
     ODocument singleLinked = new ODocument();
     database.save(singleLinked);
     ODocument doc = new ODocument("FetchClass");
@@ -101,6 +103,8 @@ public class FetchPlanTest extends DocumentDBBaseTest {
     doc6.field("in_friend", in);
     doc6.field("name", "myName");
     database.save(doc6);
+
+    database.commit();
 
     database.getLocalCache().clear();
   }
@@ -233,7 +237,10 @@ public class FetchPlanTest extends DocumentDBBaseTest {
       Assert.assertNull(ref.field("linkSet"));
       Assert.assertNull(ref.field("linkList"));
       d.field("name2", "value");
+
+      database.begin();
       database.save(d);
+      database.commit();
     }
     database.getLocalCache().clear();
     resultset =
@@ -261,7 +268,10 @@ public class FetchPlanTest extends DocumentDBBaseTest {
       Assert.assertNotNull(d.field("name"));
       Assert.assertNull(d.field("surname"));
       d.field("name", "sixth1");
+
+      database.begin();
       database.save(d);
+      database.commit();
     }
     database.getLocalCache().clear();
     resultset =
@@ -281,7 +291,10 @@ public class FetchPlanTest extends DocumentDBBaseTest {
     for (ODocument d : resultset) {
       Assert.assertNotNull(d.field("name"));
       Assert.assertNull(d.field("surname"));
+
+      database.begin();
       database.delete(d);
+      database.commit();
     }
     database.getLocalCache().clear();
     resultset =

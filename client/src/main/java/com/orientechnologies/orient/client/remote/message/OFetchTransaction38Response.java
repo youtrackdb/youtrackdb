@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /** Created by tglman on 30/12/16. */
 public class OFetchTransaction38Response implements OBinaryResponse {
@@ -42,9 +41,7 @@ public class OFetchTransaction38Response implements OBinaryResponse {
       ODatabaseDocumentInternal database) {
     // In some cases the reference are update twice is not yet possible to guess what is the id in
     // the client
-    Map<ORID, ORID> reversed =
-        updatedRids.entrySet().stream()
-            .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
+
     this.txId = txId;
     this.indexChanges = new ArrayList<>();
     List<ORecordOperation38Response> netOperations = new ArrayList<>();
@@ -53,7 +50,7 @@ public class OFetchTransaction38Response implements OBinaryResponse {
       request.setType(txEntry.type);
       request.setVersion(txEntry.getRecord().getVersion());
       request.setId(txEntry.getRID());
-      ORID oldID = reversed.get(txEntry.getRID());
+      ORID oldID = updatedRids.get(txEntry.getRID());
       request.setOldId(oldID != null ? oldID : txEntry.getRID());
       request.setRecordType(ORecordInternal.getRecordType(txEntry.getRecord()));
       if (txEntry.type == ORecordOperation.UPDATED && txEntry.getRecord() instanceof ODocument) {

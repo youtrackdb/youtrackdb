@@ -37,6 +37,7 @@ import org.testng.annotations.Test;
 
 @Test(groups = "dictionary")
 public class TransactionAtomicTest extends DocumentDBBaseTest {
+
   @Parameters(value = "url")
   public TransactionAtomicTest(@Optional String url) {
     super(url);
@@ -51,9 +52,12 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
     db2.open("admin", "admin");
 
     ODocument record1 = new ODocument();
+
+    db2.begin();
     record1
         .field("value", "This is the first version")
         .save(db2.getClusterNameById(db2.getDefaultClusterId()));
+    db2.commit();
 
     // RE-READ THE RECORD
     record1.reload();
@@ -61,8 +65,13 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
     db2.activateOnCurrentThread();
     ODocument record2 = db2.load(record1.getIdentity());
 
+    db2.begin();
     record2.field("value", "This is the second version").save();
+    db2.commit();
+
+    db2.begin();
     record2.field("value", "This is the third version").save();
+    db2.commit();
 
     db1.activateOnCurrentThread();
     record1.reload(null, true);
@@ -81,14 +90,18 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
   public void testMVCC() throws IOException {
 
     ODocument doc = new ODocument("Account");
+    database.begin();
     doc.field("version", 0);
     doc.save();
+    database.commit();
 
     doc.setDirty();
     doc.field("testmvcc", true);
     ORecordInternal.setVersion(doc, doc.getVersion() + 1);
     try {
+      database.begin();
       doc.save();
+      database.commit();
       Assert.assertTrue(false);
     } catch (OConcurrentModificationException e) {
       Assert.assertTrue(true);
@@ -98,9 +111,12 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
   @Test
   public void testTransactionPreListenerRollback() throws IOException {
     ODocument record1 = new ODocument();
+
+    database.begin();
     record1
         .field("value", "This is the first version")
         .save(database.getClusterNameById(database.getDefaultClusterId()));
+    database.commit();
 
     final ODatabaseListener listener =
         new ODatabaseListener() {
@@ -234,7 +250,9 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(database.getTransaction().isActive());
 
-    if (!url.startsWith("remote")) Assert.assertEquals(database.countClass("Account"), prev + 1);
+    if (!url.startsWith("remote")) {
+      Assert.assertEquals(database.countClass("Account"), prev + 1);
+    }
 
     database.commit();
 

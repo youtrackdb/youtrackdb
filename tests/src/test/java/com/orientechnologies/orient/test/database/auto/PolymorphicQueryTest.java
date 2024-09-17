@@ -34,7 +34,9 @@ import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-/** @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com) */
+/**
+ * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
+ */
 public class PolymorphicQueryTest extends DocumentDBBaseTest {
 
   @Parameters(value = "url")
@@ -307,6 +309,7 @@ public class PolymorphicQueryTest extends DocumentDBBaseTest {
   public void testIteratorOnSubclassWithoutValues() {
     for (int i = 0; i < 2; i++) {
       final ODocument doc1 = new ODocument("GenericCrash");
+      database.begin();
       doc1.field("name", "foo");
       doc1.save();
     }

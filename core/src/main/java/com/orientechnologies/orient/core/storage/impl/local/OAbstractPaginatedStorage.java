@@ -106,6 +106,7 @@ import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.query.OQueryAbstract;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.ORecordVersionHelper;
 import com.orientechnologies.orient.core.record.impl.OBlob;
@@ -167,6 +168,7 @@ import com.orientechnologies.orient.core.tx.OTransactionIndexChanges;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChangesPerKey;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChangesPerKey.OTransactionIndexEntry;
 import com.orientechnologies.orient.core.tx.OTransactionInternal;
+import com.orientechnologies.orient.core.tx.OTransactionOptimistic;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
@@ -2189,7 +2191,7 @@ public abstract class OAbstractPaginatedStorage
    * @return The list of operations applied by the transaction
    */
   @Override
-  public List<ORecordOperation> commit(final OTransactionInternal clientTx) {
+  public List<ORecordOperation> commit(final OTransactionOptimistic clientTx) {
     return commit(clientTx, false);
   }
 
@@ -2200,7 +2202,7 @@ public abstract class OAbstractPaginatedStorage
    * @return The list of operations applied by the transaction
    */
   @SuppressWarnings("UnusedReturnValue")
-  public List<ORecordOperation> commitPreAllocated(final OTransactionInternal clientTx) {
+  public List<ORecordOperation> commitPreAllocated(final OTransactionOptimistic clientTx) {
     return commit(clientTx, true);
   }
 
@@ -2218,7 +2220,7 @@ public abstract class OAbstractPaginatedStorage
    * @return The list of operations applied by the transaction
    */
   protected List<ORecordOperation> commit(
-      final OTransactionInternal transaction, final boolean allocated) {
+      final OTransactionOptimistic transaction, final boolean allocated) {
     // XXX: At this moment, there are two implementations of the commit method. One for regular
     // client transactions and one for
     // implicit micro-transactions. The implementations are quite identical, but operate on slightly
@@ -2349,6 +2351,7 @@ public abstract class OAbstractPaginatedStorage
 
             for (final ORecordOperation recordOperation : recordOperations) {
               commitEntry(
+                  transaction,
                   atomicOperation,
                   recordOperation,
                   positions.get(recordOperation),
@@ -5375,11 +5378,12 @@ public abstract class OAbstractPaginatedStorage
   }
 
   private void commitEntry(
+      OTransactionOptimistic transcation,
       final OAtomicOperation atomicOperation,
       final ORecordOperation txEntry,
       final OPhysicalPosition allocated,
       final ORecordSerializer serializer) {
-    final ORecord rec = txEntry.getRecord();
+    final ORecordAbstract rec = txEntry.getRecord();
     if (txEntry.type != ORecordOperation.DELETED && !rec.isDirty())
     // NO OPERATION
     {
@@ -5487,7 +5491,7 @@ public abstract class OAbstractPaginatedStorage
                 doc.decrementLoading();
               }
             }
-            doDeleteRecord(atomicOperation, rid, rec.getVersion(), cluster);
+            doDeleteRecord(atomicOperation, rid, rec.getVersionNoLoad(), cluster);
             break;
           }
         default:

@@ -29,6 +29,7 @@ public class OLucenePhraseQueriesTest extends OLuceneBaseTest {
             // \"org.apache.lucene.analysis.core.KeywordAnalyzer\""
             + "} ");
 
+    db.begin();
     OVertex role = db.newVertex("Role");
     role.setProperty("name", "System IT Owner");
     db.save(role);
@@ -56,6 +57,7 @@ public class OLucenePhraseQueriesTest extends OLuceneBaseTest {
     role = db.newVertex("Role");
     role.setProperty("name", "moat");
     db.save(role);
+    db.commit();
   }
 
   @Test

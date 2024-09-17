@@ -60,39 +60,74 @@ public class TraverseTestNew extends DocumentDBBaseTest {
     nicoleKidman = database.newVertex("Actor");
     nicoleKidman.setProperty("name", "Nicole Kidman");
     nicoleKidman.setProperty("attributeWithDotValue", "a.b");
+
+    database.begin();
     nicoleKidman = database.save(nicoleKidman);
+    database.commit();
+
     totalElements++;
 
     OVertex topGun = database.newVertex("Movie");
     topGun.setProperty("name", "Top Gun");
     topGun.setProperty("year", 1986);
+
+    database.begin();
     topGun = database.save(topGun);
+    database.commit();
+
     totalElements++;
     OVertex missionImpossible = database.newVertex("Movie");
     missionImpossible.setProperty("name", "Mission: Impossible");
     missionImpossible.setProperty("year", 1996);
+
+    database.begin();
     missionImpossible = database.save(missionImpossible);
+    database.commit();
+
     totalElements++;
     OVertex youHaveGotMail = database.newVertex("Movie");
     youHaveGotMail.setProperty("name", "You've Got Mail");
     youHaveGotMail.setProperty("year", 1998);
+
+    database.begin();
     youHaveGotMail = database.save(youHaveGotMail);
+    database.commit();
+
     totalElements++;
 
+    database.begin();
     database.save(database.newEdge(tomCruise, topGun, "actorIn"));
+    database.commit();
+
     totalElements++;
+    database.begin();
     database.save(database.newEdge(megRyan, topGun, "actorIn"));
-    totalElements++;
-    database.save(database.newEdge(tomCruise, missionImpossible, "actorIn"));
-    totalElements++;
-    database.save(database.newEdge(megRyan, youHaveGotMail, "actorIn"));
+    database.commit();
     totalElements++;
 
+    database.begin();
+    database.save(database.newEdge(tomCruise, missionImpossible, "actorIn"));
+    database.commit();
+
+    totalElements++;
+
+    database.begin();
+    database.save(database.newEdge(megRyan, youHaveGotMail, "actorIn"));
+    database.commit();
+    totalElements++;
+
+    database.begin();
     database.save(database.newEdge(tomCruise, megRyan, "friend"));
+    database.commit();
+
     totalElements++;
     OEdge e = database.newEdge(tomCruise, nicoleKidman, "married");
     e.setProperty("year", 1990);
+
+    database.begin();
     database.save(e);
+    database.commit();
+
     totalElements++;
 
     database.commit();

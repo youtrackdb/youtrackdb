@@ -656,7 +656,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
     status = iStatus;
   }
 
-  public ORecordOperation addRecord(ORecordAbstract iRecord, byte iStatus, String iClusterName) {
+  public void addRecord(ORecordAbstract iRecord, byte iStatus, String iClusterName) {
     changed = true;
     checkTransactionValid();
 
@@ -744,7 +744,6 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
         if (iRecord instanceof ODocument && ((ODocument) iRecord).isTrackingChanges()) {
           ODocumentInternal.clearTrackData(((ODocument) iRecord));
         }
-        return txEntry;
       } catch (final Exception e) {
         switch (iStatus) {
           case ORecordOperation.CREATED:

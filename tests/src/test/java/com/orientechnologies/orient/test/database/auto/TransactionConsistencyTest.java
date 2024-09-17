@@ -69,8 +69,8 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     // Create docB.
     ODocument vDocB_db1 = database1.newInstance();
     vDocB_db1.field(NAME, "docB");
-    database1.save(vDocB_db1, database1.getClusterNameById(database1.getDefaultClusterId()));
 
+    database1.save(vDocB_db1, database1.getClusterNameById(database1.getDefaultClusterId()));
     database1.commit();
 
     // Keep the IDs.
@@ -145,7 +145,9 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     // Create docA.
     ODocument vDocA_db1 = database1.newInstance();
     vDocA_db1.field(NAME, "docA");
+    database1.begin();
     database1.save(vDocA_db1, database1.getClusterNameById(database1.getDefaultClusterId()));
+    database1.commit();
 
     // Keep the IDs.
     ORID vDocA_Rid = vDocA_db1.getIdentity().copy();
@@ -203,7 +205,9 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     // Create docA.
     ODocument vDocA_db1 = database1.newInstance();
     vDocA_db1.field(NAME, "docA");
+    database1.begin();
     database1.save(vDocA_db1, database1.getClusterNameById(database1.getDefaultClusterId()));
+    database1.commit();
 
     // Keep the IDs.
     ORID vDocA_Rid = vDocA_db1.getIdentity().copy();
@@ -541,19 +545,25 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
           database.query("select * from Foo where address = 'test1'").elementStream().toList();
       Assert.assertEquals(result.size(), 1);
       // Step 4a
+      database.begin();
       database.delete(result.get(0));
+      database.commit();
 
       // Step 3b
       result = database.query("select * from Foo where address = 'test2'").elementStream().toList();
       Assert.assertEquals(result.size(), 1);
       // Step 4b
+      database.begin();
       database.delete(result.get(0));
+      database.commit();
 
       // Step 3c
       result = database.query("select * from Foo where address = 'test3'").elementStream().toList();
       Assert.assertEquals(result.size(), 1);
       // Step 4c
+      database.begin();
       database.delete(result.get(0));
+      database.commit();
     } finally {
       database.close();
     }
@@ -576,22 +586,30 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
       // Commenting out the transaction will result in the test succeeding.
       var foo = database.newVertex("Foo");
       foo.setProperty("prop", "test1");
+      database.begin();
       foo.save();
+      database.commit();
 
       // Comment out these two lines and the test will succeed. The issue appears to be related to
       // an edge
       // connecting a deleted vertex during a transaction
       var bar = database.newVertex("Bar");
       bar.setProperty("prop", "test1");
+      database.begin();
       bar.save();
+      database.commit();
 
+      database.begin();
       var sees = database.newEdge(foo, bar, "Sees");
       sees.save();
+      database.commit();
 
       var foos = database.query("select * from Foo").stream().toList();
       Assert.assertEquals(foos.size(), 1);
 
+      database.begin();
       database.delete(foos.get(0).toElement());
+      database.commit();
     } finally {
       database.close();
     }
@@ -745,7 +763,9 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     try {
       Account account = new Account();
       account.setName("John Grisham");
+      database.begin();
       account = database.save(account);
+      database.commit();
 
       Address address1 = new Address();
       address1.setStreet("Mulholland drive");
@@ -758,7 +778,9 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
       addresses.add(address2);
       account.setAddresses(addresses);
 
+      database.begin();
       account = database.save(account);
+      database.commit();
 
       String originalName = account.getName();
 
@@ -808,7 +830,10 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
       classA.createProperty("name", OType.STRING);
       ODocument doc = new ODocument(classA);
       doc.field("name", "test1");
+
+      database.begin();
       doc.save();
+      database.commit();
       ORID orid = doc.getIdentity();
       database.begin();
       Assert.assertTrue(database.getTransaction().isActive());

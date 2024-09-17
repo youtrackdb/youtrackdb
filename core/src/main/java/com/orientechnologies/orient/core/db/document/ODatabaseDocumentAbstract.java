@@ -2243,7 +2243,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       return result;
     } finally {
       if (currentTx.isActive()) {
-        if (ok) {
+        if (ok && currentTx.getStatus() != TXSTATUS.ROLLBACKING) {
           commit();
         } else {
           rollback();

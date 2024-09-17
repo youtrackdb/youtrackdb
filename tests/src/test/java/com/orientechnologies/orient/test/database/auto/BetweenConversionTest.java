@@ -53,7 +53,9 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
       document.field("d", ed);
 
+      database.begin();
       document.save();
+      database.commit();
     }
   }
 

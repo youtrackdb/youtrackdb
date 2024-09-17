@@ -603,8 +603,6 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
             : e;
       }
       try {
-        serverTransaction.assignClusters();
-
         try {
           serverTransaction.commit();
         } catch (final ORecordNotFoundException e) {
@@ -1444,8 +1442,6 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
             : e;
       }
       try {
-
-        serverTransaction.assignClusters();
         try {
           database.commit();
         } catch (final ORecordNotFoundException e) {
@@ -1521,8 +1517,6 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
             : e;
       }
       try {
-
-        serverTransaction.assignClusters();
         try {
           database.commit();
         } catch (final ORecordNotFoundException e) {

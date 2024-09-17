@@ -63,9 +63,12 @@ public class CRUDObjectInheritanceTest extends ObjectDBBaseTest {
 
     for (long i = startRecordNumber; i < startRecordNumber + TOT_RECORDS; ++i) {
       company = database.newInstance(Company.class, (int) i, "Microsoft" + i);
+
+      database.begin();
       company.setEmployees((int) (100000 + i));
       company.getAddresses().add(new Address("Headquarter", redmond, "WA 98073-9717"));
       database.save(company);
+      database.commit();
     }
   }
 
@@ -118,7 +121,9 @@ public class CRUDObjectInheritanceTest extends ObjectDBBaseTest {
     OObjectIteratorClassInterface<Company> companyClusterIterator = database.browseClass("Company");
     for (Company obj : companyClusterIterator) {
       if (obj.getId() == 1) {
+        database.begin();
         database.delete(obj);
+        database.commit();
         break;
       }
     }
@@ -167,8 +172,11 @@ public class CRUDObjectInheritanceTest extends ObjectDBBaseTest {
 
     InheritanceTestBaseClass a = database.newInstance(InheritanceTestBaseClass.class);
     InheritanceTestBaseClass b = database.newInstance(InheritanceTestClass.class);
+
+    database.begin();
     database.save(a);
     database.save(b);
+    database.commit();
 
     final List<InheritanceTestBaseClass> result1 =
         database.query(

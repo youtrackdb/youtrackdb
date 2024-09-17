@@ -53,7 +53,10 @@ public class LuceneCreateIndexTest extends BaseLuceneTest {
     doc.field("title", "Local");
     doc.field("author", "Local");
 
+    db.begin();
     db.save(doc);
+    db.commit();
+
     testMetadata();
     assertQuery();
 

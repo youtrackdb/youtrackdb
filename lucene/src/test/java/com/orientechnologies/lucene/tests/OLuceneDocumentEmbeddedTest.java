@@ -43,12 +43,16 @@ public class OLuceneDocumentEmbeddedTest extends OLuceneBaseTest {
     ODocument doc = new ODocument("City");
 
     doc.field("name", "London");
+    db.begin();
     db.save(doc);
+    db.commit();
 
     doc = new ODocument("City");
     doc.field("name", "Rome");
 
+    db.begin();
     db.save(doc);
+    db.commit();
 
     OResultSet results =
         db.command("select from City where SEARCH_FIELDS(['name'] ,'London') = true ");

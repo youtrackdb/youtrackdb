@@ -234,7 +234,9 @@ public class IndexTxAwareMultiValueGetTest extends DocumentDBBaseTest {
     }
     database.commit();
 
+    database.begin();
     new ODocument(CLASS_NAME).field(FIELD_NAME, 1).save();
+    database.commit();
 
     try (Stream<ORID> stream = index.getInternal().getRids(1)) {
       Assert.assertEquals(stream.count(), 2);

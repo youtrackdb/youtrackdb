@@ -30,6 +30,7 @@ public class LucenePhraseQueriesTest extends BaseLuceneTest {
                 + "} ")
         .close();
 
+    db.begin();
     OVertex role = db.newVertex("Role");
     role.setProperty("name", "System IT Owner");
     db.save(role);
@@ -57,6 +58,7 @@ public class LucenePhraseQueriesTest extends BaseLuceneTest {
     role = db.newVertex("Role");
     role.setProperty("name", "moat");
     db.save(role);
+    db.commit();
   }
 
   @Test

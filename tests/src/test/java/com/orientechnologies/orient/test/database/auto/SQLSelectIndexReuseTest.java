@@ -20,6 +20,7 @@ import org.testng.annotations.Test;
 
 @Test(groups = {"index"})
 public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
+
   @Parameters(value = "url")
   public SQLSelectIndexReuseTest(@Optional final String iURL) {
     super(iURL);
@@ -135,6 +136,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       embeddedSet.add(i * 10 + 2);
 
       for (int j = 0; j < 10; j++) {
+        database.begin();
         final ODocument document = new ODocument("sqlSelectIndexReuseTestClass");
         document.field("prop1", i);
         document.field("prop2", j);
@@ -161,6 +163,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
         document.field("fEmbeddedSetTwo", embeddedSet);
 
         document.save();
+        database.commit();
       }
     }
     database.close();
@@ -2823,7 +2826,9 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
   @Test
   public void testIndexUsedOnOrClause() {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    if (oldIndexUsage < 0) oldIndexUsage = 0;
+    if (oldIndexUsage < 0) {
+      oldIndexUsage = 0;
+    }
 
     final List<ODocument> result =
         database
@@ -2895,15 +2900,19 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
     long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
 
+    database.begin();
     final ODocument docOne = new ODocument("sqlSelectIndexReuseTestChildClass");
     docOne.field("prop0", 0);
     docOne.field("prop1", 1);
     docOne.save();
+    database.commit();
 
+    database.begin();
     final ODocument docTwo = new ODocument("sqlSelectIndexReuseTestChildClass");
     docTwo.field("prop0", 2);
     docTwo.field("prop1", 3);
     docTwo.save();
+    database.commit();
 
     final List<ODocument> result =
         database
@@ -2934,6 +2943,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       klazz.createIndex("a", "NOTUNIQUE", "a");
     }
 
+    database.begin();
     database
         .<ODocument>newInstance("CountFunctionWithNotUniqueIndexTest")
         .field("a", "a")
@@ -2954,6 +2964,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
         .field("a", "c")
         .field("b", "c")
         .save();
+    database.commit();
 
     ODocument result =
         (ODocument)
@@ -2983,6 +2994,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
       klazz.createIndex("testCountFunctionWithUniqueIndex", "NOTUNIQUE", "a");
     }
 
+    database.begin();
     database
         .<ODocument>newInstance("CountFunctionWithUniqueIndexTest")
         .field("a", "a")
@@ -3004,6 +3016,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
             .field("a", "a")
             .field("b", "b")
             .save();
+    database.commit();
 
     ODocument result =
         (ODocument)
@@ -3014,8 +3027,11 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
                             + " = 'c'"))
                 .get(0);
 
-    Assert.assertEquals(result.<Object>field("count", Long.class), 2l);
+    Assert.assertEquals(result.<Object>field("count", Long.class), 2L);
+
+    database.begin();
     doc.delete();
+    database.commit();
 
     Assert.assertEquals(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage + 1);
     Assert.assertEquals(

@@ -37,7 +37,9 @@ import java.util.stream.Stream;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by enricorisa on 28/06/14. */
+/**
+ * Created by enricorisa on 28/06/14.
+ */
 public class LuceneInsertDeleteTest extends BaseLuceneTest {
 
   @Before
@@ -58,7 +60,9 @@ public class LuceneInsertDeleteTest extends BaseLuceneTest {
 
     ODocument doc = new ODocument("City");
     doc.field("name", "Rome");
+    db.begin();
     db.save(doc);
+    db.commit();
 
     OIndex idx = schema.getClass("City").getClassIndex("City.name");
     Collection<?> coll;
@@ -72,7 +76,9 @@ public class LuceneInsertDeleteTest extends BaseLuceneTest {
     OIdentifiable next = (OIdentifiable) coll.iterator().next();
     doc = db.load(next.<ORecord>getRecord());
 
+    db.begin();
     db.delete(doc);
+    db.commit();
 
     try (Stream<ORID> stream = idx.getInternal().getRids("Rome")) {
       coll = stream.collect(Collectors.toList());

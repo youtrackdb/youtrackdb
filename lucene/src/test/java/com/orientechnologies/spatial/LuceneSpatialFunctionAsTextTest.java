@@ -64,7 +64,10 @@ public class LuceneSpatialFunctionAsTextTest extends BaseSpatialLuceneTest {
     ODocument doc = new ODocument("Location");
     doc.field("name", name);
     doc.field("geometry", geometry);
+
+    db.begin();
     db.save(doc);
+    db.commit();
   }
 
   @Test

@@ -25,23 +25,25 @@ public class RecordReloadTest extends DocumentDBBaseTest {
     final ODocument document = new ODocument();
 
     document.field("value", "value one");
+
+    database.begin();
     document.save(database.getClusterNameById(database.getDefaultClusterId()));
+    database.commit();
 
     final ORID rid = document.getIdentity();
     final Future<?> future =
         executor.submit(
-            new Runnable() {
-              @Override
-              public void run() {
-                ODatabaseDocument db = new ODatabaseDocumentTx(url);
-                db.open("admin", "admin");
+            () -> {
+              ODatabaseDocument db = new ODatabaseDocumentTx(url);
+              db.open("admin", "admin");
 
-                ODocument doc = db.load(rid);
-                doc.field("value", "value two");
-                doc.save();
+              ODocument doc = db.load(rid);
+              db.begin();
+              doc.field("value", "value two");
+              doc.save();
+              db.commit();
 
-                db.close();
-              }
+              db.close();
             });
 
     future.get();
@@ -54,23 +56,25 @@ public class RecordReloadTest extends DocumentDBBaseTest {
     final ODocument document = new ODocument();
 
     document.field("value", "value one");
+
+    database.begin();
     document.save(database.getClusterNameById(database.getDefaultClusterId()));
+    database.commit();
 
     final ORID rid = document.getIdentity();
     final Future<?> future =
         executor.submit(
-            new Runnable() {
-              @Override
-              public void run() {
-                ODatabaseDocument db = new ODatabaseDocumentTx(url);
-                db.open("admin", "admin");
+            () -> {
+              ODatabaseDocument db = new ODatabaseDocumentTx(url);
+              db.open("admin", "admin");
 
-                ODocument doc = db.load(rid);
-                doc.field("value", "value two");
-                doc.save();
+              ODocument doc = db.load(rid);
+              db.begin();
+              doc.field("value", "value two");
+              doc.save();
+              db.commit();
 
-                db.close();
-              }
+              db.close();
             });
 
     future.get();
@@ -92,28 +96,33 @@ public class RecordReloadTest extends DocumentDBBaseTest {
 
     ODocument linkedValue = new ODocument();
     linkedValue.field("val", "value 1");
+
+    database.begin();
     linkedValue.save(database.getClusterNameById(database.getDefaultClusterId()));
+    database.commit();
+
     document.field("link", linkedValue);
 
+    database.begin();
     document.save(database.getClusterNameById(database.getDefaultClusterId()));
+    database.commit();
 
     final ORID rid = document.getIdentity();
     final Future<?> future =
         executor.submit(
-            new Runnable() {
-              @Override
-              public void run() {
-                ODatabaseDocument db = new ODatabaseDocumentTx(url);
-                db.open("admin", "admin");
+            () -> {
+              ODatabaseDocument db = new ODatabaseDocumentTx(url);
+              db.open("admin", "admin");
 
-                ODocument doc = db.load(rid);
+              ODocument doc = db.load(rid);
 
-                ODocument linkedValue = doc.field("link");
-                linkedValue.field("val", "value 2");
-                linkedValue.save();
+              db.begin();
+              ODocument linkedValue1 = doc.field("link");
+              linkedValue1.field("val", "value 2");
+              linkedValue1.save();
+              db.commit();
 
-                db.close();
-              }
+              db.close();
             });
 
     future.get();
@@ -136,10 +145,16 @@ public class RecordReloadTest extends DocumentDBBaseTest {
 
     ODocument linkedValue = new ODocument();
     linkedValue.field("val", "value 1");
+
+    database.begin();
     linkedValue.save(database.getClusterNameById(database.getDefaultClusterId()));
+    database.commit();
+
     document.field("link", linkedValue);
 
+    database.begin();
     document.save(database.getClusterNameById(database.getDefaultClusterId()));
+    database.commit();
 
     final ORID rid = document.getIdentity();
     final Future<?> future =
@@ -148,11 +163,13 @@ public class RecordReloadTest extends DocumentDBBaseTest {
               ODatabaseDocument db = new ODatabaseDocumentTx(url);
               db.open("admin", "admin");
 
+              db.begin();
               ODocument doc = db.load(rid);
 
               ODocument linkedValue1 = doc.field("link");
               linkedValue1.field("val", "value 2");
               linkedValue1.save();
+              db.commit();
 
               db.close();
             });

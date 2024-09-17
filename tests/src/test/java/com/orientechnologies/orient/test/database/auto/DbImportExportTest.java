@@ -162,30 +162,39 @@ public class DbImportExportTest extends DocumentDBBaseTest implements OCommandOu
 
         final List<ORID> ridsToDelete = new ArrayList<>();
         for (int i = 0; i < 100; i++) {
+          session.begin();
           final ODocument document = new ODocument(childCls);
           document.save();
+          session.commit();
+
           ridsToDelete.add(document.getIdentity());
         }
 
         for (final ORID rid : ridsToDelete) {
+          session.begin();
           rid.getRecord().delete();
+          session.commit();
         }
 
         final ODocument rootDocument = new ODocument(rootCls);
         final ArrayList<ODocument> documents = new ArrayList<>();
 
         for (int i = 0; i < 10; i++) {
+          session.begin();
           final ODocument embeddedDocument = new ODocument();
 
           final ODocument doc = new ODocument(childCls);
           doc.save();
+          session.commit();
 
           embeddedDocument.field("link", doc.getIdentity());
           documents.add(embeddedDocument);
         }
 
+        session.begin();
         rootDocument.field("embeddedList", documents);
         rootDocument.save();
+        session.commit();
 
         final ODatabaseExport databaseExport =
             new ODatabaseExport(

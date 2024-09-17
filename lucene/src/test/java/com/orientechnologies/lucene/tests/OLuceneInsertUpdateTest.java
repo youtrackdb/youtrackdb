@@ -57,7 +57,10 @@ public class OLuceneInsertUpdateTest extends OLuceneBaseTest {
     ODocument doc = new ODocument("City");
     doc.field("name", "Rome");
 
+    db.begin();
     db.save(doc);
+    db.commit();
+
     OIndex idx = schema.getClass("City").getClassIndex("City.name");
     Collection<?> coll;
     try (Stream<ORID> stream = idx.getInternal().getRids("Rome")) {
@@ -70,7 +73,10 @@ public class OLuceneInsertUpdateTest extends OLuceneBaseTest {
     Assert.assertEquals(doc.field("name"), "Rome");
 
     doc.field("name", "London");
+
+    db.begin();
     db.save(doc);
+    db.commit();
 
     try (Stream<ORID> stream = idx.getInternal().getRids("Rome")) {
       coll = stream.collect(Collectors.toList());
@@ -86,7 +92,10 @@ public class OLuceneInsertUpdateTest extends OLuceneBaseTest {
     Assert.assertEquals(doc.field("name"), "London");
 
     doc.field("name", "Berlin");
+
+    db.begin();
     db.save(doc);
+    db.commit();
 
     try (Stream<ORID> stream = idx.getInternal().getRids("Rome")) {
       coll = stream.collect(Collectors.toList());

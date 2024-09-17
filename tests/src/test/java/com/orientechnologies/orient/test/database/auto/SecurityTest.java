@@ -75,7 +75,10 @@ public class SecurityTest extends DocumentDBBaseTest {
     database.open("writer", "writer");
 
     try {
+      database.begin();
       new ODocument().save("internal");
+      database.commit();
+
       Assert.assertTrue(false);
     } catch (OSecurityAccessException e) {
       Assert.assertTrue(true);
@@ -89,6 +92,9 @@ public class SecurityTest extends DocumentDBBaseTest {
     database.open("reader", "reader");
 
     try {
+      database.createClassIfNotExist("Profile");
+
+      database.begin();
       new ODocument("Profile")
           .fields(
               "nick",
@@ -100,6 +106,7 @@ public class SecurityTest extends DocumentDBBaseTest {
               "registeredOn",
               new Date())
           .save();
+      database.commit();
     } catch (OSecurityAccessException e) {
       Assert.assertTrue(true);
     } finally {
@@ -138,22 +145,28 @@ public class SecurityTest extends DocumentDBBaseTest {
   public void testParentRole() {
     database.open("admin", "admin");
 
+    database.begin();
     OSecurity security = database.getMetadata().getSecurity();
     ORole writer = security.getRole("writer");
 
     ORole writerChild =
         security.createRole("writerChild", writer, OSecurityRole.ALLOW_MODES.ALLOW_ALL_BUT);
     writerChild.save();
+    database.commit();
 
     try {
+      database.begin();
       ORole writerGrandChild =
           security.createRole(
               "writerGrandChild", writerChild, OSecurityRole.ALLOW_MODES.ALLOW_ALL_BUT);
       writerGrandChild.save();
+      database.commit();
 
       try {
+        database.begin();
         OUser child = security.createUser("writerChild", "writerChild", writerGrandChild);
         child.save();
+        database.commit();
 
         try {
           Assert.assertTrue(child.hasRole("writer", true));
@@ -189,7 +202,7 @@ public class SecurityTest extends DocumentDBBaseTest {
     OSecurity security = database.getMetadata().getSecurity();
 
     ORole adminRole = security.getRole("admin");
-    OUser newUser = security.createUser("user'quoted", "foobar", adminRole);
+    security.createUser("user'quoted", "foobar", adminRole);
 
     database.close();
 
@@ -302,7 +315,9 @@ public class SecurityTest extends DocumentDBBaseTest {
 
   @Test
   public void testGremlinExecution() throws IOException {
-    if (!database.getURL().startsWith("remote:")) return;
+    if (!database.getURL().startsWith("remote:")) {
+      return;
+    }
 
     database.open("admin", "admin");
     try {

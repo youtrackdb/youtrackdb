@@ -118,7 +118,9 @@ public class OrientDbCreationHelper {
         articles.add(article);
       }
 
+      db.begin();
       author.save();
+      db.commit();
     }
   }
 
@@ -136,7 +138,9 @@ public class OrientDbCreationHelper {
     article.field("content", "the content 2");
     if (new File("./src/test/resources/file.pdf").exists())
       article.field("attachment", loadFile(db, "./src/test/resources/file.pdf", 256));
+    db.begin();
     db.save(article);
+    db.commit();
     return article;
   }
 
@@ -212,7 +216,9 @@ public class OrientDbCreationHelper {
       else chunk = new byte[bufferSize];
       binaryStream.read(chunk);
       recordChunk = new ORecordBytes(chunk);
+      database.begin();
       database.save(recordChunk);
+      database.commit();
       binaryChuncks.add(recordChunk.getIdentity());
     }
 

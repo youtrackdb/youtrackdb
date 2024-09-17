@@ -55,7 +55,9 @@ public class LuceneSpatialMemoryTest {
         document.field("latitude", 42.2814837);
         document.field("longitude", -83.7605452);
 
+        db.begin();
         db.save(document);
+        db.commit();
 
         List<?> query =
             db.query(
@@ -92,7 +94,9 @@ public class LuceneSpatialMemoryTest {
       document.field("latitude", 42.2814837);
       document.field("longitude", -83.7605452);
 
+      db.begin();
       db.save(document);
+      db.commit();
 
       List<?> query =
           db.query(

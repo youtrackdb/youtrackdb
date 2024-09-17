@@ -17,7 +17,9 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-/** Created by frank on 13/12/2016. */
+/**
+ * Created by frank on 13/12/2016.
+ */
 public class OLuceneRangeTest extends OLuceneBaseTest {
 
   @Before
@@ -44,6 +46,7 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
             "Gabriel",
             "Sara");
     for (int i = 0; i < 10; i++) {
+      db.begin();
       db.save(
           new ODocument("Person")
               .field("name", names.get(i))
@@ -52,6 +55,7 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
               .field("date", System.currentTimeMillis() - (i * 3600 * 24 * 1000))
               .field("age", i)
               .field("weight", i + 0.1f));
+      db.commit();
     }
   }
 

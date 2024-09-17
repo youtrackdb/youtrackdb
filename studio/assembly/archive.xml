@@ -18,28 +18,10 @@
   </files>
 
   <fileSets>
-    <!--
-     | copy benchmarks scripts
-    -->
-
-
-    <!--
-     | copy server scripts
-    -->
-
-
-    <!--
-     | copy distributed scripts
-    -->
-
-    <!--
-     | copy graphdb scripts
-    -->
 
     <!--
      | configurations
     -->
-
     <fileSet>
       <directory>${basedir}/dist/www</directory>
       <outputDirectory>www</outputDirectory>
@@ -52,7 +34,6 @@
       <directory>${basedir}/plugins</directory>
       <outputDirectory>plugins</outputDirectory>
     </fileSet>
-
 
 
     <!--

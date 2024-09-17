@@ -307,7 +307,9 @@ public class DbListenerTest extends DocumentDBBaseTest {
     final DocumentChangeListener cl = new DocumentChangeListener(database);
 
     v.setProperty("surname", "Miner");
+    database.begin();
     v.save();
+    database.commit();
     database.close();
 
     Assert.assertEquals(cl.getChanges().size(), 1);

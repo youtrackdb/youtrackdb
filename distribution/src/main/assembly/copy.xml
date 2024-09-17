@@ -96,28 +96,6 @@
         </fileSet>
 
         <!--
-         | copy graphdb scripts
-        -->
-        <fileSet>
-            <directory>${basedir}/../graphdb/script</directory>
-            <outputDirectory>bin</outputDirectory>
-            <includes>
-                <include>*.bat</include>
-            </includes>
-            <fileMode>644</fileMode>
-            <filtered>true</filtered>
-        </fileSet>
-        <fileSet>
-            <directory>${basedir}/../graphdb/script</directory>
-            <outputDirectory>bin</outputDirectory>
-            <includes>
-                <include>*.sh</include>
-            </includes>
-            <fileMode>755</fileMode>
-            <filtered>true</filtered>
-        </fileSet>
-
-        <!--
          | configurations
         -->
         <fileSet>
@@ -126,14 +104,6 @@
         </fileSet>
         <fileSet>
             <directory>${basedir}/../tools/config</directory>
-            <outputDirectory>config</outputDirectory>
-        </fileSet>
-        <fileSet>
-            <directory>${basedir}/../distributed/config</directory>
-            <outputDirectory>config</outputDirectory>
-        </fileSet>
-        <fileSet>
-            <directory>${basedir}/../graphdb/config</directory>
             <outputDirectory>config</outputDirectory>
         </fileSet>
         <fileSet>

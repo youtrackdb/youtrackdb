@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 import com.tinkerpop.blueprints.impls.orient.OrientVertex;
 import com.tinkerpop.blueprints.impls.orient.OrientVertexType;
@@ -38,13 +39,16 @@ public class GraphGetVerticesTest {
   public void test() {
 
     Iterator<Vertex> iterator = null;
-    OrientGraphNoTx graph = new OrientGraphNoTx("memory:TestDB", "admin", "admin");
+    OrientGraph graph = new OrientGraph("memory:TestDB", "admin", "admin");
+    graph.setAutoStartTx(false);
+
     OrientVertexType personType = graph.createVertexType("Person");
     personType.createProperty("person_id", OType.STRING);
     personType.createProperty("name", OType.STRING);
 
     // Adding 3 vertices to the orient graph
 
+    graph.begin();
     OrientVertex p1 = graph.addVertex("class:Person");
     p1.setProperty("person_id", "01");
     p1.setProperty("name", "Gabriel");
@@ -56,6 +60,7 @@ public class GraphGetVerticesTest {
     OrientVertex p3 = graph.addVertex("class:Person");
     p3.setProperty("person_id", "03");
     p3.setProperty("name", "Emanuel");
+    graph.commit();
 
     /*
      * CASE 1 GetVertices call without indexes, query on one key and one value

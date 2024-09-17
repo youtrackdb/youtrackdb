@@ -20,7 +20,6 @@ import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.test.ConcurrentTestHelper;
-import com.orientechnologies.orient.test.TestFactory;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;
 import org.testng.Assert;
@@ -31,6 +30,7 @@ import org.testng.annotations.Test;
 
 @Test
 public class ConcurrentQueriesTest extends DocumentDBBaseTest {
+
   private static final int THREADS = 10;
   private static final int CYCLES = 50;
   private static final int MAX_RETRIES = 50;
@@ -81,33 +81,23 @@ public class ConcurrentQueriesTest extends DocumentDBBaseTest {
 
   @BeforeClass
   public void init() {
-    if (database.getMetadata().getSchema().existsClass("Concurrent"))
+    if (database.getMetadata().getSchema().existsClass("Concurrent")) {
       database.getMetadata().getSchema().dropClass("Concurrent");
+    }
 
     database.getMetadata().getSchema().createClass("Concurrent");
 
     for (int i = 0; i < 1000; ++i) {
+      database.begin();
       database.<ODocument>newInstance("Concurrent").field("test", i).save();
+      database.commit();
     }
   }
 
   @Test
   public void concurrentCommands() throws Exception {
-    //    System.out.println("Spanning " + THREADS + " threads...");
 
-    ConcurrentTestHelper.test(
-        THREADS,
-        new TestFactory<Void>() {
-          @Override
-          public Callable<Void> createWorker() {
-            return new CommandExecutor(url);
-          }
-        });
-
-    //    System.out.println("Done! Total queries executed in parallel: " + counter.get() + "
-    // average retries: "
-    //        + ((float) totalRetries.get() / (float) counter.get()));
-
+    ConcurrentTestHelper.test(THREADS, () -> new CommandExecutor(url));
     Assert.assertEquals(counter.get(), CYCLES * THREADS);
   }
 }
