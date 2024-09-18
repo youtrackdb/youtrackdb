@@ -205,11 +205,11 @@ public class ObjectDetachingTestSchemaFull extends ObjectDBBaseTest {
   @Test(dependsOnMethods = "testInsertCommit")
   public void testInsertRollback() {
     String initialCountryName = "insertRollback";
+
+    database.begin();
     Country country = new Country(initialCountryName);
 
     long initCount = database.countClass(Country.class);
-
-    database.begin();
     country = database.save(country);
     database.rollback();
 

@@ -23,7 +23,6 @@ import com.orientechnologies.orient.core.serialization.serializer.record.binary.
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
 import com.orientechnologies.orient.core.tx.*;
 import java.util.*;
-import java.util.Map.Entry;
 
 /**
  * Created by tglman on 28/12/16.
@@ -38,6 +37,9 @@ public class OTransactionOptimisticServer extends OTransactionOptimistic {
     if (operations == null) {
       return;
     }
+
+    // SORT OPERATIONS BY TYPE TO BE SURE THAT CREATES ARE PROCESSED FIRST
+    operations.sort(Comparator.comparingInt(ORecordOperationRequest::getType).reversed());
 
     final HashMap<ORID, ORecordOperation> tempEntries = new LinkedHashMap<>();
     final HashMap<ORID, ORecordOperation> createdRecords = new HashMap<>();
@@ -149,15 +151,32 @@ public class OTransactionOptimisticServer extends OTransactionOptimistic {
         }
       }
 
-      // process all new records first to ensure links consistency in ridbag collections
-      for (Map.Entry<ORID, ORecordOperation> entry : createdRecords.entrySet()) {
-        tempEntries.remove(entry.getKey());
-        addSingleEntry(entry);
-      }
+      var txOperations = new ArrayList<ORecordOperation>(tempEntries.size());
+      try {
+        for (Map.Entry<ORID, ORecordOperation> entry : tempEntries.entrySet()) {
+          var cachedRecord = database.getLocalCache().findRecord(entry.getKey());
 
-      // FIRE THE TRIGGERS ONLY AFTER HAVING PARSED THE REQUEST
-      for (Map.Entry<ORID, ORecordOperation> entry : tempEntries.entrySet()) {
-        addSingleEntry(entry);
+          var operation = entry.getValue();
+          var rec = operation.getRecord();
+
+          if (rec != cachedRecord) {
+            if (cachedRecord != null) {
+              rec.copyTo(cachedRecord);
+            } else {
+              database.getLocalCache().updateRecord(rec.getRecord());
+            }
+          }
+
+          txOperations.add(preAddRecord(operation.getRecord(), entry.getValue().type));
+        }
+
+        for (var operation : txOperations) {
+          postAddRecord(operation.getRecord(), operation.type, operation.callHooksOnServerTx);
+        }
+      } finally {
+        for (var operation : txOperations) {
+          finalizeAddRecord(operation.getRecord(), operation.type, operation.callHooksOnServerTx);
+        }
       }
 
       tempEntries.clear();
@@ -184,21 +203,6 @@ public class OTransactionOptimisticServer extends OTransactionOptimistic {
     }
   }
 
-  private void addSingleEntry(Entry<ORID, ORecordOperation> entry) {
-    var cachedRecord = database.getLocalCache().findRecord(entry.getKey());
-    var rec = entry.getValue().getRecord();
-
-    if (rec != cachedRecord) {
-      if (cachedRecord != null) {
-        rec.copyTo(cachedRecord);
-      } else {
-        database.getLocalCache().updateRecord(rec.getRecord());
-      }
-    }
-
-    addRecord(entry.getValue().getRecord(), entry.getValue().type);
-  }
-
   /**
    * Unmarshalls collections. This prevent temporary RIDs remains stored as are.
    */
@@ -213,160 +217,186 @@ public class OTransactionOptimisticServer extends OTransactionOptimistic {
     return entry == null || entry.getType() != type;
   }
 
-  private void addRecord(ORecord record, final byte iStatus) {
+  private ORecordOperation preAddRecord(ORecord record, final byte iStatus) {
     changed = true;
     checkTransactionValid();
 
     boolean callHooks = checkCallHooks(record.getIdentity(), iStatus);
+    if (callHooks) {
+      switch (iStatus) {
+        case ORecordOperation.CREATED:
+          {
+            OIdentifiable res = database.beforeCreateOperations(record, null);
+            if (res != null) {
+              record = (ORecord) res;
+            }
+          }
+          break;
+        case ORecordOperation.UPDATED:
+          {
+            OIdentifiable res = database.beforeUpdateOperations(record, null);
+            if (res != null) {
+              record = (ORecord) res;
+            }
+          }
+          break;
+
+        case ORecordOperation.DELETED:
+          database.beforeDeleteOperations(record, null);
+          break;
+      }
+    }
+    try {
+      final ORecordId rid = (ORecordId) record.getIdentity();
+
+      if (!rid.isPersistent() && !rid.isTemporary()) {
+        ORecordId oldRid = rid.copy();
+        if (rid.getClusterPosition() == ORecordId.CLUSTER_POS_INVALID) {
+          ORecordInternal.onBeforeIdentityChanged(record);
+          rid.setClusterPosition(newRecordsPositionsGenerator--);
+          txGeneratedRealRecordIdMap.put(rid, oldRid);
+          ORecordInternal.onAfterIdentityChanged(record);
+        }
+      }
+
+      ORecordOperation txEntry = getRecordEntry(rid);
+
+      if (txEntry == null) {
+        // NEW ENTRY: JUST REGISTER IT
+        byte status = iStatus;
+        if (status == ORecordOperation.UPDATED && record.getIdentity().isTemporary()) {
+          status = ORecordOperation.CREATED;
+        }
+        txEntry = new ORecordOperation(record, status);
+        recordOperations.put(rid.copy(), txEntry);
+      } else {
+        // that is important to keep links to rids of this record inside transaction to be updated
+        // after commit
+        ORecordInternal.setIdentity(record, (ORecordId) txEntry.record.getIdentity());
+        // UPDATE PREVIOUS STATUS
+        txEntry.record = record;
+
+        switch (txEntry.type) {
+          case ORecordOperation.UPDATED:
+            if (iStatus == ORecordOperation.DELETED) {
+              txEntry.type = ORecordOperation.DELETED;
+            }
+            break;
+          case ORecordOperation.DELETED:
+            break;
+          case ORecordOperation.CREATED:
+            if (iStatus == ORecordOperation.DELETED) {
+              recordOperations.remove(rid);
+              // txEntry.type = ORecordOperation.DELETED;
+            }
+            break;
+        }
+      }
+
+      if (!rid.isPersistent() && !rid.isTemporary()) {
+        ORecordId oldRid = rid.copy();
+        if (rid.getClusterId() == ORecordId.CLUSTER_ID_INVALID) {
+          ORecordInternal.onBeforeIdentityChanged(record);
+          database.assignAndCheckCluster(record, null);
+          txGeneratedRealRecordIdMap.put(rid, oldRid);
+          ORecordInternal.onAfterIdentityChanged(record);
+        }
+      }
+
+      txEntry.callHooksOnServerTx = callHooks;
+      return txEntry;
+    } catch (Exception e) {
+      if (callHooks) {
+        switch (iStatus) {
+          case ORecordOperation.CREATED:
+            database.callbackHooks(ORecordHook.TYPE.CREATE_FAILED, record);
+            break;
+          case ORecordOperation.UPDATED:
+            database.callbackHooks(ORecordHook.TYPE.UPDATE_FAILED, record);
+            break;
+          case ORecordOperation.DELETED:
+            database.callbackHooks(ORecordHook.TYPE.DELETE_FAILED, record);
+            break;
+        }
+      }
+
+      throw OException.wrapException(
+          new ODatabaseException("Error on saving record " + record.getIdentity()), e);
+    }
+  }
+
+  private void postAddRecord(ORecord record, final byte iStatus, boolean callHooks) {
+    checkTransactionValid();
     try {
       if (callHooks) {
         switch (iStatus) {
           case ORecordOperation.CREATED:
-            {
-              OIdentifiable res = database.beforeCreateOperations(record, null);
-              if (res != null) {
-                record = (ORecord) res;
-              }
+            database.afterCreateOperations(record);
+            break;
+          case ORecordOperation.UPDATED:
+            database.afterUpdateOperations(record);
+            break;
+          case ORecordOperation.DELETED:
+            database.afterDeleteOperations(record);
+            break;
+        }
+      } else {
+        switch (iStatus) {
+          case ORecordOperation.CREATED:
+            if (record instanceof ODocument) {
+              OClassIndexManager.checkIndexesAfterCreate((ODocument) record, getDatabase());
             }
             break;
           case ORecordOperation.UPDATED:
-            {
-              OIdentifiable res = database.beforeUpdateOperations(record, null);
-              if (res != null) {
-                record = (ORecord) res;
-              }
+            if (record instanceof ODocument) {
+              OClassIndexManager.checkIndexesAfterUpdate((ODocument) record, getDatabase());
             }
             break;
-
           case ORecordOperation.DELETED:
-            database.beforeDeleteOperations(record, null);
+            if (record instanceof ODocument) {
+              OClassIndexManager.checkIndexesAfterDelete((ODocument) record, getDatabase());
+            }
             break;
         }
       }
-      try {
-        final ORecordId rid = (ORecordId) record.getIdentity();
-
-        if (!rid.isPersistent() && !rid.isTemporary()) {
-          ORecordId oldRid = rid.copy();
-          if (rid.getClusterPosition() == ORecordId.CLUSTER_POS_INVALID) {
-            ORecordInternal.onBeforeIdentityChanged(record);
-            rid.setClusterPosition(newRecordsPositionsGenerator--);
-            txGeneratedRealRecordIdMap.put(rid, oldRid);
-            ORecordInternal.onAfterIdentityChanged(record);
-          }
-        }
-
-        ORecordOperation txEntry = getRecordEntry(rid);
-
-        if (txEntry == null) {
-          // NEW ENTRY: JUST REGISTER IT
-          byte status = iStatus;
-          if (status == ORecordOperation.UPDATED && record.getIdentity().isTemporary()) {
-            status = ORecordOperation.CREATED;
-          }
-          txEntry = new ORecordOperation(record, status);
-          recordOperations.put(rid.copy(), txEntry);
-        } else {
-          // that is important to keep links to rids of this record inside transaction to be updated
-          // after commit
-          ORecordInternal.setIdentity(record, (ORecordId) txEntry.record.getIdentity());
-          // UPDATE PREVIOUS STATUS
-          txEntry.record = record;
-
-          switch (txEntry.type) {
-            case ORecordOperation.UPDATED:
-              if (iStatus == ORecordOperation.DELETED) {
-                txEntry.type = ORecordOperation.DELETED;
-              }
-              break;
-            case ORecordOperation.DELETED:
-              break;
-            case ORecordOperation.CREATED:
-              if (iStatus == ORecordOperation.DELETED) {
-                recordOperations.remove(rid);
-                // txEntry.type = ORecordOperation.DELETED;
-              }
-              break;
-          }
-        }
-
-        if (!rid.isPersistent() && !rid.isTemporary()) {
-          ORecordId oldRid = rid.copy();
-          if (rid.getClusterId() == ORecordId.CLUSTER_ID_INVALID) {
-            ORecordInternal.onBeforeIdentityChanged(record);
-            database.assignAndCheckCluster(record, null);
-            txGeneratedRealRecordIdMap.put(rid, oldRid);
-            ORecordInternal.onAfterIdentityChanged(record);
-          }
-        }
-
-        if (callHooks) {
-          switch (iStatus) {
-            case ORecordOperation.CREATED:
-              database.afterCreateOperations(record);
-              break;
-            case ORecordOperation.UPDATED:
-              database.afterUpdateOperations(record);
-              break;
-            case ORecordOperation.DELETED:
-              database.afterDeleteOperations(record);
-              break;
-          }
-        } else {
-          switch (iStatus) {
-            case ORecordOperation.CREATED:
-              if (record instanceof ODocument) {
-                OClassIndexManager.checkIndexesAfterCreate((ODocument) record, getDatabase());
-              }
-              break;
-            case ORecordOperation.UPDATED:
-              if (record instanceof ODocument) {
-                OClassIndexManager.checkIndexesAfterUpdate((ODocument) record, getDatabase());
-              }
-              break;
-            case ORecordOperation.DELETED:
-              if (record instanceof ODocument) {
-                OClassIndexManager.checkIndexesAfterDelete((ODocument) record, getDatabase());
-              }
-              break;
-          }
-        }
-        // RESET TRACKING
-        if (record instanceof ODocument && ((ODocument) record).isTrackingChanges()) {
-          ODocumentInternal.clearTrackData(((ODocument) record));
-        }
-
-      } catch (Exception e) {
-        if (callHooks) {
-          switch (iStatus) {
-            case ORecordOperation.CREATED:
-              database.callbackHooks(ORecordHook.TYPE.CREATE_FAILED, record);
-              break;
-            case ORecordOperation.UPDATED:
-              database.callbackHooks(ORecordHook.TYPE.UPDATE_FAILED, record);
-              break;
-            case ORecordOperation.DELETED:
-              database.callbackHooks(ORecordHook.TYPE.DELETE_FAILED, record);
-              break;
-          }
-        }
-
-        throw OException.wrapException(
-            new ODatabaseException("Error on saving record " + record.getIdentity()), e);
+      // RESET TRACKING
+      if (record instanceof ODocument && ((ODocument) record).isTrackingChanges()) {
+        ODocumentInternal.clearTrackData(((ODocument) record));
       }
-    } finally {
+
+    } catch (Exception e) {
       if (callHooks) {
         switch (iStatus) {
           case ORecordOperation.CREATED:
-            database.callbackHooks(ORecordHook.TYPE.FINALIZE_CREATION, record);
+            database.callbackHooks(ORecordHook.TYPE.CREATE_FAILED, record);
             break;
           case ORecordOperation.UPDATED:
-            database.callbackHooks(ORecordHook.TYPE.FINALIZE_UPDATE, record);
+            database.callbackHooks(ORecordHook.TYPE.UPDATE_FAILED, record);
             break;
           case ORecordOperation.DELETED:
-            database.callbackHooks(ORecordHook.TYPE.FINALIZE_DELETION, record);
+            database.callbackHooks(ORecordHook.TYPE.DELETE_FAILED, record);
             break;
         }
+      }
+
+      throw OException.wrapException(
+          new ODatabaseException("Error on saving record " + record.getIdentity()), e);
+    }
+  }
+
+  private void finalizeAddRecord(ORecord record, final byte iStatus, boolean callHooks) {
+    checkTransactionValid();
+    if (callHooks) {
+      switch (iStatus) {
+        case ORecordOperation.CREATED:
+          database.callbackHooks(ORecordHook.TYPE.FINALIZE_CREATION, record);
+          break;
+        case ORecordOperation.UPDATED:
+          database.callbackHooks(ORecordHook.TYPE.FINALIZE_UPDATE, record);
+          break;
+        case ORecordOperation.DELETED:
+          database.callbackHooks(ORecordHook.TYPE.FINALIZE_DELETION, record);
+          break;
       }
     }
   }

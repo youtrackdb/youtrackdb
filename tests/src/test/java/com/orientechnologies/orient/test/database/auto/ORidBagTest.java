@@ -1193,19 +1193,22 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     document.field("ridBag", ridBag);
     assertEmbedded(ridBag.isEmbedded());
 
-    List<OIdentifiable> itemsToAdd = new ArrayList<OIdentifiable>();
+    List<OIdentifiable> itemsToAdd = new ArrayList<>();
 
     for (int i = 0; i < 10; i++) {
-      ODocument docToAdd = new ODocument();
-
       database.begin();
+
+      ODocument docToAdd = new ODocument();
+      ridBag = document.field("ridBag");
       docToAdd.save(database.getClusterNameById(database.getDefaultClusterId()));
-      database.commit();
 
       for (int k = 0; k < 2; k++) {
         ridBag.add(docToAdd);
         itemsToAdd.add(docToAdd);
       }
+
+      document.save();
+      database.commit();
     }
 
     assertEmbedded(ridBag.isEmbedded());
@@ -1215,44 +1218,46 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     database.commit();
 
     document.reload();
-    ridBag = document.field("ridBag");
-
     for (int i = 0; i < 10; i++) {
-      ODocument docToAdd = new ODocument();
 
       database.begin();
+      ODocument docToAdd = new ODocument();
+
       docToAdd.save(database.getClusterNameById(database.getDefaultClusterId()));
-      database.commit();
 
       ridBag = document.field("ridBag");
       for (int k = 0; k < 2; k++) {
         ridBag.add(docToAdd);
         itemsToAdd.add(docToAdd);
       }
+      document.save();
+
+      database.commit();
     }
 
     for (int i = 0; i < 10; i++) {
-      ODocument docToAdd = new ODocument();
-
       database.begin();
+      ODocument docToAdd = new ODocument();
       docToAdd.save(database.getClusterNameById(database.getDefaultClusterId()));
-      database.commit();
 
       ridBag = document.field("ridBag");
       ridBag.add(docToAdd);
       itemsToAdd.add(docToAdd);
+
+      document.save();
+      database.commit();
     }
 
     assertEmbedded(ridBag.isEmbedded());
+
     database.begin();
     document.save();
     database.commit();
 
     document.reload();
-    ridBag = document.field("ridBag");
 
     database.begin();
-
+    ridBag = document.field("ridBag");
     for (int i = 0; i < 10; i++) {
       ODocument docToAdd = new ODocument();
       docToAdd.save(database.getClusterNameById(database.getDefaultClusterId()));
