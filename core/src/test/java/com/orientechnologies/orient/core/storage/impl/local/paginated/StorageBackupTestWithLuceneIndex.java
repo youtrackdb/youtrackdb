@@ -78,10 +78,12 @@ public class StorageBackupTestWithLuceneIndex {
         "LUCENE",
         new String[] {"name"});
 
+    db.begin();
     final ODocument document = new ODocument("BackupClass");
     document.field("num", 1);
     document.field("name", "Storage");
     document.save();
+    db.commit();
 
     final File backupDir = new File(buildDirectory, "backupDir");
     OFileUtils.deleteRecursively(backupDir);
@@ -146,17 +148,21 @@ public class StorageBackupTestWithLuceneIndex {
       Assert.assertTrue(backupDir.mkdirs());
     }
 
+    db.begin();
     ODocument document = new ODocument("BackupClass");
     document.field("num", 1);
     document.field("name", "Storage");
     document.save();
+    db.commit();
 
     db.incrementalBackup(backupDir.getAbsolutePath());
 
+    db.begin();
     document = new ODocument("BackupClass");
     document.field("num", 1);
     document.field("name", "Storage1");
     document.save();
+    db.commit();
 
     db.incrementalBackup(backupDir.getAbsolutePath());
 
