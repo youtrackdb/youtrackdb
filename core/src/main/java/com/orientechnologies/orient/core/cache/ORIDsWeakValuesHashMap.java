@@ -54,6 +54,10 @@ public final class ORIDsWeakValuesHashMap<V> extends AbstractMap<ORID, V>
   }
 
   private void evictStaleEntries() {
+    if (stopModification) {
+      throw new IllegalStateException("Modification is not allowed");
+    }
+
     int evicted = 0;
 
     WeakRefValue<V> sv;
@@ -63,10 +67,6 @@ public final class ORIDsWeakValuesHashMap<V> extends AbstractMap<ORID, V>
 
       if (key instanceof ChangeableIdentity changeableIdentity) {
         changeableIdentity.removeIdentityChangeListener(this);
-      }
-
-      if (stopModification) {
-        throw new IllegalStateException("Modification is not allowed");
       }
 
       hashMap.remove(key);
@@ -79,16 +79,18 @@ public final class ORIDsWeakValuesHashMap<V> extends AbstractMap<ORID, V>
   }
 
   public V put(final ORID key, final V value) {
+    if (stopModification) {
+      throw new IllegalStateException("Modification is not allowed");
+    }
+
     evictStaleEntries();
+
     final WeakRefValue<V> soft_ref = new WeakRefValue<>(key, value, refQueue);
 
     if (key instanceof ChangeableIdentity changeableIdentity) {
       changeableIdentity.addIdentityChangeListener(this);
     }
 
-    if (stopModification) {
-      throw new IllegalStateException("Modification is not allowed");
-    }
     final WeakRefValue<V> result = hashMap.put(key, soft_ref);
     if (result == null) {
       return null;
@@ -98,11 +100,12 @@ public final class ORIDsWeakValuesHashMap<V> extends AbstractMap<ORID, V>
   }
 
   public V remove(ORID key) {
-    evictStaleEntries();
-
     if (stopModification) {
       throw new IllegalStateException("Modification is not allowed");
     }
+
+    evictStaleEntries();
+
     final WeakRefValue<V> result = hashMap.remove(key);
     if (key instanceof ChangeableIdentity changeableIdentity) {
       changeableIdentity.removeIdentityChangeListener(this);
@@ -119,6 +122,7 @@ public final class ORIDsWeakValuesHashMap<V> extends AbstractMap<ORID, V>
     if (stopModification) {
       throw new IllegalStateException("Modification is not allowed");
     }
+
     hashMap.clear();
   }
 
@@ -190,18 +194,20 @@ public final class ORIDsWeakValuesHashMap<V> extends AbstractMap<ORID, V>
 
   @Override
   public void onAfterIdentityChange(Object source) {
+    if (stopModification) {
+      throw new IllegalStateException("Modification is not allowed");
+    }
+
     var rid = (ORID) source;
     var record = identityChangeMap.remove(rid);
 
     if (record != null) {
-      if (stopModification) {
-        throw new IllegalStateException("Modification is not allowed");
-      }
       hashMap.put(rid, new WeakRefValue<>(rid, record, refQueue));
     }
   }
 
   private static final class WeakRefValue<V> extends WeakReference<V> {
+
     private final @Nonnull ORID key;
 
     public WeakRefValue(
