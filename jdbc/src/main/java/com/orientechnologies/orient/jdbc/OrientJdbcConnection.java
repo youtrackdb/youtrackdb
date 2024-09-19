@@ -21,7 +21,6 @@ import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.util.OURLConnection;
 import com.orientechnologies.orient.core.util.OURLHelper;
 import java.sql.Array;
@@ -51,7 +50,7 @@ import java.util.concurrent.Executor;
  */
 public class OrientJdbcConnection implements Connection {
 
-  private ODatabaseDocument database;
+  private ODatabaseSession database;
   private String dbUrl;
   private Properties info;
   private OrientDB orientDB;
@@ -97,7 +96,7 @@ public class OrientJdbcConnection implements Connection {
     status = ODatabaseSession.STATUS.OPEN;
   }
 
-  public OrientJdbcConnection(ODatabaseDocument database, OrientDB orientDB, Properties info) {
+  public OrientJdbcConnection(ODatabaseSession database, OrientDB orientDB, Properties info) {
     this.database = database;
     this.orientDB = orientDB;
     this.info = info;
@@ -330,7 +329,7 @@ public class OrientJdbcConnection implements Connection {
     return null;
   }
 
-  public ODatabaseDocument getDatabase() {
+  public ODatabaseSession getDatabase() {
     return database;
   }
 

@@ -15,6 +15,7 @@
  */
 package com.orientechnologies.orient.jdbc;
 
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -39,8 +40,9 @@ import java.util.TimeZone;
 
 public class OrientDbCreationHelper {
 
-  public static void loadDB(ODatabaseDocument db, int documents) throws IOException {
+  public static void loadDB(ODatabaseSession db, int documents) throws IOException {
 
+    db.begin();
     for (int i = 1; i <= documents; i++) {
       ODocument doc = new ODocument();
       doc.setClassName("Item");
@@ -52,6 +54,7 @@ public class OrientDbCreationHelper {
     createArticleWithAttachmentSplitted(db);
 
     createWriterAndPosts(db, 10, 10);
+    db.commit();
   }
 
   public static ODocument createItem(int id, ODocument doc) {
@@ -118,13 +121,11 @@ public class OrientDbCreationHelper {
         articles.add(article);
       }
 
-      db.begin();
       author.save();
-      db.commit();
     }
   }
 
-  public static ODocument createArticleWithAttachmentSplitted(ODatabaseDocument db)
+  public static ODocument createArticleWithAttachmentSplitted(ODatabaseSession db)
       throws IOException {
 
     ODocument article = new ODocument("Article");
@@ -136,8 +137,9 @@ public class OrientDbCreationHelper {
     article.field("uuid", 1000000);
     article.field("title", "the title 2");
     article.field("content", "the content 2");
-    if (new File("./src/test/resources/file.pdf").exists())
+    if (new File("./src/test/resources/file.pdf").exists()) {
       article.field("attachment", loadFile(db, "./src/test/resources/file.pdf", 256));
+    }
     db.begin();
     db.save(article);
     db.commit();
@@ -199,27 +201,41 @@ public class OrientDbCreationHelper {
     return null;
   }
 
-  private static List<ORID> loadFile(ODatabaseDocument database, String filePath, int bufferSize)
+  private static List<ORID> loadFile(ODatabaseSession database, String filePath, int bufferSize)
       throws IOException {
     File binaryFile = new File(filePath);
     long binaryFileLength = binaryFile.length();
     int numberOfRecords = (int) (binaryFileLength / bufferSize);
     int remainder = (int) (binaryFileLength % bufferSize);
-    if (remainder > 0) numberOfRecords++;
+    if (remainder > 0) {
+      numberOfRecords++;
+    }
     List<ORID> binaryChuncks = new ArrayList<>(numberOfRecords);
     BufferedInputStream binaryStream = new BufferedInputStream(new FileInputStream(binaryFile));
-    byte[] chunk;
 
-    OBlob recordChunk;
     for (int i = 0; i < numberOfRecords; i++) {
-      if (i == numberOfRecords - 1) chunk = new byte[remainder];
-      else chunk = new byte[bufferSize];
-      binaryStream.read(chunk);
-      recordChunk = new ORecordBytes(chunk);
-      database.begin();
-      database.save(recordChunk);
-      database.commit();
-      binaryChuncks.add(recordChunk.getIdentity());
+      var index = i;
+      var recnum = numberOfRecords;
+
+      database.executeInTx(
+          () -> {
+            byte[] chunk;
+            if (index == recnum - 1) {
+              chunk = new byte[remainder];
+            } else {
+              chunk = new byte[bufferSize];
+            }
+            try {
+              binaryStream.read(chunk);
+            } catch (IOException e) {
+              throw new RuntimeException(e);
+            }
+
+            OBlob recordChunk = new ORecordBytes(chunk);
+
+            database.save(recordChunk);
+            binaryChuncks.add(recordChunk.getIdentity());
+          });
     }
 
     return binaryChuncks;

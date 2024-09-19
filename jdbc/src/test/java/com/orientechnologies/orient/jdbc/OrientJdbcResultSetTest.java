@@ -150,7 +150,8 @@ public class OrientJdbcResultSetTest extends OrientJdbcDbPerMethodTemplateTest {
 
     Statement stmt = conn.createStatement();
 
-    assertThat(stmt.execute("SELECT DISTINCT(published) as pub FROM Item ")).isTrue();
+    assertThat(stmt.execute("SELECT DISTINCT(published) as pub FROM Item order by pub desc"))
+        .isTrue();
 
     ResultSet rs = stmt.getResultSet();
     assertThat(rs).isNotNull();

@@ -18,8 +18,8 @@ package com.orientechnologies.orient.jdbc;
 import static com.orientechnologies.orient.jdbc.OrientDbCreationHelper.createSchemaDB;
 import static com.orientechnologies.orient.jdbc.OrientDbCreationHelper.loadDB;
 
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import java.util.Properties;
 import javax.sql.DataSource;
 import org.assertj.db.type.DataSourceWithLetterCase;
@@ -32,7 +32,7 @@ import org.junit.rules.TestName;
 public abstract class OrientJdbcDbPerClassTemplateTest {
 
   protected static OrientJdbcConnection conn;
-  protected static ODatabaseDocument db;
+  protected static ODatabaseSession db;
   protected static OrientDB orientDB;
   protected static DataSource ds;
 
