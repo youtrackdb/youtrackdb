@@ -553,6 +553,20 @@ public class ODocument extends ORecordAbstract
         throw new IllegalArgumentException(
             "getPropertyOnLoadValue(name) is not designed to work with Edge properties");
       }
+      if (onLoadValue instanceof ORID orid) {
+        if (isLazyLoad()) {
+          return getDatabase().load(orid);
+        } else {
+          return onLoadValue;
+        }
+      }
+      if (onLoadValue instanceof ORecord record) {
+        if (isLazyLoad()) {
+          return onLoadValue;
+        } else {
+          return (RET) record.getIdentity();
+        }
+      }
       return onLoadValue;
     } else {
       return getPropertyWithoutValidation(name);

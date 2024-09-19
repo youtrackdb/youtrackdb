@@ -1875,7 +1875,27 @@ public class OSelectExecutionPlanner {
     if (!info.orderApplied
         && info.orderBy != null
         && info.orderBy.getItems() != null
-        && info.orderBy.getItems().size() > 0) {
+        && !info.orderBy.getItems().isEmpty()) {
+
+      if (info.target != null
+          && info.target.getItem().getIdentifier() != null
+          && info.target.getItem().getIdentifier().getValue() != null) {
+        OClass targetClass =
+            getSchemaFromContext(ctx).getClass(info.target.getItem().getIdentifier().getValue());
+        if (targetClass != null) {
+          info.orderBy
+              .getItems()
+              .forEach(
+                  item -> {
+                    OProperty possibleEdgeProperty =
+                        targetClass.getProperty("out_" + item.getAlias());
+                    if (possibleEdgeProperty != null
+                        && possibleEdgeProperty.getType() == OType.LINKBAG) {
+                      item.setEdge(true);
+                    }
+                  });
+        }
+      }
       plan.chain(
           new OrderByStep(
               info.orderBy,

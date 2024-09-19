@@ -972,4 +972,14 @@ public abstract class ORecordAbstract implements ORecord {
 
     this.getDirtyManager().unTrack(this, id);
   }
+
+  @Override
+  public void resetToNew() {
+    if (!recordId.isNew()) {
+      throw new IllegalStateException(
+          "Record id is not new " + recordId + " as expected, so record can't be reset.");
+    }
+
+    reset();
+  }
 }
