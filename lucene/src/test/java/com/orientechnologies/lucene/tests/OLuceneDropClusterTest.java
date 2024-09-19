@@ -47,8 +47,10 @@ public class OLuceneDropClusterTest extends OLuceneBaseTest {
 
     OMetadataInternal metadata = db.getMetadata();
 
+    db.begin();
     long initialIndexSize =
         metadata.getIndexManagerInternal().getIndex(db, "Song.title").getInternal().size();
+    db.commit();
 
     int[] clusterIds = metadata.getSchema().getClass("Song").getClusterIds();
 

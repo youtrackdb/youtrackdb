@@ -208,7 +208,7 @@ public class OTransactionNoTx extends OTransactionAbstract {
   }
 
   public void clearRecordEntries() {
-    throw new UnsupportedOperationException("clearRecordEntries");
+    throw new UnsupportedOperationException("Operation not supported in no tx mode");
   }
 
   public ORecordAbstract getRecord(final ORID rid) {
@@ -216,17 +216,17 @@ public class OTransactionNoTx extends OTransactionAbstract {
   }
 
   public ORecordOperation getRecordEntry(final ORID rid) {
-    throw new UnsupportedOperationException("getRecordEntry");
+    throw new UnsupportedOperationException("Operation not supported in no tx mode");
   }
 
   @Override
   public void setCustomData(String iName, Object iValue) {
-    throw new UnsupportedOperationException("setCustomData");
+    throw new UnsupportedOperationException("Operation not supported in no tx mode");
   }
 
   @Override
   public Object getCustomData(String iName) {
-    throw new UnsupportedOperationException("getCustomData");
+    throw new UnsupportedOperationException("Operation not supported in no tx mode");
   }
 
   public ODocument getIndexChanges() {
@@ -239,11 +239,11 @@ public class OTransactionNoTx extends OTransactionAbstract {
       final OPERATION status,
       final Object key,
       final OIdentifiable value) {
-    throw new UnsupportedOperationException("addIndexEntry");
+    throw new UnsupportedOperationException("Operation not supported in no tx mode");
   }
 
   public void clearIndexEntries() {
-    throw new UnsupportedOperationException("clearIndexEntries");
+    throw new UnsupportedOperationException("Operation not supported in no tx mode");
   }
 
   @Override
@@ -262,7 +262,7 @@ public class OTransactionNoTx extends OTransactionAbstract {
   }
 
   public void updateIdentityAfterCommit(ORID oldRid, ORID newRid) {
-    throw new UnsupportedOperationException("updateIdentityAfterCommit");
+    throw new UnsupportedOperationException("Operation not supported in no tx mode");
   }
 
   @Override

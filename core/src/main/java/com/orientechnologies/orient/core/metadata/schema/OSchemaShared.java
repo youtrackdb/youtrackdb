@@ -483,7 +483,7 @@ public abstract class OSchemaShared implements OCloseable {
   }
 
   public void acquireSchemaWriteLock(ODatabaseDocumentInternal database) {
-    database.startEsclusiveMetadataChange();
+    database.startExclusiveMetadataChange();
     lock.writeLock().lock();
     modificationCounter.increment();
   }
@@ -515,7 +515,7 @@ public abstract class OSchemaShared implements OCloseable {
       modificationCounter.decrement();
       count = modificationCounter.intValue();
       lock.writeLock().unlock();
-      database.endEsclusiveMetadataChange();
+      database.endExclusiveMetadataChange();
     }
     assert count >= 0;
 

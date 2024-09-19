@@ -76,7 +76,10 @@ public class LuceneInsertUpdateSingleDocumentTransactionTest extends BaseLuceneT
     try (Stream<ORID> stream = idx.getInternal().getRids("Rome")) {
       coll = stream.collect(Collectors.toList());
     }
+
+    db.begin();
     Assert.assertEquals(coll.size(), 2);
     Assert.assertEquals(2, idx.getInternal().size());
+    db.commit();
   }
 }

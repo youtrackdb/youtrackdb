@@ -72,7 +72,10 @@ public class OLuceneInsertUpdateSingleDocumentTransactionTest extends OLuceneBas
     try (Stream<ORID> stream = idx.getInternal().getRids("Rome")) {
       coll = stream.collect(Collectors.toList());
     }
+
+    db.begin();
     Assert.assertEquals(2, coll.size());
     Assert.assertEquals(2, idx.getInternal().size());
+    db.commit();
   }
 }

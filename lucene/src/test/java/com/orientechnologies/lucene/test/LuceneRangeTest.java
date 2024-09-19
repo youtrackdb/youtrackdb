@@ -58,6 +58,7 @@ public class LuceneRangeTest extends BaseLuceneTest {
   public void shouldUseRangeQueryOnSingleIntegerField() {
     db.command("create index Person.age on Person(age) FULLTEXT ENGINE LUCENE").close();
 
+    db.begin();
     assertThat(
             db.getMetadata()
                 .getIndexManagerInternal()
@@ -65,6 +66,7 @@ public class LuceneRangeTest extends BaseLuceneTest {
                 .getInternal()
                 .size())
         .isEqualTo(10);
+    db.commit();
 
     // range
     OResultSet results = db.command("SELECT FROM Person WHERE age LUCENE 'age:[5 TO 6]'");
@@ -81,6 +83,7 @@ public class LuceneRangeTest extends BaseLuceneTest {
   public void shouldUseRangeQueryOnSingleDateField() {
     db.command("create index Person.date on Person(date) FULLTEXT ENGINE LUCENE").close();
 
+    db.begin();
     assertThat(
             db.getMetadata()
                 .getIndexManagerInternal()
@@ -88,6 +91,7 @@ public class LuceneRangeTest extends BaseLuceneTest {
                 .getInternal()
                 .size())
         .isEqualTo(10);
+    db.commit();
 
     String today = DateTools.timeToString(System.currentTimeMillis(), DateTools.Resolution.MINUTE);
     String fiveDaysAgo =
@@ -108,6 +112,7 @@ public class LuceneRangeTest extends BaseLuceneTest {
             "create index Person.composite on Person(name,surname,date,age) FULLTEXT ENGINE LUCENE")
         .close();
 
+    db.begin();
     assertThat(
             db.getMetadata()
                 .getIndexManagerInternal()
@@ -115,6 +120,7 @@ public class LuceneRangeTest extends BaseLuceneTest {
                 .getInternal()
                 .size())
         .isEqualTo(10);
+    db.commit();
 
     String today = DateTools.timeToString(System.currentTimeMillis(), DateTools.Resolution.MINUTE);
     String fiveDaysAgo =
@@ -158,6 +164,7 @@ public class LuceneRangeTest extends BaseLuceneTest {
             "create index Person.composite on Person(name,surname,date,age) FULLTEXT ENGINE LUCENE")
         .close();
 
+    db.begin();
     assertThat(
             db.getMetadata()
                 .getIndexManagerInternal()
@@ -165,6 +172,7 @@ public class LuceneRangeTest extends BaseLuceneTest {
                 .getInternal()
                 .size())
         .isEqualTo(10);
+    db.commit();
 
     String today = DateTools.timeToString(System.currentTimeMillis(), DateTools.Resolution.MINUTE);
     String fiveDaysAgo =
@@ -197,6 +205,7 @@ public class LuceneRangeTest extends BaseLuceneTest {
   public void shouldFetchOnlyFromACluster() {
     db.command("create index Person.name on Person(name) FULLTEXT ENGINE LUCENE").close();
 
+    db.begin();
     assertThat(
             db.getMetadata()
                 .getIndexManagerInternal()
@@ -204,6 +213,7 @@ public class LuceneRangeTest extends BaseLuceneTest {
                 .getInternal()
                 .size())
         .isEqualTo(10);
+    db.commit();
 
     int cluster = db.getMetadata().getSchema().getClass("Person").getClusterIds()[1];
 

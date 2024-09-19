@@ -425,7 +425,7 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
       if (metadata != null) {
         metadata.makeThreadLocalSchemaSnapshot();
       }
-      databaseRecord.startEsclusiveMetadataChange();
+      databaseRecord.startExclusiveMetadataChange();
     }
 
     lock.writeLock().lock();
@@ -468,7 +468,7 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
 
     final ODatabaseDocumentInternal databaseRecord = getDatabaseIfDefined();
     if (databaseRecord != null && !databaseRecord.isClosed()) {
-      databaseRecord.endEsclusiveMetadataChange();
+      databaseRecord.endExclusiveMetadataChange();
       final OMetadata metadata = databaseRecord.getMetadata();
       if (metadata != null) {
         ((OMetadataInternal) metadata).clearThreadLocalSchemaSnapshot();

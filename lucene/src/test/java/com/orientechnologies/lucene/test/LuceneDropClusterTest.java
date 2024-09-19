@@ -51,10 +51,12 @@ public class LuceneDropClusterTest extends BaseLuceneTest {
 
     OMetadataInternal metadata = db.getMetadata();
 
+    db.begin();
     long initialIndexSize =
         metadata.getIndexManagerInternal().getIndex(db, "Song.title").getInternal().size();
 
     int[] clusterIds = metadata.getSchema().getClass("Song").getClusterIds();
+    db.commit();
 
     db.dropCluster(clusterIds[1]);
 

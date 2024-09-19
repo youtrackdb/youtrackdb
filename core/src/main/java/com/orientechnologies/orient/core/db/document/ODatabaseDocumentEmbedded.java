@@ -1875,11 +1875,11 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     return getStorage().getClustersIds(filterClusters);
   }
 
-  public void startEsclusiveMetadataChange() {
+  public void startExclusiveMetadataChange() {
     ((OAbstractPaginatedStorage) storage).startDDL();
   }
 
-  public void endEsclusiveMetadataChange() {
+  public void endExclusiveMetadataChange() {
     ((OAbstractPaginatedStorage) storage).endDDL();
   }
 

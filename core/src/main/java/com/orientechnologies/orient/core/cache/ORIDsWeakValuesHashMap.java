@@ -14,9 +14,12 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import javax.annotation.Nonnull;
 
-/** Cache implementation that uses Soft References. */
+/**
+ * Cache implementation that uses Soft References.
+ */
 public final class ORIDsWeakValuesHashMap<V> extends AbstractMap<ORID, V>
     implements IdentityChangeListener {
+
   private final ReferenceQueue<V> refQueue = new ReferenceQueue<>();
 
   private final HashMap<ORID, WeakRefValue<V>> hashMap = new HashMap<>();
@@ -31,10 +34,15 @@ public final class ORIDsWeakValuesHashMap<V> extends AbstractMap<ORID, V>
     evictStaleEntries();
     V result = null;
     final WeakRefValue<V> soft_ref = hashMap.get(key);
+
     if (soft_ref != null) {
       result = soft_ref.get();
       if (result == null) {
+
         hashMap.remove(key);
+        if (key instanceof ChangeableIdentity changeableIdentity) {
+          changeableIdentity.removeIdentityChangeListener(this);
+        }
       }
     }
     return result;
@@ -47,6 +55,11 @@ public final class ORIDsWeakValuesHashMap<V> extends AbstractMap<ORID, V>
     //noinspection unchecked
     while ((sv = (WeakRefValue<V>) refQueue.poll()) != null) {
       final ORID key = sv.key;
+
+      if (key instanceof ChangeableIdentity changeableIdentity) {
+        changeableIdentity.removeIdentityChangeListener(this);
+      }
+
       hashMap.remove(key);
       evicted++;
     }
@@ -91,6 +104,7 @@ public final class ORIDsWeakValuesHashMap<V> extends AbstractMap<ORID, V>
 
   public int size() {
     evictStaleEntries();
+
     return hashMap.size();
   }
 
@@ -122,6 +136,7 @@ public final class ORIDsWeakValuesHashMap<V> extends AbstractMap<ORID, V>
   @Override
   public void forEach(BiConsumer<? super ORID, ? super V> action) {
     evictStaleEntries();
+
     for (final Entry<ORID, WeakRefValue<V>> entry : hashMap.entrySet()) {
       final V value = entry.getValue().get();
       if (value != null) {
@@ -155,7 +170,7 @@ public final class ORIDsWeakValuesHashMap<V> extends AbstractMap<ORID, V>
   }
 
   private static final class WeakRefValue<V> extends WeakReference<V> {
-    private @Nonnull final ORID key;
+    private final @Nonnull ORID key;
 
     public WeakRefValue(
         @Nonnull final ORID key, @Nonnull final V value, final ReferenceQueue<V> queue) {
@@ -164,7 +179,9 @@ public final class ORIDsWeakValuesHashMap<V> extends AbstractMap<ORID, V>
     }
 
     public boolean equals(Object o) {
-      if (this == o) return true;
+      if (this == o) {
+        return true;
+      }
       if (o == null || getClass() != o.getClass()) {
         return false;
       }

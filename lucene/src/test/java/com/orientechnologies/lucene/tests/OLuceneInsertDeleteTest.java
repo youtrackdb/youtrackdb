@@ -71,13 +71,13 @@ public class OLuceneInsertDeleteTest extends OLuceneBaseTest {
       coll = stream.collect(Collectors.toList());
     }
 
+    db.begin();
     assertThat(coll).hasSize(1);
     assertThat(idx.getInternal().size()).isEqualTo(1);
 
     OIdentifiable next = (OIdentifiable) coll.iterator().next();
     doc = db.load(next.<ORecord>getRecord());
 
-    db.begin();
     db.delete(doc);
     db.commit();
 

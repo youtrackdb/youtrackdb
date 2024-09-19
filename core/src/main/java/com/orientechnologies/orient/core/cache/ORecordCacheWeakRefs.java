@@ -34,15 +34,15 @@ import java.util.function.BiConsumer;
 public class ORecordCacheWeakRefs extends OAbstractMapCache<ORIDsWeakValuesHashMap<ORecordAbstract>>
     implements ORecordCache {
 
-  private static final BiConsumer<ORID, ORecord> UNLOAD_RECORDS_CONSUMER =
+  private static final BiConsumer<ORID, ORecordAbstract> UNLOAD_RECORDS_CONSUMER =
       (rid, record) -> {
         ORecordInternal.unsetDirty(record);
         record.unload();
       };
 
-  private static final BiConsumer<ORID, ORecord> UNLOAD_NOT_MODIFIED_RECORDS_CONSUMER =
+  private static final BiConsumer<ORID, ORecordAbstract> UNLOAD_NOT_MODIFIED_RECORDS_CONSUMER =
       (rid, record) -> {
-        if (!record.isDirty()) {
+        if (!record.isDirtyNoLoading()) {
           record.unload();
         }
       };

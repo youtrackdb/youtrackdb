@@ -104,9 +104,8 @@ public class LuceneTransactionEmbeddedQueryTest {
       vertices = db.query(query);
 
       OResult res = vertices.next();
-      Assert.assertEquals(1, index.getInternal().size());
-
       db.begin();
+      Assert.assertEquals(1, index.getInternal().size());
 
       db.delete(res.getIdentity().get());
 
@@ -156,9 +155,8 @@ public class LuceneTransactionEmbeddedQueryTest {
 
       OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "C1.p1");
 
-      Assert.assertEquals(0, index.getInternal().size());
-
       db.begin();
+      Assert.assertEquals(0, index.getInternal().size());
 
       ODocument doc = new ODocument("c1");
       doc.field("p1", new String[] {"update removed", "update fixed"});

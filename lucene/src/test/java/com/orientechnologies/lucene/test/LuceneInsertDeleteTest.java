@@ -70,8 +70,10 @@ public class LuceneInsertDeleteTest extends BaseLuceneTest {
       coll = stream.collect(Collectors.toList());
     }
 
+    db.begin();
     assertThat(coll).hasSize(1);
     assertThat(idx.getInternal().size()).isEqualTo(1);
+    db.commit();
 
     OIdentifiable next = (OIdentifiable) coll.iterator().next();
     doc = db.load(next.<ORecord>getRecord());

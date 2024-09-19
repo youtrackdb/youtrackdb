@@ -135,8 +135,8 @@ public class LuceneMiscTest extends BaseLuceneTest {
     db.save(songVertex);
     db.commit();
 
-    OEdge edge = authorVertex.addEdge(songVertex, "AuthorOf");
     db.begin();
+    OEdge edge = authorVertex.addEdge(songVertex, "AuthorOf");
     db.save(edge);
     db.commit();
 

@@ -104,8 +104,11 @@ public class LuceneInsertIntegrityRemoteTest extends BaseLuceneTest {
     try (Stream<ORID> stream = idx.getInternal().getRids("Berlin")) {
       coll = stream.collect(Collectors.toList());
     }
+
+    db.begin();
     Assert.assertEquals(idx.getInternal().size(), 1);
     Assert.assertEquals(coll.size(), 1);
+    db.commit();
 
     Thread.sleep(1000);
 

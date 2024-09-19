@@ -66,6 +66,7 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
     try (final OResultSet command =
         db.command("create index Person.weight on Person(weight) FULLTEXT ENGINE LUCENE")) {}
 
+    db.begin();
     assertThat(
             db.getMetadata()
                 .getIndexManagerInternal()
@@ -73,6 +74,7 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
                 .getInternal()
                 .size())
         .isEqualTo(10);
+    db.commit();
 
     // range
     try (final OResultSet results =
@@ -94,6 +96,7 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
     try (OResultSet command =
         db.command("create index Person.age on Person(age) FULLTEXT ENGINE LUCENE")) {}
 
+    db.begin();
     assertThat(
             db.getMetadata()
                 .getIndexManagerInternal()
@@ -101,6 +104,7 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
                 .getInternal()
                 .size())
         .isEqualTo(10);
+    db.commit();
 
     // range
     try (OResultSet results =
@@ -121,6 +125,7 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
     try (OResultSet command =
         db.command("create index Person.date on Person(date) FULLTEXT ENGINE LUCENE")) {}
 
+    db.begin();
     assertThat(
             db.getMetadata()
                 .getIndexManagerInternal()
@@ -128,6 +133,7 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
                 .getInternal()
                 .size())
         .isEqualTo(10);
+    db.commit();
 
     String today = DateTools.timeToString(System.currentTimeMillis(), DateTools.Resolution.MINUTE);
     String fiveDaysAgo =
@@ -210,6 +216,7 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
             "create index Person.composite on Person(name,surname,date,age) FULLTEXT ENGINE"
                 + " LUCENE")) {}
 
+    db.begin();
     assertThat(
             db.getMetadata()
                 .getIndexManagerInternal()
@@ -217,6 +224,7 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
                 .getInternal()
                 .size())
         .isEqualTo(10);
+    db.commit();
 
     String today = DateTools.timeToString(System.currentTimeMillis(), DateTools.Resolution.MINUTE);
     String fiveDaysAgo =

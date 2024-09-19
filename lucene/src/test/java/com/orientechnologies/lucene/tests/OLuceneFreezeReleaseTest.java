@@ -89,7 +89,9 @@ public class OLuceneFreezeReleaseTest extends OLuceneBaseTest {
     db.release();
     db.release();
 
+    db.begin();
     db.save(new ODocument("Person").field("name", "John"));
+    db.commit();
 
     results = db.command("select from Person where search_class('John')=true");
     assertThat(results).hasSize(2);

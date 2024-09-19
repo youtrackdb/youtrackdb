@@ -262,7 +262,17 @@ public abstract class ORecordAbstract implements ORecord {
   public final boolean isDirty() {
     checkForLoading();
     if (primaryRecord != null) {
+      primaryRecord = primaryRecord.getRecord();
       return primaryRecord.isDirty();
+    }
+
+    return dirty;
+  }
+
+  public final boolean isDirtyNoLoading() {
+    if (primaryRecord != null) {
+      primaryRecord = primaryRecord.getRecord();
+      return primaryRecord.isDirtyNoLoading();
     }
 
     return dirty;
@@ -406,7 +416,7 @@ public abstract class ORecordAbstract implements ORecord {
   public final int getVersionNoLoad() {
     if (primaryRecord != null) {
       primaryRecord = primaryRecord.getRecord();
-      return primaryRecord.getVersion();
+      return primaryRecord.getVersionNoLoad();
     }
 
     return recordVersion;

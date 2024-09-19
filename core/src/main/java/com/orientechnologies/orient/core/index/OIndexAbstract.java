@@ -575,7 +575,8 @@ public abstract class OIndexAbstract implements OIndexInternal {
       }
 
       if (iProgressListener != null) {
-        iProgressListener.onCompletition(this, true);
+        var db = getDatabase();
+        db.executeInTx(() -> iProgressListener.onCompletition(this, true));
       }
     } catch (final RuntimeException e) {
       if (iProgressListener != null) {

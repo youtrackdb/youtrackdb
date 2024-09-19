@@ -278,9 +278,9 @@ public interface ODatabaseDocumentInternal extends ODatabaseSession, ODatabaseIn
 
   int[] getClustersIds(Set<String> filterClusters);
 
-  default void startEsclusiveMetadataChange() {}
+  default void startExclusiveMetadataChange() {}
 
-  default void endEsclusiveMetadataChange() {}
+  default void endExclusiveMetadataChange() {}
 
   default void queryStartUsingViewCluster(int cluster) {}
 

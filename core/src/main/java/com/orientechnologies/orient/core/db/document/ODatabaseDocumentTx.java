@@ -696,6 +696,18 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
   }
 
   @Override
+  public void startExclusiveMetadataChange() {
+    checkOpenness();
+    internal.startExclusiveMetadataChange();
+  }
+
+  @Override
+  public void endExclusiveMetadataChange() {
+    checkOpenness();
+    internal.endExclusiveMetadataChange();
+  }
+
+  @Override
   public OTransaction getTransaction() {
     checkOpenness();
     return internal.getTransaction();

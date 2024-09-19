@@ -100,6 +100,7 @@ public class OLuceneIndexNotUnique extends OIndexAbstract implements OLuceneInde
       } else {
         database.begin();
         try {
+          transaction = database.getTransaction();
           transaction.addIndexEntry(
               this,
               super.getName(),
@@ -141,7 +142,7 @@ public class OLuceneIndexNotUnique extends OIndexAbstract implements OLuceneInde
 
   @Override
   public void doPut(OAbstractPaginatedStorage storage, Object key, ORID rid) {
-    while (true)
+    while (true) {
       try {
         storage.callIndexEngine(
             false,
@@ -163,12 +164,13 @@ public class OLuceneIndexNotUnique extends OIndexAbstract implements OLuceneInde
       } catch (OInvalidIndexEngineIdException e) {
         doReloadIndexEngine();
       }
+    }
   }
 
   @Override
   public boolean doRemove(OAbstractPaginatedStorage storage, Object key)
       throws OInvalidIndexEngineIdException {
-    while (true)
+    while (true) {
       try {
         storage.callIndexEngine(
             false,
@@ -182,13 +184,14 @@ public class OLuceneIndexNotUnique extends OIndexAbstract implements OLuceneInde
       } catch (OInvalidIndexEngineIdException e) {
         doReloadIndexEngine();
       }
+    }
     return false;
   }
 
   @Override
   public boolean doRemove(OAbstractPaginatedStorage storage, Object key, ORID rid)
       throws OInvalidIndexEngineIdException {
-    while (true)
+    while (true) {
       try {
         storage.callIndexEngine(
             false,
@@ -202,6 +205,7 @@ public class OLuceneIndexNotUnique extends OIndexAbstract implements OLuceneInde
       } catch (OInvalidIndexEngineIdException e) {
         doReloadIndexEngine();
       }
+    }
     return false;
   }
 
@@ -211,13 +215,14 @@ public class OLuceneIndexNotUnique extends OIndexAbstract implements OLuceneInde
   }
 
   public void doDelete() {
-    while (true)
+    while (true) {
       try {
         storage.deleteIndexEngine(indexId);
         break;
       } catch (OInvalidIndexEngineIdException ignore) {
         doReloadIndexEngine();
       }
+    }
   }
 
   protected Object decodeKey(Object key) {
@@ -229,12 +234,14 @@ public class OLuceneIndexNotUnique extends OIndexAbstract implements OLuceneInde
       for (final Object fieldValueItem : (Collection<?>) fieldValue) {
         put(fieldValueItem, doc);
       }
-    } else put(fieldValue, doc);
+    } else {
+      put(fieldValue, doc);
+    }
   }
 
   @Override
   protected void onIndexEngineChange(int indexId) {
-    while (true)
+    while (true) {
       try {
         storage.callIndexEngine(
             false,
@@ -248,6 +255,7 @@ public class OLuceneIndexNotUnique extends OIndexAbstract implements OLuceneInde
       } catch (OInvalidIndexEngineIdException e) {
         doReloadIndexEngine();
       }
+    }
   }
 
   protected Object encodeKey(Object key) {
@@ -258,7 +266,7 @@ public class OLuceneIndexNotUnique extends OIndexAbstract implements OLuceneInde
 
     OLuceneTxChanges changes = (OLuceneTxChanges) transaction.getCustomData(getName());
     if (changes == null) {
-      while (true)
+      while (true) {
         try {
           changes =
               storage.callIndexEngine(
@@ -277,6 +285,7 @@ public class OLuceneIndexNotUnique extends OIndexAbstract implements OLuceneInde
         } catch (OInvalidIndexEngineIdException e) {
           doReloadIndexEngine();
         }
+      }
 
       transaction.setCustomData(getName(), changes);
     }
@@ -399,21 +408,24 @@ public class OLuceneIndexNotUnique extends OIndexAbstract implements OLuceneInde
 
   @Override
   public long size() {
-    while (true) {
-      try {
-        // TODO apply current TX
-        return storage.callIndexEngine(
-            false,
-            indexId,
-            engine -> {
-              OTransaction transaction = getDatabase().getTransaction();
-              OLuceneIndexEngine indexEngine = (OLuceneIndexEngine) engine;
-              return indexEngine.sizeInTx(getTransactionChanges(transaction));
-            });
-      } catch (OInvalidIndexEngineIdException e) {
-        doReloadIndexEngine();
-      }
-    }
+    var database = getDatabase();
+    return database.computeInTx(
+        () -> {
+          while (true) {
+            try {
+              return storage.callIndexEngine(
+                  false,
+                  indexId,
+                  engine -> {
+                    OTransaction transaction = getDatabase().getTransaction();
+                    OLuceneIndexEngine indexEngine = (OLuceneIndexEngine) engine;
+                    return indexEngine.sizeInTx(getTransactionChanges(transaction));
+                  });
+            } catch (OInvalidIndexEngineIdException e) {
+              doReloadIndexEngine();
+            }
+          }
+        });
   }
 
   @Override

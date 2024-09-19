@@ -29,7 +29,9 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by Enrico Risa on 05/10/15. */
+/**
+ * Created by Enrico Risa on 05/10/15.
+ */
 public class LuceneTransactionGeoQueryTest {
 
   private static String PWKT = "POINT(-160.2075374 21.9029803)";
@@ -83,8 +85,11 @@ public class LuceneTransactionGeoQueryTest {
               + " 21.89399562866819,-160.21087646484375 21.844928843026818,-160.21018981933594"
               + " 21.787556698550834)' ";
       docs = db.query(new OSQLSynchQuery<ODocument>(query));
+
+      db.begin();
       Assert.assertEquals(0, docs.size());
       Assert.assertEquals(0, idx.getInternal().size());
+      db.commit();
     } finally {
       db.drop();
     }
@@ -125,10 +130,10 @@ public class LuceneTransactionGeoQueryTest {
               + " 21.89399562866819,-160.21087646484375 21.844928843026818,-160.21018981933594"
               + " 21.787556698550834)' ";
       List<ODocument> docs = db.query(new OSQLSynchQuery<ODocument>(query));
-      Assert.assertEquals(0, docs.size());
-      Assert.assertEquals(1, idx.getInternal().size());
 
       db.begin();
+      Assert.assertEquals(0, docs.size());
+      Assert.assertEquals(1, idx.getInternal().size());
 
       db.command("update City set location = ST_GeomFromText('" + PWKT + "')").close();
 
@@ -149,8 +154,11 @@ public class LuceneTransactionGeoQueryTest {
               + " 21.89399562866819,-160.21087646484375 21.844928843026818,-160.21018981933594"
               + " 21.787556698550834)' ";
       docs = db.query(new OSQLSynchQuery<ODocument>(query));
+
+      db.begin();
       Assert.assertEquals(1, docs.size());
       Assert.assertEquals(1, idx.getInternal().size());
+      db.commit();
 
     } finally {
       db.drop();

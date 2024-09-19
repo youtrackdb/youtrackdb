@@ -106,9 +106,10 @@ public class LuceneTransactionCompositeQueryTest extends BaseLuceneTest {
     query = "select from Foo where name = 'Test' and bar lucene \"abc\" ";
     vertices = db.query(query);
 
+    db.begin();
     assertThat(vertices).hasSize(1);
-
     Assert.assertEquals(1, index.getInternal().size());
+    db.commit();
   }
 
   @Test
@@ -122,9 +123,8 @@ public class LuceneTransactionCompositeQueryTest extends BaseLuceneTest {
       e.printStackTrace();
     }
 
-    Assert.assertEquals(index.getInternal().size(), 0);
-
     db.begin();
+    Assert.assertEquals(index.getInternal().size(), 0);
 
     ODocument doc = new ODocument("Foo");
     doc.field("name", "Test");
@@ -189,9 +189,8 @@ public class LuceneTransactionCompositeQueryTest extends BaseLuceneTest {
       e.printStackTrace();
     }
 
-    Assert.assertEquals(index.getInternal().size(), 0);
-
     db.begin();
+    Assert.assertEquals(index.getInternal().size(), 0);
 
     ODocument doc = new ODocument("Foo");
     doc.field("name", "Test");
