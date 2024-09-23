@@ -18,7 +18,7 @@ package com.orientechnologies.orient.jdbc;
 import static java.lang.Boolean.parseBoolean;
 
 import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.exception.OQueryParsingException;
 import com.orientechnologies.orient.core.sql.executor.OInternalResultSet;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -42,7 +42,7 @@ import java.util.Properties;
 public class OrientJdbcStatement implements Statement {
 
   protected final OrientJdbcConnection connection;
-  protected final ODatabaseDocument database;
+  protected final ODatabaseSession database;
   protected final List<String> batches;
   protected final int resultSetType;
   protected final int resultSetConcurrency;

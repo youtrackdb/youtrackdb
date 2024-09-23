@@ -36,6 +36,7 @@ import org.testng.annotations.Test;
 
 @Test(groups = {"crud", "record-document"})
 public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
+
   private ODocument record;
   private ODocument account;
 
@@ -175,7 +176,9 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
     Assert.assertEquals(1, result.size());
     OElement readDoc = result.get(0).toElement();
     readDoc.setProperty("keyField", "K1N");
+    database.begin();
     readDoc.save();
+    database.commit();
   }
 
   @Test(dependsOnMethods = "testUpdateDocDefined")
@@ -184,7 +187,9 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
     doc.field("keyField", "K2");
     doc.field("dateTimeField", (Date) null);
     doc.field("stringField", (String) null);
+    database.begin();
     doc.save();
+    database.commit();
 
     database.close();
     database.open("admin", "admin");
@@ -195,7 +200,9 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
     Assert.assertEquals(1, result.size());
     OElement readDoc = result.get(0).toElement();
     readDoc.setProperty("keyField", "K2N");
+    database.begin();
     readDoc.save();
+    database.commit();
   }
 
   @Test(dependsOnMethods = "validationMandatoryNullableCloseDb")
@@ -204,7 +211,10 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
     doc.field("keyField", "K3");
     doc.field("dateTimeField", (Date) null);
     doc.field("stringField", (String) null);
+
+    database.begin();
     doc.save();
+    database.commit();
 
     List<OResult> result =
         database.query("SELECT FROM MyTestClass WHERE keyField = ?", "K3").stream()
@@ -212,7 +222,10 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
     Assert.assertEquals(1, result.size());
     OElement readDoc = result.get(0).toElement();
     readDoc.setProperty("keyField", "K3N");
+
+    database.begin();
     readDoc.save();
+    database.commit();
   }
 
   @Test(dependsOnMethods = "validationMandatoryNullableNoCloseDb")
@@ -220,7 +233,9 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
     database.getMetadata().reload();
     try {
       ODocument doc = new ODocument("MyTestClass");
+      database.begin();
       doc.save();
+      database.commit();
       Assert.fail();
     } catch (OValidationException e) {
     }
@@ -230,9 +245,13 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
     try {
 
       ODocument doc = new ODocument("MyTestClass");
+      database.begin();
       doc.save();
+      database.commit();
 
+      database.begin();
       doc.delete();
+      database.commit();
     } finally {
       database.setValidationEnabled(true);
       database

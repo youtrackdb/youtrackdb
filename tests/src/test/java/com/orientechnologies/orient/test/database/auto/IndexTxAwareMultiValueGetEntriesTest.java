@@ -186,12 +186,14 @@ public class IndexTxAwareMultiValueGetEntriesTest extends DocumentDBBaseTest {
     final OIndex index =
         database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX_NAME);
 
+    database.begin();
     final ODocument document = new ODocument(CLASS_NAME).field(FIELD_NAME, 1).save();
     document.field(FIELD_NAME, 0);
     document.field(FIELD_NAME, 1);
     document.save();
 
     new ODocument(CLASS_NAME).field(FIELD_NAME, 2).save();
+    database.commit();
 
     Assert.assertNotNull(database.getTransaction().getIndexChanges(INDEX_NAME));
 
@@ -232,7 +234,9 @@ public class IndexTxAwareMultiValueGetEntriesTest extends DocumentDBBaseTest {
     Assert.assertEquals(result.size(), 2);
     database.commit();
 
+    database.begin();
     new ODocument(CLASS_NAME).field(FIELD_NAME, 1).save();
+    database.commit();
 
     stream = index.getInternal().streamEntries(Arrays.asList(1, 2), true);
     streamToSet(stream, result);

@@ -279,10 +279,14 @@ public class ODocumentTest {
       classA.createProperty("name", OType.STRING);
       classA.createProperty("property", OType.STRING);
 
+      db.begin();
       ODocument doc = new ODocument(classA);
       doc.field("name", "My Name");
       doc.field("property", "value1");
       doc.save();
+      db.commit();
+
+      db.begin();
       assertEquals(doc.field("name"), "My Name");
       assertEquals(doc.field("property"), "value1");
       doc.undo();
@@ -295,12 +299,17 @@ public class ODocumentTest {
       assertEquals(doc.field("name"), "My Name 3");
       assertEquals(doc.field("property"), "value1");
       doc.save();
+      db.commit();
+
+      db.begin();
       doc.field("name", "My Name 4");
       doc.field("property", "value4");
       doc.undo("property");
       assertEquals(doc.field("name"), "My Name 4");
       assertEquals(doc.field("property"), "value1");
       doc.save();
+      db.commit();
+
       doc.undo("property");
       assertEquals(doc.field("name"), "My Name 4");
       assertEquals(doc.field("property"), "value1");

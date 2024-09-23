@@ -17,7 +17,9 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-/** Created by frank on 13/12/2016. */
+/**
+ * Created by frank on 13/12/2016.
+ */
 public class OLuceneRangeTest extends OLuceneBaseTest {
 
   @Before
@@ -44,6 +46,7 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
             "Gabriel",
             "Sara");
     for (int i = 0; i < 10; i++) {
+      db.begin();
       db.save(
           new ODocument("Person")
               .field("name", names.get(i))
@@ -52,6 +55,7 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
               .field("date", System.currentTimeMillis() - (i * 3600 * 24 * 1000))
               .field("age", i)
               .field("weight", i + 0.1f));
+      db.commit();
     }
   }
 
@@ -62,6 +66,7 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
     try (final OResultSet command =
         db.command("create index Person.weight on Person(weight) FULLTEXT ENGINE LUCENE")) {}
 
+    db.begin();
     assertThat(
             db.getMetadata()
                 .getIndexManagerInternal()
@@ -69,6 +74,7 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
                 .getInternal()
                 .size())
         .isEqualTo(10);
+    db.commit();
 
     // range
     try (final OResultSet results =
@@ -90,6 +96,7 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
     try (OResultSet command =
         db.command("create index Person.age on Person(age) FULLTEXT ENGINE LUCENE")) {}
 
+    db.begin();
     assertThat(
             db.getMetadata()
                 .getIndexManagerInternal()
@@ -97,6 +104,7 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
                 .getInternal()
                 .size())
         .isEqualTo(10);
+    db.commit();
 
     // range
     try (OResultSet results =
@@ -117,6 +125,7 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
     try (OResultSet command =
         db.command("create index Person.date on Person(date) FULLTEXT ENGINE LUCENE")) {}
 
+    db.begin();
     assertThat(
             db.getMetadata()
                 .getIndexManagerInternal()
@@ -124,6 +133,7 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
                 .getInternal()
                 .size())
         .isEqualTo(10);
+    db.commit();
 
     String today = DateTools.timeToString(System.currentTimeMillis(), DateTools.Resolution.MINUTE);
     String fiveDaysAgo =
@@ -206,6 +216,7 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
             "create index Person.composite on Person(name,surname,date,age) FULLTEXT ENGINE"
                 + " LUCENE")) {}
 
+    db.begin();
     assertThat(
             db.getMetadata()
                 .getIndexManagerInternal()
@@ -213,6 +224,7 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
                 .getInternal()
                 .size())
         .isEqualTo(10);
+    db.commit();
 
     String today = DateTools.timeToString(System.currentTimeMillis(), DateTools.Resolution.MINUTE);
     String fiveDaysAgo =

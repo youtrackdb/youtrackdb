@@ -45,52 +45,6 @@
             <filtered>true</filtered>
         </fileSet>
 
-
-        <!--
-         | copy etl scripts
-        -->
-        <fileSet>
-            <directory>${basedir}/../etl/script</directory>
-            <outputDirectory>bin</outputDirectory>
-            <includes>
-                <include>*.bat</include>
-            </includes>
-            <fileMode>644</fileMode>
-            <filtered>true</filtered>
-        </fileSet>
-        <fileSet>
-            <directory>${basedir}/../etl/script</directory>
-            <outputDirectory>bin</outputDirectory>
-            <includes>
-                <include>*.sh</include>
-            </includes>
-            <fileMode>755</fileMode>
-            <filtered>true</filtered>
-        </fileSet>
-
-        <!--
-         | copy distributed scripts
-        -->
-<!--        <fileSet>-->
-<!--            <directory>${basedir}/../distributed/script</directory>-->
-<!--            <outputDirectory>bin</outputDirectory>-->
-<!--            <includes>-->
-<!--                <include>*.bat</include>-->
-<!--            </includes>-->
-<!--            <fileMode>644</fileMode>-->
-<!--            <filtered>true</filtered>-->
-<!--        </fileSet>-->
-<!--        <fileSet>-->
-<!--            <directory>${basedir}/../distributed/script</directory>-->
-<!--            <outputDirectory>bin</outputDirectory>-->
-<!--            <includes>-->
-<!--                <include>*.sh</include>-->
-<!--            </includes>-->
-<!--            <fileMode>755</fileMode>-->
-<!--            <filtered>true</filtered>-->
-<!--        </fileSet>-->
-
-
         <!--
          | configurations
         -->
@@ -99,23 +53,8 @@
             <outputDirectory>config</outputDirectory>
             <fileMode>600</fileMode>
         </fileSet>
-<!--        <fileSet>-->
-<!--            <directory>${basedir}/../distributed/config</directory>-->
-<!--            <outputDirectory>config</outputDirectory>-->
-<!--            <fileMode>600</fileMode>-->
-<!--        </fileSet>-->
-        <fileSet>
-            <directory>${basedir}/../graphdb/config</directory>
-            <outputDirectory>config</outputDirectory>
-            <fileMode>600</fileMode>
-        </fileSet>
         <fileSet>
             <directory>${basedir}/../tools/config</directory>
-            <outputDirectory>config</outputDirectory>
-            <fileMode>600</fileMode>
-        </fileSet>
-        <fileSet>
-            <directory>${basedir}/../etl/config</directory>
             <outputDirectory>config</outputDirectory>
             <fileMode>600</fileMode>
         </fileSet>
@@ -178,27 +117,4 @@
             <fileMode>444</fileMode>
         </file>
     </files>
-
-    <!--
-     | all artifacts in a /lib dir
-    -->
-    <dependencySets>
-        <dependencySet>
-            <outputDirectory>lib</outputDirectory>
-            <includes>
-                <include>*:jar:*</include>
-            </includes>
-            <excludes>
-                <exclude>com.orientechnologies:orientdb-etl:*</exclude>
-            </excludes>
-        </dependencySet>
-        <dependencySet>
-            <outputDirectory>plugins</outputDirectory>
-            <includes>
-                <include>*:zip:*</include>
-                <include>com.orientechnologies:orientdb-etl:*</include>
-            </includes>
-        </dependencySet>
-    </dependencySets>
-
 </assembly>

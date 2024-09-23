@@ -22,11 +22,11 @@ package com.orientechnologies.orient.client.remote.message;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
+import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,150 +34,57 @@ import java.util.Map;
 import java.util.UUID;
 
 public final class OCommit37Response implements OBinaryResponse {
-  public static class OCreatedRecordResponse {
-    private final ORecordId currentRid;
-    private final ORecordId createdRid;
-    private final int version;
 
-    public OCreatedRecordResponse(ORecordId currentRid, ORecordId createdRid, int version) {
-      this.currentRid = currentRid;
-      this.createdRid = createdRid;
-      this.version = version;
-    }
-
-    public ORecordId getCreatedRid() {
-      return createdRid;
-    }
-
-    public ORecordId getCurrentRid() {
-      return currentRid;
-    }
-
-    public int getVersion() {
-      return version;
-    }
-  }
-
-  public static class OUpdatedRecordResponse {
-    private final ORecordId rid;
-    private final int version;
-
-    public OUpdatedRecordResponse(ORecordId rid, int version) {
-      this.rid = rid;
-      this.version = version;
-    }
-
-    public ORecordId getRid() {
-      return rid;
-    }
-
-    public int getVersion() {
-      return version;
-    }
-  }
-
-  public static class ODeletedRecordResponse {
-    private final ORID rid;
-
-    public ODeletedRecordResponse(ORID rid) {
-      this.rid = rid;
-    }
-
-    public ORID getRid() {
-      return rid;
-    }
-  }
-
-  private List<OCreatedRecordResponse> created;
-  private List<OUpdatedRecordResponse> updated;
-  private List<ODeletedRecordResponse> deleted;
   private Map<UUID, OBonsaiCollectionPointer> collectionChanges;
+  private List<ObjectObjectImmutablePair<ORID, ORID>> updatedRids;
 
   public OCommit37Response(
-      List<OCreatedRecordResponse> created,
-      List<OUpdatedRecordResponse> updated,
-      List<ODeletedRecordResponse> deleted,
-      Map<UUID, OBonsaiCollectionPointer> collectionChanges) {
+      Map<ORID, ORID> updatedRids, Map<UUID, OBonsaiCollectionPointer> collectionChanges) {
     super();
-    this.created = created;
-    this.updated = updated;
-    this.deleted = deleted;
+    this.updatedRids = new ArrayList<>(updatedRids.size());
+
+    for (Map.Entry<ORID, ORID> entry : updatedRids.entrySet()) {
+      this.updatedRids.add(new ObjectObjectImmutablePair<>(entry.getValue(), entry.getKey()));
+    }
+
     this.collectionChanges = collectionChanges;
   }
 
   public OCommit37Response() {}
 
   @Override
-  public void read(OChannelDataInput network, OStorageRemoteSession session) throws IOException {
-
-    final int createdRecords = network.readInt();
-    created = new ArrayList<>(createdRecords);
-    ORecordId currentRid;
-    ORecordId createdRid;
-    for (int i = 0; i < createdRecords; i++) {
-      currentRid = network.readRID();
-      createdRid = network.readRID();
-      int version = network.readInt();
-      created.add(new OCreatedRecordResponse(currentRid, createdRid, version));
-    }
-    final int updatedRecords = network.readInt();
-    updated = new ArrayList<>(updatedRecords);
-
-    for (int i = 0; i < updatedRecords; ++i) {
-      ORecordId rid = network.readRID();
-      int version = network.readVersion();
-      updated.add(new OUpdatedRecordResponse(rid, version));
-    }
-
-    final int deletedRecords = network.readInt();
-    deleted = new ArrayList<>(deletedRecords);
-
-    for (int i = 0; i < deletedRecords; ++i) {
-      ORecordId rid = network.readRID();
-      deleted.add(new ODeletedRecordResponse(rid));
-    }
-
-    collectionChanges = OMessageHelper.readCollectionChanges(network);
-  }
-
-  @Override
   public void write(OChannelDataOutput channel, int protocolVersion, ORecordSerializer serializer)
       throws IOException {
 
-    channel.writeInt(created.size());
-    for (OCreatedRecordResponse createdRecord : created) {
-      channel.writeRID(createdRecord.currentRid);
-      channel.writeRID(createdRecord.createdRid);
-      channel.writeInt(createdRecord.version);
-    }
-
-    channel.writeInt(updated.size());
-    for (OUpdatedRecordResponse updatedRecord : updated) {
-      channel.writeRID(updatedRecord.rid);
-      channel.writeVersion(updatedRecord.version);
-    }
-
-    channel.writeInt(deleted.size());
-    for (ODeletedRecordResponse deleteRecord : deleted) {
-      channel.writeRID(deleteRecord.rid);
+    channel.writeInt(updatedRids.size());
+    for (var pair : updatedRids) {
+      channel.writeRID(pair.first());
+      channel.writeRID(pair.second());
     }
 
     OMessageHelper.writeCollectionChanges(channel, collectionChanges);
   }
 
-  public List<OCreatedRecordResponse> getCreated() {
-    return created;
+  @Override
+  public void read(OChannelDataInput network, OStorageRemoteSession session) throws IOException {
+
+    int updatedRidsSize = network.readInt();
+    updatedRids = new ArrayList<>(updatedRidsSize);
+    for (int i = 0; i < updatedRidsSize; i++) {
+      ORID first = network.readRID();
+      ORID second = network.readRID();
+
+      updatedRids.add(new ObjectObjectImmutablePair<>(first, second));
+    }
+
+    collectionChanges = OMessageHelper.readCollectionChanges(network);
   }
 
-  public List<OUpdatedRecordResponse> getUpdated() {
-    return updated;
+  public List<ObjectObjectImmutablePair<ORID, ORID>> getUpdatedRids() {
+    return updatedRids;
   }
 
   public Map<UUID, OBonsaiCollectionPointer> getCollectionChanges() {
     return collectionChanges;
-  }
-
-  public List<ODeletedRecordResponse> getDeleted() {
-    return deleted;
   }
 }

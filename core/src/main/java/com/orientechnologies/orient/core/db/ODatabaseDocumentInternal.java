@@ -41,9 +41,8 @@ import com.orientechnologies.orient.core.sql.executor.OExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
-import com.orientechnologies.orient.core.tx.OTransaction;
 import com.orientechnologies.orient.core.tx.OTransactionData;
-import com.orientechnologies.orient.core.tx.OTransactionInternal;
+import com.orientechnologies.orient.core.tx.OTransactionOptimistic;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -73,6 +72,8 @@ public interface ODatabaseDocumentInternal extends ODatabaseSession, ODatabaseIn
    * @return serializer which is used for document serialization.
    */
   ORecordSerializer getSerializer();
+
+  void begin(OTransactionOptimistic tx);
 
   void setSerializer(ORecordSerializer serializer);
 
@@ -123,12 +124,6 @@ public interface ODatabaseDocumentInternal extends ODatabaseSession, ODatabaseIn
 
   boolean executeExists(ORID rid);
 
-  void executeDeleteRecord(
-      OIdentifiable record,
-      final int iVersion,
-      final boolean iRequired,
-      boolean prohibitTombstones);
-
   void setDefaultTransactionMode();
 
   @Override
@@ -153,8 +148,6 @@ public interface ODatabaseDocumentInternal extends ODatabaseSession, ODatabaseIn
   boolean isPrefetchRecords();
 
   void checkForClusterPermissions(String name);
-
-  void rawBegin(OTransaction transaction);
 
   default OResultSet getActiveQuery(String id) {
     throw new UnsupportedOperationException();
@@ -231,7 +224,7 @@ public interface ODatabaseDocumentInternal extends ODatabaseSession, ODatabaseIn
    *
    * @param transaction
    */
-  void internalCommit(OTransactionInternal transaction);
+  void internalCommit(OTransactionOptimistic transaction);
 
   boolean isClusterVertex(int cluster);
 
@@ -239,13 +232,7 @@ public interface ODatabaseDocumentInternal extends ODatabaseSession, ODatabaseIn
 
   boolean isClusterView(int cluster);
 
-  default OTransaction swapTx(OTransaction newTx) {
-    throw new UnsupportedOperationException();
-  }
-
   void internalClose(boolean recycle);
-
-  ORecord saveAll(ORecord iRecord, String iClusterName);
 
   String getClusterName(final ORecord record);
 
@@ -291,9 +278,9 @@ public interface ODatabaseDocumentInternal extends ODatabaseSession, ODatabaseIn
 
   int[] getClustersIds(Set<String> filterClusters);
 
-  default void startEsclusiveMetadataChange() {}
+  default void startExclusiveMetadataChange() {}
 
-  default void endEsclusiveMetadataChange() {}
+  default void endExclusiveMetadataChange() {}
 
   default void queryStartUsingViewCluster(int cluster) {}
 

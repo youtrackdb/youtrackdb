@@ -30,6 +30,7 @@ import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.UUID;
 
 public class OSystemDatabase {
+
   public static final String SYSTEM_DB_NAME = "OSystem";
 
   public static final String SERVER_INFO_CLASS = "ServerInfo";
@@ -46,7 +47,9 @@ public class OSystemDatabase {
     return OSystemDatabase.SYSTEM_DB_NAME;
   }
 
-  /** Adds the specified cluster to the class, if it doesn't already exist. */
+  /**
+   * Adds the specified cluster to the class, if it doesn't already exist.
+   */
   public void createCluster(final String className, final String clusterName) {
     final ODatabaseDocumentInternal currentDB =
         ODatabaseRecordThreadLocal.instance().getIfDefined();
@@ -71,8 +74,11 @@ public class OSystemDatabase {
       }
 
     } finally {
-      if (currentDB != null) ODatabaseRecordThreadLocal.instance().set(currentDB);
-      else ODatabaseRecordThreadLocal.instance().remove();
+      if (currentDB != null) {
+        ODatabaseRecordThreadLocal.instance().set(currentDB);
+      } else {
+        ODatabaseRecordThreadLocal.instance().remove();
+      }
     }
   }
 
@@ -82,7 +88,9 @@ public class OSystemDatabase {
    * called and restoring it after the database is closed.
    */
   public ODatabaseDocumentInternal openSystemDatabase() {
-    if (!exists()) init();
+    if (!exists()) {
+      init();
+    }
     return context.openNoAuthorization(getSystemDatabaseName());
   }
 
@@ -95,13 +103,19 @@ public class OSystemDatabase {
       final ODatabase<?> db = openSystemDatabase();
       try (OResultSet result = db.command(sql, args)) {
 
-        if (callback != null) return callback.call(result);
-        else return result;
+        if (callback != null) {
+          return callback.call(result);
+        } else {
+          return result;
+        }
       }
 
     } finally {
-      if (currentDB != null) ODatabaseRecordThreadLocal.instance().set(currentDB);
-      else ODatabaseRecordThreadLocal.instance().remove();
+      if (currentDB != null) {
+        ODatabaseRecordThreadLocal.instance().set(currentDB);
+      } else {
+        ODatabaseRecordThreadLocal.instance().remove();
+      }
     }
   }
 
@@ -116,15 +130,21 @@ public class OSystemDatabase {
       // BYPASS SECURITY
       final ODatabaseDocumentInternal db = openSystemDatabase();
       try {
-        if (clusterName != null) return (ODocument) db.save(document, clusterName);
-        else return (ODocument) db.save(document);
+        if (clusterName != null) {
+          return (ODocument) db.save(document, clusterName);
+        } else {
+          return (ODocument) db.save(document);
+        }
       } finally {
         db.close();
       }
 
     } finally {
-      if (currentDB != null) ODatabaseRecordThreadLocal.instance().set(currentDB);
-      else ODatabaseRecordThreadLocal.instance().remove();
+      if (currentDB != null) {
+        ODatabaseRecordThreadLocal.instance().set(currentDB);
+      } else {
+        ODatabaseRecordThreadLocal.instance().remove();
+      }
     }
   }
 
@@ -177,8 +197,11 @@ public class OSystemDatabase {
       this.serverId = info.getProperty(SERVER_ID_PROPERTY);
       if (this.serverId == null) {
         this.serverId = UUID.randomUUID().toString();
-        info.setProperty(SERVER_ID_PROPERTY, serverId);
-        info.save();
+        db.executeInTx(
+            () -> {
+              info.setProperty(SERVER_ID_PROPERTY, serverId);
+              info.save();
+            });
       }
     } finally {
       db.close();
@@ -197,8 +220,11 @@ public class OSystemDatabase {
         return callback.call(db);
       }
     } finally {
-      if (currentDB != null) ODatabaseRecordThreadLocal.instance().set(currentDB);
-      else ODatabaseRecordThreadLocal.instance().remove();
+      if (currentDB != null) {
+        ODatabaseRecordThreadLocal.instance().set(currentDB);
+      } else {
+        ODatabaseRecordThreadLocal.instance().remove();
+      }
     }
   }
 

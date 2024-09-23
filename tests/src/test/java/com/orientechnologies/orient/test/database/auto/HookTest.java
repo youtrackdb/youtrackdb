@@ -68,13 +68,17 @@ public class HookTest extends ObjectDBBaseTest {
   }
 
   @Test(dependsOnMethods = "testHooksIsRegistered")
-  public void testHookCreate() throws IOException {
+  public void testHookCreate() {
+    database.begin();
     p = new Profile("HookTest");
 
     // TEST HOOKS ON CREATE
     Assert.assertEquals(callbackCount, 0);
+
     database.save(p);
-    Assert.assertEquals(callbackCount, 46);
+    database.commit();
+
+    Assert.assertEquals(callbackCount, 11);
   }
 
   @Test(dependsOnMethods = "testHookCreate")
@@ -85,27 +89,33 @@ public class HookTest extends ObjectDBBaseTest {
             new OSQLSynchQuery<Profile>("select * from Profile where nick = 'HookTest'"));
     Assert.assertEquals(result.size(), 1);
 
-    for (int i = 0; i < result.size(); ++i) {
-      Assert.assertEquals(callbackCount, 81);
+    for (Profile profile : result) {
+      Assert.assertEquals(callbackCount, 46);
 
-      p = result.get(i);
+      p = profile;
     }
-    Assert.assertEquals(callbackCount, 81);
+    Assert.assertEquals(callbackCount, 46);
   }
 
   @Test(dependsOnMethods = "testHookRead")
   public void testHookUpdate() {
     // TEST HOOKS ON UPDATE
     p.setValue(p.getValue() + 1000);
+
+    database.begin();
     database.save(p);
-    Assert.assertEquals(callbackCount, 206);
+    database.commit();
+
+    Assert.assertEquals(callbackCount, 136);
   }
 
   @Test(dependsOnMethods = "testHookUpdate")
   public void testHookDelete() {
     // TEST HOOKS ON DELETE
+    database.begin();
     database.delete(p);
-    Assert.assertEquals(callbackCount, 336);
+    database.commit();
+    Assert.assertEquals(callbackCount, 301);
   }
 
   @Test(dependsOnMethods = "testHookDelete")

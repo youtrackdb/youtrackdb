@@ -41,7 +41,10 @@ public class HookReadTest extends BaseMemoryDatabase {
           }
         });
 
+    db.getMetadata().getSchema().createClass("TestClass");
+    db.begin();
     db.save(new ODocument("TestClass"));
+    db.commit();
 
     OResultSet res = db.query("select from TestClass");
     assertEquals(res.next().getProperty("read"), "test");

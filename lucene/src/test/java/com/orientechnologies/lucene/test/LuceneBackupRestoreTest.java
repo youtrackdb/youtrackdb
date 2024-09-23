@@ -81,7 +81,10 @@ public class LuceneBackupRestoreTest {
 
     ODocument doc = new ODocument("City");
     doc.field("name", "Rome");
+
+    session.begin();
     session.save(doc);
+    session.commit();
   }
 
   private void dropIfExists() {

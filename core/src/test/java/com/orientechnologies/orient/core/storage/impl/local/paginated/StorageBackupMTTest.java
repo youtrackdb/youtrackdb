@@ -287,6 +287,7 @@ public class StorageBackupMTTest {
 
           for (int i = 0; i < count; i++) {
             try {
+              db.begin();
               final byte[] data = new byte[random.nextInt(1024)];
               random.nextBytes(data);
 
@@ -308,6 +309,7 @@ public class StorageBackupMTTest {
                   ids.add(id);
                 }
               }
+              db.commit();
 
             } catch (OModificationOperationProhibitedException e) {
               System.out.println("Modification prohibited ... wait ...");

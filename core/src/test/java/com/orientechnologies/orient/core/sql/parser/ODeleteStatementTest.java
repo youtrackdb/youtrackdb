@@ -45,6 +45,8 @@ public class ODeleteStatementTest extends BaseMemoryDatabase {
 
     db.command("create class Foo").close();
     db.command("create class Bar").close();
+
+    db.begin();
     final ODocument doc1 = new ODocument("Foo").field("k", "key1");
     final ODocument doc2 = new ODocument("Foo").field("k", "key2");
     final ODocument doc3 = new ODocument("Foo").field("k", "key3");
@@ -59,6 +61,7 @@ public class ODeleteStatementTest extends BaseMemoryDatabase {
     list.add(doc3);
     final ODocument bar = new ODocument("Bar").field("arr", list);
     bar.save();
+    db.commit();
 
     db.command("delete from (select expand(arr) from Bar) where k = 'key2'").close();
 

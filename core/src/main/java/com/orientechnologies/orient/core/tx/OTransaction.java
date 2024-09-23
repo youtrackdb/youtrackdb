@@ -32,11 +32,6 @@ import java.util.List;
 
 public interface OTransaction {
 
-  enum TXTYPE {
-    NOTX,
-    OPTIMISTIC,
-  }
-
   enum TXSTATUS {
     INVALID,
     BEGUN,

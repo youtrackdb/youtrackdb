@@ -37,6 +37,9 @@ public class ORecordOperation implements Comparable<ORecordOperation> {
   public byte type;
   public OIdentifiable record;
 
+  // used in processing of server transactions
+  public boolean callHooksOnServerTx = false;
+
   public ORecordOperation() {}
 
   public ORecordOperation(final OIdentifiable iRecord, final byte iStatus) {

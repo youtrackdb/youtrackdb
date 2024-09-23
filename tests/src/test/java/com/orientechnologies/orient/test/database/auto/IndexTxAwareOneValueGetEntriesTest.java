@@ -220,7 +220,9 @@ public class IndexTxAwareOneValueGetEntriesTest extends DocumentDBBaseTest {
     Assert.assertEquals(result.size(), 2);
     database.commit();
 
+    database.begin();
     new ODocument(CLASS_NAME).field(PROPERTY_NAME, 3).save();
+    database.commit();
 
     stream = index.getInternal().streamEntries(Arrays.asList(1, 2, 3), true);
     streamToSet(stream, result);

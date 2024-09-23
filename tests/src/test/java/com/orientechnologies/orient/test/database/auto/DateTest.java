@@ -42,6 +42,8 @@ public class DateTest extends DocumentDBBaseTest {
   public void testDateConversion() throws ParseException {
     final long begin = System.currentTimeMillis();
 
+    database.createClass("Order");
+    database.begin();
     ODocument doc1 = new ODocument("Order");
     doc1.field("context", "test");
     doc1.field("date", new Date());
@@ -51,6 +53,7 @@ public class DateTest extends DocumentDBBaseTest {
     doc2.field("context", "test");
     doc2.field("date", System.currentTimeMillis());
     doc2.save();
+    database.commit();
 
     doc2.reload();
     Assert.assertTrue(doc2.field("date", OType.DATE) instanceof Date);
@@ -71,10 +74,12 @@ public class DateTest extends DocumentDBBaseTest {
     String dateAsString =
         database.getStorage().getConfiguration().getDateFormatInstance().format(begin);
 
+    database.begin();
     ODocument doc = new ODocument("Order");
     doc.field("context", "testPrecision");
     doc.field("date", ODateHelper.now(), OType.DATETIME);
     doc.save();
+    database.commit();
 
     List<OResult> result =
         database

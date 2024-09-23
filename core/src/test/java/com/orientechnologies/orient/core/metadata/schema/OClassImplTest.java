@@ -7,7 +7,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.BaseMemoryInternalDatabase;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.exception.OSchemaException;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -18,7 +17,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -80,10 +78,12 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
     final OSchema oSchema = db.getMetadata().getSchema();
     OClass oClass = oSchema.createClass("Test3");
 
-    ODocument document = new ODocument("Test3");
-
-    document.field("some", "String");
-    db.save(document);
+    db.executeInTx(
+        () -> {
+          ODocument document = new ODocument("Test3");
+          document.field("some", "String");
+          db.save(document);
+        });
 
     oClass.createProperty("some", OType.INTEGER);
   }
@@ -93,11 +93,15 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
     final OSchema oSchema = db.getMetadata().getSchema();
     OClass oClass = oSchema.createClass("Test4");
 
-    ODocument document = new ODocument("Test4");
-    ArrayList<ODocument> list = new ArrayList<ODocument>();
-    list.add(new ODocument("Test4"));
-    document.field("some", list);
-    db.save(document);
+    db.executeInTx(
+        () -> {
+          ODocument document = new ODocument("Test4");
+          ArrayList<ODocument> list = new ArrayList<ODocument>();
+          list.add(new ODocument("Test4"));
+          document.field("some", list);
+          db.save(document);
+        });
+
     oClass.createProperty("some", OType.EMBEDDEDLIST);
   }
 
@@ -106,11 +110,15 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
     final OSchema oSchema = db.getMetadata().getSchema();
     OClass oClass = oSchema.createClass("Test5");
 
-    ODocument document = new ODocument("Test5");
-    Set<ODocument> list = new HashSet<ODocument>();
-    list.add(new ODocument("Test5"));
-    document.field("somelinkset", list);
-    db.save(document);
+    db.executeInTx(
+        () -> {
+          ODocument document = new ODocument("Test5");
+          Set<ODocument> list = new HashSet<ODocument>();
+          list.add(new ODocument("Test5"));
+          document.field("somelinkset", list);
+          db.save(document);
+        });
+
     oClass.createProperty("somelinkset", OType.EMBEDDEDSET);
   }
 
@@ -119,11 +127,15 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
     final OSchema oSchema = db.getMetadata().getSchema();
     OClass oClass = oSchema.createClass("Test6");
 
-    ODocument document = new ODocument("Test6");
-    Set<ODocument> list = new HashSet<ODocument>();
-    list.add(new ODocument("Test6"));
-    document.field("someembededset", list, OType.EMBEDDEDSET);
-    db.save(document);
+    db.executeInTx(
+        () -> {
+          ODocument document = new ODocument("Test6");
+          Set<ODocument> list = new HashSet<ODocument>();
+          list.add(new ODocument("Test6"));
+          document.field("someembededset", list, OType.EMBEDDEDSET);
+          db.save(document);
+        });
+
     oClass.createProperty("someembededset", OType.LINKSET);
   }
 
@@ -132,11 +144,14 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
     final OSchema oSchema = db.getMetadata().getSchema();
     OClass oClass = oSchema.createClass("Test7");
 
-    ODocument document = new ODocument("Test7");
-    List<ODocument> list = new ArrayList<ODocument>();
-    list.add(new ODocument("Test7"));
-    document.field("someembeddedlist", list, OType.EMBEDDEDLIST);
-    db.save(document);
+    db.executeInTx(
+        () -> {
+          ODocument document = new ODocument("Test7");
+          List<ODocument> list = new ArrayList<ODocument>();
+          list.add(new ODocument("Test7"));
+          document.field("someembeddedlist", list, OType.EMBEDDEDLIST);
+          db.save(document);
+        });
 
     oClass.createProperty("someembeddedlist", OType.LINKLIST);
   }
@@ -146,11 +161,15 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
     final OSchema oSchema = db.getMetadata().getSchema();
     OClass oClass = oSchema.createClass("Test8");
 
-    ODocument document = new ODocument("Test8");
-    Map<String, ODocument> map = new HashMap<String, ODocument>();
-    map.put("test", new ODocument("Test8"));
-    document.field("someembededmap", map, OType.EMBEDDEDMAP);
-    db.save(document);
+    db.executeInTx(
+        () -> {
+          ODocument document = new ODocument("Test8");
+          Map<String, ODocument> map = new HashMap<>();
+          map.put("test", new ODocument("Test8"));
+          document.field("someembededmap", map, OType.EMBEDDEDMAP);
+          db.save(document);
+        });
+
     oClass.createProperty("someembededmap", OType.LINKMAP);
   }
 
@@ -159,11 +178,15 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
     final OSchema oSchema = db.getMetadata().getSchema();
     OClass oClass = oSchema.createClass("Test9");
 
-    ODocument document = new ODocument("Test9");
-    Map<String, ODocument> map = new HashMap<String, ODocument>();
-    map.put("test", new ODocument("Test8"));
-    document.field("somelinkmap", map, OType.LINKMAP);
-    db.save(document);
+    db.executeInTx(
+        () -> {
+          ODocument document = new ODocument("Test9");
+          Map<String, ODocument> map = new HashMap<String, ODocument>();
+          map.put("test", new ODocument("Test8"));
+          document.field("somelinkmap", map, OType.LINKMAP);
+          db.save(document);
+        });
+
     oClass.createProperty("somelinkmap", OType.EMBEDDEDMAP);
   }
 
@@ -172,15 +195,21 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
     final OSchema oSchema = db.getMetadata().getSchema();
     OClass oClass = oSchema.createClass("Test10");
 
-    ODocument document = new ODocument("Test10");
-    // TODO add boolan and byte
-    document.field("test1", (short) 1);
-    document.field("test2", 1);
-    document.field("test3", 4L);
-    document.field("test4", 3.0f);
-    document.field("test5", 3.0D);
-    document.field("test6", 4);
-    db.save(document);
+    var rid =
+        db.computeInTx(
+            () -> {
+              ODocument document = new ODocument("Test10");
+              // TODO add boolan and byte
+              document.field("test1", (short) 1);
+              document.field("test2", 1);
+              document.field("test3", 4L);
+              document.field("test4", 3.0f);
+              document.field("test5", 3.0D);
+              document.field("test6", 4);
+              db.save(document);
+              return document.getIdentity();
+            });
+
     oClass.createProperty("test1", OType.INTEGER);
     oClass.createProperty("test2", OType.LONG);
     oClass.createProperty("test3", OType.DOUBLE);
@@ -188,7 +217,7 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
     oClass.createProperty("test5", OType.DECIMAL);
     oClass.createProperty("test6", OType.FLOAT);
 
-    ODocument doc1 = db.load(document.getIdentity());
+    ODocument doc1 = db.load(rid);
     assertEquals(doc1.fieldType("test1"), OType.INTEGER);
     assertTrue(doc1.field("test1") instanceof Integer);
     assertEquals(doc1.fieldType("test2"), OType.LONG);
@@ -208,14 +237,19 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
     final OSchema oSchema = db.getMetadata().getSchema();
     OClass oClass = oSchema.createClass("Test11");
 
-    ODocument document = new ODocument("Test11");
-    document.field("test1", new ArrayList<ODocument>(), OType.EMBEDDEDLIST);
-    document.field("test2", new ArrayList<ODocument>(), OType.LINKLIST);
-    document.field("test3", new HashSet<ODocument>(), OType.EMBEDDEDSET);
-    document.field("test4", new HashSet<ODocument>(), OType.LINKSET);
-    document.field("test5", new HashMap<String, ODocument>(), OType.EMBEDDEDMAP);
-    document.field("test6", new HashMap<String, ODocument>(), OType.LINKMAP);
-    db.save(document);
+    var rid =
+        db.computeInTx(
+            () -> {
+              ODocument document = new ODocument("Test11");
+              document.field("test1", new ArrayList<ODocument>(), OType.EMBEDDEDLIST);
+              document.field("test2", new ArrayList<ODocument>(), OType.LINKLIST);
+              document.field("test3", new HashSet<ODocument>(), OType.EMBEDDEDSET);
+              document.field("test4", new HashSet<ODocument>(), OType.LINKSET);
+              document.field("test5", new HashMap<String, ODocument>(), OType.EMBEDDEDMAP);
+              document.field("test6", new HashMap<String, ODocument>(), OType.LINKMAP);
+              db.save(document);
+              return document.getIdentity();
+            });
 
     oClass.createProperty("test1", OType.LINKLIST);
     oClass.createProperty("test2", OType.EMBEDDEDLIST);
@@ -224,7 +258,7 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
     oClass.createProperty("test5", OType.LINKMAP);
     oClass.createProperty("test6", OType.EMBEDDEDMAP);
 
-    ODocument doc1 = db.load(document.getIdentity());
+    ODocument doc1 = db.load(rid);
     assertEquals(doc1.fieldType("test1"), OType.LINKLIST);
     assertEquals(doc1.fieldType("test2"), OType.EMBEDDEDLIST);
     assertEquals(doc1.fieldType("test3"), OType.LINKSET);
@@ -322,15 +356,20 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
     oClass.createProperty("test5", OType.DOUBLE);
     oClass.createProperty("test6", OType.INTEGER);
 
-    ODocument document = new ODocument("Test19");
-    // TODO add boolean and byte
-    document.field("test1", (short) 1);
-    document.field("test2", 1);
-    document.field("test3", 4L);
-    document.field("test4", 3.0f);
-    document.field("test5", 3.0D);
-    document.field("test6", 4);
-    db.save(document);
+    var rid =
+        db.computeInTx(
+            () -> {
+              ODocument document = new ODocument("Test19");
+              // TODO add boolean and byte
+              document.field("test1", (short) 1);
+              document.field("test2", 1);
+              document.field("test3", 4L);
+              document.field("test4", 3.0f);
+              document.field("test5", 3.0D);
+              document.field("test6", 4);
+              db.save(document);
+              return document.getIdentity();
+            });
 
     oClass.getProperty("test1").setType(OType.INTEGER);
     oClass.getProperty("test2").setType(OType.LONG);
@@ -339,7 +378,7 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
     oClass.getProperty("test5").setType(OType.DECIMAL);
     oClass.getProperty("test6").setType(OType.FLOAT);
 
-    ODocument doc1 = db.load(document.getIdentity());
+    ODocument doc1 = db.load(rid);
     assertEquals(doc1.fieldType("test1"), OType.INTEGER);
     assertTrue(doc1.field("test1") instanceof Integer);
     assertEquals(doc1.fieldType("test2"), OType.LONG);
@@ -366,15 +405,20 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
     oClass.createProperty("test5", OType.DOUBLE);
     oClass.createProperty("test6", OType.INTEGER);
 
-    ODocument document = new ODocument("Test20");
-    // TODO add boolan and byte
-    document.field("test1", (short) 1);
-    document.field("test2", 1);
-    document.field("test3", 4L);
-    document.field("test4", 3.0f);
-    document.field("test5", 3.0D);
-    document.field("test6", 4);
-    db.save(document);
+    var rid =
+        db.computeInTx(
+            () -> {
+              ODocument document = new ODocument("Test20");
+              // TODO add boolan and byte
+              document.field("test1", (short) 1);
+              document.field("test2", 1);
+              document.field("test3", 4L);
+              document.field("test4", 3.0f);
+              document.field("test5", 3.0D);
+              document.field("test6", 4);
+              db.save(document);
+              return document.getIdentity();
+            });
 
     oClass.getProperty("test1").setName("test1a");
     oClass.getProperty("test2").setName("test2a");
@@ -383,7 +427,7 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
     oClass.getProperty("test5").setName("test5a");
     oClass.getProperty("test6").setName("test6a");
 
-    ODocument doc1 = db.load(document.getIdentity());
+    ODocument doc1 = db.load(rid);
     assertEquals(doc1.fieldType("test1a"), OType.SHORT);
     assertTrue(doc1.field("test1a") instanceof Short);
     assertEquals(doc1.fieldType("test2a"), OType.INTEGER);
@@ -403,15 +447,21 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
     final OSchema oSchema = db.getMetadata().getSchema();
     OClass oClass = oSchema.createClass("Test11bis");
 
-    final ODocument document = new ODocument("Test11bis");
-    document.field("test1", new ArrayList<ODocument>(), OType.EMBEDDEDLIST);
-    document.field("test2", new ArrayList<ODocument>(), OType.LINKLIST);
+    var rid =
+        db.computeInTx(
+            () -> {
+              final ODocument document = new ODocument("Test11bis");
+              document.field("test1", new ArrayList<ODocument>(), OType.EMBEDDEDLIST);
+              document.field("test2", new ArrayList<ODocument>(), OType.LINKLIST);
 
-    document.field("test3", new HashSet<ODocument>(), OType.EMBEDDEDSET);
-    document.field("test4", new HashSet<ODocument>(), OType.LINKSET);
-    document.field("test5", new HashMap<String, ODocument>(), OType.EMBEDDEDMAP);
-    document.field("test6", new HashMap<String, ODocument>(), OType.LINKMAP);
-    db.save(document);
+              document.field("test3", new HashSet<ODocument>(), OType.EMBEDDEDSET);
+              document.field("test4", new HashSet<ODocument>(), OType.LINKSET);
+              document.field("test5", new HashMap<String, ODocument>(), OType.EMBEDDEDMAP);
+              document.field("test6", new HashMap<String, ODocument>(), OType.LINKMAP);
+              db.save(document);
+
+              return document.getIdentity();
+            });
     oClass.createProperty("test1", OType.LINKLIST);
     oClass.createProperty("test2", OType.EMBEDDEDLIST);
     oClass.createProperty("test3", OType.LINKSET);
@@ -423,19 +473,15 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
 
     Future<ODocument> future =
         executor.submit(
-            new Callable<ODocument>() {
-              @Override
-              public ODocument call() throws Exception {
-                ODocument doc1 =
-                    ((ODatabaseDocumentInternal) db).copy().load(document.getIdentity());
-                assertEquals(doc1.fieldType("test1"), OType.LINKLIST);
-                assertEquals(doc1.fieldType("test2"), OType.EMBEDDEDLIST);
-                assertEquals(doc1.fieldType("test3"), OType.LINKSET);
-                assertEquals(doc1.fieldType("test4"), OType.EMBEDDEDSET);
-                assertEquals(doc1.fieldType("test5"), OType.LINKMAP);
-                assertEquals(doc1.fieldType("test6"), OType.EMBEDDEDMAP);
-                return doc1;
-              }
+            () -> {
+              ODocument doc1 = db.copy().load(rid);
+              assertEquals(doc1.fieldType("test1"), OType.LINKLIST);
+              assertEquals(doc1.fieldType("test2"), OType.EMBEDDEDLIST);
+              assertEquals(doc1.fieldType("test3"), OType.LINKSET);
+              assertEquals(doc1.fieldType("test4"), OType.EMBEDDEDSET);
+              assertEquals(doc1.fieldType("test5"), OType.LINKMAP);
+              assertEquals(doc1.fieldType("test6"), OType.EMBEDDEDMAP);
+              return doc1;
             });
 
     try {
@@ -489,9 +535,12 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
 
     OClass oClass = oSchema.createClass(className);
 
-    ODocument record = db.newInstance(className);
-    record.field("name", "foo");
-    record.save();
+    db.executeInTx(
+        () -> {
+          ODocument record = db.newInstance(className);
+          record.field("name", "foo");
+          record.save();
+        });
 
     oClass.createProperty("name", OType.ANY);
 

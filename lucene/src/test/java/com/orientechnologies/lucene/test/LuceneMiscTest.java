@@ -123,13 +123,22 @@ public class LuceneMiscTest extends BaseLuceneTest {
 
     OVertex authorVertex = db.newVertex("Author");
     authorVertex.setProperty("name", "Bob Dylan");
+
+    db.begin();
     db.save(authorVertex);
+    db.commit();
 
     OVertex songVertex = db.newVertex("Song");
     songVertex.setProperty("title", "hurricane");
+
+    db.begin();
     db.save(songVertex);
+    db.commit();
+
+    db.begin();
     OEdge edge = authorVertex.addEdge(songVertex, "AuthorOf");
     db.save(edge);
+    db.commit();
 
     OResultSet results = db.query("select from AuthorOf");
     Assert.assertEquals(results.stream().count(), 1);

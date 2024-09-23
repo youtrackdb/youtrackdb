@@ -43,14 +43,18 @@ public class LuceneGraphTXTest extends BaseLuceneTest {
     OVertex v = db.newVertex("City");
     v.setProperty("name", "London");
 
+    db.begin();
     db.save(v);
+    db.commit();
 
     OResultSet results = db.command("select from City where name lucene 'London'");
     Assert.assertEquals(results.stream().count(), 1);
 
     v.setProperty("name", "Berlin");
 
+    db.begin();
     v.save();
+    db.commit();
 
     results = db.command("select from City where name lucene 'Berlin'");
     Assert.assertEquals(results.stream().count(), 1);

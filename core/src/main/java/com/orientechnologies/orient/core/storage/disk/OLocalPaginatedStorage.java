@@ -85,7 +85,7 @@ import com.orientechnologies.orient.core.storage.index.engine.OSBTreeIndexEngine
 import com.orientechnologies.orient.core.storage.index.versionmap.OVersionPositionMap;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OIndexRIDContainer;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManagerShared;
-import com.orientechnologies.orient.core.tx.OTransactionInternal;
+import com.orientechnologies.orient.core.tx.OTransactionOptimistic;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
@@ -1999,7 +1999,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
   }
 
   @Override
-  public List<ORecordOperation> commit(OTransactionInternal clientTx, boolean allocated) {
+  public List<ORecordOperation> commit(OTransactionOptimistic clientTx, boolean allocated) {
     List<ORecordOperation> operations = super.commit(clientTx, allocated);
     listeners.forEach((l) -> l.onCommit(operations));
     return operations;

@@ -106,6 +106,7 @@ public class OObjectLazyMapTest {
   }
 
   private Map<String, EntityWithMap> getMapWithPersistedEntries() {
+    databaseTx.begin();
     EntityWithMap toStore = new EntityWithMap();
     toStore.setId(idOfRootEntity);
 
@@ -122,6 +123,7 @@ public class OObjectLazyMapTest {
     toStore.setMap(mapToStore);
 
     EntityWithMap fromDb = this.databaseTx.save(toStore);
+    databaseTx.commit();
 
     assertTrue(fromDb != null);
     assertTrue(fromDb.getMap() != null);

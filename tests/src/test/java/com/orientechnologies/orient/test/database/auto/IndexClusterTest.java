@@ -29,16 +29,20 @@ public class IndexClusterTest extends DocumentDBBaseTest {
     oclass.createProperty("value", OType.INTEGER);
     oclass.createIndex(className + "index1", OClass.INDEX_TYPE.NOTUNIQUE, "key");
 
+    database.begin();
     database.<ODocument>newInstance(className).field("key", "a").field("value", 1).save();
+    database.commit();
 
     int clId = database.addCluster(className + "secondCluster");
     oclass.addClusterId(clId);
 
+    database.begin();
     database
         .<ODocument>newInstance(className)
         .field("key", "a")
         .field("value", 2)
         .save(className + "secondCluster");
+    database.commit();
 
     // when
     database.command("rebuild index " + className + "index1").close();

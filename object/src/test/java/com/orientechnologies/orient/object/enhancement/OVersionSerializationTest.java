@@ -51,7 +51,10 @@ public class OVersionSerializationTest {
 
   @Test
   public void testExactVersionTypeSerialization() throws Exception {
+    database.begin();
     final EntityExactVersionType object = database.save(new EntityExactVersionType());
+    database.commit();
+
     final EntityExactVersionType loadedObject = database.load(object.getRid());
 
     Assert.assertEquals(object.getVersion(), loadedObject.getVersion());
@@ -62,7 +65,10 @@ public class OVersionSerializationTest {
 
   @Test
   public void testIntegerSerialization() throws Exception {
+    database.begin();
     final EntityLongVersion object = database.save(new EntityLongVersion());
+    database.commit();
+
     final EntityLongVersion loadedObject = database.load(object.getRid());
 
     Assert.assertNotNull(object.getVersion());

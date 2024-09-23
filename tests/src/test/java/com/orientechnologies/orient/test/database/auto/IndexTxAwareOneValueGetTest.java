@@ -219,7 +219,9 @@ public class IndexTxAwareOneValueGetTest extends DocumentDBBaseTest {
     }
     database.commit();
 
+    database.begin();
     new ODocument(CLASS_NAME).field(PROPERTY_NAME, 2).save();
+    database.commit();
 
     try (Stream<ORID> stream = index.getInternal().getRids(2)) {
       Assert.assertTrue(stream.findAny().isPresent());

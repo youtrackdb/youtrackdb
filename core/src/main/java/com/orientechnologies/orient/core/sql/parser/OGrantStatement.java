@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Objects;
 
 public class OGrantStatement extends OSimpleExecStatement {
+
   protected OPermission permission;
   protected OIdentifier policyName;
   protected OSecurityResourceSegment securityResource;
@@ -30,42 +31,56 @@ public class OGrantStatement extends OSimpleExecStatement {
   @Override
   public OExecutionStream executeSimple(OCommandContext ctx) {
     ODatabaseDocumentInternal db = getDatabase();
-    ORole role = db.getMetadata().getSecurity().getRole(actor.getStringValue());
-    if (role == null)
-      throw new OCommandExecutionException("Invalid role: " + actor.getStringValue());
+    return db.computeInTx(
+        () -> {
+          ORole role = db.getMetadata().getSecurity().getRole(actor.getStringValue());
+          if (role == null) {
+            throw new OCommandExecutionException("Invalid role: " + actor.getStringValue());
+          }
 
-    String resourcePath = securityResource.toString();
-    if (permission != null) {
-      role.grant(resourcePath, toPrivilege(permission.permission));
-      role.save();
-    } else {
-      OSecurityInternal security = db.getSharedContext().getSecurity();
-      OSecurityPolicyImpl policy = security.getSecurityPolicy(db, policyName.getStringValue());
-      security.setSecurityPolicy(db, role, securityResource.toString(), policy);
-    }
+          String resourcePath = securityResource.toString();
+          if (permission != null) {
+            role.grant(resourcePath, toPrivilege(permission.permission));
+            role.save();
+          } else {
+            OSecurityInternal security = db.getSharedContext().getSecurity();
+            OSecurityPolicyImpl policy =
+                security.getSecurityPolicy(db, policyName.getStringValue());
+            security.setSecurityPolicy(db, role, securityResource.toString(), policy);
+          }
 
-    OResultInternal result = new OResultInternal();
-    result.setProperty("operation", "grant");
-    result.setProperty("role", actor.getStringValue());
-    if (permission != null) {
-      result.setProperty("permission", permission.toString());
-    } else {
-      result.setProperty("policy", policyName.getStringValue());
-    }
-    result.setProperty("resource", resourcePath);
-    return OExecutionStream.singleton(result);
+          OResultInternal result = new OResultInternal();
+          result.setProperty("operation", "grant");
+          result.setProperty("role", actor.getStringValue());
+          if (permission != null) {
+            result.setProperty("permission", permission.toString());
+          } else {
+            result.setProperty("policy", policyName.getStringValue());
+          }
+          result.setProperty("resource", resourcePath);
+          return OExecutionStream.singleton(result);
+        });
   }
 
   protected int toPrivilege(String privilegeName) {
     int privilege;
-    if ("CREATE".equals(privilegeName)) privilege = ORole.PERMISSION_CREATE;
-    else if ("READ".equals(privilegeName)) privilege = ORole.PERMISSION_READ;
-    else if ("UPDATE".equals(privilegeName)) privilege = ORole.PERMISSION_UPDATE;
-    else if ("DELETE".equals(privilegeName)) privilege = ORole.PERMISSION_DELETE;
-    else if ("EXECUTE".equals(privilegeName)) privilege = ORole.PERMISSION_EXECUTE;
-    else if ("ALL".equals(privilegeName)) privilege = ORole.PERMISSION_ALL;
-    else if ("NONE".equals(privilegeName)) privilege = ORole.PERMISSION_NONE;
-    else throw new OCommandExecutionException("Unrecognized privilege '" + privilegeName + "'");
+    if ("CREATE".equals(privilegeName)) {
+      privilege = ORole.PERMISSION_CREATE;
+    } else if ("READ".equals(privilegeName)) {
+      privilege = ORole.PERMISSION_READ;
+    } else if ("UPDATE".equals(privilegeName)) {
+      privilege = ORole.PERMISSION_UPDATE;
+    } else if ("DELETE".equals(privilegeName)) {
+      privilege = ORole.PERMISSION_DELETE;
+    } else if ("EXECUTE".equals(privilegeName)) {
+      privilege = ORole.PERMISSION_EXECUTE;
+    } else if ("ALL".equals(privilegeName)) {
+      privilege = ORole.PERMISSION_ALL;
+    } else if ("NONE".equals(privilegeName)) {
+      privilege = ORole.PERMISSION_NONE;
+    } else {
+      throw new OCommandExecutionException("Unrecognized privilege '" + privilegeName + "'");
+    }
     return privilege;
   }
 
@@ -111,8 +126,12 @@ public class OGrantStatement extends OSimpleExecStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     OGrantStatement that = (OGrantStatement) o;
     return Objects.equals(permission, that.permission)
         && Objects.equals(policyName, that.policyName)

@@ -10,6 +10,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class GraphFunctionsTest {
+
   private static OVertex v1;
   private static OVertex v2;
   private static OVertex v3;
@@ -18,7 +19,8 @@ public class GraphFunctionsTest {
 
   private static OrientDB orientDB;
 
-  public GraphFunctionsTest() {}
+  public GraphFunctionsTest() {
+  }
 
   @BeforeClass
   public static void before() {
@@ -33,12 +35,14 @@ public class GraphFunctionsTest {
 
       session.createVertexClass("SubVertex");
 
+      session.begin();
       v1 = session.newVertex("SubVertex").save();
       v2 = session.newVertex("SubVertex").save();
       v3 = session.newVertex().save();
 
       e1 = session.newEdge(v1, v2, "SubEdge").save();
       e2 = session.newEdge(v1, v3, "contains").save();
+      session.commit();
     }
   }
 

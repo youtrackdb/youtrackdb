@@ -16,6 +16,8 @@ public class TestSqlEmbeddedResult extends BaseMemoryDatabase {
   @Test
   public void testEmbeddedRusultTypeNotLink() {
     db.getMetadata().getSchema().createClass("Test");
+
+    db.begin();
     ODocument doc = new ODocument("Test");
     ODocument doc1 = new ODocument();
     doc1.setProperty("format", 1);
@@ -24,6 +26,7 @@ public class TestSqlEmbeddedResult extends BaseMemoryDatabase {
     doc.setProperty("rel", docs);
     // doc
     db.save(doc);
+    db.commit();
 
     List<OElement> res =
         db

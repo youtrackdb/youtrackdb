@@ -83,13 +83,20 @@ public class PredicateSecurityTest {
     db.close();
     this.db = orient.open(DB_NAME, "writer", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
 
-    OElement elem = db.newElement("Person");
-    elem.setProperty("name", "foo");
-    db.save(elem);
+    db.executeInTx(
+        () -> {
+          OElement elem = db.newElement("Person");
+          elem.setProperty("name", "foo");
+          db.save(elem);
+        });
     try {
-      elem = db.newElement("Person");
-      elem.setProperty("name", "bar");
-      db.save(elem);
+      db.executeInTx(
+          () -> {
+            var elem = db.newElement("Person");
+            elem.setProperty("name", "bar");
+            db.save(elem);
+          });
+
       Assert.fail();
     } catch (OSecurityException ex) {
     }
@@ -131,13 +138,19 @@ public class PredicateSecurityTest {
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "reader"), "database.class.Person", policy);
 
-    OElement elem = db.newElement("Person");
-    elem.setProperty("name", "foo");
-    db.save(elem);
+    db.executeInTx(
+        () -> {
+          OElement elem = db.newElement("Person");
+          elem.setProperty("name", "foo");
+          db.save(elem);
+        });
 
-    elem = db.newElement("Person");
-    elem.setProperty("name", "bar");
-    db.save(elem);
+    db.executeInTx(
+        () -> {
+          var elem = db.newElement("Person");
+          elem.setProperty("name", "bar");
+          db.save(elem);
+        });
 
     db.close();
     this.db = orient.open(DB_NAME, "reader", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
@@ -162,13 +175,19 @@ public class PredicateSecurityTest {
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "reader"), "database.class.Person", policy);
 
-    OElement elem = db.newElement("Person");
-    elem.setProperty("name", "foo");
-    db.save(elem);
+    db.executeInTx(
+        () -> {
+          OElement elem = db.newElement("Person");
+          elem.setProperty("name", "foo");
+          db.save(elem);
+        });
 
-    elem = db.newElement("Person");
-    elem.setProperty("name", "bar");
-    db.save(elem);
+    db.executeInTx(
+        () -> {
+          var elem = db.newElement("Person");
+          elem.setProperty("name", "bar");
+          db.save(elem);
+        });
 
     db.close();
     this.db = orient.open(DB_NAME, "reader", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
@@ -191,15 +210,21 @@ public class PredicateSecurityTest {
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "reader"), "database.class.Person", policy);
 
-    OElement elem = db.newElement("Person");
-    elem.setProperty("name", "foo");
-    elem.setProperty("surname", "foo");
-    db.save(elem);
+    db.executeInTx(
+        () -> {
+          OElement elem = db.newElement("Person");
+          elem.setProperty("name", "foo");
+          elem.setProperty("surname", "foo");
+          db.save(elem);
+        });
 
-    elem = db.newElement("Person");
-    elem.setProperty("name", "foo");
-    elem.setProperty("surname", "bar");
-    db.save(elem);
+    db.executeInTx(
+        () -> {
+          var elem = db.newElement("Person");
+          elem.setProperty("name", "foo");
+          elem.setProperty("surname", "bar");
+          db.save(elem);
+        });
 
     db.close();
     this.db = orient.open(DB_NAME, "reader", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
@@ -227,12 +252,19 @@ public class PredicateSecurityTest {
     Thread.sleep(500);
     this.db = orient.open(DB_NAME, "writer", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
 
-    OElement elem = db.newElement("Person");
-    elem.setProperty("name", "foo");
-    db.save(elem);
+    OElement elem =
+        db.computeInTx(
+            () -> {
+              var e = db.newElement("Person");
+              e.setProperty("name", "foo");
+              db.save(e);
+              return e;
+            });
+
     try {
       elem.setProperty("name", "baz");
-      db.save(elem);
+      var elemToSave = elem;
+      db.executeInTx(() -> db.save(elemToSave));
       Assert.fail();
     } catch (OSecurityException ex) {
     }
@@ -269,16 +301,21 @@ public class PredicateSecurityTest {
   private boolean doTestBeforeUpdateSQL() {
     this.db = orient.open(DB_NAME, "writer", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
 
-    OElement elem = db.newElement("Person");
-    elem.setProperty("name", "foo");
-    db.save(elem);
+    OElement elem =
+        db.computeInTx(
+            () -> {
+              var e = db.newElement("Person");
+              e.setProperty("name", "foo");
+              db.save(e);
+              return e;
+            });
+
     try {
       db.command("update Person set name = 'bar'");
       return false;
     } catch (OSecurityException ex) {
     }
 
-    elem = elem.reload(null, true, true);
     Assert.assertEquals("foo", elem.getProperty("name"));
     return true;
   }
@@ -298,12 +335,20 @@ public class PredicateSecurityTest {
     db.close();
     this.db = orient.open(DB_NAME, "writer", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
 
-    OElement elem = db.newElement("Person");
-    elem.setProperty("name", "foo");
-    db.save(elem);
+    OElement elem =
+        db.computeInTx(
+            () -> {
+              var e = db.newElement("Person");
+              e.setProperty("name", "foo");
+              db.save(e);
+              return e;
+            });
+
     try {
       elem.setProperty("name", "bar");
-      db.save(elem);
+      var elemToSave = elem;
+      db.executeInTx(() -> db.save(elemToSave));
+
       Assert.fail();
     } catch (OSecurityException ex) {
     }
@@ -328,9 +373,15 @@ public class PredicateSecurityTest {
     db.close();
     this.db = orient.open(DB_NAME, "writer", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
 
-    OElement elem = db.newElement("Person");
-    elem.setProperty("name", "foo");
-    db.save(elem);
+    OElement elem =
+        db.computeInTx(
+            () -> {
+              var e = db.newElement("Person");
+              e.setProperty("name", "foo");
+              db.save(e);
+              return e;
+            });
+
     try {
       db.command("update Person set name = 'bar'");
       Assert.fail();
@@ -356,19 +407,33 @@ public class PredicateSecurityTest {
     db.close();
     this.db = orient.open(DB_NAME, "writer", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
 
-    OElement elem = db.newElement("Person");
-    elem.setProperty("name", "bar");
-    db.save(elem);
+    OElement elem =
+        db.computeInTx(
+            () -> {
+              var e = db.newElement("Person");
+              e.setProperty("name", "bar");
+              db.save(e);
+              return e;
+            });
+
     try {
-      db.delete(elem);
+      var elemToDelete = elem;
+      db.executeInTx(() -> db.delete(elemToDelete));
       Assert.fail();
     } catch (OSecurityException ex) {
     }
 
-    elem = db.newElement("Person");
-    elem.setProperty("name", "foo");
-    db.save(elem);
-    db.delete(elem);
+    elem =
+        db.computeInTx(
+            () -> {
+              var e = db.newElement("Person");
+              e.setProperty("name", "foo");
+              db.save(e);
+              return e;
+            });
+
+    var elemToDelete = elem;
+    db.executeInTx(() -> db.delete(elemToDelete));
   }
 
   @Test
@@ -386,13 +451,19 @@ public class PredicateSecurityTest {
     db.close();
     this.db = orient.open(DB_NAME, "writer", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
 
-    OElement elem = db.newElement("Person");
-    elem.setProperty("name", "foo");
-    db.save(elem);
+    db.executeInTx(
+        () -> {
+          OElement elem = db.newElement("Person");
+          elem.setProperty("name", "foo");
+          db.save(elem);
+        });
 
-    elem = db.newElement("Person");
-    elem.setProperty("name", "bar");
-    db.save(elem);
+    db.executeInTx(
+        () -> {
+          var elem = db.newElement("Person");
+          elem.setProperty("name", "bar");
+          db.save(elem);
+        });
 
     db.command("delete from Person where name = 'foo'");
     try {
@@ -421,13 +492,19 @@ public class PredicateSecurityTest {
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "reader"), "database.class.Person", policy);
 
-    OElement elem = db.newElement("Person");
-    elem.setProperty("name", "foo");
-    db.save(elem);
+    db.executeInTx(
+        () -> {
+          OElement elem = db.newElement("Person");
+          elem.setProperty("name", "foo");
+          db.save(elem);
+        });
 
-    elem = db.newElement("Person");
-    elem.setProperty("name", "bar");
-    db.save(elem);
+    db.executeInTx(
+        () -> {
+          var elem = db.newElement("Person");
+          elem.setProperty("name", "bar");
+          db.save(elem);
+        });
 
     db.close();
     this.db = orient.open(DB_NAME, "reader", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
@@ -450,13 +527,19 @@ public class PredicateSecurityTest {
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "reader"), "database.class.Person", policy);
 
-    OElement elem = db.newElement("Person");
-    elem.setProperty("name", "foo");
-    db.save(elem);
+    db.executeInTx(
+        () -> {
+          var e = db.newElement("Person");
+          e.setProperty("name", "foo");
+          db.save(e);
+        });
 
-    elem = db.newElement("Person");
-    elem.setProperty("name", "bar");
-    db.save(elem);
+    db.executeInTx(
+        () -> {
+          var elem = db.newElement("Person");
+          elem.setProperty("name", "bar");
+          db.save(elem);
+        });
 
     db.close();
     this.db = orient.open(DB_NAME, "reader", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
@@ -483,13 +566,19 @@ public class PredicateSecurityTest {
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "reader"), "database.class.Person", policy);
 
-    OElement elem = db.newElement("Person");
-    elem.setProperty("name", "foo");
-    db.save(elem);
+    db.executeInTx(
+        () -> {
+          OElement elem = db.newElement("Person");
+          elem.setProperty("name", "foo");
+          db.save(elem);
+        });
 
-    elem = db.newElement("Person");
-    elem.setProperty("name", "bar");
-    db.save(elem);
+    db.executeInTx(
+        () -> {
+          var elem = db.newElement("Person");
+          elem.setProperty("name", "bar");
+          db.save(elem);
+        });
 
     db.close();
     this.db = orient.open(DB_NAME, "reader", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"

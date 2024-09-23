@@ -56,7 +56,9 @@ public class OLuceneCreateIndexTest extends OLuceneBaseTest {
     doc.setProperty("title", "Local");
     doc.setProperty("author", "Local");
 
+    db.begin();
     db.save(doc);
+    db.commit();
   }
 
   @Test

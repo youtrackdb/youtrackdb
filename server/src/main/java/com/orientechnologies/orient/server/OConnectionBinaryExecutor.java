@@ -9,18 +9,14 @@ import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.message.*;
-import com.orientechnologies.orient.client.remote.message.OCommitResponse.OCreatedRecordResponse;
-import com.orientechnologies.orient.client.remote.message.OCommitResponse.OUpdatedRecordResponse;
 import com.orientechnologies.orient.client.remote.message.tx.ORecordOperationRequest;
 import com.orientechnologies.orient.core.OConstants;
-import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.command.OCommandResultListener;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.*;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.db.tool.ODatabaseImport;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
@@ -38,7 +34,6 @@ import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.query.live.OLiveQueryHookV2;
 import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.OBlob;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -61,8 +56,6 @@ import com.orientechnologies.orient.core.storage.index.sbtree.OTreeInternal;
 import com.orientechnologies.orient.core.storage.index.sbtreebonsai.local.OSBTreeBonsai;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
-import com.orientechnologies.orient.core.tx.OTransaction;
-import com.orientechnologies.orient.core.tx.OTransactionNoTx;
 import com.orientechnologies.orient.core.tx.OTransactionOptimistic;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 import com.orientechnologies.orient.server.distributed.ODistributedConfiguration;
@@ -70,7 +63,6 @@ import com.orientechnologies.orient.server.distributed.ODistributedServerManager
 import com.orientechnologies.orient.server.distributed.ORemoteServerController;
 import com.orientechnologies.orient.server.network.protocol.binary.*;
 import com.orientechnologies.orient.server.plugin.OServerPlugin;
-import com.orientechnologies.orient.server.tx.OTransactionOptimisticProxy;
 import com.orientechnologies.orient.server.tx.OTransactionOptimisticServer;
 import java.io.File;
 import java.io.IOException;
@@ -446,35 +438,6 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   }
 
   @Override
-  public OBinaryResponse executeDeleteRecord(ODeleteRecordRequest request) {
-
-    int result;
-    ODatabaseDocumentInternal database = connection.getDatabase();
-    try {
-      ORecord record = database.load(request.getRid());
-      if (record != null) {
-        database.delete(request.getRid(), request.getVersion());
-        result = 1;
-      } else {
-        result = 0;
-      }
-    } catch (ORecordNotFoundException e) {
-      // MAINTAIN COHERENT THE BEHAVIOR FOR ALL THE STORAGE TYPES
-      if (e.getCause() instanceof OOfflineClusterException)
-      //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
-      {
-        throw (OOfflineClusterException) e.getCause();
-      }
-      result = 0;
-    }
-
-    if (request.getMode() < 2) {
-      return new ODeleteRecordResponse(result == 1);
-    }
-    return null;
-  }
-
-  @Override
   public OBinaryResponse executeHigherPosition(OHigherPhysicalPositionsRequest request) {
     OPhysicalPosition[] nextPositions =
         connection
@@ -516,190 +479,124 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeCommand(OCommandRequest request) {
-    OTransaction oldTx = connection.getDatabase().getTransaction();
-    try {
-      connection.getDatabase().swapTx(new OTransactionNoTx(connection.getDatabase()));
+    final boolean live = request.isLive();
+    final boolean asynch = request.isAsynch();
 
-      final boolean live = request.isLive();
-      final boolean asynch = request.isAsynch();
+    OCommandRequestText command = request.getQuery();
 
-      OCommandRequestText command = request.getQuery();
+    final Map<Object, Object> params = command.getParameters();
 
-      final Map<Object, Object> params = command.getParameters();
+    if (asynch && command instanceof OSQLSynchQuery) {
+      // CONVERT IT IN ASYNCHRONOUS QUERY
+      final OSQLAsynchQuery asynchQuery = new OSQLAsynchQuery(command.getText());
+      asynchQuery.setFetchPlan(command.getFetchPlan());
+      asynchQuery.setLimit(command.getLimit());
+      asynchQuery.setTimeout(command.getTimeoutTime(), command.getTimeoutStrategy());
+      asynchQuery.setUseCache(((OSQLSynchQuery) command).isUseCache());
+      command = asynchQuery;
+    }
 
-      if (asynch && command instanceof OSQLSynchQuery) {
-        // CONVERT IT IN ASYNCHRONOUS QUERY
-        final OSQLAsynchQuery asynchQuery = new OSQLAsynchQuery(command.getText());
-        asynchQuery.setFetchPlan(command.getFetchPlan());
-        asynchQuery.setLimit(command.getLimit());
-        asynchQuery.setTimeout(command.getTimeoutTime(), command.getTimeoutStrategy());
-        asynchQuery.setUseCache(((OSQLSynchQuery) command).isUseCache());
-        command = asynchQuery;
-      }
+    connection.getData().commandDetail = command.getText();
 
-      connection.getData().commandDetail = command.getText();
+    connection.getData().command = command;
+    OAbstractCommandResultListener listener = null;
+    OLiveCommandResultListener liveListener = null;
 
-      connection.getData().command = command;
-      OAbstractCommandResultListener listener = null;
-      OLiveCommandResultListener liveListener = null;
+    OCommandResultListener cmdResultListener = command.getResultListener();
 
-      OCommandResultListener cmdResultListener = command.getResultListener();
-
-      if (live) {
-        liveListener = new OLiveCommandResultListener(server, connection, cmdResultListener);
-        listener = new OSyncCommandResultListener(null);
-        command.setResultListener(liveListener);
-      } else {
-        if (asynch) {
-          listener = new OAsyncCommandResultListener(connection, cmdResultListener);
-          command.setResultListener(listener);
-        } else {
-          listener = new OSyncCommandResultListener(null);
-        }
-      }
-
-      final long serverTimeout =
-          connection
-              .getDatabase()
-              .getConfiguration()
-              .getValueAsLong(OGlobalConfiguration.COMMAND_TIMEOUT);
-
-      if (serverTimeout > 0 && command.getTimeoutTime() > serverTimeout)
-      // FORCE THE SERVER'S TIMEOUT
-      {
-        command.setTimeout(serverTimeout, command.getTimeoutStrategy());
-      }
-
-      // REQUEST CAN'T MODIFY THE RESULT, SO IT'S CACHEABLE
-      command.setCacheableResult(true);
-
-      // ASSIGNED THE PARSED FETCHPLAN
-      final OCommandRequestText commandRequest = connection.getDatabase().command(command);
-      listener.setFetchPlan(commandRequest.getFetchPlan());
-      OCommandResponse response;
+    if (live) {
+      liveListener = new OLiveCommandResultListener(server, connection, cmdResultListener);
+      listener = new OSyncCommandResultListener(null);
+      command.setResultListener(liveListener);
+    } else {
       if (asynch) {
-        // In case of async it execute the request during the write of the response
-        response =
-            new OCommandResponse(
-                null, listener, false, asynch, connection.getDatabase(), command, params);
+        listener = new OAsyncCommandResultListener(connection, cmdResultListener);
+        command.setResultListener(listener);
       } else {
-        // SYNCHRONOUS
-        final Object result;
-        if (params == null) {
-          result = commandRequest.execute();
-        } else {
-          result = commandRequest.execute(params);
-        }
-
-        // FETCHPLAN HAS TO BE ASSIGNED AGAIN, because it can be changed by SQL statement
-        listener.setFetchPlan(commandRequest.getFetchPlan());
-        boolean isRecordResultSet = true;
-        isRecordResultSet = command.isRecordResultSet();
-        response =
-            new OCommandResponse(
-                result,
-                listener,
-                isRecordResultSet,
-                asynch,
-                connection.getDatabase(),
-                command,
-                params);
-      }
-      return response;
-    } finally {
-      connection.getDatabase().swapTx(oldTx);
-    }
-  }
-
-  @Override
-  public OBinaryResponse executeBatchOperations(OBatchOperationsRequest request) {
-
-    ODatabaseDocumentInternal database = connection.getDatabase();
-
-    OTransaction transaction = database.getTransaction();
-
-    List<ORecordOperationRequest> operations = request.getOperations();
-
-    List<OCommit37Response.OCreatedRecordResponse> createdRecords = new ArrayList<>();
-    List<OCommit37Response.OUpdatedRecordResponse> updatedRecords = new ArrayList<>();
-    List<OCommit37Response.ODeletedRecordResponse> deletedRecords = new ArrayList<>();
-
-    for (ORecordOperationRequest operation : operations) {
-
-      final ORecordAbstract record;
-      ORecordId current;
-      switch (operation.getType()) {
-        case ORecordOperation.CREATED:
-          record =
-              Orient.instance()
-                  .getRecordFactoryManager()
-                  .newInstance(operation.getRecordType(), operation.getId(), database);
-          connection.getData().getSerializer().fromStream(operation.getRecord(), record, null);
-          current = (ORecordId) record.getIdentity();
-          OCreateRecordResponse createRecordResponse =
-              (OCreateRecordResponse)
-                  executeCreateRecord(
-                      new OCreateRecordRequest(
-                          record, (ORecordId) operation.getId(), operation.getRecordType()));
-          if (transaction.isActive()) {
-            ((OTransactionOptimisticServer) transaction)
-                .getCreatedRecords()
-                .put((ORecordId) record.getIdentity(), record);
-          }
-          createdRecords.add(
-              new OCommit37Response.OCreatedRecordResponse(
-                  current, createRecordResponse.getIdentity(), createRecordResponse.getVersion()));
-          break;
-        case ORecordOperation.UPDATED:
-          record =
-              Orient.instance()
-                  .getRecordFactoryManager()
-                  .newInstance(operation.getRecordType(), operation.getId(), database);
-          connection.getData().getSerializer().fromStream(operation.getRecord(), record, null);
-          current = (ORecordId) record.getIdentity();
-          OUpdateRecordResponse updateRecordResponse =
-              (OUpdateRecordResponse)
-                  executeUpdateRecord(
-                      new OUpdateRecordRequest(
-                          (ORecordId) operation.getId(),
-                          record,
-                          operation.getVersion(),
-                          true,
-                          operation.getRecordType()));
-          if (transaction.isActive()) {
-            ((OTransactionOptimisticServer) transaction)
-                .getUpdatedRecords()
-                .put((ORecordId) record.getIdentity(), record);
-          }
-          updatedRecords.add(
-              new OCommit37Response.OUpdatedRecordResponse(
-                  current, updateRecordResponse.getVersion()));
-          break;
-
-        case ORecordOperation.DELETED:
-          executeDeleteRecord(
-              new ODeleteRecordRequest((ORecordId) operation.getId(), operation.getVersion()));
-          deletedRecords.add(new OCommit37Response.ODeletedRecordResponse(operation.getId()));
-          break;
+        listener = new OSyncCommandResultListener(null);
       }
     }
-    return new OBatchOperationsResponse(
-        database.getTransaction().getId(), createdRecords, updatedRecords, deletedRecords);
+
+    final long serverTimeout =
+        connection
+            .getDatabase()
+            .getConfiguration()
+            .getValueAsLong(OGlobalConfiguration.COMMAND_TIMEOUT);
+
+    if (serverTimeout > 0 && command.getTimeoutTime() > serverTimeout)
+    // FORCE THE SERVER'S TIMEOUT
+    {
+      command.setTimeout(serverTimeout, command.getTimeoutStrategy());
+    }
+
+    // REQUEST CAN'T MODIFY THE RESULT, SO IT'S CACHEABLE
+    command.setCacheableResult(true);
+
+    // ASSIGNED THE PARSED FETCHPLAN
+    final OCommandRequestText commandRequest = connection.getDatabase().command(command);
+    listener.setFetchPlan(commandRequest.getFetchPlan());
+    OCommandResponse response;
+    if (asynch) {
+      // In case of async it execute the request during the write of the response
+      response =
+          new OCommandResponse(
+              null, listener, false, asynch, connection.getDatabase(), command, params);
+    } else {
+      // SYNCHRONOUS
+      final Object result;
+      if (params == null) {
+        result = commandRequest.execute();
+      } else {
+        result = commandRequest.execute(params);
+      }
+
+      // FETCHPLAN HAS TO BE ASSIGNED AGAIN, because it can be changed by SQL statement
+      listener.setFetchPlan(commandRequest.getFetchPlan());
+      boolean isRecordResultSet = true;
+      isRecordResultSet = command.isRecordResultSet();
+      response =
+          new OCommandResponse(
+              result,
+              listener,
+              isRecordResultSet,
+              asynch,
+              connection.getDatabase(),
+              command,
+              params);
+    }
+    return response;
   }
 
   @Override
   public OBinaryResponse executeCommit(final OCommitRequest request) {
-    final OTransactionOptimisticProxy tx =
-        new OTransactionOptimisticProxy(
-            connection.getDatabase(),
-            request.getTxId(),
-            request.getOperations(),
-            request.getIndexChanges(),
-            connection.getData().protocolVersion,
-            connection.getData().getSerializer());
+    var recordOperations = request.getOperations();
+    var indexChanges = request.getIndexChanges();
+
+    if (!indexChanges.isEmpty()) {
+      throw new ODatabaseException("Manual indexes are not supported");
+    }
+
+    var database = connection.getDatabase();
+    var tx = database.getTransaction();
+
+    if (!tx.isActive()) {
+      throw new ODatabaseException("There is no active transaction on server.");
+    }
+    if (tx.getId() != request.getTxId()) {
+      throw new ODatabaseException(
+          "Invalid transaction id, expected " + tx.getId() + " but received " + request.getTxId());
+    }
+
+    if (!(tx instanceof OTransactionOptimisticServer serverTransaction)) {
+      throw new ODatabaseException(
+          "Invalid transaction type,"
+              + " expected OTransactionOptimisticServer but found "
+              + tx.getClass().getName());
+    }
+
     try {
       try {
-        connection.getDatabase().rawBegin(tx);
+        serverTransaction.mergeReceivedTransaction(recordOperations);
       } catch (final ORecordNotFoundException e) {
         throw e.getCause() instanceof OOfflineClusterException
             ? (OOfflineClusterException) e.getCause()
@@ -707,30 +604,11 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
       }
       try {
         try {
-          connection.getDatabase().commit();
+          serverTransaction.commit();
         } catch (final ORecordNotFoundException e) {
           throw e.getCause() instanceof OOfflineClusterException
               ? (OOfflineClusterException) e.getCause()
               : e;
-        }
-        final List<OCreatedRecordResponse> createdRecords =
-            new ArrayList<>(tx.getCreatedRecords().size());
-        for (var entry : tx.getCreatedRecords().entrySet()) {
-          createdRecords.add(
-              new OCreatedRecordResponse(
-                  (ORecordId) entry.getKey(), (ORecordId) entry.getValue().getIdentity()));
-          // IF THE NEW OBJECT HAS VERSION > 0 MEANS THAT HAS BEEN UPDATED IN THE SAME TX. THIS
-          // HAPPENS FOR GRAPHS
-          if (entry.getValue().getVersion() > 0) {
-            tx.getUpdatedRecords()
-                .put((ORecordId) entry.getValue().getIdentity(), entry.getValue());
-          }
-        }
-        final List<OUpdatedRecordResponse> updatedRecords =
-            new ArrayList<>(tx.getUpdatedRecords().size());
-        for (Entry<ORecordId, ORecord> entry : tx.getUpdatedRecords().entrySet()) {
-          updatedRecords.add(
-              new OUpdatedRecordResponse(entry.getKey(), entry.getValue().getVersion()));
         }
         final OSBTreeCollectionManager collectionManager =
             connection.getDatabase().getSbTreeCollectionManager();
@@ -738,25 +616,25 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
         if (collectionManager != null) {
           changedIds = collectionManager.changedIds();
         }
-        return new OCommitResponse(createdRecords, updatedRecords, changedIds);
-      } catch (final RuntimeException e) {
-        if (connection != null && connection.getDatabase() != null) {
-          if (connection.getDatabase().getTransaction().isActive()) {
-            connection.getDatabase().rollback(true);
-          }
 
-          final OSBTreeCollectionManager collectionManager =
-              connection.getDatabase().getSbTreeCollectionManager();
-          if (collectionManager != null) {
-            collectionManager.clearChangedIds();
-          }
+        return new OCommitResponse(serverTransaction.getTxGeneratedRealRecordIdMap(), changedIds);
+      } catch (final RuntimeException e) {
+        if (serverTransaction.isActive()) {
+          database.rollback(true);
         }
+
+        final OSBTreeCollectionManager collectionManager =
+            connection.getDatabase().getSbTreeCollectionManager();
+        if (collectionManager != null) {
+          collectionManager.clearChangedIds();
+        }
+
         throw e;
       }
     } catch (final RuntimeException e) {
       // Error during TX initialization, possibly index constraints violation.
-      if (tx.isActive()) {
-        tx.rollback(true, -1);
+      if (serverTransaction.isActive()) {
+        database.rollback(true);
       }
       throw e;
     }
@@ -1427,158 +1305,254 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeBeginTransaction(OBeginTransactionRequest request) {
-    final OTransactionOptimisticServer tx =
-        new OTransactionOptimisticServer(
-            connection.getDatabase(),
-            request.getTxId(),
-            request.getOperations(),
-            request.getIndexChanges());
+    var database = connection.getDatabase();
+    var tx = database.getTransaction();
+
+    var recordOperations = request.getOperations();
+    var indexChanges = request.getIndexChanges();
+
+    if (!indexChanges.isEmpty()) {
+      throw new ODatabaseException("Manual indexes are not supported.");
+    }
+
+    if (tx.isActive()) {
+      if (!(tx instanceof OTransactionOptimisticServer serverTransaction)) {
+        throw new ODatabaseException("Non-server based transaction is active");
+      }
+      if (tx.getId() != request.getTxId()) {
+        throw new ODatabaseException(
+            "Transaction id mismatch, expected " + tx.getId() + " but got " + request.getTxId());
+      }
+
+      try {
+        serverTransaction.mergeReceivedTransaction(recordOperations);
+      } catch (final ORecordNotFoundException e) {
+        throw e.getCause() instanceof OOfflineClusterException
+            ? (OOfflineClusterException) e.getCause()
+            : e;
+      }
+
+      return new OBeginTransactionResponse(
+          tx.getId(), serverTransaction.getTxGeneratedRealRecordIdMap());
+    }
+
+    database.begin(new OTransactionOptimisticServer(database, request.getTxId()));
+    var serverTransaction = (OTransactionOptimisticServer) database.getTransaction();
+
     try {
-      connection.getDatabase().rawBegin(tx);
+      serverTransaction.mergeReceivedTransaction(recordOperations);
     } catch (final ORecordNotFoundException e) {
       throw e.getCause() instanceof OOfflineClusterException
           ? (OOfflineClusterException) e.getCause()
           : e;
     }
 
-    return new OBeginTransactionResponse(tx.getId(), tx.getUpdatedRids());
+    return new OBeginTransactionResponse(
+        tx.getId(), serverTransaction.getTxGeneratedRealRecordIdMap());
   }
 
   @Override
   public OBinaryResponse executeBeginTransaction38(OBeginTransaction38Request request) {
-    final OTransactionOptimisticServer tx =
-        new OTransactionOptimisticServer(
-            connection.getDatabase(),
-            request.getTxId(),
-            request.getOperations(),
-            request.getIndexChanges());
+    var database = connection.getDatabase();
+    var recordOperations = request.getOperations();
+
+    var indexChanges = request.getIndexChanges();
+    if (!indexChanges.isEmpty()) {
+      throw new ODatabaseException("Manual indexes are not supported");
+    }
+    var tx = database.getTransaction();
+
+    if (tx.isActive()) {
+      if (tx.getId() != request.getTxId()) {
+        throw new ODatabaseException(
+            "Transaction id mismatch, expected " + tx.getId() + " but got " + request.getTxId());
+      }
+      if (!(tx instanceof OTransactionOptimisticServer serverTransaction)) {
+        throw new ODatabaseException("Non-server based transaction is active");
+      }
+      try {
+        serverTransaction.mergeReceivedTransaction(recordOperations);
+      } catch (final ORecordNotFoundException e) {
+        throw e.getCause() instanceof OOfflineClusterException
+            ? (OOfflineClusterException) e.getCause()
+            : e;
+      }
+
+      return new OBeginTransactionResponse(
+          tx.getId(), serverTransaction.getTxGeneratedRealRecordIdMap());
+    }
+
+    var serverTransaction =
+        doExecuteBeginTransaction(request.getTxId(), database, recordOperations);
+    return new OBeginTransactionResponse(
+        tx.getId(), serverTransaction.getTxGeneratedRealRecordIdMap());
+  }
+
+  private static OTransactionOptimisticServer doExecuteBeginTransaction(
+      int txId,
+      ODatabaseDocumentInternal database,
+      List<ORecordOperationRequest> recordOperations) {
+    database.begin(new OTransactionOptimisticServer(database, txId));
+    var serverTransaction = (OTransactionOptimisticServer) database.getTransaction();
+
     try {
-      connection.getDatabase().rawBegin(tx);
+      serverTransaction.mergeReceivedTransaction(recordOperations);
     } catch (final ORecordNotFoundException e) {
       throw e.getCause() instanceof OOfflineClusterException
           ? (OOfflineClusterException) e.getCause()
           : e;
     }
-
-    return new OBeginTransactionResponse(tx.getId(), tx.getUpdatedRids());
-  }
-
-  @Override
-  public OBinaryResponse executeCommit37(OCommit37Request request) {
-    ODatabaseDocumentInternal database = connection.getDatabase();
-    final OTransactionOptimisticServer tx;
-    if (request.isHasContent()) {
-      tx =
-          new OTransactionOptimisticServer(
-              database, request.getTxId(), request.getOperations(), request.getIndexChanges());
-      try {
-        database.rawBegin(tx);
-      } catch (final ORecordNotFoundException e) {
-        throw e.getCause() instanceof OOfflineClusterException
-            ? (OOfflineClusterException) e.getCause()
-            : e;
-      }
-    } else {
-      if (database.getTransaction().isActive()) {
-        tx = (OTransactionOptimisticServer) database.getTransaction();
-      } else {
-        throw new ODatabaseException("No transaction active on the server, send full content");
-      }
-    }
-    tx.assignClusters();
-
-    database.commit();
-    List<OCommit37Response.OCreatedRecordResponse> createdRecords =
-        new ArrayList<>(tx.getCreatedRecords().size());
-    for (var entry : tx.getCreatedRecords().entrySet()) {
-      var record = entry.getValue();
-      createdRecords.add(
-          new OCommit37Response.OCreatedRecordResponse(
-              (ORecordId) entry.getKey(), (ORecordId) record.getIdentity(), record.getVersion()));
-    }
-
-    List<OCommit37Response.OUpdatedRecordResponse> updatedRecords =
-        new ArrayList<>(tx.getUpdatedRecords().size());
-    for (var entry : tx.getUpdatedRecords().entrySet()) {
-      updatedRecords.add(
-          new OCommit37Response.OUpdatedRecordResponse(
-              entry.getKey(), entry.getValue().getVersion()));
-    }
-
-    List<OCommit37Response.ODeletedRecordResponse> deletedRecords =
-        new ArrayList<>(tx.getDeletedRecord().size());
-
-    for (ORID id : tx.getDeletedRecord()) {
-      deletedRecords.add(new OCommit37Response.ODeletedRecordResponse(id));
-    }
-
-    OSBTreeCollectionManager collectionManager = database.getSbTreeCollectionManager();
-    Map<UUID, OBonsaiCollectionPointer> changedIds = null;
-    if (collectionManager != null) {
-      changedIds = new HashMap<>(collectionManager.changedIds());
-      collectionManager.clearChangedIds();
-    }
-
-    return new OCommit37Response(createdRecords, updatedRecords, deletedRecords, changedIds);
+    return serverTransaction;
   }
 
   @Override
   public OBinaryResponse executeCommit38(OCommit38Request request) {
-    ODatabaseDocumentInternal database = connection.getDatabase();
-    final OTransactionOptimisticServer tx;
-    if (request.isHasContent()) {
-      tx =
-          new OTransactionOptimisticServer(
-              database, request.getTxId(), request.getOperations(), request.getIndexChanges());
+    var recordOperations = request.getOperations();
+    var indexChanges = request.getIndexChanges();
+
+    if (!indexChanges.isEmpty()) {
+      throw new ODatabaseException("Manual indexes are not supported");
+    }
+
+    var database = connection.getDatabase();
+    var tx = database.getTransaction();
+
+    if (!tx.isActive()) {
+      tx = doExecuteBeginTransaction(request.getTxId(), database, recordOperations);
+    }
+
+    if (tx.getId() != request.getTxId()) {
+      throw new ODatabaseException(
+          "Invalid transaction id, expected " + tx.getId() + " but received " + request.getTxId());
+    }
+
+    if (!(tx instanceof OTransactionOptimisticServer serverTransaction)) {
+      throw new ODatabaseException(
+          "Invalid transaction type,"
+              + " expected OTransactionOptimisticServer but found "
+              + tx.getClass().getName());
+    }
+
+    try {
       try {
-        database.rawBegin(tx);
+        serverTransaction.mergeReceivedTransaction(recordOperations);
       } catch (final ORecordNotFoundException e) {
         throw e.getCause() instanceof OOfflineClusterException
             ? (OOfflineClusterException) e.getCause()
             : e;
       }
-    } else {
-      if (database.getTransaction().isActive()) {
-        tx = (OTransactionOptimisticServer) database.getTransaction();
-      } else {
-        throw new ODatabaseException("No transaction active on the server, send full content");
+      try {
+        try {
+          database.commit();
+        } catch (final ORecordNotFoundException e) {
+          throw e.getCause() instanceof OOfflineClusterException
+              ? (OOfflineClusterException) e.getCause()
+              : e;
+        }
+        final OSBTreeCollectionManager collectionManager =
+            connection.getDatabase().getSbTreeCollectionManager();
+        Map<UUID, OBonsaiCollectionPointer> changedIds = null;
+
+        if (collectionManager != null) {
+          changedIds = collectionManager.changedIds();
+        }
+
+        return new OCommit37Response(serverTransaction.getTxGeneratedRealRecordIdMap(), changedIds);
+      } catch (final RuntimeException e) {
+        if (serverTransaction.isActive()) {
+          database.rollback(true);
+        }
+
+        final OSBTreeCollectionManager collectionManager =
+            connection.getDatabase().getSbTreeCollectionManager();
+        if (collectionManager != null) {
+          collectionManager.clearChangedIds();
+        }
+
+        throw e;
       }
+    } catch (final RuntimeException e) {
+      // Error during TX initialization, possibly index constraints violation.
+      if (serverTransaction.isActive()) {
+        database.rollback(true);
+      }
+      throw e;
     }
-    tx.assignClusters();
+  }
 
-    database.commit();
-    List<OCommit37Response.OCreatedRecordResponse> createdRecords =
-        new ArrayList<>(tx.getCreatedRecords().size());
-    for (var entry : tx.getCreatedRecords().entrySet()) {
-      var record = entry.getValue();
-      createdRecords.add(
-          new OCommit37Response.OCreatedRecordResponse(
-              (ORecordId) entry.getKey(), (ORecordId) record.getIdentity(), record.getVersion()));
-    }
+  @Override
+  public OBinaryResponse executeCommit37(OCommit37Request request) {
+    var recordOperations = request.getOperations();
+    var indexChanges = request.getIndexChanges();
 
-    List<OCommit37Response.OUpdatedRecordResponse> updatedRecords =
-        new ArrayList<>(tx.getUpdatedRecords().size());
-    for (var entry : tx.getUpdatedRecords().entrySet()) {
-      updatedRecords.add(
-          new OCommit37Response.OUpdatedRecordResponse(
-              entry.getKey(), entry.getValue().getVersion()));
+    if (indexChanges != null && !indexChanges.isEmpty()) {
+      throw new ODatabaseException("Manual indexes are not supported");
     }
 
-    List<OCommit37Response.ODeletedRecordResponse> deletedRecords =
-        new ArrayList<>(tx.getDeletedRecord().size());
+    var database = connection.getDatabase();
+    var tx = database.getTransaction();
 
-    for (ORID id : tx.getDeletedRecord()) {
-      deletedRecords.add(new OCommit37Response.ODeletedRecordResponse(id));
+    if (!tx.isActive()) {
+      tx = doExecuteBeginTransaction(request.getTxId(), database, recordOperations);
     }
 
-    OSBTreeCollectionManager collectionManager = database.getSbTreeCollectionManager();
-    Map<UUID, OBonsaiCollectionPointer> changedIds = null;
-    if (collectionManager != null) {
-      changedIds = new HashMap<>(collectionManager.changedIds());
-      collectionManager.clearChangedIds();
+    if (tx.getId() != request.getTxId()) {
+      throw new ODatabaseException(
+          "Invalid transaction id, expected " + tx.getId() + " but received " + request.getTxId());
     }
 
-    return new OCommit37Response(createdRecords, updatedRecords, deletedRecords, changedIds);
+    if (!(tx instanceof OTransactionOptimisticServer serverTransaction)) {
+      throw new ODatabaseException(
+          "Invalid transaction type,"
+              + " expected OTransactionOptimisticServer but found "
+              + tx.getClass().getName());
+    }
+
+    try {
+      try {
+        serverTransaction.mergeReceivedTransaction(recordOperations);
+      } catch (final ORecordNotFoundException e) {
+        throw e.getCause() instanceof OOfflineClusterException
+            ? (OOfflineClusterException) e.getCause()
+            : e;
+      }
+      try {
+        try {
+          database.commit();
+        } catch (final ORecordNotFoundException e) {
+          throw e.getCause() instanceof OOfflineClusterException
+              ? (OOfflineClusterException) e.getCause()
+              : e;
+        }
+        final OSBTreeCollectionManager collectionManager =
+            connection.getDatabase().getSbTreeCollectionManager();
+        Map<UUID, OBonsaiCollectionPointer> changedIds = null;
+
+        if (collectionManager != null) {
+          changedIds = collectionManager.changedIds();
+        }
+
+        return new OCommit37Response(serverTransaction.getTxGeneratedRealRecordIdMap(), changedIds);
+      } catch (final RuntimeException e) {
+        if (serverTransaction.isActive()) {
+          database.rollback(true);
+        }
+
+        final OSBTreeCollectionManager collectionManager =
+            connection.getDatabase().getSbTreeCollectionManager();
+        if (collectionManager != null) {
+          collectionManager.clearChangedIds();
+        }
+
+        throw e;
+      }
+    } catch (final RuntimeException e) {
+      // Error during TX initialization, possibly index constraints violation.
+      if (serverTransaction.isActive()) {
+        database.rollback(true);
+      }
+      throw e;
+    }
   }
 
   @Override
@@ -1587,9 +1561,18 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     if (!database.getTransaction().isActive()) {
       throw new ODatabaseException("No Transaction Active");
     }
+
     OTransactionOptimistic tx = (OTransactionOptimistic) database.getTransaction();
+    if (tx.getId() != request.getTxId()) {
+      throw new ODatabaseException(
+          "Invalid transaction id, expected " + tx.getId() + " but received " + request.getTxId());
+    }
+
     return new OFetchTransactionResponse(
-        tx.getId(), tx.getRecordOperations(), tx.getIndexOperations(), tx.getUpdatedRids());
+        tx.getId(),
+        tx.getRecordOperations(),
+        tx.getIndexOperations(),
+        tx.getTxGeneratedRealRecordIdMap());
   }
 
   @Override
@@ -1599,11 +1582,16 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
       throw new ODatabaseException("No Transaction Active");
     }
     OTransactionOptimistic tx = (OTransactionOptimistic) database.getTransaction();
+    if (tx.getId() != request.getTxId()) {
+      throw new ODatabaseException(
+          "Invalid transaction id, expected " + tx.getId() + " but received " + request.getTxId());
+    }
+
     return new OFetchTransaction38Response(
         tx.getId(),
         tx.getRecordOperations(),
         tx.getIndexOperations(),
-        tx.getUpdatedRids(),
+        tx.getTxGeneratedRealRecordIdMap(),
         database);
   }
 

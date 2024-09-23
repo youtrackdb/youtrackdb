@@ -1295,7 +1295,7 @@ public abstract class OrientBaseGraph extends OrientConfigurableGraph
    */
   public ODatabaseDocument getRawGraph() {
     if (getDatabase() instanceof ODatabaseDocumentTx) {
-      return (ODatabaseDocumentTx) getDatabase();
+      return getDatabase();
     } else {
       return ODatabaseDocumentTxInternal.wrap(getDatabase());
     }
@@ -2050,7 +2050,7 @@ public abstract class OrientBaseGraph extends OrientConfigurableGraph
                 msg.toString());
       }
       committed = raw.getTransaction().amountOfNestedTxs();
-      raw.commit(true);
+      raw.commit();
     } else {
       committed = 0;
     }

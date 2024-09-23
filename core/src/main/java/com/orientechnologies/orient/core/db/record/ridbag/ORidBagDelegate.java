@@ -45,8 +45,6 @@ public interface ORidBagDelegate
 
   int getSerializedSize();
 
-  int getSerializedSize(byte[] stream, int offset);
-
   /**
    * Writes content of bag to stream.
    *
@@ -73,11 +71,11 @@ public interface ORidBagDelegate
    */
   boolean contains(OIdentifiable identifiable);
 
-  public void setOwner(ORecordElement owner);
+  void setOwner(ORecordElement owner);
 
-  public ORecordElement getOwner();
+  ORecordElement getOwner();
 
-  public String toString();
+  String toString();
 
   NavigableMap<OIdentifiable, Change> getChanges();
 

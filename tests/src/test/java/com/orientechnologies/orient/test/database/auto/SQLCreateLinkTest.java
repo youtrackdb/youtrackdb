@@ -32,6 +32,7 @@ public class SQLCreateLinkTest extends DocumentDBBaseTest {
   @Test
   public void createLinktest() {
     database.command("CREATE CLASS POST").close();
+    database.command("CREATE PROPERTY POST.comments LINKSET").close();
     database.command("INSERT INTO POST (id, title) VALUES ( 10, 'NoSQL movement' )").close();
     database.command("INSERT INTO POST (id, title) VALUES ( 20, 'New OrientDB' )").close();
 

@@ -9,8 +9,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by Anders Heintz on 20/06/15. */
+/**
+ * Created by Anders Heintz on 20/06/15.
+ */
 public class OObjectLazyListTest {
+
   private OObjectDatabaseTx databaseTx;
   private int count;
 
@@ -31,10 +34,13 @@ public class OObjectLazyListTest {
 
   @Test
   public void positionTest() {
+    databaseTx.begin();
     EntityObjectWithList listObject = getTestObject();
 
     listObject = databaseTx.save(listObject);
+    databaseTx.commit();
 
+    databaseTx.begin();
     EntityObject newObject = new EntityObject();
     newObject.setFieldValue("NewObject");
     EntityObject newObject2 = new EntityObject();
@@ -43,6 +49,7 @@ public class OObjectLazyListTest {
     listObject.getEntityObjects().add(listObject.getEntityObjects().size(), newObject2);
 
     listObject = databaseTx.save(listObject);
+    databaseTx.commit();
 
     assert (listObject.getEntityObjects().get(0).getFieldValue().equals("NewObject"));
     assert (listObject
@@ -59,10 +66,13 @@ public class OObjectLazyListTest {
 
   @Test
   public void stream() {
+    databaseTx.begin();
     EntityObjectWithList listObject = getTestObject();
 
     listObject = databaseTx.save(listObject);
+    databaseTx.commit();
 
+    databaseTx.begin();
     EntityObject newObject = new EntityObject();
     newObject.setFieldValue("NewObject");
     EntityObject newObject2 = new EntityObject();
@@ -71,6 +81,7 @@ public class OObjectLazyListTest {
     listObject.getEntityObjects().add(listObject.getEntityObjects().size(), newObject2);
 
     listObject = databaseTx.save(listObject);
+    databaseTx.commit();
     count = 0;
     listObject.getEntityObjects().stream()
         .forEach(
@@ -106,6 +117,7 @@ public class OObjectLazyListTest {
   }
 
   private static class EntityObjectWithList {
+
     private List<EntityObject> entityObjects = new ArrayList<EntityObject>();
 
     public EntityObjectWithList() {}
@@ -120,6 +132,7 @@ public class OObjectLazyListTest {
   }
 
   private static class EntityObject {
+
     private String fieldValue = null;
 
     public EntityObject() {}

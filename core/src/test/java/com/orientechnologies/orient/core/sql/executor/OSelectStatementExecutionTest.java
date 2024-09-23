@@ -145,11 +145,14 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     String className = "TestSelectFullScan1";
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 100000; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
+      db.commit();
     }
+
     OResultSet result = db.query("select from " + className);
     for (int i = 0; i < 100000; i++) {
       Assert.assertTrue(result.hasNext());
@@ -167,10 +170,12 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     String className = "testSelectFullScanOrderByRidAsc";
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 100000; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
+      db.commit();
     }
     OResultSet result = db.query("select from " + className + " ORDER BY @rid ASC");
     printExecutionPlan(result);
@@ -196,11 +201,14 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     String className = "testSelectFullScanOrderByRidDesc";
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 100000; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
+      db.commit();
     }
+
     OResultSet result = db.query("select from " + className + " ORDER BY @rid DESC");
     printExecutionPlan(result);
     OIdentifiable lastItem = null;
@@ -225,10 +233,12 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     String className = "testSelectFullScanLimit1";
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 300; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
+      db.commit();
     }
     OResultSet result = db.query("select from " + className + " limit 10");
     printExecutionPlan(result);
@@ -248,10 +258,12 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     String className = "testSelectFullScanSkipLimit1";
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 300; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
+      db.commit();
     }
     OResultSet result = db.query("select from " + className + " skip 100 limit 10");
     printExecutionPlan(result);
@@ -271,10 +283,12 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     String className = "testSelectOrderByDesc";
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 30; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
+      db.commit();
     }
     OResultSet result = db.query("select from " + className + " order by surname desc");
     printExecutionPlan(result);
@@ -299,10 +313,12 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     String className = "testSelectOrderByAsc";
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 30; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
+      db.commit();
     }
     OResultSet result = db.query("select from " + className + " order by surname asc");
     printExecutionPlan(result);
@@ -327,12 +343,14 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     String className = "testSelectOrderByMassiveAsc";
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 100000; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i % 100);
       doc.save();
+      db.commit();
     }
-    long begin = System.nanoTime();
+
     OResultSet result = db.query("select from " + className + " order by surname asc limit 100");
     printExecutionPlan(result);
 
@@ -351,12 +369,14 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     String className = "testSelectOrderWithProjections";
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 100; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 10);
       doc.setProperty("surname", "surname" + i % 10);
       doc.save();
+      db.commit();
     }
-    long begin = System.nanoTime();
+
     OResultSet result = db.query("select name from " + className + " order by surname asc");
     printExecutionPlan(result);
 
@@ -381,12 +401,14 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     String className = "testSelectOrderWithProjections2";
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 100; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 10);
       doc.setProperty("surname", "surname" + i % 10);
       doc.save();
+      db.commit();
     }
-    long begin = System.nanoTime();
+
     OResultSet result =
         db.query("select name from " + className + " order by name asc, surname asc");
     printExecutionPlan(result);
@@ -411,12 +433,16 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testSelectFullScanWithFilter1() {
     String className = "testSelectFullScanWithFilter1";
     db.getMetadata().getSchema().createClass(className);
+
     for (int i = 0; i < 300; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
+      db.commit();
     }
+
     OResultSet result =
         db.query("select from " + className + " where name = 'name1' or name = 'name7' ");
     printExecutionPlan(result);
@@ -437,10 +463,12 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     String className = "testSelectFullScanWithFilter2";
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 300; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
+      db.commit();
     }
     OResultSet result = db.query("select from " + className + " where name <> 'name1' ");
     printExecutionPlan(result);
@@ -461,10 +489,12 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     String className = "testProjections";
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 300; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
+      db.commit();
     }
     OResultSet result = db.query("select name from " + className);
     printExecutionPlan(result);
@@ -490,9 +520,12 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     db.getMetadata().getSchema().createClass(className);
 
     for (int i = 0; i < 7; i++) {
+      db.begin();
       ODocument doc = new ODocument(className);
       doc.save();
+      db.commit();
     }
+
     try {
       OResultSet result = db.query("select count(*) from " + className);
       printExecutionPlan(result);
@@ -515,9 +548,11 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     db.getMetadata().getSchema().createClass(className);
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = new ODocument(className);
       doc.setProperty("name", "name" + (i % 5));
       doc.save();
+      db.commit();
     }
     try {
       OResultSet result = db.query("select count(*), name from " + className + " group by name");
@@ -542,9 +577,11 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     String className = "testCountStarEmptyNoIndex";
     db.getMetadata().getSchema().createClass(className);
 
+    db.begin();
     OElement elem = db.newElement(className);
     elem.setProperty("name", "bar");
     elem.save();
+    db.commit();
 
     try {
       OResultSet result = db.query("select count(*) from " + className + " where name = 'foo'");
@@ -567,9 +604,11 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     String className = "testCountStarEmptyNoIndexWithAlias";
     db.getMetadata().getSchema().createClass(className);
 
+    db.begin();
     OElement elem = db.newElement(className);
     elem.setProperty("name", "bar");
     elem.save();
+    db.commit();
 
     try {
       OResultSet result =
@@ -657,12 +696,16 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testAggregateSum() {
     String className = "testAggregateSum";
     db.getMetadata().getSchema().createClass(className);
+
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("val", i);
       doc.save();
+      db.commit();
     }
+
     OResultSet result = db.query("select sum(val) from " + className);
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
@@ -678,10 +721,12 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     String className = "testAggregateSumGroupBy";
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("type", i % 2 == 0 ? "even" : "odd");
       doc.setProperty("val", i);
       doc.save();
+      db.commit();
     }
     OResultSet result = db.query("select sum(val), type from " + className + " group by type");
     printExecutionPlan(result);
@@ -710,10 +755,12 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     String className = "testAggregateSumMaxMinGroupBy";
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("type", i % 2 == 0 ? "even" : "odd");
       doc.setProperty("val", i);
       doc.save();
+      db.commit();
     }
     OResultSet result =
         db.query("select sum(val), max(val), min(val), type from " + className + " group by type");
@@ -747,10 +794,12 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     String className = "testAggregateSumNoGroupByInProjection";
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("type", i % 2 == 0 ? "even" : "odd");
       doc.setProperty("val", i);
       doc.save();
+      db.commit();
     }
     OResultSet result = db.query("select sum(val) from " + className + " group by type");
     printExecutionPlan(result);
@@ -778,10 +827,12 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     String className = "testAggregateSumNoGroupByInProjection2";
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("type", i % 2 == 0 ? "dd1" : "dd2");
       doc.setProperty("val", i);
       doc.save();
+      db.commit();
     }
     OResultSet result =
         db.query("select sum(val) from " + className + " group by type.substring(0,1)");
@@ -806,10 +857,13 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     String targetClusterName = db.getClusterNameById(targetCluster);
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("val", i);
       doc.save(targetClusterName);
+      db.commit();
     }
+
     OResultSet result = db.query("select from cluster:" + targetClusterName);
     printExecutionPlan(result);
     int sum = 0;
@@ -834,9 +888,11 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     String targetClusterName = db.getClusterNameById(targetCluster);
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("val", i);
       doc.save(targetClusterName);
+      db.commit();
     }
     OResultSet result =
         db.query("select from cluster:" + targetClusterName + " order by @rid desc");
@@ -862,9 +918,11 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     String targetClusterName = db.getClusterNameById(targetCluster);
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("val", i);
       doc.save(targetClusterName);
+      db.commit();
     }
     OResultSet result = db.query("select from cluster:" + targetClusterName + " order by @rid asc");
     printExecutionPlan(result);
@@ -895,14 +953,19 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     String targetClusterName2 = db.getClusterNameById(targetCluster2);
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("val", i);
       doc.save(targetClusterName);
+      db.commit();
     }
+
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("val", i);
       doc.save(targetClusterName2);
+      db.commit();
     }
 
     OResultSet result =
@@ -929,12 +992,14 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testQueryAsTarget() {
     String className = "testQueryAsTarget";
     OSchema schema = db.getMetadata().getSchema();
-    OClass clazz = schema.createClass(className);
+    schema.createClass(className);
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("val", i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result =
@@ -1051,8 +1116,10 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
 
   @Test
   public void testFetchFromSingleRid3() {
+    db.begin();
     ODocument document = new ODocument();
     document.save(db.getClusterNameById(0));
+    db.commit();
 
     OResultSet result = db.query("select from [#0:1, #0:2]");
     printExecutionPlan(result);
@@ -1066,8 +1133,10 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
 
   @Test
   public void testFetchFromSingleRid4() {
+    db.begin();
     ODocument document = new ODocument();
     document.save(db.getClusterNameById(0));
+    db.commit();
 
     OResultSet result = db.query("select from [#0:1, #0:2, #0:100000]");
     printExecutionPlan(result);
@@ -1087,9 +1156,11 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     clazz.createIndex(className + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result = db.query("select from " + className + " where name = 'name2'");
@@ -1122,9 +1193,11 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     clazz.createIndex(indexName, OClass.INDEX_TYPE.NOTUNIQUE, "name");
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result = db.query("select from index:" + indexName + " where key = 'name2'");
@@ -1158,15 +1231,19 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     clazzExt.createIndex(classNameExt + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
 
     for (int i = 0; i < 5; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
+      db.commit();
     }
 
     for (int i = 5; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(classNameExt);
       doc.setProperty("name", "name" + i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result = db.query("select from " + classNameExt + " where name = 'name6'");
@@ -1200,10 +1277,12 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     clazz.createIndex(className + ".surname", OClass.INDEX_TYPE.NOTUNIQUE, "surname");
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result =
@@ -1242,10 +1321,12 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     clazz.createIndex(className + ".surname", OClass.INDEX_TYPE.NOTUNIQUE, "surname");
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result =
@@ -1269,11 +1350,13 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     clazz.createIndex(className + ".surname", OClass.INDEX_TYPE.NOTUNIQUE, "surname");
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result =
@@ -1306,11 +1389,13 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     clazz.createIndex(className + ".surname", OClass.INDEX_TYPE.NOTUNIQUE, "surname");
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result =
@@ -1343,11 +1428,13 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     clazz.createIndex(className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name", "surname");
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result =
@@ -1374,11 +1461,13 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     clazz.createIndex(className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name", "surname");
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result =
@@ -1398,11 +1487,13 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     clazz.createIndex(className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name", "surname");
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result =
@@ -1426,11 +1517,13 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     clazz.createIndex(className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name", "surname");
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result =
@@ -1450,11 +1543,13 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     clazz.createIndex(className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name", "surname");
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result =
@@ -1478,11 +1573,13 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     clazz.createIndex(className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name", "surname");
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result = db.query("select from " + className + " where name > 'name3' ");
@@ -1505,11 +1602,13 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     clazz.createIndex(className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name", "surname");
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result = db.query("select from " + className + " where name >= 'name3' ");
@@ -1531,11 +1630,13 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     clazz.createIndex(className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name", "surname");
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result = db.query("select from " + className + " where name < 'name3' ");
@@ -1557,11 +1658,13 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     clazz.createIndex(className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name", "surname");
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result = db.query("select from " + className + " where name <= 'name3' ");
@@ -1583,11 +1686,13 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     clazz.createIndex(className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name", "surname");
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result =
@@ -1613,11 +1718,13 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     clazz.createIndex(className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name", "surname");
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result =
@@ -1644,11 +1751,13 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
         className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX, "name", "surname");
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result =
@@ -1677,11 +1786,13 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
         className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX, "name", "surname");
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result =
@@ -1709,6 +1820,7 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
 
     int count = 10;
     for (int i = 0; i < count; i++) {
+      db.begin();
       ODocument doc = db.newInstance(childClassName);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
@@ -1718,6 +1830,7 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
       ODocument parent = new ODocument(parentClassName);
       parent.setProperty("linked", doc);
       parent.save();
+      db.commit();
     }
 
     OResultSet result = db.query("select expand(linked) from " + parentClassName);
@@ -1744,15 +1857,19 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     for (int i = 0; i < count; i++) {
       List coll = new ArrayList<>();
       for (int j = 0; j < collSize; j++) {
+        db.begin();
         ODocument doc = db.newInstance(childClassName);
         doc.setProperty("name", "name" + i);
         doc.save();
         coll.add(doc);
+        db.commit();
       }
 
+      db.begin();
       ODocument parent = new ODocument(parentClassName);
       parent.setProperty("linked", coll);
       parent.save();
+      db.commit();
     }
 
     OResultSet result = db.query("select expand(linked) from " + parentClassName);
@@ -1779,15 +1896,19 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     for (int i = 0; i < count; i++) {
       List coll = new ArrayList<>();
       for (int j = 0; j < collSize; j++) {
+        db.begin();
         ODocument doc = db.newInstance(childClassName);
         doc.setProperty("name", "name" + j);
         doc.save();
         coll.add(doc);
+        db.commit();
       }
 
+      db.begin();
       ODocument parent = new ODocument(parentClassName);
       parent.setProperty("linked", coll);
       parent.save();
+      db.commit();
     }
 
     OResultSet result =
@@ -1816,10 +1937,12 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     clazz.createProperty("surname", OType.STRING);
 
     for (int i = 0; i < 30; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 10);
       doc.setProperty("surname", "surname" + i % 10);
       doc.save();
+      db.commit();
     }
 
     OResultSet result = db.query("select distinct name, surname from " + className);
@@ -1842,10 +1965,12 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     clazz.createProperty("surname", OType.STRING);
 
     for (int i = 0; i < 30; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 10);
       doc.setProperty("surname", "surname" + i % 10);
       doc.save();
+      db.commit();
     }
 
     OResultSet result = db.query("select distinct(name) from " + className);
@@ -1918,10 +2043,12 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     db.getMetadata().getSchema().createClass(className);
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result =
@@ -1948,10 +2075,12 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     db.getMetadata().getSchema().createClass(className);
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result =
@@ -1978,10 +2107,12 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     db.getMetadata().getSchema().createClass(className);
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result =
@@ -2009,10 +2140,12 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     db.getMetadata().getSchema().createClass(className);
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result =
@@ -2043,6 +2176,7 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
 
     OClass vertexClass = db.createVertexClass(vertexClassName);
 
+    db.begin();
     OVertex doc1 = db.newVertex(vertexClass);
     doc1.setProperty("name", "A");
     doc1.save();
@@ -2050,11 +2184,16 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     OVertex doc2 = db.newVertex(vertexClass);
     doc2.setProperty("name", "B");
     doc2.save();
+    db.commit();
+
     ORID doc2Id = doc2.getIdentity();
 
     OClass edgeClass = db.createEdgeClass(edgeClassName);
 
+    db.begin();
     db.newEdge(doc1, doc2, edgeClass).save();
+    db.commit();
+
     String queryString =
         "SELECT $x, name FROM " + vertexClassName + " let $x = out(\"" + edgeClassName + "\")";
     OResultSet resultSet = db.query(queryString);
@@ -2080,11 +2219,14 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     db.getMetadata().getSchema().createClass(className);
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("i", i);
       doc.setProperty("iSeq", new int[] {i, 2 * i, 4 * i});
       doc.save();
+      db.commit();
     }
+
     OResultSet result =
         db.query(
             "select $current.*, $b.*, $b.@class from (select 1 as sqa, @class as sqc from "
@@ -2116,10 +2258,12 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     db.getMetadata().getSchema().createClass(className);
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("i", i);
       doc.setProperty("iSeq", new int[] {i, 2 * i, 4 * i});
       doc.save();
+      db.commit();
     }
 
     OResultSet result = db.query("select i, iSeq from " + className + " unwind iSeq");
@@ -2144,6 +2288,7 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     db.getMetadata().getSchema().createClass(className);
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("i", i);
       List<Integer> iSeq = new ArrayList<>();
@@ -2152,6 +2297,7 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
       iSeq.add(i * 4);
       doc.setProperty("iSeq", iSeq);
       doc.save();
+      db.commit();
     }
 
     OResultSet result = db.query("select i, iSeq from " + className + " unwind iSeq");
@@ -2184,15 +2330,19 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     childClass2.createIndex(child2 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(child1);
       doc.setProperty("name", "name" + i);
       doc.save();
+      db.commit();
     }
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(child2);
       doc.setProperty("name", "name" + i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result = db.query("select from " + parent + " where name = 'name1'");
@@ -2222,17 +2372,21 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     childClass2.createIndex(child2 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(child1);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
+      db.commit();
     }
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(child2);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result =
@@ -2262,17 +2416,21 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     childClass1.createIndex(child1 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(child1);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
+      db.commit();
     }
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(child2);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result =
@@ -2303,22 +2461,28 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     childClass1.createIndex(child1 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
     childClass2.createIndex(child2 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
 
+    db.begin();
     ODocument parentdoc = db.newInstance(parent);
     parentdoc.setProperty("name", "foo");
     parentdoc.save();
+    db.commit();
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(child1);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
+      db.commit();
     }
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(child2);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result =
@@ -2357,24 +2521,30 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     childClass2_2.createIndex(child2_2 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(child1);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
+      db.commit();
     }
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(child2_1);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
+      db.commit();
     }
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(child2_2);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result =
@@ -2409,24 +2579,30 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     childClass2.createIndex(child2 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(child1);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
+      db.commit();
     }
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(child2);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
+      db.commit();
     }
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(child12);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result =
@@ -2458,10 +2634,12 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
         .close();
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result =
@@ -2504,10 +2682,12 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
         .close();
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result =
@@ -2550,10 +2730,12 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
         .close();
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result =
@@ -2597,10 +2779,12 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
         .close();
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result =
@@ -2645,10 +2829,12 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
         .close();
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result =
@@ -2691,10 +2877,12 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
         .close();
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result =
@@ -2737,10 +2925,12 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
         .close();
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result =
@@ -2780,10 +2970,12 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
         .close();
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result =
@@ -2824,10 +3016,12 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
         .close();
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result = db.query("select from " + className + " order by name , surname ASC");
@@ -2866,10 +3060,12 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
         .close();
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result = db.query("select from " + className + " order by name desc, surname desc");
@@ -2908,10 +3104,12 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
         .close();
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result = db.query("select from " + className + " order by name asc, surname desc");
@@ -2950,10 +3148,12 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
         .close();
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result = db.query("select from " + className + " order by name");
@@ -2988,9 +3188,11 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     String className = "testSelectFromStringParam";
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
+      db.commit();
     }
     OResultSet result = db.query("select from ?", className);
     printExecutionPlan(result);
@@ -3010,9 +3212,11 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     String className = "testSelectFromStringNamedParam";
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
+      db.commit();
     }
     Map<Object, Object> params = new HashMap<>();
     params.put("target", className);
@@ -3033,11 +3237,15 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testMatches() {
     String className = "testMatches";
     db.getMetadata().getSchema().createClass(className);
+
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
+      db.commit();
     }
+
     OResultSet result = db.query("select from " + className + " where name matches 'name1'");
     printExecutionPlan(result);
 
@@ -3056,9 +3264,11 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     String className = "testRange";
     db.getMetadata().getSchema().createClass(className);
 
+    db.begin();
     ODocument doc = db.newInstance(className);
     doc.setProperty("name", new String[] {"a", "b", "c", "d"});
     doc.save();
+    db.commit();
 
     OResultSet result = db.query("select name[0..3] as names from " + className);
     printExecutionPlan(result);
@@ -3092,9 +3302,11 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     String className = "testRangeParams1";
     db.getMetadata().getSchema().createClass(className);
 
+    db.begin();
     ODocument doc = db.newInstance(className);
     doc.setProperty("name", new String[] {"a", "b", "c", "d"});
     doc.save();
+    db.commit();
 
     OResultSet result = db.query("select name[?..?] as names from " + className, 0, 3);
     printExecutionPlan(result);
@@ -3128,9 +3340,11 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     String className = "testRangeParams2";
     db.getMetadata().getSchema().createClass(className);
 
+    db.begin();
     ODocument doc = db.newInstance(className);
     doc.setProperty("name", new String[] {"a", "b", "c", "d"});
     doc.save();
+    db.commit();
 
     Map<String, Object> params = new HashMap<>();
     params.put("a", 0);
@@ -3167,9 +3381,11 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     String className = "testEllipsis";
     db.getMetadata().getSchema().createClass(className);
 
+    db.begin();
     ODocument doc = db.newInstance(className);
     doc.setProperty("name", new String[] {"a", "b", "c", "d"});
     doc.save();
+    db.commit();
 
     OResultSet result = db.query("select name[0...2] as names from " + className);
     printExecutionPlan(result);
@@ -3219,6 +3435,8 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testNestedProjections1() {
     String className = "testNestedProjections1";
     db.command("create class " + className).close();
+
+    db.begin();
     OElement elem1 = db.newElement(className);
     elem1.setProperty("name", "a");
     elem1.save();
@@ -3239,6 +3457,8 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     elem4.setProperty("elem3", elem3);
     elem4.save();
 
+    db.commit();
+
     OResultSet result =
         db.query(
             "select name, elem1:{*}, elem2:{!surname} from " + className + " where name = 'd'");
@@ -3257,6 +3477,8 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testSimpleCollectionFiltering() {
     String className = "testSimpleCollectionFiltering";
     db.command("create class " + className).close();
+
+    db.begin();
     OElement elem1 = db.newElement(className);
     List<String> coll = new ArrayList<>();
     coll.add("foo");
@@ -3264,6 +3486,7 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     coll.add("baz");
     elem1.setProperty("coll", coll);
     elem1.save();
+    db.commit();
 
     OResultSet result = db.query("select coll[='foo'] as filtered from " + className);
     Assert.assertTrue(result.hasNext());
@@ -3300,6 +3523,8 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testContaninsWithConversion() {
     String className = "testContaninsWithConversion";
     db.command("create class " + className).close();
+
+    db.begin();
     OElement elem1 = db.newElement(className);
     List<Long> coll = new ArrayList<>();
     coll.add(1L);
@@ -3315,6 +3540,7 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     coll.add(6L);
     elem2.setProperty("coll", coll);
     elem2.save();
+    db.commit();
 
     OResultSet result = db.query("select from " + className + " where coll contains 1");
     Assert.assertTrue(result.hasNext());
@@ -3429,9 +3655,11 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     Arrays.sort(clusterIds);
 
     for (int i = 0; i < clusterIds.length; i++) {
+      db.begin();
       OElement elem = db.newElement(className);
       elem.setProperty("cid", clusterIds[i]);
       elem.save(db.getClusterNameById(clusterIds[i]));
+      db.commit();
     }
 
     OResultSet result =
@@ -3464,9 +3692,11 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     Arrays.sort(clusterIds);
 
     for (int i = 0; i < clusterIds.length; i++) {
+      db.begin();
       OElement elem = db.newElement(className);
       elem.setProperty("cid", clusterIds[i]);
       elem.save(db.getClusterNameById(clusterIds[i]));
+      db.commit();
     }
 
     Map<String, Object> params = new HashMap<>();
@@ -3765,6 +3995,7 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     prop = clazz1.createProperty("next", OType.LINK, clazz2);
     prop.createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
 
+    db.begin();
     OElement elem3 = db.newElement(className3);
     elem3.setProperty("name", "John");
     elem3.save();
@@ -3781,6 +4012,7 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     elem1 = db.newElement(className1);
     elem1.setProperty("name", "wrong");
     elem1.save();
+    db.commit();
 
     try (OResultSet result =
         db.query("select from " + className1 + " where next.next.name = ?", "John")) {
@@ -3812,6 +4044,7 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     prop = clazz1.createProperty("next", OType.LINKSET, clazz2);
     prop.createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
 
+    db.begin();
     OElement elem3 = db.newElement(className3);
     elem3.setProperty("name", "John");
     elem3.save();
@@ -3837,6 +4070,7 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     elem1 = db.newElement(className1);
     elem1.setProperty("name", "wrong");
     elem1.save();
+    db.commit();
 
     try (OResultSet result =
         db.query("select from " + className1 + " where next.next.name CONTAINSANY ['John']")) {
@@ -3855,10 +4089,13 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     String className = "testQueryView_Class";
     String viewName = "testQueryView_View";
     db.createClass(className);
+
     for (int i = 0; i < 10; i++) {
+      db.begin();
       OElement elem = db.newElement(className);
       elem.setProperty("counter", i);
       elem.save();
+      db.commit();
     }
 
     OViewConfig cfg = new OViewConfig(viewName, "SELECT FROM " + className);
@@ -3900,11 +4137,13 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
         "CREATE INDEX " + className + ".themap ON " + className + "(themap by key) NOTUNIQUE");
 
     for (int i = 0; i < 100; i++) {
+      db.begin();
       Map<String, Object> theMap = new HashMap<>();
       theMap.put("key" + i, "val" + i);
       OElement elem1 = db.newElement(className);
       elem1.setProperty("themap", theMap);
       elem1.save();
+      db.commit();
     }
 
     try (OResultSet result =
@@ -3936,12 +4175,14 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
             + "(themap by key, thestring) NOTUNIQUE");
 
     for (int i = 0; i < 100; i++) {
+      db.begin();
       Map<String, Object> theMap = new HashMap<>();
       theMap.put("key" + i, "val" + i);
       OElement elem1 = db.newElement(className);
       elem1.setProperty("themap", theMap);
       elem1.setProperty("thestring", "thestring" + i);
       elem1.save();
+      db.commit();
     }
 
     try (OResultSet result =
@@ -3971,11 +4212,13 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
         "CREATE INDEX " + className + ".themap ON " + className + "(themap by value) NOTUNIQUE");
 
     for (int i = 0; i < 100; i++) {
+      db.begin();
       Map<String, Object> theMap = new HashMap<>();
       theMap.put("key" + i, "val" + i);
       OElement elem1 = db.newElement(className);
       elem1.setProperty("themap", theMap);
       elem1.save();
+      db.commit();
     }
 
     try (OResultSet result =
@@ -4191,10 +4434,12 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     String className = "testCountGroupBy";
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("type", i % 2 == 0 ? "even" : "odd");
       doc.setProperty("val", i);
       doc.save();
+      db.commit();
     }
     OResultSet result = db.query("select count(val) as count from " + className + " limit 3");
     printExecutionPlan(result);
@@ -4317,9 +4562,11 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     prop.createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       final ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
+      db.commit();
     }
     final OResultSet result = db.query("select from " + className + " WHERE name >= 'name5'");
     printExecutionPlan(result);
@@ -4340,9 +4587,11 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     prop.createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       final ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
+      db.commit();
     }
     final OResultSet result = db.query("select from " + className + " WHERE name <= 'name5'");
     printExecutionPlan(result);
@@ -4364,10 +4613,13 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     prop.createIndex(OClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX);
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       final ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
+      db.commit();
     }
+
     final OResultSet result = db.query("select from " + className + " WHERE name >= 'name5'");
     printExecutionPlan(result);
 
@@ -4397,6 +4649,7 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     c.createProperty("name", OType.STRING).createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
     d.createProperty("name", OType.STRING).createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
 
+    db.begin();
     OElement dDoc = db.newElement(d.getName());
     dDoc.setProperty("name", "foo");
     dDoc.save();
@@ -4413,6 +4666,8 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     OElement aDoc = db.newElement(a.getName());
     aDoc.setProperty("b", bDoc);
     aDoc.save();
+
+    db.commit();
 
     try (OResultSet rs =
         db.query(
@@ -4521,10 +4776,12 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testExclude() {
     String className = "TestExclude";
     db.getMetadata().getSchema().createClass(className);
+    db.begin();
     ODocument doc = db.newInstance(className);
     doc.setProperty("name", "foo");
     doc.setProperty("surname", "bar");
     doc.save();
+    db.commit();
 
     OResultSet result = db.query("select *, !surname from " + className);
     Assert.assertTrue(result.hasNext());
@@ -4541,6 +4798,8 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testOrderByLet() {
     String className = "testOrderByLet";
     db.getMetadata().getSchema().createClass(className);
+
+    db.begin();
     ODocument doc = db.newInstance(className);
     doc.setProperty("name", "abbb");
     doc.save();
@@ -4548,6 +4807,7 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     doc = db.newInstance(className);
     doc.setProperty("name", "baaa");
     doc.save();
+    db.commit();
 
     try (OResultSet result =
         db.query(

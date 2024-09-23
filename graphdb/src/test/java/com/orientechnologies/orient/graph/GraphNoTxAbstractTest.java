@@ -24,6 +24,7 @@ import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 import java.util.Locale;
 import java.util.Objects;
@@ -35,7 +36,7 @@ import org.junit.AfterClass;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public abstract class GraphNoTxAbstractTest {
-  protected static OrientGraphNoTx graph;
+  protected static OrientGraph graph;
   protected static OrientDB orientDB;
 
   public static ENV getEnvironment() {
@@ -75,7 +76,8 @@ public abstract class GraphNoTxAbstractTest {
     orientDB.create(
         dbName, ODatabaseType.valueOf(storageType.toUpperCase()), "admin", "admin", "admin");
     graph =
-        new OrientGraphNoTx((ODatabaseDocumentInternal) orientDB.open(dbName, "admin", "admin"));
+        new OrientGraph((ODatabaseDocumentInternal) orientDB.open(dbName, "admin", "admin"));
+    graph.setAutoStartTx(false);
   }
 
   @AfterClass

@@ -75,7 +75,9 @@ public class MapIndexTest extends ObjectDBBaseTest {
     map.put("key2", 20);
 
     mapper.setIntMap(map);
+    database.begin();
     database.save(mapper);
+    database.commit();
 
     final OIndex keyIndex = getIndex("mapIndexTestKey");
     Assert.assertEquals(keyIndex.getInternal().size(), 2);
@@ -162,7 +164,9 @@ public class MapIndexTest extends ObjectDBBaseTest {
     mapOne.put("key2", 20);
 
     mapper.setIntMap(mapOne);
+    database.begin();
     mapper = database.save(mapper);
+    database.commit();
 
     final Map<String, Integer> mapTwo = new HashMap<>();
 
@@ -170,7 +174,10 @@ public class MapIndexTest extends ObjectDBBaseTest {
     mapTwo.put("key2", 20);
 
     mapper.setIntMap(mapTwo);
+
+    database.begin();
     database.save(mapper);
+    database.commit();
 
     OIndex keyIndex = getIndex("mapIndexTestKey");
 
@@ -214,7 +221,9 @@ public class MapIndexTest extends ObjectDBBaseTest {
     mapOne.put("key2", 20);
 
     mapper.setIntMap(mapOne);
+    database.begin();
     mapper = database.save(mapper);
+    database.commit();
 
     database.begin();
     try {
@@ -273,7 +282,9 @@ public class MapIndexTest extends ObjectDBBaseTest {
     mapOne.put("key2", 20);
 
     mapper.setIntMap(mapOne);
+    database.begin();
     mapper = database.save(mapper);
+    database.commit();
 
     database.begin();
     final Map<String, Integer> mapTwo = new HashMap<>();
@@ -326,7 +337,9 @@ public class MapIndexTest extends ObjectDBBaseTest {
     map.put("key2", 20);
 
     mapper.setIntMap(map);
+    database.begin();
     mapper = database.save(mapper);
+    database.commit();
 
     database.command("UPDATE " + mapper.getId() + " set intMap['key3'] = 30").close();
 
@@ -371,7 +384,9 @@ public class MapIndexTest extends ObjectDBBaseTest {
     map.put("key2", 20);
 
     mapper.setIntMap(map);
+    database.begin();
     mapper = database.save(mapper);
+    database.commit();
 
     try {
       database.begin();
@@ -426,7 +441,9 @@ public class MapIndexTest extends ObjectDBBaseTest {
     map.put("key2", 20);
 
     mapper.setIntMap(map);
+    database.begin();
     mapper = database.save(mapper);
+    database.commit();
 
     database.begin();
     Mapper loadedMapper = database.load(new ORecordId(mapper.getId()));
@@ -476,7 +493,9 @@ public class MapIndexTest extends ObjectDBBaseTest {
     map.put("key2", 20);
 
     mapper.setIntMap(map);
+    database.begin();
     mapper = database.save(mapper);
+    database.commit();
 
     database.command("UPDATE " + mapper.getId() + " set intMap['key2'] = 40").close();
 
@@ -522,7 +541,9 @@ public class MapIndexTest extends ObjectDBBaseTest {
     map.put("key2", 20);
 
     mapper.setIntMap(map);
+    database.begin();
     mapper = database.save(mapper);
+    database.commit();
 
     try {
       database.begin();
@@ -576,7 +597,10 @@ public class MapIndexTest extends ObjectDBBaseTest {
     map.put("key2", 20);
 
     mapper.setIntMap(map);
+
+    database.begin();
     mapper = database.save(mapper);
+    database.commit();
 
     database.begin();
     Mapper loadedMapper = database.load(new ORecordId(mapper.getId()));
@@ -626,7 +650,10 @@ public class MapIndexTest extends ObjectDBBaseTest {
     map.put("key3", 30);
 
     mapper.setIntMap(map);
+
+    database.begin();
     mapper = database.save(mapper);
+    database.commit();
 
     database.command("UPDATE " + mapper.getId() + " remove intMap = 'key2'").close();
 
@@ -672,7 +699,9 @@ public class MapIndexTest extends ObjectDBBaseTest {
     map.put("key3", 30);
 
     mapper.setIntMap(map);
+    database.begin();
     mapper = database.save(mapper);
+    database.commit();
 
     try {
       database.begin();
@@ -727,7 +756,10 @@ public class MapIndexTest extends ObjectDBBaseTest {
     map.put("key3", 30);
 
     mapper.setIntMap(map);
+
+    database.begin();
     mapper = database.save(mapper);
+    database.commit();
 
     database.begin();
     Mapper loadedMapper = database.load(new ORecordId(mapper.getId()));
@@ -776,8 +808,13 @@ public class MapIndexTest extends ObjectDBBaseTest {
     map.put("key2", 20);
 
     mapper.setIntMap(map);
+    database.begin();
     mapper = database.save(mapper);
+    database.commit();
+
+    database.begin();
     database.delete(mapper);
+    database.commit();
 
     OIndex keyIndex = getIndex("mapIndexTestKey");
     Assert.assertEquals(keyIndex.getInternal().size(), 0);
@@ -797,7 +834,10 @@ public class MapIndexTest extends ObjectDBBaseTest {
     map.put("key2", 20);
 
     mapper.setIntMap(map);
+
+    database.begin();
     mapper = database.save(mapper);
+    database.commit();
 
     try {
       database.begin();
@@ -825,7 +865,10 @@ public class MapIndexTest extends ObjectDBBaseTest {
     map.put("key2", 20);
 
     mapper.setIntMap(map);
+
+    database.begin();
     mapper = database.save(mapper);
+    database.commit();
 
     database.begin();
     database.delete(mapper);
@@ -870,7 +913,10 @@ public class MapIndexTest extends ObjectDBBaseTest {
     map.put("key2", 20);
 
     mapper.setIntMap(map);
+
+    database.begin();
     database.save(mapper);
+    database.commit();
 
     final List<Mapper> resultByKey =
         database.query(

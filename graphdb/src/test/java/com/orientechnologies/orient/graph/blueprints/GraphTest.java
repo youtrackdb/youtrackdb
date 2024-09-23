@@ -311,23 +311,26 @@ public class GraphTest {
   public void shouldAddVertexAndEdgeInTheSameCluster() {
     OrientGraphFactory orientGraphFactory =
         new OrientGraphFactory("memory:shouldAddVertexAndEdgeInTheSameCluster");
-    final OrientGraphNoTx graphDbNoTx = orientGraphFactory.getNoTx();
+    final OrientGraph graphDb= orientGraphFactory.getTx();
+    graphDb.setAutoStartTx(false);
     try {
-      OrientVertexType deviceVertex = graphDbNoTx.createVertexType("Device");
-      OrientEdgeType edgeType = graphDbNoTx.createEdgeType("Link");
+      OrientVertexType deviceVertex = graphDb.createVertexType("Device");
+      OrientEdgeType edgeType = graphDb.createEdgeType("Link");
 
       edgeType.addCluster("Links");
 
-      OrientVertex dev1 = graphDbNoTx.addVertex("Device");
-      OrientVertex dev2 = graphDbNoTx.addVertex("Device");
+      graphDb.begin();
+      OrientVertex dev1 = graphDb.addVertex("Device");
+      OrientVertex dev2 = graphDb.addVertex("Device");
 
-      final OrientEdge e = graphDbNoTx.addEdge("class:Link,cluster:Links", dev1, dev2, null);
+      final OrientEdge e = graphDb.addEdge("class:Link,cluster:Links", dev1, dev2, null);
+      graphDb.commit();
 
       Assert.assertEquals(
-          e.getIdentity().getClusterId(), graphDbNoTx.getRawGraph().getClusterIdByName("Links"));
+          e.getIdentity().getClusterId(), graphDb.getRawGraph().getClusterIdByName("Links"));
 
     } finally {
-      graphDbNoTx.shutdown();
+      graphDb.shutdown();
       orientGraphFactory.close();
     }
   }
@@ -335,8 +338,10 @@ public class GraphTest {
   @Test
   public void testCustomPredicate() {
     OrientGraphFactory orientGraphFactory = new OrientGraphFactory("memory:testCustomPredicate");
-    final OrientGraphNoTx g = orientGraphFactory.getNoTx();
+    final OrientGraph g = orientGraphFactory.getTx();
+    g.setAutoStartTx(false);
     try {
+      g.begin();
       g.addVertex(null).setProperty("test", true);
       g.addVertex(null).setProperty("test", false);
       g.addVertex(null).setProperty("no", true);
@@ -370,8 +375,10 @@ public class GraphTest {
   @Test
   public void testKebabCaseQuery() {
     OrientGraphFactory orientGraphFactory = new OrientGraphFactory("memory:testKebabCase");
-    final OrientGraphNoTx g = orientGraphFactory.getNoTx();
+    final OrientGraph g = orientGraphFactory.getTx();
+    g.setAutoStartTx(false);
     try {
+      g.begin();
       g.addVertex(null).setProperty("test-one", true);
       g.addVertex(null).setProperty("test-one", false);
 
@@ -384,7 +391,7 @@ public class GraphTest {
 
       final Iterator<Vertex> it = vertices.iterator();
       Assert.assertTrue(it.hasNext());
-      Assert.assertTrue((Boolean) it.next().getProperty("test-one"));
+      Assert.assertTrue(it.next().getProperty("test-one"));
       Assert.assertFalse(it.hasNext());
 
     } finally {
@@ -408,7 +415,8 @@ public class GraphTest {
   @Test
   public void testCompositeKey() {
 
-    OrientGraphNoTx graph = new OrientGraphNoTx("memory:testComposite");
+    OrientGraph graph = new OrientGraph("memory:testComposite");
+    graph.setAutoStartTx(false);
 
     try {
       if (!((ODatabaseInternal) graph.getRawGraph()).getStorage().isRemote()) {
@@ -421,6 +429,7 @@ public class GraphTest {
             .sqlCommand("create index account.composite on account (name, namespace) unique")
             .close();
 
+        graph.begin();
         graph.addVertex(
             "class:account",
             new Object[] {"name", "foo", "namespace", "bar", "description", "foobar"});
@@ -428,6 +437,7 @@ public class GraphTest {
             graph.addVertex(
                 "class:account",
                 new Object[] {"name", "foo", "namespace", "baz", "description", "foobaz"});
+        graph.commit();
 
         final OIndex index =
             ((ODatabaseDocumentInternal) graph.getRawGraph())

@@ -122,7 +122,10 @@ public class LuceneAutomaticBackupRestoreTest {
 
     ODocument doc = new ODocument("City");
     doc.field("name", "Rome");
+
+    db.begin();
     db.save(doc);
+    db.commit();
   }
 
   private void dropIfExists() {

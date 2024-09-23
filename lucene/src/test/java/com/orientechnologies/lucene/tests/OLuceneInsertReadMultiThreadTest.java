@@ -76,7 +76,9 @@ public class OLuceneInsertReadMultiThreadTest extends OLuceneBaseTest {
 
     OIndex idx = schema.getClass("City").getClassIndex("City.name");
 
+    db1.begin();
     Assert.assertEquals(idx.getInternal().size(), THREADS * CYCLE);
+    db1.commit();
   }
 
   public class LuceneInsert implements Runnable {

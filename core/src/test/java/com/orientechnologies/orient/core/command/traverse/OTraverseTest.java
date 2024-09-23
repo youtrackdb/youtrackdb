@@ -60,7 +60,7 @@ public class OTraverseTest extends BaseMemoryDatabase {
     c3.setProperty("c3b", c3b, OType.LINK);
     rootDocument.setProperty("c", new ArrayList<>(Arrays.asList(c1, c2, c3)), OType.LINKLIST);
 
-    rootDocument.save(db.getClusterNameById(db.getDefaultClusterId()));
+    db.executeInTx(() -> rootDocument.save(db.getClusterNameById(db.getDefaultClusterId())));
 
     final List<ODocument> expectedResult =
         Arrays.asList(rootDocument, a, aa, ab, b, ba, bb, c1, c1a, c1b, c2, c2a, c2b, c3, c3a, c3b);
@@ -105,7 +105,7 @@ public class OTraverseTest extends BaseMemoryDatabase {
     c3.setProperty("c3b", c3b, OType.LINK);
     rootDocument.setProperty("c", new ArrayList<>(Arrays.asList(c1, c2, c3)), OType.LINKLIST);
 
-    rootDocument.save(db.getClusterNameById(db.getDefaultClusterId()));
+    db.executeInTx(() -> rootDocument.save(db.getClusterNameById(db.getDefaultClusterId())));
 
     final List<ODocument> expectedResult =
         Arrays.asList(rootDocument, a, b, aa, ab, ba, bb, c1, c2, c3, c1a, c1b, c2a, c2b, c3a, c3b);

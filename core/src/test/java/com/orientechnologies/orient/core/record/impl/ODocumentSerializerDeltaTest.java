@@ -53,6 +53,7 @@ public class ODocumentSerializerDeltaTest {
 
       OClass claz = db.createClassIfNotExist("TestClass");
 
+      db.begin();
       ODocument doc = new ODocument(claz);
       String fieldName = "testField";
       String constantFieldName = "constantField";
@@ -65,6 +66,8 @@ public class ODocumentSerializerDeltaTest {
       doc.setProperty(removeField, "removeVal");
 
       doc = db.save(doc);
+      db.commit();
+
       ODocument originalDoc = doc.copy();
 
       doc.setProperty(fieldName, testValue);
@@ -96,6 +99,7 @@ public class ODocumentSerializerDeltaTest {
 
       OClass claz = db.createClassIfNotExist("TestClass");
 
+      db.begin();
       ODocument doc = new ODocument(claz);
       ODocument nestedDoc = new ODocumentEmbedded(claz.getName());
       String fieldName = "testField";
@@ -115,6 +119,7 @@ public class ODocumentSerializerDeltaTest {
       originalDoc.setProperty(nestedDocField, nestedDoc);
 
       doc = db.save(doc);
+      db.commit();
 
       nestedDoc = doc.field(nestedDocField);
       nestedDoc.setProperty(fieldName, testValue);
@@ -149,6 +154,7 @@ public class ODocumentSerializerDeltaTest {
 
       OClass claz = db.createClassIfNotExist("TestClass");
 
+      db.begin();
       ODocument doc = new ODocument(claz);
 
       String fieldName = "testField";
@@ -160,6 +166,8 @@ public class ODocumentSerializerDeltaTest {
       doc.setProperty(fieldName, originalValue);
 
       doc = db.save(doc);
+      db.commit();
+
       ODocument originalDoc = doc.copy();
 
       List<String> newArray = doc.field(fieldName);
@@ -203,9 +211,11 @@ public class ODocumentSerializerDeltaTest {
       originalValue.add("one");
       originalValue.add("toRemove");
 
+      db.begin();
       doc.setProperty(fieldName, originalValue);
-
       doc = db.save(doc);
+      db.commit();
+
       ODocument originalDoc = doc.copy();
 
       Set<String> newArray = doc.field(fieldName);
@@ -242,6 +252,7 @@ public class ODocumentSerializerDeltaTest {
 
       OClass claz = db.createClassIfNotExist("TestClass");
 
+      db.begin();
       ODocument doc = new ODocument(claz);
       String fieldName = "testField";
       Set<Set<String>> originalValue = new HashSet<>();
@@ -255,6 +266,8 @@ public class ODocumentSerializerDeltaTest {
       doc.setProperty(fieldName, originalValue);
 
       doc = db.save(doc);
+      db.commit();
+
       ODocument originalDoc = doc.copy();
 
       @SuppressWarnings("unchecked")
@@ -290,6 +303,7 @@ public class ODocumentSerializerDeltaTest {
 
       OClass claz = db.createClassIfNotExist("TestClass");
 
+      db.begin();
       ODocument doc = new ODocument(claz);
       String fieldName = "testField";
       List<List<String>> originalValue = new ArrayList<>();
@@ -304,6 +318,8 @@ public class ODocumentSerializerDeltaTest {
       doc.setProperty(fieldName, originalValue);
 
       doc = db.save(doc);
+      db.commit();
+
       ODocument originalDoc = doc.copy();
 
       @SuppressWarnings("unchecked")
@@ -341,6 +357,7 @@ public class ODocumentSerializerDeltaTest {
 
       OClass claz = db.createClassIfNotExist("TestClass");
 
+      db.begin();
       ODocument doc = new ODocument(claz);
 
       String constantField = "constField";
@@ -357,6 +374,8 @@ public class ODocumentSerializerDeltaTest {
       doc.setProperty(fieldName, originalValue);
 
       doc = db.save(doc);
+      db.commit();
+
       ODocument originalDoc = doc.copy();
 
       @SuppressWarnings("unchecked")
@@ -398,6 +417,7 @@ public class ODocumentSerializerDeltaTest {
       String constValue = "ConstValue";
       String variableField = "varField";
 
+      db.begin();
       ODocument doc = new ODocument(claz);
       String fieldName = "testField";
       List<List<ODocument>> originalValue = new ArrayList<>();
@@ -416,6 +436,8 @@ public class ODocumentSerializerDeltaTest {
       doc.setProperty(fieldName, originalValue);
 
       doc = db.save(doc);
+      db.commit();
+
       ODocument originalDoc = doc.copy();
 
       originalValue = doc.getProperty(fieldName);
@@ -451,6 +473,7 @@ public class ODocumentSerializerDeltaTest {
 
       OClass claz = db.createClassIfNotExist("TestClass");
 
+      db.begin();
       ODocument doc = new ODocument(claz);
       String fieldName = "testField";
       List<List<List<String>>> originalValue = new ArrayList<>();
@@ -468,6 +491,8 @@ public class ODocumentSerializerDeltaTest {
       doc.setProperty(fieldName, originalValue);
 
       doc = db.save(doc);
+      db.commit();
+
       ODocument originalDoc = doc.copy();
 
       @SuppressWarnings("unchecked")
@@ -505,6 +530,7 @@ public class ODocumentSerializerDeltaTest {
 
       OClass claz = db.createClassIfNotExist("TestClass");
 
+      db.begin();
       ODocument doc = new ODocument(claz);
 
       String constantField = "constField";
@@ -526,6 +552,8 @@ public class ODocumentSerializerDeltaTest {
       doc.setProperty(fieldName, originalValue);
 
       doc = db.save(doc);
+      db.commit();
+
       ODocument originalDoc = doc.copy();
 
       @SuppressWarnings("unchecked")
@@ -563,6 +591,7 @@ public class ODocumentSerializerDeltaTest {
 
       OClass claz = db.createClassIfNotExist("TestClass");
 
+      db.begin();
       ODocument doc = new ODocument(claz);
 
       String fieldName = "testField";
@@ -572,6 +601,8 @@ public class ODocumentSerializerDeltaTest {
       doc.setProperty(fieldName, originalValue);
 
       doc = db.save(doc);
+      db.commit();
+
       ODocument originalDoc = doc.copy();
 
       List<String> newArray = doc.field(fieldName);
@@ -606,6 +637,7 @@ public class ODocumentSerializerDeltaTest {
 
       OClass claz = db.createClassIfNotExist("TestClass");
 
+      db.begin();
       ODocument doc = new ODocument(claz);
 
       String fieldName = "testField";
@@ -620,6 +652,8 @@ public class ODocumentSerializerDeltaTest {
       doc.setProperty(fieldName, originalList);
 
       doc = db.save(doc);
+      db.commit();
+
       // Deep Copy is not working in this case, use toStream/fromStream as workaround.
       // ODocument originalDoc = doc.copy();
       ODocument originalDoc = new ODocument();
@@ -660,6 +694,7 @@ public class ODocumentSerializerDeltaTest {
 
       OClass claz = db.createClassIfNotExist("TestClass");
 
+      db.begin();
       ODocument doc = new ODocument(claz);
 
       String fieldName = "testField";
@@ -671,6 +706,8 @@ public class ODocumentSerializerDeltaTest {
       doc.setProperty(fieldName, originalValue);
 
       doc = db.save(doc);
+      db.commit();
+
       ODocument originalDoc = doc.copy();
 
       List<String> newArray = doc.field(fieldName);
@@ -706,6 +743,7 @@ public class ODocumentSerializerDeltaTest {
 
       OClass claz = db.createClassIfNotExist("TestClass");
 
+      db.begin();
       ODocument doc = new ODocument(claz);
       String fieldName = "testField";
       String constantFieldName = "constantField";
@@ -715,6 +753,8 @@ public class ODocumentSerializerDeltaTest {
       doc.setProperty(constantFieldName, "someValue");
 
       doc = db.save(doc);
+      db.commit();
+
       ODocument originalDoc = doc.copy();
 
       doc.setProperty(fieldName, testValue);
@@ -751,10 +791,12 @@ public class ODocumentSerializerDeltaTest {
       String constantFieldName = "constantField";
       String testValue = "testValue";
 
+      db.begin();
       doc.setProperty(fieldName, testValue);
       doc.setProperty(constantFieldName, "someValue");
 
       doc = db.save(doc);
+      db.commit();
       ODocument originalDoc = doc.copy();
 
       doc.removeProperty(fieldName);
@@ -792,6 +834,7 @@ public class ODocumentSerializerDeltaTest {
       OClass claz = db.createClassIfNotExist("TestClass");
       claz.createProperty(nestedFieldName, OType.EMBEDDED);
 
+      db.begin();
       ODocument doc = new ODocument(claz);
       String fieldName = "testField";
       String constantFieldName = "constantField";
@@ -804,6 +847,8 @@ public class ODocumentSerializerDeltaTest {
       rootDoc.setProperty(nestedFieldName, doc);
 
       rootDoc = db.save(rootDoc);
+      db.commit();
+
       ODocument originalDoc = rootDoc.copy();
 
       doc = rootDoc.field(nestedFieldName);
@@ -840,6 +885,7 @@ public class ODocumentSerializerDeltaTest {
 
       OClass claz = db.createClassIfNotExist("TestClass");
 
+      db.begin();
       ODocument doc = new ODocument(claz);
 
       String constantField = "constField";
@@ -856,6 +902,8 @@ public class ODocumentSerializerDeltaTest {
       doc.setProperty(fieldName, originalValue);
 
       doc = db.save(doc);
+      db.commit();
+
       ODocument originalDoc = doc.copy();
 
       @SuppressWarnings("unchecked")
@@ -892,6 +940,7 @@ public class ODocumentSerializerDeltaTest {
 
       OClass claz = db.createClassIfNotExist("TestClass");
 
+      db.begin();
       ODocument doc = new ODocument(claz);
       String fieldName = "testField";
       Map<String, String> mapValue = new HashMap<>();
@@ -901,6 +950,8 @@ public class ODocumentSerializerDeltaTest {
       doc.setProperty(fieldName, mapValue, OType.EMBEDDEDMAP);
 
       doc = db.save(doc);
+      db.commit();
+
       ODocument originalDoc = doc.copy();
 
       Map<String, String> containedMap = doc.field(fieldName);
@@ -935,6 +986,7 @@ public class ODocumentSerializerDeltaTest {
 
       OClass claz = db.createClassIfNotExist("TestClass");
 
+      db.begin();
       ODocument doc = new ODocument(claz);
       String fieldName = "testField";
       List<Map<String, String>> originalValue = new ArrayList<>();
@@ -948,6 +1000,7 @@ public class ODocumentSerializerDeltaTest {
       doc.setProperty(fieldName, originalValue, OType.EMBEDDEDLIST);
 
       doc = db.save(doc);
+      db.commit();
       ODocument originalDoc = doc.copy();
 
       @SuppressWarnings("unchecked")
@@ -986,6 +1039,7 @@ public class ODocumentSerializerDeltaTest {
 
       OClass claz = db.createClassIfNotExist("TestClass");
 
+      db.begin();
       ODocument doc = new ODocument(claz);
       String fieldName = "testField";
       Map<String, ODocument> mapValue = new HashMap<>();
@@ -998,6 +1052,8 @@ public class ODocumentSerializerDeltaTest {
       doc.setProperty(fieldName, mapValue, OType.EMBEDDEDMAP);
 
       doc = db.save(doc);
+      db.commit();
+
       ODocument originalDoc = doc.copy();
 
       Map<String, ODocument> containedMap = doc.field(fieldName);
@@ -1033,6 +1089,7 @@ public class ODocumentSerializerDeltaTest {
 
       OClass claz = db.createClassIfNotExist("TestClass");
 
+      db.begin();
       ODocument doc = new ODocument(claz);
       String fieldName = "testField";
       List<Map> originalList = new ArrayList<>();
@@ -1055,6 +1112,8 @@ public class ODocumentSerializerDeltaTest {
       doc.field(fieldName, originalList);
 
       doc = db.save(doc);
+      db.commit();
+
       ODocument originalDoc = doc.copy();
 
       Map<String, String> containedMap = (Map<String, String>) ((List) doc.field(fieldName)).get(0);
@@ -1088,6 +1147,7 @@ public class ODocumentSerializerDeltaTest {
 
       OClass claz = db.createClassIfNotExist("TestClass");
 
+      db.begin();
       ODocument doc = new ODocument(claz);
       String fieldName = "testField";
 
@@ -1106,6 +1166,8 @@ public class ODocumentSerializerDeltaTest {
 
       ODocument third = new ODocument(claz);
       third = db.save(third);
+      db.commit();
+
       ridBag = new ORidBag();
       ridBag.add(first);
       ridBag.add(second);
@@ -1143,19 +1205,24 @@ public class ODocumentSerializerDeltaTest {
       ODocument doc = new ODocument(claz);
       String fieldName = "testField";
 
+      db.begin();
       ODocument first = new ODocument(claz);
       first = db.save(first);
       ODocument second = new ODocument(claz);
       second = db.save(second);
       ODocument third = new ODocument(claz);
       third = db.save(third);
+      db.commit();
 
+      db.begin();
       ORidBag ridBag = new ORidBag();
       ridBag.add(first);
       ridBag.add(second);
       ridBag.add(third);
       doc.field(fieldName, ridBag, OType.LINKBAG);
       doc = db.save(doc);
+      db.commit();
+
       ODocument originalDoc = doc.copy();
 
       ridBag = new ORidBag();
@@ -1192,6 +1259,7 @@ public class ODocumentSerializerDeltaTest {
 
       OClass claz = db.createClassIfNotExist("TestClass");
 
+      db.begin();
       ODocument doc = new ODocument(claz);
       String fieldName = "testField";
 
@@ -1205,11 +1273,14 @@ public class ODocumentSerializerDeltaTest {
       ridBag.add(second);
       doc.field(fieldName, ridBag, OType.LINKBAG);
       doc = db.save(doc);
+      db.commit();
 
       ODocument originalDoc = doc.copy();
 
+      db.begin();
       ODocument third = new ODocument(claz);
       third = db.save(third);
+      db.commit();
 
       ridBag = doc.getProperty(fieldName);
       ridBag.add(third);
@@ -1243,6 +1314,7 @@ public class ODocumentSerializerDeltaTest {
 
       OClass claz = db.createClassIfNotExist("TestClass");
 
+      db.begin();
       ODocument doc = new ODocument(claz);
       String fieldName = "testField";
 
@@ -1259,6 +1331,7 @@ public class ODocumentSerializerDeltaTest {
       ridBag.add(third);
       doc.field(fieldName, ridBag, OType.LINKBAG);
       doc = db.save(doc);
+      db.commit();
 
       ODocument originalDoc = doc.copy();
       ridBag = doc.getProperty(fieldName);
@@ -1293,6 +1366,7 @@ public class ODocumentSerializerDeltaTest {
 
       OClass claz = db.createClassIfNotExist("TestClass");
 
+      db.begin();
       ODocument doc = new ODocument(claz);
       String fieldName = "testField";
 
@@ -1309,6 +1383,7 @@ public class ODocumentSerializerDeltaTest {
       ridBag.add(third);
       doc.field(fieldName, ridBag, OType.LINKBAG);
       doc = db.save(doc);
+      db.commit();
 
       ODocument originalDoc = doc.copy();
 
@@ -1346,6 +1421,7 @@ public class ODocumentSerializerDeltaTest {
 
       OClass claz = db.createClassIfNotExist("TestClass");
 
+      db.begin();
       ODocument doc = new ODocument(claz);
       doc.setProperty("one", "value");
       doc.setProperty("list", Arrays.asList("test"));
@@ -1360,6 +1436,7 @@ public class ODocumentSerializerDeltaTest {
       linkMap.put("two", link);
       doc.setProperty("linkMap", linkMap);
       doc = db.save(doc);
+      db.commit();
 
       ODocument originalDoc = doc.copy();
       doc.setProperty("one", null);
@@ -1401,6 +1478,7 @@ public class ODocumentSerializerDeltaTest {
 
       OClass claz = db.createClassIfNotExist("TestClass");
 
+      db.begin();
       ODocument doc = new ODocument(claz);
       OIdentifiable link = db.save(new ODocument("testClass"));
       OIdentifiable link1 = db.save(new ODocument("testClass"));
@@ -1414,6 +1492,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
 
       OIdentifiable link2 = db.save(new ODocument("testClass"));
+      db.commit();
 
       ODocument originalDoc = doc.copy();
       ((List<OIdentifiable>) doc.getProperty("linkList")).set(1, link2);
@@ -1459,6 +1538,7 @@ public class ODocumentSerializerDeltaTest {
 
       OClass claz = db.createClassIfNotExist("TestClass");
 
+      db.begin();
       ODocument doc = new ODocument(claz);
       Map<String, String> map = new HashMap<>();
       map.put("two", "value");
@@ -1478,6 +1558,7 @@ public class ODocumentSerializerDeltaTest {
       mapEmbedded.put("first", embedded);
       doc.setProperty("mapEmbedded", mapEmbedded);
       doc = db.save(doc);
+      db.commit();
 
       ODocument originalDoc = doc.copy();
       OElement embedded1 = db.newEmbeddedElement();

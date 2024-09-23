@@ -110,7 +110,9 @@ public class OLuceneTransactionCompositeQueryTest extends OLuceneBaseTest {
 
       assertThat(vertices).hasSize(1);
 
+      db.begin();
       Assert.assertEquals(index.getInternal().size(), 1);
+      db.commit();
     }
   }
 
@@ -125,9 +127,8 @@ public class OLuceneTransactionCompositeQueryTest extends OLuceneBaseTest {
       e.printStackTrace();
     }
 
-    Assert.assertEquals(index.getInternal().size(), 0);
-
     db.begin();
+    Assert.assertEquals(index.getInternal().size(), 0);
 
     ODocument doc = new ODocument("Foo");
     doc.field("name", "Test");
@@ -193,9 +194,8 @@ public class OLuceneTransactionCompositeQueryTest extends OLuceneBaseTest {
       e.printStackTrace();
     }
 
-    Assert.assertEquals(index.getInternal().size(), 0);
-
     db.begin();
+    Assert.assertEquals(index.getInternal().size(), 0);
 
     ODocument doc = new ODocument("Foo");
     doc.field("name", "Test");

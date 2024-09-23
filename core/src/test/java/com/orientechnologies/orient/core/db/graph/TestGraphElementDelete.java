@@ -6,8 +6,8 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.OEdge;
@@ -24,7 +24,7 @@ import org.junit.Test;
 public class TestGraphElementDelete {
 
   private OrientDB orientDB;
-  private ODatabaseDocument database;
+  private ODatabaseSession database;
 
   @Before
   public void before() {
@@ -41,12 +41,16 @@ public class TestGraphElementDelete {
 
   @Test
   public void testDeleteVertex() {
+    database.begin();
     OVertex vertex = database.newVertex("V");
     OVertex vertex1 = database.newVertex("V");
     OEdge edge = vertex.addEdge(vertex1, "E");
     database.save(edge);
+    database.commit();
 
+    database.begin();
     database.delete(vertex);
+    database.commit();
 
     assertNull(database.load(edge.getIdentity()));
   }
@@ -54,22 +58,28 @@ public class TestGraphElementDelete {
   @Test
   public void testDeleteEdge() {
 
+    database.begin();
     OVertex vertex = database.newVertex("V");
     OVertex vertex1 = database.newVertex("V");
     OEdge edge = vertex.addEdge(vertex1, "E");
     database.save(edge);
+    database.commit();
 
+    database.begin();
     database.delete(edge);
+    database.commit();
 
     assertFalse(vertex.getEdges(ODirection.OUT, "E").iterator().hasNext());
   }
 
   @Test
   public void testDeleteEdgeConcurrentModification() throws Exception {
+    database.begin();
     OVertex vertex = database.newVertex("V");
     OVertex vertex1 = database.newVertex("V");
     OEdge edge = vertex.addEdge(vertex1, "E");
     database.save(edge);
+    database.commit();
 
     database.begin();
     OElement instance = database.load(edge.getIdentity());

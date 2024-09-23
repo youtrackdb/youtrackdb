@@ -27,12 +27,14 @@ public class LuceneReuseTest extends BaseLuceneTest {
     db.command("create index Reuse.surname on Reuse (surname) FULLTEXT ENGINE LUCENE").close();
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       db.save(
           new ODocument("Reuse")
               .field("name", "John")
               .field("date", new Date())
               .field("surname", "Reese")
               .field("age", i));
+      db.commit();
     }
     OResultSet results =
         db.command("SELECT FROM Reuse WHERE name='John' and surname LUCENE 'Reese'");
@@ -62,21 +64,25 @@ public class LuceneReuseTest extends BaseLuceneTest {
         .close();
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       db.save(
           new ODocument("Reuse")
               .field("name", "John")
               .field("date", new Date())
               .field("surname", "Reese")
               .field("age", i));
+      db.commit();
     }
 
     // additional record
+    db.begin();
     db.save(
         new ODocument("Reuse")
             .field("name", "John")
             .field("date", new Date())
             .field("surname", "Franklin")
             .field("age", 11));
+    db.commit();
     OResultSet results =
         db.command("SELECT FROM Reuse WHERE name='John' and [name,surname] LUCENE 'Reese'");
 

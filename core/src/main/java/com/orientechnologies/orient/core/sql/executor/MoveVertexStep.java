@@ -6,8 +6,11 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
 import com.orientechnologies.orient.core.sql.parser.OCluster;
 import com.orientechnologies.orient.core.sql.parser.OIdentifier;
 
-/** Created by luigidellaquila on 14/02/17. */
+/**
+ * Created by luigidellaquila on 14/02/17.
+ */
 public class MoveVertexStep extends AbstractExecutionStep {
+
   private String targetCluster;
   private final String targetClass;
 
@@ -35,7 +38,8 @@ public class MoveVertexStep extends AbstractExecutionStep {
   }
 
   private OResult mapResult(OResult result, OCommandContext ctx) {
-    result.getVertex().ifPresent(x -> x.moveTo(targetClass, targetCluster));
+    var db = ctx.getDatabase();
+    db.executeInTx(() -> result.getVertex().ifPresent(x -> x.moveTo(targetClass, targetCluster)));
     return result;
   }
 

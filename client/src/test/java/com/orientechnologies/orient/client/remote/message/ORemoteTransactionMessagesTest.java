@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.common.comparator.ODefaultComparator;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
+import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkFactory;
@@ -124,50 +125,29 @@ public class ORemoteTransactionMessagesTest {
   public void testCommitResponseTransactionWriteRead() throws IOException {
 
     MockChannel channel = new MockChannel();
-    List<OCommit37Response.OCreatedRecordResponse> creates = new ArrayList<>();
-    creates.add(
-        new OCommit37Response.OCreatedRecordResponse(
-            new ORecordId(1, 2), new ORecordId(-1, -2), 10));
-    creates.add(
-        new OCommit37Response.OCreatedRecordResponse(
-            new ORecordId(1, 3), new ORecordId(-1, -3), 20));
-
-    List<OCommit37Response.OUpdatedRecordResponse> updates = new ArrayList<>();
-    updates.add(new OCommit37Response.OUpdatedRecordResponse(new ORecordId(10, 20), 3));
-    updates.add(new OCommit37Response.OUpdatedRecordResponse(new ORecordId(10, 21), 4));
-
-    List<OCommit37Response.ODeletedRecordResponse> deletes = new ArrayList<>();
-    deletes.add(new OCommit37Response.ODeletedRecordResponse(new ORecordId(10, 50)));
-    deletes.add(new OCommit37Response.ODeletedRecordResponse(new ORecordId(10, 51)));
 
     Map<UUID, OBonsaiCollectionPointer> changes = new HashMap<>();
     UUID val = UUID.randomUUID();
     changes.put(val, new OBonsaiCollectionPointer(10, new OBonsaiBucketPointer(30, 40)));
-    OCommit37Response response = new OCommit37Response(creates, updates, deletes, changes);
+    var updatedRids = new HashMap<ORID, ORID>();
+
+    updatedRids.put(new ORecordId(10, 20), new ORecordId(10, 30));
+    updatedRids.put(new ORecordId(10, 21), new ORecordId(10, 31));
+
+    OCommit37Response response = new OCommit37Response(updatedRids, changes);
     response.write(channel, 0, null);
     channel.close();
 
     OCommit37Response readResponse = new OCommit37Response();
     readResponse.read(channel, null);
-    assertEquals(readResponse.getCreated().size(), 2);
-    assertEquals(readResponse.getCreated().get(0).getCurrentRid(), new ORecordId(1, 2));
-    assertEquals(readResponse.getCreated().get(0).getCreatedRid(), new ORecordId(-1, -2));
-    assertEquals(readResponse.getCreated().get(0).getVersion(), 10);
 
-    assertEquals(readResponse.getCreated().get(1).getCurrentRid(), new ORecordId(1, 3));
-    assertEquals(readResponse.getCreated().get(1).getCreatedRid(), new ORecordId(-1, -3));
-    assertEquals(readResponse.getCreated().get(1).getVersion(), 20);
+    assertEquals(readResponse.getUpdatedRids().size(), 2);
 
-    assertEquals(readResponse.getUpdated().size(), 2);
-    assertEquals(readResponse.getUpdated().get(0).getRid(), new ORecordId(10, 20));
-    assertEquals(readResponse.getUpdated().get(0).getVersion(), 3);
+    assertEquals(readResponse.getUpdatedRids().get(0).first(), new ORecordId(10, 30));
+    assertEquals(readResponse.getUpdatedRids().get(0).second(), new ORecordId(10, 20));
 
-    assertEquals(readResponse.getUpdated().get(1).getRid(), new ORecordId(10, 21));
-    assertEquals(readResponse.getUpdated().get(1).getVersion(), 4);
-
-    assertEquals(readResponse.getDeleted().size(), 2);
-    assertEquals(readResponse.getDeleted().get(0).getRid(), new ORecordId(10, 50));
-    assertEquals(readResponse.getDeleted().get(1).getRid(), new ORecordId(10, 51));
+    assertEquals(readResponse.getUpdatedRids().get(1).first(), new ORecordId(10, 31));
+    assertEquals(readResponse.getUpdatedRids().get(1).second(), new ORecordId(10, 21));
 
     assertEquals(readResponse.getCollectionChanges().size(), 1);
     assertNotNull(readResponse.getCollectionChanges().get(val));

@@ -53,7 +53,10 @@ public class LuceneExportImportTest extends BaseLuceneTest {
 
     ODocument doc = new ODocument("City");
     doc.field("name", "Rome");
+
+    db.begin();
     db.save(doc);
+    db.commit();
   }
 
   @Test

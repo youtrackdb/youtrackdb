@@ -120,7 +120,9 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
 
     ODocument rome = newCity("Rome", 12.5, 41.9);
 
+    db.begin();
     db.save(rome);
+    db.commit();
   }
 
   protected ODocument newCity(String name, final Double longitude, final Double latitude) {

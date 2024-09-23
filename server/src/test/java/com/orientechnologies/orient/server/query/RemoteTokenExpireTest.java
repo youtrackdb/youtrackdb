@@ -163,24 +163,6 @@ public class RemoteTokenExpireTest {
   }
 
   @Test
-  public void itShouldNotFailAtCommit() {
-
-    session.begin();
-
-    session.save(session.newElement("Some"));
-
-    waitAndClean();
-
-    session.activateOnCurrentThread();
-
-    try {
-      session.commit();
-    } catch (OTokenSecurityException e) {
-      Assert.fail("It should not get the expire exception");
-    }
-  }
-
-  @Test
   public void itShouldFailAtBeingAndQuery() {
 
     session.begin();

@@ -84,8 +84,10 @@ public class OPropertyIndexDefinitionTest {
 
     propertyIndex = new OPropertyIndexDefinition("tesClass", "fOne", OType.INTEGER);
 
+    database.begin();
     final ODocument docToStore = propertyIndex.toStream(new ODocument());
     database.save(docToStore, database.getClusterNameById(database.getDefaultClusterId()));
+    database.commit();
 
     final ODocument docToLoad = database.load(docToStore.getIdentity());
 

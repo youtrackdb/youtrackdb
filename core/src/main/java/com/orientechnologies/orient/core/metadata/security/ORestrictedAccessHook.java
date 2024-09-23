@@ -40,19 +40,27 @@ public class ORestrictedAccessHook {
     final OImmutableClass cls = ODocumentInternal.getImmutableSchemaClass(database, iDocument);
     if (cls != null && cls.isRestricted()) {
       String fieldNames = cls.getCustom(OSecurityShared.ONCREATE_FIELD);
-      if (fieldNames == null) fieldNames = ORestrictedOperation.ALLOW_ALL.getFieldName();
+      if (fieldNames == null) {
+        fieldNames = ORestrictedOperation.ALLOW_ALL.getFieldName();
+      }
       final String[] fields = fieldNames.split(",");
       String identityType = cls.getCustom(OSecurityShared.ONCREATE_IDENTITY_TYPE);
-      if (identityType == null) identityType = "user";
+      if (identityType == null) {
+        identityType = "user";
+      }
 
       OIdentifiable identity = null;
       if (identityType.equals("user")) {
         final OSecurityUser user = database.getUser();
-        if (user != null) identity = user.getIdentity();
+        if (user != null) {
+          identity = user.getIdentity();
+        }
       } else if (identityType.equals("role")) {
         final Set<? extends OSecurityRole> roles = database.getUser().getRoles();
-        if (!roles.isEmpty()) identity = roles.iterator().next().getIdentity();
-      } else
+        if (!roles.isEmpty()) {
+          identity = roles.iterator().next().getIdentity();
+        }
+      } else {
         throw new OConfigurationException(
             "Wrong custom field '"
                 + OSecurityShared.ONCREATE_IDENTITY_TYPE
@@ -61,10 +69,12 @@ public class ORestrictedAccessHook {
                 + "' with value '"
                 + identityType
                 + "'. Supported ones are: 'user', 'role'");
+      }
 
       if (identity != null && identity.getIdentity().isValid()) {
-        for (String f : fields)
+        for (String f : fields) {
           database.getSharedContext().getSecurity().allowIdentity(database, iDocument, f, identity);
+        }
         return true;
       }
     }
@@ -80,32 +90,42 @@ public class ORestrictedAccessHook {
     final OImmutableClass cls = ODocumentInternal.getImmutableSchemaClass(database, iDocument);
     if (cls != null && cls.isRestricted()) {
 
-      if (database.getUser() == null) return true;
+      if (database.getUser() == null) {
+        return true;
+      }
 
-      if (database.getUser().isRuleDefined(ORule.ResourceGeneric.BYPASS_RESTRICTED, null))
+      if (database.getUser().isRuleDefined(ORule.ResourceGeneric.BYPASS_RESTRICTED, null)) {
         if (database
                 .getUser()
                 .checkIfAllowed(
                     ORule.ResourceGeneric.BYPASS_RESTRICTED, null, ORole.PERMISSION_READ)
             != null)
-          // BYPASS RECORD LEVEL SECURITY: ONLY "ADMIN" ROLE CAN BY DEFAULT
+        // BYPASS RECORD LEVEL SECURITY: ONLY "ADMIN" ROLE CAN BY DEFAULT
+        {
           return true;
+        }
+      }
 
       final ODocument doc;
       if (iReadOriginal)
-        // RELOAD TO AVOID HACKING OF "_ALLOW" FIELDS
-        doc = (ODocument) database.load(iDocument.getIdentity());
-      else doc = iDocument;
+      // RELOAD TO AVOID HACKING OF "_ALLOW" FIELDS
+      {
+        doc = database.load(iDocument.getIdentity());
+      } else {
+        doc = iDocument;
+      }
 
       // we even not allowed to read it.
-      if (doc == null) return false;
+      if (doc == null) {
+        return false;
+      }
 
       return database
           .getMetadata()
           .getSecurity()
           .isAllowed(
-              (Set<OIdentifiable>) doc.field(ORestrictedOperation.ALLOW_ALL.getFieldName()),
-              (Set<OIdentifiable>) doc.field(iAllowOperation.getFieldName()));
+              doc.field(ORestrictedOperation.ALLOW_ALL.getFieldName()),
+              doc.field(iAllowOperation.getFieldName()));
     }
 
     return true;

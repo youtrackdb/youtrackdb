@@ -46,6 +46,7 @@ import org.testng.annotations.Test;
  */
 @Test(groups = "sql-update")
 public class SQLUpdateTest extends DocumentDBBaseTest {
+
   private long updatedRecords;
   private int addressClusterId;
 
@@ -177,7 +178,10 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
               .toString(),
           "#" + addressClusterId + ":" + positions.get(0));
       loadedDoc.field("addresses", doc.<Object>getProperty("addresses"));
+
+      database.begin();
       database.save(loadedDoc);
+      database.commit();
     }
   }
 
@@ -282,11 +286,15 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
   @Test
   public void updateWithWildcardsOnSetAndWhere() {
 
+    database.createClass("Person");
+    database.begin();
     ODocument doc = new ODocument("Person");
     doc.field("name", "Raf");
     doc.field("city", "Torino");
     doc.field("gender", "fmale");
     doc.save();
+    database.commit();
+
     checkUpdatedDoc(database, "Raf", "Torino", "fmale");
 
     /* THESE COMMANDS ARE OK */
@@ -309,10 +317,13 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
 
   public void updateWithReturn() {
     ODocument doc = new ODocument("Data");
+    database.begin();
     doc.field("name", "Pawel");
     doc.field("city", "Wroclaw");
     doc.field("really_big_field", "BIIIIIIIIIIIIIIIGGGGGGG!!!");
     doc.save();
+    database.commit();
+
     // check AFTER
     String sqlString = "UPDATE " + doc.getIdentity().toString() + " SET gender='male' RETURN AFTER";
     List<ODocument> result1 = database.command(new OCommandSQL(sqlString)).execute();
@@ -349,10 +360,13 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
   @Test
   public void updateWithNamedParameters() {
     ODocument doc = new ODocument("Data");
+
+    database.begin();
     doc.field("name", "Raf");
     doc.field("city", "Torino");
     doc.field("gender", "fmale");
     doc.save();
+    database.commit();
 
     String updatecommand = "update Data set gender = :gender , city = :city where name = :name";
     Map<String, Object> params = new HashMap<String, Object>();
@@ -467,8 +481,10 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
     final OSchema schema = database.getMetadata().getSchema();
     schema.createClass("FormatEscapingTest");
 
+    database.begin();
     final ODocument document = new ODocument("FormatEscapingTest");
     document.save();
+    database.commit();
 
     database
         .command(
@@ -656,7 +672,9 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
         database.browseCluster(database.getClusterNameById(clusterId));
 
     for (int i = 0; i < 7; i++) {
-      if (!iteratorCluster.hasNext()) break;
+      if (!iteratorCluster.hasNext()) {
+        break;
+      }
       ODocument doc = iteratorCluster.next();
       positions.add(doc.getIdentity().getClusterPosition());
     }
@@ -664,7 +682,9 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
   }
 
   public void testMultiplePut() {
+    database.begin();
     final ODocument v = database.<ODocument>newInstance("V").save();
+    database.commit();
 
     Long records =
         database
@@ -685,11 +705,12 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
 
   public void testAutoConversionOfEmbeddededListWithLinkedClass() {
     OClass c = database.getMetadata().getSchema().getOrCreateClass("TestConvert");
-    if (!c.existsProperty("embeddedListWithLinkedClass"))
+    if (!c.existsProperty("embeddedListWithLinkedClass")) {
       c.createProperty(
           "embeddedListWithLinkedClass",
           OType.EMBEDDEDLIST,
           database.getMetadata().getSchema().getOrCreateClass("TestConvertLinkedClass"));
+    }
 
     ORID id =
         database

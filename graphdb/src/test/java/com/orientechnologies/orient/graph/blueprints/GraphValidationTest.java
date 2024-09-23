@@ -83,21 +83,22 @@ public class GraphValidationTest {
   @Test
   public void ok() {
     setupSchema();
-    final OrientGraphNoTx graphNoTx = new OrientGraphNoTx(URL, "admin", "admin");
+    final OrientGraph graph = new OrientGraph(URL, "admin", "admin");
+    graph.setAutoStartTx(false);
     try {
 
-      graphNoTx.addVertex("class:M", "name", "n0");
+      graph.begin();
+      graph.addVertex("class:M", "name", "n0");
       try {
-        graphNoTx.addVertex("class:M");
+        graph.addVertex("class:M");
+        graph.commit();
         throw new RuntimeException("Schema problem was not detected!");
       } catch (Throwable e) {
         // This is what happens => OK
         System.out.println("This is the Message I want to see: \n" + e);
       }
-
-      graphNoTx.commit();
     } finally {
-      graphNoTx.shutdown();
+      graph.shutdown();
     }
   }
 
@@ -126,29 +127,36 @@ public class GraphValidationTest {
 
   @Test
   public void edgesCannotBeVertices() {
-    OrientGraphNoTx gNoTx = new OrientGraphNoTx(URL, "admin", "admin");
+    OrientGraph graph = new OrientGraph(URL, "admin", "admin");
+    graph.setAutoStartTx(false);
     try {
-      gNoTx.createVertexType("TestV");
-      gNoTx.createEdgeType("TestE");
+      graph.createVertexType("TestV");
+      graph.createEdgeType("TestE");
 
-      OrientVertex v = gNoTx.addVertex("class:TestV");
-      OrientVertex loadedV = gNoTx.getVertex(v.getIdentity());
+      graph.begin();
+      OrientVertex v = graph.addVertex("class:TestV");
+      OrientVertex loadedV = graph.getVertex(v.getIdentity());
       try {
-        OrientEdge e = gNoTx.getEdge(v.getIdentity().toString());
+        OrientEdge e = graph.getEdge(v.getIdentity().toString());
+        graph.commit();
+
         Assert.fail();
       } catch (IllegalArgumentException e) {
         // OK
       }
     } finally {
-      gNoTx.shutdown();
+      graph.shutdown();
     }
 
     OrientGraph g = new OrientGraph(URL, "admin", "admin");
+    g.setAutoStartTx(false);
     try {
+      g.begin();
       OrientVertex v = g.addVertex("class:TestV");
       OrientVertex loadedV = g.getVertex(v.getIdentity().toString());
       try {
         OrientEdge e = g.getEdge(v.getIdentity());
+        g.commit();
         Assert.fail();
       } catch (IllegalArgumentException e) {
         // OK
@@ -213,18 +221,25 @@ public class GraphValidationTest {
   }
 
   @Test
-  public void testNoTxGraphConstraints() {
-    OrientGraphNoTx graphNoTx = new OrientGraphNoTx(URL);
-    OrientVertexType testType = graphNoTx.createVertexType("Test");
+  public void testGraphConstraints() {
+    OrientGraph graph = new OrientGraph(URL);
+    graph.setAutoStartTx(false);
+
+    OrientVertexType testType = graph.createVertexType("Test");
     testType.createProperty("age", OType.INTEGER).setMax("3");
-    OrientVertex vert1 = graphNoTx.addVertex("class:Test", "age", 2);
+
+    graph.begin();
+    OrientVertex vert1 = graph.addVertex("class:Test", "age", 2);
+    graph.commit();
 
     try {
+      graph.begin();
       vert1.setProperty("age", 4);
+      graph.commit();
     } catch (OValidationException e) {
       Assert.assertEquals((int) vert1.getProperty("age"), 2); // this fails
     } finally {
-      graphNoTx.shutdown();
+      graph.shutdown();
     }
   }
 }

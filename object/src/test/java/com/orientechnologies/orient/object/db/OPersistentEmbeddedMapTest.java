@@ -50,7 +50,9 @@ public class OPersistentEmbeddedMapTest {
     Person retrievedPerson;
     OObjectDatabaseTx db = new OObjectDatabaseTx(pool.acquire());
     try {
+      db.begin();
       db.save(person);
+      db.commit();
       retrievedPerson = db.browseClass(Person.class).next();
       retrievedPerson = db.detachAll(retrievedPerson, true);
     } finally {

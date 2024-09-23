@@ -61,15 +61,19 @@ public class OClassSecurityTest {
   @Test
   public void testReadWithClassPermissions() {
     db.createClass("Person");
+    db.begin();
     ORole reader = db.getMetadata().getSecurity().getRole("reader");
     reader.grant(ORule.ResourceGeneric.CLASS, "Person", ORole.PERMISSION_NONE);
     reader.revoke(ORule.ResourceGeneric.CLASS, "Person", ORole.PERMISSION_READ);
     reader.save();
+    db.commit();
 
+    db.begin();
     OElement elem = db.newElement("Person");
     elem.setProperty("name", "foo");
     elem.setProperty("surname", "foo");
     db.save(elem);
+    db.commit();
 
     db.close();
 

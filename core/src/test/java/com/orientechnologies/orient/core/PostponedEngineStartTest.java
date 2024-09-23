@@ -42,7 +42,7 @@ import com.orientechnologies.orient.core.storage.OStorageOperationResult;
 import com.orientechnologies.orient.core.storage.cluster.OPaginatedCluster;
 import com.orientechnologies.orient.core.storage.config.OClusterBasedStorageConfiguration;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
-import com.orientechnologies.orient.core.tx.OTransactionInternal;
+import com.orientechnologies.orient.core.tx.OTransactionOptimistic;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
@@ -306,12 +306,6 @@ public class PostponedEngineStartTest {
         }
 
         @Override
-        public OStorageOperationResult<Boolean> deleteRecord(
-            ORecordId iRecordId, int iVersion, int iMode, ORecordCallback<Boolean> iCallback) {
-          return null;
-        }
-
-        @Override
         public ORecordMetadata getRecordMetadata(ORID rid) {
           return null;
         }
@@ -323,7 +317,7 @@ public class PostponedEngineStartTest {
         }
 
         @Override
-        public List<ORecordOperation> commit(OTransactionInternal iTx) {
+        public List<ORecordOperation> commit(OTransactionOptimistic iTx) {
           return null;
         }
 

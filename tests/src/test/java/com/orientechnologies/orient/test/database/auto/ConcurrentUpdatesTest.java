@@ -20,7 +20,6 @@ import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.tx.OTransaction.TXTYPE;
 import java.util.concurrent.atomic.AtomicLong;
 import org.testng.Assert;
 import org.testng.annotations.Optional;
@@ -74,7 +73,7 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
 
               db.open("admin", "admin");
               try {
-                db.begin(TXTYPE.OPTIMISTIC);
+                db.begin();
 
                 ODocument vDoc1 = db.load(rid1, null, true);
                 vDoc1.field(threadName, vDoc1.field(threadName) + ";" + i);
@@ -172,12 +171,19 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
 
     ODocument doc1 = database.newInstance();
     doc1.field("INIT", "ok");
+    database.begin();
     database.save(doc1, database.getClusterNameById(database.getDefaultClusterId()));
+    database.commit();
+
     ORID rid1 = doc1.getIdentity();
 
     ODocument doc2 = database.newInstance();
     doc2.field("INIT", "ok");
+
+    database.begin();
     database.save(doc2, database.getClusterNameById(database.getDefaultClusterId()));
+    database.commit();
+
     ORID rid2 = doc2.getIdentity();
 
     OptimisticUpdateField[] ops = new OptimisticUpdateField[THREADS];
@@ -229,7 +235,11 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
 
     ODocument doc1 = database.newInstance();
     doc1.field("total", 0);
+
+    database.begin();
     database.save(doc1, database.getClusterNameById(database.getDefaultClusterId()));
+    database.commit();
+
     ORID rid1 = doc1.getIdentity();
 
     PessimisticUpdate[] ops = new PessimisticUpdate[THREADS];

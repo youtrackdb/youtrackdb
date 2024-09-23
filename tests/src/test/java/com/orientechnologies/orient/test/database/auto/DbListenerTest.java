@@ -25,7 +25,6 @@ import com.orientechnologies.orient.core.hook.ODocumentHookAbstract;
 import com.orientechnologies.orient.core.hook.ORecordHook;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
-import com.orientechnologies.orient.core.tx.OTransaction.TXTYPE;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -197,7 +196,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
     database.open("admin", "admin");
     Assert.assertEquals(onOpen, 1);
 
-    database.begin(TXTYPE.OPTIMISTIC);
+    database.begin();
     Assert.assertEquals(onBeforeTxBegin, baseOnBeforeTxBegin + 1);
 
     database
@@ -207,7 +206,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
     Assert.assertEquals(onBeforeTxCommit, baseOnBeforeTxCommit + 1);
     Assert.assertEquals(onAfterTxCommit, baseOnAfterTxCommit + 1);
 
-    database.begin(TXTYPE.OPTIMISTIC);
+    database.begin();
     Assert.assertEquals(onBeforeTxBegin, baseOnBeforeTxBegin + 2);
 
     database
@@ -235,7 +234,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
     database.open("admin", "admin");
     Assert.assertEquals(onOpen, 1);
 
-    database.begin(TXTYPE.OPTIMISTIC);
+    database.begin();
     Assert.assertEquals(onBeforeTxBegin, 1);
 
     database
@@ -245,7 +244,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
     Assert.assertEquals(onBeforeTxCommit, 1);
     Assert.assertEquals(onAfterTxCommit, 1);
 
-    database.begin(TXTYPE.OPTIMISTIC);
+    database.begin();
     Assert.assertEquals(onBeforeTxBegin, 2);
 
     database
@@ -270,7 +269,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
 
     database.open("admin", "admin");
 
-    database.begin(TXTYPE.OPTIMISTIC);
+    database.begin();
     ODocument rec =
         database
             .<ODocument>newInstance()
@@ -280,7 +279,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
 
     final DocumentChangeListener cl = new DocumentChangeListener(database);
 
-    database.begin(TXTYPE.OPTIMISTIC);
+    database.begin();
     rec.field("surname", "Miner").save();
     database.commit();
 
@@ -308,7 +307,9 @@ public class DbListenerTest extends DocumentDBBaseTest {
     final DocumentChangeListener cl = new DocumentChangeListener(database);
 
     v.setProperty("surname", "Miner");
+    database.begin();
     v.save();
+    database.commit();
     database.close();
 
     Assert.assertEquals(cl.getChanges().size(), 1);

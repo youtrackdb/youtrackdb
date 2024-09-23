@@ -25,14 +25,18 @@ public class OChainIndexFetchTest extends BaseMemoryDatabase {
     propr.setLinkedClass(linkedClass);
     propr.createIndex(INDEX_TYPE.NOTUNIQUE);
 
+    db.begin();
     ODocument doc = new ODocument(linkedClass);
     doc.field("id", "referred");
     db.save(doc);
+    db.commit();
 
+    db.begin();
     ODocument doc1 = new ODocument(baseClass);
     doc1.field("ref", doc);
 
     db.save(doc1);
+    db.commit();
 
     OResultSet res = db.query(" select from BaseClass where ref.id ='wrong_referred' ");
 

@@ -73,7 +73,10 @@ public class LuceneSpatialDropTest {
       doc.field("name", "TestInsert" + i);
       doc.field("latitude", 50.0 + (i * 0.000001));
       doc.field("longitude", 8.0 + (i * 0.000001));
+
+      db.begin();
       db.save(doc);
+      db.commit();
     }
     OResultSet result = db.query("select * from test");
     Assert.assertEquals(count, result.stream().count());

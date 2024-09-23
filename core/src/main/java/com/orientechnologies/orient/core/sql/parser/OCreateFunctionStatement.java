@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class OCreateFunctionStatement extends OSimpleExecStatement {
+
   protected OIdentifier name;
   protected String codeQuoted;
   protected String code;
@@ -40,22 +41,28 @@ public class OCreateFunctionStatement extends OSimpleExecStatement {
   @Override
   public OExecutionStream executeSimple(OCommandContext ctx) {
     ODatabaseSession database = ctx.getDatabase();
-    final OFunction f =
-        database.getMetadata().getFunctionLibrary().createFunction(name.getStringValue());
-    f.setCode(code);
-    f.setIdempotent(Boolean.TRUE.equals(idempotent));
-    if (parameters != null)
-      f.setParameters(
-          parameters.stream().map(x -> x.getStringValue()).collect(Collectors.toList()));
-    if (language != null) f.setLanguage(language.getStringValue());
-    f.save();
-    ORID functionId = f.getId();
-    OResultInternal result = new OResultInternal();
-    result.setProperty("operation", "create function");
-    result.setProperty("functionName", name.getStringValue());
-    result.setProperty("finalId", functionId);
+    return database.computeInTx(
+        () -> {
+          final OFunction f =
+              database.getMetadata().getFunctionLibrary().createFunction(name.getStringValue());
+          f.setCode(code);
+          f.setIdempotent(Boolean.TRUE.equals(idempotent));
+          if (parameters != null) {
+            f.setParameters(
+                parameters.stream().map(x -> x.getStringValue()).collect(Collectors.toList()));
+          }
+          if (language != null) {
+            f.setLanguage(language.getStringValue());
+          }
+          f.save();
+          ORID functionId = f.getId();
+          OResultInternal result = new OResultInternal();
+          result.setProperty("operation", "create function");
+          result.setProperty("functionName", name.getStringValue());
+          result.setProperty("finalId", functionId);
 
-    return OExecutionStream.singleton(result);
+          return OExecutionStream.singleton(result);
+        });
   }
 
   @Override
@@ -131,20 +138,33 @@ public class OCreateFunctionStatement extends OSimpleExecStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OCreateFunctionStatement that = (OCreateFunctionStatement) o;
 
-    if (name != null ? !name.equals(that.name) : that.name != null) return false;
-    if (codeQuoted != null ? !codeQuoted.equals(that.codeQuoted) : that.codeQuoted != null)
+    if (name != null ? !name.equals(that.name) : that.name != null) {
       return false;
-    if (code != null ? !code.equals(that.code) : that.code != null) return false;
-    if (parameters != null ? !parameters.equals(that.parameters) : that.parameters != null)
+    }
+    if (codeQuoted != null ? !codeQuoted.equals(that.codeQuoted) : that.codeQuoted != null) {
       return false;
-    if (idempotent != null ? !idempotent.equals(that.idempotent) : that.idempotent != null)
+    }
+    if (code != null ? !code.equals(that.code) : that.code != null) {
       return false;
-    if (language != null ? !language.equals(that.language) : that.language != null) return false;
+    }
+    if (parameters != null ? !parameters.equals(that.parameters) : that.parameters != null) {
+      return false;
+    }
+    if (idempotent != null ? !idempotent.equals(that.idempotent) : that.idempotent != null) {
+      return false;
+    }
+    if (language != null ? !language.equals(that.language) : that.language != null) {
+      return false;
+    }
 
     return true;
   }

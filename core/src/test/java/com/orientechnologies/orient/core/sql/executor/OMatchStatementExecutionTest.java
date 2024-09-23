@@ -77,9 +77,11 @@ public class OMatchStatementExecutionTest extends BaseMemoryDatabase {
 
     int nodes = 1000;
     for (int i = 0; i < nodes; i++) {
+      db.begin();
       ODocument doc = new ODocument("IndexedVertex");
       doc.field("uid", i);
       doc.save();
+      db.commit();
     }
 
     for (int i = 0; i < 100; i++) {
@@ -1556,14 +1558,18 @@ public class OMatchStatementExecutionTest extends BaseMemoryDatabase {
     schema.createClass("testBigEntryPoint2");
 
     for (int i = 0; i < 1000; i++) {
+      db.begin();
       ODocument doc = db.newInstance("testBigEntryPoint1");
       doc.field("a", i);
       doc.save();
+      db.commit();
     }
 
+    db.begin();
     ODocument doc = db.newInstance("testBigEntryPoint2");
     doc.field("b", "b");
     doc.save();
+    db.commit();
 
     List<ODocument> qResult =
         collect(

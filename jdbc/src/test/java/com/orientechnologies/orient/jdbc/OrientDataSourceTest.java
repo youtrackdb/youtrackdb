@@ -100,7 +100,8 @@ public class OrientDataSourceTest extends OrientJdbcDbPerClassTemplateTest {
                       Statement statement = conn1.createStatement();
                       ResultSet rs =
                           statement.executeQuery(
-                              "SELECT stringKey, intKey, text, length, date FROM Item");
+                              "SELECT stringKey, intKey, text, length, date FROM Item order by"
+                                  + " stringKey");
 
                       assertThat(rs.first()).isTrue();
                       assertThat(rs.getString("stringKey")).isEqualTo("1");

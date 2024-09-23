@@ -52,6 +52,7 @@ import com.orientechnologies.orient.core.storage.ridbag.sbtree.ChangeSerializati
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeRidBag;
+import com.orientechnologies.orient.core.tx.OTransactionOptimistic;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Calendar;
@@ -65,6 +66,7 @@ import java.util.UUID;
  * @author mdjurovi
  */
 public class HelperClasses {
+
   public static final String CHARSET_UTF_8 = "UTF-8";
   protected static final ORecordId NULL_RECORD_ID = new ORecordId(-2, ORID.CLUSTER_POS_INVALID);
   public static final long MILLISEC_PER_DAY = 86400000;
@@ -89,12 +91,14 @@ public class HelperClasses {
   }
 
   protected static class RecordInfo {
+
     public int fieldStartOffset;
     public int fieldLength;
     public OType fieldType;
   }
 
   protected static class MapRecordInfo extends RecordInfo {
+
     public String key;
     public OType keyType;
   }
@@ -163,8 +167,11 @@ public class HelperClasses {
   public static ORecordId readOptimizedLink(final BytesContainer bytes, boolean justRunThrough) {
     int clusterId = OVarIntSerializer.readAsInteger(bytes);
     long clusterPos = OVarIntSerializer.readAsLong(bytes);
-    if (justRunThrough) return null;
-    else return new ORecordId(clusterId, clusterPos);
+    if (justRunThrough) {
+      return null;
+    } else {
+      return new ORecordId(clusterId, clusterPos);
+    }
   }
 
   public static String stringFromBytes(final byte[] bytes, final int offset, final int len) {
@@ -233,13 +240,16 @@ public class HelperClasses {
     if (!link.getIdentity().isPersistent()) {
       try {
         final ORecord real = link.getRecord();
-        if (real != null) link = real;
+        if (real != null) {
+          link = real;
+        }
       } catch (ORecordNotFoundException ignored) {
         // IGNORE IT WILL FAIL THE ASSERT IN CASE
       }
     }
-    if (link.getIdentity().getClusterId() < 0)
+    if (link.getIdentity().getClusterId() < 0) {
       throw new ODatabaseException("Impossible to serialize invalid link " + link.getIdentity());
+    }
 
     final int pos = OVarIntSerializer.write(bytes, link.getIdentity().getClusterId());
     OVarIntSerializer.write(bytes, link.getIdentity().getClusterPosition());
@@ -256,7 +266,9 @@ public class HelperClasses {
     OType type = OType.getTypeByValue(fieldValue);
     if (type == OType.LINK
         && fieldValue instanceof ODocument
-        && !((ODocument) fieldValue).getIdentity().isValid()) type = OType.EMBEDDED;
+        && !((ODocument) fieldValue).getIdentity().isValid()) {
+      type = OType.EMBEDDED;
+    }
     return type;
   }
 
@@ -269,18 +281,25 @@ public class HelperClasses {
             && ((ORecordLazyMultiValue) value).isAutoConvertToRecord();
 
     if (disabledAutoConversion)
-      // AVOID TO FETCH RECORD
+    // AVOID TO FETCH RECORD
+    {
       ((ORecordLazyMultiValue) value).setAutoConvertToRecord(false);
+    }
 
     try {
       for (OIdentifiable itemValue : value) {
         // TODO: handle the null links
-        if (itemValue == null) writeNullLink(bytes);
-        else writeOptimizedLink(bytes, itemValue);
+        if (itemValue == null) {
+          writeNullLink(bytes);
+        } else {
+          writeOptimizedLink(bytes, itemValue);
+        }
       }
 
     } finally {
-      if (disabledAutoConversion) ((ORecordLazyMultiValue) value).setAutoConvertToRecord(true);
+      if (disabledAutoConversion) {
+        ((ORecordLazyMultiValue) value).setAutoConvertToRecord(true);
+      }
     }
 
     return pos;
@@ -292,8 +311,11 @@ public class HelperClasses {
     for (int i = 0; i < items; i++) {
       ORecordId id = readOptimizedLink(bytes, justRunThrough);
       if (!justRunThrough) {
-        if (id.equals(NULL_RECORD_ID)) found.addInternal(null);
-        else found.addInternal(id);
+        if (id.equals(NULL_RECORD_ID)) {
+          found.addInternal(null);
+        } else {
+          found.addInternal(id);
+        }
       }
     }
     return found;
@@ -313,20 +335,27 @@ public class HelperClasses {
             && ((ORecordLazyMultiValue) map).isAutoConvertToRecord();
 
     if (disabledAutoConversion)
-      // AVOID TO FETCH RECORD
+    // AVOID TO FETCH RECORD
+    {
       ((ORecordLazyMultiValue) map).setAutoConvertToRecord(false);
+    }
 
     try {
       final int fullPos = OVarIntSerializer.write(bytes, map.size());
       for (Map.Entry<Object, OIdentifiable> entry : map.entrySet()) {
         writeString(bytes, entry.getKey().toString());
-        if (entry.getValue() == null) writeNullLink(bytes);
-        else writeOptimizedLink(bytes, entry.getValue());
+        if (entry.getValue() == null) {
+          writeNullLink(bytes);
+        } else {
+          writeOptimizedLink(bytes, entry.getValue());
+        }
       }
       return fullPos;
 
     } finally {
-      if (disabledAutoConversion) ((ORecordLazyMultiValue) map).setAutoConvertToRecord(true);
+      if (disabledAutoConversion) {
+        ((ORecordLazyMultiValue) map).setAutoConvertToRecord(true);
+      }
     }
   }
 
@@ -334,12 +363,17 @@ public class HelperClasses {
       final BytesContainer bytes, final ORecordElement owner, boolean justRunThrough) {
     int size = OVarIntSerializer.readAsInteger(bytes);
     ORecordLazyMap result = null;
-    if (!justRunThrough) result = new ORecordLazyMap(owner);
+    if (!justRunThrough) {
+      result = new ORecordLazyMap(owner);
+    }
     while ((size--) > 0) {
       final String key = readString(bytes);
       final ORecordId value = readOptimizedLink(bytes, justRunThrough);
-      if (value.equals(NULL_RECORD_ID)) result.putInternal(key, null);
-      else result.putInternal(key, value);
+      if (value.equals(NULL_RECORD_ID)) {
+        result.putInternal(key, null);
+      } else {
+        result.putInternal(key, value);
+      }
     }
     return result;
   }
@@ -358,12 +392,18 @@ public class HelperClasses {
     final OSBTreeCollectionManager sbTreeCollectionManager =
         ODatabaseRecordThreadLocal.instance().get().getSbTreeCollectionManager();
     UUID uuid = null;
-    if (sbTreeCollectionManager != null) uuid = sbTreeCollectionManager.listenForChanges(ridbag);
+    if (sbTreeCollectionManager != null) {
+      uuid = sbTreeCollectionManager.listenForChanges(ridbag);
+    }
 
     byte configByte = 0;
-    if (ridbag.isEmbedded()) configByte |= 1;
+    if (ridbag.isEmbedded()) {
+      configByte |= 1;
+    }
 
-    if (uuid != null) configByte |= 2;
+    if (uuid != null) {
+      configByte |= 2;
+    }
 
     // alloc will move offset and do skip
     int posForWrite = bytes.alloc(OByteSerializer.BYTE_SIZE);
@@ -418,10 +458,19 @@ public class HelperClasses {
     OBonsaiCollectionPointer pointer = ridbag.getPointer();
 
     final ORecordSerializationContext context;
-    boolean remoteMode = ODatabaseRecordThreadLocal.instance().get().isRemote();
+    var db = ODatabaseRecordThreadLocal.instance().get();
+    var tx = db.getTransaction();
+    if (!(tx instanceof OTransactionOptimistic optimisticTx)) {
+      throw new ODatabaseException("Transaction is not active. Changes are not allowed");
+    }
+
+    boolean remoteMode = db.isRemote();
+
     if (remoteMode) {
       context = null;
-    } else context = ORecordSerializationContext.getContext();
+    } else {
+      context = ORecordSerializationContext.getContext();
+    }
 
     if (pointer == null && context != null) {
       final int clusterId = getHighLevelDocClusterId(ridbag);
@@ -468,7 +517,9 @@ public class HelperClasses {
       owner = owner.getOwner();
     }
 
-    if (owner != null) return ((OIdentifiable) owner).getIdentity().getClusterId();
+    if (owner != null) {
+      return ((OIdentifiable) owner).getIdentity().getClusterId();
+    }
 
     return -1;
   }
@@ -503,9 +554,10 @@ public class HelperClasses {
       OVarIntSerializer.readAsInteger(bytes);
 
       OBonsaiCollectionPointer pointer = null;
-      if (fileId != -1)
+      if (fileId != -1) {
         pointer =
             new OBonsaiCollectionPointer(fileId, new OBonsaiBucketPointer(pageIndex, pageOffset));
+      }
 
       Map<OIdentifiable, Change> changes = new HashMap<>();
 
@@ -526,9 +578,13 @@ public class HelperClasses {
     ORID rid =
         new ORecordId(OVarIntSerializer.readAsInteger(bytes), OVarIntSerializer.readAsLong(bytes));
     OIdentifiable identifiable = null;
-    if (rid.isTemporary()) identifiable = rid.getRecord();
+    if (rid.isTemporary()) {
+      identifiable = rid.getRecord();
+    }
 
-    if (identifiable == null) identifiable = rid;
+    if (identifiable == null) {
+      identifiable = rid;
+    }
 
     return identifiable;
   }
@@ -537,8 +593,11 @@ public class HelperClasses {
     ORID rid =
         new ORecordId(OVarIntSerializer.readAsInteger(bytes), OVarIntSerializer.readAsLong(bytes));
     final OIdentifiable identifiable;
-    if (rid.isTemporary() && rid.getRecord() != null) identifiable = rid.getRecord();
-    else identifiable = rid;
+    if (rid.isTemporary() && rid.getRecord() != null) {
+      identifiable = rid.getRecord();
+    } else {
+      identifiable = rid;
+    }
     return identifiable;
   }
 
@@ -551,8 +610,9 @@ public class HelperClasses {
   }
 
   public static OType getLinkedType(OClass clazz, OType type, String key) {
-    if (type != OType.EMBEDDEDLIST && type != OType.EMBEDDEDSET && type != OType.EMBEDDEDMAP)
+    if (type != OType.EMBEDDEDLIST && type != OType.EMBEDDEDSET && type != OType.EMBEDDEDMAP) {
       return null;
+    }
     if (clazz != null) {
       OProperty prop = clazz.getProperty(key);
       if (prop != null) {

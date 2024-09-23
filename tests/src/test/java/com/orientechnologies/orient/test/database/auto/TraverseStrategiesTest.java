@@ -35,6 +35,7 @@ public class TraverseStrategiesTest extends DocumentDBBaseTest {
 
   @BeforeClass
   public void init() {
+    database.begin();
     var first = database.newVertex("tc");
     first.setProperty("name", 1.0);
     first.save();
@@ -77,6 +78,7 @@ public class TraverseStrategiesTest extends DocumentDBBaseTest {
 
     e = database.newEdge(second, secondSecondChild, "te");
     e.save();
+    database.commit();
   }
 
   @Test

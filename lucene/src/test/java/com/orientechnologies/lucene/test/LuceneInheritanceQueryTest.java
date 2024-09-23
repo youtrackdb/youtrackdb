@@ -36,16 +36,13 @@ public class LuceneInheritanceQueryTest extends BaseLuceneTest {
     createSchema(db);
     ODocument doc = new ODocument("C2");
     doc.field("name", "abc");
+    db.begin();
     db.save(doc);
+    db.commit();
 
     OResultSet vertices = db.query("select from C1 where name lucene \"abc\" ");
 
     Assert.assertEquals(1, vertices.stream().count());
-
-    //    OResultSet resultSet = db.query("select from C1 where name lucene \"abc\" ");
-    //
-    //    Assert.assertEquals(1, vertices.size());
-
   }
 
   protected void createSchema(ODatabaseDocumentInternal db) {

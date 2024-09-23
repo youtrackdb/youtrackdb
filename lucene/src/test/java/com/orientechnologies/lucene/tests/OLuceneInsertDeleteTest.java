@@ -60,7 +60,10 @@ public class OLuceneInsertDeleteTest extends OLuceneBaseTest {
 
     ODocument doc = new ODocument("City");
     doc.field("name", "Rome");
+
+    db.begin();
     db.save(doc);
+    db.commit();
 
     OIndex idx = schema.getClass("City").getClassIndex("City.name");
     Collection<?> coll;
@@ -68,6 +71,7 @@ public class OLuceneInsertDeleteTest extends OLuceneBaseTest {
       coll = stream.collect(Collectors.toList());
     }
 
+    db.begin();
     assertThat(coll).hasSize(1);
     assertThat(idx.getInternal().size()).isEqualTo(1);
 
@@ -75,6 +79,7 @@ public class OLuceneInsertDeleteTest extends OLuceneBaseTest {
     doc = db.load(next.<ORecord>getRecord());
 
     db.delete(doc);
+    db.commit();
 
     try (Stream<ORID> stream = idx.getInternal().getRids("Rome")) {
       coll = stream.collect(Collectors.toList());

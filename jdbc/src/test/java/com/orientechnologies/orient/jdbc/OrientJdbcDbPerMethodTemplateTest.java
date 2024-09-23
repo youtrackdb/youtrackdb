@@ -19,8 +19,8 @@ import static com.orientechnologies.orient.jdbc.OrientDbCreationHelper.createSch
 import static com.orientechnologies.orient.jdbc.OrientDbCreationHelper.loadDB;
 
 import com.orientechnologies.common.log.OLogManager;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import java.io.File;
 import java.util.Properties;
 import javax.sql.DataSource;
@@ -36,7 +36,7 @@ public abstract class OrientJdbcDbPerMethodTemplateTest {
   @Rule public TestName name = new TestName();
 
   protected OrientJdbcConnection conn;
-  protected ODatabaseDocument db;
+  protected ODatabaseSession db;
   protected OrientDB orientDB;
   protected DataSource ds;
 

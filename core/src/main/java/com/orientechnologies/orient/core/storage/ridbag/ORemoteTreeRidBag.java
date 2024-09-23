@@ -319,11 +319,6 @@ public class ORemoteTreeRidBag implements ORidBagDelegate {
   }
 
   @Override
-  public int getSerializedSize(byte[] stream, int offset) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public int serialize(byte[] stream, int offset, UUID ownerUuid) {
     throw new UnsupportedOperationException();
   }

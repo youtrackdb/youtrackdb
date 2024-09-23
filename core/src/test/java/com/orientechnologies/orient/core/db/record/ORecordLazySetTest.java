@@ -25,6 +25,7 @@ public class ORecordLazySetTest extends BaseMemoryDatabase {
 
   public void beforeTest() {
     super.beforeTest();
+    db.begin();
     doc1 =
         db.save(
             new ODocument().field("doc1", "doc1"), db.getClusterNameById(db.getDefaultClusterId()));
@@ -37,6 +38,7 @@ public class ORecordLazySetTest extends BaseMemoryDatabase {
         db.save(
             new ODocument().field("doc3", "doc3"), db.getClusterNameById(db.getDefaultClusterId()));
     rid3 = doc3.getIdentity();
+    db.commit();
   }
 
   @Test

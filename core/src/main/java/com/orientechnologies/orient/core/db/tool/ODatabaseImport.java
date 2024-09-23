@@ -467,7 +467,9 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
 
     // Starting from v4 schema has been moved to internal cluster.
     // Create a stub at #2:0 to prevent cluster position shifting.
+    database.begin();
     new ODocument().save(OStorage.CLUSTER_DEFAULT_NAME);
+    database.commit();
 
     database.getSharedContext().getSecurity().create(database);
   }
@@ -1447,7 +1449,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
           if (!record.getClass().isAssignableFrom(loadedRecord.getClass())) {
             throw new IllegalStateException(
                 "Imported record and record stored in database under id "
-                    + rid.toString()
+                    + rid
                     + " have different types. "
                     + "Stored record class is : "
                     + record.getClass()
@@ -1462,20 +1464,28 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
         }
         record.setDirty();
 
-        if (!preserveRids
-            && record instanceof ODocument
-            && ODocumentInternal.getImmutableSchemaClass(database, ((ODocument) record)) != null) {
-          record.save();
-        } else {
-          record.save(database.getClusterNameById(clusterId));
-        }
+        var recordToSave = record;
+        database.executeInTx(
+            () -> {
+              if (!preserveRids
+                  && recordToSave instanceof ODocument
+                  && ODocumentInternal.getImmutableSchemaClass(database, ((ODocument) recordToSave))
+                      != null) {
+                recordToSave.save();
+              } else {
+                recordToSave.save(database.getClusterNameById(clusterId));
+              }
+            });
 
         if (!rid.equals(record.getIdentity())) {
           // SAVE IT ONLY IF DIFFERENT
-          new ODocument(EXPORT_IMPORT_CLASS_NAME)
-              .field("key", rid.toString())
-              .field("value", record.getIdentity().toString())
-              .save();
+          var recordRid = record.getIdentity();
+          database.executeInTx(
+              () ->
+                  new ODocument(EXPORT_IMPORT_CLASS_NAME)
+                      .field("key", rid.toString())
+                      .field("value", recordRid.toString())
+                      .save());
         }
       }
 
@@ -1963,7 +1973,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
       ODatabaseSession session, ODocument document, Set<ORID> brokenRids) {
     doRewriteLinksInDocument(session, document, brokenRids);
 
-    document.save();
+    session.executeInTx(document::save);
   }
 
   protected static void doRewriteLinksInDocument(

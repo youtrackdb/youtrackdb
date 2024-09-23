@@ -143,6 +143,7 @@ public class SQLFindReferencesTest extends DocumentDBBaseTest {
   }
 
   private void populateDatabase() {
+    database.begin();
     ODocument car = new ODocument(CAR);
     car.field("plate", "JINF223S");
 
@@ -151,25 +152,21 @@ public class SQLFindReferencesTest extends DocumentDBBaseTest {
     johnDoe.field("surname", "Doe");
     johnDoe.field("car", car);
     johnDoe.save();
-    johnDoeID = johnDoe.getIdentity().copy();
 
     ODocument janeDoe = new ODocument(WORKER);
     janeDoe.field("name", "Jane");
     janeDoe.field("surname", "Doe");
     janeDoe.save();
-    janeDoeID = janeDoe.getIdentity().copy();
 
     ODocument chuckNorris = new ODocument(WORKER);
     chuckNorris.field("name", "Chuck");
     chuckNorris.field("surname", "Norris");
     chuckNorris.save();
-    chuckNorrisID = chuckNorris.getIdentity().copy();
 
     ODocument jackBauer = new ODocument(WORKER);
     jackBauer.field("name", "Jack");
     jackBauer.field("surname", "Bauer");
     jackBauer.save();
-    jackBauerID = jackBauer.getIdentity().copy();
 
     ODocument ctu = new ODocument(WORKPLACE);
     ctu.field("name", "CTU");
@@ -179,7 +176,6 @@ public class SQLFindReferencesTest extends DocumentDBBaseTest {
     workplace1Workers.add(janeDoe);
     ctu.field("workers", workplace1Workers);
     ctu.save();
-    ctuID = ctu.getIdentity().copy();
 
     ODocument fbi = new ODocument(WORKPLACE);
     fbi.field("name", "FBI");
@@ -189,10 +185,17 @@ public class SQLFindReferencesTest extends DocumentDBBaseTest {
     workplace2Workers.add(jackBauer);
     fbi.field("workers", workplace2Workers);
     fbi.save();
-    fbiID = fbi.getIdentity().copy();
 
     car.field("owner", jackBauer);
     car.save();
+    database.commit();
+
+    chuckNorrisID = chuckNorris.getIdentity().copy();
+    janeDoeID = janeDoe.getIdentity().copy();
+    johnDoeID = johnDoe.getIdentity().copy();
+    jackBauerID = jackBauer.getIdentity().copy();
+    ctuID = ctu.getIdentity();
+    fbiID = fbi.getIdentity();
     carID = car.getIdentity().copy();
   }
 

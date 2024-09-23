@@ -219,11 +219,16 @@ public class LuceneSpatialMultiPolygonTest extends BaseSpatialLuceneTest {
     ODocument italy = new ODocument("Place");
     italy.field("name", "Italy");
     italy.field("location", location);
+
+    db.begin();
     db.save(italy);
+    db.commit();
 
     OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Place.location");
 
+    db.begin();
     Assert.assertEquals(1, index.getInternal().size());
+    db.commit();
 
     InputStream systemResourceAsStream = ClassLoader.getSystemResourceAsStream("multipolygon.txt");
 

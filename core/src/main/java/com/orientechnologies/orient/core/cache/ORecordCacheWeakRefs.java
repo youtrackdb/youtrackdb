@@ -33,10 +33,18 @@ import java.util.function.BiConsumer;
  */
 public class ORecordCacheWeakRefs extends OAbstractMapCache<ORIDsWeakValuesHashMap<ORecordAbstract>>
     implements ORecordCache {
-  private static final BiConsumer<ORID, ORecord> UNLOAD_RECORDS_CONSUMER =
+
+  private static final BiConsumer<ORID, ORecordAbstract> UNLOAD_RECORDS_CONSUMER =
       (rid, record) -> {
         ORecordInternal.unsetDirty(record);
         record.unload();
+      };
+
+  private static final BiConsumer<ORID, ORecordAbstract> UNLOAD_NOT_MODIFIED_RECORDS_CONSUMER =
+      (rid, record) -> {
+        if (!record.isDirtyNoLoading()) {
+          record.unload();
+        }
       };
 
   public ORecordCacheWeakRefs() {
@@ -45,26 +53,37 @@ public class ORecordCacheWeakRefs extends OAbstractMapCache<ORIDsWeakValuesHashM
 
   @Override
   public ORecordAbstract get(final ORID rid) {
-    if (!isEnabled()) return null;
+    if (!isEnabled()) {
+      return null;
+    }
 
     return cache.get(rid);
   }
 
   @Override
   public ORecordAbstract put(final ORecordAbstract record) {
-    if (!isEnabled()) return null;
+    if (!isEnabled()) {
+      return null;
+    }
     return cache.put(record.getIdentity(), record);
   }
 
   @Override
   public ORecordAbstract remove(final ORID rid) {
-    if (!isEnabled()) return null;
+    if (!isEnabled()) {
+      return null;
+    }
     return cache.remove(rid);
   }
 
   @Override
   public void unloadRecords() {
     cache.forEach(UNLOAD_RECORDS_CONSUMER);
+  }
+
+  @Override
+  public void unloadNotModifiedRecords() {
+    cache.forEach(UNLOAD_NOT_MODIFIED_RECORDS_CONSUMER);
   }
 
   @Override

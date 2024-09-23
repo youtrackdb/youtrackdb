@@ -296,6 +296,8 @@ public class OGraphBatchInsert {
         throw new RuntimeException(e);
       }
     }
+
+    db.begin();
   }
 
   /** Flushes data to db and closes the db. Call this once, after vertices and edges creation. */

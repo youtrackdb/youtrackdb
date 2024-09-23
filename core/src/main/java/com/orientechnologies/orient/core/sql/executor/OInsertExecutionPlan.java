@@ -30,11 +30,15 @@ public class OInsertExecutionPlan extends OSelectExecutionPlan {
   }
 
   public void executeInternal() throws OCommandExecutionException {
-    OExecutionStream nextBlock = super.start();
-    while (nextBlock.hasNext(ctx)) {
-      result.add(nextBlock.next(ctx));
-    }
-    nextBlock.close(ctx);
+    var db = ctx.getDatabase();
+    db.executeInTx(
+        () -> {
+          OExecutionStream nextBlock = super.start();
+          while (nextBlock.hasNext(ctx)) {
+            result.add(nextBlock.next(ctx));
+          }
+          nextBlock.close(ctx);
+        });
   }
 
   @Override

@@ -322,6 +322,10 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
   @Test
   public void testSelectExcludeFunction() {
     try {
+      database.createClass("A");
+      database.createClass("B");
+
+      database.begin();
       var rootElement = database.newInstance("A");
       var childElement = database.newInstance("B");
 
@@ -335,6 +339,7 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
       rootElement.setProperty("child", childElement, OType.LINK);
 
       rootElement.save();
+      database.commit();
 
       List<ODocument> res =
           executeQuery("select a,b, child.exclude('d') as child from " + rootElement.getIdentity());
@@ -353,6 +358,10 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
   @Test
   public void testSimpleExpandExclude() {
     try {
+      database.createClass("A");
+      database.createClass("B");
+
+      database.begin();
       var rootElement = database.newInstance("A");
       rootElement.setProperty("a", "a");
       rootElement.setProperty("b", "b");
@@ -366,6 +375,7 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
       childElement.setProperty("root", List.of(rootElement), OType.LINKLIST);
 
       rootElement.save();
+      database.commit();
 
       List<ODocument> res =
           executeQuery(

@@ -72,8 +72,11 @@ public class LuceneSpatialLineStringTest extends BaseSpatialLuceneTest {
                 add(Arrays.asList(0d, 5d));
               }
             }));
+
+    db.begin();
     db.save(linestring1);
     db.save(linestring2);
+    db.commit();
 
     db.command(
             "insert into Place set name = 'LineString3' , location = ST_GeomFromText('"
@@ -132,7 +135,9 @@ public class LuceneSpatialLineStringTest extends BaseSpatialLuceneTest {
 
     OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Place.location");
 
+    db.begin();
     Assert.assertEquals(3, index.getInternal().size());
+    db.commit();
     queryLineString();
   }
 }

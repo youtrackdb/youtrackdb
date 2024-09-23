@@ -45,12 +45,16 @@ public class DocumentEmbeddedTest extends BaseLuceneTest {
     ODocument doc = new ODocument("City");
 
     doc.field("name", "London");
+    db.begin();
     db.save(doc);
+    db.commit();
 
     doc = new ODocument("City");
     doc.field("name", "Rome");
 
+    db.begin();
     db.save(doc);
+    db.commit();
 
     OResultSet results = db.query("select from City where name lucene 'London'");
 

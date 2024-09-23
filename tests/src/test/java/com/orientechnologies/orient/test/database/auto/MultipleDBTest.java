@@ -42,7 +42,9 @@ import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-/** @author Michael Hiess */
+/**
+ * @author Michael Hiess
+ */
 public class MultipleDBTest extends DocumentDBBaseTest {
 
   @Parameters(value = "url")
@@ -86,39 +88,35 @@ public class MultipleDBTest extends DocumentDBBaseTest {
 
             @Override
             public Void call() throws InterruptedException, IOException {
-              OObjectDatabaseTx tx = new OObjectDatabaseTx(dbUrl);
+              OObjectDatabaseTx db = new OObjectDatabaseTx(dbUrl);
 
-              ODatabaseHelper.deleteDatabase(tx, getStorageType());
-              ODatabaseHelper.createDatabase(tx, dbUrl, getStorageType());
+              ODatabaseHelper.deleteDatabase(db, getStorageType());
+              ODatabaseHelper.createDatabase(db, dbUrl, getStorageType());
               try {
-                if (tx.isClosed()) {
-                  tx.open("admin", "admin");
+                if (db.isClosed()) {
+                  db.open("admin", "admin");
                 }
 
-                tx.set(ODatabase.ATTRIBUTES.MINIMUMCLUSTERS, 1);
-                tx.getMetadata().getSchema().getOrCreateClass("DummyObject");
-                tx.getEntityManager().registerEntityClass(DummyObject.class);
+                db.set(ODatabase.ATTRIBUTES.MINIMUMCLUSTERS, 1);
+                db.getMetadata().getSchema().getOrCreateClass("DummyObject");
+                db.getEntityManager().registerEntityClass(DummyObject.class);
 
                 long start = System.currentTimeMillis();
                 for (int j = 0; j < operations_write; j++) {
                   DummyObject dummy = new DummyObject("name" + j);
 
-                  dummy = tx.save(dummy);
+                  db.begin();
+                  dummy = db.save(dummy);
+                  db.commit();
 
-                  // CAN'T WORK FOR LHPEPS CLUSTERS BECAUSE CLUSTER POSITION CANNOT BE KNOWN
                   Assert.assertEquals(
                       ((ORID) dummy.getId()).getClusterPosition(), j, "RID was " + dummy.getId());
-
-                  // if ((j + 1) % 20000 == 0) {
-                  // System.out.println("(" + getDbId(tx) + ") " + "Operations (WRITE) executed: " +
-                  // (j + 1));
-                  // }
                 }
                 long end = System.currentTimeMillis();
 
                 String time =
                     "("
-                        + getDbId(tx)
+                        + getDbId(db)
                         + ") "
                         + "Executed operations (WRITE) in: "
                         + (end - start)
@@ -129,7 +127,7 @@ public class MultipleDBTest extends DocumentDBBaseTest {
                 start = System.currentTimeMillis();
                 for (int j = 0; j < operations_read; j++) {
                   List<DummyObject> l =
-                      tx.query(new OSQLSynchQuery<DummyObject>(" select * from DummyObject "));
+                      db.query(new OSQLSynchQuery<DummyObject>(" select * from DummyObject "));
                   Assert.assertEquals(l.size(), operations_write);
 
                   // if ((j + 1) % 20000 == 0) {
@@ -141,7 +139,7 @@ public class MultipleDBTest extends DocumentDBBaseTest {
 
                 time =
                     "("
-                        + getDbId(tx)
+                        + getDbId(db)
                         + ") "
                         + "Executed operations (READ) in: "
                         + (end - start)
@@ -149,12 +147,12 @@ public class MultipleDBTest extends DocumentDBBaseTest {
                 // System.out.println(time);
                 times.add(time);
 
-                tx.close();
+                db.close();
 
               } finally {
                 // System.out.println("(" + getDbId(tx) + ") " + "Dropping");
                 // System.out.flush();
-                ODatabaseHelper.deleteDatabase(tx, getStorageType());
+                ODatabaseHelper.deleteDatabase(db, getStorageType());
                 // System.out.println("(" + getDbId(tx) + ") " + "Dropped");
                 // System.out.flush();
               }
@@ -165,7 +163,9 @@ public class MultipleDBTest extends DocumentDBBaseTest {
       threads.add(executorService.submit(t));
     }
 
-    for (Future future : threads) future.get();
+    for (Future future : threads) {
+      future.get();
+    }
 
     // System.out.println("Test testObjectMultipleDBsThreaded ended");
   }
@@ -189,111 +189,81 @@ public class MultipleDBTest extends DocumentDBBaseTest {
       final String dbUrl = url + i;
 
       Callable<Void> t =
-          new Callable<Void>() {
+          () -> {
+            ODatabaseDocumentInternal db = new ODatabaseDocumentTx(dbUrl);
 
-            @Override
-            public Void call() throws InterruptedException, IOException {
-              ODatabaseDocumentInternal tx = new ODatabaseDocumentTx(dbUrl);
+            ODatabaseHelper.deleteDatabase(db, getStorageType());
+            ODatabaseHelper.createDatabase(db, dbUrl, getStorageType());
 
-              ODatabaseHelper.deleteDatabase(tx, getStorageType());
-              // System.out.println("Thread " + this + " is creating database " + dbUrl);
-              // System.out.flush();
-              ODatabaseHelper.createDatabase(tx, dbUrl, getStorageType());
-
-              try {
-                // System.out.println("(" + getDbId(tx) + ") " + "Created");
-                // System.out.flush();
-
-                if (tx.isClosed()) {
-                  tx.open("admin", "admin");
-                }
-
-                tx.getMetadata().getSchema().createClass("DummyObject", 1, null);
-
-                long start = System.currentTimeMillis();
-                for (int j = 0; j < operations_write; j++) {
-
-                  ODocument dummy = new ODocument("DummyObject");
-                  dummy.field("name", "name" + j);
-
-                  dummy = tx.save(dummy);
-
-                  // CAN'T WORK FOR LHPEPS CLUSTERS BECAUSE CLUSTER POSITION CANNOT BE KNOWN
-                  Assert.assertEquals(
-                      dummy.getIdentity().getClusterPosition(),
-                      j,
-                      "RID was " + dummy.getIdentity());
-
-                  // if ((j + 1) % 20000 == 0) {
-                  // System.out.println("(" + getDbId(tx) + ") " + "Operations (WRITE) executed: " +
-                  // (j + 1));
-                  // System.out.flush();
-                  // }
-                }
-                long end = System.currentTimeMillis();
-
-                String time =
-                    "("
-                        + getDbId(tx)
-                        + ") "
-                        + "Executed operations (WRITE) in: "
-                        + (end - start)
-                        + " ms";
-                // System.out.println(time);
-                // System.out.flush();
-
-                times.add(time);
-
-                start = System.currentTimeMillis();
-                for (int j = 0; j < operations_read; j++) {
-                  List<DummyObject> l =
-                      tx.query(new OSQLSynchQuery<DummyObject>(" select * from DummyObject "));
-                  Assert.assertEquals(l.size(), operations_write);
-
-                  // if ((j + 1) % 20000 == 0) {
-                  // System.out.println("(" + getDbId(tx) + ") " + "Operations (READ) executed: " +
-                  // j + 1);
-                  // System.out.flush();
-                  // }
-                }
-                end = System.currentTimeMillis();
-
-                time =
-                    "("
-                        + getDbId(tx)
-                        + ") "
-                        + "Executed operations (READ) in: "
-                        + (end - start)
-                        + " ms";
-                // System.out.println(time);
-                // System.out.flush();
-
-                times.add(time);
-
-              } finally {
-                tx.close();
-
-                // System.out.println("Thread " + this + " is dropping database " + dbUrl);
-                // System.out.flush();
-                ODatabaseHelper.deleteDatabase(tx, getStorageType());
+            try {
+              if (db.isClosed()) {
+                db.open("admin", "admin");
               }
-              return null;
+
+              db.getMetadata().getSchema().createClass("DummyObject", 1, null);
+
+              long start = System.currentTimeMillis();
+              for (int j = 0; j < operations_write; j++) {
+
+                ODocument dummy = new ODocument("DummyObject");
+                dummy.field("name", "name" + j);
+
+                db.begin();
+                dummy = db.save(dummy);
+                db.commit();
+
+                Assert.assertEquals(
+                    dummy.getIdentity().getClusterPosition(), j, "RID was " + dummy.getIdentity());
+              }
+              long end = System.currentTimeMillis();
+
+              String time =
+                  "("
+                      + getDbId(db)
+                      + ") "
+                      + "Executed operations (WRITE) in: "
+                      + (end - start)
+                      + " ms";
+              times.add(time);
+
+              start = System.currentTimeMillis();
+              for (int j = 0; j < operations_read; j++) {
+                List<DummyObject> l =
+                    db.query(new OSQLSynchQuery<DummyObject>(" select * from DummyObject "));
+                Assert.assertEquals(l.size(), operations_write);
+              }
+              end = System.currentTimeMillis();
+
+              time =
+                  "("
+                      + getDbId(db)
+                      + ") "
+                      + "Executed operations (READ) in: "
+                      + (end - start)
+                      + " ms";
+              times.add(time);
+
+            } finally {
+              db.close();
+
+              ODatabaseHelper.deleteDatabase(db, getStorageType());
             }
+            return null;
           };
 
       results.add(executorService.submit(t));
     }
 
-    for (Future future : results) future.get();
-
-    // System.out.println("Test testDocumentMultipleDBsThreaded ended");
-    // System.out.flush();
-
+    for (Future future : results) {
+      future.get();
+    }
   }
 
   private String getDbId(ODatabaseInternal tx) {
-    if (tx.getStorage() instanceof OStorageRemote)
+    if (tx.getStorage() instanceof OStorageRemote) {
       return tx.getURL() + " - sessionId: " + ((OStorageRemote) tx.getStorage()).getSessionId();
-    else return tx.getURL();
+    } else {
+      return tx.getURL();
+    }
   }
 }

@@ -54,6 +54,7 @@ public class NewTraverseTest extends DocumentDBBaseTest {
     database.createEdgeClass("friend");
     database.createEdgeClass("married");
 
+    database.begin();
     tomCruise = database.newVertex("Actor");
     tomCruise.setProperty("name", "Tom Cruise");
     tomCruise.save();
@@ -116,6 +117,7 @@ public class NewTraverseTest extends DocumentDBBaseTest {
     e.save();
 
     totalElements++;
+    database.commit();
   }
 
   public void traverseSQLAllFromActorNoWhereBreadthFrirst() {

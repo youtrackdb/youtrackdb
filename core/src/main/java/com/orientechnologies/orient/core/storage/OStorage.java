@@ -30,7 +30,7 @@ import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.storage.cluster.OPaginatedCluster;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
-import com.orientechnologies.orient.core.tx.OTransactionInternal;
+import com.orientechnologies.orient.core.tx.OTransactionOptimistic;
 import com.orientechnologies.orient.core.util.OBackupable;
 import java.io.IOException;
 import java.io.InputStream;
@@ -86,16 +86,13 @@ public interface OStorage extends OBackupable, OStorageInfo {
 
   boolean recordExists(ORID rid);
 
-  OStorageOperationResult<Boolean> deleteRecord(
-      ORecordId iRecordId, int iVersion, int iMode, ORecordCallback<Boolean> iCallback);
-
   ORecordMetadata getRecordMetadata(final ORID rid);
 
   boolean cleanOutRecord(
       ORecordId recordId, int recordVersion, int iMode, ORecordCallback<Boolean> callback);
 
   // TX OPERATIONS
-  List<ORecordOperation> commit(OTransactionInternal iTx);
+  List<ORecordOperation> commit(OTransactionOptimistic iTx);
 
   Set<String> getClusterNames();
 

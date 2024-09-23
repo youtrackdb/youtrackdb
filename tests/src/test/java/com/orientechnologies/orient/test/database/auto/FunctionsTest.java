@@ -77,9 +77,11 @@ public class FunctionsTest extends DocumentDBBaseTest {
       Assert.assertEquals(res1.next().<Object>getProperty("testCache"), 1);
     }
 
+    database.begin();
     ODocument func = f.getRecord();
     func.field("code", "return 2;");
     func.save();
+    database.commit();
 
     try (OResultSet res2 = database.command("select testCache() as testCache")) {
       Assert.assertEquals(res2.next().<Object>getProperty("testCache"), 2);

@@ -32,12 +32,14 @@ public class LightWeightEdgesTest {
 
   @Test
   public void testSimpleLightWeight() {
+    session.begin();
     OVertex v = session.newVertex("Vertex");
     OVertex v1 = session.newVertex("Vertex");
     v.addLightWeightEdge(v1, "Edge");
     v.setProperty("name", "aName");
     v1.setProperty("name", "bName");
     session.save(v);
+    session.commit();
 
     try (OResultSet res =
         session.query(" select expand(out('Edge')) from `Vertex` where name = 'aName'")) {
@@ -65,12 +67,14 @@ public class LightWeightEdgesTest {
     vClass.createProperty("out_" + eClazz, OType.LINKBAG, eClass);
     vClass.createProperty("in_" + eClazz, OType.LINKBAG, eClass);
 
+    session.begin();
     OVertex v = session.newVertex(vClass);
     v.setProperty("name", "a");
     v.save();
     OVertex v1 = session.newVertex(vClass);
     v1.setProperty("name", "b");
     v1.save();
+    session.commit();
 
     session.command(
         "create edge "

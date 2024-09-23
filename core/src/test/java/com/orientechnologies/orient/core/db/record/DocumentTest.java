@@ -58,10 +58,13 @@ public class DocumentTest extends BaseMemoryDatabase {
 
   @Test
   public void testFromMapWithClassAndRid() {
+    db.begin();
     final ODocument doc = new ODocument("V");
     doc.field("name", "Jay");
     doc.field("surname", "Miner");
     doc.save();
+    db.commit();
+
     Map<String, Object> map = doc.toMap();
 
     Assert.assertEquals(map.size(), 4);

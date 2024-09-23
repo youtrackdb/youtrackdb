@@ -35,7 +35,11 @@ public class HookSaveTest extends BaseMemoryDatabase {
           }
         });
 
+    db.getMetadata().getSchema().createClass("test");
+    db.begin();
     ODocument doc = db.save(new ODocument("test"));
+    db.commit();
+
     ODocument newRef = doc.field("testNewLinkedRecord");
     assertNotNull(newRef);
     assertNotNull(newRef.getIdentity().isPersistent());
@@ -66,7 +70,11 @@ public class HookSaveTest extends BaseMemoryDatabase {
           }
         });
 
+    db.getMetadata().getSchema().createClass("test");
+    db.begin();
     ODocument doc = db.save(new ODocument("test"));
+    db.commit();
+
     ODocument newRef = doc.field("testNewLinkedRecord");
     assertNotNull(newRef);
     assertNotNull(newRef.getIdentity().isPersistent());

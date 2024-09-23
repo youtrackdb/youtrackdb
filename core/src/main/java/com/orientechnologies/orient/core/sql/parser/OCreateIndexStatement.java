@@ -157,7 +157,9 @@ public class OCreateIndexStatement extends ODDLStatement {
       idx = getoIndex(oClass, fields, engine, database, collatesList, metadataDoc);
     }
 
-    if (idx != null) return idx.getInternal().size();
+    if (idx != null) {
+      return database.computeInTx(() -> idx.getInternal().size());
+    }
 
     return null;
   }
@@ -179,7 +181,7 @@ public class OCreateIndexStatement extends ODDLStatement {
       final List<OType> fieldTypeList;
       if (keyTypes == null || keyTypes.size() == 0 && fields.length > 0) {
         for (final String fieldName : fields) {
-          if (!fieldName.equals("@rid") && !oClass.existsProperty(fieldName))
+          if (!fieldName.equals("@rid") && !oClass.existsProperty(fieldName)) {
             throw new OIndexException(
                 "Index with name : '"
                     + name.getValue()
@@ -188,13 +190,15 @@ public class OCreateIndexStatement extends ODDLStatement {
                     + "' because field: '"
                     + fieldName
                     + "' is absent in class definition.");
+          }
         }
         fieldTypeList = ((OClassImpl) oClass).extractFieldTypes(fields);
-      } else
+      } else {
         fieldTypeList =
             keyTypes.stream()
                 .map(x -> OType.valueOf(x.getStringValue()))
                 .collect(Collectors.toList());
+      }
 
       final OIndexDefinition idxDef =
           OIndexDefinitionFactory.createIndexDefinition(
@@ -238,7 +242,9 @@ public class OCreateIndexStatement extends ODDLStatement {
         .toArray(new String[] {});
   }
 
-  /** calculates the indexed class based on the class name */
+  /**
+   * calculates the indexed class based on the class name
+   */
   private OClass getIndexClass(OCommandContext ctx) {
     if (className == null) {
       return null;
@@ -251,7 +257,9 @@ public class OCreateIndexStatement extends ODDLStatement {
     return result;
   }
 
-  /** returns index metadata as an ODocuemnt (as expected by Index API) */
+  /**
+   * returns index metadata as an ODocuemnt (as expected by Index API)
+   */
   private ODocument calculateMetadata(OCommandContext ctx) {
     if (metadata == null) {
       return null;
@@ -415,19 +423,35 @@ public class OCreateIndexStatement extends ODDLStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OCreateIndexStatement that = (OCreateIndexStatement) o;
 
-    if (name != null ? !name.equals(that.name) : that.name != null) return false;
-    if (className != null ? !className.equals(that.className) : that.className != null)
+    if (name != null ? !name.equals(that.name) : that.name != null) {
       return false;
-    if (propertyList != null ? !propertyList.equals(that.propertyList) : that.propertyList != null)
+    }
+    if (className != null ? !className.equals(that.className) : that.className != null) {
       return false;
-    if (type != null ? !type.equals(that.type) : that.type != null) return false;
-    if (engine != null ? !engine.equals(that.engine) : that.engine != null) return false;
-    if (keyTypes != null ? !keyTypes.equals(that.keyTypes) : that.keyTypes != null) return false;
+    }
+    if (propertyList != null
+        ? !propertyList.equals(that.propertyList)
+        : that.propertyList != null) {
+      return false;
+    }
+    if (type != null ? !type.equals(that.type) : that.type != null) {
+      return false;
+    }
+    if (engine != null ? !engine.equals(that.engine) : that.engine != null) {
+      return false;
+    }
+    if (keyTypes != null ? !keyTypes.equals(that.keyTypes) : that.keyTypes != null) {
+      return false;
+    }
     return metadata != null ? metadata.equals(that.metadata) : that.metadata == null;
   }
 
@@ -444,6 +468,7 @@ public class OCreateIndexStatement extends ODDLStatement {
   }
 
   public static class Property {
+
     protected OIdentifier name;
     protected ORecordAttribute recordAttribute;
     protected boolean byKey = false;
@@ -462,17 +487,29 @@ public class OCreateIndexStatement extends ODDLStatement {
 
     @Override
     public boolean equals(Object o) {
-      if (this == o) return true;
-      if (o == null || getClass() != o.getClass()) return false;
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
 
       Property property = (Property) o;
 
-      if (byKey != property.byKey) return false;
-      if (byValue != property.byValue) return false;
-      if (name != null ? !name.equals(property.name) : property.name != null) return false;
+      if (byKey != property.byKey) {
+        return false;
+      }
+      if (byValue != property.byValue) {
+        return false;
+      }
+      if (name != null ? !name.equals(property.name) : property.name != null) {
+        return false;
+      }
       if (recordAttribute != null
           ? !recordAttribute.equals(property.recordAttribute)
-          : property.recordAttribute != null) return false;
+          : property.recordAttribute != null) {
+        return false;
+      }
       return collate != null ? collate.equals(property.collate) : property.collate == null;
     }
 
@@ -486,11 +523,16 @@ public class OCreateIndexStatement extends ODDLStatement {
       return result;
     }
 
-    /** returns the complete key to index, eg. property name or "property by key/value" */
+    /**
+     * returns the complete key to index, eg. property name or "property by key/value"
+     */
     public String getCompleteKey() {
       StringBuilder result = new StringBuilder();
-      if (name != null) result.append(name.getStringValue());
-      else if (recordAttribute != null) result.append(recordAttribute.getName());
+      if (name != null) {
+        result.append(name.getStringValue());
+      } else if (recordAttribute != null) {
+        result.append(recordAttribute.getName());
+      }
 
       if (byKey) {
         result.append(" by key");

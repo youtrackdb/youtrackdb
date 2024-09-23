@@ -30,13 +30,6 @@ public class RecordCreateTest extends DocumentDBBaseTest {
   }
 
   @Test
-  public void testSavedRecordNoTx() {
-    var element = database.newElement();
-    element.save();
-    Assert.assertTrue(element.exists());
-  }
-
-  @Test
   public void testSavedRecordTx() {
     database.begin();
     try {
@@ -46,14 +39,6 @@ public class RecordCreateTest extends DocumentDBBaseTest {
     } finally {
       database.rollback();
     }
-  }
-
-  @Test
-  public void testDeletedRecordNoTx() {
-    var element = database.newElement();
-    element.save();
-    element.delete();
-    Assert.assertFalse(element.exists());
   }
 
   @Test
@@ -67,15 +52,6 @@ public class RecordCreateTest extends DocumentDBBaseTest {
     } finally {
       database.rollback();
     }
-  }
-
-  @Test
-  public void testSaveDeletedRecordNoTx() {
-    var element = database.newElement();
-    element.save();
-    Assert.assertTrue(element.exists());
-    element.delete();
-    Assert.assertFalse(element.exists());
   }
 
   @Test
@@ -95,7 +71,10 @@ public class RecordCreateTest extends DocumentDBBaseTest {
   @Test
   public void testLoadedRecordNoTx() {
     var element = database.newElement();
+    database.begin();
     element.save();
+    database.commit();
+
     var loadedElement = database.load(element.getIdentity());
     Assert.assertTrue(loadedElement.exists());
   }
@@ -111,16 +90,6 @@ public class RecordCreateTest extends DocumentDBBaseTest {
     } finally {
       database.rollback();
     }
-  }
-
-  @Test
-  public void testLoadedDeletedRecordNoTx() {
-    var element = database.newElement();
-    element.save();
-    var loadedElement = database.load(element.getIdentity());
-    Assert.assertTrue(loadedElement.exists());
-    element.delete();
-    Assert.assertFalse(loadedElement.exists());
   }
 
   @Test

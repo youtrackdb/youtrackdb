@@ -102,7 +102,10 @@ public class HookInstallServerTest {
     for (int i = 0; i < 10; i++) {
       ODatabaseDocument some = pool.acquire();
       try {
+        some.createClassIfNotExist("Test");
+        some.begin();
         some.save(new ODocument("Test").field("entry", i));
+        some.commit();
       } finally {
         some.close();
       }

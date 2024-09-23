@@ -19,7 +19,6 @@ import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import org.junit.Assert;
@@ -33,7 +32,9 @@ public class ODatabaseDocumentTxTest extends BaseMemoryDatabase {
     OClass testSuperclass = db.getMetadata().getSchema().createClass("TestSuperclass");
     db.getMetadata().getSchema().createClass("TestSubclass", testSuperclass);
 
+    db.begin();
     ODocument toDelete = new ODocument("TestSubclass").field("id", 1).save();
+    db.commit();
 
     // 1 SUB, 0 SUPER
     Assert.assertEquals(db.countClass("TestSubclass", false), 1);
@@ -78,11 +79,11 @@ public class ODatabaseDocumentTxTest extends BaseMemoryDatabase {
 
   @Test(expected = OCommitSerializationException.class)
   public void testSaveInvalidRid() {
+    db.begin();
     ODocument doc = new ODocument();
-
     doc.field("test", new ORecordId(-2, 10));
-
     db.save(doc);
+    db.commit();
   }
 
   @Test
@@ -135,6 +136,7 @@ public class ODatabaseDocumentTxTest extends BaseMemoryDatabase {
     c1.createProperty("account", OType.STRING);
     c1.createProperty("meta", OType.EMBEDDED, c0);
 
+    db.begin();
     ODocument doc = new ODocument("testDocFromJsonEmbedded_Class1");
 
     doc.fromJSON(
@@ -151,6 +153,7 @@ public class ODatabaseDocumentTxTest extends BaseMemoryDatabase {
             + "}");
 
     db.save(doc);
+    db.commit();
 
     try (OResultSet result = db.query("select from testDocFromJsonEmbedded_Class0")) {
       Assert.assertEquals(result.stream().count(), 0);
@@ -213,128 +216,11 @@ public class ODatabaseDocumentTxTest extends BaseMemoryDatabase {
   }
 
   @Test
-  public void testExecuteWithRetryInDirtyTx() {
-    db.begin();
-    ODocument v = db.newInstance("V");
-    db.save(v);
-    try {
-      db.executeWithRetry(2, (db) -> null);
-      Assert.fail();
-    } catch (IllegalStateException x) {
-    }
-    db.rollback();
-  }
-
-  @Test
-  public void testExecuteWithRetryWrongN() {
-    try {
-      db.executeWithRetry(-1, (db) -> null);
-      Assert.fail();
-    } catch (IllegalArgumentException x) {
-    }
-  }
-
-  @Test
-  public void testExecuteWithRetryTxStatus() {
-    db.executeWithRetry(1, (db) -> null);
-    Assert.assertFalse(db.getTransaction().isActive());
-
-    db.begin();
-    db.executeWithRetry(1, (db) -> null);
-    Assert.assertTrue(db.getTransaction().isActive());
-    db.rollback();
-  }
-
-  @Test
-  public void testExecuteWithRetry() throws InterruptedException {
-    String className = "testExecuteWithRetry";
-    db.createClass(className);
-    final OElement v = db.newInstance(className);
-    v.setProperty("count", 0);
-    v.save();
-
-    int nThreads = 4;
-    List<Thread> threads = new ArrayList<>();
-    for (int i = 0; i < nThreads; i++) {
-      Thread thread =
-          new Thread() {
-            @Override
-            public void run() {
-              ODatabaseDocument dbCopy = ((ODatabaseDocumentInternal) db).copy();
-              dbCopy.activateOnCurrentThread();
-              dbCopy.executeWithRetry(
-                  10,
-                  (db) -> {
-                    OElement vCopy = (OElement) db.load(v.getIdentity());
-                    try {
-                      Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                    }
-                    vCopy.setProperty("count", (int) vCopy.getProperty("count") + 1);
-                    db.save(vCopy);
-                    return vCopy;
-                  });
-              dbCopy.close();
-            }
-          };
-      threads.add(thread);
-      thread.start();
-    }
-    for (Thread t : threads) {
-      t.join();
-    }
-    v.reload();
-    Assert.assertEquals(nThreads, (int) v.getProperty("count"));
-  }
-
-  @Test
-  public void testExecuteWithRetryTx() throws InterruptedException {
-    String className = "testExecuteWithRetryTx";
-    db.createClass(className);
-    final OElement v = db.newInstance(className);
-    v.setProperty("count", 0);
-    v.save();
-
-    int nThreads = 4;
-    List<Thread> threads = new ArrayList<>();
-    for (int i = 0; i < nThreads; i++) {
-      Thread thread =
-          new Thread() {
-            @Override
-            public void run() {
-              ODatabaseDocument dbCopy = ((ODatabaseDocumentInternal) db).copy();
-              dbCopy.activateOnCurrentThread();
-              dbCopy.begin();
-              dbCopy.executeWithRetry(
-                  10,
-                  (db) -> {
-                    OElement vCopy = (OElement) db.load(v.getIdentity());
-                    try {
-                      Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                    }
-                    vCopy.setProperty("count", (int) vCopy.getProperty("count") + 1);
-                    db.save(vCopy);
-                    return vCopy;
-                  });
-              dbCopy.commit();
-              dbCopy.close();
-            }
-          };
-      threads.add(thread);
-      thread.start();
-    }
-    for (Thread t : threads) {
-      t.join();
-    }
-    v.reload();
-    Assert.assertEquals(nThreads, (int) v.getProperty("count"));
-  }
-
-  @Test
   public void testVertexProperty() {
     String className = "testVertexProperty";
     db.createClass(className, "V");
+
+    db.begin();
     OVertex doc1 = db.newVertex(className);
     doc1.setProperty("name", "a");
     doc1.save();
@@ -343,6 +229,7 @@ public class ODatabaseDocumentTxTest extends BaseMemoryDatabase {
     doc2.setProperty("name", "b");
     doc2.setProperty("linked", doc1);
     doc2.save();
+    db.commit();
 
     try (OResultSet rs = db.query("SELECT FROM " + className + " WHERE name = 'b'")) {
       Assert.assertTrue(rs.hasNext());
@@ -365,14 +252,19 @@ public class ODatabaseDocumentTxTest extends BaseMemoryDatabase {
     db.createClass(edgeClass, "E");
     vc.createProperty("out_testEdge", OType.LINK);
     vc.createProperty("in_testEdge", OType.LINK);
+
+    db.begin();
     OVertex doc1 = db.newVertex(vertexClass);
     doc1.setProperty("name", "first");
     doc1.save();
+    db.commit();
 
+    db.begin();
     OVertex doc2 = db.newVertex(vertexClass);
     doc2.setProperty("name", "second");
     doc2.save();
     db.newEdge(doc1, doc2, "testEdge").save();
+    db.commit();
 
     try (OResultSet rs = db.query("SELECT out() as o FROM " + vertexClass)) {
       Assert.assertTrue(rs.hasNext());
@@ -390,8 +282,11 @@ public class ODatabaseDocumentTxTest extends BaseMemoryDatabase {
     String edgeClass = "testEdge";
     OClass vc = db.createClass(vertexClass, "V");
     db.createClass(edgeClass, "E");
+
     vc.createProperty("out_testEdge", OType.LINKBAG);
     vc.createProperty("in_testEdge", OType.LINK);
+
+    db.begin();
     OVertex doc1 = db.newVertex(vertexClass);
     doc1.setProperty("name", "first");
     doc1.save();
@@ -406,6 +301,7 @@ public class ODatabaseDocumentTxTest extends BaseMemoryDatabase {
 
     db.newEdge(doc1, doc2, "testEdge").save();
     db.newEdge(doc1, doc3, "testEdge").save();
+    db.commit();
 
     try (OResultSet rs = db.query("SELECT out() as o FROM " + vertexClass)) {
       Assert.assertTrue(rs.hasNext());

@@ -44,7 +44,6 @@ import com.orientechnologies.orient.core.db.OSharedContextEmbedded;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.record.OClassTrigger;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.db.viewmanager.ViewManager;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
@@ -55,7 +54,6 @@ import com.orientechnologies.orient.core.exception.OSecurityAccessException;
 import com.orientechnologies.orient.core.exception.OSecurityException;
 import com.orientechnologies.orient.core.hook.ORecordHook;
 import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.index.OClassIndexManager;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorCluster;
 import com.orientechnologies.orient.core.metadata.OMetadataDefault;
@@ -110,7 +108,6 @@ import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedSt
 import com.orientechnologies.orient.core.storage.impl.local.OFreezableStorageComponent;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
 import com.orientechnologies.orient.core.tx.OTransactionAbstract;
-import com.orientechnologies.orient.core.tx.OTransactionInternal;
 import com.orientechnologies.orient.core.tx.OTransactionOptimistic;
 import java.io.IOException;
 import java.io.InputStream;
@@ -901,53 +898,6 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     return id;
   }
 
-  /**
-   * This method is internal, it can be subject to signature change or be removed, do not use.
-   *
-   * @Internal
-   */
-  public void executeDeleteRecord(
-      OIdentifiable identifiable,
-      final int iVersion,
-      final boolean iRequired,
-      boolean prohibitTombstones) {
-    checkOpenness();
-    checkIfActive();
-
-    final ORecordId rid = (ORecordId) identifiable.getIdentity();
-
-    if (rid == null) {
-      throw new ODatabaseException(
-          "Cannot delete record because it has no identity. Probably was created from scratch or"
-              + " contains projections of fields rather than a full record");
-    }
-
-    if (!rid.isValid()) {
-      return;
-    }
-
-    var record = (ORecordAbstract) identifiable.getRecord();
-    if (record == null) {
-      return;
-    }
-    if (record instanceof ODocument) {
-      if (record.getInternalStatus() == ORecordElement.STATUS.NOT_LOADED) {
-        record = load(identifiable.getIdentity());
-      }
-    }
-    OTransactionAbstract trans = (OTransactionAbstract) this.currentTx;
-    try {
-      OTransactionOptimistic tx = new OTransactionOptimistic(this, false);
-      this.currentTx = tx;
-      tx.begin();
-      tx.deleteRecord(record);
-      commit();
-    } finally {
-      this.currentTx = trans;
-    }
-    return;
-  }
-
   @Override
   public OIdentifiable beforeCreateOperations(OIdentifiable id, String iClusterName) {
     checkSecurity(ORole.PERMISSION_CREATE, id, iClusterName);
@@ -1321,23 +1271,6 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     super.afterRollbackOperations();
     OLiveQueryHook.removePendingDatabaseOps(this);
     OLiveQueryHookV2.removePendingDatabaseOps(this);
-  }
-
-  @Override
-  public ORecord saveAll(ORecord iRecord, String iClusterName) {
-    OTransactionAbstract trans = (OTransactionAbstract) this.currentTx;
-    try {
-      OTransactionOptimistic tx = new OTransactionOptimistic(this, false);
-      this.currentTx = tx;
-      tx.begin();
-
-      tx.saveRecord((ORecordAbstract) iRecord, iClusterName);
-      commit();
-    } finally {
-      this.currentTx = trans;
-    }
-
-    return iRecord;
   }
 
   public String getClusterName(final ORecord record) {
@@ -1873,7 +1806,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
   }
 
   @Override
-  public void internalCommit(OTransactionInternal transaction) {
+  public void internalCommit(OTransactionOptimistic transaction) {
     this.getStorage().commit(transaction);
   }
 
@@ -1942,11 +1875,11 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     return getStorage().getClustersIds(filterClusters);
   }
 
-  public void startEsclusiveMetadataChange() {
+  public void startExclusiveMetadataChange() {
     ((OAbstractPaginatedStorage) storage).startDDL();
   }
 
-  public void endEsclusiveMetadataChange() {
+  public void endExclusiveMetadataChange() {
     ((OAbstractPaginatedStorage) storage).endDDL();
   }
 

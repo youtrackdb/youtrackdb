@@ -17,10 +17,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class BlueprintsTest {
+
   private static String DB_URL = "memory:" + BlueprintsTest.class.getSimpleName();
   private static OrientGraph graph;
 
-  public BlueprintsTest() {}
+  public BlueprintsTest() {
+  }
 
   @BeforeClass
   public static void before() {
@@ -35,7 +37,9 @@ public class BlueprintsTest {
 
   @Test
   public void testSubVertex() {
-    if (graph.getVertexType("SubVertex") == null) graph.createVertexType("SubVertex");
+    if (graph.getVertexType("SubVertex") == null) {
+      graph.createVertexType("SubVertex");
+    }
 
     Vertex v = graph.addVertex("class:SubVertex");
     v.setProperty("key", "subtype");
@@ -86,19 +90,30 @@ public class BlueprintsTest {
 
   @Test
   public void testSubEdge() {
-    if (graph.getEdgeType("SubEdge") == null) graph.createEdgeType("SubEdge");
-    if (graph.getVertexType("SubVertex") == null) graph.createVertexType("SubVertex");
+    if (graph.getEdgeType("SubEdge") == null) {
+      graph.createEdgeType("SubEdge");
+    }
+    if (graph.getVertexType("SubVertex") == null) {
+      graph.createVertexType("SubVertex");
+    }
 
+    graph.begin();
     Vertex v1 = graph.addVertex("class:SubVertex");
     v1.setProperty("key", "subtype+subedge");
+    graph.commit();
     Assert.assertEquals(((OrientVertex) v1).getRecord().getSchemaClass().getName(), "SubVertex");
 
+    graph.begin();
     Vertex v2 = graph.addVertex("class:SubVertex");
     v2.setProperty("key", "subtype+subedge");
+    graph.commit();
     Assert.assertEquals(((OrientVertex) v2).getRecord().getSchemaClass().getName(), "SubVertex");
 
+    graph.begin();
     Edge e = graph.addEdge("class:SubEdge", v1, v2, null);
     e.setProperty("key", "subedge");
+    graph.commit();
+
     Assert.assertEquals(((OrientEdge) e).getRecord().getSchemaClass().getName(), "SubEdge");
   }
 
@@ -106,10 +121,12 @@ public class BlueprintsTest {
   public void testEdgePhysicalRemoval() {
     graph.sqlCommand("delete from e where name = 'forceCreationOfDocument'").close();
 
+    graph.begin();
     Vertex v1 = graph.addVertex(null);
     Vertex v2 = graph.addVertex(null);
     OrientEdge e = graph.addEdge(null, v1, v2, "anyLabel");
     e.setProperty("key", "forceCreationOfDocument");
+    graph.commit();
 
     Iterable<Edge> result =
         graph
@@ -119,7 +136,9 @@ public class BlueprintsTest {
     Assert.assertTrue(result.iterator().hasNext());
     Assert.assertTrue(result.iterator().next() instanceof Edge);
 
+    graph.begin();
     e.remove();
+    graph.commit();
 
     result =
         graph
@@ -133,9 +152,12 @@ public class BlueprintsTest {
   public void testQueryWithSpecialCharacters() {
     graph.setAutoStartTx(false);
 
+    graph.begin();
+    ;
     graph.addVertex(null).setProperty("name", "Jay");
     graph.addVertex(null).setProperty("name", "Smith's");
     graph.addVertex(null).setProperty("name", "Smith\"s");
+    graph.commit();
 
     Assert.assertTrue(graph.getVertices("name", "Jay").iterator().hasNext());
     Assert.assertTrue(graph.getVertices("name", "Smith's").iterator().hasNext());

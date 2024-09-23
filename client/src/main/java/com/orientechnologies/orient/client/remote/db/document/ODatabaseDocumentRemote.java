@@ -66,7 +66,6 @@ import com.orientechnologies.orient.core.metadata.sequence.OSequenceAction;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.ORecordAbstract;
-import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
@@ -80,10 +79,8 @@ import com.orientechnologies.orient.core.storage.ORecordMetadata;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.OStorageInfo;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
-import com.orientechnologies.orient.core.tx.OTransaction;
 import com.orientechnologies.orient.core.tx.OTransactionAbstract;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChanges;
-import com.orientechnologies.orient.core.tx.OTransactionInternal;
 import com.orientechnologies.orient.core.tx.OTransactionOptimistic;
 import java.io.IOException;
 import java.io.InputStream;
@@ -295,46 +292,6 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
     }
   }
 
-  public ODatabaseDocumentAbstract begin(final OTransaction.TXTYPE iType) {
-    checkOpenness();
-    checkIfActive();
-    if (currentTx.isActive()) {
-      if (iType == OTransaction.TXTYPE.OPTIMISTIC && currentTx instanceof OTransactionOptimistic) {
-        currentTx.begin();
-        return this;
-      }
-      currentTx.rollback(true, 0);
-    }
-
-    // CHECK IT'S NOT INSIDE A HOOK
-    if (!inHook.isEmpty()) {
-      throw new IllegalStateException("Cannot begin a transaction while a hook is executing");
-    }
-
-    // WAKE UP LISTENERS
-    for (ODatabaseListener listener : browseListeners()) {
-      try {
-        listener.onBeforeTxBegin(this);
-      } catch (Exception t) {
-        OLogManager.instance().error(this, "Error before tx begin", t);
-      } catch (Error e) {
-        OLogManager.instance().error(this, "Error before tx begin", e);
-        throw e;
-      }
-    }
-
-    switch (iType) {
-      case NOTX:
-        setDefaultTransactionMode();
-        break;
-      case OPTIMISTIC:
-        currentTx = new OTransactionOptimisticClient(this);
-        break;
-    }
-    currentTx.begin();
-    return this;
-  }
-
   public OStorageRemoteSession getSessionMetadata() {
     return sessionMetadata;
   }
@@ -363,19 +320,36 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
   }
 
   private void checkAndSendTransaction() {
+
     if (this.currentTx.isActive() && ((OTransactionOptimistic) this.currentTx).isChanged()) {
+      var optimistic = (OTransactionOptimistic) this.currentTx;
+
       if (((OTransactionOptimistic) this.getTransaction()).isAlreadyCleared()) {
-        storage.reBeginTransaction(this, (OTransactionOptimistic) this.currentTx);
+        storage.reBeginTransaction(this, optimistic);
       } else {
-        storage.beginTransaction(this, (OTransactionOptimistic) this.currentTx);
+        storage.beginTransaction(this, optimistic);
       }
-      ((OTransactionOptimistic) this.currentTx).resetChangesTracking();
-      ((OTransactionOptimistic) this.currentTx).setSentToServer(true);
+
+      optimistic.resetChangesTracking();
+      optimistic.setSentToServer(true);
     }
   }
 
   private void fetchTransacion() {
     storage.fetchTransaction(this);
+  }
+
+  @Override
+  public ODatabaseDocumentRemote begin() {
+    super.begin();
+
+    var optimistic = (OTransactionOptimistic) this.currentTx;
+    storage.beginTransaction(this, optimistic);
+
+    optimistic.resetChangesTracking();
+    optimistic.setSentToServer(true);
+
+    return this;
   }
 
   @Override
@@ -451,6 +425,11 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
       reload();
     }
     return result.getResult();
+  }
+
+  @Override
+  protected OTransactionOptimistic newTxInstance() {
+    return new OTransactionOptimisticClient(this);
   }
 
   @Override
@@ -554,33 +533,6 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
   }
 
   @Override
-  public void executeDeleteRecord(
-      OIdentifiable record, int iVersion, boolean iRequired, boolean prohibitTombstones) {
-    OTransactionOptimisticClient tx =
-        new OTransactionOptimisticClient(this) {
-          @Override
-          protected void checkTransactionValid() {}
-        };
-    tx.begin();
-    Set<ORecordAbstract> records =
-        ORecordInternal.getDirtyManager((ORecord) record).getUpdateRecords();
-    if (records != null) {
-      for (var rec : records) {
-        tx.saveRecord(rec, null);
-      }
-    }
-    Set<ORecordAbstract> newRecords =
-        ORecordInternal.getDirtyManager((ORecord) record).getNewRecords();
-    if (newRecords != null) {
-      for (var rec : newRecords) {
-        tx.saveRecord(rec, null);
-      }
-    }
-    tx.deleteRecord((ORecordAbstract) record);
-    tx.commit();
-  }
-
-  @Override
   public OIdentifiable beforeCreateOperations(OIdentifiable id, String iClusterName) {
     checkSecurity(ORole.PERMISSION_CREATE, id, iClusterName);
     ORecordHook.RESULT res = callbackHooks(ORecordHook.TYPE.BEFORE_CREATE, id);
@@ -669,20 +621,6 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
   @Override
   public void afterReadOperations(OIdentifiable identifiable) {
     callbackHooks(ORecordHook.TYPE.AFTER_READ, identifiable);
-  }
-
-  @Override
-  public ORecord saveAll(ORecord iRecord, String iClusterName) {
-    OTransactionOptimisticClient tx =
-        new OTransactionOptimisticClient(this) {
-          @Override
-          protected void checkTransactionValid() {}
-        };
-    tx.begin();
-    tx.saveRecord((ORecordAbstract) iRecord, iClusterName);
-    tx.commit();
-
-    return iRecord;
   }
 
   @Override
@@ -1059,7 +997,7 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
   }
 
   @Override
-  public void internalCommit(OTransactionInternal transaction) {
+  public void internalCommit(OTransactionOptimistic transaction) {
     this.getStorageRemote().commit(transaction);
   }
 

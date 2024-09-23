@@ -134,16 +134,4 @@ public class TransactionChangesDetectionTest {
     assertEquals(0, currentTx.getTxStartCounter());
     assertFalse(currentTx.isActive());
   }
-
-  @Test
-  public void testTransactionCommitForce() {
-    database.begin();
-    final OTransactionOptimistic currentTx = (OTransactionOptimistic) database.getTransaction();
-    assertEquals(1, currentTx.getTxStartCounter());
-    database.begin();
-    assertEquals(2, currentTx.getTxStartCounter());
-    database.commit(true);
-    assertEquals(0, currentTx.getTxStartCounter());
-    assertFalse(currentTx.isActive());
-  }
 }

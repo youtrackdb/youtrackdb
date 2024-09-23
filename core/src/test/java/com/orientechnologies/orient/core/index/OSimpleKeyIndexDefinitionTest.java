@@ -140,9 +140,11 @@ public class OSimpleKeyIndexDefinitionTest {
         new ODatabaseDocumentTx("memory:osimplekeyindexdefinitiontest");
     databaseDocumentTx.create();
 
+    databaseDocumentTx.begin();
     final ODocument storeDocument = simpleKeyIndexDefinition.toStream(new ODocument());
     storeDocument.save(
         databaseDocumentTx.getClusterNameById(databaseDocumentTx.getDefaultClusterId()));
+    databaseDocumentTx.commit();
 
     final ODocument loadDocument = databaseDocumentTx.load(storeDocument.getIdentity());
     final OSimpleKeyIndexDefinition loadedKeyIndexDefinition = new OSimpleKeyIndexDefinition();

@@ -56,7 +56,9 @@ public class LuceneBooleanIndexTest extends BaseLuceneTest {
     for (int i = 0; i < 1000; i++) {
       ODocument doc = new ODocument("Person");
       doc.field("isDeleted", i % 2 == 0);
+      db.begin();
       db.save(doc);
+      db.commit();
     }
 
     OResultSet docs = db.query("select from Person where isDeleted lucene false");

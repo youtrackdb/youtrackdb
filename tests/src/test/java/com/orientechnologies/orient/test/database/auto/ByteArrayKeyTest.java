@@ -52,6 +52,7 @@ public class ByteArrayKeyTest extends DocumentDBBaseTest {
           0, 1
         };
 
+    database.begin();
     ODocument doc1 = new ODocument("ByteArrayKeyTest");
     doc1.field("byteArrayKey", key1);
     doc1.save();
@@ -64,6 +65,7 @@ public class ByteArrayKeyTest extends DocumentDBBaseTest {
     ODocument doc2 = new ODocument("ByteArrayKeyTest");
     doc2.field("byteArrayKey", key2);
     doc2.save();
+    database.commit();
 
     OIndex index =
         database.getMetadata().getIndexManagerInternal().getIndex(database, "byteArrayKeyIndex");
@@ -81,6 +83,7 @@ public class ByteArrayKeyTest extends DocumentDBBaseTest {
     byte[] key1 = new byte[] {1, 2, 3};
     byte[] key2 = new byte[] {4, 5, 6};
 
+    database.begin();
     ODocument doc1 = new ODocument("CompositeByteArrayKeyTest");
     doc1.field("byteArrayKey", key1);
     doc1.field("intKey", 1);
@@ -90,6 +93,7 @@ public class ByteArrayKeyTest extends DocumentDBBaseTest {
     doc2.field("byteArrayKey", key2);
     doc2.field("intKey", 2);
     doc2.save();
+    database.commit();
 
     OIndex index =
         database

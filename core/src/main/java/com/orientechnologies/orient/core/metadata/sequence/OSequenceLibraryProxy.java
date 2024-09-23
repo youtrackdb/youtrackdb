@@ -32,6 +32,7 @@ import java.util.concurrent.ExecutionException;
  * @since 3/2/2015
  */
 public class OSequenceLibraryProxy extends OSequenceLibraryAbstract {
+
   private static final int replicationProtocolVersion =
       OGlobalConfiguration.DISTRIBUTED_REPLICATION_PROTOCOL_VERSION.getValue();
 
@@ -61,7 +62,8 @@ public class OSequenceLibraryProxy extends OSequenceLibraryAbstract {
       throws ODatabaseException {
     boolean shouldGoOverDistributted =
         database.isDistributed() && (replicationProtocolVersion == 2);
-    return createSequence(iName, sequenceType, params, shouldGoOverDistributted);
+    return database.computeInTx(
+        () -> createSequence(iName, sequenceType, params, shouldGoOverDistributted));
   }
 
   @Override
@@ -105,7 +107,10 @@ public class OSequenceLibraryProxy extends OSequenceLibraryAbstract {
         throw new ODatabaseException(exc.getMessage());
       }
     } else {
-      delegate.dropSequence(database, iName);
+      database.executeInTx(
+          () -> {
+            delegate.dropSequence(database, iName);
+          });
     }
   }
 

@@ -22,7 +22,9 @@ import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.Version;
 
-/** @author Luca Molino (molino.luca--at--gmail.com) */
+/**
+ * @author Luca Molino (molino.luca--at--gmail.com)
+ */
 public class Media {
 
   @Id private Object id;
@@ -65,7 +67,9 @@ public class Media {
   public void setContent(OBlob content) {
     OBlob current = this.getContent();
     this.content = content;
-    if (current != null) current.getRecord().delete();
+    if (current != null) {
+      current.getRecord().delete();
+    }
   }
 
   public void setContent(byte[] bytes) {

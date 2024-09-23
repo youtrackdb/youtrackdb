@@ -57,15 +57,19 @@ public class TruncateClassTest extends DocumentDBBaseTest {
 
     database.command("truncate class test_class").close();
 
+    database.begin();
     database.save(new ODocument(testClass).field("name", "x").field("data", Arrays.asList(1, 2)));
     database.save(new ODocument(testClass).field("name", "y").field("data", Arrays.asList(3, 0)));
+    database.commit();
 
     database.command("truncate class test_class").close();
 
+    database.begin();
     database.save(
         new ODocument(testClass).field("name", "x").field("data", Arrays.asList(5, 6, 7)));
     database.save(
         new ODocument(testClass).field("name", "y").field("data", Arrays.asList(8, 9, -1)));
+    database.commit();
 
     List<OResult> result =
         database.query("select from test_class").stream().collect(Collectors.toList());
@@ -202,8 +206,10 @@ public class TruncateClassTest extends DocumentDBBaseTest {
 
     database.command("truncate class test_class").close();
 
+    database.begin();
     database.save(new ODocument(testClass).field("name", "x").field("data", Arrays.asList(1, 2)));
     database.save(new ODocument(testClass).field("name", "y").field("data", Arrays.asList(3, 0)));
+    database.commit();
 
     OResultSet result = database.query("select from test_class");
     Assert.assertEquals(result.stream().count(), 2);

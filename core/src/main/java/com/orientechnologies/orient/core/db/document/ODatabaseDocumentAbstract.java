@@ -100,7 +100,9 @@ import com.orientechnologies.orient.core.storage.OStorageInfo;
 import com.orientechnologies.orient.core.storage.OStorageOperationResult;
 import com.orientechnologies.orient.core.storage.cluster.OOfflineClusterException;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
+import com.orientechnologies.orient.core.tx.ORollbackException;
 import com.orientechnologies.orient.core.tx.OTransaction;
+import com.orientechnologies.orient.core.tx.OTransaction.TXSTATUS;
 import com.orientechnologies.orient.core.tx.OTransactionAbstract;
 import com.orientechnologies.orient.core.tx.OTransactionNoTx;
 import com.orientechnologies.orient.core.tx.OTransactionOptimistic;
@@ -120,6 +122,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 /**
  * Document API entrypoint.
@@ -146,7 +149,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   protected OLocalRecordCache localCache;
   protected OCurrentStorageComponentsFactory componentsFactory;
   protected boolean initialized = false;
-  protected OTransaction currentTx;
+  protected OTransactionAbstract currentTx;
 
   protected final ORecordHook[][] hooksByScope =
       new ORecordHook[ORecordHook.SCOPE.values().length][];
@@ -279,7 +282,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   /**
    * Deletes the record checking the version.
    */
-  public ODatabase<ORecord> delete(final ORID iRecord, final int iVersion) {
+  private ODatabase<ORecord> delete(final ORID iRecord, final int iVersion) {
     final ORecord record = load(iRecord);
     ORecordInternal.setVersion(record, iVersion);
     delete(record);
@@ -914,45 +917,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     return componentsFactory.binarySerializerFactory;
   }
 
-  @Deprecated
-  public ODatabaseDocument begin(final OTransaction iTx) {
-    begin();
-    return this;
-  }
-
-  public OTransaction swapTx(OTransaction newTx) {
-    OTransaction old = getTransaction();
-    currentTx = newTx;
-    return old;
-  }
-
-  public void rawBegin(final OTransaction iTx) {
-    checkOpenness();
-    checkIfActive();
-
-    if (currentTx.isActive() && iTx.equals(currentTx)) {
-      currentTx.begin();
-      return;
-    }
-
-    currentTx.rollback(true, 0);
-
-    // WAKE UP LISTENERS
-    for (ODatabaseListener listener : browseListeners()) {
-      try {
-        listener.onBeforeTxBegin(this);
-      } catch (Exception e) {
-        final String message = "Error before the transaction begin";
-
-        OLogManager.instance().error(this, message, e);
-        throw OException.wrapException(new OTransactionBlockedException(message), e);
-      }
-    }
-
-    currentTx = iTx;
-    currentTx.begin();
-  }
-
   /**
    * {@inheritDoc}
    */
@@ -1205,10 +1169,17 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   }
 
   public ODatabaseDocumentAbstract begin() {
-    return begin(OTransaction.TXTYPE.OPTIMISTIC);
+    if (currentTx.isActive()) {
+      currentTx.begin();
+
+      return this;
+    }
+
+    begin(newTxInstance());
+    return this;
   }
 
-  public ODatabaseDocumentAbstract begin(final OTransaction.TXTYPE iType) {
+  public void begin(OTransactionOptimistic transaction) {
     checkOpenness();
     checkIfActive();
 
@@ -1218,11 +1189,10 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     }
 
     if (currentTx.isActive()) {
-      if (iType == OTransaction.TXTYPE.OPTIMISTIC && currentTx instanceof OTransactionOptimistic) {
+      if (currentTx instanceof OTransactionOptimistic) {
         currentTx.begin();
-        return this;
+        return;
       }
-      currentTx.rollback(true, 0);
     }
 
     // WAKE UP LISTENERS
@@ -1234,18 +1204,13 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       }
     }
 
-    switch (iType) {
-      case NOTX:
-        setDefaultTransactionMode();
-        break;
-
-      case OPTIMISTIC:
-        currentTx = new OTransactionOptimistic(this);
-        break;
-    }
+    currentTx = transaction;
 
     currentTx.begin();
-    return this;
+  }
+
+  protected OTransactionOptimistic newTxInstance() {
+    return new OTransactionOptimistic(this);
   }
 
   public void setDefaultTransactionMode() {
@@ -1725,19 +1690,18 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
    */
   @Override
   public ODatabase<ORecord> commit() {
-    return commit(false);
-  }
-
-  @Override
-  public ODatabaseDocument commit(boolean force) throws OTransactionException {
     checkOpenness();
     checkIfActive();
+
+    if (currentTx.getStatus() == TXSTATUS.ROLLBACKING) {
+      throw new ORollbackException("Transaction is rolling back");
+    }
 
     if (!currentTx.isActive()) {
       throw new ODatabaseException("No active transaction to commit. Call begin() first");
     }
 
-    if (!force && currentTx.amountOfNestedTxs() > 1) {
+    if (currentTx.amountOfNestedTxs() > 1) {
       // This just do count down no real commit here
       currentTx.commit();
       return this;
@@ -1749,7 +1713,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       beforeCommitOperations();
     } catch (OException e) {
       try {
-        rollback(force);
+        rollback();
       } catch (Exception re) {
         OLogManager.instance()
             .error(this, "Exception during rollback `%08X`", re, System.identityHashCode(re));
@@ -1757,7 +1721,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       throw e;
     }
     try {
-      currentTx.commit(force);
+      currentTx.commit();
     } catch (RuntimeException e) {
 
       if ((e instanceof OHighLevelException) || (e instanceof ONeedRetryException)) {
@@ -1961,16 +1925,14 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   @Override
   public ODatabaseDocumentAbstract activateOnCurrentThread() {
     final ODatabaseRecordThreadLocal tl = ODatabaseRecordThreadLocal.instance();
-    if (tl != null) {
-      tl.set(this);
-    }
+    tl.set(this);
     return this;
   }
 
   @Override
   public boolean isActiveOnCurrentThread() {
     final ODatabaseRecordThreadLocal tl = ODatabaseRecordThreadLocal.instance();
-    final ODatabaseDocumentInternal db = tl != null ? tl.getIfDefined() : null;
+    final ODatabaseDocumentInternal db = tl.getIfDefined();
     return db == this;
   }
 
@@ -2242,20 +2204,51 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     return getMetadata().getImmutableSchemaSnapshot().getViewByClusterId(cluster);
   }
 
-  protected void pessimisticLockChecks(ORID recordId) {
-    ORecord record = getTransaction().getRecord(recordId);
-    if (record != null && record.isDirty()) {
-      throw new ODatabaseException("Impossible to lock a record modified in transaction");
-    }
-    if (!recordId.isPersistent()) {
-      throw new ODatabaseException("Impossible to lock an not persistent record");
-    }
-  }
-
   public Map<UUID, OBonsaiCollectionPointer> getCollectionsChanges() {
     if (collectionsChanges == null) {
       collectionsChanges = new HashMap<>();
     }
     return collectionsChanges;
+  }
+
+  @SuppressWarnings("resource")
+  @Override
+  public void executeInTx(Runnable runnable) {
+    var ok = false;
+    activateOnCurrentThread();
+    begin();
+    try {
+      runnable.run();
+      ok = true;
+    } finally {
+      if (currentTx.isActive()) {
+        if (ok) {
+          commit();
+        } else {
+          rollback();
+        }
+      }
+    }
+  }
+
+  @SuppressWarnings("resource")
+  @Override
+  public <T> T computeInTx(Supplier<T> supplier) {
+    activateOnCurrentThread();
+    var ok = false;
+    begin();
+    try {
+      var result = supplier.get();
+      ok = true;
+      return result;
+    } finally {
+      if (currentTx.isActive()) {
+        if (ok && currentTx.getStatus() != TXSTATUS.ROLLBACKING) {
+          commit();
+        } else {
+          rollback();
+        }
+      }
+    }
   }
 }

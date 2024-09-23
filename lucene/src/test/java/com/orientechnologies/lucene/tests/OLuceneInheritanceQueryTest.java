@@ -43,12 +43,10 @@ public class OLuceneInheritanceQueryTest extends OLuceneBaseTest {
   public void testQuery() {
     ODocument doc = new ODocument("C2");
     doc.field("name", "abc");
-    db.save(doc);
 
-    //    List<ODocument> vertices = db.query(new OSQLSynchQuery<ODocument>("select from C1 where
-    // name lucene \"abc\" "));
-    //
-    //    Assert.assertEquals(1, vertices.size());
+    db.begin();
+    db.save(doc);
+    db.commit();
 
     OResultSet resultSet = db.query("select from C1 where search_class(\"abc\")=true ");
 

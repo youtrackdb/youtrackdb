@@ -50,6 +50,7 @@ public class StorageBackupTest {
 
     final Random random = new Random();
     for (int i = 0; i < 1000; i++) {
+      db.begin();
       final byte[] data = new byte[16];
       random.nextBytes(data);
 
@@ -60,6 +61,7 @@ public class StorageBackupTest {
       document.field("data", data);
 
       document.save();
+      db.commit();
     }
 
     final File backupDir = new File(buildDirectory, "backupDir");
@@ -134,6 +136,7 @@ public class StorageBackupTest {
 
     final Random random = new Random();
     for (int i = 0; i < 1000; i++) {
+      db.begin();
       final byte[] data = new byte[16];
       random.nextBytes(data);
 
@@ -144,6 +147,7 @@ public class StorageBackupTest {
       document.field("data", data);
 
       document.save();
+      db.commit();
     }
 
     final File backupDir = new File(buildDirectory, "backupDir");
@@ -157,6 +161,7 @@ public class StorageBackupTest {
 
     for (int n = 0; n < 3; n++) {
       for (int i = 0; i < 1000; i++) {
+        db.begin();
         final byte[] data = new byte[16];
         random.nextBytes(data);
 
@@ -167,6 +172,7 @@ public class StorageBackupTest {
         document.field("data", data);
 
         document.save();
+        db.commit();
       }
 
       db.incrementalBackup(backupDir.getAbsolutePath());
@@ -243,6 +249,7 @@ public class StorageBackupTest {
 
     final Random random = new Random();
     for (int i = 0; i < 1000; i++) {
+      db.begin();
       final byte[] data = new byte[16];
       random.nextBytes(data);
 
@@ -253,6 +260,7 @@ public class StorageBackupTest {
       document.field("data", data);
 
       document.save();
+      db.commit();
     }
 
     final File backupDir = new File(buildDirectory, "backupDir");
@@ -266,6 +274,7 @@ public class StorageBackupTest {
 
     for (int n = 0; n < 3; n++) {
       for (int i = 0; i < 1000; i++) {
+        db.begin();
         final byte[] data = new byte[16];
         random.nextBytes(data);
 
@@ -276,6 +285,7 @@ public class StorageBackupTest {
         document.field("data", data);
 
         document.save();
+        db.commit();
       }
 
       db.incrementalBackup(backupDir.getAbsolutePath());

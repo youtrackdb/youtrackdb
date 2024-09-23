@@ -66,7 +66,9 @@ public class CollectionIndexTest extends ObjectDBBaseTest {
 
     Collector collector = new Collector();
     collector.setStringCollection(Arrays.asList("spam", "eggs"));
+    database.begin();
     database.save(collector);
+    database.commit();
 
     final OIndex index = getIndex("Collector.stringCollection");
     Assert.assertEquals(index.getInternal().size(), 2);
@@ -116,11 +118,13 @@ public class CollectionIndexTest extends ObjectDBBaseTest {
   public void testIndexCollectionUpdate() {
     checkEmbeddedDB();
 
+    database.begin();
     Collector collector = new Collector();
     collector.setStringCollection(Arrays.asList("spam", "eggs"));
     collector = database.save(collector);
     collector.setStringCollection(Arrays.asList("spam", "bacon"));
     database.save(collector);
+    database.commit();
 
     final OIndex index = getIndex("Collector.stringCollection");
     Assert.assertEquals(index.getInternal().size(), 2);
@@ -143,7 +147,9 @@ public class CollectionIndexTest extends ObjectDBBaseTest {
 
     Collector collector = new Collector();
     collector.setStringCollection(Arrays.asList("spam", "eggs"));
+    database.begin();
     collector = database.save(collector);
+    database.commit();
     try {
       database.begin();
       collector.setStringCollection(Arrays.asList("spam", "bacon"));
@@ -173,9 +179,12 @@ public class CollectionIndexTest extends ObjectDBBaseTest {
   public void testIndexCollectionUpdateInTxRollback() {
     checkEmbeddedDB();
 
+    database.begin();
     Collector collector = new Collector();
     collector.setStringCollection(Arrays.asList("spam", "eggs"));
     collector = database.save(collector);
+    database.commit();
+
     database.begin();
     collector.setStringCollection(Arrays.asList("spam", "bacon"));
     database.save(collector);
@@ -203,7 +212,10 @@ public class CollectionIndexTest extends ObjectDBBaseTest {
 
     Collector collector = new Collector();
     collector.setStringCollection(Arrays.asList("spam", "eggs"));
+
+    database.begin();
     collector = database.save(collector);
+    database.commit();
 
     database
         .command(
@@ -231,7 +243,9 @@ public class CollectionIndexTest extends ObjectDBBaseTest {
 
     Collector collector = new Collector();
     collector.setStringCollection(new ArrayList<>(Arrays.asList("spam", "eggs")));
+    database.begin();
     collector = database.save(collector);
+    database.commit();
 
     try {
       database.begin();
@@ -266,7 +280,9 @@ public class CollectionIndexTest extends ObjectDBBaseTest {
 
     Collector collector = new Collector();
     collector.setStringCollection(new ArrayList<>(Arrays.asList("spam", "eggs")));
+    database.begin();
     collector = database.save(collector);
+    database.commit();
 
     database.begin();
     Collector loadedCollector = database.load(new ORecordId(collector.getId()));
@@ -295,7 +311,9 @@ public class CollectionIndexTest extends ObjectDBBaseTest {
 
     Collector collector = new Collector();
     collector.setStringCollection(new ArrayList<>(Arrays.asList("spam", "eggs")));
+    database.begin();
     collector = database.save(collector);
+    database.commit();
 
     try {
       database.begin();
@@ -329,7 +347,9 @@ public class CollectionIndexTest extends ObjectDBBaseTest {
 
     Collector collector = new Collector();
     collector.setStringCollection(new ArrayList<>(Arrays.asList("spam", "eggs")));
+    database.begin();
     collector = database.save(collector);
+    database.commit();
 
     database.begin();
     Collector loadedCollector = database.load(new ORecordId(collector.getId()));
@@ -358,7 +378,9 @@ public class CollectionIndexTest extends ObjectDBBaseTest {
 
     Collector collector = new Collector();
     collector.setStringCollection(Arrays.asList("spam", "eggs"));
+    database.begin();
     collector = database.save(collector);
+    database.commit();
 
     database.command("UPDATE " + collector.getId() + " remove stringCollection = 'spam'").close();
 
@@ -382,8 +404,10 @@ public class CollectionIndexTest extends ObjectDBBaseTest {
 
     Collector collector = new Collector();
     collector.setStringCollection(Arrays.asList("spam", "eggs"));
+    database.begin();
     collector = database.save(collector);
     database.delete(collector);
+    database.commit();
 
     final OIndex index = getIndex("Collector.stringCollection");
 
@@ -395,7 +419,9 @@ public class CollectionIndexTest extends ObjectDBBaseTest {
 
     Collector collector = new Collector();
     collector.setStringCollection(Arrays.asList("spam", "eggs"));
+    database.begin();
     collector = database.save(collector);
+    database.commit();
     try {
       database.begin();
       database.delete(collector);
@@ -415,7 +441,10 @@ public class CollectionIndexTest extends ObjectDBBaseTest {
 
     Collector collector = new Collector();
     collector.setStringCollection(Arrays.asList("spam", "eggs"));
+    database.begin();
     collector = database.save(collector);
+    database.commit();
+
     database.begin();
     database.delete(collector);
     database.rollback();
@@ -439,7 +468,10 @@ public class CollectionIndexTest extends ObjectDBBaseTest {
   public void testIndexCollectionSQL() {
     Collector collector = new Collector();
     collector.setStringCollection(Arrays.asList("spam", "eggs"));
+
+    database.begin();
     database.save(collector);
+    database.commit();
 
     List<Collector> result =
         database.query(

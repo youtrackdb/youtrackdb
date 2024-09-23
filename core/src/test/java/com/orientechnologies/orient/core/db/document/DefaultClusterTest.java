@@ -9,17 +9,23 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class DefaultClusterTest {
+
   @Test
   public void defaultClusterTest() {
     final OrientDB context =
         OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
     try (final ODatabaseSession db =
         context.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
-      final OVertex vertex = db.newVertex("V");
-      vertex.setProperty("embedded", new ODocument());
-      db.save(vertex);
+      var v =
+          db.computeInTx(
+              () -> {
+                final OVertex vertex = db.newVertex("V");
+                vertex.setProperty("embedded", new ODocument());
+                db.save(vertex);
+                return vertex;
+              });
 
-      final ODocument embedded = vertex.getProperty("embedded");
+      final ODocument embedded = v.getProperty("embedded");
       Assert.assertFalse("Found: " + embedded.getIdentity(), embedded.getIdentity().isValid());
     }
   }

@@ -218,7 +218,7 @@ public class OGremlinConsoleTest {
     String dbUrl = "memory:testGraphMLImportIgnoreVAttribute";
 
     final OGraphMLReader graphml =
-        new OGraphMLReader(new OrientGraphNoTx(dbUrl))
+        new OGraphMLReader(new OrientGraph(dbUrl))
             .defineVertexAttributeStrategy("__type__", new OIgnoreGraphMLImportStrategy())
             .inputGraph(INPUT_FILE);
 
@@ -241,7 +241,7 @@ public class OGremlinConsoleTest {
     final String INPUT_FILE = "src/test/resources/graph-example-fromexport.xml";
     String dbUrl = "memory:testGraphMLImportDirect";
 
-    new OGraphMLReader(new OrientGraphNoTx(dbUrl)).inputGraph(INPUT_FILE);
+    new OGraphMLReader(new OrientGraph(dbUrl)).inputGraph(INPUT_FILE);
 
     ODatabaseDocumentTx db = new ODatabaseDocumentTx(dbUrl);
     db.open("admin", "admin");
@@ -274,7 +274,7 @@ public class OGremlinConsoleTest {
     final String INPUT_FILE = "src/test/resources/graph-example-fromexport.xml";
     String dbUrl = "memory:testGraphMLImportIgnoreEAttribute";
 
-    new OGraphMLReader(new OrientGraphNoTx(dbUrl))
+    new OGraphMLReader(new OrientGraph(dbUrl))
         .defineEdgeAttributeStrategy("friend", new OIgnoreGraphMLImportStrategy())
         .inputGraph(INPUT_FILE);
 
@@ -297,7 +297,7 @@ public class OGremlinConsoleTest {
     final String INPUT_FILE = "src/test/resources/graph-example-fromexport.xml";
     String dbUrl = "memory:testGraphMLImportRenameVAttribute";
 
-    final OrientGraphNoTx graph = new OrientGraphNoTx(dbUrl);
+    final OrientGraph graph = new OrientGraph(dbUrl);
     try {
       new OGraphMLReader(graph)
           .defineVertexAttributeStrategy("__type__", new ORenameGraphMLImportStrategy("t"))
@@ -327,7 +327,7 @@ public class OGremlinConsoleTest {
     String dbUrl1 = "memory:testGraphSONImport1";
     String dbUrl2 = "memory:testGraphSONImport2";
 
-    final OrientGraphNoTx g1 = new OrientGraphNoTx(dbUrl1);
+    final OrientGraph g1 = new OrientGraph(dbUrl1);
     new OGraphMLReader(g1).inputGraph(INPUT_FILE);
 
     // EXPORT IN GRAPHSON FORMAT

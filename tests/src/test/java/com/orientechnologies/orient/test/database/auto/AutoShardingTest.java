@@ -157,6 +157,7 @@ public class AutoShardingTest extends DocumentDBBaseTest {
 
   private void create() {
     for (int i = 0; i < ITERATIONS; ++i) {
+      database.begin();
       final int selectedClusterId =
           clusterIds[((int) (Math.abs(hashFunction.hashCode(i)) % clusterIds.length))];
 
@@ -168,6 +169,8 @@ public class AutoShardingTest extends DocumentDBBaseTest {
       Assert.assertEquals(sqlRecord.getIdentity().getClusterId(), selectedClusterId);
 
       ODocument apiRecord = new ODocument("AutoShardingTest").field("id", i).save();
+      database.commit();
+
       Assert.assertEquals(apiRecord.getIdentity().getClusterId(), selectedClusterId);
     }
 

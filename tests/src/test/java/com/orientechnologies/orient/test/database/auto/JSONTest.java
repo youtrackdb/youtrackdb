@@ -518,7 +518,9 @@ public class JSONTest extends DocumentDBBaseTest {
         new ODocument()
             .fromJSON(
                 "{name:{\"%Field\":[\"value1\",\"value2\"],\"%Field2\":{},\"%Field3\":\"value3\"}}");
+    database.begin();
     doc.save(database.getClusterNameById(database.getDefaultClusterId()));
+    database.commit();
 
     final ODocument loadedDoc = database.load(doc.getIdentity());
     Assert.assertEquals(doc, loadedDoc);
@@ -529,7 +531,11 @@ public class JSONTest extends DocumentDBBaseTest {
     doc.fromJSON(
         "{\"@type\": \"d\",\"@class\": \"Track\",\"type\": \"LineString\",\"coordinates\": [ [ 100,"
             + "  0 ],  [ 101, 1 ] ]}");
+
+    database.begin();
     doc.save();
+    database.commit();
+
     final ODocument loadedDoc = database.load(doc.getIdentity());
     Assert.assertTrue(doc.hasSameContentOf(loadedDoc));
   }
@@ -539,7 +545,11 @@ public class JSONTest extends DocumentDBBaseTest {
     doc.fromJSON(
         "{\"@type\": \"d\",\"@class\": \"Track\",\"type\": \"LineString\",\"coordinates\": [ ["
             + " 32874387347347,  0 ],  [ -23736753287327, 1 ] ]}");
+
+    database.begin();
     doc.save();
+    database.commit();
+
     final ODocument loadedDoc = database.load(doc.getIdentity());
     Assert.assertTrue(doc.hasSameContentOf(loadedDoc));
   }
@@ -550,7 +560,9 @@ public class JSONTest extends DocumentDBBaseTest {
         new ODocument()
             .fromJSON(
                 "{Field:{\"Key1\":[\"Value1\",\"Value2\"],\"Key2\":{\"%%dummy%%\":null},\"Key3\":\"Value3\"}}");
+    database.begin();
     doc.save(database.getClusterNameById(database.getDefaultClusterId()));
+    database.commit();
 
     final ODocument loadedDoc = database.load(doc.getIdentity());
     Assert.assertEquals(doc, loadedDoc);
@@ -995,13 +1007,18 @@ public class JSONTest extends DocumentDBBaseTest {
   public void testNestedLinkCreation() {
     ODocument jaimeDoc = new ODocument("NestedLinkCreation");
     jaimeDoc.field("name", "jaime");
+
+    database.begin();
     jaimeDoc.save();
+    database.commit();
 
     // The link between jaime and cersei is saved properly - the #2263 test case
     ODocument cerseiDoc = new ODocument("NestedLinkCreation");
     cerseiDoc.fromJSON(
         "{\"@type\":\"d\",\"name\":\"cersei\",\"valonqar\":" + jaimeDoc.toJSON() + "}");
+    database.begin();
     cerseiDoc.save();
+    database.commit();
 
     // The link between jamie and tyrion is not saved properly
     ODocument tyrionDoc = new ODocument("NestedLinkCreation");
@@ -1010,7 +1027,10 @@ public class JSONTest extends DocumentDBBaseTest {
             + " \"relationship\":\"brother\",\"contact\":"
             + jaimeDoc.toJSON()
             + "}}");
+
+    database.begin();
     tyrionDoc.save();
+    database.commit();
 
     final Map<ORID, ODocument> contentMap = new HashMap<ORID, ODocument>();
 
@@ -1069,7 +1089,10 @@ public class JSONTest extends DocumentDBBaseTest {
   public void testNestedLinkCreationFieldTypes() {
     ODocument jaimeDoc = new ODocument("NestedLinkCreationFieldTypes");
     jaimeDoc.field("name", "jaime");
+
+    database.begin();
     jaimeDoc.save();
+    database.commit();
 
     // The link between jaime and cersei is saved properly - the #2263 test case
     ODocument cerseiDoc = new ODocument("NestedLinkCreationFieldTypes");
@@ -1077,7 +1100,10 @@ public class JSONTest extends DocumentDBBaseTest {
         "{\"@type\":\"d\",\"@fieldTypes\":\"valonqar=x\",\"name\":\"cersei\",\"valonqar\":"
             + jaimeDoc.getIdentity()
             + "}");
+
+    database.begin();
     cerseiDoc.save();
+    database.commit();
 
     // The link between jamie and tyrion is not saved properly
     ODocument tyrionDoc = new ODocument("NestedLinkCreationFieldTypes");
@@ -1086,7 +1112,10 @@ public class JSONTest extends DocumentDBBaseTest {
             + " \"@fieldTypes\":\"contact=x\",\"relationship\":\"brother\",\"contact\":"
             + jaimeDoc.getIdentity()
             + "}}");
+
+    database.begin();
     tyrionDoc.save();
+    database.commit();
 
     final Map<ORID, ODocument> contentMap = new HashMap<ORID, ODocument>();
 
@@ -1143,11 +1172,16 @@ public class JSONTest extends DocumentDBBaseTest {
   public void testInnerDocCreation() {
     ODocument adamDoc = new ODocument("InnerDocCreation");
     adamDoc.fromJSON("{\"name\":\"adam\"}");
+
+    database.begin();
     adamDoc.save();
+    database.commit();
 
     ODocument eveDoc = new ODocument("InnerDocCreation");
     eveDoc.fromJSON("{\"@type\":\"d\",\"name\":\"eve\",\"friends\":[" + adamDoc.toJSON() + "]}");
+    database.begin();
     eveDoc.save();
+    database.commit();
 
     Map<ORID, ODocument> contentMap = new HashMap<ORID, ODocument>();
     ODocument adam = new ODocument("InnerDocCreation");
@@ -1195,14 +1229,20 @@ public class JSONTest extends DocumentDBBaseTest {
   public void testInnerDocCreationFieldTypes() {
     ODocument adamDoc = new ODocument("InnerDocCreationFieldTypes");
     adamDoc.fromJSON("{\"name\":\"adam\"}");
+
+    database.begin();
     adamDoc.save();
+    database.commit();
 
     ODocument eveDoc = new ODocument("InnerDocCreationFieldTypes");
     eveDoc.fromJSON(
         "{\"@type\":\"d\", \"@fieldTypes\" : \"friends=z\", \"name\":\"eve\",\"friends\":["
             + adamDoc.getIdentity()
             + "]}");
+
+    database.begin();
     eveDoc.save();
+    database.commit();
 
     Map<ORID, ODocument> contentMap = new HashMap<ORID, ODocument>();
     ODocument adam = new ODocument("InnerDocCreationFieldTypes");
@@ -1292,7 +1332,10 @@ public class JSONTest extends DocumentDBBaseTest {
 
     ODocument adamDoc = new ODocument("JSONTxDocOne");
     adamDoc.field("name", "adam");
+
+    database.begin();
     adamDoc.save();
+    database.commit();
 
     database.begin();
     ODocument eveDoc = new ODocument("JSONTxDocOne");

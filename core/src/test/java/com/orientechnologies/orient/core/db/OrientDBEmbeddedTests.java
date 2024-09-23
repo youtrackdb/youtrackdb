@@ -31,8 +31,11 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
-/** Created by tglman on 08/04/16. */
+/**
+ * Created by tglman on 08/04/16.
+ */
 public class OrientDBEmbeddedTests {
+
   @Test
   public void testCompatibleUrl() {
     try (OrientDB orientDb = new OrientDB("plocal:", OrientDBConfig.defaultConfig())) {}
@@ -52,7 +55,8 @@ public class OrientDBEmbeddedTests {
       final ODatabaseSession db =
           orientDb.open(
               "createAndUseEmbeddedDatabase", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
-      db.save(new ODocument(), db.getClusterNameById(db.getDefaultClusterId()));
+      db.executeInTx(
+          () -> db.save(new ODocument(), db.getClusterNameById(db.getDefaultClusterId())));
       db.close();
     }
   }
@@ -491,7 +495,7 @@ public class OrientDBEmbeddedTests {
         OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
     final ODatabaseSession db =
         orientDb.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
-    db.save(new ODocument(), db.getClusterNameById(db.getDefaultClusterId()));
+    db.executeInTx(() -> db.save(new ODocument(), db.getClusterNameById(db.getDefaultClusterId())));
     db.close();
     orientDb.close();
   }

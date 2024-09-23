@@ -68,6 +68,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
   public void testIndexLinkSet() {
     checkEmbeddedDB();
 
+    database.begin();
     final ODocument docOne = new ODocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
@@ -81,6 +82,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
 
     document.field("linkSet", linkSet);
     document.save();
+    database.commit();
 
     OIndex index = getIndex("linkSetIndex");
     Assert.assertEquals(index.getInternal().size(), 2);
@@ -102,11 +104,13 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
   public void testIndexLinkSetInTx() {
     checkEmbeddedDB();
 
+    database.begin();
     final ODocument docOne = new ODocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     final ODocument docTwo = new ODocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
+    database.commit();
 
     try {
       database.begin();
@@ -143,6 +147,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
   public void testIndexLinkSetUpdate() {
     checkEmbeddedDB();
 
+    database.begin();
     final ODocument docOne = new ODocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
@@ -166,6 +171,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
 
     document.field("linkSet", linkSetTwo);
     document.save();
+    database.commit();
 
     OIndex index = getIndex("linkSetIndex");
     Assert.assertEquals(index.getInternal().size(), 2);
@@ -187,6 +193,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
   public void testIndexLinkSetUpdateInTx() {
     checkEmbeddedDB();
 
+    database.begin();
     final ODocument docOne = new ODocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
@@ -203,6 +210,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
 
     document.field("linkSet", linkSetOne);
     document.save();
+    database.commit();
 
     try {
       database.begin();
@@ -239,6 +247,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
   public void testIndexLinkSetUpdateInTxRollback() {
     checkEmbeddedDB();
 
+    database.begin();
     final ODocument docOne = new ODocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
@@ -255,6 +264,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     final ODocument document = new ODocument("LinkSetIndexTestClass");
     document.field("linkSet", linkSetOne);
     document.save();
+    database.commit();
 
     database.begin();
 
@@ -286,6 +296,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
   public void testIndexLinkSetUpdateAddItem() {
     checkEmbeddedDB();
 
+    database.begin();
     final ODocument docOne = new ODocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
@@ -302,6 +313,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     document.field("linkSet", linkSet);
 
     document.save();
+    database.commit();
 
     database
         .command(
@@ -332,6 +344,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
   public void testIndexLinkSetUpdateAddItemInTx() {
     checkEmbeddedDB();
 
+    database.begin();
     final ODocument docOne = new ODocument();
     docOne.save();
 
@@ -348,6 +361,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
 
     document.field("linkSet", linkSet);
     document.save();
+    database.commit();
 
     try {
       database.begin();
@@ -381,6 +395,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
   public void testIndexLinkSetUpdateAddItemInTxRollback() {
     checkEmbeddedDB();
 
+    database.begin();
     final ODocument docOne = new ODocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
@@ -397,6 +412,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
 
     document.field("linkSet", linkSet);
     document.save();
+    database.commit();
 
     database.begin();
     ODocument loadedDocument = database.load(document.getIdentity());
@@ -424,6 +440,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
   public void testIndexLinkSetUpdateRemoveItemInTx() {
     checkEmbeddedDB();
 
+    database.begin();
     final ODocument docOne = new ODocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
@@ -436,6 +453,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     linkSet.add(docTwo);
     document.field("linkSet", linkSet);
     document.save();
+    database.commit();
 
     try {
       database.begin();
@@ -467,6 +485,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
   public void testIndexLinkSetUpdateRemoveItemInTxRollback() {
     checkEmbeddedDB();
 
+    database.begin();
     final ODocument docOne = new ODocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
@@ -479,6 +498,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     linkSet.add(docTwo);
     document.field("linkSet", linkSet);
     document.save();
+    database.commit();
 
     database.begin();
     ODocument loadedDocument = database.load(document.getIdentity());
@@ -506,6 +526,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
   public void testIndexLinkSetUpdateRemoveItem() {
     checkEmbeddedDB();
 
+    database.begin();
     final ODocument docOne = new ODocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
@@ -519,6 +540,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
 
     document.field("linkSet", linkSet);
     document.save();
+    database.commit();
 
     database
         .command("UPDATE " + document.getIdentity() + " remove linkSet = " + docTwo.getIdentity())
@@ -543,6 +565,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
   public void testIndexLinkSetRemove() {
     checkEmbeddedDB();
 
+    database.begin();
     final ODocument docOne = new ODocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
@@ -557,7 +580,11 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
 
     document.field("linkSet", linkSet);
     document.save();
+    database.commit();
+
+    database.begin();
     document.delete();
+    database.commit();
 
     OIndex index = getIndex("linkSetIndex");
     Assert.assertEquals(index.getInternal().size(), 0);
@@ -566,6 +593,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
   public void testIndexLinkSetRemoveInTx() {
     checkEmbeddedDB();
 
+    database.begin();
     final ODocument docOne = new ODocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
@@ -580,6 +608,8 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
 
     document.field("linkSet", linkSet);
     document.save();
+    database.commit();
+
     try {
       database.begin();
       document.delete();
@@ -596,6 +626,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
   public void testIndexLinkSetRemoveInTxRollback() {
     checkEmbeddedDB();
 
+    database.begin();
     final ODocument docOne = new ODocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
@@ -610,6 +641,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
 
     document.field("linkSet", linkSet);
     document.save();
+    database.commit();
 
     database.begin();
     document.delete();
@@ -635,6 +667,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
   public void testIndexLinkSetSQL() {
     checkEmbeddedDB();
 
+    database.begin();
     final ODocument docOne = new ODocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
@@ -659,6 +692,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
 
     document.field("linkSet", linkSet);
     document.save();
+    database.commit();
 
     OResultSet result =
         database.query(

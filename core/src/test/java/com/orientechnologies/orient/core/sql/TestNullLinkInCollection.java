@@ -24,11 +24,14 @@ public class TestNullLinkInCollection extends BaseMemoryDatabase {
   @Test
   public void testLinkListRemovedRecord() {
 
+    db.begin();
     ODocument doc = new ODocument("Test");
     List<ORecordId> docs = new ArrayList<ORecordId>();
     docs.add(new ORecordId(10, 20));
     doc.field("items", docs, OType.LINKLIST);
     db.save(doc);
+    db.commit();
+
     try (OResultSet res = db.query("select items from Test")) {
       assertNull(((List) res.next().getProperty("items")).get(0));
     }
@@ -36,11 +39,14 @@ public class TestNullLinkInCollection extends BaseMemoryDatabase {
 
   @Test
   public void testLinkSetRemovedRecord() {
+    db.begin();
     ODocument doc = new ODocument("Test");
     Set<ORecordId> docs = new HashSet<ORecordId>();
     docs.add(new ORecordId(10, 20));
     doc.field("items", docs, OType.LINKSET);
     db.save(doc);
+    db.commit();
+
     try (OResultSet res = db.query("select items from Test")) {
       assertNull(((Set) res.next().getProperty("items")).iterator().next());
     }

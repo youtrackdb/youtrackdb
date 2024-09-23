@@ -45,7 +45,10 @@ public class ObjectEnhancingTest extends ObjectDBBaseTest {
     testClass.setTransientNotDefinedField("testTransient");
     Assert.assertNull(testClass.getStandardFieldAsList());
     Assert.assertNull(testClass.getStandardFieldAsMap());
+    database.begin();
     database.save(testClass);
+    database.commit();
+
     ORID rid = database.getIdentity(testClass);
     database.close();
     database = OObjectDatabasePool.global().acquire(url, "admin", "admin");

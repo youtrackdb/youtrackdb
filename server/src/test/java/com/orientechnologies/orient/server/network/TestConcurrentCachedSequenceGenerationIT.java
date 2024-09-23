@@ -20,6 +20,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TestConcurrentCachedSequenceGenerationIT {
+
   static final int THREADS = 20;
   static final int RECORDS = 100;
   private OServer server;
@@ -65,9 +66,11 @@ public class TestConcurrentCachedSequenceGenerationIT {
               ODatabaseSession db = pool.acquire();
               try {
                 for (int j = 0; j < RECORDS; j++) {
+                  db.begin();
                   OVertex vert = db.newVertex("TestSequence");
                   assertNotNull(vert.getProperty("id"));
                   db.save(vert);
+                  db.commit();
                 }
               } catch (Exception e) {
                 failures.incrementAndGet();

@@ -51,7 +51,10 @@ public class ObjectEnhancingTestSchemaFull extends ObjectDBBaseTest {
     testClass.setTransientNotDefinedField("testTransient");
     Assert.assertNull(testClass.getStandardFieldAsList());
     Assert.assertNull(testClass.getStandardFieldAsMap());
+    database.begin();
     database.save(testClass);
+    database.commit();
+
     ORID rid = database.getIdentity(testClass);
     database.close();
     database = OObjectDatabasePool.global().acquire(url, "admin", "admin");
@@ -65,6 +68,7 @@ public class ObjectEnhancingTestSchemaFull extends ObjectDBBaseTest {
   }
 
   public class CustomMethodFilter extends OObjectMethodFilter {
+
     @Override
     public boolean isHandled(Method m) {
       if (m.getName().contains("UPPERCASE")) {
@@ -87,7 +91,9 @@ public class ObjectEnhancingTestSchemaFull extends ObjectDBBaseTest {
           return "UPPERCASEFIELD";
         }
         return getFieldName(m.getName(), "set");
-      } else return getFieldName(m.getName(), "is");
+      } else {
+        return getFieldName(m.getName(), "is");
+      }
     }
 
     @Override

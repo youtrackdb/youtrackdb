@@ -28,6 +28,7 @@ public class TestObjectWithDeletedLink {
   public void testDeletedLink() {
     db.activateOnCurrentThread();
 
+    db.begin();
     SimpleSelfRef ob1 = new SimpleSelfRef();
     ob1.setName("hobby one ");
     SimpleSelfRef ob2 = new SimpleSelfRef();
@@ -35,11 +36,14 @@ public class TestObjectWithDeletedLink {
     ob1.setFriend(ob2);
 
     ob1 = db.save(ob1);
+    db.commit();
 
+    db.begin();
     ob1 = db.reload(ob1, "", true);
     ob2 = ob1.getFriend();
     Assert.assertNotNull(ob1.getFriend());
     db.delete(ob2);
+    db.commit();
 
     ob1 = db.reload(ob1, "", true);
     Assert.assertNull(ob1.getFriend());

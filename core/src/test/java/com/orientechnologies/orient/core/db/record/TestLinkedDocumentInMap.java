@@ -14,16 +14,22 @@ public class TestLinkedDocumentInMap extends BaseMemoryDatabase {
   public void testLinkedValue() {
     db.getMetadata().getSchema().createClass("PersonTest");
     db.command("delete from PersonTest").close();
+
+    db.begin();
     ODocument jaimeDoc = new ODocument("PersonTest");
     jaimeDoc.field("name", "jaime");
     jaimeDoc.save();
+    db.commit();
 
+    db.begin();
     ODocument tyrionDoc = new ODocument("PersonTest");
     tyrionDoc.fromJSON(
         "{\"@type\":\"d\",\"name\":\"tyrion\",\"emergency_contact\":[{\"relationship\":\"brother\",\"contact\":"
             + jaimeDoc.toJSON()
             + "}]}");
     tyrionDoc.save();
+    db.commit();
+
     List<Map<String, OIdentifiable>> res = tyrionDoc.field("emergency_contact");
     Map<String, OIdentifiable> doc = res.get(0);
     Assert.assertTrue(doc.get("contact").getIdentity().isValid());

@@ -13,6 +13,7 @@ import org.testng.annotations.Test;
 
 @Test
 public class TruncateClusterTest extends DocumentDBBaseTest {
+
   @Parameters(value = "url")
   public TruncateClusterTest(@Optional String url) {
     super(url);
@@ -23,7 +24,10 @@ public class TruncateClusterTest extends DocumentDBBaseTest {
 
     final int clusterId = database.addCluster(clusterName);
     final ODocument document = new ODocument();
+
+    database.begin();
     document.save(clusterName);
+    database.commit();
 
     Assert.assertEquals(database.countClusterElements(clusterId), 1);
 
@@ -50,7 +54,9 @@ public class TruncateClusterTest extends DocumentDBBaseTest {
     final ODocument document = new ODocument();
     document.field("value", "val");
 
+    database.begin();
     document.save(clusterName);
+    database.commit();
 
     Assert.assertEquals(database.countClass(className), 1);
     Assert.assertEquals(database.countClusterElements(clusterId), 1);
@@ -73,7 +79,10 @@ public class TruncateClusterTest extends DocumentDBBaseTest {
     final int clusterId = database.addCluster(clusterName);
 
     final ODocument document = new ODocument();
+
+    database.begin();
     document.save(clusterName);
+    database.commit();
 
     Assert.assertEquals(database.countClusterElements(clusterId), 1);
     try {
@@ -100,7 +109,10 @@ public class TruncateClusterTest extends DocumentDBBaseTest {
     clazz.addClusterId(clusterId);
 
     final ODocument document = new ODocument();
+
+    database.begin();
     document.save(clusterName);
+    database.commit();
 
     Assert.assertEquals(database.countClusterElements(clusterId), 1);
     Assert.assertEquals(database.countClass(className), 1);

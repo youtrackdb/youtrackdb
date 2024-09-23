@@ -96,12 +96,14 @@ public class OUpdateEdgeStatementExecutionTest extends BaseMemoryDatabase {
   public void testUpdateEdgeOfTypeE() {
     // issue #6378
 
+    db.begin();
     OVertex v1 = db.newVertex();
     db.save(v1);
     OVertex v2 = db.newVertex();
     db.save(v2);
     OVertex v3 = db.newVertex();
     db.save(v3);
+    db.commit();
 
     OResultSet edges =
         db.command("create edge E from " + v1.getIdentity() + " to " + v2.getIdentity());

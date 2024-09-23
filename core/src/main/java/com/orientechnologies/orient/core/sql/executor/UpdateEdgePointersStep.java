@@ -31,7 +31,8 @@ public class UpdateEdgePointersStep extends AbstractExecutionStep {
 
   private OResult mapResult(OResult result, OCommandContext ctx) {
     if (result instanceof OResultInternal) {
-      handleUpdateEdge(result.toElement().getRecord());
+      var db = ctx.getDatabase();
+      db.executeInTx(() -> handleUpdateEdge(result.toElement().getRecord()));
     }
     return result;
   }

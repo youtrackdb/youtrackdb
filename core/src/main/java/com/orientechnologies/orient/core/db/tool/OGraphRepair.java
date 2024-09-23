@@ -315,148 +315,152 @@ public class OGraphRepair {
 
       message(outputListener, "Scanning " + countVertices + " vertices...\n");
 
-      long parsedVertices = 0l;
+      long[] parsedVertices = new long[] {0L};
       final long beginTime = System.currentTimeMillis();
 
       for (ODocument vertex : db.browseClass(vertexClass.getName())) {
-        boolean vertexCorrupted = false;
-        parsedVertices++;
-        if (skipVertices > 0 && parsedVertices <= skipVertices) {
+        parsedVertices[0]++;
+        if (skipVertices > 0 && parsedVertices[0] <= skipVertices) {
           continue;
         }
 
-        stats.scannedVertices++;
-        if (eventListener != null) {
-          eventListener.onScannedVertex(vertex);
-        }
+        graph.executeInTx(
+            () -> {
+              boolean vertexCorrupted = false;
+              stats.scannedVertices++;
+              if (eventListener != null) {
+                eventListener.onScannedVertex(vertex);
+              }
 
-        if (outputListener != null && stats.scannedVertices % 100000 == 0) {
-          long speedPerSecond =
-              (long) (parsedVertices / ((System.currentTimeMillis() - beginTime) / 1000.0));
-          if (speedPerSecond < 1) {
-            speedPerSecond = 1;
-          }
-          final long remaining = (countVertices - parsedVertices) / speedPerSecond;
+              if (outputListener != null && stats.scannedVertices % 100000 == 0) {
+                long speedPerSecond =
+                    (long)
+                        (parsedVertices[0] / ((System.currentTimeMillis() - beginTime) / 1000.0));
+                if (speedPerSecond < 1) {
+                  speedPerSecond = 1;
+                }
+                final long remaining = (countVertices - parsedVertices[0]) / speedPerSecond;
 
-          message(
-              outputListener,
-              "+ vertices: scanned "
-                  + stats.scannedVertices
-                  + ", repaired "
-                  + stats.repairedVertices
-                  + " (estimated remaining time "
-                  + remaining
-                  + " secs)\n");
-        }
+                message(
+                    outputListener,
+                    "+ vertices: scanned "
+                        + stats.scannedVertices
+                        + ", repaired "
+                        + stats.repairedVertices
+                        + " (estimated remaining time "
+                        + remaining
+                        + " secs)\n");
+              }
 
-        final OVertex v = vertex.asVertex().orElse(null);
-        if (v == null) {
-          continue;
-        }
+              final OVertex v = vertex.asVertex().orElse(null);
+              if (v == null) {
+                return;
+              }
 
-        for (String fieldName : vertex.fieldNames()) {
-          final OPair<ODirection, String> connection =
-              OVertexInternal.getConnection(
-                  db.getMetadata().getSchema(), ODirection.BOTH, fieldName);
-          if (connection == null) {
-            continue;
-          }
+              for (String fieldName : vertex.fieldNames()) {
+                final OPair<ODirection, String> connection =
+                    OVertexInternal.getConnection(
+                        db.getMetadata().getSchema(), ODirection.BOTH, fieldName);
+                if (connection == null) {
+                  continue;
+                }
 
-          final Object fieldValue = vertex.rawField(fieldName);
-          if (fieldValue != null) {
-            if (fieldValue instanceof OIdentifiable) {
+                final Object fieldValue = vertex.rawField(fieldName);
+                if (fieldValue != null) {
+                  if (fieldValue instanceof OIdentifiable) {
 
-              if (isEdgeBroken(
-                  vertex,
-                  fieldName,
-                  connection.getKey(),
-                  (OIdentifiable) fieldValue,
-                  stats,
-                  true)) {
-                vertexCorrupted = true;
+                    if (isEdgeBroken(
+                        vertex,
+                        fieldName,
+                        connection.getKey(),
+                        (OIdentifiable) fieldValue,
+                        stats,
+                        true)) {
+                      vertexCorrupted = true;
+                      if (!checkOnly) {
+                        vertex.field(fieldName, (Object) null);
+                      } else {
+                        message(
+                            outputListener,
+                            "+ found corrupted vertex "
+                                + vertex
+                                + " the property "
+                                + fieldName
+                                + " could be removed\n");
+                      }
+                    }
+
+                  } else if (fieldValue instanceof Collection<?>) {
+
+                    final Collection<?> coll = ((Collection<?>) fieldValue);
+                    for (Iterator<?> it = coll.iterator(); it.hasNext(); ) {
+                      final Object o = it.next();
+
+                      if (isEdgeBroken(
+                          vertex, fieldName, connection.getKey(), (OIdentifiable) o, stats, true)) {
+                        vertexCorrupted = true;
+                        if (!checkOnly) {
+                          it.remove();
+                        } else {
+                          message(
+                              outputListener,
+                              "+ found corrupted vertex "
+                                  + vertex
+                                  + " the edge should be removed from property "
+                                  + fieldName
+                                  + " (collection)\n");
+                        }
+                      }
+                    }
+
+                  } else if (fieldValue instanceof ORidBag) {
+                    // In case of ridbags force save for trigger eventual conversions
+                    final ORidBag ridbag = ((ORidBag) fieldValue);
+                    if (ridbag.size() == 0) {
+                      vertex.removeField(fieldName);
+                    } else if (!ridbag.isEmbedded()
+                        && ridbag.size()
+                            < OGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD
+                                .getValueAsInteger()) {
+                      vertex.setDirty();
+                    }
+                    for (Iterator<?> it = ridbag.rawIterator(); it.hasNext(); ) {
+                      final Object o = it.next();
+                      if (isEdgeBroken(
+                          vertex, fieldName, connection.getKey(), (OIdentifiable) o, stats, true)) {
+                        vertexCorrupted = true;
+                        if (!checkOnly) {
+                          it.remove();
+                        } else {
+                          message(
+                              outputListener,
+                              "+ found corrupted vertex "
+                                  + vertex
+                                  + " the edge should be removed from property "
+                                  + fieldName
+                                  + " (ridbag)\n");
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+
+              if (vertexCorrupted) {
+                stats.repairedVertices++;
+                if (eventListener != null) {
+                  eventListener.onRepairedVertex(vertex);
+                }
+
+                message(outputListener, "+ repaired corrupted vertex " + vertex + "\n");
                 if (!checkOnly) {
-                  vertex.field(fieldName, (Object) null);
-                } else {
-                  message(
-                      outputListener,
-                      "+ found corrupted vertex "
-                          + vertex
-                          + " the property "
-                          + fieldName
-                          + " could be removed\n");
+                  vertex.save();
                 }
+              } else if (vertex.isDirty() && !checkOnly) {
+                message(outputListener, "+ optimized vertex " + vertex + "\n");
+                vertex.save();
               }
-
-            } else if (fieldValue instanceof Collection<?>) {
-
-              final Collection<?> coll = ((Collection<?>) fieldValue);
-              for (Iterator<?> it = coll.iterator(); it.hasNext(); ) {
-                final Object o = it.next();
-
-                if (isEdgeBroken(
-                    vertex, fieldName, connection.getKey(), (OIdentifiable) o, stats, true)) {
-                  vertexCorrupted = true;
-                  if (!checkOnly) {
-                    it.remove();
-                  } else {
-                    message(
-                        outputListener,
-                        "+ found corrupted vertex "
-                            + vertex
-                            + " the edge should be removed from property "
-                            + fieldName
-                            + " (collection)\n");
-                  }
-                }
-              }
-
-            } else if (fieldValue instanceof ORidBag) {
-              // In case of ridbags force save for trigger eventual conversions
-              final ORidBag ridbag = ((ORidBag) fieldValue);
-              if (ridbag.size() == 0) {
-                vertex.removeField(fieldName);
-              } else if (!ridbag.isEmbedded()
-                  && ridbag.size()
-                      < OGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD
-                          .getValueAsInteger()) {
-                vertex.setDirty();
-              }
-              for (Iterator<?> it = ridbag.rawIterator(); it.hasNext(); ) {
-                final Object o = it.next();
-                if (isEdgeBroken(
-                    vertex, fieldName, connection.getKey(), (OIdentifiable) o, stats, true)) {
-                  vertexCorrupted = true;
-                  if (!checkOnly) {
-                    it.remove();
-                  } else {
-                    message(
-                        outputListener,
-                        "+ found corrupted vertex "
-                            + vertex
-                            + " the edge should be removed from property "
-                            + fieldName
-                            + " (ridbag)\n");
-                  }
-                }
-              }
-            }
-          }
-        }
-
-        if (vertexCorrupted) {
-          stats.repairedVertices++;
-          if (eventListener != null) {
-            eventListener.onRepairedVertex(vertex);
-          }
-
-          message(outputListener, "+ repaired corrupted vertex " + vertex + "\n");
-          if (!checkOnly) {
-            vertex.save();
-          }
-        } else if (vertex.isDirty() && !checkOnly) {
-          message(outputListener, "+ optimized vertex " + vertex + "\n");
-          vertex.save();
-        }
+            });
       }
 
       message(outputListener, "Scanning vertices completed\n");

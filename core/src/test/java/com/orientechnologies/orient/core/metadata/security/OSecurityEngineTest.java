@@ -58,8 +58,7 @@ public class OSecurityEngineTest {
 
   @Test
   public void testAllClasses() {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
-
+    OSecurityInternal security = ((ODatabaseInternal<?>) db).getSharedContext().getSecurity();
     db.createClass("Person");
 
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "policy1");
@@ -235,13 +234,23 @@ public class OSecurityEngineTest {
     OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
 
     db.createClass("Person");
-    OElement record1 = db.newElement("Person");
-    record1.setProperty("name", "foo");
-    record1.save();
+    var rec1 =
+        db.computeInTx(
+            () -> {
+              OElement record1 = db.newElement("Person");
+              record1.setProperty("name", "foo");
+              record1.save();
+              return record1;
+            });
 
-    OElement record2 = db.newElement("Person");
-    record2.setProperty("name", "bar");
-    record2.save();
+    var rec2 =
+        db.computeInTx(
+            () -> {
+              OElement record2 = db.newElement("Person");
+              record2.setProperty("name", "bar");
+              record2.save();
+              return record2;
+            });
 
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "policy1");
     policy.setActive(true);
@@ -253,7 +262,7 @@ public class OSecurityEngineTest {
         OSecurityEngine.getPredicateForSecurityResource(
             db, (OSecurityShared) security, "database.class.Person", OSecurityPolicy.Scope.READ);
 
-    Assert.assertTrue(OSecurityEngine.evaluateSecuirtyPolicyPredicate(db, pred, record1));
-    Assert.assertFalse(OSecurityEngine.evaluateSecuirtyPolicyPredicate(db, pred, record2));
+    Assert.assertTrue(OSecurityEngine.evaluateSecuirtyPolicyPredicate(db, pred, rec1));
+    Assert.assertFalse(OSecurityEngine.evaluateSecuirtyPolicyPredicate(db, pred, rec2));
   }
 }

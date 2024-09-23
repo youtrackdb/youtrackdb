@@ -53,7 +53,9 @@ public class CollateTest extends DocumentDBBaseTest {
         document.field("cip", "val");
       }
 
+      database.begin();
       document.save();
+      database.commit();
     }
 
     @SuppressWarnings("deprecation")
@@ -81,11 +83,17 @@ public class CollateTest extends DocumentDBBaseTest {
 
     ODocument document = new ODocument("collateTestNotNull");
     document.field("bar", "baz");
+
+    database.begin();
     document.save();
+    database.commit();
 
     document = new ODocument("collateTestNotNull");
     document.field("nobar", true);
+
+    database.begin();
     document.save();
+    database.commit();
 
     @SuppressWarnings("deprecation")
     List<ODocument> result =
@@ -124,7 +132,9 @@ public class CollateTest extends DocumentDBBaseTest {
         document.field("cip", "val");
       }
 
+      database.begin();
       document.save();
+      database.commit();
     }
 
     String query = "select from collateIndexTest where csp = 'VAL'";
@@ -166,7 +176,9 @@ public class CollateTest extends DocumentDBBaseTest {
       if (i % 2 == 0) document.field("cp", "VAL");
       else document.field("cp", "val");
 
+      database.begin();
       document.save();
+      database.commit();
     }
 
     String query = "select from collateWasChangedIndexTest where cp = 'VAL'";
@@ -221,7 +233,9 @@ public class CollateTest extends DocumentDBBaseTest {
         document.field("cip", "val");
       }
 
+      database.begin();
       document.save();
+      database.commit();
     }
 
     String query = "select from CompositeIndexQueryCSTest where csp = 'VAL'";
@@ -291,7 +305,9 @@ public class CollateTest extends DocumentDBBaseTest {
         document.field("cip", "val");
       }
 
+      database.begin();
       document.save();
+      database.commit();
     }
 
     String query = "select from CompositeIndexQueryCollateWasChangedTest where csp = 'VAL'";
@@ -353,7 +369,9 @@ public class CollateTest extends DocumentDBBaseTest {
         document.field("cip", "val");
       }
 
+      database.begin();
       document.save();
+      database.commit();
     }
 
     @SuppressWarnings("deprecation")

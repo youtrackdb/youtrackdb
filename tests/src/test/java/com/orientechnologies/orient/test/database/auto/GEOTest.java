@@ -73,7 +73,9 @@ public class GEOTest extends DocumentDBBaseTest {
       point.field("x", (52.20472d + i / 100d));
       point.field("y", (0.14056d + i / 100d));
 
+      database.begin();
       point.save();
+      database.commit();
     }
   }
 
@@ -110,7 +112,9 @@ public class GEOTest extends DocumentDBBaseTest {
       Assert.assertTrue(true);
     }
 
+    database.begin();
     result.get(0).save();
+    database.commit();
 
     result =
         database

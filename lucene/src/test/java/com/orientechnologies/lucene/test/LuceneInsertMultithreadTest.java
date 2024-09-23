@@ -104,7 +104,9 @@ public class LuceneInsertMultithreadTest {
 
       OIndex idx = schema.getClass("City").getClassIndex("City.name");
 
+      databaseDocumentTx.begin();
       Assertions.assertThat(idx.getInternal().size()).isEqualTo(THREADS * CYCLE);
+      databaseDocumentTx.commit();
     }
     orientDB.drop(dbName);
   }
@@ -127,7 +129,9 @@ public class LuceneInsertMultithreadTest {
 
           doc.field("name", "Rome");
 
+          db.begin();
           db.save(doc);
+          db.commit();
           int commitBuf = 500;
           if (i % commitBuf == 0) {
             db.commit();

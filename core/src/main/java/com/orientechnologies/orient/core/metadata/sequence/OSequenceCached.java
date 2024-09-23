@@ -31,6 +31,7 @@ import javax.annotation.Nonnull;
  * @since 3/3/2015
  */
 public class OSequenceCached extends OSequence {
+
   private static final String FIELD_CACHE = "cache";
   private long cacheStart;
   private long cacheEnd;
@@ -51,10 +52,16 @@ public class OSequenceCached extends OSequence {
       params = new CreateParams().setDefaults();
     }
 
-    setCacheSize(document, params.cacheSize);
-    cacheStart = cacheEnd = 0L;
-    allocateCache(document, params.cacheSize, getOrderType(document), getLimitValue(document));
-    document.save();
+    var db = getDatabase();
+    var currentParams = params;
+    db.executeInTx(
+        () -> {
+          setCacheSize(document, currentParams.cacheSize);
+          cacheStart = cacheEnd = 0L;
+          allocateCache(
+              document, currentParams.cacheSize, getOrderType(document), getLimitValue(document));
+          document.save();
+        });
   }
 
   @Override

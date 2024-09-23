@@ -45,7 +45,9 @@ public class OSecurityRemote implements OSecurityInternal {
       final ORestrictedOperation iOperation,
       final String iRoleName) {
     final ORID role = getRoleRID(session, iRoleName);
-    if (role == null) throw new IllegalArgumentException("Role '" + iRoleName + "' not found");
+    if (role == null) {
+      throw new IllegalArgumentException("Role '" + iRoleName + "' not found");
+    }
 
     return allowIdentity(session, iDocument, iOperation.getFieldName(), role);
   }
@@ -57,7 +59,9 @@ public class OSecurityRemote implements OSecurityInternal {
       final ORestrictedOperation iOperation,
       final String iUserName) {
     final ORID user = getUserRID(session, iUserName);
-    if (user == null) throw new IllegalArgumentException("User '" + iUserName + "' not found");
+    if (user == null) {
+      throw new IllegalArgumentException("User '" + iUserName + "' not found");
+    }
 
     return allowIdentity(session, iDocument, iOperation.getFieldName(), user);
   }
@@ -69,7 +73,9 @@ public class OSecurityRemote implements OSecurityInternal {
       final ORestrictedOperation iOperation,
       final String iUserName) {
     final ORID user = getUserRID(session, iUserName);
-    if (user == null) throw new IllegalArgumentException("User '" + iUserName + "' not found");
+    if (user == null) {
+      throw new IllegalArgumentException("User '" + iUserName + "' not found");
+    }
 
     return disallowIdentity(session, iDocument, iOperation.getFieldName(), user);
   }
@@ -81,7 +87,9 @@ public class OSecurityRemote implements OSecurityInternal {
       final ORestrictedOperation iOperation,
       final String iRoleName) {
     final ORID role = getRoleRID(session, iRoleName);
-    if (role == null) throw new IllegalArgumentException("Role '" + iRoleName + "' not found");
+    if (role == null) {
+      throw new IllegalArgumentException("Role '" + iRoleName + "' not found");
+    }
 
     return disallowIdentity(session, iDocument, iOperation.getFieldName(), role);
   }
@@ -100,12 +108,16 @@ public class OSecurityRemote implements OSecurityInternal {
   }
 
   public ORID getRoleRID(final ODatabaseSession session, final String iRoleName) {
-    if (iRoleName == null) return null;
+    if (iRoleName == null) {
+      return null;
+    }
 
     try (final OResultSet result =
         session.query("select @rid as rid from ORole where name = ? limit 1", iRoleName)) {
 
-      if (result.hasNext()) return result.next().getProperty("rid");
+      if (result.hasNext()) {
+        return result.next().getProperty("rid");
+      }
     }
     return null;
   }
@@ -114,7 +126,9 @@ public class OSecurityRemote implements OSecurityInternal {
     try (OResultSet result =
         session.query("select @rid as rid from OUser where name = ? limit 1", userName)) {
 
-      if (result.hasNext()) return result.next().getProperty("rid");
+      if (result.hasNext()) {
+        return result.next().getProperty("rid");
+      }
     }
 
     return null;
@@ -124,7 +138,9 @@ public class OSecurityRemote implements OSecurityInternal {
   public OIdentifiable disallowIdentity(
       ODatabaseSession session, ODocument iDocument, String iAllowFieldName, OIdentifiable iId) {
     Set<OIdentifiable> field = iDocument.field(iAllowFieldName);
-    if (field != null) field.remove(iId);
+    if (field != null) {
+      field.remove(iId);
+    }
     return iId;
   }
 
@@ -139,14 +155,16 @@ public class OSecurityRemote implements OSecurityInternal {
       final String iUserName,
       final String iUserPassword,
       final String... iRoles) {
-    final OUser user = new OUser(iUserName, iUserPassword);
-
-    if (iRoles != null)
-      for (String r : iRoles) {
-        user.addRole(r);
-      }
-
-    return user.save();
+    return session.computeInTx(
+        () -> {
+          final OUser user = new OUser(iUserName, iUserPassword);
+          if (iRoles != null) {
+            for (String r : iRoles) {
+              user.addRole(r);
+            }
+          }
+          return user.save();
+        });
   }
 
   @Override
@@ -155,14 +173,18 @@ public class OSecurityRemote implements OSecurityInternal {
       final String userName,
       final String userPassword,
       final ORole... roles) {
-    final OUser user = new OUser(userName, userPassword);
+    return session.computeInTx(
+        () -> {
+          final OUser user = new OUser(userName, userPassword);
 
-    if (roles != null)
-      for (ORole r : roles) {
-        user.addRole(r);
-      }
+          if (roles != null) {
+            for (ORole r : roles) {
+              user.addRole(r);
+            }
+          }
 
-    return user.save();
+          return user.save();
+        });
   }
 
   @Override
@@ -189,13 +211,17 @@ public class OSecurityRemote implements OSecurityInternal {
   @Override
   public OUser getUser(final ODatabaseSession session, final String iUserName) {
     try (OResultSet result = session.query("select from OUser where name = ? limit 1", iUserName)) {
-      if (result.hasNext()) return new OUser((ODocument) result.next().getElement().get());
+      if (result.hasNext()) {
+        return new OUser((ODocument) result.next().getElement().get());
+      }
     }
     return null;
   }
 
   public OUser getUser(final ODatabaseSession session, final ORID iRecordId) {
-    if (iRecordId == null) return null;
+    if (iRecordId == null) {
+      return null;
+    }
 
     ODocument result;
     result = session.load(iRecordId, "roles:1");
@@ -218,11 +244,15 @@ public class OSecurityRemote implements OSecurityInternal {
   }
 
   public ORole getRole(final ODatabaseSession session, final String iRoleName) {
-    if (iRoleName == null) return null;
+    if (iRoleName == null) {
+      return null;
+    }
 
     try (final OResultSet result =
         session.query("select from ORole where name = ? limit 1", iRoleName)) {
-      if (result.hasNext()) return new ORole((ODocument) result.next().getElement().get());
+      if (result.hasNext()) {
+        return new ORole((ODocument) result.next().getElement().get());
+      }
     }
 
     return null;

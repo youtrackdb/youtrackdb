@@ -39,10 +39,13 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testQuery() {
     for (int i = 0; i < 150; i++) {
+      db.begin();
       ODocument doc = new ODocument("Some");
       doc.setProperty("prop", "value");
       db.save(doc);
+      db.commit();
     }
+
     OResultSet res = db.query("select from Some");
     for (int i = 0; i < 150; i++) {
       assertTrue(res.hasNext());
@@ -54,10 +57,13 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testCommandSelect() {
     for (int i = 0; i < 150; i++) {
+      db.begin();
       ODocument doc = new ODocument("Some");
       doc.setProperty("prop", "value");
       db.save(doc);
+      db.commit();
     }
+
     OResultSet res = db.command("select from Some");
     for (int i = 0; i < 150; i++) {
       assertTrue(res.hasNext());
@@ -69,9 +75,11 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testCommandInsertWithPageOverflow() {
     for (int i = 0; i < 150; i++) {
+      db.begin();
       ODocument doc = new ODocument("Some");
       doc.setProperty("prop", "value");
       db.save(doc);
+      db.commit();
     }
 
     OResultSet res = db.command("insert into V from select from Some");
@@ -105,12 +113,15 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
 
   @Test
   public void testQueryEmbedded() {
+    db.begin();
     ODocument doc = new ODocument("Some");
     doc.setProperty("prop", "value");
     ODocument emb = new ODocument();
     emb.setProperty("one", "value");
     doc.setProperty("emb", emb, OType.EMBEDDED);
     db.save(doc);
+    db.commit();
+
     OResultSet res = db.query("select emb from Some");
 
     OResult item = res.next();
@@ -120,6 +131,7 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
 
   @Test
   public void testQueryDoubleEmbedded() {
+    db.begin();
     ODocument doc = new ODocument("Some");
     doc.setProperty("prop", "value");
     ODocument emb1 = new ODocument();
@@ -130,6 +142,8 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
 
     doc.setProperty("emb", emb, OType.EMBEDDED);
     db.save(doc);
+    db.commit();
+
     OResultSet res = db.query("select emb from Some");
 
     OResult item = res.next();
@@ -141,6 +155,7 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
 
   @Test
   public void testQueryEmbeddedList() {
+    db.begin();
     ODocument doc = new ODocument("Some");
     doc.setProperty("prop", "value");
     ODocument emb = new ODocument();
@@ -149,6 +164,8 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
     list.add(emb);
     doc.setProperty("list", list, OType.EMBEDDEDLIST);
     db.save(doc);
+    db.commit();
+
     OResultSet res = db.query("select list from Some");
 
     OResult item = res.next();
@@ -159,6 +176,7 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
 
   @Test
   public void testQueryEmbeddedSet() {
+    db.begin();
     ODocument doc = new ODocument("Some");
     doc.setProperty("prop", "value");
     ODocument emb = new ODocument();
@@ -167,6 +185,8 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
     set.add(emb);
     doc.setProperty("set", set, OType.EMBEDDEDSET);
     db.save(doc);
+    db.commit();
+
     OResultSet res = db.query("select set from Some");
 
     OResult item = res.next();
@@ -178,6 +198,7 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
 
   @Test
   public void testQueryEmbeddedMap() {
+    db.begin();
     ODocument doc = new ODocument("Some");
     doc.setProperty("prop", "value");
     ODocument emb = new ODocument();
@@ -186,6 +207,8 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
     map.put("key", emb);
     doc.setProperty("map", map, OType.EMBEDDEDMAP);
     db.save(doc);
+    db.commit();
+
     OResultSet res = db.query("select map from Some");
 
     OResult item = res.next();

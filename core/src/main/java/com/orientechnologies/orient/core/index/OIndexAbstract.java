@@ -66,10 +66,10 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Stream;
 
 /**
- * Handles indexing when records change. The underlying lock manager for keys can be the {@link
- * OPartitionedLockManager}, the default one, or the {@link OOneEntryPerKeyLockManager} in case of
- * distributed. This is to avoid deadlock situation between nodes where keys have the same hash
- * code.
+ * Handles indexing when records change. The underlying lock manager for keys can be the
+ * {@link OPartitionedLockManager}, the default one, or the {@link OOneEntryPerKeyLockManager} in
+ * case of distributed. This is to avoid deadlock situation between nodes where keys have the same
+ * hash code.
  *
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
@@ -137,17 +137,19 @@ public abstract class OIndexAbstract implements OIndexInternal {
       OIndexFactory factory = OIndexes.getFactory(type, algorithm);
       if (Boolean.TRUE.equals(isAutomatic)) {
         final int pos = indexName.lastIndexOf('.');
-        if (pos < 0)
+        if (pos < 0) {
           throw new OIndexException(
               "Cannot convert from old index model to new one. "
                   + "Invalid index name. Dot (.) separator should be present");
+        }
         final String className = indexName.substring(0, pos);
         final String propertyName = indexName.substring(pos + 1);
 
         final String keyTypeStr = config.field(OIndexInternal.CONFIG_KEYTYPE);
-        if (keyTypeStr == null)
+        if (keyTypeStr == null) {
           throw new OIndexException(
               "Cannot convert from old index model to new one. " + "Index key type is absent");
+        }
         final OType keyType = OType.valueOf(keyTypeStr.toUpperCase(Locale.ENGLISH));
 
         loadedIndexDefinition = new OPropertyIndexDefinition(className, propertyName, keyType);
@@ -187,18 +189,21 @@ public abstract class OIndexAbstract implements OIndexInternal {
 
     acquireSharedLock();
     try {
-      while (true)
+      while (true) {
         try {
           return storage.hasIndexRangeQuerySupport(indexId);
         } catch (OInvalidIndexEngineIdException ignore) {
           doReloadIndexEngine();
         }
+      }
     } finally {
       releaseSharedLock();
     }
   }
 
-  /** Creates the index. */
+  /**
+   * Creates the index.
+   */
   public OIndexInternal create(
       final OIndexMetadata indexMetadata,
       boolean rebuild,
@@ -207,8 +212,11 @@ public abstract class OIndexAbstract implements OIndexInternal {
     try {
       Set<String> clustersToIndex = indexMetadata.getClustersToIndex();
 
-      if (clustersToIndex != null) this.clustersToIndex = new HashSet<>(clustersToIndex);
-      else this.clustersToIndex = new HashSet<>();
+      if (clustersToIndex != null) {
+        this.clustersToIndex = new HashSet<>(clustersToIndex);
+      } else {
+        this.clustersToIndex = new HashSet<>();
+      }
 
       // do not remove this, it is needed to remove index garbage if such one exists
       try {
@@ -234,7 +242,9 @@ public abstract class OIndexAbstract implements OIndexInternal {
 
       onIndexEngineChange(indexId);
 
-      if (rebuild) fillIndex(progressListener, false);
+      if (rebuild) {
+        fillIndex(progressListener, false);
+      }
 
       updateConfiguration();
     } catch (Exception e) {
@@ -333,7 +343,9 @@ public abstract class OIndexAbstract implements OIndexInternal {
         config, im.getType(), im.getAlgorithm(), im.getValueContainerAlgorithm());
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   public long rebuild() {
     return rebuild(new OIndexRebuildOutputListener(this));
   }
@@ -349,7 +361,9 @@ public abstract class OIndexAbstract implements OIndexInternal {
     return size();
   }
 
-  /** Counts the entries for the key. */
+  /**
+   * Counts the entries for the key.
+   */
   @Deprecated
   public long count(Object iKey) {
     try (Stream<ORawPair<Object, ORID>> stream =
@@ -368,7 +382,9 @@ public abstract class OIndexAbstract implements OIndexInternal {
     }
   }
 
-  /** Flushes in-memory changes to disk. */
+  /**
+   * Flushes in-memory changes to disk.
+   */
   @Deprecated
   public void flush() {
     // do nothing
@@ -466,7 +482,9 @@ public abstract class OIndexAbstract implements OIndexInternal {
     return new OIndexCursorStream(streamEntriesMajor(toKey, toInclusive, ascOrder));
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   public long rebuild(final OProgressListener iProgressListener) {
     long documentIndexed;
 
@@ -494,7 +512,9 @@ public abstract class OIndexAbstract implements OIndexInternal {
       onIndexEngineChange(indexId);
     } catch (Exception e) {
       try {
-        if (indexId >= 0) storage.clearIndex(indexId);
+        if (indexId >= 0) {
+          storage.clearIndex(indexId);
+        }
       } catch (Exception e2) {
         OLogManager.instance().error(this, "Error during index rebuild", e2);
         // IGNORE EXCEPTION: IF THE REBUILD WAS LAUNCHED IN CASE OF RID INVALID CLEAR ALWAYS GOES IN
@@ -513,7 +533,9 @@ public abstract class OIndexAbstract implements OIndexInternal {
     } catch (final Exception e) {
       OLogManager.instance().error(this, "Error during index rebuild", e);
       try {
-        if (indexId >= 0) storage.clearIndex(indexId);
+        if (indexId >= 0) {
+          storage.clearIndex(indexId);
+        }
       } catch (Exception e2) {
         OLogManager.instance().error(this, "Error during index rebuild", e2);
         // IGNORE EXCEPTION: IF THE REBUILD WAS LAUNCHED IN CASE OF RID INVALID CLEAR ALWAYS GOES IN
@@ -535,10 +557,13 @@ public abstract class OIndexAbstract implements OIndexInternal {
       long documentNum = 0;
       long documentTotal = 0;
 
-      for (final String cluster : clustersToIndex)
+      for (final String cluster : clustersToIndex) {
         documentTotal += storage.count(storage.getClusterIdByName(cluster));
+      }
 
-      if (iProgressListener != null) iProgressListener.onBegin(this, documentTotal, rebuild);
+      if (iProgressListener != null) {
+        iProgressListener.onBegin(this, documentTotal, rebuild);
+      }
 
       // INDEX ALL CLUSTERS
       for (final String clusterName : clustersToIndex) {
@@ -549,9 +574,14 @@ public abstract class OIndexAbstract implements OIndexInternal {
         documentIndexed = metrics[1];
       }
 
-      if (iProgressListener != null) iProgressListener.onCompletition(this, true);
+      if (iProgressListener != null) {
+        var db = getDatabase();
+        db.executeInTx(() -> iProgressListener.onCompletition(this, true));
+      }
     } catch (final RuntimeException e) {
-      if (iProgressListener != null) iProgressListener.onCompletition(this, false);
+      if (iProgressListener != null) {
+        iProgressListener.onCompletition(this, false);
+      }
       throw e;
     }
     return documentIndexed;
@@ -622,8 +652,9 @@ public abstract class OIndexAbstract implements OIndexInternal {
     try {
       doDelete();
       // REMOVE THE INDEX ALSO FROM CLASS MAP
-      if (getDatabase().getMetadata() != null)
+      if (getDatabase().getMetadata() != null) {
         getDatabase().getMetadata().getIndexManagerInternal().removeClassPropertyIndex(this);
+      }
 
       return this;
     } finally {
@@ -632,7 +663,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
   }
 
   protected void doDelete() {
-    while (true)
+    while (true) {
       try {
         //noinspection ObjectAllocationInLoop
         try {
@@ -645,6 +676,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
               while (iterator.hasNext()) {
                 ORawPair<Object, ORID> pair = iterator.next();
                 remove(pair.first, pair.second);
+                count++;
                 if (count % 1000 == 0) {
                   database.commit();
                   database.begin();
@@ -677,6 +709,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
       } catch (OInvalidIndexEngineIdException ignore) {
         doReloadIndexEngine();
       }
+    }
 
     removeValuesContainer();
   }
@@ -766,7 +799,9 @@ public abstract class OIndexAbstract implements OIndexInternal {
     if (im.getIndexDefinition() != null) {
 
       final ODocument indexDefDocument = im.getIndexDefinition().toStream(new ODocument());
-      if (!indexDefDocument.hasOwners()) ODocumentInternal.addOwner(indexDefDocument, document);
+      if (!indexDefDocument.hasOwners()) {
+        ODocumentInternal.addOwner(indexDefDocument, document);
+      }
 
       document.field(OIndexInternal.INDEX_DEFINITION, indexDefDocument, OType.EMBEDDED);
       document.field(
@@ -779,8 +814,9 @@ public abstract class OIndexAbstract implements OIndexInternal {
     document.field(CONFIG_CLUSTERS, clustersToIndex, OType.EMBEDDEDSET);
     document.field(ALGORITHM, im.getAlgorithm());
     document.field(VALUE_CONTAINER_ALGORITHM, im.getValueContainerAlgorithm());
-    if (im.getMetadata() != null)
+    if (im.getMetadata() != null) {
       document.field(OIndexInternal.METADATA, im.getMetadata(), OType.EMBEDDED);
+    }
 
     return document;
   }
@@ -790,9 +826,9 @@ public abstract class OIndexAbstract implements OIndexInternal {
    * behaviour on interpreting index changes. This may be viewed as an optimization, but in some
    * cases this is a requirement. For example, if you put multiple values under the same key during
    * the transaction for single-valued/unique index, but remove all of them except one before
-   * commit, there is no point in throwing {@link
-   * com.orientechnologies.orient.core.storage.ORecordDuplicatedException} while applying index
-   * changes.
+   * commit, there is no point in throwing
+   * {@link com.orientechnologies.orient.core.storage.ORecordDuplicatedException} while applying
+   * index changes.
    *
    * @param changes the changes to interpret.
    * @return the interpreted index key changes.
@@ -828,7 +864,9 @@ public abstract class OIndexAbstract implements OIndexInternal {
   public OType[] getKeyTypes() {
     acquireSharedLock();
     try {
-      if (im.getIndexDefinition() == null) return null;
+      if (im.getIndexDefinition() == null) {
+        return null;
+      }
 
       return im.getIndexDefinition().getTypes();
     } finally {
@@ -840,12 +878,13 @@ public abstract class OIndexAbstract implements OIndexInternal {
   public Stream<Object> keyStream() {
     acquireSharedLock();
     try {
-      while (true)
+      while (true) {
         try {
           return storage.getIndexKeyStream(indexId);
         } catch (OInvalidIndexEngineIdException ignore) {
           doReloadIndexEngine();
         }
+      }
     } finally {
       releaseSharedLock();
     }
@@ -859,8 +898,12 @@ public abstract class OIndexAbstract implements OIndexInternal {
   public boolean equals(final Object o) {
     acquireSharedLock();
     try {
-      if (this == o) return true;
-      if (o == null || getClass() != o.getClass()) return false;
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
 
       final OIndexAbstract that = (OIndexAbstract) o;
 
@@ -889,8 +932,9 @@ public abstract class OIndexAbstract implements OIndexInternal {
   }
 
   public Object getCollatingValue(final Object key) {
-    if (key != null && im.getIndexDefinition() != null)
+    if (key != null && im.getIndexDefinition() != null) {
       return im.getIndexDefinition().getCollate().transform(key);
+    }
     return key;
   }
 
@@ -946,35 +990,44 @@ public abstract class OIndexAbstract implements OIndexInternal {
       long documentNum,
       long documentIndexed,
       long documentTotal) {
-    if (im.getIndexDefinition() == null)
+    if (im.getIndexDefinition() == null) {
       throw new OConfigurationException(
           "Index '"
               + im.getName()
               + "' cannot be rebuilt because has no a valid definition ("
               + im.getIndexDefinition()
               + ")");
-    ODatabaseDocumentInternal database = getDatabase();
-    database.begin();
-    for (final ORecord record : database.browseCluster(clusterName)) {
-      if (Thread.interrupted())
-        throw new OCommandExecutionException("The index rebuild has been interrupted");
-
-      if (record instanceof ODocument) {
-        final ODocument doc = (ODocument) record;
-        OClassIndexManager.reIndex(doc, this);
-        ++documentIndexed;
-      }
-      if (documentIndexed % 1000 == 0) {
-        database.commit();
-        database.begin();
-      }
-      documentNum++;
-
-      if (iProgressListener != null)
-        iProgressListener.onProgress(
-            this, documentNum, (float) (documentNum * 100.0 / documentTotal));
     }
-    database.commit();
+    ODatabaseDocumentInternal database = getDatabase();
+
+    database.begin();
+    try {
+      for (final ORecord record : database.browseCluster(clusterName)) {
+        if (Thread.interrupted()) {
+          throw new OCommandExecutionException("The index rebuild has been interrupted");
+        }
+
+        if (record instanceof ODocument) {
+          final ODocument doc = (ODocument) record;
+          OClassIndexManager.reIndex(doc, this);
+          ++documentIndexed;
+        }
+
+        if (documentIndexed > 0 && documentIndexed % 1000 == 0) {
+          database.commit();
+          database.begin();
+        }
+
+        documentNum++;
+
+        if (iProgressListener != null) {
+          iProgressListener.onProgress(
+              this, documentNum, (float) (documentNum * 100.0 / documentTotal));
+        }
+      }
+    } finally {
+      database.commit();
+    }
 
     return new long[] {documentNum, documentIndexed};
   }
@@ -1029,7 +1082,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
   }
 
   protected void onIndexEngineChange(final int indexId) {
-    while (true)
+    while (true) {
       try {
         storage.callIndexEngine(
             false,
@@ -1042,6 +1095,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
       } catch (OInvalidIndexEngineIdException ignore) {
         doReloadIndexEngine();
       }
+    }
   }
 
   public static void manualIndexesWarning() {
@@ -1066,24 +1120,32 @@ public abstract class OIndexAbstract implements OIndexInternal {
   }
 
   /**
-   * Indicates search behavior in case of {@link
-   * com.orientechnologies.orient.core.index.OCompositeKey} keys that have less amount of internal
-   * keys are used, whether lowest or highest partially matched key should be used. Such keys is
-   * allowed to use only in
+   * Indicates search behavior in case of
+   * {@link com.orientechnologies.orient.core.index.OCompositeKey} keys that have less amount of
+   * internal keys are used, whether lowest or highest partially matched key should be used. Such
+   * keys is allowed to use only in
    */
   public enum PartialSearchMode {
-    /** Any partially matched key will be used as search result. */
+    /**
+     * Any partially matched key will be used as search result.
+     */
     NONE,
-    /** The biggest partially matched key will be used as search result. */
+    /**
+     * The biggest partially matched key will be used as search result.
+     */
     HIGHEST_BOUNDARY,
 
-    /** The smallest partially matched key will be used as search result. */
+    /**
+     * The smallest partially matched key will be used as search result.
+     */
     LOWEST_BOUNDARY
   }
 
   private static Object enhanceCompositeKey(
       Object key, PartialSearchMode partialSearchMode, OIndexDefinition definition) {
-    if (!(key instanceof OCompositeKey)) return key;
+    if (!(key instanceof OCompositeKey)) {
+      return key;
+    }
 
     final OCompositeKey compositeKey = (OCompositeKey) key;
     final int keySize = definition.getParamCount();
@@ -1095,11 +1157,15 @@ public abstract class OIndexAbstract implements OIndexInternal {
       int itemsToAdd = keySize - fullKey.getKeys().size();
 
       final Comparable<?> keyItem;
-      if (partialSearchMode.equals(PartialSearchMode.HIGHEST_BOUNDARY))
+      if (partialSearchMode.equals(PartialSearchMode.HIGHEST_BOUNDARY)) {
         keyItem = ALWAYS_GREATER_KEY;
-      else keyItem = ALWAYS_LESS_KEY;
+      } else {
+        keyItem = ALWAYS_LESS_KEY;
+      }
 
-      for (int i = 0; i < itemsToAdd; i++) fullKey.addKey(keyItem);
+      for (int i = 0; i < itemsToAdd; i++) {
+        fullKey.addKey(keyItem);
+      }
 
       return fullKey;
     }
@@ -1109,8 +1175,11 @@ public abstract class OIndexAbstract implements OIndexInternal {
 
   public Object enhanceToCompositeKeyBetweenAsc(Object keyTo, boolean toInclusive) {
     PartialSearchMode partialSearchModeTo;
-    if (toInclusive) partialSearchModeTo = PartialSearchMode.HIGHEST_BOUNDARY;
-    else partialSearchModeTo = PartialSearchMode.LOWEST_BOUNDARY;
+    if (toInclusive) {
+      partialSearchModeTo = PartialSearchMode.HIGHEST_BOUNDARY;
+    } else {
+      partialSearchModeTo = PartialSearchMode.LOWEST_BOUNDARY;
+    }
 
     keyTo = enhanceCompositeKey(keyTo, partialSearchModeTo, getDefinition());
     return keyTo;
@@ -1118,8 +1187,11 @@ public abstract class OIndexAbstract implements OIndexInternal {
 
   public Object enhanceFromCompositeKeyBetweenAsc(Object keyFrom, boolean fromInclusive) {
     PartialSearchMode partialSearchModeFrom;
-    if (fromInclusive) partialSearchModeFrom = PartialSearchMode.LOWEST_BOUNDARY;
-    else partialSearchModeFrom = PartialSearchMode.HIGHEST_BOUNDARY;
+    if (fromInclusive) {
+      partialSearchModeFrom = PartialSearchMode.LOWEST_BOUNDARY;
+    } else {
+      partialSearchModeFrom = PartialSearchMode.HIGHEST_BOUNDARY;
+    }
 
     keyFrom = enhanceCompositeKey(keyFrom, partialSearchModeFrom, getDefinition());
     return keyFrom;
@@ -1127,8 +1199,11 @@ public abstract class OIndexAbstract implements OIndexInternal {
 
   public Object enhanceToCompositeKeyBetweenDesc(Object keyTo, boolean toInclusive) {
     PartialSearchMode partialSearchModeTo;
-    if (toInclusive) partialSearchModeTo = PartialSearchMode.HIGHEST_BOUNDARY;
-    else partialSearchModeTo = PartialSearchMode.LOWEST_BOUNDARY;
+    if (toInclusive) {
+      partialSearchModeTo = PartialSearchMode.HIGHEST_BOUNDARY;
+    } else {
+      partialSearchModeTo = PartialSearchMode.LOWEST_BOUNDARY;
+    }
 
     keyTo = enhanceCompositeKey(keyTo, partialSearchModeTo, getDefinition());
     return keyTo;
@@ -1136,8 +1211,11 @@ public abstract class OIndexAbstract implements OIndexInternal {
 
   public Object enhanceFromCompositeKeyBetweenDesc(Object keyFrom, boolean fromInclusive) {
     PartialSearchMode partialSearchModeFrom;
-    if (fromInclusive) partialSearchModeFrom = PartialSearchMode.LOWEST_BOUNDARY;
-    else partialSearchModeFrom = PartialSearchMode.HIGHEST_BOUNDARY;
+    if (fromInclusive) {
+      partialSearchModeFrom = PartialSearchMode.LOWEST_BOUNDARY;
+    } else {
+      partialSearchModeFrom = PartialSearchMode.HIGHEST_BOUNDARY;
+    }
 
     keyFrom = enhanceCompositeKey(keyFrom, partialSearchModeFrom, getDefinition());
     return keyFrom;

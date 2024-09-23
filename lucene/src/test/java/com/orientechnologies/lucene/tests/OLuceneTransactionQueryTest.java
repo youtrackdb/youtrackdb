@@ -91,6 +91,7 @@ public class OLuceneTransactionQueryTest extends OLuceneBaseTest {
 
     db.commit();
 
+    db.begin();
     List<OResult> results;
     try (OResultSet vertices = db.command(query)) {
       //noinspection resource
@@ -98,8 +99,6 @@ public class OLuceneTransactionQueryTest extends OLuceneBaseTest {
       assertThat(results).hasSize(1);
     }
     assertThat(index.getInternal().size()).isEqualTo(1);
-
-    db.begin();
 
     doc = new ODocument("c1");
     doc.field("p1", "abc");
@@ -146,9 +145,8 @@ public class OLuceneTransactionQueryTest extends OLuceneBaseTest {
       e.printStackTrace();
     }
 
-    Assert.assertEquals(index.getInternal().size(), 0);
-
     db.begin();
+    Assert.assertEquals(index.getInternal().size(), 0);
 
     ODocument doc = new ODocument("c1");
     doc.field("p1", "update");
@@ -227,9 +225,8 @@ public class OLuceneTransactionQueryTest extends OLuceneBaseTest {
       e.printStackTrace();
     }
 
-    Assert.assertEquals(index.getInternal().size(), 0);
-
     db.begin();
+    Assert.assertEquals(index.getInternal().size(), 0);
 
     ODocument doc = new ODocument("c1");
     doc.field("p1", "abc");

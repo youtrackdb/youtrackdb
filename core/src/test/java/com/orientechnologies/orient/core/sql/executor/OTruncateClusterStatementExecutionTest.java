@@ -29,10 +29,12 @@ public class OTruncateClusterStatementExecutionTest extends BaseMemoryDatabase {
     clazz.createProperty("value", OType.STRING);
     clazz.createIndex("TruncateClusterIndex", OClass.INDEX_TYPE.UNIQUE, "value");
 
+    db.begin();
     final ODocument document = new ODocument();
     document.field("value", "val");
 
     document.save(clusterName);
+    db.commit();
 
     Assert.assertEquals(db.countClass(className), 1);
     Assert.assertEquals(db.countClusterElements(clusterId), 1);

@@ -20,9 +20,11 @@ public class ODeleteStatementExecutionTest extends BaseMemoryDatabase {
     String className = "testSimple";
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
+      db.commit();
     }
     OResultSet result = db.command("delete from  " + className + " where name = 'name4'");
     printExecutionPlan(result);
@@ -54,9 +56,11 @@ public class ODeleteStatementExecutionTest extends BaseMemoryDatabase {
     }
     db.getMetadata().getSchema().createClass(className, v);
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
+      db.commit();
     }
     try {
       OResultSet result = db.command("delete from  " + className + " where name = 'name4'");
@@ -77,9 +81,11 @@ public class ODeleteStatementExecutionTest extends BaseMemoryDatabase {
     }
     db.getMetadata().getSchema().createClass(className, v);
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
+      db.commit();
     }
 
     OResultSet result = db.command("delete from  " + className + " where name = 'name4' unsafe");
@@ -111,6 +117,7 @@ public class ODeleteStatementExecutionTest extends BaseMemoryDatabase {
     ORID fourthId = null;
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       if (i == 4) {
@@ -118,6 +125,7 @@ public class ODeleteStatementExecutionTest extends BaseMemoryDatabase {
       }
 
       doc.save();
+      db.commit();
     }
     OResultSet result =
         db.command("delete from  " + className + " return before where name = 'name4' ");
@@ -146,9 +154,11 @@ public class ODeleteStatementExecutionTest extends BaseMemoryDatabase {
     String className = "testLimit";
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
+      db.commit();
     }
     OResultSet result = db.command("delete from  " + className + " limit 5");
     printExecutionPlan(result);

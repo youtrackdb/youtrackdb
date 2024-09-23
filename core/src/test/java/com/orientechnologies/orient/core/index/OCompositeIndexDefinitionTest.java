@@ -25,6 +25,7 @@ import org.junit.Test;
 
 @SuppressWarnings("unchecked")
 public class OCompositeIndexDefinitionTest {
+
   private OCompositeIndexDefinition compositeIndex;
 
   @Before
@@ -679,8 +680,10 @@ public class OCompositeIndexDefinitionTest {
     emptyCompositeIndex.addIndex(new OPropertyIndexDefinition("testClass", "fOne", OType.INTEGER));
     emptyCompositeIndex.addIndex(new OPropertyIndexDefinition("testClass", "fTwo", OType.STRING));
 
+    database.begin();
     final ODocument docToStore = emptyCompositeIndex.toStream(new ODocument());
     database.save(docToStore, database.getClusterNameById(database.getDefaultClusterId()));
+    database.commit();
 
     final ODocument docToLoad = database.load(docToStore.getIdentity());
 
@@ -723,8 +726,10 @@ public class OCompositeIndexDefinitionTest {
 
     Assert.assertEquals(emptyCompositeIndex, emptyCompositeIndexTwo);
 
+    database.begin();
     final ODocument docToStore = emptyCompositeIndex.toStream(new ODocument());
     database.save(docToStore, database.getClusterNameById(database.getDefaultClusterId()));
+    database.commit();
 
     final ODocument docToLoad = database.load(docToStore.getIdentity());
 

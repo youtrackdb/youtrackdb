@@ -23,7 +23,6 @@ import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import com.orientechnologies.orient.test.domain.whiz.Profile;
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Optional;
@@ -144,39 +143,6 @@ public class HookTxTest extends ORecordHookAbstract {
     Assert.assertEquals(callbackCount, expectedHookState);
 
     database.unregisterHook(this);
-  }
-
-  @Test(dependsOnMethods = "testHookCallsDelete")
-  public void testHookCannotBeginTx() throws IOException {
-    final AtomicBoolean exc = new AtomicBoolean(false);
-    database.activateOnCurrentThread();
-    database.registerHook(
-        new ORecordHookAbstract() {
-          @Override
-          public RESULT onRecordBeforeCreate(ORecord iRecord) {
-            try {
-              database.activateOnCurrentThread();
-              database.begin();
-            } catch (IllegalStateException e) {
-              exc.set(true);
-            }
-            return null;
-          }
-
-          @Override
-          public DISTRIBUTED_EXECUTION_MODE getDistributedExecutionMode() {
-            return DISTRIBUTED_EXECUTION_MODE.BOTH;
-          }
-        });
-
-    Assert.assertFalse(exc.get());
-    new ODocument()
-        .field("test-hook", true)
-        .save(database.getClusterNameById(database.getDefaultClusterId()));
-    Assert.assertTrue(exc.get());
-
-    database.activateOnCurrentThread();
-    database.close();
   }
 
   @Override

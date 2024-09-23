@@ -69,7 +69,9 @@ public class OLuceneListIndexingTest extends OLuceneBaseTest {
     doc.field("name", "Rome");
     doc.field("tags", Arrays.asList("Beautiful", "Touristic", "Sunny"));
 
+    db.begin();
     db.save(doc);
+    db.commit();
 
     OIndex tagsIndex = schema.getClass("City").getClassIndex("City.tags");
     Collection<?> coll;
@@ -86,7 +88,10 @@ public class OLuceneListIndexingTest extends OLuceneBaseTest {
     doc = new ODocument("City");
     doc.field("name", "London");
     doc.field("tags", Arrays.asList("Beautiful", "Touristic", "Sunny"));
+
+    db.begin();
     db.save(doc);
+    db.commit();
 
     try (Stream<ORID> stream = tagsIndex.getInternal().getRids("Sunny")) {
       coll = stream.collect(Collectors.toList());
@@ -98,7 +103,9 @@ public class OLuceneListIndexingTest extends OLuceneBaseTest {
     tags.remove("Sunny");
     tags.add("Rainy");
 
+    db.begin();
     db.save(doc);
+    db.commit();
 
     try (Stream<ORID> stream = tagsIndex.getInternal().getRids("Rainy")) {
       coll = stream.collect(Collectors.toList());
@@ -131,7 +138,10 @@ public class OLuceneListIndexingTest extends OLuceneBaseTest {
     doc.field("name", "Enrico");
     doc.field("tags", Arrays.asList("Funny", "Tall", "Geek"));
 
+    db.begin();
     db.save(doc);
+    db.commit();
+
     OIndex idx = schema.getClass("Person").getClassIndex("Person.name_tags");
     Collection<?> coll;
     try (Stream<ORID> stream = idx.getInternal().getRids("Enrico")) {
@@ -144,7 +154,9 @@ public class OLuceneListIndexingTest extends OLuceneBaseTest {
     doc.field("name", "Jared");
     doc.field("tags", Arrays.asList("Funny", "Tall"));
 
+    db.begin();
     db.save(doc);
+    db.commit();
 
     try (Stream<ORID> stream = idx.getInternal().getRids("Jared")) {
       coll = stream.collect(Collectors.toList());
@@ -157,7 +169,9 @@ public class OLuceneListIndexingTest extends OLuceneBaseTest {
     tags.remove("Funny");
     tags.add("Geek");
 
+    db.begin();
     db.save(doc);
+    db.commit();
 
     try (Stream<ORID> stream = idx.getInternal().getRids("Funny")) {
       coll = stream.collect(Collectors.toList());

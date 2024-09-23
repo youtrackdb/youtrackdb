@@ -31,8 +31,10 @@ public class RecordMetadataTest extends DocumentDBBaseTest {
     final ODocument doc = new ODocument();
 
     for (int i = 0; i < 5; i++) {
+      database.begin();
       doc.field("field", i);
       database.save(doc, database.getClusterNameById(database.getDefaultClusterId()));
+      database.commit();
 
       final ORecordMetadata metadata = database.getRecordMetadata(doc.getIdentity());
       assetORIDEquals(doc.getIdentity(), metadata.getRecordId());

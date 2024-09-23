@@ -344,8 +344,11 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
     return oldIndexUsage == -1 ? 0 : oldIndexUsage;
   }
 
-  /** William James and James Bell work together on the same diploma. */
+  /**
+   * William James and James Bell work together on the same diploma.
+   */
   private void fillDataSet() {
+    database.begin();
     ODocument curator1 = database.newInstance("lpirtCurator");
     curator1.field("name", "Someone");
     curator1.field("salary", 2000);
@@ -435,6 +438,7 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
     student5.field("group", group3);
     student5.field("diploma", diploma3);
     student5.save();
+    database.commit();
   }
 
   private void createSchemaForTest() {

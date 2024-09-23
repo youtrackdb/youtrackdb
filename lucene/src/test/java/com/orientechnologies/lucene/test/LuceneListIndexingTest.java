@@ -36,7 +36,9 @@ import java.util.stream.Stream;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by enricorisa on 28/06/14. */
+/**
+ * Created by enricorisa on 28/06/14.
+ */
 public class LuceneListIndexingTest extends BaseLuceneTest {
 
   public LuceneListIndexingTest() {
@@ -79,7 +81,9 @@ public class LuceneListIndexingTest extends BaseLuceneTest {
           }
         });
 
+    db.begin();
     db.save(doc);
+    db.commit();
 
     OIndex tagsIndex = schema.getClass("City").getClassIndex("City.tags");
     Collection<?> coll;
@@ -104,7 +108,9 @@ public class LuceneListIndexingTest extends BaseLuceneTest {
             add("Sunny");
           }
         });
+    db.begin();
     db.save(doc);
+    db.commit();
 
     try (Stream<ORID> stream = tagsIndex.getInternal().getRids("Sunny")) {
       coll = stream.collect(Collectors.toList());
@@ -116,7 +122,9 @@ public class LuceneListIndexingTest extends BaseLuceneTest {
     tags.remove("Sunny");
     tags.add("Rainy");
 
+    db.begin();
     db.save(doc);
+    db.commit();
 
     try (Stream<ORID> stream = tagsIndex.getInternal().getRids("Rainy")) {
       coll = stream.collect(Collectors.toList());
@@ -151,7 +159,10 @@ public class LuceneListIndexingTest extends BaseLuceneTest {
           }
         });
 
+    db.begin();
     db.save(doc);
+    db.commit();
+
     OIndex idx = schema.getClass("Person").getClassIndex("Person.name_tags");
     Collection<?> coll;
     try (Stream<ORID> stream = idx.getInternal().getRids("Enrico")) {
@@ -170,7 +181,10 @@ public class LuceneListIndexingTest extends BaseLuceneTest {
             add("Tall");
           }
         });
+
+    db.begin();
     db.save(doc);
+    db.commit();
 
     try (Stream<ORID> stream = idx.getInternal().getRids("Jared")) {
       coll = stream.collect(Collectors.toList());
@@ -183,7 +197,9 @@ public class LuceneListIndexingTest extends BaseLuceneTest {
     tags.remove("Funny");
     tags.add("Geek");
 
+    db.begin();
     db.save(doc);
+    db.commit();
 
     try (Stream<ORID> stream = idx.getInternal().getRids("Funny")) {
       coll = stream.collect(Collectors.toList());
@@ -232,7 +248,10 @@ public class LuceneListIndexingTest extends BaseLuceneTest {
 
     final OVertex vertex = db.newVertex("C1");
     vertex.setProperty("p1", "testing");
+
+    db.begin();
     db.save(vertex);
+    db.commit();
 
     OResultSet search = db.query("SELECT from C1 WHERE p1 LUCENE \"tested\"");
 

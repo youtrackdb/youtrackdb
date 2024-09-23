@@ -45,13 +45,17 @@ public class TestImmutableIndexLoad {
             TestImmutableIndexLoad.class.getSimpleName(),
             "admin",
             OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    db.begin();
     ODocument doc = new ODocument("One");
     doc.setProperty("one", "a");
     db.save(doc);
+    db.commit();
     try {
+      db.begin();
       ODocument doc1 = new ODocument("One");
       doc1.setProperty("one", "a");
       db.save(doc1);
+      db.commit();
       fail("It should fail the unique index");
     } catch (ORecordDuplicatedException e) {
       // EXPEXTED

@@ -84,7 +84,8 @@ public class OrientJdbcResultSetMetaDataTest extends OrientJdbcDbPerClassTemplat
 
     Statement stmt = conn.createStatement();
     ResultSet rs =
-        stmt.executeQuery("SELECT stringKey, intKey, text, length, date, score FROM Item");
+        stmt.executeQuery(
+            "SELECT stringKey, intKey, text, length, date, score FROM Item order by stringKey");
 
     assertThat(rs.getString(1)).isEqualTo("1");
     assertThat(rs.getString("stringKey")).isEqualTo("1");

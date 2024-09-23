@@ -32,6 +32,7 @@ import java.util.*;
  * @author Sergey Sitnikov - index key changes interpretation support
  */
 public class OTransactionIndexChangesPerKey {
+
   /* internal */ static final int SET_ADD_THRESHOLD = 8;
 
   public final Object key;
@@ -40,6 +41,7 @@ public class OTransactionIndexChangesPerKey {
   public boolean clientTrackOnly;
 
   public class OTransactionIndexEntry {
+
     private OPERATION operation;
     private OIdentifiable value;
 
@@ -53,12 +55,18 @@ public class OTransactionIndexChangesPerKey {
       // equality intentionally established by the value only, operation is ignored, see
       // interpretAs* methods for details
 
-      if (this == obj) return true;
+      if (this == obj) {
+        return true;
+      }
 
-      if (obj == null || obj.getClass() != OTransactionIndexEntry.class) return false;
+      if (obj == null || obj.getClass() != OTransactionIndexEntry.class) {
+        return false;
+      }
       final OTransactionIndexEntry other = (OTransactionIndexEntry) obj;
 
-      if (this.value != null) return this.value.equals(other.value);
+      if (this.value != null) {
+        return this.value.equals(other.value);
+      }
 
       return other.value == null;
     }
@@ -91,21 +99,19 @@ public class OTransactionIndexChangesPerKey {
     entries = new OTxIndexChangesList();
   }
 
-  public void add(OIdentifiable iValue, final OPERATION iOperation) {
+  public void add(OIdentifiable iValue, final OPERATION operation) {
     synchronized (this) {
       ORID valueIdentity = iValue == null ? null : iValue.getIdentity();
-      Iterator<OTransactionIndexEntry> iter = entries.iterator();
-
-      Optional<OTxIndexChangesList.Node> nodeToRemove =
-          entries.getFirstNode(
-              valueIdentity, iOperation == OPERATION.PUT ? OPERATION.REMOVE : OPERATION.PUT);
-      if (nodeToRemove.isPresent()) {
-        nodeToRemove.get().remove();
-        return;
+      if (operation == OPERATION.REMOVE) {
+        Optional<OTxIndexChangesList.Node> nodeToRemove =
+            entries.getFirstNode(valueIdentity, OPERATION.PUT);
+        if (nodeToRemove.isPresent()) {
+          nodeToRemove.get().remove();
+          return;
+        }
       }
 
-      OTransactionIndexEntry item = new OTransactionIndexEntry(valueIdentity, iOperation);
-
+      OTransactionIndexEntry item = new OTransactionIndexEntry(valueIdentity, operation);
       entries.add(item);
     }
   }
@@ -143,8 +149,11 @@ public class OTransactionIndexChangesPerKey {
     builder.append(key).append(" [");
     boolean first = true;
     for (OTransactionIndexEntry entry : entries) {
-      if (first) first = false;
-      else builder.append(',');
+      if (first) {
+        first = false;
+      } else {
+        builder.append(',');
+      }
 
       builder.append(entry.value).append(" (").append(entry.operation).append(")");
     }
@@ -155,21 +164,26 @@ public class OTransactionIndexChangesPerKey {
   private Iterable<OTransactionIndexEntry> interpretAsUnique() {
     // 1. Handle common fast paths.
 
-    if (entries.size() < 2) return new ArrayList<OTransactionIndexEntry>(entries);
+    if (entries.size() < 2) {
+      return new ArrayList<OTransactionIndexEntry>(entries);
+    }
 
     if (entries.size() == 2) {
       final OTransactionIndexEntry entryA = entries.get(0);
       final OTransactionIndexEntry entryB = entries.get(1);
 
-      if (entryA.operation == OPERATION.REMOVE && entryB.operation == OPERATION.REMOVE)
+      if (entryA.operation == OPERATION.REMOVE && entryB.operation == OPERATION.REMOVE) {
         return Collections.singletonList(entryA); // only one removal is observed anyway
+      }
 
       final ORID ridA = entryA.value == null ? null : entryA.value.getIdentity();
       final ORID ridB = entryB.value == null ? null : entryB.value.getIdentity();
 
       if (ridA != null && ridA.equals(ridB)) {
         if (entryA.operation == entryB.operation) // both operations do the same on the same RID
-        return Collections.singletonList(entryA);
+        {
+          return Collections.singletonList(entryA);
+        }
 
         return new ArrayList<OTransactionIndexEntry>(
             entries); // don't optimize remove-put on the same RID for safety
@@ -177,12 +191,13 @@ public class OTransactionIndexChangesPerKey {
 
       /* latest key removal wins */
       /* reorder to remove-put */
-      if (entryB.operation == OPERATION.REMOVE)
+      if (entryB.operation == OPERATION.REMOVE) {
         if (entryB.value == null) {
           return Collections.singletonList(entryB);
         } else {
           return swap(entries);
         }
+      }
 
       return new ArrayList<OTransactionIndexEntry>(entries); // it's either remove-put or put-put
     }
@@ -202,11 +217,14 @@ public class OTransactionIndexChangesPerKey {
           break;
         case REMOVE:
           if (!interpretation.remove(entry)) {
-            if (firstExternalRemove == null)
+            if (firstExternalRemove == null) {
               firstExternalRemove =
                   entry; // record only first external removal, it makes key ready for any put
+            }
             // anyway
-            if (value == null) interpretation.clear();
+            if (value == null) {
+              interpretation.clear();
+            }
           }
           break;
         case CLEAR:
@@ -219,20 +237,26 @@ public class OTransactionIndexChangesPerKey {
     // 3. Build resulting equivalent operation sequence.
 
     if (interpretation.isEmpty()) { // no observable changes except maybe some removal
-      if (firstExternalRemove != null) return Collections.singletonList(firstExternalRemove);
+      if (firstExternalRemove != null) {
+        return Collections.singletonList(firstExternalRemove);
+      }
 
       return Collections.emptyList();
     }
 
     final List<OTransactionIndexEntry> changes =
         new ArrayList<OTransactionIndexEntry>(1 /* for removal, if any */ + 2 /* for puts */);
-    if (firstExternalRemove != null) changes.add(firstExternalRemove);
+    if (firstExternalRemove != null) {
+      changes.add(firstExternalRemove);
+    }
 
     int counter = 0;
     for (OTransactionIndexEntry entry : interpretation) {
       changes.add(entry);
 
-      if (++counter == 2) break; // unique constraint already violated, stop
+      if (++counter == 2) {
+        break; // unique constraint already violated, stop
+      }
     }
 
     return changes;
@@ -241,27 +265,33 @@ public class OTransactionIndexChangesPerKey {
   private Iterable<OTransactionIndexEntry> interpretAsDictionary() {
     // 1. Handle common fast paths.
 
-    if (entries.size() < 2) return new ArrayList<OTransactionIndexEntry>(entries);
+    if (entries.size() < 2) {
+      return new ArrayList<OTransactionIndexEntry>(entries);
+    }
 
     if (entries.size() == 2) {
       final OTransactionIndexEntry entryA = entries.get(0);
       final OTransactionIndexEntry entryB = entries.get(1);
 
-      if (entryA.operation == OPERATION.REMOVE && entryB.operation == OPERATION.REMOVE)
+      if (entryA.operation == OPERATION.REMOVE && entryB.operation == OPERATION.REMOVE) {
         return Collections.singletonList(entryA); // only one removal is observed anyway
+      }
 
       final ORID ridA = entryA.value == null ? null : entryA.value.getIdentity();
       final ORID ridB = entryB.value == null ? null : entryB.value.getIdentity();
 
       if (ridA != null && ridA.equals(ridB)) {
         if (entryA.operation == entryB.operation) // both operations do the same on the same RID
-        return Collections.singletonList(entryA);
+        {
+          return Collections.singletonList(entryA);
+        }
 
         return new ArrayList<OTransactionIndexEntry>(entries);
       }
 
-      if (entryB.operation == OPERATION.REMOVE && entryB.value == null)
+      if (entryB.operation == OPERATION.REMOVE && entryB.value == null) {
         return Collections.singletonList(entryB); // latest key removal wins
+      }
 
       /* latest put wins */
       /* it's put-remove on different RIDs, put wins */
@@ -303,15 +333,21 @@ public class OTransactionIndexChangesPerKey {
 
             // Recalculate last visible put.
 
-            if (entry.equals(lastObservedPuts.peekLast())) lastObservedPuts.removeLast();
+            if (entry.equals(lastObservedPuts.peekLast())) {
+              lastObservedPuts.removeLast();
+            }
 
             OTransactionIndexEntry last;
             while ((last = lastObservedPuts.peekLast()) != null
                 && !interpretation.contains(last)) // prune all unobservable puts
-            lastObservedPuts.removeLast();
+            {
+              lastObservedPuts.removeLast();
+            }
           } else {
             if (firstExternalRemove == null) // save only first external remove
-            firstExternalRemove = entry;
+            {
+              firstExternalRemove = entry;
+            }
             if (value == null) { // start from the scratch
               interpretation.clear();
               lastObservedPuts.clear();
@@ -329,7 +365,9 @@ public class OTransactionIndexChangesPerKey {
     // 3. Build resulting equivalent operation sequence.
 
     if (interpretation.isEmpty()) { // no observable changes except maybe some removal
-      if (firstExternalRemove != null) return Collections.singletonList(firstExternalRemove);
+      if (firstExternalRemove != null) {
+        return Collections.singletonList(firstExternalRemove);
+      }
 
       return Collections.emptyList();
     }
@@ -340,7 +378,9 @@ public class OTransactionIndexChangesPerKey {
   private Iterable<OTransactionIndexEntry> interpretAsNonUnique() {
     // 1. Handle common fast paths.
 
-    if (entries.size() < 2) return new ArrayList<OTransactionIndexEntry>(entries);
+    if (entries.size() < 2) {
+      return new ArrayList<OTransactionIndexEntry>(entries);
+    }
 
     if (entries.size() == 2) {
       final OTransactionIndexEntry entryA = entries.get(0);
@@ -352,8 +392,9 @@ public class OTransactionIndexChangesPerKey {
       if (ridA == null) {
         assert entryA.operation == OPERATION.REMOVE;
 
-        if (entryB.operation == OPERATION.REMOVE)
+        if (entryB.operation == OPERATION.REMOVE) {
           return Collections.singletonList(entryA); // both are removals
+        }
 
         return new ArrayList<OTransactionIndexEntry>(entries); // second operation is a put
       }
@@ -366,7 +407,9 @@ public class OTransactionIndexChangesPerKey {
 
       if (ridA.equals(ridB)) {
         if (entryA.operation == entryB.operation) // both operations do the same on the same RID
-        return Collections.singletonList(entryA);
+        {
+          return Collections.singletonList(entryA);
+        }
 
         return new ArrayList<OTransactionIndexEntry>(entries);
       }
@@ -399,10 +442,13 @@ public class OTransactionIndexChangesPerKey {
             changes.add(entry); // save key removal as it affects the key regardless of the RID
             seenKeyRemoval = true;
           } else {
-            if (!interpretation.remove(entry))
+            if (!interpretation.remove(entry)) {
               if (!seenKeyRemoval) // no point in removing a RID from the removed key
-              changes.add(
+              {
+                changes.add(
                     entry); // save that operation to remove the RID potentially created outside of
+              }
+            }
             // a transaction
           }
           break;
@@ -420,7 +466,9 @@ public class OTransactionIndexChangesPerKey {
         interpretation); // remove any removal which has a corresponding put, put is enough
 
     if (interpretation.isEmpty()) // no observable changes except maybe some removals
-    return changes; // it's either single key removal or one or more RID removals
+    {
+      return changes; // it's either single key removal or one or more RID removals
+    }
 
     if (!seenKeyRemoval /* since key removal is an ordered operation */
         && interpretation.size() < SET_ADD_THRESHOLD) {
@@ -444,15 +492,23 @@ public class OTransactionIndexChangesPerKey {
     return result;
   }
 
-  /** Defines interpretations supported by {@link #interpret(Interpretation)}. */
+  /**
+   * Defines interpretations supported by {@link #interpret(Interpretation)}.
+   */
   public enum Interpretation {
-    /** Interpret changes like they was done for unique index. */
+    /**
+     * Interpret changes like they was done for unique index.
+     */
     Unique,
 
-    /** Interpret changes like they was done for dictionary index. */
+    /**
+     * Interpret changes like they was done for dictionary index.
+     */
     Dictionary,
 
-    /** Interpret changes like they was done for non-unique index. */
+    /**
+     * Interpret changes like they was done for non-unique index.
+     */
     NonUnique
   }
 

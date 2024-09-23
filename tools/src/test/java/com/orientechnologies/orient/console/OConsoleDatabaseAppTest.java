@@ -41,7 +41,10 @@ public class OConsoleDatabaseAppTest {
 
       ODatabaseDocument db = app.getCurrentDatabase();
       db.addBlobCluster("blobTest");
+
+      db.begin();
       ORecord record = db.save(new ORecordBytes("blobContent".getBytes()), "blobTest");
+      db.commit();
       builder.setLength(0);
       app.select(" from " + record.getIdentity() + " limit -1 ");
       assertTrue(builder.toString().contains("<binary>"));

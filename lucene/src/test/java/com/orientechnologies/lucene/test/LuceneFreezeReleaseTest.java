@@ -35,7 +35,9 @@ public class LuceneFreezeReleaseTest {
 
     db.command("create index Person.name on Person (name) FULLTEXT ENGINE LUCENE").close();
 
+    db.begin();
     db.save(new ODocument("Person").field("name", "John"));
+    db.commit();
 
     try {
 
@@ -48,7 +50,9 @@ public class LuceneFreezeReleaseTest {
 
       db.release();
 
+      db.begin();
       db.save(new ODocument("Person").field("name", "John"));
+      db.commit();
 
       results = db.query("select from Person where name lucene 'John'");
       Assert.assertEquals(2, results.stream().count());
@@ -74,7 +78,9 @@ public class LuceneFreezeReleaseTest {
 
     db.command("create index Person.name on Person (name) FULLTEXT ENGINE LUCENE").close();
 
+    db.begin();
     db.save(new ODocument("Person").field("name", "John"));
+    db.commit();
 
     try {
 
@@ -91,7 +97,9 @@ public class LuceneFreezeReleaseTest {
       db.release();
       db.release();
 
+      db.begin();
       db.save(new ODocument("Person").field("name", "John"));
+      db.commit();
 
       results = db.query("select from Person where name lucene 'John'");
       Assert.assertEquals(2, results.stream().count());

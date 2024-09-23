@@ -11,21 +11,6 @@ import org.junit.Test;
 public class DeepLinkedDocumentSaveTest extends BaseMemoryDatabase {
 
   @Test
-  public void testLinked() {
-    final Set<ODocument> docs = new HashSet<>();
-
-    db.getMetadata().getSchema().createClass("Test");
-    ODocument doc = new ODocument("Test");
-    docs.add(doc);
-    for (int i = 0; i < 3000; i++) docs.add(doc = new ODocument("Test").field("linked", doc));
-    db.save(doc);
-
-    assertEquals(3001, db.countClass("Test"));
-
-    for (ODocument d : docs) assertEquals(1, d.getVersion());
-  }
-
-  @Test
   public void testLinkedTx() {
     final Set<ODocument> docs = new HashSet<>();
 
@@ -34,12 +19,16 @@ public class DeepLinkedDocumentSaveTest extends BaseMemoryDatabase {
     db.begin();
     ODocument doc = new ODocument("Test");
     docs.add(doc);
-    for (int i = 0; i < 3000; i++) docs.add(doc = new ODocument("Test").field("linked", doc));
+    for (int i = 0; i < 3000; i++) {
+      docs.add(doc = new ODocument("Test").field("linked", doc));
+    }
     db.save(doc);
     db.commit();
 
     assertEquals(3001, db.countClass("Test"));
 
-    for (ODocument d : docs) assertEquals(1, d.getVersion());
+    for (ODocument d : docs) {
+      assertEquals(1, d.getVersion());
+    }
   }
 }

@@ -54,8 +54,6 @@ import com.orientechnologies.orient.client.remote.message.OCountRequest;
 import com.orientechnologies.orient.client.remote.message.OCountResponse;
 import com.orientechnologies.orient.client.remote.message.OCreateRecordRequest;
 import com.orientechnologies.orient.client.remote.message.OCreateRecordResponse;
-import com.orientechnologies.orient.client.remote.message.ODeleteRecordRequest;
-import com.orientechnologies.orient.client.remote.message.ODeleteRecordResponse;
 import com.orientechnologies.orient.client.remote.message.ODropClusterRequest;
 import com.orientechnologies.orient.client.remote.message.ODropClusterResponse;
 import com.orientechnologies.orient.client.remote.message.OFetchTransaction38Request;
@@ -966,27 +964,6 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     return new OStorageOperationResult<Integer>(resVersion);
   }
 
-  public OStorageOperationResult<Boolean> deleteRecord(
-      final ORecordId iRid,
-      final int iVersion,
-      final int iMode,
-      final ORecordCallback<Boolean> iCallback) {
-    ORecordCallback<ODeleteRecordResponse> realCallback = null;
-    if (iCallback != null) {
-      realCallback = (iRID, response) -> iCallback.call(iRID, response.getResult());
-    }
-
-    final ODeleteRecordRequest request = new ODeleteRecordRequest(iRid, iVersion);
-    final ODeleteRecordResponse response =
-        asyncNetworkOperationNoRetry(
-            request, iMode, iRid, realCallback, "Error on delete record " + iRid);
-    Boolean resDelete = null;
-    if (response != null) {
-      resDelete = response.getResult();
-    }
-    return new OStorageOperationResult<Boolean>(resDelete);
-  }
-
   public boolean cleanOutRecord(
       final ORecordId recordId,
       final int recordVersion,
@@ -1399,38 +1376,18 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     }
   }
 
-  public List<ORecordOperation> commit(final OTransactionInternal iTx) {
+  public List<ORecordOperation> commit(final OTransactionOptimistic iTx) {
     unstickToSession();
+
     final OCommit38Request request =
         new OCommit38Request(
             iTx.getId(), true, true, iTx.getRecordOperations(), iTx.getIndexOperations());
 
     final OCommit37Response response = networkOperationNoRetry(request, "Error on commit");
-    for (OCommit37Response.OCreatedRecordResponse created : response.getCreated()) {
-      iTx.updateIdentityAfterCommit(created.getCurrentRid(), created.getCreatedRid());
-      ORecordOperation rop = iTx.getRecordEntry(created.getCurrentRid());
-      if (rop != null) {
-        if (created.getVersion() > rop.getRecord().getVersion() + 1) {
-          // IN CASE OF REMOTE CONFLICT STRATEGY FORCE UNLOAD DUE TO INVALID CONTENT
-          var record = rop.getRecord();
-          ORecordInternal.unsetDirty(record);
-          record.unload();
-        }
-        ORecordInternal.setVersion(rop.getRecord(), created.getVersion());
-      }
-    }
-    for (OCommit37Response.OUpdatedRecordResponse updated : response.getUpdated()) {
-      ORecordOperation rop = iTx.getRecordEntry(updated.getRid());
-      if (rop != null) {
-        if (updated.getVersion() > rop.getRecord().getVersion() + 1) {
-          // IN CASE OF REMOTE CONFLICT STRATEGY FORCE UNLOAD DUE TO INVALID CONTENT
-          var record = rop.getRecord();
-          ORecordInternal.unsetDirty(record);
-          record.unload();
-        }
 
-        ORecordInternal.setVersion(rop.getRecord(), updated.getVersion());
-      }
+    // two pass iteration, we update cluster ids, and then update positions
+    for (var updatedPair : response.getUpdatedRids()) {
+      iTx.updateIdentityAfterCommit(updatedPair.first(), updatedPair.second());
     }
 
     updateCollectionsFromChanges(
@@ -2259,7 +2216,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     OBeginTransactionResponse response =
         networkOperationNoRetry(request, "Error on remote transaction begin");
     for (Map.Entry<ORID, ORID> entry : response.getUpdatedIds().entrySet()) {
-      transaction.updateIdentityAfterCommit(entry.getKey(), entry.getValue());
+      transaction.updateIdentityAfterCommit(entry.getValue(), entry.getKey());
     }
     stickToSession();
   }
@@ -2275,7 +2232,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     OBeginTransactionResponse response =
         networkOperationNoRetry(request, "Error on remote transaction begin");
     for (Map.Entry<ORID, ORID> entry : response.getUpdatedIds().entrySet()) {
-      transaction.updateIdentityAfterCommit(entry.getKey(), entry.getValue());
+      transaction.updateIdentityAfterCommit(entry.getValue(), entry.getKey());
     }
   }
 

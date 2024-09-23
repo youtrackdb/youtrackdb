@@ -27,7 +27,6 @@ import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
-import com.orientechnologies.orient.core.tx.OTransaction.TXTYPE;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import com.orientechnologies.orient.test.domain.business.Account;
 import com.orientechnologies.orient.test.domain.business.Address;
@@ -60,7 +59,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
   public void test1RollbackOnConcurrentException() throws IOException {
     database1 = new ODatabaseDocumentTx(url).open("admin", "admin");
 
-    database1.begin(TXTYPE.OPTIMISTIC);
+    database1.begin();
 
     // Create docA.
     ODocument vDocA_db1 = database1.newInstance();
@@ -70,8 +69,8 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     // Create docB.
     ODocument vDocB_db1 = database1.newInstance();
     vDocB_db1.field(NAME, "docB");
-    database1.save(vDocB_db1, database1.getClusterNameById(database1.getDefaultClusterId()));
 
+    database1.save(vDocB_db1, database1.getClusterNameById(database1.getDefaultClusterId()));
     database1.commit();
 
     // Keep the IDs.
@@ -82,7 +81,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     int vDocB_version = -1;
 
     database2 = new ODatabaseDocumentTx(url).open("admin", "admin");
-    database2.begin(TXTYPE.OPTIMISTIC);
+    database2.begin();
     try {
       // Get docA and update in db2 transaction context
       ODocument vDocA_db2 = database2.load(vDocA_Rid);
@@ -92,7 +91,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
       // Concurrent update docA via database1 -> will throw OConcurrentModificationException at
       // database2.commit().
       database1.activateOnCurrentThread();
-      database1.begin(TXTYPE.OPTIMISTIC);
+      database1.begin();
       try {
         vDocA_db1.field(NAME, "docA_v3");
         database1.save(vDocA_db1);
@@ -146,13 +145,15 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     // Create docA.
     ODocument vDocA_db1 = database1.newInstance();
     vDocA_db1.field(NAME, "docA");
+    database1.begin();
     database1.save(vDocA_db1, database1.getClusterNameById(database1.getDefaultClusterId()));
+    database1.commit();
 
     // Keep the IDs.
     ORID vDocA_Rid = vDocA_db1.getIdentity().copy();
 
     database2 = new ODatabaseDocumentTx(url).open("admin", "admin");
-    database2.begin(TXTYPE.OPTIMISTIC);
+    database2.begin();
     try {
       // Get docA and update in db2 transaction context
       ODocument vDocA_db2 = database2.load(vDocA_Rid);
@@ -160,7 +161,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
       database2.save(vDocA_db2);
 
       database1.activateOnCurrentThread();
-      database1.begin(TXTYPE.OPTIMISTIC);
+      database1.begin();
       try {
         vDocA_db1.field(NAME, "docA_v3");
         database1.save(vDocA_db1);
@@ -204,13 +205,15 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     // Create docA.
     ODocument vDocA_db1 = database1.newInstance();
     vDocA_db1.field(NAME, "docA");
+    database1.begin();
     database1.save(vDocA_db1, database1.getClusterNameById(database1.getDefaultClusterId()));
+    database1.commit();
 
     // Keep the IDs.
     ORID vDocA_Rid = vDocA_db1.getIdentity().copy();
 
     database2 = new ODatabaseDocumentTx(url).open("admin", "admin");
-    database2.begin(TXTYPE.OPTIMISTIC);
+    database2.begin();
     try {
       // Get docA and update in db2 transaction context
       ODocument vDocA_db2 = database2.load(vDocA_Rid);
@@ -218,7 +221,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
       database2.save(vDocA_db2);
 
       database1.activateOnCurrentThread();
-      database1.begin(TXTYPE.OPTIMISTIC);
+      database1.begin();
       try {
         vDocA_db1.field(NAME, "docA_v3");
         database1.save(vDocA_db1);
@@ -259,7 +262,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database1 = new ODatabaseDocumentTx(url).open("admin", "admin");
 
     // Create docA in db1
-    database1.begin(TXTYPE.OPTIMISTIC);
+    database1.begin();
     ODocument vDocA_db1 = database1.newInstance();
     vDocA_db1.field(NAME, "docA");
     database1.save(vDocA_db1, database1.getClusterNameById(database1.getDefaultClusterId()));
@@ -270,7 +273,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
 
     // Update docA in db2
     database2 = new ODatabaseDocumentTx(url).open("admin", "admin");
-    database2.begin(TXTYPE.OPTIMISTIC);
+    database2.begin();
     ODocument vDocA_db2 = database2.load(vDocA_Rid);
     vDocA_db2.field(NAME, "docA_v2");
     database2.save(vDocA_db2);
@@ -278,7 +281,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
 
     // Later... read docA with db1.
     database1.activateOnCurrentThread();
-    database1.begin(TXTYPE.OPTIMISTIC);
+    database1.begin();
     ODocument vDocA_db1_later = database1.load(vDocA_Rid, null, true);
     Assert.assertEquals(vDocA_db1_later.field(NAME), "docA_v2");
     database1.commit();
@@ -542,19 +545,25 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
           database.query("select * from Foo where address = 'test1'").elementStream().toList();
       Assert.assertEquals(result.size(), 1);
       // Step 4a
+      database.begin();
       database.delete(result.get(0));
+      database.commit();
 
       // Step 3b
       result = database.query("select * from Foo where address = 'test2'").elementStream().toList();
       Assert.assertEquals(result.size(), 1);
       // Step 4b
+      database.begin();
       database.delete(result.get(0));
+      database.commit();
 
       // Step 3c
       result = database.query("select * from Foo where address = 'test3'").elementStream().toList();
       Assert.assertEquals(result.size(), 1);
       // Step 4c
+      database.begin();
       database.delete(result.get(0));
+      database.commit();
     } finally {
       database.close();
     }
@@ -577,22 +586,30 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
       // Commenting out the transaction will result in the test succeeding.
       var foo = database.newVertex("Foo");
       foo.setProperty("prop", "test1");
+      database.begin();
       foo.save();
+      database.commit();
 
       // Comment out these two lines and the test will succeed. The issue appears to be related to
       // an edge
       // connecting a deleted vertex during a transaction
       var bar = database.newVertex("Bar");
       bar.setProperty("prop", "test1");
+      database.begin();
       bar.save();
+      database.commit();
 
+      database.begin();
       var sees = database.newEdge(foo, bar, "Sees");
       sees.save();
+      database.commit();
 
       var foos = database.query("select * from Foo").stream().toList();
       Assert.assertEquals(foos.size(), 1);
 
+      database.begin();
       database.delete(foos.get(0).toElement());
+      database.commit();
     } finally {
       database.close();
     }
@@ -746,7 +763,9 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     try {
       Account account = new Account();
       account.setName("John Grisham");
+      database.begin();
       account = database.save(account);
+      database.commit();
 
       Address address1 = new Address();
       address1.setStreet("Mulholland drive");
@@ -759,11 +778,13 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
       addresses.add(address2);
       account.setAddresses(addresses);
 
+      database.begin();
       account = database.save(account);
+      database.commit();
 
       String originalName = account.getName();
 
-      database.begin(TXTYPE.OPTIMISTIC);
+      database.begin();
 
       Assert.assertEquals(account.getAddresses().size(), 2);
       account
@@ -809,7 +830,10 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
       classA.createProperty("name", OType.STRING);
       ODocument doc = new ODocument(classA);
       doc.field("name", "test1");
+
+      database.begin();
       doc.save();
+      database.commit();
       ORID orid = doc.getIdentity();
       database.begin();
       Assert.assertTrue(database.getTransaction().isActive());

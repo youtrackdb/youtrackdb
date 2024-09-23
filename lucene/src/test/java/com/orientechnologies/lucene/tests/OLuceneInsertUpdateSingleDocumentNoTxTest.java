@@ -32,7 +32,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by enricorisa on 28/06/14. */
+/**
+ * Created by enricorisa on 28/06/14.
+ */
 public class OLuceneInsertUpdateSingleDocumentNoTxTest extends OLuceneBaseTest {
 
   @Before
@@ -55,21 +57,31 @@ public class OLuceneInsertUpdateSingleDocumentNoTxTest extends OLuceneBaseTest {
     doc.field("name", "");
     ODocument doc1 = new ODocument("City");
     doc1.field("name", "");
+
+    db.begin();
     doc = db.save(doc);
     doc1 = db.save(doc1);
+    db.commit();
 
     doc = db.load(doc);
     doc1 = db.load(doc1);
     doc.field("name", "Rome");
     doc1.field("name", "Rome");
+
+    db.begin();
     db.save(doc);
     db.save(doc1);
+    db.commit();
+
     OIndex idx = schema.getClass("City").getClassIndex("City.name");
     Collection<?> coll;
     try (Stream<ORID> stream = idx.getInternal().getRids("Rome")) {
       coll = stream.collect(Collectors.toList());
     }
+
+    db.begin();
     Assert.assertEquals(2, coll.size());
     Assert.assertEquals(2, idx.getInternal().size());
+    db.commit();
   }
 }

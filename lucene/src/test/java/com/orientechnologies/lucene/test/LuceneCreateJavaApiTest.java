@@ -106,6 +106,7 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
 
   @Test
   public void testCreateIndexEmbeddedMapJSON() {
+    db.begin();
     db.save(
         new ODocument(SONG_CLASS)
             .fromJSON(
@@ -118,6 +119,7 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
                     + "    \"text2\": \"Hello Bolzano how are you today?\",\n"
                     + "    }\n"
                     + "}"));
+    db.commit();
     final OClass song = createEmbeddedMapIndex();
     checkCreatedEmbeddedMapIndex(song, "LUCENE");
 
@@ -152,7 +154,9 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
     final ODocument doc = new ODocument(SONG_CLASS);
     doc.field("description", "Capital", OType.STRING);
     doc.field("String" + OType.EMBEDDEDMAP.getName(), entries, OType.EMBEDDEDMAP, OType.STRING);
+    db.begin();
     db.save(doc);
+    db.commit();
   }
 
   @Test

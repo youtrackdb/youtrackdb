@@ -27,11 +27,14 @@ public class ORestricetedUserCleanUpTest extends BaseMemoryDatabase {
     Set<OIdentifiable> users = new HashSet<OIdentifiable>();
     users.add(auser.getIdentity());
     users.add(reader.getIdentity());
+
+    db.begin();
     doc.field(OSecurityShared.ALLOW_READ_FIELD, users);
     doc.field(OSecurityShared.ALLOW_UPDATE_FIELD, users);
     doc.field(OSecurityShared.ALLOW_DELETE_FIELD, users);
     doc.field(OSecurityShared.ALLOW_ALL_FIELD, users);
     ODocument rid = db.save(doc);
+    db.commit();
 
     System.gc();
     ODirectMemoryAllocator.instance().checkTrackedPointerLeaks();
@@ -42,13 +45,17 @@ public class ORestricetedUserCleanUpTest extends BaseMemoryDatabase {
     Assert.assertEquals(((Set<?>) doc.field(OSecurityShared.ALLOW_UPDATE_FIELD)).size(), 2);
     Assert.assertEquals(((Set<?>) doc.field(OSecurityShared.ALLOW_DELETE_FIELD)).size(), 2);
     Assert.assertEquals(((Set<?>) doc.field(OSecurityShared.ALLOW_ALL_FIELD)).size(), 2);
+    db.begin();
     doc.field("abc", "abc");
     doc.save();
+    db.commit();
 
     System.gc();
     ODirectMemoryAllocator.instance().checkTrackedPointerLeaks();
     db.getLocalCache().clear();
     doc = db.load(rid.getIdentity());
+
+    db.begin();
     ((Set<?>) doc.field(OSecurityShared.ALLOW_ALL_FIELD)).remove(null);
     ((Set<?>) doc.field(OSecurityShared.ALLOW_UPDATE_FIELD)).remove(null);
     ((Set<?>) doc.field(OSecurityShared.ALLOW_DELETE_FIELD)).remove(null);
@@ -60,6 +67,8 @@ public class ORestricetedUserCleanUpTest extends BaseMemoryDatabase {
     Assert.assertEquals(((Set<?>) doc.field(OSecurityShared.ALLOW_ALL_FIELD)).size(), 1);
     doc.field("abc", "abc");
     doc.save();
+    db.commit();
+
     System.gc();
     ODirectMemoryAllocator.instance().checkTrackedPointerLeaks();
 

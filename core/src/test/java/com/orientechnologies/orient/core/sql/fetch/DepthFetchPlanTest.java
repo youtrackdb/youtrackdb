@@ -16,18 +16,27 @@ public class DepthFetchPlanTest extends BaseMemoryDatabase {
   @Test
   public void testFetchPlanDepth() {
     db.getMetadata().getSchema().createClass("Test");
+
+    db.begin();
     ODocument doc = new ODocument("Test");
     ODocument doc1 = new ODocument("Test");
     ODocument doc2 = new ODocument("Test");
     doc.field("name", "name");
     db.save(doc);
+    db.commit();
 
+    db.begin();
     doc1.field("name", "name1");
     doc1.field("ref", doc);
     db.save(doc1);
+    db.commit();
+
+    db.begin();
     doc2.field("name", "name2");
     doc2.field("ref", doc1);
     db.save(doc2);
+    db.commit();
+
     OFetchContext context = new ORemoteFetchContext();
     CountFetchListener listener = new CountFetchListener();
     OFetchHelper.fetch(
@@ -39,22 +48,34 @@ public class DepthFetchPlanTest extends BaseMemoryDatabase {
   @Test
   public void testFullDepthFetchPlan() {
     db.getMetadata().getSchema().createClass("Test");
+
+    db.begin();
     ODocument doc = new ODocument("Test");
     ODocument doc1 = new ODocument("Test");
     ODocument doc2 = new ODocument("Test");
     ODocument doc3 = new ODocument("Test");
     doc.field("name", "name");
     db.save(doc);
+    db.commit();
 
+    db.begin();
     doc1.field("name", "name1");
     doc1.field("ref", doc);
     db.save(doc1);
+    db.commit();
+
+    db.begin();
     doc2.field("name", "name2");
     doc2.field("ref", doc1);
     db.save(doc2);
+    db.commit();
+
+    db.begin();
     doc3.field("name", "name2");
     doc3.field("ref", doc2);
     db.save(doc3);
+    db.commit();
+
     OFetchContext context = new ORemoteFetchContext();
     CountFetchListener listener = new CountFetchListener();
     OFetchHelper.fetch(doc3, doc3, OFetchHelper.buildFetchPlan("[*]ref:-1"), listener, context, "");

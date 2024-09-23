@@ -31,6 +31,7 @@ import org.junit.rules.TestName;
  * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
 public class OUpdateStatementExecutionTest {
+
   @Rule public TestName name = new TestName();
 
   private ODatabaseDocument db;
@@ -46,8 +47,9 @@ public class OUpdateStatementExecutionTest {
     db = orientDB.open(name.getMethodName(), "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     className = name.getMethodName();
-    OClass clazz = db.getMetadata().getSchema().createClass(className);
+    db.getMetadata().getSchema().createClass(className);
 
+    db.begin();
     for (int i = 0; i < 10; i++) {
       ODocument doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
@@ -68,6 +70,7 @@ public class OUpdateStatementExecutionTest {
 
       doc.save();
     }
+    db.commit();
   }
 
   @After
@@ -527,6 +530,7 @@ public class OUpdateStatementExecutionTest {
     OClass clazz = db.getMetadata().getSchema().createClass(className);
     clazz.createProperty("theProperty", OType.EMBEDDEDLIST);
 
+    db.begin();
     ODocument doc = db.newInstance(className);
     List theList = new ArrayList();
     for (int i = 0; i < 10; i++) {
@@ -535,6 +539,7 @@ public class OUpdateStatementExecutionTest {
     doc.setProperty("theProperty", theList);
 
     doc.save();
+    db.commit();
 
     OResultSet result = db.command("update " + className + " remove theProperty[0]");
     printExecutionPlan(result);
@@ -562,6 +567,7 @@ public class OUpdateStatementExecutionTest {
     OClass clazz = db.getMetadata().getSchema().createClass(className);
     clazz.createProperty("theProperty", OType.EMBEDDEDLIST);
 
+    db.begin();
     ODocument doc = db.newInstance(className);
     List theList = new ArrayList();
     for (int i = 0; i < 10; i++) {
@@ -570,6 +576,7 @@ public class OUpdateStatementExecutionTest {
     doc.setProperty("theProperty", theList);
 
     doc.save();
+    db.commit();
 
     OResultSet result = db.command("update " + className + " remove theProperty[0, 1, 3]");
     printExecutionPlan(result);
@@ -612,6 +619,7 @@ public class OUpdateStatementExecutionTest {
     OClass clazz = db.getMetadata().getSchema().createClass(className);
     clazz.createProperty("theProperty", OType.EMBEDDED);
 
+    db.begin();
     ODocument doc = db.newInstance(className);
     ODocument emb = new ODocument();
     emb.setProperty("sub", "foo");
@@ -619,6 +627,7 @@ public class OUpdateStatementExecutionTest {
     doc.setProperty("theProperty", emb);
 
     doc.save();
+    db.commit();
 
     OResultSet result = db.command("update " + className + " remove theProperty.sub");
     printExecutionPlan(result);
@@ -741,9 +750,11 @@ public class OUpdateStatementExecutionTest {
   @Test
   public void testUpdateWhereSubquery() {
 
+    db.begin();
     OVertex vertex = db.newVertex();
     vertex.setProperty("one", "two");
     ORID identity = db.save(vertex).getIdentity();
+    db.commit();
 
     try (OResultSet result =
         db.command(

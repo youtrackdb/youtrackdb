@@ -90,10 +90,13 @@ public class ORecordSerializerBinaryTest {
 
   @Test
   public void testGetTypedPropertyOfTypeAny() {
+    db.begin();
     ODocument doc = new ODocument("TestClass");
     Integer setValue = 15;
     doc.setProperty("TestPropAny", setValue);
     db.save(doc);
+    db.commit();
+
     byte[] serializedDoc = serializer.toStream(doc.reload());
     OResultBinary docBinary =
         (OResultBinary) serializer.getBinaryResult(db, serializedDoc, new ORecordId(-1, -1));
@@ -137,6 +140,7 @@ public class ORecordSerializerBinaryTest {
 
   @Test
   public void testGetFieldNamesFromEmbedded() {
+    db.begin();
     ODocument root = new ODocument();
     ODocument embedded = new ODocument("TestClass");
     Integer setValue = 17;
@@ -146,6 +150,7 @@ public class ORecordSerializerBinaryTest {
     root.field("TestEmbedded", embedded);
     root.setClassName("TestClass");
     db.save(root);
+    db.commit();
 
     byte[] rootBytes = serializer.toStream(root.reload());
     OResultBinary docBinary =
@@ -161,6 +166,7 @@ public class ORecordSerializerBinaryTest {
 
   @Test
   public void testGetTypedFieldEmbedded() {
+    db.begin();
     ODocument root = new ODocument();
     ODocument embedded = new ODocument("TestClass");
     Integer setValue = 17;
@@ -170,6 +176,7 @@ public class ORecordSerializerBinaryTest {
     root.setClassName("TestClass");
 
     db.save(root);
+    db.commit();
 
     byte[] rootBytes = serializer.toStream(root.reload());
     embedded = root.field("TestEmbedded");
@@ -202,6 +209,7 @@ public class ORecordSerializerBinaryTest {
 
   @Test
   public void testGetTypedFieldFromEmbedded() {
+    db.begin();
     ODocument root = new ODocument();
     ODocument embedded = new ODocument("TestClass");
     Integer setValue = 17;
@@ -211,6 +219,7 @@ public class ORecordSerializerBinaryTest {
     root.setClassName("TestClass");
 
     db.save(root);
+    db.commit();
 
     byte[] rootBytes = serializer.toStream(root.reload());
 
@@ -225,6 +234,7 @@ public class ORecordSerializerBinaryTest {
 
   @Test
   public void testGetTypedEmbeddedFromEmbedded() {
+    db.begin();
     ODocument root = new ODocument("TestClass");
     ODocument embedded = new ODocument("TestClass");
     ODocument embeddedLevel2 = new ODocument("TestClass");
@@ -235,6 +245,7 @@ public class ORecordSerializerBinaryTest {
     root.field("TestEmbedded", embedded);
 
     db.save(root);
+    db.commit();
 
     byte[] rootBytes = serializer.toStream(root.reload());
     OResultBinary docBinary =
@@ -306,11 +317,15 @@ public class ORecordSerializerBinaryTest {
   }
 
   private void decreasePositionsBy(byte[] recordBytes, int stepSize, boolean isNested) {
-    if (serializerVersion > 0) return;
+    if (serializerVersion > 0) {
+      return;
+    }
 
     BytesContainer container = new BytesContainer(recordBytes);
     // for root elements skip serializer version
-    if (!isNested) container.offset++;
+    if (!isNested) {
+      container.offset++;
+    }
     if (serializer.getCurrentSerializer().isSerializingClassNameByDefault() || isNested) {
       readString(container);
     }

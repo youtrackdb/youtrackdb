@@ -43,9 +43,12 @@ import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-/** @author Artem Orobets (enisher-at-gmail.com) */
+/**
+ * @author Artem Orobets (enisher-at-gmail.com)
+ */
 @Test
 public class OSBTreeRidBagTest extends ORidBagTest {
+
   private int topThreshold;
   private int bottomThreshold;
 
@@ -102,14 +105,19 @@ public class OSBTreeRidBagTest extends ORidBagTest {
 
   public void testRidBagClusterDistribution() {
     if (database.getStorage().getType().equals(OEngineRemote.NAME)
-        || database.getStorage().getType().equals(OEngineMemory.NAME)) return;
+        || database.getStorage().getType().equals(OEngineMemory.NAME)) {
+      return;
+    }
 
     final int clusterIdOne = database.addCluster("clusterOne");
 
     ODocument docClusterOne = new ODocument();
     ORidBag ridBagClusterOne = new ORidBag();
     docClusterOne.field("ridBag", ridBagClusterOne);
+
+    database.begin();
     docClusterOne.save("clusterOne");
+    database.commit();
 
     final String directory = database.getStorage().getConfiguration().getDirectory();
 
@@ -128,6 +136,7 @@ public class OSBTreeRidBagTest extends ORidBagTest {
   }
 
   public void testIteratorOverAfterRemove() {
+    database.begin();
     ODocument scuti =
         new ODocument()
             .field("name", "UY Scuti")
@@ -140,6 +149,7 @@ public class OSBTreeRidBagTest extends ORidBagTest {
         new ODocument()
             .field("name", "AH Scorpii")
             .save(database.getClusterNameById(database.getDefaultClusterId()));
+    database.commit();
 
     HashSet<ODocument> expectedResult = new HashSet<ODocument>();
     expectedResult.addAll(Arrays.asList(scuti, scorpii));
@@ -151,7 +161,10 @@ public class OSBTreeRidBagTest extends ORidBagTest {
 
     ODocument doc = new ODocument();
     doc.field("ridBag", bag);
+
+    database.begin();
     doc.save(database.getClusterNameById(database.getDefaultClusterId()));
+    database.commit();
 
     bag = doc.field("ridBag");
     bag.remove(cygni);
@@ -169,6 +182,7 @@ public class OSBTreeRidBagTest extends ORidBagTest {
         OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValueAsInteger();
     OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(5);
 
+    database.begin();
     ODocument doc_1 = new ODocument();
     doc_1.save(database.getClusterNameById(database.getDefaultClusterId()));
 
@@ -191,9 +205,11 @@ public class OSBTreeRidBagTest extends ORidBagTest {
 
     doc.field("ridBag", bag);
     doc.save(database.getClusterNameById(database.getDefaultClusterId()));
+    database.commit();
 
     doc.reload();
 
+    database.begin();
     ODocument doc_5 = new ODocument();
     doc_5.save(database.getClusterNameById(database.getDefaultClusterId()));
 
@@ -205,6 +221,8 @@ public class OSBTreeRidBagTest extends ORidBagTest {
     bag.add(doc_6);
 
     doc.save();
+    database.commit();
+
     doc.reload();
 
     bag = doc.field("ridBag");
@@ -219,7 +237,9 @@ public class OSBTreeRidBagTest extends ORidBagTest {
     docs.add(doc_5.getIdentity());
     docs.add(doc_6.getIdentity());
 
-    for (OIdentifiable rid : bag) Assert.assertTrue(docs.remove(rid));
+    for (OIdentifiable rid : bag) {
+      Assert.assertTrue(docs.remove(rid));
+    }
 
     Assert.assertTrue(docs.isEmpty());
 
@@ -228,7 +248,9 @@ public class OSBTreeRidBagTest extends ORidBagTest {
 
   public void testRidBagDelete() {
     if (database.getStorage().getType().equals(OEngineRemote.NAME)
-        || database.getStorage().getType().equals(OEngineMemory.NAME)) return;
+        || database.getStorage().getType().equals(OEngineMemory.NAME)) {
+      return;
+    }
 
     float reuseTrigger =
         OGlobalConfiguration.SBTREEBOSAI_FREE_SPACE_REUSE_TRIGGER.getValueAsFloat();
@@ -244,7 +266,10 @@ public class OSBTreeRidBagTest extends ORidBagTest {
     }
 
     assertEmbedded(realDocRidBag.isEmbedded());
+
+    database.begin();
     realDoc.save(database.getClusterNameById(database.getDefaultClusterId()));
+    database.commit();
 
     final int clusterId = database.addCluster("ridBagDeleteTest");
 
@@ -265,7 +290,10 @@ public class OSBTreeRidBagTest extends ORidBagTest {
     for (int i = 0; i < 100; i++) {
       testDocument.reload();
 
+      database.begin();
       testDocument.delete();
+      database.commit();
+
       testDocument = crateTestDeleteDoc(realDoc);
     }
 
@@ -293,7 +321,9 @@ public class OSBTreeRidBagTest extends ORidBagTest {
     testDocument.field("ridBag", highLevelRidBag);
     testDocument.field("realDoc", realDoc);
 
+    database.begin();
     testDocument.save("ridBagDeleteTest");
+    database.commit();
 
     return testDocument;
   }

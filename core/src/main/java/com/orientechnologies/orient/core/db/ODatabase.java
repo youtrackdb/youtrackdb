@@ -19,8 +19,6 @@
  */
 package com.orientechnologies.orient.core.db;
 
-import com.orientechnologies.common.concur.ONeedRetryException;
-import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.cache.OLocalRecordCache;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.script.OCommandScriptException;
@@ -50,22 +48,10 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 /**
  * Generic Database interface. Represents the lower level of the Database providing raw API to
- * access to the raw records.<br> Limits:
- *
- * <ul>
- *   <li>Maximum records per cluster/class = <b>9.223.372.036 Billions</b>: 2^63 =
- *       9.223.372.036.854.775.808 records
- *   <li>Maximum records per database = <b>302.231.454.903.657 Billions</b>: 2^15 clusters x 2^63
- *       records = (2^78) 32.768 * 9,223.372.036.854.775.808 = 302.231,454.903.657.293.676.544
- *       records
- *   <li>Maximum storage per database = <b>19.807.040.628.566.084 Terabytes</b>: 2^31 data-segments
- *       x 2^63 bytes = (2^94) 2.147.483.648 x 9,223.372.036.854.775.808 Exabytes =
- *       19.807,040.628.566.084.398.385.987.584 Yottabytes
- * </ul>
+ * access to the raw records.
  *
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
@@ -720,16 +706,6 @@ public interface ODatabase<T> extends OBackupable, Closeable {
   ODatabase<T> delete(ORID iRID);
 
   /**
-   * Deletes the entity with the received RID from the database.
-   *
-   * @param iRID     The RecordID to delete.
-   * @param iVersion for MVCC
-   * @return The Database instance itself giving a "fluent interface". Useful to call multiple
-   * methods in chain.
-   */
-  ODatabase<T> delete(ORID iRID, int iVersion);
-
-  /**
    * Return active transaction. Cannot be null. If no transaction is active, then a OTransactionNoTx
    * instance is returned.
    *
@@ -748,41 +724,16 @@ public interface ODatabase<T> extends OBackupable, Closeable {
   ODatabase<T> begin();
 
   /**
-   * Begins a new transaction specifying the transaction type. If a previous transaction is running
-   * a nested call counter is incremented. A transaction once begun has to be closed by calling the
-   * {@link #commit()} or {@link #rollback()}.
-   *
-   * @return The Database instance itself giving a "fluent interface". Useful to call multiple
-   * methods in chain.
-   */
-  ODatabase<T> begin(OTransaction.TXTYPE iStatus);
-
-  /**
-   * Attaches a transaction as current.
-   *
-   * @return The Database instance itself giving a "fluent interface". Useful to call multiple
-   * methods in chain.
-   */
-  @Deprecated
-  ODatabase<T> begin(OTransaction iTx) throws OTransactionException;
-
-  /**
    * Commits the current transaction. The approach is all or nothing. All changes will be permanent
    * following the storage type. If the operation succeed all the entities changed inside the
    * transaction context will be effective. If the operation fails, all the changed entities will be
    * restored in the data store.
-   *
-   * @return
    */
   ODatabase<T> commit() throws OTransactionException;
-
-  ODatabase<T> commit(boolean force) throws OTransactionException;
 
   /**
    * Aborts the current running transaction. All the pending changed entities will be restored in
    * the data store.
-   *
-   * @return
    */
   ODatabase<T> rollback() throws OTransactionException;
 
@@ -1063,70 +1014,4 @@ public interface ODatabase<T> extends OBackupable, Closeable {
    * @param args     the live query args
    */
   OLiveQueryMonitor live(String query, OLiveQueryResultListener listener, Object... args);
-
-  /**
-   * Tries to execute a lambda in a transaction, retrying it if an ONeedRetryException is thrown.
-   *
-   * <p>If the DB does not have an active transaction, after the execution you will still be out of
-   * tx.
-   *
-   * <p>If the DB has an active transaction, then the transaction has to be empty (no operations
-   * executed yet) and after the execution you will be in a new transaction.
-   *
-   * @param nRetries the maximum number of retries (> 0)
-   * @param function a lambda containing application code to execute in a commit/retry loop
-   * @param <T>      the return type of the lambda
-   * @return The result of the execution of the lambda
-   * @throws IllegalStateException         if there are operations in the current transaction
-   * @throws ONeedRetryException           if the maximum number of retries is executed and all
-   *                                       failed with an ONeedRetryException
-   * @throws IllegalArgumentException      if nRetries is <= 0
-   * @throws UnsupportedOperationException if this type of database does not support automatic
-   *                                       commit/retry
-   */
-  default <T> T executeWithRetry(int nRetries, Function<ODatabaseSession, T> function)
-      throws IllegalStateException,
-          IllegalArgumentException,
-          ONeedRetryException,
-          UnsupportedOperationException {
-    if (nRetries < 1) {
-      throw new IllegalArgumentException("invalid number of retries: " + nRetries);
-    }
-    OTransaction tx = getTransaction();
-    boolean txActive = tx.isActive();
-    if (txActive) {
-      if (tx.getEntryCount() > 0) {
-        throw new IllegalStateException(
-            "executeWithRetry() cannot be used within a pending (dirty) transaction. Please commit"
-                + " or rollback before invoking it");
-      }
-    }
-    if (!txActive) {
-      begin();
-    }
-
-    T result = null;
-
-    for (int i = 0; i < nRetries; i++) {
-      try {
-        result = function.apply((ODatabaseSession) this);
-        commit();
-        break;
-      } catch (ONeedRetryException e) {
-        if (i == nRetries - 1) {
-          throw e;
-        }
-        rollback();
-        begin();
-      } catch (Exception e) {
-        throw OException.wrapException(new ODatabaseException("Error during tx retry"), e);
-      }
-    }
-
-    if (txActive) {
-      begin();
-    }
-
-    return result;
-  }
 }

@@ -98,6 +98,4 @@ public interface OTransactionInternal extends OTransaction {
   }
 
   void resetAllocatedIds();
-
-  boolean isUnloadCachedRecords();
 }

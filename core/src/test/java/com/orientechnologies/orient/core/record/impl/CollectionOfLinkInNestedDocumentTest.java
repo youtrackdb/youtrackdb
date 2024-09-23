@@ -27,9 +27,12 @@ public class CollectionOfLinkInNestedDocumentTest extends BaseMemoryDatabase {
 
     nested.field("set", set);
 
+    db.begin();
     ODocument base = new ODocument();
     base.field("nested", nested, OType.EMBEDDED);
     OIdentifiable id = db.save(base, db.getClusterNameById(db.getDefaultClusterId()));
+    db.commit();
+
     db.getLocalCache().clear();
     ODocument base1 = db.load(id.getIdentity());
     ODocument nest1 = base1.field("nested");
@@ -51,9 +54,12 @@ public class CollectionOfLinkInNestedDocumentTest extends BaseMemoryDatabase {
 
     nested.field("list", list);
 
+    db.begin();
     ODocument base = new ODocument();
     base.field("nested", nested, OType.EMBEDDED);
     OIdentifiable id = db.save(base, db.getClusterNameById(db.getDefaultClusterId()));
+    db.commit();
+
     db.getLocalCache().clear();
     ODocument base1 = db.load(id.getIdentity());
     ODocument nest1 = base1.field("nested");
@@ -74,9 +80,12 @@ public class CollectionOfLinkInNestedDocumentTest extends BaseMemoryDatabase {
 
     nested.field("map", map);
 
+    db.begin();
     ODocument base = new ODocument();
     base.field("nested", nested, OType.EMBEDDED);
     OIdentifiable id = db.save(base, db.getClusterNameById(db.getDefaultClusterId()));
+    db.commit();
+
     db.getLocalCache().clear();
     ODocument base1 = db.load(id.getIdentity());
     ODocument nest1 = base1.field("nested");

@@ -1,6 +1,7 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.orient.core.metadata.schema.OType;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
@@ -11,9 +12,12 @@ import org.junit.Test;
 public class OCreateLinkStatementExecutionTest extends BaseMemoryDatabase {
 
   @Test
-  public void testBasic() throws Exception {
-    db.command("create class Basic1").close();
-    db.command("create class Basic2").close();
+  public void testBasic() {
+    var basic1 = db.getMetadata().getSchema().createClass("Basic1");
+    basic1.createProperty("theLink", OType.LINK);
+
+    var basic2 = db.getMetadata().getSchema().createClass("Basic2");
+    basic2.createProperty("theLink", OType.LINK);
 
     db.command("insert into Basic1 set pk = 'pkb1_1', fk = 'pkb2_1'").close();
     db.command("insert into Basic1 set pk = 'pkb1_2', fk = 'pkb2_2'").close();
@@ -41,8 +45,11 @@ public class OCreateLinkStatementExecutionTest extends BaseMemoryDatabase {
 
   @Test
   public void testInverse() throws Exception {
-    db.command("create class Inverse1").close();
-    db.command("create class Inverse2").close();
+    var inverse1 = db.getMetadata().getSchema().createClass("Inverse1");
+    inverse1.createProperty("theLink", OType.LINKSET);
+
+    var inverse2 = db.getMetadata().getSchema().createClass("Inverse2");
+    inverse2.createProperty("theLink", OType.LINKSET);
 
     db.command("insert into Inverse1 set pk = 'pkb1_1', fk = 'pkb2_1'").close();
     db.command("insert into Inverse1 set pk = 'pkb1_2', fk = 'pkb2_2'").close();

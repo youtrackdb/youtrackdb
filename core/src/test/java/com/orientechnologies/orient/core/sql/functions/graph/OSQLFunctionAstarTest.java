@@ -81,6 +81,7 @@ public class OSQLFunctionAstarTest {
 
     graph.createEdgeClass("has_path");
 
+    graph.begin();
     OFunction cf = graph.getMetadata().getFunctionLibrary().createFunction("myCustomHeuristic");
     cf.setCode("return 1;");
     cf.save();
@@ -199,6 +200,7 @@ public class OSQLFunctionAstarTest {
     e16.setProperty("weight", 550.0f);
     e16.setProperty("ptype", "road");
     e16.save();
+    graph.commit();
   }
 
   @Test

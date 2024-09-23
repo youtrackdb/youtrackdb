@@ -230,14 +230,17 @@ public class OSchedulerTest {
   private OFunction createFunction(ODatabaseSession db) {
     db.getMetadata().getSchema().createClass("scheduler_log");
 
-    OFunction func = db.getMetadata().getFunctionLibrary().createFunction("logEvent");
-    func.setLanguage("SQL");
-    func.setCode("insert into scheduler_log set timestamp = sysdate(), note = :note");
-    final List<String> pars = new ArrayList<>();
-    pars.add("note");
-    func.setParameters(pars);
-    func.save();
-    return func;
+    return db.computeInTx(
+        () -> {
+          OFunction func = db.getMetadata().getFunctionLibrary().createFunction("logEvent");
+          func.setLanguage("SQL");
+          func.setCode("insert into scheduler_log set timestamp = sysdate(), note = :note");
+          final List<String> pars = new ArrayList<>();
+          pars.add("note");
+          func.setParameters(pars);
+          func.save();
+          return func;
+        });
   }
 
   private Long getLogCounter(final ODatabaseSession db) {

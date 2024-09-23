@@ -11,8 +11,11 @@ public class TestSqlForeach extends BaseMemoryDatabase {
   @Test
   public void testForeach() {
     db.getMetadata().getSchema().createClass("Test");
+
+    db.begin();
     ODocument doc = new ODocument("Test");
     db.save(doc);
+    db.commit();
 
     OResultSet result =
         db.execute(

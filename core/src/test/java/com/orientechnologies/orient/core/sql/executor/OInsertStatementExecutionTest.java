@@ -122,10 +122,12 @@ public class OInsertStatementExecutionTest extends BaseMemoryDatabase {
     String className2 = "testInsertFromSelect1_1";
     db.getMetadata().getSchema().createClass(className2);
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className1);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
+      db.commit();
     }
     OResultSet result = db.command("insert into " + className2 + " from select from " + className1);
     printExecutionPlan(result);
@@ -165,10 +167,12 @@ public class OInsertStatementExecutionTest extends BaseMemoryDatabase {
     String className2 = "testInsertFromSelect2_1";
     db.getMetadata().getSchema().createClass(className2);
     for (int i = 0; i < 10; i++) {
+      db.begin();
       ODocument doc = db.newInstance(className1);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
+      db.commit();
     }
     OResultSet result =
         db.command("insert into " + className2 + " ( select from " + className1 + ")");

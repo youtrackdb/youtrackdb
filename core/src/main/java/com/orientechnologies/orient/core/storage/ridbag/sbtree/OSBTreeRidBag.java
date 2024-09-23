@@ -48,6 +48,7 @@ import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoper
 import com.orientechnologies.orient.core.storage.index.sbtreebonsai.local.OBonsaiBucketPointer;
 import com.orientechnologies.orient.core.storage.index.sbtreebonsai.local.OSBTreeBonsai;
 import com.orientechnologies.orient.core.storage.index.sbtreebonsai.local.OSBTreeBonsaiLocal;
+import com.orientechnologies.orient.core.tx.OTransactionOptimistic;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Collection;
@@ -74,11 +75,15 @@ import java.util.concurrent.ConcurrentSkipListMap;
  * @author Artem Orobets (enisher-at-gmail.com)
  */
 public class OSBTreeRidBag implements ORidBagDelegate {
+
   private final OSBTreeCollectionManager collectionManager =
       ODatabaseRecordThreadLocal.instance().get().getSbTreeCollectionManager();
-  private final NavigableMap<OIdentifiable, Change> changes = new ConcurrentSkipListMap<>();
+  private final ConcurrentSkipListMap<OIdentifiable, Change> changes =
+      new ConcurrentSkipListMap<>();
 
-  /** Entries with not valid id. */
+  /**
+   * Entries with not valid id.
+   */
   private final IdentityHashMap<OIdentifiable, OModifiableInteger> newEntries =
       new IdentityHashMap<>();
 
@@ -100,6 +105,7 @@ public class OSBTreeRidBag implements ORidBagDelegate {
   }
 
   private static class OIdentifiableIntegerEntry implements Entry<OIdentifiable, Integer> {
+
     private final Entry<OIdentifiable, Integer> entry;
     private final int newValue;
 
@@ -126,6 +132,7 @@ public class OSBTreeRidBag implements ORidBagDelegate {
 
   private final class RIDBagIterator
       implements Iterator<OIdentifiable>, OResettable, OSizeable, OAutoConvertToRecord {
+
     private final NavigableMap<OIdentifiable, Change> changedValues;
     private final SBTreeMapEntryIterator sbTreeIterator;
     private boolean convertToRecord;
@@ -311,6 +318,7 @@ public class OSBTreeRidBag implements ORidBagDelegate {
 
   private final class SBTreeMapEntryIterator
       implements Iterator<Map.Entry<OIdentifiable, Integer>>, OResettable {
+
     private final int prefetchSize;
     private LinkedList<Map.Entry<OIdentifiable, Integer>> preFetchedValues;
     private OIdentifiable firstKey;
@@ -720,11 +728,6 @@ public class OSBTreeRidBag implements ORidBagDelegate {
     return result;
   }
 
-  @Override
-  public int getSerializedSize(byte[] stream, int offset) {
-    return getSerializedSize();
-  }
-
   private void rearrangeChanges() {
     ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
     for (Entry<OIdentifiable, Change> change : this.changes.entrySet()) {
@@ -756,6 +759,10 @@ public class OSBTreeRidBag implements ORidBagDelegate {
 
     final ODatabaseDocumentInternal databaseDocumentInternal =
         ODatabaseRecordThreadLocal.instance().get();
+    var tx = databaseDocumentInternal.getTransaction();
+    if (!(tx instanceof OTransactionOptimistic optimisticTx)) {
+      throw new ODatabaseException("Changes are not supported outside of transactions");
+    }
 
     boolean remoteMode = databaseDocumentInternal.isRemote();
     if (remoteMode) {
@@ -1128,7 +1135,9 @@ public class OSBTreeRidBag implements ORidBagDelegate {
 
   @Override
   public void setDirtyNoChanged() {
-    if (owner != null) owner.setDirtyNoChanged();
+    if (owner != null) {
+      owner.setDirtyNoChanged();
+    }
     this.dirty = true;
     this.transactionDirty = true;
   }

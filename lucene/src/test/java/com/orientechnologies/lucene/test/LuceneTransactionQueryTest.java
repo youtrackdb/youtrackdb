@@ -85,10 +85,10 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
     vertices = db.query("select from C1 where p1 lucene \"abc\" ");
 
     OResult result = vertices.next();
+    db.begin();
+
     Assert.assertFalse(vertices.hasNext());
     Assert.assertEquals(1, index.getInternal().size());
-
-    db.begin();
 
     doc = new ODocument("c1");
     doc.field("p1", "abc");
@@ -134,9 +134,8 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
       e.printStackTrace();
     }
 
-    Assert.assertEquals(index.getInternal().size(), 0);
-
     db.begin();
+    Assert.assertEquals(index.getInternal().size(), 0);
 
     ODocument doc = new ODocument("c1");
     doc.field("p1", "update");
@@ -215,9 +214,8 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
       e.printStackTrace();
     }
 
-    Assert.assertEquals(index.getInternal().size(), 0);
-
     db.begin();
+    Assert.assertEquals(index.getInternal().size(), 0);
 
     ODocument doc = new ODocument("c1");
     doc.field("p1", "abc");

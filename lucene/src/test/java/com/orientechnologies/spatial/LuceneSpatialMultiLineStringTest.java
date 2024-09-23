@@ -233,7 +233,7 @@ public class LuceneSpatialMultiLineStringTest extends BaseSpatialLuceneTest {
 
   @Test
   public void testWithIndex() {
-
+    db.begin();
     db.command(
             "insert into Place set name = 'TestInsert' , location = ST_GeomFromText('" + WKT + "')")
         .close();
@@ -241,6 +241,7 @@ public class LuceneSpatialMultiLineStringTest extends BaseSpatialLuceneTest {
     OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Place.location");
 
     Assert.assertEquals(1, index.getInternal().size());
+    db.commit();
 
     testQueryMultiLineString();
   }

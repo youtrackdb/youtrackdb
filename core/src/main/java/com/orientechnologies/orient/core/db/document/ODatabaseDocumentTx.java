@@ -63,7 +63,7 @@ import com.orientechnologies.orient.core.storage.OStorageInfo;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
 import com.orientechnologies.orient.core.tx.OTransaction;
-import com.orientechnologies.orient.core.tx.OTransactionInternal;
+import com.orientechnologies.orient.core.tx.OTransactionOptimistic;
 import com.orientechnologies.orient.core.util.OURLConnection;
 import com.orientechnologies.orient.core.util.OURLHelper;
 import it.unimi.dsi.fastutil.ints.IntSet;
@@ -86,6 +86,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Supplier;
 
 /**
  * Created by tglman on 20/07/16. @Deprecated use {@link OrientDB} instead.
@@ -268,6 +269,11 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
   }
 
   @Override
+  public void begin(OTransactionOptimistic tx) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public int assignAndCheckCluster(ORecord record, String iClusterName) {
     return internal.assignAndCheckCluster(record, iClusterName);
   }
@@ -296,13 +302,6 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
     checkOpenness();
     return internal.executeReadRecord(
         rid, iRecord, recordVersion, fetchPlan, ignoreCache, loadTombstones, recordReader);
-  }
-
-  @Override
-  public void executeDeleteRecord(
-      OIdentifiable record, int iVersion, boolean iRequired, boolean prohibitTombstones) {
-    checkOpenness();
-    internal.executeDeleteRecord(record, iVersion, iRequired, prohibitTombstones);
   }
 
   @Override
@@ -690,17 +689,22 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
   }
 
   @Override
-  public ODatabase<ORecord> delete(ORID iRID, int iVersion) {
-    checkOpenness();
-    internal.delete(iRID, iVersion);
-    return this;
-  }
-
-  @Override
   public ODatabaseDocumentInternal cleanOutRecord(ORID rid, int version) {
     checkOpenness();
     internal.cleanOutRecord(rid, version);
     return this;
+  }
+
+  @Override
+  public void startExclusiveMetadataChange() {
+    checkOpenness();
+    internal.startExclusiveMetadataChange();
+  }
+
+  @Override
+  public void endExclusiveMetadataChange() {
+    checkOpenness();
+    internal.endExclusiveMetadataChange();
   }
 
   @Override
@@ -717,35 +721,9 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
   }
 
   @Override
-  public ODatabase<ORecord> begin(OTransaction.TXTYPE iStatus) {
-    checkOpenness();
-    internal.begin(iStatus);
-    return this;
-  }
-
-  @Override
-  public ODatabase<ORecord> begin(OTransaction iTx) throws OTransactionException {
-    checkOpenness();
-    internal.begin(iTx);
-    return this;
-  }
-
-  @Override
-  public void rawBegin(OTransaction transaction) {
-    throw new UnsupportedOperationException("private api");
-  }
-
-  @Override
   public ODatabase<ORecord> commit() throws OTransactionException {
     checkOpenness();
     internal.commit();
-    return this;
-  }
-
-  @Override
-  public ODatabase<ORecord> commit(boolean force) throws OTransactionException {
-    checkOpenness();
-    internal.commit(force);
     return this;
   }
 
@@ -1536,7 +1514,7 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
   }
 
   @Override
-  public void internalCommit(OTransactionInternal transaction) {
+  public void internalCommit(OTransactionOptimistic transaction) {
     internal.internalCommit(transaction);
   }
 
@@ -1600,10 +1578,6 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
   @Override
   public void internalClose(boolean recycle) {
     internal.internalClose(true);
-  }
-
-  public ORecord saveAll(ORecord iRecord, String iClusterName) {
-    return internal.saveAll(iRecord, iClusterName);
   }
 
   @Override
@@ -1684,5 +1658,15 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
   @Override
   public long truncateClass(String name, boolean polimorfic) {
     return internal.truncateClass(name, polimorfic);
+  }
+
+  @Override
+  public void executeInTx(Runnable runnable) {
+    internal.executeInTx(runnable);
+  }
+
+  @Override
+  public <T> T computeInTx(Supplier<T> supplier) {
+    return internal.computeInTx(supplier);
   }
 }

@@ -16,13 +16,16 @@ import org.junit.Test;
  * @author Artem Loginov
  */
 public class ClassIteratorTest extends BaseMemoryDatabase {
+
   private Set<String> names;
 
   private void createPerson(final String iClassName, final String first) {
     // Create Person document
+    db.begin();
     final ODocument personDoc = db.newInstance(iClassName);
     personDoc.field("First", first);
     personDoc.save();
+    db.commit();
   }
 
   public void beforeTest() {

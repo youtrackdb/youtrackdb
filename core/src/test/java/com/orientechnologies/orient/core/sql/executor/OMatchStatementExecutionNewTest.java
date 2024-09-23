@@ -18,6 +18,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
+
   private static String DB_STORAGE = "memory";
   private static String DB_NAME = "OMatchStatementExecutionNewTest";
 
@@ -65,11 +66,15 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
     db.command("CREATE index IndexedEdge_out_in on IndexedEdge (out, in) NOTUNIQUE").close();
 
     int nodes = 1000;
-    for (int i = 0; i < nodes; i++) {
-      ODocument doc = new ODocument("IndexedVertex");
-      doc.field("uid", i);
-      doc.save();
-    }
+
+    db.executeInTx(
+        () -> {
+          for (int i = 0; i < nodes; i++) {
+            ODocument doc = new ODocument("IndexedVertex");
+            doc.field("uid", i);
+            doc.save();
+          }
+        });
 
     for (int i = 0; i < 100; i++) {
       String cmd =
@@ -2151,25 +2156,28 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
     db.command("ALTER CLASS " + clazz + " ADDCLUSTER " + clazz.toLowerCase() + "_two").close();
     db.command("ALTER CLASS " + clazz + " ADDCLUSTER " + clazz.toLowerCase() + "_three").close();
 
-    OVertex v1 = db.newVertex(clazz);
-    v1.setProperty("name", "one");
-    v1.save(clazz.toLowerCase() + "_one");
+    db.executeInTx(
+        () -> {
+          OVertex v1 = db.newVertex(clazz);
+          v1.setProperty("name", "one");
+          v1.save(clazz.toLowerCase() + "_one");
 
-    OVertex vx = db.newVertex(clazz);
-    vx.setProperty("name", "onex");
-    vx.save(clazz.toLowerCase() + "_one");
+          OVertex vx = db.newVertex(clazz);
+          vx.setProperty("name", "onex");
+          vx.save(clazz.toLowerCase() + "_one");
 
-    OVertex v2 = db.newVertex(clazz);
-    v2.setProperty("name", "two");
-    v2.save(clazz.toLowerCase() + "_two");
+          OVertex v2 = db.newVertex(clazz);
+          v2.setProperty("name", "two");
+          v2.save(clazz.toLowerCase() + "_two");
 
-    OVertex v3 = db.newVertex(clazz);
-    v3.setProperty("name", "three");
-    v3.save(clazz.toLowerCase() + "_three");
+          OVertex v3 = db.newVertex(clazz);
+          v3.setProperty("name", "three");
+          v3.save(clazz.toLowerCase() + "_three");
 
-    v1.addEdge(v2).save();
-    v2.addEdge(v3).save();
-    v1.addEdge(v3).save();
+          v1.addEdge(v2).save();
+          v2.addEdge(v3).save();
+          v1.addEdge(v3).save();
+        });
 
     String query =
         "MATCH { cluster: "
@@ -2195,20 +2203,23 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
     String clazz = "testNegativePattern";
     db.command("CREATE CLASS " + clazz + " EXTENDS V").close();
 
-    OVertex v1 = db.newVertex(clazz);
-    v1.setProperty("name", "a");
-    v1.save();
+    db.executeInTx(
+        () -> {
+          OVertex v1 = db.newVertex(clazz);
+          v1.setProperty("name", "a");
+          v1.save();
 
-    OVertex v2 = db.newVertex(clazz);
-    v2.setProperty("name", "b");
-    v2.save();
+          OVertex v2 = db.newVertex(clazz);
+          v2.setProperty("name", "b");
+          v2.save();
 
-    OVertex v3 = db.newVertex(clazz);
-    v3.setProperty("name", "c");
-    v3.save();
+          OVertex v3 = db.newVertex(clazz);
+          v3.setProperty("name", "c");
+          v3.save();
 
-    v1.addEdge(v2).save();
-    v2.addEdge(v3).save();
+          v1.addEdge(v2).save();
+          v2.addEdge(v3).save();
+        });
 
     String query = "MATCH { class:" + clazz + ", as:a} --> {as:b} --> {as:c}, ";
     query += " NOT {as:a} --> {as:c}";
@@ -2227,21 +2238,24 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
     String clazz = "testNegativePattern2";
     db.command("CREATE CLASS " + clazz + " EXTENDS V").close();
 
-    OVertex v1 = db.newVertex(clazz);
-    v1.setProperty("name", "a");
-    v1.save();
+    db.executeInTx(
+        () -> {
+          OVertex v1 = db.newVertex(clazz);
+          v1.setProperty("name", "a");
+          v1.save();
 
-    OVertex v2 = db.newVertex(clazz);
-    v2.setProperty("name", "b");
-    v2.save();
+          OVertex v2 = db.newVertex(clazz);
+          v2.setProperty("name", "b");
+          v2.save();
 
-    OVertex v3 = db.newVertex(clazz);
-    v3.setProperty("name", "c");
-    v3.save();
+          OVertex v3 = db.newVertex(clazz);
+          v3.setProperty("name", "c");
+          v3.save();
 
-    v1.addEdge(v2).save();
-    v2.addEdge(v3).save();
-    v1.addEdge(v3).save();
+          v1.addEdge(v2).save();
+          v2.addEdge(v3).save();
+          v1.addEdge(v3).save();
+        });
 
     String query = "MATCH { class:" + clazz + ", as:a} --> {as:b} --> {as:c}, ";
     query += " NOT {as:a} --> {as:c}";
@@ -2258,21 +2272,24 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
     String clazz = "testNegativePattern3";
     db.command("CREATE CLASS " + clazz + " EXTENDS V").close();
 
-    OVertex v1 = db.newVertex(clazz);
-    v1.setProperty("name", "a");
-    v1.save();
+    db.executeInTx(
+        () -> {
+          OVertex v1 = db.newVertex(clazz);
+          v1.setProperty("name", "a");
+          v1.save();
 
-    OVertex v2 = db.newVertex(clazz);
-    v2.setProperty("name", "b");
-    v2.save();
+          OVertex v2 = db.newVertex(clazz);
+          v2.setProperty("name", "b");
+          v2.save();
 
-    OVertex v3 = db.newVertex(clazz);
-    v3.setProperty("name", "c");
-    v3.save();
+          OVertex v3 = db.newVertex(clazz);
+          v3.setProperty("name", "c");
+          v3.save();
 
-    v1.addEdge(v2).save();
-    v2.addEdge(v3).save();
-    v1.addEdge(v3).save();
+          v1.addEdge(v2).save();
+          v2.addEdge(v3).save();
+          v1.addEdge(v3).save();
+        });
 
     String query = "MATCH { class:" + clazz + ", as:a} --> {as:b} --> {as:c}, ";
     query += " NOT {as:a} --> {as:c, where:(name <> 'c')}";
@@ -2291,23 +2308,26 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
     String clazz = "testPathTraversal";
     db.command("CREATE CLASS " + clazz + " EXTENDS V").close();
 
-    OVertex v1 = db.newVertex(clazz);
-    v1.setProperty("name", "a");
-    v1.save();
+    db.executeInTx(
+        () -> {
+          OVertex v1 = db.newVertex(clazz);
+          v1.setProperty("name", "a");
+          v1.save();
 
-    OVertex v2 = db.newVertex(clazz);
-    v2.setProperty("name", "b");
-    v2.save();
+          OVertex v2 = db.newVertex(clazz);
+          v2.setProperty("name", "b");
+          v2.save();
 
-    OVertex v3 = db.newVertex(clazz);
-    v3.setProperty("name", "c");
-    v3.save();
+          OVertex v3 = db.newVertex(clazz);
+          v3.setProperty("name", "c");
+          v3.save();
 
-    v1.setProperty("next", v2);
-    v2.setProperty("next", v3);
+          v1.setProperty("next", v2);
+          v2.setProperty("next", v3);
 
-    v1.save();
-    v2.save();
+          v1.save();
+          v2.save();
+        });
 
     String query = "MATCH { class:" + clazz + ", as:a}.next{as:b, where:(name ='b')}";
     query += " RETURN a.name as a, b.name as b";

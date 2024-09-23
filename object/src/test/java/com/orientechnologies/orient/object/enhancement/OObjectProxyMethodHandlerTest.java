@@ -23,6 +23,7 @@ import org.junit.Test;
  * @since 18.08.2014
  */
 public class OObjectProxyMethodHandlerTest {
+
   private OObjectDatabaseTx databaseTx;
 
   private Map<String, Object> fieldsAndThereDefaultValue;
@@ -56,6 +57,7 @@ public class OObjectProxyMethodHandlerTest {
 
   @Test
   public void reloadTestForMapsInTarget() {
+    databaseTx.begin();
     EntityWithDifferentFieldTypes targetObject =
         this.databaseTx.newInstance(EntityWithDifferentFieldTypes.class);
     EntityWithDifferentFieldTypes childObject =
@@ -74,7 +76,9 @@ public class OObjectProxyMethodHandlerTest {
     targetObject.getListOfEntityWithDifferentFieldTypes().add(childObject);
 
     targetObject = this.databaseTx.save(targetObject);
+    databaseTx.commit();
 
+    databaseTx.begin();
     for (String key : targetObject.getStringStringMap().keySet()) {
       assertTrue(key.equals("key"));
     }
@@ -82,7 +86,7 @@ public class OObjectProxyMethodHandlerTest {
 
     childObject.getStringStringMap().put("key3", "value3");
     targetObject = this.databaseTx.save(targetObject);
-    //        targetObject = this.databaseTx.load(targetObject);
+    databaseTx.commit();
 
     targetObject.getStringStringMap().get("key");
     targetObject.getStringStringMap2().get("key2");
@@ -92,6 +96,7 @@ public class OObjectProxyMethodHandlerTest {
 
   @Test
   public void reloadTestForListsInTarget() {
+    databaseTx.begin();
     EntityWithDifferentFieldTypes targetObject = new EntityWithDifferentFieldTypes();
 
     List<EntityWithDifferentFieldTypes> entitieList =
@@ -124,6 +129,7 @@ public class OObjectProxyMethodHandlerTest {
     targetObject.setListOfEntityWithDifferentFieldTypes(entitieList);
 
     targetObject = this.databaseTx.save(targetObject);
+    databaseTx.commit();
 
     for (EntityWithDifferentFieldTypes entity :
         targetObject.getListOfEntityWithDifferentFieldTypes()) {
@@ -198,8 +204,11 @@ public class OObjectProxyMethodHandlerTest {
         Object defaultValue = m.invoke(handler, field);
         Object expectedValue = fieldsAndThereDefaultValue.get(fieldName);
 
-        if (expectedValue == null) assertTrue(defaultValue == null);
-        else assertTrue(expectedValue.equals(defaultValue));
+        if (expectedValue == null) {
+          assertTrue(defaultValue == null);
+        } else {
+          assertTrue(expectedValue.equals(defaultValue));
+        }
       } catch (Exception e) {
         e.printStackTrace();
         fail("Unexpected exception");
@@ -209,10 +218,12 @@ public class OObjectProxyMethodHandlerTest {
 
   @Test
   public void testEntityWithEmbeddedFieldDetachingAllWithoutError() throws Exception {
+    databaseTx.begin();
     EntityWithEmbeddedFields entity = new EntityWithEmbeddedFields();
     entity.setEmbeddedType1(new EmbeddedType1());
     entity.setEmbeddedType2(new EmbeddedType2());
     EntityWithEmbeddedFields saved = databaseTx.save(entity);
+    databaseTx.commit();
     databaseTx.detachAll(saved, true);
   }
 
@@ -221,6 +232,7 @@ public class OObjectProxyMethodHandlerTest {
   public static class EmbeddedType2 {}
 
   public static class EntityWithEmbeddedFields {
+
     @Embedded private EmbeddedType1 _embeddedType1;
     @Embedded private EmbeddedType2 _embeddedType2;
 
@@ -244,6 +256,7 @@ public class OObjectProxyMethodHandlerTest {
   }
 
   public class EntityWithDifferentFieldTypes {
+
     private byte byteField;
     private short shortField;
     private int intField;

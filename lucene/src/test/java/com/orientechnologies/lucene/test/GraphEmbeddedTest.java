@@ -81,11 +81,16 @@ public class GraphEmbeddedTest extends BaseLuceneTest {
 
     OVertex one = db.newVertex(oneClass);
     one.setProperty("name", "Same");
+
+    db.begin();
     db.save(one);
+    db.commit();
 
     OVertex two = db.newVertex(twoClass);
     two.setProperty("name", "Same");
+    db.begin();
     db.save(two);
+    db.commit();
 
     OResultSet resultSet = db.query("SELECT from One where name = 'Same' ");
 

@@ -21,11 +21,12 @@ package com.orientechnologies.orient.client.remote.message;
 
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
-import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
+import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,107 +34,55 @@ import java.util.Map;
 import java.util.UUID;
 
 public final class OCommitResponse implements OBinaryResponse {
-  public static class OCreatedRecordResponse {
-    private final ORecordId currentRid;
-    private final ORecordId createdRid;
 
-    public OCreatedRecordResponse(ORecordId currentRid, ORecordId createdRid) {
-      this.currentRid = currentRid;
-      this.createdRid = createdRid;
-    }
-
-    public ORecordId getCreatedRid() {
-      return createdRid;
-    }
-
-    public ORecordId getCurrentRid() {
-      return currentRid;
-    }
-  }
-
-  public static class OUpdatedRecordResponse {
-    private final ORecordId rid;
-    private final int version;
-
-    public OUpdatedRecordResponse(ORecordId rid, int version) {
-      this.rid = rid;
-      this.version = version;
-    }
-
-    public ORecordId getRid() {
-      return rid;
-    }
-
-    public int getVersion() {
-      return version;
-    }
-  }
-
-  private List<OCreatedRecordResponse> created;
-  private List<OUpdatedRecordResponse> updated;
   private Map<UUID, OBonsaiCollectionPointer> collectionChanges;
+  private List<ObjectObjectImmutablePair<ORID, ORID>> updatedRids;
 
   public OCommitResponse(
-      List<OCreatedRecordResponse> created,
-      List<OUpdatedRecordResponse> updated,
-      Map<UUID, OBonsaiCollectionPointer> collectionChanges) {
+      Map<ORID, ORID> updatedRids, Map<UUID, OBonsaiCollectionPointer> collectionChanges) {
     super();
-    this.created = created;
-    this.updated = updated;
+    this.updatedRids = new ArrayList<>(updatedRids.size());
+
+    for (Map.Entry<ORID, ORID> entry : updatedRids.entrySet()) {
+      this.updatedRids.add(new ObjectObjectImmutablePair<>(entry.getValue(), entry.getKey()));
+    }
     this.collectionChanges = collectionChanges;
   }
 
   public OCommitResponse() {}
 
   @Override
-  public void read(OChannelDataInput network, OStorageRemoteSession session) throws IOException {
+  public void write(OChannelDataOutput channel, int protocolVersion, ORecordSerializer serializer)
+      throws IOException {
+    channel.writeInt(updatedRids.size());
 
-    final int createdRecords = network.readInt();
-    created = new ArrayList<>(createdRecords);
-    ORecordId currentRid;
-    ORecordId createdRid;
-    for (int i = 0; i < createdRecords; i++) {
-      currentRid = network.readRID();
-      createdRid = network.readRID();
-
-      created.add(new OCreatedRecordResponse(currentRid, createdRid));
+    for (var pair : updatedRids) {
+      channel.writeRID(pair.first());
+      channel.writeRID(pair.second());
     }
-    final int updatedRecords = network.readInt();
-    updated = new ArrayList<>(updatedRecords);
-    ORecordId rid;
-    for (int i = 0; i < updatedRecords; ++i) {
-      rid = network.readRID();
-      int version = network.readVersion();
-      updated.add(new OUpdatedRecordResponse(rid, version));
+
+    if (protocolVersion >= 20) {
+      OMessageHelper.writeCollectionChanges(channel, collectionChanges);
+    }
+  }
+
+  @Override
+  public void read(OChannelDataInput network, OStorageRemoteSession session) throws IOException {
+    final int updatedRecordsCount = network.readInt();
+    updatedRids = new ArrayList<>(updatedRecordsCount);
+
+    for (int i = 0; i < updatedRecordsCount; i++) {
+      var currentRid = network.readRID();
+      var updated = network.readRID();
+
+      updatedRids.add(new ObjectObjectImmutablePair<>(currentRid, updated));
     }
 
     collectionChanges = OMessageHelper.readCollectionChanges(network);
   }
 
-  @Override
-  public void write(OChannelDataOutput channel, int protocolVersion, ORecordSerializer serializer)
-      throws IOException {
-
-    channel.writeInt(created.size());
-    for (OCreatedRecordResponse createdRecord : created) {
-      channel.writeRID(createdRecord.currentRid);
-      channel.writeRID(createdRecord.createdRid);
-    }
-
-    channel.writeInt(updated.size());
-    for (OUpdatedRecordResponse updatedRecord : updated) {
-      channel.writeRID(updatedRecord.rid);
-      channel.writeVersion(updatedRecord.version);
-    }
-    if (protocolVersion >= 20) OMessageHelper.writeCollectionChanges(channel, collectionChanges);
-  }
-
-  public List<OCreatedRecordResponse> getCreated() {
-    return created;
-  }
-
-  public List<OUpdatedRecordResponse> getUpdated() {
-    return updated;
+  public List<ObjectObjectImmutablePair<ORID, ORID>> getUpdatedRids() {
+    return updatedRids;
   }
 
   public Map<UUID, OBonsaiCollectionPointer> getCollectionChanges() {

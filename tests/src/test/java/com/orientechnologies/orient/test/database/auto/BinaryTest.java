@@ -26,6 +26,7 @@ import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 public class BinaryTest extends DocumentDBBaseTest {
+
   private ORID rid;
 
   @Parameters(value = "url")
@@ -35,10 +36,12 @@ public class BinaryTest extends DocumentDBBaseTest {
 
   @Test
   public void testMixedCreateEmbedded() {
+    database.begin();
     ODocument doc = new ODocument();
     doc.field("binary", "Binary data".getBytes());
 
     doc.save(database.getClusterNameById(database.getDefaultClusterId()));
+    database.commit();
 
     doc.reload();
     Assert.assertEquals(new String((byte[]) doc.field("binary", OType.BINARY)), "Binary data");
@@ -46,8 +49,11 @@ public class BinaryTest extends DocumentDBBaseTest {
 
   @Test
   public void testBasicCreateExternal() {
+    database.begin();
     OBlob record = new ORecordBytes(database, "This is a test".getBytes());
     record.save();
+    database.commit();
+
     rid = record.getIdentity();
   }
 
@@ -60,10 +66,14 @@ public class BinaryTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "testBasicReadExternal")
   public void testMixedCreateExternal() {
+    database.begin();
+
     ODocument doc = new ODocument();
     doc.field("binary", new ORecordBytes(database, "Binary data".getBytes()));
 
     doc.save(database.getClusterNameById(database.getDefaultClusterId()));
+    database.commit();
+
     rid = doc.getIdentity();
   }
 

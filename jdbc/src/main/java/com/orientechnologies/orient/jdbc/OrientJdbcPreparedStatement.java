@@ -16,6 +16,7 @@
 package com.orientechnologies.orient.jdbc;
 
 import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.OQueryParsingException;
 import com.orientechnologies.orient.core.record.impl.ORecordBytes;
 import com.orientechnologies.orient.core.sql.executor.OInternalResultSet;
@@ -241,7 +242,9 @@ public class OrientJdbcPreparedStatement extends OrientJdbcStatement implements 
   }
 
   public ResultSetMetaData getMetaData() throws SQLException {
-    if (resultSet == null) executeQuery();
+    if (resultSet == null) {
+      executeQuery();
+    }
 
     return getResultSet().getMetaData();
   }
@@ -342,11 +345,19 @@ public class OrientJdbcPreparedStatement extends OrientJdbcStatement implements 
 
   public void setBinaryStream(int parameterIndex, InputStream x) throws SQLException {
     try {
-      ORecordBytes record = new ORecordBytes();
-      record.fromInputStream(x);
-      record.save();
-      params.put(parameterIndex, record);
-    } catch (IOException e) {
+      database.executeInTx(
+          () -> {
+            ORecordBytes record = new ORecordBytes();
+            try {
+              record.fromInputStream(x);
+            } catch (IOException e) {
+              throw ODatabaseException.wrapException(
+                  new ODatabaseException("Error during creation of BLOB"), e);
+            }
+            record.save();
+            params.put(parameterIndex, record);
+          });
+    } catch (ODatabaseException e) {
       throw new SQLException("unable to store inputStream", e);
     }
   }

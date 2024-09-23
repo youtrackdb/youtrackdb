@@ -10,7 +10,9 @@ import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.Date;
 import org.junit.Test;
 
-/** Created by Enrico Risa on 27/10/16. */
+/**
+ * Created by Enrico Risa on 27/10/16.
+ */
 public class OLuceneReuseTest extends OLuceneBaseTest {
 
   @Test
@@ -28,13 +30,16 @@ public class OLuceneReuseTest extends OLuceneBaseTest {
     db.command("create index Reuse.surname on Reuse (surname) FULLTEXT ENGINE LUCENE");
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       db.save(
           new ODocument("Reuse")
               .field("name", "John")
               .field("date", new Date())
               .field("surname", "Reese")
               .field("age", i));
+      db.commit();
     }
+
     OResultSet results =
         db.command("SELECT FROM Reuse WHERE name='John' and search_class('Reese') =true");
 
@@ -62,21 +67,25 @@ public class OLuceneReuseTest extends OLuceneBaseTest {
     db.command("create index Reuse.name_surname on Reuse (name,surname) FULLTEXT ENGINE LUCENE");
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       db.save(
           new ODocument("Reuse")
               .field("name", "John")
               .field("date", new Date())
               .field("surname", "Reese")
               .field("age", i));
+      db.begin();
     }
 
     // additional record
+    db.begin();
     db.save(
         new ODocument("Reuse")
             .field("name", "John")
             .field("date", new Date())
             .field("surname", "Franklin")
             .field("age", 11));
+    db.commit();
 
     // exact query on name uses Reuse.conposite
     OResultSet results =

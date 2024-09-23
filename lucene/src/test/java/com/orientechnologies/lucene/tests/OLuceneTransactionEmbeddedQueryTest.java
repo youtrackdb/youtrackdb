@@ -84,13 +84,12 @@ public class OLuceneTransactionEmbeddedQueryTest extends OLuceneBaseTest {
     }
     db.commit();
 
+    db.begin();
     try (OResultSet vertices = db.command(query)) {
 
       assertThat(vertices).hasSize(1);
       Assert.assertEquals(index.getInternal().size(), 1);
     }
-
-    db.begin();
 
     db.delete(doc);
 
@@ -195,9 +194,8 @@ public class OLuceneTransactionEmbeddedQueryTest extends OLuceneBaseTest {
 
     OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "C1.p1");
 
-    Assert.assertEquals(index.getInternal().size(), 0);
-
     db.begin();
+    Assert.assertEquals(index.getInternal().size(), 0);
 
     ODocument doc = new ODocument("c1");
     doc.field("p1", new String[] {"abc"});

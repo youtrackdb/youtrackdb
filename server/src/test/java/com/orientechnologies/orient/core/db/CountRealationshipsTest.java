@@ -8,7 +8,6 @@ import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
-import java.util.Iterator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -102,10 +101,8 @@ public class CountRealationshipsTest {
 
   private int countEdges(OVertex v, ODirection dir) throws Exception {
     int c = 0;
-    Iterator it = v.getEdges(dir).iterator();
-    while (it.hasNext()) {
+    for (var oEdge : v.getEdges(dir)) {
       c++;
-      it.next();
     }
     return c;
   }
