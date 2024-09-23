@@ -12,10 +12,9 @@ import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -39,51 +38,49 @@ public class TestConcurrentSequenceGenerationIT {
         orientDB.open(TestConcurrentSequenceGenerationIT.class.getSimpleName(), "admin", "admin");
     databaseSession.execute(
         "sql",
-        "CREATE CLASS TestSequence EXTENDS V;\n"
-            + " CREATE SEQUENCE TestSequenceIdSequence TYPE ORDERED;\n"
-            + "CREATE PROPERTY TestSequence.id LONG (MANDATORY TRUE, default"
-            + " \"sequence('TestSequenceIdSequence').next()\");\n"
-            + "CREATE INDEX TestSequence_id_index ON TestSequence (id BY VALUE) UNIQUE;");
+        """
+            CREATE CLASS TestSequence EXTENDS V;
+             CREATE SEQUENCE TestSequenceIdSequence TYPE ORDERED;
+            CREATE PROPERTY TestSequence.id LONG (MANDATORY TRUE, default\
+             "sequence('TestSequenceIdSequence').next()");
+            CREATE INDEX TestSequence_id_index ON TestSequence (id BY VALUE) UNIQUE;""");
     databaseSession.close();
   }
 
   @Test
-  public void test() throws InterruptedException {
-    AtomicLong failures = new AtomicLong(0);
-    ODatabasePool pool =
+  public void test() throws Exception {
+    try (ODatabasePool pool =
         new ODatabasePool(
-            orientDB, TestConcurrentSequenceGenerationIT.class.getSimpleName(), "admin", "admin");
-    List<Thread> threads = new ArrayList<>();
-    for (int i = 0; i < THREADS; i++) {
-      Thread thread =
-          new Thread() {
-            @Override
-            public void run() {
-              ODatabaseSession db = pool.acquire();
-              try {
-                for (int j = 0; j < RECORDS; j++) {
-                  db.begin();
-                  OVertex vert = db.newVertex("TestSequence");
-                  assertNotNull(vert.getProperty("id"));
-                  db.save(vert);
-                  db.commit();
-                }
-              } catch (Exception e) {
-                failures.incrementAndGet();
-                e.printStackTrace();
-              } finally {
-                db.close();
-              }
-            }
-          };
-      threads.add(thread);
-      thread.start();
+            orientDB, TestConcurrentSequenceGenerationIT.class.getSimpleName(), "admin", "admin")) {
+
+      var executorService = Executors.newFixedThreadPool(THREADS);
+      var futures = new ArrayList<Future<Object>>();
+
+      for (int i = 0; i < THREADS; i++) {
+        var future =
+            executorService.submit(
+                () -> {
+                  try (ODatabaseSession db = pool.acquire()) {
+                    for (int j = 0; j < RECORDS; j++) {
+                      db.begin();
+                      OVertex vert = db.newVertex("TestSequence");
+                      assertNotNull(vert.getProperty("id"));
+                      db.save(vert);
+                      db.commit();
+                    }
+                  }
+
+                  return null;
+                });
+        futures.add(future);
+      }
+
+      for (var future : futures) {
+        future.get();
+      }
+
+      executorService.shutdown();
     }
-    for (Thread t : threads) {
-      t.join();
-    }
-    Assert.assertEquals(0, failures.get());
-    pool.close();
   }
 
   @After
