@@ -139,8 +139,7 @@ public abstract class OSequence {
       return this;
     }
 
-    public CreateParams() {
-    }
+    public CreateParams() {}
 
     public CreateParams resetNull() {
       start = null;
@@ -481,11 +480,11 @@ public abstract class OSequence {
                       Thread.sleep(
                           1
                               + new Random()
-                              .nextInt(
-                                  getDatabase()
-                                      .getConfiguration()
-                                      .getValueAsInteger(
-                                          OGlobalConfiguration.SEQUENCE_RETRY_DELAY)));
+                                  .nextInt(
+                                      getDatabase()
+                                          .getConfiguration()
+                                          .getValueAsInteger(
+                                              OGlobalConfiguration.SEQUENCE_RETRY_DELAY)));
                     } catch (InterruptedException ignored) {
                       Thread.currentThread().interrupt();
                       break;
