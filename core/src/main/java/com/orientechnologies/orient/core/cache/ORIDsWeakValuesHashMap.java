@@ -41,7 +41,7 @@ public final class ORIDsWeakValuesHashMap<V> extends AbstractMap<ORID, V>
       result = soft_ref.get();
       if (result == null) {
         if (stopModification) {
-          return null;
+          throw new IllegalStateException("Modification is not allowed");
         }
 
         hashMap.remove(key);

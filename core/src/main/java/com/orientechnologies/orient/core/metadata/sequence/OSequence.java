@@ -43,7 +43,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.BiFunction;
 import javax.annotation.Nonnull;
 
 /**
@@ -140,7 +139,8 @@ public abstract class OSequence {
       return this;
     }
 
-    public CreateParams() {}
+    public CreateParams() {
+    }
 
     public CreateParams resetNull() {
       start = null;
@@ -454,8 +454,7 @@ public abstract class OSequence {
    */
   public abstract SEQUENCE_TYPE getSequenceType();
 
-  protected <T> T callRetry(
-      final BiFunction<ODatabaseSession, ODocument, T> callable, final String method) {
+  protected long callRetry(final SequenceCallable callable, final String method) {
 
     var oldDb = getDatabase();
     var db = oldDb.copy();
@@ -472,7 +471,7 @@ public abstract class OSequence {
                     return db.computeInTx(
                         () -> {
                           var doc = docRid.<ODocument>getRecord();
-                          var result = callable.apply(db, doc);
+                          var result = callable.call(db, doc);
                           doc.save();
                           return result;
                         });
@@ -482,11 +481,11 @@ public abstract class OSequence {
                       Thread.sleep(
                           1
                               + new Random()
-                                  .nextInt(
-                                      getDatabase()
-                                          .getConfiguration()
-                                          .getValueAsInteger(
-                                              OGlobalConfiguration.SEQUENCE_RETRY_DELAY)));
+                              .nextInt(
+                                  getDatabase()
+                                      .getConfiguration()
+                                      .getValueAsInteger(
+                                          OGlobalConfiguration.SEQUENCE_RETRY_DELAY)));
                     } catch (InterruptedException ignored) {
                       Thread.currentThread().interrupt();
                       break;
@@ -521,7 +520,7 @@ public abstract class OSequence {
                   return db.computeInTx(
                       () -> {
                         var doc = docRid.<ODocument>getRecord();
-                        var result = callable.apply(db, doc);
+                        var result = callable.call(db, doc);
                         doc.save();
                         return result;
                       });
@@ -554,5 +553,11 @@ public abstract class OSequence {
               "Error in transactional processing of " + getName() + "." + method + "()"),
           cause);
     }
+  }
+
+  @FunctionalInterface
+  public interface SequenceCallable {
+
+    long call(ODatabaseSession db, ODocument doc);
   }
 }
