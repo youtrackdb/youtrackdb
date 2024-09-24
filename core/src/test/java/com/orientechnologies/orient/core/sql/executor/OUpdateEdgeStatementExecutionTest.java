@@ -61,6 +61,7 @@ public class OUpdateEdgeStatementExecutionTest extends BaseMemoryDatabase {
     Assert.assertEquals(((ODocument) edge.toElement().getRecord()).getClassName(), "E1");
     edges.close();
 
+    db.begin();
     db.command(
         "update edge E1 set out = "
             + v3.getIdentity()
@@ -68,6 +69,7 @@ public class OUpdateEdgeStatementExecutionTest extends BaseMemoryDatabase {
             + v4.getIdentity()
             + " where @rid = "
             + edge.toElement().getIdentity());
+    db.commit();
 
     OResultSet result = db.query("select expand(out('E1')) from " + v3.getIdentity());
     Assert.assertTrue(result.hasNext());
@@ -109,8 +111,10 @@ public class OUpdateEdgeStatementExecutionTest extends BaseMemoryDatabase {
         db.command("create edge E from " + v1.getIdentity() + " to " + v2.getIdentity());
     OResult edge = edges.next();
 
+    db.begin();
     db.command("UPDATE EDGE " + edge.toElement().getIdentity() + " SET in = " + v3.getIdentity())
         .close();
+    db.commit();
     edges.close();
 
     OResultSet result = db.query("select expand(out()) from " + v1.getIdentity());

@@ -335,10 +335,6 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
     }
   }
 
-  private void fetchTransacion() {
-    storage.fetchTransaction(this);
-  }
-
   @Override
   public ODatabaseDocumentRemote begin() {
     super.begin();
@@ -357,9 +353,6 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
     checkOpenness();
     checkAndSendTransaction();
     ORemoteQueryResult result = storage.query(this, query, args);
-    if (result.isTransactionUpdated()) {
-      fetchTransacion();
-    }
     if (result.isReloadMetadata()) {
       reload();
     }
@@ -371,9 +364,6 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
     checkOpenness();
     checkAndSendTransaction();
     ORemoteQueryResult result = storage.query(this, query, args);
-    if (result.isTransactionUpdated()) {
-      fetchTransacion();
-    }
     if (result.isReloadMetadata()) {
       reload();
     }
@@ -404,9 +394,6 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
     checkOpenness();
     checkAndSendTransaction();
     ORemoteQueryResult result = storage.command(this, query, args);
-    if (result.isTransactionUpdated()) {
-      fetchTransacion();
-    }
     if (result.isReloadMetadata()) {
       reload();
     }
@@ -418,9 +405,7 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
     checkOpenness();
     checkAndSendTransaction();
     ORemoteQueryResult result = storage.command(this, query, args);
-    if (result.isTransactionUpdated()) {
-      fetchTransacion();
-    }
+
     if (result.isReloadMetadata()) {
       reload();
     }
@@ -438,9 +423,7 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
     checkOpenness();
     checkAndSendTransaction();
     ORemoteQueryResult result = storage.execute(this, language, script, args);
-    if (result.isTransactionUpdated()) {
-      fetchTransacion();
-    }
+
     if (result.isReloadMetadata()) {
       reload();
     }
@@ -453,9 +436,7 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
     checkOpenness();
     checkAndSendTransaction();
     ORemoteQueryResult result = storage.execute(this, language, script, args);
-    if (result.isTransactionUpdated()) {
-      fetchTransacion();
-    }
+
     if (result.isReloadMetadata()) {
       reload();
     }

@@ -163,7 +163,6 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
       record.save();
       database.commit();
 
-      record.reload();
       Assert.assertEquals(record.getVersion(), v1 + 1);
       Assert.assertTrue(new String(record.toStream()).contains("second"));
     } finally {

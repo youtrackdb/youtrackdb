@@ -64,6 +64,7 @@ public class SQLUpdateEdgeTest extends BaseMemoryDatabase {
     assertFalse(edges.hasNext());
     assertEquals(edge.getSchemaType().get().getName(), "E1");
 
+    db.begin();
     db.command(
             "update edge E1 set out = "
                 + v3.getIdentity()
@@ -72,6 +73,7 @@ public class SQLUpdateEdgeTest extends BaseMemoryDatabase {
                 + " where @rid = "
                 + edge.getIdentity())
         .close();
+    db.commit();
 
     OResultSet result = db.query("select expand(out('E1')) from " + v3.getIdentity());
     OResult vertex4 = result.next();
@@ -95,11 +97,13 @@ public class SQLUpdateEdgeTest extends BaseMemoryDatabase {
     OVertex v2 = db.command("create vertex").next().toVertex();
     OVertex v3 = db.command("create vertex").next().toVertex();
 
+    db.begin();
     OResultSet edges =
         db.command("create edge E from " + v1.getIdentity() + " to " + v2.getIdentity());
     OEdge edge = edges.next().toEdge();
 
     db.command("UPDATE EDGE " + edge.getIdentity() + " SET in = " + v3.getIdentity());
+    db.commit();
 
     OResultSet result = db.query("select expand(out()) from " + v1.getIdentity());
     Assert.assertEquals(result.next().getIdentity().get(), v3.getIdentity());

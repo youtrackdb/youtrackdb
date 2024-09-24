@@ -197,8 +197,6 @@ public class SQLInsertTest extends DocumentDBBaseTest {
 
     Assert.assertNotNull(doc);
 
-    doc = doc.reload();
-
     Assert.assertEquals(doc.getProperty("equaledges"), "no");
     Assert.assertEquals(doc.getProperty("name"), "circle");
     Assert.assertTrue(doc.getProperty("properties") instanceof Map);
@@ -224,8 +222,6 @@ public class SQLInsertTest extends DocumentDBBaseTest {
 
     Assert.assertNotNull(doc);
 
-    doc = doc.reload();
-
     Assert.assertEquals(doc.getProperty("equaledges"), "no");
     Assert.assertEquals(doc.getProperty("name"), "circle");
     Assert.assertTrue(doc.getProperty("properties") instanceof Map);
@@ -250,8 +246,6 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .get();
 
     Assert.assertNotNull(doc);
-
-    doc = doc.reload();
 
     Assert.assertEquals(doc.getProperty("equaledges"), "yes");
     Assert.assertEquals(doc.getProperty("name"), "square");
@@ -279,8 +273,6 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .get();
 
     Assert.assertNotNull(doc);
-
-    doc = doc.reload();
 
     Assert.assertEquals(doc.getProperty("equaledges"), "yes");
     Assert.assertEquals(doc.getProperty("name"), "square");

@@ -64,7 +64,6 @@ public class OCommandExecutorSQLUpdateTest extends BaseMemoryDatabase {
 
     db.command("UPDATE company set employees = (SELECT FROM employee)").close();
 
-    r.reload();
     assertEquals(((Set) r.getProperty("employees")).size(), 4);
 
     db.command(
@@ -72,7 +71,6 @@ public class OCommandExecutorSQLUpdateTest extends BaseMemoryDatabase {
                 + " name = 'MyCompany'")
         .close();
 
-    r.reload();
     assertEquals(((Set) r.getProperty("employees")).size(), 3);
   }
 
@@ -257,29 +255,20 @@ public class OCommandExecutorSQLUpdateTest extends BaseMemoryDatabase {
     OElement queried = db.query("SELECT FROM test WHERE id = \"id1\"").next().getElement().get();
 
     db.command("UPDATE test set count += 2").close();
-    queried.reload();
-    //    assertEquals(queried.field("count"), 22);
 
     Assertions.assertThat(queried.<Integer>getProperty("count")).isEqualTo(22);
 
     db.command("UPDATE test set map.nestedCount = map.nestedCount + 5").close();
-    queried.reload();
-    //    assertEquals(queried.field("map.nestedCount"), 15);
 
     Assertions.assertThat(queried.<Map>getProperty("map").get("nestedCount")).isEqualTo(15);
 
     db.command("UPDATE test set map.nestedCount = map.nestedCount+ 5").close();
-    queried.reload();
 
     Assertions.assertThat(queried.<Map>getProperty("map").get("nestedCount")).isEqualTo(20);
-
-    //    assertEquals(queried.field("map.nestedCount"), 20);
-
   }
 
   @Test
   public void testSingleQuoteInNamedParameter() throws Exception {
-
     db.command("CREATE class test").close();
 
     db.begin();
@@ -295,7 +284,6 @@ public class OCommandExecutorSQLUpdateTest extends BaseMemoryDatabase {
     params.put("text", "single \"");
 
     db.command("UPDATE test SET text = :text", params).close();
-    queried.reload();
     assertEquals(queried.getProperty("text"), "single \"");
   }
 
@@ -319,7 +307,6 @@ public class OCommandExecutorSQLUpdateTest extends BaseMemoryDatabase {
 
     db.command("UPDATE test SET text = :text", params).close();
 
-    queried.reload();
     assertEquals(queried.getProperty("text"), "quoted \"value\" string");
   }
 
@@ -330,8 +317,6 @@ public class OCommandExecutorSQLUpdateTest extends BaseMemoryDatabase {
     db.command(
             "UPDATE testquotesinjson SET value = {\"f12\":'test\\\\'} UPSERT WHERE key = \"test\"")
         .close();
-    // db.command(new OCommandSQL("update V set value.f12 = 'asdf\\\\' WHERE key =
-    // \"test\"")).execute();
 
     OElement queried = db.query("SELECT FROM testquotesinjson").next().getElement().get();
     assertEquals(((Map) queried.getProperty("value")).get("f12"), "test\\");

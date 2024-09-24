@@ -73,6 +73,7 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
           && operation.getRecordType() == ODocument.RECORD_TYPE) {
         record.incrementLoading();
         try {
+          // keep rid instance to support links consistency
           record.fromStream(operation.getOriginal());
           ODocumentSerializerDelta deltaSerializer = ODocumentSerializerDelta.instance();
           deltaSerializer.deserializeDelta(operation.getRecord(), (ODocument) record);
@@ -82,10 +83,16 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
       } else {
         record.fromStream(operation.getRecord());
       }
-      ORecordInternal.setIdentity(record, (ORecordId) operation.getId());
+
+      var rid = (ORecordId) record.getIdentity();
+      var operationId = operation.getId();
+      rid.setClusterId(operationId.getClusterId());
+      rid.setClusterPosition(operationId.getClusterPosition());
+
       ORecordInternal.setVersion(record, operation.getVersion());
       ORecordInternal.setContentChanged(record, operation.isContentChanged());
       getDatabase().getLocalCache().updateRecord(record);
+
       boolean callHook = checkCallHook(oldEntries, operation.getId(), operation.getType());
       addRecord(record, operation.getType(), null, callHook);
       if (operation.getType() == ORecordOperation.CREATED) {

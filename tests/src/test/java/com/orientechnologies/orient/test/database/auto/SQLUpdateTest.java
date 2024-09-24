@@ -712,6 +712,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
           database.getMetadata().getSchema().getOrCreateClass("TestConvertLinkedClass"));
     }
 
+    database.begin();
     ORID id =
         database
             .command(
@@ -728,12 +729,14 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
                 + " set embeddedListWithLinkedClass = embeddedListWithLinkedClass || [{'line1':'123"
                 + " Fake Street'}]")
         .close();
+    database.commit();
 
-    OElement doc = database.reload(database.load(id), "", true);
+    OElement doc = database.load(id);
 
     Assert.assertTrue(doc.getProperty("embeddedListWithLinkedClass") instanceof List);
     Assert.assertEquals(((Collection) doc.getProperty("embeddedListWithLinkedClass")).size(), 2);
 
+    database.begin();
     database
         .command(
             "UPDATE "
@@ -741,8 +744,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
                 + " set embeddedListWithLinkedClass =  embeddedListWithLinkedClass ||"
                 + " [{'line1':'123 Fake Street'}]")
         .close();
-
-    doc.reload();
+    database.commit();
 
     Assert.assertTrue(doc.getProperty("embeddedListWithLinkedClass") instanceof List);
     Assert.assertEquals(((Collection) doc.getProperty("embeddedListWithLinkedClass")).size(), 3);

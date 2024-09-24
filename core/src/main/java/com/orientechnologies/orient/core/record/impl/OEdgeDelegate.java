@@ -468,23 +468,6 @@ public class OEdgeDelegate implements OEdgeInternal {
   }
 
   @Override
-  public <RET extends ORecord> RET reload() throws ORecordNotFoundException {
-    if (element != null) {
-      element.reload();
-    }
-    return (RET) this;
-  }
-
-  @Override
-  public <RET extends ORecord> RET reload(String fetchPlan, boolean ignoreCache, boolean force)
-      throws ORecordNotFoundException {
-    if (element != null) {
-      element.reload(fetchPlan, ignoreCache, force);
-    }
-    return (RET) this;
-  }
-
-  @Override
   public <RET extends ORecord> RET save() {
     if (element != null) {
       element.save();

@@ -1138,20 +1138,30 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
         new OQueryRequest(
             "sql", query, args, OQueryRequest.QUERY, db.getSerializer(), recordsPerPage);
     OQueryResponse response = networkOperation(request, "Error on executing command: " + query);
-    ORemoteResultSet rs =
-        new ORemoteResultSet(
-            db,
-            response.getQueryId(),
-            response.getResult(),
-            response.getExecutionPlan(),
-            response.getQueryStats(),
-            response.isHasNextPage());
-    if (response.isHasNextPage()) {
-      stickToSession();
-    } else {
+    try {
+      if (response.isTxChanges()) {
+        fetchTransaction(db);
+      }
+
+      ORemoteResultSet rs =
+          new ORemoteResultSet(
+              db,
+              response.getQueryId(),
+              response.getResult(),
+              response.getExecutionPlan(),
+              response.getQueryStats(),
+              response.isHasNextPage());
+
+      if (response.isHasNextPage()) {
+        stickToSession();
+      } else {
+        db.queryClosed(response.getQueryId());
+      }
+      return new ORemoteQueryResult(rs, response.isTxChanges(), response.isReloadMetadata());
+    } catch (Exception e) {
       db.queryClosed(response.getQueryId());
+      throw e;
     }
-    return new ORemoteQueryResult(rs, response.isTxChanges(), response.isReloadMetadata());
   }
 
   public ORemoteQueryResult query(ODatabaseDocumentRemote db, String query, Map args) {
@@ -1164,20 +1174,30 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
             "sql", query, args, OQueryRequest.QUERY, db.getSerializer(), recordsPerPage);
     OQueryResponse response = networkOperation(request, "Error on executing command: " + query);
 
-    ORemoteResultSet rs =
-        new ORemoteResultSet(
-            db,
-            response.getQueryId(),
-            response.getResult(),
-            response.getExecutionPlan(),
-            response.getQueryStats(),
-            response.isHasNextPage());
-    if (response.isHasNextPage()) {
-      stickToSession();
-    } else {
+    try {
+      if (response.isTxChanges()) {
+        fetchTransaction(db);
+      }
+
+      ORemoteResultSet rs =
+          new ORemoteResultSet(
+              db,
+              response.getQueryId(),
+              response.getResult(),
+              response.getExecutionPlan(),
+              response.getQueryStats(),
+              response.isHasNextPage());
+
+      if (response.isHasNextPage()) {
+        stickToSession();
+      } else {
+        db.queryClosed(response.getQueryId());
+      }
+      return new ORemoteQueryResult(rs, response.isTxChanges(), response.isReloadMetadata());
+    } catch (Exception e) {
       db.queryClosed(response.getQueryId());
+      throw e;
     }
-    return new ORemoteQueryResult(rs, response.isTxChanges(), response.isReloadMetadata());
   }
 
   public ORemoteQueryResult command(ODatabaseDocumentRemote db, String query, Object[] args) {
@@ -1190,20 +1210,30 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
             "sql", query, args, OQueryRequest.COMMAND, db.getSerializer(), recordsPerPage);
     OQueryResponse response =
         networkOperationNoRetry(request, "Error on executing command: " + query);
-    ORemoteResultSet rs =
-        new ORemoteResultSet(
-            db,
-            response.getQueryId(),
-            response.getResult(),
-            response.getExecutionPlan(),
-            response.getQueryStats(),
-            response.isHasNextPage());
-    if (response.isHasNextPage()) {
-      stickToSession();
-    } else {
+
+    try {
+      if (response.isTxChanges()) {
+        fetchTransaction(db);
+      }
+
+      ORemoteResultSet rs =
+          new ORemoteResultSet(
+              db,
+              response.getQueryId(),
+              response.getResult(),
+              response.getExecutionPlan(),
+              response.getQueryStats(),
+              response.isHasNextPage());
+      if (response.isHasNextPage()) {
+        stickToSession();
+      } else {
+        db.queryClosed(response.getQueryId());
+      }
+      return new ORemoteQueryResult(rs, response.isTxChanges(), response.isReloadMetadata());
+    } catch (Exception e) {
       db.queryClosed(response.getQueryId());
+      throw e;
     }
-    return new ORemoteQueryResult(rs, response.isTxChanges(), response.isReloadMetadata());
   }
 
   public ORemoteQueryResult command(ODatabaseDocumentRemote db, String query, Map args) {
@@ -1216,20 +1246,29 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
             "sql", query, args, OQueryRequest.COMMAND, db.getSerializer(), recordsPerPage);
     OQueryResponse response =
         networkOperationNoRetry(request, "Error on executing command: " + query);
-    ORemoteResultSet rs =
-        new ORemoteResultSet(
-            db,
-            response.getQueryId(),
-            response.getResult(),
-            response.getExecutionPlan(),
-            response.getQueryStats(),
-            response.isHasNextPage());
-    if (response.isHasNextPage()) {
-      stickToSession();
-    } else {
+    try {
+      if (response.isTxChanges()) {
+        fetchTransaction(db);
+      }
+
+      ORemoteResultSet rs =
+          new ORemoteResultSet(
+              db,
+              response.getQueryId(),
+              response.getResult(),
+              response.getExecutionPlan(),
+              response.getQueryStats(),
+              response.isHasNextPage());
+      if (response.isHasNextPage()) {
+        stickToSession();
+      } else {
+        db.queryClosed(response.getQueryId());
+      }
+      return new ORemoteQueryResult(rs, response.isTxChanges(), response.isReloadMetadata());
+    } catch (Exception e) {
       db.queryClosed(response.getQueryId());
+      throw e;
     }
-    return new ORemoteQueryResult(rs, response.isTxChanges(), response.isReloadMetadata());
   }
 
   public ORemoteQueryResult serverCommand(String query, Object[] args) {
@@ -1305,22 +1344,32 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
             language, query, args, OQueryRequest.EXECUTE, db.getSerializer(), recordsPerPage);
     OQueryResponse response =
         networkOperationNoRetry(request, "Error on executing command: " + query);
-    ORemoteResultSet rs =
-        new ORemoteResultSet(
-            db,
-            response.getQueryId(),
-            response.getResult(),
-            response.getExecutionPlan(),
-            response.getQueryStats(),
-            response.isHasNextPage());
 
-    if (response.isHasNextPage()) {
-      stickToSession();
-    } else {
+    try {
+      if (response.isTxChanges()) {
+        fetchTransaction(db);
+      }
+
+      ORemoteResultSet rs =
+          new ORemoteResultSet(
+              db,
+              response.getQueryId(),
+              response.getResult(),
+              response.getExecutionPlan(),
+              response.getQueryStats(),
+              response.isHasNextPage());
+
+      if (response.isHasNextPage()) {
+        stickToSession();
+      } else {
+        db.queryClosed(response.getQueryId());
+      }
+
+      return new ORemoteQueryResult(rs, response.isTxChanges(), response.isReloadMetadata());
+    } catch (Exception e) {
       db.queryClosed(response.getQueryId());
+      throw e;
     }
-
-    return new ORemoteQueryResult(rs, response.isTxChanges(), response.isReloadMetadata());
   }
 
   public ORemoteQueryResult execute(
@@ -1334,20 +1383,30 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
             language, query, args, OQueryRequest.EXECUTE, db.getSerializer(), recordsPerPage);
     OQueryResponse response =
         networkOperationNoRetry(request, "Error on executing command: " + query);
-    ORemoteResultSet rs =
-        new ORemoteResultSet(
-            db,
-            response.getQueryId(),
-            response.getResult(),
-            response.getExecutionPlan(),
-            response.getQueryStats(),
-            response.isHasNextPage());
-    if (response.isHasNextPage()) {
-      stickToSession();
-    } else {
+
+    try {
+      if (response.isTxChanges()) {
+        fetchTransaction(db);
+      }
+
+      ORemoteResultSet rs =
+          new ORemoteResultSet(
+              db,
+              response.getQueryId(),
+              response.getResult(),
+              response.getExecutionPlan(),
+              response.getQueryStats(),
+              response.isHasNextPage());
+      if (response.isHasNextPage()) {
+        stickToSession();
+      } else {
+        db.queryClosed(response.getQueryId());
+      }
+      return new ORemoteQueryResult(rs, response.isTxChanges(), response.isReloadMetadata());
+    } catch (Exception e) {
       db.queryClosed(response.getQueryId());
+      throw e;
     }
-    return new ORemoteQueryResult(rs, response.isTxChanges(), response.isReloadMetadata());
   }
 
   public void closeQuery(ODatabaseDocumentRemote database, String queryId) {
