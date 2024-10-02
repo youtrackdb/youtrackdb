@@ -3462,10 +3462,9 @@ public class ODocument extends ORecordAbstract
       return;
     }
 
-    final ODatabaseDocument db = getDatabaseIfDefined();
+    final ODatabaseDocumentInternal db = getDatabaseIfDefined();
     if (db != null) {
-      final OClass _clazz =
-          ((OMetadataInternal) db.getMetadata()).getImmutableSchemaSnapshot().getClass(iClassName);
+      final OClass _clazz = db.getMetadata().getImmutableSchemaSnapshot().getClass(iClassName);
       if (_clazz != null) {
         className = _clazz.getName();
         convertFieldsToClass(_clazz);
@@ -3488,7 +3487,7 @@ public class ODocument extends ORecordAbstract
       return null;
     }
 
-    final ODatabaseDocument databaseRecord = getDatabaseIfDefined();
+    final ODatabaseDocumentInternal databaseRecord = getDatabaseIfDefined();
     if (databaseRecord != null) {
       return databaseRecord.getMetadata().getSchema().getClass(className);
     }
@@ -3525,9 +3524,9 @@ public class ODocument extends ORecordAbstract
       return;
     }
 
-    final ODatabaseDocument db = getDatabaseIfDefined();
+    final var db = getDatabaseIfDefined();
     if (db != null) {
-      OMetadataInternal metadata = (OMetadataInternal) db.getMetadata();
+      OMetadataInternal metadata = db.getMetadata();
       this.immutableClazz =
           (OImmutableClass) metadata.getImmutableSchemaSnapshot().getClass(className);
       OClass clazz;
@@ -3820,13 +3819,13 @@ public class ODocument extends ORecordAbstract
     }
     OGlobalProperty prop = schema.getGlobalPropertyById(id);
     if (prop == null) {
-      ODatabaseDocument db = getDatabase();
+      ODatabaseDocumentInternal db = getDatabase();
       if (db == null || db.isClosed()) {
         throw new ODatabaseException(
             "Cannot unmarshall the document because no database is active, use detach for use the"
                 + " document outside the database session scope");
       }
-      OMetadataInternal metadata = (OMetadataInternal) db.getMetadata();
+      OMetadataInternal metadata = db.getMetadata();
       if (metadata.getImmutableSchemaSnapshot() != null) {
         metadata.clearThreadLocalSchemaSnapshot();
       }

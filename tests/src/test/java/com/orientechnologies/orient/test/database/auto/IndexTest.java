@@ -42,9 +42,6 @@ import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedSt
 import com.orientechnologies.orient.test.database.base.OrientTest;
 import com.orientechnologies.orient.test.domain.business.Account;
 import com.orientechnologies.orient.test.domain.whiz.Profile;
-import com.tinkerpop.blueprints.Vertex;
-import com.tinkerpop.blueprints.impls.orient.OrientBaseGraph;
-import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -729,7 +726,7 @@ public class IndexTest extends ObjectDBBaseTest {
   }
 
   public void linkedIndexedProperty() {
-    try (ODatabaseDocument db = new ODatabaseDocumentTx(database.getURL())) {
+    try (ODatabaseDocumentInternal db = new ODatabaseDocumentTx(database.getURL())) {
       db.open("admin", "admin");
 
       if (!db.getMetadata().getSchema().existsClass("TestClass")) {
@@ -774,7 +771,7 @@ public class IndexTest extends ObjectDBBaseTest {
 
   @Test(dependsOnMethods = "linkedIndexedProperty")
   public void testLinkedIndexedPropertyInTx() {
-    try (ODatabaseDocument db = new ODatabaseDocumentTx(database.getURL())) {
+    try (ODatabaseDocumentInternal db = new ODatabaseDocumentTx(database.getURL())) {
       db.open("admin", "admin");
 
       db.begin();
@@ -807,7 +804,7 @@ public class IndexTest extends ObjectDBBaseTest {
   }
 
   public void testDictionary() {
-    try (ODatabaseDocument db = new ODatabaseDocumentTx(database.getURL())) {
+    try (ODatabaseDocumentInternal db = new ODatabaseDocumentTx(database.getURL())) {
       db.open("admin", "admin");
 
       OClass pClass = db.getMetadata().getSchema().createClass("Person2", 1, (OClass[]) null);
@@ -1146,7 +1143,7 @@ public class IndexTest extends ObjectDBBaseTest {
   }
 
   public void createInheritanceIndex() {
-    try (ODatabaseDocument db = new ODatabaseDocumentTx(database.getURL())) {
+    try (ODatabaseDocumentInternal db = new ODatabaseDocumentTx(database.getURL())) {
       db.open("admin", "admin");
 
       if (!db.getMetadata().getSchema().existsClass("BaseTestClass")) {
@@ -1373,7 +1370,7 @@ public class IndexTest extends ObjectDBBaseTest {
   }
 
   public void testIndexWithLimitAndOffset() {
-    ODatabaseDocument databaseDocumentTx = database.getUnderlying();
+    ODatabaseDocumentInternal databaseDocumentTx = database.getUnderlying();
 
     final OSchema schema = databaseDocumentTx.getMetadata().getSchema();
     final OClass indexWithLimitAndOffset =
@@ -1409,7 +1406,7 @@ public class IndexTest extends ObjectDBBaseTest {
   }
 
   public void testNullIndexKeysSupport() {
-    final ODatabaseDocument databaseDocumentTx = database.getUnderlying();
+    final ODatabaseDocumentInternal databaseDocumentTx = database.getUnderlying();
 
     final OSchema schema = databaseDocumentTx.getMetadata().getSchema();
     final OClass clazz = schema.createClass("NullIndexKeysSupport", 1, (OClass[]) null);
@@ -1464,7 +1461,7 @@ public class IndexTest extends ObjectDBBaseTest {
   }
 
   public void testNullHashIndexKeysSupport() {
-    final ODatabaseDocument databaseDocumentTx = database.getUnderlying();
+    final ODatabaseDocumentInternal databaseDocumentTx = database.getUnderlying();
 
     final OSchema schema = databaseDocumentTx.getMetadata().getSchema();
     final OClass clazz = schema.createClass("NullHashIndexKeysSupport", 1, (OClass[]) null);
@@ -1519,7 +1516,7 @@ public class IndexTest extends ObjectDBBaseTest {
   }
 
   public void testNullIndexKeysSupportInTx() {
-    final ODatabaseDocument databaseDocumentTx = database.getUnderlying();
+    final ODatabaseDocumentInternal databaseDocumentTx = database.getUnderlying();
 
     final OSchema schema = databaseDocumentTx.getMetadata().getSchema();
     final OClass clazz = schema.createClass("NullIndexKeysSupportInTx", 1, (OClass[]) null);
@@ -1581,7 +1578,7 @@ public class IndexTest extends ObjectDBBaseTest {
       return;
     }
 
-    final ODatabaseDocument databaseDocumentTx = database.getUnderlying();
+    final ODatabaseDocumentInternal databaseDocumentTx = database.getUnderlying();
 
     final OSchema schema = databaseDocumentTx.getMetadata().getSchema();
     final OClass clazz = schema.createClass("NullIndexKeysSupportInMiddleTx", 1, (OClass[]) null);
@@ -1641,7 +1638,7 @@ public class IndexTest extends ObjectDBBaseTest {
   }
 
   public void testCreateIndexAbstractClass() {
-    final ODatabaseDocument databaseDocumentTx = database.getUnderlying();
+    final ODatabaseDocumentInternal databaseDocumentTx = database.getUnderlying();
     final OSchema schema = databaseDocumentTx.getMetadata().getSchema();
 
     OClass abstractClass = schema.createAbstractClass("TestCreateIndexAbstractClass");
@@ -2510,11 +2507,6 @@ public class IndexTest extends ObjectDBBaseTest {
 
   @Test
   public void testParamsOrder() {
-
-    OrientBaseGraph graph =
-        new OrientGraphNoTx("memory:IndexTest_testParamsOrder", "admin", "admin");
-    ODatabaseDocument database = graph.getRawGraph();
-
     database.command("CREATE CLASS Task extends V").close();
     database
         .command("CREATE PROPERTY Task.projectId STRING (MANDATORY TRUE, NOTNULL, MAX 20)")
@@ -2522,15 +2514,16 @@ public class IndexTest extends ObjectDBBaseTest {
     database.command("CREATE PROPERTY Task.seq SHORT ( MANDATORY TRUE, NOTNULL, MIN 0)").close();
     database.command("CREATE INDEX TaskPK ON Task (projectId, seq) UNIQUE").close();
 
+    database.begin();
     database.command("INSERT INTO Task (projectId, seq) values ( 'foo', 2)").close();
     database.command("INSERT INTO Task (projectId, seq) values ( 'bar', 3)").close();
-    Iterable<Vertex> x =
-        graph.getVertices(
-            "Task", new String[] {"seq", "projectId"}, new Object[] {(short) 2, "foo"});
-    Iterator<Vertex> iter = x.iterator();
-    Assert.assertTrue(iter.hasNext());
-    iter.next();
-    Assert.assertFalse(iter.hasNext());
-    graph.drop();
+    database.commit();
+
+    var results =
+        database
+            .query("select from Task where projectId = 'foo' and seq = 2")
+            .vertexStream()
+            .toList();
+    Assert.assertEquals(results.size(), 1);
   }
 }

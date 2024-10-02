@@ -39,7 +39,6 @@ import com.orientechnologies.orient.core.db.record.OTrackedMap;
 import com.orientechnologies.orient.core.db.record.OTrackedSet;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 import com.orientechnologies.orient.core.exception.OSerializationException;
-import com.orientechnologies.orient.core.exception.OTransactionException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -50,7 +49,6 @@ import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import com.orientechnologies.orient.core.tx.OTransactionOptimistic;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import com.orientechnologies.orient.object.db.OObjectLazyMap;
 import com.orientechnologies.orient.object.enhancement.field.ODocumentFieldHandler;
@@ -1267,13 +1265,6 @@ public class OObjectEntitySerializer {
         ORecordInternal.setVersion(iRecord, version);
       }
     }
-
-    if (db.isMVCC() && !versionConfigured && db.getTransaction() instanceof OTransactionOptimistic)
-      throw new OTransactionException(
-          "Cannot involve an object of class '"
-              + pojoClass
-              + "' in an Optimistic Transaction commit because it does not define @Version or"
-              + " @OVersion and therefore cannot handle MVCC");
 
     String fieldName;
     Object fieldValue;

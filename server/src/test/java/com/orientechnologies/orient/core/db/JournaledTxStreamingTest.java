@@ -23,7 +23,6 @@ package com.orientechnologies.orient.core.db;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.OServerMain;
@@ -47,7 +46,7 @@ public class JournaledTxStreamingTest {
   private File buildDir;
   private Process serverProcess;
   private OrientDB ctx;
-  private ODatabaseDocument db;
+  private ODatabaseDocumentInternal db;
   private DataInputStream stream;
 
   @Before
@@ -60,7 +59,9 @@ public class JournaledTxStreamingTest {
     buildDirectory = buildDir.getCanonicalPath();
     buildDir = new File(buildDirectory);
 
-    if (buildDir.exists()) OFileUtils.deleteRecursively(buildDir);
+    if (buildDir.exists()) {
+      OFileUtils.deleteRecursively(buildDir);
+    }
 
     assertThat(buildDir.mkdir()).isTrue();
 
@@ -70,7 +71,9 @@ public class JournaledTxStreamingTest {
     ctx.execute("create database " + JournaledTxStreamingTest.class.getSimpleName() + " plocal ")
         .close();
 
-    db = ctx.open(JournaledTxStreamingTest.class.getSimpleName(), "root", "root");
+    db =
+        (ODatabaseDocumentInternal)
+            ctx.open(JournaledTxStreamingTest.class.getSimpleName(), "root", "root");
 
     final Socket socket = new Socket();
     socket.connect(new InetSocketAddress(InetAddress.getLocalHost(), 3600));
@@ -104,10 +107,13 @@ public class JournaledTxStreamingTest {
       db.commit();
     }
 
-    for (int i = 0; i < ITERATIONS; ++i) assertThat(stream.readInt()).isEqualTo(txs.removeFirst());
+    for (int i = 0; i < ITERATIONS; ++i) {
+      assertThat(stream.readInt()).isEqualTo(txs.removeFirst());
+    }
   }
 
   public static final class RemoteDBRunner {
+
     public static void main(String[] args) throws Exception {
       OServer server = OServerMain.create(false);
       server.startup(

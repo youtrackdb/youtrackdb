@@ -52,9 +52,10 @@ public class OrientDBEmbeddedTests {
     try (final OrientDB orientDb =
         OCreateDatabaseUtil.createDatabase(
             "createAndUseEmbeddedDatabase", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY)) {
-      final ODatabaseSession db =
-          orientDb.open(
-              "createAndUseEmbeddedDatabase", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+      final var db =
+          (ODatabaseDocumentInternal)
+              orientDb.open(
+                  "createAndUseEmbeddedDatabase", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
       db.executeInTx(
           () -> db.save(new ODocument(), db.getClusterNameById(db.getDefaultClusterId())));
       db.close();
@@ -493,8 +494,9 @@ public class OrientDBEmbeddedTests {
   public void testOrientDBDatabaseOnlyMemory() {
     final OrientDB orientDb =
         OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
-    final ODatabaseSession db =
-        orientDb.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    final var db =
+        (ODatabaseDocumentInternal)
+            orientDb.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     db.executeInTx(() -> db.save(new ODocument(), db.getClusterNameById(db.getDefaultClusterId())));
     db.close();
     orientDb.close();

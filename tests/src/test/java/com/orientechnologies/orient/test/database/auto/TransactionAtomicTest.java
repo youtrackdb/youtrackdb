@@ -18,8 +18,8 @@ package com.orientechnologies.orient.test.database.auto;
 import com.orientechnologies.orient.core.command.OCommandExecutor;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.db.ODatabase;
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseListener;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.orientechnologies.orient.core.exception.OTransactionException;
@@ -45,10 +45,10 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
 
   @Test
   public void testTransactionAtomic() throws IOException {
-    ODatabaseDocument db1 = new ODatabaseDocumentTx(url);
+    ODatabaseDocumentInternal db1 = new ODatabaseDocumentTx(url);
     db1.open("admin", "admin");
 
-    ODatabaseDocument db2 = new ODatabaseDocumentTx(url);
+    ODatabaseDocumentInternal db2 = new ODatabaseDocumentTx(url);
     db2.open("admin", "admin");
 
     ODocument record1 = new ODocument();

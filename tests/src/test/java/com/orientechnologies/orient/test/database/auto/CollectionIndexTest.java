@@ -217,10 +217,12 @@ public class CollectionIndexTest extends ObjectDBBaseTest {
     collector = database.save(collector);
     database.commit();
 
+    database.begin();
     database
         .command(
             "UPDATE " + collector.getId() + " set stringCollection = stringCollection || 'cookies'")
         .close();
+    database.commit();
 
     final OIndex index = getIndex("Collector.stringCollection");
     Assert.assertEquals(index.getInternal().size(), 3);
@@ -382,7 +384,9 @@ public class CollectionIndexTest extends ObjectDBBaseTest {
     collector = database.save(collector);
     database.commit();
 
+    database.begin();
     database.command("UPDATE " + collector.getId() + " remove stringCollection = 'spam'").close();
+    database.commit();
 
     final OIndex index = getIndex("Collector.stringCollection");
 

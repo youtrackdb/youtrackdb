@@ -552,7 +552,7 @@ public class OSQLEngine {
           new OSQLSynchQuery<Object>(iTarget.substring(1, iTarget.length() - 1));
       query.setContext(iContext);
 
-      final List<OIdentifiable> result = database.query(query, iArgs);
+      final List<OIdentifiable> result = ((ODatabaseDocumentInternal) database).query(query, iArgs);
       if (result == null || result.isEmpty()) ids = Collections.emptySet();
       else {
         ids = new HashSet<OIdentifiable>((int) (result.size() * 1.3));

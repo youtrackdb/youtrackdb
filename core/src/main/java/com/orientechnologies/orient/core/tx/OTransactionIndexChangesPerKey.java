@@ -38,10 +38,7 @@ public class OTransactionIndexChangesPerKey {
   public final Object key;
   private final OTxIndexChangesList entries;
 
-  public boolean clientTrackOnly;
-
   public class OTransactionIndexEntry {
-
     private OPERATION operation;
     private OIdentifiable value;
 

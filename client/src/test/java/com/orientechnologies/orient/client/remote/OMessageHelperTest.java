@@ -5,9 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.orientechnologies.orient.client.remote.message.MockChannel;
 import com.orientechnologies.orient.client.remote.message.OMessageHelper;
 import com.orientechnologies.orient.client.remote.message.tx.ORecordOperationRequest;
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -25,7 +25,9 @@ import java.io.IOException;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by Enrico Risa on 06/06/2017. */
+/**
+ * Created by Enrico Risa on 06/06/2017.
+ */
 public class OMessageHelperTest {
 
   @Test
@@ -36,7 +38,8 @@ public class OMessageHelperTest {
     orientDB.execute(
         "create database testOIdentifiable memory users (admin identified by 'admin' role admin)");
 
-    ODatabaseDocument open = orientDB.open("testOIdentifiable", "admin", "admin");
+    ODatabaseDocumentInternal open =
+        (ODatabaseDocumentInternal) orientDB.open("testOIdentifiable", "admin", "admin");
     int id = open.getClusterIdByName("V");
     try {
       MockChannel channel = new MockChannel();

@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.sql.executor.OInternalExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.executor.OSingleOpExecutionPlan;
@@ -30,7 +30,10 @@ public abstract class OSimpleExecStatement extends OStatement {
   public abstract OExecutionStream executeSimple(OCommandContext ctx);
 
   public OResultSet execute(
-      ODatabaseSession db, Object[] args, OCommandContext parentContext, boolean usePlanCache) {
+      ODatabaseDocumentInternal db,
+      Object[] args,
+      OCommandContext parentContext,
+      boolean usePlanCache) {
     OBasicCommandContext ctx = new OBasicCommandContext();
     if (parentContext != null) {
       ctx.setParentWithoutOverridingChild(parentContext);
@@ -49,7 +52,10 @@ public abstract class OSimpleExecStatement extends OStatement {
   }
 
   public OResultSet execute(
-      ODatabaseSession db, Map params, OCommandContext parentContext, boolean usePlanCache) {
+      ODatabaseDocumentInternal db,
+      Map params,
+      OCommandContext parentContext,
+      boolean usePlanCache) {
     OBasicCommandContext ctx = new OBasicCommandContext();
     if (parentContext != null) {
       ctx.setParentWithoutOverridingChild(parentContext);

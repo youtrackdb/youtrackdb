@@ -198,9 +198,11 @@ public class OSecurityEngineTest {
   @Test
   public void testTwoRoles() {
 
+    db.begin();
     db.command(
         "Update OUser set roles = roles || (select from orole where name = 'reader') where name ="
             + " 'admin'");
+    db.commit();
     db.close();
     db = orient.open(DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 

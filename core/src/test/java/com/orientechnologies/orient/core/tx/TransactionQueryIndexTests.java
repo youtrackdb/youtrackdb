@@ -3,8 +3,8 @@ package com.orientechnologies.orient.core.tx;
 import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -14,17 +14,21 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by tglman on 12/04/17. */
+/**
+ * Created by tglman on 12/04/17.
+ */
 public class TransactionQueryIndexTests {
 
   private OrientDB orientDB;
-  private ODatabaseDocument database;
+  private ODatabaseDocumentInternal database;
 
   @Before
   public void before() {
     orientDB =
         OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
-    database = orientDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    database =
+        (ODatabaseDocumentInternal)
+            orientDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
   }
 
   @Test

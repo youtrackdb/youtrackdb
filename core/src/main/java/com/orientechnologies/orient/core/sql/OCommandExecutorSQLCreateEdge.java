@@ -25,7 +25,6 @@ import com.orientechnologies.orient.core.command.OCommandDistributedReplicateReq
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.OMetadataInternal;
@@ -71,7 +70,7 @@ public class OCommandExecutorSQLCreateEdge extends OCommandExecutorSQLSetAware
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
 
-      final ODatabaseDocument database = getDatabase();
+      final var database = getDatabase();
 
       init((OCommandRequestText) iRequest);
 

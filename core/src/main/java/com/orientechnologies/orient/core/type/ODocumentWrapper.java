@@ -20,6 +20,7 @@
 package com.orientechnologies.orient.core.type;
 
 import com.orientechnologies.orient.core.annotation.ODocumentInstance;
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -80,7 +81,9 @@ public class ODocumentWrapper implements Serializable {
   public <RET extends ODocumentWrapper> RET reload(final String iFetchPlan) {
     checkProxy();
     if (document.isUnloaded()) {
-      document = ODatabaseSession.getActiveSession().load(document.getIdentity(), iFetchPlan);
+      document =
+          ((ODatabaseDocumentInternal) ODatabaseSession.getActiveSession())
+              .load(document.getIdentity(), iFetchPlan);
     } else {
       document.reload(iFetchPlan, true);
     }
@@ -92,7 +95,7 @@ public class ODocumentWrapper implements Serializable {
     checkProxy();
     if (document.isUnloaded()) {
       document =
-          ODatabaseSession.getActiveSession()
+          ((ODatabaseDocumentInternal) ODatabaseSession.getActiveSession())
               .load(document.getIdentity(), iFetchPlan, iIgnoreCache);
     } else {
       document.reload(iFetchPlan, iIgnoreCache);

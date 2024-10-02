@@ -196,7 +196,7 @@ public class OSharedContextEmbedded extends OSharedContext {
               String id = storage.getConfiguration().getProperty(propertyName);
               if (id != null) {
                 ORecordId recordId = new ORecordId(id);
-                ODocument config = session.load(recordId, null, false);
+                ODocument config = session.load(recordId);
                 ORecordInternal.setIdentity(config, new ORecordId(-1, -1));
                 return config;
               } else {
@@ -216,7 +216,7 @@ public class OSharedContextEmbedded extends OSharedContext {
           String id = storage.getConfiguration().getProperty(propertyName);
           if (id != null) {
             ORecordId recordId = new ORecordId(id);
-            ORecordAbstract record = session.load(recordId, null, false);
+            ORecordAbstract record = session.load(recordId);
             if (record == null) {
               record = new ODocument();
               ORecordInternal.unsetDirty(record);
@@ -230,7 +230,8 @@ public class OSharedContextEmbedded extends OSharedContext {
             record.setDirty();
 
             var recordToSave = record;
-            session.executeInTx(() -> session.save(recordToSave, "internal"));
+            session.executeInTx(
+                () -> ((ODatabaseDocumentInternal) session).save(recordToSave, "internal"));
           } else {
             var record = new ODocument();
             ORecordInternal.unsetDirty(record);
@@ -238,7 +239,11 @@ public class OSharedContextEmbedded extends OSharedContext {
             record.setDirty();
 
             ORID recordId =
-                session.computeInTx(() -> session.save(record, "internal").getIdentity());
+                session.computeInTx(
+                    () ->
+                        ((ODatabaseDocumentInternal) session)
+                            .save(record, "internal")
+                            .getIdentity());
             ((OStorage) storage).setProperty(propertyName, recordId.toString());
           }
           return null;

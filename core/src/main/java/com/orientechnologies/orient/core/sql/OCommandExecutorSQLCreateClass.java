@@ -25,7 +25,6 @@ import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.exception.OClusterDoesNotExistException;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -270,7 +269,7 @@ public class OCommandExecutorSQLCreateClass extends OCommandExecutorSQLAbstract
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
 
-    final ODatabaseDocument database = getDatabase();
+    final var database = getDatabase();
 
     boolean alreadyExists = database.getMetadata().getSchema().existsClass(className);
     if (!alreadyExists || !ifNotExists) {

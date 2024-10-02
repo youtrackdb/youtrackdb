@@ -25,7 +25,9 @@ public class OSQLFunctionConvertTest extends BaseMemoryDatabase {
 
     ORID doc = db.query("select from TestConversion limit 1").next().getIdentity().get();
 
+    db.begin();
     db.command("update TestConversion set selfrid = 'foo" + doc.getIdentity() + "'").close();
+    db.commit();
 
     OResultSet results = db.query("select string.asString() as convert from TestConversion");
 

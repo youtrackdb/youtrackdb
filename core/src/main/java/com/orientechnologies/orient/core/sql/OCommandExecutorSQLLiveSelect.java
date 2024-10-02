@@ -27,7 +27,6 @@ import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.OSecurityException;
@@ -51,7 +50,7 @@ import java.util.Random;
 public class OCommandExecutorSQLLiveSelect extends OCommandExecutorSQLSelect
     implements OLiveQueryListener {
   public static final String KEYWORD_LIVE_SELECT = "LIVE SELECT";
-  private ODatabaseDocument execDb;
+  private ODatabaseDocumentInternal execDb;
   private int token;
   private static final Random random = new Random();
 

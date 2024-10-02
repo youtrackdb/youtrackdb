@@ -112,7 +112,7 @@ public abstract class OSpatialFunctionAbstractIndexable extends OSpatialFunction
 
         if (next instanceof OResult) {
           OResult inner = (OResult) next;
-          Set<String> propertyNames = inner.getPropertyNames();
+          var propertyNames = inner.getPropertyNames();
           if (propertyNames.size() == 1) {
             Object property = inner.getProperty(propertyNames.iterator().next());
             if (property instanceof OResult) {

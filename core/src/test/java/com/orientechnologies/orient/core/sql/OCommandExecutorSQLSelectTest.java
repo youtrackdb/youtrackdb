@@ -1268,7 +1268,9 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     // issue #5664
     OResultSet results = db.query("select from MaxLongNumberTest WHERE last < 10 OR last is null");
     assertEquals(results.stream().count(), 3);
+    db.begin();
     db.command("update MaxLongNumberTest set last = max(91,ifnull(last,0))").close();
+    db.commit();
     results = db.query("select from MaxLongNumberTest WHERE last < 10 OR last is null");
     assertEquals(results.stream().count(), 0);
   }
@@ -1692,12 +1694,15 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
 
     db.command("create class " + className).close();
     db.command("create property " + className + ".tagz embeddedmap").close();
+
+    db.begin();
     db.command("insert into " + className + " set tagz = {}").close();
     db.command(
             "update "
                 + className
                 + " SET tagz.foo = [{name:'a', surname:'b'}, {name:'c', surname:'d'}]")
         .close();
+    db.commit();
 
     List<ODocument> results =
         db.query(
@@ -1714,9 +1719,12 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     String className = "testComparisonOfShorts";
     db.command("create class " + className).close();
     db.command("create property " + className + ".state Short").close();
+
+    db.begin();
     db.command("INSERT INTO " + className + " set state = 1").close();
     db.command("INSERT INTO " + className + " set state = 1").close();
     db.command("INSERT INTO " + className + " set state = 2").close();
+    db.commit();
 
     OResultSet results = db.query("select from " + className + " where state in [1]");
     assertEquals(results.stream().count(), 2);
@@ -1731,9 +1739,12 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     // issue #7418
     String className = "testEnumAsParams";
     db.command("create class " + className).close();
+
+    db.begin();
     db.command("INSERT INTO " + className + " set status = ?", OType.STRING).close();
     db.command("INSERT INTO " + className + " set status = ?", OType.ANY).close();
     db.command("INSERT INTO " + className + " set status = ?", OType.BYTE).close();
+    db.commit();
 
     Map<String, Object> params = new HashMap<String, Object>();
     List enums = new ArrayList();
@@ -1752,6 +1763,8 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     db.command("create class " + className).close();
     db.command("create property " + className + ".embedded_map EMBEDDEDMAP").close();
     db.command("create property " + className + ".id INTEGER").close();
+
+    db.begin();
     db.command(
             "INSERT INTO "
                 + className
@@ -1764,6 +1777,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
                 + " SET id = 1, embedded_map = {\"key_1\" : {\"name\" : \"key_1\", \"id\" : \"1\""
                 + " }}")
         .close();
+    db.commit();
 
     OResultSet results =
         db.query(
@@ -1780,8 +1794,11 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
 
     db.command("create class " + className).close();
     db.command("create property " + className + ".name STRING").close();
+
+    db.begin();
     db.command("insert into " + className + " SET name = \"1\"").close();
     db.command("insert into " + className + " SET name = \"2\"").close();
+    db.commit();
 
     OResultSet results = db.query("SELECT * FROM " + className + " WHERE name >= \"0\"");
     assertEquals(results.stream().count(), 2);
@@ -1808,8 +1825,11 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
 
     db.command("create class " + className).close();
     db.command("create property " + className + ".name STRING").close();
+
+    db.begin();
     db.command("insert into " + className + " SET name = null, x = 1").close();
     db.command("insert into " + className + " SET x = 2").close();
+    db.commit();
 
     OResultSet results = db.query("SELECT * FROM " + className + " WHERE name is defined");
     assertEquals((int) results.next().getProperty("x"), 1);

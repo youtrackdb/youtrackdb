@@ -10,6 +10,7 @@ import com.orientechnologies.orient.core.record.impl.OBlob;
 import com.orientechnologies.orient.core.util.ODateHelper;
 import java.lang.reflect.Array;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
@@ -63,7 +64,7 @@ public interface OResult {
    */
   OBlob getBlobProperty(String name);
 
-  Set<String> getPropertyNames();
+  Collection<String> getPropertyNames();
 
   Optional<ORID> getIdentity();
 

@@ -224,7 +224,7 @@ public class OSecurityRemote implements OSecurityInternal {
     }
 
     ODocument result;
-    result = session.load(iRecordId, "roles:1");
+    result = session.load(iRecordId);
     if (!result.getClassName().equals(OUser.CLASS_NAME)) {
       result = null;
     }

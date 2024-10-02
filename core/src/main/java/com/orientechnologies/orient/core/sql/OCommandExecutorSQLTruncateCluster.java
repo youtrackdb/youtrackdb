@@ -24,7 +24,6 @@ import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorCluster;
@@ -88,7 +87,7 @@ public class OCommandExecutorSQLTruncateCluster extends OCommandExecutorSQLAbstr
         }
       }
 
-      final ODatabaseDocument database = getDatabase();
+      final var database = getDatabase();
       if (database.getClusterIdByName(clusterName) == -1)
         throw new OCommandSQLParsingException(
             "Cluster '" + clusterName + "' not found", parserText, oldPos);

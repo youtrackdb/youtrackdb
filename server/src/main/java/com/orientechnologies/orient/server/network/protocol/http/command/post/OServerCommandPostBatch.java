@@ -21,7 +21,7 @@ package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
@@ -86,7 +86,7 @@ public class OServerCommandPostBatch extends OServerCommandDocumentAbstract {
 
     iRequest.getData().commandInfo = "Execute multiple requests in one shot";
 
-    ODatabaseDocument db = null;
+    ODatabaseDocumentInternal db = null;
 
     ODocument batch = null;
 

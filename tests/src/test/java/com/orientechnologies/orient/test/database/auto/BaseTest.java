@@ -1,11 +1,9 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.client.db.ODatabaseHelper;
-import com.orientechnologies.orient.core.db.ODatabase;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseWrapperAbstract;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -25,7 +23,7 @@ import org.testng.annotations.Test;
 
 @SuppressWarnings("deprecation")
 @Test
-public abstract class BaseTest<T extends ODatabase> {
+public abstract class BaseTest<T extends ODatabaseInternal> {
 
   private static final boolean keepDatabase = Boolean.getBoolean("orientdb.test.keepDatabase");
 
@@ -75,7 +73,7 @@ public abstract class BaseTest<T extends ODatabase> {
 
     if (!url.startsWith("remote:")) {
       //noinspection deprecation
-      try (ODatabaseDocument db = new ODatabaseDocumentTx(url)) {
+      try (ODatabaseDocumentInternal db = new ODatabaseDocumentTx(url)) {
         if (!db.exists()) db.create().close();
       }
     }
@@ -99,7 +97,7 @@ public abstract class BaseTest<T extends ODatabase> {
 
     if (!url.startsWith("remote:")) {
       //noinspection deprecation
-      try (ODatabaseDocument db = new ODatabaseDocumentTx(url)) {
+      try (ODatabaseDocumentInternal db = new ODatabaseDocumentTx(url)) {
         if (!db.exists()) db.create().close();
       }
     }
@@ -179,9 +177,9 @@ public abstract class BaseTest<T extends ODatabase> {
   }
 
   protected void createBasicTestSchema() {
-    ODatabase database = this.database;
+    ODatabaseInternal database = this.database;
     if (database instanceof OObjectDatabaseTx)
-      database = ((OObjectDatabaseTx) database).getUnderlying();
+      database = (ODatabaseInternal) database.getUnderlying();
 
     if (database.getMetadata().getSchema().existsClass("Whiz")) return;
 
@@ -266,18 +264,18 @@ public abstract class BaseTest<T extends ODatabase> {
   protected OIndex getIndex(final String indexName) {
     final ODatabaseDocumentInternal db;
     if (database instanceof ODatabaseWrapperAbstract) {
-      db = (ODatabaseDocumentInternal) ((ODatabaseWrapperAbstract) database).getUnderlying();
+      db = (ODatabaseDocumentInternal) database.getUnderlying();
     } else {
       db = (ODatabaseDocumentInternal) database;
     }
     //noinspection unchecked
-    return (OIndex) (db.getMetadata()).getIndexManagerInternal().getIndex(db, indexName);
+    return (db.getMetadata()).getIndexManagerInternal().getIndex(db, indexName);
   }
 
   protected Collection<? extends OIndex> getIndexes() {
     final ODatabaseDocumentInternal db;
     if (database instanceof ODatabaseWrapperAbstract) {
-      db = (ODatabaseDocumentInternal) ((ODatabaseWrapperAbstract) database).getUnderlying();
+      db = (ODatabaseDocumentInternal) database.getUnderlying();
     } else {
       db = (ODatabaseDocumentInternal) database;
     }

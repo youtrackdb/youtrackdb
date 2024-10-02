@@ -4,7 +4,6 @@ import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
-import java.util.Set;
 
 /**
  * This is intended for INSERT FROM SELECT. This step removes existing edge pointers so that the
@@ -27,7 +26,7 @@ public class RemoveEdgePointersStep extends AbstractExecutionStep {
   }
 
   private OResult mapResult(OResult result, OCommandContext ctx) {
-    Set<String> propNames = result.getPropertyNames();
+    var propNames = result.getPropertyNames();
     for (String propName :
         propNames.stream().filter(x -> x.startsWith("in_") || x.startsWith("out_")).toList()) {
       Object val = result.getProperty(propName);

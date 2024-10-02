@@ -370,8 +370,7 @@ public class OScheduledEvent extends ODocumentWrapper {
         return true;
       }
 
-      final ODocument updated =
-          ODatabaseSession.getActiveSession().load(rec.getIdentity(), null, true);
+      final ODocument updated = ODatabaseSession.getActiveSession().load(rec.getIdentity());
 
       final Long currentExecutionId = updated.field(PROP_EXEC_ID);
       if (currentExecutionId == null) {

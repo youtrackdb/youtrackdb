@@ -408,7 +408,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
     final Set<String> clusters = new HashSet<String>();
 
     if (parsedTarget != null) {
-      final ODatabaseDocument db = getDatabase();
+      final var db = getDatabase();
 
       if (parsedTarget.getTargetQuery() != null
           && parsedTarget.getTargetRecords() instanceof OCommandExecutorSQLResultsetDelegate) {

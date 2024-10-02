@@ -1590,7 +1590,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     return new OFetchTransaction38Response(
         tx.getId(),
         tx.getRecordOperations(),
-        tx.getIndexOperations(),
+        Collections.emptyMap(),
         tx.getTxGeneratedRealRecordIdMap(),
         database);
   }

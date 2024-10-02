@@ -274,7 +274,7 @@ public class OResultInternal implements OResult {
     return input instanceof List && OType.getTypeByValue(input) == OType.EMBEDDEDLIST;
   }
 
-  public Set<String> getPropertyNames() {
+  public Collection<String> getPropertyNames() {
     loadElement();
     if (isElement()) {
       return ((OElement) element).getPropertyNames();

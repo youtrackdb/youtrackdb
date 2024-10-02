@@ -231,8 +231,8 @@ public class OrientJdbcResultSetTest extends OrientJdbcDbPerMethodTemplateTest {
     String[] expectedNamee = new String[] {"John", "Chris", "Jill", "Karl", "Susan"};
     Statement stmt = conn.createStatement();
 
-    stmt.executeUpdate("CREATE CLASS ListDemo");
-    stmt.executeUpdate("CREATE PROPERTY ListDemo.names EMBEDDEDLIST STRING ");
+    stmt.execute("CREATE CLASS ListDemo");
+    stmt.execute("CREATE PROPERTY ListDemo.names EMBEDDEDLIST STRING ");
     stmt.executeUpdate("INSERT INTO ListDemo (names) VALUES ([\"John\",\"Chris\"])");
     stmt.executeUpdate("INSERT INTO ListDemo (names) VALUES ([\"Jill\",\"Karl\",\"Susan\"]) ");
     stmt.close();

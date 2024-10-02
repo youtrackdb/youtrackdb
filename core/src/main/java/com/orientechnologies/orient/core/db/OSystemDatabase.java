@@ -208,15 +208,15 @@ public class OSystemDatabase {
     }
   }
 
-  public void executeInDBScope(OCallable<Void, ODatabaseSession> callback) {
+  public void executeInDBScope(OCallable<Void, ODatabaseDocumentInternal> callback) {
     executeWithDB(callback);
   }
 
-  public <T> T executeWithDB(OCallable<T, ODatabaseSession> callback) {
+  public <T> T executeWithDB(OCallable<T, ODatabaseDocumentInternal> callback) {
     final ODatabaseDocumentInternal currentDB =
         ODatabaseRecordThreadLocal.instance().getIfDefined();
     try {
-      try (final ODatabaseSession db = openSystemDatabase()) {
+      try (final var db = openSystemDatabase()) {
         return callback.call(db);
       }
     } finally {

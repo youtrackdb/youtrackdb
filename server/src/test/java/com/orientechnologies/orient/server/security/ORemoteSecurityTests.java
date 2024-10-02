@@ -194,7 +194,9 @@ public class ORemoteSecurityTests {
       filteredSession.save(elem);
       filteredSession.commit();
       try {
+        filteredSession.begin();
         filteredSession.command("update Person set name = 'bar'");
+        filteredSession.commit();
         Assert.fail();
       } catch (OSecurityException ex) {
       }
@@ -239,7 +241,9 @@ public class ORemoteSecurityTests {
       filteredSession.save(elem);
       filteredSession.commit();
       try {
+        filteredSession.begin();
         filteredSession.command("update Person set name = 'bar'");
+        filteredSession.commit();
         Assert.fail();
       } catch (OSecurityException ex) {
       }

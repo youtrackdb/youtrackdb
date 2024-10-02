@@ -1,6 +1,5 @@
 package com.orientechnologies.orient.object.enhancement;
 
-import com.orientechnologies.orient.core.db.object.ODatabaseObject;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import org.junit.After;
 import org.junit.Assert;
@@ -9,7 +8,7 @@ import org.junit.Test;
 
 public class TestObjectWithDeletedLink {
 
-  private ODatabaseObject db;
+  private OObjectDatabaseTx db;
 
   @Before
   public void before() {

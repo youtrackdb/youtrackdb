@@ -23,8 +23,8 @@ import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.OScenarioThreadLocal;
 import com.orientechnologies.orient.core.sql.executor.OResult;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Abstract class to extend to build Custom SQL Functions. Extend it and register it with: <code>
@@ -142,7 +142,7 @@ public abstract class OSQLFunctionAbstract implements OSQLFunction {
       // TODO we might want to add .size() and iterator with .next() to OResult. The current
       // implementation is
       // quite heavy compared to the result we actually want (the single first property).
-      final Set<String> propertyNames = result.getPropertyNames();
+      final Collection<String> propertyNames = result.getPropertyNames();
       if (propertyNames.size() != 1) {
         return requireSingleProperty ? null : source;
       }

@@ -341,7 +341,9 @@ public class MapIndexTest extends ObjectDBBaseTest {
     mapper = database.save(mapper);
     database.commit();
 
+    database.begin();
     database.command("UPDATE " + mapper.getId() + " set intMap['key3'] = 30").close();
+    database.commit();
 
     OIndex keyIndex = getIndex("mapIndexTestKey");
     Assert.assertEquals(keyIndex.getInternal().size(), 3);
@@ -497,7 +499,9 @@ public class MapIndexTest extends ObjectDBBaseTest {
     mapper = database.save(mapper);
     database.commit();
 
+    database.begin();
     database.command("UPDATE " + mapper.getId() + " set intMap['key2'] = 40").close();
+    database.commit();
 
     OIndex keyIndex = getIndex("mapIndexTestKey");
     Assert.assertEquals(keyIndex.getInternal().size(), 2);
@@ -655,7 +659,9 @@ public class MapIndexTest extends ObjectDBBaseTest {
     mapper = database.save(mapper);
     database.commit();
 
+    database.begin();
     database.command("UPDATE " + mapper.getId() + " remove intMap = 'key2'").close();
+    database.commit();
 
     OIndex keyIndex = getIndex("mapIndexTestKey");
     Assert.assertEquals(keyIndex.getInternal().size(), 2);

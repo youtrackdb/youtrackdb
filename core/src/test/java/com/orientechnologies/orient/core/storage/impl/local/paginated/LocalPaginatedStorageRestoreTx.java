@@ -4,7 +4,6 @@ import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
 import com.orientechnologies.orient.core.id.ORID;
@@ -258,7 +257,7 @@ public class LocalPaginatedStorageRestoreTx {
 
       Random random = new Random();
 
-      final ODatabaseDocument db = new ODatabaseDocumentTx(baseDocumentTx.getURL());
+      final ODatabaseDocumentInternal db = new ODatabaseDocumentTx(baseDocumentTx.getURL());
       db.open("admin", "admin");
       int rollbacksCount = 0;
       try {

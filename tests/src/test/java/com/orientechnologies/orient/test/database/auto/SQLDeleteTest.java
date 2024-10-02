@@ -15,8 +15,8 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.testng.Assert;
 import org.testng.annotations.Optional;
@@ -53,7 +53,7 @@ public class SQLDeleteTest extends DocumentDBBaseTest {
   @Test
   public void deleteInPool() {
     OPartitionedDatabasePool pool = new OPartitionedDatabasePool(url, "admin", "admin");
-    ODatabaseDocument db = pool.acquire();
+    ODatabaseDocumentInternal db = pool.acquire();
 
     final Long total = db.countClass("Profile");
 

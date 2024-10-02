@@ -2,7 +2,6 @@ package com.orientechnologies.orient.core.db;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.server.AbstractRemoteTest;
 import org.junit.Test;
@@ -10,14 +9,14 @@ import org.junit.Test;
 /** Created by Enrico Risa on 19/05/2017. */
 public class OSequenceRemoteTest extends AbstractRemoteTest {
 
-  ODatabaseDocument db;
+  ODatabaseDocumentInternal db;
 
   @Override
   public void setup() throws Exception {
     super.setup();
     OrientDB factory =
         new OrientDB("remote:localhost", "root", "root", OrientDBConfig.defaultConfig());
-    db = factory.open(name.getMethodName(), "admin", "admin");
+    db = (ODatabaseDocumentInternal) factory.open(name.getMethodName(), "admin", "admin");
   }
 
   @Override

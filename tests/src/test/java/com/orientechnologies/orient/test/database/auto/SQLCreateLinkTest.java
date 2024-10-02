@@ -63,10 +63,12 @@ public class SQLCreateLinkTest extends DocumentDBBaseTest {
             .intValue(),
         5);
 
+    database.begin();
     Assert.assertEquals(
         ((Number) database.command("UPDATE comment REMOVE postId").next().getProperty("count"))
             .intValue(),
         5);
+    database.commit();
   }
 
   @Test
@@ -137,9 +139,11 @@ public class SQLCreateLinkTest extends DocumentDBBaseTest {
             .intValue(),
         5);
 
+    database.begin();
     Assert.assertEquals(
         ((Number) database.command("UPDATE comment2 REMOVE postId").next().getProperty("count"))
             .intValue(),
         5);
+    database.commit();
   }
 }

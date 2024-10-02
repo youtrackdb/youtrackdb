@@ -3,6 +3,7 @@ package com.orientechnologies.orient.core.db.document;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
@@ -17,7 +18,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class ODatabaseDocumentPoolOpenCloseTest {
-  private ODatabaseDocument dbo;
+  private ODatabaseDocumentInternal dbo;
 
   @Before
   public void setUp() throws Exception {
@@ -47,7 +48,7 @@ public class ODatabaseDocumentPoolOpenCloseTest {
   public void failureOpenPoolDatabase() {
     OPartitionedDatabasePool pool = new OPartitionedDatabasePool(dbo.getURL(), "admin", "admin");
     try {
-      ODatabaseDocument db = pool.acquire();
+      ODatabaseDocumentInternal db = pool.acquire();
       db.open("admin", "admin");
     } finally {
       pool.close();

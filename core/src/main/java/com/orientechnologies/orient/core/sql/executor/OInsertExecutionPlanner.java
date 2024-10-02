@@ -1,7 +1,6 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.index.OIndexAbstract;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
@@ -62,7 +61,7 @@ public class OInsertExecutionPlanner {
       }
       handleTargetClass(result, ctx, enableProfiling);
       handleSetFields(result, insertBody, ctx, enableProfiling);
-      ODatabaseSession database = ctx.getDatabase();
+      var database = ctx.getDatabase();
       if (targetCluster != null) {
         String name = targetCluster.getClusterName();
         if (name == null) {
@@ -133,7 +132,7 @@ public class OInsertExecutionPlanner {
 
   private void handleTargetClass(
       OInsertExecutionPlan result, OCommandContext ctx, boolean profilingEnabled) {
-    ODatabaseSession database = ctx.getDatabase();
+    var database = ctx.getDatabase();
     OSchema schema = database.getMetadata().getSchema();
     OIdentifier tc = null;
     if (targetClass != null) {

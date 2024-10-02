@@ -5,7 +5,6 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.metadata.sequence.OSequence;
@@ -95,7 +94,7 @@ public class OCommandExecutorSQLCreateSequence extends OCommandExecutorSQLAbstra
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    final ODatabaseDocument database = getDatabase();
+    final var database = getDatabase();
 
     try {
       database

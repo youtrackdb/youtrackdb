@@ -16,7 +16,7 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.client.db.ODatabaseHelper;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.OStorageException;
@@ -64,7 +64,7 @@ public class DbDeleteTest extends DocumentDBBaseTest {
   public void afterMethod() throws Exception {}
 
   public void testDbDeleteNoCredential() throws IOException {
-    ODatabaseDocument db = new ODatabaseDocumentTx(url);
+    ODatabaseDocumentInternal db = new ODatabaseDocumentTx(url);
     try {
       db.drop();
       Assert.fail("Should have thrown ODatabaseException because trying to delete a not opened");
@@ -80,7 +80,7 @@ public class DbDeleteTest extends DocumentDBBaseTest {
     String prefix = url.substring(0, url.indexOf(':') + 1);
     if (prefix.equals("memory:") || prefix.equals("remote:")) return;
 
-    ODatabaseDocument db =
+    ODatabaseDocumentInternal db =
         new ODatabaseDocumentTx(prefix + testPath + "/" + DbImportExportTest.NEW_DB_URL);
     if (!db.exists()) db.create();
 
@@ -97,7 +97,7 @@ public class DbDeleteTest extends DocumentDBBaseTest {
     String prefix = url.substring(0, url.indexOf(':') + 1);
     if (prefix.equals("remote:")) return;
 
-    ODatabaseDocument db =
+    ODatabaseDocumentInternal db =
         new ODatabaseDocumentTx(prefix + testPath + "/" + DbImportExportTest.NEW_DB_URL);
     if (!db.exists()) db.create();
 

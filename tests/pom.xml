@@ -23,7 +23,6 @@
     <artifactId>orientdb-tests</artifactId>
 
     <name>OrientDB Tests</name>
-
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!--This property is updated automatically and is needed to make build reproducible-->
@@ -41,11 +40,6 @@
             <artifactId>orientdb-client</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.orientechnologies</groupId>
-            <artifactId>orientdb-graphdb</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.orientechnologies</groupId>
@@ -99,24 +93,6 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>com.tinkerpop.rexster</groupId>
-            <artifactId>rexster-core</artifactId>
-            <version>${blueprints.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.tinkerpop.gremlin</groupId>
-            <artifactId>gremlin-java</artifactId>
-            <version>${blueprints.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.tinkerpop.gremlin</groupId>
-            <artifactId>gremlin-groovy</artifactId>
-            <version>${blueprints.version}</version>
-            <scope>test</scope>
-        </dependency>
 
         <dependency>
             <groupId>org.openjdk.jmh</groupId>

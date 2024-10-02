@@ -20,6 +20,7 @@ package com.orientechnologies.lucene.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabasePool;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -36,7 +37,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by enricorisa on 28/06/14. */
+/**
+ * Created by enricorisa on 28/06/14.
+ */
 public class OLuceneInsertReadMultiThreadTest extends OLuceneBaseTest {
 
   private static final int THREADS = 10;
@@ -70,7 +73,7 @@ public class OLuceneInsertReadMultiThreadTest extends OLuceneBaseTest {
 
     futures.forEach(cf -> cf.join());
 
-    ODatabaseDocument db1 = pool.acquire();
+    ODatabaseDocumentInternal db1 = (ODatabaseDocumentInternal) pool.acquire();
     db1.getMetadata().reload();
     OSchema schema = db1.getMetadata().getSchema();
 
@@ -118,6 +121,7 @@ public class OLuceneInsertReadMultiThreadTest extends OLuceneBaseTest {
   }
 
   public class LuceneReader implements Runnable {
+
     private final int cycle;
     private final ODatabasePool pool;
 

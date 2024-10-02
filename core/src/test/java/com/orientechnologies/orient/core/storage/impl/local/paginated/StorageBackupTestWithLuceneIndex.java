@@ -4,7 +4,6 @@ import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -51,7 +50,8 @@ public class StorageBackupTestWithLuceneIndex {
       db.drop();
     }
 
-    final ODatabaseDocument backedUpDb = new ODatabaseDocumentTx("plocal:" + backedUpDbDirectory);
+    final ODatabaseDocumentInternal backedUpDb =
+        new ODatabaseDocumentTx("plocal:" + backedUpDbDirectory);
     if (backedUpDb.exists()) {
       if (backedUpDb.isClosed()) {
         backedUpDb.open("admin", "admin");

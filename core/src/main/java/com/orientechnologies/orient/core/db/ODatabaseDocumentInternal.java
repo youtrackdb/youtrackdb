@@ -20,6 +20,7 @@
 
 package com.orientechnologies.orient.core.db;
 
+import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.OQueryDatabaseState;
 import com.orientechnologies.orient.core.db.document.RecordReader;
 import com.orientechnologies.orient.core.db.record.OCurrentStorageComponentsFactory;
@@ -27,13 +28,16 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.hook.ORecordHook;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.metadata.OMetadataInternal;
+import com.orientechnologies.orient.core.iterator.ORecordIteratorClass;
+import com.orientechnologies.orient.core.iterator.ORecordIteratorCluster;
 import com.orientechnologies.orient.core.metadata.schema.OView;
 import com.orientechnologies.orient.core.metadata.sequence.OSequenceAction;
 import com.orientechnologies.orient.core.record.OEdge;
+import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.OVertex;
+import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.OEdgeInternal;
 import com.orientechnologies.orient.core.serialization.serializer.binary.OBinarySerializerFactory;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
@@ -50,6 +54,8 @@ import java.util.concurrent.ExecutionException;
 
 public interface ODatabaseDocumentInternal extends ODatabaseSession, ODatabaseInternal<ORecord> {
 
+  String TYPE = "document";
+
   /**
    * Internal. Returns the factory that defines a set of components that current database should use
    * to be compatible to current version of storage. So if you open a database create with old
@@ -57,6 +63,15 @@ public interface ODatabaseDocumentInternal extends ODatabaseSession, ODatabaseIn
    * compatibility with that version of database.
    */
   OCurrentStorageComponentsFactory getStorageVersions();
+
+  /**
+   * Creates a new element instance.
+   *
+   * @return The new instance.
+   */
+  <RET extends OElement> RET newInstance(String iClassName);
+
+  <RET extends OElement> RET newInstance();
 
   /**
    * Internal. Gets an instance of sb-tree collection manager for current database.
@@ -67,6 +82,11 @@ public interface ODatabaseDocumentInternal extends ODatabaseSession, ODatabaseIn
    * @return the factory of binary serializers.
    */
   OBinarySerializerFactory getSerializerFactory();
+
+  /**
+   * Returns the default record type for this kind of database.
+   */
+  byte getRecordType();
 
   /**
    * @return serializer which is used for document serialization.
@@ -125,9 +145,6 @@ public interface ODatabaseDocumentInternal extends ODatabaseSession, ODatabaseIn
   boolean executeExists(ORID rid);
 
   void setDefaultTransactionMode();
-
-  @Override
-  OMetadataInternal getMetadata();
 
   ODatabaseDocumentInternal copy();
 
@@ -291,4 +308,171 @@ public interface ODatabaseDocumentInternal extends ODatabaseSession, ODatabaseIn
   public long truncateClass(String name, boolean polimorfic);
 
   public long truncateClusterInternal(String name);
+
+  /**
+   * Browses all the records of the specified cluster.
+   *
+   * @param iClusterName Cluster name to iterate
+   * @return Iterator of ODocument instances
+   */
+  <REC extends ORecord> ORecordIteratorCluster<REC> browseCluster(String iClusterName);
+
+  <REC extends ORecord> ORecordIteratorCluster<REC> browseCluster(
+      String iClusterName,
+      long startClusterPosition,
+      long endClusterPosition,
+      boolean loadTombstones);
+
+  /**
+   * Browses all the records of the specified cluster of the passed record type.
+   *
+   * @param iClusterName Cluster name to iterate
+   * @param iRecordClass The record class expected
+   * @return Iterator of ODocument instances
+   */
+  @Deprecated
+  <REC extends ORecord> ORecordIteratorCluster<REC> browseCluster(
+      String iClusterName, Class<REC> iRecordClass);
+
+  @Deprecated
+  <REC extends ORecord> ORecordIteratorCluster<REC> browseCluster(
+      String iClusterName,
+      Class<REC> iRecordClass,
+      long startClusterPosition,
+      long endClusterPosition);
+
+  @Deprecated
+  <REC extends ORecord> ORecordIteratorCluster<REC> browseCluster(
+      String iClusterName,
+      Class<REC> iRecordClass,
+      long startClusterPosition,
+      long endClusterPosition,
+      boolean loadTombstones);
+
+  /**
+   * Browses all the records of the specified class and also all the subclasses. If you've a class
+   * Vehicle and Car that extends Vehicle then a db.browseClass("Vehicle", true) will return all the
+   * instances of Vehicle and Car. The order of the returned instance starts from record id with
+   * position 0 until the end. Base classes are worked at first.
+   *
+   * @param iClassName Class name to iterate
+   * @return Iterator of ODocument instances
+   */
+  ORecordIteratorClass<ODocument> browseClass(String iClassName);
+
+  /**
+   * Browses all the records of the specified class and if iPolymorphic is true also all the
+   * subclasses. If you've a class Vehicle and Car that extends Vehicle then a
+   * db.browseClass("Vehicle", true) will return all the instances of Vehicle and Car. The order of
+   * the returned instance starts from record id with position 0 until the end. Base classes are
+   * worked at first.
+   *
+   * @param iClassName   Class name to iterate
+   * @param iPolymorphic Consider also the instances of the subclasses or not
+   * @return Iterator of ODocument instances
+   */
+  ORecordIteratorClass<ODocument> browseClass(String iClassName, boolean iPolymorphic);
+
+  /**
+   * Counts the entities contained in the specified class and sub classes (polymorphic).
+   *
+   * @param iClassName Class name
+   * @return Total entities
+   */
+  long countClass(String iClassName);
+
+  /**
+   * Counts the entities contained in the specified class.
+   *
+   * @param iClassName   Class name
+   * @param iPolymorphic True if consider also the sub classes, otherwise false
+   * @return Total entities
+   */
+  long countClass(String iClassName, final boolean iPolymorphic);
+
+  long countView(String iClassName);
+
+  /**
+   * Checks if the operation on a resource is allowed for the current user.
+   *
+   * @param iResource  Resource where to execute the operation
+   * @param iOperation Operation to execute against the resource
+   * @return The Database instance itself giving a "fluent interface". Useful to call multiple
+   * methods in chain.
+   */
+  @Deprecated
+  <DB extends ODatabaseDocument> DB checkSecurity(String iResource, int iOperation);
+
+  /**
+   * Tells if validation of record is active. Default is true.
+   *
+   * @return true if it's active, otherwise false.
+   */
+  boolean isValidationEnabled();
+
+  /**
+   * Enables or disables the record validation.
+   *
+   * <p>Since 2.2 this setting is persistent.
+   *
+   * @param iEnabled True to enable, false to disable
+   * @return The Database instance itself giving a "fluent interface". Useful to call multiple
+   * methods in chain.
+   */
+  <DB extends ODatabaseDocument> DB setValidationEnabled(boolean iEnabled);
+
+  /**
+   * Returns true if current configuration retains objects, otherwise false
+   *
+   * @see #setRetainRecords(boolean)
+   */
+  boolean isRetainRecords();
+
+  /**
+   * Specifies if retain handled objects in memory or not. Setting it to false can improve
+   * performance on large inserts. Default is enabled.
+   *
+   * @param iValue True to enable, false to disable it.
+   * @see #isRetainRecords()
+   */
+  ODatabaseDocument setRetainRecords(boolean iValue);
+
+  /**
+   * Checks if the operation on a resource is allowed for the current user. The check is made in two
+   * steps:
+   *
+   * <ol>
+   *   <li>Access to all the resource as *
+   *   <li>Access to the specific target resource
+   * </ol>
+   *
+   * @param iResourceGeneric  Resource where to execute the operation, i.e.: database.clusters
+   * @param iOperation        Operation to execute against the resource
+   * @param iResourceSpecific Target resource, i.e.: "employee" to specify the cluster name.
+   * @return The Database instance itself giving a "fluent interface". Useful to call multiple
+   * methods in chain.
+   */
+  @Deprecated
+  <DB extends ODatabaseDocument> DB checkSecurity(
+      String iResourceGeneric, int iOperation, Object iResourceSpecific);
+
+  /**
+   * Checks if the operation against multiple resources is allowed for the current user. The check
+   * is made in two steps:
+   *
+   * <ol>
+   *   <li>Access to all the resource as *
+   *   <li>Access to the specific target resources
+   * </ol>
+   *
+   * @param iResourceGeneric   Resource where to execute the operation, i.e.: database.clusters
+   * @param iOperation         Operation to execute against the resource
+   * @param iResourcesSpecific Target resources as an array of Objects, i.e.: ["employee", 2] to
+   *                           specify cluster name and id.
+   * @return The Database instance itself giving a "fluent interface". Useful to call multiple
+   * methods in chain.
+   */
+  @Deprecated
+  <DB extends ODatabaseDocument> DB checkSecurity(
+      String iResourceGeneric, int iOperation, Object... iResourcesSpecific);
 }

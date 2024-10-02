@@ -26,6 +26,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class OStorageEncryptionTestIT {
+
   @Test
   public void testEncryption() {
     final File dbDirectoryFile = cleanAndGetDirectory();
@@ -120,7 +121,8 @@ public class OStorageEncryptionTestIT {
 
     try (final OrientDB orientDB =
         new OrientDB("embedded:" + dbDirectoryFile.getAbsolutePath(), orientDBConfig)) {
-      try (final ODatabaseSession session = orientDB.open("encryption", "admin", "admin")) {
+      try (final ODatabaseDocumentInternal session =
+          (ODatabaseDocumentInternal) orientDB.open("encryption", "admin", "admin")) {
         final OIndexManagerAbstract indexManager =
             ((ODatabaseDocumentInternal) session).getMetadata().getIndexManagerInternal();
         final OIndex treeIndex =

@@ -23,7 +23,6 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.OStorageEntryConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.engine.local.OEngineLocalPaginated;
 import com.orientechnologies.orient.core.engine.memory.OEngineMemory;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
@@ -263,7 +262,8 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
         null);
   }
 
-  protected void exportClass(final ODatabaseDocument db, final OJSONWriter json, final OClass cls)
+  protected void exportClass(
+      final ODatabaseDocumentInternal db, final OJSONWriter json, final OClass cls)
       throws IOException {
     json.beginObject(2, true, null);
     json.writeAttribute(3, true, "name", cls.getName());

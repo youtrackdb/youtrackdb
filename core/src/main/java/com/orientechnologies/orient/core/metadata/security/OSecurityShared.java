@@ -377,7 +377,7 @@ public class OSecurityShared implements OSecurityInternal {
     }
 
     ODocument result;
-    result = session.load(iRecordId, "roles:1");
+    result = session.load(iRecordId);
     if (!result.getClassName().equals(OUser.CLASS_NAME)) {
       result = null;
     }
@@ -642,9 +642,10 @@ public class OSecurityShared implements OSecurityInternal {
   public void saveSecurityPolicy(ODatabaseSession session, OSecurityPolicyImpl policy) {
     session.executeInTx(
         () ->
-            session.save(
-                policy.getElement(),
-                OSecurityPolicy.class.getSimpleName().toLowerCase(Locale.ENGLISH)));
+            ((ODatabaseDocumentInternal) session)
+                .save(
+                    policy.getElement(),
+                    OSecurityPolicy.class.getSimpleName().toLowerCase(Locale.ENGLISH)));
   }
 
   @Override

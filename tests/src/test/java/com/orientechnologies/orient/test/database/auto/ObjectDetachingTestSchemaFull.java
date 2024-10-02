@@ -733,7 +733,10 @@ public class ObjectDetachingTestSchemaFull extends ObjectDBBaseTest {
     database.commit();
 
     String command = "update " + anAddress.getId() + " set city = " + database.getIdentity(aCity);
+    database.begin();
     database.command(command).close();
+    database.commit();
+
     realAddress = database.reload(anAddress, true);
     Assert.assertNotNull(realAddress.getCity());
     // At this point, in OrientDB Studio everything is fine

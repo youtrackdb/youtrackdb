@@ -56,7 +56,8 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
   private static final String[] NAMES = {"GET|database/*"};
 
   public static void exportClass(
-      final ODatabaseDocument db, final OJSONWriter json, final OClass cls) throws IOException {
+      final ODatabaseDocumentInternal db, final OJSONWriter json, final OClass cls)
+      throws IOException {
     json.beginObject();
     json.writeAttribute("name", cls.getName());
     json.writeAttribute(

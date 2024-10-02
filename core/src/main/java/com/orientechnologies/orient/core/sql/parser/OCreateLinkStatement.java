@@ -78,7 +78,7 @@ public class OCreateLinkStatement extends OSimpleExecStatement {
               + "' was found");
     }
 
-    final ODatabaseDocument db = (ODatabaseDocument) database.getDatabaseOwner();
+    final ODatabaseDocumentInternal db = (ODatabaseDocumentInternal) database.getDatabaseOwner();
 
     OClass sourceClass =
         database

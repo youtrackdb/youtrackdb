@@ -23,7 +23,6 @@ import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
@@ -109,7 +108,7 @@ public class OCommandExecutorSQLCreateFunction extends OCommandExecutorSQLAbstra
       throw new OCommandExecutionException(
           "Syntax Error. You must specify the function code: " + getSyntax());
 
-    ODatabaseDocument database = getDatabase();
+    var database = getDatabase();
     final OFunction f = database.getMetadata().getFunctionLibrary().createFunction(name);
     f.setCode(code);
     f.setIdempotent(idempotent);

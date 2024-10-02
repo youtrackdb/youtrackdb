@@ -58,14 +58,21 @@ public class ResourceDerivedTest {
 
     db.command("INSERT INTO ORole SET name = 'tenant1', mode = 0");
     db.command("ALTER ROLE tenant1 set policy rw ON database.class.*.*");
+    db.begin();
     db.command("UPDATE ORole SET rules = {'database.class.customer': 2} WHERE name = ?", "tenant1");
+    db.commit();
     db.command("ALTER ROLE tenant1 set policy r ON database.class.Customer");
+    db.begin();
     db.command(
         "UPDATE ORole SET rules = {'database.class.customer_t1': 31} WHERE name = ?", "tenant1");
+    db.commit();
     db.command("ALTER ROLE tenant1 set policy rw ON database.class.Customer_t1");
+    db.begin();
     db.command(
         "UPDATE ORole SET rules = {'database.class.customer_t2': 2} WHERE name = ?", "tenant1");
+    db.commit();
     db.command("ALTER ROLE tenant1 set policy r ON database.class.Custome_t2r");
+    db.begin();
     db.command(
         "UPDATE ORole SET rules = {'database.class.customer_u2': 0} WHERE name = ?", "tenant1");
     db.command(
@@ -77,7 +84,11 @@ public class ResourceDerivedTest {
             + " (SELECT FROM ORole WHERE name = 'tenant1')");
 
     db.command("INSERT INTO ORole SET name = 'tenant2', mode = 0");
+    db.commit();
+
     db.command("ALTER ROLE tenant2 set policy rw ON database.class.*.*");
+
+    db.begin();
     db.command(
         "UPDATE ORole SET rules = {'database.class.customer_t1': 0} WHERE name = ?", "tenant2");
     db.command(
@@ -97,6 +108,7 @@ public class ResourceDerivedTest {
 
     db.command("INSERT INTO Customer_u1 set name='Fred'");
     db.command("INSERT INTO Customer_u2 set name='George'");
+    db.commit();
 
     db.close();
   }

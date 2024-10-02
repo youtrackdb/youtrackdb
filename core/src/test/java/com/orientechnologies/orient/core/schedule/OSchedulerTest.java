@@ -101,7 +101,7 @@ public class OSchedulerTest {
     final ODatabaseSession db2 =
         context.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     try {
-      Thread.sleep(2000);
+      Thread.sleep(4000);
       Long count = getLogCounter(db2);
       Assert.assertTrue(count >= 2);
 
@@ -167,9 +167,11 @@ public class OSchedulerTest {
       int retryCount = 10;
       while (true) {
         try {
+          db.begin();
           db.command(
                   "update oschedule set rule = \"0/2 * * * * ?\" where name = 'test'", func.getId())
               .close();
+          db.commit();
           break;
         } catch (ONeedRetryException e) {
           retryCount--;

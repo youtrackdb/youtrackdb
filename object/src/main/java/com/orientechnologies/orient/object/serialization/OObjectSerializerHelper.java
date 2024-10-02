@@ -458,7 +458,7 @@ public class OObjectSerializerHelper {
       ORecordInternal.setVersion(iRecord, version);
     }
 
-    if (db.isMVCC() && !versionConfigured && db.getTransaction() instanceof OTransactionOptimistic)
+    if (!versionConfigured && db.getTransaction() instanceof OTransactionOptimistic)
       throw new OTransactionException(
           "Cannot involve an object of class '"
               + pojoClass

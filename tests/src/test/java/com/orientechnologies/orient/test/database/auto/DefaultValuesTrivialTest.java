@@ -4,6 +4,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
@@ -33,7 +34,7 @@ import org.testng.annotations.Test;
 public class DefaultValuesTrivialTest {
   private static final int DOCUMENT_COUNT = 50;
 
-  private ODatabaseDocument database;
+  private ODatabaseDocumentInternal database;
 
   @BeforeMethod
   public void before() {

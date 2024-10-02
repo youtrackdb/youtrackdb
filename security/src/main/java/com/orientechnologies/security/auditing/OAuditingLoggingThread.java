@@ -15,9 +15,7 @@
  */
 package com.orientechnologies.security.auditing;
 
-import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.orient.core.Orient;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OrientDBInternal;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
@@ -66,18 +64,15 @@ public class OAuditingLoggingThread extends Thread {
     context
         .getSystemDatabase()
         .executeInDBScope(
-            new OCallable<Void, ODatabaseSession>() {
-              @Override
-              public Void call(ODatabaseSession iArgument) {
-                OSchema schema = iArgument.getMetadata().getSchema();
-                if (!schema.existsClass(className)) {
-                  OClass clazz = schema.getClass(ODefaultAuditing.AUDITING_LOG_CLASSNAME);
-                  OClass cls = schema.createClass(className, clazz);
-                  cls.createIndex(
-                      className + ".date", OClass.INDEX_TYPE.NOTUNIQUE, new String[] {"date"});
-                }
-                return null;
+            iArgument -> {
+              OSchema schema = iArgument.getMetadata().getSchema();
+              if (!schema.existsClass(className)) {
+                OClass clazz = schema.getClass(ODefaultAuditing.AUDITING_LOG_CLASSNAME);
+                OClass cls = schema.createClass(className, clazz);
+                cls.createIndex(
+                    className + ".date", OClass.INDEX_TYPE.NOTUNIQUE, new String[] {"date"});
               }
+              return null;
             });
   }
 

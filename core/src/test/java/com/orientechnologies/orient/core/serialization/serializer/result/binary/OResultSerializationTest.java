@@ -3,6 +3,9 @@ package com.orientechnologies.orient.core.serialization.serializer.result.binary
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import com.orientechnologies.orient.core.db.ODatabaseType;
+import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.BytesContainer;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -33,36 +36,37 @@ public class OResultSerializationTest {
 
   @Test
   public void testSimpleSerialization() {
-    OResultInternal document = new OResultInternal();
+    try (var orientDB = new OrientDB("memory", OrientDBConfig.defaultConfig())) {
+      orientDB.createIfNotExists("test", ODatabaseType.MEMORY, "admin", "admin", "admin");
+      try (var ignore = orientDB.open("test", "admin", "admin")) {
+        OResultInternal document = new OResultInternal();
 
-    document.setProperty("name", "name");
-    document.setProperty("age", 20);
-    document.setProperty("youngAge", (short) 20);
-    document.setProperty("oldAge", (long) 20);
-    document.setProperty("heigth", 12.5f);
-    document.setProperty("bitHeigth", 12.5d);
-    document.setProperty("class", (byte) 'C');
-    document.setProperty("character", 'C');
-    document.setProperty("alive", true);
-    document.setProperty("date", new Date());
-    document.setProperty("recordId", new ORecordId(10, 10));
+        document.setProperty("name", "name");
+        document.setProperty("age", 20);
+        document.setProperty("youngAge", (short) 20);
+        document.setProperty("oldAge", (long) 20);
+        document.setProperty("heigth", 12.5f);
+        document.setProperty("bitHeigth", 12.5d);
+        document.setProperty("class", (byte) 'C');
+        document.setProperty("character", 'C');
+        document.setProperty("alive", true);
+        document.setProperty("date", new Date());
+        document.setProperty("recordId", new ORecordId(10, 10));
 
-    OResultInternal extr = serializeDeserialize(document);
+        OResultInternal extr = serializeDeserialize(document);
 
-    assertEquals(extr.getPropertyNames(), document.getPropertyNames());
-    assertEquals(extr.<String>getProperty("name"), document.getProperty("name"));
-    assertEquals(extr.<String>getProperty("age"), document.getProperty("age"));
-    assertEquals(extr.<String>getProperty("youngAge"), document.getProperty("youngAge"));
-    assertEquals(extr.<String>getProperty("oldAge"), document.getProperty("oldAge"));
-    assertEquals(extr.<String>getProperty("heigth"), document.getProperty("heigth"));
-    assertEquals(extr.<String>getProperty("bitHeigth"), document.getProperty("bitHeigth"));
-    assertEquals(extr.<String>getProperty("class"), document.getProperty("class"));
-    // TODO fix char management issue:#2427
-    // assertEquals(document.getProperty("character"), extr.getProperty("character"));
-    assertEquals(extr.<String>getProperty("alive"), document.getProperty("alive"));
-    assertEquals(extr.<String>getProperty("date"), document.getProperty("date"));
-    // assertEquals(extr.field("recordId"), document.field("recordId"));
-
+        assertEquals(extr.getPropertyNames(), document.getPropertyNames());
+        assertEquals(extr.<String>getProperty("name"), document.getProperty("name"));
+        assertEquals(extr.<String>getProperty("age"), document.getProperty("age"));
+        assertEquals(extr.<String>getProperty("youngAge"), document.getProperty("youngAge"));
+        assertEquals(extr.<String>getProperty("oldAge"), document.getProperty("oldAge"));
+        assertEquals(extr.<String>getProperty("heigth"), document.getProperty("heigth"));
+        assertEquals(extr.<String>getProperty("bitHeigth"), document.getProperty("bitHeigth"));
+        assertEquals(extr.<String>getProperty("class"), document.getProperty("class"));
+        assertEquals(extr.<String>getProperty("alive"), document.getProperty("alive"));
+        assertEquals(extr.<String>getProperty("date"), document.getProperty("date"));
+      }
+    }
   }
 
   private OResultInternal serializeDeserialize(OResultInternal document) {

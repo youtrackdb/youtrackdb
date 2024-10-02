@@ -1440,7 +1440,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
 
     final OCommit38Request request =
         new OCommit38Request(
-            iTx.getId(), true, true, iTx.getRecordOperations(), iTx.getIndexOperations());
+            iTx.getId(), true, true, iTx.getRecordOperations(), Collections.emptyMap());
 
     final OCommit37Response response = networkOperationNoRetry(request, "Error on commit");
 
@@ -1450,8 +1450,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     }
 
     updateCollectionsFromChanges(
-        ((OTransactionOptimistic) iTx).getDatabase().getSbTreeCollectionManager(),
-        response.getCollectionChanges());
+        iTx.getDatabase().getSbTreeCollectionManager(), response.getCollectionChanges());
     // SET ALL THE RECORDS AS UNDIRTY
     for (ORecordOperation txEntry : iTx.getRecordOperations()) {
       ORecordInternal.unsetDirty(txEntry.getRecord());
@@ -2271,7 +2270,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
             true,
             true,
             transaction.getRecordOperations(),
-            transaction.getIndexOperations());
+            Collections.emptyMap());
     OBeginTransactionResponse response =
         networkOperationNoRetry(request, "Error on remote transaction begin");
     for (Map.Entry<ORID, ORID> entry : response.getUpdatedIds().entrySet()) {
@@ -2284,10 +2283,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
       ODatabaseDocumentRemote database, OTransactionOptimistic transaction) {
     ORebeginTransaction38Request request =
         new ORebeginTransaction38Request(
-            transaction.getId(),
-            true,
-            transaction.getRecordOperations(),
-            transaction.getIndexOperations());
+            transaction.getId(), true, transaction.getRecordOperations(), Collections.emptyMap());
     OBeginTransactionResponse response =
         networkOperationNoRetry(request, "Error on remote transaction begin");
     for (Map.Entry<ORID, ORID> entry : response.getUpdatedIds().entrySet()) {
@@ -2300,7 +2296,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     OFetchTransaction38Request request = new OFetchTransaction38Request(transaction.getId());
     OFetchTransaction38Response response =
         networkOperation(request, "Error fetching transaction from server side");
-    transaction.replaceContent(response.getOperations(), response.getIndexChanges());
+    transaction.replaceContent(response.getOperations());
   }
 
   public OBinaryPushRequest createPush(byte type) {

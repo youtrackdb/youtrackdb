@@ -3,7 +3,6 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OClassEmbedded;
@@ -53,7 +52,7 @@ public class OCreatePropertyStatement extends ODDLStatement {
   }
 
   private void executeInternal(OCommandContext ctx, OResultInternal result) {
-    ODatabaseSession db = ctx.getDatabase();
+    var db = ctx.getDatabase();
     OClassEmbedded clazz =
         (OClassEmbedded) db.getMetadata().getSchema().getClass(className.getStringValue());
     if (clazz == null) {

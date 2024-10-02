@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -34,7 +34,7 @@ public class RecordReloadTest extends DocumentDBBaseTest {
     final Future<?> future =
         executor.submit(
             () -> {
-              ODatabaseDocument db = new ODatabaseDocumentTx(url);
+              ODatabaseDocumentInternal db = new ODatabaseDocumentTx(url);
               db.open("admin", "admin");
 
               ODocument doc = db.load(rid);
@@ -65,7 +65,7 @@ public class RecordReloadTest extends DocumentDBBaseTest {
     final Future<?> future =
         executor.submit(
             () -> {
-              ODatabaseDocument db = new ODatabaseDocumentTx(url);
+              ODatabaseDocumentInternal db = new ODatabaseDocumentTx(url);
               db.open("admin", "admin");
 
               ODocument doc = db.load(rid);
@@ -111,7 +111,7 @@ public class RecordReloadTest extends DocumentDBBaseTest {
     final Future<?> future =
         executor.submit(
             () -> {
-              ODatabaseDocument db = new ODatabaseDocumentTx(url);
+              ODatabaseDocumentInternal db = new ODatabaseDocumentTx(url);
               db.open("admin", "admin");
 
               ODocument doc = db.load(rid);
@@ -160,7 +160,7 @@ public class RecordReloadTest extends DocumentDBBaseTest {
     final Future<?> future =
         executor.submit(
             () -> {
-              ODatabaseDocument db = new ODatabaseDocumentTx(url);
+              ODatabaseDocumentInternal db = new ODatabaseDocumentTx(url);
               db.open("admin", "admin");
 
               db.begin();

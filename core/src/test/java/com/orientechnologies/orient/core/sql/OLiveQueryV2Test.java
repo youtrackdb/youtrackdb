@@ -87,7 +87,7 @@ public class OLiveQueryV2Test {
 
   @Test
   public void testLiveInsert() throws InterruptedException {
-    ODatabaseDocument db = new ODatabaseDocumentTx("memory:OLiveQueryV2Test");
+    ODatabaseDocumentInternal db = new ODatabaseDocumentTx("memory:OLiveQueryV2Test");
     db.activateOnCurrentThread();
     db.create();
     try {
@@ -198,7 +198,7 @@ public class OLiveQueryV2Test {
 
   @Test
   public void testRestrictedLiveInsert() throws ExecutionException, InterruptedException {
-    ODatabaseDocument db = new ODatabaseDocumentTx("memory:OLiveQueryTest");
+    ODatabaseDocumentInternal db = new ODatabaseDocumentTx("memory:OLiveQueryTest");
     db.activateOnCurrentThread();
     db.create();
     try {
@@ -286,7 +286,7 @@ public class OLiveQueryV2Test {
   @Test
   public void testLiveProjections() throws InterruptedException {
 
-    ODatabaseDocument db = new ODatabaseDocumentTx("memory:OLiveQueryV2Test");
+    ODatabaseDocumentInternal db = new ODatabaseDocumentTx("memory:OLiveQueryV2Test");
     db.activateOnCurrentThread();
     db.create();
     try {

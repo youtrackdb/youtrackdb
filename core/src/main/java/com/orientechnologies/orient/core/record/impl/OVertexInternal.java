@@ -581,7 +581,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
 
   @Override
   default ORID moveTo(final String className, final String clusterName) {
-    var db = getDatabase();
+    var db = (ODatabaseDocumentInternal) getDatabase();
     if (checkDeletedInTx(getIdentity())) {
       throw new ORecordNotFoundException(
           getIdentity(), "The vertex " + getIdentity() + " has been deleted");

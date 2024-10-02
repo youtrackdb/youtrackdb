@@ -3,6 +3,7 @@ package com.orientechnologies.orient.console;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ORecordBytes;
@@ -17,8 +18,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 
-/** Created by tglman on 14/03/16. */
+/**
+ * Created by tglman on 14/03/16.
+ */
 public class OConsoleDatabaseAppTest {
+
   @Rule public TestName testName = new TestName();
 
   @Test
@@ -39,7 +43,7 @@ public class OConsoleDatabaseAppTest {
           "create database test memory users (admin identified by 'admin' role admin)");
       app.open("test", "admin", "admin");
 
-      ODatabaseDocument db = app.getCurrentDatabase();
+      ODatabaseDocumentInternal db = (ODatabaseDocumentInternal) app.getCurrentDatabase();
       db.addBlobCluster("blobTest");
 
       db.begin();
@@ -325,6 +329,7 @@ public class OConsoleDatabaseAppTest {
   }
 
   class ConsoleTest {
+
     OConsoleDatabaseApp console;
     ByteArrayOutputStream out;
     PrintStream stream;

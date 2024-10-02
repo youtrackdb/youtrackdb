@@ -26,7 +26,6 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
-import com.tinkerpop.blueprints.impls.orient.OrientEdge;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -335,9 +334,7 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
 
     for (OEdge e : edges) {
       Integer deletedEdges =
-          database
-              .command(new OCommandSQL("delete from " + ((OrientEdge) e).getIdentity() + " unsafe"))
-              .execute();
+          database.command(new OCommandSQL("delete from " + e.getIdentity() + " unsafe")).execute();
       Assert.assertEquals(deletedEdges.intValue(), 1);
     }
   }

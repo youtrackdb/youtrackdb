@@ -3,7 +3,6 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
@@ -30,7 +29,7 @@ public class OCreateClusterStatement extends ODDLStatement {
 
   @Override
   public OExecutionStream executeDDL(OCommandContext ctx) {
-    ODatabaseSession db = ctx.getDatabase();
+    var db = ctx.getDatabase();
     int existingId = db.getClusterIdByName(name.getStringValue());
     if (existingId >= 0) {
       if (ifNotExists) {

@@ -21,7 +21,9 @@ public class OSqlUpdateContentValidationTest extends BaseMemoryDatabase {
         db.command("insert into Test content {\"testNormal\":\"hello\",\"test\":\"only read\"} ");
     OIdentifiable id = res.next().getProperty("@rid");
     try {
+      db.begin();
       db.command("update " + id + " CONTENT {\"testNormal\":\"by\"}").close();
+      db.commit();
       Assert.fail("Error on update of a record removing a readonly property");
     } catch (OValidationException val) {
 

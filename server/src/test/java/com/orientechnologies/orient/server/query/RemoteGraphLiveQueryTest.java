@@ -57,7 +57,9 @@ public class RemoteGraphLiveQueryTest extends BaseServerMemoryDatabase {
         },
         new HashMap<String, String>());
 
+    db.begin();
     db.command("update SecondV set id = 3");
+    db.commit();
 
     Thread.sleep(100);
 

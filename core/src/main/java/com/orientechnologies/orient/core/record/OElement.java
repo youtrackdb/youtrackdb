@@ -22,8 +22,8 @@ package com.orientechnologies.orient.core.record;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
+import java.util.Collection;
 import java.util.Optional;
-import java.util.Set;
 import javax.annotation.Nullable;
 
 /**
@@ -38,7 +38,7 @@ public interface OElement extends ORecord {
    *
    * @return all the names of defined properties
    */
-  Set<String> getPropertyNames();
+  Collection<String> getPropertyNames();
 
   /**
    * Gets a property given its name This method loads linked record automatically if you prefer to

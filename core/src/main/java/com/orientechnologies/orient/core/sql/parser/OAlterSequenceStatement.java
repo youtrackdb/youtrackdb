@@ -4,7 +4,6 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
@@ -42,7 +41,7 @@ public class OAlterSequenceStatement extends ODDLStatement {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
-    final ODatabaseDocument database = getDatabase();
+    final var database = getDatabase();
     OSequence sequence = database.getMetadata().getSequenceLibrary().getSequence(sequenceName);
     if (sequence == null) {
       throw new OCommandExecutionException("Sequence not found: " + sequenceName);

@@ -17,7 +17,6 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.orientechnologies.orient.core.id.ORID;
@@ -44,8 +43,8 @@ import org.testng.annotations.Test;
 @Test
 public class TransactionConsistencyTest extends DocumentDBBaseTest {
 
-  protected ODatabaseDocument database1;
-  protected ODatabaseDocument database2;
+  protected ODatabaseDocumentInternal database1;
+  protected ODatabaseDocumentInternal database2;
 
   public static final String NAME = "name";
 
