@@ -39,10 +39,11 @@ public class ODropClassStatementExecutionTest extends BaseMemoryDatabase {
     OClass v = schema.getClass("V");
     schema.createClass(className, v);
 
+    db.begin();
     db.command("insert into " + className + " set foo = 'bar'");
+    db.commit();
     try {
-
-      OResultSet result = db.command("drop class " + className);
+      db.command("drop class " + className).close();
       Assert.fail();
     } catch (OCommandExecutionException ex1) {
     } catch (Exception ex2) {

@@ -27,7 +27,6 @@ import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.command.script.OCommandScript;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -54,7 +53,9 @@ public class OCommandExecutorSQLUpdateTest extends BaseMemoryDatabase {
     db.command("CREATE property employee.name STRING").close();
     db.command("CREATE property company.employees LINKSET employee").close();
 
+    db.begin();
     db.command("INSERT INTO company SET name = 'MyCompany'").close();
+    db.commit();
 
     final OElement r = db.query("SELECT FROM company").next().getElement().get();
 
@@ -364,17 +365,23 @@ public class OCommandExecutorSQLUpdateTest extends BaseMemoryDatabase {
   }
 
   @Test
-  public void testDottedTargetInScript() throws Exception {
+  public void testDottedTargetInScript() {
     // #issue #5397
     db.command("create class A").close();
     db.command("create class B").close();
+
+    db.begin();
     db.command("insert into A set name = 'foo'").close();
     db.command("insert into B set name = 'bar', a = (select from A)").close();
+    db.commit();
 
     StringBuilder script = new StringBuilder();
     script.append("let $a = select from B;\n");
     script.append("update $a.a set name = 'baz';\n");
-    ((ODatabaseDocumentInternal) db).command(new OCommandScript(script.toString())).execute();
+
+    db.begin();
+    db.command(new OCommandScript(script.toString())).execute();
+    db.commit();
 
     try (OResultSet result = db.query("select from A")) {
       assertEquals(result.next().getProperty("name"), "baz");

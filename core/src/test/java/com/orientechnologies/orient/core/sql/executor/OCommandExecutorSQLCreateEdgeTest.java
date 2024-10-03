@@ -35,7 +35,8 @@ public class OCommandExecutorSQLCreateEdgeTest extends BaseMemoryDatabase {
   }
 
   @Test
-  public void testParametersBinding() throws Exception {
+  public void testParametersBinding() {
+    db.begin();
     db.command(
             "CREATE EDGE link from "
                 + owner1.getIdentity()
@@ -44,6 +45,7 @@ public class OCommandExecutorSQLCreateEdgeTest extends BaseMemoryDatabase {
                 + " SET foo = ?",
             "123")
         .close();
+    db.commit();
 
     OResultSet list = db.query("SELECT FROM link");
 
@@ -59,11 +61,13 @@ public class OCommandExecutorSQLCreateEdgeTest extends BaseMemoryDatabase {
     params.put("fromId", 1);
     params.put("toId", 2);
 
+    db.begin();
     db.command(
             "CREATE EDGE link from (select from Owner where id = :fromId) TO (select from Owner"
                 + " where id = :toId) SET foo = :foo",
             params)
         .close();
+    db.commit();
 
     OResultSet list = db.query("SELECT FROM link");
 
@@ -77,14 +81,18 @@ public class OCommandExecutorSQLCreateEdgeTest extends BaseMemoryDatabase {
   @Test
   public void testBatch() throws Exception {
     for (int i = 0; i < 20; ++i) {
+      db.begin();
       db.command("CREATE VERTEX Owner SET testbatch = true, id = ?", i).close();
+      db.commit();
     }
 
+    db.begin();
     OResultSet edges =
         db.command(
             "CREATE EDGE link from (select from owner where testbatch = true and id > 0) TO (select"
                 + " from owner where testbatch = true and id = 0) batch 10",
             "456");
+    db.commit();
 
     Assert.assertEquals(edges.stream().count(), 19);
 
@@ -119,11 +127,13 @@ public class OCommandExecutorSQLCreateEdgeTest extends BaseMemoryDatabase {
 
     db.execute(
             "sql",
-            "let $v1 = create vertex FooType content {'name':'foo1'};"
+            "begin;"
+                + "let $v1 = create vertex FooType content {'name':'foo1'};"
                 + "let $v2 = create vertex FooType content {'name':'foo2'};"
                 + "create edge E1 from $v1 to $v2 content {'x':22};"
                 + "create edge E1 from $v1 to $v2 set x=22;"
-                + "create edge E2 from $v1 to $v2 content {'x':345};")
+                + "create edge E2 from $v1 to $v2 content {'x':345};"
+                + "commit;")
         .close();
   }
 }

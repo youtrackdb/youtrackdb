@@ -73,9 +73,13 @@ public class ORemoteSecurityTests {
     db.command("CREATE SECURITY POLICY testPolicy SET create = (name = 'foo')");
     db.command("ALTER ROLE writer SET POLICY testPolicy ON database.class.Person");
     try (ODatabaseSession filteredSession = orient.open(DB_NAME, "writer", "writer")) {
+      filteredSession.begin();
       filteredSession.command("insert into Person SET name = 'foo'");
+      filteredSession.commit();
       try {
+        filteredSession.begin();
         filteredSession.command("insert into Person SET name = 'bar'");
+        filteredSession.commit();
         Assert.fail();
       } catch (OSecurityException ex) {
       }

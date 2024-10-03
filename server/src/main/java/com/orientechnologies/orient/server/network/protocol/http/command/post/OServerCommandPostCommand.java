@@ -28,6 +28,7 @@ import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.sql.parser.ODDLStatement;
 import com.orientechnologies.orient.core.sql.parser.OFetchPlan;
 import com.orientechnologies.orient.core.sql.parser.OLimit;
 import com.orientechnologies.orient.core.sql.parser.OMatchStatement;
@@ -40,6 +41,7 @@ import com.orientechnologies.orient.server.network.protocol.http.command.OServer
 import java.util.*;
 
 public class OServerCommandPostCommand extends OServerCommandAuthenticatedDbAbstract {
+
   private static final String[] NAMES = {"GET|command/*", "POST|command/*"};
 
   @Override
@@ -70,7 +72,9 @@ public class OServerCommandPostCommand extends OServerCommandAuthenticatedDbAbst
         final ODocument doc = new ODocument().fromJSON(iRequest.getContent());
         text = doc.field("command");
         params = doc.field("parameters");
-        if (doc.containsField("mode")) mode = doc.field("mode");
+        if (doc.containsField("mode")) {
+          mode = doc.field("mode");
+        }
 
         if ("false".equalsIgnoreCase("" + doc.field("returnExecutionPlan"))) {
           returnExecutionPlan = false;
@@ -90,17 +94,27 @@ public class OServerCommandPostCommand extends OServerCommandAuthenticatedDbAbst
       returnExecutionPlan = false;
     }
 
-    if (text == null) throw new IllegalArgumentException("text cannot be null");
+    if (text == null) {
+      throw new IllegalArgumentException("text cannot be null");
+    }
 
     iRequest.getData().commandInfo = "Command";
     iRequest.getData().commandDetail = text;
 
     ODatabaseDocument db = null;
 
+    boolean ok = false;
+    boolean txBegun = false;
     try {
       db = getProfiledDatabaseInstance(iRequest);
       ((ODatabaseInternal) db).resetRecordLoadStats();
       OStatement stm = parseStatement(language, text, db);
+
+      if (stm != null && !(stm instanceof ODDLStatement)) {
+        db.begin();
+        txBegun = true;
+      }
+
       OResultSet result = executeStatement(language, text, params, db);
       limit = getLimitFromStatement(stm, limit);
       String localFetchPlan = getFetchPlanFromStatement(stm);
@@ -111,18 +125,7 @@ public class OServerCommandPostCommand extends OServerCommandAuthenticatedDbAbst
       List response = new ArrayList();
       TimerTask commandInterruptTimer = null;
       if (db.getConfiguration().getValueAsLong(OGlobalConfiguration.COMMAND_TIMEOUT) > 0
-          && !language.equalsIgnoreCase("sql")) {
-        //        commandInterruptTimer = ((ODatabaseInternal) db).createInterruptTimerTask();
-        //        if (commandInterruptTimer != null) {
-        //          ((ODatabaseInternal) db)
-        //                  .getSharedContext()
-        //                  .getOrientDB()
-        //                  .scheduleOnce(
-        //                          commandInterruptTimer,
-        //
-        // db.getConfiguration().getValueAsLong(OGlobalConfiguration.COMMAND_TIMEOUT));
-        //        }
-      }
+          && !language.equalsIgnoreCase("sql")) {}
       try {
         while (result.hasNext()) {
           if (limit >= 0 && i >= limit) {
@@ -151,16 +154,27 @@ public class OServerCommandPostCommand extends OServerCommandAuthenticatedDbAbst
         format = "fetchPlan:" + fetchPlan;
       }
 
-      if (iRequest.getHeader("TE") != null) iResponse.setStreaming(true);
+      if (iRequest.getHeader("TE") != null) {
+        iResponse.setStreaming(true);
+      }
 
       additionalContent.put("elapsedMs", elapsedMs);
       ODatabaseStats dbStats = ((ODatabaseInternal) db).getStats();
       additionalContent.put("dbStats", dbStats.toResult().toElement());
-      iResponse.writeResult(response, format, accept, additionalContent, mode);
 
+      iResponse.writeResult(response, format, accept, additionalContent, mode);
+      ok = true;
     } finally {
       if (db != null) {
         db.activateOnCurrentThread();
+
+        if (txBegun && db.getTransaction().isActive()) {
+          if (ok) {
+            db.commit();
+          } else {
+            db.rollback();
+          }
+        }
         db.close();
       }
     }

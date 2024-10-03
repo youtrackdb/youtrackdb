@@ -28,7 +28,9 @@ public class OSqlScriptExecutorTest {
     script += "insert into V set name ='d';";
     script += "select from v;";
 
+    db.begin();
     OResultSet result = db.execute("sql", script);
+    db.commit();
     List<Object> list =
         result.stream().map(x -> x.getProperty("name")).collect(Collectors.toList());
     result.close();
@@ -59,7 +61,9 @@ public class OSqlScriptExecutorTest {
     script += "insert into V set name ='d';";
     script += "select from v where name = ?;";
 
+    db.begin();
     OResultSet result = db.execute("sql", script, "a");
+    db.commit();
     List<Object> list =
         result.stream().map(x -> x.getProperty("name")).collect(Collectors.toList());
     result.close();
@@ -90,7 +94,11 @@ public class OSqlScriptExecutorTest {
 
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("name", "a");
+
+    db.begin();
     OResultSet result = db.execute("sql", script, params);
+    db.commit();
+
     List<Object> list =
         result.stream().map(x -> x.getProperty("name")).collect(Collectors.toList());
     result.close();

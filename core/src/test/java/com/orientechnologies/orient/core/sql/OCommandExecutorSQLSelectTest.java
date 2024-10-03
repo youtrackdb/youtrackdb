@@ -70,6 +70,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     db.command("CREATE index foo_bar on foo (bar) NOTUNIQUE").close();
     db.command("CREATE index foo_comp_osite on foo (comp, osite) NOTUNIQUE").close();
 
+    db.begin();
     db.command(
             "insert into foo (name, bar, address) values ('a', 1, {'street':'1st street',"
                 + " 'city':'NY', '@type':'d'})")
@@ -79,9 +80,11 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
 
     db.command("insert into foo (comp, osite) values ('a', 1)").close();
     db.command("insert into foo (comp, osite) values ('b', 2)").close();
+    db.commit();
 
     db.command("CREATE class bar").close();
 
+    db.begin();
     db.command("insert into bar (name, foo) values ('a', 1)").close();
     db.command("insert into bar (name, foo) values ('b', 2)").close();
     db.command("insert into bar (name, foo) values ('c', 3)").close();
@@ -97,11 +100,13 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     db.command("insert into bar (name, foo) values ('m', 3)").close();
     db.command("insert into bar (name, foo) values ('n', 4)").close();
     db.command("insert into bar (name, foo) values ('o', 5)").close();
+    db.commit();
 
     db.command("CREATE class ridsorttest clusters 1").close();
     db.command("CREATE property ridsorttest.name INTEGER").close();
     db.command("CREATE index ridsorttest_name on ridsorttest (name) NOTUNIQUE").close();
 
+    db.begin();
     db.command("insert into ridsorttest (name) values (1)").close();
     db.command("insert into ridsorttest (name) values (5)").close();
     db.command("insert into ridsorttest (name) values (3)").close();
@@ -109,34 +114,50 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     db.command("insert into ridsorttest (name) values (1)").close();
     db.command("insert into ridsorttest (name) values (8)").close();
     db.command("insert into ridsorttest (name) values (6)").close();
+    db.commit();
 
     db.command("CREATE class unwindtest").close();
+
+    db.begin();
     db.command("insert into unwindtest (name, coll) values ('foo', ['foo1', 'foo2'])").close();
     db.command("insert into unwindtest (name, coll) values ('bar', ['bar1', 'bar2'])").close();
+    db.commit();
 
     db.command("CREATE class unwindtest2").close();
+    db.begin();
     db.command("insert into unwindtest2 (name, coll) values ('foo', [])").close();
+    db.commit();
 
     db.command("CREATE class `edge`").close();
 
     db.command("CREATE class TestFromInSquare").close();
+    db.begin();
     db.command("insert into TestFromInSquare set tags = {' from ':'foo',' to ':'bar'}").close();
+    db.commit();
 
     db.command("CREATE class TestMultipleClusters").close();
     db.command("alter class TestMultipleClusters addcluster testmultipleclusters1 ").close();
     db.command("alter class TestMultipleClusters addcluster testmultipleclusters2 ").close();
+
+    db.begin();
     db.command("insert into cluster:testmultipleclusters set name = 'aaa'").close();
     db.command("insert into cluster:testmultipleclusters1 set name = 'foo'").close();
     db.command("insert into cluster:testmultipleclusters2 set name = 'bar'").close();
+    db.commit();
 
     db.command("CREATE class TestUrl").close();
+    db.begin();
     db.command("insert into TestUrl content { \"url\": \"http://www.google.com\" }").close();
+    db.commit();
 
     db.command("CREATE class TestParams").close();
+    db.begin();
     db.command("insert into TestParams  set name = 'foo', surname ='foo', active = true").close();
     db.command("insert into TestParams  set name = 'foo', surname ='bar', active = false").close();
+    db.commit();
 
     db.command("CREATE class TestParamsEmbedded").close();
+    db.begin();
     db.command(
             "insert into TestParamsEmbedded set emb = {  \n"
                 + "            \"count\":0,\n"
@@ -149,9 +170,12 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
                 + "            \"testupdate\":\"1441258203385\"\n"
                 + "         }")
         .close();
+    db.commit();
 
     db.command("CREATE class TestBacktick").close();
+    db.begin();
     db.command("insert into TestBacktick  set foo = 1, bar = 2, `foo-bar` = 10").close();
+    db.commit();
 
     // /*** from issue #2743
     OSchema schema = db.getMetadata().getSchema();
@@ -178,10 +202,12 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     }
 
     db.command("create class OCommandExecutorSQLSelectTest_aggregations").close();
+    db.begin();
     db.command(
             "insert into OCommandExecutorSQLSelectTest_aggregations set data = [{\"size\": 0},"
                 + " {\"size\": 0}, {\"size\": 30}, {\"size\": 50}, {\"size\": 50}]")
         .close();
+    db.commit();
   }
 
   private static void initCollateOnLinked(ODatabaseDocument db) {
@@ -204,6 +230,8 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
   private static void initComplexFilterInSquareBrackets(ODatabaseDocument db) {
     db.command("CREATE CLASS ComplexFilterInSquareBrackets1").close();
     db.command("CREATE CLASS ComplexFilterInSquareBrackets2").close();
+
+    db.begin();
     db.command("INSERT INTO ComplexFilterInSquareBrackets1 SET name = 'n1', value = 1").close();
     db.command("INSERT INTO ComplexFilterInSquareBrackets1 SET name = 'n2', value = 2").close();
     db.command("INSERT INTO ComplexFilterInSquareBrackets1 SET name = 'n3', value = 3").close();
@@ -215,6 +243,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
             "INSERT INTO ComplexFilterInSquareBrackets2 SET collection = (select from"
                 + " ComplexFilterInSquareBrackets1)")
         .close();
+    db.commit();
   }
 
   private static void initFilterAndOrderByTest(ODatabaseDocument db) {
@@ -225,6 +254,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
             "CREATE INDEX FilterAndOrderByTest.active ON FilterAndOrderByTest (active) NOTUNIQUE")
         .close();
 
+    db.begin();
     db.command("insert into FilterAndOrderByTest SET dc = '2010-01-05 12:00:00:000', active = true")
         .close();
     db.command(
@@ -240,19 +270,24 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
         .close();
     db.command("insert into FilterAndOrderByTest SET dc = '2016-01-05 14:00:00:000', active = true")
         .close();
+    db.commit();
   }
 
   private static void initMaxLongNumber(ODatabaseDocument db) {
     db.command("CREATE class MaxLongNumberTest").close();
+
+    db.begin();
     db.command("insert into MaxLongNumberTest set last = 1").close();
     db.command("insert into MaxLongNumberTest set last = null").close();
     db.command("insert into MaxLongNumberTest set last = 958769876987698").close();
     db.command("insert into MaxLongNumberTest set foo = 'bar'").close();
+    db.commit();
   }
 
   private static void initLinkListSequence(ODatabaseDocument db) {
     db.command("CREATE class LinkListSequence").close();
 
+    db.begin();
     db.command("insert into LinkListSequence set name = '1.1.1'").close();
     db.command("insert into LinkListSequence set name = '1.1.2'").close();
     db.command("insert into LinkListSequence set name = '1.2.1'").close();
@@ -274,29 +309,36 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
             "insert into LinkListSequence set name = 'root', children = (select from"
                 + " LinkListSequence where name in ['1', '1'])")
         .close();
+    db.commit();
   }
 
   private static void initMatchesWithRegex(ODatabaseDocument db) {
     db.command("CREATE class matchesstuff").close();
 
+    db.begin();
     db.command("insert into matchesstuff (name, foo) values ('admin[name]', 1)").close();
+    db.commit();
   }
 
   private static void initDistinctLimit(ODatabaseDocument db) {
     db.command("CREATE class DistinctLimit").close();
 
+    db.begin();
     db.command("insert into DistinctLimit (name, foo) values ('one', 1)").close();
     db.command("insert into DistinctLimit (name, foo) values ('one', 1)").close();
     db.command("insert into DistinctLimit (name, foo) values ('two', 2)").close();
     db.command("insert into DistinctLimit (name, foo) values ('two', 2)").close();
+    db.commit();
   }
 
   private static void initDatesSet(ODatabaseDocument db) {
     db.command("create class OCommandExecutorSQLSelectTest_datesSet").close();
     db.command("create property OCommandExecutorSQLSelectTest_datesSet.foo embeddedlist date")
         .close();
+    db.begin();
     db.command("insert into OCommandExecutorSQLSelectTest_datesSet set foo = ['2015-10-21']")
         .close();
+    db.commit();
   }
 
   private static void initMassiveOrderSkipLimit(ODatabaseDocument db) {
@@ -1353,14 +1395,20 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
             "create property OCommandExecutorSqlSelectTest_collateOnCollections.categories"
                 + " EMBEDDEDLIST string")
         .close();
+
+    db.begin();
     db.command(
             "insert into OCommandExecutorSqlSelectTest_collateOnCollections set"
                 + " categories=['a','b']")
         .close();
+    db.commit();
+
     db.command(
             "alter property OCommandExecutorSqlSelectTest_collateOnCollections.categories COLLATE"
                 + " ci")
         .close();
+
+    db.begin();
     db.command(
             "insert into OCommandExecutorSqlSelectTest_collateOnCollections set"
                 + " categories=['Math','English']")
@@ -1369,6 +1417,8 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
             "insert into OCommandExecutorSqlSelectTest_collateOnCollections set"
                 + " categories=['a','b','c']")
         .close();
+    db.commit();
+
     List<ODocument> results =
         db.query(
             new OSQLSynchQuery<ODocument>(
@@ -1452,8 +1502,11 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
                 + " {ignoreNullValues: true}")
         .close();
 
+    db.begin();
     db.command("insert into CompositeIndexWithoutNullValues set one = 'foo'").close();
     db.command("insert into CompositeIndexWithoutNullValues set one = 'foo', two = 'bar'").close();
+    db.commit();
+
     List<ODocument> results =
         db.query(
             new OSQLSynchQuery<ODocument>(
@@ -1477,8 +1530,11 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
                 + " {ignoreNullValues: false}")
         .close();
 
+    db.begin();
     db.command("insert into CompositeIndexWithoutNullValues2 set one = 'foo'").close();
     db.command("insert into CompositeIndexWithoutNullValues2 set one = 'foo', two = 'bar'").close();
+    db.commit();
+
     results =
         db.query(
             new OSQLSynchQuery<ODocument>(
@@ -1541,9 +1597,12 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
   public void testFoo() {
     // dispose it!
     db.command("create class testFoo");
+
+    db.begin();
     db.command("insert into testFoo set val = 1, name = 'foo'");
     db.command("insert into testFoo set val = 3, name = 'foo'");
     db.command("insert into testFoo set val = 5, name = 'bar'");
+    db.commit();
 
     OResultSet results = db.query("select sum(val), name from testFoo group by name");
     assertEquals(results.stream().count(), 2);
@@ -1556,7 +1615,9 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     db.command("create class TestDateComparison").close();
     db.command("create property TestDateComparison.dateProp DATE").close();
 
+    db.begin();
     db.command("insert into TestDateComparison set dateProp = '2016-05-01'").close();
+    db.commit();
 
     OResultSet results = db.query("SELECT from TestDateComparison WHERE dateProp >= '2016-05-01'");
 
@@ -1574,8 +1635,11 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     if (clazz.getClusterIds().length < 2) {
       clazz.addCluster("TestOrderByRidDescMultiCluster_11111");
     }
+
     for (int i = 0; i < 100; i++) {
+      db.begin();
       db.command("insert into TestOrderByRidDescMultiCluster set foo = " + i).close();
+      db.commit();
     }
 
     List<OResult> results =
@@ -1632,11 +1696,13 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
                 + " (foo) notunique")
         .close();
 
+    db.begin();
     db.command("insert into testCountOnSubclassIndexes_sub1 set name = 'a', foo = true").close();
     db.command("insert into testCountOnSubclassIndexes_sub1 set name = 'b', foo = false").close();
     db.command("insert into testCountOnSubclassIndexes_sub2 set name = 'c', foo = true").close();
     db.command("insert into testCountOnSubclassIndexes_sub2 set name = 'd', foo = true").close();
     db.command("insert into testCountOnSubclassIndexes_sub2 set name = 'e', foo = false").close();
+    db.commit();
 
     List<OResult> results =
         db
@@ -1679,7 +1745,10 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     // issue #7234
 
     db.command("create class testConvertDouble").close();
+
+    db.begin();
     db.command("insert into testConvertDouble set num = 100000").close();
+    db.commit();
 
     OResultSet results =
         db.query("SELECT FROM testConvertDouble WHERE num >= 50000 AND num <=300000000");

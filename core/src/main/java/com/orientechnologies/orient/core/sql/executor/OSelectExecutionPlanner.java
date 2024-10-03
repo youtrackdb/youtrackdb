@@ -481,7 +481,7 @@ public class OSelectExecutionPlanner {
       }
       return result;
     } else if (item.getInputParam() != null) {
-      if (((ODatabaseInternal) ctx.getDatabase()).isSharded()) {
+      if (ctx.getDatabase().isSharded()) {
         throw new UnsupportedOperationException(
             "Sharded query with input parameter as a target is not supported yet");
       }

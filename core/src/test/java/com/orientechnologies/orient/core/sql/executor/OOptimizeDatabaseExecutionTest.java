@@ -10,7 +10,6 @@ import org.junit.Test;
  * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
 public class OOptimizeDatabaseExecutionTest extends BaseMemoryDatabase {
-
   @Test
   public void test() {
     OSchema schema = db.getMetadata().getSchema();
@@ -33,9 +32,12 @@ public class OOptimizeDatabaseExecutionTest extends BaseMemoryDatabase {
     v2.save();
     db.commit();
 
+    db.begin();
     OResultSet createREs =
         db.command(
             "create edge " + eClass + " from " + v1.getIdentity() + " to " + v2.getIdentity());
+    db.commit();
+
     ExecutionPlanPrintUtils.printExecutionPlan(createREs);
     OResultSet result = db.query("select expand(out()) from " + v1.getIdentity());
     Assert.assertNotNull(result);

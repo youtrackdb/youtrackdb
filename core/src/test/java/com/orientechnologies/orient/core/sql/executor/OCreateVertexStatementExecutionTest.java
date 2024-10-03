@@ -21,7 +21,10 @@ public class OCreateVertexStatementExecutionTest extends BaseMemoryDatabase {
     OSchema schema = db.getMetadata().getSchema();
     schema.createClass(className, schema.getClass("V"));
 
+    db.begin();
     OResultSet result = db.command("create vertex " + className + " set name = 'name1'");
+    db.commit();
+
     printExecutionPlan(result);
     for (int i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
@@ -63,8 +66,10 @@ public class OCreateVertexStatementExecutionTest extends BaseMemoryDatabase {
     OSchema schema = db.getMetadata().getSchema();
     schema.createClass(className, schema.getClass("V"));
 
+    db.begin();
     OResultSet result =
         db.command("create vertex " + className + "  (name, surname) values ('name1', 'surname1')");
+    db.commit();
     printExecutionPlan(result);
     for (int i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
@@ -92,11 +97,14 @@ public class OCreateVertexStatementExecutionTest extends BaseMemoryDatabase {
     OSchema schema = db.getMetadata().getSchema();
     schema.createClass(className, schema.getClass("V"));
 
+    db.begin();
     OResultSet result =
         db.command(
             "create vertex "
                 + className
                 + "  (name, surname) values ('name1', 'surname1'), ('name2', 'surname2')");
+    db.commit();
+
     printExecutionPlan(result);
 
     for (int i = 0; i < 2; i++) {
@@ -131,9 +139,12 @@ public class OCreateVertexStatementExecutionTest extends BaseMemoryDatabase {
     OSchema schema = db.getMetadata().getSchema();
     schema.createClass(className, schema.getClass("V"));
 
+    db.begin();
     OResultSet result =
         db.command(
             "create vertex " + className + " content {'name':'name1', 'surname':'surname1'}");
+    db.commit();
+
     printExecutionPlan(result);
     for (int i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());

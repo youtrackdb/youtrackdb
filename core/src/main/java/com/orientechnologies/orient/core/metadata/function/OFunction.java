@@ -43,6 +43,7 @@ import java.util.Map;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OFunction extends ODocumentWrapper {
+
   public static final String CLASS_NAME = "OFunction";
   private OCallable<Object, Map<Object, Object>> callback;
 
@@ -147,8 +148,11 @@ public class OFunction extends ODocumentWrapper {
         // ORecordSerializerStringAbstract.getTypeValue(iArgs[i].toString());
         final Object argValue = iArgs[i];
 
-        if (params != null && i < params.size()) args.put(params.get(i), argValue);
-        else args.put("param" + i, argValue);
+        if (params != null && i < params.size()) {
+          args.put(params.get(i), argValue);
+        } else {
+          args.put("param" + i, argValue);
+        }
       }
     }
 
@@ -217,7 +221,9 @@ public class OFunction extends ODocumentWrapper {
     Object result;
     while (true) {
       try {
-        if (callback != null) return callback.call(iArgs);
+        if (callback != null) {
+          return callback.call(iArgs);
+        }
 
         OScriptExecutor executor =
             database
@@ -227,7 +233,7 @@ public class OFunction extends ODocumentWrapper {
                 .getCommandManager()
                 .getScriptExecutor(getLanguage());
 
-        result = executor.execute(database, getCode(), iArgs);
+        result = database.computeInTx(() -> executor.execute(database, getCode(), iArgs));
 
         break;
 
@@ -235,7 +241,7 @@ public class OFunction extends ODocumentWrapper {
       }
     }
 
-    if (Orient.instance().getProfiler().isRecording())
+    if (Orient.instance().getProfiler().isRecording()) {
       Orient.instance()
           .getProfiler()
           .stopChrono(
@@ -243,6 +249,7 @@ public class OFunction extends ODocumentWrapper {
               "Time to execute a function",
               start,
               "db.*.function.execute");
+    }
 
     return result;
   }

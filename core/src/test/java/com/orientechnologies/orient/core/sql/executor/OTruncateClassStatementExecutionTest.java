@@ -2,12 +2,9 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.BaseMemoryInternalDatabase;
 import com.orientechnologies.common.util.ORawPair;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
-import com.orientechnologies.orient.core.metadata.OMetadataInternal;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -75,7 +72,10 @@ public class OTruncateClassStatementExecutionTest extends BaseMemoryInternalData
   @Test
   public void testTruncateVertexClass() {
     db.command("create class TestTruncateVertexClass extends V");
+
+    db.begin();
     db.command("create vertex TestTruncateVertexClass set name = 'foo'");
+    db.commit();
 
     try {
       db.command("truncate class TestTruncateVertexClass");
@@ -99,8 +99,10 @@ public class OTruncateClassStatementExecutionTest extends BaseMemoryInternalData
     db.command(
         "create class TestTruncateVertexClassSubclass extends TestTruncateVertexClassSuperclass");
 
+    db.begin();
     db.command("insert into TestTruncateVertexClassSuperclass set name = 'foo'");
     db.command("insert into TestTruncateVertexClassSubclass set name = 'bar'");
+    db.commit();
 
     OResultSet result = db.query("select from TestTruncateVertexClassSuperclass");
     for (int i = 0; i < 2; i++) {
@@ -136,15 +138,15 @@ public class OTruncateClassStatementExecutionTest extends BaseMemoryInternalData
         "create class TestTruncateVertexClassSubclassWithIndex extends"
             + " TestTruncateVertexClassSuperclassWithIndex");
 
+    db.begin();
     db.command("insert into TestTruncateVertexClassSuperclassWithIndex set name = 'foo'");
     db.command("insert into TestTruncateVertexClassSubclassWithIndex set name = 'bar'");
+    db.commit();
 
-    if (!((ODatabaseInternal) db).getStorage().isRemote()) {
-      final OIndexManagerAbstract indexManager =
-          ((OMetadataInternal) db.getMetadata()).getIndexManagerInternal();
+    if (!db.getStorage().isRemote()) {
+      final OIndexManagerAbstract indexManager = db.getMetadata().getIndexManagerInternal();
       final OIndex indexOne =
-          indexManager.getIndex(
-              (ODatabaseDocumentInternal) db, "TestTruncateVertexClassSuperclassWithIndex_index");
+          indexManager.getIndex(db, "TestTruncateVertexClassSuperclassWithIndex_index");
       Assert.assertEquals(2, indexOne.getInternal().size());
 
       db.command("truncate class TestTruncateVertexClassSubclassWithIndex");

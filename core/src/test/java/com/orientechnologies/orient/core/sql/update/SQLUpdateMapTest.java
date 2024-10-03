@@ -17,6 +17,8 @@ public class SQLUpdateMapTest extends BaseMemoryDatabase {
     ODocument ret1;
     db.command("create class vRecord").close();
     db.command("create property vRecord.attrs EMBEDDEDMAP ").close();
+
+    db.begin();
     try (OResultSet rs = db.command("insert into vRecord (title) values('first record')")) {
       ret = (ODocument) rs.next().getRecord().get();
     }
@@ -24,6 +26,7 @@ public class SQLUpdateMapTest extends BaseMemoryDatabase {
     try (OResultSet rs = db.command("insert into vRecord (title) values('second record')")) {
       ret1 = (ODocument) rs.next().getRecord().get();
     }
+    db.commit();
 
     db.begin();
     db.command(

@@ -25,7 +25,11 @@ public class SQLAlterClassTest extends BaseMemoryDatabase {
     try {
       db.command("create class `Client-Type`").close();
       db.command("alter class `Client-Type` addcluster `client-type_usa`").close();
+
+      db.begin();
       db.command("insert into `Client-Type` set foo = 'bar'").close();
+      db.commit();
+
       OResultSet result = db.query("Select from `Client-Type`");
       Assert.assertEquals(result.stream().count(), 1);
     } catch (OCommandSQLParsingException ex) {

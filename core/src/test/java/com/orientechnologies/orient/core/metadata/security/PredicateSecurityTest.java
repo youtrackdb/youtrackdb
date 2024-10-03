@@ -123,9 +123,14 @@ public class PredicateSecurityTest {
         (ODatabaseDocumentInternal)
             orient.open(DB_NAME, "writer", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
 
+    db.begin();
     db.command("insert into Person SET name = 'foo'");
+    db.commit();
+
     try {
+      db.begin();
       db.command("insert into Person SET name = 'bar'");
+      db.commit();
       Assert.fail();
     } catch (OSecurityException ex) {
     }

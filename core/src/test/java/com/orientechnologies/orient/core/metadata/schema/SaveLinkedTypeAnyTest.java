@@ -13,11 +13,11 @@ public class SaveLinkedTypeAnyTest extends BaseMemoryDatabase {
   public void testRemoveLinkedType() {
     OSchema schema = db.getMetadata().getSchema();
     OClass classA = schema.createClass("TestRemoveLinkedType");
-    OProperty prop = classA.createProperty("prop", OType.EMBEDDEDLIST, OType.ANY);
+    classA.createProperty("prop", OType.EMBEDDEDLIST, OType.ANY);
 
-    //    db.command(new OCommandSQL("alter property TestRemoveLinkedType.prop linkedtype
-    // null")).execute();
+    db.begin();
     db.command("insert into TestRemoveLinkedType set prop = [4]").close();
+    db.commit();
 
     try (OResultSet result = db.query("select from TestRemoveLinkedType")) {
       Assert.assertTrue(result.hasNext());
@@ -35,7 +35,10 @@ public class SaveLinkedTypeAnyTest extends BaseMemoryDatabase {
     OProperty prop = classA.createProperty("prop", OType.EMBEDDEDLIST, OType.ANY);
 
     db.command("alter property TestRemoveLinkedType.prop linkedtype null").close();
+
+    db.begin();
     db.command("insert into TestRemoveLinkedType set prop = [4]").close();
+    db.commit();
 
     try (OResultSet result = db.query("select from TestRemoveLinkedType")) {
       Assert.assertTrue(result.hasNext());

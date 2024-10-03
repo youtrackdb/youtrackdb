@@ -23,9 +23,11 @@ public class OCommandExecutorSQLScriptTest extends BaseMemoryDatabase {
 
     db.command("CREATE class foo").close();
 
+    db.begin();
     db.command("insert into foo (name, bar) values ('a', 1)").close();
     db.command("insert into foo (name, bar) values ('b', 2)").close();
     db.command("insert into foo (name, bar) values ('c', 3)").close();
+    db.commit();
 
     db.activateOnCurrentThread();
   }

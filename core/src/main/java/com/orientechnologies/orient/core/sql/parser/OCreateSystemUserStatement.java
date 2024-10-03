@@ -115,7 +115,8 @@ public class OCreateSystemUserStatement extends OSimpleExecServerStatement {
             }
           }
           sb.append("])");
-          Stream<OResult> stream = db.command(sb.toString(), params.toArray()).stream();
+          Stream<OResult> stream =
+              db.computeInTx(() -> db.command(sb.toString(), params.toArray()).stream());
           return OExecutionStream.resultIterator(stream.iterator())
               .onClose((context) -> stream.close());
         });
@@ -160,8 +161,12 @@ public class OCreateSystemUserStatement extends OSimpleExecServerStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     OCreateSystemUserStatement that = (OCreateSystemUserStatement) o;
     return Objects.equals(name, that.name)
         && Objects.equals(passwordIdentifier, that.passwordIdentifier)

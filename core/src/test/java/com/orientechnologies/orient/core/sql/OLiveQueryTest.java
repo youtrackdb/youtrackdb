@@ -126,17 +126,21 @@ public class OLiveQueryTest {
     Integer token = tokens.getMonitorId();
     Assert.assertNotNull(token);
 
+    db.begin();
     db.command("insert into test set name = 'foo', surname = 'bar'").close();
     db.command("insert into test set name = 'foo', surname = 'baz'").close();
     db.command("insert into test2 set name = 'foo'").close();
+    db.commit();
 
     Assert.assertTrue(listener.latch.await(1, TimeUnit.MINUTES));
 
     tokens.unSubscribe();
 
+    db.begin();
     db.command("insert into test set name = 'foo', surname = 'bax'").close();
     db.command("insert into test2 set name = 'foo'").close();
     db.command("insert into test set name = 'foo', surname = 'baz'").close();
+    db.commit();
 
     Assert.assertEquals(listener.created.size(), 2);
     for (OResult res : listener.created) {
@@ -156,11 +160,13 @@ public class OLiveQueryTest {
 
     db.live("live select from cluster:" + storage.getClusterNameById(defaultCluster), listener);
 
+    db.begin();
     db.command(
             "insert into cluster:"
                 + storage.getClusterNameById(defaultCluster)
                 + " set name = 'foo', surname = 'bar'")
         .close();
+    db.commit();
 
     try {
       Assert.assertTrue(listener.latch.await(1, TimeUnit.MINUTES));
@@ -237,6 +243,7 @@ public class OLiveQueryTest {
 
     latch.await();
 
+    db.begin();
     db.command("insert into test set name = 'foo', surname = 'bar'").close();
 
     db.command(
@@ -248,6 +255,7 @@ public class OLiveQueryTest {
               }
             })
         .close();
+    db.commit();
 
     Integer integer = future.get();
     Assert.assertEquals(integer.intValue(), liveMatch);

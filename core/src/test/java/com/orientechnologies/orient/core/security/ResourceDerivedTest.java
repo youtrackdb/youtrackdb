@@ -56,7 +56,9 @@ public class ResourceDerivedTest {
     db.command("CREATE CLASS Customer_u1 extends Customer_t1");
     db.command("CREATE CLASS Customer_u2 extends Customer_t2");
 
+    db.begin();
     db.command("INSERT INTO ORole SET name = 'tenant1', mode = 0");
+    db.commit();
     db.command("ALTER ROLE tenant1 set policy rw ON database.class.*.*");
     db.begin();
     db.command("UPDATE ORole SET rules = {'database.class.customer': 2} WHERE name = ?", "tenant1");

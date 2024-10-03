@@ -55,9 +55,11 @@ public class ONonBlockingQueryTest {
     db.getMetadata().getSchema().createClass("test");
     MyResultListener listener = new MyResultListener(new CountDownLatch(1));
     try {
+      db.begin();
       db.command("insert into test set name = 'foo', surname = 'bar'").close();
+      db.commit();
 
-      db.query(new OSQLNonBlockingQuery<Object>("select from test bla blu", listener));
+      db.query(new OSQLNonBlockingQuery<>("select from test bla blu", listener));
       try {
         listener.latch.await(1, TimeUnit.MINUTES);
       } catch (InterruptedException e) {
@@ -66,7 +68,7 @@ public class ONonBlockingQueryTest {
       Assert.assertEquals(listener.finished, true);
 
       listener = new MyResultListener(new CountDownLatch(2));
-      db.query(new OSQLNonBlockingQuery<Object>("select from test", listener));
+      db.query(new OSQLNonBlockingQuery<>("select from test", listener));
 
     } finally {
       db.close();

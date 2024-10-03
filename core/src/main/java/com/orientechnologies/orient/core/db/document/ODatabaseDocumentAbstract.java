@@ -1339,75 +1339,58 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
           inVertex.getIdentity(), "The vertex " + inVertex.getIdentity() + " has been deleted");
     }
 
-    final int maxRetries = 1;
-    for (int retry = 0; retry < maxRetries; ++retry) {
-      try {
-        outDocument = currentVertex.getRecord();
-        if (outDocument == null) {
-          throw new IllegalArgumentException(
-              "source vertex is invalid (rid=" + currentVertex.getIdentity() + ")");
-        }
-
-        inDocument = inVertex.getRecord();
-        if (inDocument == null) {
-          throw new IllegalArgumentException(
-              "source vertex is invalid (rid=" + inVertex.getIdentity() + ")");
-        }
-
-        @SuppressWarnings("UnnecessaryLocalVariable")
-        OVertex to = inVertex;
-        @SuppressWarnings("UnnecessaryLocalVariable")
-        OVertex from = currentVertex;
-
-        OSchema schema = getMetadata().getImmutableSchemaSnapshot();
-        final OClass edgeType = schema.getClass(className);
-        className = edgeType.getName();
-
-        var useLightweightEdges = forceLightweight || isUseLightweightEdges();
-        var createLightweightEdge =
-            useLightweightEdges
-                && !forceRegular
-                && (edgeType.isAbstract() || className.equals(OEdgeInternal.CLASS_NAME));
-        if (useLightweightEdges && !createLightweightEdge) {
-          throw new IllegalArgumentException(
-              "Cannot create lightweight edge for class "
-                  + className
-                  + " because it is not abstract");
-        }
-
-        final String outFieldName = OVertex.getEdgeLinkFieldName(ODirection.OUT, className);
-        final String inFieldName = OVertex.getEdgeLinkFieldName(ODirection.IN, className);
-
-        if (createLightweightEdge) {
-          edge = newLightweightEdge(className, from, to);
-          OVertexInternal.createLink(from.getRecord(), to.getRecord(), outFieldName);
-          OVertexInternal.createLink(to.getRecord(), from.getRecord(), inFieldName);
-        } else {
-          edge = newEdgeInternal(className);
-          edge.setPropertyWithoutValidation(OEdgeInternal.DIRECTION_OUT, currentVertex.getRecord());
-          edge.setPropertyWithoutValidation(OEdge.DIRECTION_IN, inDocument.getRecord());
-
-          if (!outDocumentModified) {
-            // OUT-VERTEX ---> IN-VERTEX/EDGE
-            OVertexInternal.createLink(outDocument, edge.getRecord(), outFieldName);
-          }
-
-          // IN-VERTEX ---> OUT-VERTEX/EDGE
-          OVertexInternal.createLink(inDocument, edge.getRecord(), inFieldName);
-        }
-        // OK
-        break;
-      } catch (ONeedRetryException ignore) {
-        // RETRY
-        if (!outDocumentModified) {
-          if (outDocument != null) {
-            outDocument.reload();
-          }
-        } else if (inDocument != null) {
-          inDocument.reload();
-        }
-      }
+    outDocument = currentVertex.getRecord();
+    if (outDocument == null) {
+      throw new IllegalArgumentException(
+          "source vertex is invalid (rid=" + currentVertex.getIdentity() + ")");
     }
+
+    inDocument = inVertex.getRecord();
+    if (inDocument == null) {
+      throw new IllegalArgumentException(
+          "source vertex is invalid (rid=" + inVertex.getIdentity() + ")");
+    }
+
+    @SuppressWarnings("UnnecessaryLocalVariable")
+    OVertex to = inVertex;
+    @SuppressWarnings("UnnecessaryLocalVariable")
+    OVertex from = currentVertex;
+
+    OSchema schema = getMetadata().getImmutableSchemaSnapshot();
+    final OClass edgeType = schema.getClass(className);
+    className = edgeType.getName();
+
+    var useLightweightEdges = forceLightweight || isUseLightweightEdges();
+    var createLightweightEdge =
+        useLightweightEdges
+            && !forceRegular
+            && (edgeType.isAbstract() || className.equals(OEdgeInternal.CLASS_NAME));
+    if (useLightweightEdges && !createLightweightEdge) {
+      throw new IllegalArgumentException(
+          "Cannot create lightweight edge for class " + className + " because it is not abstract");
+    }
+
+    final String outFieldName = OVertex.getEdgeLinkFieldName(ODirection.OUT, className);
+    final String inFieldName = OVertex.getEdgeLinkFieldName(ODirection.IN, className);
+
+    if (createLightweightEdge) {
+      edge = newLightweightEdge(className, from, to);
+      OVertexInternal.createLink(from.getRecord(), to.getRecord(), outFieldName);
+      OVertexInternal.createLink(to.getRecord(), from.getRecord(), inFieldName);
+    } else {
+      edge = newEdgeInternal(className);
+      edge.setPropertyWithoutValidation(OEdgeInternal.DIRECTION_OUT, currentVertex.getRecord());
+      edge.setPropertyWithoutValidation(OEdge.DIRECTION_IN, inDocument.getRecord());
+
+      if (!outDocumentModified) {
+        // OUT-VERTEX ---> IN-VERTEX/EDGE
+        OVertexInternal.createLink(outDocument, edge.getRecord(), outFieldName);
+      }
+
+      // IN-VERTEX ---> OUT-VERTEX/EDGE
+      OVertexInternal.createLink(inDocument, edge.getRecord(), inFieldName);
+    }
+    // OK
 
     return edge;
   }

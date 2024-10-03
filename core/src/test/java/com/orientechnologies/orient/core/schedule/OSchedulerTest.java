@@ -148,11 +148,12 @@ public class OSchedulerTest {
         ODatabaseSession db =
             context.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
       OFunction func = createFunction(db);
-      // CREATE NEW EVENT
+      db.begin();
       db.command(
               "insert into oschedule set name = 'test', function = ?, rule = \"0/1 * * * * ?\"",
               func.getId())
           .close();
+      db.commit();
 
       BaseMemoryDatabase.assertWithTimeout(
           db,

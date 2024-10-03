@@ -51,7 +51,9 @@ import org.junit.Test;
  * @author Luigi Dell'Aquila (l.dellaquila - at - orientdb.com)
  */
 public class OLiveQueryV2Test {
+
   class MyLiveQueryListener implements OLiveQueryResultListener {
+
     public CountDownLatch latch;
 
     public MyLiveQueryListener(CountDownLatch latch) {
@@ -98,17 +100,21 @@ public class OLiveQueryV2Test {
       OLiveQueryMonitor monitor = db.live("select from test", listener);
       Assert.assertNotNull(monitor);
 
+      db.begin();
       db.command("insert into test set name = 'foo', surname = 'bar'").close();
       db.command("insert into test set name = 'foo', surname = 'baz'").close();
       db.command("insert into test2 set name = 'foo'").close();
+      db.commit();
 
       Assert.assertTrue(listener.latch.await(1, TimeUnit.MINUTES));
 
       monitor.unSubscribe();
 
+      db.begin();
       db.command("insert into test set name = 'foo', surname = 'bax'").close();
       db.command("insert into test2 set name = 'foo'").close();
       db.command("insert into test set name = 'foo', surname = 'baz'").close();
+      db.commit();
 
       Assert.assertEquals(listener.ops.size(), 2);
       for (OResult doc : listener.ops) {
@@ -142,7 +148,9 @@ public class OLiveQueryV2Test {
 
       db.live(" select from cluster:" + clusterName, listener);
 
+      db.begin();
       db.command("insert into cluster:" + clusterName + " set name = 'foo', surname = 'bar'");
+      db.commit();
 
       try {
         Assert.assertTrue(listener.latch.await(1, TimeUnit.MINUTES));
@@ -169,17 +177,16 @@ public class OLiveQueryV2Test {
             context.open(
                 "testLiveWithWhereCondition", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
 
-      OClass clazz = db.getMetadata().getSchema().createClass("test");
-
-      int defaultCluster = clazz.getDefaultClusterId();
-      String clusterName = db.getStorage().getClusterNameById(defaultCluster);
+      db.getMetadata().getSchema().createClass("test");
 
       OLiveQueryV2Test.MyLiveQueryListener listener =
           new OLiveQueryV2Test.MyLiveQueryListener(new CountDownLatch(1));
 
       db.live("select from V where id = 1", listener);
 
+      db.begin();
       db.command("insert into V set id = 1");
+      db.commit();
 
       try {
         Assert.assertTrue(listener.latch.await(1, TimeUnit.MINUTES));
@@ -264,8 +271,8 @@ public class OLiveQueryV2Test {
 
       latch.await();
 
+      db.begin();
       db.command("insert into test set name = 'foo', surname = 'bar'").close();
-
       db.command(
               "insert into test set name = 'foo', surname = 'bar', _allow=?",
               new ArrayList<OIdentifiable>() {
@@ -275,6 +282,7 @@ public class OLiveQueryV2Test {
                 }
               })
           .close();
+      db.commit();
 
       Integer integer = future.get();
       Assert.assertEquals(integer.intValue(), liveMatch);
@@ -297,18 +305,21 @@ public class OLiveQueryV2Test {
       OLiveQueryMonitor monitor = db.live("select @class, @rid as rid, name from test", listener);
       Assert.assertNotNull(monitor);
 
+      db.begin();
       db.command("insert into test set name = 'foo', surname = 'bar'").close();
       db.command("insert into test set name = 'foo', surname = 'baz'").close();
       db.command("insert into test2 set name = 'foo'").close();
+      db.commit();
 
       Assert.assertTrue(listener.latch.await(5, TimeUnit.SECONDS));
 
       monitor.unSubscribe();
 
+      db.begin();
       db.command("insert into test set name = 'foo', surname = 'bax'").close();
       db.command("insert into test2 set name = 'foo'").close();
-      ;
       db.command("insert into test set name = 'foo', surname = 'baz'").close();
+      db.commit();
 
       Assert.assertEquals(listener.ops.size(), 2);
       for (OResult doc : listener.ops) {

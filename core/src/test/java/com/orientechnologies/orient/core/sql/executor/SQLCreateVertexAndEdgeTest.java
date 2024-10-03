@@ -44,43 +44,61 @@ public class SQLCreateVertexAndEdgeTest extends BaseMemoryDatabase {
     db.getMetadata().getSchema().reload();
 
     // VERTEXES
+    db.begin();
     OVertex v1 = db.command("create vertex").next().getVertex().get();
+    db.commit();
     Assert.assertEquals(v1.getSchemaType().get().getName(), "V");
 
+    db.begin();
     OVertex v2 = db.command("create vertex V1").next().getVertex().get();
+    db.commit();
     Assert.assertEquals(v2.getSchemaType().get().getName(), "V1");
 
+    db.begin();
     OVertex v3 = db.command("create vertex set brand = 'fiat'").next().getVertex().get();
+    db.commit();
     Assert.assertEquals(v3.getSchemaType().get().getName(), "V");
     Assert.assertEquals(v3.getProperty("brand"), "fiat");
 
+    db.begin();
     OVertex v4 =
         db.command("create vertex V1 set brand = 'fiat',name = 'wow'").next().getVertex().get();
+    db.commit();
     Assert.assertEquals(v4.getSchemaType().get().getName(), "V1");
     Assert.assertEquals(v4.getProperty("brand"), "fiat");
     Assert.assertEquals(v4.getProperty("name"), "wow");
 
+    db.begin();
     OVertex v5 = db.command("create vertex V1 cluster vdefault").next().getVertex().get();
+    db.commit();
     Assert.assertEquals(v5.getSchemaType().get().getName(), "V1");
     Assert.assertEquals(v5.getIdentity().getClusterId(), vclusterId);
 
     // EDGES
+    db.begin();
     OResultSet edges =
         db.command("create edge from " + v1.getIdentity() + " to " + v2.getIdentity());
+    db.commit();
     assertEquals(edges.stream().count(), 1);
 
+    db.begin();
     edges = db.command("create edge E1 from " + v1.getIdentity() + " to " + v3.getIdentity());
+    db.commit();
     assertEquals(edges.stream().count(), 1);
 
+    db.begin();
     edges =
         db.command(
             "create edge from " + v1.getIdentity() + " to " + v4.getIdentity() + " set weight = 3");
+    db.commit();
+
     ODocument e3 = edges.next().getIdentity().get().getRecord();
     Assert.assertEquals(e3.getClassName(), "E");
     Assert.assertEquals(e3.field("out"), v1);
     Assert.assertEquals(e3.field("in"), v4);
     Assert.assertEquals(e3.<Object>field("weight"), 3);
 
+    db.begin();
     edges =
         db.command(
             "create edge E1 from "
@@ -88,12 +106,14 @@ public class SQLCreateVertexAndEdgeTest extends BaseMemoryDatabase {
                 + " to "
                 + v3.getIdentity()
                 + " set weight = 10");
+    db.commit();
     ODocument e4 = edges.next().getIdentity().get().getRecord();
     Assert.assertEquals(e4.getClassName(), "E1");
     Assert.assertEquals(e4.field("out"), v2);
     Assert.assertEquals(e4.field("in"), v3);
     Assert.assertEquals(e4.<Object>field("weight"), 10);
 
+    db.begin();
     edges =
         db.command(
             "create edge e1 cluster edefault from "
@@ -101,6 +121,7 @@ public class SQLCreateVertexAndEdgeTest extends BaseMemoryDatabase {
                 + " to "
                 + v5.getIdentity()
                 + " set weight = 17");
+    db.commit();
     ODocument e5 = edges.next().getIdentity().get().getRecord();
     Assert.assertEquals(e5.getClassName(), "E1");
     Assert.assertEquals(e5.getIdentity().getClusterId(), eclusterId);
@@ -138,13 +159,15 @@ public class SQLCreateVertexAndEdgeTest extends BaseMemoryDatabase {
 
   @Test
   public void testNewParser() {
+    db.begin();
     OVertex v1 = db.command("create vertex").next().getVertex().get();
+    db.commit();
 
     Assert.assertEquals(v1.getSchemaType().get().getName(), "V");
 
     ORID vid = v1.getIdentity();
-    // TODO remove this
 
+    db.begin();
     db.command("create edge from " + vid + " to " + vid).close();
 
     db.command("create edge E from " + vid + " to " + vid).close();
@@ -152,6 +175,7 @@ public class SQLCreateVertexAndEdgeTest extends BaseMemoryDatabase {
     db.command("create edge from " + vid + " to " + vid + " set foo = 'bar'").close();
 
     db.command("create edge E from " + vid + " to " + vid + " set bar = 'foo'").close();
+    db.commit();
   }
 
   @Test

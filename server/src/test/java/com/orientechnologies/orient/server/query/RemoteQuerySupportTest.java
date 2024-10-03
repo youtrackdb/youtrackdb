@@ -82,12 +82,14 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
       db.commit();
     }
 
+    db.begin();
     OResultSet res = db.command("insert into V from select from Some");
     for (int i = 0; i < 150; i++) {
       assertTrue(res.hasNext());
       OResult item = res.next();
       assertEquals(item.getProperty("prop"), "value");
     }
+    db.commit();
   }
 
   @Test(expected = ODatabaseException.class)
@@ -251,12 +253,15 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
   public void testScriptWithRidbags() {
     db.command("create class testScriptWithRidbagsV extends V");
     db.command("create class testScriptWithRidbagsE extends E");
+
+    db.begin();
     db.command("create vertex testScriptWithRidbagsV set name = 'a'");
     db.command("create vertex testScriptWithRidbagsV set name = 'b'");
 
     db.command(
         "create edge testScriptWithRidbagsE from (select from testScriptWithRidbagsV where name ="
             + " 'a') TO (select from testScriptWithRidbagsV where name = 'b');");
+    db.commit();
 
     String script = "";
     script += "BEGIN;";
@@ -267,7 +272,7 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
 
     OResultSet rs = db.execute("sql", script);
 
-    rs.forEachRemaining(x -> System.out.println(x));
+    rs.forEachRemaining(System.out::println);
     rs.close();
   }
 
@@ -275,11 +280,14 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
   public void testLetOut() {
     db.command("create class letVertex extends V");
     db.command("create class letEdge extends E");
+
+    db.begin();
     db.command("create vertex letVertex set name = 'a'");
     db.command("create vertex letVertex set name = 'b'");
     db.command(
         "create edge letEdge from (select from letVertex where name = 'a') TO (select from"
             + " letVertex where name = 'b');");
+    db.commit();
 
     OResultSet rs =
         db.query("select $someNode.in('letEdge') from letVertex LET $someNode =out('letEdge');");
