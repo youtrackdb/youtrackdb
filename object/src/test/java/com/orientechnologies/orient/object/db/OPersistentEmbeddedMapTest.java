@@ -15,17 +15,17 @@ import org.junit.Test;
 public class OPersistentEmbeddedMapTest {
 
   private OPartitionedDatabasePool pool;
-  private OObjectDatabaseTx createdDb;
+  private OObjectDatabaseTxInternal createdDb;
 
   @Before
   public void setup() {
     final String url = "memory:tmpdb";
-    createdDb = new OObjectDatabaseTx(url);
+    createdDb = new OObjectDatabaseTxInternal(url);
     createdDb.create();
 
     pool = new OPartitionedDatabasePool(url, "admin", "admin");
 
-    OObjectDatabaseTx db = new OObjectDatabaseTx(pool.acquire());
+    OObjectDatabaseTxInternal db = new OObjectDatabaseTxInternal(pool.acquire());
     try {
       db.setAutomaticSchemaGeneration(true);
       OEntityManager entityManager = db.getEntityManager();
@@ -48,7 +48,7 @@ public class OPersistentEmbeddedMapTest {
   public void embeddedMapShouldContainCorrectValues() {
     Person person = createTestPerson();
     Person retrievedPerson;
-    OObjectDatabaseTx db = new OObjectDatabaseTx(pool.acquire());
+    OObjectDatabaseTxInternal db = new OObjectDatabaseTxInternal(pool.acquire());
     try {
       db.begin();
       db.save(person);

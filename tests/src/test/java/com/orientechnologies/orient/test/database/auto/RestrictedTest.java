@@ -336,9 +336,12 @@ public class RestrictedTest extends DocumentDBBaseTest {
     database.close();
 
     database.open("admin", "admin");
+    database.begin();
     database
         .command(new OCommandSQL("update TestUpdateRestricted content {\"data\":\"My Test\"}"))
         .execute();
+    database.commit();
+
     result = database.query("select from TestUpdateRestricted");
     OResult res = result.next();
     Assert.assertFalse(result.hasNext());

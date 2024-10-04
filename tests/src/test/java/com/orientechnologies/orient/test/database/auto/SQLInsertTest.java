@@ -356,6 +356,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "insertOperator")
   public void insertCluster() {
+    database.begin();
     ODocument doc =
         database
             .command(
@@ -363,6 +364,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
                     "insert into Account cluster anotherdefault (id, title) values (10, 'NoSQL"
                         + " movement')"))
             .execute();
+    database.commit();
 
     Assert.assertNotNull(doc);
     Assert.assertEquals(
@@ -657,6 +659,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
         OType.EMBEDDEDMAP,
         database.getMetadata().getSchema().getOrCreateClass("TestConvertLinkedClass"));
 
+    database.begin();
     ODocument doc =
         database
             .command(
@@ -664,6 +667,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
                     "INSERT INTO TestConvert SET name = 'embeddedMapWithLinkedClass',"
                         + " embeddedMapWithLinkedClass = {test:{'line1':'123 Fake Street'}}"))
             .execute();
+    database.commit();
 
     Assert.assertTrue(doc.field("embeddedMapWithLinkedClass") instanceof Map);
 
@@ -679,6 +683,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     OClass c = database.getMetadata().getSchema().getOrCreateClass("TestConvert");
     c.createProperty("embeddedNoLinkedClass", OType.EMBEDDED);
 
+    database.begin();
     ODocument doc =
         database
             .command(
@@ -686,6 +691,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
                     "INSERT INTO TestConvert SET name = 'embeddedNoLinkedClass',"
                         + " embeddedNoLinkedClass = {'line1':'123 Fake Street'}"))
             .execute();
+    database.commit();
 
     Assert.assertTrue(doc.field("embeddedNoLinkedClass") instanceof ODocument);
   }

@@ -14,12 +14,12 @@ import org.junit.Test;
  */
 public class OObjectLazyListTest {
 
-  private OObjectDatabaseTx databaseTx;
+  private OObjectDatabaseTxInternal databaseTx;
   private int count;
 
   @Before
   public void setUp() throws Exception {
-    databaseTx = new OObjectDatabaseTx("memory:OObjectEnumLazyListTest");
+    databaseTx = new OObjectDatabaseTxInternal("memory:OObjectEnumLazyListTest");
     databaseTx.create();
 
     databaseTx.getEntityManager().registerEntityClass(EntityObject.class);

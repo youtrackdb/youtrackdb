@@ -3,7 +3,7 @@ package com.orientechnologies.orient.object.db;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabasePool;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
-import com.orientechnologies.orient.core.db.object.ODatabaseObject;
+import com.orientechnologies.orient.core.db.object.ODatabaseObjectInternal;
 
 /** Created by tglman on 13/01/17. */
 public class ODatabaseObjectPool implements AutoCloseable {
@@ -45,8 +45,8 @@ public class ODatabaseObjectPool implements AutoCloseable {
     pool = new ODatabasePool(environment, database, user, password, configuration);
   }
 
-  public ODatabaseObject acquire() {
-    return new OObjectDatabaseTx((ODatabaseDocumentInternal) pool.acquire());
+  public ODatabaseObjectInternal acquire() {
+    return new OObjectDatabaseTxInternal((ODatabaseDocumentInternal) pool.acquire());
   }
 
   public void close() {

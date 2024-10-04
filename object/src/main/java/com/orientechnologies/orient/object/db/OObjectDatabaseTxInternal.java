@@ -35,7 +35,7 @@ import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.OSharedContext;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
-import com.orientechnologies.orient.core.db.object.ODatabaseObject;
+import com.orientechnologies.orient.core.db.object.ODatabaseObjectInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
@@ -93,8 +93,9 @@ import javassist.util.proxy.ProxyObject;
  * @see ODatabaseDocumentTx
  */
 @SuppressWarnings("unchecked")
-public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumentInternal, Object>
-    implements ODatabaseObject {
+public class OObjectDatabaseTxInternal
+    extends ODatabaseWrapperAbstract<ODatabaseDocumentInternal, Object>
+    implements ODatabaseObjectInternal {
 
   public static final String TYPE = "object";
   protected ODictionary<Object> dictionary;
@@ -105,7 +106,7 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
   protected OMetadataObject metadata;
 
   @Deprecated
-  public OObjectDatabaseTx(final String iURL) {
+  public OObjectDatabaseTxInternal(final String iURL) {
     super(new ODatabaseDocumentTx(iURL));
     underlying.setDatabaseOwner(this);
     init();
@@ -116,7 +117,7 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
    *
    * @param iDatabase an open database connection
    */
-  public OObjectDatabaseTx(ODatabaseDocumentInternal iDatabase) {
+  public OObjectDatabaseTxInternal(ODatabaseDocumentInternal iDatabase) {
     super(iDatabase);
     underlying.setDatabaseOwner(this);
     init();
@@ -523,7 +524,7 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
     }
   }
 
-  public ODatabaseObject delete(final Object iPojo) {
+  public ODatabaseObjectInternal delete(final Object iPojo) {
     checkOpenness();
 
     if (iPojo == null) {
@@ -558,7 +559,7 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
   }
 
   @Override
-  public ODatabaseObject delete(final ORID iRID) {
+  public ODatabaseObjectInternal delete(final ORID iRID) {
     checkOpenness();
 
     if (iRID == null) {
@@ -583,7 +584,7 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
     return this;
   }
 
-  public ODatabaseObject delete(final ORecord iRecord) {
+  public ODatabaseObjectInternal delete(final ORecord iRecord) {
     underlying.delete(iRecord);
     return this;
   }
@@ -620,13 +621,13 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
     return underlying.getTransaction();
   }
 
-  public OObjectDatabaseTx begin() {
+  public OObjectDatabaseTxInternal begin() {
     underlying.begin();
     return this;
   }
 
   @Override
-  public OObjectDatabaseTx commit() {
+  public OObjectDatabaseTxInternal commit() {
     // BY PASS DOCUMENT DB
     underlying.commit();
 
@@ -657,12 +658,12 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
   }
 
   @Override
-  public OObjectDatabaseTx rollback() {
+  public OObjectDatabaseTxInternal rollback() {
     return rollback(false);
   }
 
   @Override
-  public OObjectDatabaseTx rollback(final boolean force) throws OTransactionException {
+  public OObjectDatabaseTxInternal rollback(final boolean force) throws OTransactionException {
     // BYPASS DOCUMENT DB
     underlying.rollback(force);
 
@@ -821,13 +822,13 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
   }
 
   @Override
-  public OObjectDatabaseTx setConflictStrategy(final ORecordConflictStrategy iResolver) {
+  public OObjectDatabaseTxInternal setConflictStrategy(final ORecordConflictStrategy iResolver) {
     underlying.setConflictStrategy(iResolver);
     return this;
   }
 
   @Override
-  public OObjectDatabaseTx setConflictStrategy(final String iStrategyName) {
+  public OObjectDatabaseTxInternal setConflictStrategy(final String iStrategyName) {
     underlying.setConflictStrategy(iStrategyName);
     return this;
   }
@@ -1142,7 +1143,7 @@ public class OObjectDatabaseTx extends ODatabaseWrapperAbstract<ODatabaseDocumen
    * @see #isRetainObjects()
    */
   @Deprecated
-  public OObjectDatabaseTx setRetainObjects(final boolean iValue) {
+  public OObjectDatabaseTxInternal setRetainObjects(final boolean iValue) {
     return this;
   }
 

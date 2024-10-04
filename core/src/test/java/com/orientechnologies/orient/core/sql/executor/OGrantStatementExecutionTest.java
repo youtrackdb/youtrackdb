@@ -22,7 +22,9 @@ public class OGrantStatementExecutionTest extends BaseMemoryDatabase {
             .createRole("testRole", OSecurityRole.ALLOW_MODES.DENY_ALL_BUT);
     Assert.assertFalse(
         testRole.allow(ORule.ResourceGeneric.SERVER, "server", ORole.PERMISSION_EXECUTE));
+    db.begin();
     db.command("GRANT execute on server.remove to testRole");
+    db.commit();
     testRole = db.getMetadata().getSecurity().getRole("testRole");
     Assert.assertTrue(
         testRole.allow(ORule.ResourceGeneric.SERVER, "remove", ORole.PERMISSION_EXECUTE));

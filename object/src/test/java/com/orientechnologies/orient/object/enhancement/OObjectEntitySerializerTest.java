@@ -2,7 +2,7 @@ package com.orientechnologies.orient.object.enhancement;
 
 import static org.junit.Assert.assertTrue;
 
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTxInternal;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,11 +13,11 @@ import org.junit.Test;
  */
 public class OObjectEntitySerializerTest {
 
-  private OObjectDatabaseTx databaseTx;
+  private OObjectDatabaseTxInternal databaseTx;
 
   @Before
   public void setUp() throws Exception {
-    databaseTx = new OObjectDatabaseTx("memory:OObjectEntitySerializerTest");
+    databaseTx = new OObjectDatabaseTxInternal("memory:OObjectEntitySerializerTest");
     databaseTx.create();
 
     databaseTx.getEntityManager().registerEntityClass(ExactEntity.class);

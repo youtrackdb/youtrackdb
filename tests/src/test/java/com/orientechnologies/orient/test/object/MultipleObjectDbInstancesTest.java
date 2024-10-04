@@ -24,7 +24,7 @@ import static org.testng.Assert.assertTrue;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTxInternal;
 import java.io.IOException;
 import javax.persistence.Id;
 import javax.persistence.Version;
@@ -47,7 +47,7 @@ public class MultipleObjectDbInstancesTest {
     ODatabaseDocumentInternal db =
         (ODatabaseDocumentInternal)
             orientDB.open("MultipleDbInstancesTest_first", "admin", "adminpwd");
-    OObjectDatabaseTx objectDb = new OObjectDatabaseTx(db);
+    OObjectDatabaseTxInternal objectDb = new OObjectDatabaseTxInternal(db);
     objectDb.setAutomaticSchemaGeneration(true);
     objectDb.getEntityManager().registerEntityClass(V.class);
     objectDb.getEntityManager().registerEntityClass(X.class);
@@ -62,7 +62,7 @@ public class MultipleObjectDbInstancesTest {
     ODatabaseDocumentInternal db1 =
         (ODatabaseDocumentInternal)
             orientDB.open("MultipleDbInstancesTest_second", "admin", "adminpwd");
-    OObjectDatabaseTx objectDb1 = new OObjectDatabaseTx(db1);
+    OObjectDatabaseTxInternal objectDb1 = new OObjectDatabaseTxInternal(db1);
 
     assertTrue(objectDb1.getMetadata().getSchema().existsClass("V"));
     assertTrue(objectDb1.getMetadata().getSchema().existsClass("X"));

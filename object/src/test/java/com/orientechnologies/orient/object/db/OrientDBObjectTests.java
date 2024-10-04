@@ -5,7 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.object.ODatabaseObject;
+import com.orientechnologies.orient.core.db.object.ODatabaseObjectInternal;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import java.util.List;
 import org.junit.Test;
@@ -21,7 +21,7 @@ public class OrientDBObjectTests {
       factory.execute("create database test memory users(admin identified by 'admin' role admin)");
     }
 
-    ODatabaseObject db = factory.open("test", "admin", "admin");
+    ODatabaseObjectInternal db = factory.open("test", "admin", "admin");
     db.close();
     factory.close();
   }
@@ -59,7 +59,7 @@ public class OrientDBObjectTests {
     }
 
     ODatabaseObjectPool pool = new ODatabaseObjectPool(factory, "test", "admin", "admin");
-    ODatabaseObject db = pool.acquire();
+    ODatabaseObjectInternal db = pool.acquire();
     db.close();
     pool.close();
     factory.close();

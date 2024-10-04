@@ -36,12 +36,13 @@ import com.orientechnologies.orient.core.metadata.security.OToken;
  * @see ODatabasePoolBase
  */
 @SuppressWarnings("unchecked")
-public class OObjectDatabaseTxPooled extends OObjectDatabaseTx implements ODatabasePooled {
+public class OObjectDatabaseTxInternalPooled extends OObjectDatabaseTxInternal
+    implements ODatabasePooled {
 
   private OObjectDatabasePool ownerPool;
   private final String userName;
 
-  public OObjectDatabaseTxPooled(
+  public OObjectDatabaseTxInternalPooled(
       final OObjectDatabasePool iOwnerPool,
       final String iURL,
       final String iUserName,
@@ -69,21 +70,21 @@ public class OObjectDatabaseTxPooled extends OObjectDatabaseTx implements ODatab
   }
 
   @Override
-  public OObjectDatabaseTxPooled open(String iUserName, String iUserPassword) {
+  public OObjectDatabaseTxInternalPooled open(String iUserName, String iUserPassword) {
     throw new UnsupportedOperationException(
         "Database instance was retrieved from a pool. You cannot open the database in this way. Use"
             + " directly a OObjectDatabaseTx instance if you want to manually open the connection");
   }
 
   @Override
-  public OObjectDatabaseTxPooled open(OToken iToken) {
+  public OObjectDatabaseTxInternalPooled open(OToken iToken) {
     throw new UnsupportedOperationException(
         "Database instance was retrieved from a pool. You cannot open the database in this way. Use"
             + " directly a OObjectDatabaseTx instance if you want to manually open the connection");
   }
 
   @Override
-  public OObjectDatabaseTxPooled create() {
+  public OObjectDatabaseTxInternalPooled create() {
     throw new UnsupportedOperationException(
         "Database instance was retrieved from a pool. You cannot open the database in this way. Use"
             + " directly a OObjectDatabaseTx instance if you want to manually open the connection");

@@ -23,7 +23,7 @@ import com.orientechnologies.orient.core.db.ODatabasePoolBase;
 
 /** @deprecated Please use com.orientechnologies.orient.core.db.OPartitionedDatabasePool instead. */
 @Deprecated
-public class OObjectDatabasePool extends ODatabasePoolBase<OObjectDatabaseTx> {
+public class OObjectDatabasePool extends ODatabasePoolBase<OObjectDatabaseTxInternal> {
   private static OObjectDatabasePool globalInstance = new OObjectDatabasePool();
 
   public OObjectDatabasePool() {
@@ -46,9 +46,9 @@ public class OObjectDatabasePool extends ODatabasePoolBase<OObjectDatabaseTx> {
   }
 
   @Override
-  protected OObjectDatabaseTx createResource(
+  protected OObjectDatabaseTxInternal createResource(
       final Object owner, final String iDatabaseName, final Object... iAdditionalArgs) {
-    return new OObjectDatabaseTxPooled(
+    return new OObjectDatabaseTxInternalPooled(
         (OObjectDatabasePool) owner,
         iDatabaseName,
         (String) iAdditionalArgs[0],

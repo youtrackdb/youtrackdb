@@ -41,7 +41,7 @@ public class OObjectLazyIterator<TYPE> implements Iterator<TYPE>, Serializable {
   private static final long serialVersionUID = -4012483076050044405L;
 
   private final ProxyObject sourceRecord;
-  private final OObjectDatabaseTx database;
+  private final OObjectDatabaseTxInternal database;
   private final Iterator<? extends Object> underlying;
   private String fetchPlan;
   private final boolean autoConvert2Object;
@@ -49,7 +49,7 @@ public class OObjectLazyIterator<TYPE> implements Iterator<TYPE>, Serializable {
   private boolean orphanRemoval = false;
 
   public OObjectLazyIterator(
-      final OObjectDatabaseTx database,
+      final OObjectDatabaseTxInternal database,
       final ProxyObject iSourceRecord,
       final Iterator<? extends Object> iIterator,
       final boolean iConvertToRecord,

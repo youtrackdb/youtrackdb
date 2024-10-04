@@ -39,7 +39,22 @@ public interface ODatabaseSession extends ODatabaseDocument {
     return tl.get();
   }
 
+  /**
+   * Executes the passed in code in a transaction.
+   * Starts a transaction if not already started, in this case the transaction is committed after
+   * the code is executed or rolled back if an exception is thrown.
+   * @param runnable Code to execute in transaction
+   */
   void executeInTx(Runnable runnable);
 
+  /**
+   * Executes the given code in a transaction.
+   * Starts a transaction if not already started, in this case the transaction is committed after
+   * the code is executed or rolled back if an exception is thrown.
+   *
+   * @param supplier Code to execute in transaction
+   * @return the result of the code execution
+   * @param <T> the type of the returned result
+   */
   <T> T computeInTx(Supplier<T> supplier);
 }

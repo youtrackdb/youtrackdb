@@ -47,8 +47,7 @@ public abstract class OSimpleExecStatement extends OStatement {
     }
     ctx.setInputParameters(params);
     OSingleOpExecutionPlan executionPlan = (OSingleOpExecutionPlan) createExecutionPlan(ctx, false);
-    return db.computeInTx(
-        () -> new OExecutionResultSet(executionPlan.executeInternal(ctx), ctx, executionPlan));
+    return new OExecutionResultSet(executionPlan.executeInternal(ctx), ctx, executionPlan);
   }
 
   public OResultSet execute(

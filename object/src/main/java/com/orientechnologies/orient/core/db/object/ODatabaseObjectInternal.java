@@ -20,6 +20,7 @@
 package com.orientechnologies.orient.core.db.object;
 
 import com.orientechnologies.orient.core.db.ODatabase;
+import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.OUserObject2RecordHandler;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.entity.OEntityManager;
@@ -36,7 +37,8 @@ import java.util.Map;
  *
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
-public interface ODatabaseObject extends ODatabase<Object>, OUserObject2RecordHandler {
+public interface ODatabaseObjectInternal
+    extends ODatabaseInternal<Object>, OUserObject2RecordHandler {
 
   /**
    * Sets as dirty a POJO. This is useful when you change the object and need to tell to the engine
@@ -118,8 +120,7 @@ public interface ODatabaseObject extends ODatabase<Object>, OUserObject2RecordHa
 
   /**
    * Method that detaches all fields contained in the document to the given object. It returns by
-   * default a proxied instance. To get a detached non proxied instance @see {@link
-   * OObjectEntitySerializer.detach(T, ODatabaseObject)}
+   * default a proxied instance.
    *
    * @param iPojo :- the object to detach
    * @return the detached object

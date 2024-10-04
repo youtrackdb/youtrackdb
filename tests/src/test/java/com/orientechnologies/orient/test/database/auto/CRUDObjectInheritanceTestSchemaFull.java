@@ -30,7 +30,7 @@ import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTxInternal;
 import com.orientechnologies.orient.object.enhancement.OObjectEntitySerializer;
 import com.orientechnologies.orient.test.domain.base.IdObject;
 import com.orientechnologies.orient.test.domain.base.Instrument;
@@ -78,7 +78,7 @@ public class CRUDObjectInheritanceTestSchemaFull extends ObjectDBBaseTest {
 
     database.close();
 
-    database = new OObjectDatabaseTx(url + "_objectschema");
+    database = new OObjectDatabaseTxInternal(url + "_objectschema");
     ODatabaseHelper.dropDatabase(database, getStorageType());
     ODatabaseHelper.createDatabase(database, url + "_objectschema", getStorageType());
 

@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTxInternal;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
@@ -10,7 +10,7 @@ import org.testng.annotations.Test;
  * @since 7/3/14
  */
 @Test
-public class ObjectDBBaseTest extends BaseTest<OObjectDatabaseTx> {
+public class ObjectDBBaseTest extends BaseTest<OObjectDatabaseTxInternal> {
   public ObjectDBBaseTest() {}
 
   @Parameters(value = "url")
@@ -24,7 +24,7 @@ public class ObjectDBBaseTest extends BaseTest<OObjectDatabaseTx> {
   }
 
   @Override
-  protected OObjectDatabaseTx createDatabaseInstance(String url) {
-    return new OObjectDatabaseTx(url);
+  protected OObjectDatabaseTxInternal createDatabaseInstance(String url) {
+    return new OObjectDatabaseTxInternal(url);
   }
 }

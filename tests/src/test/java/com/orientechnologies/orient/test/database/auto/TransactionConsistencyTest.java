@@ -26,7 +26,7 @@ import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTxInternal;
 import com.orientechnologies.orient.test.domain.business.Account;
 import com.orientechnologies.orient.test.domain.business.Address;
 import java.io.IOException;
@@ -756,7 +756,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
   @Test
   public void testRollbackWithRemove() {
     // check if the database exists and clean before running tests
-    OObjectDatabaseTx database = new OObjectDatabaseTx(url);
+    OObjectDatabaseTxInternal database = new OObjectDatabaseTxInternal(url);
     database.open("admin", "admin");
 
     try {
@@ -819,7 +819,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
   }
 
   public void testTransactionsCache() throws Exception {
-    OObjectDatabaseTx database = new OObjectDatabaseTx(url);
+    OObjectDatabaseTxInternal database = new OObjectDatabaseTxInternal(url);
     database.open("admin", "admin");
 
     try {

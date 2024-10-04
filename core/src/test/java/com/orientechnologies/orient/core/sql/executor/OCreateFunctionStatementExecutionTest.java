@@ -12,6 +12,7 @@ public class OCreateFunctionStatementExecutionTest extends BaseMemoryDatabase {
   @Test
   public void testPlain() {
     String name = "testPlain";
+    db.begin();
     OResultSet result =
         db.command(
             "CREATE FUNCTION " + name + " \"return a + b;\" PARAMETERS [a,b] language javascript");
@@ -21,6 +22,7 @@ public class OCreateFunctionStatementExecutionTest extends BaseMemoryDatabase {
     Assert.assertNotNull(next);
     Assert.assertEquals(name, next.getProperty("functionName"));
     result.close();
+    db.commit();
 
     result = db.query("select " + name + "('foo', 'bar') as sum");
     Assert.assertTrue(result.hasNext());

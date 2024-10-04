@@ -27,7 +27,7 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.serialization.serializer.OJSONWriter;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerSchemaAware2CSV;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTxInternal;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -369,7 +369,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
 
   @Test
   public void testFetchedJson() throws IOException {
-    final OObjectDatabaseTx database = new OObjectDatabaseTx(url);
+    final OObjectDatabaseTxInternal database = new OObjectDatabaseTxInternal(url);
     database.open("admin", "admin");
     try {
       database

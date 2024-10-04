@@ -288,7 +288,7 @@ public class OObjectLazyMap<TYPE> extends HashMap<Object, Object>
           getDatabase()
               .getUserObjectByRecord((ORecord) ((OIdentifiable) e.getValue()).getRecord(), null);
       o =
-          ((OObjectDatabaseTx) getDatabase())
+          ((OObjectDatabaseTxInternal) getDatabase())
               .detachAll(o, nonProxiedInstance, alreadyDetached, lazyObjects);
       super.put(e.getKey(), o);
     }
@@ -297,7 +297,7 @@ public class OObjectLazyMap<TYPE> extends HashMap<Object, Object>
   }
 
   @SuppressWarnings("unchecked")
-  protected OObjectDatabaseTx getDatabase() {
+  protected OObjectDatabaseTxInternal getDatabase() {
     return OLazyCollectionUtil.getDatabase();
   }
 }

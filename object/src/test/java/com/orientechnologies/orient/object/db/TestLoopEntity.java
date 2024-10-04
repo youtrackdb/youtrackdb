@@ -10,8 +10,8 @@ public class TestLoopEntity {
 
   @Test
   public void testLoop() {
-    OObjectDatabaseTx object =
-        new OObjectDatabaseTx("memory:" + TestLoopEntity.class.getSimpleName());
+    OObjectDatabaseTxInternal object =
+        new OObjectDatabaseTxInternal("memory:" + TestLoopEntity.class.getSimpleName());
     object.create();
     try {
 

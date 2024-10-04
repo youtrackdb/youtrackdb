@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.test.server;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTxInternal;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
 import org.testng.annotations.Test;
@@ -23,8 +23,9 @@ public class OServerTest {
       OLogManager.instance().info(this, "Iteration " + i);
       OServer server = new OServer(false).activate();
       // create database if does not exist
-      OObjectDatabaseTx database =
-          new OObjectDatabaseTx("plocal:" + System.getProperty("ORIENTDB_HOME") + "/test-db");
+      OObjectDatabaseTxInternal database =
+          new OObjectDatabaseTxInternal(
+              "plocal:" + System.getProperty("ORIENTDB_HOME") + "/test-db");
       if (!database.exists()) database.create();
       database.open("admin", "admin");
       database.countClass("ouser");

@@ -16,7 +16,7 @@ package com.orientechnologies.orient.object.enhancement.field;
 
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTxInternal;
 import java.io.IOException;
 import java.util.Random;
 import org.junit.After;
@@ -26,7 +26,7 @@ import org.junit.Test;
 /** @author diegomtassis <a href="mailto:dta@compart.com">Diego Martin Tassis</a> */
 public class OObjectBinaryDataStorageTest {
 
-  private OObjectDatabaseTx databaseTx;
+  private OObjectDatabaseTxInternal databaseTx;
 
   @After
   public void tearDown() {
@@ -172,7 +172,7 @@ public class OObjectBinaryDataStorageTest {
     }
 
     // Create
-    databaseTx = new OObjectDatabaseTx("memory:" + this.getClass().getSimpleName());
+    databaseTx = new OObjectDatabaseTxInternal("memory:" + this.getClass().getSimpleName());
     databaseTx.create();
 
     databaseTx.getEntityManager().registerEntityClass(Driver.class);

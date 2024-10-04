@@ -9,7 +9,7 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTxInternal;
 import java.io.IOException;
 import java.util.Collection;
 import org.testng.SkipException;
@@ -178,7 +178,7 @@ public abstract class BaseTest<T extends ODatabaseInternal> {
 
   protected void createBasicTestSchema() {
     ODatabaseInternal database = this.database;
-    if (database instanceof OObjectDatabaseTx)
+    if (database instanceof OObjectDatabaseTxInternal)
       database = (ODatabaseInternal) database.getUnderlying();
 
     if (database.getMetadata().getSchema().existsClass("Whiz")) return;

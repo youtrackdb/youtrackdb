@@ -16,7 +16,6 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.sql.OCommandSQL;
 import org.testng.Assert;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
@@ -81,6 +80,7 @@ public class SQLCreateLinkTest extends DocumentDBBaseTest {
   public void createRIDLinktest() {
 
     database.command("CREATE CLASS POST2").close();
+    database.command("CREATE PROPERTY POST2.comments LINKSET").close();
 
     database.begin();
     Object p1 =
@@ -140,16 +140,18 @@ public class SQLCreateLinkTest extends DocumentDBBaseTest {
         .close();
     database.commit();
 
+    database.begin();
     Assert.assertEquals(
         ((Number)
                 database
                     .command(
-                        new OCommandSQL(
-                            "CREATE LINK comments TYPE LINKSET FROM comment2.postId TO post2.@rid"
-                                + " INVERSE"))
-                    .execute())
+                        "CREATE LINK comments TYPE LINKSET FROM comment2.postId TO post2.id"
+                            + " INVERSE")
+                    .next()
+                    .getProperty("count"))
             .intValue(),
         5);
+    database.commit();
 
     database.begin();
     Assert.assertEquals(

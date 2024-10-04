@@ -47,7 +47,9 @@ public class OOptimizeDatabaseExecutionTest extends BaseMemoryDatabase {
     Assert.assertEquals("v2", next.getProperty("name"));
     result.close();
 
+    db.begin();
     db.command("optimize database -LWEDGES").close();
+    db.commit();
 
     OResultSet rs = db.query("select from E");
     Assert.assertFalse(rs.hasNext());

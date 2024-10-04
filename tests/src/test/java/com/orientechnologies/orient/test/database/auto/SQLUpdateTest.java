@@ -545,14 +545,15 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(document.field("test"), "aaa \r bbb");
 
+    database.begin();
     database
         .command(
             new OCommandSQL(
                 "UPDATE FormatEscapingTest SET test = 'aaa \\b bbb' WHERE @rid = "
                     + document.getIdentity()))
         .execute();
+    database.commit();
 
-    document.reload();
     Assert.assertEquals(document.field("test"), "aaa \b bbb");
 
     database.begin();

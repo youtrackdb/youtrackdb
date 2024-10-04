@@ -148,7 +148,7 @@ public class OObjectLazySet<TYPE> extends HashSet<TYPE>
 
   public boolean retainAll(final Collection<?> c) {
     setDirty();
-    final OObjectDatabaseTx database = getDatabase();
+    final OObjectDatabaseTxInternal database = getDatabase();
     boolean modified = super.retainAll(c);
     Set<Object> toRetain = new HashSet<Object>();
     Set<Object> toRemove = new HashSet<Object>();
@@ -190,7 +190,7 @@ public class OObjectLazySet<TYPE> extends HashSet<TYPE>
 
   public boolean removeAll(final Collection<?> c) {
     setDirty();
-    final OObjectDatabaseTx database = getDatabase();
+    final OObjectDatabaseTxInternal database = getDatabase();
     boolean modified = super.removeAll(c);
     for (Object o : c) {
       OIdentifiable record = database.getRecordByUserObject(o, false);
@@ -265,7 +265,7 @@ public class OObjectLazySet<TYPE> extends HashSet<TYPE>
 
     final Set<Object> copy = new HashSet<Object>(underlying);
     super.clear();
-    final OObjectDatabaseTx database = getDatabase();
+    final OObjectDatabaseTxInternal database = getDatabase();
     for (Object e : copy) {
       if (e != null) {
         if (e instanceof ORID)
@@ -287,7 +287,7 @@ public class OObjectLazySet<TYPE> extends HashSet<TYPE>
 
     final Set<Object> copy = new HashSet<Object>(underlying);
     super.clear();
-    final OObjectDatabaseTx database = getDatabase();
+    final OObjectDatabaseTxInternal database = getDatabase();
     for (Object e : copy) {
       if (e != null) {
         if (e instanceof ORID)
@@ -311,7 +311,7 @@ public class OObjectLazySet<TYPE> extends HashSet<TYPE>
 
     final Set<Object> copy = new HashSet<Object>(underlying);
     super.clear();
-    final OObjectDatabaseTx database = getDatabase();
+    final OObjectDatabaseTxInternal database = getDatabase();
     for (Object e : copy) {
       if (e != null) {
         if (e instanceof ORID) {
@@ -320,13 +320,13 @@ public class OObjectLazySet<TYPE> extends HashSet<TYPE>
                   (getDatabase().getUnderlying()).load((ORID) e, fetchPlan), fetchPlan);
           super.add(
               (TYPE)
-                  ((OObjectDatabaseTx) getDatabase())
+                  ((OObjectDatabaseTxInternal) getDatabase())
                       .detachAll(e, nonProxiedInstance, alreadyDetached, lazyObjects));
         } else if (e instanceof ODocument) {
           e = database.getUserObjectByRecord((ORecord) e, fetchPlan);
           super.add(
               (TYPE)
-                  ((OObjectDatabaseTx) getDatabase())
+                  ((OObjectDatabaseTxInternal) getDatabase())
                       .detachAll(e, nonProxiedInstance, alreadyDetached, lazyObjects));
         } else add((TYPE) e);
       }
@@ -335,7 +335,7 @@ public class OObjectLazySet<TYPE> extends HashSet<TYPE>
     converted = true;
   }
 
-  protected OObjectDatabaseTx getDatabase() {
+  protected OObjectDatabaseTxInternal getDatabase() {
     return OLazyCollectionUtil.getDatabase();
   }
 }

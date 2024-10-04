@@ -95,6 +95,7 @@
                     -Dstorage.diskCache.checksumMode=storeAndThrow
                     -Dstorage.diskCache.bufferSize=4096
                     -Dsecurity.warningDefaultUsers=false
+                    -Dfile.log.deletion=false
                     --add-opens jdk.unsupported/sun.misc=ALL-UNNAMED
                     --add-opens java.base/sun.security.x509=ALL-UNNAMED
                 </argLine>

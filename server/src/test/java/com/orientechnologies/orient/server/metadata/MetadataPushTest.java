@@ -114,7 +114,10 @@ public class MetadataPushTest {
   @Test
   public void testFunctionUpdate() throws Exception {
     database.activateOnCurrentThread();
+    database.begin();
     database.command("CREATE FUNCTION test \"print('\\nTest!')\"");
+    database.commit();
+
     // Push done in background for now, do not guarantee update before command return.
     secondDatabase.activateOnCurrentThread();
     BaseMemoryDatabase.assertWithTimeout(

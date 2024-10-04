@@ -30,7 +30,7 @@ import com.orientechnologies.orient.core.serialization.serializer.record.string.
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerSchemaAware2CSV;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTxInternal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -421,7 +421,7 @@ public class JSONTest extends DocumentDBBaseTest {
 
   @Test
   public void testFetchedJson() {
-    OObjectDatabaseTx database = new OObjectDatabaseTx(url);
+    OObjectDatabaseTxInternal database = new OObjectDatabaseTxInternal(url);
     database.open("admin", "admin");
     try {
       database

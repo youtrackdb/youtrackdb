@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.object.enhancement;
 
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTxInternal;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -8,11 +8,11 @@ import org.junit.Test;
 
 public class TestObjectWithDeletedLink {
 
-  private OObjectDatabaseTx db;
+  private OObjectDatabaseTxInternal db;
 
   @Before
   public void before() {
-    db = new OObjectDatabaseTx("memory:" + TestObjectWithDeletedLink.class.getSimpleName());
+    db = new OObjectDatabaseTxInternal("memory:" + TestObjectWithDeletedLink.class.getSimpleName());
     db.create();
     db.getEntityManager().registerEntityClass(SimpleSelfRef.class);
   }

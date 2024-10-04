@@ -20,7 +20,7 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.serialization.serializer.object.OObjectSerializer;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import com.orientechnologies.orient.object.db.OObjectDatabasePool;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTxInternal;
 import com.orientechnologies.orient.object.enhancement.OObjectEntitySerializer;
 import com.orientechnologies.orient.object.iterator.OObjectIteratorClass;
 import com.orientechnologies.orient.object.serialization.OObjectSerializerContext;
@@ -198,8 +198,8 @@ public class ObjectTreeTestSchemaFull extends ObjectDBBaseTest {
 
   @Test
   public void testPool() throws IOException {
-    final OObjectDatabaseTx[] dbs =
-        new OObjectDatabaseTx[OObjectDatabasePool.global().getMaxSize()];
+    final OObjectDatabaseTxInternal[] dbs =
+        new OObjectDatabaseTxInternal[OObjectDatabasePool.global().getMaxSize()];
 
     for (int i = 0; i < 10; ++i) {
       for (int db = 0; db < dbs.length; ++db)
@@ -1091,7 +1091,8 @@ public class ObjectTreeTestSchemaFull extends ObjectDBBaseTest {
 
   @Test(dependsOnMethods = "testCustomTypes")
   public void testCustomTypesDatabaseNewInstance() {
-    OObjectDatabaseTx database = OObjectDatabasePool.global().acquire(url, "admin", "admin");
+    OObjectDatabaseTxInternal database =
+        OObjectDatabasePool.global().acquire(url, "admin", "admin");
     ORID rid = null;
     try {
       // init counters
@@ -1157,7 +1158,8 @@ public class ObjectTreeTestSchemaFull extends ObjectDBBaseTest {
 
   @Test(dependsOnMethods = "testCustomTypesDatabaseNewInstance")
   public void testEnumListWithCustomTypes() {
-    OObjectDatabaseTx database = OObjectDatabasePool.global().acquire(url, "admin", "admin");
+    OObjectDatabaseTxInternal database =
+        OObjectDatabasePool.global().acquire(url, "admin", "admin");
     ORID rid = null;
     try {
       OObjectSerializerContext serializerContext = new OObjectSerializerContext();
@@ -1207,7 +1209,8 @@ public class ObjectTreeTestSchemaFull extends ObjectDBBaseTest {
 
   @Test(dependsOnMethods = "testEnumListWithCustomTypes")
   public void childUpdateTest() {
-    OObjectDatabaseTx database = OObjectDatabasePool.global().acquire(url, "admin", "admin");
+    OObjectDatabaseTxInternal database =
+        OObjectDatabasePool.global().acquire(url, "admin", "admin");
     Planet p = database.newInstance(Planet.class);
     Satellite sat = database.newInstance(Satellite.class);
     p.setName("Earth");
@@ -1245,7 +1248,8 @@ public class ObjectTreeTestSchemaFull extends ObjectDBBaseTest {
 
   @Test(dependsOnMethods = "childUpdateTest")
   public void childNLevelUpdateTest() {
-    OObjectDatabaseTx database = OObjectDatabasePool.global().acquire(url, "admin", "admin");
+    OObjectDatabaseTxInternal database =
+        OObjectDatabasePool.global().acquire(url, "admin", "admin");
     Planet p = database.newInstance(Planet.class);
     Planet near = database.newInstance(Planet.class);
     Satellite sat = database.newInstance(Satellite.class);
@@ -1286,7 +1290,8 @@ public class ObjectTreeTestSchemaFull extends ObjectDBBaseTest {
 
   @Test(dependsOnMethods = "childNLevelUpdateTest")
   public void childMapUpdateTest() {
-    OObjectDatabaseTx database = OObjectDatabasePool.global().acquire(url, "admin", "admin");
+    OObjectDatabaseTxInternal database =
+        OObjectDatabasePool.global().acquire(url, "admin", "admin");
     Planet p = database.newInstance(Planet.class);
     p.setName("Earth");
     p.setDistanceSun(1000);
@@ -1327,7 +1332,8 @@ public class ObjectTreeTestSchemaFull extends ObjectDBBaseTest {
 
   @Test(dependsOnMethods = "childMapUpdateTest")
   public void childMapNLevelUpdateTest() {
-    OObjectDatabaseTx database = OObjectDatabasePool.global().acquire(url, "admin", "admin");
+    OObjectDatabaseTxInternal database =
+        OObjectDatabasePool.global().acquire(url, "admin", "admin");
     Planet jupiter = database.newInstance(Planet.class);
     jupiter.setName("Jupiter");
     jupiter.setDistanceSun(3000);
@@ -1388,7 +1394,7 @@ public class ObjectTreeTestSchemaFull extends ObjectDBBaseTest {
 
   @Test
   public void iteratorShouldTerminate() {
-    OObjectDatabaseTx db = OObjectDatabasePool.global().acquire(url, "admin", "admin");
+    OObjectDatabaseTxInternal db = OObjectDatabasePool.global().acquire(url, "admin", "admin");
     try {
       db.getEntityManager().registerEntityClass(Profile.class);
 

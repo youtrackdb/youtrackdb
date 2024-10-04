@@ -20,7 +20,7 @@ import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTxInternal;
 import com.orientechnologies.orient.object.enhancement.OObjectEntitySerializer;
 import com.orientechnologies.orient.test.domain.base.EnumTest;
 import com.orientechnologies.orient.test.domain.base.JavaAttachDetachTestClass;
@@ -402,7 +402,7 @@ public class ObjectDetachingTest extends ObjectDBBaseTest {
     ORecordId id = (ORecordId) database.getRecordByUserObject(savedJavaObj, false).getIdentity();
     database.close();
 
-    database = new OObjectDatabaseTx(url).open("admin", "admin");
+    database = new OObjectDatabaseTxInternal(url).open("admin", "admin");
     JavaAttachDetachTestClass loadedJavaObj = (JavaAttachDetachTestClass) database.load(id);
     database.detach(loadedJavaObj);
     Assert.assertEquals(loadedJavaObj.text, "test");
@@ -516,7 +516,7 @@ public class ObjectDetachingTest extends ObjectDBBaseTest {
     ORecordId id = (ORecordId) database.getRecordByUserObject(savedJavaObj, false).getIdentity();
     database.close();
 
-    database = new OObjectDatabaseTx(url).open("admin", "admin");
+    database = new OObjectDatabaseTxInternal(url).open("admin", "admin");
     JavaAttachDetachTestClass loadedJavaObj = (JavaAttachDetachTestClass) database.load(id);
     database.detachAll(loadedJavaObj, false);
     Assert.assertEquals(loadedJavaObj.text, "test");
@@ -606,7 +606,7 @@ public class ObjectDetachingTest extends ObjectDBBaseTest {
     ORecordId id = (ORecordId) database.getRecordByUserObject(savedJavaObj, false).getIdentity();
     database.close();
 
-    database = new OObjectDatabaseTx(url).open("admin", "admin");
+    database = new OObjectDatabaseTxInternal(url).open("admin", "admin");
     JavaAttachDetachTestClass loadedJavaObj = database.load(id);
     loadedJavaObj = database.detach(loadedJavaObj, true);
     Assert.assertTrue(!(loadedJavaObj instanceof Proxy));
@@ -697,7 +697,7 @@ public class ObjectDetachingTest extends ObjectDBBaseTest {
     ORecordId id = (ORecordId) database.getRecordByUserObject(savedJavaObj, false).getIdentity();
     database.close();
 
-    database = new OObjectDatabaseTx(url).open("admin", "admin");
+    database = new OObjectDatabaseTxInternal(url).open("admin", "admin");
     JavaAttachDetachTestClass loadedJavaObj = (JavaAttachDetachTestClass) database.load(id);
     loadedJavaObj = database.detachAll(loadedJavaObj, true);
     Assert.assertTrue(!(loadedJavaObj instanceof Proxy));

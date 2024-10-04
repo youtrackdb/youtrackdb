@@ -520,14 +520,14 @@ public class OObjectLazyList<TYPE> extends ArrayList<TYPE>
               .getProxiedInstance(
                   doc.getClassName(), getDatabase().getEntityManager(), doc, sourceRecord);
       o =
-          ((OObjectDatabaseTx) getDatabase())
+          ((OObjectDatabaseTxInternal) getDatabase())
               .detachAll(o, nonProxiedInstance, alreadyDetached, lazyObjects);
       super.set(iIndex, (TYPE) o);
     }
   }
 
-  protected OObjectDatabaseTx getDatabase() {
-    return (OObjectDatabaseTx) OLazyCollectionUtil.getDatabase();
+  protected OObjectDatabaseTxInternal getDatabase() {
+    return (OObjectDatabaseTxInternal) OLazyCollectionUtil.getDatabase();
   }
 
   protected boolean indexLoaded(int iIndex) {

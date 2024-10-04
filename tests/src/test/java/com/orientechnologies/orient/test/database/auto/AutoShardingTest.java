@@ -116,6 +116,7 @@ public class AutoShardingTest extends DocumentDBBaseTest {
   public void testUpdate() {
     create();
     for (int i = 0; i < ITERATIONS; ++i) {
+      database.begin();
       @SuppressWarnings("deprecation")
       Integer updated =
           database
@@ -123,6 +124,7 @@ public class AutoShardingTest extends DocumentDBBaseTest {
                   new OCommandSQL(
                       "update AutoShardingTest INCREMENT id = " + ITERATIONS + " where id = ?"))
               .execute(i);
+      database.commit();
 
       Assert.assertEquals(updated.intValue(), 2);
 

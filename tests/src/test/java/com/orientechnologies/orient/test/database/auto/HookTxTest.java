@@ -19,7 +19,7 @@ import com.orientechnologies.orient.core.hook.ORecordHookAbstract;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTxInternal;
 import com.orientechnologies.orient.test.domain.whiz.Profile;
 import java.io.IOException;
 import java.util.List;
@@ -41,7 +41,7 @@ public class HookTxTest extends ORecordHookAbstract {
   public static final int RECORD_BEFORE_DELETE = 19;
   public static final int RECORD_AFTER_DELETE = 23;
 
-  private OObjectDatabaseTx database;
+  private OObjectDatabaseTxInternal database;
   private int callbackCount = 0;
   private Profile p;
   private int expectedHookState;
@@ -54,7 +54,7 @@ public class HookTxTest extends ORecordHookAbstract {
 
   @BeforeClass
   public void beforeClass() {
-    database = new OObjectDatabaseTx(url);
+    database = new OObjectDatabaseTxInternal(url);
     if (!url.startsWith("remote:") && !database.exists()) {
       database.create();
       database.close();
