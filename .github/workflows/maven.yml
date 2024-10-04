@@ -36,6 +36,6 @@ jobs:
         if: always()
         with:
           name: Unit tests on  ${{ runner.os }}-${{ matrix.java-version }}
-          path: target/surefire-reports/*.xml
+          path: ${{ github.workspace }}/target/surefire-reports/*.xml
           reporter: java-junit
           fail-on-error: true
