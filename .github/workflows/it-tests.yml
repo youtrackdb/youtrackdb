@@ -2,6 +2,7 @@ name: IT tests
 on:
   schedule:
     - cron: "0 23 * * 5"
+  workflow_dispatch:   
 permissions:
   checks: write
   contents: read
