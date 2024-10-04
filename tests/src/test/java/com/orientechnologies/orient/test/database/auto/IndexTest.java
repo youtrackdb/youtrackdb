@@ -1844,6 +1844,7 @@ public class IndexTest extends ObjectDBBaseTest {
     testNullIteration.createProperty("name", OType.STRING);
     testNullIteration.createProperty("birth", OType.DATETIME);
 
+    database.begin();
     database
         .command("CREATE VERTEX NullIterationTest SET name = 'Andrew', birth = sysdate()")
         .close();
@@ -1851,6 +1852,7 @@ public class IndexTest extends ObjectDBBaseTest {
         .command("CREATE VERTEX NullIterationTest SET name = 'Marcel', birth = sysdate()")
         .close();
     database.command("CREATE VERTEX NullIterationTest SET name = 'Olivier'").close();
+    database.commit();
 
     ODocument metadata = new ODocument();
     metadata.field("ignoreNullValues", false);

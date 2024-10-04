@@ -2973,7 +2973,9 @@ public class CRUDObjectPhysicalTest extends ObjectDBBaseTest {
     db.create();
     try {
       db.getEntityManager().registerEntityClasses("com.orientechnologies.orient.test.domain.whiz");
+      db.begin();
       db.command("insert into Profile set nick = 'foo', name='foo'");
+      db.commit();
       List<Profile> result1 = db.objectQuery("select from Profile limit 1");
 
       Assert.assertEquals(result1.size(), 1);

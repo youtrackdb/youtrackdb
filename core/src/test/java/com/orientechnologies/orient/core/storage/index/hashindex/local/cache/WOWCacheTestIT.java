@@ -50,6 +50,7 @@ import org.junit.Test;
  * @since 26.07.13
  */
 public class WOWCacheTestIT {
+
   private static final int pageSize = ODurablePage.NEXT_FREE_POSITION + 8;
 
   private static String fileName;
@@ -154,6 +155,7 @@ public class WOWCacheTestIT {
     wowCache =
         new OWOWCache(
             pageSize,
+            false,
             bufferPool,
             writeAheadLog,
             new DoubleWriteLogNoOP(),
@@ -257,6 +259,7 @@ public class WOWCacheTestIT {
     wowCache =
         new OWOWCache(
             pageSize,
+            false,
             bufferPool,
             writeAheadLog,
             new DoubleWriteLogNoOP(),
@@ -407,7 +410,9 @@ public class WOWCacheTestIT {
       long desiredIndex = random.nextInt(2048);
 
       Long pageIndex = pageIndexDataMap.ceilingKey(desiredIndex);
-      if (pageIndex == null) pageIndex = pageIndexDataMap.floorKey(desiredIndex);
+      if (pageIndex == null) {
+        pageIndex = pageIndexDataMap.floorKey(desiredIndex);
+      }
 
       byte[] data = new byte[8];
       random.nextBytes(data);
@@ -481,6 +486,7 @@ public class WOWCacheTestIT {
     wowCache =
         new OWOWCache(
             pageSize,
+            false,
             bufferPool,
             writeAheadLog,
             new DoubleWriteLogNoOP(),
@@ -560,7 +566,9 @@ public class WOWCacheTestIT {
       long desiredIndex = random.nextInt(2048);
 
       Long pageIndex = pageIndexDataMap.ceilingKey(desiredIndex);
-      if (pageIndex == null) pageIndex = pageIndexDataMap.floorKey(desiredIndex);
+      if (pageIndex == null) {
+        pageIndex = pageIndexDataMap.floorKey(desiredIndex);
+      }
 
       byte[] data = new byte[8];
       random.nextBytes(data);
@@ -691,7 +699,7 @@ public class WOWCacheTestIT {
     assert fileName != null;
 
     final Path path = storagePath.resolve(fileName);
-    final OFile file = new AsyncFile(path, pageSize, Executors.newCachedThreadPool());
+    final OFile file = new AsyncFile(path, pageSize, false, Executors.newCachedThreadPool());
     file.open();
     file.write(
         ODurablePage.NEXT_FREE_POSITION,
@@ -730,7 +738,7 @@ public class WOWCacheTestIT {
     assert fileName != null;
 
     final Path path = storagePath.resolve(fileName);
-    final OFile file = new AsyncFile(path, pageSize, Executors.newCachedThreadPool());
+    final OFile file = new AsyncFile(path, pageSize, false, Executors.newCachedThreadPool());
     file.open();
     file.write(0, ByteBuffer.wrap(new byte[] {1}).order(ByteOrder.nativeOrder()));
     file.close();
@@ -767,7 +775,7 @@ public class WOWCacheTestIT {
     assert fileName != null;
 
     final Path path = storagePath.resolve(fileName);
-    final OFile file = new AsyncFile(path, pageSize, Executors.newCachedThreadPool());
+    final OFile file = new AsyncFile(path, pageSize, false, Executors.newCachedThreadPool());
     file.open();
     file.write(
         ODurablePage.NEXT_FREE_POSITION,
@@ -801,7 +809,7 @@ public class WOWCacheTestIT {
     assert fileName != null;
 
     final Path path = storagePath.resolve(fileName);
-    final OFile file = new AsyncFile(path, pageSize, Executors.newCachedThreadPool());
+    final OFile file = new AsyncFile(path, pageSize, false, Executors.newCachedThreadPool());
     file.open();
     file.write(
         ODurablePage.NEXT_FREE_POSITION,
@@ -835,7 +843,7 @@ public class WOWCacheTestIT {
     assert fileName != null;
 
     final Path path = storagePath.resolve(fileName);
-    final OFile file = new AsyncFile(path, pageSize, Executors.newCachedThreadPool());
+    final OFile file = new AsyncFile(path, pageSize, false, Executors.newCachedThreadPool());
     file.open();
     file.write(
         ODurablePage.NEXT_FREE_POSITION,
@@ -869,7 +877,7 @@ public class WOWCacheTestIT {
     assert fileName != null;
 
     final Path path = storagePath.resolve(fileName);
-    final OFile file = new AsyncFile(path, pageSize, Executors.newCachedThreadPool());
+    final OFile file = new AsyncFile(path, pageSize, false, Executors.newCachedThreadPool());
     file.open();
     file.write(
         ODurablePage.NEXT_FREE_POSITION,
@@ -883,7 +891,8 @@ public class WOWCacheTestIT {
   private static void assertFile(
       long pageIndex, byte[] value, OLogSequenceNumber lsn, String fileName) throws IOException {
     OFile fileClassic =
-        new AsyncFile(storagePath.resolve(fileName), pageSize, Executors.newCachedThreadPool());
+        new AsyncFile(
+            storagePath.resolve(fileName), pageSize, false, Executors.newCachedThreadPool());
     fileClassic.open();
     byte[] content = new byte[8 + ODurablePage.NEXT_FREE_POSITION];
     fileClassic.read(
@@ -921,7 +930,8 @@ public class WOWCacheTestIT {
       final byte[] iv)
       throws Exception {
     OFile fileClassic =
-        new AsyncFile(storagePath.resolve(fileName), pageSize, Executors.newCachedThreadPool());
+        new AsyncFile(
+            storagePath.resolve(fileName), pageSize, false, Executors.newCachedThreadPool());
     fileClassic.open();
     byte[] content = new byte[8 + ODurablePage.NEXT_FREE_POSITION];
     fileClassic.read(
@@ -978,6 +988,7 @@ public class WOWCacheTestIT {
   }
 
   public static final class TestRecord extends OAbstractWALRecord {
+
     private byte[] data;
 
     @SuppressWarnings("unused")

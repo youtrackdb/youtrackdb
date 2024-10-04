@@ -110,7 +110,9 @@ public class OLuceneSearchOnClassFunctionTest extends OLuceneBaseTest {
     db.command(
         "create index Song.title_description on Song (title,description) FULLTEXT ENGINE LUCENE ");
 
+    db.begin();
     db.command("insert into Song set description = 'shouldHighlightWithNullValues'");
+    db.commit();
 
     OResultSet resultSet =
         db.query(

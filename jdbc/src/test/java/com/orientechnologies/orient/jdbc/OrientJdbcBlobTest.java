@@ -40,6 +40,7 @@ public class OrientJdbcBlobTest extends OrientJdbcDbPerClassTemplateTest {
   public void shouldStoreBinaryStream() throws Exception {
     conn.createStatement().executeQuery("CREATE CLASS Blobs");
 
+    conn.createStatement().execute("begin");
     PreparedStatement statement =
         conn.prepareStatement("INSERT INTO Blobs (uuid,attachment) VALUES (?,?)");
 
@@ -49,6 +50,7 @@ public class OrientJdbcBlobTest extends OrientJdbcDbPerClassTemplateTest {
     int rowsInserted = statement.executeUpdate();
 
     assertThat(rowsInserted).isEqualTo(1);
+    conn.createStatement().execute("commit");
 
     // verify the blob
 

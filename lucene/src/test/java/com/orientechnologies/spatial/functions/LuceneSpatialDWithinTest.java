@@ -46,10 +46,12 @@ public class LuceneSpatialDWithinTest extends BaseSpatialLuceneTest {
     db.command("create class Polygon extends v").close();
     db.command("create property Polygon.geometry EMBEDDED OPolygon").close();
 
+    db.begin();
     db.command(
             "insert into Polygon set geometry = ST_GeomFromText('POLYGON((0 0, 10 0, 10 5, 0 5, 0"
                 + " 0))')")
         .close();
+    db.commit();
 
     db.command("create index Polygon.g on Polygon (geometry) SPATIAL engine lucene").close();
 
@@ -64,8 +66,6 @@ public class LuceneSpatialDWithinTest extends BaseSpatialLuceneTest {
         db.query(
             "SELECT from Polygon where ST_DWithin(geometry, ST_GeomFromText('POLYGON((12 0, 14 0,"
                 + " 14 6, 12 6, 12 0))'), 2.0) = true");
-
-    //    Assert.assertEquals(1, resultSet.estimateSize());
 
     resultSet.stream().forEach(r -> System.out.println("r = " + r));
     resultSet.close();

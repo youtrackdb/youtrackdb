@@ -33,7 +33,9 @@ public class SQLDeleteTest extends DocumentDBBaseTest {
 
   @Test
   public void deleteWithWhereOperator() {
+    database.begin();
     database.command("insert into Profile (sex, salary) values ('female', 2100)").close();
+    database.commit();
 
     final Long total = database.countClass("Profile");
 
@@ -41,8 +43,10 @@ public class SQLDeleteTest extends DocumentDBBaseTest {
         database.query("select from Profile where sex = 'female' and salary = 2100");
     long queryCount = resultset.stream().count();
 
+    database.begin();
     OResultSet result =
         database.command("delete from Profile where sex = 'female' and salary = 2100");
+    database.commit();
     long count = result.next().getProperty("count");
 
     Assert.assertEquals(count, queryCount);
@@ -62,8 +66,10 @@ public class SQLDeleteTest extends DocumentDBBaseTest {
 
     long queryCount = resultset.stream().count();
 
+    db.begin();
     OResultSet records =
         db.command("delete from Profile where sex = 'male' and salary > 120 and salary <= 133");
+    db.commit();
 
     long count = records.next().getProperty("count");
     Assert.assertEquals(count, queryCount);

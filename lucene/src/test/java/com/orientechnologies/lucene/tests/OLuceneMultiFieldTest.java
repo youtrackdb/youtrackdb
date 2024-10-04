@@ -107,14 +107,18 @@ public class OLuceneMultiFieldTest extends OLuceneBaseTest {
   public void testSelectOnIndexWithIgnoreNullValuesToFalse() {
     // #5579
     String script =
-        "create class Item;\n"
-            + "create property Item.title string;\n"
-            + "create property Item.summary string;\n"
-            + "create property Item.content string;\n"
-            + "create index Item.fulltext on Item(title, summary, content) FULLTEXT ENGINE LUCENE"
-            + " METADATA {'ignoreNullValues':false};\n"
-            + "insert into Item set title = 'wrong', content = 'not me please';\n"
-            + "insert into Item set title = 'test', content = 'this is a test';\n";
+        """
+            create class Item;
+            create property Item.title string;
+            create property Item.summary string;
+            create property Item.content string;
+            create index Item.fulltext on Item(title, summary, content) FULLTEXT ENGINE LUCENE\
+             METADATA {'ignoreNullValues':false};
+             begin;
+            insert into Item set title = 'wrong', content = 'not me please';
+            insert into Item set title = 'test', content = 'this is a test';
+            commit;
+            """;
 
     db.execute("sql", script).close();
 

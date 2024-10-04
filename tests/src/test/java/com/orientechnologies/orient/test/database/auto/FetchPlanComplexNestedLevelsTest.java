@@ -55,6 +55,7 @@ public class FetchPlanComplexNestedLevelsTest extends DocumentDBBaseTest {
     else if (followTest.getSuperClass() == null)
       followTest.setSuperClass(database.getMetadata().getSchema().getClass("E"));
 
+    database.begin();
     database.command("create vertex PersonTest set name = 'A'").close();
     database.command("create vertex PersonTest set name = 'B'").close();
     database.command("create vertex PersonTest set name = 'C'").close();
@@ -69,6 +70,7 @@ public class FetchPlanComplexNestedLevelsTest extends DocumentDBBaseTest {
             "create edge FollowTest from (select from PersonTest where name = 'B') to (select from"
                 + " PersonTest where name = 'C')")
         .close();
+    database.commit();
   }
 
   @Test

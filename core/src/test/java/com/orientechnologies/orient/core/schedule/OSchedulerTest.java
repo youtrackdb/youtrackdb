@@ -192,8 +192,21 @@ public class OSchedulerTest {
       long newCount = getLogCounter(db);
       Assert.assertTrue(newCount - count > 1);
 
-      // DELETE
-      db.command("delete from oschedule where name = 'test'", func.getId()).close();
+      retryCount = 10;
+      while (true) {
+        try {
+          // DELETE
+          db.begin();
+          db.command("delete from oschedule where name = 'test'", func.getId()).close();
+          db.commit();
+          break;
+        } catch (ONeedRetryException e) {
+          retryCount--;
+          //noinspection BusyWait
+          Thread.sleep(10);
+        }
+        Assert.assertTrue(retryCount >= 0);
+      }
 
       BaseMemoryDatabase.assertWithTimeout(
           db,

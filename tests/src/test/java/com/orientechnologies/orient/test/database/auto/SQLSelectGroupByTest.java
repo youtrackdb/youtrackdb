@@ -112,10 +112,12 @@ public class SQLSelectGroupByTest extends DocumentDBBaseTest {
     // INSERT WITH NO LOCATION (AS NULL)
     database.command("create class GroupByTest extends V").close();
     try {
+      database.begin();
       database.command("insert into GroupByTest set testNull = true").close();
       database.command("insert into GroupByTest set location = 'Rome'").close();
       database.command("insert into GroupByTest set location = 'Austin'").close();
       database.command("insert into GroupByTest set location = 'Austin'").close();
+      database.commit();
 
       final List<ODocument> result =
           database
@@ -145,9 +147,11 @@ public class SQLSelectGroupByTest extends DocumentDBBaseTest {
   public void queryGroupByNoNulls() {
     database.command("create class GroupByTest extends V").close();
     try {
+      database.begin();
       database.command("insert into GroupByTest set location = 'Rome'").close();
       database.command("insert into GroupByTest set location = 'Austin'").close();
       database.command("insert into GroupByTest set location = 'Austin'").close();
+      database.commit();
 
       final List<ODocument> result =
           database
@@ -163,7 +167,10 @@ public class SQLSelectGroupByTest extends DocumentDBBaseTest {
       }
 
     } finally {
+      database.begin();
       database.command("delete vertex GroupByTest").close();
+      database.commit();
+
       database.command("drop class GroupByTest UNSAFE").close();
     }
   }

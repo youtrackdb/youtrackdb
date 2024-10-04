@@ -111,7 +111,11 @@ public class OLuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
   @Test
   public void shouldSearchWithHesitance() throws Exception {
     db.command("create class RockSong extends Song");
+
+    db.begin();
     db.command("create vertex RockSong set title=\"This is only rock\", author=\"A cool rocker\"");
+    db.commit();
+
     final OResultSet resultSet =
         db.query("SELECT from RockSong where SEARCH_FIELDS(['title'], '+only +rock') = true ");
     assertThat(resultSet).hasSize(1);
@@ -131,6 +135,7 @@ public class OLuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
 
     db.command("CREATE CLASS " + classNameE + " EXTENDS E");
 
+    db.begin();
     db.command("insert into " + className + " set id = 1, name = 'A';");
     db.command("insert into " + className + " set id = 2, name = 'AB';");
     db.command("insert into " + className + " set id = 3, name = 'ABC';");
@@ -152,6 +157,8 @@ public class OLuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
                 + "')[SEARCH_FIELDS(['name'], 'A*') = true] as theList FROM "
                 + className
                 + " WHERE id = 1;");
+    db.commit();
+
     assertThat(result.hasNext());
     final OResult item = result.next();
     assertThat((Object) item.getProperty("theList")).isInstanceOf(List.class);

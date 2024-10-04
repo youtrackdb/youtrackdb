@@ -43,8 +43,10 @@ public class OLuceneMiscTest extends OLuceneBaseTest {
     db.command("create property Test.attr2 string");
     db.command("create index Test.attr2 on Test(attr2) FULLTEXT ENGINE LUCENE");
 
+    db.begin();
     db.command("insert into Test set attr1='foo', attr2='bar'");
     db.command("insert into Test set attr1='bar', attr2='foo'");
+    db.commit();
 
     OResultSet results =
         db.query(
@@ -84,7 +86,9 @@ public class OLuceneMiscTest extends OLuceneBaseTest {
 
     db.command("create index Person.name on Person(name) FULLTEXT ENGINE LUCENE");
 
+    db.begin();
     db.command("insert into Person set name='Enrico', age=18");
+    db.commit();
 
     String query =
         "select  from (select from Person where age = 18) where search_fields(['name'],'Enrico') ="
@@ -113,7 +117,9 @@ public class OLuceneMiscTest extends OLuceneBaseTest {
 
     db.command("create index Test.attr1 on Test(attr1) FULLTEXT ENGINE LUCENE");
 
+    db.begin();
     db.command("insert into Test set attr1='foo', attr2='bar'");
+    db.commit();
 
     String query = "select from Test where  search_class( :name) =true";
     Map params = new HashMap();

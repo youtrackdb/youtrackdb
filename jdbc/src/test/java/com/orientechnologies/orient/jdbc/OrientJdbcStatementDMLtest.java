@@ -35,12 +35,14 @@ public class OrientJdbcStatementDMLtest extends OrientJdbcDbPerMethodTemplateTes
     Date date = new Date(System.currentTimeMillis());
 
     Statement stmt = conn.createStatement();
+    stmt.execute("begin");
     int updated =
         stmt.executeUpdate(
             "INSERT into Item (stringKey, intKey, text, length, date) values ('100','100','dummy"
                 + " text','10','"
                 + date.toString()
                 + "')");
+    stmt.execute("commit");
 
     assertThat(updated).isEqualTo(1);
 
@@ -58,7 +60,9 @@ public class OrientJdbcStatementDMLtest extends OrientJdbcDbPerMethodTemplateTes
   public void shouldUpdateAnItem() throws Exception {
 
     Statement stmt = conn.createStatement();
+    stmt.execute("begin");
     int updated = stmt.executeUpdate("UPDATE Item set text = 'UPDATED'  WHERE intKey = '10'");
+    stmt.execute("commit");
 
     assertThat(stmt.getMoreResults()).isFalse();
     assertThat(updated).isEqualTo(1);

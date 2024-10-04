@@ -916,6 +916,9 @@ public enum OGlobalConfiguration { // ENVIRONMENT
 
   FILE_LOCK("file.lock", "Locks files when used. Default is true", boolean.class, true),
 
+  FILE_LOG_DELETION(
+      "file.log.deletion", "Log file deletion (true by default)", boolean.class, true),
+
   FILE_DELETE_DELAY(
       "file.deleteDelay",
       "Delay time (in ms) to wait for another attempt to delete a locked file",

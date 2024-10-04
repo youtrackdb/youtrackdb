@@ -345,18 +345,15 @@ public class OrientJdbcPreparedStatement extends OrientJdbcStatement implements 
 
   public void setBinaryStream(int parameterIndex, InputStream x) throws SQLException {
     try {
-      database.executeInTx(
-          () -> {
-            ORecordBytes record = new ORecordBytes();
-            try {
-              record.fromInputStream(x);
-            } catch (IOException e) {
-              throw ODatabaseException.wrapException(
-                  new ODatabaseException("Error during creation of BLOB"), e);
-            }
-            record.save();
-            params.put(parameterIndex, record);
-          });
+      ORecordBytes record = new ORecordBytes();
+      try {
+        record.fromInputStream(x);
+      } catch (IOException e) {
+        throw ODatabaseException.wrapException(
+            new ODatabaseException("Error during creation of BLOB"), e);
+      }
+      record.save();
+      params.put(parameterIndex, record);
     } catch (ODatabaseException e) {
       throw new SQLException("unable to store inputStream", e);
     }

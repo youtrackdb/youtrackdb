@@ -511,7 +511,10 @@ public class SchemaTest extends DocumentDBBaseTest {
 
   public void testOfflineCluster() {
     database.command("create class TestOffline").close();
+
+    database.begin();
     database.command("insert into TestOffline set status = 'offline'").close();
+    database.commit();
 
     List<OIdentifiable> result =
         database.command(new OCommandSQL("select from TestOffline")).execute();
@@ -547,12 +550,15 @@ public class SchemaTest extends DocumentDBBaseTest {
         database.command(new OCommandSQL("update TestOffline set name = 'yeah'")).<Object>execute(),
         0);
 
+    database.begin();
     // TEST DELETE - NO EFFECT
     Assert.assertEquals(
         database.command(new OCommandSQL("delete from TestOffline")).<Object>execute(), 0);
+    database.commit();
 
     // TEST CREATE -> EXCEPTION
     try {
+      database.begin();
       Object res =
           database
               .command(
@@ -560,6 +566,7 @@ public class SchemaTest extends DocumentDBBaseTest {
                       "insert into TestOffline set name = 'offline', password = 'offline', status ="
                           + " 'ACTIVE'"))
               .execute();
+      database.commit();
       Assert.assertTrue(false);
     } catch (OException e) {
 
@@ -733,6 +740,7 @@ public class SchemaTest extends DocumentDBBaseTest {
             + propertyName.toUpperCase(Locale.ENGLISH)
             + ") NOTUNIQUE");
 
+    database.begin();
     database.command(
         "insert into "
             + className
@@ -749,6 +757,7 @@ public class SchemaTest extends DocumentDBBaseTest {
             + " = 'BAR', "
             + propertyName.toLowerCase(Locale.ENGLISH)
             + " = 'bar'");
+    database.commit();
 
     try (OResultSet rs =
         database.command(
@@ -814,9 +823,11 @@ public class SchemaTest extends DocumentDBBaseTest {
         .command("CREATE CLASS TestRenameClusterNew extends TestRenameClusterOriginal clusters 2")
         .close();
 
+    databaseDocumentTx.begin();
     databaseDocumentTx
         .command("INSERT INTO TestRenameClusterNew (iteration) VALUES(" + i + ")")
         .close();
+    databaseDocumentTx.commit();
 
     databaseDocumentTx
         .command("ALTER CLASS TestRenameClusterOriginal removecluster TestRenameClusterOriginal")

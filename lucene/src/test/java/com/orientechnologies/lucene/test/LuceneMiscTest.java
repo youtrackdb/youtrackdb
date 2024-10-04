@@ -34,7 +34,7 @@ import org.junit.Test;
 /** Created by Enrico Risa on 18/09/15. */
 public class LuceneMiscTest extends BaseLuceneTest {
 
-  // TODO Re-enable when removed check syntax on ODB
+  @Test
   public void testDoubleLucene() {
 
     db.command("create class Test extends V").close();
@@ -42,8 +42,11 @@ public class LuceneMiscTest extends BaseLuceneTest {
     db.command("create index Test.attr1 on Test (attr1) fulltext engine lucene").close();
     db.command("create property Test.attr2 string").close();
     db.command("create index Test.attr2 on Test (attr2) fulltext engine lucene").close();
+
+    db.begin();
     db.command("insert into Test set attr1='foo', attr2='bar'").close();
     db.command("insert into Test set attr1='bar', attr2='foo'").close();
+    db.commit();
 
     OResultSet results =
         db.command("select from Test where attr1 lucene 'foo*' OR attr2 lucene 'foo*'");
@@ -71,7 +74,9 @@ public class LuceneMiscTest extends BaseLuceneTest {
 
     db.command("create index Person.name on Person (name) fulltext engine lucene").close();
 
+    db.begin();
     db.command("insert into Person set name='Enrico', age=18").close();
+    db.commit();
 
     OResultSet results =
         db.query("select  from (select from Person where age = 18) where name lucene 'Enrico'");
@@ -95,7 +100,9 @@ public class LuceneMiscTest extends BaseLuceneTest {
 
     db.command("create index Test.attr1 on Test (attr1) fulltext engine lucene").close();
 
+    db.begin();
     db.command("insert into Test set attr1='foo', attr2='bar'").close();
+    db.commit();
 
     Map params = new HashMap();
     params.put("name", "FOO or");
@@ -159,7 +166,9 @@ public class LuceneMiscTest extends BaseLuceneTest {
 
     db.command("create index V._attr1 on V (_attr1) fulltext engine lucene").close();
 
+    db.begin();
     db.command("insert into Test set _attr1='anyPerson', attr2='bar'").close();
+    db.commit();
 
     Map params = new HashMap();
     params.put("name", "anyPerson");

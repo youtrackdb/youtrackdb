@@ -62,6 +62,7 @@ public class LuceneSpatialDistanceSphereTest extends BaseSpatialLuceneTest {
     db.command("create class Place extends v").close();
     db.command("create property Place.location EMBEDDED OPoint").close();
 
+    db.begin();
     db.command(
             "insert into Place set name =  'Dar Poeta',location = ST_GeomFromText('POINT(12.4684635"
                 + " 41.8914114)')")
@@ -75,6 +76,7 @@ public class LuceneSpatialDistanceSphereTest extends BaseSpatialLuceneTest {
             "insert into Place set name = 'Museo Di Roma in Trastevere',location ="
                 + " ST_GeomFromText('POINT(12.4689762 41.8898916)')")
         .close();
+    db.commit();
 
     db.command("create index Place.l on Place (location) SPATIAL engine lucene").close();
     OResultSet execute =
@@ -98,6 +100,7 @@ public class LuceneSpatialDistanceSphereTest extends BaseSpatialLuceneTest {
     db.command("create class Restaurant extends v").close();
     db.command("create property Restaurant.location EMBEDDED OPoint").close();
 
+    db.begin();
     db.command(
             "INSERT INTO  Restaurant SET name = 'London', location = St_GeomFromText(\"POINT"
                 + " (-0.1277583 51.5073509)\")")
@@ -116,6 +119,7 @@ public class LuceneSpatialDistanceSphereTest extends BaseSpatialLuceneTest {
             "INSERT INTO  Restaurant SET name = 'Montreal', location = St_GeomFromText(\"POINT"
                 + " (-73.567256 45.5016889)\")")
         .close();
+    db.commit();
 
     db.command("CREATE INDEX bla ON Restaurant (location) SPATIAL ENGINE LUCENE;\n").close();
     List<OResult> execute =

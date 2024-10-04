@@ -682,11 +682,13 @@ public class JSONTest extends DocumentDBBaseTest {
       database.getMetadata().getSchema().createClass("Device");
     }
 
+    database.begin();
     database
         .command(
             "insert into device (resource_id, domainset) VALUES (0, [ { 'domain' : 'abc' }, {"
                 + " 'domain' : 'pqr' } ])")
         .close();
+    database.commit();
 
     OResultSet result = database.query("select from device where domainset.domain contains 'abc'");
     Assert.assertTrue(result.stream().count() > 0);
@@ -703,9 +705,11 @@ public class JSONTest extends DocumentDBBaseTest {
       database.getMetadata().getSchema().createClass("Device");
     }
 
+    database.begin();
     database
         .command("insert into device (resource_id, domainset) VALUES (1, { 'domain' : 'eee' })")
         .close();
+    database.commit();
 
     OResultSet result = database.query("select from device where domainset.domain = 'eee'");
     Assert.assertTrue(result.stream().count() > 0);
@@ -716,11 +720,13 @@ public class JSONTest extends DocumentDBBaseTest {
       database.getMetadata().getSchema().createClass("Device");
     }
 
+    database.begin();
     database
         .command(
             "insert into device (domainset) values ({'domain' : { 'lvlone' : { 'value' : 'five' } }"
                 + " } )")
         .close();
+    database.commit();
 
     OResultSet result =
         database.query("select from device where domainset.domain.lvlone.value = 'five'");

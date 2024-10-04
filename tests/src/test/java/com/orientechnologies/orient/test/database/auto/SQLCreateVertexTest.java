@@ -38,11 +38,13 @@ public class SQLCreateVertexTest extends DocumentDBBaseTest {
       vClass.createProperty("message", OType.STRING);
     }
 
+    database.begin();
     database.command("create vertex CreateVertexByContent content { \"message\": \"(:\"}").close();
     database
         .command(
             "create vertex CreateVertexByContent content { \"message\": \"\\\"‎ה, כן?...‎\\\"\"}")
         .close();
+    database.commit();
 
     List<OResult> result =
         database.query("select from CreateVertexByContent").stream().collect(Collectors.toList());
@@ -86,9 +88,11 @@ public class SQLCreateVertexTest extends DocumentDBBaseTest {
     database.close();
     database.open("admin", "admin");
 
+    database.begin();
     database.command("create vertex set script = true").close();
     database.command("create vertex").close();
     database.command("create vertex V").close();
+    database.commit();
 
     // TODO complete this!
     // database.command(new OCommandSQL("create vertex set")).execute();

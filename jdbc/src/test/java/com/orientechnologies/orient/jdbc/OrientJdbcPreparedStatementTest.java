@@ -28,11 +28,13 @@ public class OrientJdbcPreparedStatementTest extends OrientJdbcDbPerMethodTempla
 
   @Test
   public void shouldCreateStatement() throws Exception {
+    conn.createStatement().execute("begin");
     PreparedStatement stmt =
         conn.prepareStatement("SELECT * FROM Item WHERE stringKey = ? OR intKey = ?");
     assertThat(stmt).isNotNull();
     stmt.close();
     assertThat(stmt.isClosed()).isTrue();
+    conn.createStatement().execute("commit");
   }
 
   @Test
@@ -60,9 +62,11 @@ public class OrientJdbcPreparedStatementTest extends OrientJdbcDbPerMethodTempla
   public void testExecuteUpdateReturnsNumberOfRowsInserted() throws Exception {
     conn.createStatement().executeQuery("CREATE CLASS Insertable ");
 
+    conn.createStatement().execute("begin");
     PreparedStatement statement = conn.prepareStatement("INSERT INTO Insertable ( id ) VALUES (?)");
     statement.setString(1, "testval");
     int rowsInserted = statement.executeUpdate();
+    conn.createStatement().execute("commit");
 
     assertThat(rowsInserted).isEqualTo(1);
   }
@@ -70,6 +74,7 @@ public class OrientJdbcPreparedStatementTest extends OrientJdbcDbPerMethodTempla
   @Test
   public void testExecuteUpdateReturnsNumberOfRowsInsertedWhenMultipleInserted() throws Exception {
     conn.createStatement().executeQuery("CREATE CLASS Insertable ");
+    conn.createStatement().execute("begin");
     conn.createStatement().executeQuery("INSERT INTO Insertable(id) VALUES(1)");
     conn.createStatement().executeQuery("INSERT INTO Insertable(id) VALUES(2)");
 
@@ -77,14 +82,19 @@ public class OrientJdbcPreparedStatementTest extends OrientJdbcDbPerMethodTempla
     statement.setString(1, "testval");
     int rowsInserted = statement.executeUpdate();
 
+    conn.createStatement().execute("commit");
+
     assertThat(rowsInserted).isEqualTo(2);
   }
 
   @Test
   public void testInsertRIDReturning() throws Exception {
     conn.createStatement().executeQuery("CREATE CLASS Insertable ");
+
+    conn.createStatement().execute("begin");
     ResultSet result =
         conn.createStatement().executeQuery("INSERT INTO Insertable(id) VALUES(1) return @rid");
+    conn.createStatement().execute("commit");
 
     assertThat(result.next()).isTrue();
     assertThat(result.getObject("@rid")).isNotNull();
@@ -93,8 +103,11 @@ public class OrientJdbcPreparedStatementTest extends OrientJdbcDbPerMethodTempla
   @Test
   public void testExecuteUpdateReturnsNumberOfRowsDeleted() throws Exception {
     conn.createStatement().executeQuery("CREATE CLASS Insertable ");
+
+    conn.createStatement().execute("begin");
     conn.createStatement().executeQuery("INSERT INTO Insertable(id) VALUES(1)");
     conn.createStatement().executeQuery("INSERT INTO Insertable(id) VALUES(2)");
+    conn.createStatement().execute("commit");
 
     PreparedStatement statement = conn.prepareStatement("DELETE FROM Insertable WHERE id > ?");
     statement.setInt(1, 0);
@@ -134,11 +147,14 @@ public class OrientJdbcPreparedStatementTest extends OrientJdbcDbPerMethodTempla
   @Test
   public void shouldExecutePreparedStatementWithExecuteMethod() throws Exception {
     conn.createStatement().executeQuery("CREATE CLASS insertable");
+
+    conn.createStatement().execute("begin");
     PreparedStatement stmt = conn.prepareStatement("INSERT INTO insertable SET id = ?, number = ?");
     stmt.setString(1, "someRandomUid");
     stmt.setInt(2, 42);
     stmt.execute();
     stmt.close();
+    conn.createStatement().execute("commit");
 
     // Let's verify the previous process
     ResultSet resultSet =

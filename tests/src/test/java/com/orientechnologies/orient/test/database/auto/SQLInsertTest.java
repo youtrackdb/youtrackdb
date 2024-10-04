@@ -85,6 +85,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
       database.getMetadata().getSchema().createClass("Profile");
     }
 
+    database.begin();
     OElement doc =
         database
             .command(
@@ -97,6 +98,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .next()
             .getElement()
             .get();
+    database.commit();
 
     Assert.assertNotNull(doc);
     Assert.assertEquals(doc.getProperty("name"), "Luca");
@@ -105,6 +107,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     Assert.assertEquals(doc.getProperty("location"), new ORecordId(addressId, positions.get(3)));
     Assert.assertEquals(doc.getProperty("dummy"), "hooray");
 
+    database.begin();
     doc =
         database
             .command(
@@ -117,6 +120,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .next()
             .getElement()
             .get();
+    database.commit();
 
     Assert.assertNotNull(doc);
     Assert.assertEquals(doc.getProperty("name"), "Luca");
@@ -134,6 +138,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
 
     List<Long> positions = getValidPositions(addressId);
 
+    database.begin();
     OElement doc =
         database
             .command(
@@ -147,6 +152,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .next()
             .getElement()
             .get();
+    database.commit();
 
     Assert.assertNotNull(doc);
     Assert.assertEquals(doc.getProperty("name"), "Marc");
@@ -159,6 +165,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     database.delete(doc);
     database.commit();
 
+    database.begin();
     doc =
         database
             .command(
@@ -172,6 +179,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .next()
             .getElement()
             .get();
+    database.commit();
 
     Assert.assertNotNull(doc);
     Assert.assertEquals(doc.getProperty("name"), "Marc");
@@ -186,6 +194,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
   @Test
   @SuppressWarnings("unchecked")
   public void insertMap() {
+    database.begin();
     OElement doc =
         database
             .command(
@@ -194,6 +203,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .next()
             .getElement()
             .get();
+    database.commit();
 
     Assert.assertNotNull(doc);
 
@@ -211,6 +221,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     database.delete(doc);
     database.commit();
 
+    database.begin();
     doc =
         database
             .command(
@@ -219,6 +230,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .next()
             .getElement()
             .get();
+    database.commit();
 
     Assert.assertNotNull(doc);
 
@@ -236,6 +248,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
   @Test
   @SuppressWarnings("unchecked")
   public void insertList() {
+    database.begin();
     OElement doc =
         database
             .command(
@@ -244,6 +257,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .next()
             .getElement()
             .get();
+    database.commit();
 
     Assert.assertNotNull(doc);
 
@@ -263,6 +277,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     database.delete(doc);
     database.commit();
 
+    database.begin();
     doc =
         database
             .command(
@@ -271,6 +286,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .next()
             .getElement()
             .get();
+    database.commit();
 
     Assert.assertNotNull(doc);
 
@@ -289,8 +305,10 @@ public class SQLInsertTest extends DocumentDBBaseTest {
 
   @Test
   public void insertWithNoSpaces() {
+    database.begin();
     OResultSet res =
         database.command("insert into cluster:default(id, title)values(10, 'NoSQL movement')");
+    database.commit();
 
     Assert.assertTrue(res.hasNext());
   }
@@ -302,7 +320,9 @@ public class SQLInsertTest extends DocumentDBBaseTest {
       schema.createClass("test");
     }
 
+    database.begin();
     OResult doc = database.command("INSERT INTO test(text) VALUES ('(Hello World)')").next();
+    database.commit();
 
     Assert.assertNotNull(doc);
     Assert.assertEquals(doc.getProperty("text"), "(Hello World)");
@@ -319,12 +339,14 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     final long uCount = usersCount.next().getProperty("count");
     usersCount.close();
 
+    database.begin();
     OElement doc =
         database
             .command("INSERT INTO test SET names = (select name from OUser)")
             .next()
             .getElement()
             .get();
+    database.commit();
 
     Assert.assertNotNull(doc);
     Assert.assertNotNull(doc.getProperty("names"));
@@ -349,16 +371,19 @@ public class SQLInsertTest extends DocumentDBBaseTest {
   }
 
   public void updateMultipleFields() {
-
     if (!database.getMetadata().getSchema().existsClass("Account")) {
       database.getMetadata().getSchema().createClass("Account");
     }
 
+    database.begin();
     for (int i = 0; i < 30; i++) {
       database.command("insert into cluster:3 set name = 'foo" + i + "'");
     }
+    database.commit();
+
     List<Long> positions = getValidPositions(3);
 
+    database.begin();
     OIdentifiable result =
         database
             .command(
@@ -368,6 +393,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .next()
             .getElement()
             .get();
+    database.commit();
     Assert.assertNotNull(result);
 
     ODocument record = result.getRecord();
@@ -385,11 +411,14 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     database.command("CREATE CLASS UserCopy").close();
     database.getMetadata().getSchema().reload();
 
+    database.begin();
     long inserted =
         database
             .command("INSERT INTO UserCopy FROM select from ouser where name <> 'admin' limit 2")
             .stream()
             .count();
+    database.commit();
+
     Assert.assertEquals(inserted, 2);
 
     List<OIdentifiable> result =
@@ -407,7 +436,9 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     database.command("CREATE property ProjectedInsert.a Integer (max 3)").close();
     database.getMetadata().getSchema().reload();
 
+    database.begin();
     database.command("INSERT INTO ProjectedInsert FROM select 10 as a ").close();
+    database.commit();
   }
 
   @Test
@@ -491,6 +522,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     OClass c = database.getMetadata().getSchema().getOrCreateClass("TestConvert");
     c.createProperty("embeddedSetNoLinkedClass", OType.EMBEDDEDSET);
 
+    database.begin();
     OElement doc =
         database
             .command(
@@ -499,6 +531,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .next()
             .getElement()
             .get();
+    database.commit();
 
     Assert.assertTrue(doc.getProperty("embeddedSetNoLinkedClass") instanceof Set);
 
@@ -516,6 +549,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
         OType.EMBEDDEDSET,
         database.getMetadata().getSchema().getOrCreateClass("TestConvertLinkedClass"));
 
+    database.begin();
     OElement doc =
         database
             .command(
@@ -524,6 +558,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .next()
             .getElement()
             .get();
+    database.commit();
 
     Assert.assertTrue(doc.getProperty("embeddedSetWithLinkedClass") instanceof Set);
 
@@ -539,6 +574,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     OClass c = database.getMetadata().getSchema().getOrCreateClass("TestConvert");
     c.createProperty("embeddedListNoLinkedClass", OType.EMBEDDEDLIST);
 
+    database.begin();
     OElement doc =
         database
             .command(
@@ -547,6 +583,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .next()
             .getElement()
             .get();
+    database.commit();
 
     Assert.assertTrue(doc.getProperty("embeddedListNoLinkedClass") instanceof List);
 
@@ -566,6 +603,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
           database.getMetadata().getSchema().getOrCreateClass("TestConvertLinkedClass"));
     }
 
+    database.begin();
     OElement doc =
         database
             .command(
@@ -574,13 +612,16 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .next()
             .getElement()
             .get();
+    database.commit();
 
     Assert.assertTrue(doc.getProperty("embeddedListWithLinkedClass") instanceof List);
 
     List addr = doc.getProperty("embeddedListWithLinkedClass");
     for (Object o : addr) {
+      database.begin();
       Assert.assertTrue(o instanceof ODocument);
       Assert.assertEquals(((ODocument) o).getClassName(), "TestConvertLinkedClass");
+      database.commit();
     }
   }
 
@@ -589,6 +630,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     OClass c = database.getMetadata().getSchema().getOrCreateClass("TestConvert");
     c.createProperty("embeddedMapNoLinkedClass", OType.EMBEDDEDMAP);
 
+    database.begin();
     OElement doc =
         database
             .command(
@@ -597,6 +639,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .next()
             .getElement()
             .get();
+    database.commit();
 
     Assert.assertTrue(doc.getProperty("embeddedMapNoLinkedClass") instanceof Map);
 
@@ -651,11 +694,13 @@ public class SQLInsertTest extends DocumentDBBaseTest {
   public void testEmbeddedDates() {
     OClass c = database.getMetadata().getSchema().getOrCreateClass("TestEmbeddedDates");
 
+    database.begin();
     database
         .command(
             "insert into TestEmbeddedDates set events = [{\"on\": date(\"2005-09-08 04:00:00\","
                 + " \"yyyy-MM-dd HH:mm:ss\", \"UTC\")}]\n")
         .close();
+    database.commit();
 
     List<OResult> result =
         database.query("select from TestEmbeddedDates").stream().collect(Collectors.toList());
@@ -689,6 +734,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
         OType.EMBEDDED,
         database.getMetadata().getSchema().getOrCreateClass("TestConvertLinkedClass"));
 
+    database.begin();
     OElement doc =
         database
             .command(
@@ -697,6 +743,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .next()
             .getElement()
             .get();
+    database.commit();
 
     Assert.assertTrue(doc.getProperty("embeddedWithLinkedClass") instanceof ODocument);
     Assert.assertEquals(
@@ -712,6 +759,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
         OType.EMBEDDED,
         database.getMetadata().getSchema().getOrCreateClass("EmbeddedWithRecordAttributes_Like"));
 
+    database.begin();
     OElement doc =
         database
             .command(
@@ -724,6 +772,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .next()
             .getElement()
             .get();
+    database.commit();
 
     Assert.assertTrue(doc.getProperty("like") instanceof OIdentifiable);
     Assert.assertEquals(
@@ -739,6 +788,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
         OType.EMBEDDED,
         database.getMetadata().getSchema().getOrCreateClass("EmbeddedWithRecordAttributes2_Like"));
 
+    database.begin();
     OElement doc =
         database
             .command(
@@ -751,6 +801,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .next()
             .getElement()
             .get();
+    database.commit();
 
     Assert.assertTrue(doc.getProperty("like") instanceof OIdentifiable);
     Assert.assertEquals(
@@ -762,9 +813,11 @@ public class SQLInsertTest extends DocumentDBBaseTest {
   public void testInsertWithClusterAsFieldName() {
     OClass c = database.getMetadata().getSchema().getOrCreateClass("InsertWithClusterAsFieldName");
 
+    database.begin();
     database
         .command("INSERT INTO InsertWithClusterAsFieldName ( `cluster` ) values ( 'foo' )")
         .close();
+    database.commit();
 
     List<OResult> result =
         database.query("SELECT FROM InsertWithClusterAsFieldName").stream()
@@ -781,9 +834,13 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     database
         .command("create property TestInsertEmbeddedBigDecimal.ed embeddedlist decimal")
         .close();
+
+    database.begin();
     database
         .command("INSERT INTO TestInsertEmbeddedBigDecimal CONTENT {\"ed\": [5,null,5]}")
         .close();
+    database.commit();
+
     List<OResult> result =
         database.query("SELECT FROM TestInsertEmbeddedBigDecimal").stream()
             .collect(Collectors.toList());

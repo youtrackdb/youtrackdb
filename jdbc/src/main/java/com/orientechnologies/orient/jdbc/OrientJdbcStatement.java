@@ -139,22 +139,13 @@ public class OrientJdbcStatement implements Statement {
 
   @Override
   public int executeUpdate(final String sql) throws SQLException {
-    return doExecuteUpdate(sql, true);
+    return doExecuteUpdate(sql);
   }
 
-  private int doExecuteUpdate(String sql, boolean autoStartTx) throws SQLException {
-    boolean txBegun = false;
-    boolean ok = false;
-
+  private int doExecuteUpdate(String sql) throws SQLException {
     try {
-      if (autoStartTx && !database.getTransaction().isActive()) {
-        database.begin();
-        txBegun = true;
-      }
-
       oResultSet = executeCommand(sql);
       Optional<OResult> res = oResultSet.stream().findFirst();
-      ok = true;
 
       if (res.isPresent()) {
         if (res.get().getProperty("count") != null) {
@@ -168,14 +159,6 @@ public class OrientJdbcStatement implements Statement {
     } finally {
       if (oResultSet != null) {
         oResultSet.close();
-      }
-
-      if (txBegun && database.getTransaction().isActive()) {
-        if (ok) {
-          database.commit();
-        } else {
-          database.rollback();
-        }
       }
     }
   }
@@ -243,7 +226,7 @@ public class OrientJdbcStatement implements Statement {
     int[] results = new int[batches.size()];
     int i = 0;
     for (String sql : batches) {
-      results[i++] = doExecuteUpdate(sql, false);
+      results[i++] = doExecuteUpdate(sql);
     }
     return results;
   }

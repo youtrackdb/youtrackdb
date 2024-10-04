@@ -582,6 +582,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
     OClass vertex = schema.getClass("V");
     schema.createClass("UpdateVertexContent", vertex);
 
+    database.begin();
     final ORID vOneId =
         database.command("create vertex UpdateVertexContent").next().getIdentity().get();
     final ORID vTwoId =
@@ -590,6 +591,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
     database.command("create edge from " + vOneId + " to " + vTwoId).close();
     database.command("create edge from " + vOneId + " to " + vTwoId).close();
     database.command("create edge from " + vOneId + " to " + vTwoId).close();
+    database.commit();
 
     List<OResult> result =
         database
@@ -640,6 +642,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
     schema.createClass("UpdateEdgeContentV", vertex);
     schema.createClass("UpdateEdgeContentE", edge);
 
+    database.begin();
     final ORID vOneId =
         database.command("create vertex UpdateEdgeContentV").next().getIdentity().get();
     final ORID vTwoId =
@@ -648,6 +651,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
     database.command("create edge UpdateEdgeContentE from " + vOneId + " to " + vTwoId).close();
     database.command("create edge UpdateEdgeContentE from " + vOneId + " to " + vTwoId).close();
     database.command("create edge UpdateEdgeContentE from " + vOneId + " to " + vTwoId).close();
+    database.commit();
 
     List<OResult> result =
         database.query("select outV() as outV, inV() as inV from UpdateEdgeContentE").stream()

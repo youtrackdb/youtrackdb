@@ -149,11 +149,14 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
     database.command("CREATE PROPERTY MyTestClass.stringField STRING").close();
     database.command("ALTER PROPERTY MyTestClass.stringField MANDATORY true").close();
     database.command("ALTER PROPERTY MyTestClass.stringField NOTNULL false").close();
+
+    database.begin();
     database
         .command(
             "INSERT INTO MyTestClass (keyField,dateTimeField,stringField) VALUES"
                 + " (\"K1\",null,null)")
         .close();
+    database.commit();
     database.reload();
     database.getMetadata().reload();
     database.close();

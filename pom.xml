@@ -185,6 +185,7 @@
                             </property>
                         </properties>
                         <useModulePath>false</useModulePath>
+                        <redirectTestOutputToFile>true</redirectTestOutputToFile>
                     </configuration>
                 </plugin>
 
@@ -477,27 +478,6 @@
     </reporting>
 
     <profiles>
-        <!--
-        Enable animal-sniffer to verify JDK compatibility.
-        -->
-        <profile>
-            <id>animalsniffer</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>animal-sniffer-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>check</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
         <profile>
             <id>java17</id>
             <activation>
