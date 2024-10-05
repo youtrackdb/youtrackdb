@@ -220,7 +220,7 @@ public class StorageBackupMTStateTest {
     public Void call() throws Exception {
       while (!stop) {
         while (true) {
-          ODatabaseDocument db = pool.acquire();
+          ODatabaseDocumentInternal db = pool.acquire();
           try {
             flowLock.acquireReadLock();
             try {
@@ -256,7 +256,7 @@ public class StorageBackupMTStateTest {
 
       while (!stop) {
         while (true) {
-          ODatabaseDocument db = pool.acquire();
+          ODatabaseDocumentInternal db = pool.acquire();
           try {
             flowLock.acquireReadLock();
             try {
@@ -291,7 +291,7 @@ public class StorageBackupMTStateTest {
   private abstract class Inserter implements Callable<Void> {
     protected final Random random = new Random();
 
-    protected void insertRecord(ODatabaseDocument db) {
+    protected void insertRecord(ODatabaseDocumentInternal db) {
       final int docId;
       final int classes = classCounter.get();
 
@@ -353,7 +353,7 @@ public class StorageBackupMTStateTest {
   private final class IncrementalBackupThread implements Runnable {
     @Override
     public void run() {
-      ODatabaseDocument db = new ODatabaseDocumentTx(dbURL);
+      ODatabaseDocumentInternal db = new ODatabaseDocumentTx(dbURL);
       db.open("admin", "admin");
       try {
         flowLock.acquireReadLock();
@@ -375,7 +375,7 @@ public class StorageBackupMTStateTest {
   private final class ClassAdder implements Runnable {
     @Override
     public void run() {
-      ODatabaseDocument databaseDocumentTx = new ODatabaseDocumentTx(dbURL);
+      ODatabaseDocumentInternal databaseDocumentTx = new ODatabaseDocumentTx(dbURL);
       databaseDocumentTx.open("admin", "admin");
       try {
         flowLock.acquireReadLock();
@@ -401,7 +401,7 @@ public class StorageBackupMTStateTest {
       int counter = 0;
       while (!stop) {
         while (true) {
-          ODatabaseDocument databaseDocumentTx = pool.acquire();
+          ODatabaseDocumentInternal databaseDocumentTx = pool.acquire();
           try {
             flowLock.acquireReadLock();
             try {

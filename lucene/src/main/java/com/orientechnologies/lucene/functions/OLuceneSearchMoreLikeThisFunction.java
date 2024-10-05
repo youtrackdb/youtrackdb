@@ -154,7 +154,7 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
         if (((OResult) item).isElement()) {
           rids.add(((OResult) item).getIdentity().get().toString());
         } else {
-          Set<String> properties = ((OResult) item).getPropertyNames();
+          var properties = ((OResult) item).getPropertyNames();
           if (properties.size() == 1) {
             Object val = ((OResult) item).getProperty(properties.iterator().next());
             if (val instanceof OIdentifiable) {

@@ -2,7 +2,6 @@ package com.orientechnologies.orient.object.db;
 
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.orient.core.db.object.ODatabaseObject;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -17,13 +16,13 @@ import org.junit.Test;
 /** Created by tglman on 17/02/17. */
 public class SimpleParentChildTest {
 
-  private ODatabaseObject database;
+  private OObjectDatabaseTxInternal database;
 
   String url = "memory:" + SimpleParentChildTest.class.getSimpleName();
 
   @Before
   public void before() {
-    database = new OObjectDatabaseTx(url);
+    database = new OObjectDatabaseTxInternal(url);
     database.create();
     database.getEntityManager().registerEntityClass(SimpleChild.class);
     database.getEntityManager().registerEntityClass(SimpleParent.class);
@@ -46,7 +45,8 @@ public class SimpleParentChildTest {
     database.commit();
 
     database.getLocalCache().clear();
-    ODocument doc = ((OObjectDatabaseTx) database).getUnderlying().load(ret.getId().getIdentity());
+    ODocument doc =
+        ((OObjectDatabaseTxInternal) database).getUnderlying().load(ret.getId().getIdentity());
     assertEquals(doc.fieldType("child"), OType.LINK);
   }
 
@@ -63,7 +63,7 @@ public class SimpleParentChildTest {
     String parentId = savedParent.getId();
 
     this.database.close();
-    this.database = new OObjectDatabaseTx(url);
+    this.database = new OObjectDatabaseTxInternal(url);
     this.database.open("admin", "admin");
 
     database.begin();
@@ -74,7 +74,7 @@ public class SimpleParentChildTest {
     database.commit();
 
     this.database.close();
-    this.database = new OObjectDatabaseTx(url);
+    this.database = new OObjectDatabaseTxInternal(url);
     this.database.open("admin", "admin");
 
     retrievedParent = this.database.load(new ORecordId(parentId));

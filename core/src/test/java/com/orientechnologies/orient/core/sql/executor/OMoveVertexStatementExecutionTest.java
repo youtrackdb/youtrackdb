@@ -43,6 +43,7 @@ public class OMoveVertexStatementExecutionTest {
     db.createVertexClass(vertexClassName2);
     db.createEdgeClass(edgeClassName);
 
+    db.begin();
     db.command("create vertex " + vertexClassName1 + " set name = 'a'");
     db.command("create vertex " + vertexClassName1 + " set name = 'b'");
     db.command(
@@ -59,6 +60,8 @@ public class OMoveVertexStatementExecutionTest {
             + vertexClassName1
             + " where name = 'a') to class:"
             + vertexClassName2);
+    db.commit();
+
     OResultSet rs = db.query("select from " + vertexClassName1);
     Assert.assertTrue(rs.hasNext());
     rs.next();
@@ -93,6 +96,7 @@ public class OMoveVertexStatementExecutionTest {
     db.createVertexClass(vertexClassName2);
     db.createEdgeClass(edgeClassName);
 
+    db.begin();
     db.command("create vertex " + vertexClassName1 + " set name = 'a'");
     db.command("create vertex " + vertexClassName1 + " set name = 'b'");
     db.command(
@@ -110,6 +114,8 @@ public class OMoveVertexStatementExecutionTest {
             + " where name = 'a') to class:"
             + vertexClassName2
             + " BATCH 2");
+    db.commit();
+
     OResultSet rs = db.query("select from " + vertexClassName1);
     Assert.assertTrue(rs.hasNext());
     rs.next();

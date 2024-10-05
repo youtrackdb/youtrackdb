@@ -25,6 +25,7 @@ import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.orientechnologies.orient.core.OConstants;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.db.ODatabase;
+import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 import java.io.File;
@@ -46,7 +47,7 @@ public class ODatabaseHelper {
 
   @Deprecated
   public static void openDatabase(ODatabase database) {
-    database.open("admin", "admin");
+    ((ODatabaseInternal) database).open("admin", "admin");
   }
 
   @Deprecated
@@ -58,7 +59,7 @@ public class ODatabaseHelper {
           .createDatabase("document", type)
           .close();
     } else {
-      database.create();
+      ((ODatabaseInternal) database).create();
       database.close();
     }
   }
@@ -94,7 +95,7 @@ public class ODatabaseHelper {
       } else {
         if (database.isClosed()) openDatabase(database);
         else database.activateOnCurrentThread();
-        database.drop();
+        ((ODatabaseInternal) database).drop();
       }
     }
   }
@@ -111,7 +112,7 @@ public class ODatabaseHelper {
       return exist;
     }
 
-    return database.exists();
+    return ((ODatabaseInternal) database).exists();
   }
 
   @Deprecated

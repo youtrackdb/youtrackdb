@@ -36,7 +36,7 @@ import com.orientechnologies.orient.core.metadata.schema.OViewConfig;
 import com.orientechnologies.orient.core.metadata.schema.clusterselection.OClusterSelectionFactory;
 import com.orientechnologies.orient.core.record.impl.OBlob;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTxInternal;
 import com.orientechnologies.orient.object.enhancement.OObjectEntitySerializer;
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -399,8 +399,9 @@ public class OSchemaProxyObject implements OSchemaObject {
 
   /** Checks if all registered entities has schema generated, if not it generates it */
   public synchronized void synchronizeSchema() {
-    OObjectDatabaseTx database =
-        ((OObjectDatabaseTx) ODatabaseRecordThreadLocal.instance().get().getDatabaseOwner());
+    OObjectDatabaseTxInternal database =
+        ((OObjectDatabaseTxInternal)
+            ODatabaseRecordThreadLocal.instance().get().getDatabaseOwner());
     Collection<Class<?>> registeredEntities = database.getEntityManager().getRegisteredEntities();
     boolean automaticSchemaGeneration = database.isAutomaticSchemaGeneration();
     boolean reloadSchema = false;

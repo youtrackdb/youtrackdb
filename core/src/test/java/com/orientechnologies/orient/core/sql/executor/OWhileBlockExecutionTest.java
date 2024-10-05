@@ -19,18 +19,19 @@ public class OWhileBlockExecutionTest extends BaseMemoryDatabase {
     String script = "";
     script += "LET $i = 0;";
     script += "WHILE ($i < 3){\n";
+    script += "  begin;\n";
     script += "  insert into " + className + " set value = $i;\n";
     script += "  LET $i = $i + 1;";
+    script += "  commit;";
     script += "}";
     script += "SELECT FROM " + className;
-
     OResultSet results = db.execute("sql", script);
 
     int tot = 0;
     int sum = 0;
     while (results.hasNext()) {
       OResult item = results.next();
-      sum += (Integer) item.getProperty("value");
+      sum += item.<Integer>getProperty("value");
       tot++;
     }
     Assert.assertEquals(3, tot);
@@ -47,7 +48,9 @@ public class OWhileBlockExecutionTest extends BaseMemoryDatabase {
     String script = "";
     script += "LET $i = 0;";
     script += "WHILE ($i < 3){\n";
+    script += "  begin;\n";
     script += "  insert into " + className + " set value = $i;\n";
+    script += "   commit;\n";
     script += "  IF ($i = 1) {";
     script += "    RETURN;";
     script += "  }";
@@ -62,7 +65,7 @@ public class OWhileBlockExecutionTest extends BaseMemoryDatabase {
     int sum = 0;
     while (results.hasNext()) {
       OResult item = results.next();
-      sum += (Integer) item.getProperty("value");
+      sum += item.<Integer>getProperty("value");
       tot++;
     }
     Assert.assertEquals(2, tot);

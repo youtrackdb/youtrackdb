@@ -75,7 +75,10 @@ public class OViewTest {
                   + " {updateIntervalSeconds:1, indexes: [{type:'NOTUNIQUE',"
                   + " properties:{name:'STRING'}}]}")
           .close();
+
+      session.begin();
       session.command("insert into test set name='abc'").close();
+      session.commit();
 
       BaseMemoryDatabase.assertWithTimeout(
           session,

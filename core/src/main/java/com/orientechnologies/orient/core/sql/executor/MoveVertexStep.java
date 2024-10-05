@@ -38,8 +38,7 @@ public class MoveVertexStep extends AbstractExecutionStep {
   }
 
   private OResult mapResult(OResult result, OCommandContext ctx) {
-    var db = ctx.getDatabase();
-    db.executeInTx(() -> result.getVertex().ifPresent(x -> x.moveTo(targetClass, targetCluster)));
+    result.getVertex().ifPresent(x -> x.moveTo(targetClass, targetCluster));
     return result;
   }
 

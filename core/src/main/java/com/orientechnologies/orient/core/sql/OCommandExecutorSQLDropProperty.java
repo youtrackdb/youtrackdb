@@ -119,7 +119,7 @@ public class OCommandExecutorSQLDropProperty extends OCommandExecutorSQLAbstract
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not yet been parsed");
 
-    final ODatabaseDocument database = getDatabase();
+    final var database = getDatabase();
     final OClassImpl sourceClass =
         (OClassImpl) database.getMetadata().getSchema().getClass(className);
     if (sourceClass == null)

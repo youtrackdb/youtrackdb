@@ -21,7 +21,6 @@ package com.orientechnologies.orient.core.db.tool;
 
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.metadata.OMetadataDefault;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -118,7 +117,7 @@ public abstract class ODatabaseImpExpAbstract extends ODatabaseTool {
     this.listener = listener;
   }
 
-  public ODatabaseDocument getDatabase() {
+  public ODatabaseDocumentInternal getDatabase() {
     return database;
   }
 

@@ -20,7 +20,6 @@
 package com.orientechnologies.orient.object.db;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.object.OLazyObjectListInterface;
 import com.orientechnologies.orient.core.db.object.OObjectLazyMultivalueElement;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
@@ -442,7 +441,7 @@ public class OObjectLazyList<TYPE> extends ArrayList<TYPE>
     Object o = super.get(iIndex);
     if (o == null) {
 
-      final ODatabaseDocument database = getDatabase().getUnderlying();
+      final var database = getDatabase().getUnderlying();
 
       o = recordList.get(iIndex);
       ODocument doc;
@@ -498,7 +497,7 @@ public class OObjectLazyList<TYPE> extends ArrayList<TYPE>
     Object o = super.get(iIndex);
     if (o == null) {
 
-      final ODatabaseDocument database = getDatabase().getUnderlying();
+      final var database = getDatabase().getUnderlying();
 
       o = recordList.get(iIndex);
       ODocument doc;
@@ -521,14 +520,14 @@ public class OObjectLazyList<TYPE> extends ArrayList<TYPE>
               .getProxiedInstance(
                   doc.getClassName(), getDatabase().getEntityManager(), doc, sourceRecord);
       o =
-          ((OObjectDatabaseTx) getDatabase())
+          ((OObjectDatabaseTxInternal) getDatabase())
               .detachAll(o, nonProxiedInstance, alreadyDetached, lazyObjects);
       super.set(iIndex, (TYPE) o);
     }
   }
 
-  protected OObjectDatabaseTx getDatabase() {
-    return (OObjectDatabaseTx) OLazyCollectionUtil.getDatabase();
+  protected OObjectDatabaseTxInternal getDatabase() {
+    return (OObjectDatabaseTxInternal) OLazyCollectionUtil.getDatabase();
   }
 
   protected boolean indexLoaded(int iIndex) {

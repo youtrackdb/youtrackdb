@@ -6,7 +6,6 @@ import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentAbstract;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
@@ -39,7 +38,7 @@ public class TestNetworkSerializerIndipendency {
     ODatabaseDocumentAbstract.setDefaultSerializer(ORecordSerializerSchemaAware2CSV.INSTANCE);
     createDatabase();
 
-    ODatabaseDocument dbTx = null;
+    ODatabaseDocumentInternal dbTx = null;
     try {
       ODatabaseDocumentAbstract.setDefaultSerializer(ORecordSerializerBinary.INSTANCE);
       dbTx = new ODatabaseDocumentTx("remote:localhost/test");
@@ -82,7 +81,7 @@ public class TestNetworkSerializerIndipendency {
     ODatabaseDocumentAbstract.setDefaultSerializer(ORecordSerializerBinary.INSTANCE);
     createDatabase();
 
-    ODatabaseDocument dbTx = null;
+    ODatabaseDocumentInternal dbTx = null;
     try {
       ODatabaseDocumentAbstract.setDefaultSerializer(ORecordSerializerSchemaAware2CSV.INSTANCE);
       dbTx = new ODatabaseDocumentTx("remote:localhost/test");

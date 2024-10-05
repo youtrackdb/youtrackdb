@@ -8,13 +8,13 @@ import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 public class OLazyCollectionUtil {
 
   /** Gets the current thread database as a ODatabasePojoAbstract, wrapping it where necessary. */
-  protected static OObjectDatabaseTx getDatabase() {
+  protected static OObjectDatabaseTxInternal getDatabase() {
     ODatabaseInternal<?> databaseOwner =
         ODatabaseRecordThreadLocal.instance().get().getDatabaseOwner();
-    if (databaseOwner instanceof OObjectDatabaseTx) {
-      return (OObjectDatabaseTx) databaseOwner;
+    if (databaseOwner instanceof OObjectDatabaseTxInternal) {
+      return (OObjectDatabaseTxInternal) databaseOwner;
     } else if (databaseOwner instanceof ODatabaseDocumentInternal) {
-      return new OObjectDatabaseTx((ODatabaseDocumentInternal) databaseOwner);
+      return new OObjectDatabaseTxInternal((ODatabaseDocumentInternal) databaseOwner);
     }
     throw new IllegalStateException("Current database not of expected type");
   }

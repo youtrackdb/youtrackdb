@@ -378,10 +378,12 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     document.save();
     database.commit();
 
+    database.begin();
     database
         .command(
             "UPDATE " + document.getIdentity() + " set linkMap['key3'] = " + docThree.getIdentity())
         .close();
+    database.commit();
 
     final OIndex keyIndexMap = getIndex("mapIndexTestKey");
     Assert.assertEquals(keyIndexMap.getInternal().size(), 3);
@@ -568,10 +570,12 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     document.save();
     database.commit();
 
+    database.begin();
     database
         .command(
             "UPDATE " + document.getIdentity() + " set linkMap['key2'] = " + docThree.getIdentity())
         .close();
+    database.commit();
 
     final OIndex keyIndexMap = getIndex("mapIndexTestKey");
 
@@ -757,7 +761,9 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     document.save();
     database.commit();
 
+    database.begin();
     database.command("UPDATE " + document.getIdentity() + " remove linkMap = 'key2'").close();
+    database.commit();
 
     final OIndex keyIndexMap = getIndex("mapIndexTestKey");
     Assert.assertEquals(keyIndexMap.getInternal().size(), 2);

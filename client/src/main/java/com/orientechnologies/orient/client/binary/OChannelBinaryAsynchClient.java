@@ -354,7 +354,7 @@ public class OChannelBinaryAsynchClient extends OChannelBinary {
         final Constructor<? extends OException> constructor;
         constructor = cls.getConstructor(cls);
         final OException proxyInstance = constructor.newInstance(throwable);
-        proxyInstance.addSuppressed((Exception) throwable);
+        proxyInstance.addSuppressed(throwable);
         throw proxyInstance;
 
       } catch (NoSuchMethodException

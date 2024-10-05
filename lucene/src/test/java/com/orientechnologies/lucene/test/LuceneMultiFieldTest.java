@@ -125,14 +125,18 @@ public class LuceneMultiFieldTest extends BaseLuceneTest {
   public void testSelectOnIndexWithIgnoreNullValuesToFalse() {
     // #5579
     String script =
-        "create class Item;\n"
-            + "create property Item.Title string;\n"
-            + "create property Item.Summary string;\n"
-            + "create property Item.Content string;\n"
-            + "create index Item.i_lucene on Item(Title, Summary, Content) fulltext engine lucene"
-            + " METADATA {ignoreNullValues:false};\n"
-            + "insert into Item set Title = 'wrong', content = 'not me please';\n"
-            + "insert into Item set Title = 'test', content = 'this is a test';\n";
+        """
+            create class Item;
+            create property Item.Title string;
+            create property Item.Summary string;
+            create property Item.Content string;
+            create index Item.i_lucene on Item(Title, Summary, Content) fulltext engine lucene\
+             METADATA {ignoreNullValues:false};
+             begin;
+            insert into Item set Title = 'wrong', content = 'not me please';
+            insert into Item set Title = 'test', content = 'this is a test';
+            commit;
+            """;
     db.execute("sql", script).close();
 
     OResultSet docs = db.query("select * from Item where Title lucene 'te*'");

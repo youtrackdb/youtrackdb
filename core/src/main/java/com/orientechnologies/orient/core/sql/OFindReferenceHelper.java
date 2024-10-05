@@ -20,6 +20,7 @@
 package com.orientechnologies.orient.core.sql;
 
 import com.orientechnologies.common.log.OLogManager;
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
@@ -51,7 +52,7 @@ import java.util.Set;
 public class OFindReferenceHelper {
 
   public static List<ODocument> findReferences(final Set<ORID> iRecordIds, final String classList) {
-    final ODatabaseDocument db = ODatabaseRecordThreadLocal.instance().get();
+    final var db = ODatabaseRecordThreadLocal.instance().get();
 
     final Map<ORID, Set<ORID>> map = new HashMap<ORID, Set<ORID>>();
     for (ORID rid : iRecordIds) {
@@ -94,7 +95,7 @@ public class OFindReferenceHelper {
       final Set<ORID> iSourceRIDs,
       final Map<ORID, Set<ORID>> map,
       final String iClusterName) {
-    for (ORecord record : iDatabase.browseCluster(iClusterName)) {
+    for (ORecord record : ((ODatabaseDocumentInternal) iDatabase).browseCluster(iClusterName)) {
       if (record instanceof ODocument) {
         try {
           for (String fieldName : ((ODocument) record).fieldNames()) {
@@ -110,7 +111,7 @@ public class OFindReferenceHelper {
   }
 
   private static void browseClass(
-      final ODatabaseDocument db,
+      final ODatabaseDocumentInternal db,
       Set<ORID> iSourceRIDs,
       final Map<ORID, Set<ORID>> map,
       final String iClassName) {

@@ -1,3 +1,4 @@
+BEGIN;
 INSERT INTO Hotels SET Id = 1, Name = "Best Western Ascott", Type = "hotel";
 INSERT INTO Hotels SET Id = 2, Name = "Torre Rossa Park Hotel", Type = "hotel";
 INSERT INTO Hotels SET Id = 3, Name = "Giardino", Type = "hotel";
@@ -3103,3 +3104,4 @@ INSERT INTO Restaurants SET Id = 1948, Name = "Vicoletto", Type = "restaurant";
 INSERT INTO Restaurants SET Id = 1949, Name = "L'ancora", Type = "restaurant";
 INSERT INTO Restaurants SET Id = 1950, Name = "Il Sardoncino", Type = "restaurant";
 INSERT INTO Restaurants SET Id = 1951, Name = "Master Planet", Type = "restaurant";
+COMMIT;

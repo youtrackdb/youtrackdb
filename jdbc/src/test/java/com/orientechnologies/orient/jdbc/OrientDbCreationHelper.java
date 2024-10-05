@@ -15,6 +15,7 @@
  */
 package com.orientechnologies.orient.jdbc;
 
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.id.ORID;
@@ -47,7 +48,7 @@ public class OrientDbCreationHelper {
       ODocument doc = new ODocument();
       doc.setClassName("Item");
       doc = createItem(i, doc);
-      db.save(doc, "Item");
+      ((ODatabaseDocumentInternal) db).save(doc, "Item");
     }
 
     createAuthorAndArticles(db, 50, 50);

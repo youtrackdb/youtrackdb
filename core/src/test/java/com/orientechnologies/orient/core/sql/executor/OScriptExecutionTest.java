@@ -18,11 +18,11 @@ public class OScriptExecutionTest extends BaseMemoryDatabase {
     db.createClass(className);
     db.execute(
         "SQL",
-        "INSERT INTO "
+        "begin;INSERT INTO "
             + className
             + " SET name = 'foo';INSERT INTO "
             + className
-            + " SET name = 'bar';");
+            + " SET name = 'bar';commit;");
     OResultSet rs = db.query("SELECT count(*) as count from " + className);
     Assert.assertEquals((Object) 2L, rs.next().getProperty("count"));
   }
@@ -31,7 +31,7 @@ public class OScriptExecutionTest extends BaseMemoryDatabase {
   public void testIf() {
     String className = "testIf";
     db.createClass(className);
-    String script = "";
+    String script = "begin;";
     script += "INSERT INTO " + className + " SET name = 'foo';";
     script += "LET $1 = SELECT count(*) as count FROM " + className + " WHERE name ='bar';";
     script += "IF($1.size() = 0 OR $1[0].count = 0){";
@@ -40,7 +40,8 @@ public class OScriptExecutionTest extends BaseMemoryDatabase {
     script += "LET $2 = SELECT count(*) as count FROM " + className + " WHERE name ='bar';";
     script += "IF($2.size() = 0 OR $2[0].count = 0){";
     script += "   INSERT INTO " + className + " SET name = 'bar';";
-    script += "}";
+    script += "};";
+    script += "commit;";
     db.execute("SQL", script);
     OResultSet rs = db.query("SELECT count(*) as count from " + className);
     Assert.assertEquals((Object) 2L, rs.next().getProperty("count"));
@@ -51,13 +52,17 @@ public class OScriptExecutionTest extends BaseMemoryDatabase {
     String className = "testReturnInIf";
     db.createClass(className);
     String script = "";
+    script += "begin;";
     script += "INSERT INTO " + className + " SET name = 'foo';";
     script += "LET $1 = SELECT count(*) as count FROM " + className + " WHERE name ='foo';";
     script += "IF($1.size() = 0 OR $1[0].count = 0){";
     script += "   INSERT INTO " + className + " SET name = 'bar';";
+    script += "   commit;";
     script += "   RETURN;";
     script += "}";
     script += "INSERT INTO " + className + " SET name = 'baz';";
+    script += "commit;";
+
     db.execute("SQL", script);
     OResultSet rs = db.query("SELECT count(*) as count from " + className);
     Assert.assertEquals((Object) 2L, rs.next().getProperty("count"));
@@ -67,8 +72,9 @@ public class OScriptExecutionTest extends BaseMemoryDatabase {
   public void testReturnInIf2() {
     String className = "testReturnInIf2";
     db.createClass(className);
-    String script = "";
+    String script = "begin;";
     script += "INSERT INTO " + className + " SET name = 'foo';";
+    script += "commit;";
     script += "LET $1 = SELECT count(*) as count FROM " + className + " WHERE name ='foo';";
     script += "IF($1.size() > 0 ){";
     script += "   RETURN 'OK';";
@@ -87,11 +93,14 @@ public class OScriptExecutionTest extends BaseMemoryDatabase {
     String className = "testReturnInIf3";
     db.createClass(className);
     String script = "";
+    script += "BEGIN;";
     script += "INSERT INTO " + className + " SET name = 'foo';";
     script += "LET $1 = SELECT count(*) as count FROM " + className + " WHERE name ='foo';";
     script += "IF($1.size() = 0 ){";
+    script += "   ROLLBACK;";
     script += "   RETURN 'FAIL';";
     script += "}";
+    script += "COMMIT;";
     script += "RETURN 'OK';";
     OResultSet result = db.execute("SQL", script);
 
@@ -175,7 +184,9 @@ public class OScriptExecutionTest extends BaseMemoryDatabase {
     script += "LET $retries = $retries + 1;";
     script += "SELECT throwCME(#-1:-1, 1, 1, 1);";
     script += "COMMIT RETRY 10 ELSE CONTINUE;";
+    script += "BEGIN;";
     script += "INSERT INTO " + className + " set name = 'foo';";
+    script += "COMMIT;";
 
     db.execute("SQL", script);
 
@@ -198,7 +209,9 @@ public class OScriptExecutionTest extends BaseMemoryDatabase {
     script += "LET $retries = $retries + 1;";
     script += "SELECT throwCME(#-1:-1, 1, 1, 1);";
     script += "COMMIT RETRY 10 ELSE {";
+    script += "BEGIN;";
     script += "INSERT INTO " + className + " set name = 'foo';";
+    script += "COMMIT;";
     script += "} AND CONTINUE;";
 
     db.execute("SQL", script);
@@ -222,7 +235,7 @@ public class OScriptExecutionTest extends BaseMemoryDatabase {
     script += "LET $retries = $retries + 1;";
     script += "SELECT throwCME(#-1:-1, 1, 1, 1);";
     script += "COMMIT RETRY 10 ELSE {";
-    script += "INSERT INTO " + className + " set name = 'foo';";
+    script += "begin;INSERT INTO " + className + " set name = 'foo';commit;";
     script += "} AND FAIL;";
 
     try {
@@ -251,7 +264,7 @@ public class OScriptExecutionTest extends BaseMemoryDatabase {
     script += "LET $retries = $retries + 1;";
     script += "SELECT throwCME(#-1:-1, 1, 1, 1);";
     script += "COMMIT RETRY 10 ELSE {";
-    script += "INSERT INTO " + className + " set name = 'foo';";
+    script += "begin;INSERT INTO " + className + " set name = 'foo';commit;";
     script += "}";
 
     try {
@@ -295,19 +308,19 @@ public class OScriptExecutionTest extends BaseMemoryDatabase {
     String script = "";
     script += "create class IndirectEdge if not exists extends E;\n";
 
+    db.execute("sql", script).close();
+
+    script = " begin;\n";
     script += "insert into V set name = 'a', PrimaryName = 'foo1';\n";
     script += "insert into V set name = 'b', PrimaryName = 'foo2';\n";
     script += "insert into V set name = 'c', PrimaryName = 'foo3';\n";
     script += "insert into V set name = 'd', PrimaryName = 'foo4';\n";
-
     script +=
         "create edge E from (select from V where name = 'a') to (select from V where name ="
             + " 'b');\n";
     script +=
         "create edge E from (select from V where name = 'c') to (select from V where name ="
             + " 'd');\n";
-
-    script += "begin;\n";
     script += "LET SourceDataset = SELECT expand(out()) from V where name = 'a';\n";
     script += "LET TarDataset = SELECT expand(out()) from V where name = 'c';\n";
     script += "IF ($SourceDataset[0] != $TarDataset[0])\n";

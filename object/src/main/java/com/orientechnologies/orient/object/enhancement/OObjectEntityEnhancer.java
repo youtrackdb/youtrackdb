@@ -18,7 +18,7 @@ package com.orientechnologies.orient.object.enhancement;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.object.ODatabaseObject;
+import com.orientechnologies.orient.core.db.object.ODatabaseObjectInternal;
 import com.orientechnologies.orient.core.entity.OEntityManager;
 import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -154,7 +154,8 @@ public class OObjectEntityEnhancer {
               iClass,
               newEntity,
               doc,
-              (ODatabaseObject) ODatabaseRecordThreadLocal.instance().get().getDatabaseOwner());
+              (ODatabaseObjectInternal)
+                  ODatabaseRecordThreadLocal.instance().get().getDatabaseOwner());
         } else {
           if (iEnclosingInstance != null)
             newEntity = createInstanceNoParameters(c, iEnclosingInstance);
@@ -232,7 +233,7 @@ public class OObjectEntityEnhancer {
 
   @SuppressWarnings({"rawtypes", "unchecked"})
   protected void initDocument(
-      Class<?> iClass, Object iInstance, ODocument iDocument, ODatabaseObject db)
+      Class<?> iClass, Object iInstance, ODocument iDocument, ODatabaseObjectInternal db)
       throws IllegalArgumentException, IllegalAccessException {
     for (Class<?> currentClass = iClass; currentClass != Object.class; ) {
       for (Field f : currentClass.getDeclaredFields()) {

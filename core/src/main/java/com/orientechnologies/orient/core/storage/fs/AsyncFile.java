@@ -28,6 +28,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public final class AsyncFile implements OFile {
 
+  private final boolean logFileDeletion;
   private final ScalableRWLock lock = new ScalableRWLock();
   private volatile Path osFile;
 
@@ -49,10 +50,12 @@ public final class AsyncFile implements OFile {
     options.add(StandardOpenOption.WRITE);
   }
 
-  public AsyncFile(final Path osFile, final int pageSize, ExecutorService executor) {
+  public AsyncFile(
+      final Path osFile, final int pageSize, boolean logFileDeletion, ExecutorService executor) {
     this.osFile = osFile;
     this.pageSize = pageSize;
     this.executor = executor;
+    this.logFileDeletion = logFileDeletion;
   }
 
   @Override
@@ -357,7 +360,9 @@ public final class AsyncFile implements OFile {
     try {
       doClose();
 
-      OLogManager.instance().info(this, "File " + osFile + " has been deleted.");
+      if (logFileDeletion) {
+        OLogManager.instance().info(this, "File " + osFile + " has been deleted.");
+      }
       Files.delete(osFile);
     } finally {
       lock.exclusiveUnlock();

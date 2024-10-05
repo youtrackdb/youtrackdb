@@ -30,7 +30,7 @@ import com.orientechnologies.orient.core.annotation.OId;
 import com.orientechnologies.orient.core.annotation.OVersion;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.object.ODatabaseObject;
+import com.orientechnologies.orient.core.db.object.ODatabaseObjectInternal;
 import com.orientechnologies.orient.core.db.record.ORecordLazyList;
 import com.orientechnologies.orient.core.db.record.ORecordLazyMap;
 import com.orientechnologies.orient.core.db.record.ORecordLazySet;
@@ -39,7 +39,6 @@ import com.orientechnologies.orient.core.db.record.OTrackedMap;
 import com.orientechnologies.orient.core.db.record.OTrackedSet;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 import com.orientechnologies.orient.core.exception.OSerializationException;
-import com.orientechnologies.orient.core.exception.OTransactionException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -50,8 +49,7 @@ import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import com.orientechnologies.orient.core.tx.OTransactionOptimistic;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTxInternal;
 import com.orientechnologies.orient.object.db.OObjectLazyMap;
 import com.orientechnologies.orient.object.enhancement.field.ODocumentFieldHandler;
 import com.orientechnologies.orient.object.metadata.schema.OSchemaProxyObject;
@@ -141,7 +139,7 @@ public class OObjectEntitySerializer {
    * @param o - the object to serialize
    * @return the proxied object
    */
-  public static <T> T serializeObject(T o, ODatabaseObject db) {
+  public static <T> T serializeObject(T o, ODatabaseObjectInternal db) {
     if (o instanceof Proxy) {
       final ODocument iRecord = getDocument((Proxy) o);
       Class<?> pojoClass = o.getClass().getSuperclass();
@@ -170,7 +168,7 @@ public class OObjectEntitySerializer {
    * @param db :- the database instance
    * @return the object serialized or with attached data
    */
-  public static <T> T attach(T o, ODatabaseObject db) {
+  public static <T> T attach(T o, ODatabaseObjectInternal db) {
     if (o instanceof Proxy) {
       OObjectProxyMethodHandler handler =
           (OObjectProxyMethodHandler) ((ProxyObject) o).getHandler();
@@ -196,14 +194,14 @@ public class OObjectEntitySerializer {
   /**
    * Method that detaches all fields contained in the document to the given object. It returns by
    * default a proxied instance. To get a detached non proxied instance @see {@link
-   * OObjectEntitySerializer#detach(T o, ODatabaseObject db, boolean returnNonProxiedInstance)}
+   * OObjectEntitySerializer#detach(T o, ODatabaseObjectInternal db, boolean returnNonProxiedInstance)}
    *
    * @param <T>
    * @param o :- the object to detach
    * @param db :- the database instance
    * @return proxied instance: the object serialized or with detached data
    */
-  public static <T> T detach(T o, ODatabaseObject db) {
+  public static <T> T detach(T o, ODatabaseObjectInternal db) {
     return detach(o, db, false);
   }
 
@@ -219,7 +217,7 @@ public class OObjectEntitySerializer {
    *     procude data replication
    * @return the object serialized or with detached data
    */
-  public static <T> T detach(T o, ODatabaseObject db, boolean returnNonProxiedInstance) {
+  public static <T> T detach(T o, ODatabaseObjectInternal db, boolean returnNonProxiedInstance) {
     if (o instanceof Proxy) {
       OObjectProxyMethodHandler handler =
           (OObjectProxyMethodHandler) ((ProxyObject) o).getHandler();
@@ -261,7 +259,7 @@ public class OObjectEntitySerializer {
    */
   public static <T> T detachAll(
       T o,
-      ODatabaseObject db,
+      ODatabaseObjectInternal db,
       boolean returnNonProxiedInstance,
       Map<Object, Object> alreadyDetached,
       Map<Object, Object> lazyObjects) {
@@ -482,9 +480,9 @@ public class OObjectEntitySerializer {
       else oSchema.createClass(iClass.getSimpleName());
 
       reloadSchema = true;
-      if (db.getDatabaseOwner() instanceof OObjectDatabaseTx)
+      if (db.getDatabaseOwner() instanceof OObjectDatabaseTxInternal)
         automaticSchemaGeneration =
-            ((OObjectDatabaseTx) db.getDatabaseOwner()).isAutomaticSchemaGeneration();
+            ((OObjectDatabaseTxInternal) db.getDatabaseOwner()).isAutomaticSchemaGeneration();
     }
 
     for (Class<?> currentClass = iClass; currentClass != Object.class; ) {
@@ -849,7 +847,7 @@ public class OObjectEntitySerializer {
   }
 
   public static Object typeToStream(
-      Object iFieldValue, OType iType, final ODatabaseObject db, final ODocument iRecord) {
+      Object iFieldValue, OType iType, final ODatabaseObjectInternal db, final ODocument iRecord) {
     if (iFieldValue == null) return null;
     if (iFieldValue instanceof Proxy) return getDocument((Proxy) iFieldValue);
 
@@ -1201,7 +1199,8 @@ public class OObjectEntitySerializer {
    * @throws IllegalArgumentException
    */
   @SuppressWarnings("unchecked")
-  protected static <T> T toStream(final T iPojo, final Proxy iProxiedPojo, ODatabaseObject db)
+  protected static <T> T toStream(
+      final T iPojo, final Proxy iProxiedPojo, ODatabaseObjectInternal db)
       throws IllegalArgumentException, IllegalAccessException {
     ODocument iRecord = getDocument(iProxiedPojo);
     final long timer = Orient.instance().getProfiler().startChrono();
@@ -1267,13 +1266,6 @@ public class OObjectEntitySerializer {
         ORecordInternal.setVersion(iRecord, version);
       }
     }
-
-    if (db.isMVCC() && !versionConfigured && db.getTransaction() instanceof OTransactionOptimistic)
-      throw new OTransactionException(
-          "Cannot involve an object of class '"
-              + pojoClass
-              + "' in an Optimistic Transaction commit because it does not define @Version or"
-              + " @OVersion and therefore cannot handle MVCC");
 
     String fieldName;
     Object fieldValue;
@@ -1415,7 +1407,10 @@ public class OObjectEntitySerializer {
 
   @SuppressWarnings("unchecked")
   private static Object multiValueToStream(
-      final Object iMultiValue, OType iType, final ODatabaseObject db, final ODocument iRecord) {
+      final Object iMultiValue,
+      OType iType,
+      final ODatabaseObjectInternal db,
+      final ODocument iRecord) {
     if (iMultiValue == null) return null;
 
     final Collection<Object> sourceValues;

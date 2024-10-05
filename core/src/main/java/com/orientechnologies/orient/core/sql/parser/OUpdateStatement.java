@@ -4,7 +4,8 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.executor.OUpdateExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OUpdateExecutionPlanner;
@@ -58,7 +59,7 @@ public class OUpdateStatement extends OStatement {
     if (returnBefore || returnAfter || returnCount) {
       builder.append(" RETURN");
       if (returnBefore) {
-        builder.append(" BEFORE");
+        throw new ODatabaseException("BEFORE is not supported");
       } else if (returnAfter) {
         builder.append(" AFTER");
       } else {
@@ -100,7 +101,7 @@ public class OUpdateStatement extends OStatement {
     if (returnBefore || returnAfter || returnCount) {
       builder.append(" RETURN");
       if (returnBefore) {
-        builder.append(" BEFORE");
+        throw new ODatabaseException("BEFORE is not supported");
       } else if (returnAfter) {
         builder.append(" AFTER");
       } else {
@@ -154,7 +155,10 @@ public class OUpdateStatement extends OStatement {
 
   @Override
   public OResultSet execute(
-      ODatabaseSession db, Object[] args, OCommandContext parentCtx, boolean usePlanCache) {
+      ODatabaseDocumentInternal db,
+      Object[] args,
+      OCommandContext parentCtx,
+      boolean usePlanCache) {
     OBasicCommandContext ctx = new OBasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
@@ -179,7 +183,7 @@ public class OUpdateStatement extends OStatement {
 
   @Override
   public OResultSet execute(
-      ODatabaseSession db, Map params, OCommandContext parentCtx, boolean usePlanCache) {
+      ODatabaseDocumentInternal db, Map params, OCommandContext parentCtx, boolean usePlanCache) {
     OBasicCommandContext ctx = new OBasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
@@ -279,7 +283,11 @@ public class OUpdateStatement extends OStatement {
   }
 
   public boolean isReturnBefore() {
-    return returnBefore;
+    if (returnBefore) {
+      throw new ODatabaseException("BEFORE is not supported");
+    }
+
+    return false;
   }
 
   public boolean isReturnAfter() {

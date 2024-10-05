@@ -22,7 +22,7 @@ import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTxInternal;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
@@ -88,7 +88,7 @@ public class MultipleDBTest extends DocumentDBBaseTest {
 
             @Override
             public Void call() throws InterruptedException, IOException {
-              OObjectDatabaseTx db = new OObjectDatabaseTx(dbUrl);
+              OObjectDatabaseTxInternal db = new OObjectDatabaseTxInternal(dbUrl);
 
               ODatabaseHelper.deleteDatabase(db, getStorageType());
               ODatabaseHelper.createDatabase(db, dbUrl, getStorageType());

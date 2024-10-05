@@ -23,7 +23,6 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.OStorageEntryConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.engine.local.OEngineLocalPaginated;
 import com.orientechnologies.orient.core.engine.memory.OEngineMemory;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
@@ -45,6 +44,7 @@ import java.io.StringWriter;
 import java.util.*;
 
 public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServerAbstract {
+
   private static final String[] NAMES = {"POST|database/*"};
 
   public OServerCommandPostDatabase() {
@@ -94,7 +94,9 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
 
           if (createAdmin) {
             try {
+              database.begin();
               database.command("CREATE USER admin IDENTIFIED BY ? ROLE admin", adminPwd);
+              database.commit();
             } catch (Exception e) {
               OLogManager.instance()
                   .warn(this, "Could not create admin user for database " + databaseName, e);
@@ -117,9 +119,11 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
   }
 
   protected String getStoragePath(final String databaseName, final String iStorageMode) {
-    if (iStorageMode.equals(OEngineLocalPaginated.NAME))
+    if (iStorageMode.equals(OEngineLocalPaginated.NAME)) {
       return iStorageMode + ":" + server.getDatabaseDirectory() + databaseName;
-    else if (iStorageMode.equals(OEngineMemory.NAME)) return iStorageMode + ":" + databaseName;
+    } else if (iStorageMode.equals(OEngineMemory.NAME)) {
+      return iStorageMode + ":" + databaseName;
+    }
 
     return null;
   }
@@ -138,13 +142,14 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
       json.beginCollection(1, false, "classes");
       Set<String> exportedNames = new HashSet<String>();
       for (OClass cls : db.getMetadata().getSchema().getClasses()) {
-        if (!exportedNames.contains(cls.getName()))
+        if (!exportedNames.contains(cls.getName())) {
           try {
             exportClass(db, json, cls);
             exportedNames.add(cls.getName());
           } catch (Exception e) {
             OLogManager.instance().error(this, "Error on exporting class '" + cls + "'", e);
           }
+        }
       }
       json.endCollection(1, true);
     }
@@ -174,7 +179,9 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
       json.endCollection(1, true);
     }
 
-    if (db.getUser() != null) json.writeAttribute(1, false, "currentUser", db.getUser().getName());
+    if (db.getUser() != null) {
+      json.writeAttribute(1, false, "currentUser", db.getUser().getName());
+    }
 
     json.beginCollection(1, false, "users");
     OUser user;
@@ -240,7 +247,7 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
     json.endCollection(2, true);
 
     json.beginCollection(2, true, "properties");
-    if (db.getStorage().getConfiguration().getProperties() != null)
+    if (db.getStorage().getConfiguration().getProperties() != null) {
       for (OStorageEntryConfiguration entry : db.getStorage().getConfiguration().getProperties()) {
         if (entry != null) {
           json.beginObject(3, true, null);
@@ -249,6 +256,7 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
           json.endObject(3, true);
         }
       }
+    }
     json.endCollection(2, true);
 
     json.endObject(1, true);
@@ -263,7 +271,8 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
         null);
   }
 
-  protected void exportClass(final ODatabaseDocument db, final OJSONWriter json, final OClass cls)
+  protected void exportClass(
+      final ODatabaseDocumentInternal db, final OJSONWriter json, final OClass cls)
       throws IOException {
     json.beginObject(2, true, null);
     json.writeAttribute(3, true, "name", cls.getName());
@@ -284,10 +293,12 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
       for (final OProperty prop : cls.properties()) {
         json.beginObject(4, true, null);
         json.writeAttribute(4, true, "name", prop.getName());
-        if (prop.getLinkedClass() != null)
+        if (prop.getLinkedClass() != null) {
           json.writeAttribute(4, true, "linkedClass", prop.getLinkedClass().getName());
-        if (prop.getLinkedType() != null)
+        }
+        if (prop.getLinkedType() != null) {
           json.writeAttribute(4, true, "linkedType", prop.getLinkedType().toString());
+        }
         json.writeAttribute(4, true, "type", prop.getType().toString());
         json.writeAttribute(4, true, "mandatory", prop.isMandatory());
         json.writeAttribute(4, true, "readonly", prop.isReadonly());
@@ -308,8 +319,9 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
         json.writeAttribute(4, true, "type", index.getType());
 
         final OIndexDefinition indexDefinition = index.getDefinition();
-        if (indexDefinition != null && !indexDefinition.getFields().isEmpty())
+        if (indexDefinition != null && !indexDefinition.getFields().isEmpty()) {
           json.writeAttribute(4, true, "fields", indexDefinition.getFields());
+        }
         json.endObject(3, true);
       }
       json.endCollection(1, true);

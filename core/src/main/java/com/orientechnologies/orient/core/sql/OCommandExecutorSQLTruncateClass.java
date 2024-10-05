@@ -24,7 +24,6 @@ import com.orientechnologies.orient.core.command.OCommandDistributedReplicateReq
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import java.io.IOException;
@@ -57,7 +56,7 @@ public class OCommandExecutorSQLTruncateClass extends OCommandExecutorSQLAbstrac
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
 
-      final ODatabaseDocument database = getDatabase();
+      final var database = getDatabase();
 
       init((OCommandRequestText) iRequest);
 

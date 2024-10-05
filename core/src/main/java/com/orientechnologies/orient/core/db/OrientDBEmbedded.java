@@ -1138,7 +1138,7 @@ public class OrientDBEmbedded implements OrientDBInternal {
   public <X> Future<X> execute(String database, String user, ODatabaseTask<X> task) {
     return executor.submit(
         () -> {
-          try (ODatabaseSession session = openNoAuthenticate(database, user)) {
+          try (var session = openNoAuthenticate(database, user)) {
             return task.call(session);
           }
         });
@@ -1159,7 +1159,7 @@ public class OrientDBEmbedded implements OrientDBInternal {
     return executor.submit(
         () -> {
           if (isOpen()) {
-            try (ODatabaseSession session = openNoAuthorization(database)) {
+            try (var session = openNoAuthorization(database)) {
               return task.call(session);
             }
           } else {

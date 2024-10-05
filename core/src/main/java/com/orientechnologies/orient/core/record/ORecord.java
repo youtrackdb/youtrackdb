@@ -124,19 +124,6 @@ public interface ORecord extends ORecordElement, OIdentifiable, Serializable, OS
   <RET extends ORecord> RET load() throws ORecordNotFoundException;
 
   /**
-   * Loads the record content in memory. No cache is used. If the record is dirty, then it returns
-   * to the original content. If the record does not exist a ORecordNotFoundException exception is
-   * thrown.
-   *
-   * @return The Object instance itself giving a "fluent interface". Useful to call multiple methods
-   * in chain.
-   */
-  <RET extends ORecord> RET reload() throws ORecordNotFoundException;
-
-  <RET extends ORecord> RET reload(final String fetchPlan, final boolean ignoreCache, boolean force)
-      throws ORecordNotFoundException;
-
-  /**
    * Saves in-memory changes to the database. Behavior depends by the current running transaction if
    * any. If no transaction is running then changes apply immediately. If an Optimistic transaction
    * is running then the record will be changed at commit time. The current transaction will

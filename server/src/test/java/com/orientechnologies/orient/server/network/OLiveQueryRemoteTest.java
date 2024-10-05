@@ -135,18 +135,22 @@ public class OLiveQueryRemoteTest {
     OLiveQueryMonitor monitor = db.live("select from test", listener);
     Assert.assertNotNull(monitor);
 
+    db.begin();
     db.command("insert into test set name = 'foo', surname = 'bar'").close();
     db.command("insert into test set name = 'foo', surname = 'baz'").close();
     db.command("insert into test2 set name = 'foo'").close();
+    db.commit();
 
     Assert.assertTrue(listener.latch.await(1, TimeUnit.MINUTES));
 
     monitor.unSubscribe();
     Assert.assertTrue(listener.ended.await(1, TimeUnit.MINUTES));
 
+    db.begin();
     db.command("insert into test set name = 'foo', surname = 'bax'");
     db.command("insert into test2 set name = 'foo'");
     db.command("insert into test set name = 'foo', surname = 'baz'");
+    db.commit();
 
     Assert.assertEquals(listener.ops.size(), 2);
     for (OResult doc : listener.ops) {

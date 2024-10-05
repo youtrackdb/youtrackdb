@@ -27,12 +27,15 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
     database.command("CREATE CLASS testFromToTwoE extends E").close();
     database.command("CREATE CLASS testFromToV extends V").close();
 
+    database.begin();
     database.command("create vertex testFromToV set name = 'Luca'").close();
     database.command("create vertex testFromToV set name = 'Luca'").close();
+    database.commit();
 
     List<OIdentifiable> result =
         database.query(new OSQLSynchQuery<ODocument>("select from testFromToV"));
 
+    database.begin();
     database
         .command(
             "CREATE EDGE testFromToOneE from "
@@ -47,12 +50,14 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
                 + " to "
                 + result.get(0).getIdentity())
         .close();
+    database.commit();
 
     OResultSet resultTwo =
         database.query("select expand(outE()) from " + result.get(1).getIdentity());
 
     Assert.assertEquals(resultTwo.stream().count(), 2);
 
+    database.begin();
     database
         .command(
             "DELETE EDGE testFromToTwoE from "
@@ -68,6 +73,7 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
     database.command("DELETE FROM testFromToOneE unsafe").close();
     database.command("DELETE FROM testFromToTwoE unsafe").close();
     database.command("DELETE VERTEX testFromToV").close();
+    database.commit();
   }
 
   public void testDeleteFrom() {
@@ -75,12 +81,15 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
     database.command("CREATE CLASS testFromTwoE extends E").close();
     database.command("CREATE CLASS testFromV extends V").close();
 
+    database.begin();
     database.command("create vertex testFromV set name = 'Luca'").close();
     database.command("create vertex testFromV set name = 'Luca'").close();
+    database.commit();
 
     List<OIdentifiable> result =
         database.query(new OSQLSynchQuery<ODocument>("select from testFromV"));
 
+    database.begin();
     database
         .command(
             "CREATE EDGE testFromOneE from "
@@ -95,6 +104,7 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
                 + " to "
                 + result.get(0).getIdentity())
         .close();
+    database.commit();
 
     OResultSet resultTwo =
         database.query("select expand(outE()) from " + result.get(1).getIdentity());
@@ -102,7 +112,9 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
     Assert.assertEquals(resultTwo.stream().count(), 2);
 
     try {
+      database.begin();
       database.command("DELETE EDGE testFromTwoE from " + result.get(1).getIdentity()).close();
+      database.commit();
     } catch (Exception e) {
       e.printStackTrace();
       throw e;
@@ -112,9 +124,11 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(resultTwo.stream().count(), 1);
 
+    database.begin();
     database.command("DELETE FROM testFromOneE unsafe").close();
     database.command("DELETE FROM testFromTwoE unsafe").close();
     database.command("DELETE VERTEX testFromV").close();
+    database.commit();
   }
 
   public void testDeleteTo() {
@@ -122,12 +136,15 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
     database.command("CREATE CLASS testToTwoE extends E").close();
     database.command("CREATE CLASS testToV extends V").close();
 
+    database.begin();
     database.command("create vertex testToV set name = 'Luca'").close();
     database.command("create vertex testToV set name = 'Luca'").close();
+    database.commit();
 
     List<OIdentifiable> result =
         database.query(new OSQLSynchQuery<ODocument>("select from testToV"));
 
+    database.begin();
     database
         .command(
             "CREATE EDGE testToOneE from "
@@ -142,27 +159,33 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
                 + " to "
                 + result.get(0).getIdentity())
         .close();
+    database.commit();
 
     OResultSet resultTwo =
         database.query("select expand(outE()) from " + result.get(1).getIdentity());
 
     Assert.assertEquals(resultTwo.stream().count(), 2);
 
+    database.begin();
     database.command("DELETE EDGE testToTwoE to " + result.get(0).getIdentity()).close();
+    database.commit();
 
     resultTwo = database.query("select expand(outE()) from " + result.get(1).getIdentity());
 
     Assert.assertEquals(resultTwo.stream().count(), 1);
 
+    database.begin();
     database.command("DELETE FROM testToOneE unsafe").close();
     database.command("DELETE FROM testToTwoE unsafe").close();
     database.command("DELETE VERTEX testToV").close();
+    database.commit();
   }
 
   public void testDropClassVandEwithUnsafe() {
     database.command("CREATE CLASS SuperE extends E").close();
     database.command("CREATE CLASS SuperV extends V").close();
 
+    database.begin();
     OIdentifiable v1 =
         database.command("create vertex SuperV set name = 'Luca'").next().getIdentity().get();
     OIdentifiable v2 =
@@ -170,6 +193,7 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
     database
         .command("CREATE EDGE SuperE from " + v1.getIdentity() + " to " + v2.getIdentity())
         .close();
+    database.commit();
 
     try {
       database.command("DROP CLASS SuperV").close();
@@ -204,6 +228,7 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
     database.command("CREATE CLASS SuperE extends E").close();
     database.command("CREATE CLASS SuperV extends V").close();
 
+    database.begin();
     OIdentifiable v1 =
         database.command("create vertex SuperV set name = 'Luca'").next().getIdentity().get();
     OIdentifiable v2 =
@@ -211,6 +236,7 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
     database
         .command("CREATE EDGE SuperE from " + v1.getIdentity() + " to " + v2.getIdentity())
         .close();
+    database.commit();
 
     try {
       database.command("DROP CLASS SuperV").close();
@@ -247,6 +273,7 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
     database.command("CREATE CLASS FromInStringE extends E").close();
     database.command("CREATE CLASS FromInStringV extends V").close();
 
+    database.begin();
     OIdentifiable v1 =
         database
             .command("create vertex FromInStringV set name = ' from '")
@@ -272,6 +299,7 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
     database
         .command("create edge FromInStringE from " + v1.getIdentity() + " to " + v3.getIdentity())
         .close();
+    database.commit();
 
     OResultSet result = database.query("SELECT expand(out()[name = ' FROM ']) FROM FromInStringV");
     Assert.assertEquals(result.stream().count(), 1);
@@ -284,6 +312,7 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
   }
 
   public void testDeleteVertexWithReturn() {
+    database.begin();
     OIdentifiable v1 =
         database.command("create vertex V set returning = true").next().getIdentity().get();
 
@@ -291,6 +320,7 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
         database.command("delete vertex V return before where returning = true").stream()
             .map((r) -> r.getIdentity().get())
             .collect(Collectors.toList());
+    database.commit();
 
     Assert.assertEquals(v2s.size(), 1);
     Assert.assertTrue(v2s.contains(v1));

@@ -50,6 +50,7 @@
                     -Djava.util.logging.manager=com.orientechnologies.common.log.ShutdownLogManager
                     -Dstorage.diskCache.checksumMode=storeAndThrow
                     -Dsecurity.warningDefaultUsers=false
+                    -Dfile.log.deletion=false
                     --add-opens jdk.unsupported/sun.misc=ALL-UNNAMED
                 </argLine>
             </properties>

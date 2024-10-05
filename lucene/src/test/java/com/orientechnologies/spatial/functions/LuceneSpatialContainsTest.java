@@ -46,10 +46,12 @@ public class LuceneSpatialContainsTest extends BaseSpatialLuceneTest {
     db.command("create class Polygon extends v").close();
     db.command("create property Polygon.geometry EMBEDDED OPolygon").close();
 
+    db.begin();
     db.command("insert into Polygon set geometry = ST_Buffer(ST_GeomFromText('POINT(50 50)'), 20)")
         .close();
     db.command("insert into Polygon set geometry = ST_Buffer(ST_GeomFromText('POINT(50 50)'), 40)")
         .close();
+    db.commit();
 
     db.command("create index Polygon.g on Polygon (geometry) SPATIAL engine lucene").close();
     OResultSet execute =
@@ -71,6 +73,7 @@ public class LuceneSpatialContainsTest extends BaseSpatialLuceneTest {
     db.command("create class TestInsert extends v").close();
     db.command("create property TestInsert.geometry EMBEDDED OGeometryCollection").close();
 
+    db.begin();
     db.command(
             "insert into TestInsert set geometry ="
                 + " {'@type':'d','@class':'OGeometryCollection','geometries':[{'@type':'d','@class':'OPolygon','coordinates':[[[0,0],[10,0],[10,10],[0,10],[0,0]]]}]}")
@@ -79,6 +82,7 @@ public class LuceneSpatialContainsTest extends BaseSpatialLuceneTest {
             "insert into TestInsert set geometry ="
                 + " {'@type':'d','@class':'OGeometryCollection','geometries':[{'@type':'d','@class':'OPolygon','coordinates':[[[11,11],[21,11],[21,21],[11,21],[11,11]]]}]}")
         .close();
+    db.commit();
 
     db.command("create index TestInsert.geometry on TestInsert (geometry) SPATIAL engine lucene")
         .close();

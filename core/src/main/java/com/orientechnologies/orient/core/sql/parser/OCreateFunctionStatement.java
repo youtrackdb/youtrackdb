@@ -3,7 +3,6 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -40,29 +39,26 @@ public class OCreateFunctionStatement extends OSimpleExecStatement {
 
   @Override
   public OExecutionStream executeSimple(OCommandContext ctx) {
-    ODatabaseSession database = ctx.getDatabase();
-    return database.computeInTx(
-        () -> {
-          final OFunction f =
-              database.getMetadata().getFunctionLibrary().createFunction(name.getStringValue());
-          f.setCode(code);
-          f.setIdempotent(Boolean.TRUE.equals(idempotent));
-          if (parameters != null) {
-            f.setParameters(
-                parameters.stream().map(x -> x.getStringValue()).collect(Collectors.toList()));
-          }
-          if (language != null) {
-            f.setLanguage(language.getStringValue());
-          }
-          f.save();
-          ORID functionId = f.getId();
-          OResultInternal result = new OResultInternal();
-          result.setProperty("operation", "create function");
-          result.setProperty("functionName", name.getStringValue());
-          result.setProperty("finalId", functionId);
+    var database = ctx.getDatabase();
+    final OFunction f =
+        database.getMetadata().getFunctionLibrary().createFunction(name.getStringValue());
+    f.setCode(code);
+    f.setIdempotent(Boolean.TRUE.equals(idempotent));
+    if (parameters != null) {
+      f.setParameters(
+          parameters.stream().map(x -> x.getStringValue()).collect(Collectors.toList()));
+    }
+    if (language != null) {
+      f.setLanguage(language.getStringValue());
+    }
+    f.save();
+    ORID functionId = f.getId();
+    OResultInternal result = new OResultInternal();
+    result.setProperty("operation", "create function");
+    result.setProperty("functionName", name.getStringValue());
+    result.setProperty("finalId", functionId);
 
-          return OExecutionStream.singleton(result);
-        });
+    return OExecutionStream.singleton(result);
   }
 
   @Override

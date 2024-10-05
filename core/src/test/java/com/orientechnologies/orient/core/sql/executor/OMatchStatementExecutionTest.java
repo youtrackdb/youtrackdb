@@ -33,6 +33,8 @@ public class OMatchStatementExecutionTest extends BaseMemoryDatabase {
 
     db.command("CREATE class Person extends V").close();
     db.command("CREATE class Friend extends E").close();
+
+    db.begin();
     db.command("CREATE VERTEX Person set name = 'n1'").close();
     db.command("CREATE VERTEX Person set name = 'n2'").close();
     db.command("CREATE VERTEX Person set name = 'n3'").close();
@@ -52,9 +54,14 @@ public class OMatchStatementExecutionTest extends BaseMemoryDatabase {
           .close();
     }
 
+    db.commit();
+
     db.command("CREATE class MathOp extends V").close();
+
+    db.begin();
     db.command("CREATE VERTEX MathOp set a = 1, b = 3, c = 2").close();
     db.command("CREATE VERTEX MathOp set a = 5, b = 3, c = 2").close();
+    db.commit();
 
     initOrgChart();
 
@@ -84,6 +91,7 @@ public class OMatchStatementExecutionTest extends BaseMemoryDatabase {
       db.commit();
     }
 
+    db.begin();
     for (int i = 0; i < 100; i++) {
       db.command(
               "CREATE EDGE IndexedEDGE FROM (SELECT FROM IndexedVertex WHERE uid = 0) TO (SELECT"
@@ -104,6 +112,7 @@ public class OMatchStatementExecutionTest extends BaseMemoryDatabase {
                   + ") TO (SELECT FROM IndexedVertex WHERE uid = 1)")
           .close();
     }
+    db.commit();
   }
 
   private void initOrgChart() {
@@ -167,6 +176,7 @@ public class OMatchStatementExecutionTest extends BaseMemoryDatabase {
     employees[8] = new String[] {"p11"};
     employees[9] = new String[] {"p12", "p13"};
 
+    db.begin();
     for (int i = 0; i < deptHierarchy.length; i++) {
       db.command("CREATE VERTEX Department set name = 'department" + i + "' ").close();
     }
@@ -215,6 +225,7 @@ public class OMatchStatementExecutionTest extends BaseMemoryDatabase {
             .close();
       }
     }
+    db.commit();
   }
 
   private void initTriangleTest() {
@@ -222,9 +233,10 @@ public class OMatchStatementExecutionTest extends BaseMemoryDatabase {
     db.command("CREATE property TriangleV.uid INTEGER").close();
     db.command("CREATE index TriangleV_uid on TriangleV (uid) UNIQUE_HASH_INDEX").close();
     db.command("CREATE class TriangleE extends E").close();
+
+    db.begin();
     for (int i = 0; i < 10; i++) {
       db.command("CREATE VERTEX TriangleV set uid = ?", i).close();
-      ;
     }
     int[][] edges = {
       {0, 1}, {0, 2}, {1, 2}, {1, 3}, {2, 4}, {3, 4}, {3, 5}, {4, 0}, {4, 7}, {6, 7}, {7, 8},
@@ -237,16 +249,17 @@ public class OMatchStatementExecutionTest extends BaseMemoryDatabase {
               edge[0],
               edge[1])
           .close();
-      ;
     }
+    db.commit();
   }
 
   private void initDiamondTest() {
     db.command("CREATE class DiamondV extends V").close();
     db.command("CREATE class DiamondE extends E").close();
+
+    db.begin();
     for (int i = 0; i < 4; i++) {
       db.command("CREATE VERTEX DiamondV set uid = ?", i).close();
-      ;
     }
     int[][] edges = {{0, 1}, {0, 2}, {1, 3}, {2, 3}};
     for (int[] edge : edges) {
@@ -256,8 +269,8 @@ public class OMatchStatementExecutionTest extends BaseMemoryDatabase {
               edge[0],
               edge[1])
           .close();
-      ;
     }
+    db.commit();
   }
 
   @Test
@@ -1447,8 +1460,11 @@ public class OMatchStatementExecutionTest extends BaseMemoryDatabase {
     // issue #6606
     db.command("CREATE CLASS testEvalInReturn EXTENDS V").close();
     db.command("CREATE PROPERTY testEvalInReturn.name String").close();
+
+    db.begin();
     db.command("CREATE VERTEX testEvalInReturn SET name = 'foo'").close();
     db.command("CREATE VERTEX testEvalInReturn SET name = 'bar'").close();
+    db.commit();
 
     List<ODocument> qResult =
         collect(
@@ -1479,6 +1495,7 @@ public class OMatchStatementExecutionTest extends BaseMemoryDatabase {
     db.command("CREATE CLASS testCheckClassAsCondition1 EXTENDS V").close();
     db.command("CREATE CLASS testCheckClassAsCondition2 EXTENDS V").close();
 
+    db.begin();
     db.command("CREATE VERTEX testCheckClassAsCondition SET name = 'foo'").close();
     db.command("CREATE VERTEX testCheckClassAsCondition1 SET name = 'bar'").close();
     for (int i = 0; i < 5; i++) {
@@ -1492,6 +1509,7 @@ public class OMatchStatementExecutionTest extends BaseMemoryDatabase {
             "CREATE EDGE E FROM (select from testCheckClassAsCondition where name = 'foo') to"
                 + " (select from testCheckClassAsCondition2)")
         .close();
+    db.commit();
 
     List<ODocument> qResult =
         collect(
@@ -1590,6 +1608,7 @@ public class OMatchStatementExecutionTest extends BaseMemoryDatabase {
     db.command("CREATE CLASS testMatched1_Bar_Baz EXTENDS E").close();
     db.command("CREATE CLASS testMatched1_Foo_Far EXTENDS E").close();
 
+    db.begin();
     db.command("CREATE VERTEX testMatched1_Foo SET name = 'foo'").close();
     db.command("CREATE VERTEX testMatched1_Bar SET name = 'bar'").close();
     db.command("CREATE VERTEX testMatched1_Baz SET name = 'baz'").close();
@@ -1607,6 +1626,7 @@ public class OMatchStatementExecutionTest extends BaseMemoryDatabase {
             "CREATE EDGE testMatched1_Foo_Far FROM (SELECT FROM testMatched1_Foo) TO (SELECT FROM"
                 + " testMatched1_Far)")
         .close();
+    db.commit();
 
     OResultSet result =
         db.query(
@@ -1640,6 +1660,7 @@ public class OMatchStatementExecutionTest extends BaseMemoryDatabase {
     db.command("CREATE CLASS testDependencyOrdering1_Bar_Baz EXTENDS E").close();
     db.command("CREATE CLASS testDependencyOrdering1_Foo_Far EXTENDS E").close();
 
+    db.begin();
     db.command("CREATE VERTEX testDependencyOrdering1_Foo SET name = 'foo'").close();
     db.command("CREATE VERTEX testDependencyOrdering1_Bar SET name = 'bar'").close();
     db.command("CREATE VERTEX testDependencyOrdering1_Baz SET name = 'baz'").close();
@@ -1657,6 +1678,7 @@ public class OMatchStatementExecutionTest extends BaseMemoryDatabase {
             "CREATE EDGE testDependencyOrdering1_Foo_Far FROM (SELECT FROM"
                 + " testDependencyOrdering1_Foo) TO (SELECT FROM testDependencyOrdering1_Far)")
         .close();
+    db.commit();
 
     // The correct but non-obvious execution order here is:
     // foo, bar, far, baz
@@ -1695,6 +1717,7 @@ public class OMatchStatementExecutionTest extends BaseMemoryDatabase {
     db.command("CREATE CLASS testCircularDependency_Bar_Baz EXTENDS E").close();
     db.command("CREATE CLASS testCircularDependency_Foo_Far EXTENDS E").close();
 
+    db.begin();
     db.command("CREATE VERTEX testCircularDependency_Foo SET name = 'foo'").close();
     db.command("CREATE VERTEX testCircularDependency_Bar SET name = 'bar'").close();
     db.command("CREATE VERTEX testCircularDependency_Baz SET name = 'baz'").close();
@@ -1712,6 +1735,7 @@ public class OMatchStatementExecutionTest extends BaseMemoryDatabase {
             "CREATE EDGE testCircularDependency_Foo_Far FROM (SELECT FROM"
                 + " testCircularDependency_Foo) TO (SELECT FROM testCircularDependency_Far)")
         .close();
+    db.commit();
 
     // The circular dependency here is:
     // - far depends on baz
@@ -1750,6 +1774,7 @@ public class OMatchStatementExecutionTest extends BaseMemoryDatabase {
     db.command("CREATE CLASS testUndefinedAliasDependency_Bar EXTENDS V").close();
     db.command("CREATE CLASS testUndefinedAliasDependency_Foo_Bar EXTENDS E").close();
 
+    db.begin();
     db.command("CREATE VERTEX testUndefinedAliasDependency_Foo SET name = 'foo'").close();
     db.command("CREATE VERTEX testUndefinedAliasDependency_Bar SET name = 'bar'").close();
 
@@ -1758,6 +1783,7 @@ public class OMatchStatementExecutionTest extends BaseMemoryDatabase {
                 + " testUndefinedAliasDependency_Foo) TO (SELECT FROM"
                 + " testUndefinedAliasDependency_Bar)")
         .close();
+    db.commit();
 
     // "bar" in the following query declares a dependency on the alias "baz", which doesn't exist.
     OSQLSynchQuery query =
@@ -1783,6 +1809,7 @@ public class OMatchStatementExecutionTest extends BaseMemoryDatabase {
     db.command("CREATE CLASS testCyclicDeepTraversalV EXTENDS V").close();
     db.command("CREATE CLASS testCyclicDeepTraversalE EXTENDS E").close();
 
+    db.begin();
     db.command("CREATE VERTEX testCyclicDeepTraversalV SET name = 'a'").close();
     db.command("CREATE VERTEX testCyclicDeepTraversalV SET name = 'b'").close();
     db.command("CREATE VERTEX testCyclicDeepTraversalV SET name = 'c'").close();
@@ -1809,6 +1836,7 @@ public class OMatchStatementExecutionTest extends BaseMemoryDatabase {
             "CREATE EDGE testCyclicDeepTraversalE from(select from testCyclicDeepTraversalV where"
                 + " name = 'c') to (select from testCyclicDeepTraversalV where name = 'a')")
         .close();
+    db.commit();
 
     String query =
         "MATCH {\n"

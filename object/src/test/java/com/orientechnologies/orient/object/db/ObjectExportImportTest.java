@@ -17,8 +17,8 @@ public class ObjectExportImportTest {
   @Test
   public void testExportImport() throws IOException {
 
-    OObjectDatabaseTx db = new OObjectDatabaseTx("memory:test");
-    OObjectDatabaseTx db1 = null;
+    OObjectDatabaseTxInternal db = new OObjectDatabaseTxInternal("memory:test");
+    OObjectDatabaseTxInternal db1 = null;
     db.create();
     try {
       db.setAutomaticSchemaGeneration(true);
@@ -37,7 +37,7 @@ public class ObjectExportImportTest {
           .exportDatabase()
           .close();
       bytes = byteOutputStream.toByteArray();
-      db1 = new OObjectDatabaseTx("memory:test1");
+      db1 = new OObjectDatabaseTxInternal("memory:test1");
       db1.create();
       db1.setAutomaticSchemaGeneration(true);
       db1.getMetadata().getSchema().synchronizeSchema();

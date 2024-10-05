@@ -23,19 +23,25 @@ public class OUpdateEdgeStatementExecutionTest extends BaseMemoryDatabase {
 
     // VERTEXES
 
+    db.begin();
     OElement v1;
     try (OResultSet res1 = db.command("create vertex")) {
       OResult r = res1.next();
       Assert.assertEquals(r.getProperty("@class"), "V");
       v1 = r.toElement();
     }
+    db.commit();
+
+    db.begin();
     OElement v2;
     try (OResultSet res2 = db.command("create vertex V1")) {
       OResult r = res2.next();
       Assert.assertEquals(r.getProperty("@class"), "V1");
       v2 = r.toElement();
     }
+    db.commit();
 
+    db.begin();
     OElement v3;
     try (OResultSet res3 = db.command("create vertex set vid = 'v3', brand = 'fiat'")) {
       OResult r = res3.next();
@@ -43,6 +49,9 @@ public class OUpdateEdgeStatementExecutionTest extends BaseMemoryDatabase {
       Assert.assertEquals(r.getProperty("brand"), "fiat");
       v3 = r.toElement();
     }
+    db.commit();
+
+    db.begin();
     OElement v4;
     try (OResultSet res4 =
         db.command("create vertex V1 set vid = 'v4',  brand = 'fiat',name = 'wow'")) {
@@ -52,15 +61,20 @@ public class OUpdateEdgeStatementExecutionTest extends BaseMemoryDatabase {
       Assert.assertEquals(r.getProperty("name"), "wow");
       v4 = r.toElement();
     }
+    db.commit();
 
+    db.begin();
     OResultSet edges =
         db.command("create edge E1 from " + v1.getIdentity() + " to " + v2.getIdentity());
+    db.commit();
+
     Assert.assertTrue(edges.hasNext());
     OResult edge = edges.next();
     Assert.assertFalse(edges.hasNext());
     Assert.assertEquals(((ODocument) edge.toElement().getRecord()).getClassName(), "E1");
     edges.close();
 
+    db.begin();
     db.command(
         "update edge E1 set out = "
             + v3.getIdentity()
@@ -68,6 +82,7 @@ public class OUpdateEdgeStatementExecutionTest extends BaseMemoryDatabase {
             + v4.getIdentity()
             + " where @rid = "
             + edge.toElement().getIdentity());
+    db.commit();
 
     OResultSet result = db.query("select expand(out('E1')) from " + v3.getIdentity());
     Assert.assertTrue(result.hasNext());
@@ -105,12 +120,16 @@ public class OUpdateEdgeStatementExecutionTest extends BaseMemoryDatabase {
     db.save(v3);
     db.commit();
 
+    db.begin();
     OResultSet edges =
         db.command("create edge E from " + v1.getIdentity() + " to " + v2.getIdentity());
+    db.commit();
     OResult edge = edges.next();
 
+    db.begin();
     db.command("UPDATE EDGE " + edge.toElement().getIdentity() + " SET in = " + v3.getIdentity())
         .close();
+    db.commit();
     edges.close();
 
     OResultSet result = db.query("select expand(out()) from " + v1.getIdentity());

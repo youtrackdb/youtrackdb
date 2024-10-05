@@ -80,31 +80,26 @@ public class OUpdateStatementTest {
         "update Foo content {'a':'b', 'c':{'d':'e', 'f': ['a', 'b', 4]}} where name = 'foo'");
   }
 
+  @Test
   public void testIncrementOld() {
     checkRightSyntax("update  Foo increment a = 2");
   }
 
+  @Test
   public void testIncrement() {
     checkRightSyntax("update  Foo set a += 2");
     printTree("update  Foo set a += 2");
   }
 
+  @Test
   public void testDecrement() {
     checkRightSyntax("update  Foo set a -= 2");
   }
 
+  @Test
   public void testQuotedJson() {
     checkRightSyntax(
         "UPDATE V SET key = \"test\", value = {\"f12\":\"test\\\\\"} UPSERT WHERE key = \"test\"");
-  }
-
-  @Test
-  public void testTargetQuery() {
-    // issue #4415
-    checkRightSyntax(
-        "update (select from (traverse References from ( select from Node WHERE Email ="
-            + " 'julia@local'  ) ) WHERE @class = 'Node' and $depth <= 1 and Active = true ) set"
-            + " Points = 0 RETURN BEFORE $current.Points");
   }
 
   @Test

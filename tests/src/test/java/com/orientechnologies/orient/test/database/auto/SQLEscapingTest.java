@@ -15,7 +15,7 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 
 @Test(groups = "sql-select")
 public class SQLEscapingTest {
-  private ODatabaseDocument database;
+  private ODatabaseDocumentInternal database;
   private String url;
 
   public SQLEscapingTest() {

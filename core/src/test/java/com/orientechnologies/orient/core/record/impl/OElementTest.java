@@ -3,7 +3,6 @@ package com.orientechnologies.orient.core.record.impl;
 import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
-import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -17,7 +16,7 @@ public class OElementTest extends BaseMemoryDatabase {
     elem.setProperty("foo.bar", "foobar");
     elem.setProperty("  ", "spaces");
 
-    Set<String> names = elem.getPropertyNames();
+    var names = elem.getPropertyNames();
     Assert.assertTrue(names.contains("foo"));
     Assert.assertTrue(names.contains("foo.bar"));
     Assert.assertTrue(names.contains("  "));

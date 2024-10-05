@@ -6,7 +6,7 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.orientechnologies.orient.core.Orient;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.sql.query.OLiveQuery;
@@ -41,7 +41,7 @@ public class OLiveQueryShotdownTest {
   @Test
   public void testShutDown() throws Exception {
     bootServer();
-    ODatabaseDocument db =
+    ODatabaseDocumentInternal db =
         new ODatabaseDocumentTx("remote:localhost/" + OLiveQueryShotdownTest.class.getSimpleName());
     db.open("admin", "admin");
     db.getMetadata().getSchema().createClass("Test");

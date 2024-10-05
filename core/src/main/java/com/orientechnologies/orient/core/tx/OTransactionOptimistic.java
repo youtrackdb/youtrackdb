@@ -53,6 +53,7 @@ import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.schedule.OScheduledEvent;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.OStorageProxy;
+import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChanges.OPERATION;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChangesPerKey.OTransactionIndexEntry;
 import java.io.ByteArrayOutputStream;
@@ -275,9 +276,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
 
       // STORE INDEX ENTRIES
       for (OTransactionIndexChangesPerKey entry : indexEntry.getValue().changesPerKey.values()) {
-        if (!entry.clientTrackOnly) {
-          entries.add(serializeIndexChangeEntry(entry, indexDoc));
-        }
+        entries.add(serializeIndexChangeEntry(entry, indexDoc));
       }
 
       indexDoc.field(
@@ -306,7 +305,49 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
       final OTransactionIndexChanges.OPERATION iOperation,
       final Object key,
       final OIdentifiable iValue) {
-    addIndexEntry(delegate, iIndexName, iOperation, key, iValue, false);
+    // index changes are tracked on server in case of client-server deployment
+    assert database.getStorage() instanceof OAbstractPaginatedStorage;
+
+    changed = true;
+
+    try {
+      OTransactionIndexChanges indexEntry = indexEntries.get(iIndexName);
+      if (indexEntry == null) {
+        indexEntry = new OTransactionIndexChanges();
+        indexEntries.put(iIndexName, indexEntry);
+      }
+
+      if (iOperation == OPERATION.CLEAR) {
+        indexEntry.setCleared();
+      } else {
+        OTransactionIndexChangesPerKey changes = indexEntry.getChangesPerKey(key);
+        changes.add(iValue, iOperation);
+
+        if (changes.key == key
+            && key instanceof ChangeableIdentity changeableIdentity
+            && changeableIdentity.canChangeIdentity()) {
+          changeableIdentity.addIdentityChangeListener(indexEntry);
+        }
+
+        if (iValue == null) {
+          return;
+        }
+
+        List<OTransactionRecordIndexOperation> transactionIndexOperations =
+            recordIndexOperations.get(iValue.getIdentity());
+
+        if (transactionIndexOperations == null) {
+          transactionIndexOperations = new ArrayList<>();
+          recordIndexOperations.put(iValue.getIdentity().copy(), transactionIndexOperations);
+        }
+
+        transactionIndexOperations.add(
+            new OTransactionRecordIndexOperation(iIndexName, key, iOperation));
+      }
+    } catch (Exception e) {
+      rollback(true, 0);
+      throw e;
+    }
   }
 
   /**
@@ -373,16 +414,6 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
       final ORecordAbstract iRecord,
       final String fetchPlan,
       final boolean ignoreCache,
-      final boolean loadTombstone) {
-    return loadRecord(rid, iRecord, fetchPlan, ignoreCache, true, loadTombstone);
-  }
-
-  public ORecord loadRecord(
-      final ORID rid,
-      final ORecordAbstract iRecord,
-      final String fetchPlan,
-      final boolean ignoreCache,
-      final boolean iUpdateCache,
       final boolean loadTombstone) {
     checkTransactionValid();
 
@@ -797,56 +828,6 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
 
     close();
     status = TXSTATUS.COMPLETED;
-  }
-
-  public void addIndexEntry(
-      OIndex delegate,
-      String iIndexName,
-      OTransactionIndexChanges.OPERATION iOperation,
-      Object key,
-      OIdentifiable iValue,
-      boolean clientTrackOnly) {
-    changed = true;
-
-    try {
-      OTransactionIndexChanges indexEntry = indexEntries.get(iIndexName);
-      if (indexEntry == null) {
-        indexEntry = new OTransactionIndexChanges();
-        indexEntries.put(iIndexName, indexEntry);
-      }
-
-      if (iOperation == OPERATION.CLEAR) {
-        indexEntry.setCleared();
-      } else {
-        OTransactionIndexChangesPerKey changes = indexEntry.getChangesPerKey(key);
-        changes.clientTrackOnly = clientTrackOnly;
-        changes.add(iValue, iOperation);
-
-        if (changes.key == key
-            && key instanceof ChangeableIdentity changeableIdentity
-            && changeableIdentity.canChangeIdentity()) {
-          changeableIdentity.addIdentityChangeListener(indexEntry);
-        }
-
-        if (iValue == null) {
-          return;
-        }
-
-        List<OTransactionRecordIndexOperation> transactionIndexOperations =
-            recordIndexOperations.get(iValue.getIdentity());
-
-        if (transactionIndexOperations == null) {
-          transactionIndexOperations = new ArrayList<>();
-          recordIndexOperations.put(iValue.getIdentity().copy(), transactionIndexOperations);
-        }
-
-        transactionIndexOperations.add(
-            new OTransactionRecordIndexOperation(iIndexName, key, iOperation));
-      }
-    } catch (Exception e) {
-      rollback(true, 0);
-      throw e;
-    }
   }
 
   public void resetChangesTracking() {

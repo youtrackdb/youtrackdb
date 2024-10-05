@@ -19,7 +19,6 @@ import org.junit.Test;
 
 public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
 
-  private static String DB_STORAGE = "memory";
   private static String DB_NAME = "OMatchStatementExecutionNewTest";
 
   public void beforeTest() {
@@ -29,6 +28,8 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
 
     db.command("CREATE class Person extends V").close();
     db.command("CREATE class Friend extends E").close();
+
+    db.begin();
     db.command("CREATE VERTEX Person set name = 'n1'").close();
     db.command("CREATE VERTEX Person set name = 'n2'").close();
     db.command("CREATE VERTEX Person set name = 'n3'").close();
@@ -46,13 +47,14 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
           pair[0],
           pair[1]);
     }
+    db.commit();
 
     db.command("CREATE class MathOp extends V").close();
+
+    db.begin();
     db.command("CREATE VERTEX MathOp set a = 1, b = 3, c = 2").close();
     db.command("CREATE VERTEX MathOp set a = 5, b = 3, c = 2").close();
-
-    //    initOrgChart();
-
+    db.commit();
   }
 
   private void initEdgeIndexTest() {
@@ -84,8 +86,10 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
               + " and uid <"
               + ((i + 1) * nodes / 100)
               + ")";
+
+      db.begin();
       db.command(cmd).close();
-      //      break;
+      db.commit();
     }
 
     //    for (int i = 0; i < 100; i++) {
@@ -162,6 +166,7 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
     employees[8] = new String[] {"p11"};
     employees[9] = new String[] {"p12", "p13"};
 
+    db.begin();
     for (int i = 0; i < deptHierarchy.length; i++) {
       db.command("CREATE VERTEX Department set name = 'department" + i + "' ").close();
     }
@@ -178,7 +183,9 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
             .close();
       }
     }
+    db.commit();
 
+    db.begin();
     for (int dept = 0; dept < deptManagers.length; dept++) {
       String manager = deptManagers[dept];
       if (manager != null) {
@@ -194,7 +201,9 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
             .close();
       }
     }
+    db.commit();
 
+    db.begin();
     for (int dept = 0; dept < employees.length; dept++) {
       String[] employeesForDept = employees[dept];
       for (String employee : employeesForDept) {
@@ -210,6 +219,7 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
             .close();
       }
     }
+    db.commit();
   }
 
   private void initTriangleTest() {
@@ -217,37 +227,47 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
     db.command("CREATE property TriangleV.uid INTEGER").close();
     db.command("CREATE index TriangleV_uid on TriangleV (uid) UNIQUE_HASH_INDEX").close();
     db.command("CREATE class TriangleE extends E").close();
+
     for (int i = 0; i < 10; i++) {
+      db.begin();
       db.command("CREATE VERTEX TriangleV set uid = ?", i).close();
+      db.commit();
     }
     int[][] edges = {
       {0, 1}, {0, 2}, {1, 2}, {1, 3}, {2, 4}, {3, 4}, {3, 5}, {4, 0}, {4, 7}, {6, 7}, {7, 8},
       {7, 9}, {8, 9}, {9, 1}, {8, 3}, {8, 4}
     };
     for (int[] edge : edges) {
+      db.begin();
       db.command(
               "CREATE EDGE TriangleE from (select from TriangleV where uid = ?) to (select from"
                   + " TriangleV where uid = ?)",
               edge[0],
               edge[1])
           .close();
+      db.commit();
     }
   }
 
   private void initDiamondTest() {
     db.command("CREATE class DiamondV extends V").close();
     db.command("CREATE class DiamondE extends E").close();
+
     for (int i = 0; i < 4; i++) {
+      db.begin();
       db.command("CREATE VERTEX DiamondV set uid = ?", i).close();
+      db.commit();
     }
     int[][] edges = {{0, 1}, {0, 2}, {1, 3}, {2, 3}};
     for (int[] edge : edges) {
+      db.begin();
       db.command(
               "CREATE EDGE DiamondE from (select from DiamondV where uid = ?) to (select from"
                   + " DiamondV where uid = ?)",
               edge[0],
               edge[1])
           .close();
+      db.commit();
     }
   }
 
@@ -1807,10 +1827,12 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
   public void testOrderByAsc() {
     db.command("CREATE CLASS testOrderByAsc EXTENDS V").close();
 
+    db.begin();
     db.command("CREATE VERTEX testOrderByAsc SET name = 'bbb'").close();
     db.command("CREATE VERTEX testOrderByAsc SET name = 'zzz'").close();
     db.command("CREATE VERTEX testOrderByAsc SET name = 'aaa'").close();
     db.command("CREATE VERTEX testOrderByAsc SET name = 'ccc'").close();
+    db.commit();
 
     String query = "MATCH { class: testOrderByAsc, as:a} RETURN a.name as name order by name asc";
 
@@ -1830,10 +1852,12 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
   public void testOrderByDesc() {
     db.command("CREATE CLASS testOrderByDesc EXTENDS V").close();
 
+    db.begin();
     db.command("CREATE VERTEX testOrderByDesc SET name = 'bbb'").close();
     db.command("CREATE VERTEX testOrderByDesc SET name = 'zzz'").close();
     db.command("CREATE VERTEX testOrderByDesc SET name = 'aaa'").close();
     db.command("CREATE VERTEX testOrderByDesc SET name = 'ccc'").close();
+    db.commit();
 
     String query = "MATCH { class: testOrderByDesc, as:a} RETURN a.name as name order by name desc";
 
@@ -1855,7 +1879,9 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
     String clazz = "testNestedProjections";
     db.command("CREATE CLASS " + clazz + " EXTENDS V").close();
 
+    db.begin();
     db.command("CREATE VERTEX " + clazz + " SET name = 'bbb', surname = 'ccc'").close();
+    db.commit();
 
     String query = "MATCH { class: " + clazz + ", as:a} RETURN a:{name}, 'x' ";
 
@@ -1874,12 +1900,14 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
     String clazz = "testAggregate";
     db.command("CREATE CLASS " + clazz + " EXTENDS V").close();
 
+    db.begin();
     db.command("CREATE VERTEX " + clazz + " SET name = 'aaa', num = 1").close();
     db.command("CREATE VERTEX " + clazz + " SET name = 'aaa', num = 2").close();
     db.command("CREATE VERTEX " + clazz + " SET name = 'aaa', num = 3").close();
     db.command("CREATE VERTEX " + clazz + " SET name = 'bbb', num = 4").close();
     db.command("CREATE VERTEX " + clazz + " SET name = 'bbb', num = 5").close();
     db.command("CREATE VERTEX " + clazz + " SET name = 'bbb', num = 6").close();
+    db.commit();
 
     String query =
         "MATCH { class: "
@@ -1906,9 +1934,11 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
     String clazz = "testOrderByOutOfProjAsc";
     db.command("CREATE CLASS " + clazz + " EXTENDS V").close();
 
+    db.begin();
     db.command("CREATE VERTEX " + clazz + " SET name = 'aaa', num = 0, num2 = 1").close();
     db.command("CREATE VERTEX " + clazz + " SET name = 'aaa', num = 1, num2 = 2").close();
     db.command("CREATE VERTEX " + clazz + " SET name = 'aaa', num = 2, num2 = 3").close();
+    db.commit();
 
     String query =
         "MATCH { class: "
@@ -1932,9 +1962,11 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
     String clazz = "testOrderByOutOfProjDesc";
     db.command("CREATE CLASS " + clazz + " EXTENDS V").close();
 
+    db.begin();
     db.command("CREATE VERTEX " + clazz + " SET name = 'aaa', num = 0, num2 = 1").close();
     db.command("CREATE VERTEX " + clazz + " SET name = 'aaa', num = 1, num2 = 2").close();
     db.command("CREATE VERTEX " + clazz + " SET name = 'aaa', num = 2, num2 = 3").close();
+    db.commit();
 
     String query =
         "MATCH { class: "
@@ -1958,8 +1990,10 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
     String clazz = "testUnwind";
     db.command("CREATE CLASS " + clazz + " EXTENDS V").close();
 
+    db.begin();
     db.command("CREATE VERTEX " + clazz + " SET name = 'aaa', coll = [1, 2]").close();
     db.command("CREATE VERTEX " + clazz + " SET name = 'bbb', coll = [3, 4]").close();
+    db.commit();
 
     String query =
         "MATCH { class: " + clazz + ", as:a} RETURN a.name as name, a.coll as num unwind num";
@@ -1983,10 +2017,12 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
     String clazz = "testSkip";
     db.command("CREATE CLASS " + clazz + " EXTENDS V").close();
 
+    db.begin();
     db.command("CREATE VERTEX " + clazz + " SET name = 'aaa'").close();
     db.command("CREATE VERTEX " + clazz + " SET name = 'bbb'").close();
     db.command("CREATE VERTEX " + clazz + " SET name = 'ccc'").close();
     db.command("CREATE VERTEX " + clazz + " SET name = 'ddd'").close();
+    db.commit();
 
     String query =
         "MATCH { class: "
@@ -2013,6 +2049,7 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
     String clazz = "testDepthAlias";
     db.command("CREATE CLASS " + clazz + " EXTENDS V").close();
 
+    db.begin();
     db.command("CREATE VERTEX " + clazz + " SET name = 'aaa'").close();
     db.command("CREATE VERTEX " + clazz + " SET name = 'bbb'").close();
     db.command("CREATE VERTEX " + clazz + " SET name = 'ccc'").close();
@@ -2039,6 +2076,7 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
                 + clazz
                 + " WHERE name = 'ddd')")
         .close();
+    db.commit();
 
     String query =
         "MATCH { class: "
@@ -2084,6 +2122,7 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
     String clazz = "testPathAlias";
     db.command("CREATE CLASS " + clazz + " EXTENDS V").close();
 
+    db.begin();
     db.command("CREATE VERTEX " + clazz + " SET name = 'aaa'").close();
     db.command("CREATE VERTEX " + clazz + " SET name = 'bbb'").close();
     db.command("CREATE VERTEX " + clazz + " SET name = 'ccc'").close();
@@ -2110,6 +2149,7 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
                 + clazz
                 + " WHERE name = 'ddd')")
         .close();
+    db.commit();
 
     String query =
         "MATCH { class: "
@@ -2372,7 +2412,10 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
   public void testQuotedClassName() {
     String className = "testQuotedClassName";
     db.command("CREATE CLASS " + className + " EXTENDS V").close();
+
+    db.begin();
     db.command("CREATE VERTEX " + className + " SET name = 'a'").close();
+    db.commit();
 
     String query = "MATCH {class: `" + className + "`, as:foo} RETURN $elements";
 

@@ -37,9 +37,11 @@ public class OCreateEdgeStatementExecutionTest extends BaseMemoryDatabase {
     v2.save();
     db.commit();
 
+    db.begin();
     OResultSet createREs =
         db.command(
             "create edge " + eClass + " from " + v1.getIdentity() + " to " + v2.getIdentity());
+    db.commit();
     ExecutionPlanPrintUtils.printExecutionPlan(createREs);
     OResultSet result = db.query("select expand(out()) from " + v1.getIdentity());
     Assert.assertNotNull(result);
@@ -80,6 +82,7 @@ public class OCreateEdgeStatementExecutionTest extends BaseMemoryDatabase {
     v2.save();
     db.commit();
 
+    db.begin();
     OResultSet createREs =
         db.command(
             "create edge "
@@ -89,6 +92,8 @@ public class OCreateEdgeStatementExecutionTest extends BaseMemoryDatabase {
                 + " to "
                 + v2.getIdentity()
                 + " set name = 'theEdge'");
+    db.commit();
+
     ExecutionPlanPrintUtils.printExecutionPlan(createREs);
     OResultSet result = db.query("select expand(outE()) from " + v1.getIdentity());
     Assert.assertNotNull(result);
@@ -117,6 +122,7 @@ public class OCreateEdgeStatementExecutionTest extends BaseMemoryDatabase {
       db.commit();
     }
 
+    db.begin();
     OResultSet createREs =
         db.command(
             "create edge "
@@ -126,6 +132,7 @@ public class OCreateEdgeStatementExecutionTest extends BaseMemoryDatabase {
                 + " where name in ['v0', 'v1']) to  (select from "
                 + vClass
                 + " where name in ['v2', 'v3'])");
+    db.commit();
     ExecutionPlanPrintUtils.printExecutionPlan(createREs);
 
     OResultSet result = db.query("select expand(out()) from " + vClass + " where name = 'v0'");
@@ -183,6 +190,7 @@ public class OCreateEdgeStatementExecutionTest extends BaseMemoryDatabase {
       db.commit();
     }
 
+    db.begin();
     db.command(
             "CREATE EDGE "
                 + eClass
@@ -192,6 +200,7 @@ public class OCreateEdgeStatementExecutionTest extends BaseMemoryDatabase {
                 + vClass2
                 + " where name = 'v0') SET name = 'foo'")
         .close();
+    db.commit();
 
     OResultSet rs = db.query("SELECT FROM " + eClass);
     Assert.assertTrue(rs.hasNext());
@@ -199,6 +208,7 @@ public class OCreateEdgeStatementExecutionTest extends BaseMemoryDatabase {
     Assert.assertFalse(rs.hasNext());
     rs.close();
 
+    db.begin();
     db.command(
             "CREATE EDGE "
                 + eClass
@@ -208,6 +218,7 @@ public class OCreateEdgeStatementExecutionTest extends BaseMemoryDatabase {
                 + vClass2
                 + ") SET name = 'bar'")
         .close();
+    db.commit();
 
     rs = db.query("SELECT FROM " + eclazz);
     for (int i = 0; i < 4; i++) {
@@ -253,6 +264,7 @@ public class OCreateEdgeStatementExecutionTest extends BaseMemoryDatabase {
       db.commit();
     }
 
+    db.begin();
     db.command(
             "CREATE EDGE "
                 + eClass
@@ -262,6 +274,7 @@ public class OCreateEdgeStatementExecutionTest extends BaseMemoryDatabase {
                 + vClass2
                 + " where name = 'v0')")
         .close();
+    db.commit();
 
     OResultSet rs = db.query("SELECT FROM " + eClass);
     Assert.assertTrue(rs.hasNext());
@@ -269,6 +282,7 @@ public class OCreateEdgeStatementExecutionTest extends BaseMemoryDatabase {
     Assert.assertFalse(rs.hasNext());
     rs.close();
 
+    db.begin();
     db.command(
             "CREATE EDGE "
                 + eClass
@@ -278,6 +292,7 @@ public class OCreateEdgeStatementExecutionTest extends BaseMemoryDatabase {
                 + vClass2
                 + ")")
         .close();
+    db.commit();
 
     rs = db.query("SELECT FROM " + eclazz);
     for (int i = 0; i < 4; i++) {
@@ -322,6 +337,7 @@ public class OCreateEdgeStatementExecutionTest extends BaseMemoryDatabase {
       db.commit();
     }
 
+    db.begin();
     db.command(
             "CREATE EDGE "
                 + eClass
@@ -331,6 +347,7 @@ public class OCreateEdgeStatementExecutionTest extends BaseMemoryDatabase {
                 + vClass2
                 + " where name = 'v0')")
         .close();
+    db.commit();
 
     OResultSet rs = db.query("SELECT FROM " + eClass);
     Assert.assertTrue(rs.hasNext());
@@ -339,6 +356,7 @@ public class OCreateEdgeStatementExecutionTest extends BaseMemoryDatabase {
     rs.close();
 
     try {
+      db.begin();
       db.command(
               "CREATE EDGE "
                   + eClass
@@ -348,6 +366,7 @@ public class OCreateEdgeStatementExecutionTest extends BaseMemoryDatabase {
                   + vClass2
                   + ")")
           .close();
+      db.commit();
       Assert.fail();
     } catch (ORecordDuplicatedException | OCommandExecutionException e) {
 
@@ -415,6 +434,7 @@ public class OCreateEdgeStatementExecutionTest extends BaseMemoryDatabase {
       db.commit();
     }
 
+    db.begin();
     db.command(
             "CREATE EDGE "
                 + eClass
@@ -426,6 +446,7 @@ public class OCreateEdgeStatementExecutionTest extends BaseMemoryDatabase {
             "v0",
             "v1")
         .close();
+    db.commit();
 
     OResultSet result =
         db.query("select from " + eClass + " where out.name = 'v0' AND in.name = 'v1'");

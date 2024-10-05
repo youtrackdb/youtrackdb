@@ -138,7 +138,7 @@ public class OQueryOperatorEquals extends OQueryOperatorEqualityNotNulls {
       return iRecord.getIdentity().get().equals(iValue);
     } else {
       // ODOCUMENT AS RESULT OF SUB-QUERY: GET THE FIRST FIELD IF ANY
-      Set<String> firstFieldName = iRecord.getPropertyNames();
+      var firstFieldName = iRecord.getPropertyNames();
       if (firstFieldName.size() == 1) {
         Object fieldValue = iRecord.getProperty(firstFieldName.iterator().next());
         if (fieldValue != null) {

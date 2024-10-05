@@ -239,7 +239,7 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
   private void executeClusters(
       final OHttpRequest iRequest,
       final OHttpResponse iResponse,
-      final ODatabaseDocument db,
+      final ODatabaseDocumentInternal db,
       final String operation,
       final String rid,
       final String iClusterName,

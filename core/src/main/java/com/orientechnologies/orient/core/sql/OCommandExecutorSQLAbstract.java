@@ -149,7 +149,7 @@ public abstract class OCommandExecutorSQLAbstract extends OCommandExecutorAbstra
   }
 
   protected Set<String> getInvolvedClustersOfClasses(final Collection<String> iClassNames) {
-    final ODatabaseDocument db = getDatabase();
+    final var db = getDatabase();
 
     final Set<String> clusters = new HashSet<String>();
 

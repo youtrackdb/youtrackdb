@@ -2,7 +2,6 @@ package com.orientechnologies.orient.object.db;
 
 import static org.junit.Assert.assertTrue;
 
-import com.orientechnologies.orient.core.db.object.ODatabaseObject;
 import com.orientechnologies.orient.object.db.entity.LoopEntity;
 import org.junit.Test;
 
@@ -11,8 +10,8 @@ public class TestLoopEntity {
 
   @Test
   public void testLoop() {
-    ODatabaseObject object =
-        new OObjectDatabaseTx("memory:" + TestLoopEntity.class.getSimpleName());
+    OObjectDatabaseTxInternal object =
+        new OObjectDatabaseTxInternal("memory:" + TestLoopEntity.class.getSimpleName());
     object.create();
     try {
 

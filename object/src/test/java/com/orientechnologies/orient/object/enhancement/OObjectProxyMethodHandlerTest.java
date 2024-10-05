@@ -3,7 +3,7 @@ package com.orientechnologies.orient.object.enhancement;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTxInternal;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -24,13 +24,13 @@ import org.junit.Test;
  */
 public class OObjectProxyMethodHandlerTest {
 
-  private OObjectDatabaseTx databaseTx;
+  private OObjectDatabaseTxInternal databaseTx;
 
   private Map<String, Object> fieldsAndThereDefaultValue;
 
   @Before
   public void setUp() throws Exception {
-    databaseTx = new OObjectDatabaseTx("memory:OObjectEnumLazyListTest");
+    databaseTx = new OObjectDatabaseTxInternal("memory:OObjectEnumLazyListTest");
     databaseTx.create();
 
     databaseTx.getEntityManager().registerEntityClass(EntityWithDifferentFieldTypes.class);

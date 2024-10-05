@@ -212,7 +212,9 @@ public enum OType {
    * @return The type if any, otherwise null
    */
   public static OType getById(final byte iId) {
-    if (iId >= 0 && iId < TYPES_BY_ID.length) return TYPES_BY_ID[iId];
+    if (iId >= 0 && iId < TYPES_BY_ID.length) {
+      return TYPES_BY_ID[iId];
+    }
     OLogManager.instance().warn(OType.class, "Invalid type index: " + iId, (Object[]) null);
     return null;
   }
@@ -235,24 +237,32 @@ public enum OType {
    * @return OType instance if found, otherwise null
    */
   public static OType getTypeByClass(final Class<?> iClass) {
-    if (iClass == null) return null;
+    if (iClass == null) {
+      return null;
+    }
 
     OType type = TYPES_BY_CLASS.get(iClass);
-    if (type != null) return type;
+    if (type != null) {
+      return type;
+    }
     type = getTypeByClassInherit(iClass);
 
     return type;
   }
 
   private static OType getTypeByClassInherit(final Class<?> iClass) {
-    if (iClass.isArray()) return EMBEDDEDLIST;
+    if (iClass.isArray()) {
+      return EMBEDDEDLIST;
+    }
     int priority = 0;
     boolean comparedAtLeastOnce;
     do {
       comparedAtLeastOnce = false;
       for (final OType type : TYPES) {
         if (type.allowAssignmentFrom.length > priority) {
-          if (type.allowAssignmentFrom[priority].isAssignableFrom(iClass)) return type;
+          if (type.allowAssignmentFrom[priority].isAssignableFrom(iClass)) {
+            return type;
+          }
           comparedAtLeastOnce = true;
         }
       }
@@ -263,26 +273,38 @@ public enum OType {
   }
 
   public static OType getTypeByValue(Object value) {
-    if (value == null) return null;
+    if (value == null) {
+      return null;
+    }
     Class<?> clazz = value.getClass();
     OType type = TYPES_BY_CLASS.get(clazz);
-    if (type != null) return type;
+    if (type != null) {
+      return type;
+    }
 
     OType byType = getTypeByClassInherit(clazz);
     if (LINK == byType) {
-      if (value instanceof ODocument && ((ODocument) value).isEmbedded()) return EMBEDDED;
+      if (value instanceof ODocument && ((ODocument) value).isEmbedded()) {
+        return EMBEDDED;
+      }
     } else if (EMBEDDEDSET == byType) {
-      if (checkLinkCollection(((Collection<?>) value))) return LINKSET;
+      if (checkLinkCollection(((Collection<?>) value))) {
+        return LINKSET;
+      }
     } else if (EMBEDDEDLIST == byType && !clazz.isArray()) {
-      if (value instanceof OMultiCollectionIterator<?>)
+      if (value instanceof OMultiCollectionIterator<?>) {
         type =
             ((OMultiCollectionIterator<?>) value).isEmbedded()
                 ? OType.EMBEDDEDLIST
                 : OType.LINKLIST;
-      else if (checkLinkCollection(((Collection<?>) value))) return LINKLIST;
+      } else if (checkLinkCollection(((Collection<?>) value))) {
+        return LINKLIST;
+      }
 
     } else if (EMBEDDEDMAP == byType) {
-      if (checkLinkCollection(((Map<?, ?>) value).values())) return LINKMAP;
+      if (checkLinkCollection(((Map<?, ?>) value).values())) {
+        return LINKMAP;
+      }
     }
     return byType;
   }
@@ -292,15 +314,22 @@ public enum OType {
     for (Object object : toCheck) {
       if (object != null
           && (!(object instanceof OIdentifiable)
-              || (object instanceof ODocument && ((ODocument) object).isEmbedded()))) return false;
-      else if (object != null) empty = false;
+              || (object instanceof ODocument && ((ODocument) object).isEmbedded()))) {
+        return false;
+      } else if (object != null) {
+        empty = false;
+      }
     }
-    if (!empty) return true;
+    if (!empty) {
+      return true;
+    }
     return false;
   }
 
   public static boolean isSimpleType(final Object iObject) {
-    if (iObject == null) return false;
+    if (iObject == null) {
+      return false;
+    }
 
     final Class<? extends Object> iType = iObject.getClass();
 
@@ -321,7 +350,9 @@ public enum OType {
                 || iType.equals(String[].class)
                 || iType.equals(Long[].class)
                 || iType.equals(Short[].class)
-                || iType.equals(Double[].class)))) return true;
+                || iType.equals(Double[].class)))) {
+      return true;
+    }
 
     return false;
   }
@@ -335,79 +366,122 @@ public enum OType {
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
   public static Object convert(Object iValue, final Class<?> iTargetClass) {
-    if (iValue == null) return null;
+    if (iValue == null) {
+      return null;
+    }
 
-    if (iTargetClass == null) return iValue;
+    if (iTargetClass == null) {
+      return iValue;
+    }
 
     if (iValue.getClass().equals(iTargetClass))
-      // SAME TYPE: DON'T CONVERT IT
+    // SAME TYPE: DON'T CONVERT IT
+    {
       return iValue;
+    }
 
     if (iTargetClass.isAssignableFrom(iValue.getClass()))
-      // COMPATIBLE TYPES: DON'T CONVERT IT
+    // COMPATIBLE TYPES: DON'T CONVERT IT
+    {
       return iValue;
+    }
 
     try {
-      if (iValue instanceof OBinary && iTargetClass.isAssignableFrom(byte[].class))
+      if (iValue instanceof OBinary && iTargetClass.isAssignableFrom(byte[].class)) {
         return ((OBinary) iValue).toByteArray();
-      else if (byte[].class.isAssignableFrom(iTargetClass)) {
+      } else if (byte[].class.isAssignableFrom(iTargetClass)) {
         return OStringSerializerHelper.getBinaryContent(iValue);
       } else if (byte[].class.isAssignableFrom(iValue.getClass())) {
         return iValue;
       } else if (iTargetClass.isEnum()) {
-        if (iValue instanceof Number)
+        if (iValue instanceof Number) {
           return ((Class<Enum>) iTargetClass).getEnumConstants()[((Number) iValue).intValue()];
+        }
         return Enum.valueOf((Class<Enum>) iTargetClass, iValue.toString());
       } else if (iTargetClass.equals(Byte.TYPE) || iTargetClass.equals(Byte.class)) {
-        if (iValue instanceof Byte) return iValue;
-        else if (iValue instanceof String) return Byte.parseByte((String) iValue);
-        else return ((Number) iValue).byteValue();
+        if (iValue instanceof Byte) {
+          return iValue;
+        } else if (iValue instanceof String) {
+          return Byte.parseByte((String) iValue);
+        } else {
+          return ((Number) iValue).byteValue();
+        }
 
       } else if (iTargetClass.equals(Short.TYPE) || iTargetClass.equals(Short.class)) {
-        if (iValue instanceof Short) return iValue;
-        else if (iValue instanceof String) return Short.parseShort((String) iValue);
-        else return ((Number) iValue).shortValue();
+        if (iValue instanceof Short) {
+          return iValue;
+        } else if (iValue instanceof String) {
+          return Short.parseShort((String) iValue);
+        } else {
+          return ((Number) iValue).shortValue();
+        }
 
       } else if (iTargetClass.equals(Integer.TYPE) || iTargetClass.equals(Integer.class)) {
-        if (iValue instanceof Integer) return iValue;
-        else if (iValue instanceof String) {
+        if (iValue instanceof Integer) {
+          return iValue;
+        } else if (iValue instanceof String) {
           if (iValue.toString().equals("")) {
             return null;
           }
           return Integer.parseInt((String) iValue);
-        } else return ((Number) iValue).intValue();
+        } else {
+          return ((Number) iValue).intValue();
+        }
 
       } else if (iTargetClass.equals(Long.TYPE) || iTargetClass.equals(Long.class)) {
-        if (iValue instanceof Long) return iValue;
-        else if (iValue instanceof String) return Long.parseLong((String) iValue);
-        else if (iValue instanceof Date) return ((Date) iValue).getTime();
-        else return ((Number) iValue).longValue();
+        if (iValue instanceof Long) {
+          return iValue;
+        } else if (iValue instanceof String) {
+          return Long.parseLong((String) iValue);
+        } else if (iValue instanceof Date) {
+          return ((Date) iValue).getTime();
+        } else {
+          return ((Number) iValue).longValue();
+        }
 
       } else if (iTargetClass.equals(Float.TYPE) || iTargetClass.equals(Float.class)) {
-        if (iValue instanceof Float) return iValue;
-        else if (iValue instanceof String) return Float.parseFloat((String) iValue);
-        else return ((Number) iValue).floatValue();
+        if (iValue instanceof Float) {
+          return iValue;
+        } else if (iValue instanceof String) {
+          return Float.parseFloat((String) iValue);
+        } else {
+          return ((Number) iValue).floatValue();
+        }
 
       } else if (iTargetClass.equals(BigDecimal.class)) {
-        if (iValue instanceof String) return new BigDecimal((String) iValue);
-        else if (iValue instanceof Number) return new BigDecimal(iValue.toString());
+        if (iValue instanceof String) {
+          return new BigDecimal((String) iValue);
+        } else if (iValue instanceof Number) {
+          return new BigDecimal(iValue.toString());
+        }
 
       } else if (iTargetClass.equals(Double.TYPE) || iTargetClass.equals(Double.class)) {
-        if (iValue instanceof Double) return iValue;
-        else if (iValue instanceof String) return Double.parseDouble((String) iValue);
-        else if (iValue instanceof Float)
-          // THIS IS NECESSARY DUE TO A BUG/STRANGE BEHAVIOR OF JAVA BY LOSSING PRECISION
+        if (iValue instanceof Double) {
+          return iValue;
+        } else if (iValue instanceof String) {
+          return Double.parseDouble((String) iValue);
+        } else if (iValue instanceof Float)
+        // THIS IS NECESSARY DUE TO A BUG/STRANGE BEHAVIOR OF JAVA BY LOSSING PRECISION
+        {
           return Double.parseDouble(iValue.toString());
-        else return ((Number) iValue).doubleValue();
+        } else {
+          return ((Number) iValue).doubleValue();
+        }
 
       } else if (iTargetClass.equals(Boolean.TYPE) || iTargetClass.equals(Boolean.class)) {
-        if (iValue instanceof Boolean) return iValue;
-        else if (iValue instanceof String) {
-          if (((String) iValue).equalsIgnoreCase("true")) return Boolean.TRUE;
-          else if (((String) iValue).equalsIgnoreCase("false")) return Boolean.FALSE;
+        if (iValue instanceof Boolean) {
+          return iValue;
+        } else if (iValue instanceof String) {
+          if (((String) iValue).equalsIgnoreCase("true")) {
+            return Boolean.TRUE;
+          } else if (((String) iValue).equalsIgnoreCase("false")) {
+            return Boolean.FALSE;
+          }
           throw new IllegalArgumentException(
               "Value is not boolean. Expected true or false but received '" + iValue + "'");
-        } else if (iValue instanceof Number) return ((Number) iValue).intValue() != 0;
+        } else if (iValue instanceof Number) {
+          return ((Number) iValue).intValue() != 0;
+        }
 
       } else if (Set.class.isAssignableFrom(iTargetClass)) {
         // The caller specifically wants a Set.  If the value is a collection
@@ -446,10 +520,13 @@ public enum OType {
         }
 
       } else if (iTargetClass.equals(Date.class)) {
-        if (iValue instanceof Number) return new Date(((Number) iValue).longValue());
+        if (iValue instanceof Number) {
+          return new Date(((Number) iValue).longValue());
+        }
         if (iValue instanceof String) {
-          if (OIOUtils.isLong(iValue.toString()))
+          if (OIOUtils.isLong(iValue.toString())) {
             return new Date(Long.parseLong(iValue.toString()));
+          }
           try {
             return ODateHelper.getDateTimeFormatInstance(
                     ODatabaseRecordThreadLocal.instance().get())
@@ -545,75 +622,123 @@ public enum OType {
   }
 
   public static Number increment(final Number a, final Number b) {
-    if (a == null || b == null) throw new IllegalArgumentException("Cannot increment a null value");
+    if (a == null || b == null) {
+      throw new IllegalArgumentException("Cannot increment a null value");
+    }
 
     if (a instanceof Integer) {
       if (b instanceof Integer) {
         final int sum = a.intValue() + b.intValue();
         if (sum < 0 && a.intValue() > 0 && b.intValue() > 0)
-          // SPECIAL CASE: UPGRADE TO LONG
+        // SPECIAL CASE: UPGRADE TO LONG
+        {
           return new Long(a.intValue() + b.intValue());
+        }
         return sum;
-      } else if (b instanceof Long) return new Long(a.intValue() + b.longValue());
-      else if (b instanceof Short) {
+      } else if (b instanceof Long) {
+        return new Long(a.intValue() + b.longValue());
+      } else if (b instanceof Short) {
         final int sum = a.intValue() + b.shortValue();
         if (sum < 0 && a.intValue() > 0 && b.shortValue() > 0)
-          // SPECIAL CASE: UPGRADE TO LONG
+        // SPECIAL CASE: UPGRADE TO LONG
+        {
           return new Long(a.intValue() + b.shortValue());
+        }
         return sum;
-      } else if (b instanceof Float) return new Float(a.intValue() + b.floatValue());
-      else if (b instanceof Double) return new Double(a.intValue() + b.doubleValue());
-      else if (b instanceof BigDecimal) return new BigDecimal(a.intValue()).add((BigDecimal) b);
+      } else if (b instanceof Float) {
+        return new Float(a.intValue() + b.floatValue());
+      } else if (b instanceof Double) {
+        return new Double(a.intValue() + b.doubleValue());
+      } else if (b instanceof BigDecimal) {
+        return new BigDecimal(a.intValue()).add((BigDecimal) b);
+      }
 
     } else if (a instanceof Long) {
-      if (b instanceof Integer) return new Long(a.longValue() + b.intValue());
-      else if (b instanceof Long) return new Long(a.longValue() + b.longValue());
-      else if (b instanceof Short) return new Long(a.longValue() + b.shortValue());
-      else if (b instanceof Float) return new Float(a.longValue() + b.floatValue());
-      else if (b instanceof Double) return new Double(a.longValue() + b.doubleValue());
-      else if (b instanceof BigDecimal) return new BigDecimal(a.longValue()).add((BigDecimal) b);
+      if (b instanceof Integer) {
+        return new Long(a.longValue() + b.intValue());
+      } else if (b instanceof Long) {
+        return new Long(a.longValue() + b.longValue());
+      } else if (b instanceof Short) {
+        return new Long(a.longValue() + b.shortValue());
+      } else if (b instanceof Float) {
+        return new Float(a.longValue() + b.floatValue());
+      } else if (b instanceof Double) {
+        return new Double(a.longValue() + b.doubleValue());
+      } else if (b instanceof BigDecimal) {
+        return new BigDecimal(a.longValue()).add((BigDecimal) b);
+      }
 
     } else if (a instanceof Short) {
       if (b instanceof Integer) {
         final int sum = a.shortValue() + b.intValue();
         if (sum < 0 && a.shortValue() > 0 && b.intValue() > 0)
-          // SPECIAL CASE: UPGRADE TO LONG
+        // SPECIAL CASE: UPGRADE TO LONG
+        {
           return new Long(a.shortValue() + b.intValue());
+        }
         return sum;
-      } else if (b instanceof Long) return new Long(a.shortValue() + b.longValue());
-      else if (b instanceof Short) {
+      } else if (b instanceof Long) {
+        return new Long(a.shortValue() + b.longValue());
+      } else if (b instanceof Short) {
         final int sum = a.shortValue() + b.shortValue();
         if (sum < 0 && a.shortValue() > 0 && b.shortValue() > 0)
-          // SPECIAL CASE: UPGRADE TO INTEGER
+        // SPECIAL CASE: UPGRADE TO INTEGER
+        {
           return new Integer(a.intValue() + b.intValue());
+        }
         return sum;
-      } else if (b instanceof Float) return new Float(a.shortValue() + b.floatValue());
-      else if (b instanceof Double) return new Double(a.shortValue() + b.doubleValue());
-      else if (b instanceof BigDecimal) return new BigDecimal(a.shortValue()).add((BigDecimal) b);
+      } else if (b instanceof Float) {
+        return new Float(a.shortValue() + b.floatValue());
+      } else if (b instanceof Double) {
+        return new Double(a.shortValue() + b.doubleValue());
+      } else if (b instanceof BigDecimal) {
+        return new BigDecimal(a.shortValue()).add((BigDecimal) b);
+      }
 
     } else if (a instanceof Float) {
-      if (b instanceof Integer) return new Float(a.floatValue() + b.intValue());
-      else if (b instanceof Long) return new Float(a.floatValue() + b.longValue());
-      else if (b instanceof Short) return new Float(a.floatValue() + b.shortValue());
-      else if (b instanceof Float) return new Float(a.floatValue() + b.floatValue());
-      else if (b instanceof Double) return new Double(a.floatValue() + b.doubleValue());
-      else if (b instanceof BigDecimal) return new BigDecimal(a.floatValue()).add((BigDecimal) b);
+      if (b instanceof Integer) {
+        return new Float(a.floatValue() + b.intValue());
+      } else if (b instanceof Long) {
+        return new Float(a.floatValue() + b.longValue());
+      } else if (b instanceof Short) {
+        return new Float(a.floatValue() + b.shortValue());
+      } else if (b instanceof Float) {
+        return new Float(a.floatValue() + b.floatValue());
+      } else if (b instanceof Double) {
+        return new Double(a.floatValue() + b.doubleValue());
+      } else if (b instanceof BigDecimal) {
+        return new BigDecimal(a.floatValue()).add((BigDecimal) b);
+      }
 
     } else if (a instanceof Double) {
-      if (b instanceof Integer) return new Double(a.doubleValue() + b.intValue());
-      else if (b instanceof Long) return new Double(a.doubleValue() + b.longValue());
-      else if (b instanceof Short) return new Double(a.doubleValue() + b.shortValue());
-      else if (b instanceof Float) return new Double(a.doubleValue() + b.floatValue());
-      else if (b instanceof Double) return new Double(a.doubleValue() + b.doubleValue());
-      else if (b instanceof BigDecimal) return new BigDecimal(a.doubleValue()).add((BigDecimal) b);
+      if (b instanceof Integer) {
+        return new Double(a.doubleValue() + b.intValue());
+      } else if (b instanceof Long) {
+        return new Double(a.doubleValue() + b.longValue());
+      } else if (b instanceof Short) {
+        return new Double(a.doubleValue() + b.shortValue());
+      } else if (b instanceof Float) {
+        return new Double(a.doubleValue() + b.floatValue());
+      } else if (b instanceof Double) {
+        return new Double(a.doubleValue() + b.doubleValue());
+      } else if (b instanceof BigDecimal) {
+        return new BigDecimal(a.doubleValue()).add((BigDecimal) b);
+      }
 
     } else if (a instanceof BigDecimal) {
-      if (b instanceof Integer) return ((BigDecimal) a).add(new BigDecimal(b.intValue()));
-      else if (b instanceof Long) return ((BigDecimal) a).add(new BigDecimal(b.longValue()));
-      else if (b instanceof Short) return ((BigDecimal) a).add(new BigDecimal(b.shortValue()));
-      else if (b instanceof Float) return ((BigDecimal) a).add(new BigDecimal(b.floatValue()));
-      else if (b instanceof Double) return ((BigDecimal) a).add(new BigDecimal(b.doubleValue()));
-      else if (b instanceof BigDecimal) return ((BigDecimal) a).add((BigDecimal) b);
+      if (b instanceof Integer) {
+        return ((BigDecimal) a).add(new BigDecimal(b.intValue()));
+      } else if (b instanceof Long) {
+        return ((BigDecimal) a).add(new BigDecimal(b.longValue()));
+      } else if (b instanceof Short) {
+        return ((BigDecimal) a).add(new BigDecimal(b.shortValue()));
+      } else if (b instanceof Float) {
+        return ((BigDecimal) a).add(new BigDecimal(b.floatValue()));
+      } else if (b instanceof Double) {
+        return ((BigDecimal) a).add(new BigDecimal(b.doubleValue()));
+      } else if (b instanceof BigDecimal) {
+        return ((BigDecimal) a).add((BigDecimal) b);
+      }
     }
 
     throw new IllegalArgumentException(
@@ -632,46 +757,62 @@ public enum OType {
     // CHECK FOR CONVERSION
     if (context instanceof Short) {
       // SHORT
-      if (max instanceof Integer) context = context.intValue();
-      else if (max instanceof Long) context = context.longValue();
-      else if (max instanceof Float) context = context.floatValue();
-      else if (max instanceof Double) context = context.doubleValue();
-      else if (max instanceof BigDecimal) {
+      if (max instanceof Integer) {
+        context = context.intValue();
+      } else if (max instanceof Long) {
+        context = context.longValue();
+      } else if (max instanceof Float) {
+        context = context.floatValue();
+      } else if (max instanceof Double) {
+        context = context.doubleValue();
+      } else if (max instanceof BigDecimal) {
         context = new BigDecimal(context.intValue());
         int maxScale = Math.max(((BigDecimal) context).scale(), (((BigDecimal) max).scale()));
         context = ((BigDecimal) context).setScale(maxScale, BigDecimal.ROUND_DOWN);
         max = ((BigDecimal) max).setScale(maxScale, BigDecimal.ROUND_DOWN);
-      } else if (max instanceof Byte) context = context.byteValue();
+      } else if (max instanceof Byte) {
+        context = context.byteValue();
+      }
 
     } else if (context instanceof Integer) {
       // INTEGER
-      if (max instanceof Long) context = context.longValue();
-      else if (max instanceof Float) context = context.floatValue();
-      else if (max instanceof Double) context = context.doubleValue();
-      else if (max instanceof BigDecimal) {
+      if (max instanceof Long) {
+        context = context.longValue();
+      } else if (max instanceof Float) {
+        context = context.floatValue();
+      } else if (max instanceof Double) {
+        context = context.doubleValue();
+      } else if (max instanceof BigDecimal) {
         context = new BigDecimal(context.intValue());
         int maxScale = Math.max(((BigDecimal) context).scale(), (((BigDecimal) max).scale()));
         context = ((BigDecimal) context).setScale(maxScale, BigDecimal.ROUND_DOWN);
         max = ((BigDecimal) max).setScale(maxScale, BigDecimal.ROUND_DOWN);
-      } else if (max instanceof Short) max = max.intValue();
-      else if (max instanceof Byte) max = max.intValue();
+      } else if (max instanceof Short) {
+        max = max.intValue();
+      } else if (max instanceof Byte) {
+        max = max.intValue();
+      }
 
     } else if (context instanceof Long) {
       // LONG
-      if (max instanceof Float) context = context.floatValue();
-      else if (max instanceof Double) context = context.doubleValue();
-      else if (max instanceof BigDecimal) {
+      if (max instanceof Float) {
+        context = context.floatValue();
+      } else if (max instanceof Double) {
+        context = context.doubleValue();
+      } else if (max instanceof BigDecimal) {
         context = new BigDecimal(context.longValue());
         int maxScale = Math.max(((BigDecimal) context).scale(), (((BigDecimal) max).scale()));
         context = ((BigDecimal) context).setScale(maxScale, BigDecimal.ROUND_DOWN);
         max = ((BigDecimal) max).setScale(maxScale, BigDecimal.ROUND_DOWN);
-      } else if (max instanceof Integer || max instanceof Byte || max instanceof Short)
+      } else if (max instanceof Integer || max instanceof Byte || max instanceof Short) {
         max = max.longValue();
+      }
 
     } else if (context instanceof Float) {
       // FLOAT
-      if (max instanceof Double) context = context.doubleValue();
-      else if (max instanceof BigDecimal) {
+      if (max instanceof Double) {
+        context = context.doubleValue();
+      } else if (max instanceof BigDecimal) {
         context = new BigDecimal(context.floatValue());
         int maxScale = Math.max(((BigDecimal) context).scale(), (((BigDecimal) max).scale()));
         context = ((BigDecimal) context).setScale(maxScale, BigDecimal.ROUND_DOWN);
@@ -679,7 +820,9 @@ public enum OType {
       } else if (max instanceof Byte
           || max instanceof Short
           || max instanceof Integer
-          || max instanceof Long) max = max.floatValue();
+          || max instanceof Long) {
+        max = max.floatValue();
+      }
 
     } else if (context instanceof Double) {
       // DOUBLE
@@ -692,15 +835,21 @@ public enum OType {
           || max instanceof Short
           || max instanceof Integer
           || max instanceof Long
-          || max instanceof Float) max = max.doubleValue();
+          || max instanceof Float) {
+        max = max.doubleValue();
+      }
 
     } else if (context instanceof BigDecimal) {
       // DOUBLE
-      if (max instanceof Integer) max = new BigDecimal((Integer) max);
-      else if (max instanceof Float) max = new BigDecimal((Float) max);
-      else if (max instanceof Double) max = new BigDecimal((Double) max);
-      else if (max instanceof Short) max = new BigDecimal((Short) max);
-      else if (max instanceof Byte) {
+      if (max instanceof Integer) {
+        max = new BigDecimal((Integer) max);
+      } else if (max instanceof Float) {
+        max = new BigDecimal((Float) max);
+      } else if (max instanceof Double) {
+        max = new BigDecimal((Double) max);
+      } else if (max instanceof Short) {
+        max = new BigDecimal((Short) max);
+      } else if (max instanceof Byte) {
         max = new BigDecimal((Byte) max);
       }
 
@@ -708,12 +857,17 @@ public enum OType {
       context = ((BigDecimal) context).setScale(maxScale, BigDecimal.ROUND_DOWN);
       max = ((BigDecimal) max).setScale(maxScale, BigDecimal.ROUND_DOWN);
     } else if (context instanceof Byte) {
-      if (max instanceof Short) context = context.shortValue();
-      else if (max instanceof Integer) context = context.intValue();
-      else if (max instanceof Long) context = context.longValue();
-      else if (max instanceof Float) context = context.floatValue();
-      else if (max instanceof Double) context = context.doubleValue();
-      else if (max instanceof BigDecimal) {
+      if (max instanceof Short) {
+        context = context.shortValue();
+      } else if (max instanceof Integer) {
+        context = context.intValue();
+      } else if (max instanceof Long) {
+        context = context.longValue();
+      } else if (max instanceof Float) {
+        context = context.floatValue();
+      } else if (max instanceof Double) {
+        context = context.doubleValue();
+      } else if (max instanceof BigDecimal) {
         context = new BigDecimal(context.intValue());
         int maxScale = Math.max(((BigDecimal) context).scale(), (((BigDecimal) max).scale()));
         context = ((BigDecimal) context).setScale(maxScale, BigDecimal.ROUND_DOWN);
@@ -732,9 +886,13 @@ public enum OType {
    *     exception
    */
   public int asInt(final Object iValue) {
-    if (iValue instanceof Number) return ((Number) iValue).intValue();
-    else if (iValue instanceof String) return Integer.valueOf((String) iValue);
-    else if (iValue instanceof Boolean) return ((Boolean) iValue) ? 1 : 0;
+    if (iValue instanceof Number) {
+      return ((Number) iValue).intValue();
+    } else if (iValue instanceof String) {
+      return Integer.valueOf((String) iValue);
+    } else if (iValue instanceof Boolean) {
+      return ((Boolean) iValue) ? 1 : 0;
+    }
 
     throw new IllegalArgumentException(
         "Cannot convert value " + iValue + " to int for type: " + name);
@@ -748,9 +906,13 @@ public enum OType {
    *     exception
    */
   public long asLong(final Object iValue) {
-    if (iValue instanceof Number) return ((Number) iValue).longValue();
-    else if (iValue instanceof String) return Long.valueOf((String) iValue);
-    else if (iValue instanceof Boolean) return ((Boolean) iValue) ? 1 : 0;
+    if (iValue instanceof Number) {
+      return ((Number) iValue).longValue();
+    } else if (iValue instanceof String) {
+      return Long.valueOf((String) iValue);
+    } else if (iValue instanceof Boolean) {
+      return ((Boolean) iValue) ? 1 : 0;
+    }
 
     throw new IllegalArgumentException(
         "Cannot convert value " + iValue + " to long for type: " + name);
@@ -764,8 +926,11 @@ public enum OType {
    *     exception
    */
   public float asFloat(final Object iValue) {
-    if (iValue instanceof Number) return ((Number) iValue).floatValue();
-    else if (iValue instanceof String) return Float.valueOf((String) iValue);
+    if (iValue instanceof Number) {
+      return ((Number) iValue).floatValue();
+    } else if (iValue instanceof String) {
+      return Float.valueOf((String) iValue);
+    }
 
     throw new IllegalArgumentException(
         "Cannot convert value " + iValue + " to float for type: " + name);
@@ -779,8 +944,11 @@ public enum OType {
    *     exception
    */
   public double asDouble(final Object iValue) {
-    if (iValue instanceof Number) return ((Number) iValue).doubleValue();
-    else if (iValue instanceof String) return Double.valueOf((String) iValue);
+    if (iValue instanceof Number) {
+      return ((Number) iValue).doubleValue();
+    } else if (iValue instanceof String) {
+      return Double.valueOf((String) iValue);
+    }
 
     throw new IllegalArgumentException(
         "Cannot convert value " + iValue + " to double for type: " + name);

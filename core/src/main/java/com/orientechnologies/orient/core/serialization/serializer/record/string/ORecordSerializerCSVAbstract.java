@@ -26,7 +26,6 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.ODatabase;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OAutoConvertToRecord;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
@@ -103,7 +102,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
       assert rid.getIdentity().isValid() || ODatabaseRecordThreadLocal.instance().get().isRemote()
           : "Impossible to serialize invalid link " + rid.getIdentity();
 
-      final ODatabaseDocument database = ODatabaseRecordThreadLocal.instance().get();
+      final var database = ODatabaseRecordThreadLocal.instance().get();
       if (iParentRecord != null) {
         if (!database.isRetainRecords())
           // REPLACE CURRENT RECORD WITH ITS ID: THIS SAVES A LOT OF MEMORY

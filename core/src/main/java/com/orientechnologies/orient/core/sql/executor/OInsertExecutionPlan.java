@@ -11,7 +11,7 @@ import java.util.List;
  */
 public class OInsertExecutionPlan extends OSelectExecutionPlan {
 
-  private List<OResult> result = new ArrayList<>();
+  private final List<OResult> result = new ArrayList<>();
 
   public OInsertExecutionPlan(OCommandContext ctx) {
     super(ctx);
@@ -30,15 +30,12 @@ public class OInsertExecutionPlan extends OSelectExecutionPlan {
   }
 
   public void executeInternal() throws OCommandExecutionException {
-    var db = ctx.getDatabase();
-    db.executeInTx(
-        () -> {
-          OExecutionStream nextBlock = super.start();
-          while (nextBlock.hasNext(ctx)) {
-            result.add(nextBlock.next(ctx));
-          }
-          nextBlock.close(ctx);
-        });
+    OExecutionStream nextBlock = super.start();
+
+    while (nextBlock.hasNext(ctx)) {
+      result.add(nextBlock.next(ctx));
+    }
+    nextBlock.close(ctx);
   }
 
   @Override

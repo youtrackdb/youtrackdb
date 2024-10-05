@@ -15,8 +15,8 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.testng.Assert;
 import org.testng.annotations.Optional;
@@ -33,7 +33,9 @@ public class SQLDeleteTest extends DocumentDBBaseTest {
 
   @Test
   public void deleteWithWhereOperator() {
+    database.begin();
     database.command("insert into Profile (sex, salary) values ('female', 2100)").close();
+    database.commit();
 
     final Long total = database.countClass("Profile");
 
@@ -41,8 +43,10 @@ public class SQLDeleteTest extends DocumentDBBaseTest {
         database.query("select from Profile where sex = 'female' and salary = 2100");
     long queryCount = resultset.stream().count();
 
+    database.begin();
     OResultSet result =
         database.command("delete from Profile where sex = 'female' and salary = 2100");
+    database.commit();
     long count = result.next().getProperty("count");
 
     Assert.assertEquals(count, queryCount);
@@ -53,7 +57,7 @@ public class SQLDeleteTest extends DocumentDBBaseTest {
   @Test
   public void deleteInPool() {
     OPartitionedDatabasePool pool = new OPartitionedDatabasePool(url, "admin", "admin");
-    ODatabaseDocument db = pool.acquire();
+    ODatabaseDocumentInternal db = pool.acquire();
 
     final Long total = db.countClass("Profile");
 
@@ -62,8 +66,10 @@ public class SQLDeleteTest extends DocumentDBBaseTest {
 
     long queryCount = resultset.stream().count();
 
+    db.begin();
     OResultSet records =
         db.command("delete from Profile where sex = 'male' and salary > 120 and salary <= 133");
+    db.commit();
 
     long count = records.next().getProperty("count");
     Assert.assertEquals(count, queryCount);

@@ -30,16 +30,20 @@ public class LuceneGeoUpdateTest extends BaseSpatialLuceneTest {
     db.command("create property City.location embedded OPoint").close();
 
     db.command("CREATE INDEX City.location ON City(location) SPATIAL ENGINE LUCENE").close();
+    db.begin();
     db.command(
             "insert into City set name = 'TestInsert' , location ="
                 + " ST_GeomFromText('POINT(-160.2075374 21.9029803)')")
         .close();
+    db.commit();
 
     OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.location");
 
+    db.begin();
     db.command(
             "update City set name = 'TestInsert' , location = ST_GeomFromText('POINT(12.5 41.9)')")
         .close();
+    db.commit();
 
     db.begin();
     Assert.assertEquals(1, index.getInternal().size());

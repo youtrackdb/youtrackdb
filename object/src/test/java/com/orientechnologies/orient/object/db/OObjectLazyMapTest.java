@@ -19,11 +19,11 @@ public class OObjectLazyMapTest {
   private final int idOfFirstMapEntry = 1;
   private final int idOfSecondMapEntry = 2;
   private final int invalidId = 3;
-  private OObjectDatabaseTx databaseTx;
+  private OObjectDatabaseTxInternal databaseTx;
 
   @Before
   public void setUp() throws Exception {
-    databaseTx = new OObjectDatabaseTx("memory:OObjectLazyMapTest");
+    databaseTx = new OObjectDatabaseTxInternal("memory:OObjectLazyMapTest");
     databaseTx.create();
 
     databaseTx.getEntityManager().registerEntityClass(EntityWithMap.class);

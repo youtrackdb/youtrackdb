@@ -37,7 +37,8 @@ public class InsertUnionValueTest {
       session
           .execute(
               "SQL",
-              "  let $example = create vertex example;\n"
+              "  begin; "
+                  + "  let $example = create vertex example;\n"
                   + "  let $a = {\"aKey\":\"aValue\"};\n"
                   + "  let $b = {\"anotherKey\":\"anotherValue\"};\n"
                   + "  let $u = unionAll($a, $b); \n"
@@ -45,7 +46,8 @@ public class InsertUnionValueTest {
                   + "  /* both of the following throw the exception and require to restart the"
                   + " server*/\n"
                   + "  update $example set metadata[\"something\"] = $u;\n"
-                  + "  update $example set metadata.something = $u;")
+                  + "  update $example set metadata.something = $u;"
+                  + "  commit;")
           .close();
       long entries =
           session.query("select expand(metadata.something) from example").stream().count();

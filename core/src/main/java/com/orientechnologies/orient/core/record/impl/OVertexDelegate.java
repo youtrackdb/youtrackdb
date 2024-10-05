@@ -223,19 +223,6 @@ public class OVertexDelegate implements OVertexInternal {
   }
 
   @Override
-  public <RET extends ORecord> RET reload() throws ORecordNotFoundException {
-    element.reload();
-    return (RET) this;
-  }
-
-  @Override
-  public <RET extends ORecord> RET reload(String fetchPlan, boolean ignoreCache, boolean force)
-      throws ORecordNotFoundException {
-    element.reload(fetchPlan, ignoreCache, force);
-    return (RET) this;
-  }
-
-  @Override
   public <RET extends ORecord> RET save() {
     element.save();
     return (RET) this;

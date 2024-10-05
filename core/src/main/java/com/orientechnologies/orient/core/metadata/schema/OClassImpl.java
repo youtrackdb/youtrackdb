@@ -27,7 +27,6 @@ import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OSchemaException;
 import com.orientechnologies.orient.core.exception.OSecurityAccessException;
@@ -129,7 +128,7 @@ public abstract class OClassImpl implements OClass {
   }
 
   public static int[] readableClusters(
-      final ODatabaseDocument db, final int[] iClusterIds, String className) {
+      final ODatabaseDocumentInternal db, final int[] iClusterIds, String className) {
     IntArrayList listOfReadableIds = new IntArrayList();
 
     boolean all = true;

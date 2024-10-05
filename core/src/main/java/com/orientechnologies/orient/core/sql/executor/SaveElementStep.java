@@ -32,14 +32,12 @@ public class SaveElementStep extends AbstractExecutionStep {
   private OResult mapResult(OResult result, OCommandContext ctx) {
     if (result.isElement()) {
       var db = ctx.getDatabase();
-      db.executeInTx(
-          () -> {
-            if (cluster == null) {
-              db.save(result.getElement().orElse(null));
-            } else {
-              db.save(result.getElement().orElse(null), cluster.getStringValue());
-            }
-          });
+
+      if (cluster == null) {
+        db.save(result.getElement().orElse(null));
+      } else {
+        db.save(result.getElement().orElse(null), cluster.getStringValue());
+      }
     }
     return result;
   }

@@ -21,7 +21,6 @@ package com.orientechnologies.orient.core.sql;
 
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import java.util.Map;
@@ -45,7 +44,7 @@ public class OCommandExecutorSQLRevoke extends OCommandExecutorSQLPermissionAbst
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
 
-      final ODatabaseDocument database = getDatabase();
+      final var database = getDatabase();
 
       init((OCommandRequestText) iRequest);
 

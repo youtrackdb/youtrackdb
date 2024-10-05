@@ -220,7 +220,9 @@ public class OCreateViewStatementExecutionTest extends BaseMemoryDatabase {
           }
         });
 
+    db.begin();
     db.command("UPDATE " + className + " SET surname = 'changed' WHERE name = 'name3'").close();
+    db.commit();
 
     assertWithTimeout(
         db,
@@ -383,7 +385,9 @@ public class OCreateViewStatementExecutionTest extends BaseMemoryDatabase {
           }
         });
 
+    db.begin();
     db.command("update " + className + " set name='name33' WHERE name = 'name3'").close();
+    db.commit();
 
     assertWithTimeout(
         db,

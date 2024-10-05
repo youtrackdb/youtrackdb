@@ -41,6 +41,7 @@ public class OCompositeIndexSQLInsertTest extends BaseMemoryDatabase {
                 + " CompositeIndexWithRangeAndConditions (id, tags, name) NOTUNIQUE")
         .close();
 
+    db.begin();
     db.command(
             "insert into CompositeIndexWithRangeAndConditions set id = 1, tags ="
                 + " [\"green\",\"yellow\"] , name = \"Foo\", bar = 1")
@@ -57,6 +58,7 @@ public class OCompositeIndexSQLInsertTest extends BaseMemoryDatabase {
             "insert into CompositeIndexWithRangeAndConditions set id = 1, tags ="
                 + " [\"green\",\"yellow\"], name = \"Foo1\", bar = 14")
         .close();
+    db.commit();
 
     OResultSet res =
         db.query("select from CompositeIndexWithRangeAndConditions where id > 0 and bar = 1");

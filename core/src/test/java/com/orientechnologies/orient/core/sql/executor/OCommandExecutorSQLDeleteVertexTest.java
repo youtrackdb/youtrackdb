@@ -41,10 +41,14 @@ public class OCommandExecutorSQLDeleteVertexTest extends BaseMemoryDatabase {
     // for issue #4148
 
     for (int i = 0; i < 10; i++) {
+      db.begin();
       db.command("create vertex User set name = 'foo" + i + "'").close();
+      db.commit();
     }
 
+    db.begin();
     db.command("delete vertex User limit 4").close();
+    db.commit();
 
     OResultSet result = db.query("select from User");
     Assert.assertEquals(result.stream().count(), 6);
@@ -55,10 +59,14 @@ public class OCommandExecutorSQLDeleteVertexTest extends BaseMemoryDatabase {
     // for issue #4622
 
     for (int i = 0; i < 100; i++) {
+      db.begin();
       db.command("create vertex User set name = 'foo" + i + "'").close();
+      db.commit();
     }
 
+    db.begin();
     db.command("delete vertex User batch 5").close();
+    db.commit();
 
     OResultSet result = db.query("select from User");
     Assert.assertEquals(result.stream().count(), 0);
@@ -67,14 +75,19 @@ public class OCommandExecutorSQLDeleteVertexTest extends BaseMemoryDatabase {
   @Test(expected = OCommandExecutionException.class)
   public void testDeleteVertexWithEdgeRid() throws Exception {
 
+    db.begin();
     db.command("create vertex User set name = 'foo1'").close();
     db.command("create vertex User set name = 'foo2'").close();
     db.command(
             "create edge E from (select from user where name = 'foo1') to (select from user where"
                 + " name = 'foo2')")
         .close();
+    db.commit();
+
     try (OResultSet edges = db.query("select from e limit 1")) {
+      db.begin();
       db.command("delete vertex [" + edges.next().getIdentity().get() + "]").close();
+      db.commit();
       Assert.fail("Error on deleting a vertex with a rid of an edge");
     }
   }
@@ -84,10 +97,15 @@ public class OCommandExecutorSQLDeleteVertexTest extends BaseMemoryDatabase {
     // for issue #4523
 
     for (int i = 0; i < 100; i++) {
+      db.begin();
       db.command("create vertex User set name = 'foo" + i + "'").close();
+      db.commit();
     }
 
+    db.begin();
     db.command("delete vertex from (select from User)").close();
+    db.commit();
+
     OResultSet result = db.query("select from User");
     Assert.assertEquals(result.stream().count(), 0);
   }
@@ -97,10 +115,14 @@ public class OCommandExecutorSQLDeleteVertexTest extends BaseMemoryDatabase {
     // for issue #4523
 
     for (int i = 0; i < 100; i++) {
+      db.begin();
       db.command("create vertex User set name = 'foo" + i + "'").close();
+      db.commit();
     }
 
+    db.begin();
     db.command("delete vertex from (select from User where name = 'foo10')").close();
+    db.commit();
 
     OResultSet result = db.query("select from User");
     Assert.assertEquals(result.stream().count(), 99);

@@ -1057,9 +1057,12 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
   public void testAny() {
     database.command("create class TestExport").close();
     database.command("create property TestExport.anything ANY").close();
+
+    database.begin();
     database.command("insert into TestExport set anything = 3").close();
     database.command("insert into TestExport set anything = 'Jay'").close();
     database.command("insert into TestExport set anything = 2.3").close();
+    database.commit();
 
     OResultSet result = database.command("select count(*) from TestExport where anything = 3");
     Assert.assertNotNull(result);

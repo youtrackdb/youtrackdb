@@ -21,12 +21,12 @@ import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.OEdge;
+import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
-import com.tinkerpop.blueprints.impls.orient.OrientEdge;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -335,9 +335,7 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
 
     for (OEdge e : edges) {
       Integer deletedEdges =
-          database
-              .command(new OCommandSQL("delete from " + ((OrientEdge) e).getIdentity() + " unsafe"))
-              .execute();
+          database.command(new OCommandSQL("delete from " + e.getIdentity() + " unsafe")).execute();
       Assert.assertEquals(deletedEdges.intValue(), 1);
     }
   }
@@ -352,17 +350,24 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
   }
 
   public void testInsertOfEdgeWithInsertCommandUnsafe() {
-
-    ODocument insertedEdge =
+    database.begin();
+    OElement insertedEdge =
         database
-            .command(new OCommandSQL("insert into E set in = #9:0, out = #9:1, a = 33 unsafe"))
-            .execute();
+            .command("insert into E set in = #9:0, out = #9:1, a = 33 unsafe")
+            .next()
+            .toElement();
+    database.commit();
+
     Assert.assertNotNull(insertedEdge);
 
-    Integer confirmDeleted =
+    database.begin();
+    Long confirmDeleted =
         database
-            .command(new OCommandSQL("delete from " + insertedEdge.getIdentity() + " unsafe"))
-            .execute();
+            .command("delete from " + insertedEdge.getIdentity() + " unsafe")
+            .next()
+            .<Long>getProperty("count");
+    database.commit();
+
     Assert.assertEquals(confirmDeleted.intValue(), 1);
   }
 

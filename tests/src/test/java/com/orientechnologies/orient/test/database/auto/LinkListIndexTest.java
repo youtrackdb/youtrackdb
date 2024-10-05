@@ -298,6 +298,7 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     document.save();
     database.commit();
 
+    database.begin();
     database
         .command(
             "UPDATE "
@@ -305,6 +306,7 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
                 + " set linkCollection = linkCollection || "
                 + docThree.getIdentity())
         .close();
+    database.commit();
 
     OIndex index = getIndex("linkCollectionIndex");
     Assert.assertEquals(index.getInternal().size(), 3);
@@ -517,8 +519,10 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     document.save();
     database.commit();
 
+    database.begin();
     database.command(
         "UPDATE " + document.getIdentity() + " remove linkCollection = " + docTwo.getIdentity());
+    database.commit();
 
     OIndex index = getIndex("linkCollectionIndex");
     Assert.assertEquals(index.getInternal().size(), 1);

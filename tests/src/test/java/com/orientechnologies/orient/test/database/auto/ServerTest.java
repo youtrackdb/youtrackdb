@@ -17,7 +17,7 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.client.db.ODatabaseHelper;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.io.IOException;
@@ -64,7 +64,7 @@ public class ServerTest extends DocumentDBBaseTest {
     admin.createDatabase("document", "memory");
     admin.close();
 
-    ODatabaseDocument db = new ODatabaseDocumentTx("remote:localhost/doubleOpenTest");
+    ODatabaseDocumentInternal db = new ODatabaseDocumentTx("remote:localhost/doubleOpenTest");
     try {
       db.open("admin", "admin");
       ODocument d = new ODocument("User");

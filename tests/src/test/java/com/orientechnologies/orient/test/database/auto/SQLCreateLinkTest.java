@@ -16,7 +16,6 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.sql.OCommandSQL;
 import org.testng.Assert;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
@@ -24,6 +23,7 @@ import org.testng.annotations.Test;
 
 @Test
 public class SQLCreateLinkTest extends DocumentDBBaseTest {
+
   @Parameters(value = "url")
   public SQLCreateLinkTest(@Optional String url) {
     super(url);
@@ -33,15 +33,19 @@ public class SQLCreateLinkTest extends DocumentDBBaseTest {
   public void createLinktest() {
     database.command("CREATE CLASS POST").close();
     database.command("CREATE PROPERTY POST.comments LINKSET").close();
+
+    database.begin();
     database.command("INSERT INTO POST (id, title) VALUES ( 10, 'NoSQL movement' )").close();
     database.command("INSERT INTO POST (id, title) VALUES ( 20, 'New OrientDB' )").close();
 
     database.command("INSERT INTO POST (id, title) VALUES ( 30, '(')").close();
 
     database.command("INSERT INTO POST (id, title) VALUES ( 40, ')')").close();
+    database.commit();
 
     database.command("CREATE CLASS COMMENT").close();
-    ;
+
+    database.begin();
     database.command("INSERT INTO COMMENT (id, postId, text) VALUES ( 0, 10, 'First' )").close();
     database.command("INSERT INTO COMMENT (id, postId, text) VALUES ( 1, 10, 'Second' )").close();
     database.command("INSERT INTO COMMENT (id, postId, text) VALUES ( 21, 10, 'Another' )").close();
@@ -62,17 +66,23 @@ public class SQLCreateLinkTest extends DocumentDBBaseTest {
                     .getProperty("count"))
             .intValue(),
         5);
+    database.commit();
 
+    database.begin();
     Assert.assertEquals(
         ((Number) database.command("UPDATE comment REMOVE postId").next().getProperty("count"))
             .intValue(),
         5);
+    database.commit();
   }
 
   @Test
   public void createRIDLinktest() {
 
     database.command("CREATE CLASS POST2").close();
+    database.command("CREATE PROPERTY POST2.comments LINKSET").close();
+
+    database.begin();
     Object p1 =
         database
             .command("INSERT INTO POST2 (id, title) VALUES ( 10, 'NoSQL movement' )")
@@ -93,8 +103,11 @@ public class SQLCreateLinkTest extends DocumentDBBaseTest {
     Object p4 =
         database.command("INSERT INTO POST2 (id, title) VALUES ( 40, ')')").next().toElement();
     Assert.assertTrue(p4 instanceof ODocument);
+    database.commit();
 
     database.command("CREATE CLASS COMMENT2");
+
+    database.begin();
     database
         .command(
             "INSERT INTO COMMENT2 (id, postId, text) VALUES ( 0, '"
@@ -125,21 +138,26 @@ public class SQLCreateLinkTest extends DocumentDBBaseTest {
                 + ((ODocument) p2).getIdentity().toString()
                 + "', 'Second Again' )")
         .close();
+    database.commit();
 
+    database.begin();
     Assert.assertEquals(
         ((Number)
                 database
                     .command(
-                        new OCommandSQL(
-                            "CREATE LINK comments TYPE LINKSET FROM comment2.postId TO post2.@rid"
-                                + " INVERSE"))
-                    .execute())
+                        "CREATE LINK comments TYPE LINKSET FROM comment2.postId TO post2.id"
+                            + " INVERSE")
+                    .next()
+                    .getProperty("count"))
             .intValue(),
         5);
+    database.commit();
 
+    database.begin();
     Assert.assertEquals(
         ((Number) database.command("UPDATE comment2 REMOVE postId").next().getProperty("count"))
             .intValue(),
         5);
+    database.commit();
   }
 }

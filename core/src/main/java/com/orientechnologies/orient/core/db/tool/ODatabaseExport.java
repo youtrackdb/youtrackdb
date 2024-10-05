@@ -244,12 +244,12 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
 
       long clusterExportedRecordsCurrent = 0;
       if (clusterName != null) {
-        ORecord rec = null;
+        ORecordAbstract rec = null;
         try {
           ORecordIteratorCluster<ORecord> it = database.browseCluster(clusterName);
 
           while (it.hasNext()) {
-            rec = it.next();
+            rec = (ORecordAbstract) it.next();
             if (rec instanceof ODocument doc) {
               // CHECK IF THE CLASS OF THE DOCUMENT IS INCLUDED
               final String className =
@@ -723,7 +723,8 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
     listener.onMessage("OK (" + schema.getClasses().size() + " classes)");
   }
 
-  private boolean exportRecord(long recordTot, long recordNum, ORecord rec, Set<ORID> brokenRids) {
+  private boolean exportRecord(
+      long recordTot, long recordNum, ORecordAbstract rec, Set<ORID> brokenRids) {
     if (rec != null) {
       try {
         if (rec.getIdentity().isValid()) {

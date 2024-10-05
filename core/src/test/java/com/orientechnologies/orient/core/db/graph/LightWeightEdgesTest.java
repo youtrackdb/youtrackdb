@@ -76,6 +76,7 @@ public class LightWeightEdgesTest {
     v1.save();
     session.commit();
 
+    session.begin();
     session.command(
         "create edge "
             + eClazz
@@ -84,6 +85,7 @@ public class LightWeightEdgesTest {
             + " where name = 'a') to (select from "
             + vClazz
             + " where name = 'b') set name = 'foo'");
+    session.commit();
 
     session.execute(
         "sql",

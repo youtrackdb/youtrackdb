@@ -46,7 +46,7 @@ public class LuceneTransactionEmbeddedQueryTest {
   public void testRollback() {
 
     @SuppressWarnings("deprecation")
-    ODatabaseDocument db = new ODatabaseDocumentTx("memory:updateTxTest");
+    ODatabaseDocumentInternal db = new ODatabaseDocumentTx("memory:updateTxTest");
     db.create();
     createSchema(db);
     try {

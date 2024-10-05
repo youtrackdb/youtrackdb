@@ -2,8 +2,8 @@ package com.orientechnologies.orient.core.metadata.security;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseInternal;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.exception.OSecurityException;
@@ -12,7 +12,6 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.stream.Stream;
@@ -27,7 +26,7 @@ public class PredicateSecurityTest {
 
   private static String DB_NAME = PredicateSecurityTest.class.getSimpleName();
   private static OrientDB orient;
-  private ODatabaseSession db;
+  private ODatabaseDocumentInternal db;
 
   @BeforeClass
   public static void beforeClass() {
@@ -58,7 +57,9 @@ public class PredicateSecurityTest {
             + "' role reader, writer identified by '"
             + OCreateDatabaseUtil.NEW_ADMIN_PASSWORD
             + "' role writer)");
-    this.db = orient.open(DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    this.db =
+        (ODatabaseDocumentInternal)
+            orient.open(DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
   }
 
   @After
@@ -81,7 +82,9 @@ public class PredicateSecurityTest {
     security.setSecurityPolicy(db, security.getRole(db, "writer"), "database.class.Person", policy);
 
     db.close();
-    this.db = orient.open(DB_NAME, "writer", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
+    this.db =
+        (ODatabaseDocumentInternal)
+            orient.open(DB_NAME, "writer", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
 
     db.executeInTx(
         () -> {
@@ -116,11 +119,18 @@ public class PredicateSecurityTest {
 
     db.close();
     Thread.sleep(500);
-    this.db = orient.open(DB_NAME, "writer", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
+    this.db =
+        (ODatabaseDocumentInternal)
+            orient.open(DB_NAME, "writer", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
 
+    db.begin();
     db.command("insert into Person SET name = 'foo'");
+    db.commit();
+
     try {
+      db.begin();
       db.command("insert into Person SET name = 'bar'");
+      db.commit();
       Assert.fail();
     } catch (OSecurityException ex) {
     }
@@ -153,7 +163,9 @@ public class PredicateSecurityTest {
         });
 
     db.close();
-    this.db = orient.open(DB_NAME, "reader", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
+    this.db =
+        (ODatabaseDocumentInternal)
+            orient.open(DB_NAME, "reader", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
     OResultSet rs = db.query("select from Person");
     Assert.assertTrue(rs.hasNext());
     rs.next();
@@ -190,7 +202,9 @@ public class PredicateSecurityTest {
         });
 
     db.close();
-    this.db = orient.open(DB_NAME, "reader", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
+    this.db =
+        (ODatabaseDocumentInternal)
+            orient.open(DB_NAME, "reader", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
     OResultSet rs = db.query("select from Person where name = 'bar'");
     Assert.assertFalse(rs.hasNext());
     rs.close();
@@ -227,7 +241,9 @@ public class PredicateSecurityTest {
         });
 
     db.close();
-    this.db = orient.open(DB_NAME, "reader", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
+    this.db =
+        (ODatabaseDocumentInternal)
+            orient.open(DB_NAME, "reader", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
     OResultSet rs = db.query("select from Person where name = 'foo'");
     Assert.assertTrue(rs.hasNext());
     OResult item = rs.next();
@@ -250,7 +266,9 @@ public class PredicateSecurityTest {
 
     db.close();
     Thread.sleep(500);
-    this.db = orient.open(DB_NAME, "writer", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
+    this.db =
+        (ODatabaseDocumentInternal)
+            orient.open(DB_NAME, "writer", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
 
     OElement elem =
         db.computeInTx(
@@ -269,8 +287,7 @@ public class PredicateSecurityTest {
     } catch (OSecurityException ex) {
     }
 
-    ORecordInternal.unsetDirty(elem);
-    elem = elem.reload(null, true, true);
+    elem = db.load(elem.getIdentity());
 
     Assert.assertEquals("foo", elem.getProperty("name"));
   }
@@ -299,7 +316,9 @@ public class PredicateSecurityTest {
   }
 
   private boolean doTestBeforeUpdateSQL() {
-    this.db = orient.open(DB_NAME, "writer", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
+    this.db =
+        (ODatabaseDocumentInternal)
+            orient.open(DB_NAME, "writer", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
 
     OElement elem =
         db.computeInTx(
@@ -311,7 +330,9 @@ public class PredicateSecurityTest {
             });
 
     try {
+      db.begin();
       db.command("update Person set name = 'bar'");
+      db.commit();
       return false;
     } catch (OSecurityException ex) {
     }
@@ -333,7 +354,9 @@ public class PredicateSecurityTest {
     security.setSecurityPolicy(db, security.getRole(db, "writer"), "database.class.Person", policy);
 
     db.close();
-    this.db = orient.open(DB_NAME, "writer", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
+    this.db =
+        (ODatabaseDocumentInternal)
+            orient.open(DB_NAME, "writer", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
 
     OElement elem =
         db.computeInTx(
@@ -353,8 +376,7 @@ public class PredicateSecurityTest {
     } catch (OSecurityException ex) {
     }
 
-    ORecordInternal.unsetDirty(elem);
-    elem = elem.reload(null, true, true);
+    elem = db.load(elem.getIdentity());
     Assert.assertEquals("foo", elem.getProperty("name"));
   }
 
@@ -371,7 +393,9 @@ public class PredicateSecurityTest {
     security.setSecurityPolicy(db, security.getRole(db, "writer"), "database.class.Person", policy);
 
     db.close();
-    this.db = orient.open(DB_NAME, "writer", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
+    this.db =
+        (ODatabaseDocumentInternal)
+            orient.open(DB_NAME, "writer", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
 
     OElement elem =
         db.computeInTx(
@@ -383,12 +407,13 @@ public class PredicateSecurityTest {
             });
 
     try {
+      db.begin();
       db.command("update Person set name = 'bar'");
+      db.commit();
       Assert.fail();
     } catch (OSecurityException ex) {
     }
 
-    elem = elem.reload(null, true, true);
     Assert.assertEquals("foo", elem.getProperty("name"));
   }
 
@@ -405,7 +430,9 @@ public class PredicateSecurityTest {
     security.setSecurityPolicy(db, security.getRole(db, "writer"), "database.class.Person", policy);
 
     db.close();
-    this.db = orient.open(DB_NAME, "writer", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
+    this.db =
+        (ODatabaseDocumentInternal)
+            orient.open(DB_NAME, "writer", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
 
     OElement elem =
         db.computeInTx(
@@ -449,7 +476,9 @@ public class PredicateSecurityTest {
     security.setSecurityPolicy(db, security.getRole(db, "writer"), "database.class.Person", policy);
 
     db.close();
-    this.db = orient.open(DB_NAME, "writer", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
+    this.db =
+        (ODatabaseDocumentInternal)
+            orient.open(DB_NAME, "writer", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
 
     db.executeInTx(
         () -> {
@@ -507,7 +536,9 @@ public class PredicateSecurityTest {
         });
 
     db.close();
-    this.db = orient.open(DB_NAME, "reader", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
+    this.db =
+        (ODatabaseDocumentInternal)
+            orient.open(DB_NAME, "reader", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
     OResultSet rs = db.query("select count(*) as count from Person");
     Assert.assertEquals(1L, (long) rs.next().getProperty("count"));
     rs.close();
@@ -515,7 +546,7 @@ public class PredicateSecurityTest {
 
   @Test
   public void testSqlCountWithIndex() {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
 
     OClass person = db.createClass("Person");
     person.createProperty("name", OType.STRING);
@@ -542,7 +573,9 @@ public class PredicateSecurityTest {
         });
 
     db.close();
-    this.db = orient.open(DB_NAME, "reader", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
+    this.db =
+        (ODatabaseDocumentInternal)
+            orient.open(DB_NAME, "reader", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
     OResultSet rs = db.query("select count(*) as count from Person where name = 'bar'");
     Assert.assertEquals(0L, (long) rs.next().getProperty("count"));
     rs.close();
@@ -581,7 +614,9 @@ public class PredicateSecurityTest {
         });
 
     db.close();
-    this.db = orient.open(DB_NAME, "reader", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
+    this.db =
+        (ODatabaseDocumentInternal)
+            orient.open(DB_NAME, "reader", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
 
     OIndex index = db.getMetadata().getIndexManager().getIndex("Person.name");
 

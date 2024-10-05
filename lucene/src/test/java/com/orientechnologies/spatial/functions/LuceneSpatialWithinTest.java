@@ -48,10 +48,12 @@ public class LuceneSpatialWithinTest extends BaseSpatialLuceneTest {
     db.command("create class Polygon extends v").close();
     db.command("create property Polygon.geometry EMBEDDED OPolygon").close();
 
+    db.begin();
     db.command("insert into Polygon set geometry = ST_Buffer(ST_GeomFromText('POINT(50 50)'), 20)")
         .close();
     db.command("insert into Polygon set geometry = ST_Buffer(ST_GeomFromText('POINT(50 50)'), 40)")
         .close();
+    db.commit();
 
     db.command("create index Polygon.g on Polygon (geometry) SPATIAL engine lucene").close();
     OResultSet execute =
@@ -74,8 +76,10 @@ public class LuceneSpatialWithinTest extends BaseSpatialLuceneTest {
     db.command("create class Polygon extends v");
     db.command("create property Polygon.geometry EMBEDDED OPolygon");
 
+    db.begin();
     db.command("insert into Polygon set geometry = ST_Buffer(ST_GeomFromText('POINT(50 50)'), 20)");
     db.command("insert into Polygon set geometry = ST_Buffer(ST_GeomFromText('POINT(50 50)'), 40)");
+    db.commit();
 
     db.command("create index Polygon.g on Polygon(geometry) SPATIAL ENGINE LUCENE");
     OResultSet execute =

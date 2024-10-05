@@ -15,6 +15,7 @@ public class GeometryCollectionTest extends BaseSpatialLuceneTest {
     db.command("CREATE INDEX TestInsert.geometry ON TestInsert(geometry) SPATIAL ENGINE LUCENE")
         .close();
 
+    db.begin();
     db.command(
             "insert into TestInsert content {'name': 'loc1', 'geometry':"
                 + " {'@type':'d','@class':'OGeometryCollection','geometries':[{'@type':'d','@class':'OPolygon','coordinates':[[[0,0],[0,10],[10,10],[10,0],[0,0]]]}]}}")
@@ -23,6 +24,7 @@ public class GeometryCollectionTest extends BaseSpatialLuceneTest {
             "insert into TestInsert content {'name': 'loc2', 'geometry':"
                 + " {'@type':'d','@class':'OGeometryCollection','geometries':[{'@type':'d','@class':'OPolygon','coordinates':[[[0,0],[0,20],[20,20],[20,0],[0,0]]]}]}}")
         .close();
+    db.commit();
 
     OResultSet qResult =
         db.command(

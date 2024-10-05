@@ -19,9 +19,8 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.metadata.OMetadataInternal;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -33,7 +32,7 @@ public class OServerCommandGetDocumentByClass extends OServerCommandAuthenticate
 
   @Override
   public boolean execute(final OHttpRequest iRequest, OHttpResponse iResponse) throws Exception {
-    ODatabaseDocument db = null;
+    ODatabaseDocumentInternal db = null;
 
     final String[] urlParts =
         checkSyntax(
@@ -49,8 +48,7 @@ public class OServerCommandGetDocumentByClass extends OServerCommandAuthenticate
     try {
 
       db = getProfiledDatabaseInstance(iRequest);
-      if (((OMetadataInternal) db.getMetadata()).getImmutableSchemaSnapshot().getClass(urlParts[2])
-          == null) {
+      if (db.getMetadata().getImmutableSchemaSnapshot().getClass(urlParts[2]) == null) {
         throw new IllegalArgumentException("Invalid class '" + urlParts[2] + "'");
       }
       final String rid = db.getClusterIdByName(urlParts[2]) + ":" + urlParts[3];

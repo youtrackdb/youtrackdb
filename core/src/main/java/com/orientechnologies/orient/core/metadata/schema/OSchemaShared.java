@@ -799,7 +799,7 @@ public abstract class OSchemaShared implements OCloseable {
   public ODocument toStream() {
     lock.readLock().lock();
     try {
-      ODocument document = ODatabaseSession.getActiveSession().load(identity, null, true);
+      ODocument document = ODatabaseSession.getActiveSession().load(identity);
       document.field("schemaVersion", CURRENT_VERSION_NUMBER);
 
       // This steps is needed because in classes there are duplicate due to aliases

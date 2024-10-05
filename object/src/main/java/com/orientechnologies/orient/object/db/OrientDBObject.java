@@ -4,7 +4,7 @@ import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
-import com.orientechnologies.orient.core.db.object.ODatabaseObject;
+import com.orientechnologies.orient.core.db.object.ODatabaseObjectInternal;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.List;
 import java.util.Map;
@@ -174,8 +174,9 @@ public class OrientDBObject implements AutoCloseable {
    * @param password related to the specified username
    * @return the opened database
    */
-  public ODatabaseObject open(String name, String user, String password) {
-    return new OObjectDatabaseTx((ODatabaseDocumentInternal) orientDB.open(name, user, password));
+  public ODatabaseObjectInternal open(String name, String user, String password) {
+    return new OObjectDatabaseTxInternal(
+        (ODatabaseDocumentInternal) orientDB.open(name, user, password));
   }
 
   /**
@@ -189,8 +190,9 @@ public class OrientDBObject implements AutoCloseable {
    *     needed.
    * @return the opened database
    */
-  public ODatabaseObject open(String name, String user, String password, OrientDBConfig config) {
-    return new OObjectDatabaseTx(
+  public ODatabaseObjectInternal open(
+      String name, String user, String password, OrientDBConfig config) {
+    return new OObjectDatabaseTxInternal(
         (ODatabaseDocumentInternal) orientDB.open(name, user, password, config));
   }
 

@@ -55,7 +55,10 @@ public class DefaultValueTest extends BaseMemoryDatabase {
     assertTrue(saved.field("date") instanceof Date);
     assertNotNull(saved.field("id"));
 
+    db.begin();
     OResult inserted = db.command("insert into ClassA content {}").next();
+    db.commit();
+
     ODocument seved1 = db.load(inserted.getIdentity().get());
     assertNotNull(seved1.field("date"));
     assertNotNull(seved1.field("id"));
@@ -83,7 +86,10 @@ public class DefaultValueTest extends BaseMemoryDatabase {
     assertTrue(saved.field("date") instanceof Date);
     assertNotNull(saved.field("id"));
 
+    db.begin();
     OResult inserted = db.command("insert into ClassA content {\"date\":\"" + value + "\"}").next();
+    db.commit();
+
     ODocument seved1 = db.load(inserted.getIdentity().get());
     assertNotNull(seved1.field("date"));
     assertNotNull(seved1.field("id"));

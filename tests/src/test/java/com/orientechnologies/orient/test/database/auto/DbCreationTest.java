@@ -18,13 +18,14 @@ package com.orientechnologies.orient.test.database.auto;
 import com.orientechnologies.orient.client.db.ODatabaseHelper;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.db.ODatabase;
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentPool;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.OStorageException;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTxInternal;
 import java.io.File;
 import java.io.IOException;
 import java.util.Locale;
@@ -78,9 +79,9 @@ public class DbCreationTest extends ObjectDBBaseTest {
   @Test
   public void testDbCreationDefault() throws IOException {
     if (ODatabaseHelper.existsDatabase(url))
-      ODatabaseHelper.dropDatabase(new OObjectDatabaseTx(url), url, getStorageType());
+      ODatabaseHelper.dropDatabase(new OObjectDatabaseTxInternal(url), url, getStorageType());
 
-    ODatabaseHelper.createDatabase(new OObjectDatabaseTx(url), url, getStorageType());
+    ODatabaseHelper.createDatabase(new OObjectDatabaseTxInternal(url), url, getStorageType());
   }
 
   @Test(dependsOnMethods = {"testDbCreationDefault"})
@@ -91,7 +92,7 @@ public class DbCreationTest extends ObjectDBBaseTest {
 
   @Test(dependsOnMethods = {"testDbExists"})
   public void testDbOpen() {
-    database = new OObjectDatabaseTx(url);
+    database = new OObjectDatabaseTxInternal(url);
     database.open("admin", "admin");
     Assert.assertNotNull(database.getName());
     database.close();
@@ -99,21 +100,21 @@ public class DbCreationTest extends ObjectDBBaseTest {
 
   @Test(dependsOnMethods = {"testDbOpen"})
   public void testDbOpenWithLastAsSlash() {
-    database = new OObjectDatabaseTx(url + "/");
+    database = new OObjectDatabaseTxInternal(url + "/");
     database.open("admin", "admin");
     database.close();
   }
 
   @Test(dependsOnMethods = {"testDbOpenWithLastAsSlash"})
   public void testDbOpenWithBackSlash() {
-    database = new OObjectDatabaseTx(url.replace('/', '\\'));
+    database = new OObjectDatabaseTxInternal(url.replace('/', '\\'));
     database.open("admin", "admin");
     database.close();
   }
 
   @Test(dependsOnMethods = {"testDbOpenWithBackSlash"})
   public void testChangeLocale() throws IOException {
-    database = new OObjectDatabaseTx(url);
+    database = new OObjectDatabaseTxInternal(url);
     database.open("admin", "admin");
     database.command(" ALTER DATABASE LOCALELANGUAGE  ?", Locale.GERMANY.getLanguage()).close();
     database.command(" ALTER DATABASE LOCALECOUNTRY  ?", Locale.GERMANY.getCountry()).close();
@@ -133,7 +134,7 @@ public class DbCreationTest extends ObjectDBBaseTest {
 
   @Test(dependsOnMethods = {"testChangeLocale"})
   public void testRoles() throws IOException {
-    database = new OObjectDatabaseTx(url);
+    database = new OObjectDatabaseTxInternal(url);
     database.open("admin", "admin");
     database.query("select from ORole where name = 'admin'").close();
     database.close();
@@ -150,7 +151,7 @@ public class DbCreationTest extends ObjectDBBaseTest {
       u = url.substring(0, pos + 1) + "sub/subTest";
     }
 
-    ODatabaseDocument db = new ODatabaseDocumentTx(u);
+    ODatabaseDocumentInternal db = new ODatabaseDocumentTx(u);
 
     ODatabaseHelper.dropDatabase(db, getStorageType());
     ODatabaseHelper.createDatabase(db, u, getStorageType());
@@ -239,7 +240,7 @@ public class DbCreationTest extends ObjectDBBaseTest {
 
     for (int i = 0; i < 3; ++i) {
       String ur = u + "/a" + i + "$db";
-      ODatabaseDocument db = new ODatabaseDocumentTx(ur);
+      ODatabaseDocumentInternal db = new ODatabaseDocumentTx(ur);
 
       try {
         ODatabaseHelper.dropDatabase(db, getStorageType());
@@ -268,13 +269,13 @@ public class DbCreationTest extends ObjectDBBaseTest {
         buildDirectory + File.separator + this.getClass().getSimpleName() + "Remove";
     final String dburl = "plocal:" + dbPath;
 
-    ODatabaseDocument db = new ODatabaseDocumentTx(dburl);
+    ODatabaseDocumentInternal db = new ODatabaseDocumentTx(dburl);
     db.create();
     db.close();
 
     Assert.assertTrue(new File(dbPath).exists());
 
-    final ODatabaseDocument dbTwo = new ODatabaseDocumentTx(dburl);
+    final ODatabaseDocumentInternal dbTwo = new ODatabaseDocumentTx(dburl);
     try {
       dbTwo.create();
       Assert.fail();
@@ -295,7 +296,7 @@ public class DbCreationTest extends ObjectDBBaseTest {
 
     // TRY UNIX PATH
     try {
-      ODatabaseDocument db = new ODatabaseDocumentTx("remote:/db");
+      ODatabaseDocumentInternal db = new ODatabaseDocumentTx("remote:/db");
       db.open("admin", "admin");
       Assert.fail("Security breach: database with path /db was created");
     } catch (Exception e) {
@@ -303,7 +304,7 @@ public class DbCreationTest extends ObjectDBBaseTest {
 
     // TRY WINDOWS PATH
     try {
-      ODatabaseDocument db = new ODatabaseDocumentTx("remote:C:/db");
+      ODatabaseDocumentInternal db = new ODatabaseDocumentTx("remote:C:/db");
       db.open("admin", "admin");
       Assert.fail("Security breach: database with path c:/db was created");
     } catch (Exception e) {

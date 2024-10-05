@@ -58,7 +58,9 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
 
   @AfterMethod
   public void afterMethod() {
+    database.begin();
     database.command("DELETE FROM RidBagIndexTestClass").close();
+    database.commit();
 
     OResultSet result = database.query("select from RidBagIndexTestClass");
     Assert.assertEquals(result.stream().count(), 0);
@@ -323,6 +325,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     document.save();
     database.commit();
 
+    database.begin();
     database
         .command(
             "UPDATE "
@@ -330,6 +333,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
                 + " set ridBag = ridBag || "
                 + docThree.getIdentity())
         .close();
+    database.commit();
 
     final OIndex index = getIndex("ridBagIndex");
     Assert.assertEquals(index.getInternal().size(), 3);
@@ -554,9 +558,11 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     database.commit();
 
     //noinspection deprecation
+    database.begin();
     database
         .command("UPDATE " + document.getIdentity() + " remove ridBag = " + docTwo.getIdentity())
         .close();
+    database.commit();
 
     final OIndex index = getIndex("ridBagIndex");
     Assert.assertEquals(index.getInternal().size(), 1);

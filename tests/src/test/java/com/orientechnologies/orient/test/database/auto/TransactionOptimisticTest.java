@@ -17,7 +17,6 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
@@ -163,7 +162,6 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
       record.save();
       database.commit();
 
-      record.reload();
       Assert.assertEquals(record.getVersion(), v1 + 1);
       Assert.assertTrue(new String(record.toStream()).contains("second"));
     } finally {
@@ -177,7 +175,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
       database.addBlobCluster("binary");
     }
 
-    ODatabaseDocument db2 = new ODatabaseDocumentTx(database.getURL());
+    ODatabaseDocumentInternal db2 = new ODatabaseDocumentTx(database.getURL());
     db2.open("admin", "admin");
 
     OBlob record1 = new ORecordBytes("This is the first version".getBytes());
@@ -300,7 +298,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
         new Callable<Void>() {
           @Override
           public Void call() throws Exception {
-            final ODatabaseDocument db = new ODatabaseDocumentTx(database.getURL());
+            final ODatabaseDocumentInternal db = new ODatabaseDocumentTx(database.getURL());
             db.open("admin", "admin");
             try {
               Assert.assertEquals(db.countClass("NestedTxClass"), 0);
@@ -357,7 +355,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
         new Callable<Void>() {
           @Override
           public Void call() throws Exception {
-            final ODatabaseDocument db = new ODatabaseDocumentTx(database.getURL());
+            final ODatabaseDocumentInternal db = new ODatabaseDocumentTx(database.getURL());
             db.open("admin", "admin");
             try {
               Assert.assertEquals(db.countClass("NestedTxRollbackOne"), 1);
@@ -414,7 +412,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
       executorService
           .submit(
               () -> {
-                final ODatabaseDocument db = new ODatabaseDocumentTx(database.getURL());
+                final ODatabaseDocumentInternal db = new ODatabaseDocumentTx(database.getURL());
                 db.open("admin", "admin");
                 try {
                   ODocument brokenDocTwo = db.load(brokenDocOne.getIdentity(), "*:-1", true);

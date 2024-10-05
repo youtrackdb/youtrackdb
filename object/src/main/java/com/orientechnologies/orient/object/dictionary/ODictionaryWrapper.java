@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.object.dictionary;
 
-import com.orientechnologies.orient.core.db.object.ODatabaseObject;
+import com.orientechnologies.orient.core.db.object.ODatabaseObjectInternal;
 import com.orientechnologies.orient.core.dictionary.ODictionary;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.record.ORecord;
@@ -29,9 +29,9 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 @SuppressWarnings("DeprecatedIsStillUsed")
 @Deprecated
 public class ODictionaryWrapper extends ODictionary<Object> {
-  private final ODatabaseObject database;
+  private final ODatabaseObjectInternal database;
 
-  public ODictionaryWrapper(final ODatabaseObject iDatabase, OIndex index) {
+  public ODictionaryWrapper(final ODatabaseObjectInternal iDatabase, OIndex index) {
     super(index);
     this.database = iDatabase;
   }

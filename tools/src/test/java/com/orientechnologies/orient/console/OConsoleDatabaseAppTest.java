@@ -3,6 +3,7 @@ package com.orientechnologies.orient.console;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ORecordBytes;
@@ -17,8 +18,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 
-/** Created by tglman on 14/03/16. */
+/**
+ * Created by tglman on 14/03/16.
+ */
 public class OConsoleDatabaseAppTest {
+
   @Rule public TestName testName = new TestName();
 
   @Test
@@ -39,7 +43,7 @@ public class OConsoleDatabaseAppTest {
           "create database test memory users (admin identified by 'admin' role admin)");
       app.open("test", "admin", "admin");
 
-      ODatabaseDocument db = app.getCurrentDatabase();
+      ODatabaseDocumentInternal db = (ODatabaseDocumentInternal) app.getCurrentDatabase();
       db.addBlobCluster("blobTest");
 
       db.begin();
@@ -64,10 +68,12 @@ public class OConsoleDatabaseAppTest {
     builder.append("open OConsoleDatabaseAppTest2 admin admin;\n");
 
     builder.append("create class foo;\n");
+    builder.append("begin;\n");
     builder.append("insert into foo set name = 'foo';\n");
     builder.append("insert into foo set name = 'bla';\n");
     builder.append("blabla;\n"); // <- wrong command, this should break the console
     builder.append("update foo set surname = 'bar' where name = 'foo';\n");
+    builder.append("commit;\n");
     ConsoleTest c = new ConsoleTest(new String[] {builder.toString()});
     OConsoleDatabaseApp console = c.console();
 
@@ -96,8 +102,10 @@ public class OConsoleDatabaseAppTest {
         "create database memory:./target/OConsoleDatabaseAppTest2 admin adminpwd memory\n");
 
     builder.append("create class foo;\n");
+    builder.append("begin;");
     builder.append("insert into foo set name = 'foo';\n");
     builder.append("insert into foo set name = 'bla';\n");
+    builder.append("commit;");
     ConsoleTest c = new ConsoleTest(new String[] {builder.toString()});
     OConsoleDatabaseApp console = c.console();
 
@@ -129,7 +137,9 @@ public class OConsoleDatabaseAppTest {
       c.console().open("OConsoleDatabaseAppTestDumpRecordDetails", "admin", "admin");
 
       c.console().createClass("class foo");
+      c.console().begin();
       c.console().insert("into foo set name = 'barbar'");
+      c.console().commit();
       c.console().select("from foo limit -1");
       c.resetOutput();
 
@@ -216,20 +226,26 @@ public class OConsoleDatabaseAppTest {
     builder.append("create property bar.name STRING;\n");
     builder.append("create index bar_name on bar (name) NOTUNIQUE;\n");
 
+    builder.append("begin;\n");
     builder.append("insert into bar set name = 'foo';\n");
     builder.append("delete from bar;\n");
+    builder.append("commit;\n");
     builder.append("begin;\n");
     builder.append("insert into bar set name = 'foo';\n");
     builder.append("rollback;\n");
 
+    builder.append("begin;\n");
     builder.append("create vertex V set name = 'foo';\n");
     builder.append("create vertex V set name = 'bar';\n");
+    builder.append("commit;\n");
 
     builder.append("traverse out() from V;\n");
 
+    builder.append("begin;\n");
     builder.append(
         "create edge from (select from V where name = 'foo') to (select from V where name ="
             + " 'bar');\n");
+    builder.append("commit;\n");
 
     builder.append("traverse out() from V;\n");
 
@@ -325,6 +341,7 @@ public class OConsoleDatabaseAppTest {
   }
 
   class ConsoleTest {
+
     OConsoleDatabaseApp console;
     ByteArrayOutputStream out;
     PrintStream stream;

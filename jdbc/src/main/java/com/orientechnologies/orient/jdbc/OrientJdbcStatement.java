@@ -99,7 +99,9 @@ public class OrientJdbcStatement implements Statement {
   @Override
   public boolean execute(final String sqlCommand) throws SQLException {
 
-    if ("".equals(sqlCommand)) return false;
+    if ("".equals(sqlCommand)) {
+      return false;
+    }
 
     sql = mayCleanForSpark(sqlCommand);
 
@@ -128,26 +130,36 @@ public class OrientJdbcStatement implements Statement {
   }
 
   public ResultSet executeQuery(final String sql) throws SQLException {
-    if (execute(sql)) return resultSet;
-    else return null;
+    if (execute(sql)) {
+      return resultSet;
+    } else {
+      return null;
+    }
   }
 
   @Override
   public int executeUpdate(final String sql) throws SQLException {
+    return doExecuteUpdate(sql);
+  }
+
+  private int doExecuteUpdate(String sql) throws SQLException {
     try {
       oResultSet = executeCommand(sql);
-
       Optional<OResult> res = oResultSet.stream().findFirst();
 
       if (res.isPresent()) {
         if (res.get().getProperty("count") != null) {
-          return Math.toIntExact((Long) res.get().getProperty("count"));
-        } else return 1;
+          return Math.toIntExact(res.get().getProperty("count"));
+        } else {
+          return 1;
+        }
       } else {
         return 0;
       }
     } finally {
-      oResultSet.close();
+      if (oResultSet != null) {
+        oResultSet.close();
+      }
     }
   }
 
@@ -179,6 +191,10 @@ public class OrientJdbcStatement implements Statement {
   }
 
   public void close() throws SQLException {
+    if (connection.getAutoCommit() && database.getTransaction().isActive()) {
+      database.commit();
+    }
+
     closed = true;
   }
 
@@ -210,7 +226,7 @@ public class OrientJdbcStatement implements Statement {
     int[] results = new int[batches.size()];
     int i = 0;
     for (String sql : batches) {
-      results[i++] = executeUpdate(sql);
+      results[i++] = doExecuteUpdate(sql);
     }
     return results;
   }
@@ -286,7 +302,9 @@ public class OrientJdbcStatement implements Statement {
   }
 
   public int getUpdateCount() throws SQLException {
-    if (isClosed()) throw new SQLException("Statement already closed");
+    if (isClosed()) {
+      throw new SQLException("Statement already closed");
+    }
 
     return -1;
   }

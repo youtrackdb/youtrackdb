@@ -31,35 +31,31 @@ public class OGrantStatement extends OSimpleExecStatement {
   @Override
   public OExecutionStream executeSimple(OCommandContext ctx) {
     ODatabaseDocumentInternal db = getDatabase();
-    return db.computeInTx(
-        () -> {
-          ORole role = db.getMetadata().getSecurity().getRole(actor.getStringValue());
-          if (role == null) {
-            throw new OCommandExecutionException("Invalid role: " + actor.getStringValue());
-          }
+    ORole role = db.getMetadata().getSecurity().getRole(actor.getStringValue());
+    if (role == null) {
+      throw new OCommandExecutionException("Invalid role: " + actor.getStringValue());
+    }
 
-          String resourcePath = securityResource.toString();
-          if (permission != null) {
-            role.grant(resourcePath, toPrivilege(permission.permission));
-            role.save();
-          } else {
-            OSecurityInternal security = db.getSharedContext().getSecurity();
-            OSecurityPolicyImpl policy =
-                security.getSecurityPolicy(db, policyName.getStringValue());
-            security.setSecurityPolicy(db, role, securityResource.toString(), policy);
-          }
+    String resourcePath = securityResource.toString();
+    if (permission != null) {
+      role.grant(resourcePath, toPrivilege(permission.permission));
+      role.save();
+    } else {
+      OSecurityInternal security = db.getSharedContext().getSecurity();
+      OSecurityPolicyImpl policy = security.getSecurityPolicy(db, policyName.getStringValue());
+      security.setSecurityPolicy(db, role, securityResource.toString(), policy);
+    }
 
-          OResultInternal result = new OResultInternal();
-          result.setProperty("operation", "grant");
-          result.setProperty("role", actor.getStringValue());
-          if (permission != null) {
-            result.setProperty("permission", permission.toString());
-          } else {
-            result.setProperty("policy", policyName.getStringValue());
-          }
-          result.setProperty("resource", resourcePath);
-          return OExecutionStream.singleton(result);
-        });
+    OResultInternal result = new OResultInternal();
+    result.setProperty("operation", "grant");
+    result.setProperty("role", actor.getStringValue());
+    if (permission != null) {
+      result.setProperty("permission", permission.toString());
+    } else {
+      result.setProperty("policy", policyName.getStringValue());
+    }
+    result.setProperty("resource", resourcePath);
+    return OExecutionStream.singleton(result);
   }
 
   protected int toPrivilege(String privilegeName) {

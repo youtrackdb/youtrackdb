@@ -274,7 +274,7 @@ public class OResultInternal implements OResult {
     return input instanceof List && OType.getTypeByValue(input) == OType.EMBEDDEDLIST;
   }
 
-  public Set<String> getPropertyNames() {
+  public Collection<String> getPropertyNames() {
     loadElement();
     if (isElement()) {
       return ((OElement) element).getPropertyNames();
@@ -541,7 +541,8 @@ public class OResultInternal implements OResult {
   public void bindToCache(ODatabaseDocumentInternal db) {
     if (isRecord()) {
       ORecordAbstract rec = element.getRecord();
-      ORecordAbstract cached = db.getLocalCache().findRecord(rec.getIdentity());
+      var identity = rec.getIdentity();
+      ORecordAbstract cached = db.getLocalCache().findRecord(identity);
 
       if (cached == rec) {
         return;
@@ -553,6 +554,10 @@ public class OResultInternal implements OResult {
         }
         element = cached;
       } else {
+        if (!identity.isPersistent()) {
+          return;
+        }
+
         db.getLocalCache().updateRecord(rec);
       }
     }

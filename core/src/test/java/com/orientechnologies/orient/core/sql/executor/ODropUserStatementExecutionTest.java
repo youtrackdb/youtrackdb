@@ -12,8 +12,9 @@ public class ODropUserStatementExecutionTest extends BaseMemoryDatabase {
 
   @Test
   public void testPlain() {
-    String name = "testPlain";
+    db.begin();
     OResultSet result = db.command("CREATE USER test IDENTIFIED BY foo ROLE admin");
+    db.commit();
     result.close();
 
     result = db.query("SELECT name, roles.name as roles FROM OUser WHERE name = 'test'");

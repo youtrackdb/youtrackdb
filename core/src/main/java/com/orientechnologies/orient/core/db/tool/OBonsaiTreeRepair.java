@@ -1,6 +1,7 @@
 package com.orientechnologies.orient.core.db.tool;
 
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
@@ -33,12 +34,12 @@ public class OBonsaiTreeRepair {
     final OClass edgeClass = schema.getClass("E");
     if (edgeClass != null) {
       final HashMap<String, Set<ORID>> processedVertexes = new HashMap<String, Set<ORID>>();
-      final long countEdges = db.countClass(edgeClass.getName());
+      final long countEdges = ((ODatabaseDocumentInternal) db).countClass(edgeClass.getName());
 
       message(outputListener, countEdges + " will be processed.");
       long counter = 0;
 
-      for (ODocument edge : db.browseClass(edgeClass.getName())) {
+      for (ODocument edge : ((ODatabaseDocumentInternal) db).browseClass(edgeClass.getName())) {
         try {
           final String label;
           if (edge.field("label") != null) {

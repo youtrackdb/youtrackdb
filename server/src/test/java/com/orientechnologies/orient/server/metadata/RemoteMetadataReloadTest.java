@@ -72,7 +72,10 @@ public class RemoteMetadataReloadTest {
 
   @Test
   public void testFunctionUpdate() throws InterruptedException {
+    database.begin();
     database.command("CREATE FUNCTION test \"print('\\nTest!')\"");
+    database.commit();
+
     assertNotNull(database.getMetadata().getFunctionLibrary().getFunction("test"));
   }
 

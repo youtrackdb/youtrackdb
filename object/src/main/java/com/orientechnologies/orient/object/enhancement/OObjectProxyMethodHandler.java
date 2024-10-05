@@ -21,7 +21,7 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.reflection.OReflectionHelper;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.object.ODatabaseObject;
+import com.orientechnologies.orient.core.db.object.ODatabaseObjectInternal;
 import com.orientechnologies.orient.core.db.object.OObjectLazyMultivalueElement;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordLazyList;
@@ -82,8 +82,8 @@ public class OObjectProxyMethodHandler implements MethodHandler {
   public OObjectProxyMethodHandler(ODocument iDocument) {
     doc = iDocument;
     final ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().get();
-    if (db.getDatabaseOwner() instanceof ODatabaseObject
-        && !((ODatabaseObject) db.getDatabaseOwner()).isLazyLoading()) {
+    if (db.getDatabaseOwner() instanceof ODatabaseObjectInternal
+        && !((ODatabaseObjectInternal) db.getDatabaseOwner()).isLazyLoading()) {
       doc.detach();
     }
     loadedFields = new HashMap<String, Integer>();
@@ -739,7 +739,7 @@ public class OObjectProxyMethodHandler implements MethodHandler {
                 OObjectEntitySerializer.isCascadeDeleteField(self.getClass(), f.getName()));
       }
     }
-    if (!((ODatabaseObject) ODatabaseRecordThreadLocal.instance().get().getDatabaseOwner())
+    if (!((ODatabaseObjectInternal) ODatabaseRecordThreadLocal.instance().get().getDatabaseOwner())
         .isLazyLoading()) {
       ((OObjectLazyMultivalueElement) value).detach(false);
     }
@@ -1095,8 +1095,8 @@ public class OObjectProxyMethodHandler implements MethodHandler {
     return getSetMethod(iClass.getSuperclass(), fieldName, value);
   }
 
-  private ODatabaseObject getDatabase() {
-    return (ODatabaseObject) ODatabaseRecordThreadLocal.instance().get().getDatabaseOwner();
+  private ODatabaseObjectInternal getDatabase() {
+    return (ODatabaseObjectInternal) ODatabaseRecordThreadLocal.instance().get().getDatabaseOwner();
   }
 
   private Object getDefaultValueForField(Field field) {

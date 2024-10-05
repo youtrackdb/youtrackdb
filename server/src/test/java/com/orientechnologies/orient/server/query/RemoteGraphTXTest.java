@@ -23,8 +23,10 @@ public class RemoteGraphTXTest extends BaseServerMemoryDatabase {
 
   @Test
   public void itShouldDeleteEdgesInTx() {
+    db.begin();
     db.command("create vertex FirstV set id = '1'").close();
     db.command("create vertex SecondV set id = '2'").close();
+    db.commit();
 
     db.begin();
     try (OResultSet resultSet =

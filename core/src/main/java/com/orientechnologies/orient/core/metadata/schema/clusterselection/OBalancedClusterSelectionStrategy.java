@@ -16,7 +16,6 @@
 package com.orientechnologies.orient.core.metadata.schema.clusterselection;
 
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 
@@ -41,7 +40,7 @@ public class OBalancedClusterSelectionStrategy implements OClusterSelectionStrat
       // ONLY ONE: RETURN THE FIRST ONE
       return clusters[0];
 
-    final ODatabaseDocument db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    final var db = ODatabaseRecordThreadLocal.instance().getIfDefined();
     if (db == null) return clusters[0];
 
     if (lastCount < 0 || System.currentTimeMillis() - lastCount > REFRESH_TIMEOUT) {

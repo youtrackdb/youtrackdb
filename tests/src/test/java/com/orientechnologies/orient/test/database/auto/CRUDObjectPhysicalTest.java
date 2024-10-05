@@ -36,7 +36,7 @@ import com.orientechnologies.orient.core.record.impl.ORecordBytes;
 import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import com.orientechnologies.orient.object.db.OObjectDatabasePool;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTxInternal;
 import com.orientechnologies.orient.test.domain.base.Agenda;
 import com.orientechnologies.orient.test.domain.base.EmbeddedChild;
 import com.orientechnologies.orient.test.domain.base.EnumTest;
@@ -2969,11 +2969,13 @@ public class CRUDObjectPhysicalTest extends ObjectDBBaseTest {
 
   @Test
   public void queryByIdNewApi() {
-    OObjectDatabaseTx db = new OObjectDatabaseTx("memory:queryByIdNewApi");
+    OObjectDatabaseTxInternal db = new OObjectDatabaseTxInternal("memory:queryByIdNewApi");
     db.create();
     try {
       db.getEntityManager().registerEntityClasses("com.orientechnologies.orient.test.domain.whiz");
+      db.begin();
       db.command("insert into Profile set nick = 'foo', name='foo'");
+      db.commit();
       List<Profile> result1 = db.objectQuery("select from Profile limit 1");
 
       Assert.assertEquals(result1.size(), 1);

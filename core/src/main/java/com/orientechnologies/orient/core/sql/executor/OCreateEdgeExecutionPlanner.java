@@ -3,6 +3,7 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.sql.parser.OBatch;
 import com.orientechnologies.orient.core.sql.parser.OCreateEdgeStatement;
@@ -52,7 +53,7 @@ public class OCreateEdgeExecutionPlanner {
 
   public OInsertExecutionPlan createExecutionPlan(
       OCommandContext ctx, boolean enableProfiling, boolean useCache) {
-    ODatabaseDocumentInternal db = (ODatabaseDocumentInternal) ctx.getDatabase();
+    ODatabaseDocumentInternal db = ctx.getDatabase();
     if (useCache && !enableProfiling && statement.executinPlanCanBeCached()) {
       OExecutionPlan plan = OExecutionPlanCache.get(statement.getOriginalStatement(), ctx, db);
       if (plan != null) {
@@ -98,7 +99,7 @@ public class OCreateEdgeExecutionPlanner {
     String uniqueIndexName = null;
     if (upsert) {
       OClass clazz =
-          ((ODatabaseDocumentInternal) ctx.getDatabase())
+          ctx.getDatabase()
               .getMetadata()
               .getImmutableSchemaSnapshot()
               .getClass(targetClass.getStringValue());
@@ -108,13 +109,13 @@ public class OCreateEdgeExecutionPlanner {
       }
       uniqueIndexName =
           clazz.getIndexes().stream()
-              .filter(x -> x.isUnique())
+              .filter(OIndex::isUnique)
               .filter(
                   x ->
                       x.getDefinition().getFields().size() == 2
                           && x.getDefinition().getFields().contains("out")
                           && x.getDefinition().getFields().contains("in"))
-              .map(x -> x.getName())
+              .map(OIndex::getName)
               .findFirst()
               .orElse(null);
 

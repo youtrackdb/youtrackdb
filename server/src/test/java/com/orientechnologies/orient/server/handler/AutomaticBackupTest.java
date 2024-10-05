@@ -33,8 +33,11 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-/** @author Luca Garulli (l.garulli--(at)--orientdb.com) */
+/**
+ * @author Luca Garulli (l.garulli--(at)--orientdb.com)
+ */
 public class AutomaticBackupTest {
+
   private static final String DBNAME = "testautobackup";
   private static final String DBNAME2 = DBNAME + "2";
   private static final String DBNAME3 = DBNAME + "3";
@@ -107,9 +110,13 @@ public class AutomaticBackupTest {
         new File(
             OSystemVariableResolver.resolveSystemVariables(
                 "${ORIENTDB_HOME}/config/automatic-backup.json"));
-    if (f.exists()) f.delete();
+    if (f.exists()) {
+      f.delete();
+    }
     server.startup();
-    if (server.existsDatabase(DBNAME)) server.dropDatabase(DBNAME);
+    if (server.existsDatabase(DBNAME)) {
+      server.dropDatabase(DBNAME);
+    }
     server
         .getContext()
         .execute("create database ? plocal users (admin identified by 'admin' role admin)", DBNAME);
@@ -133,8 +140,9 @@ public class AutomaticBackupTest {
 
   @Test
   public void testFullBackupWithJsonConfigInclude() throws Exception {
-    if (new File(BACKUPDIR + "/testautobackup.zip").exists())
+    if (new File(BACKUPDIR + "/testautobackup.zip").exists()) {
       new File(BACKUPDIR + "/testautobackup.zip").delete();
+    }
 
     Assert.assertFalse(new File(tempDirectory + "/config/automatic-backup.json").exists());
 
@@ -163,12 +171,14 @@ public class AutomaticBackupTest {
     waitForFile(Paths.get(BACKUPDIR).resolve("testautobackup.zip"));
     aBackup.sendShutdown();
 
-    if (server.existsDatabase(DBNAME2)) server.dropDatabase(DBNAME2);
+    if (server.existsDatabase(DBNAME2)) {
+      server.dropDatabase(DBNAME2);
+    }
     server
         .getContext()
         .execute(
             "create database ? plocal users (admin identified by 'admin' role admin)", DBNAME2);
-    ODatabaseDocument database2 = server.getDatabases().openNoAuthorization(DBNAME2);
+    ODatabaseDocumentInternal database2 = server.getDatabases().openNoAuthorization(DBNAME2);
 
     database2.restore(new FileInputStream(BACKUPDIR + "/testautobackup.zip"), null, null, null);
 
@@ -178,8 +188,9 @@ public class AutomaticBackupTest {
 
   @Test
   public void testFullBackupWithJsonConfigExclude() throws Exception {
-    if (new File(BACKUPDIR + "/testautobackup.zip").exists())
+    if (new File(BACKUPDIR + "/testautobackup.zip").exists()) {
       new File(BACKUPDIR + "/testautobackup.zip").delete();
+    }
 
     Assert.assertFalse(new File(tempDirectory + "/config/automatic-backup.json").exists());
 
@@ -218,8 +229,9 @@ public class AutomaticBackupTest {
 
   @Test
   public void testFullBackup() throws Exception {
-    if (new File(BACKUPDIR + "/fullBackup.zip").exists())
+    if (new File(BACKUPDIR + "/fullBackup.zip").exists()) {
       new File(BACKUPDIR + "/fullBackup.zip").delete();
+    }
 
     final OAutomaticBackup aBackup = new OAutomaticBackup();
 
@@ -241,8 +253,10 @@ public class AutomaticBackupTest {
 
     aBackup.sendShutdown();
 
-    final ODatabaseDocument database2 = new ODatabaseDocumentTx(URL2);
-    if (database2.exists()) database2.open("admin", "admin").drop();
+    final ODatabaseDocumentInternal database2 = new ODatabaseDocumentTx(URL2);
+    if (database2.exists()) {
+      ((ODatabaseDocumentInternal) database2.open("admin", "admin")).drop();
+    }
     database2.create();
 
     database2.restore(new FileInputStream(BACKUPDIR + "/fullBackup.zip"), null, null, null);
@@ -326,8 +340,9 @@ public class AutomaticBackupTest {
 
   @Test
   public void testExport() throws Exception {
-    if (new File(BACKUPDIR + "/fullExport.json.gz").exists())
+    if (new File(BACKUPDIR + "/fullExport.json.gz").exists()) {
       new File(BACKUPDIR + "/fullExport.json.gz").delete();
+    }
 
     final OAutomaticBackup aBackup = new OAutomaticBackup();
 
@@ -349,7 +364,9 @@ public class AutomaticBackupTest {
 
     aBackup.sendShutdown();
 
-    if (server.existsDatabase(DBNAME3)) server.dropDatabase(DBNAME3);
+    if (server.existsDatabase(DBNAME3)) {
+      server.dropDatabase(DBNAME3);
+    }
     server
         .getContext()
         .execute(
@@ -370,7 +387,9 @@ public class AutomaticBackupTest {
     while (!Files.exists(path)) {
       Thread.sleep(1000);
 
-      if ((System.currentTimeMillis() - startTs) > 1000 * 60 * 20) break;
+      if ((System.currentTimeMillis() - startTs) > 1000 * 60 * 20) {
+        break;
+      }
     }
   }
 }

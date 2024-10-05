@@ -971,7 +971,9 @@ public class SQLSelectTest extends AbstractSelectTest {
   @Test
   public void queryParenthesisInStrings() {
 
+    database.begin();
     database.command("INSERT INTO account (name) VALUES ('test (demo)')");
+    database.commit();
 
     List<ODocument> result = executeQuery("select * from account where name = 'test (demo)'");
 
@@ -1472,6 +1474,8 @@ public class SQLSelectTest extends AbstractSelectTest {
     OSchema schema = database.getMetadata().getSchema();
     schema.createClass("TestOutFilterInclude", schema.getClass("V"));
     database.command("create class linkedToOutFilterInclude extends E").close();
+
+    database.begin();
     database.command("insert into TestOutFilterInclude content { \"name\": \"one\" }").close();
     database.command("insert into TestOutFilterInclude content { \"name\": \"two\" }").close();
     database
@@ -1479,6 +1483,7 @@ public class SQLSelectTest extends AbstractSelectTest {
             "create edge linkedToOutFilterInclude from (select from TestOutFilterInclude where name"
                 + " = 'one') to (select from TestOutFilterInclude where name = 'two')")
         .close();
+    database.commit();
 
     final List<ODocument> result =
         executeQuery(
@@ -1538,6 +1543,8 @@ public class SQLSelectTest extends AbstractSelectTest {
     final OClass cls = schema.createClass("TestExpandSkip", v);
     cls.createProperty("name", OType.STRING);
     cls.createIndex("TestExpandSkip.name", INDEX_TYPE.UNIQUE, "name");
+
+    database.begin();
     database.command("CREATE VERTEX TestExpandSkip set name = '1'").close();
     database.command("CREATE VERTEX TestExpandSkip set name = '2'").close();
     database.command("CREATE VERTEX TestExpandSkip set name = '3'").close();
@@ -1548,6 +1555,7 @@ public class SQLSelectTest extends AbstractSelectTest {
             "CREATE EDGE E FROM (SELECT FROM TestExpandSkip WHERE name = '1') to (SELECT FROM"
                 + " TestExpandSkip WHERE name <> '1')")
         .close();
+    database.commit();
 
     OResultSet result = database.query("select expand(out()) from TestExpandSkip where name = '1'");
 
@@ -1584,6 +1592,7 @@ public class SQLSelectTest extends AbstractSelectTest {
     final OClass e1 = schema.createClass("TestPolymorphicEdges_E1", e);
     schema.createClass("TestPolymorphicEdges_E2", e1);
 
+    database.begin();
     database.command("CREATE VERTEX TestPolymorphicEdges_V set name = '1'").close();
     database.command("CREATE VERTEX TestPolymorphicEdges_V set name = '2'").close();
     database.command("CREATE VERTEX TestPolymorphicEdges_V set name = '3'").close();
@@ -1598,6 +1607,7 @@ public class SQLSelectTest extends AbstractSelectTest {
             "CREATE EDGE TestPolymorphicEdges_E2 FROM (SELECT FROM TestPolymorphicEdges_V WHERE"
                 + " name = '1') to (SELECT FROM TestPolymorphicEdges_V WHERE name = '3')")
         .close();
+    database.commit();
 
     OResultSet result =
         database.query(
@@ -1617,6 +1627,8 @@ public class SQLSelectTest extends AbstractSelectTest {
     OSchema schema = database.getMetadata().getSchema();
     OClass v = schema.getClass("V");
     schema.createClass("TestSizeOfLink", v);
+
+    database.begin();
     database.command("CREATE VERTEX TestSizeOfLink set name = '1'").close();
     database.command("CREATE VERTEX TestSizeOfLink set name = '2'").close();
     database.command("CREATE VERTEX TestSizeOfLink set name = '3'").close();
@@ -1625,6 +1637,7 @@ public class SQLSelectTest extends AbstractSelectTest {
             "CREATE EDGE E FROM (SELECT FROM TestSizeOfLink WHERE name = '1') to (SELECT FROM"
                 + " TestSizeOfLink WHERE name <> '1')")
         .close();
+    database.commit();
 
     OResultSet result =
         database.query(
@@ -1638,6 +1651,8 @@ public class SQLSelectTest extends AbstractSelectTest {
     OSchema schema = database.getMetadata().getSchema();
     OClass v = schema.getClass("V");
     schema.createClass("EmbeddedMapAndDotNotation", v);
+
+    database.begin();
     database.command("CREATE VERTEX EmbeddedMapAndDotNotation set name = 'foo'").close();
     database
         .command(
@@ -1649,6 +1664,7 @@ public class SQLSelectTest extends AbstractSelectTest {
             "CREATE EDGE E FROM (SELECT FROM EmbeddedMapAndDotNotation WHERE name = 'foo') to"
                 + " (SELECT FROM EmbeddedMapAndDotNotation WHERE name = 'bar')")
         .close();
+    database.commit();
 
     List<ODocument> result =
         executeQuery(
@@ -1671,7 +1687,9 @@ public class SQLSelectTest extends AbstractSelectTest {
     OSchema schema = database.getMetadata().getSchema();
     OClass v = schema.getClass("V");
     schema.createClass("LetWithQuotedValue", v);
+    database.begin();
     database.command("CREATE VERTEX LetWithQuotedValue set name = \"\\\"foo\\\"\"").close();
+    database.commit();
 
     OResultSet result =
         database.query(
@@ -1688,6 +1706,7 @@ public class SQLSelectTest extends AbstractSelectTest {
     database.command("create class testNamedParams_permission extends V").close();
     database.command("create class testNamedParams_HasPermission extends E").close();
 
+    database.begin();
     database.command("insert into testNamedParams_permission set type = ['USER']").close();
     database.command("insert into testNamedParams set login = 20").close();
     database
@@ -1695,6 +1714,7 @@ public class SQLSelectTest extends AbstractSelectTest {
             "CREATE EDGE testNamedParams_HasPermission from (select from testNamedParams) to"
                 + " (select from testNamedParams_permission)")
         .close();
+    database.commit();
 
     Map<String, Object> params = new HashMap<>();
     params.put("key", 10);

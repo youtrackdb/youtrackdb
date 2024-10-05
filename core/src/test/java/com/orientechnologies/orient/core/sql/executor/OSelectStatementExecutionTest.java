@@ -65,6 +65,7 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     db.getMetadata().getSchema().createClass("InputTx");
 
     for (int i = 0; i < 100; i++) {
+      db.begin();
       final String hash = UUID.randomUUID().toString();
       db.command("insert into InputTx set address = '" + hash + "'");
 
@@ -73,6 +74,7 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
       for (int j = 0; j < random; j++) {
         db.command("insert into InputTx set address = '" + hash + "'");
       }
+      db.commit();
     }
 
     final OResultSet result =
@@ -3568,7 +3570,10 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     db.command("create property " + className + ".name STRING").close();
     db.command("create index " + className + ".id_name on " + className + "(id, name) UNIQUE")
         .close();
+
+    db.begin();
     db.command("insert into " + className + " set id = 1 , name = 'Bar'").close();
+    db.commit();
 
     OResultSet result = db.query("select from " + className + " where name = 'Bar'");
     Assert.assertTrue(result.hasNext());
@@ -3581,8 +3586,11 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testNamedParams() {
     String className = "testNamedParams";
     db.command("create class " + className).close();
+
+    db.begin();
     db.command("insert into " + className + " set name = 'Foo', surname = 'Fox'").close();
     db.command("insert into " + className + " set name = 'Bar', surname = 'Bax'").close();
+    db.commit();
 
     Map<String, Object> params = new HashMap<>();
     params.put("p1", "Foo");
@@ -3601,8 +3609,11 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     db.command("create class " + className).close();
     db.command("create property " + className + ".name STRING").close();
     db.command("create index " + className + ".name ON " + className + " (name) NOTUNIQUE").close();
+
+    db.begin();
     db.command("insert into " + className + " set name = 'Foo'").close();
     db.command("insert into " + className + " set name = 'Bar'").close();
+    db.commit();
 
     Map<String, Object> params = new HashMap<>();
     params.put("p1", "Foo");
@@ -3617,9 +3628,12 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testIsDefined() {
     String className = "testIsDefined";
     db.command("create class " + className).close();
+
+    db.begin();
     db.command("insert into " + className + " set name = 'Foo'").close();
     db.command("insert into " + className + " set sur = 'Bar'").close();
     db.command("insert into " + className + " set sur = 'Barz'").close();
+    db.commit();
 
     OResultSet result = db.query("select from " + className + " where name is defined");
     Assert.assertTrue(result.hasNext());
@@ -3632,9 +3646,12 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testIsNotDefined() {
     String className = "testIsNotDefined";
     db.command("create class " + className).close();
+
+    db.begin();
     db.command("insert into " + className + " set name = 'Foo'").close();
     db.command("insert into " + className + " set name = null, sur = 'Bar'").close();
     db.command("insert into " + className + " set sur = 'Barz'").close();
+    db.commit();
 
     OResultSet result = db.query("select from " + className + " where name is not defined");
     Assert.assertTrue(result.hasNext());
@@ -3721,15 +3738,17 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   @Test
   public void testContainsWithSubquery() {
     String className = "testContainsWithSubquery";
-    OClass clazz1 = db.createClassIfNotExist(className + 1);
+    db.createClassIfNotExist(className + 1);
     OClass clazz2 = db.createClassIfNotExist(className + 2);
     clazz2.createProperty("tags", OType.EMBEDDEDLIST);
 
+    db.begin();
     db.command("insert into " + className + 1 + "  set name = 'foo'");
 
     db.command("insert into " + className + 2 + "  set tags = ['foo', 'bar']");
     db.command("insert into " + className + 2 + "  set tags = ['baz', 'bar']");
     db.command("insert into " + className + 2 + "  set tags = ['foo']");
+    db.commit();
 
     try (OResultSet result =
         db.query(
@@ -3752,15 +3771,17 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   @Test
   public void testInWithSubquery() {
     String className = "testInWithSubquery";
-    OClass clazz1 = db.createClassIfNotExist(className + 1);
+    db.createClassIfNotExist(className + 1);
     OClass clazz2 = db.createClassIfNotExist(className + 2);
     clazz2.createProperty("tags", OType.EMBEDDEDLIST);
 
+    db.begin();
     db.command("insert into " + className + 1 + "  set name = 'foo'");
 
     db.command("insert into " + className + 2 + "  set tags = ['foo', 'bar']");
     db.command("insert into " + className + 2 + "  set tags = ['baz', 'bar']");
     db.command("insert into " + className + 2 + "  set tags = ['foo']");
+    db.commit();
 
     try (OResultSet result =
         db.query(
@@ -3786,8 +3807,10 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     OClass clazz = db.createClassIfNotExist(className);
     clazz.createProperty("tags", OType.EMBEDDEDLIST, OType.STRING);
 
+    db.begin();
     db.command("insert into " + className + "  set tags = ['foo', 'bar']");
     db.command("insert into " + className + "  set tags = ['bbb', 'FFF']");
+    db.commit();
 
     try (OResultSet result =
         db.query("select from " + className + " where tags containsany ['foo','baz']")) {
@@ -3829,8 +3852,10 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     OProperty prop = clazz.createProperty("tags", OType.EMBEDDEDLIST, OType.STRING);
     prop.createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
 
+    db.begin();
     db.command("insert into " + className + "  set tags = ['foo', 'bar']");
     db.command("insert into " + className + "  set tags = ['bbb', 'FFF']");
+    db.commit();
 
     try (OResultSet result =
         db.query("select from " + className + " where tags containsany ['foo','baz']")) {
@@ -3886,8 +3911,10 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     OClass clazz = db.createClassIfNotExist(className);
     clazz.createProperty("tags", OType.EMBEDDEDLIST, OType.STRING);
 
+    db.begin();
     db.command("insert into " + className + "  set tags = ['foo', 'bar']");
     db.command("insert into " + className + "  set tags = ['foo', 'FFF']");
+    db.commit();
 
     try (OResultSet result =
         db.query("select from " + className + " where tags containsall ['foo','bar']")) {
@@ -3909,12 +3936,14 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   @Test
   public void testBetween() {
     String className = "testBetween";
-    OClass clazz = db.createClassIfNotExist(className);
+    db.createClassIfNotExist(className);
 
+    db.begin();
     db.command("insert into " + className + "  set name = 'foo1', val = 1");
     db.command("insert into " + className + "  set name = 'foo2', val = 2");
     db.command("insert into " + className + "  set name = 'foo3', val = 3");
     db.command("insert into " + className + "  set name = 'foo4', val = 4");
+    db.commit();
 
     try (OResultSet result = db.query("select from " + className + " where val between 2 and 3")) {
       Assert.assertTrue(result.hasNext());
@@ -3932,8 +3961,10 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     OProperty prop = clazz.createProperty("tag", OType.STRING);
     prop.createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
 
+    db.begin();
     db.command("insert into " + className + "  set tag = 'foo'");
     db.command("insert into " + className + "  set tag = 'bar'");
+    db.commit();
 
     try (OResultSet result = db.query("select from " + className + " where tag in ['foo','baz']")) {
       Assert.assertTrue(result.hasNext());
@@ -4239,10 +4270,12 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     String className = "testListOfMapsContains";
 
     OClass clazz1 = db.createClassIfNotExist(className);
-    OProperty prop = clazz1.createProperty("thelist", OType.EMBEDDEDLIST, OType.EMBEDDEDMAP);
+    clazz1.createProperty("thelist", OType.EMBEDDEDLIST, OType.EMBEDDEDMAP);
 
+    db.begin();
     db.command("INSERT INTO " + className + " SET thelist = [{name:\"Jack\"}]").close();
     db.command("INSERT INTO " + className + " SET thelist = [{name:\"Joe\"}]").close();
+    db.commit();
 
     try (OResultSet result =
         db.query("select from " + className + " where thelist CONTAINS ( name = ?)", "Jack")) {
@@ -4256,13 +4289,15 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testOrderByWithCollate() {
     String className = "testOrderByWithCollate";
 
-    OClass clazz1 = db.createClassIfNotExist(className);
+    db.createClassIfNotExist(className);
 
+    db.begin();
     db.command("INSERT INTO " + className + " SET name = 'A', idx = 0").close();
     db.command("INSERT INTO " + className + " SET name = 'C', idx = 2").close();
     db.command("INSERT INTO " + className + " SET name = 'E', idx = 4").close();
     db.command("INSERT INTO " + className + " SET name = 'b', idx = 1").close();
     db.command("INSERT INTO " + className + " SET name = 'd', idx = 3").close();
+    db.commit();
 
     try (OResultSet result =
         db.query("select from " + className + " order by name asc collate ci")) {
@@ -4282,6 +4317,7 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
 
     db.createClassIfNotExist(className);
 
+    db.begin();
     db.command("INSERT INTO " + className + " content {\"name\": \"jack\", \"age\": 22}").close();
     db.command(
             "INSERT INTO "
@@ -4303,6 +4339,7 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
                 + className
                 + " content {\"name\": \"david\", \"age\": 22, \"test\": [\"hello\"]}")
         .close();
+    db.commit();
 
     try (OResultSet result = db.query("select from " + className + " where test contains []")) {
       Assert.assertTrue(result.hasNext());
@@ -4317,6 +4354,7 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
 
     db.createClassIfNotExist(className);
 
+    db.begin();
     db.command("INSERT INTO " + className + " content {\"name\": \"jack\", \"age\": 22}").close();
     db.command(
             "INSERT INTO "
@@ -4338,6 +4376,7 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
                 + className
                 + " content {\"name\": \"david\", \"age\": 22, \"test\": [\"hello\"]}")
         .close();
+    db.commit();
 
     try (OResultSet result = db.query("select from " + className + " where test contains [1]")) {
       Assert.assertTrue(result.hasNext());
@@ -4356,10 +4395,12 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
 
       db.createClassIfNotExist(className);
 
+      db.begin();
       db.command("INSERT INTO " + className + " set name = 'a'").close();
       db.command("INSERT INTO " + className + " set name = 'b'").close();
       db.command("INSERT INTO " + className + " set name = 'c'").close();
       db.command("INSERT INTO " + className + " set name = 'd'").close();
+      db.commit();
 
       try {
         try (OResultSet result = db.query("select from " + className + " ORDER BY name")) {
@@ -4389,8 +4430,10 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
 
     db.createClassIfNotExist(className);
 
+    db.begin();
     db.command("INSERT INTO " + className + " content {\"name\": \"foobarbaz\"}").close();
     db.command("INSERT INTO " + className + " content {\"name\": \"test[]{}()|*^.test\"}").close();
+    db.commit();
 
     try (OResultSet result = db.query("select from " + className + " where name LIKE 'foo%'")) {
       Assert.assertTrue(result.hasNext());
@@ -4708,6 +4751,8 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     db.command("create property " + classNamePrefix + "Report.format String;").close();
     db.command("create property " + classNamePrefix + "Report.source String;").close();
     db.command("create class " + classNamePrefix + "hasOwnership extends E;").close();
+
+    db.begin();
     db.command("insert into " + classNamePrefix + "User content {id:\"admin\"};");
     db.command(
             "insert into "
@@ -4730,6 +4775,7 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
                 + classNamePrefix
                 + "Report);")
         .close();
+    db.commit();
 
     try (OResultSet rs =
         db.query(
@@ -4836,11 +4882,15 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     String className = "testMapToJson";
     db.command("create class " + className).close();
     db.command("create property " + className + ".themap embeddedmap").close();
+
+    db.begin();
     db.command(
             "insert into "
                 + className
                 + " set name = 'foo', themap = {\"foo bar\":\"baz\", \"riz\":\"faz\"}")
         .close();
+    db.commit();
+
     try (OResultSet rs = db.query("select themap.tojson() as x from " + className)) {
       Assert.assertTrue(rs.hasNext());
       OResult item = rs.next();
@@ -4855,7 +4905,11 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     db.command("create property " + className + ".field boolean").close();
     db.command("create index " + className + ".field on " + className + "(field) NOTUNIQUE")
         .close();
+
+    db.begin();
     db.command("insert into " + className + " set field=true").close();
+    db.commit();
+
     try (OResultSet rs =
         db.query("select count(*) as count from " + className + " where field=true")) {
       Assert.assertTrue(rs.hasNext());

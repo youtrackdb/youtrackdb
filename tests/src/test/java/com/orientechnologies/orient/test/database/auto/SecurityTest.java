@@ -28,7 +28,6 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
-import com.orientechnologies.orient.graph.gremlin.OCommandGremlin;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -118,22 +117,27 @@ public class SecurityTest extends DocumentDBBaseTest {
   public void testEncryptPassword() throws IOException {
     database.open("admin", "admin");
 
+    database.begin();
     Long updated =
         database
             .command("update ouser set password = 'test' where name = 'reader'")
             .next()
             .getProperty("count");
+    database.commit();
+
     Assert.assertEquals(updated.intValue(), 1);
 
     OResultSet result = database.query("select from ouser where name = 'reader'");
     Assert.assertFalse(result.next().getProperty("password").equals("test"));
 
     // RESET OLD PASSWORD
+    database.begin();
     updated =
         database
             .command("update ouser set password = 'reader' where name = 'reader'")
             .next()
             .getProperty("count");
+    database.commit();
     Assert.assertEquals(updated.intValue(), 1);
 
     result = database.query("select from ouser where name = 'reader'");
@@ -310,38 +314,6 @@ public class SecurityTest extends DocumentDBBaseTest {
       database.command("alter class Protected superclass OUser").close();
     } finally {
       database.getMetadata().getSchema().dropClass("Protected");
-    }
-  }
-
-  @Test
-  public void testGremlinExecution() throws IOException {
-    if (!database.getURL().startsWith("remote:")) {
-      return;
-    }
-
-    database.open("admin", "admin");
-    try {
-      database.command(new OCommandGremlin("g.V")).execute();
-    } finally {
-      database.close();
-    }
-
-    database.open("reader", "reader");
-    try {
-      database.command(new OCommandGremlin("g.V")).execute();
-      Assert.fail("Security breach: Gremlin can be executed by reader user!");
-    } catch (OSecurityException e) {
-    } finally {
-      database.close();
-    }
-
-    database.open("writer", "writer");
-    try {
-      database.command(new OCommandGremlin("g.V")).execute();
-      Assert.fail("Security breach: Gremlin can be executed by writer user!");
-    } catch (OSecurityException e) {
-    } finally {
-      database.close();
     }
   }
 

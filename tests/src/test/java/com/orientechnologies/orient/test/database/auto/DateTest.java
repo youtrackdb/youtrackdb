@@ -108,9 +108,11 @@ public class DateTest extends DocumentDBBaseTest {
     final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
     final Date date = df.parse("1200-11-11 00:00:00.000");
 
+    database.begin();
     database
         .command("CREATE VERTEX TimeTest SET firstname = ?, birthDate = ?", "Robert", date)
         .close();
+    database.commit();
 
     OResultSet result = database.query("select from TimeTest where firstname = ?", "Robert");
     Assert.assertEquals(result.next().getProperty("birthDate"), date);

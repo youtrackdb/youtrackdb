@@ -144,20 +144,11 @@
         </plugins>
     </build>
     <profiles>
+
         <profile>
-            <id>java8</id>
+            <id>java17</id>
             <activation>
-                <jdk>1.8</jdk>
-            </activation>
-            <properties>
-                <argLine>-Xmx${heapSize} -Xms${heapSize} -Dstorage.diskCache.bufferSize=4096
-                </argLine>
-            </properties>
-        </profile>
-        <profile>
-            <id>java11</id>
-            <activation>
-                <jdk>[11,)</jdk>
+                <jdk>[17,)</jdk>
             </activation>
             <properties>
                 <argLine>-Xmx${heapSize} -Xms${heapSize} -Dstorage.diskCache.bufferSize=4096

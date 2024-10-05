@@ -17,7 +17,7 @@ public class OForEachBlockExecutionTest extends BaseMemoryDatabase {
 
     String script = "";
     script += "FOREACH ($val in [1,2,3]){\n";
-    script += "  insert into " + className + " set value = $val;\n";
+    script += "  begin;insert into " + className + " set value = $val;commit;\n";
     script += "}";
     script += "SELECT FROM " + className;
 
@@ -43,7 +43,7 @@ public class OForEachBlockExecutionTest extends BaseMemoryDatabase {
 
     String script = "";
     script += "FOREACH ($val in [1,2,3]){\n";
-    script += "  insert into " + className + " set value = $val;\n";
+    script += "  begin;insert into " + className + " set value = $val;commit;\n";
     script += "  if($val = 2){\n";
     script += "    RETURN;\n";
     script += "  }\n";

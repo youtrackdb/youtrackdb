@@ -80,9 +80,12 @@ public class OCreateDatabaseStatement extends OSimpleExecServerStatement {
             configBuilder.build(),
             (session) -> {
               if (!users.isEmpty()) {
-                for (ODatabaseUserData user : users) {
-                  user.executeCreate((ODatabaseDocumentInternal) session, ctx);
-                }
+                session.executeInTx(
+                    () -> {
+                      for (ODatabaseUserData user : users) {
+                        user.executeCreate(session, ctx);
+                      }
+                    });
               }
               return null;
             });

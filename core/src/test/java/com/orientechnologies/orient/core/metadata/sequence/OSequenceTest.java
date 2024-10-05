@@ -2,8 +2,7 @@ package com.orientechnologies.orient.core.metadata.sequence;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
@@ -25,7 +24,7 @@ import org.junit.rules.ExternalResource;
  */
 public class OSequenceTest {
 
-  private ODatabaseSession db;
+  private ODatabaseDocumentInternal db;
 
   @Rule
   public ExternalResource resource =
@@ -160,7 +159,7 @@ public class OSequenceTest {
           new Runnable() {
             @Override
             public void run() {
-              ODatabaseDocument databaseDocument =
+              ODatabaseDocumentInternal databaseDocument =
                   new ODatabaseDocumentTx("memory:" + OSequenceTest.class.getSimpleName());
               databaseDocument.open("admin", "admin");
               OSequence mtSeq1 =
@@ -203,7 +202,7 @@ public class OSequenceTest {
           new Runnable() {
             @Override
             public void run() {
-              ODatabaseDocument databaseDocument =
+              ODatabaseDocumentInternal databaseDocument =
                   new ODatabaseDocumentTx("memory:" + OSequenceTest.class.getSimpleName());
               databaseDocument.open("admin", "admin");
               OSequence mtSeq1 =

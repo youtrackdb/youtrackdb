@@ -24,7 +24,6 @@ import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import java.util.Map;
@@ -122,7 +121,7 @@ public class OCommandExecutorSQLDropCluster extends OCommandExecutorSQLAbstract
   }
 
   protected boolean isClusterDeletable(int clusterId) {
-    final ODatabaseDocument database = getDatabase();
+    final var database = getDatabase();
     for (OClass iClass : database.getMetadata().getSchema().getClasses()) {
       for (int i : iClass.getClusterIds()) {
         if (i == clusterId) return false;

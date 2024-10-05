@@ -23,7 +23,7 @@ import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
@@ -43,10 +43,11 @@ import org.junit.Test;
  * @author Saeed Tabrizi (saeed a_t  nowcando.com)
  */
 public class OSQLFunctionAstarTest {
+
   private static int dbCounter = 0;
 
   private OrientDB orientDB;
-  private ODatabaseSession graph;
+  private ODatabaseDocumentInternal graph;
 
   private OVertex v0;
   private OVertex v1;
@@ -77,7 +78,9 @@ public class OSQLFunctionAstarTest {
     orientDB =
         OCreateDatabaseUtil.createDatabase(
             "OSQLFunctionAstarTest", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
-    graph = orientDB.open("OSQLFunctionAstarTest", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    graph =
+        (ODatabaseDocumentInternal)
+            orientDB.open("OSQLFunctionAstarTest", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     graph.createEdgeClass("has_path");
 

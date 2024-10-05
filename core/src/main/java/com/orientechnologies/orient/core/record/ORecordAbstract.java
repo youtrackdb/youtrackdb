@@ -512,7 +512,6 @@ public abstract class ORecordAbstract implements ORecord {
     return reload(fetchPlan, ignoreCache, true);
   }
 
-  @Override
   public ORecord reload(String fetchPlan, boolean ignoreCache, boolean force)
       throws ORecordNotFoundException {
     if (primaryRecord != null) {

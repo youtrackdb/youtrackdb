@@ -1,4 +1,4 @@
-
+BEGIN;
 INSERT INTO Monuments SET Id = 1, Name = "Pantheon", Type = "monument";
 INSERT INTO Monuments SET Id = 2, Name = "Monumento Vittorio Emanuele II", Type = "monument";
 INSERT INTO Monuments SET Id = 3, Name = "Risiera di San Sabba", Type = "monument";
@@ -2920,3 +2920,4 @@ INSERT INTO Orders SET Id = 809, Amount = 276, OrderDate = "2016-10-25";
 INSERT INTO Orders SET Id = 810, Amount = 618, OrderDate = "2011-10-21";
 INSERT INTO Orders SET Id = 811, Amount = 809, OrderDate = "2016-07-19";
 INSERT INTO Orders SET Id = 812, Amount = 796, OrderDate = "2011-11-24";
+COMMIT;

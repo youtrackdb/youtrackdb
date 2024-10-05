@@ -20,21 +20,21 @@
 package com.orientechnologies.orient.object.iterator;
 
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.object.ODatabaseObject;
+import com.orientechnologies.orient.core.db.object.ODatabaseObjectInternal;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorClass;
 import com.orientechnologies.orient.core.iterator.object.OObjectIteratorClassInterface;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTxInternal;
 import java.util.Iterator;
 
 @SuppressWarnings("unchecked")
 public class OObjectIteratorClass<T> implements OObjectIteratorClassInterface<T> {
-  private ODatabaseObject database;
+  private ODatabaseObjectInternal database;
   private ORecordIteratorClass<ODocument> underlying;
   private String fetchPlan;
 
   public OObjectIteratorClass(
-      final OObjectDatabaseTx iDatabase,
+      final OObjectDatabaseTxInternal iDatabase,
       final ODatabaseDocumentInternal iUnderlyingDatabase,
       final String iClusterName,
       final boolean iPolymorphic) {

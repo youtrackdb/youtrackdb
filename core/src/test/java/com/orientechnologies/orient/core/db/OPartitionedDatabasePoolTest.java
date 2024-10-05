@@ -23,7 +23,7 @@ public class OPartitionedDatabasePoolTest {
 
   @Rule public TestName name = new TestName();
 
-  private ODatabaseDocument db;
+  private ODatabaseDocumentInternal db;
   private OPartitionedDatabasePool pool;
 
   @Before
@@ -42,7 +42,7 @@ public class OPartitionedDatabasePoolTest {
   @Test
   public void shouldAutoCreateDatabase() throws Exception {
 
-    ODatabaseDocument db = pool.acquire();
+    ODatabaseDocumentInternal db = pool.acquire();
 
     assertThat(db.exists()).isTrue();
     assertThat(db.isClosed()).isFalse();
@@ -119,7 +119,7 @@ public class OPartitionedDatabasePoolTest {
     pool.setProperty(STORAGE_ENCRYPTION_METHOD.getKey(), "aes");
     pool.setProperty(STORAGE_ENCRYPTION_KEY.getKey(), "T1JJRU5UREJfSVNfQ09PTA==");
 
-    ODatabaseDocument dbFromPool = pool.acquire();
+    ODatabaseDocumentInternal dbFromPool = pool.acquire();
 
     assertThat(dbFromPool.getProperty(STORAGE_ENCRYPTION_METHOD.getKey())).isEqualTo("aes");
     assertThat(dbFromPool.getProperty(STORAGE_ENCRYPTION_KEY.getKey()))

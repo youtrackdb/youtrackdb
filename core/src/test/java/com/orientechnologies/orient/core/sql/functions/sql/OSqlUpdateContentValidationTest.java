@@ -17,11 +17,15 @@ public class OSqlUpdateContentValidationTest extends BaseMemoryDatabase {
     clazz.createProperty("testNormal", OType.STRING);
     clazz.createProperty("test", OType.STRING).setReadonly(true);
 
+    db.begin();
     OResultSet res =
         db.command("insert into Test content {\"testNormal\":\"hello\",\"test\":\"only read\"} ");
+    db.commit();
     OIdentifiable id = res.next().getProperty("@rid");
     try {
+      db.begin();
       db.command("update " + id + " CONTENT {\"testNormal\":\"by\"}").close();
+      db.commit();
       Assert.fail("Error on update of a record removing a readonly property");
     } catch (OValidationException val) {
 

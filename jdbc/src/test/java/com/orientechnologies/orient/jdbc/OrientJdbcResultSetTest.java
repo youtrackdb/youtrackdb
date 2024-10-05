@@ -103,15 +103,14 @@ public class OrientJdbcResultSetTest extends OrientJdbcDbPerMethodTemplateTest {
   public void shouldReadRowWithNullValue() throws Exception {
 
     Statement stmt = conn.createStatement();
-
+    stmt.execute("begin");
     stmt.execute(
         "INSERT INTO Article(uuid, date, title, content) VALUES (123456, null, 'title', 'the"
             + " content')");
-
+    stmt.execute("commit");
     stmt.close();
 
     stmt = conn.createStatement();
-
     assertThat(stmt.execute("SELECT uuid,date, title, content FROM Article WHERE uuid = 123456"))
         .isTrue();
     ResultSet rs = stmt.getResultSet();
@@ -127,8 +126,10 @@ public class OrientJdbcResultSetTest extends OrientJdbcDbPerMethodTemplateTest {
   public void shouldSelectContentInsertedByInsertContent() throws Exception {
 
     Statement insert = conn.createStatement();
+    insert.execute("begin");
     insert.execute(
         "INSERT INTO Article CONTENT {'uuid':'1234567',  'title':'title', 'content':'content'} ");
+    insert.execute("commit");
     insert.close();
 
     Statement stmt = conn.createStatement();
@@ -231,10 +232,13 @@ public class OrientJdbcResultSetTest extends OrientJdbcDbPerMethodTemplateTest {
     String[] expectedNamee = new String[] {"John", "Chris", "Jill", "Karl", "Susan"};
     Statement stmt = conn.createStatement();
 
-    stmt.executeUpdate("CREATE CLASS ListDemo");
-    stmt.executeUpdate("CREATE PROPERTY ListDemo.names EMBEDDEDLIST STRING ");
+    stmt.execute("CREATE CLASS ListDemo");
+    stmt.execute("CREATE PROPERTY ListDemo.names EMBEDDEDLIST STRING ");
+
+    stmt.execute("begin");
     stmt.executeUpdate("INSERT INTO ListDemo (names) VALUES ([\"John\",\"Chris\"])");
     stmt.executeUpdate("INSERT INTO ListDemo (names) VALUES ([\"Jill\",\"Karl\",\"Susan\"]) ");
+    stmt.execute("commit");
     stmt.close();
 
     stmt = conn.createStatement();

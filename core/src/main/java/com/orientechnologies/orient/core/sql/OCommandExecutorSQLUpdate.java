@@ -27,7 +27,6 @@ import com.orientechnologies.orient.core.command.OCommandDistributedReplicateReq
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.command.OCommandResultListener;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.OTrackedMap;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
@@ -108,7 +107,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
       }
       textRequest.setText(queryText);
 
-      final ODatabaseDocument database = getDatabase();
+      final var database = getDatabase();
 
       init((OCommandRequestText) iRequest);
 
@@ -366,44 +365,40 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
    */
   @SuppressWarnings("unchecked")
   public boolean result(final Object iRecord) {
-    var database = getDatabase();
-    return database.computeInTx(
-        () -> {
-          final ODocument record = ((OIdentifiable) iRecord).getRecord();
+    final ODocument record = ((OIdentifiable) iRecord).getRecord();
 
-          if (isUpdateEdge() && !isRecordInstanceOf(iRecord, "E")) {
-            throw new OCommandExecutionException(
-                "Using UPDATE EDGE on a record that is not an instance of E");
-          }
-          if (compiledFilter != null) {
-            // ADDITIONAL FILTERING
-            if (!(Boolean) compiledFilter.evaluate(record, null, context)) {
-              return false;
-            }
-          }
+    if (isUpdateEdge() && !isRecordInstanceOf(iRecord, "E")) {
+      throw new OCommandExecutionException(
+          "Using UPDATE EDGE on a record that is not an instance of E");
+    }
+    if (compiledFilter != null) {
+      // ADDITIONAL FILTERING
+      if (!(Boolean) compiledFilter.evaluate(record, null, context)) {
+        return false;
+      }
+    }
 
-          parameters.reset();
+    parameters.reset();
 
-          returnHandler.beforeUpdate(record);
+    returnHandler.beforeUpdate(record);
 
-          boolean updated = handleContent(record);
-          updated |= handleMerge(record);
-          updated |= handleSetEntries(record);
-          updated |= handleIncrementEntries(record);
-          updated |= handleAddEntries(record);
-          updated |= handlePutEntries(record);
-          updated |= handleRemoveEntries(record);
+    boolean updated = handleContent(record);
+    updated |= handleMerge(record);
+    updated |= handleSetEntries(record);
+    updated |= handleIncrementEntries(record);
+    updated |= handleAddEntries(record);
+    updated |= handlePutEntries(record);
+    updated |= handleRemoveEntries(record);
 
-          if (updated) {
-            handleUpdateEdge(record);
-            record.setDirty();
-            record.save();
-            returnHandler.afterUpdate(record);
-            this.updated = true;
-          }
+    if (updated) {
+      handleUpdateEdge(record);
+      record.setDirty();
+      record.save();
+      returnHandler.afterUpdate(record);
+      this.updated = true;
+    }
 
-          return true;
-        });
+    return true;
   }
 
   /**

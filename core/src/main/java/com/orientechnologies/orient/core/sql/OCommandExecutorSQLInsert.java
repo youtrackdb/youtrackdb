@@ -26,7 +26,6 @@ import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.command.OCommandResultListener;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.OQueryParsingException;
@@ -85,7 +84,7 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
 
-      final ODatabaseDocument database = getDatabase();
+      final var database = getDatabase();
 
       init((OCommandRequestText) iRequest);
 
@@ -226,75 +225,71 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
    */
   public Object execute(final Map<Object, Object> iArgs) {
     final ODatabaseDocumentInternal database = getDatabase();
-    return database.computeInTx(
-        () -> {
-          if (newRecords == null && content == null && subQuery == null) {
-            throw new OCommandExecutionException(
-                "Cannot execute the command because it has not been parsed yet");
-          }
+    if (newRecords == null && content == null && subQuery == null) {
+      throw new OCommandExecutionException(
+          "Cannot execute the command because it has not been parsed yet");
+    }
 
-          final OCommandParameters commandParameters = new OCommandParameters(iArgs);
-          if (indexName != null) {
-            if (newRecords == null) {
-              throw new OCommandExecutionException("No key/value found");
-            }
+    final OCommandParameters commandParameters = new OCommandParameters(iArgs);
+    if (indexName != null) {
+      if (newRecords == null) {
+        throw new OCommandExecutionException("No key/value found");
+      }
 
-            OIndexAbstract.manualIndexesWarning();
+      OIndexAbstract.manualIndexesWarning();
 
-            final OIndex index =
-                database.getMetadata().getIndexManagerInternal().getIndex(database, indexName);
-            if (index == null) {
-              throw new OCommandExecutionException("Target index '" + indexName + "' not found");
-            }
+      final OIndex index =
+          database.getMetadata().getIndexManagerInternal().getIndex(database, indexName);
+      if (index == null) {
+        throw new OCommandExecutionException("Target index '" + indexName + "' not found");
+      }
 
-            // BIND VALUES
-            Map<String, Object> result = new HashMap<String, Object>();
+      // BIND VALUES
+      Map<String, Object> result = new HashMap<String, Object>();
 
-            for (Map<String, Object> candidate : newRecords) {
-              Object indexKey = getIndexKeyValue(commandParameters, candidate);
-              OIdentifiable indexValue = getIndexValue(commandParameters, candidate);
-              index.put(indexKey, indexValue);
+      for (Map<String, Object> candidate : newRecords) {
+        Object indexKey = getIndexKeyValue(commandParameters, candidate);
+        OIdentifiable indexValue = getIndexValue(commandParameters, candidate);
+        index.put(indexKey, indexValue);
 
-              result.put(KEYWORD_KEY, indexKey);
-              result.put(KEYWORD_RID, indexValue);
-            }
+        result.put(KEYWORD_KEY, indexKey);
+        result.put(KEYWORD_RID, indexValue);
+      }
 
-            // RETURN LAST ENTRY
-            return prepareReturnItem(new ODocument(result));
-          } else {
-            // CREATE NEW DOCUMENTS
-            final List<ODocument> docs = new ArrayList<ODocument>();
-            if (newRecords != null) {
-              for (Map<String, Object> candidate : newRecords) {
-                final ODocument doc =
-                    className != null ? new ODocument(className) : new ODocument();
-                OSQLHelper.bindParameters(doc, candidate, commandParameters, context);
+      // RETURN LAST ENTRY
+      return prepareReturnItem(new ODocument(result));
+    } else {
+      // CREATE NEW DOCUMENTS
+      final List<ODocument> docs = new ArrayList<ODocument>();
+      if (newRecords != null) {
+        for (Map<String, Object> candidate : newRecords) {
+          final ODocument doc = className != null ? new ODocument(className) : new ODocument();
+          OSQLHelper.bindParameters(doc, candidate, commandParameters, context);
 
-                saveRecord(doc);
-                docs.add(doc);
-              }
+          saveRecord(doc);
+          docs.add(doc);
+        }
 
-              if (docs.size() == 1) {
-                return prepareReturnItem(docs.get(0));
-              } else {
-                return prepareReturnResult(docs);
-              }
-            } else if (content != null) {
-              final ODocument doc = className != null ? new ODocument(className) : new ODocument();
-              doc.merge(content, true, false);
-              saveRecord(doc);
-              return prepareReturnItem(doc);
-            } else if (subQuery != null) {
-              subQuery.execute();
-              if (queryResult != null) {
-                return prepareReturnResult(queryResult);
-              }
+        if (docs.size() == 1) {
+          return prepareReturnItem(docs.get(0));
+        } else {
+          return prepareReturnResult(docs);
+        }
+      } else if (content != null) {
+        final ODocument doc = className != null ? new ODocument(className) : new ODocument();
+        doc.merge(content, true, false);
+        saveRecord(doc);
+        return prepareReturnItem(doc);
+      } else if (subQuery != null) {
+        subQuery.execute();
+        if (queryResult != null) {
+          return prepareReturnResult(queryResult);
+        }
 
-              return saved.longValue();
-            }
-          }
-          return null;
-        });
+        return saved.longValue();
+      }
+    }
+    return null;
   }
 
   @Override

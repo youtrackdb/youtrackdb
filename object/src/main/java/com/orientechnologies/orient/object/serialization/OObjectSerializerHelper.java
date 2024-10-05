@@ -33,7 +33,7 @@ import com.orientechnologies.orient.core.annotation.ODocumentInstance;
 import com.orientechnologies.orient.core.annotation.OId;
 import com.orientechnologies.orient.core.annotation.OVersion;
 import com.orientechnologies.orient.core.db.OUserObject2RecordHandler;
-import com.orientechnologies.orient.core.db.object.ODatabaseObject;
+import com.orientechnologies.orient.core.db.object.ODatabaseObjectInternal;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.db.record.ORecordLazySet;
 import com.orientechnologies.orient.core.db.record.OTrackedList;
@@ -274,7 +274,7 @@ public class OObjectSerializerHelper {
     return null;
   }
 
-  public static ORecordId getObjectID(final ODatabaseObject iDb, final Object iPojo) {
+  public static ORecordId getObjectID(final ODatabaseObjectInternal iDb, final Object iPojo) {
     getClassFields(iPojo.getClass());
 
     final Field idField = fieldIds.get(iPojo.getClass());
@@ -403,7 +403,7 @@ public class OObjectSerializerHelper {
       final OEntityManager iEntityManager,
       final OClass schemaClass,
       final OUserObject2RecordHandler iObj2RecHandler,
-      final ODatabaseObject db,
+      final ODatabaseObjectInternal db,
       final boolean iSaveOnlyDirty) {
     if (iSaveOnlyDirty && !iRecord.isDirty()) return iRecord;
 
@@ -458,7 +458,7 @@ public class OObjectSerializerHelper {
       ORecordInternal.setVersion(iRecord, version);
     }
 
-    if (db.isMVCC() && !versionConfigured && db.getTransaction() instanceof OTransactionOptimistic)
+    if (!versionConfigured && db.getTransaction() instanceof OTransactionOptimistic)
       throw new OTransactionException(
           "Cannot involve an object of class '"
               + pojoClass
@@ -560,7 +560,7 @@ public class OObjectSerializerHelper {
       OType iType,
       final OEntityManager iEntityManager,
       final OUserObject2RecordHandler iObj2RecHandler,
-      final ODatabaseObject db,
+      final ODatabaseObjectInternal db,
       final ODocument iRecord,
       final boolean iSaveOnlyDirty) {
     if (iFieldValue == null) return null;
@@ -636,7 +636,7 @@ public class OObjectSerializerHelper {
       OType iType,
       final OEntityManager iEntityManager,
       final OUserObject2RecordHandler iObj2RecHandler,
-      final ODatabaseObject db,
+      final ODatabaseObjectInternal db,
       final ODocument iRecord,
       final boolean iSaveOnlyDirty) {
     if (iMultiValue == null) return null;

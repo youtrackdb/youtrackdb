@@ -8,13 +8,6 @@
 			</parameters>
 		</handler>
 		<handler
-			class="com.orientechnologies.orient.graph.handler.OGraphServerHandler">
-			<parameters>
-				<parameter value="true" name="enabled" />
-				<parameter value="50" name="graph.pool.max" />
-			</parameters>
-		</handler>
-		<handler
 			class="com.orientechnologies.orient.server.handler.OAutomaticBackup">
 			<parameters>
 				<parameter value="false" name="enabled" />

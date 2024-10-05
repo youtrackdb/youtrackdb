@@ -37,6 +37,7 @@ public class SQLUpdateEdgeTest extends BaseMemoryDatabase {
     db.getMetadata().getSchema().reload();
 
     // VERTEXES
+    db.begin();
     OElement v1 = db.command("create vertex").next().getElement().get();
     assertEquals(v1.getSchemaType().get().getName(), "V");
 
@@ -54,16 +55,21 @@ public class SQLUpdateEdgeTest extends BaseMemoryDatabase {
             .next()
             .getElement()
             .get();
+    db.commit();
+
     assertEquals(v4.getSchemaType().get().getName(), "V1");
     assertEquals(v4.getProperty("brand"), "fiat");
     assertEquals(v4.getProperty("name"), "wow");
 
+    db.begin();
     OResultSet edges =
         db.command("create edge E1 from " + v1.getIdentity() + " to " + v2.getIdentity());
     OEdge edge = edges.next().getEdge().get();
     assertFalse(edges.hasNext());
     assertEquals(edge.getSchemaType().get().getName(), "E1");
+    db.commit();
 
+    db.begin();
     db.command(
             "update edge E1 set out = "
                 + v3.getIdentity()
@@ -72,6 +78,7 @@ public class SQLUpdateEdgeTest extends BaseMemoryDatabase {
                 + " where @rid = "
                 + edge.getIdentity())
         .close();
+    db.commit();
 
     OResultSet result = db.query("select expand(out('E1')) from " + v3.getIdentity());
     OResult vertex4 = result.next();
@@ -91,15 +98,19 @@ public class SQLUpdateEdgeTest extends BaseMemoryDatabase {
   @Test
   public void testUpdateEdgeOfTypeE() {
     // issue #6378
+    db.begin();
     OVertex v1 = db.command("create vertex").next().toVertex();
     OVertex v2 = db.command("create vertex").next().toVertex();
     OVertex v3 = db.command("create vertex").next().toVertex();
+    db.commit();
 
+    db.begin();
     OResultSet edges =
         db.command("create edge E from " + v1.getIdentity() + " to " + v2.getIdentity());
     OEdge edge = edges.next().toEdge();
 
     db.command("UPDATE EDGE " + edge.getIdentity() + " SET in = " + v3.getIdentity());
+    db.commit();
 
     OResultSet result = db.query("select expand(out()) from " + v1.getIdentity());
     Assert.assertEquals(result.next().getIdentity().get(), v3.getIdentity());

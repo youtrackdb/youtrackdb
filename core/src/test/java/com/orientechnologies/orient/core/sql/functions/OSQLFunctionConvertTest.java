@@ -17,15 +17,18 @@ public class OSQLFunctionConvertTest extends BaseMemoryDatabase {
 
   @Test
   public void testSQLConversions() {
-
     db.command("create class TestConversion").close();
 
+    db.begin();
     db.command("insert into TestConversion set string = 'Jay', date = sysdate(), number = 33")
         .close();
+    db.commit();
 
     ORID doc = db.query("select from TestConversion limit 1").next().getIdentity().get();
 
+    db.begin();
     db.command("update TestConversion set selfrid = 'foo" + doc.getIdentity() + "'").close();
+    db.commit();
 
     OResultSet results = db.query("select string.asString() as convert from TestConversion");
 

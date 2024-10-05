@@ -78,17 +78,14 @@ public class LuceneSpatialLineStringTest extends BaseSpatialLuceneTest {
     db.save(linestring2);
     db.commit();
 
+    db.begin();
     db.command(
             "insert into Place set name = 'LineString3' , location = ST_GeomFromText('"
                 + LINEWKT
                 + "')")
         .close();
+    db.commit();
   }
-
-  //  @After
-  //  public void deInit() {
-  //    deInitDB();
-  //  }
 
   public ODocument createLineString(List<List<Double>> coordinates) {
     ODocument location = new ODocument("OLineString");

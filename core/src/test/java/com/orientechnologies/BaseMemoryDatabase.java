@@ -1,6 +1,6 @@
 package com.orientechnologies;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
@@ -12,7 +12,7 @@ import org.junit.rules.TestName;
 
 public class BaseMemoryDatabase {
 
-  protected ODatabaseSession db;
+  protected ODatabaseDocumentInternal db;
   protected OrientDB context;
   @Rule public TestName name = new TestName();
   private String databaseName;
@@ -25,13 +25,13 @@ public class BaseMemoryDatabase {
     dbName = dbName.replace(']', '_');
     this.databaseName = dbName;
     context.create(this.databaseName, ODatabaseType.MEMORY, "admin", "adminpwd", "admin");
-    db = context.open(this.databaseName, "admin", "adminpwd");
+    db = (ODatabaseDocumentInternal) context.open(this.databaseName, "admin", "adminpwd");
   }
 
   @SuppressWarnings("SameParameterValue")
   protected void reOpen(String user, String password) {
     this.db.close();
-    this.db = context.open(this.databaseName, user, password);
+    this.db = (ODatabaseDocumentInternal) context.open(this.databaseName, user, password);
   }
 
   @After

@@ -98,7 +98,9 @@ public class TruncateClassTest extends DocumentDBBaseTest {
   @Test
   public void testTruncateVertexClass() {
     database.command("create class TestTruncateVertexClass extends V").close();
+    database.begin();
     database.command("create vertex TestTruncateVertexClass set name = 'foo'").close();
+    database.commit();
 
     try {
       database.command("truncate class TestTruncateVertexClass ").close();
@@ -123,8 +125,10 @@ public class TruncateClassTest extends DocumentDBBaseTest {
                 + " TestTruncateVertexClassSuperclass")
         .close();
 
+    database.begin();
     database.command("insert into TestTruncateVertexClassSuperclass set name = 'foo'").close();
     database.command("insert into TestTruncateVertexClassSubclass set name = 'bar'").close();
+    database.commit();
 
     OResultSet result = database.query("select from TestTruncateVertexClassSuperclass");
     Assert.assertEquals(result.stream().count(), 2);
@@ -158,12 +162,14 @@ public class TruncateClassTest extends DocumentDBBaseTest {
                 + " TestTruncateVertexClassSuperclassWithIndex")
         .close();
 
+    database.begin();
     database
         .command("insert into TestTruncateVertexClassSuperclassWithIndex set name = 'foo'")
         .close();
     database
         .command("insert into TestTruncateVertexClassSubclassWithIndex set name = 'bar'")
         .close();
+    database.commit();
 
     final OIndex index = getIndex("TestTruncateVertexClassSuperclassWithIndex_index");
     Assert.assertEquals(index.getInternal().size(), 2);

@@ -25,7 +25,6 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.exception.OHighLevelException;
 import com.orientechnologies.common.listener.OListenerManger;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.cache.OLocalRecordCache;
 import com.orientechnologies.orient.core.command.OCommandRequest;
@@ -1340,75 +1339,58 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
           inVertex.getIdentity(), "The vertex " + inVertex.getIdentity() + " has been deleted");
     }
 
-    final int maxRetries = 1;
-    for (int retry = 0; retry < maxRetries; ++retry) {
-      try {
-        outDocument = currentVertex.getRecord();
-        if (outDocument == null) {
-          throw new IllegalArgumentException(
-              "source vertex is invalid (rid=" + currentVertex.getIdentity() + ")");
-        }
-
-        inDocument = inVertex.getRecord();
-        if (inDocument == null) {
-          throw new IllegalArgumentException(
-              "source vertex is invalid (rid=" + inVertex.getIdentity() + ")");
-        }
-
-        @SuppressWarnings("UnnecessaryLocalVariable")
-        OVertex to = inVertex;
-        @SuppressWarnings("UnnecessaryLocalVariable")
-        OVertex from = currentVertex;
-
-        OSchema schema = getMetadata().getImmutableSchemaSnapshot();
-        final OClass edgeType = schema.getClass(className);
-        className = edgeType.getName();
-
-        var useLightweightEdges = forceLightweight || isUseLightweightEdges();
-        var createLightweightEdge =
-            useLightweightEdges
-                && !forceRegular
-                && (edgeType.isAbstract() || className.equals(OEdgeInternal.CLASS_NAME));
-        if (useLightweightEdges && !createLightweightEdge) {
-          throw new IllegalArgumentException(
-              "Cannot create lightweight edge for class "
-                  + className
-                  + " because it is not abstract");
-        }
-
-        final String outFieldName = OVertex.getEdgeLinkFieldName(ODirection.OUT, className);
-        final String inFieldName = OVertex.getEdgeLinkFieldName(ODirection.IN, className);
-
-        if (createLightweightEdge) {
-          edge = newLightweightEdge(className, from, to);
-          OVertexInternal.createLink(from.getRecord(), to.getRecord(), outFieldName);
-          OVertexInternal.createLink(to.getRecord(), from.getRecord(), inFieldName);
-        } else {
-          edge = newEdgeInternal(className);
-          edge.setPropertyWithoutValidation(OEdgeInternal.DIRECTION_OUT, currentVertex.getRecord());
-          edge.setPropertyWithoutValidation(OEdge.DIRECTION_IN, inDocument.getRecord());
-
-          if (!outDocumentModified) {
-            // OUT-VERTEX ---> IN-VERTEX/EDGE
-            OVertexInternal.createLink(outDocument, edge.getRecord(), outFieldName);
-          }
-
-          // IN-VERTEX ---> OUT-VERTEX/EDGE
-          OVertexInternal.createLink(inDocument, edge.getRecord(), inFieldName);
-        }
-        // OK
-        break;
-      } catch (ONeedRetryException ignore) {
-        // RETRY
-        if (!outDocumentModified) {
-          if (outDocument != null) {
-            outDocument.reload();
-          }
-        } else if (inDocument != null) {
-          inDocument.reload();
-        }
-      }
+    outDocument = currentVertex.getRecord();
+    if (outDocument == null) {
+      throw new IllegalArgumentException(
+          "source vertex is invalid (rid=" + currentVertex.getIdentity() + ")");
     }
+
+    inDocument = inVertex.getRecord();
+    if (inDocument == null) {
+      throw new IllegalArgumentException(
+          "source vertex is invalid (rid=" + inVertex.getIdentity() + ")");
+    }
+
+    @SuppressWarnings("UnnecessaryLocalVariable")
+    OVertex to = inVertex;
+    @SuppressWarnings("UnnecessaryLocalVariable")
+    OVertex from = currentVertex;
+
+    OSchema schema = getMetadata().getImmutableSchemaSnapshot();
+    final OClass edgeType = schema.getClass(className);
+    className = edgeType.getName();
+
+    var useLightweightEdges = forceLightweight || isUseLightweightEdges();
+    var createLightweightEdge =
+        useLightweightEdges
+            && !forceRegular
+            && (edgeType.isAbstract() || className.equals(OEdgeInternal.CLASS_NAME));
+    if (useLightweightEdges && !createLightweightEdge) {
+      throw new IllegalArgumentException(
+          "Cannot create lightweight edge for class " + className + " because it is not abstract");
+    }
+
+    final String outFieldName = OVertex.getEdgeLinkFieldName(ODirection.OUT, className);
+    final String inFieldName = OVertex.getEdgeLinkFieldName(ODirection.IN, className);
+
+    if (createLightweightEdge) {
+      edge = newLightweightEdge(className, from, to);
+      OVertexInternal.createLink(from.getRecord(), to.getRecord(), outFieldName);
+      OVertexInternal.createLink(to.getRecord(), from.getRecord(), inFieldName);
+    } else {
+      edge = newEdgeInternal(className);
+      edge.setPropertyWithoutValidation(OEdgeInternal.DIRECTION_OUT, currentVertex.getRecord());
+      edge.setPropertyWithoutValidation(OEdge.DIRECTION_IN, inDocument.getRecord());
+
+      if (!outDocumentModified) {
+        // OUT-VERTEX ---> IN-VERTEX/EDGE
+        OVertexInternal.createLink(outDocument, edge.getRecord(), outFieldName);
+      }
+
+      // IN-VERTEX ---> OUT-VERTEX/EDGE
+      OVertexInternal.createLink(inDocument, edge.getRecord(), inFieldName);
+    }
+    // OK
 
     return edge;
   }
@@ -2056,49 +2038,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   @Override
   public OSharedContext getSharedContext() {
     return sharedContext;
-  }
-
-  public static Object executeWithRetries(
-      final OCallable<Object, Integer> callback, final int maxRetry) {
-    return executeWithRetries(callback, maxRetry, 0, null);
-  }
-
-  public static Object executeWithRetries(
-      final OCallable<Object, Integer> callback, final int maxRetry, final int waitBetweenRetry) {
-    return executeWithRetries(callback, maxRetry, waitBetweenRetry, null);
-  }
-
-  public static Object executeWithRetries(
-      final OCallable<Object, Integer> callback,
-      final int maxRetry,
-      final int waitBetweenRetry,
-      final ORecord[] recordToReloadOnRetry) {
-    ONeedRetryException lastException = null;
-    for (int retry = 0; retry < maxRetry; ++retry) {
-      try {
-        return callback.call(retry);
-      } catch (ONeedRetryException e) {
-        // SAVE LAST EXCEPTION AND RETRY
-        lastException = e;
-
-        if (recordToReloadOnRetry != null) {
-          // RELOAD THE RECORDS
-          for (ORecord r : recordToReloadOnRetry) {
-            r.reload();
-          }
-        }
-
-        if (waitBetweenRetry > 0) {
-          try {
-            Thread.sleep(waitBetweenRetry);
-          } catch (InterruptedException ignore) {
-            Thread.currentThread().interrupt();
-            break;
-          }
-        }
-      }
-    }
-    throw lastException;
   }
 
   public boolean isUseLightweightEdges() {

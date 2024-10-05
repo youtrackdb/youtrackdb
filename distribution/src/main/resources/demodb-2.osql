@@ -1,3 +1,4 @@
+BEGIN;
 INSERT INTO Countries SET Id = 1, Code = "AD", Name = "Andorra";
 INSERT INTO Countries SET Id = 2, Code = "AE", Name = "United Arab Emirates";
 INSERT INTO Countries SET Id = 3, Code = "AF", Name = "Afghanistan";
@@ -1247,3 +1248,4 @@ INSERT INTO Profiles SET Id = 997 , Name = "Teresa" , Surname = "Stevens" , Gend
 INSERT INTO Profiles SET Id = 998 , Name = "Eugene" , Surname = "Goodman" , Gender = "Male" , Email = "gawo@terzi.net" , Birthday = "1951-08-10" , Bio = "Hu paavolu nudmiz nud eka pafvet cove soez mige ku funnepaw uzjagvap jo.";
 INSERT INTO Profiles SET Id = 999 , Name = "Ina" , Surname = "Olson" , Gender = "Male" , Email = "fac@elo.edu" , Birthday = "1990-11-22" , Bio = "Tirijkip tak gi kim dapagizo osanohceb zicur fiffa heg zutuh ike halmasha do nujmiv fe li vage heb.";
 INSERT INTO Profiles SET Id = 1000 , Name = "Joseph" , Surname = "Spencer" , Gender = "Female" , Email = "dec@pasciwu.gov" , Birthday = "1989-06-18" , Bio = "Jekes kuokwit fa kefguot dibal kusju caamopef ho meurorom bajibete tuz asetoh omsa opcuvaj.";
+COMMIT;

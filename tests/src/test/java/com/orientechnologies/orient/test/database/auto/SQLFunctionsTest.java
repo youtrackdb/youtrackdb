@@ -462,8 +462,11 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
     int tot = ((Number) result.next().getProperty("tot")).intValue();
     assertFalse(result.hasNext());
 
+    database.begin();
     long updated =
         database.command("update Account set created = date()").next().getProperty("count");
+    database.commit();
+
     Assert.assertEquals(updated, tot);
 
     String pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";

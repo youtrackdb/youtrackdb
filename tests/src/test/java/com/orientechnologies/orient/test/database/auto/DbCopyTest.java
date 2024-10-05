@@ -16,7 +16,7 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.io.IOException;
@@ -42,7 +42,7 @@ public class DbCopyTest extends DocumentDBBaseTest implements OCommandOutputList
         new Thread() {
           @Override
           public void run() {
-            final ODatabaseDocument otherDB = database.copy();
+            final ODatabaseDocumentInternal otherDB = database.copy();
             otherDB.activateOnCurrentThread();
             for (int i = 0; i < 5; i++) {
               otherDB.begin();

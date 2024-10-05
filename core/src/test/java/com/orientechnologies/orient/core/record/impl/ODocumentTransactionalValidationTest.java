@@ -121,7 +121,6 @@ public class ODocumentTransactionalValidationTest extends BaseMemoryInternalData
     vrt.save();
     db.commit();
     db.begin();
-    vrt.reload();
     vrt.getEdges(ODirection.OUT, edgeClass).forEach(OElement::delete);
     vrt.deleteEdge(link, edgeClass);
     vrt.save();
@@ -138,7 +137,6 @@ public class ODocumentTransactionalValidationTest extends BaseMemoryInternalData
     vrt.save();
     db.commit();
     db.begin();
-    vrt.reload();
     List<Integer> arr = vrt.getProperty("arr");
     arr.clear();
     vrt.save();
@@ -187,7 +185,7 @@ public class ODocumentTransactionalValidationTest extends BaseMemoryInternalData
     vertex.save();
     db.commit();
     db.begin();
-    float actual = ((OVertex) vertex.reload()).getProperty("dbl");
+    float actual = vertex.getProperty("dbl");
     Assert.assertEquals(2.39, actual, 0.01);
     db.commit();
   }

@@ -23,9 +23,11 @@ public class OCommandExecutorSQLScriptTest extends BaseMemoryDatabase {
 
     db.command("CREATE class foo").close();
 
+    db.begin();
     db.command("insert into foo (name, bar) values ('a', 1)").close();
     db.command("insert into foo (name, bar) values ('b', 2)").close();
     db.command("insert into foo (name, bar) values ('c', 3)").close();
+    db.commit();
 
     db.activateOnCurrentThread();
   }
@@ -57,7 +59,9 @@ public class OCommandExecutorSQLScriptTest extends BaseMemoryDatabase {
   @Test
   public void testReturnExpanded() throws Exception {
     StringBuilder script = new StringBuilder();
+    script.append("begin\n");
     script.append("let $a = insert into V set test = 'sql script test'\n");
+    script.append("commit\n");
     script.append("return $a.toJSON()\n");
     String qResult = db.command(new OCommandScript("sql", script.toString())).execute();
     Assert.assertNotNull(qResult);
@@ -129,9 +133,11 @@ public class OCommandExecutorSQLScriptTest extends BaseMemoryDatabase {
 
     StringBuilder script = new StringBuilder();
     script.append("CREATE CLASS TestCounter;\n");
+    script.append("begin;\n");
     script.append("INSERT INTO TestCounter set weight = 3;\n");
     script.append("LET counter = SELECT count(*) FROM TestCounter;\n");
     script.append("UPDATE TestCounter INCREMENT weight = $counter[0].count RETURN AfTER @this;\n");
+    script.append("commit;\n");
     List<ODocument> qResult = db.command(new OCommandScript("sql", script.toString())).execute();
 
     assertThat(qResult.get(0).<Long>field("weight")).isEqualTo(4L);
@@ -143,9 +149,11 @@ public class OCommandExecutorSQLScriptTest extends BaseMemoryDatabase {
 
     StringBuilder script = new StringBuilder();
     script.append("CREATE CLASS TestCounter;\n");
+    script.append("begin;\n");
     script.append("INSERT INTO TestCounter set weight = 3;\n");
     script.append("LET counter = SELECT count(*) FROM TestCounter;\n");
     script.append("UPDATE TestCounter INCREMENT weight = $counter[0].count RETURN AfTER @this;\n");
+    script.append("commit;\n");
     OResultSet qResult = db.execute("sql", script.toString());
 
     assertThat(qResult.next().getElement().get().<Long>getProperty("weight")).isEqualTo(4L);
@@ -290,7 +298,7 @@ public class OCommandExecutorSQLScriptTest extends BaseMemoryDatabase {
   public void testQuotedRegex() {
     // issue #4996 (simplified)
     db.command("CREATE CLASS QuotedRegex2").close();
-    String batch = "INSERT INTO QuotedRegex2 SET regexp=\"'';\"";
+    String batch = "begin;INSERT INTO QuotedRegex2 SET regexp=\"'';\";commit;";
 
     db.command(new OCommandScript(batch.toString())).execute();
 

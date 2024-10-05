@@ -140,7 +140,7 @@ public class OCommandExecutorSQLAlterClass extends OCommandExecutorSQLAbstract
 
   /** Execute the ALTER CLASS. */
   public Object execute(final Map<Object, Object> iArgs) {
-    final ODatabaseDocument database = getDatabase();
+    final var database = getDatabase();
 
     if (attribute == null)
       throw new OCommandExecutionException(

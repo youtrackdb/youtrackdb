@@ -7,6 +7,7 @@ create property class_7382.date DATETIME;
 
 create index class_7382_multi on class_7382(server,date) FULLTEXT ENGINE LUCENE;
 
+begin;
 insert into class_7382 content  {  "server": "206012221037803" ,  "date": "2017-03-12 00:00:00"};
 insert into class_7382 content  {  "server": "206011901913543" ,  "date": "2017-03-12 00:00:11"};
 insert into class_7382 content  {  "server": "206012223242132" ,  "date": "2017-03-12 00:00:33"};
@@ -27,3 +28,4 @@ insert into class_7382 content  {  "server": "206012223535134" ,  "date": "2017-
 insert into class_7382 content  {  "server": "206012226314002" ,  "date": "2017-03-12 00:00:40"};
 insert into class_7382 content  {  "server": "206012216784882" ,  "date": "2017-03-12 00:00:14"};
 insert into class_7382 content  {  "server": "206012225213922" ,  "date": "2017-03-12 00:00:35"};
+commit;

@@ -1,8 +1,6 @@
 package com.orientechnologies.orient.client.remote.db.document;
 
-import com.orientechnologies.common.comparator.ODefaultComparator;
 import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.orient.client.remote.message.tx.IndexChange;
 import com.orientechnologies.orient.client.remote.message.tx.ORecordOperation38Response;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
@@ -19,15 +17,12 @@ import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ODocumentSerializerDelta;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChanges.OPERATION;
-import com.orientechnologies.orient.core.tx.OTransactionIndexChangesPerKey;
 import com.orientechnologies.orient.core.tx.OTransactionOptimistic;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.NavigableMap;
 import java.util.Set;
-import java.util.TreeMap;
 
 /**
  * Created by tglman on 03/01/17.
@@ -40,8 +35,7 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
     super(iDatabase);
   }
 
-  public void replaceContent(
-      List<ORecordOperation38Response> operations, List<IndexChange> indexChanges) {
+  public void replaceContent(List<ORecordOperation38Response> operations) {
 
     Map<ORID, ORecordOperation> oldEntries = this.recordOperations;
     this.recordOperations = new LinkedHashMap<>();
@@ -73,6 +67,7 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
           && operation.getRecordType() == ODocument.RECORD_TYPE) {
         record.incrementLoading();
         try {
+          // keep rid instance to support links consistency
           record.fromStream(operation.getOriginal());
           ODocumentSerializerDelta deltaSerializer = ODocumentSerializerDelta.instance();
           deltaSerializer.deserializeDelta(operation.getRecord(), (ODocument) record);
@@ -82,10 +77,16 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
       } else {
         record.fromStream(operation.getRecord());
       }
-      ORecordInternal.setIdentity(record, (ORecordId) operation.getId());
+
+      var rid = (ORecordId) record.getIdentity();
+      var operationId = operation.getId();
+      rid.setClusterId(operationId.getClusterId());
+      rid.setClusterPosition(operationId.getClusterPosition());
+
       ORecordInternal.setVersion(record, operation.getVersion());
       ORecordInternal.setContentChanged(record, operation.isContentChanged());
       getDatabase().getLocalCache().updateRecord(record);
+
       boolean callHook = checkCallHook(oldEntries, operation.getId(), operation.getType());
       addRecord(record, operation.getType(), null, callHook);
       if (operation.getType() == ORecordOperation.CREATED) {
@@ -93,27 +94,6 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
       }
     }
     newRecordsPositionsGenerator = createCount;
-
-    for (IndexChange change : indexChanges) {
-      NavigableMap<Object, OTransactionIndexChangesPerKey> changesPerKey =
-          new TreeMap<>(ODefaultComparator.INSTANCE);
-      for (Map.Entry<Object, OTransactionIndexChangesPerKey> keyChange :
-          change.getKeyChanges().changesPerKey.entrySet()) {
-        Object key = keyChange.getKey();
-        if (key instanceof OIdentifiable && ((OIdentifiable) key).getIdentity().isNew()) {
-          key = ((OIdentifiable) key).getRecord();
-        }
-        OTransactionIndexChangesPerKey singleChange = new OTransactionIndexChangesPerKey(key);
-        keyChange
-            .getValue()
-            .getEntriesAsList()
-            .forEach(x -> singleChange.add(x.getValue(), x.getOperation()));
-        changesPerKey.put(key, singleChange);
-      }
-      change.getKeyChanges().changesPerKey = changesPerKey;
-
-      indexEntries.put(change.getName(), change.getKeyChanges());
-    }
   }
 
   private boolean checkCallHook(Map<ORID, ORecordOperation> oldEntries, ORID rid, byte type) {

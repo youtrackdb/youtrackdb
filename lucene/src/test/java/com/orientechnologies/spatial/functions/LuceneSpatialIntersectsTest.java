@@ -47,10 +47,12 @@ public class LuceneSpatialIntersectsTest extends BaseSpatialLuceneTest {
     db.command("create class Lines extends v").close();
     db.command("create property Lines.geometry EMBEDDED OLINESTRING").close();
 
+    db.begin();
     db.command("insert into Lines set geometry = ST_GeomFromText('LINESTRING ( 2 0, 0 2 )')")
         .close();
     db.command("insert into Lines set geometry = ST_GeomFromText('LINESTRING ( 0 0, 0 2 )')")
         .close();
+    db.commit();
 
     db.command("create index L.g on Lines (geometry) SPATIAL engine lucene").close();
     OResultSet execute =

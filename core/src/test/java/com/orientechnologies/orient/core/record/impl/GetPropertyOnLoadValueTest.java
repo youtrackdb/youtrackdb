@@ -161,7 +161,6 @@ public class GetPropertyOnLoadValueTest extends BaseMemoryDatabase {
     db.commit();
     for (var txId = 0; txId < 5; txId++) {
       db.begin();
-      doc.reload();
       propertyNames.forEach(
           name -> {
             initialValues.put(name, doc.getProperty(name));

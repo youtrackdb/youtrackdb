@@ -566,7 +566,10 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
 
   private Object executeCommand(final String lastCommand, final ODatabaseDocument db) {
     final OCommandSQL command = new OCommandSQL(lastCommand);
-    Object result = db.command(command.setContext(getContext())).execute(toMap(parameters));
+    Object result =
+        ((ODatabaseDocumentInternal) db)
+            .command(command.setContext(getContext()))
+            .execute(toMap(parameters));
     request.setFetchPlan(command.getFetchPlan());
     return result;
   }

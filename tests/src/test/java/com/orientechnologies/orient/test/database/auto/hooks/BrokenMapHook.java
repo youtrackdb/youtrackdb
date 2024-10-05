@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.test.database.auto.hooks;
 
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.hook.ORecordHook;
 import com.orientechnologies.orient.core.hook.ORecordHookAbstract;
 import com.orientechnologies.orient.core.record.OElement;
@@ -15,7 +15,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class BrokenMapHook extends ORecordHookAbstract implements ORecordHook {
-  private ODatabaseDocument database;
+  private ODatabaseDocumentInternal database;
 
   public BrokenMapHook() {
     this.database = ODatabaseRecordThreadLocal.instance().get();
@@ -50,8 +50,8 @@ public class BrokenMapHook extends ORecordHookAbstract implements ORecordHook {
 
     if (oldElement != null) {
 
-      Set<String> newPropertyNames = newElement.getPropertyNames();
-      Set<String> oldPropertyNames = oldElement.getPropertyNames();
+      var newPropertyNames = newElement.getPropertyNames();
+      var oldPropertyNames = oldElement.getPropertyNames();
 
       if (newPropertyNames.contains("myMap") && oldPropertyNames.contains("myMap")) {
         HashMap<String, Object> newFieldValue = newElement.getProperty("myMap");

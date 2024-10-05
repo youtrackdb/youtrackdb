@@ -1,7 +1,7 @@
 package com.orientechnologies.lucene.test;
 
 import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
@@ -25,7 +25,7 @@ public class LuceneFreezeReleaseTest {
   public void freezeReleaseTest() {
     if (isWindows()) return;
 
-    ODatabaseDocument db = new ODatabaseDocumentTx("plocal:target/freezeRelease");
+    ODatabaseDocumentInternal db = new ODatabaseDocumentTx("plocal:target/freezeRelease");
 
     db.create();
 
@@ -68,7 +68,7 @@ public class LuceneFreezeReleaseTest {
   public void freezeReleaseMisUsageTest() {
     if (isWindows()) return;
 
-    ODatabaseDocument db = new ODatabaseDocumentTx("plocal:target/freezeRelease");
+    ODatabaseDocumentInternal db = new ODatabaseDocumentTx("plocal:target/freezeRelease");
 
     db.create();
 

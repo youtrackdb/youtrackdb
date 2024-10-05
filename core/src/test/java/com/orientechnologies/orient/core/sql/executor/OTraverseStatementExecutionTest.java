@@ -15,6 +15,8 @@ public class OTraverseStatementExecutionTest extends BaseMemoryDatabase {
     String classPrefix = "testPlainTraverse_";
     db.createVertexClass(classPrefix + "V");
     db.createEdgeClass(classPrefix + "E");
+
+    db.begin();
     db.command("create vertex " + classPrefix + "V set name = 'a'").close();
     db.command("create vertex " + classPrefix + "V set name = 'b'").close();
     db.command("create vertex " + classPrefix + "V set name = 'c'").close();
@@ -47,6 +49,7 @@ public class OTraverseStatementExecutionTest extends BaseMemoryDatabase {
                 + classPrefix
                 + "V where name = 'd')")
         .close();
+    db.commit();
 
     OResultSet result =
         db.query("traverse out() from (select from " + classPrefix + "V where name = 'a')");
@@ -65,6 +68,8 @@ public class OTraverseStatementExecutionTest extends BaseMemoryDatabase {
     String classPrefix = "testWithDepth_";
     db.createVertexClass(classPrefix + "V");
     db.createEdgeClass(classPrefix + "E");
+
+    db.begin();
     db.command("create vertex " + classPrefix + "V set name = 'a'").close();
     db.command("create vertex " + classPrefix + "V set name = 'b'").close();
     db.command("create vertex " + classPrefix + "V set name = 'c'").close();
@@ -97,6 +102,7 @@ public class OTraverseStatementExecutionTest extends BaseMemoryDatabase {
                 + classPrefix
                 + "V where name = 'd')")
         .close();
+    db.commit();
 
     OResultSet result =
         db.query(
@@ -118,6 +124,8 @@ public class OTraverseStatementExecutionTest extends BaseMemoryDatabase {
     String classPrefix = "testMaxDepth";
     db.createVertexClass(classPrefix + "V");
     db.createEdgeClass(classPrefix + "E");
+
+    db.begin();
     db.command("create vertex " + classPrefix + "V set name = 'a'").close();
     db.command("create vertex " + classPrefix + "V set name = 'b'").close();
     db.command("create vertex " + classPrefix + "V set name = 'c'").close();
@@ -150,6 +158,7 @@ public class OTraverseStatementExecutionTest extends BaseMemoryDatabase {
                 + classPrefix
                 + "V where name = 'd')")
         .close();
+    db.commit();
 
     OResultSet result =
         db.query(
@@ -181,6 +190,8 @@ public class OTraverseStatementExecutionTest extends BaseMemoryDatabase {
     String classPrefix = "testBreadthFirst_";
     db.createVertexClass(classPrefix + "V");
     db.createEdgeClass(classPrefix + "E");
+
+    db.begin();
     db.command("create vertex " + classPrefix + "V set name = 'a'").close();
     db.command("create vertex " + classPrefix + "V set name = 'b'").close();
     db.command("create vertex " + classPrefix + "V set name = 'c'").close();
@@ -213,6 +224,7 @@ public class OTraverseStatementExecutionTest extends BaseMemoryDatabase {
                 + classPrefix
                 + "V where name = 'd')")
         .close();
+    db.commit();
 
     OResultSet result =
         db.query(

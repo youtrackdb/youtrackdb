@@ -78,7 +78,7 @@ public class OCreateLinkStatement extends OSimpleExecStatement {
               + "' was found");
     }
 
-    final ODatabaseDocument db = (ODatabaseDocument) database.getDatabaseOwner();
+    final ODatabaseDocumentInternal db = (ODatabaseDocumentInternal) database.getDatabaseOwner();
 
     OClass sourceClass =
         database
@@ -126,112 +126,109 @@ public class OCreateLinkStatement extends OSimpleExecStatement {
       var txLinkType = linkType;
       var txDestClass = destClass;
 
-      database.executeInTx(
-          () -> {
-            List<ODocument> result;
-            Object oldValue;
-            ODocument target;
+      List<ODocument> result;
+      Object oldValue;
+      ODocument target;
 
-            // BROWSE ALL THE RECORDS OF THE SOURCE CLASS
-            for (ODocument doc : db.browseClass(documentSourceClass.getName())) {
-              if (breakExec) {
-                break;
-              }
-              Object value = doc.getProperty(sourceField.getStringValue());
+      // BROWSE ALL THE RECORDS OF THE SOURCE CLASS
+      for (ODocument doc : db.browseClass(documentSourceClass.getName())) {
+        if (breakExec) {
+          break;
+        }
+        Object value = doc.getProperty(sourceField.getStringValue());
 
-              if (value != null) {
-                if (value instanceof ODocument || value instanceof ORID) {
-                  // ALREADY CONVERTED
-                } else if (value instanceof Collection<?>) {
-                  // TODO
-                } else {
-                  // SEARCH THE DESTINATION RECORD
-                  target = null;
+        if (value != null) {
+          if (value instanceof ODocument || value instanceof ORID) {
+            // ALREADY CONVERTED
+          } else if (value instanceof Collection<?>) {
+            // TODO
+          } else {
+            // SEARCH THE DESTINATION RECORD
+            target = null;
 
-                  if (destField != null
-                      && !ODocumentHelper.ATTRIBUTE_RID.equals(destField.value)
-                      && value instanceof String) {
-                    if (((String) value).length() == 0) {
-                      value = null;
-                    } else {
-                      value = "'" + value + "'";
-                    }
-                  }
-
-                  try (OResultSet rs = database.query(txCmd + value)) {
-                    result = toList(rs);
-                  }
-
-                  if (result == null || result.size() == 0) {
-                    value = null;
-                  } else if (result.size() > 1) {
-                    throw new OCommandExecutionException(
-                        "Cannot create link because multiple records was found in class '"
-                            + txDestClass.getName()
-                            + "' with value "
-                            + value
-                            + " in field '"
-                            + destField
-                            + "'");
-                  } else {
-                    target = result.get(0);
-                    value = target;
-                  }
-
-                  if (target != null && inverse) {
-                    // INVERSE RELATIONSHIP
-                    oldValue = target.getProperty(linkName);
-
-                    if (oldValue != null) {
-                      if (!multipleRelationship[0]) {
-                        multipleRelationship[0] = true;
-                      }
-
-                      Collection<ODocument> coll;
-                      if (oldValue instanceof Collection) {
-                        // ADD IT IN THE EXISTENT COLLECTION
-                        coll = (Collection<ODocument>) oldValue;
-                        target.setDirty();
-                      } else {
-                        // CREATE A NEW COLLECTION FOR BOTH
-                        coll = new ArrayList<ODocument>(2);
-                        target.setProperty(linkName, coll);
-                        coll.add((ODocument) oldValue);
-                      }
-                      coll.add(doc);
-                    } else {
-                      if (txLinkType != null) {
-                        if (txLinkType == OType.LINKSET) {
-                          value = new ORecordLazySet(target);
-                          ((Set<OIdentifiable>) value).add(doc);
-                        } else if (txLinkType == OType.LINKLIST) {
-                          value = new ORecordLazyList(target);
-                          ((ORecordLazyList) value).add(doc);
-                        } else
-                        // IGNORE THE TYPE, SET IT AS LINK
-                        {
-                          value = doc;
-                        }
-                      } else {
-                        value = doc;
-                      }
-
-                      target.setProperty(linkName, value);
-                    }
-                    target.save();
-
-                  } else {
-
-                    // SET THE REFERENCE
-                    doc.setProperty(linkName, value);
-                    doc.save();
-                  }
-
-                  total[0]++;
-                }
+            if (destField != null
+                && !ODocumentHelper.ATTRIBUTE_RID.equals(destField.value)
+                && value instanceof String) {
+              if (((String) value).length() == 0) {
+                value = null;
+              } else {
+                value = "'" + value + "'";
               }
             }
-          });
+
+            try (OResultSet rs = database.query(txCmd + value)) {
+              result = toList(rs);
+            }
+
+            if (result == null || result.size() == 0) {
+              value = null;
+            } else if (result.size() > 1) {
+              throw new OCommandExecutionException(
+                  "Cannot create link because multiple records was found in class '"
+                      + txDestClass.getName()
+                      + "' with value "
+                      + value
+                      + " in field '"
+                      + destField
+                      + "'");
+            } else {
+              target = result.get(0);
+              value = target;
+            }
+
+            if (target != null && inverse) {
+              // INVERSE RELATIONSHIP
+              oldValue = target.getProperty(linkName);
+
+              if (oldValue != null) {
+                if (!multipleRelationship[0]) {
+                  multipleRelationship[0] = true;
+                }
+
+                Collection<ODocument> coll;
+                if (oldValue instanceof Collection) {
+                  // ADD IT IN THE EXISTENT COLLECTION
+                  coll = (Collection<ODocument>) oldValue;
+                  target.setDirty();
+                } else {
+                  // CREATE A NEW COLLECTION FOR BOTH
+                  coll = new ArrayList<ODocument>(2);
+                  target.setProperty(linkName, coll);
+                  coll.add((ODocument) oldValue);
+                }
+                coll.add(doc);
+              } else {
+                if (txLinkType != null) {
+                  if (txLinkType == OType.LINKSET) {
+                    value = new ORecordLazySet(target);
+                    ((Set<OIdentifiable>) value).add(doc);
+                  } else if (txLinkType == OType.LINKLIST) {
+                    value = new ORecordLazyList(target);
+                    ((ORecordLazyList) value).add(doc);
+                  } else
+                  // IGNORE THE TYPE, SET IT AS LINK
+                  {
+                    value = doc;
+                  }
+                } else {
+                  value = doc;
+                }
+
+                target.setProperty(linkName, value);
+              }
+              target.save();
+
+            } else {
+
+              // SET THE REFERENCE
+              doc.setProperty(linkName, value);
+              doc.save();
+            }
+
+            total[0]++;
+          }
+        }
+      }
 
       if (total[0] > 0) {
         if (inverse) {

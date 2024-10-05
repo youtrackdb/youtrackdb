@@ -105,7 +105,7 @@ public class ViewManager {
         });
   }
 
-  private void registerLiveUpdates(ODatabaseSession db) {
+  private void registerLiveUpdates(ODatabaseDocumentInternal db) {
     boolean liveViewsExist = false;
     Collection<OView> views = db.getMetadata().getSchema().getViews();
     for (OView view : views) {
@@ -430,7 +430,7 @@ public class ViewManager {
 
   private void addItemToView(
       OResult item,
-      ODatabaseDocument db,
+      ODatabaseDocumentInternal db,
       String originRidField,
       String viewName,
       String clusterName,
@@ -494,7 +494,7 @@ public class ViewManager {
     return result;
   }
 
-  private String createNextClusterNameFor(OView view, ODatabaseSession db) {
+  private String createNextClusterNameFor(OView view, ODatabaseDocumentInternal db) {
     int i = 0;
     String viewName = view.getName();
     while (true) {
@@ -624,14 +624,15 @@ public class ViewManager {
     @Override
     public void onCreate(ODatabaseDocument db, OResult data) {
       OView view = db.getMetadata().getSchema().getView(viewName);
+      var dbInternal = (ODatabaseDocumentInternal) db;
       if (view != null) {
         int cluster = view.getClusterIds()[0];
         addItemToView(
             data,
-            db,
+            dbInternal,
             view.getOriginRidField(),
             view.getName(),
-            db.getClusterNameById(cluster),
+            dbInternal.getClusterNameById(cluster),
             new ArrayList<>(view.getIndexes()));
       }
     }

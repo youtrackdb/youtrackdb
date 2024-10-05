@@ -878,6 +878,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
     final OWOWCache wowCache =
         new OWOWCache(
             pageSize,
+            contextConfiguration.getValueAsBoolean(OGlobalConfiguration.FILE_LOG_DELETION),
             OByteBufferPool.instance(null),
             writeAheadLog,
             doubleWriteLog,

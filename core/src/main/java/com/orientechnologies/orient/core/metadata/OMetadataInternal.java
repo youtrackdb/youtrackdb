@@ -16,6 +16,7 @@
  */
 package com.orientechnologies.orient.core.metadata;
 
+import com.orientechnologies.orient.core.index.OIndexManager;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.schema.OImmutableSchema;
@@ -23,13 +24,16 @@ import com.orientechnologies.orient.core.metadata.security.OIdentity;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.OSecurity;
 import com.orientechnologies.orient.core.metadata.security.OUser;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
-/** Internal interface to manage metadata snapshots. */
+/**
+ * Internal interface to manage metadata snapshots.
+ */
 public interface OMetadataInternal extends OMetadata {
 
   Set<String> SYSTEM_CLUSTER =
@@ -52,4 +56,30 @@ public interface OMetadataInternal extends OMetadata {
   OImmutableSchema getImmutableSchemaSnapshot();
 
   OIndexManagerAbstract getIndexManagerInternal();
+
+  @Deprecated
+  void load();
+
+  @Deprecated
+  void create() throws IOException;
+
+  /**
+   * @deprecated Manual indexes are deprecated and will be removed
+   */
+  @Deprecated
+  OIndexManager getIndexManager();
+
+  @Deprecated
+  int getSchemaClusterId();
+
+  /**
+   * Reloads the internal objects.
+   */
+  void reload();
+
+  /**
+   * Closes internal objects
+   */
+  @Deprecated
+  void close();
 }

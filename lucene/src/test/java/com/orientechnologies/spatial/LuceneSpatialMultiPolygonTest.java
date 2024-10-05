@@ -235,6 +235,8 @@ public class LuceneSpatialMultiPolygonTest extends BaseSpatialLuceneTest {
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
     OIOUtils.copyStream(systemResourceAsStream, outputStream);
+
+    db.begin();
     db.command(
             "insert into Place set name = 'TestInsert' , location = ST_GeomFromText('"
                 + outputStream.toString()
@@ -244,6 +246,7 @@ public class LuceneSpatialMultiPolygonTest extends BaseSpatialLuceneTest {
     db.command(
             "insert into Place set name = 'Test1' , location = ST_GeomFromText('" + MULTIWKT + "')")
         .close();
+    db.commit();
 
     Assert.assertEquals(3, index.getInternal().size());
 

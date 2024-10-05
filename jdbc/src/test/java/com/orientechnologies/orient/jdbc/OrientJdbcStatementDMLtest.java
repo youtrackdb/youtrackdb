@@ -17,7 +17,7 @@ package com.orientechnologies.orient.jdbc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import java.io.IOException;
@@ -35,12 +35,14 @@ public class OrientJdbcStatementDMLtest extends OrientJdbcDbPerMethodTemplateTes
     Date date = new Date(System.currentTimeMillis());
 
     Statement stmt = conn.createStatement();
+    stmt.execute("begin");
     int updated =
         stmt.executeUpdate(
             "INSERT into Item (stringKey, intKey, text, length, date) values ('100','100','dummy"
                 + " text','10','"
                 + date.toString()
                 + "')");
+    stmt.execute("commit");
 
     assertThat(updated).isEqualTo(1);
 
@@ -58,7 +60,9 @@ public class OrientJdbcStatementDMLtest extends OrientJdbcDbPerMethodTemplateTes
   public void shouldUpdateAnItem() throws Exception {
 
     Statement stmt = conn.createStatement();
+    stmt.execute("begin");
     int updated = stmt.executeUpdate("UPDATE Item set text = 'UPDATED'  WHERE intKey = '10'");
+    stmt.execute("commit");
 
     assertThat(stmt.getMoreResults()).isFalse();
     assertThat(updated).isEqualTo(1);
@@ -92,14 +96,14 @@ public class OrientJdbcStatementDMLtest extends OrientJdbcDbPerMethodTemplateTes
 
     Statement stmt = conn.createStatement();
 
-    stmt.executeUpdate("CREATE CLASS Account ");
-    stmt.executeUpdate("CREATE PROPERTY Account.id INTEGER ");
-    stmt.executeUpdate("CREATE PROPERTY Account.birthDate DATE ");
-    stmt.executeUpdate("CREATE PROPERTY Account.binary BINARY ");
+    stmt.execute("CREATE CLASS Account ");
+    stmt.execute("CREATE PROPERTY Account.id INTEGER ");
+    stmt.execute("CREATE PROPERTY Account.birthDate DATE ");
+    stmt.execute("CREATE PROPERTY Account.binary BINARY ");
     stmt.close();
 
     // double value test pattern?
-    ODatabaseDocument database = conn.getDatabase();
+    var database = (ODatabaseDocumentInternal) conn.getDatabase();
     assertThat(database.getClusterIdByName("account")).isNotNull();
     OClass account = database.getMetadata().getSchema().getClass("Account");
     assertThat(account).isNotNull();
@@ -121,7 +125,7 @@ public class OrientJdbcStatementDMLtest extends OrientJdbcDbPerMethodTemplateTes
     stmt.close();
 
     // double value test pattern?
-    ODatabaseDocument database = conn.getDatabase();
+    ODatabaseDocumentInternal database = (ODatabaseDocumentInternal) conn.getDatabase();
     assertThat(database.getClusterIdByName("account")).isNotNull();
     OClass account = database.getMetadata().getSchema().getClass("Account");
     assertThat(account).isNotNull();

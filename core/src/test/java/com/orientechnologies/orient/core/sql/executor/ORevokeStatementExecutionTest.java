@@ -21,6 +21,7 @@ import org.junit.Test;
  * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
 public class ORevokeStatementExecutionTest {
+
   static OrientDB orient;
   private ODatabaseSession db;
 
@@ -55,11 +56,15 @@ public class ORevokeStatementExecutionTest {
             .createRole("testRole", OSecurityRole.ALLOW_MODES.DENY_ALL_BUT);
     Assert.assertFalse(
         testRole.allow(ORule.ResourceGeneric.SERVER, "server", ORole.PERMISSION_EXECUTE));
+    db.begin();
     db.command("GRANT execute on server.remove to testRole");
+    db.commit();
     testRole = db.getMetadata().getSecurity().getRole("testRole");
     Assert.assertTrue(
         testRole.allow(ORule.ResourceGeneric.SERVER, "remove", ORole.PERMISSION_EXECUTE));
+    db.begin();
     db.command("REVOKE execute on server.remove from testRole");
+    db.commit();
     testRole = db.getMetadata().getSecurity().getRole("testRole");
     Assert.assertFalse(
         testRole.allow(ORule.ResourceGeneric.SERVER, "remove", ORole.PERMISSION_EXECUTE));

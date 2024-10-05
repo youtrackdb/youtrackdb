@@ -209,7 +209,7 @@ public class OCommandExecutorSQLCreateLink extends OCommandExecutorSQLAbstract {
               + "' was found");
     }
 
-    final ODatabaseDocument db = (ODatabaseDocument) database.getDatabaseOwner();
+    final var db = (ODatabaseDocumentInternal) database.getDatabaseOwner();
 
     OClass sourceClass =
         database.getMetadata().getImmutableSchemaSnapshot().getClass(sourceClassName);
@@ -340,12 +340,12 @@ public class OCommandExecutorSQLCreateLink extends OCommandExecutorSQLAbstract {
                 target.field(linkName, value);
               }
 
-              database.executeInTx(target::save);
+              target.save();
 
             } else {
               // SET THE REFERENCE
               doc.field(linkName, value);
-              database.executeInTx(doc::save);
+              doc.save();
             }
 
             total++;

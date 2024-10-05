@@ -18,12 +18,15 @@ public class LuceneSandboxTest extends OLuceneBaseTest {
   public void setUp() throws Exception {
     db.command("CREATE CLASS CDR");
     db.command("CREATE PROPERTY  CDR.filename STRING");
+
+    db.begin();
     db.command(
         "INSERT into cdr(filename)"
             + " values('MDCA10MCR201612291808.276388.eno.RRC.20161229183002.PROD_R4.eno.data') ");
     db.command(
         "INSERT into cdr(filename)"
             + " values('MDCA20MCR201612291911.277904.eno.RRC.20161229193002.PROD_R4.eno.data') ");
+    db.commit();
   }
 
   @Test

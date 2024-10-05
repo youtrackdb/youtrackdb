@@ -446,8 +446,11 @@ public final class OWOWCache extends OAbstractWriteCache
   private boolean closed;
   private final ExecutorService executor;
 
+  private final boolean logFileDeletion;
+
   public OWOWCache(
       final int pageSize,
+      final boolean logFileDeletion,
       final OByteBufferPool bufferPool,
       final OWriteAheadLog writeAheadLog,
       final DoubleWriteLog doubleWriteLog,
@@ -465,6 +468,7 @@ public final class OWOWCache extends OAbstractWriteCache
       final boolean callFsync,
       ExecutorService executor) {
 
+    this.logFileDeletion = logFileDeletion;
     if (aesKey != null && aesKey.length != 16 && aesKey.length != 24 && aesKey.length != 32) {
       throw new OInvalidStorageEncryptionKeyException(
           "Invalid length of the encryption key, provided size is " + aesKey.length);
@@ -1900,7 +1904,8 @@ public final class OWOWCache extends OAbstractWriteCache
 
   private OFile createFileInstance(final String fileName, final int fileId) {
     final String internalFileName = createInternalFileName(fileName, fileId);
-    return new AsyncFile(storagePath.resolve(internalFileName), pageSize, this.executor);
+    return new AsyncFile(
+        storagePath.resolve(internalFileName), pageSize, logFileDeletion, this.executor);
   }
 
   private static String createInternalFileName(final String fileName, final int fileId) {
@@ -1984,7 +1989,7 @@ public final class OWOWCache extends OAbstractWriteCache
         if (files.get(externalId) == null) {
           final Path path =
               storagePath.resolve(idFileNameMap.get((nameIdEntry.getValue().intValue())));
-          final AsyncFile file = new AsyncFile(path, pageSize, this.executor);
+          final AsyncFile file = new AsyncFile(path, pageSize, logFileDeletion, this.executor);
 
           if (file.exists()) {
             file.open();
@@ -2052,7 +2057,7 @@ public final class OWOWCache extends OAbstractWriteCache
         if (files.get(externalId) == null) {
           final Path path =
               storagePath.resolve(idFileNameMap.get((nameIdEntry.getValue().intValue())));
-          final AsyncFile file = new AsyncFile(path, pageSize, this.executor);
+          final AsyncFile file = new AsyncFile(path, pageSize, logFileDeletion, this.executor);
 
           if (file.exists()) {
             file.open();
@@ -2126,7 +2131,11 @@ public final class OWOWCache extends OAbstractWriteCache
 
         if (files.get(externalId) == null) {
           final OFile fileClassic =
-              new AsyncFile(storagePath.resolve(nameIdEntry.getKey()), pageSize, this.executor);
+              new AsyncFile(
+                  storagePath.resolve(nameIdEntry.getKey()),
+                  pageSize,
+                  logFileDeletion,
+                  this.executor);
 
           if (fileClassic.exists()) {
             fileClassic.open();

@@ -25,7 +25,6 @@ import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.OrientDBConfigBuilder;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
 import com.orientechnologies.orient.core.db.tool.ODatabaseExport;
@@ -49,6 +48,7 @@ import org.testng.annotations.Test;
 
 @Test(groups = {"db", "import-export"})
 public class DbImportExportTest extends DocumentDBBaseTest implements OCommandOutputListener {
+
   public static final String EXPORT_FILE_PATH = "target/db.export.gz";
   public static final String NEW_DB_PATH = "target/test-import";
   public static final String NEW_DB_URL = "target/test-import";
@@ -66,7 +66,7 @@ public class DbImportExportTest extends DocumentDBBaseTest implements OCommandOu
 
   @Test
   public void testDbExport() throws IOException {
-    final ODatabaseDocument database = new ODatabaseDocumentTx(url);
+    final ODatabaseDocumentInternal database = new ODatabaseDocumentTx(url);
     database.open("admin", "admin");
 
     // ADD A CUSTOM TO THE CLASS
@@ -91,7 +91,7 @@ public class DbImportExportTest extends DocumentDBBaseTest implements OCommandOu
       importDir.mkdir();
     }
 
-    final ODatabaseDocument database =
+    final ODatabaseDocumentInternal database =
         new ODatabaseDocumentTx(getStorageType() + ":" + testPath + "/" + NEW_DB_URL);
     database.create();
 
@@ -203,10 +203,10 @@ public class DbImportExportTest extends DocumentDBBaseTest implements OCommandOu
       }
 
       orientDB.create("imported", ODatabaseType.PLOCAL);
-      try (final ODatabaseSession session = orientDB.open("imported", "admin", "admin")) {
+      try (final ODatabaseDocumentInternal session =
+          (ODatabaseDocumentInternal) orientDB.open("imported", "admin", "admin")) {
         final ODatabaseImport databaseImport =
-            new ODatabaseImport(
-                (ODatabaseDocumentInternal) session, exportPath.getPath(), System.out::println);
+            new ODatabaseImport(session, exportPath.getPath(), System.out::println);
         databaseImport.run();
 
         final Iterator<ODocument> classIterator = session.browseClass("RootClass");

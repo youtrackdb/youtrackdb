@@ -2,7 +2,7 @@ package com.orientechnologies.orient.object;
 
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.serialization.serializer.object.OObjectSerializer;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTxInternal;
 import com.orientechnologies.orient.object.serialization.OObjectSerializerContext;
 import com.orientechnologies.orient.object.serialization.OObjectSerializerHelper;
 import org.junit.Assert;
@@ -12,7 +12,7 @@ public class CustomDatatypeTest {
 
   @Test
   public void reproduce() throws Exception {
-    final OObjectDatabaseTx db = new OObjectDatabaseTx("memory:CustomDatatypeTest");
+    final OObjectDatabaseTxInternal db = new OObjectDatabaseTxInternal("memory:CustomDatatypeTest");
     db.create();
     try {
       // WrappedString custom datatype registration (storing it as

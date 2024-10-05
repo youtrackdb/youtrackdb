@@ -15,7 +15,6 @@
 package com.orientechnologies.spatial;
 
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -39,7 +38,7 @@ public class LuceneSpatialMemoryTest {
   @Test
   public void boundingBoxTest() {
     //noinspection deprecation
-    try (ODatabaseDocument db = new ODatabaseDocumentTx("memory:test")) {
+    try (ODatabaseDocumentInternal db = new ODatabaseDocumentTx("memory:test")) {
       db.create();
       try {
 
@@ -76,7 +75,7 @@ public class LuceneSpatialMemoryTest {
   public void boundingBoxTestTxRollBack() {
 
     @SuppressWarnings("deprecation")
-    ODatabaseDocument db = new ODatabaseDocumentTx("memory:test");
+    ODatabaseDocumentInternal db = new ODatabaseDocumentTx("memory:test");
     db.create();
     try {
 
@@ -156,7 +155,7 @@ public class LuceneSpatialMemoryTest {
   @Test
   public void boundingBoxTestTxCommit() {
 
-    ODatabaseDocument db = new ODatabaseDocumentTx("memory:test");
+    ODatabaseDocumentInternal db = new ODatabaseDocumentTx("memory:test");
 
     db.create();
 

@@ -4,9 +4,9 @@ import static com.orientechnologies.orient.core.sql.executor.ExecutionPlanPrintU
 import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.viewmanager.ViewCreationListener;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -34,7 +34,7 @@ public class OUpdateStatementExecutionTest {
 
   @Rule public TestName name = new TestName();
 
-  private ODatabaseDocument db;
+  private ODatabaseDocumentInternal db;
 
   private String className;
   private OrientDB orientDB;
@@ -44,7 +44,9 @@ public class OUpdateStatementExecutionTest {
     orientDB =
         OCreateDatabaseUtil.createDatabase(
             name.getMethodName(), "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
-    db = orientDB.open(name.getMethodName(), "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    db =
+        (ODatabaseDocumentInternal)
+            orientDB.open(name.getMethodName(), "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     className = name.getMethodName();
     db.getMetadata().getSchema().createClass(className);
@@ -82,7 +84,10 @@ public class OUpdateStatementExecutionTest {
 
   @Test
   public void testSetString() {
+    db.begin();
     OResultSet result = db.command("update " + className + " set surname = 'foo'");
+    db.commit();
+
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
     OResult item = result.next();
@@ -105,7 +110,9 @@ public class OUpdateStatementExecutionTest {
 
   @Test
   public void testCopyField() {
+    db.begin();
     OResultSet result = db.command("update " + className + " set surname = name");
+    db.commit();
 
     Assert.assertTrue(result.hasNext());
     OResult item = result.next();
@@ -127,7 +134,10 @@ public class OUpdateStatementExecutionTest {
 
   @Test
   public void testSetExpression() {
+    db.begin();
     OResultSet result = db.command("update " + className + " set surname = 'foo'+name ");
+    db.commit();
+
     Assert.assertTrue(result.hasNext());
     OResult item = result.next();
     Assert.assertNotNull(item);
@@ -148,8 +158,11 @@ public class OUpdateStatementExecutionTest {
 
   @Test
   public void testConditionalSet() {
+    db.begin();
     OResultSet result =
         db.command("update " + className + " set surname = 'foo' where name = 'name3'");
+    db.commit();
+
     Assert.assertTrue(result.hasNext());
     OResult item = result.next();
     Assert.assertNotNull(item);
@@ -175,8 +188,11 @@ public class OUpdateStatementExecutionTest {
 
   @Test
   public void testSetOnList() {
+    db.begin();
     OResultSet result =
         db.command("update " + className + " set tagsList[0] = 'abc' where name = 'name3'");
+    db.commit();
+
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
     OResult item = result.next();
@@ -207,8 +223,11 @@ public class OUpdateStatementExecutionTest {
 
   @Test
   public void testSetOnList2() {
+    db.begin();
     OResultSet result =
         db.command("update " + className + " set tagsList[6] = 'abc' where name = 'name3'");
+    db.commit();
+
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
     OResult item = result.next();
@@ -243,8 +262,11 @@ public class OUpdateStatementExecutionTest {
 
   @Test
   public void testSetOnMap() {
+    db.begin();
     OResultSet result =
         db.command("update " + className + " set tagsMap['foo'] = 'abc' where name = 'name3'");
+    db.commit();
+
     Assert.assertTrue(result.hasNext());
     OResult item = result.next();
     Assert.assertNotNull(item);
@@ -280,8 +302,11 @@ public class OUpdateStatementExecutionTest {
 
   @Test
   public void testPlusAssign() {
+    db.begin();
     OResultSet result =
         db.command("update " + className + " set name += 'foo', newField += 'bar', number += 5");
+    db.commit();
+
     Assert.assertTrue(result.hasNext());
     OResult item = result.next();
     Assert.assertNotNull(item);
@@ -306,7 +331,10 @@ public class OUpdateStatementExecutionTest {
 
   @Test
   public void testMinusAssign() {
+    db.begin();
     OResultSet result = db.command("update " + className + " set number -= 5");
+    db.commit();
+
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
     OResult item = result.next();
@@ -328,7 +356,10 @@ public class OUpdateStatementExecutionTest {
 
   @Test
   public void testStarAssign() {
+    db.begin();
     OResultSet result = db.command("update " + className + " set number *= 5");
+    db.commit();
+
     Assert.assertTrue(result.hasNext());
     OResult item = result.next();
     Assert.assertNotNull(item);
@@ -349,7 +380,10 @@ public class OUpdateStatementExecutionTest {
 
   @Test
   public void testSlashAssign() {
+    db.begin();
     OResultSet result = db.command("update " + className + " set number /= 2");
+    db.commit();
+
     Assert.assertTrue(result.hasNext());
     OResult item = result.next();
     Assert.assertNotNull(item);
@@ -379,7 +413,10 @@ public class OUpdateStatementExecutionTest {
     }
 
     result.close();
+    db.begin();
     result = db.command("update " + className + " remove surname");
+    db.commit();
+
     for (int i = 0; i < 1; i++) {
       Assert.assertTrue(result.hasNext());
       OResult item = result.next();
@@ -403,8 +440,11 @@ public class OUpdateStatementExecutionTest {
   @Test
   public void testContent() {
 
+    db.begin();
     OResultSet result =
         db.command("update " + className + " content {'name': 'foo', 'secondName': 'bar'}");
+    db.commit();
+
     Assert.assertTrue(result.hasNext());
     OResult item = result.next();
     Assert.assertNotNull(item);
@@ -428,8 +468,11 @@ public class OUpdateStatementExecutionTest {
   @Test
   public void testMerge() {
 
+    db.begin();
     OResultSet result =
         db.command("update " + className + " merge {'name': 'foo', 'secondName': 'bar'}");
+    db.commit();
+
     Assert.assertTrue(result.hasNext());
     OResult item = result.next();
     Assert.assertNotNull(item);
@@ -453,8 +496,11 @@ public class OUpdateStatementExecutionTest {
   @Test
   public void testUpsert1() {
 
+    db.begin();
     OResultSet result =
         db.command("update " + className + " set foo = 'bar' upsert where name = 'name1'");
+    db.commit();
+
     Assert.assertTrue(result.hasNext());
     OResult item = result.next();
     Assert.assertNotNull(item);
@@ -482,9 +528,11 @@ public class OUpdateStatementExecutionTest {
   @Test
   public void testUpsertAndReturn() {
 
+    db.begin();
     OResultSet result =
         db.command(
             "update " + className + " set foo = 'bar' upsert  return after  where name = 'name1' ");
+    db.commit();
 
     Assert.assertTrue(result.hasNext());
     OResult item = result.next();
@@ -497,8 +545,11 @@ public class OUpdateStatementExecutionTest {
   @Test
   public void testUpsert2() {
 
+    db.begin();
     OResultSet result =
         db.command("update " + className + " set foo = 'bar' upsert where name = 'name11'");
+    db.commit();
+
     Assert.assertTrue(result.hasNext());
     OResult item = result.next();
     Assert.assertNotNull(item);
@@ -541,7 +592,10 @@ public class OUpdateStatementExecutionTest {
     doc.save();
     db.commit();
 
+    db.begin();
     OResultSet result = db.command("update " + className + " remove theProperty[0]");
+    db.commit();
+
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
     OResult item = result.next();
@@ -578,7 +632,10 @@ public class OUpdateStatementExecutionTest {
     doc.save();
     db.commit();
 
+    db.begin();
     OResultSet result = db.command("update " + className + " remove theProperty[0, 1, 3]");
+    db.commit();
+
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
     OResult item = result.next();
@@ -629,7 +686,10 @@ public class OUpdateStatementExecutionTest {
     doc.save();
     db.commit();
 
+    db.begin();
     OResultSet result = db.command("update " + className + " remove theProperty.sub");
+    db.commit();
+
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
     OResult item = result.next();
@@ -652,7 +712,9 @@ public class OUpdateStatementExecutionTest {
   @Test
   public void testRemoveFromMapSquare() {
 
+    db.begin();
     db.command("UPDATE " + className + " REMOVE tagsMap[\"bar\"]").close();
+    db.commit();
 
     OResultSet result = db.query("SELECT tagsMap FROM " + className);
     printExecutionPlan(result);
@@ -670,7 +732,9 @@ public class OUpdateStatementExecutionTest {
   @Test
   public void testRemoveFromMapEquals() {
 
+    db.begin();
     db.command("UPDATE " + className + " REMOVE tagsMap = \"bar\"").close();
+    db.commit();
 
     OResultSet result = db.query("SELECT tagsMap FROM " + className);
     printExecutionPlan(result);
@@ -710,7 +774,9 @@ public class OUpdateStatementExecutionTest {
             });
     latch.await();
 
+    db.begin();
     db.command("UPDATE " + viewName + " SET aNewProp = \"newPropValue\"").close();
+    db.commit();
 
     OResultSet result = db.query("SELECT aNewProp FROM " + viewName);
     for (int i = 0; i < 10; i++) {
@@ -734,20 +800,6 @@ public class OUpdateStatementExecutionTest {
   }
 
   @Test
-  public void testReturnBefore() {
-    OResultSet result =
-        db.command("update " + className + " set name = 'foo' RETURN BEFORE where name = 'name1'");
-    printExecutionPlan(result);
-    Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
-    Assert.assertNotNull(item);
-    Assert.assertEquals("name1", item.getProperty("name"));
-
-    Assert.assertFalse(result.hasNext());
-    result.close();
-  }
-
-  @Test
   public void testUpdateWhereSubquery() {
 
     db.begin();
@@ -756,16 +808,21 @@ public class OUpdateStatementExecutionTest {
     ORID identity = db.save(vertex).getIdentity();
     db.commit();
 
+    db.begin();
     try (OResultSet result =
         db.command(
             "update v set first='value' where @rid in (select @rid from [" + identity + "]) ")) {
+
       assertEquals((long) result.next().getProperty("count"), 1L);
     }
+    db.commit();
 
+    db.begin();
     try (OResultSet result =
         db.command(
             "update v set other='value' where @rid in (select * from [" + identity + "]) ")) {
       assertEquals((long) result.next().getProperty("count"), 1L);
     }
+    db.commit();
   }
 }

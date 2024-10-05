@@ -103,6 +103,7 @@
                     --add-opens jdk.unsupported/sun.misc=ALL-UNNAMED
                     --add-opens java.base/sun.security.x509=ALL-UNNAMED
                     -Dmemory.directMemory.preallocate=false
+                    -Dfile.log.deletion=false
                 </argLine>
             </properties>
         </profile>

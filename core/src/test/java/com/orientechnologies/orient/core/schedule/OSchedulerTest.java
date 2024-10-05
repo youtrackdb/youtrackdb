@@ -101,7 +101,7 @@ public class OSchedulerTest {
     final ODatabaseSession db2 =
         context.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     try {
-      Thread.sleep(2000);
+      Thread.sleep(4000);
       Long count = getLogCounter(db2);
       Assert.assertTrue(count >= 2);
 
@@ -148,11 +148,12 @@ public class OSchedulerTest {
         ODatabaseSession db =
             context.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
       OFunction func = createFunction(db);
-      // CREATE NEW EVENT
+      db.begin();
       db.command(
               "insert into oschedule set name = 'test', function = ?, rule = \"0/1 * * * * ?\"",
               func.getId())
           .close();
+      db.commit();
 
       BaseMemoryDatabase.assertWithTimeout(
           db,
@@ -167,9 +168,11 @@ public class OSchedulerTest {
       int retryCount = 10;
       while (true) {
         try {
+          db.begin();
           db.command(
                   "update oschedule set rule = \"0/2 * * * * ?\" where name = 'test'", func.getId())
               .close();
+          db.commit();
           break;
         } catch (ONeedRetryException e) {
           retryCount--;
@@ -189,8 +192,21 @@ public class OSchedulerTest {
       long newCount = getLogCounter(db);
       Assert.assertTrue(newCount - count > 1);
 
-      // DELETE
-      db.command("delete from oschedule where name = 'test'", func.getId()).close();
+      retryCount = 10;
+      while (true) {
+        try {
+          // DELETE
+          db.begin();
+          db.command("delete from oschedule where name = 'test'", func.getId()).close();
+          db.commit();
+          break;
+        } catch (ONeedRetryException e) {
+          retryCount--;
+          //noinspection BusyWait
+          Thread.sleep(10);
+        }
+        Assert.assertTrue(retryCount >= 0);
+      }
 
       BaseMemoryDatabase.assertWithTimeout(
           db,

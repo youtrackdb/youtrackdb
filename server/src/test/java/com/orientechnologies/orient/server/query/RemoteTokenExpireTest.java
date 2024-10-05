@@ -96,7 +96,9 @@ public class RemoteTokenExpireTest {
 
     session.activateOnCurrentThread();
 
+    session.begin();
     try (OResultSet res = session.command("insert into V set name = 'foo'")) {
+      session.commit();
 
       Assert.assertEquals(1, res.stream().count());
 
@@ -113,7 +115,7 @@ public class RemoteTokenExpireTest {
 
     session.activateOnCurrentThread();
 
-    try (OResultSet res = session.execute("sql", "insert into V set name = 'foo'")) {
+    try (OResultSet res = session.execute("sql", "begin;insert into V set name = 'foo';commit;")) {
 
       Assert.assertEquals(1, res.stream().count());
 
