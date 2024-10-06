@@ -108,6 +108,7 @@
                     -Djava.util.logging.manager=com.orientechnologies.common.log.ShutdownLogManager
                     -Dstorage.diskCache.checksumMode=storeAndThrow
                     -Dsecurity.warningDefaultUsers=false
+                    -Dtx.nonTxReadsWarningMode=SILENT
                     -Dfile.log.deletion=false
                     --add-opens jdk.unsupported/sun.misc=ALL-UNNAMED
                     --add-opens java.base/sun.security.x509=ALL-UNNAMED

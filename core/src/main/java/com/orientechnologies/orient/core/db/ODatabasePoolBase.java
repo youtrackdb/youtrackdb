@@ -57,12 +57,7 @@ public abstract class ODatabasePoolBase<DB extends ODatabaseInternal> extends Th
   }
 
   public ODatabasePoolBase<DB> setup(final int iMinSize, final int iMaxSize) {
-    if (dbPool == null)
-      setup(
-          iMinSize,
-          iMaxSize,
-          OGlobalConfiguration.DB_POOL_IDLE_TIMEOUT.getValueAsLong(),
-          OGlobalConfiguration.DB_POOL_IDLE_CHECK_DELAY.getValueAsLong());
+    if (dbPool == null) setup(iMinSize, iMaxSize, 6, 64);
 
     return this;
   }

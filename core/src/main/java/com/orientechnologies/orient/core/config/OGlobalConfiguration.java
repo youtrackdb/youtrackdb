@@ -22,7 +22,6 @@ package com.orientechnologies.orient.core.config;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.profiler.OProfiler;
-import com.orientechnologies.common.util.OApi;
 import com.orientechnologies.orient.core.OConstants;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.engine.local.OEngineLocalPaginated;
@@ -50,28 +49,12 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       Boolean.class,
       Boolean.FALSE),
 
-  @Deprecated
-  ENVIRONMENT_CONCURRENT(
-      "environment.concurrent",
-      "Specifies if running in multi-thread environment. Setting this to false turns off the"
-          + " internal lock management",
-      Boolean.class,
-      Boolean.TRUE),
-
   ENVIRONMENT_LOCK_MANAGER_CONCURRENCY_LEVEL(
       "environment.lock.concurrency.level",
       "Concurrency level of lock manager",
       Integer.class,
       Runtime.getRuntime().availableProcessors() << 3,
       false),
-
-  @Deprecated
-  ENVIRONMENT_ALLOW_JVM_SHUTDOWN(
-      "environment.allowJVMShutdown",
-      "Allows the shutdown of the JVM, if needed/requested",
-      Boolean.class,
-      true,
-      true),
 
   // SCRIPT
   SCRIPT_POOL(
@@ -101,13 +84,6 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       "Interval of printing of memory profiling results in minutes",
       Integer.class,
       15),
-
-  @Deprecated
-  MEMORY_CHUNK_SIZE(
-      "memory.chunk.size",
-      "Size of single memory chunk (in bytes) which will be preallocated by OrientDB",
-      Integer.class,
-      Integer.MAX_VALUE),
 
   MEMORY_LEFT_TO_OS(
       "memory.leftToOS",
@@ -170,16 +146,10 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       Boolean.class,
       true),
 
-  @Deprecated
-  JVM_GC_DELAY_FOR_OPTIMIZE(
-      "jvm.gc.delayForOptimize",
-      "Minimal amount of time (in seconds), since the last System.gc(), when called after tree"
-          + " optimization",
-      Long.class,
-      600),
-
   // STORAGE
-  /** Limit of amount of files which may be open simultaneously */
+  /**
+   * Limit of amount of files which may be open simultaneously
+   */
   OPEN_FILES_LIMIT(
       "storage.openFiles.limit",
       "Limit of amount of files which may be open simultaneously, -1 (default) means automatic"
@@ -214,20 +184,6 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       "Percentage of disk cache, which is used as write cache",
       Integer.class,
       5),
-
-  @Deprecated
-  DISK_WRITE_CACHE_USE_ASYNC_IO(
-      "storage.diskCache.useAsyncIO",
-      "Use asynchronous IO API to facilitate abilities of SSD to parallelize IO requests",
-      Boolean.class,
-      true),
-
-  @Deprecated
-  DISK_USE_NATIVE_OS_API(
-      "storage.disk.useNativeOsAPI",
-      "Allows to call native OS methods if possible",
-      Boolean.class,
-      true),
 
   DISK_WRITE_CACHE_SHUTDOWN_TIMEOUT(
       "storage.diskCache.writeCacheShutdownTimeout",
@@ -276,7 +232,8 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       2048),
 
   /**
-   * Keep disk cache state between moment when storage is closed and moment when it is opened again.
+   * Keep disk cache state between moment when storage is closed and moment when it is opened
+   * again.
    * <code>true</code> by default.
    */
   STORAGE_KEEP_DISK_CACHE_STATE(
@@ -323,25 +280,10 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       Boolean.class,
       true),
 
-  @Deprecated
-  STORAGE_CONFIGURATION_SYNC_ON_UPDATE(
-      "storage.configuration.syncOnUpdate",
-      "Indicates a force sync should be performed for each update on the storage configuration",
-      Boolean.class,
-      true),
-
   STORAGE_COMPRESSION_METHOD(
       "storage.compressionMethod",
       "Record compression method used in storage"
           + " Possible values : gzip, nothing. Default is 'nothing' that means no compression",
-      String.class,
-      "nothing"),
-
-  @Deprecated
-  STORAGE_ENCRYPTION_METHOD(
-      "storage.encryptionMethod",
-      "Record encryption method used in storage"
-          + " Possible values : 'aes' and 'des'. Default is 'nothing' for no encryption",
       String.class,
       "nothing"),
 
@@ -431,33 +373,12 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       Integer.class,
       10),
 
-  @Deprecated
-  STORAGE_TRACK_CHANGED_RECORDS_IN_WAL(
-      "storage.trackChangedRecordsInWAL",
-      "If this flag is set metadata which contains rids of changed records is added at the end of"
-          + " each atomic operation",
-      Boolean.class,
-      false),
-
   STORAGE_INTERNAL_JOURNALED_TX_STREAMING_PORT(
       "storage.internal.journaled.tx.streaming.port",
       "Activates journaled tx streaming on the given TCP/IP port. Used for internal testing"
           + " purposes only. Never touch it if you don't know what you doing.",
       Integer.class,
       null),
-  /**
-   * @deprecated WAL can not be disabled because that is very unsafe for consistency and durability
-   */
-  @Deprecated
-  USE_WAL("storage.useWAL", "Whether WAL should be used in paginated storage", Boolean.class, true),
-
-  @Deprecated
-  USE_CHM_CACHE(
-      "storage.useCHMCache",
-      "Whether to use new disk cache implementation based on CHM or old one based on cuncurrent"
-          + " queues",
-      Boolean.class,
-      true),
 
   WAL_SYNC_ON_PAGE_FLUSH(
       "storage.wal.syncOnPageFlush",
@@ -532,13 +453,6 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       Boolean.class,
       true),
 
-  @Deprecated
-  WAL_ALLOW_DIRECT_IO(
-      "storage.wal.allowDirectIO",
-      "Allows usage of direct IO API on Linux OS to avoid keeping of WAL data in OS buffer",
-      Boolean.class,
-      false),
-
   WAL_COMMIT_TIMEOUT(
       "storage.wal.commitTimeout",
       "Maximum interval between WAL commits (in ms.)",
@@ -568,13 +482,6 @@ public enum OGlobalConfiguration { // ENVIRONMENT
   WAL_RESTORE_BATCH_SIZE(
       "storage.wal.restore.batchSize",
       "Amount of WAL records, which are read at once in a single batch during a restore procedure",
-      Integer.class,
-      1000),
-
-  @Deprecated
-  WAL_READ_CACHE_SIZE(
-      "storage.wal.readCacheSize",
-      "Size of WAL read cache in amount of pages",
       Integer.class,
       1000),
 
@@ -665,13 +572,6 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       Long.class,
       8 * WAL_MAX_SEGMENT_SIZE.getValueAsLong()),
 
-  @Deprecated
-  PAGINATED_STORAGE_LOWEST_FREELIST_BOUNDARY(
-      "storage.lowestFreeListBound",
-      "The least amount of free space (in kb) in a page, which is tracked in paginated storage",
-      Integer.class,
-      16),
-
   STORAGE_LOCK_TIMEOUT(
       "storage.lockTimeout",
       "Maximum amount of time (in ms) to lock the storage",
@@ -683,16 +583,6 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       "Maximum of time (in ms) to lock a shared record",
       Integer.class,
       2000),
-
-  // RECORDS
-  @Deprecated
-  RECORD_DOWNSIZING_ENABLED(
-      "record.downsizing.enabled",
-      "On updates, if the record size is lower than before, this reduces the space taken"
-          + " accordingly. If enabled this could increase defragmentation, but it reduces the used"
-          + " disk space",
-      Boolean.class,
-      true),
 
   // DATABASE
   OBJECT_SAVE_ONLY_DIRTY(
@@ -738,17 +628,6 @@ public enum OGlobalConfiguration { // ENVIRONMENT
           + "iteration over query result set or not (true by default)",
       Boolean.class,
       true),
-
-  @Deprecated
-  DB_POOL_IDLE_TIMEOUT(
-      "db.pool.idleTimeout",
-      "Timeout for checking for free databases in the pool",
-      Integer.class,
-      0),
-
-  @Deprecated
-  DB_POOL_IDLE_CHECK_DELAY(
-      "db.pool.idleCheckDelay", "Delay time on checking for idle databases", Integer.class, 0),
 
   DB_MVCC_THROWFAST(
       "db.mvcc.throwfast",
@@ -824,14 +703,6 @@ public enum OGlobalConfiguration { // ENVIRONMENT
           + "by newly created indexes or not (false by default)",
       Boolean.class,
       false),
-
-  @Deprecated
-  INDEX_TX_MODE(
-      "index.txMode",
-      "Indicates the index durability level in TX mode. Can be ROLLBACK_ONLY or FULL (ROLLBACK_ONLY"
-          + " by default)",
-      String.class,
-      "FULL"),
 
   INDEX_CURSOR_PREFETCH_SIZE(
       "index.stream.prefetchSize", "Default prefetch size of index stream", Integer.class, 10),
@@ -1048,7 +919,9 @@ public enum OGlobalConfiguration { // ENVIRONMENT
 
   // HTTP
 
-  /** Since v2.2.8 */
+  /**
+   * Since v2.2.8
+   */
   NETWORK_HTTP_INSTALL_DEFAULT_COMMANDS(
       "network.http.installDefaultCommands",
       "Installs the default HTTP commands",
@@ -1185,7 +1058,9 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       Integer.class,
       200),
 
-  /** Interval between snapshots of profiler state in milliseconds, default value is 100. */
+  /**
+   * Interval between snapshots of profiler state in milliseconds, default value is 100.
+   */
   STORAGE_PROFILER_SNAPSHOT_INTERVAL(
       "storageProfiler.intervalBetweenSnapshots",
       "Interval between snapshots of profiler state in milliseconds",
@@ -1451,41 +1326,41 @@ public enum OGlobalConfiguration { // ENVIRONMENT
 
   // DISTRIBUTED
   /**
-   * @Since 2.2.18
+   * @since 2.2.18
    */
   DISTRIBUTED_DUMP_STATS_EVERY(
       "distributed.dumpStatsEvery",
       "Time in ms to dump the cluster stats. Set to 0 to disable such dump",
       Long.class,
-      0l,
+      0L,
       true),
 
   DISTRIBUTED_CRUD_TASK_SYNCH_TIMEOUT(
       "distributed.crudTaskTimeout",
       "Maximum timeout (in ms) to wait for CRUD remote tasks",
       Long.class,
-      3000l,
+      3000L,
       true),
 
   DISTRIBUTED_MAX_STARTUP_DELAY(
       "distributed.maxStartupDelay",
       "Maximum delay time (in ms) to wait for a server to start",
       Long.class,
-      10000l,
+      10000L,
       true),
 
   DISTRIBUTED_COMMAND_TASK_SYNCH_TIMEOUT(
       "distributed.commandTaskTimeout",
       "Maximum timeout (in ms) to wait for command distributed tasks",
       Long.class,
-      2 * 60 * 1000l,
+      2 * 60 * 1000L,
       true),
 
   DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT(
       "distributed.commandQuickTaskTimeout",
       "Maximum timeout (in ms) to wait for quick command distributed tasks",
       Long.class,
-      5 * 1000l,
+      5 * 1000L,
       true),
 
   DISTRIBUTED_COMMAND_LONG_TASK_SYNCH_TIMEOUT(
@@ -1499,14 +1374,14 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       "distributed.deployDbTaskTimeout",
       "Maximum timeout (in ms) to wait for database deployment",
       Long.class,
-      1200000l,
+      1200000L,
       true),
 
   DISTRIBUTED_DEPLOYCHUNK_TASK_SYNCH_TIMEOUT(
       "distributed.deployChunkTaskTimeout",
       "Maximum timeout (in ms) to wait for database chunk deployment",
       Long.class,
-      60000l,
+      60000L,
       true),
 
   DISTRIBUTED_DEPLOYDB_TASK_COMPRESSION(
@@ -1529,28 +1404,28 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       "Maximum timeout (in ms) to collect all the asynchronous responses from replication. After"
           + " this time the operation is rolled back (through an UNDO)",
       Long.class,
-      15000l),
+      15000L),
 
   DISTRIBUTED_PURGE_RESPONSES_TIMER_DELAY(
       "distributed.purgeResponsesTimerDelay",
       "Maximum timeout (in ms) to collect all the asynchronous responses from replication. This is"
           + " the delay the purge thread uses to check asynchronous requests in timeout",
       Long.class,
-      15000l),
+      15000L),
 
   /**
-   * @Since 2.2.7
+   * @since 2.2.7
    */
   DISTRIBUTED_TX_EXPIRE_TIMEOUT(
       "distributed.txAliveTimeout",
       "Maximum timeout (in ms) a distributed transaction can be alive. This timeout is to rollback"
           + " pending transactions after a while",
       Long.class,
-      1800000l,
+      1800000L,
       true),
 
   /**
-   * @Since 2.2.6
+   * @since 2.2.6
    */
   DISTRIBUTED_REQUEST_CHANNELS(
       "distributed.requestChannels",
@@ -1559,7 +1434,7 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       1),
 
   /**
-   * @Since 2.2.6
+   * @since 2.2.6
    */
   DISTRIBUTED_RESPONSE_CHANNELS(
       "distributed.responseChannels",
@@ -1568,17 +1443,17 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       1),
 
   /**
-   * @Since 2.2.5
+   * @since 2.2.5
    */
   DISTRIBUTED_HEARTBEAT_TIMEOUT(
       "distributed.heartbeatTimeout",
       "Maximum time in ms to wait for the heartbeat. If the server does not respond in time, it is"
           + " put offline",
       Long.class,
-      10000l),
+      10000L),
 
   /**
-   * @Since 2.2.5
+   * @since 2.2.5
    */
   DISTRIBUTED_CHECK_HEALTH_CAN_OFFLINE_SERVER(
       "distributed.checkHealthCanOfflineServer",
@@ -1587,15 +1462,17 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       false),
 
   /**
-   * @Since 2.2.5
+   * @since 2.2.5
    */
   DISTRIBUTED_CHECK_HEALTH_EVERY(
       "distributed.checkHealthEvery",
       "Time in ms to check the cluster health. Set to 0 to disable it",
       Long.class,
-      10000l),
+      10000L),
 
-  /** Since 2.2.4 */
+  /**
+   * Since 2.2.4
+   */
   DISTRIBUTED_AUTO_REMOVE_OFFLINE_SERVERS(
       "distributed.autoRemoveOfflineServers",
       "This is the amount of time (in ms) the server has to be OFFLINE, before it is automatically"
@@ -1606,18 +1483,18 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       true),
 
   /**
-   * @Since 2.2.0
+   * @since 2.2.0
    */
   DISTRIBUTED_PUBLISH_NODE_STATUS_EVERY(
       "distributed.publishNodeStatusEvery",
       "Time in ms to publish the node status on distributed map. Set to 0 to disable such refresh"
           + " of node configuration",
       Long.class,
-      10000l,
+      10000L,
       true),
 
   /**
-   * @Since 2.2.0
+   * @since 2.2.0
    */
   DISTRIBUTED_REPLICATION_PROTOCOL_VERSION(
       "distributed.replicationProtocol.version",
@@ -1628,9 +1505,8 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       true),
 
   /**
-   * @Since 2.2.0
+   * @since 2.2.0
    */
-  @OApi(maturity = OApi.MATURITY.NEW)
   DISTRIBUTED_LOCAL_QUEUESIZE(
       "distributed.localQueueSize",
       "Size of the intra-thread queue for distributed messages",
@@ -1638,9 +1514,8 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       10000),
 
   /**
-   * @Since 2.2.0
+   * @since 2.2.0
    */
-  @OApi(maturity = OApi.MATURITY.NEW)
   DISTRIBUTED_DB_WORKERTHREADS(
       "distributed.dbWorkerThreads",
       "Number of parallel worker threads per database that process distributed messages. Use 0 for"
@@ -1648,10 +1523,6 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       Integer.class,
       0),
 
-  /**
-   * @Since 2.1.3
-   */
-  @OApi(maturity = OApi.MATURITY.NEW)
   DISTRIBUTED_BACKUP_DIRECTORY(
       "distributed.backupDirectory",
       "Directory where the copy of an existent database is saved, before it is downloaded from the"
@@ -1659,21 +1530,12 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       String.class,
       "../backup/databases"),
 
-  /**
-   * @Since 2.2.15
-   */
-  @OApi(maturity = OApi.MATURITY.NEW)
-  @Deprecated
   DISTRIBUTED_BACKUP_TRY_INCREMENTAL_FIRST(
       "distributed.backupTryIncrementalFirst",
       "Try to execute an incremental backup first.",
       Boolean.class,
       true),
 
-  /**
-   * @Since 2.1
-   */
-  @OApi(maturity = OApi.MATURITY.NEW)
   DISTRIBUTED_CONCURRENT_TX_MAX_AUTORETRY(
       "distributed.concurrentTxMaxAutoRetry",
       "Maximum attempts the transaction coordinator should execute a transaction automatically, if"
@@ -1682,10 +1544,6 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       15,
       true),
 
-  /**
-   * @Since 2.2.7
-   */
-  @OApi(maturity = OApi.MATURITY.NEW)
   DISTRIBUTED_ATOMIC_LOCK_TIMEOUT(
       "distributed.atomicLockTimeout",
       "Timeout (in ms) to acquire a distributed lock on a record. (0=infinite)",
@@ -1693,10 +1551,6 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       100,
       true),
 
-  /**
-   * @Since 2.1
-   */
-  @OApi(maturity = OApi.MATURITY.NEW)
   DISTRIBUTED_CONCURRENT_TX_AUTORETRY_DELAY(
       "distributed.concurrentTxAutoRetryDelay",
       "Delay (in ms) between attempts on executing a distributed transaction, which had failed"
@@ -1720,27 +1574,23 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       ORecordSerializerBinary.NAME),
 
   /**
-   * @Since 2.2
+   * @since 2.2
    */
-  @OApi(maturity = OApi.MATURITY.NEW)
   CLIENT_KRB5_CONFIG(
       "client.krb5.config", "Location of the Kerberos configuration file", String.class, null),
 
   /**
-   * @Since 2.2
+   * @since 2.2
    */
-  @OApi(maturity = OApi.MATURITY.NEW)
   CLIENT_KRB5_CCNAME(
       "client.krb5.ccname", "Location of the Kerberos client ticketcache", String.class, null),
 
   /**
-   * @Since 2.2
+   * @since 2.2
    */
-  @OApi(maturity = OApi.MATURITY.NEW)
   CLIENT_KRB5_KTNAME(
       "client.krb5.ktname", "Location of the Kerberos client keytab", String.class, null),
 
-  @OApi(maturity = OApi.MATURITY.STABLE)
   CLIENT_CONNECTION_STRATEGY(
       "client.connection.strategy",
       "Strategy used for open connections from a client in case of multiple servers, possible"
@@ -1748,7 +1598,6 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       String.class,
       null),
 
-  @OApi(maturity = OApi.MATURITY.NEW)
   CLIENT_CONNECTION_FETCH_HOST_LIST(
       "client.connection.fetchHostList",
       "If set true fetch the list of other possible hosts from the distributed environment ",
@@ -1756,37 +1605,32 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       true),
 
   /**
-   * @Since 2.2
+   * @since 2.2
    */
-  @OApi(maturity = OApi.MATURITY.NEW)
   CLIENT_CREDENTIAL_INTERCEPTOR(
       "client.credentialinterceptor",
       "The name of the CredentialInterceptor class",
       String.class,
       null),
 
-  @OApi(maturity = OApi.MATURITY.NEW)
   CLIENT_CI_KEYALGORITHM(
       "client.ci.keyalgorithm",
       "The key algorithm used by the symmetric key credential interceptor",
       String.class,
       "AES"),
 
-  @OApi(maturity = OApi.MATURITY.NEW)
   CLIENT_CI_CIPHERTRANSFORM(
       "client.ci.ciphertransform",
       "The cipher transformation used by the symmetric key credential interceptor",
       String.class,
       "AES/CBC/PKCS5Padding"),
 
-  @OApi(maturity = OApi.MATURITY.NEW)
   CLIENT_CI_KEYSTORE_FILE(
       "client.ci.keystore.file",
       "The file path of the keystore used by the symmetric key credential interceptor",
       String.class,
       null),
 
-  @OApi(maturity = OApi.MATURITY.NEW)
   CLIENT_CI_KEYSTORE_PASSWORD(
       "client.ci.keystore.password",
       "The password of the keystore used by the symmetric key credential interceptor",
@@ -1796,9 +1640,8 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       true),
 
   /**
-   * @Since 2.2
+   * @since 2.2
    */
-  @OApi(maturity = OApi.MATURITY.NEW)
   CREATE_DEFAULT_USERS(
       "security.createDefaultUsers",
       "Indicates whether default database users should be created",
@@ -1810,9 +1653,8 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       Boolean.class,
       true),
   /**
-   * @Since 2.2
+   * @since 2.2
    */
-  @OApi(maturity = OApi.MATURITY.NEW)
   SERVER_SECURITY_FILE(
       "server.security.file",
       "Location of the OrientDB security.json configuration file",
@@ -1844,93 +1686,6 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       Boolean.class,
       false),
 
-  /** Deprecated in v2.2.0 */
-  @Deprecated
-  JNA_DISABLE_USE_SYSTEM_LIBRARY(
-      "jna.disable.system.library",
-      "This property disables using JNA, should it be installed on your system. (Default true) To"
-          + " use JNA bundled with database",
-      boolean.class,
-      true),
-
-  @Deprecated
-  DISTRIBUTED_QUEUE_TIMEOUT(
-      "distributed.queueTimeout",
-      "Maximum timeout (in ms) to wait for the response in replication",
-      Long.class,
-      500000l,
-      true),
-
-  @Deprecated
-  DB_MAKE_FULL_CHECKPOINT_ON_INDEX_CHANGE(
-      "db.makeFullCheckpointOnIndexChange",
-      "When index metadata is changed, a full checkpoint is performed",
-      Boolean.class,
-      true,
-      true),
-
-  @Deprecated
-  DB_MAKE_FULL_CHECKPOINT_ON_SCHEMA_CHANGE(
-      "db.makeFullCheckpointOnSchemaChange",
-      "When index schema is changed, a full checkpoint is performed",
-      Boolean.class,
-      true,
-      true),
-
-  @Deprecated
-  OAUTH2_SECRETKEY("oauth2.secretkey", "Http OAuth2 secret key", String.class, "", false, true),
-
-  @Deprecated
-  STORAGE_USE_CRC32_FOR_EACH_RECORD(
-      "storage.cluster.usecrc32",
-      "Indicates whether crc32 should be used for each record to check record integrity",
-      Boolean.class,
-      false),
-
-  @Deprecated
-  DB_USE_DISTRIBUTED_VERSION(
-      "db.use.distributedVersion",
-      "Deprecated, distributed version is not used anymore",
-      Boolean.class,
-      Boolean.FALSE),
-
-  @Deprecated
-  TX_COMMIT_SYNCH(
-      "tx.commit.synch", "Synchronizes the storage after transaction commit", Boolean.class, false),
-
-  @Deprecated
-  TX_AUTO_RETRY(
-      "tx.autoRetry",
-      "Maximum number of automatic retry if some resource has been locked in the middle of the"
-          + " transaction (Timeout exception)",
-      Integer.class,
-      1),
-
-  @Deprecated
-  TX_LOG_SYNCH(
-      "tx.log.synch",
-      "Executes a synch against the file-system at every log entry. This slows down transactions"
-          + " but guarantee transaction reliability on unreliable drives",
-      Boolean.class,
-      Boolean.FALSE),
-
-  @Deprecated
-  TX_USE_LOG(
-      "tx.useLog",
-      "Transactions use log file to store temporary data to be rolled back in case of crash",
-      Boolean.class,
-      true),
-
-  @Deprecated
-  INDEX_AUTO_REBUILD_AFTER_NOTSOFTCLOSE(
-      "index.auto.rebuildAfterNotSoftClose",
-      "Auto rebuild all automatic indexes after upon database open when wasn't closed properly",
-      Boolean.class,
-      true),
-
-  @Deprecated
-  CLIENT_CHANNEL_MIN_POOL("client.channel.minPool", "Minimum pool size", Integer.class, 1),
-
   AUTO_CLOSE_AFTER_DELAY(
       "storage.autoCloseAfterDelay",
       "Enable auto close of storage after a specified delay if no session are active",
@@ -1941,16 +1696,14 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       "storage.autoCloseDelay", "Storage auto close delay time in minutes", Integer.class, 20),
 
   /**
-   * @Since 3.1
+   * @since 3.1
    */
-  @OApi(maturity = OApi.MATURITY.NEW)
   DISTRIBUTED(
       "distributed", "Enable the clustering mode", Boolean.class, false, false, false, true),
 
   /**
-   * @Since 3.1
+   * @since 3.1
    */
-  @OApi(maturity = OApi.MATURITY.NEW)
   DISTRIBUTED_NODE_NAME(
       "distributed.nodeName",
       "Name of the OrientDB node in the cluster",
@@ -1965,6 +1718,15 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       "Enable the automatic close of idle sockets after a specific timeout",
       Boolean.class,
       false),
+
+  NON_TX_READS_WARNING_MODE(
+      "tx.nonTxReadsWarningMode",
+      "Defines behaviour of DB in case of non-transactional reads. Possible values : WARN(warning"
+          + " is printed), EXCEPTION(exception is thrown), SILENT(such reads are silently"
+          + " processed). WARN is default value. In future versions EXCEPTION will be the only"
+          + " possible option.",
+      String.class,
+      "WARN"),
 
   CLIENT_CHANNEL_IDLE_TIMEOUT(
       "client.channel.idleTimeout", "sockets maximum time idle in seconds", Integer.class, 900),
@@ -2007,7 +1769,9 @@ public enum OGlobalConfiguration { // ENVIRONMENT
     readConfiguration();
   }
 
-  /** Place holder for the "undefined" value of setting. */
+  /**
+   * Place holder for the "undefined" value of setting.
+   */
   private final Object nullValue = new Object();
 
   private final String key;
@@ -2137,7 +1901,9 @@ public enum OGlobalConfiguration { // ENVIRONMENT
     }
   }
 
-  /** Assign configuration values by reading system properties. */
+  /**
+   * Assign configuration values by reading system properties.
+   */
   private static void readConfiguration() {
     String prop;
     for (OGlobalConfiguration config : values()) {
@@ -2174,7 +1940,7 @@ public enum OGlobalConfiguration { // ENVIRONMENT
 
   /**
    * @return <code>true</code> if configuration was changed from default value and <code>false
-   *     </code> otherwise.
+   * </code> otherwise.
    */
   public boolean isChanged() {
     return value != nullValue;
@@ -2198,8 +1964,7 @@ public enum OGlobalConfiguration { // ENVIRONMENT
         if (type.isInstance(iValue)) {
           value = iValue;
           accepted = true;
-        } else if (iValue instanceof String) {
-          final String string = (String) iValue;
+        } else if (iValue instanceof String string) {
 
           for (Object constant : type.getEnumConstants()) {
             final Enum<?> enumConstant = (Enum<?>) constant;
@@ -2291,31 +2056,39 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       if (orient != null) {
         final OEngineLocalPaginated engineLocalPaginated =
             (OEngineLocalPaginated) orient.getEngineIfRunning(OEngineLocalPaginated.NAME);
-        if (engineLocalPaginated != null)
+        if (engineLocalPaginated != null) {
           engineLocalPaginated.changeCacheSize(((Integer) (newValue)) * 1024L * 1024L);
+        }
       }
     }
   }
 
   private static class OProfileEnabledChangeCallbac implements OConfigurationChangeCallback {
+
     public void change(final Object iCurrentValue, final Object iNewValue) {
       Orient instance = Orient.instance();
       if (instance != null) {
         final OProfiler prof = instance.getProfiler();
-        if (prof != null)
-          if ((Boolean) iNewValue) prof.startRecording();
-          else prof.stopRecording();
+        if (prof != null) {
+          if ((Boolean) iNewValue) {
+            prof.startRecording();
+          } else {
+            prof.stopRecording();
+          }
+        }
       }
     }
   }
 
   private static class OProfileConfigChangeCallback implements OConfigurationChangeCallback {
+
     public void change(final Object iCurrentValue, final Object iNewValue) {
       Orient.instance().getProfiler().configure(iNewValue.toString());
     }
   }
 
   private static class OProfileDumpIntervalChangeCallback implements OConfigurationChangeCallback {
+
     public void change(final Object iCurrentValue, final Object iNewValue) {
       Orient.instance().getProfiler().setAutoDump((Integer) iNewValue);
     }
