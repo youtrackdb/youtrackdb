@@ -2606,9 +2606,6 @@ public abstract class OAbstractPaginatedStorage
               final byte valueSerializerId =
                   indexMetadata.getValueSerializerId(binaryFormatVersion);
               final OContextConfiguration ctxCfg = configuration.getContextConfiguration();
-              @SuppressWarnings("deprecation")
-              final String cfgEncryption =
-                  ctxCfg.getValueAsString(OGlobalConfiguration.STORAGE_ENCRYPTION_METHOD);
               final String cfgEncryptionKey =
                   ctxCfg.getValueAsString(OGlobalConfiguration.STORAGE_ENCRYPTION_KEY);
               int genenrateId = indexEngines.size();
@@ -2621,7 +2618,7 @@ public abstract class OAbstractPaginatedStorage
                       keySerializer.getId(),
                       keyTypes,
                       keySize,
-                      cfgEncryption,
+                      null,
                       cfgEncryptionKey,
                       engineProperties);
 

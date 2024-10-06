@@ -63,6 +63,7 @@ import com.orientechnologies.orient.core.storage.OStorageInfo;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
 import com.orientechnologies.orient.core.tx.OTransaction;
+import com.orientechnologies.orient.core.tx.OTransactionNoTx.NonTxReadMode;
 import com.orientechnologies.orient.core.tx.OTransactionOptimistic;
 import com.orientechnologies.orient.core.util.OURLConnection;
 import com.orientechnologies.orient.core.util.OURLHelper;
@@ -1408,16 +1409,6 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
       builder.addConfig(OGlobalConfiguration.STORAGE_COMPRESSION_METHOD, compressionMethod);
     }
 
-    final String encryptionMethod =
-        pars != null
-            ? (String) pars.get(OGlobalConfiguration.STORAGE_ENCRYPTION_METHOD.getKey())
-            : null;
-    if (encryptionMethod != null)
-    // SAVE ENCRYPTION METHOD IN CONFIGURATION
-    {
-      builder.addConfig(OGlobalConfiguration.STORAGE_ENCRYPTION_METHOD, encryptionMethod);
-    }
-
     final String encryptionKey =
         pars != null
             ? (String) pars.get(OGlobalConfiguration.STORAGE_ENCRYPTION_KEY.getKey())
@@ -1653,6 +1644,11 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
   @Override
   public long truncateClusterInternal(String name) {
     return internal.truncateClusterInternal(name);
+  }
+
+  @Override
+  public NonTxReadMode getNonTxReadMode() {
+    return internal.getNonTxReadMode();
   }
 
   @Override

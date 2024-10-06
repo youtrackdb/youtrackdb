@@ -19,6 +19,8 @@
  */
 package com.orientechnologies.orient.core.tx;
 
+import com.orientechnologies.common.log.OLogManager;
+import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
@@ -42,8 +44,33 @@ import java.util.List;
  */
 public class OTransactionNoTx extends OTransactionAbstract {
 
-  public OTransactionNoTx(final ODatabaseDocumentInternal iDatabase) {
-    super(iDatabase);
+  private static final String NON_TX_WARNING_READ_MESSAGE =
+      "Read operation performed in no tx mode. "
+          + "Such behavior can lead to inconsistent state of the database. "
+          + "Please consider using transaction or set "
+          + OGlobalConfiguration.NON_TX_READS_WARNING_MODE.getKey()
+          + " configuration parameter to "
+          + NonTxReadMode.SILENT.name()
+          + " to avoid this warning, or to "
+          + NonTxReadMode.EXCEPTION.name()
+          + " to throw an exception for such cases.";
+  private static final String NON_TX_EXCEPTION_READ_MESSAGE =
+      "Read operation performed in no tx mode. "
+          + "Such behavior can lead to inconsistent state of the database."
+          + " Please consider using transaction or set "
+          + OGlobalConfiguration.NON_TX_READS_WARNING_MODE.getKey()
+          + " configuration parameter to "
+          + NonTxReadMode.SILENT.name()
+          + " to avoid this warning, or to "
+          + NonTxReadMode.WARN.name()
+          + " to show a warning for such cases.";
+
+  private final NonTxReadMode nonTxReadMode;
+
+  public OTransactionNoTx(final ODatabaseDocumentInternal database) {
+    super(database);
+
+    this.nonTxReadMode = database.getNonTxReadMode();
   }
 
   public void begin() {
@@ -68,13 +95,14 @@ public class OTransactionNoTx extends OTransactionAbstract {
     throw new UnsupportedOperationException("Rollback is not supported in no tx mode");
   }
 
-  @Deprecated
   public ORecord loadRecord(
       final ORID iRid,
       final ORecordAbstract iRecord,
       final String iFetchPlan,
       final boolean ignoreCache,
       final boolean loadTombstone) {
+    checkNonTXReads();
+
     if (iRid.isNew()) {
       return null;
     }
@@ -100,21 +128,7 @@ public class OTransactionNoTx extends OTransactionAbstract {
       final boolean ignoreCache,
       final boolean iUpdateCache,
       final boolean loadTombstone) {
-    if (iRid.isNew()) {
-      return null;
-    }
-
-    if (iRecord != null) {
-      iRecord.incrementLoading();
-    }
-    try {
-      return database.executeReadRecord(
-          (ORecordId) iRid, iRecord, -1, iFetchPlan, ignoreCache, loadTombstone, null);
-    } finally {
-      if (iRecord != null) {
-        iRecord.decrementLoading();
-      }
-    }
+    return loadRecord(iRid, iRecord, iFetchPlan, ignoreCache, loadTombstone);
   }
 
   public ORecord loadRecord(
@@ -122,20 +136,14 @@ public class OTransactionNoTx extends OTransactionAbstract {
       final ORecordAbstract iRecord,
       final String iFetchPlan,
       final boolean ignoreCache) {
-    if (iRid.isNew()) {
-      return null;
-    }
+    return loadRecord(iRid, iRecord, iFetchPlan, ignoreCache, false);
+  }
 
-    if (iRecord != null) {
-      iRecord.incrementLoading();
-    }
-    try {
-      return database.executeReadRecord(
-          (ORecordId) iRid, iRecord, -1, iFetchPlan, ignoreCache, false, null);
-    } finally {
-      if (iRecord != null) {
-        iRecord.decrementLoading();
-      }
+  private void checkNonTXReads() {
+    if (nonTxReadMode == NonTxReadMode.WARN) {
+      OLogManager.instance().warn(this, NON_TX_WARNING_READ_MESSAGE);
+    } else if (nonTxReadMode == NonTxReadMode.EXCEPTION) {
+      throw new ODatabaseException(NON_TX_EXCEPTION_READ_MESSAGE);
     }
   }
 
@@ -151,6 +159,8 @@ public class OTransactionNoTx extends OTransactionAbstract {
   @Override
   public ORecord reloadRecord(
       ORID rid, ORecordAbstract record, String fetchPlan, boolean ignoreCache, boolean force) {
+    checkNonTXReads();
+
     if (rid.isNew()) {
       return null;
     }
@@ -282,4 +292,10 @@ public class OTransactionNoTx extends OTransactionAbstract {
 
   @Override
   public void internalRollback() {}
+
+  public enum NonTxReadMode {
+    WARN,
+    EXCEPTION,
+    SILENT
+  }
 }

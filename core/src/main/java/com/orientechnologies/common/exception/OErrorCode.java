@@ -1,7 +1,6 @@
 package com.orientechnologies.common.exception;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.common.util.OApi;
 import com.orientechnologies.orient.core.exception.OBackupInProgressException;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.orientechnologies.orient.core.exception.OQueryParsingException;
@@ -13,7 +12,6 @@ import java.lang.reflect.InvocationTargetException;
  *
  * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
-@OApi(maturity = OApi.MATURITY.NEW)
 public enum OErrorCode {
 
   // eg.
@@ -36,7 +34,7 @@ public enum OErrorCode {
 
   GENERIC_ERROR(OErrorCategory.SQL_GENERIC, 5, "Generic Error", OException.class);
 
-  private static OErrorCode[] codes = new OErrorCode[6];
+  private static final OErrorCode[] codes = new OErrorCode[6];
 
   static {
     for (OErrorCode code : OErrorCode.values()) {
@@ -44,10 +42,10 @@ public enum OErrorCode {
     }
   }
 
-  protected final OErrorCategory category;
-  protected final int code;
-  protected final String description;
-  protected final Class<? extends OException> exceptionClass;
+  private final OErrorCategory category;
+  private final int code;
+  private final String description;
+  private final Class<? extends OException> exceptionClass;
 
   OErrorCode(
       OErrorCategory category,

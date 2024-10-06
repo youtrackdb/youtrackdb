@@ -46,6 +46,7 @@ import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
 import com.orientechnologies.orient.core.tx.OTransactionData;
+import com.orientechnologies.orient.core.tx.OTransactionNoTx;
 import com.orientechnologies.orient.core.tx.OTransactionOptimistic;
 import java.util.Map;
 import java.util.Set;
@@ -303,11 +304,13 @@ public interface ODatabaseDocumentInternal extends ODatabaseSession, ODatabaseIn
 
   default void queryStartUsingViewIndex(String index) {}
 
-  public void truncateClass(String name);
+  void truncateClass(String name);
 
-  public long truncateClass(String name, boolean polimorfic);
+  long truncateClass(String name, boolean polimorfic);
 
-  public long truncateClusterInternal(String name);
+  long truncateClusterInternal(String name);
+
+  OTransactionNoTx.NonTxReadMode getNonTxReadMode();
 
   /**
    * Browses all the records of the specified cluster.
