@@ -81,6 +81,8 @@ import com.orientechnologies.orient.core.storage.OStorageInfo;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
 import com.orientechnologies.orient.core.tx.OTransactionAbstract;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChanges;
+import com.orientechnologies.orient.core.tx.OTransactionNoTx;
+import com.orientechnologies.orient.core.tx.OTransactionNoTx.NonTxReadMode;
 import com.orientechnologies.orient.core.tx.OTransactionOptimistic;
 import java.io.IOException;
 import java.io.InputStream;
@@ -101,6 +103,7 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
   protected OStorageRemoteSession sessionMetadata;
   private OrientDBConfig config;
   private OStorageRemote storage;
+  private OTransactionNoTx.NonTxReadMode nonTxReadMode;
 
   public ODatabaseDocumentRemote(final OStorageRemote storage, OSharedContext sharedContext) {
     activateOnCurrentThread();
@@ -121,6 +124,30 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
       init();
 
       databaseOwner = this;
+      try {
+        var cfg = storage.getConfiguration();
+        if (cfg != null) {
+          var ctx = cfg.getContextConfiguration();
+          if (ctx != null) {
+            nonTxReadMode =
+                OTransactionNoTx.NonTxReadMode.valueOf(
+                    ctx.getValueAsString("nonTxReadsWarningMode", "WARN"));
+          } else {
+            nonTxReadMode = NonTxReadMode.WARN;
+          }
+        } else {
+          nonTxReadMode = NonTxReadMode.WARN;
+        }
+      } catch (Exception e) {
+        OLogManager.instance()
+            .warn(
+                this,
+                "Invalid value for %s, using %s",
+                e,
+                OGlobalConfiguration.NON_TX_READS_WARNING_MODE.getKey(),
+                NonTxReadMode.WARN);
+        nonTxReadMode = NonTxReadMode.WARN;
+      }
 
     } catch (Exception t) {
       ODatabaseRecordThreadLocal.instance().remove();
@@ -1097,5 +1124,10 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
       }
     }
     return count;
+  }
+
+  @Override
+  public NonTxReadMode getNonTxReadMode() {
+    return nonTxReadMode;
   }
 }
