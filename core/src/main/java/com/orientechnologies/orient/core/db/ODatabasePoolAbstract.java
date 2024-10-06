@@ -104,16 +104,6 @@ public abstract class ODatabasePoolAbstract<DB extends ODatabaseInternal> extend
     }
   }
 
-  public ODatabasePoolAbstract(final Object iOwner, final int iMinSize, final int iMaxSize) {
-    this(
-        iOwner,
-        iMinSize,
-        iMaxSize,
-        OGlobalConfiguration.CLIENT_CONNECT_POOL_WAIT_TIMEOUT.getValueAsInteger(),
-        OGlobalConfiguration.DB_POOL_IDLE_TIMEOUT.getValueAsLong(),
-        OGlobalConfiguration.DB_POOL_IDLE_CHECK_DELAY.getValueAsLong());
-  }
-
   public ODatabasePoolAbstract(
       final Object iOwner,
       final int iMinSize,

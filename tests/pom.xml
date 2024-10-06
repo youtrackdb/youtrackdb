@@ -231,6 +231,25 @@
 
     <profiles>
         <profile>
+            <id>java17</id>
+            <activation>
+                <jdk>[17,)</jdk>
+            </activation>
+            <properties>
+                <argLine>
+                    -Xmx${heapSize}
+                    -Dstorage.diskCache.bufferSize=4096
+                    -Dmemory.directMemory.trackMode=true
+                    -Djava.util.logging.manager=com.orientechnologies.common.log.ShutdownLogManager
+                    -Dstorage.diskCache.checksumMode=storeAndThrow
+                    -Dsecurity.warningDefaultUsers=false
+                    -Dfile.log.deletion=false
+                    -Dtx.nonTxReadsWarningMode=SILENT
+                    --add-opens jdk.unsupported/sun.misc=ALL-UNNAMED
+                </argLine>
+            </properties>
+        </profile>
+        <profile>
             <id>test-embedded</id>
             <build>
                 <plugins>

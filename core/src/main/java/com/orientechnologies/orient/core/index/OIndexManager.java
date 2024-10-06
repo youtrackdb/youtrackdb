@@ -20,7 +20,6 @@
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.common.listener.OProgressListener;
-import com.orientechnologies.common.util.OApi;
 import com.orientechnologies.orient.core.dictionary.ODictionary;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -45,7 +44,8 @@ public interface OIndexManager {
   void load();
 
   /**
-   * Creates a document where index manager configuration is saved and creates a "dictionary" index.
+   * Creates a document where index manager configuration is saved and creates a "dictionary"
+   * index.
    *
    * <p>IMPORTANT! Only for internal usage.
    */
@@ -104,12 +104,12 @@ public interface OIndexManager {
   /**
    * Creates a new index with default algorithm.
    *
-   * @param iName - name of index
-   * @param iType - index type. Specified by plugged index factories.
-   * @param indexDefinition metadata that describes index structure
+   * @param iName             - name of index
+   * @param iType             - index type. Specified by plugged index factories.
+   * @param indexDefinition   metadata that describes index structure
    * @param clusterIdsToIndex ids of clusters that index should track for changes.
-   * @param progressListener listener to track task progress.
-   * @param metadata document with additional properties that can be used by index engine.
+   * @param progressListener  listener to track task progress.
+   * @param metadata          document with additional properties that can be used by index engine.
    * @return a newly created index instance
    * @deprecated Manual indexes are deprecated and will be removed
    */
@@ -127,13 +127,13 @@ public interface OIndexManager {
    *
    * <p>May require quite a long time if big amount of data should be indexed.
    *
-   * @param iName name of index
-   * @param iType index type. Specified by plugged index factories.
-   * @param indexDefinition metadata that describes index structure
+   * @param iName             name of index
+   * @param iType             index type. Specified by plugged index factories.
+   * @param indexDefinition   metadata that describes index structure
    * @param clusterIdsToIndex ids of clusters that index should track for changes.
-   * @param progressListener listener to track task progress.
-   * @param metadata document with additional properties that can be used by index engine.
-   * @param algorithm tip to an index factory what algorithm to use
+   * @param progressListener  listener to track task progress.
+   * @param metadata          document with additional properties that can be used by index engine.
+   * @param algorithm         tip to an index factory what algorithm to use
    * @return a newly created index instance
    * @deprecated Manual indexes are deprecated and will be removed
    */
@@ -155,7 +155,6 @@ public interface OIndexManager {
    * @deprecated Manual indexes are deprecated and will be removed
    */
   @Deprecated
-  @OApi(maturity = OApi.MATURITY.STABLE)
   OIndexManager dropIndex(final String iIndexName);
 
   /**
@@ -199,11 +198,12 @@ public interface OIndexManager {
    * Returns list of indexes that contain passed in fields names as their first keys. Order of
    * fields does not matter.
    *
-   * <p>All indexes sorted by their count of parameters in ascending order. If there are indexes for
+   * <p>All indexes sorted by their count of parameters in ascending order. If there are indexes
+   * for
    * the given set of fields in super class they will be taken into account.
    *
    * @param className name of class which is indexed.
-   * @param fields Field names.
+   * @param fields    Field names.
    * @return list of indexes that contain passed in fields names as their first keys.
    * @deprecated Manual indexes are deprecated and will be removed
    */
@@ -214,11 +214,12 @@ public interface OIndexManager {
    * Returns list of indexes that contain passed in fields names as their first keys. Order of
    * fields does not matter.
    *
-   * <p>All indexes sorted by their count of parameters in ascending order. If there are indexes for
+   * <p>All indexes sorted by their count of parameters in ascending order. If there are indexes
+   * for
    * the given set of fields in super class they will be taken into account.
    *
    * @param className name of class which is indexed.
-   * @param fields Field names.
+   * @param fields    Field names.
    * @return list of indexes that contain passed in fields names as their first keys.
    * @deprecated Manual indexes are deprecated and will be removed
    */
@@ -231,7 +232,7 @@ public interface OIndexManager {
    * will be taken into account.
    *
    * @param className name of class which contain {@code fields}.
-   * @param fields Field names.
+   * @param fields    Field names.
    * @return <code>true</code> if given fields are contained as first key fields in class indexes.
    * @deprecated
    */
@@ -240,7 +241,7 @@ public interface OIndexManager {
 
   /**
    * @param className name of class which contain {@code fields}.
-   * @param fields Field names.
+   * @param fields    Field names.
    * @return <code>true</code> if given fields are contained as first key fields in class indexes.
    * @see #areIndexed(String, java.util.Collection)
    * @deprecated Manual indexes are deprecated and will be removed
@@ -262,7 +263,7 @@ public interface OIndexManager {
    * Gets indexes for a specified class (excluding indexes for sub-classes).
    *
    * @param className name of class which is indexed.
-   * @param indexes Collection of indexes where to add all the indexes
+   * @param indexes   Collection of indexes where to add all the indexes
    * @deprecated Manual indexes are deprecated and will be removed
    */
   @Deprecated
@@ -301,7 +302,7 @@ public interface OIndexManager {
    * <p>IMPORTANT! Only for internal usage.
    *
    * @return true if crash is happened and database configured to automatically recreate indexes
-   *     after crash.
+   * after crash.
    */
   @Deprecated
   boolean autoRecreateIndexesAfterCrash();
@@ -312,7 +313,7 @@ public interface OIndexManager {
    * <p>IMPORTANT! Only for internal usage.
    *
    * @param clusterName cluster to add.
-   * @param indexName name of index.
+   * @param indexName   name of index.
    */
   @SuppressWarnings("DeprecatedIsStillUsed")
   @Deprecated
@@ -324,7 +325,7 @@ public interface OIndexManager {
    * <p>IMPORTANT! Only for internal usage.
    *
    * @param clusterName cluster to remove.
-   * @param indexName name of index.
+   * @param indexName   name of index.
    */
   @SuppressWarnings("DeprecatedIsStillUsed")
   @Deprecated

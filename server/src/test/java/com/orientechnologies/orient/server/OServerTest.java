@@ -6,7 +6,6 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.Orient;
-import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.server.config.OServerConfiguration;
 import com.orientechnologies.orient.server.config.OServerHandlerConfiguration;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
@@ -32,9 +31,6 @@ public class OServerTest {
     prevPassword = System.setProperty("ORIENTDB_ROOT_PASSWORD", "rootPassword");
     prevOrientHome = System.setProperty("ORIENTDB_HOME", "./target/testhome");
 
-    allowJvmShutdownPrev = OGlobalConfiguration.ENVIRONMENT_ALLOW_JVM_SHUTDOWN.getValueAsBoolean();
-    OGlobalConfiguration.ENVIRONMENT_ALLOW_JVM_SHUTDOWN.setValue(false);
-
     conf = new OServerConfiguration();
 
     conf.handlers = new ArrayList<OServerHandlerConfiguration>();
@@ -51,8 +47,6 @@ public class OServerTest {
 
     Orient.instance().shutdown();
     OFileUtils.deleteRecursively(new File("./target/testhome"));
-    // invariants
-    OGlobalConfiguration.ENVIRONMENT_ALLOW_JVM_SHUTDOWN.setValue(allowJvmShutdownPrev);
 
     if (prevOrientHome != null) System.setProperty("ORIENTDB_HOME", prevOrientHome);
     if (prevPassword != null) System.setProperty("ORIENTDB_ROOT_PASSWORD", prevPassword);
