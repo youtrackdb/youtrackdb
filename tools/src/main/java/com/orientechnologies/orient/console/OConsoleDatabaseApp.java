@@ -342,13 +342,6 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     urlConnection = OURLHelper.parseNew(databaseURL);
     OrientDBConfigBuilder config = OrientDBConfig.builder();
 
-    for (Map.Entry<String, String> oentry : omap.entrySet()) {
-      if ("-encryption".equalsIgnoreCase(oentry.getKey()))
-        config.addConfig(OGlobalConfiguration.STORAGE_ENCRYPTION_METHOD, oentry.getValue());
-      else if ("-compression".equalsIgnoreCase(oentry.getKey()))
-        config.addConfig(OGlobalConfiguration.STORAGE_COMPRESSION_METHOD, oentry.getValue());
-    }
-
     ODatabaseType type;
     if (storageType != null) {
       type = ODatabaseType.valueOf(storageType.toUpperCase());

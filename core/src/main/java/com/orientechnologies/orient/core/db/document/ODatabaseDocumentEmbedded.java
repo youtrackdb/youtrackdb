@@ -108,6 +108,8 @@ import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedSt
 import com.orientechnologies.orient.core.storage.impl.local.OFreezableStorageComponent;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
 import com.orientechnologies.orient.core.tx.OTransactionAbstract;
+import com.orientechnologies.orient.core.tx.OTransactionNoTx;
+import com.orientechnologies.orient.core.tx.OTransactionNoTx.NonTxReadMode;
 import com.orientechnologies.orient.core.tx.OTransactionOptimistic;
 import java.io.IOException;
 import java.io.InputStream;
@@ -135,6 +137,8 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
   private OrientDBConfig config;
   private OStorage storage;
 
+  private OTransactionNoTx.NonTxReadMode nonTxReadMode;
+
   public ODatabaseDocumentEmbedded(final OStorage storage) {
     activateOnCurrentThread();
 
@@ -153,6 +157,30 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
       init();
 
       databaseOwner = this;
+      try {
+        var cfg = storage.getConfiguration();
+        if (cfg != null) {
+          var ctx = cfg.getContextConfiguration();
+          if (ctx != null) {
+            nonTxReadMode =
+                OTransactionNoTx.NonTxReadMode.valueOf(
+                    ctx.getValueAsString("nonTxReadsWarningMode", "WARN"));
+          } else {
+            nonTxReadMode = NonTxReadMode.WARN;
+          }
+        } else {
+          nonTxReadMode = NonTxReadMode.WARN;
+        }
+      } catch (Exception e) {
+        OLogManager.instance()
+            .warn(
+                this,
+                "Invalid value for %s, using %s",
+                e,
+                OGlobalConfiguration.NON_TX_READS_WARNING_MODE.getKey(),
+                NonTxReadMode.WARN);
+        nonTxReadMode = NonTxReadMode.WARN;
+      }
     } catch (Exception t) {
       ODatabaseRecordThreadLocal.instance().remove();
 
@@ -904,8 +932,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
 
     ORecordHook.RESULT triggerChanged = null;
     boolean changed = false;
-    if (id instanceof ODocument) {
-      ODocument doc = (ODocument) id;
+    if (id instanceof ODocument doc) {
 
       if (!getSharedContext().getSecurity().canCreate(this, doc)) {
         throw new OSecurityException(
@@ -965,8 +992,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
 
     ORecordHook.RESULT triggerChanged = null;
     boolean changed = false;
-    if (id instanceof ODocument) {
-      ODocument doc = (ODocument) id;
+    if (id instanceof ODocument doc) {
       OImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(this, doc);
       if (clazz != null) {
         if (clazz.isScheduler()) {
@@ -1100,8 +1126,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
   @Override
   public void beforeDeleteOperations(OIdentifiable id, String iClusterName) {
     checkSecurity(ORole.PERMISSION_DELETE, id, iClusterName);
-    if (id instanceof ODocument) {
-      ODocument doc = (ODocument) id;
+    if (id instanceof ODocument doc) {
       OImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(this, doc);
       if (clazz != null) {
         if (clazz.isTriggered()) {
@@ -1128,8 +1153,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
   }
 
   public void afterCreateOperations(final OIdentifiable id) {
-    if (id instanceof ODocument) {
-      final ODocument doc = (ODocument) id;
+    if (id instanceof ODocument doc) {
       final OImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(this, doc);
       if (clazz != null) {
         OClassIndexManager.checkIndexesAfterCreate(doc, this);
@@ -1182,8 +1206,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
   }
 
   public void afterDeleteOperations(final OIdentifiable id) {
-    if (id instanceof ODocument) {
-      ODocument doc = (ODocument) id;
+    if (id instanceof ODocument doc) {
       OImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(this, doc);
       if (clazz != null) {
         OClassIndexManager.checkIndexesAfterDelete(doc, this);
@@ -1225,8 +1248,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
 
   @Override
   public boolean beforeReadOperations(OIdentifiable identifiable) {
-    if (identifiable instanceof ODocument) {
-      ODocument doc = (ODocument) identifiable;
+    if (identifiable instanceof ODocument doc) {
       OImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(this, doc);
       if (clazz != null) {
         if (clazz.isTriggered()) {
@@ -1942,6 +1964,11 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
       count++;
     }
     return count;
+  }
+
+  @Override
+  public NonTxReadMode getNonTxReadMode() {
+    return nonTxReadMode;
   }
 
   @Override

@@ -27,6 +27,7 @@ public class OTokenSignImpl implements OTokenSign {
   private final OKeyProvider keyProvider;
 
   private static class MacThreadLocal extends ThreadLocal<Map<String, Mac>> {
+
     @Override
     protected Map<String, Mac> initialValue() {
       return new HashMap<String, Mac>();
@@ -128,10 +129,11 @@ public class OTokenSignImpl implements OTokenSign {
   public static byte[] readKeyFromConfig(OContextConfiguration config) {
     byte[] key = null;
     String configKey = config.getValueAsString(OGlobalConfiguration.NETWORK_TOKEN_SECRETKEY);
-    if (configKey == null || configKey.length() == 0)
-      configKey = config.getValueAsString(OGlobalConfiguration.OAUTH2_SECRETKEY);
-
-    if (configKey != null && configKey.length() > 0) key = Base64.getUrlDecoder().decode(configKey);
+    if (configKey == null || configKey.length() == 0) {
+      if (configKey != null && configKey.length() > 0) {
+        key = Base64.getUrlDecoder().decode(configKey);
+      }
+    }
 
     if (key == null) {
       key = OSecurityManager.digestSHA256(String.valueOf(new SecureRandom().nextLong()));

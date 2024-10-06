@@ -22,7 +22,6 @@ package com.orientechnologies.orient.core.metadata.sequence;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.thread.NonDaemonThreadFactory;
 import com.orientechnologies.common.thread.OThreadPoolExecutorWithLogging;
-import com.orientechnologies.common.util.OApi;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
@@ -425,7 +424,6 @@ public abstract class OSequence {
   /*
    * Forwards the sequence by one, and returns the new value.
    */
-  @OApi
   public long next() throws OSequenceLimitReachedException, ODatabaseException {
     return nextWork();
   }
@@ -435,7 +433,6 @@ public abstract class OSequence {
   /*
    * Returns the current sequence value. If next() was never called, returns null
    */
-  @OApi
   public long current() throws ODatabaseException {
     return currentWork();
   }

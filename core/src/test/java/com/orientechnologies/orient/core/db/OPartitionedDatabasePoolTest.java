@@ -1,7 +1,6 @@
 package com.orientechnologies.orient.core.db;
 
 import static com.orientechnologies.orient.core.config.OGlobalConfiguration.STORAGE_ENCRYPTION_KEY;
-import static com.orientechnologies.orient.core.config.OGlobalConfiguration.STORAGE_ENCRYPTION_METHOD;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
@@ -115,13 +114,8 @@ public class OPartitionedDatabasePoolTest {
 
   @Test
   public void shouldUseEncryption() throws Exception {
-
-    pool.setProperty(STORAGE_ENCRYPTION_METHOD.getKey(), "aes");
     pool.setProperty(STORAGE_ENCRYPTION_KEY.getKey(), "T1JJRU5UREJfSVNfQ09PTA==");
-
     ODatabaseDocumentInternal dbFromPool = pool.acquire();
-
-    assertThat(dbFromPool.getProperty(STORAGE_ENCRYPTION_METHOD.getKey())).isEqualTo("aes");
     assertThat(dbFromPool.getProperty(STORAGE_ENCRYPTION_KEY.getKey()))
         .isEqualTo("T1JJRU5UREJfSVNfQ09PTA==");
   }
