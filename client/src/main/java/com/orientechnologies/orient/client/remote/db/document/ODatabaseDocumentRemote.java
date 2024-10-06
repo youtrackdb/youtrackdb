@@ -197,7 +197,7 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
           String query = "alter database CUSTOM 'clear'";
           // Bypass the database command for avoid transaction management
           ORemoteQueryResult result =
-              getStorageRemote().command(this, query, new Object[]{iValue});
+              getStorageRemote().command(this, query, new Object[] {iValue});
           result.getResult().close();
         } else {
           throw new IllegalArgumentException(
@@ -211,7 +211,7 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
     } else {
       String query = "alter database " + iAttribute.name() + " ? ";
       // Bypass the database command for avoid transaction management
-      ORemoteQueryResult result = getStorageRemote().command(this, query, new Object[]{iValue});
+      ORemoteQueryResult result = getStorageRemote().command(this, query, new Object[] {iValue});
       result.getResult().close();
       getStorageRemote().reload();
     }
@@ -224,12 +224,12 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
     if ("clear".equals(name) && iValue == null) {
       String query = "alter database CUSTOM 'clear'";
       // Bypass the database command for avoid transaction management
-      ORemoteQueryResult result = getStorageRemote().command(this, query, new Object[]{});
+      ORemoteQueryResult result = getStorageRemote().command(this, query, new Object[] {});
       result.getResult().close();
     } else {
       String query = "alter database CUSTOM  " + name + " = ?";
       // Bypass the database command for avoid transaction management
-      ORemoteQueryResult result = getStorageRemote().command(this, query, new Object[]{iValue});
+      ORemoteQueryResult result = getStorageRemote().command(this, query, new Object[] {iValue});
       result.getResult().close();
       getStorageRemote().reload();
     }
