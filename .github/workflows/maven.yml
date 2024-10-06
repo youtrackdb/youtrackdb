@@ -30,4 +30,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
       - name: Build with Maven
-        run: mvn "-Dorientdb.test.env=ci" -B package --file pom.xml    
+        run: mvn "-Dorientdb.test.env=ci" -B package --file pom.xml
+      - name: Uplodad tests artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Tests report for ${{ matrix.os }} - ${{ matrix.java-version }} 
+          path: ${{ github.workspace }}/**/surefire-reports/*
