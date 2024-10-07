@@ -10,6 +10,7 @@ import org.junit.Test;
  * @author Enrico Risa
  */
 public class HttpXRequestedWithXMLHttpRequestTest extends BaseHttpDatabaseTest {
+
   protected void onAfterDatabaseCreated() throws Exception {
     setUserPassword("123456");
   }
@@ -20,7 +21,7 @@ public class HttpXRequestedWithXMLHttpRequestTest extends BaseHttpDatabaseTest {
 
     var response = get("class/" + getDatabaseName() + "/OUser", headers).getResponse();
 
-    Assert.assertEquals(response.getCode(), 401);
+    Assert.assertEquals(response.getReasonPhrase(), response.getCode(), 401);
     Assert.assertEquals(response.containsHeader("WWW-Authenticate"), false);
   }
 
@@ -28,7 +29,7 @@ public class HttpXRequestedWithXMLHttpRequestTest extends BaseHttpDatabaseTest {
   public void sendHttpRequest() throws IOException {
     var response = get("class/" + getDatabaseName() + "/OUser").getResponse();
 
-    Assert.assertEquals(response.getCode(), 401);
+    Assert.assertEquals(response.getReasonPhrase(), response.getCode(), 401);
     Assert.assertEquals(response.containsHeader("WWW-Authenticate"), true);
   }
 

@@ -21,7 +21,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by wolf4ood on 1/03/19. */
+/**
+ * Created by wolf4ood on 1/03/19.
+ */
 public class RemoteTokenExpireTest {
 
   private static final String SERVER_DIRECTORY = "./target/token";
@@ -53,6 +55,14 @@ public class RemoteTokenExpireTest {
     session.createClass("Some");
     oldPageSize = QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
     QUERY_REMOTE_RESULTSET_PAGE_SIZE.setValue(10);
+
+    session.close();
+    orientDB.close();
+
+    var config =
+        OrientDBConfig.builder().addConfig(OGlobalConfiguration.NETWORK_SOCKET_RETRY, 0).build();
+    orientDB = new OrientDB("remote:localhost", "root", "root", config);
+    session = orientDB.open(RemoteTokenExpireTest.class.getSimpleName(), "admin", "admin");
   }
 
   private void clean() {

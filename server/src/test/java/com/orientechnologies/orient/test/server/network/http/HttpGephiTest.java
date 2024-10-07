@@ -1,6 +1,7 @@
 package com.orientechnologies.orient.test.server.network.http;
 
 import java.io.IOException;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpResponse;
 import org.junit.Assert;
 import org.junit.Test;
@@ -20,7 +21,7 @@ public class HttpGephiTest extends BaseHttpDatabaseTest {
             .setUserPassword("root")
             .getResponse();
 
-    Assert.assertEquals(200, response.getCode());
+    Assert.assertEquals(response.getReasonPhrase(), 200, response.getCode());
   }
 
   @Test
@@ -33,36 +34,34 @@ public class HttpGephiTest extends BaseHttpDatabaseTest {
 
     response.getEntity().writeTo(System.out);
 
-    Assert.assertEquals(200, response.getCode());
+    Assert.assertEquals(response.getReasonPhrase(), 200, response.getCode());
   }
 
   @Override
   public void createDatabase() throws Exception {
     super.createDatabase();
 
-    Assert.assertEquals(
+    ClassicHttpResponse response =
         post("command/" + getDatabaseName() + "/sql/")
             .payload(
                 "{\"command\":\"create vertex set name = ?\",\"parameters\":[\"Jay\"]}",
                 CONTENT.TEXT)
             .setUserName("admin")
             .setUserPassword("admin")
-            .getResponse()
-            .getCode(),
-        200);
+            .getResponse();
+    Assert.assertEquals(response.getReasonPhrase(), response.getCode(), 200);
 
-    Assert.assertEquals(
+    ClassicHttpResponse response1 =
         post("command/" + getDatabaseName() + "/sql/")
             .payload(
                 "{\"command\":\"create vertex set name = ?\",\"parameters\":[\"Amiga\"]}",
                 CONTENT.TEXT)
             .setUserName("admin")
             .setUserPassword("admin")
-            .getResponse()
-            .getCode(),
-        200);
+            .getResponse();
+    Assert.assertEquals(response1.getReasonPhrase(), response1.getCode(), 200);
 
-    Assert.assertEquals(
+    ClassicHttpResponse response2 =
         post("command/" + getDatabaseName() + "/sql/")
             .payload(
                 "{\"command\":\"create edge from (select from v where name = 'Jay') to (select from"
@@ -70,9 +69,8 @@ public class HttpGephiTest extends BaseHttpDatabaseTest {
                 CONTENT.TEXT)
             .setUserName("admin")
             .setUserPassword("admin")
-            .getResponse()
-            .getCode(),
-        200);
+            .getResponse();
+    Assert.assertEquals(response2.getReasonPhrase(), response2.getCode(), 200);
   }
 
   @Override

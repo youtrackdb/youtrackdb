@@ -10,7 +10,9 @@ import java.util.LinkedList;
 import java.util.List;
 import org.junit.Test;
 
-/** Created by tglman on 16/03/16. */
+/**
+ * Created by tglman on 16/03/16.
+ */
 public class HttpImportTest extends BaseHttpDatabaseTest {
 
   @Test
@@ -20,7 +22,7 @@ public class HttpImportTest extends BaseHttpDatabaseTest {
         "{\"records\": [{\"@type\": \"d\", \"@rid\": \"#9:0\",\"@version\": 1,\"@class\": \"V\"}]}";
     post("import/" + getDatabaseName() + "?merge=true").payload(content, CONTENT.TEXT);
     var response = getResponse();
-    assertEquals(200, response.getCode());
+    assertEquals(response.getReasonPhrase(), 200, response.getCode());
 
     InputStream is = response.getEntity().getContent();
     List<String> out = new LinkedList<>();
