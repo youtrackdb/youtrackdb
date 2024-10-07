@@ -102,7 +102,7 @@
   version "2.53.42"
   resolved "https://registry.yarnpkg.com/@types/selenium-webdriver/-/selenium-webdriver-2.53.42.tgz#74cb77fb6052edaff2a8984ddafd88d419f25cac"
 
-"@types/source-map@*", "@types/source-map@^0.5.7":
+"@types/source-map@^0.5.7":
   version "0.5.7"
   resolved "https://registry.yarnpkg.com/@types/source-map/-/source-map-0.5.7.tgz#165eeb583c1ef00196fe4ef4da5d7832b03b275b"
   dependencies:
@@ -112,11 +112,11 @@
   version "0.2.3"
   resolved "https://registry.yarnpkg.com/@types/tapable/-/tapable-0.2.3.tgz#0888b0f20cc7e58e1c22a1888b4e963eefaa810a"
 
-"@types/uglify-js@*", "@types/uglify-js@^2.6.29":
-  version "2.6.29"
-  resolved "https://registry.yarnpkg.com/@types/uglify-js/-/uglify-js-2.6.29.tgz#521347f69e20201d218f5991ae66e10878afcf1a"
+"@types/uglify-js@*", "@types/uglify-js@^2.6.37":
+  version "2.6.37"
+  resolved "https://registry.yarnpkg.com/@types/uglify-js/-/uglify-js-2.6.37.tgz#2468eaeb74cb5379a64331be51fc68c411417ed0"
   dependencies:
-    "@types/source-map" "*"
+    source-map "^0.6.1"
 
 "@types/webpack@^2.2.16":
   version "2.2.16"
@@ -4565,6 +4565,10 @@ source-map@0.4.2, source-map@~0.4.1:
 source-map@0.5.x, source-map@^0.5.0, source-map@^0.5.3, source-map@^0.5.6, source-map@~0.5.0, source-map@~0.5.1, source-map@~0.5.3:
   version "0.5.6"
   resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.5.6.tgz#75ce38f52bf0733c5a7f0c118d81334a2bb5f412"
+
+source-map@^0.6.1:
+  version "0.6.1"
+  resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.6.1.tgz#74722af32e9614e9c287a8d0bbde48b5e2f1a263"
 
 spdx-correct@~1.0.0:
   version "1.0.2"
