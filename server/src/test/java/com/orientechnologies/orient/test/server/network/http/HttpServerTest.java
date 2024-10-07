@@ -9,7 +9,7 @@ public class HttpServerTest extends BaseHttpDatabaseTest {
   @Test
   public void testGetServer() throws Exception {
     var res = get("server").getResponse();
-    Assert.assertEquals(res.getCode(), 200);
+    Assert.assertEquals(res.getReasonPhrase(), res.getCode(), 200);
 
     ODocument payload = new ODocument().fromJSON(res.getEntity().getContent());
 
@@ -19,7 +19,7 @@ public class HttpServerTest extends BaseHttpDatabaseTest {
   @Test
   public void testGetConnections() throws Exception {
     var res = setUserName("root").setUserPassword("root").get("connections/").getResponse();
-    Assert.assertEquals(res.getCode(), 200);
+    Assert.assertEquals(res.getReasonPhrase(), res.getCode(), 200);
 
     ODocument payload = new ODocument().fromJSON(res.getEntity().getContent());
 
@@ -35,8 +35,7 @@ public class HttpServerTest extends BaseHttpDatabaseTest {
             .post("servercommand")
             .payload("{\"command\":\"create database " + dbName + " plocal\" }", CONTENT.JSON)
             .getResponse();
-    System.out.println(res.getCode());
-    Assert.assertEquals(res.getCode(), 200);
+    Assert.assertEquals(res.getReasonPhrase(), res.getCode(), 200);
 
     Assert.assertTrue(getServer().getContext().exists(dbName));
     getServer().getContext().drop(dbName);
