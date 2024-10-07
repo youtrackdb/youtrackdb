@@ -535,12 +535,33 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
         serverUrl = null;
       } catch (OTokenException | OTokenSecurityException e) {
         connectionManager.release(network);
+        session.removeServerSession(network.getServerURL());
+
         if (session.isStickToSession()) {
-          session.removeServerSession(network.getServerURL());
-          throw OException.wrapException(new OStorageException(errorMessage), e);
-        } else {
-          session.removeServerSession(network.getServerURL());
+          retry--;
+          if (retry <= 0) {
+            throw OException.wrapException(new OStorageException(errorMessage), e);
+          } else {
+            OLogManager.instance()
+                .warn(
+                    this,
+                    "Caught Network I/O errors on %s, trying an automatic reconnection... (error:"
+                        + " %s)",
+                    network.getServerURL(),
+                    e.getMessage());
+            OLogManager.instance().debug(this, "I/O error stack: ", e);
+
+            connectionManager.remove(network);
+            try {
+              Thread.sleep(connectionRetryDelay);
+            } catch (InterruptedException e1) {
+              OLogManager.instance()
+                  .error(this, "Exception was suppressed, original exception is ", e);
+              throw OException.wrapException(new OInterruptedException(e1.getMessage()), e1);
+            }
+          }
         }
+
         serverUrl = null;
       } catch (OOfflineNodeException e) {
         connectionManager.release(network);
@@ -553,7 +574,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
         serverUrl = null;
       } catch (IOException | OIOException e) {
         OLogManager.instance()
-            .info(
+            .warn(
                 this,
                 "Caught Network I/O errors on %s, trying an automatic reconnection... (error: %s)",
                 network.getServerURL(),

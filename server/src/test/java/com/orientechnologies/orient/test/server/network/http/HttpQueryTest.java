@@ -2,6 +2,7 @@ package com.orientechnologies.orient.test.server.network.http;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -11,9 +12,10 @@ import org.junit.Test;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com) (l.garulli--at-orientdb.com)
  */
 public class HttpQueryTest extends BaseHttpDatabaseTest {
+
   @Test
   public void queryRootCredentials() throws IOException {
-    Assert.assertEquals(
+    ClassicHttpResponse response =
         get("query/"
                 + getDatabaseName()
                 + "/sql/"
@@ -21,14 +23,13 @@ public class HttpQueryTest extends BaseHttpDatabaseTest {
                 + "/10")
             .setUserName("root")
             .setUserPassword("root")
-            .getResponse()
-            .getCode(),
-        200);
+            .getResponse();
+    Assert.assertEquals(response.getReasonPhrase(), response.getCode(), 200);
   }
 
   @Test
   public void queryDatabaseCredentials() throws IOException {
-    Assert.assertEquals(
+    ClassicHttpResponse response =
         get("query/"
                 + getDatabaseName()
                 + "/sql/"
@@ -36,9 +37,8 @@ public class HttpQueryTest extends BaseHttpDatabaseTest {
                 + "/10")
             .setUserName("admin")
             .setUserPassword("admin")
-            .getResponse()
-            .getCode(),
-        200);
+            .getResponse();
+    Assert.assertEquals(response.getReasonPhrase(), response.getCode(), 200);
   }
 
   @Override
