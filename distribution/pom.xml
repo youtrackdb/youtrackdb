@@ -101,6 +101,7 @@
                                 <argument>-Xmx${heapSize}</argument>
                                 <argument>-DridBag.embeddedToSbtreeBonsaiThreshold=10000000</argument>
                                 <argument>-Dmemory.directMemory.preallocate=false</argument>
+                                <argument>-Dtx.nonTxReadsWarningMode=SILENT</argument>
                                 <argument>-classpath</argument>
                                 <classpath />
                                 <argument>com.orientechnologies.orient.console.OConsoleDatabaseApp</argument>

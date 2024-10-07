@@ -95,6 +95,7 @@
         <project.rootdir>${project.basedir}/</project.rootdir>
         <graalvm.version>21.3.5</graalvm.version>
         <slf4j.version>2.0.12</slf4j.version>
+        <toolchain.jdk.version>[17,22)</toolchain.jdk.version>
     </properties>
 
 
@@ -346,6 +347,18 @@
 
         <plugins>
             <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-toolchains-plugin</artifactId>
+              <version>3.2.0</version>
+              <executions>
+                  <execution>
+                      <goals>
+                          <goal>select-jdk-toolchain</goal>
+                      </goals>
+                  </execution>
+              </executions>
+              </plugin>
+            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>buildnumber-maven-plugin</artifactId>
                 <executions>
@@ -457,25 +470,6 @@
         </plugins>
 
     </build>
-
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-report-plugin</artifactId>
-                <version>${surefire.version}</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <configuration>
-                    <!-- | Apple's JVM sometimes requires more memory -->
-                    <additionalJOption>-J-Xmx1024m</additionalJOption>
-                </configuration>
-            </plugin>
-
-        </plugins>
-    </reporting>
 
     <profiles>
         <profile>
