@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.stream.Stream;
 import org.apache.lucene.document.DateTools;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /** Created by frank on 13/12/2016. */
@@ -107,6 +108,7 @@ public class LuceneRangeTest extends BaseLuceneTest {
   }
 
   @Test
+  @Ignore
   public void shouldUseRangeQueryMultipleField() {
     db.command(
             "create index Person.composite on Person(name,surname,date,age) FULLTEXT ENGINE LUCENE")

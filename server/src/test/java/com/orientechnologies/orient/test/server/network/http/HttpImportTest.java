@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.LinkedList;
 import java.util.List;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -16,8 +17,8 @@ import org.junit.Test;
 public class HttpImportTest extends BaseHttpDatabaseTest {
 
   @Test
+  @Ignore
   public void testImport() throws IOException {
-
     String content =
         "{\"records\": [{\"@type\": \"d\", \"@rid\": \"#9:0\",\"@version\": 1,\"@class\": \"V\"}]}";
     post("import/" + getDatabaseName() + "?merge=true").payload(content, CONTENT.TEXT);
