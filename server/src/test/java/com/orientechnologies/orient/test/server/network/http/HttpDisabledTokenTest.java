@@ -27,7 +27,7 @@ public class HttpDisabledTokenTest extends BaseHttpDatabaseTest {
     request.setEntity(new StringEntity("grant_type=password&username=admin&password=admin"));
     final CloseableHttpClient httpClient = HttpClients.createDefault();
     CloseableHttpResponse response = httpClient.execute(request);
-    assertEquals(response.getCode(), 400);
+    assertEquals(response.getReasonPhrase(), response.getCode(), 400);
     HttpEntity entity = response.getEntity();
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     entity.writeTo(out);

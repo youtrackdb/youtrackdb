@@ -2,6 +2,7 @@ package com.orientechnologies.orient.test.server.network.http;
 
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.io.IOException;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -18,9 +19,10 @@ public class HttpDocumentTest extends BaseHttpDatabaseTest {
         .payload("{@class:'V', name:'Jay', surname:'Miner',age:99, \"@version\":100}", CONTENT.JSON)
         .exec();
 
-    Assert.assertEquals(201, getResponse().getCode());
+    ClassicHttpResponse response = getResponse();
+    Assert.assertEquals(response.getReasonPhrase(), 201, response.getCode());
 
-    final ODocument created = new ODocument().fromJSON(getResponse().getEntity().getContent());
+    final ODocument created = new ODocument().fromJSON(response.getEntity().getContent());
 
     Assert.assertEquals(created.getVersion(), 1);
     Assert.assertEquals(created.field("name"), "Jay");
@@ -34,7 +36,8 @@ public class HttpDocumentTest extends BaseHttpDatabaseTest {
     post("document/" + getDatabaseName())
         .payload("{@class:'V', name:'Jay', surname:'Miner',age:99}", CONTENT.JSON)
         .exec();
-    Assert.assertEquals(getResponse().getCode(), 201);
+    ClassicHttpResponse response = getResponse();
+    Assert.assertEquals(response.getReasonPhrase(), response.getCode(), 201);
     final ODocument created = new ODocument().fromJSON(getResponse().getEntity().getContent());
 
     Assert.assertEquals(created.field("name"), "Jay");
