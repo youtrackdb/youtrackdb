@@ -131,7 +131,7 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
           if (ctx != null) {
             nonTxReadMode =
                 OTransactionNoTx.NonTxReadMode.valueOf(
-                    ctx.getValueAsString("nonTxReadsWarningMode", "WARN"));
+                    ctx.getValueAsString(OGlobalConfiguration.NON_TX_READS_WARNING_MODE));
           } else {
             nonTxReadMode = NonTxReadMode.WARN;
           }

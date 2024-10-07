@@ -81,6 +81,7 @@ import com.orientechnologies.orient.core.security.OSecuritySystem;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.storage.OStorage;
+import com.orientechnologies.orient.enterprise.channel.binary.OTokenSecurityException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -739,7 +740,7 @@ public class OrientDBRemote implements OrientDBInternal {
 
         T result = operation.execute(newSession);
         return result;
-      } catch (IOException e) {
+      } catch (IOException | OTokenSecurityException e) {
         retry--;
         if (retry == 0)
           throw OException.wrapException(
