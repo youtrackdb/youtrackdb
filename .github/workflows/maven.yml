@@ -31,9 +31,16 @@ jobs:
             ${{ runner.os }}-maven-
       - name: Build with Maven
         run: mvn "-Dorientdb.test.env=ci" --batch-mode package --file pom.xml
+      - name: Test Report
+        uses: dorny/test-reporter@v1
+        if: success() || failure()
+        with:
+          name: Tests report for ${{ matrix.os }} - ${{ matrix.java-version }} 
+          path: ${{ github.workspace }}/**/surefire-reports/*
+          reporter: java-junit  
       - name: Uplodad tests artifacts
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: Tests report for ${{ matrix.os }} - ${{ matrix.java-version }} 
+          name: Tests files for ${{ matrix.os }} - ${{ matrix.java-version }} suite
           path: ${{ github.workspace }}/**/surefire-reports/*
