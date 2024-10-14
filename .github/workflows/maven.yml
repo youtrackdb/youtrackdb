@@ -36,7 +36,7 @@ jobs:
         if: success() || failure()
         with:
           name: Tests report for ${{ matrix.os }} - ${{ matrix.java-version }} 
-          path: ${{ github.workspace }}/**/surefire-reports/*
+          path: ${{ github.workspace }}/**/surefire-reports/*.xml
           reporter: java-junit  
       - name: Uplodad tests artifacts
         if: failure()
