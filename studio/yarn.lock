@@ -2503,13 +2503,13 @@ jquery-mousewheel@~3.1.13:
   version "3.1.13"
   resolved "https://registry.yarnpkg.com/jquery-mousewheel/-/jquery-mousewheel-3.1.13.tgz#06f0335f16e353a695e7206bf50503cb523a6ee5"
 
-jquery-ui@1.13.2:
-  version "1.13.2"
-  resolved "https://registry.yarnpkg.com/jquery-ui/-/jquery-ui-1.13.2.tgz#de03580ae6604773602f8d786ad1abfb75232034"
+jquery-ui@1.14.0:
+  version "1.14.0"
+  resolved "https://registry.yarnpkg.com/jquery-ui/-/jquery-ui-1.14.0.tgz#b75d417826f0bab38125f907356d2e3313a9c6d5"
   dependencies:
-    jquery ">=1.8.0 <4.0.0"
+    jquery ">=1.12.0 <5.0.0"
 
-"jquery@2 - 3", "jquery@>=1.8.0 <4.0.0", jquery@>=1.9.0:
+"jquery@2 - 3", "jquery@>=1.12.0 <5.0.0", jquery@>=1.9.0:
   version "3.7.1"
   resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.7.1.tgz#083ef98927c9a6a74d05a6af02806566d16274de"
 
