@@ -15,7 +15,7 @@ import java.util.function.BiConsumer;
 import javax.annotation.Nonnull;
 
 /**
- * Cache implementation that uses Soft References.
+ * Cache implementation that uses Weak References.
  */
 public final class ORIDsWeakValuesHashMap<V> extends AbstractMap<ORID, V>
     implements IdentityChangeListener {
