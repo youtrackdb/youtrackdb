@@ -12,7 +12,7 @@ permissions:
 jobs:
   on-success:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' && github.workflow_run.event != 'pull_request' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' && contains('refs/heads/develop', github.ref) }}
     steps:
       - uses: actions/checkout@v4
 
