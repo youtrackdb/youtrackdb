@@ -64,7 +64,7 @@ module.exports = function (options) {
     ],
     module: {
 
-      rules: [
+      loaders: [
         {
           test: /\.ts$/,
           loaders: ['awesome-typescript-loader', 'angular2-template-loader', '@angularclass/hmr-loader'],
