@@ -64,20 +64,21 @@ module.exports = function (options) {
     ],
     module: {
 
-      rules: [
+      loaders: [
         {
           test: /\.ts$/,
-          rules: ['awesome-typescript-loader', 'angular2-template-loader', '@angularclass/hmr-loader'],
+          loaders: ['awesome-typescript-loader', 'angular2-template-loader', '@angularclass/hmr-loader'],
           exclude: [/\.(spec|e2e)\.ts$/, /node_modules\/(?!(ng2-.+))/]
         },
         {
           test: /\.js[x]?$/,
           exclude: /(node_modules|src\/vendor)/,
-          rules: ["babel-loader?" + babelPresets.map((preset) => `presets[]=${preset}`).join("&")]
+          loaders: ["babel-loader?" + babelPresets.map((preset) => `presets[]=${preset}`).join("&")]
         },
         {
           test: /\.css$/,
           loader: "style-loader!css-loader"
+          // loader: "raw-loader!css-loader"
         },
         {
           test: /\.(eot|svg|ttf|woff(2)?)(\?v=\d+\.\d+\.\d+)?/,
