@@ -55,7 +55,6 @@
         <snapshotRepository>
             <id>space-orientdb-daily</id>
             <url>https://packages.jetbrains.team/maven/p/xodus/orientdb-daily</url>
-            <uniqueVersion>false</uniqueVersion>
         </snapshotRepository>
     </distributionManagement>
     <repositories>
