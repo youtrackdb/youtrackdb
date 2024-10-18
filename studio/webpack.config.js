@@ -67,18 +67,17 @@ module.exports = function (options) {
       rules: [
         {
           test: /\.ts$/,
-          loaders: ['awesome-typescript-loader', 'angular2-template-loader', '@angularclass/hmr-loader'],
+          rules: ['awesome-typescript-loader', 'angular2-template-loader', '@angularclass/hmr-loader'],
           exclude: [/\.(spec|e2e)\.ts$/, /node_modules\/(?!(ng2-.+))/]
         },
         {
           test: /\.js[x]?$/,
           exclude: /(node_modules|src\/vendor)/,
-          loaders: ["babel-loader?" + babelPresets.map((preset) => `presets[]=${preset}`).join("&")]
+          rules: ["babel-loader?" + babelPresets.map((preset) => `presets[]=${preset}`).join("&")]
         },
         {
           test: /\.css$/,
           loader: "style-loader!css-loader"
-          // loader: "raw-loader!css-loader"
         },
         {
           test: /\.(eot|svg|ttf|woff(2)?)(\?v=\d+\.\d+\.\d+)?/,
