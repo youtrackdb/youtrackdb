@@ -534,7 +534,6 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
     assert source.hasContent();
 
     OClusterPage pendingPage = null;
-    OClusterPage firstPage = null;
     int pendingPagePosition = -1;
     int pendingPageOffset = -1;
     int pendingPageBytes = -1;
@@ -587,13 +586,18 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
           nextPageOffset = recPosPair[1];
           assert nextPageOffset >= 0;
 
-          if (firstPage == null) {
-            firstPage = nextPage;
+          if (firstPageIndex < 0) {
             firstPageIndex = nextPageIndex;
             firstPageOffset = nextPageOffset;
             firstPagePosition = nextPagePosition;
           }
         } else {
+
+          freeSpaceMap.updatePageFreeSpace(
+              atomicOperation,
+              nextPage.getCacheEntry().getPageIndex(),
+              nextPage.getMaxRecordSize()
+          );
 
           // todo: test this part carefully.
           continue; // moving to the next page, this one doesn't have enough space
@@ -629,9 +633,7 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
         pendingPage.writeEntry(chunk, pendingPagePosition, chuckSize, pendingPageOffset);
 
         // this is not wrapped in try-finally now, is it ok?
-        if (!pendingPageIsFirst) {
-          pagePostProcessor.accept(pendingPage);
-        }
+        pagePostProcessor.accept(pendingPage);
 
         source.advance(pendingPageBytes);
 
@@ -650,10 +652,13 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
       pendingPageBytes = nextPageBytes;
     }
 
-    assert firstPage != null;
-    firstPage.setRecordEntrySize(firstPagePosition + 3 * OIntegerSerializer.INT_SIZE + 1, contentSize);
-    pagePostProcessor.accept(firstPage);
+    assert firstPageIndex >= 0;
+    try (final var firstPage = loadPageForWrite(atomicOperation, fileId, firstPageIndex, false)) {
+      new OClusterPage(firstPage).setRecordEntrySize(
+          firstPagePosition + 3 * OIntegerSerializer.INT_SIZE + 1, contentSize);
 
+      // verifyChecksum true or false?
+    }
     return new int[]{firstPageIndex, firstPageOffset, contentSize};
   }
 
