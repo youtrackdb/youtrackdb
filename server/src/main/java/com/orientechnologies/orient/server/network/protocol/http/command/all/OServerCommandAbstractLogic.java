@@ -22,7 +22,7 @@ package com.orientechnologies.orient.server.network.protocol.http.command.all;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.script.OCommandScriptException;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
@@ -38,7 +38,7 @@ public abstract class OServerCommandAbstractLogic extends OServerCommandAuthenti
   public boolean execute(final OHttpRequest iRequest, final OHttpResponse iResponse)
       throws Exception {
     final String[] parts = init(iRequest, iResponse);
-    ODatabaseDocument db = null;
+    ODatabaseDocumentInternal db = null;
 
     try {
       db = getProfiledDatabaseInstance(iRequest);
@@ -81,11 +81,10 @@ public abstract class OServerCommandAbstractLogic extends OServerCommandAuthenti
         }
       } else functionResult = f.executeInContext(context, args);
 
-      handleResult(iRequest, iResponse, functionResult);
+      handleResult(iRequest, iResponse, functionResult, db);
 
     } catch (OCommandScriptException e) {
       // EXCEPTION
-
       final StringBuilder msg = new StringBuilder(256);
       for (Exception currentException = e;
           currentException != null;
@@ -121,6 +120,9 @@ public abstract class OServerCommandAbstractLogic extends OServerCommandAuthenti
   protected abstract String[] init(OHttpRequest iRequest, OHttpResponse iResponse);
 
   protected abstract void handleResult(
-      OHttpRequest iRequest, OHttpResponse iResponse, Object iResult)
+      OHttpRequest iRequest,
+      OHttpResponse iResponse,
+      Object iResult,
+      ODatabaseDocumentInternal databaseDocumentInternal)
       throws InterruptedException, IOException;
 }

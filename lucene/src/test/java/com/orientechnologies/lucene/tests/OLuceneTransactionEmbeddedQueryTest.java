@@ -36,7 +36,9 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-/** Created by Enrico Risa on 10/08/15. */
+/**
+ * Created by Enrico Risa on 10/08/15.
+ */
 public class OLuceneTransactionEmbeddedQueryTest extends OLuceneBaseTest {
 
   @Before
@@ -91,6 +93,7 @@ public class OLuceneTransactionEmbeddedQueryTest extends OLuceneBaseTest {
       Assert.assertEquals(index.getInternal().size(), 1);
     }
 
+    doc = db.bindToSession(doc);
     db.delete(doc);
 
     try (OResultSet vertices = db.command(query)) {
@@ -210,6 +213,7 @@ public class OLuceneTransactionEmbeddedQueryTest extends OLuceneBaseTest {
 
     db.begin();
 
+    doc = db.bindToSession(doc);
     doc.field("p1", new String[] {"removed"});
     db.save(doc);
 

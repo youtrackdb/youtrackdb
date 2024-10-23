@@ -21,8 +21,8 @@ package com.orientechnologies.orient.server.network.protocol.http;
 
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.util.OCallable;
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.ODirection;
@@ -72,19 +72,30 @@ public class OHttpGraphResponse extends OHttpResponseAbstract {
       String iFormat,
       final String accept,
       final Map<String, Object> iAdditionalProperties,
-      final String mode)
+      final String mode,
+      ODatabaseDocumentInternal databaseDocumentInternal)
       throws IOException {
-    if (iRecords == null) return;
-
-    if (!mode.equalsIgnoreCase("graph")) {
-      super.writeRecords(iRecords, iFetchPlan, iFormat, accept, iAdditionalProperties, mode);
+    if (iRecords == null) {
       return;
     }
 
-    if (accept != null && accept.contains("text/csv"))
-      throw new IllegalArgumentException("Graph mode cannot accept '" + accept + "'");
+    if (!mode.equalsIgnoreCase("graph")) {
+      super.writeRecords(
+          iRecords,
+          iFetchPlan,
+          iFormat,
+          accept,
+          iAdditionalProperties,
+          mode,
+          databaseDocumentInternal);
+      return;
+    }
 
-    ODatabaseDocument graph = ODatabaseRecordThreadLocal.instance().get();
+    if (accept != null && accept.contains("text/csv")) {
+      throw new IllegalArgumentException("Graph mode cannot accept '" + accept + "'");
+    }
+
+    ODatabaseDocumentInternal graph = ODatabaseRecordThreadLocal.instance().get();
 
     try {
       // DIVIDE VERTICES FROM EDGES
@@ -109,8 +120,10 @@ public class OHttpGraphResponse extends OHttpResponseAbstract {
         entry = ((OIdentifiable) entry).getRecord();
 
         if (entry == null || !(entry instanceof OIdentifiable))
-          // IGNORE IT
+        // IGNORE IT
+        {
           continue;
+        }
 
         if (entry instanceof OElement) {
           OElement element = (OElement) entry;
@@ -126,8 +139,10 @@ public class OHttpGraphResponse extends OHttpResponseAbstract {
               lightweightFound = true;
             }
           } else
-            // IGNORE IT
+          // IGNORE IT
+          {
             continue;
+          }
         }
       }
 
@@ -147,7 +162,9 @@ public class OHttpGraphResponse extends OHttpResponseAbstract {
         // ADD ALL THE PROPERTIES
         for (String field : ((OVertexInternal) vertex).getPropertyNamesWithoutFiltration()) {
           final Object v = ((OVertexInternal) vertex).getPropertyWithoutValidation(field);
-          if (v != null) json.writeAttribute(field, v);
+          if (v != null) {
+            json.writeAttribute(field, v);
+          }
         }
         json.endObject();
       }
@@ -171,8 +188,10 @@ public class OHttpGraphResponse extends OHttpResponseAbstract {
             }
             if (!vertices.contains(edge.getVertex(ODirection.OUT))
                 || !vertices.contains(edge.getVertex(ODirection.IN)))
-              // ONE OF THE 2 VERTICES ARE NOT PART OF THE RESULT SET: DISCARD IT
+            // ONE OF THE 2 VERTICES ARE NOT PART OF THE RESULT SET: DISCARD IT
+            {
               continue;
+            }
 
             edgeRids.add(edge.getIdentity());
 
@@ -200,11 +219,15 @@ public class OHttpGraphResponse extends OHttpResponseAbstract {
           final Object v = entry.getValue();
           if (OMultiValue.isMultiValue(v)) {
             json.beginCollection(-1, true, entry.getKey());
-            formatMultiValue(OMultiValue.getMultiValueIterator(v), buffer, null);
+            formatMultiValue(OMultiValue.getMultiValueIterator(v), buffer, null, graph);
             json.endCollection(-1, true);
-          } else json.writeAttribute(entry.getKey(), v);
+          } else {
+            json.writeAttribute(entry.getKey(), v);
+          }
 
-          if (Thread.currentThread().isInterrupted()) break;
+          if (Thread.currentThread().isInterrupted()) {
+            break;
+          }
         }
       }
 
@@ -232,7 +255,9 @@ public class OHttpGraphResponse extends OHttpResponseAbstract {
 
     for (String field : edge.getPropertyNames()) {
       final Object v = edge.getProperty(field);
-      if (v != null) json.writeAttribute(field, v);
+      if (v != null) {
+        json.writeAttribute(field, v);
+      }
     }
 
     json.endObject();

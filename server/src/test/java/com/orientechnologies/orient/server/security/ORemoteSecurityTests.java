@@ -48,8 +48,11 @@ public class ORemoteSecurityTests {
 
   @Test
   public void testCreate() {
+    db.begin();
     db.command("CREATE SECURITY POLICY testPolicy SET create = (name = 'foo')");
     db.command("ALTER ROLE writer SET POLICY testPolicy ON database.class.Person");
+    db.commit();
+
     try (ODatabaseSession filteredSession = orient.open(DB_NAME, "writer", "writer")) {
       filteredSession.begin();
       OElement elem = filteredSession.newElement("Person");
@@ -70,8 +73,11 @@ public class ORemoteSecurityTests {
 
   @Test
   public void testSqlCreate() {
+    db.begin();
     db.command("CREATE SECURITY POLICY testPolicy SET create = (name = 'foo')");
     db.command("ALTER ROLE writer SET POLICY testPolicy ON database.class.Person");
+    db.commit();
+
     try (ODatabaseSession filteredSession = orient.open(DB_NAME, "writer", "writer")) {
       filteredSession.begin();
       filteredSession.command("insert into Person SET name = 'foo'");
@@ -88,8 +94,10 @@ public class ORemoteSecurityTests {
 
   @Test
   public void testSqlRead() {
+    db.begin();
     db.command("CREATE SECURITY POLICY testPolicy SET read = (name = 'foo')");
     db.command("ALTER ROLE reader SET POLICY testPolicy ON database.class.Person");
+    db.commit();
 
     db.begin();
     OElement elem = db.newElement("Person");
@@ -114,8 +122,11 @@ public class ORemoteSecurityTests {
   @Test
   public void testSqlReadWithIndex() {
     db.command("create index Person.name on Person (name) NOTUNIQUE");
+
+    db.begin();
     db.command("CREATE SECURITY POLICY testPolicy SET read = (name = 'foo')");
     db.command("ALTER ROLE reader SET POLICY testPolicy ON database.class.Person");
+    db.commit();
 
     db.begin();
     OElement elem = db.newElement("Person");
@@ -138,8 +149,11 @@ public class ORemoteSecurityTests {
   @Test
   public void testSqlReadWithIndex2() {
     db.command("create index Person.name on Person (name) NOTUNIQUE");
+
+    db.begin();
     db.command("CREATE SECURITY POLICY testPolicy SET read = (surname = 'foo')");
     db.command("ALTER ROLE reader SET POLICY testPolicy ON database.class.Person");
+    db.commit();
 
     db.begin();
     OElement elem = db.newElement("Person");
@@ -165,8 +179,10 @@ public class ORemoteSecurityTests {
 
   @Test
   public void testBeforeUpdateCreate() {
+    db.begin();
     db.command("CREATE SECURITY POLICY testPolicy SET BEFORE UPDATE = (name = 'bar')");
     db.command("ALTER ROLE writer SET POLICY testPolicy ON database.class.Person");
+    db.commit();
 
     try (ODatabaseSession filteredSession = orient.open(DB_NAME, "writer", "writer")) {
       filteredSession.begin();
@@ -176,20 +192,23 @@ public class ORemoteSecurityTests {
       filteredSession.commit();
       try {
         filteredSession.begin();
+        elem = filteredSession.bindToSession(elem);
         elem.setProperty("name", "baz");
         filteredSession.save(elem);
         filteredSession.commit();
         Assert.fail();
       } catch (OSecurityException ex) {
       }
-      Assert.assertEquals("foo", elem.getProperty("name"));
+      Assert.assertEquals("foo", filteredSession.bindToSession(elem).getProperty("name"));
     }
   }
 
   @Test
   public void testBeforeUpdateCreateSQL() {
+    db.begin();
     db.command("CREATE SECURITY POLICY testPolicy SET BEFORE UPDATE = (name = 'bar')");
     db.command("ALTER ROLE writer SET POLICY testPolicy ON database.class.Person");
+    db.commit();
 
     try (ODatabaseSession filteredSession = orient.open(DB_NAME, "writer", "writer")) {
       filteredSession.begin();
@@ -205,14 +224,16 @@ public class ORemoteSecurityTests {
       } catch (OSecurityException ex) {
       }
 
-      Assert.assertEquals("foo", elem.getProperty("name"));
+      Assert.assertEquals("foo", filteredSession.bindToSession(elem).getProperty("name"));
     }
   }
 
   @Test
   public void testAfterUpdate() {
+    db.begin();
     db.command("CREATE SECURITY POLICY testPolicy SET AFTER UPDATE = (name = 'foo')");
     db.command("ALTER ROLE writer SET POLICY testPolicy ON database.class.Person");
+    db.commit();
 
     try (ODatabaseSession filteredSession = orient.open(DB_NAME, "writer", "writer")) {
       filteredSession.begin();
@@ -222,6 +243,7 @@ public class ORemoteSecurityTests {
       filteredSession.commit();
       try {
         filteredSession.begin();
+        elem = filteredSession.bindToSession(elem);
         elem.setProperty("name", "bar");
         filteredSession.save(elem);
         filteredSession.commit();
@@ -229,14 +251,16 @@ public class ORemoteSecurityTests {
       } catch (OSecurityException ex) {
       }
 
-      Assert.assertEquals("foo", elem.getProperty("name"));
+      Assert.assertEquals("foo", filteredSession.bindToSession(elem).getProperty("name"));
     }
   }
 
   @Test
   public void testAfterUpdateSQL() {
+    db.begin();
     db.command("CREATE SECURITY POLICY testPolicy SET AFTER UPDATE = (name = 'foo')");
     db.command("ALTER ROLE writer SET POLICY testPolicy ON database.class.Person");
+    db.commit();
 
     try (ODatabaseSession filteredSession = orient.open(DB_NAME, "writer", "writer")) {
       filteredSession.begin();
@@ -252,14 +276,16 @@ public class ORemoteSecurityTests {
       } catch (OSecurityException ex) {
       }
 
-      Assert.assertEquals("foo", elem.getProperty("name"));
+      Assert.assertEquals("foo", filteredSession.bindToSession(elem).getProperty("name"));
     }
   }
 
   @Test
   public void testDelete() {
+    db.begin();
     db.command("CREATE SECURITY POLICY testPolicy SET DELETE = (name = 'foo')");
     db.command("ALTER ROLE writer SET POLICY testPolicy ON database.class.Person");
+    db.commit();
 
     try (ODatabaseSession filteredSession = orient.open(DB_NAME, "writer", "writer")) {
 
@@ -270,6 +296,7 @@ public class ORemoteSecurityTests {
       filteredSession.commit();
       try {
         filteredSession.begin();
+        elem = filteredSession.bindToSession(elem);
         filteredSession.delete(elem);
         filteredSession.commit();
         Assert.fail();
@@ -287,8 +314,10 @@ public class ORemoteSecurityTests {
 
   @Test
   public void testDeleteSQL() {
+    db.begin();
     db.command("CREATE SECURITY POLICY testPolicy SET DELETE = (name = 'foo')");
     db.command("ALTER ROLE writer SET POLICY testPolicy ON database.class.Person");
+    db.commit();
 
     try (ODatabaseSession filteredSession = orient.open(DB_NAME, "writer", "writer")) {
       filteredSession.begin();
@@ -301,9 +330,13 @@ public class ORemoteSecurityTests {
       filteredSession.save(elem);
       filteredSession.commit();
 
+      filteredSession.begin();
       filteredSession.command("delete from Person where name = 'foo'");
+      filteredSession.commit();
       try {
+        filteredSession.begin();
         filteredSession.command("delete from Person where name = 'bar'");
+        filteredSession.commit();
         Assert.fail();
       } catch (OSecurityException ex) {
       }
@@ -318,8 +351,10 @@ public class ORemoteSecurityTests {
 
   @Test
   public void testSqlCount() {
+    db.begin();
     db.command("CREATE SECURITY POLICY testPolicy SET read = (name = 'foo')");
     db.command("ALTER ROLE reader SET POLICY testPolicy ON database.class.Person");
+    db.commit();
 
     db.begin();
     OElement elem = db.newElement("Person");
@@ -341,8 +376,11 @@ public class ORemoteSecurityTests {
   @Test
   public void testSqlCountWithIndex() {
     db.command("create index Person.name on Person (name) NOTUNIQUE");
+
+    db.begin();
     db.command("CREATE SECURITY POLICY testPolicy SET read = (name = 'foo')");
     db.command("ALTER ROLE reader SET POLICY testPolicy ON database.class.Person");
+    db.commit();
 
     db.begin();
     OElement elem = db.newElement("Person");
@@ -371,8 +409,11 @@ public class ORemoteSecurityTests {
   @Test
   public void testIndexGet() {
     db.command("create index Person.name on Person (name) NOTUNIQUE");
+
+    db.begin();
     db.command("CREATE SECURITY POLICY testPolicy SET read = (name = 'foo')");
     db.command("ALTER ROLE reader SET POLICY testPolicy ON database.class.Person");
+    db.commit();
 
     db.begin();
     OElement elem = db.newElement("Person");
@@ -400,8 +441,11 @@ public class ORemoteSecurityTests {
   @Test
   public void testIndexGetAndColumnSecurity() {
     db.command("create index Person.name on Person (name) NOTUNIQUE");
+
+    db.begin();
     db.command("CREATE SECURITY POLICY testPolicy SET read = (name = 'foo')");
     db.command("ALTER ROLE reader SET POLICY testPolicy ON database.class.Person.name");
+    db.commit();
 
     db.begin();
     OElement elem = db.newElement("Person");
@@ -428,9 +472,10 @@ public class ORemoteSecurityTests {
 
   @Test
   public void testReadHiddenColumn() {
-
+    db.begin();
     db.command("CREATE SECURITY POLICY testPolicy SET read = (name = 'bar')");
     db.command("ALTER ROLE reader SET POLICY testPolicy ON database.class.Person.name");
+    db.commit();
 
     db.begin();
     OElement elem = db.newElement("Person");
@@ -450,9 +495,10 @@ public class ORemoteSecurityTests {
 
   @Test
   public void testUpdateHiddenColumn() {
-
+    db.begin();
     db.command("CREATE SECURITY POLICY testPolicy SET read = (name = 'bar')");
     db.command("ALTER ROLE reader SET POLICY testPolicy ON database.class.Person.name");
+    db.commit();
 
     db.begin();
     OElement elem = db.newElement("Person");

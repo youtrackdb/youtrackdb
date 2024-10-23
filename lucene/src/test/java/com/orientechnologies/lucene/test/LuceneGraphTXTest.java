@@ -26,7 +26,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by enricorisa on 28/06/14. */
+/**
+ * Created by enricorisa on 28/06/14.
+ */
 public class LuceneGraphTXTest extends BaseLuceneTest {
 
   @Before
@@ -50,6 +52,7 @@ public class LuceneGraphTXTest extends BaseLuceneTest {
     OResultSet results = db.command("select from City where name lucene 'London'");
     Assert.assertEquals(results.stream().count(), 1);
 
+    v = db.bindToSession(v);
     v.setProperty("name", "Berlin");
 
     db.begin();

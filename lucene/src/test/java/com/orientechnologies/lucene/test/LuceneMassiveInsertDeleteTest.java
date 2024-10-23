@@ -29,7 +29,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by enricorisa on 23/09/14. */
+/**
+ * Created by enricorisa on 23/09/14.
+ */
 public class LuceneMassiveInsertDeleteTest extends BaseLuceneTest {
 
   public LuceneMassiveInsertDeleteTest() {}
@@ -67,7 +69,9 @@ public class LuceneMassiveInsertDeleteTest extends BaseLuceneTest {
     docs = db.query(query);
     Assert.assertEquals(docs.stream().count(), size);
 
+    db.begin();
     db.command("delete vertex City").close();
+    db.commit();
 
     docs = db.query(query);
     Assert.assertEquals(docs.stream().count(), 0);

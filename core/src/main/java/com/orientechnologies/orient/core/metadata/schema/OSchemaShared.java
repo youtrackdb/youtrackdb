@@ -394,7 +394,7 @@ public abstract class OSchemaShared implements OCloseable {
     lock.writeLock().lock();
     try {
       identity = new ORecordId(database.getStorageInfo().getConfiguration().getSchemaRecordId());
-      ODocument document = database.reload(identity.getRecord(), null, true);
+      ODocument document = database.load(identity);
       fromStream(document);
       forceSnapshot(database);
       ORecordInternal.unsetDirty(document);

@@ -69,26 +69,12 @@ public class ORecordBytes extends ORecordAbstract implements OBlob {
   }
 
   @Override
-  public void convertToProxyRecord(ORecordAbstract primaryRecord) {
-    if (!(primaryRecord instanceof ORecordBytes)) {
-      throw new IllegalArgumentException("Can only convert to of ORecordBytes");
-    }
-
-    super.convertToProxyRecord(primaryRecord);
-  }
-
-  @Override
   public ORecordBytes copy() {
     return (ORecordBytes) copyTo(new ORecordBytes());
   }
 
   @Override
   public ORecordBytes fromStream(final byte[] iRecordBuffer) {
-    if (primaryRecord != null) {
-      ((ORecordBytes) primaryRecord).fromStream(iRecordBuffer);
-      return this;
-    }
-
     if (dirty) {
       throw new ODatabaseException("Cannot call fromStream() on dirty records");
     }
@@ -101,21 +87,12 @@ public class ORecordBytes extends ORecordAbstract implements OBlob {
 
   @Override
   public ORecordAbstract clear() {
-    if (primaryRecord != null) {
-      primaryRecord.clear();
-      return this;
-    }
-
     clearSource();
     return super.clear();
   }
 
   @Override
   public byte[] toStream() {
-    if (primaryRecord != null) {
-      return ((ORecordBytes) primaryRecord).toStream();
-    }
-
     return source;
   }
 
@@ -133,10 +110,6 @@ public class ORecordBytes extends ORecordAbstract implements OBlob {
    * @throws IOException
    */
   public int fromInputStream(final InputStream in) throws IOException {
-    if (primaryRecord != null) {
-      return ((ORecordBytes) primaryRecord).fromInputStream(in);
-    }
-
     incrementLoading();
     try {
       final OMemoryStream out = new OMemoryStream();
@@ -173,10 +146,6 @@ public class ORecordBytes extends ORecordAbstract implements OBlob {
    * @throws IOException if an I/O error occurs.
    */
   public int fromInputStream(final InputStream in, final int maxSize) throws IOException {
-    if (primaryRecord != null) {
-      return ((ORecordBytes) primaryRecord).fromInputStream(in, maxSize);
-    }
-
     incrementLoading();
     try {
       final byte[] buffer = new byte[maxSize];
@@ -207,12 +176,7 @@ public class ORecordBytes extends ORecordAbstract implements OBlob {
   }
 
   public void toOutputStream(final OutputStream out) throws IOException {
-    checkForLoading();
-
-    if (primaryRecord != null) {
-      ((ORecordBytes) primaryRecord).toOutputStream(out);
-      return;
-    }
+    checkForBinding();
 
     if (source.length > 0) {
       out.write(source);

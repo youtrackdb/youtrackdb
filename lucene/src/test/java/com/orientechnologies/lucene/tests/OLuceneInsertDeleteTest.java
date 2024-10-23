@@ -37,7 +37,9 @@ import java.util.stream.Stream;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by enricorisa on 28/06/14. */
+/**
+ * Created by enricorisa on 28/06/14.
+ */
 public class OLuceneInsertDeleteTest extends OLuceneBaseTest {
 
   @Before
@@ -108,9 +110,11 @@ public class OLuceneInsertDeleteTest extends OLuceneBaseTest {
       TimeUnit.SECONDS.sleep(5);
       docs.close();
 
+      db.begin();
       //noinspection EmptyTryBlock
       try (OResultSet command =
           db.command("delete vertex from Song where title lucene 'mountain'")) {}
+      db.commit();
 
       try (OResultSet resultSet = db.query("select from Song where  title lucene 'mountain'")) {
         assertThat(resultSet).hasSize(0);

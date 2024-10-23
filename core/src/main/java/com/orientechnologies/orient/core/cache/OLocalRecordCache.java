@@ -64,7 +64,7 @@ public class OLocalRecordCache extends OAbstractRecordCache {
    * @param record record that should be cached
    */
   public void updateRecord(final ORecordAbstract record) {
-    assert !record.isProxy() && !record.isUnloaded();
+    assert !record.isUnloaded();
     var rid = record.getIdentity();
     if (rid.getClusterId() != excludedCluster
         && !rid.isTemporary()
@@ -109,7 +109,6 @@ public class OLocalRecordCache extends OAbstractRecordCache {
               1L,
               "db.*.cache.level1.cache.notFound");
 
-    assert record == null || !record.isProxy();
     return record;
   }
 

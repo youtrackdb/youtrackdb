@@ -117,6 +117,7 @@ public class LuceneListIndexingTest extends BaseLuceneTest {
     }
     assertThat(coll).hasSize(2);
 
+    doc = db.bindToSession(doc);
     // modify london: it is rainy
     List<String> tags = doc.field("tags");
     tags.remove("Sunny");
@@ -192,6 +193,7 @@ public class LuceneListIndexingTest extends BaseLuceneTest {
 
     assertThat(coll).hasSize(2);
 
+    doc = db.bindToSession(doc);
     List<String> tags = doc.field("tags");
 
     tags.remove("Funny");

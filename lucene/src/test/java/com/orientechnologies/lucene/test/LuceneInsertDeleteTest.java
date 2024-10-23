@@ -79,6 +79,7 @@ public class LuceneInsertDeleteTest extends BaseLuceneTest {
     doc = db.load(next.<ORecord>getRecord());
 
     db.begin();
+    doc = db.bindToSession(doc);
     db.delete(doc);
     db.commit();
 
@@ -106,7 +107,9 @@ public class LuceneInsertDeleteTest extends BaseLuceneTest {
     assertThat(docs).hasSize(4);
     TimeUnit.SECONDS.sleep(5);
 
+    db.begin();
     db.command("delete vertex from Song where title lucene 'mountain'").close();
+    db.commit();
 
     docs = db.query("select from Song where  title lucene 'mountain'");
     assertThat(docs).hasSize(0);

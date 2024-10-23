@@ -5,7 +5,6 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.ODirection;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.OVertex;
 import java.util.Set;
@@ -16,10 +15,6 @@ public class OVertexDocument extends ODocument implements OVertexInternal {
 
   public OVertexDocument() {
     super();
-  }
-
-  public OVertexDocument(ODatabaseSession session) {
-    super(session);
   }
 
   public OVertexDocument(ODatabaseSession database, ORID rid) {
@@ -34,30 +29,15 @@ public class OVertexDocument extends ODocument implements OVertexInternal {
   }
 
   @Override
-  public void convertToProxyRecord(ORecordAbstract primaryRecord) {
-    if (!(primaryRecord instanceof OVertexDocument) && !((ODocument) primaryRecord).isVertex()) {
-      throw new IllegalArgumentException("Can't convert to a proxy of OVertexDocument");
-    }
-
-    super.convertToProxyRecord(primaryRecord);
-  }
-
-  @Override
   public Set<String> getPropertyNames() {
-    checkForLoading();
-    if (primaryRecord != null) {
-      return ((OVertexInternal) primaryRecord).getPropertyNames();
-    }
+    checkForBinding();
 
     return OVertexInternal.filterPropertyNames(super.getPropertyNames());
   }
 
   @Override
   public <RET> RET getProperty(String fieldName) {
-    checkForLoading();
-    if (primaryRecord != null) {
-      return ((OVertexInternal) primaryRecord).getProperty(fieldName);
-    }
+    checkForBinding();
 
     OVertexInternal.checkPropertyName(fieldName);
 
@@ -67,10 +47,7 @@ public class OVertexDocument extends ODocument implements OVertexInternal {
   @Nullable
   @Override
   public OIdentifiable getLinkProperty(String fieldName) {
-    checkForLoading();
-    if (primaryRecord != null) {
-      return ((OVertexInternal) primaryRecord).getLinkProperty(fieldName);
-    }
+    checkForBinding();
 
     OVertexInternal.checkPropertyName(fieldName);
 
@@ -79,11 +56,7 @@ public class OVertexDocument extends ODocument implements OVertexInternal {
 
   @Override
   public void setProperty(String fieldName, Object propertyValue) {
-    checkForLoading();
-    if (primaryRecord != null) {
-      ((OVertexInternal) primaryRecord).setProperty(fieldName, propertyValue);
-      return;
-    }
+    checkForBinding();
 
     OVertexInternal.checkPropertyName(fieldName);
 
@@ -92,11 +65,7 @@ public class OVertexDocument extends ODocument implements OVertexInternal {
 
   @Override
   public void setProperty(String name, Object value, OType... types) {
-    checkForLoading();
-    if (primaryRecord != null) {
-      ((OVertexInternal) primaryRecord).setProperty(name, value, types);
-      return;
-    }
+    checkForBinding();
 
     OVertexInternal.checkPropertyName(name);
 
@@ -105,11 +74,7 @@ public class OVertexDocument extends ODocument implements OVertexInternal {
 
   @Override
   public <RET> RET removeProperty(String fieldName) {
-    checkForLoading();
-    if (primaryRecord != null) {
-      return ((OVertexInternal) primaryRecord).removeProperty(fieldName);
-    }
-
+    checkForBinding();
     OVertexInternal.checkPropertyName(fieldName);
 
     return removePropertyWithoutValidation(fieldName);
@@ -117,21 +82,13 @@ public class OVertexDocument extends ODocument implements OVertexInternal {
 
   @Override
   public Iterable<OVertex> getVertices(ODirection direction) {
-    checkForLoading();
-    if (primaryRecord != null) {
-      return ((OVertexInternal) primaryRecord).getVertices(direction);
-    }
-
+    checkForBinding();
     return OVertexInternal.super.getVertices(direction);
   }
 
   @Override
   public OVertexDocument delete() {
-    checkForLoading();
-    if (primaryRecord != null) {
-      ((OVertexInternal) primaryRecord).delete();
-      return (OVertexDocument) primaryRecord;
-    }
+    checkForBinding();
 
     super.delete();
     return this;
@@ -139,10 +96,7 @@ public class OVertexDocument extends ODocument implements OVertexInternal {
 
   @Override
   public OVertexDocument copy() {
-    checkForLoading();
-    if (primaryRecord != null) {
-      return ((OVertexDocument) primaryRecord).copy();
-    }
+    checkForBinding();
 
     var newDoc = new OVertexDocument();
     ORecordInternal.unsetDirty(newDoc);
@@ -155,11 +109,6 @@ public class OVertexDocument extends ODocument implements OVertexInternal {
   @Override
   @Nonnull
   public ODocument getBaseDocument() {
-    checkForLoading();
-    if (primaryRecord != null) {
-      return (ODocument) primaryRecord;
-    }
-
     return this;
   }
 }

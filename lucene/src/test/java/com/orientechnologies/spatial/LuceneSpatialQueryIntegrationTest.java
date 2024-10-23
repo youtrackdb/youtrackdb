@@ -23,7 +23,9 @@ import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by Enrico Risa on 02/10/14. */
+/**
+ * Created by Enrico Risa on 02/10/14.
+ */
 public class LuceneSpatialQueryIntegrationTest extends BaseLuceneTest {
 
   @Test
@@ -91,7 +93,9 @@ public class LuceneSpatialQueryIntegrationTest extends BaseLuceneTest {
       Assert.assertTrue(e instanceof OCommandExecutionException);
     }
 
+    db.begin();
     db.command("delete vertex Poi").close();
+    db.commit();
 
     try (OResultSet resultSet =
         db.query(
