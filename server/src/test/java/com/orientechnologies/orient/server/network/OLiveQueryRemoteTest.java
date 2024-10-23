@@ -35,7 +35,9 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-/** Created by tglman on 16/06/17. */
+/**
+ * Created by tglman on 16/06/17.
+ */
 public class OLiveQueryRemoteTest {
 
   private OServer server;
@@ -118,6 +120,7 @@ public class OLiveQueryRemoteTest {
 
     db.live("LIVE SELECT FROM " + item.getIdentity(), listener);
     db.begin();
+    item = db.load(item.getIdentity());
     item.setProperty("x", "z");
     item.save();
     db.commit();

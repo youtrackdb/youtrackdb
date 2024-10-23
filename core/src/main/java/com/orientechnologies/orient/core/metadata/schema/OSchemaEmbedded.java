@@ -28,7 +28,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-/** Created by tglman on 13/06/17. */
+/**
+ * Created by tglman on 13/06/17.
+ */
 public class OSchemaEmbedded extends OSchemaShared {
 
   public OSchemaEmbedded(OSharedContext sharedContext) {
@@ -41,18 +43,19 @@ public class OSchemaEmbedded extends OSchemaShared {
       int[] clusterIds,
       OClass... superClasses) {
     final Character wrongCharacter = OSchemaShared.checkClassNameIfValid(className);
-    if (wrongCharacter != null)
+    if (wrongCharacter != null) {
       throw new OSchemaException(
           "Invalid class name found. Character '"
               + wrongCharacter
               + "' cannot be used in class name '"
               + className
               + "'");
+    }
 
     OClass result;
     int retry = 0;
 
-    while (true)
+    while (true) {
       try {
         result = doCreateClass(database, className, clusterIds, retry, superClasses);
         break;
@@ -61,6 +64,7 @@ public class OSchemaEmbedded extends OSchemaShared {
         clusterIds = createClusters(database, className);
         retry++;
       }
+    }
     return result;
   }
 
@@ -70,13 +74,14 @@ public class OSchemaEmbedded extends OSchemaShared {
       int clusters,
       OClass... superClasses) {
     final Character wrongCharacter = OSchemaShared.checkClassNameIfValid(className);
-    if (wrongCharacter != null)
+    if (wrongCharacter != null) {
       throw new OSchemaException(
           "Invalid class name found. Character '"
               + wrongCharacter
               + "' cannot be used in class name '"
               + className
               + "'");
+    }
 
     return doCreateClass(database, className, clusters, superClasses);
   }
@@ -89,13 +94,16 @@ public class OSchemaEmbedded extends OSchemaShared {
     OClass result;
 
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_CREATE);
-    if (superClasses != null) OClassImpl.checkParametersConflict(Arrays.asList(superClasses));
+    if (superClasses != null) {
+      OClassImpl.checkParametersConflict(Arrays.asList(superClasses));
+    }
     acquireSchemaWriteLock(database);
     try {
 
       final String key = className.toLowerCase(Locale.ENGLISH);
-      if (classes.containsKey(key))
+      if (classes.containsKey(key)) {
         throw new OSchemaException("Class '" + className + "' already exists in current database");
+      }
       List<OClass> superClassesList = new ArrayList<OClass>();
       if (superClasses != null && superClasses.length > 0) {
         for (OClass superClass : superClasses) {
@@ -119,10 +127,13 @@ public class OSchemaEmbedded extends OSchemaShared {
       result = classes.get(className.toLowerCase(Locale.ENGLISH));
       // WAKE UP DB LIFECYCLE LISTENER
       for (Iterator<ODatabaseLifecycleListener> it = Orient.instance().getDbLifecycleListeners();
-          it.hasNext(); ) it.next().onCreateClass(database, result);
-
-      for (Iterator<ODatabaseListener> it = database.getListeners().iterator(); it.hasNext(); )
+          it.hasNext(); ) {
         it.next().onCreateClass(database, result);
+      }
+
+      for (Iterator<ODatabaseListener> it = database.getListeners().iterator(); it.hasNext(); ) {
+        it.next().onCreateClass(database, result);
+      }
 
     } catch (ClusterIdsAreEmptyException e) {
       throw OException.wrapException(
@@ -151,8 +162,9 @@ public class OSchemaEmbedded extends OSchemaShared {
       throws ClusterIdsAreEmptyException {
     acquireSchemaWriteLock(database);
     try {
-      if (className == null || className.length() == 0)
+      if (className == null || className.length() == 0) {
         throw new OSchemaException("Found class name null or empty");
+      }
 
       checkEmbedded();
 
@@ -162,14 +174,17 @@ public class OSchemaEmbedded extends OSchemaShared {
       if (clusterIdsToAdd == null || clusterIdsToAdd.length == 0) {
         throw new ClusterIdsAreEmptyException();
 
-      } else clusterIds = clusterIdsToAdd;
+      } else {
+        clusterIds = clusterIdsToAdd;
+      }
 
       database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_CREATE);
 
       final String key = className.toLowerCase(Locale.ENGLISH);
 
-      if (classes.containsKey(key))
+      if (classes.containsKey(key)) {
         throw new OSchemaException("Class '" + className + "' already exists in current database");
+      }
 
       OClassImpl cls = createClassInstance(className, clusterIds);
 
@@ -181,16 +196,20 @@ public class OSchemaEmbedded extends OSchemaShared {
           // UPDATE INDEXES
           final int[] clustersToIndex = superClass.getPolymorphicClusterIds();
           final String[] clusterNames = new String[clustersToIndex.length];
-          for (int i = 0; i < clustersToIndex.length; i++)
+          for (int i = 0; i < clustersToIndex.length; i++) {
             clusterNames[i] = database.getClusterNameById(clustersToIndex[i]);
+          }
 
-          for (OIndex index : superClass.getIndexes())
-            for (String clusterName : clusterNames)
-              if (clusterName != null)
+          for (OIndex index : superClass.getIndexes()) {
+            for (String clusterName : clusterNames) {
+              if (clusterName != null) {
                 database
                     .getMetadata()
                     .getIndexManagerInternal()
                     .addClusterToIndex(clusterName, index.getName());
+              }
+            }
+          }
         }
       }
 
@@ -298,13 +317,14 @@ public class OSchemaEmbedded extends OSchemaShared {
   public OView createView(
       ODatabaseDocumentInternal database, OViewConfig cfg, ViewCreationListener listener) {
     final Character wrongCharacter = OSchemaShared.checkClassNameIfValid(cfg.getName());
-    if (wrongCharacter != null)
+    if (wrongCharacter != null) {
       throw new OSchemaException(
           "Invalid class name found. Character '"
               + wrongCharacter
               + "' cannot be used in view name '"
               + cfg.getName()
               + "'");
+    }
 
     return doCreateView(database, cfg, listener);
   }
@@ -318,9 +338,10 @@ public class OSchemaEmbedded extends OSchemaShared {
     try {
 
       final String key = config.getName().toLowerCase(Locale.ENGLISH);
-      if (classes.containsKey(key) || views.containsKey(key))
+      if (classes.containsKey(key) || views.containsKey(key)) {
         throw new OSchemaException(
             "View (or class) '" + config.getName() + "' already exists in current database");
+      }
 
       final int[] clusterIds = createClusters(database, config.getName(), 1);
 
@@ -330,10 +351,13 @@ public class OSchemaEmbedded extends OSchemaShared {
 
       // WAKE UP DB LIFECYCLE LISTENER
       for (Iterator<ODatabaseLifecycleListener> it = Orient.instance().getDbLifecycleListeners();
-          it.hasNext(); ) it.next().onCreateView(database, result);
-
-      for (Iterator<ODatabaseListener> it = database.getListeners().iterator(); it.hasNext(); )
+          it.hasNext(); ) {
         it.next().onCreateView(database, result);
+      }
+
+      for (Iterator<ODatabaseListener> it = database.getListeners().iterator(); it.hasNext(); ) {
+        it.next().onCreateView(database, result);
+      }
 
       ViewManager viewMgr = ((OSharedContextEmbedded) database.getSharedContext()).getViewManager();
       viewMgr.updateViewAsync(
@@ -383,8 +407,9 @@ public class OSchemaEmbedded extends OSchemaShared {
       throws ClusterIdsAreEmptyException {
     acquireSchemaWriteLock(database);
     try {
-      if (cfg.getName() == null || cfg.getName().length() == 0)
+      if (cfg.getName() == null || cfg.getName().length() == 0) {
         throw new OSchemaException("Found view name null or empty");
+      }
 
       checkEmbedded();
 
@@ -394,15 +419,18 @@ public class OSchemaEmbedded extends OSchemaShared {
       if (clusterIdsToAdd == null || clusterIdsToAdd.length == 0) {
         throw new ClusterIdsAreEmptyException();
 
-      } else clusterIds = clusterIdsToAdd;
+      } else {
+        clusterIds = clusterIdsToAdd;
+      }
 
       database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_CREATE);
 
       final String key = cfg.getName().toLowerCase(Locale.ENGLISH);
 
-      if (views.containsKey(key))
+      if (views.containsKey(key)) {
         throw new OSchemaException(
             "View '" + cfg.getName() + "' already exists in current database");
+      }
 
       // TODO updatable and the
       OViewImpl cls = createViewInstance(cfg, clusterIds);
@@ -430,12 +458,16 @@ public class OSchemaEmbedded extends OSchemaShared {
 
   public OClass getOrCreateClass(
       ODatabaseDocumentInternal database, final String iClassName, final OClass... superClasses) {
-    if (iClassName == null) return null;
+    if (iClassName == null) {
+      return null;
+    }
 
     acquireSchemaReadLock();
     try {
       OClass cls = classes.get(iClassName.toLowerCase(Locale.ENGLISH));
-      if (cls != null) return cls;
+      if (cls != null) {
+        return cls;
+      }
     } finally {
       releaseSchemaReadLock();
     }
@@ -445,12 +477,14 @@ public class OSchemaEmbedded extends OSchemaShared {
     int[] clusterIds = null;
     int retry = 0;
 
-    while (true)
+    while (true) {
       try {
         acquireSchemaWriteLock(database);
         try {
           cls = classes.get(iClassName.toLowerCase(Locale.ENGLISH));
-          if (cls != null) return cls;
+          if (cls != null) {
+            return cls;
+          }
 
           cls = doCreateClass(database, iClassName, clusterIds, retry, superClasses);
           addClusterClassMap(cls);
@@ -462,6 +496,7 @@ public class OSchemaEmbedded extends OSchemaShared {
         clusterIds = createClusters(database, iClassName);
         retry++;
       }
+    }
 
     return cls;
   }
@@ -475,16 +510,21 @@ public class OSchemaEmbedded extends OSchemaShared {
       throws ClusterIdsAreEmptyException {
     OClass result;
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_CREATE);
-    if (superClasses != null) OClassImpl.checkParametersConflict(Arrays.asList(superClasses));
+    if (superClasses != null) {
+      OClassImpl.checkParametersConflict(Arrays.asList(superClasses));
+    }
 
     acquireSchemaWriteLock(database);
     try {
 
       final String key = className.toLowerCase(Locale.ENGLISH);
-      if (classes.containsKey(key) && retry == 0)
+      if (classes.containsKey(key) && retry == 0) {
         throw new OSchemaException("Class '" + className + "' already exists in current database");
+      }
 
-      if (!executeThroughDistributedStorage(database)) checkClustersAreAbsent(clusterIds);
+      if (!executeThroughDistributedStorage(database)) {
+        checkClustersAreAbsent(clusterIds);
+      }
 
       if (clusterIds == null || clusterIds.length == 0) {
         clusterIds =
@@ -508,10 +548,13 @@ public class OSchemaEmbedded extends OSchemaShared {
 
       // WAKE UP DB LIFECYCLE LISTENER
       for (Iterator<ODatabaseLifecycleListener> it = Orient.instance().getDbLifecycleListeners();
-          it.hasNext(); ) it.next().onCreateClass(database, result);
-
-      for (Iterator<ODatabaseListener> it = database.getListeners().iterator(); it.hasNext(); )
+          it.hasNext(); ) {
         it.next().onCreateClass(database, result);
+      }
+
+      for (Iterator<ODatabaseListener> it = database.getListeners().iterator(); it.hasNext(); ) {
+        it.next().onCreateClass(database, result);
+      }
 
     } finally {
       releaseSchemaWriteLock(database);
@@ -541,14 +584,18 @@ public class OSchemaEmbedded extends OSchemaShared {
     if (clusterIds[0] > -1) {
       // CHECK THE CLUSTER HAS NOT BEEN ALREADY ASSIGNED
       final OClass cls = clustersToClasses.get(clusterIds[0]);
-      if (cls != null)
+      if (cls != null) {
         clusterIds[0] = database.addCluster(getNextAvailableClusterName(database, className));
+      }
     } else
-      // JUST KEEP THE CLASS NAME. THIS IS FOR LEGACY REASONS
+    // JUST KEEP THE CLASS NAME. THIS IS FOR LEGACY REASONS
+    {
       clusterIds[0] = database.addCluster(className);
+    }
 
-    for (int i = 1; i < minimumClusters; ++i)
+    for (int i = 1; i < minimumClusters; ++i) {
       clusterIds[i] = database.addCluster(getNextAvailableClusterName(database, className));
+    }
 
     return clusterIds;
   }
@@ -558,33 +605,43 @@ public class OSchemaEmbedded extends OSchemaShared {
     for (int i = 1; ; ++i) {
       final String clusterName = className + "_" + i;
       if (database.getClusterIdByName(clusterName) < 0)
-        // FREE NAME
+      // FREE NAME
+      {
         return clusterName;
+      }
     }
   }
 
   protected void checkClustersAreAbsent(final int[] iClusterIds) {
-    if (iClusterIds == null) return;
+    if (iClusterIds == null) {
+      return;
+    }
 
     for (int clusterId : iClusterIds) {
-      if (clusterId < 0) continue;
+      if (clusterId < 0) {
+        continue;
+      }
 
-      if (clustersToClasses.containsKey(clusterId))
+      if (clustersToClasses.containsKey(clusterId)) {
         throw new OSchemaException(
             "Cluster with id "
                 + clusterId
                 + " already belongs to class "
                 + clustersToClasses.get(clusterId));
+      }
     }
   }
 
   public void dropClass(ODatabaseDocumentInternal database, final String className) {
     acquireSchemaWriteLock(database);
     try {
-      if (database.getTransaction().isActive())
+      if (database.getTransaction().isActive()) {
         throw new IllegalStateException("Cannot drop a class inside a transaction");
+      }
 
-      if (className == null) throw new IllegalArgumentException("Class name is null");
+      if (className == null) {
+        throw new IllegalArgumentException("Class name is null");
+      }
 
       database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_DELETE);
 
@@ -592,16 +649,18 @@ public class OSchemaEmbedded extends OSchemaShared {
 
       OClass cls = classes.get(key);
 
-      if (cls == null)
+      if (cls == null) {
         throw new OSchemaException("Class '" + className + "' was not found in current database");
+      }
 
-      if (!cls.getSubclasses().isEmpty())
+      if (!cls.getSubclasses().isEmpty()) {
         throw new OSchemaException(
             "Class '"
                 + className
                 + "' cannot be dropped because it has sub classes "
                 + cls.getSubclasses()
                 + ". Remove the dependencies before trying to drop it again");
+      }
 
       doDropClass(database, className);
 
@@ -620,26 +679,31 @@ public class OSchemaEmbedded extends OSchemaShared {
   protected void dropClassInternal(ODatabaseDocumentInternal database, final String className) {
     acquireSchemaWriteLock(database);
     try {
-      if (database.getTransaction().isActive())
+      if (database.getTransaction().isActive()) {
         throw new IllegalStateException("Cannot drop a class inside a transaction");
+      }
 
-      if (className == null) throw new IllegalArgumentException("Class name is null");
+      if (className == null) {
+        throw new IllegalArgumentException("Class name is null");
+      }
 
       database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_DELETE);
 
       final String key = className.toLowerCase(Locale.ENGLISH);
 
       final OClass cls = classes.get(key);
-      if (cls == null)
+      if (cls == null) {
         throw new OSchemaException("Class '" + className + "' was not found in current database");
+      }
 
-      if (!cls.getSubclasses().isEmpty())
+      if (!cls.getSubclasses().isEmpty()) {
         throw new OSchemaException(
             "Class '"
                 + className
                 + "' cannot be dropped because it has sub classes "
                 + cls.getSubclasses()
                 + ". Remove the dependencies before trying to drop it again");
+      }
 
       checkEmbedded();
 
@@ -648,7 +712,9 @@ public class OSchemaEmbedded extends OSchemaShared {
         ((OClassImpl) superClass).removeBaseClassInternal(cls);
       }
       for (int id : cls.getClusterIds()) {
-        if (id != -1) deleteCluster(database, id);
+        if (id != -1) {
+          deleteCluster(database, id);
+        }
       }
 
       dropClassIndexes(database, cls);
@@ -656,17 +722,22 @@ public class OSchemaEmbedded extends OSchemaShared {
       classes.remove(key);
 
       if (cls.getShortName() != null)
-        // REMOVE THE ALIAS TOO
+      // REMOVE THE ALIAS TOO
+      {
         classes.remove(cls.getShortName().toLowerCase(Locale.ENGLISH));
+      }
 
       removeClusterClassMap(cls);
 
       // WAKE UP DB LIFECYCLE LISTENER
       for (Iterator<ODatabaseLifecycleListener> it = Orient.instance().getDbLifecycleListeners();
-          it.hasNext(); ) it.next().onDropClass(database, cls);
-
-      for (Iterator<ODatabaseListener> it = database.getListeners().iterator(); it.hasNext(); )
+          it.hasNext(); ) {
         it.next().onDropClass(database, cls);
+      }
+
+      for (Iterator<ODatabaseListener> it = database.getListeners().iterator(); it.hasNext(); ) {
+        it.next().onDropClass(database, cls);
+      }
     } finally {
       releaseSchemaWriteLock(database);
     }
@@ -675,10 +746,13 @@ public class OSchemaEmbedded extends OSchemaShared {
   public void dropView(ODatabaseDocumentInternal database, final String name) {
     try {
       acquireSchemaWriteLock(database);
-      if (database.getTransaction().isActive())
+      if (database.getTransaction().isActive()) {
         throw new IllegalStateException("Cannot drop a class inside a transaction");
+      }
 
-      if (name == null) throw new IllegalArgumentException("Class name is null");
+      if (name == null) {
+        throw new IllegalArgumentException("Class name is null");
+      }
 
       database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_DELETE);
 
@@ -686,16 +760,18 @@ public class OSchemaEmbedded extends OSchemaShared {
 
       OView cls = views.get(key);
 
-      if (cls == null)
+      if (cls == null) {
         throw new OSchemaException("View '" + name + "' was not found in current database");
+      }
 
-      if (!cls.getSubclasses().isEmpty())
+      if (!cls.getSubclasses().isEmpty()) {
         throw new OSchemaException(
             "View '"
                 + name
                 + "' cannot be dropped because it has sub classes "
                 + cls.getSubclasses()
                 + ". Remove the dependencies before trying to drop it again");
+      }
 
       doDropView(database, name);
 
@@ -714,31 +790,38 @@ public class OSchemaEmbedded extends OSchemaShared {
   protected void dropViewInternal(ODatabaseDocumentInternal database, final String view) {
     acquireSchemaWriteLock(database);
     try {
-      if (database.getTransaction().isActive())
+      if (database.getTransaction().isActive()) {
         throw new IllegalStateException("Cannot drop a class inside a transaction");
+      }
 
-      if (view == null) throw new IllegalArgumentException("Class name is null");
+      if (view == null) {
+        throw new IllegalArgumentException("Class name is null");
+      }
 
       database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_DELETE);
 
       final String key = view.toLowerCase(Locale.ENGLISH);
 
       final OView cls = views.get(key);
-      if (cls == null)
+      if (cls == null) {
         throw new OSchemaException("View '" + view + "' was not found in current database");
+      }
 
-      if (!cls.getSubclasses().isEmpty())
+      if (!cls.getSubclasses().isEmpty()) {
         throw new OSchemaException(
             "View '"
                 + view
                 + "' cannot be dropped because it has sub classes "
                 + cls.getSubclasses()
                 + ". Remove the dependencies before trying to drop it again");
+      }
 
       checkEmbedded();
 
       for (int id : cls.getClusterIds()) {
-        if (id != -1) deleteCluster(database, id);
+        if (id != -1) {
+          deleteCluster(database, id);
+        }
       }
 
       dropClassIndexes(database, cls);
@@ -746,17 +829,22 @@ public class OSchemaEmbedded extends OSchemaShared {
       views.remove(key);
 
       if (cls.getShortName() != null)
-        // REMOVE THE ALIAS TOO
+      // REMOVE THE ALIAS TOO
+      {
         views.remove(cls.getShortName().toLowerCase(Locale.ENGLISH));
+      }
 
       removeClusterViewMap(cls);
 
       // WAKE UP DB LIFECYCLE LISTENER
       for (Iterator<ODatabaseLifecycleListener> it = Orient.instance().getDbLifecycleListeners();
-          it.hasNext(); ) it.next().onDropView(database, cls);
-
-      for (Iterator<ODatabaseListener> it = database.getListeners().iterator(); it.hasNext(); )
+          it.hasNext(); ) {
         it.next().onDropView(database, cls);
+      }
+
+      for (Iterator<ODatabaseListener> it = database.getListeners().iterator(); it.hasNext(); ) {
+        it.next().onDropView(database, cls);
+      }
     } finally {
       releaseSchemaWriteLock(database);
     }
@@ -773,8 +861,9 @@ public class OSchemaEmbedded extends OSchemaShared {
   private void dropClassIndexes(ODatabaseDocumentInternal database, final OClass cls) {
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
-    for (final OIndex index : indexManager.getClassIndexes(database, cls.getName()))
+    for (final OIndex index : indexManager.getClassIndexes(database, cls.getName())) {
       indexManager.dropIndex(database, index.getName());
+    }
   }
 
   private void deleteCluster(final ODatabaseDocumentInternal db, final int clusterId) {
@@ -784,8 +873,11 @@ public class OSchemaEmbedded extends OSchemaShared {
 
       if (iteratorCluster != null) {
         while (iteratorCluster.hasNext()) {
-          final ODocument document = iteratorCluster.next();
-          document.delete();
+          db.executeInTx(
+              () -> {
+                ODocument document = db.bindToSession(iteratorCluster.next());
+                document.delete();
+              });
         }
 
         db.dropClusterInternal(clusterId);
@@ -797,7 +889,9 @@ public class OSchemaEmbedded extends OSchemaShared {
 
   private void removeClusterClassMap(final OClass cls) {
     for (int clusterId : cls.getClusterIds()) {
-      if (clusterId < 0) continue;
+      if (clusterId < 0) {
+        continue;
+      }
 
       clustersToClasses.remove(clusterId);
     }
@@ -805,7 +899,9 @@ public class OSchemaEmbedded extends OSchemaShared {
 
   private void removeClusterViewMap(final OView cls) {
     for (int clusterId : cls.getClusterIds()) {
-      if (clusterId < 0) continue;
+      if (clusterId < 0) {
+        continue;
+      }
 
       clustersToViews.remove(clusterId);
     }
@@ -817,17 +913,20 @@ public class OSchemaEmbedded extends OSchemaShared {
       ODatabaseDocumentInternal database, final int clusterId, final OClass cls) {
     acquireSchemaWriteLock(database);
     try {
-      if (clusterId < 0) return;
+      if (clusterId < 0) {
+        return;
+      }
 
       checkEmbedded();
 
       final OClass existingCls = clustersToClasses.get(clusterId);
-      if (existingCls != null && !cls.equals(existingCls))
+      if (existingCls != null && !cls.equals(existingCls)) {
         throw new OSchemaException(
             "Cluster with id "
                 + clusterId
                 + " already belongs to class "
                 + clustersToClasses.get(clusterId));
+      }
 
       clustersToClasses.put(clusterId, cls);
     } finally {
@@ -839,17 +938,20 @@ public class OSchemaEmbedded extends OSchemaShared {
       ODatabaseDocumentInternal database, final int clusterId, final OView view) {
     acquireSchemaWriteLock(database);
     try {
-      if (clusterId < 0) return;
+      if (clusterId < 0) {
+        return;
+      }
 
       checkEmbedded();
 
       final OView existingView = clustersToViews.get(clusterId);
-      if (existingView != null && !view.equals(existingView))
+      if (existingView != null && !view.equals(existingView)) {
         throw new OSchemaException(
             "Cluster with id "
                 + clusterId
                 + " already belongs to view "
                 + clustersToViews.get(clusterId));
+      }
 
       clustersToViews.put(clusterId, view);
     } finally {
@@ -860,7 +962,9 @@ public class OSchemaEmbedded extends OSchemaShared {
   void removeClusterForClass(ODatabaseDocumentInternal database, int clusterId, OClass cls) {
     acquireSchemaWriteLock(database);
     try {
-      if (clusterId < 0) return;
+      if (clusterId < 0) {
+        return;
+      }
 
       checkEmbedded();
 
@@ -873,7 +977,9 @@ public class OSchemaEmbedded extends OSchemaShared {
   void removeClusterForView(ODatabaseDocumentInternal database, int clusterId, OView view) {
     acquireSchemaWriteLock(database);
     try {
-      if (clusterId < 0) return;
+      if (clusterId < 0) {
+        return;
+      }
 
       checkEmbedded();
 

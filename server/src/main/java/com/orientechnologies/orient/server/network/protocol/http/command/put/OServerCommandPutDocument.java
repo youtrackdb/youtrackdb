@@ -123,6 +123,7 @@ public class OServerCommandPutDocument extends OServerCommandDocumentAbstract {
         return false;
       }
 
+      d = db.bindToSession(d);
       iResponse.send(
           OHttpUtils.STATUS_OK_CODE,
           OHttpUtils.STATUS_OK_DESCRIPTION,

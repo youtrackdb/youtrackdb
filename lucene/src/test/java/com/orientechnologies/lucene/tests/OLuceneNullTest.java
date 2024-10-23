@@ -27,6 +27,7 @@ public class OLuceneNullTest extends OLuceneBaseTest {
     db.commit();
 
     db.begin();
+    doc = db.bindToSession(doc);
     doc.field("names", new String[] {"foo"});
     db.save(doc);
     db.commit();
@@ -50,6 +51,7 @@ public class OLuceneNullTest extends OLuceneBaseTest {
 
     db.begin();
 
+    doc = db.bindToSession(doc);
     doc.removeField("names");
 
     db.save(doc);

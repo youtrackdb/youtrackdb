@@ -429,7 +429,8 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
 
       if (txRecord != null) {
         if (iRecord != null && txRecord != iRecord) {
-          iRecord.convertToProxyRecord(txRecord);
+          throw new IllegalStateException(
+              "Passed in record is not the same as the record in the database");
         }
 
         return txRecord;
@@ -487,7 +488,8 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
 
       if (txRecord != null) {
         if (passedRecord != null && txRecord != passedRecord) {
-          passedRecord.convertToProxyRecord(txRecord);
+          throw new IllegalStateException(
+              "Passed in record is not the same as the record in the database");
         }
         return txRecord;
       }

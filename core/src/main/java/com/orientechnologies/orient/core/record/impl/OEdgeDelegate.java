@@ -408,11 +408,6 @@ public class OEdgeDelegate implements OEdgeInternal {
   }
 
   @Override
-  public boolean isProxy() {
-    return true;
-  }
-
-  @Override
   public OEdge unload() {
     if (element != null) {
       element.unload();

@@ -32,7 +32,9 @@ import org.apache.lucene.spatial.query.SpatialOperation;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by Enrico Risa on 07/10/15. */
+/**
+ * Created by Enrico Risa on 07/10/15.
+ */
 public class LuceneSpatialMemoryTest {
 
   @Test
@@ -223,6 +225,7 @@ public class LuceneSpatialMemoryTest {
 
       db.begin();
 
+      document = db.bindToSession(document);
       db.delete(document);
 
       query =

@@ -49,19 +49,7 @@ public class AutomaticBackupTest {
   private ODatabaseDocument database;
   private final OServer server;
 
-  public AutomaticBackupTest()
-      throws ClassNotFoundException,
-          MalformedObjectNameException,
-          InstanceAlreadyExistsException,
-          NotCompliantMBeanException,
-          MBeanRegistrationException,
-          IOException,
-          InstantiationException,
-          IllegalAccessException,
-          IllegalArgumentException,
-          SecurityException,
-          InvocationTargetException,
-          NoSuchMethodException {
+  public AutomaticBackupTest() throws IllegalArgumentException, SecurityException {
 
     // SET THE ORIENTDB_HOME DIRECTORY TO CHECK JSON FILE CREATION
     tempDirectory = new File("target/testhome").getAbsolutePath();

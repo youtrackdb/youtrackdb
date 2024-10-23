@@ -30,7 +30,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by enricorisa on 23/09/14. */
+/**
+ * Created by enricorisa on 23/09/14.
+ */
 public class OLuceneMassiveInsertDeleteTest extends OLuceneBaseTest {
 
   @Before
@@ -64,7 +66,10 @@ public class OLuceneMassiveInsertDeleteTest extends OLuceneBaseTest {
     docs = db.query(query);
     Assertions.assertThat(docs).hasSize(size);
     docs.close();
+
+    db.begin();
     db.command("delete vertex City");
+    db.commit();
 
     docs = db.query(query);
     Assertions.assertThat(docs).hasSize(0);

@@ -32,7 +32,9 @@ public class GeometryCollectionTest extends BaseSpatialLuceneTest {
                 + " 0))') = true");
     Assert.assertEquals(1, qResult.stream().count());
 
+    db.begin();
     db.command("DELETE VERTEX TestInsert").close();
+    db.commit();
 
     OResultSet qResult2 = db.command("select * from TestInsert");
     Assert.assertEquals(0, qResult2.stream().count());

@@ -5,7 +5,9 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by Enrico Risa on 05/10/16. */
+/**
+ * Created by Enrico Risa on 05/10/16.
+ */
 public class LuceneNullTest extends BaseLuceneTest {
 
   @Test
@@ -23,6 +25,7 @@ public class LuceneNullTest extends BaseLuceneTest {
     db.commit();
 
     db.begin();
+    doc = db.bindToSession(doc);
     doc.field("names", new String[] {"foo"});
     db.save(doc);
     db.commit();
@@ -49,6 +52,7 @@ public class LuceneNullTest extends BaseLuceneTest {
 
     db.begin();
 
+    doc = db.bindToSession(doc);
     doc.removeField("names");
 
     db.save(doc);

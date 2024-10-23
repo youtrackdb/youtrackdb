@@ -43,6 +43,9 @@ public class CountRelationshipGraphTest extends AbstractRemoteTest {
     vertex2.save();
     g.commit();
 
+    vertex1 = g.load(vertex1.getIdentity());
+    vertex2 = g.load(vertex2.getIdentity());
+
     int version = vertex1.getProperty("@version");
     assertEquals(0, countEdges(vertex1, ODirection.OUT));
     assertEquals(0, countEdges(vertex1, ODirection.OUT));
@@ -54,6 +57,10 @@ public class CountRelationshipGraphTest extends AbstractRemoteTest {
      */
 
     g.begin();
+
+    vertex1 = g.load(vertex1.getIdentity());
+    vertex2 = g.load(vertex2.getIdentity());
+
     vertex1.addEdge(vertex2);
     vertex1.save();
 
@@ -69,6 +76,9 @@ public class CountRelationshipGraphTest extends AbstractRemoteTest {
      */
 
     g.commit();
+
+    vertex1 = g.load(vertex1.getIdentity());
+    vertex2 = g.load(vertex2.getIdentity());
 
     version = vertex1.getProperty("@version");
     assertEquals(1, countEdges(vertex1, ODirection.OUT));

@@ -31,7 +31,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by enricorisa on 28/06/14. */
+/**
+ * Created by enricorisa on 28/06/14.
+ */
 // Renable when solved killing issue
 public class LuceneInsertIntegrityRemoteTest extends BaseLuceneTest {
 
@@ -69,6 +71,7 @@ public class LuceneInsertIntegrityRemoteTest extends BaseLuceneTest {
     Assert.assertEquals(doc.field("name"), "Rome");
 
     db.begin();
+    doc = db.bindToSession(doc);
     doc.field("name", "London");
     db.save(doc);
     db.commit();
@@ -86,6 +89,7 @@ public class LuceneInsertIntegrityRemoteTest extends BaseLuceneTest {
     Assert.assertEquals(doc.field("name"), "London");
 
     db.begin();
+    doc = db.bindToSession(doc);
     doc.field("name", "Berlin");
     db.save(doc);
     db.commit();

@@ -14,8 +14,11 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by frank on 15/01/2017. */
+/**
+ * Created by frank on 15/01/2017.
+ */
 public class OLuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
+
   @Before
   public void setUp() throws Exception {
     final InputStream stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql");
@@ -150,6 +153,9 @@ public class OLuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
             + className
             + " WHERE id IN [2, 3, 4]);");
 
+    db.commit();
+
+    db.begin();
     final OResultSet result =
         db.query(
             "SELECT out('"
@@ -157,13 +163,12 @@ public class OLuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
                 + "')[SEARCH_FIELDS(['name'], 'A*') = true] as theList FROM "
                 + className
                 + " WHERE id = 1;");
-    db.commit();
-
     assertThat(result.hasNext());
     final OResult item = result.next();
     assertThat((Object) item.getProperty("theList")).isInstanceOf(List.class);
     assertThat((List) item.getProperty("theList")).hasSize(3);
     result.close();
+    db.commit();
   }
 
   @Test

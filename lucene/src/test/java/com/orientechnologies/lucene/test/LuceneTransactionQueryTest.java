@@ -164,7 +164,7 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
 
     db.begin();
 
-    OElement record = res.getElement().get();
+    OElement record = db.bindToSession(res.getElement().get());
     record.setProperty("p1", "removed");
     db.save(record);
 
@@ -230,6 +230,7 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
 
     db.begin();
 
+    doc = db.bindToSession(doc);
     doc.field("p1", "removed");
     db.save(doc);
 

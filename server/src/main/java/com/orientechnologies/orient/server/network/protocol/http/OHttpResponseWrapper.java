@@ -19,12 +19,9 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http;
 
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.record.ORecord;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.List;
 
 /**
  * Wrapper to use the HTTP response in functions and scripts. This class mimics the J2EE
@@ -153,55 +150,6 @@ public class OHttpResponseWrapper {
    */
   public OHttpResponseWrapper writeContent(final String iContent) throws IOException {
     response.writeContent(iContent);
-    return this;
-  }
-
-  /**
-   * Writes records as response. The records are serialized in JSON format.
-   *
-   * @param iRecords List of records to serialize
-   * @return The object itself for fluent chained calls
-   */
-  public OHttpResponseWrapper writeRecords(final List<OIdentifiable> iRecords) throws IOException {
-    response.writeRecords(iRecords);
-    return this;
-  }
-
-  /**
-   * Writes records as response specifying a fetch-plan to serialize nested records. The records are
-   * serialized in JSON format.
-   *
-   * @param iRecords List of records to serialize
-   * @param iFetchPlan Fetch plan to specify nested records
-   * @return The object itself for fluent chained calls
-   */
-  public OHttpResponseWrapper writeRecords(final Object iRecords, final String iFetchPlan)
-      throws IOException {
-    response.writeRecords(iRecords, iFetchPlan);
-    return this;
-  }
-
-  /**
-   * Writes a record as response. The record is serialized in JSON format.
-   *
-   * @param iRecord Record to serialize
-   * @return The object itself for fluent chained calls
-   */
-  public OHttpResponseWrapper writeRecord(final ORecord iRecord) throws IOException {
-    response.writeRecord(iRecord);
-    return this;
-  }
-
-  /**
-   * Writes a record as response. The record is serialized in JSON format.
-   *
-   * @param iRecord Record to serialize
-   * @param iFetchPlan Fetch plan to specify nested records
-   * @return The object itself for fluent chained calls
-   */
-  public OHttpResponseWrapper writeRecord(final ORecord iRecord, final String iFetchPlan)
-      throws IOException {
-    response.writeRecord(iRecord, iFetchPlan, null);
     return this;
   }
 

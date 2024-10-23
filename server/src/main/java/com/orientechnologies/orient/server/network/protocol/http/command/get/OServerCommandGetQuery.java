@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.parser.OStatement;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
@@ -52,7 +52,7 @@ public class OServerCommandGetQuery extends OServerCommandAuthenticatedDbAbstrac
     iRequest.getData().commandInfo = "Query";
     iRequest.getData().commandDetail = text;
 
-    ODatabaseDocument db = null;
+    ODatabaseDocumentInternal db = null;
 
     try {
       db = getProfiledDatabaseInstance(iRequest);
@@ -87,7 +87,7 @@ public class OServerCommandGetQuery extends OServerCommandAuthenticatedDbAbstrac
         format = "fetchPlan:" + fetchPlan;
       }
 
-      iResponse.writeRecords(response, fetchPlan, null, accept, additionalContent);
+      iResponse.writeRecords(response, fetchPlan, null, accept, additionalContent, db);
 
     } finally {
       if (db != null) db.close();

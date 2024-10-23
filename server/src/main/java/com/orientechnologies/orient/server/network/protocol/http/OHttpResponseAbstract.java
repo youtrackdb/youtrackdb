@@ -24,6 +24,7 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.ORecord;
@@ -31,11 +32,25 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.serialization.serializer.OJSONWriter;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.server.OClientConnection;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 import java.util.zip.GZIPOutputStream;
 
 /**
@@ -44,6 +59,7 @@ import java.util.zip.GZIPOutputStream;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public abstract class OHttpResponseAbstract implements OHttpResponse {
+
   public static final char[] URL_SEPARATOR = {'/'};
   protected static final Charset utf8 = StandardCharsets.UTF_8;
 
@@ -152,14 +168,9 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
   }
 
   @Override
-  public void writeResult(final Object result) throws InterruptedException, IOException {
-    writeResult(result, null, null, null);
-  }
-
-  @Override
-  public void writeResult(Object iResult, final String iFormat, final String iAccept)
+  public void writeResult(final Object result, ODatabaseDocumentInternal databaseDocumentInternal)
       throws InterruptedException, IOException {
-    writeResult(iResult, iFormat, iAccept, null);
+    writeResult(result, null, null, null, databaseDocumentInternal);
   }
 
   @Override
@@ -167,9 +178,9 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       Object iResult,
       final String iFormat,
       final String iAccept,
-      final Map<String, Object> iAdditionalProperties)
+      ODatabaseDocumentInternal databaseDocumentInternal)
       throws InterruptedException, IOException {
-    writeResult(iResult, iFormat, iAccept, iAdditionalProperties, null);
+    writeResult(iResult, iFormat, iAccept, null, databaseDocumentInternal);
   }
 
   @Override
@@ -178,7 +189,19 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       final String iFormat,
       final String iAccept,
       final Map<String, Object> iAdditionalProperties,
-      final String mode)
+      ODatabaseDocumentInternal databaseDocumentInternal)
+      throws InterruptedException, IOException {
+    writeResult(iResult, iFormat, iAccept, iAdditionalProperties, null, databaseDocumentInternal);
+  }
+
+  @Override
+  public void writeResult(
+      Object iResult,
+      final String iFormat,
+      final String iAccept,
+      final Map<String, Object> iAdditionalProperties,
+      final String mode,
+      ODatabaseDocumentInternal databaseDocumentInternal)
       throws InterruptedException, IOException {
     if (iResult == null) {
       send(OHttpUtils.STATUS_OK_NOCONTENT_CODE, "", OHttpUtils.CONTENT_TEXT_PLAIN, null, null);
@@ -211,26 +234,32 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       if (newResult == null) {
         send(OHttpUtils.STATUS_OK_NOCONTENT_CODE, "", OHttpUtils.CONTENT_TEXT_PLAIN, null, null);
       } else {
-        writeRecords(newResult, null, iFormat, iAccept, iAdditionalProperties, mode);
+        writeRecords(
+            newResult,
+            null,
+            iFormat,
+            iAccept,
+            iAdditionalProperties,
+            mode,
+            databaseDocumentInternal);
       }
     }
   }
 
   @Override
-  public void writeRecords(final Object iRecords) throws IOException {
-    writeRecords(iRecords, null, null, null, null);
-  }
-
-  @Override
-  public void writeRecords(final Object iRecords, final String iFetchPlan) throws IOException {
-    writeRecords(iRecords, iFetchPlan, null, null, null);
+  public void writeRecords(
+      final Object iRecords, ODatabaseDocumentInternal databaseDocumentInternal)
+      throws IOException {
+    writeRecords(iRecords, null, null, null, null, databaseDocumentInternal);
   }
 
   @Override
   public void writeRecords(
-      final Object iRecords, final String iFetchPlan, String iFormat, final String accept)
+      final Object iRecords,
+      final String iFetchPlan,
+      ODatabaseDocumentInternal databaseDocumentInternal)
       throws IOException {
-    writeRecords(iRecords, iFetchPlan, iFormat, accept, null);
+    writeRecords(iRecords, iFetchPlan, null, null, null, databaseDocumentInternal);
   }
 
   @Override
@@ -239,9 +268,9 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       final String iFetchPlan,
       String iFormat,
       final String accept,
-      final Map<String, Object> iAdditionalProperties)
+      ODatabaseDocumentInternal databaseDocumentInternal)
       throws IOException {
-    writeRecords(iRecords, iFetchPlan, iFormat, accept, iAdditionalProperties, null);
+    writeRecords(iRecords, iFetchPlan, iFormat, accept, null, databaseDocumentInternal);
   }
 
   @Override
@@ -251,7 +280,27 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       String iFormat,
       final String accept,
       final Map<String, Object> iAdditionalProperties,
-      final String mode)
+      ODatabaseDocumentInternal databaseDocumentInternal)
+      throws IOException {
+    writeRecords(
+        iRecords,
+        iFetchPlan,
+        iFormat,
+        accept,
+        iAdditionalProperties,
+        null,
+        databaseDocumentInternal);
+  }
+
+  @Override
+  public void writeRecords(
+      final Object iRecords,
+      final String iFetchPlan,
+      String iFormat,
+      final String accept,
+      final Map<String, Object> iAdditionalProperties,
+      final String mode,
+      ODatabaseDocumentInternal databaseDocumentInternal)
       throws IOException {
     if (iRecords == null) {
       send(OHttpUtils.STATUS_OK_NOCONTENT_CODE, "", OHttpUtils.CONTENT_TEXT_PLAIN, null, null);
@@ -311,7 +360,9 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
               try {
                 // WRITE THE HEADER
                 for (int col = 0; col < orderedColumns.size(); ++col) {
-                  if (col > 0) iArgument.write(',');
+                  if (col > 0) {
+                    iArgument.write(',');
+                  }
 
                   iArgument.write(orderedColumns.get(col).getBytes());
                 }
@@ -326,7 +377,9 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
 
                     Object value = doc.getProperty(orderedColumns.get(col));
                     if (value != null) {
-                      if (!(value instanceof Number)) value = "\"" + value + "\"";
+                      if (!(value instanceof Number)) {
+                        value = "\"" + value + "\"";
+                      }
 
                       iArgument.write(value.toString().getBytes());
                     }
@@ -344,8 +397,11 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
             }
           });
     } else {
-      if (iFormat == null) iFormat = OHttpResponse.JSON_FORMAT;
-      else iFormat = OHttpResponse.JSON_FORMAT + "," + iFormat;
+      if (iFormat == null) {
+        iFormat = OHttpResponse.JSON_FORMAT;
+      } else {
+        iFormat = OHttpResponse.JSON_FORMAT + "," + iFormat;
+      }
 
       final String sendFormat = iFormat;
       if (isStreaming()) {
@@ -357,7 +413,13 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
             iArgument -> {
               try {
                 OutputStreamWriter writer = new OutputStreamWriter(iArgument);
-                writeRecordsOnStream(iFetchPlan, sendFormat, iAdditionalProperties, it, writer);
+                writeRecordsOnStream(
+                    iFetchPlan,
+                    sendFormat,
+                    iAdditionalProperties,
+                    it,
+                    writer,
+                    databaseDocumentInternal);
                 writer.flush();
               } catch (IOException e) {
                 OLogManager.instance()
@@ -367,7 +429,8 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
             });
       } else {
         final StringWriter buffer = new StringWriter();
-        writeRecordsOnStream(iFetchPlan, iFormat, iAdditionalProperties, it, buffer);
+        writeRecordsOnStream(
+            iFetchPlan, iFormat, iAdditionalProperties, it, buffer, databaseDocumentInternal);
         send(
             OHttpUtils.STATUS_OK_CODE,
             OHttpUtils.STATUS_OK_DESCRIPTION,
@@ -383,7 +446,8 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       String iFormat,
       Map<String, Object> iAdditionalProperties,
       Iterator<?> it,
-      Writer buffer)
+      Writer buffer,
+      ODatabaseDocumentInternal databaseDocumentInternal)
       throws IOException {
     final OJSONWriter json = new OJSONWriter(buffer, iFormat);
     json.beginObject();
@@ -392,7 +456,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
 
     // WRITE RECORDS
     json.beginCollection(-1, true, "result");
-    formatMultiValue(it, buffer, format);
+    formatMultiValue(it, buffer, format, databaseDocumentInternal);
     json.endCollection(-1, true);
 
     if (iAdditionalProperties != null) {
@@ -401,11 +465,16 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
         final Object v = entry.getValue();
         if (OMultiValue.isMultiValue(v)) {
           json.beginCollection(-1, true, entry.getKey());
-          formatMultiValue(OMultiValue.getMultiValueIterator(v), buffer, format);
+          formatMultiValue(
+              OMultiValue.getMultiValueIterator(v), buffer, format, databaseDocumentInternal);
           json.endCollection(-1, true);
-        } else json.writeAttribute(entry.getKey(), v);
+        } else {
+          json.writeAttribute(entry.getKey(), v);
+        }
 
-        if (Thread.currentThread().isInterrupted()) break;
+        if (Thread.currentThread().isInterrupted()) {
+          break;
+        }
       }
     }
 
@@ -414,7 +483,11 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
 
   @Override
   public void formatMultiValue(
-      final Iterator<?> iIterator, final Writer buffer, final String format) throws IOException {
+      final Iterator<?> iIterator,
+      final Writer buffer,
+      final String format,
+      ODatabaseDocumentInternal databaseDocumentInternal)
+      throws IOException {
     if (iIterator != null) {
       int counter = 0;
       String objectJson;
@@ -433,6 +506,10 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
             ORecord rec = ((OIdentifiable) entry).getRecord();
             if (rec != null) {
               try {
+                if (rec.getIdentity().isValid() && rec.isUnloaded()) {
+                  rec = databaseDocumentInternal.bindToSession(rec);
+                }
+
                 objectJson = rec.toJSON(format);
 
                 buffer.append(objectJson);
@@ -443,7 +520,8 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
             }
           } else if (OMultiValue.isMultiValue(entry)) {
             buffer.append("[");
-            formatMultiValue(OMultiValue.getMultiValueIterator(entry), buffer, format);
+            formatMultiValue(
+                OMultiValue.getMultiValueIterator(entry), buffer, format, databaseDocumentInternal);
             buffer.append("]");
           } else {
             buffer.append(OJSONWriter.writeValue(entry, format));
@@ -543,7 +621,9 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
     return null;
   }
 
-  /** Stores additional headers to send */
+  /**
+   * Stores additional headers to send
+   */
   @Override
   @Deprecated
   public void setHeader(final String iHeader) {

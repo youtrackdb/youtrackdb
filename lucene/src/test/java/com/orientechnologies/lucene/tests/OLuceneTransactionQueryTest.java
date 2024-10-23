@@ -39,7 +39,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by Enrico Risa on 10/08/15. */
+/**
+ * Created by Enrico Risa on 10/08/15.
+ */
 public class OLuceneTransactionQueryTest extends OLuceneBaseTest {
 
   @Before
@@ -181,7 +183,7 @@ public class OLuceneTransactionQueryTest extends OLuceneBaseTest {
 
     OResult record = results.get(0);
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    OElement element = record.getElement().get();
+    OElement element = db.bindToSession(record.getElement().get());
     element.setProperty("p1", "removed");
     db.save(element);
 
@@ -241,6 +243,7 @@ public class OLuceneTransactionQueryTest extends OLuceneBaseTest {
 
     db.begin();
 
+    doc = db.bindToSession(doc);
     doc.field("p1", "removed");
     db.save(doc);
 

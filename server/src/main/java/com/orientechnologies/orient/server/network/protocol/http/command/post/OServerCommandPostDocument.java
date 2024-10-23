@@ -59,6 +59,7 @@ public class OServerCommandPostDocument extends OServerCommandDocumentAbstract {
                 return doc;
               });
 
+      d = db.bindToSession(d);
       iResponse.send(
           OHttpUtils.STATUS_CREATED_CODE,
           OHttpUtils.STATUS_CREATED_DESCRIPTION,

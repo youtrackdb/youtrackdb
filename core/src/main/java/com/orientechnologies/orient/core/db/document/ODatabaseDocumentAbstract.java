@@ -941,6 +941,41 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     return prefetchRecords;
   }
 
+  @Override
+  public <T extends ORecord> T bindToSession(T record) {
+    if (record == null) {
+      return null;
+    }
+
+    var rid = record.getIdentity();
+    if (!rid.isValid()) {
+      throw new ODatabaseException(
+          "Cannot bind record to session with invalid identity rid: " + rid);
+    }
+
+    checkOpenness();
+    checkIfActive();
+
+    var txRecord = currentTx.getRecord(rid);
+    if (txRecord == record) {
+      return record;
+    }
+
+    var cachedRecord = localCache.findRecord(rid);
+    if (cachedRecord == record) {
+      return record;
+    }
+
+    var result =
+        executeReadRecord(
+            (ORecordId) rid, null, -1, null, false, false, new SimpleRecordReader(false));
+    if (result == null) {
+      throw new ORecordNotFoundException(rid);
+    }
+
+    return (T) result;
+  }
+
   /**
    * This method is internal, it can be subject to signature change or be removed, do not use.
    *
@@ -954,6 +989,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       final boolean ignoreCache,
       final boolean loadTombstones,
       RecordReader recordReader) {
+
     checkOpenness();
     checkIfActive();
 
@@ -976,16 +1012,14 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       }
 
       var cachedRecord = getLocalCache().findRecord(rid);
-      assert cachedRecord == null || !cachedRecord.isProxy();
 
       if (record == null && !ignoreCache) {
         record = cachedRecord;
       }
 
       if (record != null && !record.isUnloaded()) {
-        assert !record.isProxy();
-
         OFetchHelper.checkFetchPlanValid(fetchPlan);
+
         if (beforeReadOperations(record)) {
           return null;
         }
@@ -998,10 +1032,11 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
         getLocalCache().updateRecord(record);
 
         if (iRecord != null && iRecord != record) {
-          iRecord.convertToProxyRecord((ORecordAbstract) record);
+          throw new IllegalStateException(
+              "Passed in record is not the same as the record in the database");
         }
 
-        assert !record.isProxy() && !record.isUnloaded();
+        assert !record.isUnloaded();
         return (RET) record;
       }
 
@@ -1041,7 +1076,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
                 .newInstance(recordBuffer.recordType, rid, this);
         ORecordInternal.unsetDirty(record);
       }
-      assert !record.isProxy();
 
       if (ORecordInternal.getRecordType(record) != recordBuffer.recordType) {
         throw new ODatabaseException("Record type is different from the one in the database");
@@ -1055,7 +1089,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       }
 
       if (ORecordVersionHelper.isTombstone(record.getVersion())) {
-        assert !record.isProxy() && !record.isUnloaded();
+        assert !record.isUnloaded();
         return (RET) record;
       }
 
@@ -1064,14 +1098,14 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       }
 
       if (iRecord != null && iRecord != record) {
-        iRecord.convertToProxyRecord((ORecordAbstract) record);
+        throw new ODatabaseException("Record type is different from the one in the database");
       }
 
       ORecordInternal.fromStream(record, recordBuffer.buffer, this);
       afterReadOperations(record);
 
       getLocalCache().updateRecord(record);
-      assert !record.isProxy() && !record.isUnloaded();
+      assert !record.isUnloaded();
 
       return (RET) record;
     } catch (OOfflineClusterException | ORecordNotFoundException t) {
@@ -1525,10 +1559,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
 
     if (iRecord.isUnloaded()) {
       return (RET) iRecord;
-    }
-
-    if (iRecord.isProxy()) {
-      iRecord = iRecord.getRecord();
     }
 
     if (iRecord instanceof OVertex) {
