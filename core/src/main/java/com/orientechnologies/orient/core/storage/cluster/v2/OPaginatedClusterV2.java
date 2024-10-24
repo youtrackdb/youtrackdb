@@ -60,6 +60,8 @@ import java.util.ListIterator;
 import java.util.Optional;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
@@ -78,6 +80,7 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
 
   private static final int PAGE_INDEX_OFFSET = 16;
   private static final int RECORD_POSITION_MASK = 0xFFFF;
+  private static final Logger log = LoggerFactory.getLogger(OPaginatedClusterV2.class);
 
   private final boolean systemCluster;
   private final OClusterPositionMapV2 clusterPositionMap;
@@ -593,13 +596,13 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
           }
         } else {
 
+          pagePostProcessor.accept(nextPage);
           freeSpaceMap.updatePageFreeSpace(
               atomicOperation,
               nextPage.getCacheEntry().getPageIndex(),
               nextPage.getMaxRecordSize()
           );
 
-          // todo: test this part carefully.
           continue; // moving to the next page, this one doesn't have enough space
         }
       } else {
@@ -613,32 +616,34 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
 
       // 2. serializing the previous page
       if (pendingPage != null) {
-        contentSize += pendingPageBytes;
-        final var bytesToWrite =
-            pendingPageIsFirst ? pendingPageBytes + clusterEntrySize : pendingPageBytes;
-        final ORawPairObjectInteger<byte[]> pair =
-            serializeEntryChunk(
-                source.get(),
-                contentSize,
-                calculateChunkSize(bytesToWrite),
-                calculateClusterEntrySize(pendingPageBytes), // todo: very unclear logic.
-                nextPage == null ? nextRecordPointer
-                    : createPagePointer(nextPageIndex, nextPageOffset),
-                recordType
-            );
+        try {
+          contentSize += pendingPageBytes;
+          final var bytesToWrite =
+              pendingPageIsFirst ? pendingPageBytes + clusterEntrySize : pendingPageBytes;
+          final ORawPairObjectInteger<byte[]> pair =
+              serializeEntryChunk(
+                  source.get(),
+                  contentSize,
+                  calculateChunkSize(bytesToWrite),
+                  calculateClusterEntrySize(pendingPageBytes), // todo: very unclear logic.
+                  nextPage == null ? nextRecordPointer
+                      : createPagePointer(nextPageIndex, nextPageOffset),
+                  recordType
+              );
 
-        final byte[] chunk = pair.first;
-        final int chuckSize =
-            chunk.length + 3 * OIntegerSerializer.INT_SIZE; // todo: move this inside OClusterPage?
-        pendingPage.writeEntry(chunk, pendingPagePosition, chuckSize, pendingPageOffset);
+          final byte[] chunk = pair.first;
+          final int chuckSize =
+              chunk.length
+                  + 3 * OIntegerSerializer.INT_SIZE; // todo: move this inside OClusterPage?
+          pendingPage.writeEntry(chunk, pendingPagePosition, chuckSize, pendingPageOffset);
 
-        // this is not wrapped in try-finally now, is it ok?
-        pagePostProcessor.accept(pendingPage);
-
-        source.advance(pendingPageBytes);
+          source.advance(pendingPageBytes);
+        } finally {
+          // what if the error occurs outside the try block?
+          pagePostProcessor.accept(pendingPage);
+        }
 
         pendingPageIsFirst = false;
-        // todo: validate this:
         freeSpaceMap.updatePageFreeSpace(
             atomicOperation,
             pendingPage.getCacheEntry().getPageIndex(),
