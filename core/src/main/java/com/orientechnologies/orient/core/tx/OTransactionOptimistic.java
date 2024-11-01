@@ -23,6 +23,7 @@ package com.orientechnologies.orient.core.tx;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.cache.OLocalRecordCache;
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
@@ -690,6 +691,15 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
   }
 
   public void addRecord(ORecordAbstract iRecord, byte iStatus, String iClusterName) {
+    if (iRecord.isUnloaded()) {
+      throw new ODatabaseException(
+          "Record "
+              + iRecord
+              + " is not bound to session, please call "
+              + ODatabaseSession.class.getSimpleName()
+              + ".bindToSession(record) before changing it");
+    }
+
     changed = true;
     checkTransactionValid();
 

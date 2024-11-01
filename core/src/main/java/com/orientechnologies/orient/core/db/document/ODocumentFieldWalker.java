@@ -20,6 +20,7 @@
 package com.orientechnologies.orient.core.db.document;
 
 import com.orientechnologies.common.collection.OMultiValue;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.ORecordLazyMultiValue;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
@@ -32,8 +33,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * This class allows to walk through all fields of single document using instance of {@link
- * ODocumentFieldVisitor} class.
+ * This class allows to walk through all fields of single document using instance of
+ * {@link ODocumentFieldVisitor} class.
  *
  * <p>Only current document and embedded documents will be walked. Which means that all embedded
  * collections will be visited too and all embedded documents which are contained in this
@@ -45,22 +46,40 @@ import java.util.Set;
  *
  * <p>If currently processed value is collection or map of embedded documents or embedded document
  * itself then method {@link ODocumentFieldVisitor#goDeeper(OType, OType, Object)} is called, if it
- * returns false then this collection will not be visited by {@link ODocumentFieldVisitor} instance.
+ * returns false then this collection will not be visited by {@link ODocumentFieldVisitor}
+ * instance.
  *
  * <p>Fields will be visited till method {@link ODocumentFieldVisitor#goFurther(OType, OType,
  * Object, Object)} returns true.
  */
 public class ODocumentFieldWalker {
-  public void walkDocument(ODocument document, ODocumentFieldVisitor fieldWalker) {
-    final Set<ODocument> walked =
-        Collections.newSetFromMap(new IdentityHashMap<ODocument, Boolean>());
-    walkDocument(document, fieldWalker, walked);
+
+  public ODocument walkDocument(
+      ODatabaseSession session, ODocument document, ODocumentFieldVisitor fieldWalker) {
+    final Set<ODocument> walked = Collections.newSetFromMap(new IdentityHashMap<>());
+
+    if (!document.getIdentity().isValid()) {
+      return document;
+    }
+
+    var doc = session.bindToSession(document);
+    walkDocument(session, doc, fieldWalker, walked);
     walked.clear();
+    return doc;
   }
 
   private void walkDocument(
-      ODocument document, ODocumentFieldVisitor fieldWalker, Set<ODocument> walked) {
-    if (walked.contains(document)) return;
+      ODatabaseSession session,
+      ODocument document,
+      ODocumentFieldVisitor fieldWalker,
+      Set<ODocument> walked) {
+    if (document.isUnloaded()) {
+      throw new IllegalStateException("Document is unloaded");
+    }
+
+    if (walked.contains(document)) {
+      return;
+    }
 
     walked.add(document);
     boolean oldLazyLoad = document.isLazyLoad();
@@ -87,10 +106,12 @@ public class ODocumentFieldWalker {
       Object newValue = fieldWalker.visitField(fieldType, linkedType, fieldValue);
 
       boolean updated;
-      if (updateMode)
+      if (updateMode) {
         updated =
             updateFieldValueIfChanged(document, fieldName, fieldValue, newValue, concreteType);
-      else updated = false;
+      } else {
+        updated = false;
+      }
 
       // exclude cases when:
       // 1. value was updated.
@@ -104,14 +125,25 @@ public class ODocumentFieldWalker {
               || OType.LINKSET.equals(fieldType)
               || (fieldValue instanceof ORecordLazyMultiValue))) {
         if (fieldWalker.goDeeper(fieldType, linkedType, fieldValue)) {
-          if (fieldValue instanceof Map) walkMap((Map) fieldValue, fieldType, fieldWalker, walked);
-          else if (fieldValue instanceof ODocument) {
+          if (fieldValue instanceof Map) {
+            walkMap(session, (Map) fieldValue, fieldType, fieldWalker, walked);
+          } else if (fieldValue instanceof ODocument) {
             final ODocument doc = (ODocument) fieldValue;
-            if (OType.EMBEDDED.equals(fieldType) || doc.isEmbedded())
-              walkDocument((ODocument) fieldValue, fieldWalker);
-          } else if (OMultiValue.isIterable(fieldValue))
+            if (OType.EMBEDDED.equals(fieldType) || doc.isEmbedded()) {
+              var fdoc = (ODocument) fieldValue;
+              if (fdoc.isUnloaded()) {
+                throw new IllegalStateException("Document is unloaded");
+              }
+              walkDocument(session, fdoc, fieldWalker);
+            }
+          } else if (OMultiValue.isIterable(fieldValue)) {
             walkIterable(
-                OMultiValue.getMultiValueIterable(fieldValue), fieldType, fieldWalker, walked);
+                session,
+                OMultiValue.getMultiValueIterable(fieldValue),
+                fieldType,
+                fieldWalker,
+                walked);
+          }
         }
       }
 
@@ -125,18 +157,24 @@ public class ODocumentFieldWalker {
   }
 
   private void walkMap(
-      Map map, OType fieldType, ODocumentFieldVisitor fieldWalker, Set<ODocument> walked) {
+      ODatabaseSession session,
+      Map map,
+      OType fieldType,
+      ODocumentFieldVisitor fieldWalker,
+      Set<ODocument> walked) {
     for (Object value : map.values()) {
       if (value instanceof ODocument) {
         final ODocument doc = (ODocument) value;
         // only embedded documents are walked
-        if (OType.EMBEDDEDMAP.equals(fieldType) || doc.isEmbedded())
-          walkDocument((ODocument) value, fieldWalker, walked);
+        if (OType.EMBEDDEDMAP.equals(fieldType) || doc.isEmbedded()) {
+          walkDocument(session, (ODocument) value, fieldWalker, walked);
+        }
       }
     }
   }
 
   private void walkIterable(
+      ODatabaseSession session,
       Iterable iterable,
       OType fieldType,
       ODocumentFieldVisitor fieldWalker,
@@ -147,7 +185,9 @@ public class ODocumentFieldWalker {
         // only embedded documents are walked
         if (OType.EMBEDDEDLIST.equals(fieldType)
             || OType.EMBEDDEDSET.equals(fieldType)
-            || doc.isEmbedded()) walkDocument((ODocument) value, fieldWalker, walked);
+            || doc.isEmbedded()) {
+          walkDocument(session, (ODocument) value, fieldWalker, walked);
+        }
       }
     }
   }
