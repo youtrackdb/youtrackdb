@@ -66,111 +66,129 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
       throws IOException {
     super.beforeExecute(iRequest, iResponse);
 
-    init();
+    try {
+      init();
 
-    final String[] urlParts = iRequest.getUrl().substring(1).split("/");
-    if (urlParts.length < 2)
-      throw new OHttpRequestException(
-          "Syntax error in URL. Expected is: <command>/<database>[/...]");
-
-    iRequest.setDatabaseName(URLDecoder.decode(urlParts[1], "UTF-8"));
-    if (iRequest.getBearerTokenRaw() != null) {
-      // Bearer authentication
-      try {
-        iRequest.setBearerToken(
-            tokenHandler.parseOnlyWebToken(iRequest.getBearerTokenRaw().getBytes()));
-      } catch (Exception e) {
-        // TODO: Catch all expected exceptions correctly!
-        OLogManager.instance().warn(this, "Bearer token parsing failed", e);
+      final String[] urlParts = iRequest.getUrl().substring(1).split("/");
+      if (urlParts.length < 2) {
+        throw new OHttpRequestException(
+            "Syntax error in URL. Expected is: <command>/<database>[/...]");
       }
 
-      if (iRequest.getBearerToken() == null
-          || iRequest.getBearerToken().getToken().getIsVerified() == false) {
-        // Token parsing or verification failed - for now fail silently.
-        sendAuthorizationRequest(iRequest, iResponse, iRequest.getDatabaseName());
-        return false;
-      }
-
-      // CHECK THE REQUEST VALIDITY
-      tokenHandler.validateToken(iRequest.getBearerToken(), urlParts[0], urlParts[1]);
-      if (iRequest.getBearerToken().getToken().getIsValid() == false) {
-
-        // SECURITY PROBLEM: CROSS DATABASE REQUEST!
-        OLogManager.instance()
-            .warn(
-                this,
-                "Token '%s' is not valid for database '%s'",
-                iRequest.getBearerTokenRaw(),
-                iRequest.getDatabaseName());
-        sendAuthorizationRequest(iRequest, iResponse, iRequest.getDatabaseName());
-        return false;
-      }
-
-      return iRequest.getBearerToken().getToken().getIsValid();
-    } else {
-      // HTTP basic authentication
-      final List<String> authenticationParts =
-          iRequest.getAuthorization() != null
-              ? OStringSerializerHelper.split(iRequest.getAuthorization(), ':')
-              : null;
-
-      OHttpSession currentSession;
-      if (iRequest.getSessionId() != null && iRequest.getSessionId().length() > 1) {
-        currentSession = server.getHttpSessionManager().getSession(iRequest.getSessionId());
-        if (currentSession != null && authenticationParts != null) {
-          if (!currentSession.getUserName().equals(authenticationParts.get(0))) {
-            // CHANGED USER, INVALIDATE THE SESSION
-            currentSession = null;
-          }
+      iRequest.setDatabaseName(URLDecoder.decode(urlParts[1], "UTF-8"));
+      if (iRequest.getBearerTokenRaw() != null) {
+        // Bearer authentication
+        try {
+          iRequest.setBearerToken(
+              tokenHandler.parseOnlyWebToken(iRequest.getBearerTokenRaw().getBytes()));
+        } catch (Exception e) {
+          // TODO: Catch all expected exceptions correctly!
+          OLogManager.instance().warn(this, "Bearer token parsing failed", e);
         }
-      } else currentSession = null;
 
-      if (currentSession == null) {
-        // NO SESSION
-        if (iRequest.getAuthorization() == null
-            || SESSIONID_LOGOUT.equals(iRequest.getSessionId())) {
-          iResponse.setSessionId(SESSIONID_UNAUTHORIZED);
+        if (iRequest.getBearerToken() == null
+            || iRequest.getBearerToken().getToken().getIsVerified() == false) {
+          // Token parsing or verification failed - for now fail silently.
           sendAuthorizationRequest(iRequest, iResponse, iRequest.getDatabaseName());
           return false;
-        } else
-          return authenticate(iRequest, iResponse, authenticationParts, iRequest.getDatabaseName());
+        }
 
+        // CHECK THE REQUEST VALIDITY
+        tokenHandler.validateToken(iRequest.getBearerToken(), urlParts[0], urlParts[1]);
+        if (iRequest.getBearerToken().getToken().getIsValid() == false) {
+
+          // SECURITY PROBLEM: CROSS DATABASE REQUEST!
+          OLogManager.instance()
+              .warn(
+                  this,
+                  "Token '%s' is not valid for database '%s'",
+                  iRequest.getBearerTokenRaw(),
+                  iRequest.getDatabaseName());
+          sendAuthorizationRequest(iRequest, iResponse, iRequest.getDatabaseName());
+          return false;
+        }
+
+        return iRequest.getBearerToken().getToken().getIsValid();
       } else {
-        // CHECK THE SESSION VALIDITY
-        if (!currentSession.getDatabaseName().equals(iRequest.getDatabaseName())) {
+        // HTTP basic authentication
+        final List<String> authenticationParts =
+            iRequest.getAuthorization() != null
+                ? OStringSerializerHelper.split(iRequest.getAuthorization(), ':')
+                : null;
 
-          // SECURITY PROBLEM: CROSS DATABASE REQUEST!
-          OLogManager.instance()
-              .warn(
-                  this,
-                  "Session %s is trying to access to the database '%s', but has been authenticated"
-                      + " against the database '%s'",
-                  iRequest.getSessionId(),
-                  iRequest.getDatabaseName(),
-                  currentSession.getDatabaseName());
-          server.getHttpSessionManager().removeSession(iRequest.getSessionId());
-          sendAuthorizationRequest(iRequest, iResponse, iRequest.getDatabaseName());
-          return false;
-
-        } else if (authenticationParts != null
-            && !currentSession.getUserName().equals(authenticationParts.get(0))) {
-
-          // SECURITY PROBLEM: CROSS DATABASE REQUEST!
-          OLogManager.instance()
-              .warn(
-                  this,
-                  "Session %s is trying to access to the database '%s' with user '%s', but has been"
-                      + " authenticated with user '%s'",
-                  iRequest.getSessionId(),
-                  iRequest.getDatabaseName(),
-                  authenticationParts.get(0),
-                  currentSession.getUserName());
-          server.getHttpSessionManager().removeSession(iRequest.getSessionId());
-          sendAuthorizationRequest(iRequest, iResponse, iRequest.getDatabaseName());
-          return false;
+        OHttpSession currentSession;
+        if (iRequest.getSessionId() != null && iRequest.getSessionId().length() > 1) {
+          currentSession = server.getHttpSessionManager().getSession(iRequest.getSessionId());
+          if (currentSession != null && authenticationParts != null) {
+            if (!currentSession.getUserName().equals(authenticationParts.get(0))) {
+              // CHANGED USER, INVALIDATE THE SESSION
+              currentSession = null;
+            }
+          }
+        } else {
+          currentSession = null;
         }
 
-        return true;
+        if (currentSession == null) {
+          // NO SESSION
+          if (iRequest.getAuthorization() == null
+              || SESSIONID_LOGOUT.equals(iRequest.getSessionId())) {
+            iResponse.setSessionId(SESSIONID_UNAUTHORIZED);
+            sendAuthorizationRequest(iRequest, iResponse, iRequest.getDatabaseName());
+            return false;
+          } else {
+            return authenticate(
+                iRequest, iResponse, authenticationParts, iRequest.getDatabaseName());
+          }
+
+        } else {
+          // CHECK THE SESSION VALIDITY
+          if (!currentSession.getDatabaseName().equals(iRequest.getDatabaseName())) {
+
+            // SECURITY PROBLEM: CROSS DATABASE REQUEST!
+            OLogManager.instance()
+                .warn(
+                    this,
+                    "Session %s is trying to access to the database '%s', but has been"
+                        + " authenticated against the database '%s'",
+                    iRequest.getSessionId(),
+                    iRequest.getDatabaseName(),
+                    currentSession.getDatabaseName());
+            server.getHttpSessionManager().removeSession(iRequest.getSessionId());
+            sendAuthorizationRequest(iRequest, iResponse, iRequest.getDatabaseName());
+            return false;
+
+          } else if (authenticationParts != null
+              && !currentSession.getUserName().equals(authenticationParts.get(0))) {
+
+            // SECURITY PROBLEM: CROSS DATABASE REQUEST!
+            OLogManager.instance()
+                .warn(
+                    this,
+                    "Session %s is trying to access to the database '%s' with user '%s', but has"
+                        + " been authenticated with user '%s'",
+                    iRequest.getSessionId(),
+                    iRequest.getDatabaseName(),
+                    authenticationParts.get(0),
+                    currentSession.getUserName());
+            server.getHttpSessionManager().removeSession(iRequest.getSessionId());
+            sendAuthorizationRequest(iRequest, iResponse, iRequest.getDatabaseName());
+            return false;
+          }
+
+          return true;
+        }
+      }
+    } finally {
+      // clear local cache to ensure that zomby records will not pile up in cache.
+      try {
+        ODatabaseDocumentInternal db = getProfiledDatabaseInstance(iRequest);
+        if (db != null && !db.getTransaction().isActive()) {
+          db.activateOnCurrentThread();
+          db.getLocalCache().clear();
+        }
+      } catch (Exception e) {
+        // ignore
       }
     }
   }
@@ -298,8 +316,9 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
       throws InterruptedException {
     final OHttpSession session = server.getHttpSessionManager().getSession(iRequest.getSessionId());
 
-    if (session == null)
+    if (session == null) {
       throw new OSecurityAccessException(iRequest.getDatabaseName(), "No session active");
+    }
 
     // after authentication, if current login user is different compare with current DB user, reset
     // DB user to login user

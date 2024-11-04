@@ -23,7 +23,6 @@ import com.orientechnologies.common.profiler.OAbstractProfiler.OProfilerHookValu
 import com.orientechnologies.common.profiler.OProfiler.METRIC_TYPE;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.ORecord;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -65,16 +64,6 @@ public abstract class OAbstractRecordCache {
   public void setEnable(final boolean enable) {
     if (enable) underlying.enable();
     else underlying.disable();
-  }
-
-  /**
-   * Remove record with specified identifier
-   *
-   * @param rid unique identifier of record
-   * @return record stored in cache if any, otherwise - {@code null}
-   */
-  public ORecord freeRecord(final ORID rid) {
-    return underlying.remove(rid);
   }
 
   /**
@@ -152,9 +141,5 @@ public abstract class OAbstractRecordCache {
       Orient.instance().getProfiler().unregisterHookValue(profilerPrefix + "current");
       Orient.instance().getProfiler().unregisterHookValue(profilerPrefix + "max");
     }
-  }
-
-  public void clearRecords() {
-    underlying.clearRecords();
   }
 }

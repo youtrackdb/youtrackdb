@@ -73,34 +73,33 @@
     </repository>
   </repositories>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.build.resourceEncoding>UTF-8</project.build.resourceEncoding>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <maven.compiler.source>17</maven.compiler.source>
-    <maven.compiler.target>17</maven.compiler.target>
-    <maven.compiler.release>17</maven.compiler.release>
-
-    <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ssZ</maven.build.timestamp.format>
-    <!--This property is updated automatically and is needed to make build reproducible-->
-    <project.build.outputTimestamp>2023-01-01T00:00:00Z</project.build.outputTimestamp>
-    <!--suppress UnresolvedMavenProperty -->
-    <implementation.build>${scmBranch}@r${buildNumber}</implementation.build>
-    <blueprints.version>2.6.0</blueprints.version>
-    <!-- | shared build/report plugins version -->
-    <surefire.version>3.2.5</surefire.version>
-    <license.location>license.txt</license.location>
-    <!--Override with the given url on external modules-->
-    <!--<license.location>https://github.com/orientechnologies/orientdb/raw/develop/ODB-ASL-LICENSE.txt</license.location>-->
-    <heapSize>2048m</heapSize>
-    <javaassist.version>3.29.2-GA</javaassist.version>
-    <jaxb.api.version>2.3.0</jaxb.api.version>
-    <project.rootdir>${project.basedir}/</project.rootdir>
-    <graalvm.version>21.3.5</graalvm.version>
-    <slf4j.version>2.0.16</slf4j.version>
-    <slf4j.version>2.0.12</slf4j.version>
-    <toolchain.jdk.version>[17,22)</toolchain.jdk.version>
-  </properties>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.build.resourceEncoding>UTF-8</project.build.resourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.release>17</maven.compiler.release>
+        <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ssZ</maven.build.timestamp.format>
+        <!--This property is updated automatically and is needed to make build reproducible-->
+        <project.build.outputTimestamp>2023-01-01T00:00:00Z</project.build.outputTimestamp>
+        <!--suppress UnresolvedMavenProperty -->
+        <implementation.build>${scmBranch}@r${buildNumber}</implementation.build>
+        <blueprints.version>2.6.0</blueprints.version>
+        <!-- | shared build/report plugins version -->
+        <surefire.version>3.2.5</surefire.version>
+        <license.location>license.txt</license.location>
+        <!--Override with the given url on external modules-->
+        <!--<license.location>https://github.com/orientechnologies/orientdb/raw/develop/ODB-ASL-LICENSE.txt</license.location>-->
+        <heapSize>2048m</heapSize>
+        <javaassist.version>3.29.2-GA</javaassist.version>
+        <jaxb.api.version>2.3.0</jaxb.api.version>
+        <project.rootdir>${project.basedir}/</project.rootdir>
+        <graalvm.version>21.3.11</graalvm.version>
+        <slf4j.version>2.0.16</slf4j.version>
+        <slf4j.version>2.0.16</slf4j.version>
+        <toolchain.jdk.version>[17,22)</toolchain.jdk.version>
+    </properties>
 
 
   <dependencyManagement>
@@ -244,11 +243,11 @@
           </configuration>
         </plugin>
 
-        <plugin>
-          <groupId>com.diffplug.spotless</groupId>
-          <artifactId>spotless-maven-plugin</artifactId>
-          <version>2.42.0</version>
-        </plugin>
+                <plugin>
+                    <groupId>com.diffplug.spotless</groupId>
+                    <artifactId>spotless-maven-plugin</artifactId>
+                    <version>2.43.0</version>
+                </plugin>
 
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -426,57 +425,57 @@
         </executions>
       </plugin>
 
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>com.diffplug.spotless</groupId>
-        <artifactId>spotless-maven-plugin</artifactId>
-        <version>2.42.0</version>
-        <configuration>
-          <java>
-            <googleJavaFormat>
-              <version>1.19.2</version>
-              <style>GOOGLE</style>
-              <reflowLongStrings>true</reflowLongStrings>
-              <formatJavadoc>false</formatJavadoc>
-            </googleJavaFormat>
-            <removeUnusedImports/>
-            <importOrder/>
-          </java>
-        </configuration>
-        <executions>
-          <execution>
-            <phase>compile</phase>
-            <goals>
-              <goal>check</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>2.43.0</version>
+                <configuration>
+                    <java>
+                        <googleJavaFormat>
+                            <version>1.19.2</version>
+                            <style>GOOGLE</style>
+                            <reflowLongStrings>true</reflowLongStrings>
+                            <formatJavadoc>false</formatJavadoc>
+                        </googleJavaFormat>
+                        <removeUnusedImports/>
+                        <importOrder/>
+                    </java>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-enforcer-plugin</artifactId>
-        <version>3.4.1</version>
-        <executions>
-          <execution>
-            <id>enforce-maven</id>
-            <goals>
-              <goal>enforce</goal>
-            </goals>
-            <configuration>
-              <rules>
-                <requireMavenVersion>
-                  <version>3.5.4</version>
-                </requireMavenVersion>
-              </rules>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.5.0</version>
+                <executions>
+                    <execution>
+                        <id>enforce-maven</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireMavenVersion>
+                                    <version>3.5.4</version>
+                                </requireMavenVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
 
   </build>
 
