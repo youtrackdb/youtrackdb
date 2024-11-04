@@ -3,8 +3,8 @@ package com.orientechnologies.orient.client.remote;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.client.remote.message.OLiveQueryPushRequest;
 import com.orientechnologies.orient.client.remote.message.live.OLiveQueryResult;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 
@@ -26,7 +26,7 @@ public class OLiveQueryClientListener {
    * @return
    */
   public boolean onEvent(OLiveQueryPushRequest pushRequest) {
-    ODatabaseDocumentInternal old = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    ODatabaseSessionInternal old = ODatabaseRecordThreadLocal.instance().getIfDefined();
     try {
       database.activateOnCurrentThread();
       if (pushRequest.getStatus() == OLiveQueryPushRequest.ERROR) {
@@ -58,7 +58,7 @@ public class OLiveQueryClientListener {
   }
 
   public void onError(OException e) {
-    ODatabaseDocumentInternal old = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    ODatabaseSessionInternal old = ODatabaseRecordThreadLocal.instance().getIfDefined();
     try {
       database.activateOnCurrentThread();
       listener.onError(database, e);
@@ -69,7 +69,7 @@ public class OLiveQueryClientListener {
   }
 
   public void onEnd() {
-    ODatabaseDocumentInternal old = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    ODatabaseSessionInternal old = ODatabaseRecordThreadLocal.instance().getIfDefined();
     try {
       database.activateOnCurrentThread();
       listener.onEnd(database);

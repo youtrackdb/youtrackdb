@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.test.database.auto.hooks;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.hook.ORecordHook;
 import com.orientechnologies.orient.core.hook.ORecordHookAbstract;
 import com.orientechnologies.orient.core.record.OElement;
@@ -15,7 +15,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class BrokenMapHook extends ORecordHookAbstract implements ORecordHook {
-  private ODatabaseDocumentInternal database;
+  private ODatabaseSessionInternal database;
 
   public BrokenMapHook() {
     this.database = ODatabaseRecordThreadLocal.instance().get();

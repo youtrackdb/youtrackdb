@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OView;
 import java.util.Set;
@@ -18,7 +18,7 @@ public class FetchFromViewExecutionStep extends FetchFromClassExecutionStep {
       boolean profilingEnabled) {
     super(className, clusters, planningInfo, ctx, ridOrder, profilingEnabled);
 
-    ODatabaseDocumentInternal database = (ODatabaseDocumentInternal) ctx.getDatabase();
+    ODatabaseSessionInternal database = (ODatabaseSessionInternal) ctx.getDatabase();
     OView view = loadClassFromSchema(className, ctx);
     int[] classClusters = view.getPolymorphicClusterIds();
     for (int clusterId : classClusters) {
@@ -36,7 +36,7 @@ public class FetchFromViewExecutionStep extends FetchFromClassExecutionStep {
 
   protected OView loadClassFromSchema(String className, OCommandContext ctx) {
     OView clazz =
-        ((ODatabaseDocumentInternal) ctx.getDatabase())
+        ((ODatabaseSessionInternal) ctx.getDatabase())
             .getMetadata()
             .getImmutableSchemaSnapshot()
             .getView(className);

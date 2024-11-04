@@ -14,18 +14,20 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Random;
 import org.testng.Assert;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-/** @author Artem Orobets (enisher-at-gmail.com) */
+/**
+ * @author Artem Orobets (enisher-at-gmail.com)
+ */
 @Test(groups = "db")
 public class RemoteProtocolCommandsTest extends DocumentDBBaseTest {
+
   private static final String serverPort = System.getProperty("orient.server.port", "2424");
 
-  @Parameters(value = "url")
-  public RemoteProtocolCommandsTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public RemoteProtocolCommandsTest(boolean remote) {
+    super(remote);
   }
 
   @Test(enabled = false)
@@ -73,7 +75,9 @@ public class RemoteProtocolCommandsTest extends DocumentDBBaseTest {
 
     // assertTrue(" the cluster is not valid", bad.clusterId >= 0);
     String ids = "";
-    for (int aId : clazz.getClusterIds()) ids += aId;
+    for (int aId : clazz.getClusterIds()) {
+      ids += aId;
+    }
 
     assertTrue(
         " returned id:" + bad.getClusterId() + " shoud be one of:" + ids,

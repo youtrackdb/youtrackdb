@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OCompositeIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
@@ -47,7 +47,7 @@ public class IndexSearchDescriptor {
   }
 
   public int cost(OCommandContext ctx) {
-    OQueryStats stats = OQueryStats.get((ODatabaseDocumentInternal) ctx.getDatabase());
+    OQueryStats stats = OQueryStats.get((ODatabaseSessionInternal) ctx.getDatabase());
 
     String indexName = getIndex().getName();
     int size = getSubBlocks().size();

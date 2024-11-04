@@ -17,10 +17,9 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.Orient;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.index.OCompositeKey;
@@ -61,9 +60,9 @@ import org.testng.annotations.Test;
 @Test
 public class IndexTest extends ObjectDBBaseTest {
 
-  @Parameters(value = "url")
-  public IndexTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public IndexTest(@Optional Boolean remote) {
+    super(remote != null && remote);
   }
 
   @BeforeClass
@@ -109,8 +108,7 @@ public class IndexTest extends ObjectDBBaseTest {
     Assert.assertEquals(
         nickProperty.getIndexes().iterator().next().getType(), OClass.INDEX_TYPE.UNIQUE.toString());
 
-    final boolean localStorage =
-        !(((ODatabaseDocumentInternal) database.getUnderlying()).isRemote());
+    final boolean localStorage = !(database.getUnderlying().isRemote());
 
     boolean oldRecording = true;
     long indexQueries = 0L;
@@ -188,7 +186,7 @@ public class IndexTest extends ObjectDBBaseTest {
         database
             .getMetadata()
             .getIndexManagerInternal()
-            .getIndex((ODatabaseDocumentInternal) database.getUnderlying(), "Profile.nick");
+            .getIndex((ODatabaseSessionInternal) database.getUnderlying(), "Profile.nick");
 
     Assert.assertEquals(idx.getInternal().size(), result.size());
   }
@@ -209,7 +207,7 @@ public class IndexTest extends ObjectDBBaseTest {
         database
             .getMetadata()
             .getIndexManagerInternal()
-            .getIndex((ODatabaseDocumentInternal) database.getUnderlying(), "Profile.nick")
+            .getIndex((ODatabaseSessionInternal) database.getUnderlying(), "Profile.nick")
             .getInternal()
             .size(),
         profileSize);
@@ -224,7 +222,7 @@ public class IndexTest extends ObjectDBBaseTest {
           database
               .getMetadata()
               .getIndexManagerInternal()
-              .getIndex((ODatabaseDocumentInternal) database.getUnderlying(), "Profile.nick")
+              .getIndex((ODatabaseSessionInternal) database.getUnderlying(), "Profile.nick")
               .getInternal()
               .getRids("Yay-" + i)) {
         Assert.assertTrue(stream.findAny().isPresent());
@@ -270,7 +268,7 @@ public class IndexTest extends ObjectDBBaseTest {
 
   @Test(dependsOnMethods = "populateIndexDocuments")
   public void testIndexInMajorSelect() {
-    if (((ODatabaseDocumentInternal) database.getUnderlying()).isRemote()) {
+    if (((ODatabaseSessionInternal) database.getUnderlying()).isRemote()) {
       return;
     }
 
@@ -310,7 +308,7 @@ public class IndexTest extends ObjectDBBaseTest {
 
   @Test(dependsOnMethods = "populateIndexDocuments")
   public void testIndexInMajorEqualsSelect() {
-    if (((ODatabaseDocumentInternal) database.getUnderlying()).isRemote()) {
+    if (((ODatabaseSessionInternal) database.getUnderlying()).isRemote()) {
       return;
     }
 
@@ -351,7 +349,7 @@ public class IndexTest extends ObjectDBBaseTest {
 
   @Test(dependsOnMethods = "populateIndexDocuments")
   public void testIndexInMinorSelect() {
-    if (((ODatabaseDocumentInternal) database.getUnderlying()).isRemote()) {
+    if (((ODatabaseSessionInternal) database.getUnderlying()).isRemote()) {
       return;
     }
 
@@ -388,7 +386,7 @@ public class IndexTest extends ObjectDBBaseTest {
 
   @Test(dependsOnMethods = "populateIndexDocuments")
   public void testIndexInMinorEqualsSelect() {
-    if (((ODatabaseDocumentInternal) database.getUnderlying()).isRemote()) {
+    if (((ODatabaseSessionInternal) database.getUnderlying()).isRemote()) {
       return;
     }
 
@@ -425,7 +423,7 @@ public class IndexTest extends ObjectDBBaseTest {
 
   @Test(dependsOnMethods = "populateIndexDocuments")
   public void testIndexBetweenSelect() {
-    if (((ODatabaseDocumentInternal) database.getUnderlying()).isRemote()) {
+    if (((ODatabaseSessionInternal) database.getUnderlying()).isRemote()) {
       return;
     }
 
@@ -464,7 +462,7 @@ public class IndexTest extends ObjectDBBaseTest {
 
   @Test(dependsOnMethods = "populateIndexDocuments")
   public void testIndexInComplexSelectOne() {
-    if (((ODatabaseDocumentInternal) database.getUnderlying()).isRemote()) {
+    if (((ODatabaseSessionInternal) database.getUnderlying()).isRemote()) {
       return;
     }
 
@@ -506,7 +504,7 @@ public class IndexTest extends ObjectDBBaseTest {
 
   @Test(dependsOnMethods = "populateIndexDocuments")
   public void testIndexInComplexSelectTwo() {
-    if (((ODatabaseDocumentInternal) database.getUnderlying()).isRemote()) {
+    if (((ODatabaseSessionInternal) database.getUnderlying()).isRemote()) {
       return;
     }
 
@@ -618,7 +616,7 @@ public class IndexTest extends ObjectDBBaseTest {
         OClass.INDEX_TYPE.NOTUNIQUE.toString());
 
     final boolean localStorage =
-        !(((ODatabaseDocumentInternal) database.getUnderlying()).isRemote());
+        !(((ODatabaseSessionInternal) database.getUnderlying()).isRemote());
 
     boolean oldRecording = true;
     long indexQueries = 0L;
@@ -681,7 +679,7 @@ public class IndexTest extends ObjectDBBaseTest {
         database
             .getMetadata()
             .getIndexManagerInternal()
-            .getIndex((ODatabaseDocumentInternal) database.getUnderlying(), "Whiz.account");
+            .getIndex((ODatabaseSessionInternal) database.getUnderlying(), "Whiz.account");
 
     for (int i = 0; i < 5; i++) {
       database.begin();
@@ -726,9 +724,7 @@ public class IndexTest extends ObjectDBBaseTest {
   }
 
   public void linkedIndexedProperty() {
-    try (ODatabaseDocumentInternal db = new ODatabaseDocumentTx(database.getURL())) {
-      db.open("admin", "admin");
-
+    try (ODatabaseSessionInternal db = acquireSession()) {
       if (!db.getMetadata().getSchema().existsClass("TestClass")) {
         OClass testClass =
             db.getMetadata().getSchema().createClass("TestClass", 1, (OClass[]) null);
@@ -771,9 +767,7 @@ public class IndexTest extends ObjectDBBaseTest {
 
   @Test(dependsOnMethods = "linkedIndexedProperty")
   public void testLinkedIndexedPropertyInTx() {
-    try (ODatabaseDocumentInternal db = new ODatabaseDocumentTx(database.getURL())) {
-      db.open("admin", "admin");
-
+    try (ODatabaseSessionInternal db = acquireSession()) {
       db.begin();
       ODocument testClassDocument = db.newInstance("TestClass");
       testClassDocument.field("name", "Test Class 2");
@@ -804,9 +798,7 @@ public class IndexTest extends ObjectDBBaseTest {
   }
 
   public void testDictionary() {
-    try (ODatabaseDocumentInternal db = new ODatabaseDocumentTx(database.getURL())) {
-      db.open("admin", "admin");
-
+    try (ODatabaseSessionInternal db = acquireSession()) {
       OClass pClass = db.getMetadata().getSchema().createClass("Person2", 1, (OClass[]) null);
       pClass.createProperty("firstName", OType.STRING);
       pClass.createProperty("lastName", OType.STRING);
@@ -826,9 +818,7 @@ public class IndexTest extends ObjectDBBaseTest {
   public void testConcurrentRemoveDelete() {
     checkEmbeddedDB();
 
-    try (ODatabaseDocumentInternal db = new ODatabaseDocumentTx(database.getURL())) {
-      db.open("admin", "admin");
-
+    try (ODatabaseSessionInternal db = acquireSession()) {
       if (!db.getMetadata().getSchema().existsClass("MyFruit")) {
         OClass fruitClass = db.getMetadata().getSchema().createClass("MyFruit", 1, (OClass[]) null);
         fruitClass.createProperty("name", OType.STRING);
@@ -902,9 +892,7 @@ public class IndexTest extends ObjectDBBaseTest {
 
     final ODocument doc;
     final ORecordId result;
-    try (ODatabaseDocumentInternal db = new ODatabaseDocumentTx(database.getURL())) {
-      db.open("admin", "admin");
-
+    try (ODatabaseSessionInternal db = acquireSession()) {
       if (!db.getMetadata().getSchema().existsClass("IndexTestTerm")) {
         final OClass termClass =
             db.getMetadata().getSchema().createClass("IndexTestTerm", 1, (OClass[]) null);
@@ -939,9 +927,7 @@ public class IndexTest extends ObjectDBBaseTest {
   public void testTransactionUniqueIndexTestOne() {
     checkEmbeddedDB();
 
-    ODatabaseDocumentInternal db = new ODatabaseDocumentTx(database.getURL());
-    db.open("admin", "admin");
-
+    ODatabaseSessionInternal db = acquireSession();
     if (!db.getMetadata().getSchema().existsClass("TransactionUniqueIndexTest")) {
       final OClass termClass =
           db.getMetadata()
@@ -984,9 +970,7 @@ public class IndexTest extends ObjectDBBaseTest {
   public void testTransactionUniqueIndexTestTwo() {
     checkEmbeddedDB();
 
-    ODatabaseDocumentInternal db = new ODatabaseDocumentTx(database.getURL());
-    db.open("admin", "admin");
-
+    ODatabaseSessionInternal db = acquireSession();
     if (!db.getMetadata().getSchema().existsClass("TransactionUniqueIndexTest")) {
       final OClass termClass =
           db.getMetadata()
@@ -1002,7 +986,7 @@ public class IndexTest extends ObjectDBBaseTest {
     }
 
     final OIndex index =
-        ((ODatabaseDocumentInternal) db)
+        ((ODatabaseSessionInternal) db)
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(db, "idxTransactionUniqueIndexTest");
@@ -1031,9 +1015,7 @@ public class IndexTest extends ObjectDBBaseTest {
   public void testTransactionUniqueIndexTestWithDotNameOne() {
     checkEmbeddedDB();
 
-    ODatabaseDocumentInternal db = new ODatabaseDocumentTx(database.getURL());
-    db.open("admin", "admin");
-
+    ODatabaseSessionInternal db = acquireSession();
     if (!db.getMetadata().getSchema().existsClass("TransactionUniqueIndexWithDotTest")) {
       final OClass termClass =
           db.getMetadata()
@@ -1080,9 +1062,7 @@ public class IndexTest extends ObjectDBBaseTest {
   public void testTransactionUniqueIndexTestWithDotNameTwo() {
     checkEmbeddedDB();
 
-    ODatabaseDocumentInternal db = new ODatabaseDocumentTx(database.getURL());
-    db.open("admin", "admin");
-
+    ODatabaseSessionInternal db = acquireSession();
     if (!db.getMetadata().getSchema().existsClass("TransactionUniqueIndexWithDotTest")) {
       final OClass termClass =
           db.getMetadata()
@@ -1092,7 +1072,7 @@ public class IndexTest extends ObjectDBBaseTest {
     }
 
     final OIndex index =
-        ((ODatabaseDocumentInternal) db)
+        ((ODatabaseSessionInternal) db)
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(db, "TransactionUniqueIndexWithDotTest.label");
@@ -1143,9 +1123,7 @@ public class IndexTest extends ObjectDBBaseTest {
   }
 
   public void createInheritanceIndex() {
-    try (ODatabaseDocumentInternal db = new ODatabaseDocumentTx(database.getURL())) {
-      db.open("admin", "admin");
-
+    try (ODatabaseSessionInternal db = acquireSession()) {
       if (!db.getMetadata().getSchema().existsClass("BaseTestClass")) {
         OClass baseClass =
             db.getMetadata().getSchema().createClass("BaseTestClass", 1, (OClass[]) null);
@@ -1214,8 +1192,7 @@ public class IndexTest extends ObjectDBBaseTest {
 
     final OIndex idx =
         idxManager.getIndex(
-            (ODatabaseDocumentInternal) database.getUnderlying(),
-            "IndexNotUniqueIndexKeySizeIndex");
+            (ODatabaseSessionInternal) database.getUnderlying(), "IndexNotUniqueIndexKeySizeIndex");
 
     final Set<Integer> keys = new HashSet<>();
     for (int i = 1; i < 100; i++) {
@@ -1246,7 +1223,7 @@ public class IndexTest extends ObjectDBBaseTest {
     OIndexManagerAbstract idxManager = database.getMetadata().getIndexManagerInternal();
     final OIndex idx =
         idxManager.getIndex(
-            (ODatabaseDocumentInternal) database.getUnderlying(), "IndexNotUniqueIndexSizeIndex");
+            (ODatabaseSessionInternal) database.getUnderlying(), "IndexNotUniqueIndexSizeIndex");
 
     for (int i = 1; i < 100; i++) {
       final Integer key = (int) Math.log(i);
@@ -1277,7 +1254,7 @@ public class IndexTest extends ObjectDBBaseTest {
 
     OIndexManagerAbstract idxManager = database.getMetadata().getIndexManagerInternal();
     OIndex nickIndex =
-        idxManager.getIndex((ODatabaseDocumentInternal) database.getUnderlying(), "Profile.nick");
+        idxManager.getIndex((ODatabaseSessionInternal) database.getUnderlying(), "Profile.nick");
 
     try (Stream<ORID> stream = nickIndex.getInternal().getRids("NonProxiedObjectToDelete")) {
       Assert.assertTrue(stream.findAny().isPresent());
@@ -1309,7 +1286,7 @@ public class IndexTest extends ObjectDBBaseTest {
 
     OIndexManagerAbstract idxManager = database.getMetadata().getIndexManagerInternal();
     OIndex nickIndex =
-        idxManager.getIndex((ODatabaseDocumentInternal) database.getUnderlying(), "Profile.nick");
+        idxManager.getIndex((ODatabaseSessionInternal) database.getUnderlying(), "Profile.nick");
 
     try (Stream<ORID> stream = nickIndex.getInternal().getRids("NonProxiedObjectToDelete")) {
       Assert.assertTrue(stream.findAny().isPresent());
@@ -1370,7 +1347,7 @@ public class IndexTest extends ObjectDBBaseTest {
   }
 
   public void testIndexWithLimitAndOffset() {
-    ODatabaseDocumentInternal databaseDocumentTx = database.getUnderlying();
+    ODatabaseSessionInternal databaseDocumentTx = database.getUnderlying();
 
     final OSchema schema = databaseDocumentTx.getMetadata().getSchema();
     final OClass indexWithLimitAndOffset =
@@ -1406,7 +1383,7 @@ public class IndexTest extends ObjectDBBaseTest {
   }
 
   public void testNullIndexKeysSupport() {
-    final ODatabaseDocumentInternal databaseDocumentTx = database.getUnderlying();
+    final ODatabaseSessionInternal databaseDocumentTx = database.getUnderlying();
 
     final OSchema schema = databaseDocumentTx.getMetadata().getSchema();
     final OClass clazz = schema.createClass("NullIndexKeysSupport", 1, (OClass[]) null);
@@ -1461,7 +1438,7 @@ public class IndexTest extends ObjectDBBaseTest {
   }
 
   public void testNullHashIndexKeysSupport() {
-    final ODatabaseDocumentInternal databaseDocumentTx = database.getUnderlying();
+    final ODatabaseSessionInternal databaseDocumentTx = database.getUnderlying();
 
     final OSchema schema = databaseDocumentTx.getMetadata().getSchema();
     final OClass clazz = schema.createClass("NullHashIndexKeysSupport", 1, (OClass[]) null);
@@ -1516,7 +1493,7 @@ public class IndexTest extends ObjectDBBaseTest {
   }
 
   public void testNullIndexKeysSupportInTx() {
-    final ODatabaseDocumentInternal databaseDocumentTx = database.getUnderlying();
+    final ODatabaseSessionInternal databaseDocumentTx = database.getUnderlying();
 
     final OSchema schema = databaseDocumentTx.getMetadata().getSchema();
     final OClass clazz = schema.createClass("NullIndexKeysSupportInTx", 1, (OClass[]) null);
@@ -1574,11 +1551,11 @@ public class IndexTest extends ObjectDBBaseTest {
   }
 
   public void testNullIndexKeysSupportInMiddleTx() {
-    if (database.getURL().startsWith("remote:")) {
+    if (remoteDB) {
       return;
     }
 
-    final ODatabaseDocumentInternal databaseDocumentTx = database.getUnderlying();
+    final ODatabaseSessionInternal databaseDocumentTx = database.getUnderlying();
 
     final OSchema schema = databaseDocumentTx.getMetadata().getSchema();
     final OClass clazz = schema.createClass("NullIndexKeysSupportInMiddleTx", 1, (OClass[]) null);
@@ -1638,7 +1615,7 @@ public class IndexTest extends ObjectDBBaseTest {
   }
 
   public void testCreateIndexAbstractClass() {
-    final ODatabaseDocumentInternal databaseDocumentTx = database.getUnderlying();
+    final ODatabaseSessionInternal databaseDocumentTx = database.getUnderlying();
     final OSchema schema = databaseDocumentTx.getMetadata().getSchema();
 
     OClass abstractClass = schema.createAbstractClass("TestCreateIndexAbstractClass");
@@ -1688,7 +1665,7 @@ public class IndexTest extends ObjectDBBaseTest {
 
   @Test(enabled = false)
   public void testValuesContainerIsRemovedIfIndexIsRemoved() {
-    if (database.getURL().startsWith("remote:")) {
+    if (remoteDB) {
       return;
     }
 
@@ -1715,7 +1692,7 @@ public class IndexTest extends ObjectDBBaseTest {
 
     final OAbstractPaginatedStorage storageLocalAbstract =
         (OAbstractPaginatedStorage)
-            ((ODatabaseDocumentInternal) database.getUnderlying()).getStorage();
+            ((ODatabaseSessionInternal) database.getUnderlying()).getStorage();
 
     final OWriteCache writeCache = storageLocalAbstract.getWriteCache();
     Assert.assertTrue(writeCache.exists("ValuesContainerIsRemovedIfIndexIsRemovedIndex.irs"));
@@ -1836,7 +1813,7 @@ public class IndexTest extends ObjectDBBaseTest {
   }
 
   public void testNullIteration() {
-    ODatabaseDocumentInternal database = (ODatabaseDocumentInternal) this.database.getUnderlying();
+    ODatabaseSessionInternal database = (ODatabaseSessionInternal) this.database.getUnderlying();
 
     OClass v = database.getMetadata().getSchema().getClass("V");
     OClass testNullIteration =
@@ -1894,7 +1871,7 @@ public class IndexTest extends ObjectDBBaseTest {
     final ORID rid3 = doc3.getIdentity();
     final ORID rid4 = doc4.getIdentity();
 
-    ODatabaseDocumentInternal database = (ODatabaseDocumentInternal) this.database.getUnderlying();
+    ODatabaseSessionInternal database = (ODatabaseSessionInternal) this.database.getUnderlying();
 
     final OSchema schema = database.getMetadata().getSchema();
     OClass clazz = schema.createClass("TestMultikeyWithoutField");
@@ -1962,7 +1939,7 @@ public class IndexTest extends ObjectDBBaseTest {
     final ORID rid = document.getIdentity();
 
     database.close();
-    database.open("admin", "admin");
+    database = acquireSession();
 
     database.begin();
     document = database.load(rid);
@@ -1986,7 +1963,7 @@ public class IndexTest extends ObjectDBBaseTest {
     }
 
     database.close();
-    database.open("admin", "admin");
+    database = acquireSession();
 
     document = database.load(rid);
 
@@ -2012,7 +1989,7 @@ public class IndexTest extends ObjectDBBaseTest {
     }
 
     database.close();
-    database.open("admin", "admin");
+    database = acquireSession();
 
     database.begin();
     document = database.load(rid);
@@ -2036,7 +2013,7 @@ public class IndexTest extends ObjectDBBaseTest {
     }
 
     database.close();
-    database.open("admin", "admin");
+    database = acquireSession();
 
     database.begin();
     users = document.field("users");
@@ -2073,7 +2050,7 @@ public class IndexTest extends ObjectDBBaseTest {
     }
 
     database.close();
-    database.open("admin", "admin");
+    database = acquireSession();
 
     database.begin();
     document.removeField("users");
@@ -2115,7 +2092,7 @@ public class IndexTest extends ObjectDBBaseTest {
     final ORID rid3 = doc3.getIdentity();
     final ORID rid4 = doc4.getIdentity();
 
-    ODatabaseDocumentInternal database = (ODatabaseDocumentInternal) this.database.getUnderlying();
+    ODatabaseSessionInternal database = (ODatabaseSessionInternal) this.database.getUnderlying();
 
     final OSchema schema = database.getMetadata().getSchema();
     OClass clazz = schema.createClass("TestMultikeyWithoutFieldNoNullSupport");
@@ -2181,7 +2158,7 @@ public class IndexTest extends ObjectDBBaseTest {
     final ORID rid = document.getIdentity();
 
     database.close();
-    database.open("admin", "admin");
+    database = acquireSession();
 
     document = database.load(rid);
 
@@ -2206,7 +2183,7 @@ public class IndexTest extends ObjectDBBaseTest {
     }
 
     database.close();
-    database.open("admin", "admin");
+    database = acquireSession();
 
     document = database.load(rid);
 
@@ -2226,7 +2203,7 @@ public class IndexTest extends ObjectDBBaseTest {
     Assert.assertEquals(index.getInternal().size(), 0);
 
     database.close();
-    database.open("admin", "admin");
+    database = acquireSession();
 
     document = database.load(rid);
     users = document.field("users");
@@ -2251,7 +2228,7 @@ public class IndexTest extends ObjectDBBaseTest {
     }
 
     database.close();
-    database.open("admin", "admin");
+    database = acquireSession();
 
     users = document.field("users");
     users.add(rid4);
@@ -2289,7 +2266,7 @@ public class IndexTest extends ObjectDBBaseTest {
     }
 
     database.close();
-    database.open("admin", "admin");
+    database = acquireSession();
 
     document.removeField("users");
 
@@ -2308,7 +2285,7 @@ public class IndexTest extends ObjectDBBaseTest {
   public void testNullValuesCountSBTreeUnique() {
     checkEmbeddedDB();
 
-    final ODatabaseDocumentInternal db = (ODatabaseDocumentInternal) database.getUnderlying();
+    final ODatabaseSessionInternal db = (ODatabaseSessionInternal) database.getUnderlying();
 
     OClass nullSBTreeClass =
         db.getMetadata().getSchema().createClass("NullValuesCountSBTreeUnique");
@@ -2339,7 +2316,7 @@ public class IndexTest extends ObjectDBBaseTest {
   public void testNullValuesCountSBTreeNotUniqueOne() {
     checkEmbeddedDB();
 
-    final ODatabaseDocumentInternal db = (ODatabaseDocumentInternal) database.getUnderlying();
+    final ODatabaseSessionInternal db = (ODatabaseSessionInternal) database.getUnderlying();
 
     OClass nullSBTreeClass =
         db.getMetadata().getSchema().createClass("NullValuesCountSBTreeNotUniqueOne");
@@ -2373,7 +2350,7 @@ public class IndexTest extends ObjectDBBaseTest {
   public void testNullValuesCountSBTreeNotUniqueTwo() {
     checkEmbeddedDB();
 
-    final ODatabaseDocumentInternal db = (ODatabaseDocumentInternal) database.getUnderlying();
+    final ODatabaseSessionInternal db = (ODatabaseSessionInternal) database.getUnderlying();
 
     OClass nullSBTreeClass =
         db.getMetadata().getSchema().createClass("NullValuesCountSBTreeNotUniqueTwo");
@@ -2409,7 +2386,7 @@ public class IndexTest extends ObjectDBBaseTest {
   public void testNullValuesCountHashUnique() {
     checkEmbeddedDB();
 
-    final ODatabaseDocumentInternal db = (ODatabaseDocumentInternal) database.getUnderlying();
+    final ODatabaseSessionInternal db = (ODatabaseSessionInternal) database.getUnderlying();
 
     OClass nullSBTreeClass = db.getMetadata().getSchema().createClass("NullValuesCountHashUnique");
     nullSBTreeClass.createProperty("field", OType.INTEGER);
@@ -2440,7 +2417,7 @@ public class IndexTest extends ObjectDBBaseTest {
   public void testNullValuesCountHashNotUniqueOne() {
     checkEmbeddedDB();
 
-    final ODatabaseDocumentInternal db = (ODatabaseDocumentInternal) database.getUnderlying();
+    final ODatabaseSessionInternal db = (ODatabaseSessionInternal) database.getUnderlying();
 
     OClass nullSBTreeClass =
         db.getMetadata().getSchema().createClass("NullValuesCountHashNotUniqueOne");
@@ -2474,7 +2451,7 @@ public class IndexTest extends ObjectDBBaseTest {
   public void testNullValuesCountHashNotUniqueTwo() {
     checkEmbeddedDB();
 
-    final ODatabaseDocumentInternal db = (ODatabaseDocumentInternal) database.getUnderlying();
+    final ODatabaseSessionInternal db = (ODatabaseSessionInternal) database.getUnderlying();
 
     OClass nullSBTreeClass =
         db.getMetadata().getSchema().createClass("NullValuesCountHashNotUniqueTwo");

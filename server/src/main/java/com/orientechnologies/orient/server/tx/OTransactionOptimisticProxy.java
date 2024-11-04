@@ -22,7 +22,7 @@ package com.orientechnologies.orient.server.tx;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.client.remote.message.tx.ORecordOperationRequest;
 import com.orientechnologies.orient.core.Orient;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
@@ -56,7 +56,7 @@ public class OTransactionOptimisticProxy extends OTransactionOptimistic {
   private final ORecordSerializer serializer;
 
   public OTransactionOptimisticProxy(
-      ODatabaseDocumentInternal database,
+      ODatabaseSessionInternal database,
       int txId,
       List<ORecordOperationRequest> operations,
       ODocument indexChanges,

@@ -23,7 +23,7 @@ import com.orientechnologies.common.comparator.ODefaultComparator;
 import com.orientechnologies.common.stream.Streams;
 import com.orientechnologies.common.types.OModifiableBoolean;
 import com.orientechnologies.common.util.ORawPair;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OInvalidIndexEngineIdException;
 import com.orientechnologies.orient.core.id.ORID;
@@ -118,7 +118,7 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
   public Stream<ORID> getRids(Object key) {
     final Object collatedKey = getCollatingValue(key);
     Stream<ORID> backedStream = getRidsIgnoreTx(key);
-    ODatabaseDocumentInternal database = getDatabase();
+    ODatabaseSessionInternal database = getDatabase();
     final OTransactionIndexChanges indexChanges =
         database.getTransaction().getIndexChangesInternal(getName());
     if (indexChanges == null) {
@@ -153,7 +153,7 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
 
     key = getCollatingValue(key);
 
-    ODatabaseDocumentInternal database = getDatabase();
+    ODatabaseSessionInternal database = getDatabase();
     if (database.getTransaction().isActive()) {
       OTransaction singleTx = database.getTransaction();
       singleTx.addIndexEntry(
@@ -211,7 +211,7 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
   public boolean remove(Object key, final OIdentifiable value) {
     key = getCollatingValue(key);
 
-    ODatabaseDocumentInternal database = getDatabase();
+    ODatabaseSessionInternal database = getDatabase();
     if (database.getTransaction().isActive()) {
       database.getTransaction().addIndexEntry(this, super.getName(), OPERATION.REMOVE, key, value);
     } else {
@@ -292,7 +292,7 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
       releaseSharedLock();
     }
 
-    ODatabaseDocumentInternal database = getDatabase();
+    ODatabaseSessionInternal database = getDatabase();
 
     final OTransactionIndexChanges indexChanges =
         database.getTransaction().getIndexChangesInternal(getName());
@@ -347,7 +347,7 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
     } finally {
       releaseSharedLock();
     }
-    ODatabaseDocumentInternal database = getDatabase();
+    ODatabaseSessionInternal database = getDatabase();
 
     final OTransactionIndexChanges indexChanges =
         database.getTransaction().getIndexChangesInternal(getName());
@@ -406,7 +406,7 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
       releaseSharedLock();
     }
 
-    ODatabaseDocumentInternal database = getDatabase();
+    ODatabaseSessionInternal database = getDatabase();
     final OTransactionIndexChanges indexChanges =
         database.getTransaction().getIndexChangesInternal(getName());
     if (indexChanges == null) {
@@ -456,7 +456,7 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
         IndexStreamSecurityDecorator.decorateStream(
             this, sortedKeys.stream().flatMap(this::streamForKey));
 
-    ODatabaseDocumentInternal database = getDatabase();
+    ODatabaseSessionInternal database = getDatabase();
     final OTransactionIndexChanges indexChanges =
         database.getTransaction().getIndexChangesInternal(getName());
     if (indexChanges == null) {
@@ -558,7 +558,7 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
       releaseSharedLock();
     }
 
-    ODatabaseDocumentInternal database = getDatabase();
+    ODatabaseSessionInternal database = getDatabase();
     final OTransactionIndexChanges indexChanges =
         database.getTransaction().getIndexChanges(getName());
     if (indexChanges != null) {
@@ -589,7 +589,7 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
     } finally {
       releaseSharedLock();
     }
-    ODatabaseDocumentInternal database = getDatabase();
+    ODatabaseSessionInternal database = getDatabase();
     final OTransactionIndexChanges indexChanges =
         database.getTransaction().getIndexChangesInternal(getName());
     if (indexChanges == null) {
@@ -672,7 +672,7 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
     } finally {
       releaseSharedLock();
     }
-    ODatabaseDocumentInternal database = getDatabase();
+    ODatabaseSessionInternal database = getDatabase();
     final OTransactionIndexChanges indexChanges =
         database.getTransaction().getIndexChangesInternal(getName());
     if (indexChanges == null) {

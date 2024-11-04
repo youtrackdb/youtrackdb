@@ -6,7 +6,6 @@ import static org.testng.Assert.assertTrue;
 import com.orientechnologies.orient.client.db.ODatabaseHelper;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
@@ -26,7 +25,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.Executors;
 import org.testng.Assert;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
@@ -34,9 +32,9 @@ import org.testng.annotations.Test;
 @Test
 public abstract class ORidBagTest extends DocumentDBBaseTest {
 
-  @Parameters(value = "url")
-  public ORidBagTest(@org.testng.annotations.Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public ORidBagTest(boolean remote) {
+    super(remote);
   }
 
   public void testAdd() throws Exception {
@@ -45,7 +43,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
 
     bag.add(new ORecordId("#77:1"));
     Assert.assertTrue(bag.contains(new ORecordId("#77:1")));
-    Assert.assertTrue(!bag.contains(new ORecordId("#78:2")));
+    Assert.assertFalse(bag.contains(new ORecordId("#78:2")));
 
     Iterator<OIdentifiable> iterator = bag.iterator();
     Assert.assertTrue(iterator.hasNext());
@@ -53,7 +51,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     OIdentifiable identifiable = iterator.next();
     Assert.assertEquals(identifiable, new ORecordId("#77:1"));
 
-    Assert.assertTrue(!iterator.hasNext());
+    Assert.assertFalse(iterator.hasNext());
     assertEmbedded(bag.isEmbedded());
   }
 
@@ -65,7 +63,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     bag.add(new ORecordId("#77:2"));
 
     Assert.assertTrue(bag.contains(new ORecordId("#77:2")));
-    Assert.assertTrue(!bag.contains(new ORecordId("#77:3")));
+    Assert.assertFalse(bag.contains(new ORecordId("#77:3")));
 
     assertEquals(bag.size(), 2);
     assertEmbedded(bag.isEmbedded());
@@ -84,45 +82,103 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     bag.add(new ORecordId("#77:5"));
     bag.add(new ORecordId("#77:6"));
 
-    final List<OIdentifiable> initialRids = new ArrayList<OIdentifiable>();
-
-    initialRids.add(new ORecordId("#77:2"));
-    initialRids.add(new ORecordId("#77:2"));
-    initialRids.add(new ORecordId("#77:3"));
-    initialRids.add(new ORecordId("#77:4"));
-    initialRids.add(new ORecordId("#77:4"));
-    initialRids.add(new ORecordId("#77:4"));
-    initialRids.add(new ORecordId("#77:5"));
-    initialRids.add(new ORecordId("#77:6"));
-
     int counter = 0;
     Iterator<OIdentifiable> iterator = bag.iterator();
 
     bag.remove(new ORecordId("#77:2"));
-    initialRids.remove(new ORecordId("#77:2"));
-
     while (iterator.hasNext()) {
       counter++;
       if (counter == 1) {
         bag.remove(new ORecordId("#77:1"));
-        initialRids.remove(new ORecordId("#77:1"));
-
         bag.remove(new ORecordId("#77:2"));
-        initialRids.remove(new ORecordId("#77:2"));
       }
 
       if (counter == 3) {
         bag.remove(new ORecordId("#77:4"));
-        initialRids.remove(new ORecordId("#77:4"));
       }
 
       if (counter == 5) {
         bag.remove(new ORecordId("#77:6"));
-        initialRids.remove(new ORecordId("#77:6"));
       }
 
-      initialRids.contains(iterator.next());
+      iterator.next();
     }
+
+    Assert.assertTrue(bag.contains(new ORecordId("#77:3")));
+    Assert.assertTrue(bag.contains(new ORecordId("#77:4")));
+    Assert.assertTrue(bag.contains(new ORecordId("#77:5")));
+
+    Assert.assertFalse(bag.contains(new ORecordId("#77:2")));
+    Assert.assertFalse(bag.contains(new ORecordId("#77:6")));
+    Assert.assertFalse(bag.contains(new ORecordId("#77:1")));
+    Assert.assertFalse(bag.contains(new ORecordId("#77:0")));
+
+    assertEmbedded(bag.isEmbedded());
+
+    final List<OIdentifiable> rids = new ArrayList<>();
+    rids.add(new ORecordId("#77:3"));
+    rids.add(new ORecordId("#77:4"));
+    rids.add(new ORecordId("#77:4"));
+    rids.add(new ORecordId("#77:5"));
+
+    for (OIdentifiable identifiable : bag) {
+      assertTrue(rids.remove(identifiable));
+    }
+
+    assertTrue(rids.isEmpty());
+
+    for (OIdentifiable identifiable : bag) {
+      rids.add(identifiable);
+    }
+
+    ODocument doc = new ODocument();
+    doc.field("ridbag", bag);
+    database.begin();
+    doc.save(database.getClusterNameById(database.getDefaultClusterId()));
+    database.commit();
+
+    ORID rid = doc.getIdentity();
+
+    doc = database.load(rid);
+    doc.setLazyLoad(false);
+
+    bag = doc.field("ridbag");
+    assertEmbedded(bag.isEmbedded());
+
+    Assert.assertTrue(bag.contains(new ORecordId("#77:3")));
+    Assert.assertTrue(bag.contains(new ORecordId("#77:4")));
+    Assert.assertTrue(bag.contains(new ORecordId("#77:5")));
+
+    Assert.assertFalse(bag.contains(new ORecordId("#77:2")));
+    Assert.assertFalse(bag.contains(new ORecordId("#77:6")));
+    Assert.assertFalse(bag.contains(new ORecordId("#77:1")));
+    Assert.assertFalse(bag.contains(new ORecordId("#77:0")));
+
+    for (OIdentifiable identifiable : bag) {
+      assertTrue(rids.remove(identifiable));
+    }
+
+    assertTrue(rids.isEmpty());
+  }
+
+  public void testAddRemove() {
+    ORidBag bag = new ORidBag();
+    bag.setAutoConvertToRecord(false);
+
+    bag.add(new ORecordId("#77:2"));
+    bag.add(new ORecordId("#77:2"));
+    bag.add(new ORecordId("#77:3"));
+    bag.add(new ORecordId("#77:4"));
+    bag.add(new ORecordId("#77:4"));
+    bag.add(new ORecordId("#77:4"));
+    bag.add(new ORecordId("#77:5"));
+    bag.add(new ORecordId("#77:6"));
+
+    bag.remove(new ORecordId("#77:1"));
+    bag.remove(new ORecordId("#77:2"));
+    bag.remove(new ORecordId("#77:2"));
+    bag.remove(new ORecordId("#77:4"));
+    bag.remove(new ORecordId("#77:6"));
 
     Assert.assertTrue(bag.contains(new ORecordId("#77:3")));
     Assert.assertTrue(bag.contains(new ORecordId("#77:4")));
@@ -169,86 +225,10 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     Assert.assertTrue(bag.contains(new ORecordId("#77:4")));
     Assert.assertTrue(bag.contains(new ORecordId("#77:5")));
 
-    Assert.assertTrue(!bag.contains(new ORecordId("#77:2")));
-    Assert.assertTrue(!bag.contains(new ORecordId("#77:6")));
-    Assert.assertTrue(!bag.contains(new ORecordId("#77:1")));
-    Assert.assertTrue(!bag.contains(new ORecordId("#77:0")));
-
-    for (OIdentifiable identifiable : bag) {
-      assertTrue(rids.remove(identifiable));
-    }
-
-    assertTrue(rids.isEmpty());
-  }
-
-  public void testAddRemove() {
-    ORidBag bag = new ORidBag();
-    bag.setAutoConvertToRecord(false);
-
-    bag.add(new ORecordId("#77:2"));
-    bag.add(new ORecordId("#77:2"));
-    bag.add(new ORecordId("#77:3"));
-    bag.add(new ORecordId("#77:4"));
-    bag.add(new ORecordId("#77:4"));
-    bag.add(new ORecordId("#77:4"));
-    bag.add(new ORecordId("#77:5"));
-    bag.add(new ORecordId("#77:6"));
-
-    bag.remove(new ORecordId("#77:1"));
-    bag.remove(new ORecordId("#77:2"));
-    bag.remove(new ORecordId("#77:2"));
-    bag.remove(new ORecordId("#77:4"));
-    bag.remove(new ORecordId("#77:6"));
-
-    Assert.assertTrue(bag.contains(new ORecordId("#77:3")));
-    Assert.assertTrue(bag.contains(new ORecordId("#77:4")));
-    Assert.assertTrue(bag.contains(new ORecordId("#77:5")));
-
-    Assert.assertTrue(!bag.contains(new ORecordId("#77:2")));
-    Assert.assertTrue(!bag.contains(new ORecordId("#77:6")));
-    Assert.assertTrue(!bag.contains(new ORecordId("#77:1")));
-    Assert.assertTrue(!bag.contains(new ORecordId("#77:0")));
-
-    assertEmbedded(bag.isEmbedded());
-
-    final List<OIdentifiable> rids = new ArrayList<OIdentifiable>();
-    rids.add(new ORecordId("#77:3"));
-    rids.add(new ORecordId("#77:4"));
-    rids.add(new ORecordId("#77:4"));
-    rids.add(new ORecordId("#77:5"));
-
-    for (OIdentifiable identifiable : bag) {
-      assertTrue(rids.remove(identifiable));
-    }
-
-    assertTrue(rids.isEmpty());
-
-    for (OIdentifiable identifiable : bag) {
-      rids.add(identifiable);
-    }
-
-    ODocument doc = new ODocument();
-    doc.field("ridbag", bag);
-    database.begin();
-    doc.save(database.getClusterNameById(database.getDefaultClusterId()));
-    database.commit();
-
-    ORID rid = doc.getIdentity();
-
-    doc = database.load(rid);
-    doc.setLazyLoad(false);
-
-    bag = doc.field("ridbag");
-    assertEmbedded(bag.isEmbedded());
-
-    Assert.assertTrue(bag.contains(new ORecordId("#77:3")));
-    Assert.assertTrue(bag.contains(new ORecordId("#77:4")));
-    Assert.assertTrue(bag.contains(new ORecordId("#77:5")));
-
-    Assert.assertTrue(!bag.contains(new ORecordId("#77:2")));
-    Assert.assertTrue(!bag.contains(new ORecordId("#77:6")));
-    Assert.assertTrue(!bag.contains(new ORecordId("#77:1")));
-    Assert.assertTrue(!bag.contains(new ORecordId("#77:0")));
+    Assert.assertFalse(bag.contains(new ORecordId("#77:2")));
+    Assert.assertFalse(bag.contains(new ORecordId("#77:6")));
+    Assert.assertFalse(bag.contains(new ORecordId("#77:1")));
+    Assert.assertFalse(bag.contains(new ORecordId("#77:0")));
 
     for (OIdentifiable identifiable : bag) {
       assertTrue(rids.remove(identifiable));
@@ -282,8 +262,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
 
     database.close();
 
-    database = new ODatabaseDocumentTx(database.getURL());
-    database.open("admin", "admin");
+    database = createSessionInstance();
 
     doc = database.load(rid);
     doc.setLazyLoad(false);
@@ -297,7 +276,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     bag.remove(new ORecordId("#77:4"));
     bag.remove(new ORecordId("#77:6"));
 
-    final List<OIdentifiable> rids = new ArrayList<OIdentifiable>();
+    final List<OIdentifiable> rids = new ArrayList<>();
     rids.add(new ORecordId("#77:3"));
     rids.add(new ORecordId("#77:4"));
     rids.add(new ORecordId("#77:4"));
@@ -369,7 +348,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
 
     database.activateOnCurrentThread();
     database.resetInitialization();
-    database.open("admin", "admin");
+    database = createSessionInstance();
 
     doc = database.load(rid);
     doc.setLazyLoad(false);
@@ -501,8 +480,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
 
     database.close();
 
-    database = new ODatabaseDocumentTx(database.getURL());
-    database.open("admin", "admin");
+    database = createSessionInstance();
 
     doc = database.load(rid);
     doc.setLazyLoad(false);
@@ -601,7 +579,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
 
     copyRidBag.add(new ORecordId("#77:11"));
     Assert.assertTrue(copy.isDirty());
-    Assert.assertTrue(!document.isDirty());
+    Assert.assertFalse(document.isDirty());
 
     ridBag.add(new ORecordId("#77:12"));
     Assert.assertTrue(document.isDirty());
@@ -614,7 +592,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
       database.begin();
       copy.save();
       database.commit();
-      Assert.assertTrue(!expectCME);
+      Assert.assertFalse(expectCME);
     } catch (OConcurrentModificationException cme) {
       Assert.assertTrue(expectCME);
     }
@@ -679,8 +657,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
 
     database.close();
 
-    database = new ODatabaseDocumentTx(database.getURL());
-    database.open("admin", "admin");
+    database = createSessionInstance();
 
     doc = database.load(rid);
     doc.setLazyLoad(false);
@@ -820,8 +797,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     ORID rid = doc.getIdentity();
     database.close();
 
-    database = new ODatabaseDocumentTx(database.getURL());
-    database.open("admin", "admin");
+    database = createSessionInstance();
 
     doc = database.load(rid);
     doc.setLazyLoad(false);
@@ -1016,8 +992,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
 
     database.close();
 
-    database = new ODatabaseDocumentTx(database.getURL());
-    database.open("admin", "admin");
+    database = createSessionInstance();
 
     doc = database.load(id);
     doc.setLazyLoad(false);
@@ -1127,7 +1102,6 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    document = (ODocument) document.reload();
     ridBag = document.field("ridBag");
 
     Set<OIdentifiable> docs = Collections.newSetFromMap(new IdentityHashMap<>());
@@ -1181,10 +1155,11 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     document.save();
     database.commit();
 
-    document = (ODocument) document.reload();
+    database.begin();
     ridBag = document.field("ridBag");
     Assert.assertEquals(ridBag.size(), 0);
     Assert.assertEquals(docs.size(), 0);
+    database.rollback();
   }
 
   public void testAddMixedValues() {
@@ -1217,9 +1192,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     document.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
-    document.reload();
     for (int i = 0; i < 10; i++) {
-
       database.begin();
       ODocument docToAdd = new ODocument();
 
@@ -1253,8 +1226,6 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     database.begin();
     document.save();
     database.commit();
-
-    document.reload();
 
     database.begin();
     ridBag = document.field("ridBag");
@@ -1278,10 +1249,13 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     document.save();
 
     database.commit();
+
+    database.begin();
+    ridBag = document.field("ridBag");
     assertEmbedded(ridBag.isEmbedded());
 
     Assert.assertEquals(ridBag.size(), itemsToAdd.size());
-    document.reload();
+
     Assert.assertEquals(ridBag.size(), itemsToAdd.size());
 
     for (OIdentifiable id : ridBag) {
@@ -1289,6 +1263,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     }
 
     Assert.assertTrue(itemsToAdd.isEmpty());
+    database.rollback();
   }
 
   public void testFromEmbeddedToSBTreeAndBack() throws IOException {
@@ -1306,23 +1281,21 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
       server.close();
     }
 
+    database.begin();
     ORidBag ridBag = new ORidBag();
     ODocument document = new ODocument();
     document.field("ridBag", ridBag);
 
     Assert.assertTrue(ridBag.isEmbedded());
 
-    database.begin();
     document.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
-    document.reload();
-
+    database.begin();
     ridBag = document.field("ridBag");
     Assert.assertTrue(ridBag.isEmbedded());
 
-    List<OIdentifiable> addedItems = new ArrayList<OIdentifiable>();
-
+    List<OIdentifiable> addedItems = new ArrayList<>();
     for (int i = 0; i < 6; i++) {
       ODocument docToAdd = new ODocument();
 
@@ -1335,43 +1308,40 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
       addedItems.add(docToAdd);
     }
 
-    database.begin();
     document.save();
     database.commit();
 
-    document.reload();
-
+    database.begin();
     ridBag = document.field("ridBag");
     Assert.assertTrue(ridBag.isEmbedded());
-
-    ODocument docToAdd = new ODocument();
+    database.rollback();
 
     database.begin();
+    ODocument docToAdd = new ODocument();
     docToAdd.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
+    database.begin();
 
     ridBag = document.field("ridBag");
     ridBag.add(docToAdd);
     addedItems.add(docToAdd);
 
-    database.begin();
     document.save();
     database.commit();
 
     ridBag = document.field("ridBag");
-    Assert.assertTrue(!ridBag.isEmbedded());
+    Assert.assertFalse(ridBag.isEmbedded());
 
-    List<OIdentifiable> addedItemsCopy = new ArrayList<OIdentifiable>(addedItems);
+    List<OIdentifiable> addedItemsCopy = new ArrayList<>(addedItems);
     for (OIdentifiable id : ridBag) {
       Assert.assertTrue(addedItems.remove(id));
     }
 
     Assert.assertTrue(addedItems.isEmpty());
 
-    document.reload();
-
+    database.begin();
     ridBag = document.field("ridBag");
-    Assert.assertTrue(!ridBag.isEmbedded());
+    Assert.assertFalse(ridBag.isEmbedded());
 
     addedItems.addAll(addedItemsCopy);
     for (OIdentifiable id : ridBag) {
@@ -1389,12 +1359,12 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     addedItemsCopy.clear();
     addedItemsCopy.addAll(addedItems);
 
-    database.begin();
     document.save();
     database.commit();
 
+    database.begin();
     ridBag = document.field("ridBag");
-    Assert.assertTrue(!ridBag.isEmbedded());
+    Assert.assertFalse(ridBag.isEmbedded());
 
     for (OIdentifiable id : ridBag) {
       Assert.assertTrue(addedItems.remove(id));
@@ -1402,10 +1372,8 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(addedItems.isEmpty());
 
-    document.reload();
-
     ridBag = document.field("ridBag");
-    Assert.assertTrue(!ridBag.isEmbedded());
+    Assert.assertFalse(ridBag.isEmbedded());
 
     addedItems.addAll(addedItemsCopy);
     for (OIdentifiable id : ridBag) {
@@ -1413,6 +1381,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     }
 
     Assert.assertTrue(addedItems.isEmpty());
+    database.rollback();
   }
 
   public void testFromEmbeddedToSBTreeAndBackTx() throws IOException {
@@ -1438,14 +1407,13 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     database.begin();
     document.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
-    document.reload();
 
+    database.begin();
     ridBag = document.field("ridBag");
     Assert.assertTrue(ridBag.isEmbedded());
 
     List<OIdentifiable> addedItems = new ArrayList<OIdentifiable>();
 
-    database.begin();
     ridBag = document.field("ridBag");
     for (int i = 0; i < 6; i++) {
 
@@ -1458,14 +1426,12 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     document.save();
     database.commit();
 
-    document.reload();
-
+    database.begin();
     ridBag = document.field("ridBag");
     Assert.assertTrue(ridBag.isEmbedded());
 
     ODocument docToAdd = new ODocument();
 
-    database.begin();
     docToAdd.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
@@ -1477,8 +1443,9 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     document.save();
     database.commit();
 
+    database.begin();
     ridBag = document.field("ridBag");
-    Assert.assertTrue(!ridBag.isEmbedded());
+    Assert.assertFalse(ridBag.isEmbedded());
 
     List<OIdentifiable> addedItemsCopy = new ArrayList<OIdentifiable>(addedItems);
     for (OIdentifiable id : ridBag) {
@@ -1487,10 +1454,8 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(addedItems.isEmpty());
 
-    document.reload();
-
     ridBag = document.field("ridBag");
-    Assert.assertTrue(!ridBag.isEmbedded());
+    Assert.assertFalse(ridBag.isEmbedded());
 
     addedItems.addAll(addedItemsCopy);
     for (OIdentifiable id : ridBag) {
@@ -1508,12 +1473,12 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     addedItemsCopy.clear();
     addedItemsCopy.addAll(addedItems);
 
-    database.begin();
     document.save();
     database.commit();
 
+    database.begin();
     ridBag = document.field("ridBag");
-    Assert.assertTrue(!ridBag.isEmbedded());
+    Assert.assertFalse(ridBag.isEmbedded());
 
     for (OIdentifiable id : ridBag) {
       Assert.assertTrue(addedItems.remove(id));
@@ -1521,10 +1486,8 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(addedItems.isEmpty());
 
-    document.reload();
-
     ridBag = document.field("ridBag");
-    Assert.assertTrue(!ridBag.isEmbedded());
+    Assert.assertFalse(ridBag.isEmbedded());
 
     addedItems.addAll(addedItemsCopy);
     for (OIdentifiable id : ridBag) {
@@ -1532,6 +1495,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     }
 
     Assert.assertTrue(addedItems.isEmpty());
+    database.rollback();
   }
 
   public void testRemoveSavedInCommit() {
@@ -1557,14 +1521,13 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     document.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
-    ridBag = document.field("ridBag");
-    assertEmbedded(ridBag.isEmbedded());
-
-    document.reload();
-    ridBag = document.field("ridBag");
-    assertEmbedded(ridBag.isEmbedded());
-
     database.begin();
+    ridBag = document.field("ridBag");
+    assertEmbedded(ridBag.isEmbedded());
+
+    ridBag = document.field("ridBag");
+    assertEmbedded(ridBag.isEmbedded());
+
     ridBag = document.field("ridBag");
     for (int i = 0; i < 5; i++) {
       ODocument docToAdd = new ODocument();
@@ -1589,6 +1552,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     document.save();
     database.commit();
 
+    database.begin();
     ridBag = document.field("ridBag");
     assertEmbedded(ridBag.isEmbedded());
 
@@ -1601,7 +1565,6 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
 
     docsToAdd.addAll(docsToAddCopy);
 
-    document.reload();
     ridBag = document.field("ridBag");
 
     for (OIdentifiable id : ridBag) {
@@ -1609,6 +1572,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     }
 
     Assert.assertTrue(docsToAdd.isEmpty());
+    database.rollback();
   }
 
   @Test
@@ -1651,70 +1615,6 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(teamMates.size(), 1);
     Assert.assertEquals(teamMates.iterator().next().getIdentity(), bob.getIdentity());
-  }
-
-  @Test
-  public void testDocumentHelper() throws Exception {
-    ODocument document = new ODocument();
-    ORidBag highLevelRidBag = new ORidBag();
-
-    for (int i = 0; i < 10; i++) {
-      database.begin();
-      ODocument docToAdd = new ODocument();
-      docToAdd.save();
-      database.commit();
-
-      for (int j = 0; j < 2; j++) {
-        highLevelRidBag.add(docToAdd);
-      }
-    }
-
-    database.begin();
-    document.field("ridBag", highLevelRidBag);
-    document.save();
-    database.commit();
-
-    document.reload();
-    var url = database.getURL();
-    @SuppressWarnings("resource")
-    var executor = Executors.newSingleThreadExecutor();
-    executor
-        .submit(
-            () -> {
-              try (var database = new ODatabaseDocumentTx(url)) {
-                database.open("admin", "admin");
-                ODocument documentCopy = database.load(document.getIdentity(), "*:-1", true);
-                Assert.assertNotSame(document, documentCopy);
-                assertTrue(
-                    ODocumentHelper.hasSameContentOf(
-                        document, database, documentCopy, database, null));
-
-                Iterator<OIdentifiable> iterator = documentCopy.<ORidBag>field("ridBag").iterator();
-                iterator.next();
-                iterator.remove();
-
-                Assert.assertFalse(
-                    ODocumentHelper.hasSameContentOf(
-                        document, database, documentCopy, database, null));
-                documentCopy.reload("*:-1", true);
-
-                database.begin();
-                ODocument docToAdd = new ODocument();
-                docToAdd.save();
-                database.commit();
-
-                iterator = documentCopy.<ORidBag>field("ridBag").iterator();
-                iterator.next();
-                iterator.remove();
-
-                documentCopy.<ORidBag>field("ridBag").add(docToAdd.getIdentity());
-                Assert.assertFalse(
-                    ODocumentHelper.hasSameContentOf(
-                        document, database, documentCopy, database, null));
-              }
-            })
-        .get();
-    executor.shutdown();
   }
 
   public void testAddNewItemsAndRemoveThem() {
@@ -1842,7 +1742,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     testDocument.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
-    testDocument.reload();
+    database.begin();
 
     final String json = testDocument.toJSON(ORecordAbstract.OLD_FORMAT_WITH_LATE_TYPES);
 
@@ -1851,6 +1751,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(
         ODocumentHelper.hasSameContentOf(doc, database, testDocument, database, null));
+    database.rollback();
   }
 
   protected abstract void assertEmbedded(boolean isEmbedded);

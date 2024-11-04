@@ -23,8 +23,8 @@ import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabase.ATTRIBUTES;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.sql.OCommandExecutorSQLSelect;
 import java.text.Collator;
@@ -47,7 +47,7 @@ public class ODocumentComparator implements Comparator<OIdentifiable> {
       final List<OPair<String, String>> iOrderCriteria, OCommandContext iContext) {
     this.orderCriteria = iOrderCriteria;
     this.context = iContext;
-    ODatabaseDocumentInternal internal = ODatabaseRecordThreadLocal.instance().get();
+    ODatabaseSessionInternal internal = ODatabaseRecordThreadLocal.instance().get();
     collator =
         Collator.getInstance(
             new Locale(

@@ -15,44 +15,17 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Optional;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test(groups = "sql-select")
-public class SQLEscapingTest {
-  private ODatabaseDocumentInternal database;
-  private String url;
+public class SQLEscapingTest extends DocumentDBBaseTest {
+  private ODatabaseSessionInternal database;
 
-  public SQLEscapingTest() {
-    database = new ODatabaseDocumentTx("memory:testescaping");
-    database.create();
-    database.close();
-  }
-
-  @Parameters(value = "url")
-  public SQLEscapingTest(@Optional String url) {
-    this.url = BaseTest.prepareUrl(url);
-  }
-
-  @BeforeClass
-  public void beforeClass() {
-    if (database == null) database = new ODatabaseDocumentTx(url);
-  }
-
-  @BeforeMethod
-  protected void init() {
-    database.open("admin", "admin");
-  }
-
-  @AfterMethod
-  protected void deinit() {
-    database.close();
+  @Parameters(value = "remote")
+  public SQLEscapingTest(boolean remote) {
+    super(remote);
   }
 
   // TODO re-enable this with new parser. this test was broken!!!

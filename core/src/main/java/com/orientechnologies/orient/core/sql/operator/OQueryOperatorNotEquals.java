@@ -20,8 +20,8 @@
 package com.orientechnologies.orient.core.sql.operator;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.OBinaryField;
@@ -39,7 +39,7 @@ public class OQueryOperatorNotEquals extends OQueryOperatorEqualityNotNulls {
 
   public OQueryOperatorNotEquals() {
     super("<>", 5, false);
-    ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
     if (db != null) binaryEvaluate = db.getSerializer().getSupportBinaryEvaluate();
   }
 

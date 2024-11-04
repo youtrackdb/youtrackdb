@@ -18,7 +18,7 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.io.InputStream;
@@ -64,7 +64,7 @@ public class LuceneCreateIndexTest extends BaseLuceneTest {
 
     db.close();
 
-    db = (ODatabaseDocumentInternal) openDatabase();
+    db = (ODatabaseSessionInternal) openDatabase();
 
     assertQuery();
 

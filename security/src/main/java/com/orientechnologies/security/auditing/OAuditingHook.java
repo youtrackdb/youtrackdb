@@ -20,9 +20,9 @@ import com.orientechnologies.common.parser.OVariableParserListener;
 import com.orientechnologies.orient.core.command.OCommandExecutor;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.db.ODatabase;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OSystemDatabase;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.hook.ORecordHookAbstract;
@@ -298,7 +298,7 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
 
     if (iRecord instanceof ODocument) {
       ODocument doc = (ODocument) iRecord;
-      ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().get();
+      ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
       OImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(db, doc);
 
       if (clazz.isOuser() && Arrays.asList(doc.getDirtyFields()).contains("password")) {
@@ -329,7 +329,7 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
 
     for (OAuditingCommandConfig cfg : commands) {
       if (command.matches(cfg.regex)) {
-        final ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().get();
+        final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
 
         final ODocument doc =
             createLogDocument(
@@ -406,7 +406,7 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
         break;
     }
 
-    final ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().get();
+    final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
 
     final ODocument doc =
         createLogDocument(operation, db.getName(), db.getUser(), formatNote(iRecord, note));
@@ -544,7 +544,7 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
   }
 
   protected void logClass(final OAuditingOperation operation, final String note) {
-    final ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().get();
+    final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
 
     final OSecurityUser user = db.getUser();
 

@@ -25,8 +25,8 @@ import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.OScriptExecutor;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.ORetryQueryException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -161,7 +161,7 @@ public class OFunction extends ODocumentWrapper {
       return callback.call(args);
     }
 
-    ODatabaseDocumentInternal database = (ODatabaseDocumentInternal) iContext.getDatabase();
+    ODatabaseSessionInternal database = (ODatabaseSessionInternal) iContext.getDatabase();
     if (database == null) {
       database = ODatabaseRecordThreadLocal.instance().get();
     }
@@ -198,7 +198,7 @@ public class OFunction extends ODocumentWrapper {
       return callback.call(args);
     }
 
-    ODatabaseDocumentInternal database = (ODatabaseDocumentInternal) iContext.getDatabase();
+    ODatabaseSessionInternal database = (ODatabaseSessionInternal) iContext.getDatabase();
     if (database == null) {
       database = ODatabaseRecordThreadLocal.instance().get();
     }
@@ -217,7 +217,7 @@ public class OFunction extends ODocumentWrapper {
   @Deprecated
   public Object execute(final Map<Object, Object> iArgs) {
     final long start = Orient.instance().getProfiler().startChrono();
-    ODatabaseDocumentInternal database = ODatabaseRecordThreadLocal.instance().get();
+    ODatabaseSessionInternal database = ODatabaseRecordThreadLocal.instance().get();
     Object result;
     while (true) {
       try {

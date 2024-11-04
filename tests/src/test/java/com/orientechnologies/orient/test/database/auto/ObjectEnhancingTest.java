@@ -17,22 +17,20 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.object.db.OObjectDatabasePool;
 import com.orientechnologies.orient.object.enhancement.OObjectEntityEnhancer;
 import com.orientechnologies.orient.object.enhancement.OObjectMethodFilter;
 import com.orientechnologies.orient.test.domain.base.CustomMethodFilterTestClass;
 import java.lang.reflect.Method;
 import org.testng.Assert;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test(groups = {"object"})
 public class ObjectEnhancingTest extends ObjectDBBaseTest {
 
-  @Parameters(value = "url")
-  public ObjectEnhancingTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public ObjectEnhancingTest(boolean remote) {
+    super(remote);
   }
 
   @Test()
@@ -51,7 +49,7 @@ public class ObjectEnhancingTest extends ObjectDBBaseTest {
 
     ORID rid = database.getIdentity(testClass);
     database.close();
-    database = OObjectDatabasePool.global().acquire(url, "admin", "admin");
+    database = createSessionInstance();
     testClass = database.load(rid);
     Assert.assertEquals(testClass.getStandardField(), "testStandard");
     Assert.assertEquals(testClass.getUPPERCASEFIELD(), "testUpperCase");
@@ -62,6 +60,7 @@ public class ObjectEnhancingTest extends ObjectDBBaseTest {
   }
 
   public class CustomMethodFilter extends OObjectMethodFilter {
+
     @Override
     public boolean isHandled(Method m) {
       if (m.getName().contains("UPPERCASE")) {
@@ -84,7 +83,9 @@ public class ObjectEnhancingTest extends ObjectDBBaseTest {
           return "UPPERCASEFIELD";
         }
         return getFieldName(m.getName(), "set");
-      } else return getFieldName(m.getName(), "is");
+      } else {
+        return getFieldName(m.getName(), "is");
+      }
     }
 
     @Override

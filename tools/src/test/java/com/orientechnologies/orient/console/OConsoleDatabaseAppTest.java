@@ -3,7 +3,7 @@ package com.orientechnologies.orient.console;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ORecordBytes;
@@ -43,7 +43,7 @@ public class OConsoleDatabaseAppTest {
           "create database test memory users (admin identified by 'admin' role admin)");
       app.open("test", "admin", "admin");
 
-      ODatabaseDocumentInternal db = (ODatabaseDocumentInternal) app.getCurrentDatabase();
+      ODatabaseSessionInternal db = (ODatabaseSessionInternal) app.getCurrentDatabase();
       db.addBlobCluster("blobTest");
 
       db.begin();

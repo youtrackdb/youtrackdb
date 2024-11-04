@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.OContextualRecordId;
 import com.orientechnologies.orient.core.id.ORID;
@@ -538,7 +538,7 @@ public class OResultInternal implements OResult {
     }
   }
 
-  public void bindToCache(ODatabaseDocumentInternal db) {
+  public void bindToCache(ODatabaseSessionInternal db) {
     if (isRecord()) {
       ORecordAbstract rec = element.getRecord();
       var identity = rec.getIdentity();

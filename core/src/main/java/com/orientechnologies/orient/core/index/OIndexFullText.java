@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.common.listener.OProgressListener;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.ORecord;
@@ -98,7 +98,7 @@ public class OIndexFullText extends OIndexMultiValues {
 
     final Set<String> words = splitIntoWords(key.toString());
 
-    ODatabaseDocumentInternal database = getDatabase();
+    ODatabaseSessionInternal database = getDatabase();
     if (database.getTransaction().isActive()) {
       OTransaction singleTx = database.getTransaction();
       for (String word : words) {
@@ -134,7 +134,7 @@ public class OIndexFullText extends OIndexMultiValues {
     key = getCollatingValue(key);
 
     final Set<String> words = splitIntoWords(key.toString());
-    ODatabaseDocumentInternal database = getDatabase();
+    ODatabaseSessionInternal database = getDatabase();
     if (database.getTransaction().isActive()) {
       for (final String word : words) {
         database.getTransaction().addIndexEntry(this, super.getName(), OPERATION.REMOVE, word, rid);

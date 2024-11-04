@@ -19,8 +19,8 @@ package com.orientechnologies.orient.object.metadata.schema;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.reflection.OReflectionHelper;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.viewmanager.ViewCreationListener;
 import com.orientechnologies.orient.core.entity.OEntityManager;
@@ -197,7 +197,7 @@ public class OSchemaProxyObject implements OSchemaObject {
   }
 
   public OView createView(
-      ODatabaseDocumentInternal database,
+      ODatabaseSessionInternal database,
       final String viewName,
       String statement,
       Map<String, Object> metadata) {

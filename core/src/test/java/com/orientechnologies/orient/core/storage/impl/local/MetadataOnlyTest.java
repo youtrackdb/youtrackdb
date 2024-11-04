@@ -4,8 +4,8 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.OrientDBInternal;
@@ -37,12 +37,12 @@ public class MetadataOnlyTest {
         new byte[] {
           1, 2, 3, 4, 5, 6,
         };
-    ((OAbstractPaginatedStorage) ((ODatabaseDocumentInternal) db).getStorage()).metadataOnly(blob);
+    ((OAbstractPaginatedStorage) ((ODatabaseSessionInternal) db).getStorage()).metadataOnly(blob);
     db.close();
     OrientDBInternal.extract(orientDb).forceDatabaseClose("testMetadataOnly");
     db = orientDb.open("testMetadataOnly", "admin", "admin");
     Optional<byte[]> loaded =
-        ((OAbstractPaginatedStorage) ((ODatabaseDocumentInternal) db).getStorage())
+        ((OAbstractPaginatedStorage) ((ODatabaseSessionInternal) db).getStorage())
             .getLastMetadata();
     assertTrue(loaded.isPresent());
     assertArrayEquals(loaded.get(), blob);

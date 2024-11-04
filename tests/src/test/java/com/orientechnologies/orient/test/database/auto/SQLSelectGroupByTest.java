@@ -23,16 +23,15 @@ import java.util.Set;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Ignore;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test
 public class SQLSelectGroupByTest extends DocumentDBBaseTest {
 
-  @Parameters(value = "url")
-  public SQLSelectGroupByTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public SQLSelectGroupByTest(boolean remote) {
+    super(remote);
   }
 
   @BeforeMethod

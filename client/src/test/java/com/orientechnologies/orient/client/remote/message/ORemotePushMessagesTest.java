@@ -8,8 +8,8 @@ import com.orientechnologies.orient.client.remote.message.push.OStorageConfigura
 import com.orientechnologies.orient.core.config.OStorageClusterConfiguration;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
 import com.orientechnologies.orient.core.config.OStorageEntryConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -47,7 +47,7 @@ public class ORemotePushMessagesTest {
     orientDB.execute("create database test memory users (admin identified by 'admin' role admin)");
     ODatabaseSession session = orientDB.open("test", "admin", "admin");
     ODocument schema =
-        ((ODatabaseDocumentInternal) session).getSharedContext().getSchema().toStream();
+        ((ODatabaseSessionInternal) session).getSharedContext().getSchema().toStream();
     session.close();
     orientDB.close();
     MockChannel channel = new MockChannel();
@@ -68,7 +68,7 @@ public class ORemotePushMessagesTest {
     orientDB.execute("create database test memory users (admin identified by 'admin' role admin)");
     ODatabaseSession session = orientDB.open("test", "admin", "admin");
     ODocument schema =
-        ((ODatabaseDocumentInternal) session).getSharedContext().getIndexManager().toStream();
+        ((ODatabaseSessionInternal) session).getSharedContext().getIndexManager().toStream();
     session.close();
     orientDB.close();
     MockChannel channel = new MockChannel();
@@ -88,7 +88,7 @@ public class ORemotePushMessagesTest {
     orientDB.execute("create database test memory users (admin identified by 'admin' role admin)");
     ODatabaseSession session = orientDB.open("test", "admin", "admin");
     OStorageConfiguration configuration =
-        ((ODatabaseDocumentInternal) session).getStorage().getConfiguration();
+        ((ODatabaseSessionInternal) session).getStorage().getConfiguration();
     session.close();
     orientDB.close();
     MockChannel channel = new MockChannel();

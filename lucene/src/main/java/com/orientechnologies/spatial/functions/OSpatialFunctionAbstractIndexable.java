@@ -17,8 +17,8 @@ package com.orientechnologies.spatial.functions;
 
 import com.orientechnologies.lucene.collections.OLuceneResultSetEmpty;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -77,7 +77,7 @@ public abstract class OSpatialFunctionAbstractIndexable extends OSpatialFunction
     return indices.size() == 0 ? null : indices.get(0);
   }
 
-  protected ODatabaseDocumentInternal getDb() {
+  protected ODatabaseSessionInternal getDb() {
     return ODatabaseRecordThreadLocal.instance().get();
   }
 

@@ -23,7 +23,7 @@ import com.orientechnologies.orient.core.command.OCommandDistributedReplicateReq
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorCluster;
@@ -107,7 +107,7 @@ public class OCommandExecutorSQLTruncateCluster extends OCommandExecutorSQLAbstr
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
 
-    final ODatabaseDocumentInternal database = getDatabase();
+    final ODatabaseSessionInternal database = getDatabase();
 
     final int clusterId = database.getClusterIdByName(clusterName);
     if (clusterId < 0) {

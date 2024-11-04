@@ -10,7 +10,6 @@ import org.testng.Assert;
 import org.testng.SkipException;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -21,9 +20,9 @@ public class IndexTxAwareMultiValueGetTest extends DocumentDBBaseTest {
   private static final String FIELD_NAME = "value";
   private static final String INDEX_NAME = "idxTxAwareMultiValueGetTestIndex";
 
-  @Parameters(value = "url")
-  public IndexTxAwareMultiValueGetTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public IndexTxAwareMultiValueGetTest(boolean remote) {
+    super(remote);
   }
 
   @BeforeClass

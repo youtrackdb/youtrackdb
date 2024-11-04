@@ -18,16 +18,15 @@ package com.orientechnologies.orient.test.database.auto;
 import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.testng.Assert;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test(groups = "query")
 public class WrongQueryTest extends DocumentDBBaseTest {
 
-  @Parameters(value = "url")
-  public WrongQueryTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public WrongQueryTest(boolean remote) {
+    super(remote);
   }
 
   public void queryFieldOperatorNotSupported() {

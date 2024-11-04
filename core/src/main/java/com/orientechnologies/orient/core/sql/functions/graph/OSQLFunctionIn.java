@@ -2,8 +2,8 @@ package com.orientechnologies.orient.core.sql.functions.graph;
 
 import com.orientechnologies.common.collection.OMultiCollectionIterator;
 import com.orientechnologies.common.util.OSizeable;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OCompositeKey;
@@ -72,7 +72,7 @@ public class OSQLFunctionIn extends OSQLFunctionMoveFiltered {
       return null;
     }
     OClass edgeClass =
-        ((ODatabaseDocumentInternal) graph)
+        ((ODatabaseSessionInternal) graph)
             .getMetadata()
             .getImmutableSchemaSnapshot()
             .getClass(edgeClassName);

@@ -15,9 +15,8 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.record.ORecordInternal;
@@ -33,16 +32,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import org.testng.Assert;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test
 public class TransactionOptimisticTest extends DocumentDBBaseTest {
 
-  @Parameters(value = "url")
-  public TransactionOptimisticTest(@Optional String iURL) {
-    super(iURL);
+  @Parameters(value = "remote")
+  public TransactionOptimisticTest(boolean remote) {
+    super(remote);
   }
 
   @Test
@@ -87,9 +85,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
       database.addBlobCluster("binary");
     }
 
-    ODatabaseDocumentInternal db2 = new ODatabaseDocumentTx(database.getURL());
-    db2.open("admin", "admin");
-
+    ODatabaseSessionInternal db2 = acquireSession();
     database.activateOnCurrentThread();
     OBlob record1 = new ORecordBytes("This is the first version".getBytes());
 
@@ -101,7 +97,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
       database.begin();
 
       // RE-READ THE RECORD
-      record1.load();
+      record1 = database.load(record1.getIdentity());
 
       ODatabaseRecordThreadLocal.instance().set(db2);
       OBlob record2 = db2.load(record1.getIdentity());
@@ -155,7 +151,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
       database.begin();
 
       // RE-READ THE RECORD
-      record.load();
+      record = database.load(record.getIdentity());
       int v1 = record.getVersion();
       ORecordInternal.fill(
           record, record.getIdentity(), v1, "This is the second version".getBytes(), true);
@@ -175,9 +171,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
       database.addBlobCluster("binary");
     }
 
-    ODatabaseDocumentInternal db2 = new ODatabaseDocumentTx(database.getURL());
-    db2.open("admin", "admin");
-
+    ODatabaseSessionInternal db2 = acquireSession();
     OBlob record1 = new ORecordBytes("This is the first version".getBytes());
     db2.begin();
     record1.save();
@@ -188,7 +182,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
       database.begin();
 
       // RE-READ THE RECORD
-      record1.load();
+      record1 = database.load(record1.getIdentity());
       int v1 = record1.getVersion();
       ORecordInternal.fill(
           record1, record1.getIdentity(), v1, "This is the second version".getBytes(), true);
@@ -266,7 +260,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
     database.commit();
 
     database.close();
-    database.open("admin", "admin");
+    database = acquireSession();
 
     ODocument loadedJack = database.load(jack.getIdentity());
     Assert.assertEquals(loadedJack.field("name"), "Jack");
@@ -298,8 +292,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
         new Callable<Void>() {
           @Override
           public Void call() throws Exception {
-            final ODatabaseDocumentInternal db = new ODatabaseDocumentTx(database.getURL());
-            db.open("admin", "admin");
+            final ODatabaseSessionInternal db = acquireSession();
             try {
               Assert.assertEquals(db.countClass("NestedTxClass"), 0);
             } finally {
@@ -355,8 +348,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
         new Callable<Void>() {
           @Override
           public Void call() throws Exception {
-            final ODatabaseDocumentInternal db = new ODatabaseDocumentTx(database.getURL());
-            db.open("admin", "admin");
+            final ODatabaseSessionInternal db = acquireSession();
             try {
               Assert.assertEquals(db.countClass("NestedTxRollbackOne"), 1);
             } finally {
@@ -412,8 +404,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
       executorService
           .submit(
               () -> {
-                final ODatabaseDocumentInternal db = new ODatabaseDocumentTx(database.getURL());
-                db.open("admin", "admin");
+                final ODatabaseSessionInternal db = acquireSession();
                 try {
                   ODocument brokenDocTwo = db.load(brokenDocOne.getIdentity(), "*:-1", true);
                   brokenDocTwo.field("v", "vstr");

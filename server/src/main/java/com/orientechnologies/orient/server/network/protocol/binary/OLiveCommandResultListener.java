@@ -23,8 +23,8 @@ package com.orientechnologies.orient.server.network.protocol.binary;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandResultListener;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.fetch.remote.ORemoteFetchListener;
@@ -131,7 +131,7 @@ public class OLiveCommandResultListener extends OAbstractCommandResultListener
       List<OClientConnection> connections = session.getConnections();
       if (connections.size() == 0) {
         try {
-          ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().get();
+          ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
           OLogManager.instance()
               .warn(this, "Unsubscribing live query for connection " + connection);
           OLiveQueryHook.unsubscribe(iToken, db);
@@ -173,7 +173,7 @@ public class OLiveCommandResultListener extends OAbstractCommandResultListener
         session.removeConnection(curConnection);
         connections = session.getConnections();
         if (connections.isEmpty()) {
-          ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().get();
+          ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
           OLiveQueryHook.unsubscribe(iToken, db);
           break;
         }

@@ -10,16 +10,15 @@ import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test(groups = {"index"})
 public class SchemaIndexTest extends DocumentDBBaseTest {
 
-  @Parameters(value = "url")
-  public SchemaIndexTest(@Optional final String iURL) {
-    super(iURL);
+  @Parameters(value = "remote")
+  public SchemaIndexTest(boolean remote) {
+    super(remote);
   }
 
   @BeforeMethod

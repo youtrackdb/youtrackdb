@@ -1,9 +1,10 @@
 package com.orientechnologies;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OrientDBConfigBuilder;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import org.junit.After;
 import org.junit.Before;
@@ -12,26 +13,31 @@ import org.junit.rules.TestName;
 
 public class BaseMemoryDatabase {
 
-  protected ODatabaseDocumentInternal db;
+  protected ODatabaseSessionInternal db;
   protected OrientDB context;
   @Rule public TestName name = new TestName();
   private String databaseName;
 
   @Before
   public void beforeTest() {
-    context = new OrientDB("embedded:", OrientDBConfig.defaultConfig());
+    var builder = OrientDBConfig.builder();
+    context = OrientDB.embedded(this.getClass().getSimpleName(), createConfig(builder));
     String dbName = name.getMethodName();
     dbName = dbName.replace('[', '_');
     dbName = dbName.replace(']', '_');
     this.databaseName = dbName;
     context.create(this.databaseName, ODatabaseType.MEMORY, "admin", "adminpwd", "admin");
-    db = (ODatabaseDocumentInternal) context.open(this.databaseName, "admin", "adminpwd");
+    db = (ODatabaseSessionInternal) context.open(this.databaseName, "admin", "adminpwd");
   }
 
   @SuppressWarnings("SameParameterValue")
   protected void reOpen(String user, String password) {
     this.db.close();
-    this.db = (ODatabaseDocumentInternal) context.open(this.databaseName, user, password);
+    this.db = (ODatabaseSessionInternal) context.open(this.databaseName, user, password);
+  }
+
+  protected OrientDBConfig createConfig(OrientDBConfigBuilder builder) {
+    return builder.build();
   }
 
   @After

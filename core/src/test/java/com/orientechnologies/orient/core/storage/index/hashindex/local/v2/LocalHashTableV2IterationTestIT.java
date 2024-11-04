@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.storage.index.hashindex.local.v2;
 
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.serialization.serializer.binary.OBinarySerializerFactory;
@@ -29,7 +29,7 @@ import org.junit.Test;
 public class LocalHashTableV2IterationTestIT {
   private static final int KEYS_COUNT = 500000;
 
-  private ODatabaseDocumentInternal db;
+  private ODatabaseSessionInternal db;
 
   private LocalHashTableV2<Integer, String> localHashTable;
   private OAtomicOperationsManager atomicOperationsManager;
@@ -50,7 +50,7 @@ public class LocalHashTableV2IterationTestIT {
     OHashFunction<Integer> hashFunction = value -> Long.MAX_VALUE / 2 + value;
 
     atomicOperationsManager =
-        ((OAbstractPaginatedStorage) ((ODatabaseDocumentInternal) db).getStorage())
+        ((OAbstractPaginatedStorage) ((ODatabaseSessionInternal) db).getStorage())
             .getAtomicOperationsManager();
 
     localHashTable =

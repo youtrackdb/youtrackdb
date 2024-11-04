@@ -26,7 +26,6 @@ import com.orientechnologies.orient.core.OConstants;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.db.ODatabase;
 import com.orientechnologies.orient.core.db.ODatabaseInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 import java.io.File;
 import java.io.FileReader;
@@ -113,17 +112,6 @@ public class ODatabaseHelper {
     }
 
     return ((ODatabaseInternal) database).exists();
-  }
-
-  @Deprecated
-  public static boolean existsDatabase(final String url) throws IOException {
-    if (url.startsWith("remote")) {
-      OServerAdmin admin = new OServerAdmin(url).connect("root", getServerRootPassword());
-      boolean exist = admin.existsDatabase();
-      admin.close();
-      return exist;
-    }
-    return new ODatabaseDocumentTx(url).exists();
   }
 
   @Deprecated

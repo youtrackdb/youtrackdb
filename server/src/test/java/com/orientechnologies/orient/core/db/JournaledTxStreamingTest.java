@@ -46,7 +46,7 @@ public class JournaledTxStreamingTest {
   private File buildDir;
   private Process serverProcess;
   private OrientDB ctx;
-  private ODatabaseDocumentInternal db;
+  private ODatabaseSessionInternal db;
   private DataInputStream stream;
 
   @Before
@@ -72,7 +72,7 @@ public class JournaledTxStreamingTest {
         .close();
 
     db =
-        (ODatabaseDocumentInternal)
+        (ODatabaseSessionInternal)
             ctx.open(JournaledTxStreamingTest.class.getSimpleName(), "root", "root");
 
     final Socket socket = new Socket();

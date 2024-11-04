@@ -4,7 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordLazyList;
@@ -70,7 +70,7 @@ public class OCreateLinkStatement extends OSimpleExecStatement {
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    final ODatabaseDocumentInternal database = getDatabase();
+    final ODatabaseSessionInternal database = getDatabase();
     if (!(database.getDatabaseOwner() instanceof ODatabaseDocument)) {
       throw new OCommandSQLParsingException(
           "This command supports only the database type ODatabaseDocumentTx and type '"
@@ -78,7 +78,7 @@ public class OCreateLinkStatement extends OSimpleExecStatement {
               + "' was found");
     }
 
-    final ODatabaseDocumentInternal db = (ODatabaseDocumentInternal) database.getDatabaseOwner();
+    final ODatabaseSessionInternal db = (ODatabaseSessionInternal) database.getDatabaseOwner();
 
     OClass sourceClass =
         database

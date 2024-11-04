@@ -15,8 +15,8 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -40,9 +39,9 @@ public class TraverseTestNew extends DocumentDBBaseTest {
   private OVertex megRyan;
   private OVertex nicoleKidman;
 
-  @Parameters(value = "url")
-  public TraverseTestNew(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public TraverseTestNew(boolean remote) {
+    super(remote);
   }
 
   @BeforeClass
@@ -421,7 +420,7 @@ public class TraverseTestNew extends DocumentDBBaseTest {
     try {
 
       String q = "traverse in('married')  from " + nicoleKidman.getIdentity() + "";
-      ODatabaseDocumentInternal db = (ODatabaseDocumentInternal) database.copy();
+      ODatabaseSessionInternal db = (ODatabaseSessionInternal) database.copy();
       ODatabaseRecordThreadLocal.instance().set(db);
       OResultSet result1 = db.query(q);
       Assert.assertTrue(result1.hasNext());

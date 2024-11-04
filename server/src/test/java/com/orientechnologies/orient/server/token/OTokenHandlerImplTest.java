@@ -5,7 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.OToken;
@@ -41,7 +41,7 @@ public class OTokenHandlerImplTest extends BaseMemoryInternalDatabase {
 
     assertTrue(tok.getIsVerified());
 
-    OUser user = tok.getUser((ODatabaseDocumentInternal) db);
+    OUser user = tok.getUser((ODatabaseSessionInternal) db);
     assertEquals(user.getName(), original.getName());
     boolean boole = handler.validateToken(tok, "open", db.getName());
     assertTrue(boole);
@@ -128,7 +128,7 @@ public class OTokenHandlerImplTest extends BaseMemoryInternalDatabase {
     data.setSerializationImpl("a");
     data.protocolVersion = 2;
 
-    byte[] token = handler.getSignedBinaryToken((ODatabaseDocumentInternal) db, original, data);
+    byte[] token = handler.getSignedBinaryToken((ODatabaseSessionInternal) db, original, data);
 
     OToken tok = handler.parseBinaryToken(token);
 
@@ -136,7 +136,7 @@ public class OTokenHandlerImplTest extends BaseMemoryInternalDatabase {
 
     assertTrue(tok.getIsVerified());
 
-    OUser user = tok.getUser((ODatabaseDocumentInternal) db);
+    OUser user = tok.getUser((ODatabaseSessionInternal) db);
     assertEquals(user.getName(), original.getName());
     boolean boole = handler.validateBinaryToken(tok);
     assertTrue(boole);
@@ -153,7 +153,7 @@ public class OTokenHandlerImplTest extends BaseMemoryInternalDatabase {
     data.setSerializationImpl("a");
     data.protocolVersion = 2;
 
-    byte[] token = handler.getSignedBinaryToken((ODatabaseDocumentInternal) db, original, data);
+    byte[] token = handler.getSignedBinaryToken((ODatabaseSessionInternal) db, original, data);
 
     OToken tok = handler.parseBinaryToken(token);
     token = handler.renewIfNeeded(tok);
@@ -171,7 +171,7 @@ public class OTokenHandlerImplTest extends BaseMemoryInternalDatabase {
     data.setSerializationImpl("a");
     data.protocolVersion = 2;
 
-    byte[] token = handler.getSignedBinaryToken((ODatabaseDocumentInternal) db, original, data);
+    byte[] token = handler.getSignedBinaryToken((ODatabaseSessionInternal) db, original, data);
 
     OToken tok = handler.parseBinaryToken(token);
     tok.setExpiry(System.currentTimeMillis() + (handler.getSessionInMills() / 2) - 1);

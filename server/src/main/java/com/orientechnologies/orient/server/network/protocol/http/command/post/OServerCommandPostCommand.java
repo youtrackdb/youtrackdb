@@ -21,8 +21,8 @@ package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseStats;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -197,7 +197,7 @@ public class OServerCommandPostCommand extends OServerCommandAuthenticatedDbAbst
   public static OStatement parseStatement(String language, String text, ODatabaseDocument db) {
     try {
       if (language != null && language.equalsIgnoreCase("sql")) {
-        return OSQLEngine.parse(text, (ODatabaseDocumentInternal) db);
+        return OSQLEngine.parse(text, (ODatabaseSessionInternal) db);
       }
     } catch (Exception e) {
     }

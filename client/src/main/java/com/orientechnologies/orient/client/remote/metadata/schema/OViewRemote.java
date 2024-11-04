@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.client.remote.metadata.schema;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OSchemaException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -34,7 +34,7 @@ public class OViewRemote extends OViewImpl {
     if (propertyName == null || propertyName.length() == 0)
       throw new OSchemaException("Property name is null or empty");
 
-    final ODatabaseDocumentInternal database = getDatabase();
+    final ODatabaseSessionInternal database = getDatabase();
     validatePropertyName(propertyName);
     if (database.getTransaction().isActive()) {
       throw new OSchemaException(
@@ -91,7 +91,7 @@ public class OViewRemote extends OViewImpl {
 
     acquireSchemaWriteLock();
     try {
-      final ODatabaseDocumentInternal database = getDatabase();
+      final ODatabaseSessionInternal database = getDatabase();
       final String cmd = String.format("alter view `%s` encryption %s", name, iValue);
       database.command(cmd);
     } finally {
@@ -110,7 +110,7 @@ public class OViewRemote extends OViewImpl {
 
     acquireSchemaWriteLock();
     try {
-      final ODatabaseDocumentInternal database = getDatabase();
+      final ODatabaseSessionInternal database = getDatabase();
       final String cmd = String.format("alter view `%s` custom %s = ?", getName(), name);
       database.command(cmd, value).close();
       return this;
@@ -124,7 +124,7 @@ public class OViewRemote extends OViewImpl {
 
     acquireSchemaWriteLock();
     try {
-      final ODatabaseDocumentInternal database = getDatabase();
+      final ODatabaseSessionInternal database = getDatabase();
       final String cmd = String.format("alter view `%s` custom clear", getName());
       database.command(cmd).close();
     } finally {
@@ -149,7 +149,7 @@ public class OViewRemote extends OViewImpl {
 
   public OView setName(final String name) {
     if (getName().equals(name)) return this;
-    final ODatabaseDocumentInternal database = getDatabase();
+    final ODatabaseSessionInternal database = getDatabase();
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
     final Character wrongCharacter = OSchemaShared.checkClassNameIfValid(name);
     OView oClass = database.getMetadata().getSchema().getView(name);
@@ -184,7 +184,7 @@ public class OViewRemote extends OViewImpl {
       shortName = shortName.trim();
       if (shortName.isEmpty()) shortName = null;
     }
-    final ODatabaseDocumentInternal database = getDatabase();
+    final ODatabaseSessionInternal database = getDatabase();
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
     acquireSchemaWriteLock();
@@ -205,7 +205,7 @@ public class OViewRemote extends OViewImpl {
   /** {@inheritDoc} */
   @Override
   public OView truncateCluster(String clusterName) {
-    final ODatabaseDocumentInternal database = getDatabase();
+    final ODatabaseSessionInternal database = getDatabase();
     database.checkSecurity(ORule.ResourceGeneric.CLASS, ORole.PERMISSION_DELETE, name);
     acquireSchemaReadLock();
     try {
@@ -220,7 +220,7 @@ public class OViewRemote extends OViewImpl {
   }
 
   public OView setStrictMode(final boolean isStrict) {
-    final ODatabaseDocumentInternal database = getDatabase();
+    final ODatabaseSessionInternal database = getDatabase();
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
     acquireSchemaWriteLock();
     try {
@@ -238,7 +238,7 @@ public class OViewRemote extends OViewImpl {
       iDescription = iDescription.trim();
       if (iDescription.isEmpty()) iDescription = null;
     }
-    final ODatabaseDocumentInternal database = getDatabase();
+    final ODatabaseSessionInternal database = getDatabase();
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
     acquireSchemaWriteLock();
@@ -261,7 +261,7 @@ public class OViewRemote extends OViewImpl {
   }
 
   public void dropProperty(final String propertyName) {
-    final ODatabaseDocumentInternal database = getDatabase();
+    final ODatabaseSessionInternal database = getDatabase();
     if (database.getTransaction().isActive())
       throw new IllegalStateException("Cannot drop a property inside a transaction");
 
@@ -286,7 +286,7 @@ public class OViewRemote extends OViewImpl {
   }
 
   public OView setOverSize(final float overSize) {
-    final ODatabaseDocumentInternal database = getDatabase();
+    final ODatabaseSessionInternal database = getDatabase();
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
     acquireSchemaWriteLock();
     try {

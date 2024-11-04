@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.object.db;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
@@ -176,7 +176,7 @@ public class OrientDBObject implements AutoCloseable {
    */
   public ODatabaseObjectInternal open(String name, String user, String password) {
     return new OObjectDatabaseTxInternal(
-        (ODatabaseDocumentInternal) orientDB.open(name, user, password));
+        (ODatabaseSessionInternal) orientDB.open(name, user, password));
   }
 
   /**
@@ -193,7 +193,7 @@ public class OrientDBObject implements AutoCloseable {
   public ODatabaseObjectInternal open(
       String name, String user, String password, OrientDBConfig config) {
     return new OObjectDatabaseTxInternal(
-        (ODatabaseDocumentInternal) orientDB.open(name, user, password, config));
+        (ODatabaseSessionInternal) orientDB.open(name, user, password, config));
   }
 
   /**

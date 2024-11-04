@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.id.ORID;
@@ -75,7 +75,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
 
   private OIndex findIndex(String uniqueIndexName) {
     if (uniqueIndexName != null) {
-      final ODatabaseDocumentInternal database = (ODatabaseDocumentInternal) ctx.getDatabase();
+      final ODatabaseSessionInternal database = (ODatabaseSessionInternal) ctx.getDatabase();
       OIndex uniqueIndex =
           database.getMetadata().getIndexManagerInternal().getIndex(database, uniqueIndexName);
       if (uniqueIndex == null) {

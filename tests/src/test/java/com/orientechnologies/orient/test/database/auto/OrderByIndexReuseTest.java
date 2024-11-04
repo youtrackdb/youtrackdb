@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Set;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -21,9 +20,9 @@ import org.testng.annotations.Test;
 @Test
 public class OrderByIndexReuseTest extends DocumentDBBaseTest {
 
-  @Parameters(value = "url")
-  public OrderByIndexReuseTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public OrderByIndexReuseTest(boolean remote) {
+    super(remote);
   }
 
   @Override
@@ -136,8 +135,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       ODocument document = result.get(i);
       Assert.assertEquals((int) document.<Integer>field("secondProp"), i / 2 + 6);
       int thirdPropertyIndex;
-      if (i % 2 == 0) thirdPropertyIndex = document.<Integer>field("secondProp") * 2 + 1;
-      else thirdPropertyIndex = document.<Integer>field("secondProp") * 2;
+      if (i % 2 == 0) {
+        thirdPropertyIndex = document.<Integer>field("secondProp") * 2 + 1;
+      } else {
+        thirdPropertyIndex = document.<Integer>field("secondProp") * 2;
+      }
 
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
@@ -199,8 +201,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       ODocument document = result.get(i);
       Assert.assertEquals((int) document.<Integer>field("secondProp"), i / 2 + 5);
       int thirdPropertyIndex;
-      if (i % 2 == 0) thirdPropertyIndex = document.<Integer>field("secondProp") * 2;
-      else thirdPropertyIndex = document.<Integer>field("secondProp") * 2 + 1;
+      if (i % 2 == 0) {
+        thirdPropertyIndex = document.<Integer>field("secondProp") * 2;
+      } else {
+        thirdPropertyIndex = document.<Integer>field("secondProp") * 2 + 1;
+      }
 
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
@@ -225,8 +230,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       ODocument document = result.get(i);
       Assert.assertEquals((int) document.<Integer>field("secondProp"), 50 - i / 2);
       int thirdPropertyIndex;
-      if (i % 2 == 0) thirdPropertyIndex = document.<Integer>field("secondProp") * 2 + 1;
-      else thirdPropertyIndex = document.<Integer>field("secondProp") * 2;
+      if (i % 2 == 0) {
+        thirdPropertyIndex = document.<Integer>field("secondProp") * 2 + 1;
+      } else {
+        thirdPropertyIndex = document.<Integer>field("secondProp") * 2;
+      }
 
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
@@ -251,8 +259,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       ODocument document = result.get(i);
       Assert.assertEquals((int) document.<Integer>field("secondProp"), i / 2 + 5);
       int thirdPropertyIndex;
-      if (i % 2 == 0) thirdPropertyIndex = document.<Integer>field("secondProp") * 2 + 1;
-      else thirdPropertyIndex = document.<Integer>field("secondProp") * 2;
+      if (i % 2 == 0) {
+        thirdPropertyIndex = document.<Integer>field("secondProp") * 2 + 1;
+      } else {
+        thirdPropertyIndex = document.<Integer>field("secondProp") * 2;
+      }
 
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
@@ -315,8 +326,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals((int) document.<Integer>field("secondProp"), i / 2 + 1);
 
       int thirdPropertyIndex;
-      if (i % 2 == 0) thirdPropertyIndex = document.<Integer>field("secondProp") * 2;
-      else thirdPropertyIndex = document.<Integer>field("secondProp") * 2 + 1;
+      if (i % 2 == 0) {
+        thirdPropertyIndex = document.<Integer>field("secondProp") * 2;
+      } else {
+        thirdPropertyIndex = document.<Integer>field("secondProp") * 2 + 1;
+      }
 
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
@@ -342,8 +356,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals((int) document.<Integer>field("secondProp"), 4 - i / 2);
 
       int thirdPropertyIndex;
-      if (i % 2 == 0) thirdPropertyIndex = document.<Integer>field("secondProp") * 2 + 1;
-      else thirdPropertyIndex = document.<Integer>field("secondProp") * 2;
+      if (i % 2 == 0) {
+        thirdPropertyIndex = document.<Integer>field("secondProp") * 2 + 1;
+      } else {
+        thirdPropertyIndex = document.<Integer>field("secondProp") * 2;
+      }
 
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
@@ -369,8 +386,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals((int) document.<Integer>field("secondProp"), i / 2 + 1);
 
       int thirdPropertyIndex;
-      if (i % 2 == 0) thirdPropertyIndex = document.<Integer>field("secondProp") * 2 + 1;
-      else thirdPropertyIndex = document.<Integer>field("secondProp") * 2;
+      if (i % 2 == 0) {
+        thirdPropertyIndex = document.<Integer>field("secondProp") * 2 + 1;
+      } else {
+        thirdPropertyIndex = document.<Integer>field("secondProp") * 2;
+      }
 
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
@@ -433,8 +453,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals((int) document.<Integer>field("secondProp"), i / 2 + 1);
 
       int thirdPropertyIndex;
-      if (i % 2 == 0) thirdPropertyIndex = document.<Integer>field("secondProp") * 2;
-      else thirdPropertyIndex = document.<Integer>field("secondProp") * 2 + 1;
+      if (i % 2 == 0) {
+        thirdPropertyIndex = document.<Integer>field("secondProp") * 2;
+      } else {
+        thirdPropertyIndex = document.<Integer>field("secondProp") * 2 + 1;
+      }
 
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
@@ -460,8 +483,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals((int) document.<Integer>field("secondProp"), 5 - i / 2);
 
       int thirdPropertyIndex;
-      if (i % 2 == 0) thirdPropertyIndex = document.<Integer>field("secondProp") * 2 + 1;
-      else thirdPropertyIndex = document.<Integer>field("secondProp") * 2;
+      if (i % 2 == 0) {
+        thirdPropertyIndex = document.<Integer>field("secondProp") * 2 + 1;
+      } else {
+        thirdPropertyIndex = document.<Integer>field("secondProp") * 2;
+      }
 
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
@@ -487,8 +513,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals((int) document.<Integer>field("secondProp"), i / 2 + 1);
 
       int thirdPropertyIndex;
-      if (i % 2 == 0) thirdPropertyIndex = document.<Integer>field("secondProp") * 2 + 1;
-      else thirdPropertyIndex = document.<Integer>field("secondProp") * 2;
+      if (i % 2 == 0) {
+        thirdPropertyIndex = document.<Integer>field("secondProp") * 2 + 1;
+      } else {
+        thirdPropertyIndex = document.<Integer>field("secondProp") * 2;
+      }
 
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
@@ -551,8 +580,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals((int) document.<Integer>field("secondProp"), i / 2 + 5);
 
       int thirdPropertyIndex;
-      if (i % 2 == 0) thirdPropertyIndex = document.<Integer>field("secondProp") * 2;
-      else thirdPropertyIndex = document.<Integer>field("secondProp") * 2 + 1;
+      if (i % 2 == 0) {
+        thirdPropertyIndex = document.<Integer>field("secondProp") * 2;
+      } else {
+        thirdPropertyIndex = document.<Integer>field("secondProp") * 2 + 1;
+      }
 
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
@@ -578,8 +610,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals((int) document.<Integer>field("secondProp"), 15 - i / 2);
 
       int thirdPropertyIndex;
-      if (i % 2 == 0) thirdPropertyIndex = document.<Integer>field("secondProp") * 2 + 1;
-      else thirdPropertyIndex = document.<Integer>field("secondProp") * 2;
+      if (i % 2 == 0) {
+        thirdPropertyIndex = document.<Integer>field("secondProp") * 2 + 1;
+      } else {
+        thirdPropertyIndex = document.<Integer>field("secondProp") * 2;
+      }
 
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
@@ -605,8 +640,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals((int) document.<Integer>field("secondProp"), i / 2 + 5);
 
       int thirdPropertyIndex;
-      if (i % 2 == 0) thirdPropertyIndex = document.<Integer>field("secondProp") * 2 + 1;
-      else thirdPropertyIndex = document.<Integer>field("secondProp") * 2;
+      if (i % 2 == 0) {
+        thirdPropertyIndex = document.<Integer>field("secondProp") * 2 + 1;
+      } else {
+        thirdPropertyIndex = document.<Integer>field("secondProp") * 2;
+      }
 
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
@@ -723,8 +761,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       ODocument document = result.get(i);
       Assert.assertEquals((int) document.<Integer>field("firstProp"), 50 - i / 2);
       int property4Index;
-      if (i % 2 == 0) property4Index = document.<Integer>field("firstProp") * 2;
-      else property4Index = document.<Integer>field("firstProp") * 2 + 1;
+      if (i % 2 == 0) {
+        property4Index = document.<Integer>field("firstProp") * 2;
+      } else {
+        property4Index = document.<Integer>field("firstProp") * 2 + 1;
+      }
 
       Assert.assertEquals(document.field("prop4"), "prop" + property4Index);
     }
@@ -750,8 +791,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals((int) document.<Integer>field("firstProp"), i / 2 + 5);
 
       int property4Index;
-      if (i % 2 == 0) property4Index = document.<Integer>field("firstProp") * 2;
-      else property4Index = document.<Integer>field("firstProp") * 2 + 1;
+      if (i % 2 == 0) {
+        property4Index = document.<Integer>field("firstProp") * 2;
+      } else {
+        property4Index = document.<Integer>field("firstProp") * 2 + 1;
+      }
 
       Assert.assertEquals(document.field("prop4"), "prop" + property4Index);
     }
@@ -777,8 +821,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals((int) document.<Integer>field("firstProp"), 50 - i / 2);
 
       int property4Index;
-      if (i % 2 == 0) property4Index = document.<Integer>field("firstProp") * 2;
-      else property4Index = document.<Integer>field("firstProp") * 2 + 1;
+      if (i % 2 == 0) {
+        property4Index = document.<Integer>field("firstProp") * 2;
+      } else {
+        property4Index = document.<Integer>field("firstProp") * 2 + 1;
+      }
 
       Assert.assertEquals(document.field("prop4"), "prop" + property4Index);
     }
@@ -804,8 +851,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals((int) document.<Integer>field("firstProp"), i / 2 + 1);
 
       int property4Index;
-      if (i % 2 == 0) property4Index = document.<Integer>field("firstProp") * 2;
-      else property4Index = document.<Integer>field("firstProp") * 2 + 1;
+      if (i % 2 == 0) {
+        property4Index = document.<Integer>field("firstProp") * 2;
+      } else {
+        property4Index = document.<Integer>field("firstProp") * 2 + 1;
+      }
 
       Assert.assertEquals(document.field("prop4"), "prop" + property4Index);
     }
@@ -831,8 +881,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals((int) document.<Integer>field("firstProp"), 4 - i / 2);
 
       int property4Index;
-      if (i % 2 == 0) property4Index = document.<Integer>field("firstProp") * 2;
-      else property4Index = document.<Integer>field("firstProp") * 2 + 1;
+      if (i % 2 == 0) {
+        property4Index = document.<Integer>field("firstProp") * 2;
+      } else {
+        property4Index = document.<Integer>field("firstProp") * 2 + 1;
+      }
 
       Assert.assertEquals(document.field("prop4"), "prop" + property4Index);
     }
@@ -858,8 +911,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals((int) document.<Integer>field("firstProp"), i / 2 + 1);
 
       int property4Index;
-      if (i % 2 == 0) property4Index = document.<Integer>field("firstProp") * 2;
-      else property4Index = document.<Integer>field("firstProp") * 2 + 1;
+      if (i % 2 == 0) {
+        property4Index = document.<Integer>field("firstProp") * 2;
+      } else {
+        property4Index = document.<Integer>field("firstProp") * 2 + 1;
+      }
 
       Assert.assertEquals(document.field("prop4"), "prop" + property4Index);
     }
@@ -885,8 +941,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals((int) document.<Integer>field("firstProp"), 5 - i / 2);
 
       int property4Index;
-      if (i % 2 == 0) property4Index = document.<Integer>field("firstProp") * 2;
-      else property4Index = document.<Integer>field("firstProp") * 2 + 1;
+      if (i % 2 == 0) {
+        property4Index = document.<Integer>field("firstProp") * 2;
+      } else {
+        property4Index = document.<Integer>field("firstProp") * 2 + 1;
+      }
 
       Assert.assertEquals(document.field("prop4"), "prop" + property4Index);
     }
@@ -912,8 +971,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals((int) document.<Integer>field("firstProp"), i / 2 + 5);
 
       int property4Index;
-      if (i % 2 == 0) property4Index = document.<Integer>field("firstProp") * 2;
-      else property4Index = document.<Integer>field("firstProp") * 2 + 1;
+      if (i % 2 == 0) {
+        property4Index = document.<Integer>field("firstProp") * 2;
+      } else {
+        property4Index = document.<Integer>field("firstProp") * 2 + 1;
+      }
 
       Assert.assertEquals(document.field("prop4"), "prop" + property4Index);
     }
@@ -939,8 +1001,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals((int) document.<Integer>field("firstProp"), 15 - i / 2);
 
       int property4Index;
-      if (i % 2 == 0) property4Index = document.<Integer>field("firstProp") * 2;
-      else property4Index = document.<Integer>field("firstProp") * 2 + 1;
+      if (i % 2 == 0) {
+        property4Index = document.<Integer>field("firstProp") * 2;
+      } else {
+        property4Index = document.<Integer>field("firstProp") * 2 + 1;
+      }
 
       Assert.assertEquals(document.field("prop4"), "prop" + property4Index);
     }
@@ -1068,8 +1133,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.<Object>field("secondProp"), 6 + i / 2);
 
       int thirdPropertyIndex;
-      if (i % 2 == 0) thirdPropertyIndex = document.<Integer>field("secondProp") * 2;
-      else thirdPropertyIndex = document.<Integer>field("secondProp") * 2 + 1;
+      if (i % 2 == 0) {
+        thirdPropertyIndex = document.<Integer>field("secondProp") * 2;
+      } else {
+        thirdPropertyIndex = document.<Integer>field("secondProp") * 2 + 1;
+      }
 
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
@@ -1096,8 +1164,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.<Object>field("secondProp"), 45 - i / 2);
 
       int thirdPropertyIndex;
-      if (i % 2 == 0) thirdPropertyIndex = document.<Integer>field("secondProp") * 2 + 1;
-      else thirdPropertyIndex = document.<Integer>field("secondProp") * 2;
+      if (i % 2 == 0) {
+        thirdPropertyIndex = document.<Integer>field("secondProp") * 2 + 1;
+      } else {
+        thirdPropertyIndex = document.<Integer>field("secondProp") * 2;
+      }
 
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
@@ -1124,8 +1195,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.<Object>field("secondProp"), 6 + i / 2);
 
       int thirdPropertyIndex;
-      if (i % 2 == 0) thirdPropertyIndex = document.<Integer>field("secondProp") * 2 + 1;
-      else thirdPropertyIndex = document.<Integer>field("secondProp") * 2;
+      if (i % 2 == 0) {
+        thirdPropertyIndex = document.<Integer>field("secondProp") * 2 + 1;
+      } else {
+        thirdPropertyIndex = document.<Integer>field("secondProp") * 2;
+      }
 
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
@@ -1149,8 +1223,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.<Object>field("secondProp"), 45 - i / 2);
 
       int thirdPropertyIndex;
-      if (i % 2 == 0) thirdPropertyIndex = document.<Integer>field("secondProp") * 2;
-      else thirdPropertyIndex = document.<Integer>field("secondProp") * 2 + 1;
+      if (i % 2 == 0) {
+        thirdPropertyIndex = document.<Integer>field("secondProp") * 2;
+      } else {
+        thirdPropertyIndex = document.<Integer>field("secondProp") * 2 + 1;
+      }
 
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }

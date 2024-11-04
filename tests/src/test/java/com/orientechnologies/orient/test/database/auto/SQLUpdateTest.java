@@ -36,7 +36,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -50,9 +49,9 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
   private long updatedRecords;
   private int addressClusterId;
 
-  @Parameters(value = "url")
-  public SQLUpdateTest(@Optional String iURL) {
-    super(iURL);
+  @Parameters(value = "remote")
+  public SQLUpdateTest(boolean remote) {
+    super(remote);
   }
 
   @BeforeClass
@@ -730,10 +729,10 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(records.intValue(), 1);
 
-    v.reload();
-
+    database.begin();
     Assert.assertTrue(v.field("embmap") instanceof Map);
     Assert.assertEquals(((Map) v.field("embmap")).size(), 2);
+    database.rollback();
   }
 
   public void testAutoConversionOfEmbeddededListWithLinkedClass() {

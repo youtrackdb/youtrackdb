@@ -26,16 +26,15 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.testng.Assert;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test
 public class DateTest extends DocumentDBBaseTest {
 
-  @Parameters(value = "url")
-  public DateTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public DateTest(boolean remote) {
+    super(remote);
   }
 
   @Test
@@ -55,16 +54,15 @@ public class DateTest extends DocumentDBBaseTest {
     doc2.save();
     database.commit();
 
-    doc2.reload();
+    database.begin();
     Assert.assertTrue(doc2.field("date", OType.DATE) instanceof Date);
-
-    doc2.reload();
     Assert.assertTrue(doc2.field("date", Date.class) instanceof Date);
 
     OResultSet result =
         database.command("select * from Order where date >= ? and context = 'test'", begin);
 
     Assert.assertEquals(result.stream().count(), 2);
+    database.rollback();
   }
 
   @Test
@@ -100,7 +98,9 @@ public class DateTest extends DocumentDBBaseTest {
     Assert.assertTrue(doc.field("date") instanceof Date);
   }
 
-  /** https://github.com/orientechnologies/orientjs/issues/48 */
+  /**
+   * https://github.com/orientechnologies/orientjs/issues/48
+   */
   @Test
   public void testDateGregorianCalendar() throws ParseException {
     database.command("CREATE CLASS TimeTest EXTENDS V").close();

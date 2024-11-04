@@ -19,10 +19,9 @@
  */
 package com.orientechnologies.orient.core.record;
 
-import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.io.OIOUtils;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
@@ -34,7 +33,6 @@ import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.impl.ODirtyManager;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerJSON;
-import com.orientechnologies.orient.core.storage.cluster.OOfflineClusterException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -210,7 +208,7 @@ public abstract class ORecordAbstract implements ORecord {
     return this;
   }
 
-  protected ORecordAbstract fromStream(final byte[] iRecordBuffer, ODatabaseDocumentInternal db) {
+  protected ORecordAbstract fromStream(final byte[] iRecordBuffer, ODatabaseSessionInternal db) {
     if (primaryRecord != null) {
       primaryRecord.fromStream(iRecordBuffer, db);
       return primaryRecord;
@@ -468,7 +466,7 @@ public abstract class ORecordAbstract implements ORecord {
           getIdentity(), "The record has no id, probably it's new or transient yet ");
     }
 
-    final ORecord result = getDatabase().load(this);
+    final ORecord result = getDatabase().load(recordId);
 
     if (result == null) {
       throw new ORecordNotFoundException(getIdentity());
@@ -477,67 +475,12 @@ public abstract class ORecordAbstract implements ORecord {
     return result;
   }
 
-  public ODatabaseDocumentInternal getDatabase() {
+  public ODatabaseSessionInternal getDatabase() {
     return ODatabaseRecordThreadLocal.instance().get();
   }
 
-  public static ODatabaseDocumentInternal getDatabaseIfDefined() {
+  public static ODatabaseSessionInternal getDatabaseIfDefined() {
     return ODatabaseRecordThreadLocal.instance().getIfDefined();
-  }
-
-  public ORecord reload() {
-    if (primaryRecord != null) {
-      primaryRecord = (ORecordAbstract) primaryRecord.reload();
-      return primaryRecord;
-    }
-
-    return reload(null, true, true);
-  }
-
-  public ORecord reload(final String fetchPlan) {
-    if (primaryRecord != null) {
-      primaryRecord = (ORecordAbstract) primaryRecord.reload(fetchPlan);
-      return primaryRecord;
-    }
-
-    return reload(fetchPlan, true);
-  }
-
-  public ORecord reload(final String fetchPlan, final boolean ignoreCache) {
-    if (primaryRecord != null) {
-      primaryRecord = (ORecordAbstract) primaryRecord.reload(fetchPlan, ignoreCache);
-      return primaryRecord;
-    }
-
-    return reload(fetchPlan, ignoreCache, true);
-  }
-
-  public ORecord reload(String fetchPlan, boolean ignoreCache, boolean force)
-      throws ORecordNotFoundException {
-    if (primaryRecord != null) {
-      primaryRecord.reload(fetchPlan, ignoreCache, force);
-      primaryRecord = primaryRecord.getRecord();
-      return primaryRecord;
-    }
-
-    if (!getIdentity().isValid()) {
-      throw new ORecordNotFoundException(
-          getIdentity(), "The record has no id. It is probably new or still transient");
-    }
-
-    try {
-      getDatabase().reload(this, fetchPlan, ignoreCache, force);
-
-      if (primaryRecord != null) {
-        return primaryRecord;
-      }
-
-      return this;
-    } catch (OOfflineClusterException | ORecordNotFoundException e) {
-      throw e;
-    } catch (Exception e) {
-      throw OException.wrapException(new ORecordNotFoundException(getIdentity()), e);
-    }
   }
 
   public ORecordAbstract save() {
@@ -732,7 +675,7 @@ public abstract class ORecordAbstract implements ORecord {
       final int iVersion,
       final byte[] iBuffer,
       boolean iDirty,
-      ODatabaseDocumentInternal db) {
+      ODatabaseSessionInternal db) {
     if (primaryRecord != null) {
       return primaryRecord.fill(iRid, iVersion, iBuffer, iDirty, db);
     }
@@ -820,7 +763,7 @@ public abstract class ORecordAbstract implements ORecord {
     }
   }
 
-  protected static ODatabaseDocumentInternal getDatabaseIfDefinedInternal() {
+  protected static ODatabaseSessionInternal getDatabaseIfDefinedInternal() {
     return ODatabaseRecordThreadLocal.instance().getIfDefined();
   }
 
@@ -851,7 +794,7 @@ public abstract class ORecordAbstract implements ORecord {
     }
   }
 
-  protected void setup(ODatabaseDocumentInternal db) {
+  protected void setup(ODatabaseSessionInternal db) {
     checkForLoading();
     if (primaryRecord != null) {
       primaryRecord.setup(db);
@@ -972,7 +915,6 @@ public abstract class ORecordAbstract implements ORecord {
     this.getDirtyManager().unTrack(this, id);
   }
 
-  @Override
   public void resetToNew() {
     if (!recordId.isNew()) {
       throw new IllegalStateException(

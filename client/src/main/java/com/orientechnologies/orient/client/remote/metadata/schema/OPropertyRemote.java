@@ -3,7 +3,7 @@ package com.orientechnologies.orient.client.remote.metadata.schema;
 import com.orientechnologies.common.comparator.OCaseInsentiveComparator;
 import com.orientechnologies.common.util.OCollections;
 import com.orientechnologies.orient.core.collate.ODefaultCollate;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
@@ -31,7 +31,7 @@ public class OPropertyRemote extends OPropertyImpl {
 
   public OPropertyImpl setType(final OType type) {
     getDatabase().checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
-    final ODatabaseDocumentInternal database = getDatabase();
+    final ODatabaseSessionInternal database = getDatabase();
     acquireSchemaWriteLock();
     try {
       final String cmd =
@@ -49,7 +49,7 @@ public class OPropertyRemote extends OPropertyImpl {
 
     acquireSchemaWriteLock();
     try {
-      final ODatabaseDocumentInternal database = getDatabase();
+      final ODatabaseSessionInternal database = getDatabase();
       final String cmd =
           String.format("alter property %s name %s", getFullNameQuoted(), quoteString(name));
       database.command(cmd).close();
@@ -67,7 +67,7 @@ public class OPropertyRemote extends OPropertyImpl {
 
     acquireSchemaWriteLock();
     try {
-      final ODatabaseDocumentInternal database = getDatabase();
+      final ODatabaseSessionInternal database = getDatabase();
       final String cmd =
           String.format(
               "alter property %s description %s", getFullNameQuoted(), quoteString(iDescription));
@@ -86,7 +86,7 @@ public class OPropertyRemote extends OPropertyImpl {
 
     acquireSchemaWriteLock();
     try {
-      final ODatabaseDocumentInternal database = getDatabase();
+      final ODatabaseSessionInternal database = getDatabase();
       final String cmd =
           String.format("alter property %s collate %s", getFullNameQuoted(), quoteString(collate));
       database.command(cmd).close();
@@ -102,7 +102,7 @@ public class OPropertyRemote extends OPropertyImpl {
 
     acquireSchemaWriteLock();
     try {
-      final ODatabaseDocumentInternal database = getDatabase();
+      final ODatabaseSessionInternal database = getDatabase();
       final String cmd = String.format("alter property %s custom clear", getFullNameQuoted());
       database.command(cmd).close();
     } finally {
@@ -118,7 +118,7 @@ public class OPropertyRemote extends OPropertyImpl {
       final String cmd =
           String.format(
               "alter property %s custom %s=%s", getFullNameQuoted(), name, quoteString(value));
-      final ODatabaseDocumentInternal database = getDatabase();
+      final ODatabaseSessionInternal database = getDatabase();
       database.command(cmd).close();
     } finally {
       releaseSchemaWriteLock();
@@ -132,7 +132,7 @@ public class OPropertyRemote extends OPropertyImpl {
 
     acquireSchemaWriteLock();
     try {
-      final ODatabaseDocumentInternal database = getDatabase();
+      final ODatabaseSessionInternal database = getDatabase();
       final String cmd =
           String.format("alter property %s regexp %s", getFullNameQuoted(), quoteString(regexp));
       database.command(cmd).close();
@@ -149,7 +149,7 @@ public class OPropertyRemote extends OPropertyImpl {
 
     acquireSchemaWriteLock();
     try {
-      final ODatabaseDocumentInternal database = getDatabase();
+      final ODatabaseSessionInternal database = getDatabase();
       final String cmd =
           String.format(
               "alter property %s linkedclass %s",
@@ -170,7 +170,7 @@ public class OPropertyRemote extends OPropertyImpl {
 
     acquireSchemaWriteLock();
     try {
-      final ODatabaseDocumentInternal database = getDatabase();
+      final ODatabaseSessionInternal database = getDatabase();
       final String cmd =
           String.format(
               "alter property %s linkedtype %s",
@@ -189,7 +189,7 @@ public class OPropertyRemote extends OPropertyImpl {
 
     acquireSchemaWriteLock();
     try {
-      final ODatabaseDocumentInternal database = getDatabase();
+      final ODatabaseSessionInternal database = getDatabase();
       final String cmd =
           String.format("alter property %s notnull %s", getFullNameQuoted(), isNotNull);
       database.command(cmd).close();
@@ -205,7 +205,7 @@ public class OPropertyRemote extends OPropertyImpl {
 
     acquireSchemaWriteLock();
     try {
-      final ODatabaseDocumentInternal database = getDatabase();
+      final ODatabaseSessionInternal database = getDatabase();
       final String cmd =
           String.format(
               "alter property %s default %s", getFullNameQuoted(), quoteString(defaultValue));
@@ -223,7 +223,7 @@ public class OPropertyRemote extends OPropertyImpl {
 
     acquireSchemaWriteLock();
     try {
-      final ODatabaseDocumentInternal database = getDatabase();
+      final ODatabaseSessionInternal database = getDatabase();
       final String cmd =
           String.format("alter property %s max %s", getFullNameQuoted(), quoteString(max));
       database.command(cmd).close();
@@ -239,7 +239,7 @@ public class OPropertyRemote extends OPropertyImpl {
 
     acquireSchemaWriteLock();
     try {
-      final ODatabaseDocumentInternal database = getDatabase();
+      final ODatabaseSessionInternal database = getDatabase();
       final String cmd =
           String.format("alter property %s min %s", getFullNameQuoted(), quoteString(min));
       database.command(cmd).close();
@@ -255,7 +255,7 @@ public class OPropertyRemote extends OPropertyImpl {
 
     acquireSchemaWriteLock();
     try {
-      final ODatabaseDocumentInternal database = getDatabase();
+      final ODatabaseSessionInternal database = getDatabase();
       final String cmd =
           String.format("alter property %s readonly %s", getFullNameQuoted(), isReadonly);
       database.command(cmd).close();
@@ -272,7 +272,7 @@ public class OPropertyRemote extends OPropertyImpl {
 
     acquireSchemaWriteLock();
     try {
-      final ODatabaseDocumentInternal database = getDatabase();
+      final ODatabaseSessionInternal database = getDatabase();
       final String cmd =
           String.format("alter property %s mandatory %s", getFullNameQuoted(), isMandatory);
       database.command(cmd).close();
@@ -306,7 +306,7 @@ public class OPropertyRemote extends OPropertyImpl {
 
   @Override
   public OPropertyImpl dropIndexes() {
-    final ODatabaseDocumentInternal database = getDatabase();
+    final ODatabaseSessionInternal database = getDatabase();
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_DELETE);
 
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();

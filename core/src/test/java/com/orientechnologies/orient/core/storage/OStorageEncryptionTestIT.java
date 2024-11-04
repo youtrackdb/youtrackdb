@@ -4,8 +4,8 @@ import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.id.ORID;
@@ -121,14 +121,14 @@ public class OStorageEncryptionTestIT {
 
     try (final OrientDB orientDB =
         new OrientDB("embedded:" + dbDirectoryFile.getAbsolutePath(), orientDBConfig)) {
-      try (final ODatabaseDocumentInternal session =
-          (ODatabaseDocumentInternal) orientDB.open("encryption", "admin", "admin")) {
+      try (final ODatabaseSessionInternal session =
+          (ODatabaseSessionInternal) orientDB.open("encryption", "admin", "admin")) {
         final OIndexManagerAbstract indexManager =
-            ((ODatabaseDocumentInternal) session).getMetadata().getIndexManagerInternal();
+            ((ODatabaseSessionInternal) session).getMetadata().getIndexManagerInternal();
         final OIndex treeIndex =
-            indexManager.getIndex((ODatabaseDocumentInternal) session, "EncryptedTree");
+            indexManager.getIndex((ODatabaseSessionInternal) session, "EncryptedTree");
         final OIndex hashIndex =
-            indexManager.getIndex((ODatabaseDocumentInternal) session, "EncryptedHash");
+            indexManager.getIndex((ODatabaseSessionInternal) session, "EncryptedHash");
 
         for (final ODocument document : session.browseClass("EncryptedData")) {
           final int id = document.getProperty("id");

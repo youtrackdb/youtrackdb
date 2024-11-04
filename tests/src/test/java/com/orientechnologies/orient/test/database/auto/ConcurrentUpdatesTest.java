@@ -16,13 +16,11 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.common.concur.ONeedRetryException;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.util.concurrent.atomic.AtomicLong;
 import org.testng.Assert;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -36,9 +34,9 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
   private final AtomicLong counter = new AtomicLong();
   private final AtomicLong totalRetries = new AtomicLong();
 
-  @Parameters(value = "url")
-  public ConcurrentUpdatesTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public ConcurrentUpdatesTest(boolean remote) {
+    super(remote);
   }
 
   class OptimisticUpdateField implements Runnable {
@@ -47,20 +45,18 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
     ORID rid2;
     String fieldValue = null;
     String threadName;
-    String url;
 
-    public OptimisticUpdateField(String url, ORID iRid1, ORID iRid2, String iThreadName) {
+    public OptimisticUpdateField(ORID iRid1, ORID iRid2, String iThreadName) {
       super();
       rid1 = iRid1;
       rid2 = iRid2;
       threadName = iThreadName;
-      this.url = url;
     }
 
     @Override
     public void run() {
       try {
-        ODatabaseDocumentInternal db = new ODatabaseDocumentTx(url);
+        ODatabaseSessionInternal db = acquireSession();
         for (int i = 0; i < OPTIMISTIC_CYCLES; i++) {
           int retries = 0;
           while (true) {
@@ -70,23 +66,17 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
             }
 
             try {
+              db.begin();
 
-              db.open("admin", "admin");
-              try {
-                db.begin();
+              ODocument vDoc1 = db.load(rid1, null, true);
+              vDoc1.field(threadName, vDoc1.field(threadName) + ";" + i);
+              vDoc1.save();
 
-                ODocument vDoc1 = db.load(rid1, null, true);
-                vDoc1.field(threadName, vDoc1.field(threadName) + ";" + i);
-                vDoc1.save();
+              ODocument vDoc2 = db.load(rid2, null, true);
+              vDoc2.field(threadName, vDoc2.field(threadName) + ";" + i);
+              vDoc2.save();
 
-                ODocument vDoc2 = db.load(rid2, null, true);
-                vDoc2.field(threadName, vDoc2.field(threadName) + ";" + i);
-                vDoc2.save();
-
-                db.commit();
-              } finally {
-                db.close();
-              }
+              db.commit();
 
               counter.incrementAndGet();
               totalRetries.addAndGet(retries);
@@ -110,21 +100,19 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
     ORID rid;
     String threadName;
     boolean lock;
-    String url;
 
-    public PessimisticUpdate(String url, ORID iRid, String iThreadName, boolean iLock) {
+    public PessimisticUpdate(ORID iRid, String iThreadName, boolean iLock) {
       super();
 
       rid = iRid;
       threadName = iThreadName;
       lock = iLock;
-      this.url = url;
     }
 
     @Override
     public void run() {
       try {
-        ODatabaseDocumentInternal db = new ODatabaseDocumentTx(url);
+        ODatabaseSessionInternal db = acquireSession();
 
         for (int i = 0; i < PESSIMISTIC_CYCLES; i++) {
           String cmd = "update " + rid + " set total = total + 1";
@@ -136,16 +124,10 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
           while (true) {
             try {
               retries++;
-
-              db.open("admin", "admin");
-              try {
-                db.begin();
-                db.command(cmd).close();
-                db.commit();
-                counter.incrementAndGet();
-              } finally {
-                db.close();
-              }
+              db.begin();
+              db.command(cmd).close();
+              db.commit();
+              counter.incrementAndGet();
 
               if (retries % 10 == 0) {
                 System.out.println(retries + " retries for thread " + threadName);
@@ -171,8 +153,7 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
   public void concurrentOptimisticUpdates() throws Exception {
     counter.set(0);
 
-    ODatabaseDocumentInternal database = new ODatabaseDocumentTx(url);
-    database.open("admin", "admin");
+    ODatabaseSessionInternal database = acquireSession();
 
     ODocument doc1 = database.newInstance();
     doc1.field("INIT", "ok");
@@ -193,7 +174,7 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
 
     OptimisticUpdateField[] ops = new OptimisticUpdateField[THREADS];
     for (int i = 0; i < THREADS; ++i) {
-      ops[i] = new OptimisticUpdateField(url, rid1, rid2, "thread" + i);
+      ops[i] = new OptimisticUpdateField(rid1, rid2, "thread" + i);
     }
 
     Thread[] threads = new Thread[THREADS];
@@ -244,9 +225,7 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
   protected void sqlUpdate(boolean lock) throws InterruptedException {
     counter.set(0);
 
-    ODatabaseDocumentInternal database = new ODatabaseDocumentTx(url);
-    database.open("admin", "admin");
-
+    ODatabaseSessionInternal database = acquireSession();
     ODocument doc1 = database.newInstance();
     doc1.field("total", 0);
 
@@ -258,7 +237,7 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
 
     PessimisticUpdate[] ops = new PessimisticUpdate[THREADS];
     for (int i = 0; i < THREADS; ++i) {
-      ops[i] = new PessimisticUpdate(url, rid1, "thread" + i, lock);
+      ops[i] = new PessimisticUpdate(rid1, "thread" + i, lock);
     }
 
     Thread[] threads = new Thread[THREADS];

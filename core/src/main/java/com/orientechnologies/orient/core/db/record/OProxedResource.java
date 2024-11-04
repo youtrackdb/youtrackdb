@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.db.record;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 
 /**
  * Generic proxy abstratc class.
@@ -28,9 +28,9 @@ import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
  */
 public abstract class OProxedResource<T> {
   protected final T delegate;
-  protected final ODatabaseDocumentInternal database;
+  protected final ODatabaseSessionInternal database;
 
-  protected OProxedResource(final T iDelegate, final ODatabaseDocumentInternal iDatabase) {
+  protected OProxedResource(final T iDelegate, final ODatabaseSessionInternal iDatabase) {
     this.delegate = iDelegate;
     this.database = iDatabase;
   }

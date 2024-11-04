@@ -23,8 +23,8 @@ import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.orient.core.db.ODatabase;
 import com.orientechnologies.orient.core.db.ODatabase.ATTRIBUTES;
 import com.orientechnologies.orient.core.db.ODatabase.STATUS;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.dictionary.ODictionary;
@@ -59,9 +59,9 @@ import java.util.Map.Entry;
 @Deprecated
 public class OScriptDocumentDatabaseWrapper {
 
-  protected ODatabaseDocumentInternal database;
+  protected ODatabaseSessionInternal database;
 
-  public OScriptDocumentDatabaseWrapper(final ODatabaseDocumentInternal database) {
+  public OScriptDocumentDatabaseWrapper(final ODatabaseSessionInternal database) {
     this.database = database;
   }
 
@@ -292,10 +292,6 @@ public class OScriptDocumentDatabaseWrapper {
     return (RET) database.load(new ORecordId(iRidAsString));
   }
 
-  public <RET extends ORecord> RET load(ORecord iRecord) {
-    return (RET) database.load(iRecord);
-  }
-
   public <RET extends ORecord> RET load(ORecord iRecord, String iFetchPlan) {
     return (RET) database.load(iRecord, iFetchPlan);
   }
@@ -306,14 +302,6 @@ public class OScriptDocumentDatabaseWrapper {
 
   public ODatabase<?> setDatabaseOwner(ODatabaseInternal<?> iOwner) {
     return database.setDatabaseOwner(iOwner);
-  }
-
-  public void reload(ORecord iRecord) {
-    database.reload(iRecord, null, false);
-  }
-
-  public void reload(ORecord iRecord, String iFetchPlan, boolean iIgnoreCache) {
-    database.reload(iRecord, iFetchPlan, iIgnoreCache);
   }
 
   public Object setProperty(String iName, Object iValue) {

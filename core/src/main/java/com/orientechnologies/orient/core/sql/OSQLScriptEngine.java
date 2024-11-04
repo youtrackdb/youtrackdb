@@ -21,8 +21,8 @@
 package com.orientechnologies.orient.core.sql;
 
 import com.orientechnologies.orient.core.command.script.OCommandScript;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -75,7 +75,7 @@ public class OSQLScriptEngine implements ScriptEngine {
 
   @Override
   public Object eval(String script, Bindings n) throws ScriptException {
-    ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
     if (db == null) {
       throw new OCommandExecutionException("No database available in threadlocal");
     }

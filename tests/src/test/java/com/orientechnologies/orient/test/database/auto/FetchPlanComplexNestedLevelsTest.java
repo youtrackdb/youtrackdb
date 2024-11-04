@@ -21,16 +21,15 @@ import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test(groups = "query")
 public class FetchPlanComplexNestedLevelsTest extends DocumentDBBaseTest {
 
-  @Parameters(value = "url")
-  public FetchPlanComplexNestedLevelsTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public FetchPlanComplexNestedLevelsTest(boolean remote) {
+    super(remote);
   }
 
   @BeforeClass

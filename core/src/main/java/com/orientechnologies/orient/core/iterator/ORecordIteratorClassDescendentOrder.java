@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.iterator;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.ORecord;
 
 /**
@@ -31,8 +31,8 @@ public class ORecordIteratorClassDescendentOrder<REC extends ORecord>
     extends ORecordIteratorClass<REC> {
 
   public ORecordIteratorClassDescendentOrder(
-      ODatabaseDocumentInternal iDatabase,
-      ODatabaseDocumentInternal iLowLevelDatabase,
+      ODatabaseSessionInternal iDatabase,
+      ODatabaseSessionInternal iLowLevelDatabase,
       String iClassName,
       boolean iPolymorphic) {
     super(iDatabase, iClassName, iPolymorphic);

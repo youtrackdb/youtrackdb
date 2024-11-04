@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import com.orientechnologies.BaseMemoryDatabase;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentAbstract;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -44,7 +44,7 @@ public class ORecordSerializerBinaryDebugTest extends BaseMemoryDatabase {
 
     ORecordSerializerBinaryDebug debugger = new ORecordSerializerBinaryDebug();
     ORecordSerializationDebug debug =
-        debugger.deserializeDebug(bytes, (ODatabaseDocumentInternal) db);
+        debugger.deserializeDebug(bytes, (ODatabaseSessionInternal) db);
 
     assertEquals(debug.properties.size(), 3);
     assertEquals(debug.properties.get(0).name, "test");
@@ -74,7 +74,7 @@ public class ORecordSerializerBinaryDebugTest extends BaseMemoryDatabase {
 
     ORecordSerializerBinaryDebug debugger = new ORecordSerializerBinaryDebug();
     ORecordSerializationDebug debug =
-        debugger.deserializeDebug(bytes, (ODatabaseDocumentInternal) db);
+        debugger.deserializeDebug(bytes, (ODatabaseSessionInternal) db);
 
     assertEquals(debug.properties.size(), 3);
     assertEquals(debug.properties.get(0).name, "testP");
@@ -103,7 +103,7 @@ public class ORecordSerializerBinaryDebugTest extends BaseMemoryDatabase {
 
     ORecordSerializerBinaryDebug debugger = new ORecordSerializerBinaryDebug();
     ORecordSerializationDebug debug =
-        debugger.deserializeDebug(brokenBytes, (ODatabaseDocumentInternal) db);
+        debugger.deserializeDebug(brokenBytes, (ODatabaseSessionInternal) db);
 
     assertEquals(debug.properties.size(), 3);
     assertEquals(debug.properties.get(0).name, "test");
@@ -138,7 +138,7 @@ public class ORecordSerializerBinaryDebugTest extends BaseMemoryDatabase {
 
     ORecordSerializerBinaryDebug debugger = new ORecordSerializerBinaryDebug();
     ORecordSerializationDebug debug =
-        debugger.deserializeDebug(brokenBytes, (ODatabaseDocumentInternal) db);
+        debugger.deserializeDebug(brokenBytes, (ODatabaseSessionInternal) db);
 
     assertEquals(debug.properties.size(), 3);
     assertEquals(debug.properties.get(0).name, "testP");

@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -39,9 +38,9 @@ import org.testng.annotations.Test;
 @SuppressWarnings("unchecked")
 public class SQLLiveSelectTest extends AbstractSelectTest {
 
-  @Parameters(value = "url")
-  public SQLLiveSelectTest(@Optional String url) throws Exception {
-    super(url);
+  @Parameters(value = "remote")
+  public SQLLiveSelectTest(boolean remote) throws Exception {
+    super(remote);
   }
 
   @BeforeClass

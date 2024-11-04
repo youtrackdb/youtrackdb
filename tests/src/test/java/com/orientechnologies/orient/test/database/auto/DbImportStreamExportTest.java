@@ -17,7 +17,7 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
 import com.orientechnologies.orient.core.db.tool.ODatabaseExport;
@@ -28,13 +28,13 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import org.testng.Assert;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 // FIXME: let exporter version exports be 13 and check whether new stream processing is used.
 @Test(groups = {"db", "import-export"})
 public class DbImportStreamExportTest extends DocumentDBBaseTest implements OCommandOutputListener {
+
   public static final String EXPORT_FILE_PATH = "target/db.export.gz";
   public static final String NEW_DB_PATH = "target/test-import";
   public static final String NEW_DB_URL = "target/test-import";
@@ -44,17 +44,15 @@ public class DbImportStreamExportTest extends DocumentDBBaseTest implements OCom
   private boolean dumpMode = false;
 
   @Parameters(value = {"url", "testPath"})
-  public DbImportStreamExportTest(@Optional String url, String testPath) {
-    super(url);
+  public DbImportStreamExportTest(boolean remote, String testPath) {
+    super(remote);
     this.testPath = testPath;
     this.exportFilePath = System.getProperty("exportFilePath", EXPORT_FILE_PATH);
   }
 
   @Test
   public void testDbExport() throws IOException {
-    final ODatabaseDocumentInternal database = new ODatabaseDocumentTx(url);
-    database.open("admin", "admin");
-
+    final ODatabaseSessionInternal database = acquireSession();
     // ADD A CUSTOM TO THE CLASS
     database.command("alter class V custom onBeforeCreate=onBeforeCreateItem").close();
 
@@ -76,7 +74,7 @@ public class DbImportStreamExportTest extends DocumentDBBaseTest implements OCom
       importDir.mkdir();
     }
 
-    final ODatabaseDocumentInternal database =
+    final ODatabaseSessionInternal database =
         new ODatabaseDocumentTx(getStorageType() + ":" + testPath + "/" + NEW_DB_URL);
     database.create();
 
@@ -97,16 +95,15 @@ public class DbImportStreamExportTest extends DocumentDBBaseTest implements OCom
 
   @Test(dependsOnMethods = "testDbImport")
   public void testCompareDatabases() throws IOException {
-    if ("remote".equals(getStorageType()) || url.startsWith("remote:")) {
+    if (remoteDB) {
       final String env = getTestEnv();
       if (env == null || env.equals("dev")) {
         return;
       }
       // EXECUTES ONLY IF NOT REMOTE ON CI/RELEASE TEST ENV
     }
-    ODatabaseDocumentInternal first = new ODatabaseDocumentTx(url);
-    first.open("admin", "admin");
-    ODatabaseDocumentInternal second =
+    ODatabaseSessionInternal first = acquireSession();
+    ODatabaseSessionInternal second =
         new ODatabaseDocumentTx(getStorageType() + ":" + testPath + "/" + NEW_DB_URL);
     second.open("admin", "admin");
 

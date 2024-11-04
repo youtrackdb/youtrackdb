@@ -2,10 +2,10 @@ package com.orientechnologies.orient.core.metadata.schema;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.Orient;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
 import com.orientechnologies.orient.core.db.ODatabaseListener;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OSharedContext;
 import com.orientechnologies.orient.core.db.OSharedContextEmbedded;
 import com.orientechnologies.orient.core.db.viewmanager.ViewCreationListener;
@@ -36,7 +36,7 @@ public class OSchemaEmbedded extends OSchemaShared {
   }
 
   public OClass createClass(
-      ODatabaseDocumentInternal database,
+      ODatabaseSessionInternal database,
       final String className,
       int[] clusterIds,
       OClass... superClasses) {
@@ -65,7 +65,7 @@ public class OSchemaEmbedded extends OSchemaShared {
   }
 
   public OClass createClass(
-      ODatabaseDocumentInternal database,
+      ODatabaseSessionInternal database,
       final String className,
       int clusters,
       OClass... superClasses) {
@@ -82,7 +82,7 @@ public class OSchemaEmbedded extends OSchemaShared {
   }
 
   private OClass doCreateClass(
-      ODatabaseDocumentInternal database,
+      ODatabaseSessionInternal database,
       final String className,
       final int clusters,
       OClass... superClasses) {
@@ -135,7 +135,7 @@ public class OSchemaEmbedded extends OSchemaShared {
   }
 
   protected void doRealCreateClass(
-      ODatabaseDocumentInternal database,
+      ODatabaseSessionInternal database,
       String className,
       List<OClass> superClassesList,
       int[] clusterIds)
@@ -144,7 +144,7 @@ public class OSchemaEmbedded extends OSchemaShared {
   }
 
   protected OClass createClassInternal(
-      ODatabaseDocumentInternal database,
+      ODatabaseSessionInternal database,
       final String className,
       final int[] clusterIdsToAdd,
       final List<OClass> superClasses)
@@ -204,7 +204,7 @@ public class OSchemaEmbedded extends OSchemaShared {
 
   @Override
   public OView createView(
-      ODatabaseDocumentInternal database,
+      ODatabaseSessionInternal database,
       String viewName,
       String statement,
       Map<String, Object> metadata) {
@@ -291,12 +291,12 @@ public class OSchemaEmbedded extends OSchemaShared {
   }
 
   @Override
-  public OView createView(ODatabaseDocumentInternal database, OViewConfig cfg) {
+  public OView createView(ODatabaseSessionInternal database, OViewConfig cfg) {
     return createView(database, cfg, null);
   }
 
   public OView createView(
-      ODatabaseDocumentInternal database, OViewConfig cfg, ViewCreationListener listener) {
+      ODatabaseSessionInternal database, OViewConfig cfg, ViewCreationListener listener) {
     final Character wrongCharacter = OSchemaShared.checkClassNameIfValid(cfg.getName());
     if (wrongCharacter != null)
       throw new OSchemaException(
@@ -310,7 +310,7 @@ public class OSchemaEmbedded extends OSchemaShared {
   }
 
   private OView doCreateView(
-      ODatabaseDocumentInternal database, final OViewConfig config, ViewCreationListener listener) {
+      ODatabaseSessionInternal database, final OViewConfig config, ViewCreationListener listener) {
     OView result;
 
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_CREATE);
@@ -373,13 +373,13 @@ public class OSchemaEmbedded extends OSchemaShared {
   }
 
   protected void doRealCreateView(
-      ODatabaseDocumentInternal database, OViewConfig config, int[] clusterIds)
+      ODatabaseSessionInternal database, OViewConfig config, int[] clusterIds)
       throws ClusterIdsAreEmptyException {
     createViewInternal(database, config, clusterIds);
   }
 
   protected OClass createViewInternal(
-      ODatabaseDocumentInternal database, final OViewConfig cfg, final int[] clusterIdsToAdd)
+      ODatabaseSessionInternal database, final OViewConfig cfg, final int[] clusterIdsToAdd)
       throws ClusterIdsAreEmptyException {
     acquireSchemaWriteLock(database);
     try {
@@ -429,7 +429,7 @@ public class OSchemaEmbedded extends OSchemaShared {
   }
 
   public OClass getOrCreateClass(
-      ODatabaseDocumentInternal database, final String iClassName, final OClass... superClasses) {
+      ODatabaseSessionInternal database, final String iClassName, final OClass... superClasses) {
     if (iClassName == null) return null;
 
     acquireSchemaReadLock();
@@ -467,7 +467,7 @@ public class OSchemaEmbedded extends OSchemaShared {
   }
 
   protected OClass doCreateClass(
-      ODatabaseDocumentInternal database,
+      ODatabaseSessionInternal database,
       final String className,
       int[] clusterIds,
       int retry,
@@ -520,13 +520,13 @@ public class OSchemaEmbedded extends OSchemaShared {
     return result;
   }
 
-  private int[] createClusters(ODatabaseDocumentInternal database, final String iClassName) {
+  private int[] createClusters(ODatabaseSessionInternal database, final String iClassName) {
     return createClusters(
         database, iClassName, database.getStorageInfo().getConfiguration().getMinimumClusters());
   }
 
   protected int[] createClusters(
-      ODatabaseDocumentInternal database, String className, int minimumClusters) {
+      ODatabaseSessionInternal database, String className, int minimumClusters) {
     className = className.toLowerCase(Locale.ENGLISH);
 
     int[] clusterIds;
@@ -554,7 +554,7 @@ public class OSchemaEmbedded extends OSchemaShared {
   }
 
   private String getNextAvailableClusterName(
-      ODatabaseDocumentInternal database, final String className) {
+      ODatabaseSessionInternal database, final String className) {
     for (int i = 1; ; ++i) {
       final String clusterName = className + "_" + i;
       if (database.getClusterIdByName(clusterName) < 0)
@@ -578,7 +578,7 @@ public class OSchemaEmbedded extends OSchemaShared {
     }
   }
 
-  public void dropClass(ODatabaseDocumentInternal database, final String className) {
+  public void dropClass(ODatabaseSessionInternal database, final String className) {
     acquireSchemaWriteLock(database);
     try {
       if (database.getTransaction().isActive())
@@ -613,11 +613,11 @@ public class OSchemaEmbedded extends OSchemaShared {
     }
   }
 
-  protected void doDropClass(ODatabaseDocumentInternal database, String className) {
+  protected void doDropClass(ODatabaseSessionInternal database, String className) {
     dropClassInternal(database, className);
   }
 
-  protected void dropClassInternal(ODatabaseDocumentInternal database, final String className) {
+  protected void dropClassInternal(ODatabaseSessionInternal database, final String className) {
     acquireSchemaWriteLock(database);
     try {
       if (database.getTransaction().isActive())
@@ -672,7 +672,7 @@ public class OSchemaEmbedded extends OSchemaShared {
     }
   }
 
-  public void dropView(ODatabaseDocumentInternal database, final String name) {
+  public void dropView(ODatabaseSessionInternal database, final String name) {
     try {
       acquireSchemaWriteLock(database);
       if (database.getTransaction().isActive())
@@ -707,11 +707,11 @@ public class OSchemaEmbedded extends OSchemaShared {
     }
   }
 
-  protected void doDropView(ODatabaseDocumentInternal database, String name) {
+  protected void doDropView(ODatabaseSessionInternal database, String name) {
     dropViewInternal(database, name);
   }
 
-  protected void dropViewInternal(ODatabaseDocumentInternal database, final String view) {
+  protected void dropViewInternal(ODatabaseSessionInternal database, final String view) {
     acquireSchemaWriteLock(database);
     try {
       if (database.getTransaction().isActive())
@@ -770,14 +770,14 @@ public class OSchemaEmbedded extends OSchemaShared {
     return new OViewEmbedded(this, name);
   }
 
-  private void dropClassIndexes(ODatabaseDocumentInternal database, final OClass cls) {
+  private void dropClassIndexes(ODatabaseSessionInternal database, final OClass cls) {
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
     for (final OIndex index : indexManager.getClassIndexes(database, cls.getName()))
       indexManager.dropIndex(database, index.getName());
   }
 
-  private void deleteCluster(final ODatabaseDocumentInternal db, final int clusterId) {
+  private void deleteCluster(final ODatabaseSessionInternal db, final int clusterId) {
     final String clusterName = db.getClusterNameById(clusterId);
     if (clusterName != null) {
       final ORecordIteratorCluster<ODocument> iteratorCluster = db.browseCluster(clusterName);
@@ -814,7 +814,7 @@ public class OSchemaEmbedded extends OSchemaShared {
   public void checkEmbedded() {}
 
   void addClusterForClass(
-      ODatabaseDocumentInternal database, final int clusterId, final OClass cls) {
+      ODatabaseSessionInternal database, final int clusterId, final OClass cls) {
     acquireSchemaWriteLock(database);
     try {
       if (clusterId < 0) return;
@@ -835,8 +835,7 @@ public class OSchemaEmbedded extends OSchemaShared {
     }
   }
 
-  void addClusterForView(
-      ODatabaseDocumentInternal database, final int clusterId, final OView view) {
+  void addClusterForView(ODatabaseSessionInternal database, final int clusterId, final OView view) {
     acquireSchemaWriteLock(database);
     try {
       if (clusterId < 0) return;
@@ -857,7 +856,7 @@ public class OSchemaEmbedded extends OSchemaShared {
     }
   }
 
-  void removeClusterForClass(ODatabaseDocumentInternal database, int clusterId, OClass cls) {
+  void removeClusterForClass(ODatabaseSessionInternal database, int clusterId, OClass cls) {
     acquireSchemaWriteLock(database);
     try {
       if (clusterId < 0) return;
@@ -870,7 +869,7 @@ public class OSchemaEmbedded extends OSchemaShared {
     }
   }
 
-  void removeClusterForView(ODatabaseDocumentInternal database, int clusterId, OView view) {
+  void removeClusterForView(ODatabaseSessionInternal database, int clusterId, OView view) {
     acquireSchemaWriteLock(database);
     try {
       if (clusterId < 0) return;
@@ -883,7 +882,7 @@ public class OSchemaEmbedded extends OSchemaShared {
     }
   }
 
-  protected boolean isRunLocal(ODatabaseDocumentInternal database) {
+  protected boolean isRunLocal(ODatabaseSessionInternal database) {
     return true;
   }
 }

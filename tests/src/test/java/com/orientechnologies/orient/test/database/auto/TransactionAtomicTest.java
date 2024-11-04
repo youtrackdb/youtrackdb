@@ -18,9 +18,8 @@ package com.orientechnologies.orient.test.database.auto;
 import com.orientechnologies.orient.core.command.OCommandExecutor;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.db.ODatabase;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseListener;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.orientechnologies.orient.core.exception.OTransactionException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -31,25 +30,21 @@ import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
 import java.io.IOException;
 import org.testng.Assert;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test(groups = "dictionary")
 public class TransactionAtomicTest extends DocumentDBBaseTest {
 
-  @Parameters(value = "url")
-  public TransactionAtomicTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public TransactionAtomicTest(boolean remote) {
+    super(remote);
   }
 
   @Test
-  public void testTransactionAtomic() throws IOException {
-    ODatabaseDocumentInternal db1 = new ODatabaseDocumentTx(url);
-    db1.open("admin", "admin");
-
-    ODatabaseDocumentInternal db2 = new ODatabaseDocumentTx(url);
-    db2.open("admin", "admin");
+  public void testTransactionAtomic() {
+    ODatabaseSessionInternal db1 = acquireSession();
+    ODatabaseSessionInternal db2 = acquireSession();
 
     ODocument record1 = new ODocument();
 
@@ -60,12 +55,10 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
     db2.commit();
 
     // RE-READ THE RECORD
-    record1.reload();
-
     db2.activateOnCurrentThread();
+    db2.begin();
     ODocument record2 = db2.load(record1.getIdentity());
 
-    db2.begin();
     record2.field("value", "This is the second version").save();
     db2.commit();
 
@@ -74,10 +67,7 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
     db2.commit();
 
     db1.activateOnCurrentThread();
-    record1.reload(null, true);
-
     Assert.assertEquals(record1.field("value"), "This is the third version");
-
     db1.close();
 
     db2.activateOnCurrentThread();
@@ -102,7 +92,7 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
       database.begin();
       doc.save();
       database.commit();
-      Assert.assertTrue(false);
+      Assert.fail();
     } catch (OConcurrentModificationException e) {
       Assert.assertTrue(true);
     }
@@ -243,14 +233,13 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
     long prev = database.countClass("Account");
 
     database.begin();
-
     database
         .command(new OCommandSQL("transactional insert into Account set name = 'txTest2'"))
         .execute();
 
     Assert.assertTrue(database.getTransaction().isActive());
 
-    if (!url.startsWith("remote")) {
+    if (!remoteDB) {
       Assert.assertEquals(database.countClass("Account"), prev + 1);
     }
 

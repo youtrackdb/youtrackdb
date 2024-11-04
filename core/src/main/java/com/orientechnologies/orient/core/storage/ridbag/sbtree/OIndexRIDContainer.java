@@ -21,8 +21,8 @@
 package com.orientechnologies.orient.core.storage.ridbag.sbtree;
 
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
@@ -218,7 +218,7 @@ public class OIndexRIDContainer implements Set<OIdentifiable> {
   }
 
   private void convertToSbTree() {
-    final ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().get();
+    final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
     final OIndexRIDContainerSBTree tree =
         new OIndexRIDContainerSBTree(fileId, (OAbstractPaginatedStorage) db.getStorage());
 

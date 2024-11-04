@@ -26,8 +26,8 @@ import com.orientechnologies.common.serialization.types.OLongSerializer;
 import com.orientechnologies.common.types.OModifiableInteger;
 import com.orientechnologies.common.util.OResettable;
 import com.orientechnologies.common.util.OSizeable;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OAutoConvertToRecord;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
@@ -729,7 +729,7 @@ public class OSBTreeRidBag implements ORidBagDelegate {
   }
 
   private void rearrangeChanges() {
-    ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
     for (Entry<OIdentifiable, Change> change : this.changes.entrySet()) {
       OIdentifiable key = change.getKey();
       if (db != null && db.getTransaction().isActive()) {
@@ -757,7 +757,7 @@ public class OSBTreeRidBag implements ORidBagDelegate {
 
     final ORecordSerializationContext context;
 
-    final ODatabaseDocumentInternal databaseDocumentInternal =
+    final ODatabaseSessionInternal databaseDocumentInternal =
         ODatabaseRecordThreadLocal.instance().get();
     var tx = databaseDocumentInternal.getTransaction();
     if (!(tx instanceof OTransactionOptimistic optimisticTx)) {

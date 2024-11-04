@@ -19,8 +19,8 @@
  */
 package com.orientechnologies.orient.core.metadata.security;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -36,7 +36,7 @@ public class OSecurityProxy implements OSecurity {
   private ODatabaseSession session;
   private OSecurityInternal security;
 
-  public OSecurityProxy(OSecurityInternal security, ODatabaseDocumentInternal session) {
+  public OSecurityProxy(OSecurityInternal security, ODatabaseSessionInternal session) {
     this.security = security;
     this.session = session;
   }

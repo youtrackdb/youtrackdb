@@ -26,16 +26,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 import org.testng.Assert;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test(groups = "function")
 public class FunctionsTest extends DocumentDBBaseTest {
 
-  @Parameters(value = "url")
-  public FunctionsTest(@Optional String iURL) {
-    super(iURL);
+  @Parameters(value = "remote")
+  public FunctionsTest(boolean remote) {
+    super(remote);
   }
 
   @Test
@@ -48,13 +47,13 @@ public class FunctionsTest extends DocumentDBBaseTest {
                         + " true LANGUAGE Javascript"))
             .execute();
 
+    database.begin();
     final ODocument record = result.getRecord();
-    record.reload();
-
     final List<String> parameters = record.field("parameters");
 
     Assert.assertNotNull(parameters);
     Assert.assertEquals(parameters.size(), 2);
+    database.rollback();
   }
 
   @Test
@@ -117,12 +116,13 @@ public class FunctionsTest extends DocumentDBBaseTest {
       threads[i].start();
     }
 
-    for (int i = 0; i < threadNum; ++i)
+    for (int i = 0; i < threadNum; ++i) {
       try {
         threads[i].join();
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
+    }
 
     Assert.assertEquals(counter.get(), (long) threadNum * TOT);
   }

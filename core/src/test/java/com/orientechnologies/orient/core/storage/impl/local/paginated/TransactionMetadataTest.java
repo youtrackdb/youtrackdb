@@ -4,8 +4,8 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
@@ -59,7 +59,7 @@ public class TransactionMetadataTest {
             OrientDBConfig.defaultConfig());
     ODatabaseSession db1 = orientDB.open(DB_NAME + "_re", "admin", "admin");
     Optional<byte[]> fromStorage =
-        ((OAbstractPaginatedStorage) ((ODatabaseDocumentInternal) db1).getStorage())
+        ((OAbstractPaginatedStorage) ((ODatabaseSessionInternal) db1).getStorage())
             .getLastMetadata();
     assertTrue(fromStorage.isPresent());
     assertArrayEquals(fromStorage.get(), metadata);

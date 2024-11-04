@@ -3,7 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -89,7 +89,7 @@ public class OAlterClusterStatement extends ODDLStatement {
                             + "'. Supported attributes are: "
                             + noDeprecatedValues(OCluster.ATTRIBUTES.values())));
 
-    final OStorage storage = ((ODatabaseDocumentInternal) ctx.getDatabase()).getStorage();
+    final OStorage storage = ((ODatabaseSessionInternal) ctx.getDatabase()).getStorage();
     for (final int clusterId : clustersToUpdate) {
       storage.setClusterAttribute(clusterId, attribute, finalValue);
 
@@ -120,7 +120,7 @@ public class OAlterClusterStatement extends ODDLStatement {
   }
 
   private IntArrayList getClusters(OCommandContext ctx) {
-    ODatabaseDocumentInternal database = (ODatabaseDocumentInternal) ctx.getDatabase();
+    ODatabaseSessionInternal database = (ODatabaseSessionInternal) ctx.getDatabase();
     if (starred) {
       IntArrayList result = new IntArrayList();
       for (String clusterName : database.getClusterNames()) {

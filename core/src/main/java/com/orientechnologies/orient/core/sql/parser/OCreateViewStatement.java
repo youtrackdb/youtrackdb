@@ -4,7 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OViewConfig;
@@ -53,7 +53,7 @@ public class OCreateViewStatement extends ODDLStatement {
     result.setProperty("viewName", name.getStringValue());
 
     schema.createView(
-        (ODatabaseDocumentInternal) ctx.getDatabase(),
+        (ODatabaseSessionInternal) ctx.getDatabase(),
         name.getStringValue(),
         statement.toString(),
         metadata == null ? new HashMap<>() : metadata.toMap(new OResultInternal(), ctx));

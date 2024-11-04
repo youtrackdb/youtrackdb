@@ -24,8 +24,8 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.util.OCollections;
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.collate.ODefaultCollate;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OSchemaException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
@@ -186,7 +186,7 @@ public abstract class OPropertyImpl implements OProperty {
    */
   @Deprecated
   public OPropertyImpl dropIndexes() {
-    final ODatabaseDocumentInternal database = getDatabase();
+    final ODatabaseSessionInternal database = getDatabase();
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_DELETE);
 
     acquireSchemaReadLock();
@@ -728,7 +728,7 @@ public abstract class OPropertyImpl implements OProperty {
           "'Internal' schema modification methods can be used only inside of embedded database");
   }
 
-  protected ODatabaseDocumentInternal getDatabase() {
+  protected ODatabaseSessionInternal getDatabase() {
     return ODatabaseRecordThreadLocal.instance().get();
   }
 
@@ -756,7 +756,7 @@ public abstract class OPropertyImpl implements OProperty {
   }
 
   protected boolean isDistributedCommand() {
-    return !((ODatabaseDocumentInternal) getDatabase()).isLocalEnv();
+    return !((ODatabaseSessionInternal) getDatabase()).isLocalEnv();
   }
 
   @Override

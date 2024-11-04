@@ -63,9 +63,9 @@ import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.OCachedDatabasePoolFactory;
 import com.orientechnologies.orient.core.db.OCachedDatabasePoolFactoryImpl;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabasePoolImpl;
 import com.orientechnologies.orient.core.db.ODatabasePoolInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseTask;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OSharedContext;
@@ -155,12 +155,12 @@ public class OrientDBRemote implements OrientDBInternal {
     return String.join(ADDRESS_SEPARATOR, hosts) + "/" + name;
   }
 
-  public ODatabaseDocumentInternal open(String name, String user, String password) {
+  public ODatabaseSessionInternal open(String name, String user, String password) {
     return open(name, user, password, null);
   }
 
   @Override
-  public ODatabaseDocumentInternal open(
+  public ODatabaseSessionInternal open(
       String name, String user, String password, OrientDBConfig config) {
     checkOpen();
     OrientDBConfig resolvedConfig = solveConfig(config);
@@ -184,7 +184,7 @@ public class OrientDBRemote implements OrientDBInternal {
   }
 
   @Override
-  public ODatabaseDocumentInternal open(
+  public ODatabaseSessionInternal open(
       OAuthenticationInfo authenticationInfo, OrientDBConfig config) {
     throw new UnsupportedOperationException();
   }
@@ -478,7 +478,7 @@ public class OrientDBRemote implements OrientDBInternal {
   }
 
   @Override
-  public ODatabaseDocumentInternal openNoAuthenticate(String iDbUrl, String user) {
+  public ODatabaseSessionInternal openNoAuthenticate(String iDbUrl, String user) {
     throw new UnsupportedOperationException(
         "Open with no authentication is not supported in remote");
   }
@@ -510,7 +510,7 @@ public class OrientDBRemote implements OrientDBInternal {
   }
 
   @Override
-  public ODatabaseDocumentInternal openNoAuthorization(String name) {
+  public ODatabaseSessionInternal openNoAuthorization(String name) {
     throw new UnsupportedOperationException(
         "impossible skip authentication and authorization in remote");
   }

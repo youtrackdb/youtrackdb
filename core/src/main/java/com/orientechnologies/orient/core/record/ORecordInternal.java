@@ -20,7 +20,7 @@
 
 package com.orientechnologies.orient.core.record;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.id.ORID;
@@ -52,14 +52,14 @@ public class ORecordInternal {
       final int iVersion,
       final byte[] iBuffer,
       final boolean iDirty,
-      ODatabaseDocumentInternal db) {
+      ODatabaseSessionInternal db) {
     final ORecordAbstract rec = (ORecordAbstract) record;
     rec.fill(iRid, iVersion, iBuffer, iDirty, db);
     return rec;
   }
 
   public static void fromStream(
-      final ORecord record, final byte[] iBuffer, ODatabaseDocumentInternal db) {
+      final ORecord record, final byte[] iBuffer, ODatabaseSessionInternal db) {
     final ORecordAbstract rec = (ORecordAbstract) record;
     rec.fromStream(iBuffer, db);
   }

@@ -17,7 +17,6 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -28,9 +27,9 @@ import org.testng.annotations.Test;
 @Test
 public class LinkBagIndexTest extends DocumentDBBaseTest {
 
-  @Parameters(value = "url")
-  public LinkBagIndexTest(@Optional final String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public LinkBagIndexTest(boolean remote) {
+    super(remote);
   }
 
   @BeforeClass
@@ -48,8 +47,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
   @AfterClass
   public void destroySchema() {
     if (database.isClosed()) {
-      //noinspection deprecation
-      database.open("admin", "admin");
+      database = acquireSession();
     }
 
     database.getMetadata().getSchema().dropClass("RidBagIndexTestClass");
@@ -713,8 +711,9 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     OResult res = result.next();
 
     List<OIdentifiable> listResult = new ArrayList<>();
-    for (OIdentifiable identifiable : res.<ORidBag>getProperty("ridBag"))
+    for (OIdentifiable identifiable : res.<ORidBag>getProperty("ridBag")) {
       listResult.add(identifiable);
+    }
     result.close();
 
     Assert.assertEquals(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity()), listResult);

@@ -28,16 +28,15 @@ import java.util.Set;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test(groups = "query")
 public class FetchPlanTest extends DocumentDBBaseTest {
 
-  @Parameters(value = "url")
-  public FetchPlanTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public FetchPlanTest(boolean remote) {
+    super(remote);
   }
 
   @BeforeMethod

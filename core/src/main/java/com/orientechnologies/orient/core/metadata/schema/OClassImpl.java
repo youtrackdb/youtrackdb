@@ -23,10 +23,10 @@ import com.orientechnologies.common.listener.OProgressListener;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.OArrays;
 import com.orientechnologies.common.util.OCommonConst;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OSchemaException;
 import com.orientechnologies.orient.core.exception.OSecurityAccessException;
@@ -128,7 +128,7 @@ public abstract class OClassImpl implements OClass {
   }
 
   public static int[] readableClusters(
-      final ODatabaseDocumentInternal db, final int[] iClusterIds, String className) {
+      final ODatabaseSessionInternal db, final int[] iClusterIds, String className) {
     IntArrayList listOfReadableIds = new IntArrayList();
 
     boolean all = true;
@@ -674,7 +674,7 @@ public abstract class OClassImpl implements OClass {
   }
 
   protected void truncateClusterInternal(
-      final String clusterName, final ODatabaseDocumentInternal database) {
+      final String clusterName, final ODatabaseSessionInternal database) {
     database.truncateCluster(clusterName);
   }
 
@@ -859,7 +859,7 @@ public abstract class OClassImpl implements OClass {
    * Truncates all the clusters the class uses.
    */
   public void truncate() {
-    ODatabaseDocumentInternal db = getDatabase();
+    ODatabaseSessionInternal db = getDatabase();
     db.truncateClass(name, false);
   }
 
@@ -1205,7 +1205,7 @@ public abstract class OClassImpl implements OClass {
 
   public Set<OIndex> getClassInvolvedIndexes(final Collection<String> fields) {
 
-    final ODatabaseDocumentInternal database = getDatabase();
+    final ODatabaseSessionInternal database = getDatabase();
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
     acquireSchemaReadLock();
@@ -1223,7 +1223,7 @@ public abstract class OClassImpl implements OClass {
   public OIndex getClassIndex(final String name) {
     acquireSchemaReadLock();
     try {
-      final ODatabaseDocumentInternal database = getDatabase();
+      final ODatabaseSessionInternal database = getDatabase();
       return database
           .getMetadata()
           .getIndexManagerInternal()
@@ -1236,7 +1236,7 @@ public abstract class OClassImpl implements OClass {
   public Set<OIndex> getClassIndexes() {
     acquireSchemaReadLock();
     try {
-      final ODatabaseDocumentInternal database = getDatabase();
+      final ODatabaseSessionInternal database = getDatabase();
       final OIndexManagerAbstract idxManager = database.getMetadata().getIndexManagerInternal();
       if (idxManager == null) {
         return new HashSet<>();
@@ -1252,7 +1252,7 @@ public abstract class OClassImpl implements OClass {
   public void getClassIndexes(final Collection<OIndex> indexes) {
     acquireSchemaReadLock();
     try {
-      final ODatabaseDocumentInternal database = getDatabase();
+      final ODatabaseSessionInternal database = getDatabase();
       final OIndexManagerAbstract idxManager = database.getMetadata().getIndexManagerInternal();
       if (idxManager == null) {
         return;
@@ -1266,7 +1266,7 @@ public abstract class OClassImpl implements OClass {
 
   @Override
   public OIndex getAutoShardingIndex() {
-    final ODatabaseDocumentInternal db = getDatabase();
+    final ODatabaseSessionInternal db = getDatabase();
     return db != null
         ? db.getMetadata().getIndexManagerInternal().getClassAutoShardingIndex(db, name)
         : null;
@@ -1575,7 +1575,7 @@ public abstract class OClassImpl implements OClass {
     oldName = oldName.toLowerCase(Locale.ENGLISH);
     newName = newName.toLowerCase(Locale.ENGLISH);
 
-    final ODatabaseDocumentInternal database = getDatabase();
+    final ODatabaseSessionInternal database = getDatabase();
 
     if (database.getClusterIdByName(newName) != -1) {
       return;
@@ -1783,7 +1783,7 @@ public abstract class OClassImpl implements OClass {
     }
   }
 
-  protected ODatabaseDocumentInternal getDatabase() {
+  protected ODatabaseSessionInternal getDatabase() {
     return ODatabaseRecordThreadLocal.instance().get();
   }
 

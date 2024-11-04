@@ -25,7 +25,7 @@ import com.orientechnologies.orient.core.command.OCommandDistributedReplicateReq
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.command.OCommandResultListener;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.OQueryParsingException;
@@ -144,7 +144,7 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
       }
 
       if (clusterName != null && className == null) {
-        ODatabaseDocumentInternal db = getDatabase();
+        ODatabaseSessionInternal db = getDatabase();
         final int clusterId = db.getClusterIdByName(clusterName);
         if (clusterId >= 0) {
           clazz = db.getMetadata().getSchema().getClassByClusterId(clusterId);
@@ -224,7 +224,7 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
    * Execute the INSERT and return the ODocument object created.
    */
   public Object execute(final Map<Object, Object> iArgs) {
-    final ODatabaseDocumentInternal database = getDatabase();
+    final ODatabaseSessionInternal database = getDatabase();
     if (newRecords == null && content == null && subQuery == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");

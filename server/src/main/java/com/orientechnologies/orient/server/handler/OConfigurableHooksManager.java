@@ -23,9 +23,9 @@ package com.orientechnologies.orient.server.handler;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.db.ODatabase;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.hook.ORecordHook;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -76,7 +76,7 @@ public class OConfigurableHooksManager implements ODatabaseLifecycleListener {
   }
 
   public void onOpen(ODatabaseInternal iDatabase) {
-    if (!((ODatabaseDocumentInternal) iDatabase).isRemote()) {
+    if (!((ODatabaseSessionInternal) iDatabase).isRemote()) {
       final ODatabase<?> db = (ODatabase<?>) iDatabase;
       for (OServerHookConfiguration hook : configuredHooks) {
         try {

@@ -24,8 +24,8 @@ import com.orientechnologies.common.parser.OBaseParser;
 import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -160,7 +160,7 @@ public class OSQLFilterItemField extends OSQLFilterItemAbstract {
     BytesContainer serialized = new BytesContainer(rec.toStream());
     byte version = serialized.bytes[serialized.offset++];
     ODocumentSerializer serializer = ORecordSerializerBinary.INSTANCE.getSerializer(version);
-    ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().get();
+    ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
 
     // check for embedded objects, they have invalid ID and they are serialized with class name
     return serializer.deserializeField(

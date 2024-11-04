@@ -19,16 +19,15 @@ import java.util.Map;
 import java.util.Set;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test
 public class DocumentTrackingTest extends DocumentDBBaseTest {
 
-  @Parameters(value = "url")
-  public DocumentTrackingTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public DocumentTrackingTest(boolean remote) {
+    super(remote);
   }
 
   @BeforeClass
@@ -962,31 +961,6 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     ORecordInternal.unsetDirty(document);
 
     Assert.assertFalse(document.isDirty());
-  }
-
-  public void testReload() {
-    final ODocument document = new ODocument("DocumentTrackingTestClass");
-
-    final List<String> list = new ArrayList<String>();
-    list.add("value1");
-
-    database.begin();
-    document.field("embeddedlist", list);
-    document.field("val", 1);
-    document.save();
-    database.commit();
-
-    Assert.assertEquals(document.getDirtyFields(), new String[] {});
-    Assert.assertFalse(document.isDirty());
-
-    final List<String> trackedList = document.field("embeddedlist");
-    trackedList.add("value2");
-
-    document.reload();
-
-    Assert.assertEquals(document.getDirtyFields(), new String[] {});
-    Assert.assertFalse(document.isDirty());
-    Assert.assertNull(document.getCollectionTimeLine("embeddedlist"));
   }
 
   public void testRemoveFieldUsingIterator() {

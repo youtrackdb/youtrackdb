@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.storage.ridbag.sbtree;
 
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
@@ -76,7 +76,7 @@ public class OSBTreeRidBagConcurrencyMultiRidBag {
 
   @Test
   public void testConcurrency() throws Exception {
-    ODatabaseDocumentInternal db = new ODatabaseDocumentTx(URL);
+    ODatabaseSessionInternal db = new ODatabaseDocumentTx(URL);
     if (db.exists()) {
       db.open("admin", "admin");
       db.drop();
@@ -144,7 +144,7 @@ public class OSBTreeRidBagConcurrencyMultiRidBag {
   public final class DocumentAdder implements Runnable {
     @Override
     public void run() {
-      ODatabaseDocumentInternal db = new ODatabaseDocumentTx(URL);
+      ODatabaseSessionInternal db = new ODatabaseDocumentTx(URL);
       db.open("admin", "admin");
 
       try {
@@ -184,7 +184,7 @@ public class OSBTreeRidBagConcurrencyMultiRidBag {
       long addedRecords = 0;
       int retries = 0;
 
-      ODatabaseDocumentInternal db = new ODatabaseDocumentTx(URL);
+      ODatabaseSessionInternal db = new ODatabaseDocumentTx(URL);
       db.open("admin", "admin");
 
       final int defaultClusterId = db.getDefaultClusterId();
@@ -252,7 +252,7 @@ public class OSBTreeRidBagConcurrencyMultiRidBag {
       long deletedRecords = 0;
       int retries = 0;
 
-      ODatabaseDocumentInternal db = new ODatabaseDocumentTx(URL);
+      ODatabaseSessionInternal db = new ODatabaseDocumentTx(URL);
       db.open("admin", "admin");
 
       final int defaultClusterId = db.getDefaultClusterId();

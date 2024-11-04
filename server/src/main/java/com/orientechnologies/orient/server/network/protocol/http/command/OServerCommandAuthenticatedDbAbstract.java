@@ -22,8 +22,8 @@ package com.orientechnologies.orient.server.network.protocol.http.command;
 import com.orientechnologies.common.concur.lock.OLockException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.exception.OSecurityAccessException;
 import com.orientechnologies.orient.core.id.ORID;
@@ -262,7 +262,7 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
     }
   }
 
-  protected ODatabaseDocumentInternal getProfiledDatabaseInstance(final OHttpRequest iRequest)
+  protected ODatabaseSessionInternal getProfiledDatabaseInstance(final OHttpRequest iRequest)
       throws InterruptedException {
     if (iRequest.getBearerToken() != null) {
       return getProfiledDatabaseInstanceToken(iRequest);
@@ -271,11 +271,11 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
     }
   }
 
-  protected ODatabaseDocumentInternal getProfiledDatabaseInstanceToken(final OHttpRequest iRequest)
+  protected ODatabaseSessionInternal getProfiledDatabaseInstanceToken(final OHttpRequest iRequest)
       throws InterruptedException {
     // after authentication, if current login user is different compare with current DB user, reset
     // DB user to login user
-    ODatabaseDocumentInternal localDatabase = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    ODatabaseSessionInternal localDatabase = ODatabaseRecordThreadLocal.instance().getIfDefined();
     if (localDatabase == null) {
       localDatabase = server.openDatabase(iRequest.getDatabaseName(), iRequest.getBearerToken());
     } else {
@@ -291,10 +291,10 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
     iRequest.getData().lastDatabase = localDatabase.getName();
     iRequest.getData().lastUser =
         localDatabase.getUser() != null ? localDatabase.getUser().getName() : null;
-    return (ODatabaseDocumentInternal) localDatabase.getDatabaseOwner();
+    return (ODatabaseSessionInternal) localDatabase.getDatabaseOwner();
   }
 
-  protected ODatabaseDocumentInternal getProfiledDatabaseInstanceBasic(final OHttpRequest iRequest)
+  protected ODatabaseSessionInternal getProfiledDatabaseInstanceBasic(final OHttpRequest iRequest)
       throws InterruptedException {
     final OHttpSession session = server.getHttpSessionManager().getSession(iRequest.getSessionId());
 
@@ -303,7 +303,7 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
 
     // after authentication, if current login user is different compare with current DB user, reset
     // DB user to login user
-    ODatabaseDocumentInternal localDatabase = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    ODatabaseSessionInternal localDatabase = ODatabaseRecordThreadLocal.instance().getIfDefined();
 
     if (localDatabase == null) {
       localDatabase =
@@ -327,7 +327,7 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
     iRequest.getData().lastUser =
         localDatabase.getUser() != null ? localDatabase.getUser().getName() : null;
     iRequest.getExecutor().setDatabase(localDatabase);
-    return (ODatabaseDocumentInternal) localDatabase.getDatabaseOwner();
+    return (ODatabaseSessionInternal) localDatabase.getDatabaseOwner();
   }
 
   private void init() {

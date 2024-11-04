@@ -165,7 +165,7 @@ public interface OrientDBInternal extends AutoCloseable, OSchedulerInternal {
    * @param password related to the specified username
    * @return the opened database
    */
-  ODatabaseDocumentInternal open(String name, String user, String password);
+  ODatabaseSessionInternal open(String name, String user, String password);
 
   /**
    * Open a database specified by name using the username and password if needed, with specific
@@ -178,7 +178,7 @@ public interface OrientDBInternal extends AutoCloseable, OSchedulerInternal {
    *     needed.
    * @return the opened database
    */
-  ODatabaseDocumentInternal open(String name, String user, String password, OrientDBConfig config);
+  ODatabaseSessionInternal open(String name, String user, String password, OrientDBConfig config);
 
   /**
    * Open a database specified by name using the authentication info provided, with specific
@@ -189,7 +189,7 @@ public interface OrientDBInternal extends AutoCloseable, OSchedulerInternal {
    *     needed.
    * @return the opened database
    */
-  ODatabaseDocumentInternal open(OAuthenticationInfo authenticationInfo, OrientDBConfig config);
+  ODatabaseSessionInternal open(OAuthenticationInfo authenticationInfo, OrientDBConfig config);
 
   /**
    * Create a new database
@@ -274,7 +274,7 @@ public interface OrientDBInternal extends AutoCloseable, OSchedulerInternal {
       String database, String user, String password, OrientDBConfig config);
 
   /** Internal api for request to open a database with a pool */
-  ODatabaseDocumentInternal poolOpen(
+  ODatabaseSessionInternal poolOpen(
       String name, String user, String password, ODatabasePoolInternal pool);
 
   void restore(
@@ -318,9 +318,9 @@ public interface OrientDBInternal extends AutoCloseable, OSchedulerInternal {
     return orientDB.serverUser;
   }
 
-  ODatabaseDocumentInternal openNoAuthenticate(String iDbUrl, String user);
+  ODatabaseSessionInternal openNoAuthenticate(String iDbUrl, String user);
 
-  ODatabaseDocumentInternal openNoAuthorization(String name);
+  ODatabaseSessionInternal openNoAuthorization(String name);
 
   void initCustomStorage(String name, String baseUrl, String userName, String userPassword);
 

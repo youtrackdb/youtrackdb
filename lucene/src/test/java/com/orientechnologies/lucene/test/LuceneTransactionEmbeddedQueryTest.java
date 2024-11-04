@@ -18,7 +18,7 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.id.ORID;
@@ -46,7 +46,7 @@ public class LuceneTransactionEmbeddedQueryTest {
   public void testRollback() {
 
     @SuppressWarnings("deprecation")
-    ODatabaseDocumentInternal db = new ODatabaseDocumentTx("memory:updateTxTest");
+    ODatabaseSessionInternal db = new ODatabaseDocumentTx("memory:updateTxTest");
     db.create();
     createSchema(db);
     try {
@@ -78,7 +78,7 @@ public class LuceneTransactionEmbeddedQueryTest {
   @Test
   public void txRemoveTest() {
     @SuppressWarnings("deprecation")
-    ODatabaseDocumentInternal db = new ODatabaseDocumentTx("memory:updateTxTest");
+    ODatabaseSessionInternal db = new ODatabaseDocumentTx("memory:updateTxTest");
     //noinspection deprecation
     db.create();
     createSchema(db);
@@ -147,7 +147,7 @@ public class LuceneTransactionEmbeddedQueryTest {
   public void txUpdateTest() {
 
     @SuppressWarnings("deprecation")
-    ODatabaseDocumentInternal db = new ODatabaseDocumentTx("memory:updateTxTest");
+    ODatabaseSessionInternal db = new ODatabaseDocumentTx("memory:updateTxTest");
     //noinspection deprecation
     db.create();
     createSchema(db);
@@ -240,7 +240,7 @@ public class LuceneTransactionEmbeddedQueryTest {
   public void txUpdateTestComplex() {
 
     @SuppressWarnings("deprecation")
-    ODatabaseDocumentInternal db = new ODatabaseDocumentTx("memory:updateTxTest");
+    ODatabaseSessionInternal db = new ODatabaseDocumentTx("memory:updateTxTest");
     //noinspection deprecation
     db.create();
     createSchema(db);

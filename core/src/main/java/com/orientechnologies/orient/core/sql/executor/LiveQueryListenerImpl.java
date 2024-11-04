@@ -53,7 +53,7 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
     if (query.trim().toLowerCase().startsWith("live ")) {
       query = query.trim().substring(5);
     }
-    OStatement stm = OSQLEngine.parse(query, (ODatabaseDocumentInternal) db);
+    OStatement stm = OSQLEngine.parse(query, (ODatabaseSessionInternal) db);
     if (!(stm instanceof OSelectStatement)) {
       throw new OCommandExecutionException(
           "Only SELECT statement can be used as a live query: " + query);
@@ -62,7 +62,7 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
     validateStatement(statement);
     if (statement.getTarget().getItem().getIdentifier() != null) {
       this.className = statement.getTarget().getItem().getIdentifier().getStringValue();
-      if (!((ODatabaseDocumentInternal) db)
+      if (!((ODatabaseSessionInternal) db)
           .getMetadata()
           .getImmutableSchemaSnapshot()
           .existsClass(className)) {
@@ -79,7 +79,7 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
         new OCallable() {
           @Override
           public Object call(Object iArgument) {
-            return execDb = ((ODatabaseDocumentInternal) db).copy();
+            return execDb = ((ODatabaseSessionInternal) db).copy();
           }
         });
 
@@ -184,7 +184,7 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
         return false;
       } else if (!(className.equalsIgnoreCase(recordClassName))) {
         OClass recordClass =
-            ((ODatabaseDocumentInternal) this.execDb)
+            ((ODatabaseSessionInternal) this.execDb)
                 .getMetadata()
                 .getImmutableSchemaSnapshot()
                 .getClass(recordClassName);
@@ -249,7 +249,7 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
   }
 
   protected void execInSeparateDatabase(final OCallable iCallback) {
-    final ODatabaseDocumentInternal prevDb = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    final ODatabaseSessionInternal prevDb = ODatabaseRecordThreadLocal.instance().getIfDefined();
     try {
       iCallback.call(null);
     } finally {

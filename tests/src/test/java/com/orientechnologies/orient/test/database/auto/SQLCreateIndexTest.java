@@ -19,7 +19,6 @@ import java.util.Arrays;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -29,16 +28,14 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
   private static final OType EXPECTED_PROP1_TYPE = OType.DOUBLE;
   private static final OType EXPECTED_PROP2_TYPE = OType.INTEGER;
 
-  @Parameters(value = "url")
-  public SQLCreateIndexTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public SQLCreateIndexTest(boolean remote) {
+    super(remote);
   }
 
   @BeforeClass
   public void beforeClass() throws Exception {
     super.beforeClass();
-
-    if (database.isClosed()) database.open("admin", "admin");
 
     final OSchema schema = database.getMetadata().getSchema();
     final OClass oClass = schema.createClass("sqlCreateIndexTestClass");
@@ -50,18 +47,18 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
     oClass.createProperty("prop7", OType.EMBEDDEDMAP);
     oClass.createProperty("prop8", OType.INTEGER);
     oClass.createProperty("prop9", OType.LINKBAG);
-
-    database.close();
   }
 
   @AfterClass
   public void afterClass() throws Exception {
-    if (database.isClosed()) database.open("admin", "admin");
+    if (database.isClosed()) {
+      database = createSessionInstance();
+    }
 
     database.command("delete from sqlCreateIndexTestClass").close();
     database.command("drop class sqlCreateIndexTestClass").close();
-    database.getMetadata().getSchema().reload();
-    database.close();
+
+    super.afterClass();
   }
 
   @Test
@@ -487,7 +484,9 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
                       + " ON"));
 
       Throwable cause = e;
-      while (cause.getCause() != null) cause = cause.getCause();
+      while (cause.getCause() != null) {
+        cause = cause.getCause();
+      }
 
       Assert.assertEquals(cause.getClass(), IllegalArgumentException.class);
     }

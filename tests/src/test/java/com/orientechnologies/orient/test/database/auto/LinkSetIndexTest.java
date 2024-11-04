@@ -17,7 +17,6 @@ import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 
 /**
@@ -26,9 +25,9 @@ import org.testng.annotations.Parameters;
  */
 @SuppressWarnings("deprecation")
 public class LinkSetIndexTest extends DocumentDBBaseTest {
-  @Parameters(value = "url")
-  public LinkSetIndexTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public LinkSetIndexTest(boolean remote) {
+    super(remote);
   }
 
   @BeforeClass
@@ -44,7 +43,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
 
   @BeforeMethod
   public void beforeMethod() {
-    database.open("admin", "admin");
+    database = createSessionInstance();
   }
 
   @AfterMethod

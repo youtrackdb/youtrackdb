@@ -3,8 +3,8 @@ package com.orientechnologies.orient.core.storage;
 import com.orientechnologies.orient.core.OConstants;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabase;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OSharedContext;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
@@ -70,9 +70,9 @@ public class OStorageTestIT {
     }
 
     OLocalPaginatedStorage storage =
-        (OLocalPaginatedStorage) ((ODatabaseDocumentInternal) session).getStorage();
+        (OLocalPaginatedStorage) ((ODatabaseSessionInternal) session).getStorage();
     OWriteCache wowCache = storage.getWriteCache();
-    OSharedContext ctx = ((ODatabaseDocumentInternal) session).getSharedContext();
+    OSharedContext ctx = ((ODatabaseSessionInternal) session).getSharedContext();
     session.close();
 
     final Path storagePath = storage.getStoragePath();
@@ -134,9 +134,9 @@ public class OStorageTestIT {
     }
 
     OLocalPaginatedStorage storage =
-        (OLocalPaginatedStorage) ((ODatabaseDocumentInternal) session).getStorage();
+        (OLocalPaginatedStorage) ((ODatabaseSessionInternal) session).getStorage();
     OWriteCache wowCache = storage.getWriteCache();
-    OSharedContext ctx = ((ODatabaseDocumentInternal) session).getSharedContext();
+    OSharedContext ctx = ((ODatabaseSessionInternal) session).getSharedContext();
     session.close();
 
     final Path storagePath = storage.getStoragePath();
@@ -194,9 +194,9 @@ public class OStorageTestIT {
     }
 
     OLocalPaginatedStorage storage =
-        (OLocalPaginatedStorage) ((ODatabaseDocumentInternal) session).getStorage();
+        (OLocalPaginatedStorage) ((ODatabaseSessionInternal) session).getStorage();
     OWriteCache wowCache = storage.getWriteCache();
-    OSharedContext ctx = ((ODatabaseDocumentInternal) session).getSharedContext();
+    OSharedContext ctx = ((ODatabaseSessionInternal) session).getSharedContext();
     session.close();
 
     final Path storagePath = storage.getStoragePath();
@@ -256,9 +256,9 @@ public class OStorageTestIT {
     }
 
     OLocalPaginatedStorage storage =
-        (OLocalPaginatedStorage) ((ODatabaseDocumentInternal) session).getStorage();
+        (OLocalPaginatedStorage) ((ODatabaseSessionInternal) session).getStorage();
     OWriteCache wowCache = storage.getWriteCache();
-    OSharedContext ctx = ((ODatabaseDocumentInternal) session).getSharedContext();
+    OSharedContext ctx = ((ODatabaseSessionInternal) session).getSharedContext();
     session.close();
 
     final Path storagePath = storage.getStoragePath();

@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.metadata.security.binary;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.security.OToken;
@@ -42,7 +42,7 @@ public class OBinaryToken implements OToken {
   }
 
   @Override
-  public OUser getUser(ODatabaseDocumentInternal db) {
+  public OUser getUser(ODatabaseSessionInternal db) {
     if (this.payload.getUserRid() != null) {
       ODocument result = db.load(new ORecordId(this.payload.getUserRid()), "roles:1");
       if (result != null && result.getClassName().equals(OUser.CLASS_NAME)) {

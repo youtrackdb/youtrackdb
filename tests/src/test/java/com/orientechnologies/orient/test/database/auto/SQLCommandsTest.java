@@ -16,6 +16,7 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.command.script.OCommandScript;
+import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -28,21 +29,22 @@ import java.io.File;
 import java.util.Collection;
 import java.util.Locale;
 import org.testng.Assert;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test(groups = "sql-delete")
 public class SQLCommandsTest extends DocumentDBBaseTest {
 
-  @Parameters(value = "url")
-  public SQLCommandsTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public SQLCommandsTest(boolean remote) {
+    super(remote);
   }
 
   public void createProperty() {
     OSchema schema = database.getMetadata().getSchema();
-    if (!schema.existsClass("account")) schema.createClass("account");
+    if (!schema.existsClass("account")) {
+      schema.createClass("account");
+    }
 
     database.command("create property account.timesheet string").close();
 
@@ -109,7 +111,9 @@ public class SQLCommandsTest extends DocumentDBBaseTest {
   }
 
   public void testClusterRename() {
-    if (database.getURL().startsWith("memory:")) return;
+    if (database.getURL().startsWith("memory:")) {
+      return;
+    }
 
     Collection<String> names = database.getClusterNames();
     Assert.assertFalse(names.contains("testClusterRename".toLowerCase(Locale.ENGLISH)));
@@ -125,7 +129,7 @@ public class SQLCommandsTest extends DocumentDBBaseTest {
     Assert.assertTrue(names.contains("testClusterRename42".toLowerCase(Locale.ENGLISH)));
     Assert.assertFalse(names.contains("testClusterRename".toLowerCase(Locale.ENGLISH)));
 
-    if (database.getURL().startsWith("plocal:")) {
+    if (!remoteDB && databaseType.equals(ODatabaseType.PLOCAL)) {
       String storagePath = database.getStorage().getConfiguration().getDirectory();
 
       final OWOWCache wowCache =

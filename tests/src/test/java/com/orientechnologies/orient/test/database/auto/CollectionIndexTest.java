@@ -29,16 +29,15 @@ import java.util.stream.Stream;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test(groups = {"index"})
 public class CollectionIndexTest extends ObjectDBBaseTest {
 
-  @Parameters(value = "url")
-  public CollectionIndexTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public CollectionIndexTest(boolean remote) {
+    super(remote);
   }
 
   @BeforeClass

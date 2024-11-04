@@ -14,7 +14,7 @@
 package com.orientechnologies.orient.object.enhancement.field;
 
 import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.core.id.ORID;
@@ -61,7 +61,7 @@ public class ODocumentSplitRecordBytesOTypeHandlingStrategy
   public ODocument store(ODocument iRecord, String fieldName, Object fieldValue) {
 
     byte[] bytes = fieldValue != null ? (byte[]) fieldValue : null;
-    ODatabaseDocumentInternal database = iRecord.getDatabase();
+    ODatabaseSessionInternal database = iRecord.getDatabase();
     List<ORID> chunks;
 
     // Delete the current data

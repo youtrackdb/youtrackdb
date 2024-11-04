@@ -217,8 +217,6 @@ public class OScheduledEvent extends ODocumentWrapper {
     }
 
     private void runTask(ODatabaseSession db) {
-      event.reload();
-
       if (event.running.get()) {
         OLogManager.instance()
             .error(

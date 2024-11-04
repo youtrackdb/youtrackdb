@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.command.traverse;
 
 import com.orientechnologies.orient.core.command.OScriptExecutor;
 import com.orientechnologies.orient.core.command.OScriptInterceptor;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +21,7 @@ public abstract class OAbstractScriptExecutor implements OScriptExecutor {
     interceptors.add(interceptor);
   }
 
-  public void preExecute(ODatabaseDocumentInternal database, String script, Object params) {
+  public void preExecute(ODatabaseSessionInternal database, String script, Object params) {
 
     interceptors.forEach(i -> i.preExecute(database, language, script, params));
   }

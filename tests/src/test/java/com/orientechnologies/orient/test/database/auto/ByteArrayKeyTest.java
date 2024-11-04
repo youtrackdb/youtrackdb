@@ -9,7 +9,6 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.util.stream.Stream;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -19,9 +18,10 @@ import org.testng.annotations.Test;
  */
 @Test
 public class ByteArrayKeyTest extends DocumentDBBaseTest {
-  @Parameters(value = "url")
-  public ByteArrayKeyTest(@Optional String url) {
-    super(url);
+
+  @Parameters(value = "remote")
+  public ByteArrayKeyTest(boolean remote) {
+    super(remote);
   }
 
   @BeforeClass

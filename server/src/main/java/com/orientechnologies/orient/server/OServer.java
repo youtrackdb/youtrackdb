@@ -845,18 +845,18 @@ public class OServer {
     return this;
   }
 
-  public ODatabaseDocumentInternal openDatabase(final String iDbUrl, final OParsedToken iToken) {
+  public ODatabaseSessionInternal openDatabase(final String iDbUrl, final OParsedToken iToken) {
     return databases.open(new OTokenAuthInfo(iToken), OrientDBConfig.defaultConfig());
   }
 
-  public ODatabaseDocumentInternal openDatabase(
+  public ODatabaseSessionInternal openDatabase(
       final String iDbUrl, final String user, final String password) {
     return openDatabase(iDbUrl, user, password, null);
   }
 
-  public ODatabaseDocumentInternal openDatabase(
+  public ODatabaseSessionInternal openDatabase(
       final String iDbUrl, final String user, final String password, ONetworkProtocolData data) {
-    final ODatabaseDocumentInternal database;
+    final ODatabaseSessionInternal database;
     boolean serverAuth = false;
     database = databases.open(iDbUrl, user, password);
     if (OSecurityUser.SERVER_USER_TYPE.equals(database.getUser().getUserType())) {
@@ -872,7 +872,7 @@ public class OServer {
     return database;
   }
 
-  public ODatabaseDocumentInternal openDatabase(String database) {
+  public ODatabaseSessionInternal openDatabase(String database) {
     return getDatabases().openNoAuthorization(database);
   }
 

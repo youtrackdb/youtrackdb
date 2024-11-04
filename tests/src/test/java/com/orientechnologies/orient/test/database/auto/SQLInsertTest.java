@@ -42,7 +42,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.testng.Assert;
 import org.testng.annotations.Ignore;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -53,9 +52,9 @@ import org.testng.annotations.Test;
 @Test(groups = "sql-insert")
 public class SQLInsertTest extends DocumentDBBaseTest {
 
-  @Parameters(value = "url")
-  public SQLInsertTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public SQLInsertTest(boolean remote) {
+    super(remote);
   }
 
   @Test

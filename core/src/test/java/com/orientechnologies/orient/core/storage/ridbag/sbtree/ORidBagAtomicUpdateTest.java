@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.storage.ridbag.sbtree;
 
 import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
@@ -194,10 +194,11 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
     Assert.assertEquals(ridBag.size(), 2);
     Assert.assertEquals(rootDoc.getVersion(), version);
 
-    rootDoc = (ODocument) rootDoc.reload();
+    db.begin();
 
     Assert.assertEquals(ridBag.size(), 2);
     Assert.assertEquals(rootDoc.getVersion(), version);
+    db.rollback();
   }
 
   @Test
@@ -229,10 +230,11 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
     Assert.assertEquals(ridBag.size(), 2);
     Assert.assertEquals(rootDoc.getVersion(), version);
 
-    rootDoc = (ODocument) rootDoc.reload();
+    db.begin();
 
     Assert.assertEquals(ridBag.size(), 2);
     Assert.assertEquals(rootDoc.getVersion(), version);
+    db.rollback();
   }
 
   @Test
@@ -1034,7 +1036,7 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
     var th =
         new Thread(
             () -> {
-              try (var session = ((ODatabaseDocumentInternal) db).copy()) {
+              try (var session = ((ODatabaseSessionInternal) db).copy()) {
                 session.activateOnCurrentThread();
                 session.begin();
                 ODocument cmeDocument = session.load(rid);

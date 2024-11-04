@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.server.distributed;
 
 import com.orientechnologies.common.util.OCallable;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.distributed.ODistributedRequest.EXECUTION_MODE;
@@ -116,7 +116,7 @@ public interface ODistributedServerManager {
   ODistributedServerManager unregisterLifecycleListener(ODistributedLifecycleListener iListener);
 
   Object executeOnLocalNode(
-      ODistributedRequestId reqId, ORemoteTask task, ODatabaseDocumentInternal database);
+      ODistributedRequestId reqId, ORemoteTask task, ODatabaseSessionInternal database);
 
   void executeOnLocalNodeFromRemote(ODistributedRequest request);
 

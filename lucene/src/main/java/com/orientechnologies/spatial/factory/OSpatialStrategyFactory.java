@@ -15,7 +15,7 @@
  */
 package com.orientechnologies.spatial.factory;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
@@ -38,7 +38,7 @@ public class OSpatialStrategyFactory {
 
   public SpatialStrategy createStrategy(
       SpatialContext ctx,
-      ODatabaseDocumentInternal db,
+      ODatabaseSessionInternal db,
       OIndexDefinition indexDefinition,
       ODocument metadata) {
 

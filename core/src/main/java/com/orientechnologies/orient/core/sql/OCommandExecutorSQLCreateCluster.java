@@ -23,7 +23,7 @@ import com.orientechnologies.orient.core.command.OCommandDistributedReplicateReq
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import java.util.Map;
 
@@ -53,7 +53,7 @@ public class OCommandExecutorSQLCreateCluster extends OCommandExecutorSQLAbstrac
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
 
-      final ODatabaseDocumentInternal database = getDatabase();
+      final ODatabaseSessionInternal database = getDatabase();
 
       init((OCommandRequestText) iRequest);
 

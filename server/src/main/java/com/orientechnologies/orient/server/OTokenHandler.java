@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.server;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.OToken;
@@ -53,7 +53,7 @@ public interface OTokenHandler {
   }
 
   byte[] getSignedBinaryToken(
-      ODatabaseDocumentInternal db, OSecurityUser user, ONetworkProtocolData data);
+      ODatabaseSessionInternal db, OSecurityUser user, ONetworkProtocolData data);
 
   byte[] renewIfNeeded(OToken token);
 

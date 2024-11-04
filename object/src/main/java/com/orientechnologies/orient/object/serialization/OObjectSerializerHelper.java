@@ -34,7 +34,6 @@ import com.orientechnologies.orient.core.annotation.OId;
 import com.orientechnologies.orient.core.annotation.OVersion;
 import com.orientechnologies.orient.core.db.OUserObject2RecordHandler;
 import com.orientechnologies.orient.core.db.object.ODatabaseObjectInternal;
-import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.db.record.ORecordLazySet;
 import com.orientechnologies.orient.core.db.record.OTrackedList;
 import com.orientechnologies.orient.core.db.record.OTrackedMap;
@@ -176,17 +175,6 @@ public class OObjectSerializerHelper {
     } catch (Exception e) {
       throw OException.wrapException(
           new OSchemaException("Cannot get the value of the property: " + iProperty), e);
-    }
-  }
-
-  public static Class<?> getFieldType(ODocument iDocument, final OEntityManager iEntityManager) {
-    if (iDocument.getInternalStatus() == ORecordElement.STATUS.NOT_LOADED)
-      iDocument = (ODocument) iDocument.load();
-
-    if (iDocument.getClassName() == null) {
-      return null;
-    } else {
-      return iEntityManager.getEntityClass(iDocument.getClassName());
     }
   }
 

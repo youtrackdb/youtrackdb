@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.distributed;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.tx.OTransactionId;
@@ -41,9 +41,9 @@ public interface ODistributedTxContext {
 
   ODistributedRequestId getReqId();
 
-  void commit(ODatabaseDocumentInternal database);
+  void commit(ODatabaseSessionInternal database);
 
-  Set<ORecordId> rollback(ODatabaseDocumentInternal database);
+  Set<ORecordId> rollback(ODatabaseSessionInternal database);
 
   void destroy();
 
@@ -51,11 +51,11 @@ public interface ODistributedTxContext {
 
   long getStartedOn();
 
-  Set<ORecordId> cancel(ODistributedServerManager current, ODatabaseDocumentInternal database);
+  Set<ORecordId> cancel(ODistributedServerManager current, ODatabaseSessionInternal database);
 
   OTransactionInternal getTransaction();
 
   OTransactionId getTransactionId();
 
-  void begin(ODatabaseDocumentInternal distributed, boolean local);
+  void begin(ODatabaseSessionInternal distributed, boolean local);
 }

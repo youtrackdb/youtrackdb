@@ -15,20 +15,18 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.testng.Assert;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test(groups = "sql-delete")
 public class SQLDeleteTest extends DocumentDBBaseTest {
 
-  @Parameters(value = "url")
-  public SQLDeleteTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public SQLDeleteTest(boolean remote) {
+    super(remote);
   }
 
   @Test
@@ -56,8 +54,7 @@ public class SQLDeleteTest extends DocumentDBBaseTest {
 
   @Test
   public void deleteInPool() {
-    OPartitionedDatabasePool pool = new OPartitionedDatabasePool(url, "admin", "admin");
-    ODatabaseDocumentInternal db = pool.acquire();
+    ODatabaseSessionInternal db = acquireSession();
 
     final Long total = db.countClass("Profile");
 

@@ -22,8 +22,8 @@ package com.orientechnologies.orient.core.metadata.function;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.OCallable;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OMetadataUpdateListener;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -55,7 +55,7 @@ public class OFunctionLibraryImpl {
 
   public OFunctionLibraryImpl() {}
 
-  public void create(ODatabaseDocumentInternal db) {
+  public void create(ODatabaseSessionInternal db) {
     init(db);
   }
 
@@ -63,7 +63,7 @@ public class OFunctionLibraryImpl {
     throw new UnsupportedOperationException();
   }
 
-  public void load(ODatabaseDocumentInternal db) {
+  public void load(ODatabaseSessionInternal db) {
     // COPY CALLBACK IN RAM
     final Map<String, OCallable<Object, Map<Object, Object>>> callbacks =
         new HashMap<String, OCallable<Object, Map<Object, Object>>>();
@@ -123,7 +123,7 @@ public class OFunctionLibraryImpl {
   }
 
   public synchronized OFunction createFunction(
-      ODatabaseDocumentInternal database, final String iName) {
+      ODatabaseSessionInternal database, final String iName) {
     init(database);
     reloadIfNeeded(ODatabaseRecordThreadLocal.instance().get());
 
@@ -149,7 +149,7 @@ public class OFunctionLibraryImpl {
     functions.clear();
   }
 
-  protected void init(final ODatabaseDocumentInternal db) {
+  protected void init(final ODatabaseSessionInternal db) {
     if (db.getMetadata().getSchema().existsClass("OFunction")) {
       final OClass f = db.getMetadata().getSchema().getClass("OFunction");
       OProperty prop = f.getProperty("name");
@@ -185,7 +185,7 @@ public class OFunctionLibraryImpl {
   }
 
   public void updatedFunction(ODocument function) {
-    ODatabaseDocumentInternal database = ODatabaseRecordThreadLocal.instance().get();
+    ODatabaseSessionInternal database = ODatabaseRecordThreadLocal.instance().get();
     reloadIfNeeded(database);
     String oldName = (String) function.getOriginalValue("name");
     if (oldName != null) {
@@ -205,14 +205,14 @@ public class OFunctionLibraryImpl {
     onFunctionsChanged(database);
   }
 
-  private void reloadIfNeeded(ODatabaseDocumentInternal database) {
+  private void reloadIfNeeded(ODatabaseSessionInternal database) {
     if (needReload.get()) {
       load(database);
       needReload.set(false);
     }
   }
 
-  private void onFunctionsChanged(ODatabaseDocumentInternal database) {
+  private void onFunctionsChanged(ODatabaseSessionInternal database) {
     for (OMetadataUpdateListener listener : database.getSharedContext().browseListeners()) {
       listener.onFunctionLibraryUpdate(database.getName());
     }

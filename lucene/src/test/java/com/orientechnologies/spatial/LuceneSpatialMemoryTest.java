@@ -14,7 +14,7 @@
  */
 package com.orientechnologies.spatial;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -38,7 +38,7 @@ public class LuceneSpatialMemoryTest {
   @Test
   public void boundingBoxTest() {
     //noinspection deprecation
-    try (ODatabaseDocumentInternal db = new ODatabaseDocumentTx("memory:test")) {
+    try (ODatabaseSessionInternal db = new ODatabaseDocumentTx("memory:test")) {
       db.create();
       try {
 
@@ -75,7 +75,7 @@ public class LuceneSpatialMemoryTest {
   public void boundingBoxTestTxRollBack() {
 
     @SuppressWarnings("deprecation")
-    ODatabaseDocumentInternal db = new ODatabaseDocumentTx("memory:test");
+    ODatabaseSessionInternal db = new ODatabaseDocumentTx("memory:test");
     db.create();
     try {
 
@@ -127,10 +127,10 @@ public class LuceneSpatialMemoryTest {
                   })
               .setOperation(SpatialOperation.IsWithin);
       OIndex index =
-          ((ODatabaseDocumentInternal) db)
+          ((ODatabaseSessionInternal) db)
               .getMetadata()
               .getIndexManagerInternal()
-              .getIndex((ODatabaseDocumentInternal) db, "Point.ll");
+              .getIndex((ODatabaseSessionInternal) db, "Point.ll");
 
       Collection coll;
       try (Stream<ORID> stream = index.getInternal().getRids(oSpatialCompositeKey)) {
@@ -155,7 +155,7 @@ public class LuceneSpatialMemoryTest {
   @Test
   public void boundingBoxTestTxCommit() {
 
-    ODatabaseDocumentInternal db = new ODatabaseDocumentTx("memory:test");
+    ODatabaseSessionInternal db = new ODatabaseDocumentTx("memory:test");
 
     db.create();
 
@@ -210,10 +210,10 @@ public class LuceneSpatialMemoryTest {
               .setOperation(SpatialOperation.IsWithin);
 
       OIndex index =
-          ((ODatabaseDocumentInternal) db)
+          ((ODatabaseSessionInternal) db)
               .getMetadata()
               .getIndexManagerInternal()
-              .getIndex((ODatabaseDocumentInternal) db, "Point.ll");
+              .getIndex((ODatabaseSessionInternal) db, "Point.ll");
 
       Collection coll;
       try (Stream<ORID> stream = index.getInternal().getRids(oSpatialCompositeKey)) {

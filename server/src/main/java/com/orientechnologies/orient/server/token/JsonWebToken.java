@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.server.token;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.security.OToken;
 import com.orientechnologies.orient.core.metadata.security.OUser;
@@ -90,7 +90,7 @@ public class JsonWebToken implements OJsonWebToken, OToken {
   }
 
   @Override
-  public OUser getUser(ODatabaseDocumentInternal db) {
+  public OUser getUser(ODatabaseSessionInternal db) {
     ORID userRid = payload.getUserRid();
     ODocument result;
     result = db.load(userRid, "roles:1");

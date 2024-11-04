@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.metadata.security;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 import com.orientechnologies.orient.core.metadata.schema.OImmutableClass;
@@ -36,7 +36,7 @@ import java.util.Set;
 public class ORestrictedAccessHook {
 
   public static boolean onRecordBeforeCreate(
-      final ODocument iDocument, ODatabaseDocumentInternal database) {
+      final ODocument iDocument, ODatabaseSessionInternal database) {
     final OImmutableClass cls = ODocumentInternal.getImmutableSchemaClass(database, iDocument);
     if (cls != null && cls.isRestricted()) {
       String fieldNames = cls.getCustom(OSecurityShared.ONCREATE_FIELD);
@@ -83,7 +83,7 @@ public class ORestrictedAccessHook {
 
   @SuppressWarnings("unchecked")
   public static boolean isAllowed(
-      ODatabaseDocumentInternal database,
+      ODatabaseSessionInternal database,
       final ODocument iDocument,
       final ORestrictedOperation iAllowOperation,
       final boolean iReadOriginal) {

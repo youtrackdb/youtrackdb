@@ -19,9 +19,9 @@
 package com.orientechnologies.lucene.tests;
 
 import com.orientechnologies.common.io.OIOUtils;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabasePool;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
@@ -37,7 +37,7 @@ public abstract class OLuceneBaseTest {
 
   @Rule public TestName name = new TestName();
 
-  protected ODatabaseDocumentInternal db;
+  protected ODatabaseSessionInternal db;
 
   protected OrientDB orient;
   protected ODatabasePool pool;
@@ -73,7 +73,7 @@ public abstract class OLuceneBaseTest {
     }
 
     pool = new ODatabasePool(orient, name.getMethodName(), "admin", "admin");
-    db = (ODatabaseDocumentInternal) pool.acquire();
+    db = (ODatabaseSessionInternal) pool.acquire();
   }
 
   @After

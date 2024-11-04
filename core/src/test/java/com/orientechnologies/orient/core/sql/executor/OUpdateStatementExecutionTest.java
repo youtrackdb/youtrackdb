@@ -4,8 +4,8 @@ import static com.orientechnologies.orient.core.sql.executor.ExecutionPlanPrintU
 import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.viewmanager.ViewCreationListener;
 import com.orientechnologies.orient.core.id.ORID;
@@ -34,7 +34,7 @@ public class OUpdateStatementExecutionTest {
 
   @Rule public TestName name = new TestName();
 
-  private ODatabaseDocumentInternal db;
+  private ODatabaseSessionInternal db;
 
   private String className;
   private OrientDB orientDB;
@@ -45,7 +45,7 @@ public class OUpdateStatementExecutionTest {
         OCreateDatabaseUtil.createDatabase(
             name.getMethodName(), "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
     db =
-        (ODatabaseDocumentInternal)
+        (ODatabaseSessionInternal)
             orientDB.open(name.getMethodName(), "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     className = name.getMethodName();

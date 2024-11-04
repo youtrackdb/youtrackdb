@@ -4,7 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.sql.executor.ODeleteExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.ODeleteExecutionPlanner;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -104,7 +104,7 @@ public class ODeleteStatement extends OStatement {
 
   @Override
   public OResultSet execute(
-      ODatabaseDocumentInternal db, Map params, OCommandContext parentCtx, boolean usePlanCache) {
+      ODatabaseSessionInternal db, Map params, OCommandContext parentCtx, boolean usePlanCache) {
     OBasicCommandContext ctx = new OBasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
@@ -123,10 +123,7 @@ public class ODeleteStatement extends OStatement {
 
   @Override
   public OResultSet execute(
-      ODatabaseDocumentInternal db,
-      Object[] args,
-      OCommandContext parentCtx,
-      boolean usePlanCache) {
+      ODatabaseSessionInternal db, Object[] args, OCommandContext parentCtx, boolean usePlanCache) {
     OBasicCommandContext ctx = new OBasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);

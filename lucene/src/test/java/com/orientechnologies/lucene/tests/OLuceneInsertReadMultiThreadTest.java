@@ -20,8 +20,8 @@ package com.orientechnologies.lucene.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabasePool;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -73,7 +73,7 @@ public class OLuceneInsertReadMultiThreadTest extends OLuceneBaseTest {
 
     futures.forEach(cf -> cf.join());
 
-    ODatabaseDocumentInternal db1 = (ODatabaseDocumentInternal) pool.acquire();
+    ODatabaseSessionInternal db1 = (ODatabaseSessionInternal) pool.acquire();
     db1.getMetadata().reload();
     OSchema schema = db1.getMetadata().getSchema();
 

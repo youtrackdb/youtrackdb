@@ -23,8 +23,8 @@ import com.orientechnologies.common.collection.OMultiCollectionIterator;
 import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.common.util.OSizeable;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.id.OImmutableRecordId;
@@ -338,7 +338,7 @@ public class OTableFormatter {
         value = ((ORecord) value).getIdentity().toString();
       }
     } else if (value instanceof Date) {
-      final ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+      final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
       if (db != null) value = ODateHelper.getDateTimeFormatInstance(db).format((Date) value);
       else {
         value = DEF_DATEFORMAT.format((Date) value);

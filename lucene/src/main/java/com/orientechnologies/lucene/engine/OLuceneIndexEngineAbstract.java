@@ -31,8 +31,8 @@ import com.orientechnologies.lucene.tx.OLuceneTxChanges;
 import com.orientechnologies.lucene.tx.OLuceneTxChangesMultiRid;
 import com.orientechnologies.lucene.tx.OLuceneTxChangesSingleRid;
 import com.orientechnologies.orient.core.config.IndexEngineData;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OStorageException;
 import com.orientechnologies.orient.core.id.OContextualRecordId;
@@ -228,7 +228,7 @@ public abstract class OLuceneIndexEngineAbstract implements OLuceneIndexEngine {
     open(storage);
   }
 
-  protected static ODatabaseDocumentInternal getDatabase() {
+  protected static ODatabaseSessionInternal getDatabase() {
     return ODatabaseRecordThreadLocal.instance().get();
   }
 

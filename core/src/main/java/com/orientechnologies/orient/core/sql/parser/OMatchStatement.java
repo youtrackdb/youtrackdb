@@ -11,7 +11,7 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.OCommandExecutor;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -170,10 +170,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
 
   @Override
   public OResultSet execute(
-      ODatabaseDocumentInternal db,
-      Object[] args,
-      OCommandContext parentCtx,
-      boolean usePlanCache) {
+      ODatabaseSessionInternal db, Object[] args, OCommandContext parentCtx, boolean usePlanCache) {
     OBasicCommandContext ctx = new OBasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
@@ -198,7 +195,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
 
   @Override
   public OResultSet execute(
-      ODatabaseDocumentInternal db, Map params, OCommandContext parentCtx, boolean usePlanCache) {
+      ODatabaseSessionInternal db, Map params, OCommandContext parentCtx, boolean usePlanCache) {
     OBasicCommandContext ctx = new OBasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
@@ -254,7 +251,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
     final InputStream is = new ByteArrayInputStream(queryText.getBytes());
     OrientSql osql = null;
     try {
-      ODatabaseDocumentInternal db = getDatabase();
+      ODatabaseSessionInternal db = getDatabase();
       if (db == null) {
         osql = new OrientSql(is);
       } else {

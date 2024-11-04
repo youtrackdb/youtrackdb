@@ -186,8 +186,6 @@ public interface ODatabaseObjectInternal
 
   <RET> RET reload(final Object iPojo, final boolean iIgnoreCache);
 
-  <RET> RET reload(Object iPojo, final String iFetchPlan, final boolean iIgnoreCache);
-
   <RET> RET reload(Object iObject, String iFetchPlan, boolean iIgnoreCache, boolean force);
 
   @Override

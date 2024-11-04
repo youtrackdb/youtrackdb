@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -42,7 +42,7 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
   }
 
   private OResultInternal produce(OCommandContext ctx) {
-    final ODatabaseDocumentInternal database = (ODatabaseDocumentInternal) ctx.getDatabase();
+    final ODatabaseSessionInternal database = (ODatabaseSessionInternal) ctx.getDatabase();
     OIndex index =
         database
             .getMetadata()

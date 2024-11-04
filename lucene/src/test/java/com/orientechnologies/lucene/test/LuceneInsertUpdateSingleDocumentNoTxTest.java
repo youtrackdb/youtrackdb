@@ -18,7 +18,7 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -51,7 +51,7 @@ public class LuceneInsertUpdateSingleDocumentNoTxTest extends BaseLuceneTest {
   @Test
   public void testInsertUpdateTransactionWithIndex() {
     db.close();
-    db = (ODatabaseDocumentInternal) openDatabase();
+    db = (ODatabaseSessionInternal) openDatabase();
     OSchema schema = db.getMetadata().getSchema();
     schema.reload();
     ODocument doc = new ODocument("City");
@@ -63,8 +63,8 @@ public class LuceneInsertUpdateSingleDocumentNoTxTest extends BaseLuceneTest {
     doc1 = db.save(doc1);
     db.commit();
 
-    doc = db.load(doc);
-    doc1 = db.load(doc1);
+    doc = db.load(doc.getIdentity());
+    doc1 = db.load(doc1.getIdentity());
     doc.field("name", "Rome");
     doc1.field("name", "Rome");
     db.begin();

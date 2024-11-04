@@ -16,8 +16,8 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OClusterDoesNotExistException;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
@@ -41,16 +41,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import org.testng.Assert;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test
 public class SchemaTest extends DocumentDBBaseTest {
 
-  @Parameters(value = "url")
-  public SchemaTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public SchemaTest(boolean remote) {
+    super(remote);
   }
 
   public void createSchema() throws IOException {
@@ -605,7 +604,7 @@ public class SchemaTest extends DocumentDBBaseTest {
 
     // TEST DELETE RECORD -> EXCEPTION
     try {
-      record.reload(null, true);
+      database.load(record.getIdentity());
       Assert.assertTrue(false);
     } catch (OOfflineClusterException e) {
       Assert.assertTrue(true);
@@ -818,7 +817,7 @@ public class SchemaTest extends DocumentDBBaseTest {
     schema.dropClass(className);
   }
 
-  private void swapClusters(ODatabaseDocumentInternal databaseDocumentTx, int i) {
+  private void swapClusters(ODatabaseSessionInternal databaseDocumentTx, int i) {
     databaseDocumentTx
         .command("CREATE CLASS TestRenameClusterNew extends TestRenameClusterOriginal clusters 2")
         .close();

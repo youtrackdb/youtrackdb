@@ -22,8 +22,8 @@ package com.orientechnologies.orient.core.storage.ridbag;
 
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeTimeLine;
@@ -166,7 +166,7 @@ public class ORemoteTreeRidBag implements ORidBagDelegate {
   }
 
   private List<OIdentifiable> loadElements() {
-    ODatabaseDocumentInternal database = ODatabaseRecordThreadLocal.instance().get();
+    ODatabaseSessionInternal database = ODatabaseRecordThreadLocal.instance().get();
     List<OIdentifiable> set;
     try (OResultSet result =
         database.query("select list(@this.field(?)) as elements from ?", fieldName, ownerRecord)) {

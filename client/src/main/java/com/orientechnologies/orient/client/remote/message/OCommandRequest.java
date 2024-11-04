@@ -24,7 +24,7 @@ import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.stream.OStreamSerializerAnyStreamable;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
@@ -33,13 +33,13 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 public final class OCommandRequest implements OBinaryRequest<OCommandResponse> {
-  private ODatabaseDocumentInternal database;
+  private ODatabaseSessionInternal database;
   private boolean asynch;
   private OCommandRequestText query;
   private boolean live;
 
   public OCommandRequest(
-      ODatabaseDocumentInternal database,
+      ODatabaseSessionInternal database,
       boolean asynch,
       OCommandRequestText iCommand,
       boolean live) {

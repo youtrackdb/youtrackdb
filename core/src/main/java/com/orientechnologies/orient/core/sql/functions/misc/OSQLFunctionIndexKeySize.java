@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.sql.functions.misc;
 
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -49,7 +49,7 @@ public class OSQLFunctionIndexKeySize extends OSQLFunctionAbstract {
     final Object value = iParams[0];
 
     String indexName = String.valueOf(value);
-    final ODatabaseDocumentInternal database = (ODatabaseDocumentInternal) context.getDatabase();
+    final ODatabaseSessionInternal database = (ODatabaseSessionInternal) context.getDatabase();
     OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, indexName);
     if (index == null) {
       return null;

@@ -21,7 +21,7 @@ package com.orientechnologies.orient.test.object;
 
 import static org.testng.Assert.assertTrue;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTxInternal;
@@ -44,8 +44,8 @@ public class MultipleObjectDbInstancesTest {
     orientDB.execute(
         "create database MultipleDbInstancesTest_first memory users(admin identified by 'adminpwd'"
             + " role admin)");
-    ODatabaseDocumentInternal db =
-        (ODatabaseDocumentInternal)
+    ODatabaseSessionInternal db =
+        (ODatabaseSessionInternal)
             orientDB.open("MultipleDbInstancesTest_first", "admin", "adminpwd");
     OObjectDatabaseTxInternal objectDb = new OObjectDatabaseTxInternal(db);
     objectDb.setAutomaticSchemaGeneration(true);
@@ -59,8 +59,8 @@ public class MultipleObjectDbInstancesTest {
     orientDB.execute(
         "create database MultipleDbInstancesTest_second memory users(admin identified by 'adminpwd'"
             + " role admin)");
-    ODatabaseDocumentInternal db1 =
-        (ODatabaseDocumentInternal)
+    ODatabaseSessionInternal db1 =
+        (ODatabaseSessionInternal)
             orientDB.open("MultipleDbInstancesTest_second", "admin", "adminpwd");
     OObjectDatabaseTxInternal objectDb1 = new OObjectDatabaseTxInternal(db1);
 

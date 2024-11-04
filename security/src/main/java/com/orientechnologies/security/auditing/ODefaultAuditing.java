@@ -17,10 +17,10 @@ package com.orientechnologies.security.auditing;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.Orient;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OSystemDatabase;
 import com.orientechnologies.orient.core.db.OrientDBInternal;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -397,10 +397,9 @@ public class ODefaultAuditing
   }
 
   private void createClassIfNotExists() {
-    final ODatabaseDocumentInternal currentDB =
-        ODatabaseRecordThreadLocal.instance().getIfDefined();
+    final ODatabaseSessionInternal currentDB = ODatabaseRecordThreadLocal.instance().getIfDefined();
 
-    ODatabaseDocumentInternal sysdb = null;
+    ODatabaseSessionInternal sysdb = null;
 
     try {
       sysdb = context.getSystemDatabase().openSystemDatabase();

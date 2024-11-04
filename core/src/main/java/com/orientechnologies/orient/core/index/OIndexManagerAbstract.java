@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.common.concur.resource.OCloseable;
 import com.orientechnologies.common.listener.OProgressListener;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.dictionary.ODictionary;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -37,16 +37,16 @@ public interface OIndexManagerAbstract extends OCloseable {
   public static final String CONFIG_INDEXES = "indexes";
   public static final String DICTIONARY_NAME = "dictionary";
 
-  void recreateIndexes(ODatabaseDocumentInternal database);
+  void recreateIndexes(ODatabaseSessionInternal database);
 
   default void create() {
     throw new UnsupportedOperationException();
   }
 
-  boolean autoRecreateIndexesAfterCrash(ODatabaseDocumentInternal database);
+  boolean autoRecreateIndexesAfterCrash(ODatabaseSessionInternal database);
 
   OIndex createIndex(
-      ODatabaseDocumentInternal database,
+      ODatabaseSessionInternal database,
       final String iName,
       final String iType,
       OIndexDefinition indexDefinition,
@@ -55,7 +55,7 @@ public interface OIndexManagerAbstract extends OCloseable {
       ODocument metadata);
 
   OIndex createIndex(
-      ODatabaseDocumentInternal database,
+      ODatabaseSessionInternal database,
       final String iName,
       final String iType,
       OIndexDefinition indexDefinition,
@@ -68,13 +68,13 @@ public interface OIndexManagerAbstract extends OCloseable {
 
   void removeClassPropertyIndex(OIndex idx);
 
-  void dropIndex(ODatabaseDocumentInternal database, String iIndexName);
+  void dropIndex(ODatabaseSessionInternal database, String iIndexName);
 
   void reload();
 
   void addClusterToIndex(String clusterName, String indexName);
 
-  void load(ODatabaseDocumentInternal database);
+  void load(ODatabaseSessionInternal database);
 
   void removeClusterFromIndex(String clusterName, String indexName);
 
@@ -86,36 +86,36 @@ public interface OIndexManagerAbstract extends OCloseable {
 
   String getDefaultClusterName();
 
-  void setDefaultClusterName(ODatabaseDocumentInternal database, String defaultClusterName2);
+  void setDefaultClusterName(ODatabaseSessionInternal database, String defaultClusterName2);
 
-  ODictionary<ORecord> getDictionary(ODatabaseDocumentInternal database);
-
-  Set<OIndex> getClassInvolvedIndexes(
-      ODatabaseDocumentInternal database, String className, Collection<String> fields);
+  ODictionary<ORecord> getDictionary(ODatabaseSessionInternal database);
 
   Set<OIndex> getClassInvolvedIndexes(
-      ODatabaseDocumentInternal database, String className, String... fields);
+      ODatabaseSessionInternal database, String className, Collection<String> fields);
+
+  Set<OIndex> getClassInvolvedIndexes(
+      ODatabaseSessionInternal database, String className, String... fields);
 
   boolean areIndexed(String className, String... fields);
 
   boolean areIndexed(final String className, final Collection<String> fields);
 
   void getClassIndexes(
-      ODatabaseDocumentInternal database, String className, Collection<OIndex> indexes2);
+      ODatabaseSessionInternal database, String className, Collection<OIndex> indexes2);
 
-  Set<OIndex> getClassIndexes(ODatabaseDocumentInternal database, String className);
+  Set<OIndex> getClassIndexes(ODatabaseSessionInternal database, String className);
 
-  OIndex getClassIndex(ODatabaseDocumentInternal database, String className, String indexName);
+  OIndex getClassIndex(ODatabaseSessionInternal database, String className, String indexName);
 
   OIndexUnique getClassUniqueIndex(String className);
 
-  OIndex getClassAutoShardingIndex(ODatabaseDocumentInternal database, String className);
+  OIndex getClassAutoShardingIndex(ODatabaseSessionInternal database, String className);
 
-  void create(ODatabaseDocumentInternal database);
+  void create(ODatabaseSessionInternal database);
 
-  Collection<? extends OIndex> getIndexes(ODatabaseDocumentInternal database);
+  Collection<? extends OIndex> getIndexes(ODatabaseSessionInternal database);
 
-  OIndex getIndex(ODatabaseDocumentInternal database, String iName);
+  OIndex getIndex(ODatabaseSessionInternal database, String iName);
 
   boolean existsIndex(String iName);
 
@@ -125,5 +125,5 @@ public interface OIndexManagerAbstract extends OCloseable {
 
   OIndex getRawIndex(String indexName);
 
-  OIndex preProcessBeforeReturn(ODatabaseDocumentInternal database, OIndex index);
+  OIndex preProcessBeforeReturn(ODatabaseSessionInternal database, OIndex index);
 }

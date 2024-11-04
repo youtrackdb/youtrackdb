@@ -7,7 +7,6 @@ import com.orientechnologies.orient.core.metadata.sequence.OSequenceLibrary;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import org.testng.Assert;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -17,13 +16,14 @@ import org.testng.annotations.Test;
  */
 @Test(groups = "sequence")
 public class SequenceTest extends DocumentDBBaseTest {
+
   private static final int CACHE_SIZE = 40;
   private static final long FIRST_START = OSequence.DEFAULT_START;
   private static final long SECOND_START = 31;
 
-  @Parameters(value = "url")
-  public SequenceTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public SequenceTest(boolean remote) {
+    super(remote);
   }
 
   @Test
@@ -87,7 +87,10 @@ public class SequenceTest extends DocumentDBBaseTest {
     testUsage(seq, FIRST_START);
 
     //
+    database.begin();
     seq.updateParams(new OSequence.CreateParams().setStart(SECOND_START).setCacheSize(13));
+    database.commit();
+
     testUsage(seq, SECOND_START);
   }
 

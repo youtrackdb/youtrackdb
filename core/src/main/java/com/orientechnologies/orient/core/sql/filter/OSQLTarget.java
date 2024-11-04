@@ -22,8 +22,8 @@ package com.orientechnologies.orient.core.sql.filter;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.parser.OBaseParser;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.OQueryParsingException;
@@ -167,7 +167,7 @@ public class OSQLTarget extends OBaseParser {
               + 1);
       final OCommandSQL subCommand = new OCommandSQLResultset(subText.toString());
 
-      ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().get();
+      ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
       final OCommandExecutorSQLResultsetDelegate executor =
           (OCommandExecutorSQLResultsetDelegate)
               db.getSharedContext()

@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.testng.Assert;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 
 /**
@@ -18,9 +17,10 @@ import org.testng.annotations.Parameters;
  * @since 4/11/14
  */
 public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
-  @Parameters(value = "url")
-  public CompositeIndexWithNullTest(@Optional String url) {
-    super(url);
+
+  @Parameters(value = "remote")
+  public CompositeIndexWithNullTest(boolean remote) {
+    super(remote);
   }
 
   public void testPointQuery() {
@@ -45,7 +45,9 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
       document.field("prop1", i / 10);
       document.field("prop2", i / 5);
 
-      if (i % 2 == 0) document.field("prop3", i);
+      if (i % 2 == 0) {
+        document.field("prop3", i);
+      }
 
       database.begin();
       document.save();
@@ -74,7 +76,9 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     result = database.query(query).stream().map((r) -> r.toElement()).collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 2);
-    for (OElement document : result) Assert.assertNull(document.getProperty("prop3"));
+    for (OElement document : result) {
+      Assert.assertNull(document.getProperty("prop3"));
+    }
 
     explain = database.command(new OCommandSQL("explain " + query)).execute();
     Assert.assertTrue(
@@ -107,7 +111,9 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
       document.field("prop1", i / 10);
       document.field("prop2", i / 5);
 
-      if (i % 2 == 0) document.field("prop3", i);
+      if (i % 2 == 0) {
+        document.field("prop3", i);
+      }
 
       document.save();
     }
@@ -137,7 +143,9 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     result = database.query(query).stream().map((r) -> r.toElement()).collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 2);
-    for (OElement document : result) Assert.assertNull(document.getProperty("prop3"));
+    for (OElement document : result) {
+      Assert.assertNull(document.getProperty("prop3"));
+    }
 
     explain = database.command(new OCommandSQL("explain " + query)).execute();
     Assert.assertTrue(
@@ -147,7 +155,9 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
   }
 
   public void testPointQueryInMiddleTx() {
-    if (database.getURL().startsWith("remote:")) return;
+    if (remoteDB) {
+      return;
+    }
 
     final OSchema schema = database.getMetadata().getSchema();
     OClass clazz = schema.createClass("compositeIndexNullPointQueryInMiddleTxClass");
@@ -172,7 +182,9 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
       document.field("prop1", i / 10);
       document.field("prop2", i / 5);
 
-      if (i % 2 == 0) document.field("prop3", i);
+      if (i % 2 == 0) {
+        document.field("prop3", i);
+      }
 
       document.save();
     }
@@ -201,7 +213,9 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     result = database.query(query).stream().map((r) -> r.toElement()).collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 2);
-    for (OElement document : result) Assert.assertNull(document.getProperty("prop3"));
+    for (OElement document : result) {
+      Assert.assertNull(document.getProperty("prop3"));
+    }
 
     explain = database.command(new OCommandSQL("explain " + query)).execute();
     Assert.assertTrue(
@@ -235,7 +249,9 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
       document.field("prop1", i / 10);
       document.field("prop2", i / 5);
 
-      if (i % 2 == 0) document.field("prop3", i);
+      if (i % 2 == 0) {
+        document.field("prop3", i);
+      }
 
       database.begin();
       document.save();
@@ -270,7 +286,9 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
   }
 
   public void testRangeQueryInMiddleTx() {
-    if (database.getURL().startsWith("remote:")) return;
+    if (remoteDB) {
+      return;
+    }
 
     final OSchema schema = database.getMetadata().getSchema();
     OClass clazz = schema.createClass("compositeIndexNullRangeQueryInMiddleTxClass");
@@ -295,7 +313,9 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
       document.field("prop1", i / 10);
       document.field("prop2", i / 5);
 
-      if (i % 2 == 0) document.field("prop3", i);
+      if (i % 2 == 0) {
+        document.field("prop3", i);
+      }
 
       document.save();
     }
@@ -352,7 +372,9 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
       ODocument document = new ODocument("compositeIndexNullPointQueryNullInTheMiddleClass");
       document.field("prop1", i / 10);
 
-      if (i % 2 == 0) document.field("prop2", i);
+      if (i % 2 == 0) {
+        document.field("prop2", i);
+      }
 
       document.field("prop3", i);
 
@@ -408,7 +430,9 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
   }
 
   public void testPointQueryNullInTheMiddleInMiddleTx() {
-    if (database.getURL().startsWith("remote:")) return;
+    if (remoteDB) {
+      return;
+    }
 
     final OSchema schema = database.getMetadata().getSchema();
     OClass clazz = schema.createClass("compositeIndexNullPointQueryNullInTheMiddleInMiddleTxClass");
@@ -434,7 +458,9 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
           new ODocument("compositeIndexNullPointQueryNullInTheMiddleInMiddleTxClass");
       document.field("prop1", i / 10);
 
-      if (i % 2 == 0) document.field("prop2", i);
+      if (i % 2 == 0) {
+        document.field("prop2", i);
+      }
 
       document.field("prop3", i);
 
@@ -511,7 +537,9 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
       ODocument document = new ODocument("compositeIndexNullRangeQueryNullInTheMiddleClass");
       document.field("prop1", i / 10);
 
-      if (i % 2 == 0) document.field("prop2", i);
+      if (i % 2 == 0) {
+        document.field("prop2", i);
+      }
 
       document.field("prop3", i);
 
@@ -538,7 +566,9 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
   }
 
   public void testRangeQueryNullInTheMiddleInMiddleTx() {
-    if (database.getURL().startsWith("remote:")) return;
+    if (remoteDB) {
+      return;
+    }
 
     final OSchema schema = database.getMetadata().getSchema();
     OClass clazz = schema.createClass("compositeIndexNullRangeQueryNullInTheMiddleInMiddleTxClass");
@@ -561,7 +591,9 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
           new ODocument("compositeIndexNullRangeQueryNullInTheMiddleInMiddleTxClass");
       document.field("prop1", i / 10);
 
-      if (i % 2 == 0) document.field("prop2", i);
+      if (i % 2 == 0) {
+        document.field("prop2", i);
+      }
 
       document.field("prop3", i);
 

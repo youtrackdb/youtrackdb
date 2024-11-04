@@ -34,8 +34,8 @@ import com.orientechnologies.common.serialization.types.ODecimalSerializer;
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.collate.ODefaultCollate;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.util.ODateHelper;
@@ -642,7 +642,7 @@ public class OBinaryComparatorV0 implements OBinaryComparator {
                     return value1 == value2;
                   }
 
-                  final ODatabaseDocumentInternal db =
+                  final ODatabaseSessionInternal db =
                       ODatabaseRecordThreadLocal.instance().getIfDefined();
                   try {
                     final DateFormat dateFormat;
@@ -1352,7 +1352,7 @@ public class OBinaryComparatorV0 implements OBinaryComparator {
                     return (value1 < value2) ? -1 : ((value1 == value2) ? 0 : 1);
                   }
 
-                  final ODatabaseDocumentInternal db =
+                  final ODatabaseSessionInternal db =
                       ODatabaseRecordThreadLocal.instance().getIfDefined();
                   try {
                     final DateFormat dateFormat;

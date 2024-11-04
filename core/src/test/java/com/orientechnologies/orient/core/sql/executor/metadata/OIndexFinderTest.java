@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -19,7 +19,7 @@ import org.junit.Test;
 
 public class OIndexFinderTest {
 
-  private ODatabaseDocumentInternal session;
+  private ODatabaseSessionInternal session;
   private OrientDB orientDb;
 
   @Before
@@ -30,7 +30,7 @@ public class OIndexFinderTest {
             + OIndexFinderTest.class.getSimpleName()
             + " memory users (admin identified by 'adminpwd' role admin)");
     this.session =
-        (ODatabaseDocumentInternal)
+        (ODatabaseSessionInternal)
             this.orientDb.open(OIndexFinderTest.class.getSimpleName(), "admin", "adminpwd");
   }
 

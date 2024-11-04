@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.db.tool;
 
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import java.util.Collections;
 import java.util.List;
@@ -33,7 +33,7 @@ import java.util.List;
  */
 public abstract class ODatabaseTool implements Runnable {
   protected OCommandOutputListener output;
-  protected ODatabaseDocumentInternal database;
+  protected ODatabaseSessionInternal database;
   protected boolean verbose = false;
 
   protected abstract void parseSetting(final String option, final List<String> items);
@@ -65,7 +65,7 @@ public abstract class ODatabaseTool implements Runnable {
     return this;
   }
 
-  public ODatabaseTool setDatabase(final ODatabaseDocumentInternal database) {
+  public ODatabaseTool setDatabase(final ODatabaseSessionInternal database) {
     this.database = database;
     return this;
   }

@@ -5,7 +5,7 @@ import com.orientechnologies.common.concur.lock.OReadersWriterSpinLock;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
@@ -85,7 +85,7 @@ public class StorageBackupMTStateTest {
     dbURL = "plocal:" + dbDirectory;
 
     System.out.println("Create database");
-    ODatabaseDocumentInternal databaseDocumentTx = new ODatabaseDocumentTx(dbURL);
+    ODatabaseSessionInternal databaseDocumentTx = new ODatabaseDocumentTx(dbURL);
     databaseDocumentTx.create();
 
     System.out.println("Create schema");
@@ -153,17 +153,17 @@ public class StorageBackupMTStateTest {
     databaseDocumentTx.open("admin", "admin");
     databaseDocumentTx.incrementalBackup(backupDir.getAbsolutePath());
 
-    OStorage storage = ((ODatabaseDocumentInternal) databaseDocumentTx).getStorage();
+    OStorage storage = ((ODatabaseSessionInternal) databaseDocumentTx).getStorage();
     databaseDocumentTx.close();
 
     storage.shutdown();
 
     System.out.println("Create backup database");
-    final ODatabaseDocumentInternal backedUpDb =
+    final ODatabaseSessionInternal backedUpDb =
         new ODatabaseDocumentTx("plocal:" + backedUpDbDirectory);
     backedUpDb.create(backupDir.getAbsolutePath());
 
-    final OStorage backupStorage = ((ODatabaseDocumentInternal) backedUpDb).getStorage();
+    final OStorage backupStorage = ((ODatabaseSessionInternal) backedUpDb).getStorage();
     backedUpDb.close();
 
     backupStorage.shutdown();
@@ -220,7 +220,7 @@ public class StorageBackupMTStateTest {
     public Void call() throws Exception {
       while (!stop) {
         while (true) {
-          ODatabaseDocumentInternal db = pool.acquire();
+          ODatabaseSessionInternal db = pool.acquire();
           try {
             flowLock.acquireReadLock();
             try {
@@ -256,7 +256,7 @@ public class StorageBackupMTStateTest {
 
       while (!stop) {
         while (true) {
-          ODatabaseDocumentInternal db = pool.acquire();
+          ODatabaseSessionInternal db = pool.acquire();
           try {
             flowLock.acquireReadLock();
             try {
@@ -291,7 +291,7 @@ public class StorageBackupMTStateTest {
   private abstract class Inserter implements Callable<Void> {
     protected final Random random = new Random();
 
-    protected void insertRecord(ODatabaseDocumentInternal db) {
+    protected void insertRecord(ODatabaseSessionInternal db) {
       final int docId;
       final int classes = classCounter.get();
 
@@ -353,7 +353,7 @@ public class StorageBackupMTStateTest {
   private final class IncrementalBackupThread implements Runnable {
     @Override
     public void run() {
-      ODatabaseDocumentInternal db = new ODatabaseDocumentTx(dbURL);
+      ODatabaseSessionInternal db = new ODatabaseDocumentTx(dbURL);
       db.open("admin", "admin");
       try {
         flowLock.acquireReadLock();
@@ -375,7 +375,7 @@ public class StorageBackupMTStateTest {
   private final class ClassAdder implements Runnable {
     @Override
     public void run() {
-      ODatabaseDocumentInternal databaseDocumentTx = new ODatabaseDocumentTx(dbURL);
+      ODatabaseSessionInternal databaseDocumentTx = new ODatabaseDocumentTx(dbURL);
       databaseDocumentTx.open("admin", "admin");
       try {
         flowLock.acquireReadLock();
@@ -401,7 +401,7 @@ public class StorageBackupMTStateTest {
       int counter = 0;
       while (!stop) {
         while (true) {
-          ODatabaseDocumentInternal databaseDocumentTx = pool.acquire();
+          ODatabaseSessionInternal databaseDocumentTx = pool.acquire();
           try {
             flowLock.acquireReadLock();
             try {

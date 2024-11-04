@@ -21,8 +21,8 @@ package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.common.listener.OProgressListener;
 import com.orientechnologies.common.util.ORawPair;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OInvalidIndexEngineIdException;
 import com.orientechnologies.orient.core.id.ORID;
@@ -204,7 +204,7 @@ public interface OIndexInternal extends OIndex {
     if (indexClass == null) {
       return item;
     }
-    ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
     if (db == null) {
       return item;
     }
@@ -235,7 +235,7 @@ public interface OIndexInternal extends OIndex {
   }
 
   static boolean isLabelSecurityDefined(
-      ODatabaseDocumentInternal database,
+      ODatabaseSessionInternal database,
       OSecurityInternal security,
       String indexClass,
       String propertyName) {
@@ -265,7 +265,7 @@ public interface OIndexInternal extends OIndex {
   }
 
   static boolean isReadRestrictedBySecurityPolicy(
-      String indexClass, ODatabaseDocumentInternal db, OSecurityInternal security) {
+      String indexClass, ODatabaseSessionInternal db, OSecurityInternal security) {
     if (security.isReadRestrictedBySecurityPolicy(db, "database.class." + indexClass)) {
       return true;
     }
@@ -294,7 +294,7 @@ public interface OIndexInternal extends OIndex {
     if (indexClass == null) {
       return items;
     }
-    ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
     if (db == null) {
       return items;
     }

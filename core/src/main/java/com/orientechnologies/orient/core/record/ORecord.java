@@ -22,7 +22,6 @@ package com.orientechnologies.orient.core.record;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.serialization.OSerializableStream;
 import com.orientechnologies.orient.core.tx.OTransactionOptimistic;
@@ -112,16 +111,6 @@ public interface ORecord extends ORecordElement, OIdentifiable, Serializable, OS
    * @return True if dirty, otherwise false
    */
   boolean isDirty();
-
-  /**
-   * Loads the record content in memory. If the record is in cache will be returned a new instance,
-   * so pay attention to use the returned. If the record is dirty, then it returns to the original
-   * content. If the record does not exist a ORecordNotFoundException exception is thrown.
-   *
-   * @return The record loaded or itself if the record has been reloaded from the storage. Useful to
-   * call methods in chain.
-   */
-  <RET extends ORecord> RET load() throws ORecordNotFoundException;
 
   /**
    * Saves in-memory changes to the database. Behavior depends by the current running transaction if
@@ -225,13 +214,4 @@ public interface ORecord extends ORecordElement, OIdentifiable, Serializable, OS
    * @return true if the record exists, otherwise false
    */
   boolean exists();
-
-  /**
-   * Resets the record as a new record in case of its rid is {@link  ORID#isNew()} and throws
-   * exception otherwise.
-   * <p>
-   * This method can be useful if you want to reuse the record to reapply the same operations after
-   * rollback as after transaction completion all record are unloaded.
-   */
-  void resetToNew();
 }

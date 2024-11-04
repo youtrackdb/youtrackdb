@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.metadata.schema;
 
 import com.orientechnologies.common.util.OArrays;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.OSchemaException;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -123,7 +123,7 @@ public class OViewEmbedded extends OViewImpl {
     }
   }
 
-  protected OClass addClusterIdInternal(ODatabaseDocumentInternal database, final int clusterId) {
+  protected OClass addClusterIdInternal(ODatabaseSessionInternal database, final int clusterId) {
     acquireSchemaWriteLock();
     try {
       checkEmbedded();
@@ -173,7 +173,7 @@ public class OViewEmbedded extends OViewImpl {
   }
 
   public OClass addClusterId(final int clusterId) {
-    final ODatabaseDocumentInternal database = getDatabase();
+    final ODatabaseSessionInternal database = getDatabase();
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
     if (isAbstract()) {
@@ -191,7 +191,7 @@ public class OViewEmbedded extends OViewImpl {
   }
 
   public OClass removeClusterId(final int clusterId) {
-    final ODatabaseDocumentInternal database = getDatabase();
+    final ODatabaseSessionInternal database = getDatabase();
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
     if (clusterIds.length == 1 && clusterId == clusterIds[0])
@@ -211,7 +211,7 @@ public class OViewEmbedded extends OViewImpl {
   }
 
   private OClass removeClusterIdInternal(
-      ODatabaseDocumentInternal database, final int clusterToRemove) {
+      ODatabaseSessionInternal database, final int clusterToRemove) {
 
     acquireSchemaWriteLock();
     try {

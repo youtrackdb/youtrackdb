@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.stream.Stream;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -24,9 +23,9 @@ import org.testng.annotations.Test;
 @Test(groups = {"index"})
 public class DateIndexTest extends DocumentDBBaseTest {
 
-  @Parameters(value = "url")
-  public DateIndexTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public DateIndexTest(boolean remote) {
+    super(remote);
   }
 
   @BeforeClass

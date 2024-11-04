@@ -15,7 +15,7 @@
  */
 package com.orientechnologies.orient.core.metadata.sequence;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OProxedResource;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 
@@ -26,7 +26,7 @@ public abstract class OSequenceLibraryAbstract extends OProxedResource<OSequence
     implements OSequenceLibrary {
 
   public OSequenceLibraryAbstract(
-      final OSequenceLibraryImpl iDelegate, final ODatabaseDocumentInternal iDatabase) {
+      final OSequenceLibraryImpl iDelegate, final ODatabaseSessionInternal iDatabase) {
     super(iDelegate, iDatabase);
   }
 

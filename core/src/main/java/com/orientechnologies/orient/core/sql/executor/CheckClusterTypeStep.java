@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
@@ -44,7 +44,7 @@ public class CheckClusterTypeStep extends AbstractExecutionStep {
       prev.start(context).close(ctx);
     }
 
-    ODatabaseDocumentInternal db = (ODatabaseDocumentInternal) context.getDatabase();
+    ODatabaseSessionInternal db = (ODatabaseSessionInternal) context.getDatabase();
 
     int clusterId;
     if (clusterName != null) {

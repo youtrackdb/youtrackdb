@@ -15,54 +15,33 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import org.testng.Assert;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test(groups = {"index"})
-public class SQLDropClassIndexTest {
+public class SQLDropClassIndexTest extends DocumentDBBaseTest {
+
   private static final OType EXPECTED_PROP1_TYPE = OType.DOUBLE;
   private static final OType EXPECTED_PROP2_TYPE = OType.INTEGER;
 
-  private ODatabaseDocumentInternal database;
-  private final String url;
-
-  @Parameters(value = "url")
-  public SQLDropClassIndexTest(@Optional final String url) {
-    this.url = BaseTest.prepareUrl(url);
+  @Parameters(value = "remote")
+  public SQLDropClassIndexTest(boolean remote) {
+    super(remote);
   }
 
   @BeforeClass
-  public void beforeClass() {
-    database = new ODatabaseDocumentTx(url);
-
-    if (database.isClosed()) database.open("admin", "admin");
+  public void beforeClass() throws Exception {
+    super.beforeClass();
 
     final OSchema schema = database.getMetadata().getSchema();
     final OClass oClass = schema.createClass("SQLDropClassTestClass");
     oClass.createProperty("prop1", EXPECTED_PROP1_TYPE);
     oClass.createProperty("prop2", EXPECTED_PROP2_TYPE);
-
-    database.close();
-  }
-
-  @BeforeMethod
-  public void beforeMethod() {
-    if (database.isClosed()) database.open("admin", "admin");
-  }
-
-  @AfterMethod
-  public void afterMethod() {
-    database.close();
   }
 
   @Test
@@ -91,7 +70,7 @@ public class SQLDropClassIndexTest {
             .getIndexManagerInternal()
             .getIndex(database, "SQLDropClassCompositeIndex"));
     database.close();
-    database.open("admin", "admin");
+    database = createSessionInstance();
     Assert.assertNull(database.getMetadata().getSchema().getClass("SQLDropClassTestClass"));
     Assert.assertNull(
         database

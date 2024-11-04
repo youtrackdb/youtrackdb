@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.metadata.sequence;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.metadata.sequence.OSequence.SEQUENCE_TYPE;
 import java.util.Set;
@@ -37,7 +37,7 @@ public class OSequenceLibraryProxy extends OSequenceLibraryAbstract {
       OGlobalConfiguration.DISTRIBUTED_REPLICATION_PROTOCOL_VERSION.getValue();
 
   public OSequenceLibraryProxy(
-      final OSequenceLibraryImpl iDelegate, final ODatabaseDocumentInternal iDatabase) {
+      final OSequenceLibraryImpl iDelegate, final ODatabaseSessionInternal iDatabase) {
     super(iDelegate, iDatabase);
   }
 
@@ -62,8 +62,7 @@ public class OSequenceLibraryProxy extends OSequenceLibraryAbstract {
       throws ODatabaseException {
     boolean shouldGoOverDistributted =
         database.isDistributed() && (replicationProtocolVersion == 2);
-    return database.computeInTx(
-        () -> createSequence(iName, sequenceType, params, shouldGoOverDistributted));
+    return createSequence(iName, sequenceType, params, shouldGoOverDistributted);
   }
 
   @Override
@@ -107,10 +106,7 @@ public class OSequenceLibraryProxy extends OSequenceLibraryAbstract {
         throw new ODatabaseException(exc.getMessage());
       }
     } else {
-      database.executeInTx(
-          () -> {
-            delegate.dropSequence(database, iName);
-          });
+      delegate.dropSequence(database, iName);
     }
   }
 

@@ -2,8 +2,8 @@ package com.orientechnologies.orient.core.record.impl;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.OPair;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordLazyList;
@@ -232,7 +232,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
 
   @Override
   default OEdge addLightWeightEdge(OVertex to, String label) {
-    ODatabaseDocumentInternal db = (ODatabaseDocumentInternal) getDatabase();
+    ODatabaseSessionInternal db = (ODatabaseSessionInternal) getDatabase();
 
     return db.addLightweightEdge(this, to, label);
   }
@@ -316,7 +316,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
   }
 
   private Iterable<OEdge> getEdgesInternal(ODirection direction, String[] labels) {
-    var db = (ODatabaseDocumentInternal) getDatabase();
+    var db = (ODatabaseSessionInternal) getDatabase();
     var schema = db.getMetadata().getImmutableSchemaSnapshot();
 
     labels = resolveAliases(schema, labels);
@@ -581,7 +581,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
 
   @Override
   default ORID moveTo(final String className, final String clusterName) {
-    var db = (ODatabaseDocumentInternal) getDatabase();
+    var db = (ODatabaseSessionInternal) getDatabase();
     if (checkDeletedInTx(getIdentity())) {
       throw new ORecordNotFoundException(
           getIdentity(), "The vertex " + getIdentity() + " has been deleted");
@@ -863,7 +863,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
 
   @Override
   default void deleteEdge(OVertex to, String label) {
-    var db = (ODatabaseDocumentInternal) getDatabase();
+    var db = (ODatabaseSessionInternal) getDatabase();
     var schema = db.getMetadata().getImmutableSchemaSnapshot();
     OClass cl = schema.getClass(label);
 
@@ -880,7 +880,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
   }
 
   default void deleteEdge(OVertex to, OClass cls) {
-    var db = (ODatabaseDocumentInternal) getDatabase();
+    var db = (ODatabaseSessionInternal) getDatabase();
 
     var label = cls.getName();
     var outFieldName = OVertex.getEdgeLinkFieldName(ODirection.OUT, label);

@@ -11,7 +11,7 @@ import com.orientechnologies.orient.client.remote.message.OPushSchemaRequest;
 import com.orientechnologies.orient.client.remote.message.OPushSequencesRequest;
 import com.orientechnologies.orient.client.remote.message.OPushStorageConfigurationRequest;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OMetadataUpdateListener;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
 import com.orientechnologies.orient.core.index.OIndexManagerShared;
@@ -100,7 +100,7 @@ public class OPushManager implements OMetadataUpdateListener {
   }
 
   private void genericSubscribe(
-      OPushEventType context, ODatabaseDocumentInternal database, ONetworkProtocolBinary protocol) {
+      OPushEventType context, ODatabaseSessionInternal database, ONetworkProtocolBinary protocol) {
     if (!registerDatabase.contains(database.getName())) {
       database.getSharedContext().registerListener(this);
       registerDatabase.add(database.getName());
@@ -109,27 +109,27 @@ public class OPushManager implements OMetadataUpdateListener {
   }
 
   public synchronized void subscribeStorageConfiguration(
-      ODatabaseDocumentInternal database, ONetworkProtocolBinary protocol) {
+      ODatabaseSessionInternal database, ONetworkProtocolBinary protocol) {
     genericSubscribe(storageConfigurations, database, protocol);
   }
 
   public synchronized void subscribeSchema(
-      ODatabaseDocumentInternal database, ONetworkProtocolBinary protocol) {
+      ODatabaseSessionInternal database, ONetworkProtocolBinary protocol) {
     genericSubscribe(schema, database, protocol);
   }
 
   public synchronized void subscribeIndexManager(
-      ODatabaseDocumentInternal database, ONetworkProtocolBinary protocol) {
+      ODatabaseSessionInternal database, ONetworkProtocolBinary protocol) {
     genericSubscribe(indexManager, database, protocol);
   }
 
   public synchronized void subscribeFunctions(
-      ODatabaseDocumentInternal database, ONetworkProtocolBinary protocol) {
+      ODatabaseSessionInternal database, ONetworkProtocolBinary protocol) {
     genericSubscribe(functions, database, protocol);
   }
 
   public synchronized void subscribeSequences(
-      ODatabaseDocumentInternal database, ONetworkProtocolBinary protocol) {
+      ODatabaseSessionInternal database, ONetworkProtocolBinary protocol) {
     genericSubscribe(sequences, database, protocol);
   }
 

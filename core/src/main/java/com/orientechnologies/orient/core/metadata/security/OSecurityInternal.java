@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.metadata.security;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
@@ -195,7 +195,7 @@ public interface OSecurityInternal {
    * @param database
    * @return
    */
-  Set<OSecurityResourceProperty> getAllFilteredProperties(ODatabaseDocumentInternal database);
+  Set<OSecurityResourceProperty> getAllFilteredProperties(ODatabaseSessionInternal database);
 
   OSecurityUser securityAuthenticate(ODatabaseSession session, String userName, String password);
 

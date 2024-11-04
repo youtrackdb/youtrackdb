@@ -5,7 +5,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.common.comparator.OCaseInsentiveComparator;
 import com.orientechnologies.common.util.OCollections;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.OClassImpl;
@@ -34,7 +34,7 @@ public class ODropPropertyStatement extends ODDLStatement {
   @Override
   public OExecutionStream executeDDL(OCommandContext ctx) {
 
-    final ODatabaseDocumentInternal database = (ODatabaseDocumentInternal) ctx.getDatabase();
+    final ODatabaseSessionInternal database = (ODatabaseSessionInternal) ctx.getDatabase();
     final OClassImpl sourceClass =
         (OClassImpl) database.getMetadata().getSchema().getClass(className.getStringValue());
     if (sourceClass == null)
@@ -90,7 +90,7 @@ public class ODropPropertyStatement extends ODDLStatement {
     return OExecutionStream.resultIterator(rs.iterator());
   }
 
-  private List<OIndex> relatedIndexes(final String fieldName, ODatabaseDocumentInternal database) {
+  private List<OIndex> relatedIndexes(final String fieldName, ODatabaseSessionInternal database) {
     final List<OIndex> result = new ArrayList<OIndex>();
     for (final OIndex oIndex :
         database

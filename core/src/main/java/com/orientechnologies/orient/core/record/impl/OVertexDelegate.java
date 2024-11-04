@@ -22,7 +22,6 @@ package com.orientechnologies.orient.core.record.impl;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -52,7 +51,6 @@ public class OVertexDelegate implements OVertexInternal {
     return this;
   }
 
-  @Override
   public void resetToNew() {
     element.resetToNew();
   }
@@ -215,11 +213,6 @@ public class OVertexDelegate implements OVertexInternal {
   @Override
   public boolean isDirty() {
     return element.isDirty();
-  }
-
-  @Override
-  public <RET extends ORecord> RET load() throws ORecordNotFoundException {
-    return (RET) element.load();
   }
 
   @Override

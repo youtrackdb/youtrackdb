@@ -6,8 +6,8 @@ import static org.junit.Assert.assertNotNull;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
 import com.orientechnologies.orient.core.db.ODatabase;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OMetadataUpdateListener;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
@@ -66,7 +66,7 @@ public class ODatabaseMetadataUpdateListener {
           }
         };
 
-    ((ODatabaseDocumentInternal) session).getSharedContext().registerListener(listener);
+    ((ODatabaseSessionInternal) session).getSharedContext().registerListener(listener);
   }
 
   @Test

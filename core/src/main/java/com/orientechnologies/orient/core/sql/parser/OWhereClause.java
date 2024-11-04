@@ -5,7 +5,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.common.collection.OMultiCollectionIterator;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OCompositeIndexDefinition;
@@ -94,7 +94,7 @@ public class OWhereClause extends SimpleNode {
 
       List<OBinaryCondition> indexedFunctConditions =
           condition.getIndexedFunctionConditions(
-              oClass, (ODatabaseDocumentInternal) ctx.getDatabase());
+              oClass, (ODatabaseSessionInternal) ctx.getDatabase());
 
       long conditionEstimation = Long.MAX_VALUE;
 
@@ -282,7 +282,7 @@ public class OWhereClause extends SimpleNode {
   }
 
   public List<OBinaryCondition> getIndexedFunctionConditions(
-      OClass iSchemaClass, ODatabaseDocumentInternal database) {
+      OClass iSchemaClass, ODatabaseSessionInternal database) {
     if (baseExpression == null) {
       return null;
     }

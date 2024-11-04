@@ -21,7 +21,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -29,9 +28,9 @@ import org.testng.annotations.Test;
 public class IndexManagerTest extends DocumentDBBaseTest {
   private static final String CLASS_NAME = "classForIndexManagerTest";
 
-  @Parameters(value = "url")
-  public IndexManagerTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public IndexManagerTest(boolean remote) {
+    super(remote);
   }
 
   @BeforeClass

@@ -9,7 +9,6 @@ import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import org.testng.Assert;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -22,9 +21,9 @@ public class SQLSequenceTest extends DocumentDBBaseTest {
   private static final long FIRST_START = OSequence.DEFAULT_START;
   private static final long SECOND_START = 31;
 
-  @Parameters(value = "url")
-  public SQLSequenceTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public SQLSequenceTest(boolean remote) {
+    super(remote);
   }
 
   @Test
@@ -112,7 +111,9 @@ public class SQLSequenceTest extends DocumentDBBaseTest {
 
     //
     try {
+      database.begin();
       seq.updateParams(new OSequence.CreateParams().setStart(SECOND_START).setCacheSize(13));
+      database.commit();
     } catch (ODatabaseException exc) {
       Assert.assertTrue(false, "Unable to update paramas");
     }

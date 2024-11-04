@@ -35,7 +35,7 @@ public class DistributedQueryContext {
   }
 
   public List<OResult> fetchNextPage() {
-    ODatabaseDocumentInternal prev = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    ODatabaseSessionInternal prev = ODatabaseRecordThreadLocal.instance().getIfDefined();
     try {
       db.activateOnCurrentThread();
       resultSet.close();
@@ -51,7 +51,7 @@ public class DistributedQueryContext {
   }
 
   public void close() {
-    ODatabaseDocumentInternal prev = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    ODatabaseSessionInternal prev = ODatabaseRecordThreadLocal.instance().getIfDefined();
     try {
       db.activateOnCurrentThread();
       resultSet.close();

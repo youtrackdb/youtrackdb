@@ -21,7 +21,7 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.orient.core.command.script.OCommandScriptException;
 import com.orientechnologies.orient.core.command.script.OScriptManager;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.hook.ORecordHook;
@@ -71,7 +71,7 @@ public class OClassTrigger {
   public static final String PROP_AFTER_DELETE = ONAFTER_DELETE;
 
   public static ORecordHook.RESULT onRecordBeforeCreate(
-      final ODocument iDocument, ODatabaseDocumentInternal database) {
+      final ODocument iDocument, ODatabaseSessionInternal database) {
     Object func = checkClzAttribute(iDocument, ONBEFORE_CREATED, database);
     if (func != null) {
       if (func instanceof OFunction)
@@ -83,7 +83,7 @@ public class OClassTrigger {
   }
 
   public static void onRecordAfterCreate(
-      final ODocument iDocument, ODatabaseDocumentInternal database) {
+      final ODocument iDocument, ODatabaseSessionInternal database) {
     Object func = checkClzAttribute(iDocument, ONAFTER_CREATED, database);
     if (func != null) {
       if (func instanceof OFunction)
@@ -93,7 +93,7 @@ public class OClassTrigger {
   }
 
   public static ORecordHook.RESULT onRecordBeforeRead(
-      final ODocument iDocument, ODatabaseDocumentInternal database) {
+      final ODocument iDocument, ODatabaseSessionInternal database) {
     Object func = checkClzAttribute(iDocument, ONBEFORE_READ, database);
     if (func != null) {
       if (func instanceof OFunction)
@@ -105,7 +105,7 @@ public class OClassTrigger {
   }
 
   public static void onRecordAfterRead(
-      final ODocument iDocument, ODatabaseDocumentInternal database) {
+      final ODocument iDocument, ODatabaseSessionInternal database) {
     Object func = checkClzAttribute(iDocument, ONAFTER_READ, database);
     if (func != null) {
       if (func instanceof OFunction)
@@ -115,7 +115,7 @@ public class OClassTrigger {
   }
 
   public static ORecordHook.RESULT onRecordBeforeUpdate(
-      final ODocument iDocument, ODatabaseDocumentInternal database) {
+      final ODocument iDocument, ODatabaseSessionInternal database) {
     Object func = checkClzAttribute(iDocument, ONBEFORE_UPDATED, database);
     if (func != null) {
       if (func instanceof OFunction)
@@ -127,7 +127,7 @@ public class OClassTrigger {
   }
 
   public static void onRecordAfterUpdate(
-      final ODocument iDocument, ODatabaseDocumentInternal database) {
+      final ODocument iDocument, ODatabaseSessionInternal database) {
     Object func = checkClzAttribute(iDocument, ONAFTER_UPDATED, database);
     if (func != null) {
       if (func instanceof OFunction)
@@ -137,7 +137,7 @@ public class OClassTrigger {
   }
 
   public static ORecordHook.RESULT onRecordBeforeDelete(
-      final ODocument iDocument, ODatabaseDocumentInternal database) {
+      final ODocument iDocument, ODatabaseSessionInternal database) {
     Object func = checkClzAttribute(iDocument, ONBEFORE_DELETE, database);
     if (func != null) {
       if (func instanceof OFunction)
@@ -149,7 +149,7 @@ public class OClassTrigger {
   }
 
   public static void onRecordAfterDelete(
-      final ODocument iDocument, ODatabaseDocumentInternal database) {
+      final ODocument iDocument, ODatabaseSessionInternal database) {
     Object func = checkClzAttribute(iDocument, ONAFTER_DELETE, database);
     if (func != null) {
       if (func instanceof OFunction)
@@ -159,7 +159,7 @@ public class OClassTrigger {
   }
 
   private static Object checkClzAttribute(
-      final ODocument iDocument, String attr, ODatabaseDocumentInternal database) {
+      final ODocument iDocument, String attr, ODatabaseSessionInternal database) {
     final OImmutableClass clz = ODocumentInternal.getImmutableSchemaClass(database, iDocument);
     if (clz != null && clz.isTriggered()) {
       OFunction func = null;
@@ -249,7 +249,7 @@ public class OClassTrigger {
   }
 
   private static ORecordHook.RESULT executeFunction(
-      final ODocument iDocument, final OFunction func, ODatabaseDocumentInternal database) {
+      final ODocument iDocument, final OFunction func, ODatabaseSessionInternal database) {
     if (func == null) return ORecordHook.RESULT.RECORD_NOT_CHANGED;
 
     final OScriptManager scriptManager =
@@ -260,7 +260,7 @@ public class OClassTrigger {
     try {
       final Bindings binding = scriptEngine.getBindings(ScriptContext.ENGINE_SCOPE);
 
-      scriptManager.bind(scriptEngine, binding, (ODatabaseDocumentInternal) database, null, null);
+      scriptManager.bind(scriptEngine, binding, (ODatabaseSessionInternal) database, null, null);
       binding.put("doc", iDocument);
 
       String result = null;

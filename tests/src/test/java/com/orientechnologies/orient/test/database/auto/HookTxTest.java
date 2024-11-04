@@ -19,18 +19,15 @@ import com.orientechnologies.orient.core.hook.ORecordHookAbstract;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTxInternal;
 import com.orientechnologies.orient.test.domain.whiz.Profile;
 import java.io.IOException;
 import java.util.List;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test(groups = "hook")
-public class HookTxTest extends ORecordHookAbstract {
+public class HookTxTest extends ObjectDBBaseTest {
 
   public static final int RECORD_BEFORE_CREATE = 3;
   public static final int RECORD_AFTER_CREATE = 5;
@@ -41,35 +38,110 @@ public class HookTxTest extends ORecordHookAbstract {
   public static final int RECORD_BEFORE_DELETE = 19;
   public static final int RECORD_AFTER_DELETE = 23;
 
-  private OObjectDatabaseTxInternal database;
   private int callbackCount = 0;
   private Profile p;
   private int expectedHookState;
-  private String url;
 
-  @Parameters(value = "url")
-  public HookTxTest(@Optional String url) {
-    this.url = BaseTest.prepareUrl(url);
-  }
+  private final class RecordHook extends ORecordHookAbstract {
 
-  @BeforeClass
-  public void beforeClass() {
-    database = new OObjectDatabaseTxInternal(url);
-    if (!url.startsWith("remote:") && !database.exists()) {
-      database.create();
-      database.close();
+    @Override
+    @Test(enabled = false)
+    public RESULT onRecordBeforeCreate(ORecord iRecord) {
+      if (iRecord instanceof ODocument
+          && ((ODocument) iRecord).getClassName() != null
+          && ((ODocument) iRecord).getClassName().equals("Profile")) {
+        callbackCount += RECORD_BEFORE_CREATE;
+      }
+      return RESULT.RECORD_NOT_CHANGED;
+    }
+
+    @Override
+    @Test(enabled = false)
+    public void onRecordAfterCreate(ORecord iRecord) {
+      if (iRecord instanceof ODocument
+          && ((ODocument) iRecord).getClassName() != null
+          && ((ODocument) iRecord).getClassName().equals("Profile")) {
+        callbackCount += RECORD_AFTER_CREATE;
+      }
+    }
+
+    @Override
+    @Test(enabled = false)
+    public RESULT onRecordBeforeRead(ORecord iRecord) {
+      if (iRecord instanceof ODocument
+          && ((ODocument) iRecord).getClassName() != null
+          && ((ODocument) iRecord).getClassName().equals("Profile")) {
+        callbackCount += RECORD_BEFORE_READ;
+      }
+      return RESULT.RECORD_NOT_CHANGED;
+    }
+
+    @Override
+    @Test(enabled = false)
+    public void onRecordAfterRead(ORecord iRecord) {
+      if (iRecord instanceof ODocument
+          && ((ODocument) iRecord).getClassName() != null
+          && ((ODocument) iRecord).getClassName().equals("Profile")) {
+        callbackCount += RECORD_AFTER_READ;
+      }
+    }
+
+    @Override
+    @Test(enabled = false)
+    public RESULT onRecordBeforeUpdate(ORecord iRecord) {
+      if (iRecord instanceof ODocument
+          && ((ODocument) iRecord).getClassName() != null
+          && ((ODocument) iRecord).getClassName().equals("Profile")) {
+        callbackCount += RECORD_BEFORE_UPDATE;
+      }
+      return RESULT.RECORD_NOT_CHANGED;
+    }
+
+    @Override
+    @Test(enabled = false)
+    public void onRecordAfterUpdate(ORecord iRecord) {
+      if (iRecord instanceof ODocument
+          && ((ODocument) iRecord).getClassName() != null
+          && ((ODocument) iRecord).getClassName().equals("Profile")) {
+        callbackCount += RECORD_AFTER_UPDATE;
+      }
+    }
+
+    @Override
+    @Test(enabled = false)
+    public RESULT onRecordBeforeDelete(ORecord iRecord) {
+      if (iRecord instanceof ODocument
+          && ((ODocument) iRecord).getClassName() != null
+          && ((ODocument) iRecord).getClassName().equals("Profile")) {
+        callbackCount += RECORD_BEFORE_DELETE;
+      }
+      return RESULT.RECORD_NOT_CHANGED;
+    }
+
+    @Override
+    @Test(enabled = false)
+    public void onRecordAfterDelete(ORecord iRecord) {
+      if (iRecord instanceof ODocument
+          && ((ODocument) iRecord).getClassName() != null
+          && ((ODocument) iRecord).getClassName().equals("Profile")) {
+        callbackCount += RECORD_AFTER_DELETE;
+      }
+    }
+
+    @Override
+    public DISTRIBUTED_EXECUTION_MODE getDistributedExecutionMode() {
+      return DISTRIBUTED_EXECUTION_MODE.TARGET_NODE;
     }
   }
 
-  @Override
-  public DISTRIBUTED_EXECUTION_MODE getDistributedExecutionMode() {
-    return DISTRIBUTED_EXECUTION_MODE.TARGET_NODE;
+  @Parameters(value = "remote")
+  public HookTxTest(boolean remote) {
+    super(remote);
   }
 
   @Test
   public void testRegisterHook() throws IOException {
-    database.open("admin", "admin");
-    database.registerHook(this);
+    database.registerHook(new RecordHook());
     database
         .getEntityManager()
         .registerEntityClasses("com.orientechnologies.orient.test.domain.business");
@@ -83,6 +155,7 @@ public class HookTxTest extends ORecordHookAbstract {
 
   @Test(dependsOnMethods = "testRegisterHook")
   public void testHookCallsCreate() {
+    database.registerHook(new RecordHook());
     p = new Profile("HookTxTest");
 
     expectedHookState = 0;
@@ -99,6 +172,7 @@ public class HookTxTest extends ORecordHookAbstract {
 
   @Test(dependsOnMethods = "testHookCallsCreate")
   public void testHookCallsRead() {
+    database.registerHook(new RecordHook());
     // TEST HOOKS ON READ
     database.begin();
     List<Profile> result =
@@ -106,19 +180,21 @@ public class HookTxTest extends ORecordHookAbstract {
             new OSQLSynchQuery<Profile>("select * from Profile where nick = 'HookTxTest'"));
     expectedHookState += RECORD_BEFORE_READ + RECORD_AFTER_READ;
 
-    Assert.assertFalse(result.size() == 0);
+    Assert.assertFalse(result.isEmpty());
 
-    for (int i = 0; i < result.size(); ++i) {
+    for (Profile profile : result) {
       Assert.assertEquals(callbackCount, expectedHookState);
 
-      p = result.get(i);
+      p = profile;
     }
+
     Assert.assertEquals(callbackCount, expectedHookState);
     database.commit();
   }
 
   @Test(dependsOnMethods = "testHookCallsRead")
   public void testHookCallsUpdate() {
+    database.registerHook(new RecordHook());
     database.begin();
     // TEST HOOKS ON UPDATE
     p.setValue(p.getValue() + 1000);
@@ -133,6 +209,7 @@ public class HookTxTest extends ORecordHookAbstract {
 
   @Test(dependsOnMethods = "testHookCallsUpdate")
   public void testHookCallsDelete() throws IOException {
+    database.registerHook(new RecordHook());
     // TEST HOOKS ON DELETE
     database.begin();
     database.delete(p);
@@ -142,90 +219,6 @@ public class HookTxTest extends ORecordHookAbstract {
         RECORD_BEFORE_DELETE + RECORD_AFTER_DELETE + RECORD_BEFORE_READ + RECORD_AFTER_READ;
     Assert.assertEquals(callbackCount, expectedHookState);
 
-    database.unregisterHook(this);
-  }
-
-  @Override
-  @Test(enabled = false)
-  public RESULT onRecordBeforeCreate(ORecord iRecord) {
-    if (iRecord instanceof ODocument
-        && ((ODocument) iRecord).getClassName() != null
-        && ((ODocument) iRecord).getClassName().equals("Profile")) {
-      callbackCount += RECORD_BEFORE_CREATE;
-    }
-    return RESULT.RECORD_NOT_CHANGED;
-  }
-
-  @Override
-  @Test(enabled = false)
-  public void onRecordAfterCreate(ORecord iRecord) {
-    if (iRecord instanceof ODocument
-        && ((ODocument) iRecord).getClassName() != null
-        && ((ODocument) iRecord).getClassName().equals("Profile")) {
-      callbackCount += RECORD_AFTER_CREATE;
-    }
-  }
-
-  @Override
-  @Test(enabled = false)
-  public RESULT onRecordBeforeRead(ORecord iRecord) {
-    if (iRecord instanceof ODocument
-        && ((ODocument) iRecord).getClassName() != null
-        && ((ODocument) iRecord).getClassName().equals("Profile")) {
-      callbackCount += RECORD_BEFORE_READ;
-    }
-    return RESULT.RECORD_NOT_CHANGED;
-  }
-
-  @Override
-  @Test(enabled = false)
-  public void onRecordAfterRead(ORecord iRecord) {
-    if (iRecord instanceof ODocument
-        && ((ODocument) iRecord).getClassName() != null
-        && ((ODocument) iRecord).getClassName().equals("Profile")) {
-      callbackCount += RECORD_AFTER_READ;
-    }
-  }
-
-  @Override
-  @Test(enabled = false)
-  public RESULT onRecordBeforeUpdate(ORecord iRecord) {
-    if (iRecord instanceof ODocument
-        && ((ODocument) iRecord).getClassName() != null
-        && ((ODocument) iRecord).getClassName().equals("Profile")) {
-      callbackCount += RECORD_BEFORE_UPDATE;
-    }
-    return RESULT.RECORD_NOT_CHANGED;
-  }
-
-  @Override
-  @Test(enabled = false)
-  public void onRecordAfterUpdate(ORecord iRecord) {
-    if (iRecord instanceof ODocument
-        && ((ODocument) iRecord).getClassName() != null
-        && ((ODocument) iRecord).getClassName().equals("Profile")) {
-      callbackCount += RECORD_AFTER_UPDATE;
-    }
-  }
-
-  @Override
-  @Test(enabled = false)
-  public RESULT onRecordBeforeDelete(ORecord iRecord) {
-    if (iRecord instanceof ODocument
-        && ((ODocument) iRecord).getClassName() != null
-        && ((ODocument) iRecord).getClassName().equals("Profile")) {
-      callbackCount += RECORD_BEFORE_DELETE;
-    }
-    return RESULT.RECORD_NOT_CHANGED;
-  }
-
-  @Override
-  @Test(enabled = false)
-  public void onRecordAfterDelete(ORecord iRecord) {
-    if (iRecord instanceof ODocument
-        && ((ODocument) iRecord).getClassName() != null
-        && ((ODocument) iRecord).getClassName().equals("Profile")) {
-      callbackCount += RECORD_AFTER_DELETE;
-    }
+    database.unregisterHook(new RecordHook());
   }
 }

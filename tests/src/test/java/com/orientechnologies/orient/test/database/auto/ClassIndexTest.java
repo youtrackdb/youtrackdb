@@ -27,7 +27,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -37,9 +36,9 @@ public class ClassIndexTest extends DocumentDBBaseTest {
   private OClass oClass;
   private OClass oSuperClass;
 
-  @Parameters(value = "url")
-  public ClassIndexTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public ClassIndexTest(boolean remote) {
+    super(remote);
   }
 
   @BeforeClass

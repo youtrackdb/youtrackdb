@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.command.script;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.ORecord;
@@ -34,9 +34,9 @@ import java.util.Map;
  * @author Enrico Risa (e.risa--(at)--orientdb.com)
  */
 public class OScriptDatabaseWrapper {
-  protected ODatabaseDocumentInternal database;
+  protected ODatabaseSessionInternal database;
 
-  public OScriptDatabaseWrapper(final ODatabaseDocumentInternal database) {
+  public OScriptDatabaseWrapper(final ODatabaseSessionInternal database) {
     this.database = database;
   }
 

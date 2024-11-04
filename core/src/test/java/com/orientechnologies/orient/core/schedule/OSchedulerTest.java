@@ -281,8 +281,8 @@ public class OSchedulerTest {
     }
 
     @Override
-    public ODatabaseDocumentInternal getThreadDatabase() {
-      return (ODatabaseDocumentInternal) context.cachedPool(database, username, password).acquire();
+    public ODatabaseSessionInternal getThreadDatabase() {
+      return (ODatabaseSessionInternal) context.cachedPool(database, username, password).acquire();
     }
   }
 }

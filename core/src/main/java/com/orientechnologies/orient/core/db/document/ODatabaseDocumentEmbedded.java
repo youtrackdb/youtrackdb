@@ -31,10 +31,10 @@ import com.orientechnologies.orient.core.command.OScriptExecutor;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
 import com.orientechnologies.orient.core.db.ODatabase;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
 import com.orientechnologies.orient.core.db.ODatabaseListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseStats;
 import com.orientechnologies.orient.core.db.OHookReplacedRecordThreadLocal;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
@@ -145,18 +145,6 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     try {
       status = STATUS.CLOSED;
 
-      // OVERWRITE THE URL
-      url = storage.getURL();
-      this.storage = storage;
-      this.componentsFactory = storage.getComponentsFactory();
-
-      unmodifiableHooks = Collections.unmodifiableMap(hooks);
-
-      localCache = new OLocalRecordCache();
-
-      init();
-
-      databaseOwner = this;
       try {
         var cfg = storage.getConfiguration();
         if (cfg != null) {
@@ -181,6 +169,20 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
                 NonTxReadMode.WARN);
         nonTxReadMode = NonTxReadMode.WARN;
       }
+
+      // OVERWRITE THE URL
+      url = storage.getURL();
+      this.storage = storage;
+      this.componentsFactory = storage.getComponentsFactory();
+
+      unmodifiableHooks = Collections.unmodifiableMap(hooks);
+
+      localCache = new OLocalRecordCache();
+
+      init();
+
+      databaseOwner = this;
+
     } catch (Exception t) {
       ODatabaseRecordThreadLocal.instance().remove();
 
@@ -274,36 +276,38 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
 
   public void internalOpen(
       final String iUserName, final String iUserPassword, boolean checkPassword) {
-    try {
-      OSecurityInternal security = sharedContext.getSecurity();
+    executeInTx(
+        () -> {
+          try {
+            OSecurityInternal security = sharedContext.getSecurity();
 
-      if (user == null
-          || user.getVersion() != security.getVersion(this)
-          || !user.getName().equalsIgnoreCase(iUserName)) {
-        final OSecurityUser usr;
+            if (user == null
+                || user.getVersion() != security.getVersion(this)
+                || !user.getName().equalsIgnoreCase(iUserName)) {
+              final OSecurityUser usr;
 
-        if (checkPassword) {
-          usr = security.securityAuthenticate(this, iUserName, iUserPassword);
-        } else {
-          usr = security.getUser(this, iUserName);
-        }
-        if (usr != null) {
-          user = new OImmutableUser(security.getVersion(this), usr);
-        } else {
-          user = null;
-        }
+              if (checkPassword) {
+                usr = security.securityAuthenticate(this, iUserName, iUserPassword);
+              } else {
+                usr = security.getUser(this, iUserName);
+              }
+              if (usr != null) {
+                user = new OImmutableUser(security.getVersion(this), usr);
+              } else {
+                user = null;
+              }
 
-        checkSecurity(ORule.ResourceGeneric.DATABASE, ORole.PERMISSION_READ);
-      }
-
-    } catch (OException e) {
-      ODatabaseRecordThreadLocal.instance().remove();
-      throw e;
-    } catch (Exception e) {
-      ODatabaseRecordThreadLocal.instance().remove();
-      throw OException.wrapException(
-          new ODatabaseException("Cannot open database url=" + getURL()), e);
-    }
+              checkSecurity(ORule.ResourceGeneric.DATABASE, ORole.PERMISSION_READ);
+            }
+          } catch (OException e) {
+            ODatabaseRecordThreadLocal.instance().remove();
+            throw e;
+          } catch (Exception e) {
+            ODatabaseRecordThreadLocal.instance().remove();
+            throw OException.wrapException(
+                new ODatabaseException("Cannot open database url=" + getURL()), e);
+          }
+        });
   }
 
   private void applyListeners(OrientDBConfig config) {
@@ -378,9 +382,12 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
 
   @Override
   protected void loadMetadata() {
-    metadata = new OMetadataDefault(this);
-    metadata.init(sharedContext);
-    sharedContext.load(this);
+    executeInTx(
+        () -> {
+          metadata = new OMetadataDefault(this);
+          metadata.init(sharedContext);
+          sharedContext.load(this);
+        });
   }
 
   private void applyAttributes(OrientDBConfig config) {
@@ -591,7 +598,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
    * Returns a copy of current database if it's open. The returned instance can be used by another
    * thread without affecting current instance. The database copy is not set in thread local.
    */
-  public ODatabaseDocumentInternal copy() {
+  public ODatabaseSessionInternal copy() {
     var storage = (OStorage) getSharedContext().getStorage();
     storage.open(null, null, config.getConfigurations());
     ODatabaseDocumentEmbedded database = new ODatabaseDocumentEmbedded(storage);
@@ -889,7 +896,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     checkIfActive();
 
     OLiveQueryListenerV2 queryListener = new LiveQueryListenerImpl(listener, query, this, args);
-    ODatabaseDocumentInternal dbCopy = this.copy();
+    ODatabaseSessionInternal dbCopy = this.copy();
     this.activateOnCurrentThread();
     OLiveQueryMonitor monitor = new OLiveQueryMonitorEmbedded(queryListener.getToken(), dbCopy);
     return monitor;
@@ -903,7 +910,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
 
     OLiveQueryListenerV2 queryListener =
         new LiveQueryListenerImpl(listener, query, this, (Map) args);
-    ODatabaseDocumentInternal dbCopy = this.copy();
+    ODatabaseSessionInternal dbCopy = this.copy();
     this.activateOnCurrentThread();
     OLiveQueryMonitor monitor = new OLiveQueryMonitorEmbedded(queryListener.getToken(), dbCopy);
     return monitor;

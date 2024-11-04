@@ -19,8 +19,8 @@ package com.orientechnologies.orient.test.database.auto;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.OCommandPredicate;
 import com.orientechnologies.orient.core.command.traverse.OTraverse;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.OVertex;
@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -46,9 +45,9 @@ public class TraverseTest extends DocumentDBBaseTest {
   private OVertex megRyan;
   private OVertex nicoleKidman;
 
-  @Parameters(value = "url")
-  public TraverseTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public TraverseTest(boolean remote) {
+    super(remote);
   }
 
   @BeforeClass
@@ -451,7 +450,7 @@ public class TraverseTest extends DocumentDBBaseTest {
     try {
 
       String q = "traverse in('married')  from " + nicoleKidman.getIdentity() + "";
-      ODatabaseDocumentInternal db = (ODatabaseDocumentInternal) database.copy();
+      ODatabaseSessionInternal db = (ODatabaseSessionInternal) database.copy();
       ODatabaseRecordThreadLocal.instance().set(db);
       List<Object> result1 = db.command(new OSQLSynchQuery<ODocument>(q)).execute();
       Assert.assertEquals(result1.size(), 2);

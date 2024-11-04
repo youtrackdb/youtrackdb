@@ -13,16 +13,17 @@ import java.util.stream.Stream;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-/** @author Artem Orobets (enisher-at-gmail.com) */
+/**
+ * @author Artem Orobets (enisher-at-gmail.com)
+ */
 public class IndexTxTest extends DocumentDBBaseTest {
 
-  @Parameters(value = "url")
-  public IndexTxTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public IndexTxTest(boolean remote) {
+    super(remote);
   }
 
   @BeforeClass

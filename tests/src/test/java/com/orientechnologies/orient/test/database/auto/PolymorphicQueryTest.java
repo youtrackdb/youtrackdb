@@ -30,7 +30,6 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -39,9 +38,9 @@ import org.testng.annotations.Test;
  */
 public class PolymorphicQueryTest extends DocumentDBBaseTest {
 
-  @Parameters(value = "url")
-  public PolymorphicQueryTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public PolymorphicQueryTest(boolean remote) {
+    super(remote);
   }
 
   @BeforeClass

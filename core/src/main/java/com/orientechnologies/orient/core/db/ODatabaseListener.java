@@ -53,8 +53,10 @@ public interface ODatabaseListener {
 
   void onClose(final ODatabase iDatabase);
 
+  @Deprecated
   void onBeforeCommand(final OCommandRequestText iCommand, final OCommandExecutor executor);
 
+  @Deprecated
   void onAfterCommand(
       final OCommandRequestText iCommand, final OCommandExecutor executor, Object result);
 

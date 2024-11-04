@@ -45,12 +45,12 @@ public class ODatabasePoolRemoteTest {
     }
 
     ODatabasePool pool = new ODatabasePool(orientDb, "test", "admin", "admin");
-    ODatabaseDocumentInternal db = (ODatabaseDocumentInternal) pool.acquire();
+    ODatabaseSessionInternal db = (ODatabaseSessionInternal) pool.acquire();
     db.createClass("Test");
     db.begin();
     db.save(new ODocument("Test"));
     db.close();
-    db = (ODatabaseDocumentInternal) pool.acquire();
+    db = (ODatabaseSessionInternal) pool.acquire();
     assertEquals(db.countClass("Test"), 0);
 
     pool.close();

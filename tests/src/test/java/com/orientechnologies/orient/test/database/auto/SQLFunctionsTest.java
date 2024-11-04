@@ -44,16 +44,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.testng.Assert;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test
 public class SQLFunctionsTest extends DocumentDBBaseTest {
 
-  @Parameters(value = "url")
-  public SQLFunctionsTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public SQLFunctionsTest(boolean remote) {
+    super(remote);
   }
 
   @Test
@@ -175,7 +174,7 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
 
     database.close();
     //noinspection deprecation
-    database.open("admin", "admin");
+    database = createSessionInstance();
 
     result =
         database.query("select count(*) as count from QueryCountExtendsRestrictedClass").stream()
@@ -185,20 +184,7 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
     Assert.assertEquals(2L, count.<Object>field("count"));
 
     database.close();
-    //noinspection deprecation
-    //    database.open("reader", "reader");
-    //
-    //    result =
-    //        database.query("select count(*) as count from
-    // QueryCountExtendsRestrictedClass").stream()
-    //            .map(r -> (ODocument) r.toElement())
-    //            .toList();
-    //    count = result.get(0);
-    //    Assert.assertEquals(1L, count.<Object>field("count"));
-    //
-    //    database.close();
-    //noinspection deprecation
-    database.open("superReader", "superReader");
+    database = createSessionInstance("superReader", "superReader");
 
     result =
         database.query("select count(*) as count from QueryCountExtendsRestrictedClass").stream()

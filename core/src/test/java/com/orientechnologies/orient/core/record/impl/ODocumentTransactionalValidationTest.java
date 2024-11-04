@@ -166,7 +166,7 @@ public class ODocumentTransactionalValidationTest extends BaseMemoryInternalData
     vrt.save();
     db.commit();
     db.begin();
-    vrt.load();
+    vrt = db.load(vrt.getIdentity());
     Assert.assertEquals(
         link2.getIdentity(),
         vrt.getVertices(ODirection.OUT, edgeClass).iterator().next().getIdentity());

@@ -18,67 +18,71 @@
     For more information: http://www.orientdb.com
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
 
-    <parent>
-        <groupId>com.orientechnologies</groupId>
-        <artifactId>orientdb-parent</artifactId>
-        <version>4.0.0-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
-    </parent>
+  <parent>
+    <groupId>com.orientechnologies</groupId>
+    <artifactId>orientdb-parent</artifactId>
+    <version>4.0.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
 
-    <artifactId>orientdb-security</artifactId>
+  <artifactId>orientdb-security</artifactId>
 
-    <packaging>jar</packaging>
+  <packaging>jar</packaging>
 
-    <name>OrientDB Security Plugin</name>
-    <description>OrientDB Security Plugin</description>
-    <url>http://maven.apache.org</url>
-    <inceptionYear>2016</inceptionYear>
+  <name>OrientDB Security Plugin</name>
+  <description>OrientDB Security Plugin</description>
+  <url>http://maven.apache.org</url>
+  <inceptionYear>2016</inceptionYear>
 
-    <properties>
-        <!--This property is updated automatically and is needed to make build reproducible-->
-        <project.build.outputTimestamp>2023-01-01T00:00:00Z</project.build.outputTimestamp>
-        <javac.src.version>${maven.compiler.source}</javac.src.version>
-        <javac.target.version>${maven.compiler.target}</javac.target.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <!--Overrides parent pom's location-->
-        <license.location>https://github.com/orientechnologies/orientdb/raw/develop/ODB-ASL-LICENSE.txt</license.location>
-    </properties>
+  <properties>
+    <!--This property is updated automatically and is needed to make build reproducible-->
+    <project.build.outputTimestamp>2023-01-01T00:00:00Z</project.build.outputTimestamp>
+    <javac.src.version>${maven.compiler.source}</javac.src.version>
+    <javac.target.version>${maven.compiler.target}</javac.target.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <!--Overrides parent pom's location-->
+    <license.location>
+      https://github.com/orientechnologies/orientdb/raw/develop/ODB-ASL-LICENSE.txt
+    </license.location>
+  </properties>
 
-    <dependencies>
-        <dependency>
-            <groupId>com.orientechnologies</groupId>
-            <artifactId>orientdb-core</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.orientechnologies</groupId>
-            <artifactId>orientdb-server</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
-    <profiles>
-        <profile>
-            <id>secondary-tests</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <version>${surefire.version}</version>
-                        <configuration>
-                            <includes>
-                                <include>**/*ST.java</include>
-                            </includes>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
+  <dependencies>
+    <dependency>
+      <groupId>com.orientechnologies</groupId>
+      <artifactId>orientdb-core</artifactId>
+      <version>${project.parent.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.orientechnologies</groupId>
+      <artifactId>orientdb-server</artifactId>
+      <version>${project.parent.version}</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+  <profiles>
+    <profile>
+      <id>secondary-tests</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>${surefire.version}</version>
+            <configuration>
+              <includes>
+                <include>**/*ST.java</include>
+              </includes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>

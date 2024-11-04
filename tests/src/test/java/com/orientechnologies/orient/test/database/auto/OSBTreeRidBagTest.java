@@ -39,7 +39,6 @@ import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -52,9 +51,9 @@ public class OSBTreeRidBagTest extends ORidBagTest {
   private int topThreshold;
   private int bottomThreshold;
 
-  @Parameters(value = "url")
-  public OSBTreeRidBagTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public OSBTreeRidBagTest(boolean remote) {
+    super(remote);
   }
 
   @BeforeClass
@@ -207,8 +206,6 @@ public class OSBTreeRidBagTest extends ORidBagTest {
     doc.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
-    doc.reload();
-
     database.begin();
     ODocument doc_5 = new ODocument();
     doc_5.save(database.getClusterNameById(database.getDefaultClusterId()));
@@ -223,8 +220,7 @@ public class OSBTreeRidBagTest extends ORidBagTest {
     doc.save();
     database.commit();
 
-    doc.reload();
-
+    database.begin();
     bag = doc.field("ridBag");
     Assert.assertEquals(bag.size(), 6);
 
@@ -244,6 +240,7 @@ public class OSBTreeRidBagTest extends ORidBagTest {
     Assert.assertTrue(docs.isEmpty());
 
     OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(oldThreshold);
+    database.rollback();
   }
 
   public void testRidBagDelete() {
@@ -288,8 +285,6 @@ public class OSBTreeRidBagTest extends ORidBagTest {
     long testRidBagSize = testRidBagFile.length();
 
     for (int i = 0; i < 100; i++) {
-      testDocument.reload();
-
       database.begin();
       testDocument.delete();
       database.commit();

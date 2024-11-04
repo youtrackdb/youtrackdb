@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.metadata.schema;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.collate.ODefaultCollate;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
@@ -30,7 +30,7 @@ public class OPropertyEmbedded extends OPropertyImpl {
   public OPropertyImpl setType(final OType type) {
     getDatabase().checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    final ODatabaseDocumentInternal database = getDatabase();
+    final ODatabaseSessionInternal database = getDatabase();
     acquireSchemaWriteLock();
     try {
       setTypeInternal(type);
@@ -166,7 +166,7 @@ public class OPropertyEmbedded extends OPropertyImpl {
                   "Collate value was changed, following indexes will be rebuilt %s",
                   indexesToRecreate);
 
-          final ODatabaseDocumentInternal database = getDatabase();
+          final ODatabaseSessionInternal database = getDatabase();
           final OIndexManagerAbstract indexManager =
               database.getMetadata().getIndexManagerInternal();
 

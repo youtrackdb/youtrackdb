@@ -5,8 +5,8 @@ import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.script.transformer.OScriptTransformer;
 import com.orientechnologies.orient.core.command.traverse.OAbstractScriptExecutor;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.security.ORole;
@@ -34,7 +34,7 @@ public class OJsr223ScriptExecutor extends OAbstractScriptExecutor {
   }
 
   @Override
-  public OResultSet execute(ODatabaseDocumentInternal database, String script, Object... params) {
+  public OResultSet execute(ODatabaseSessionInternal database, String script, Object... params) {
 
     preExecute(database, script, params);
 
@@ -47,7 +47,7 @@ public class OJsr223ScriptExecutor extends OAbstractScriptExecutor {
   }
 
   @Override
-  public OResultSet execute(ODatabaseDocumentInternal database, String script, Map params) {
+  public OResultSet execute(ODatabaseSessionInternal database, String script, Map params) {
 
     preExecute(database, script, params);
 
@@ -99,7 +99,7 @@ public class OJsr223ScriptExecutor extends OAbstractScriptExecutor {
   public Object executeFunction(
       OCommandContext context, final String functionName, final Map<Object, Object> iArgs) {
 
-    ODatabaseDocumentInternal db = (ODatabaseDocumentInternal) context.getDatabase();
+    ODatabaseSessionInternal db = (ODatabaseSessionInternal) context.getDatabase();
     if (db == null) {
       db = ODatabaseRecordThreadLocal.instance().get();
     }

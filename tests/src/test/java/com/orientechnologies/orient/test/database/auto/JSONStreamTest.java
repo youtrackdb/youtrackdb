@@ -38,7 +38,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.testng.Assert;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -46,9 +45,9 @@ import org.testng.annotations.Test;
 @Test
 public class JSONStreamTest extends DocumentDBBaseTest {
 
-  @Parameters(value = "url")
-  public JSONStreamTest(@Optional final String iURL) {
-    super(iURL);
+  @Parameters(value = "remote")
+  public JSONStreamTest(boolean remote) {
+    super(remote);
   }
 
   @Test
@@ -369,8 +368,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
 
   @Test
   public void testFetchedJson() throws IOException {
-    final OObjectDatabaseTxInternal database = new OObjectDatabaseTxInternal(url);
-    database.open("admin", "admin");
+    final OObjectDatabaseTxInternal database = new OObjectDatabaseTxInternal(acquireSession());
     try {
       database
           .getEntityManager()

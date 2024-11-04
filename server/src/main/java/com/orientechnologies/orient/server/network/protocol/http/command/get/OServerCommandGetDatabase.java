@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.OConstants;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
 import com.orientechnologies.orient.core.config.OStorageEntryConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.exception.OSecurityAccessException;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -56,7 +56,7 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
   private static final String[] NAMES = {"GET|database/*"};
 
   public static void exportClass(
-      final ODatabaseDocumentInternal db, final OJSONWriter json, final OClass cls)
+      final ODatabaseSessionInternal db, final OJSONWriter json, final OClass cls)
       throws IOException {
     json.beginObject();
     json.writeAttribute("name", cls.getName());
@@ -167,7 +167,7 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
   protected void exec(
       final OHttpRequest iRequest, final OHttpResponse iResponse, final String[] urlParts)
       throws InterruptedException, IOException {
-    ODatabaseDocumentInternal db = null;
+    ODatabaseSessionInternal db = null;
     try {
       if (urlParts.length > 2) {
         db = server.openDatabase(urlParts[1], urlParts[2], urlParts[3]);

@@ -34,19 +34,19 @@ import com.orientechnologies.orient.test.domain.inheritance.InheritanceTestClass
 import java.lang.reflect.Field;
 import java.util.List;
 import org.testng.Assert;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test(groups = {"crud", "object"})
 public class CRUDObjectInheritanceTest extends ObjectDBBaseTest {
+
   protected static final int TOT_RECORDS = 10;
   protected long startRecordNumber;
   private City redmond = new City(new Country("Washington"), "Redmond");
 
-  @Parameters(value = "url")
-  public CRUDObjectInheritanceTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public CRUDObjectInheritanceTest(boolean remote) {
+    super(remote);
   }
 
   @Test
@@ -90,7 +90,9 @@ public class CRUDObjectInheritanceTest extends ObjectDBBaseTest {
     for (int i = 0; i < result.size(); ++i) {
       account = result.get(i);
 
-      if (account instanceof Company) companyRecords++;
+      if (account instanceof Company) {
+        companyRecords++;
+      }
 
       Assert.assertNotSame(account.getName().length(), 0);
     }
@@ -137,7 +139,7 @@ public class CRUDObjectInheritanceTest extends ObjectDBBaseTest {
         .getEntityManager()
         .registerEntityClasses("com.orientechnologies.orient.test.domain.inheritance");
     database.close();
-    database.open("admin", "admin");
+    database = createSessionInstance();
     OClass abstractClass =
         database.getMetadata().getSchema().getClass(InheritanceTestAbstractClass.class);
     OClass baseClass = database.getMetadata().getSchema().getClass(InheritanceTestBaseClass.class);

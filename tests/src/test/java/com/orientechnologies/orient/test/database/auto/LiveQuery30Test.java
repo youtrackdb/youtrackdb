@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import org.testng.Assert;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -73,9 +72,9 @@ public class LiveQuery30Test extends DocumentDBBaseTest implements OCommandOutpu
     }
   }
 
-  @Parameters(value = {"url"})
-  public LiveQuery30Test(@Optional String url) {
-    super(url);
+  @Parameters(value = {"remote"})
+  public LiveQuery30Test(boolean remote) {
+    super(remote);
   }
 
   @Test

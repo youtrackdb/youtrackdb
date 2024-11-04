@@ -84,7 +84,7 @@ public class OSharedContextEmbedded extends OSharedContext {
     this.viewManager = new ViewManager(orientDB, storage.getName());
   }
 
-  public synchronized void load(ODatabaseDocumentInternal database) {
+  public synchronized void load(ODatabaseSessionInternal database) {
     final long timer = PROFILER.startChrono();
 
     try {
@@ -130,7 +130,7 @@ public class OSharedContextEmbedded extends OSharedContext {
     loaded = false;
   }
 
-  public synchronized void reload(ODatabaseDocumentInternal database) {
+  public synchronized void reload(ODatabaseSessionInternal database) {
     schema.reload(database);
     indexManager.reload();
     // The Immutable snapshot should be after index and schema that require and before everything
@@ -142,7 +142,7 @@ public class OSharedContextEmbedded extends OSharedContext {
     scheduler.load(database);
   }
 
-  public synchronized void create(ODatabaseDocumentInternal database) {
+  public synchronized void create(ODatabaseSessionInternal database) {
     schema.create(database);
     indexManager.create(database);
     security.create(database);
@@ -179,7 +179,7 @@ public class OSharedContextEmbedded extends OSharedContext {
   }
 
   public synchronized void reInit(
-      OAbstractPaginatedStorage storage2, ODatabaseDocumentInternal database) {
+      OAbstractPaginatedStorage storage2, ODatabaseSessionInternal database) {
     this.close();
     this.storage = storage2;
     this.init(storage2);
@@ -231,7 +231,7 @@ public class OSharedContextEmbedded extends OSharedContext {
 
             var recordToSave = record;
             session.executeInTx(
-                () -> ((ODatabaseDocumentInternal) session).save(recordToSave, "internal"));
+                () -> ((ODatabaseSessionInternal) session).save(recordToSave, "internal"));
           } else {
             var record = new ODocument();
             ORecordInternal.unsetDirty(record);
@@ -241,7 +241,7 @@ public class OSharedContextEmbedded extends OSharedContext {
             ORID recordId =
                 session.computeInTx(
                     () ->
-                        ((ODatabaseDocumentInternal) session)
+                        ((ODatabaseSessionInternal) session)
                             .save(record, "internal")
                             .getIdentity());
             ((OStorage) storage).setProperty(propertyName, recordId.toString());

@@ -23,9 +23,9 @@ import com.orientechnologies.lucene.engine.OLuceneFullTextIndexEngine;
 import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.config.IndexEngineData;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 import com.orientechnologies.orient.core.index.OIndexFactory;
 import com.orientechnologies.orient.core.index.OIndexInternal;
@@ -129,7 +129,7 @@ public class OLuceneIndexFactory implements OIndexFactory, ODatabaseLifecycleLis
 
       OLogManager.instance().debug(this, "Dropping Lucene indexes...");
 
-      final ODatabaseDocumentInternal internal = (ODatabaseDocumentInternal) db;
+      final ODatabaseSessionInternal internal = (ODatabaseSessionInternal) db;
       internal.getMetadata().getIndexManagerInternal().getIndexes(internal).stream()
           .filter(idx -> idx.getInternal() instanceof OLuceneFullTextIndex)
           .peek(idx -> OLogManager.instance().debug(this, "deleting index " + idx.getName()))

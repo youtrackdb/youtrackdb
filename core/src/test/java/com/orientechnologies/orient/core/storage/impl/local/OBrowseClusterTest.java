@@ -5,8 +5,8 @@ import static junit.framework.TestCase.assertNotNull;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.record.OVertex;
@@ -52,7 +52,7 @@ public class OBrowseClusterTest {
     }
     int cluster = db.getClass("One").getDefaultClusterId();
     Iterator<OClusterBrowsePage> browser =
-        ((OAbstractPaginatedStorage) ((ODatabaseDocumentInternal) db).getStorage())
+        ((OAbstractPaginatedStorage) ((ODatabaseSessionInternal) db).getStorage())
             .browseCluster(cluster);
     int count = 0;
 

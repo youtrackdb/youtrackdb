@@ -233,7 +233,7 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
 
   private void addLikeQueries(List<ORecord> others, MoreLikeThis mlt, Builder queryBuilder) {
     others.stream()
-        .map(or -> or.<OElement>load())
+        .map(or -> or.getDatabase().<OElement>load(or.getIdentity()))
         .forEach(
             element ->
                 Arrays.stream(mlt.getFieldNames())

@@ -15,7 +15,6 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -24,10 +23,9 @@ import org.testng.annotations.Test;
  */
 @Test
 public class LinkListIndexTest extends DocumentDBBaseTest {
-
-  @Parameters(value = "url")
-  public LinkListIndexTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public LinkListIndexTest(boolean remote) {
+    super(remote);
   }
 
   @BeforeClass
@@ -43,8 +41,7 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
 
   @AfterClass
   public void destroySchema() {
-    //noinspection deprecation
-    database.open("admin", "admin");
+    database = acquireSession();
     database.getMetadata().getSchema().dropClass("LinkListIndexTestClass");
   }
 

@@ -3,8 +3,8 @@ package com.orientechnologies.orient.core.serialization.serializer.stream;
 import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.OCompactedLinkSerializer;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
@@ -115,7 +115,7 @@ public class OMixedIndexRIDContainerSerializer
     if (pageIndex == -1) {
       tree = null;
     } else {
-      final ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().get();
+      final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
       tree =
           new OIndexRIDContainerSBTree(
               fileId,
@@ -214,7 +214,7 @@ public class OMixedIndexRIDContainerSerializer
     if (pageIndex == -1) {
       tree = null;
     } else {
-      final ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().get();
+      final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
       tree =
           new OIndexRIDContainerSBTree(
               fileId,
@@ -289,7 +289,7 @@ public class OMixedIndexRIDContainerSerializer
     if (pageIndex == -1) {
       tree = null;
     } else {
-      final ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().get();
+      final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
       tree =
           new OIndexRIDContainerSBTree(
               fileId,
@@ -331,7 +331,7 @@ public class OMixedIndexRIDContainerSerializer
     if (pageIndex == -1) {
       tree = null;
     } else {
-      final ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().get();
+      final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
       tree =
           new OIndexRIDContainerSBTree(
               fileId,
@@ -383,7 +383,7 @@ public class OMixedIndexRIDContainerSerializer
     if (pageIndex == -1) {
       tree = null;
     } else {
-      final ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().get();
+      final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
       tree =
           new OIndexRIDContainerSBTree(
               fileId,

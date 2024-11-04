@@ -13,7 +13,6 @@ import java.util.Arrays;
 import java.util.List;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -34,18 +33,14 @@ import org.testng.annotations.Test;
 @Test(groups = {"index"})
 public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseTest {
 
-  @Parameters(value = "url")
-  public SQLSelectByLinkedPropertyIndexReuseTest(@Optional final String iURL) {
-    super(iURL);
+  @Parameters(value = "remote")
+  public SQLSelectByLinkedPropertyIndexReuseTest(boolean remote) {
+    super(remote);
   }
 
   @BeforeClass
   public void beforeClass() throws Exception {
     super.beforeClass();
-
-    if (database.isClosed()) {
-      database.open("admin", "admin");
-    }
 
     createSchemaForTest();
     fillDataSet();
@@ -54,7 +49,7 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
   @AfterClass
   public void afterClass() throws Exception {
     if (database.isClosed()) {
-      database.open("admin", "admin");
+      database = createSessionInstance();
     }
 
     database.command("drop class lpirtStudent").close();
@@ -62,7 +57,6 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
     database.command("drop class lpirtCurator").close();
     database.getMetadata().getSchema().reload();
 
-    database.close();
     super.afterClass();
   }
 

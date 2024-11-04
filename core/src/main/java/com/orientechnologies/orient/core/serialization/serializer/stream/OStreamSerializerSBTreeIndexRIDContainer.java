@@ -25,8 +25,8 @@ import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.common.serialization.types.OBooleanSerializer;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.OLinkSerializer;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
@@ -156,7 +156,7 @@ public class OStreamSerializerSBTreeIndexRIDContainer
       final int pageOffset =
           INT_SERIALIZER.deserializeNative(stream, offset + SBTREE_ROOTOFFSET_OFFSET);
       final OBonsaiBucketPointer rootPointer = new OBonsaiBucketPointer(pageIndex, pageOffset);
-      final ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().get();
+      final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
       final OIndexRIDContainerSBTree underlying =
           new OIndexRIDContainerSBTree(
               fileId, rootPointer, (OAbstractPaginatedStorage) db.getStorage());
@@ -229,7 +229,7 @@ public class OStreamSerializerSBTreeIndexRIDContainer
       final int pageOffset = buffer.getInt();
 
       final OBonsaiBucketPointer rootPointer = new OBonsaiBucketPointer(pageIndex, pageOffset);
-      final ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().get();
+      final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
       final OIndexRIDContainerSBTree underlying =
           new OIndexRIDContainerSBTree(
               fileId, rootPointer, (OAbstractPaginatedStorage) db.getStorage());
@@ -268,7 +268,7 @@ public class OStreamSerializerSBTreeIndexRIDContainer
       final int pageOffset = buffer.getInt(offset);
 
       final OBonsaiBucketPointer rootPointer = new OBonsaiBucketPointer(pageIndex, pageOffset);
-      final ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().get();
+      final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
       final OIndexRIDContainerSBTree underlying =
           new OIndexRIDContainerSBTree(
               fileId, rootPointer, (OAbstractPaginatedStorage) db.getStorage());
@@ -319,7 +319,7 @@ public class OStreamSerializerSBTreeIndexRIDContainer
       final long pageIndex = walChanges.getLongValue(buffer, offset + SBTREE_ROOTINDEX_OFFSET);
       final int pageOffset = walChanges.getIntValue(buffer, offset + SBTREE_ROOTOFFSET_OFFSET);
       final OBonsaiBucketPointer rootPointer = new OBonsaiBucketPointer(pageIndex, pageOffset);
-      final ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().get();
+      final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
       final OIndexRIDContainerSBTree underlying =
           new OIndexRIDContainerSBTree(
               fileId, rootPointer, (OAbstractPaginatedStorage) db.getStorage());

@@ -21,8 +21,8 @@ import com.orientechnologies.common.serialization.types.ODecimalSerializer;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
 import com.orientechnologies.common.serialization.types.OUUIDSerializer;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeTimeLine;
@@ -657,7 +657,7 @@ public class ODocumentSerializerDelta {
 
   protected void serializeDeltaLinkBag(BytesContainer bytes, ORidBag value) {
     UUID uuid = null;
-    ODatabaseDocumentInternal instance = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    ODatabaseSessionInternal instance = ODatabaseRecordThreadLocal.instance().getIfDefined();
     if (instance != null) {
       final OSBTreeCollectionManager sbTreeCollectionManager =
           instance.getSbTreeCollectionManager();

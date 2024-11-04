@@ -18,7 +18,7 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
@@ -62,7 +62,7 @@ public class LuceneMassiveInsertDeleteTest extends BaseLuceneTest {
     Assert.assertEquals(docs.stream().count(), size);
 
     db.close();
-    db = (ODatabaseDocumentInternal) openDatabase();
+    db = (ODatabaseSessionInternal) openDatabase();
 
     docs = db.query(query);
     Assert.assertEquals(docs.stream().count(), size);
@@ -73,7 +73,7 @@ public class LuceneMassiveInsertDeleteTest extends BaseLuceneTest {
     Assert.assertEquals(docs.stream().count(), 0);
 
     db.close();
-    db = (ODatabaseDocumentInternal) openDatabase();
+    db = (ODatabaseSessionInternal) openDatabase();
     docs = db.query(query);
     Assert.assertEquals(docs.stream().count(), 0);
 

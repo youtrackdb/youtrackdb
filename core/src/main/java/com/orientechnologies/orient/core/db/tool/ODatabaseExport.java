@@ -26,7 +26,7 @@ import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.orient.core.OConstants;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
@@ -78,7 +78,7 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
   private final String tempFileName;
 
   public ODatabaseExport(
-      final ODatabaseDocumentInternal iDatabase,
+      final ODatabaseSessionInternal iDatabase,
       final String iFileName,
       final OCommandOutputListener iListener)
       throws IOException {
@@ -108,7 +108,7 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
   }
 
   public ODatabaseExport(
-      final ODatabaseDocumentInternal iDatabase,
+      final ODatabaseSessionInternal iDatabase,
       final OutputStream iOutputStream,
       final OCommandOutputListener iListener)
       throws IOException {
@@ -727,9 +727,6 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
       long recordTot, long recordNum, ORecordAbstract rec, Set<ORID> brokenRids) {
     if (rec != null) {
       try {
-        if (rec.getIdentity().isValid()) {
-          rec.reload();
-        }
         if (useLineFeedForRecords) {
           writer.append("\n");
         }

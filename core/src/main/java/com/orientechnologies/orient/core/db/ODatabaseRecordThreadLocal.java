@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class ODatabaseRecordThreadLocal extends ThreadLocal<ODatabaseDocumentInternal> {
+public class ODatabaseRecordThreadLocal extends ThreadLocal<ODatabaseSessionInternal> {
   private static final AtomicReference<ODatabaseRecordThreadLocal> INSTANCE =
       new AtomicReference<>();
 
@@ -68,8 +68,8 @@ public class ODatabaseRecordThreadLocal extends ThreadLocal<ODatabaseDocumentInt
   }
 
   @Override
-  public ODatabaseDocumentInternal get() {
-    ODatabaseDocumentInternal db = super.get();
+  public ODatabaseSessionInternal get() {
+    ODatabaseSessionInternal db = super.get();
     if (db == null) {
       if (Orient.instance().getDatabaseThreadFactory() == null) {
         throw new ODatabaseException(
@@ -95,11 +95,11 @@ public class ODatabaseRecordThreadLocal extends ThreadLocal<ODatabaseDocumentInt
   }
 
   @Override
-  public void set(final ODatabaseDocumentInternal value) {
+  public void set(final ODatabaseSessionInternal value) {
     super.set(value);
   }
 
-  public ODatabaseDocumentInternal getIfDefined() {
+  public ODatabaseSessionInternal getIfDefined() {
     return super.get();
   }
 

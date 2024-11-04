@@ -23,8 +23,8 @@ import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.parser.OSystemVariableResolver;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDBInternal;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.metadata.security.*;
@@ -111,7 +111,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   public void createSystemRoles(ODatabaseSession session) {
     session.executeInTx(
         () -> {
-          OSecurity security = ((ODatabaseDocumentInternal) session).getMetadata().getSecurity();
+          OSecurity security = ((ODatabaseSessionInternal) session).getMetadata().getSecurity();
           if (security.getRole("root") == null) {
             ORole root = security.createRole("root", ORole.ALLOW_MODES.DENY_ALL_BUT);
             for (ORule.ResourceGeneric resource : ORule.ResourceGeneric.values()) {

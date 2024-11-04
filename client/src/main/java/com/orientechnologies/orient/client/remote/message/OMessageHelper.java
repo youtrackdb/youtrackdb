@@ -7,8 +7,8 @@ import com.orientechnologies.orient.client.remote.OCollectionNetworkSerializer;
 import com.orientechnologies.orient.client.remote.message.tx.IndexChange;
 import com.orientechnologies.orient.client.remote.message.tx.ORecordOperationRequest;
 import com.orientechnologies.orient.core.Orient;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.OSerializationException;
@@ -83,7 +83,7 @@ public class OMessageHelper {
     String dbSerializerName = null;
     if (ODatabaseRecordThreadLocal.instance().getIfDefined() != null)
       dbSerializerName =
-          ((ODatabaseDocumentInternal) iRecord.getDatabase()).getSerializer().toString();
+          ((ODatabaseSessionInternal) iRecord.getDatabase()).getSerializer().toString();
     if (ORecordInternal.getRecordType(iRecord) == ODocument.RECORD_TYPE
         && (dbSerializerName == null || !dbSerializerName.equals(serializer.toString()))) {
       ((ODocument) iRecord).deserializeFields();

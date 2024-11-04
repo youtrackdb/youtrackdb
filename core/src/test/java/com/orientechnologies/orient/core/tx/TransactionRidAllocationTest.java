@@ -5,7 +5,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
@@ -28,14 +28,14 @@ import org.junit.Test;
 public class TransactionRidAllocationTest {
 
   private OrientDB orientDB;
-  private ODatabaseDocumentInternal db;
+  private ODatabaseSessionInternal db;
 
   @Before
   public void before() {
     orientDB =
         OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
     db =
-        (ODatabaseDocumentInternal)
+        (ODatabaseSessionInternal)
             orientDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
   }
 
@@ -78,7 +78,7 @@ public class TransactionRidAllocationTest {
 
   @Test
   public void testMultipleDbAllocationAndCommit() {
-    ODatabaseDocumentInternal second;
+    ODatabaseSessionInternal second;
     orientDB.execute(
         "create database "
             + "secondTest"
@@ -88,7 +88,7 @@ public class TransactionRidAllocationTest {
             + OCreateDatabaseUtil.NEW_ADMIN_PASSWORD
             + "' role admin)");
     second =
-        (ODatabaseDocumentInternal)
+        (ODatabaseSessionInternal)
             orientDB.open("secondTest", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     db.activateOnCurrentThread();
@@ -128,7 +128,7 @@ public class TransactionRidAllocationTest {
 
   @Test(expected = OConcurrentCreateException.class)
   public void testMultipleDbAllocationNotAlignedFailure() {
-    ODatabaseDocumentInternal second;
+    ODatabaseSessionInternal second;
     orientDB.execute(
         "create database "
             + "secondTest"
@@ -138,7 +138,7 @@ public class TransactionRidAllocationTest {
             + OCreateDatabaseUtil.NEW_ADMIN_PASSWORD
             + "' role admin)");
     second =
-        (ODatabaseDocumentInternal)
+        (ODatabaseSessionInternal)
             orientDB.open("secondTest", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     // THIS OFFSET FIRST DB FROM THE SECOND
     for (int i = 0; i < 20; i++) {

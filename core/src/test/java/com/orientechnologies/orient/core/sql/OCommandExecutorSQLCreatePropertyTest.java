@@ -24,7 +24,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.BaseMemoryInternalDatabase;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
@@ -296,9 +296,7 @@ public class OCommandExecutorSQLCreatePropertyTest extends BaseMemoryInternalDat
   @Test
   public void testNonStrict() throws Exception {
 
-    ((ODatabaseDocumentInternal) db)
-        .getStorage()
-        .setProperty(OStatement.CUSTOM_STRICT_SQL, "false");
+    ((ODatabaseSessionInternal) db).getStorage().setProperty(OStatement.CUSTOM_STRICT_SQL, "false");
 
     db.command("CREATE CLASS company").close();
     db.command(

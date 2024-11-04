@@ -22,7 +22,7 @@ package com.orientechnologies.orient.core.tx;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.cache.OLocalRecordCache;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
@@ -96,12 +96,12 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
   protected int txStartCounter;
   private boolean sentToServer = false;
 
-  public OTransactionOptimistic(final ODatabaseDocumentInternal iDatabase) {
+  public OTransactionOptimistic(final ODatabaseSessionInternal iDatabase) {
     super(iDatabase);
     this.id = txSerial.incrementAndGet();
   }
 
-  protected OTransactionOptimistic(final ODatabaseDocumentInternal iDatabase, int id) {
+  protected OTransactionOptimistic(final ODatabaseSessionInternal iDatabase, int id) {
     super(iDatabase);
     this.id = id;
   }
@@ -882,7 +882,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
     // the OTransactionIndexChanges.changesPerKey in a consistent state.
 
     final List<KeyChangesUpdateRecord> keyRecordsToReinsert = new ArrayList<>();
-    final ODatabaseDocumentInternal database = getDatabase();
+    final ODatabaseSessionInternal database = getDatabase();
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
     for (Entry<String, OTransactionIndexChanges> entry : indexEntries.entrySet()) {
       final OIndex index = indexManager.getIndex(database, entry.getKey());

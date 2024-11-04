@@ -113,7 +113,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeDBReload(OReloadRequest request) {
-    final ODatabaseDocumentInternal db = connection.getDatabase();
+    final ODatabaseSessionInternal db = connection.getDatabase();
     final Collection<String> clusters = db.getClusterNames();
 
     String[] clusterNames = new String[clusters.size()];
@@ -376,7 +376,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   @Override
   public OBinaryResponse executeUpdateRecord(OUpdateRecordRequest request) {
 
-    ODatabaseDocumentInternal database = connection.getDatabase();
+    ODatabaseSessionInternal database = connection.getDatabase();
     final ORecord newRecord = request.getContent();
     ORecordInternal.setIdentity(newRecord, request.getRid());
     ORecordInternal.setVersion(newRecord, request.getVersion());
@@ -677,7 +677,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeFreezeDatabase(OFreezeDatabaseRequest request) {
-    ODatabaseDocumentInternal database =
+    ODatabaseSessionInternal database =
         server
             .getDatabases()
             .openNoAuthenticate(request.getName(), connection.getServerUser().getName());
@@ -691,7 +691,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeReleaseDatabase(OReleaseDatabaseRequest request) {
-    ODatabaseDocumentInternal database =
+    ODatabaseSessionInternal database =
         server
             .getDatabases()
             .openNoAuthenticate(request.getName(), connection.getServerUser().getName());
@@ -718,7 +718,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   public OBinaryResponse executeSBTreeCreate(OSBTCreateTreeRequest request) {
     OBonsaiCollectionPointer collectionPointer = null;
     try {
-      final ODatabaseDocumentInternal database = connection.getDatabase();
+      final ODatabaseSessionInternal database = connection.getDatabase();
       final OAbstractPaginatedStorage storage = (OAbstractPaginatedStorage) database.getStorage();
       final OAtomicOperationsManager atomicOperationsManager = storage.getAtomicOperationsManager();
       collectionPointer =
@@ -1000,7 +1000,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
       server.getClientConnectionManager().connect(connection.getProtocol(), connection, token);
     }
 
-    ODatabaseDocumentInternal db = connection.getDatabase();
+    ODatabaseSessionInternal db = connection.getDatabase();
     final Collection<String> clusters = db.getClusterNames();
     final byte[] tokenToSend;
     if (Boolean.TRUE.equals(connection.getTokenBased())) {
@@ -1151,7 +1151,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     String dbSerializerName = null;
     if (ODatabaseRecordThreadLocal.instance().getIfDefined() != null) {
       dbSerializerName =
-          ((ODatabaseDocumentInternal) iRecord.getDatabase()).getSerializer().toString();
+          ((ODatabaseSessionInternal) iRecord.getDatabase()).getSerializer().toString();
     }
     String name = connection.getData().getSerializationImpl();
     if (ORecordInternal.getRecordType(iRecord) == ODocument.RECORD_TYPE
@@ -1193,7 +1193,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeQuery(OQueryRequest request) {
-    ODatabaseDocumentInternal database = connection.getDatabase();
+    ODatabaseSessionInternal database = connection.getDatabase();
     OQueryMetadataUpdateListener metadataListener = new OQueryMetadataUpdateListener();
     database.getSharedContext().registerListener(metadataListener);
     if (database.getTransaction().isActive()) {
@@ -1256,7 +1256,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   @Override
   public OBinaryResponse closeQuery(OCloseQueryRequest oQueryRequest) {
     String queryId = oQueryRequest.getQueryId();
-    ODatabaseDocumentInternal db = connection.getDatabase();
+    ODatabaseSessionInternal db = connection.getDatabase();
     OResultSet query = db.getActiveQuery(queryId);
     if (query != null) {
       query.close();
@@ -1266,7 +1266,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeQueryNextPage(OQueryNextPageRequest request) {
-    ODatabaseDocumentInternal database = connection.getDatabase();
+    ODatabaseSessionInternal database = connection.getDatabase();
     OrientDBInternal orientDB = database.getSharedContext().getOrientDB();
     OLocalResultSetLifecycleDecorator rs =
         (OLocalResultSetLifecycleDecorator) database.getActiveQuery(request.getQueryId());
@@ -1389,9 +1389,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   }
 
   private static OTransactionOptimisticServer doExecuteBeginTransaction(
-      int txId,
-      ODatabaseDocumentInternal database,
-      List<ORecordOperationRequest> recordOperations) {
+      int txId, ODatabaseSessionInternal database, List<ORecordOperationRequest> recordOperations) {
     database.begin(new OTransactionOptimisticServer(database, txId));
     var serverTransaction = (OTransactionOptimisticServer) database.getTransaction();
 
@@ -1557,7 +1555,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeFetchTransaction(OFetchTransactionRequest request) {
-    ODatabaseDocumentInternal database = connection.getDatabase();
+    ODatabaseSessionInternal database = connection.getDatabase();
     if (!database.getTransaction().isActive()) {
       throw new ODatabaseException("No Transaction Active");
     }
@@ -1577,7 +1575,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeFetchTransaction38(OFetchTransaction38Request request) {
-    ODatabaseDocumentInternal database = connection.getDatabase();
+    ODatabaseSessionInternal database = connection.getDatabase();
     if (!database.getTransaction().isActive()) {
       throw new ODatabaseException("No Transaction Active");
     }
@@ -1597,7 +1595,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeRollback(ORollbackTransactionRequest request) {
-    ODatabaseDocumentInternal database = connection.getDatabase();
+    ODatabaseSessionInternal database = connection.getDatabase();
     if (database.getTransaction().isActive()) {
       database.rollback(true);
     }
@@ -1677,7 +1675,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeUnsubscribeLiveQuery(OUnsubscribeLiveQueryRequest request) {
-    ODatabaseDocumentInternal database = connection.getDatabase();
+    ODatabaseSessionInternal database = connection.getDatabase();
     OLiveQueryHookV2.unsubscribe(request.getMonitorId(), database);
     return new OUnsubscribLiveQueryResponse();
   }

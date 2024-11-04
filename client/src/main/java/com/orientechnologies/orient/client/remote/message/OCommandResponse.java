@@ -27,7 +27,7 @@ import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.client.remote.SimpleValueFetchPlanCommandListener;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.command.OCommandResultListener;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OStorageException;
@@ -51,7 +51,7 @@ public final class OCommandResponse implements OBinaryResponse {
 
   private final boolean asynch;
   private final OCommandResultListener listener;
-  private final ODatabaseDocumentInternal database;
+  private final ODatabaseSessionInternal database;
   private boolean live;
   private Object result;
   private boolean isRecordResultSet;
@@ -63,7 +63,7 @@ public final class OCommandResponse implements OBinaryResponse {
       SimpleValueFetchPlanCommandListener listener,
       boolean isRecordResultSet,
       boolean async,
-      ODatabaseDocumentInternal database,
+      ODatabaseSessionInternal database,
       OCommandRequestText command,
       Map<Object, Object> params) {
     this.result = result;
@@ -78,7 +78,7 @@ public final class OCommandResponse implements OBinaryResponse {
   public OCommandResponse(
       boolean asynch,
       OCommandResultListener listener,
-      ODatabaseDocumentInternal database,
+      ODatabaseSessionInternal database,
       boolean live) {
     this.asynch = asynch;
     this.listener = listener;

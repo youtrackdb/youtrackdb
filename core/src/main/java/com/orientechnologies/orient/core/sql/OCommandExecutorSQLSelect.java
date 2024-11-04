@@ -39,8 +39,8 @@ import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OExecutionThreadLocal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
@@ -1341,7 +1341,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
             if (!restrictedClasses) {
               long count = 0;
 
-              final ODatabaseDocumentInternal database = getDatabase();
+              final ODatabaseSessionInternal database = getDatabase();
               if (parsedTarget.getTargetClasses() != null) {
                 final String className = parsedTarget.getTargetClasses().keySet().iterator().next();
                 final OClass cls =
@@ -1713,7 +1713,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
       }
 
       // WORK WITH ITERATOR
-      ODatabaseDocumentInternal database = getDatabase();
+      ODatabaseSessionInternal database = getDatabase();
       database.setPrefetchRecords(prefetchPages);
       try {
         return serialIterator(iTarget);
@@ -1754,7 +1754,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
   }
 
   private boolean canScanStorageCluster(final int[] clusterIds) {
-    final ODatabaseDocumentInternal db = getDatabase();
+    final ODatabaseSessionInternal db = getDatabase();
 
     if (clusterIds != null && request.isIdempotent() && !db.getTransaction().isActive()) {
       final OImmutableSchema schema =
@@ -1802,7 +1802,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
 
     // BROWSE ALL THE RECORDS ON CURRENT THREAD BUT DELEGATE UNMARSHALLING AND FILTER TO A THREAD
     // POOL
-    final ODatabaseDocumentInternal db = getDatabase();
+    final ODatabaseSessionInternal db = getDatabase();
 
     if (limit > -1) {
       if (result != null) {
@@ -1820,7 +1820,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
   }
 
   private boolean execParallelWithPool(
-      final ORecordIteratorClusters iTarget, final ODatabaseDocumentInternal db) {
+      final ORecordIteratorClusters iTarget, final ODatabaseSessionInternal db) {
     final int[] clusterIds = iTarget.getClusterIds();
 
     // CREATE ONE THREAD PER CLUSTER
@@ -1849,7 +1849,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
       final Runnable job =
           () -> {
             try {
-              ODatabaseDocumentInternal localDatabase = null;
+              ODatabaseSessionInternal localDatabase = null;
               try {
                 exceptions[current] = null;
                 results[current] = true;
@@ -1975,7 +1975,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
   }
 
   private void scanClusterWithIterator(
-      final ODatabaseDocumentInternal localDatabase,
+      final ODatabaseSessionInternal localDatabase,
       final OCommandContext iContext,
       final int iClusterId,
       final int current,
@@ -2824,7 +2824,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
   private void searchInIndex() {
     OIndexAbstract.manualIndexesWarning();
 
-    final ODatabaseDocumentInternal database = getDatabase();
+    final ODatabaseSessionInternal database = getDatabase();
     final OIndex index =
         (OIndex)
             database

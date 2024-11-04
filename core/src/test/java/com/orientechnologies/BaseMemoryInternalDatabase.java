@@ -1,6 +1,6 @@
 package com.orientechnologies;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
@@ -11,7 +11,7 @@ import org.junit.rules.TestName;
 
 public class BaseMemoryInternalDatabase {
 
-  protected ODatabaseDocumentInternal db;
+  protected ODatabaseSessionInternal db;
   protected OrientDB context;
   @Rule public TestName name = new TestName();
 
@@ -19,7 +19,7 @@ public class BaseMemoryInternalDatabase {
   public void beforeTest() {
     context = new OrientDB("embedded:", OrientDBConfig.defaultConfig());
     context.create(getDatabaseName(), ODatabaseType.MEMORY, "admin", "adminpwd", "admin");
-    db = (ODatabaseDocumentInternal) context.open(getDatabaseName(), "admin", "adminpwd");
+    db = (ODatabaseSessionInternal) context.open(getDatabaseName(), "admin", "adminpwd");
   }
 
   protected String getDatabaseName() {

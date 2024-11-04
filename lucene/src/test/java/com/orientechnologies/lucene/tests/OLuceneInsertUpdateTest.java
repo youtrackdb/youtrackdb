@@ -24,7 +24,6 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.Collection;
@@ -69,7 +68,7 @@ public class OLuceneInsertUpdateTest extends OLuceneBaseTest {
     Assert.assertEquals(coll.size(), 1);
 
     OIdentifiable next = (OIdentifiable) coll.iterator().next();
-    doc = db.load(next.<ORecord>getRecord());
+    doc = db.load(next.getIdentity());
     Assert.assertEquals(doc.field("name"), "Rome");
 
     doc.field("name", "London");
@@ -88,7 +87,7 @@ public class OLuceneInsertUpdateTest extends OLuceneBaseTest {
     Assert.assertEquals(coll.size(), 1);
 
     next = (OIdentifiable) coll.iterator().next();
-    doc = db.load(next.<ORecord>getRecord());
+    doc = db.load(next.getIdentity());
     Assert.assertEquals(doc.field("name"), "London");
 
     doc.field("name", "Berlin");

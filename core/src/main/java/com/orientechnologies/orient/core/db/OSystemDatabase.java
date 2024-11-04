@@ -51,10 +51,9 @@ public class OSystemDatabase {
    * Adds the specified cluster to the class, if it doesn't already exist.
    */
   public void createCluster(final String className, final String clusterName) {
-    final ODatabaseDocumentInternal currentDB =
-        ODatabaseRecordThreadLocal.instance().getIfDefined();
+    final ODatabaseSessionInternal currentDB = ODatabaseRecordThreadLocal.instance().getIfDefined();
     try {
-      final ODatabaseDocumentInternal sysdb = openSystemDatabase();
+      final ODatabaseSessionInternal sysdb = openSystemDatabase();
       try {
 
         if (!sysdb.existsCluster(clusterName)) {
@@ -83,11 +82,11 @@ public class OSystemDatabase {
   }
 
   /**
-   * Opens the System Database and returns an ODatabaseDocumentInternal object. The caller is
+   * Opens the System Database and returns an ODatabaseSessionInternal object. The caller is
    * responsible for retrieving any ThreadLocal-stored database before openSystemDatabase() is
    * called and restoring it after the database is closed.
    */
-  public ODatabaseDocumentInternal openSystemDatabase() {
+  public ODatabaseSessionInternal openSystemDatabase() {
     if (!exists()) {
       init();
     }
@@ -96,8 +95,7 @@ public class OSystemDatabase {
 
   public Object execute(
       final OCallable<Object, OResultSet> callback, final String sql, final Object... args) {
-    final ODatabaseDocumentInternal currentDB =
-        ODatabaseRecordThreadLocal.instance().getIfDefined();
+    final ODatabaseSessionInternal currentDB = ODatabaseRecordThreadLocal.instance().getIfDefined();
     try {
       // BYPASS SECURITY
       final ODatabase<?> db = openSystemDatabase();
@@ -124,11 +122,10 @@ public class OSystemDatabase {
   }
 
   public ODocument save(final ODocument document, final String clusterName) {
-    final ODatabaseDocumentInternal currentDB =
-        ODatabaseRecordThreadLocal.instance().getIfDefined();
+    final ODatabaseSessionInternal currentDB = ODatabaseRecordThreadLocal.instance().getIfDefined();
     try {
       // BYPASS SECURITY
-      final ODatabaseDocumentInternal db = openSystemDatabase();
+      final ODatabaseSessionInternal db = openSystemDatabase();
       try {
         if (clusterName != null) {
           return (ODocument) db.save(document, clusterName);
@@ -150,7 +147,7 @@ public class OSystemDatabase {
 
   public void init() {
     final ODatabaseRecordThreadLocal tl = ODatabaseRecordThreadLocal.instance();
-    final ODatabaseDocumentInternal oldDbInThread = tl != null ? tl.getIfDefined() : null;
+    final ODatabaseSessionInternal oldDbInThread = tl != null ? tl.getIfDefined() : null;
     try {
       if (!exists()) {
         OLogManager.instance()
@@ -182,7 +179,7 @@ public class OSystemDatabase {
   }
 
   private synchronized void checkServerId() {
-    ODatabaseDocumentInternal db = openSystemDatabase();
+    ODatabaseSessionInternal db = openSystemDatabase();
     try {
       OClass clazz = db.getClass(SERVER_INFO_CLASS);
       if (clazz == null) {
@@ -208,13 +205,12 @@ public class OSystemDatabase {
     }
   }
 
-  public void executeInDBScope(OCallable<Void, ODatabaseDocumentInternal> callback) {
+  public void executeInDBScope(OCallable<Void, ODatabaseSessionInternal> callback) {
     executeWithDB(callback);
   }
 
-  public <T> T executeWithDB(OCallable<T, ODatabaseDocumentInternal> callback) {
-    final ODatabaseDocumentInternal currentDB =
-        ODatabaseRecordThreadLocal.instance().getIfDefined();
+  public <T> T executeWithDB(OCallable<T, ODatabaseSessionInternal> callback) {
+    final ODatabaseSessionInternal currentDB = ODatabaseRecordThreadLocal.instance().getIfDefined();
     try {
       try (final var db = openSystemDatabase()) {
         return callback.call(db);

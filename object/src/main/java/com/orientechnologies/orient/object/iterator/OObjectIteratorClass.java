@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.object.iterator;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.object.ODatabaseObjectInternal;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorClass;
 import com.orientechnologies.orient.core.iterator.object.OObjectIteratorClassInterface;
@@ -35,7 +35,7 @@ public class OObjectIteratorClass<T> implements OObjectIteratorClassInterface<T>
 
   public OObjectIteratorClass(
       final OObjectDatabaseTxInternal iDatabase,
-      final ODatabaseDocumentInternal iUnderlyingDatabase,
+      final ODatabaseSessionInternal iUnderlyingDatabase,
       final String iClusterName,
       final boolean iPolymorphic) {
     database = iDatabase;

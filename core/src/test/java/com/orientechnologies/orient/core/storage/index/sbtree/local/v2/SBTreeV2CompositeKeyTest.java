@@ -5,7 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.common.util.ORawPair;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -35,7 +35,7 @@ public class SBTreeV2CompositeKeyTest extends BaseMemoryDatabase {
   @Before
   public void beforeMethod() throws Exception {
     atomicOperationsManager =
-        ((OAbstractPaginatedStorage) ((ODatabaseDocumentInternal) db).getStorage())
+        ((OAbstractPaginatedStorage) ((ODatabaseSessionInternal) db).getStorage())
             .getAtomicOperationsManager();
     //noinspection deprecation
     localSBTree =
@@ -43,7 +43,7 @@ public class SBTreeV2CompositeKeyTest extends BaseMemoryDatabase {
             "localSBTreeCompositeKeyTest",
             ".sbt",
             ".nbt",
-            (OAbstractPaginatedStorage) ((ODatabaseDocumentInternal) db).getStorage());
+            (OAbstractPaginatedStorage) ((ODatabaseSessionInternal) db).getStorage());
     atomicOperationsManager.executeInsideAtomicOperation(
         null,
         atomicOperation ->

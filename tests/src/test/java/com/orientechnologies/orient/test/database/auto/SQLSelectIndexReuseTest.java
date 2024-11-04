@@ -14,24 +14,20 @@ import java.util.Set;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test(groups = {"index"})
 public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
 
-  @Parameters(value = "url")
-  public SQLSelectIndexReuseTest(@Optional final String iURL) {
-    super(iURL);
+  @Parameters(value = "remote")
+  public SQLSelectIndexReuseTest(boolean remote) {
+    super(remote);
   }
 
   @BeforeClass
   public void beforeClass() throws Exception {
     super.beforeClass();
-    if (database.isClosed()) {
-      database.open("admin", "admin");
-    }
 
     final OSchema schema = database.getMetadata().getSchema();
     final OClass oClass = schema.createClass("sqlSelectIndexReuseTestClass");
@@ -166,19 +162,16 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
         database.commit();
       }
     }
-    database.close();
   }
 
   @AfterClass
   public void afterClass() throws Exception {
     if (database.isClosed()) {
-      database.open("admin", "admin");
+      database = createSessionInstance();
     }
 
     database.command("drop class sqlSelectIndexReuseTestClass").close();
-    database.getMetadata().getSchema().reload();
 
-    database.close();
     super.afterClass();
   }
 

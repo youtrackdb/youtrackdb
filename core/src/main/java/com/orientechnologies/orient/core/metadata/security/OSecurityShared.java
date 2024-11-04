@@ -20,8 +20,8 @@
 package com.orientechnologies.orient.core.metadata.security;
 
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OScenarioThreadLocal;
 import com.orientechnologies.orient.core.db.OSystemDatabase;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
@@ -54,7 +54,18 @@ import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.parser.OBooleanExpression;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
@@ -293,7 +304,7 @@ public class OSecurityShared implements OSecurityInternal {
       ODatabaseSession session, OAuthenticationInfo authenticationInfo) {
     OSecurityUser user = null;
     final String dbName = session.getName();
-    assert !((ODatabaseDocumentInternal) session).isRemote();
+    assert !((ODatabaseSessionInternal) session).isRemote();
     user = security.authenticate(session, authenticationInfo);
 
     if (user != null) {
@@ -317,28 +328,36 @@ public class OSecurityShared implements OSecurityInternal {
   @Override
   public OSecurityUser securityAuthenticate(
       ODatabaseSession session, String userName, String password) {
-    OSecurityUser user = null;
-    final String dbName = session.getName();
-    assert !((ODatabaseDocumentInternal) session).isRemote();
-    user = security.authenticate(session, userName, password);
+    return session.computeInTx(
+        () -> {
+          OSecurityUser user;
+          final String dbName = session.getName();
+          assert !((ODatabaseSessionInternal) session).isRemote();
+          user = security.authenticate(session, userName, password);
 
-    if (user != null) {
-      if (user.getAccountStatus() != OSecurityUser.STATUSES.ACTIVE) {
-        throw new OSecurityAccessException(dbName, "User '" + user.getName() + "' is not active");
-      }
-    } else {
-      // WAIT A BIT TO AVOID BRUTE FORCE
-      try {
-        Thread.sleep(200);
-      } catch (InterruptedException ignore) {
-        Thread.currentThread().interrupt();
-      }
+          if (user != null) {
+            if (user.getAccountStatus() != OSecurityUser.STATUSES.ACTIVE) {
+              throw new OSecurityAccessException(
+                  dbName, "User '" + user.getName() + "' is not active");
+            }
+          } else {
+            // WAIT A BIT TO AVOID BRUTE FORCE
+            try {
+              Thread.sleep(200);
+            } catch (InterruptedException ignore) {
+              Thread.currentThread().interrupt();
+            }
 
-      throw new OSecurityAccessException(
-          dbName,
-          "User or password not valid for username: " + userName + ", database: '" + dbName + "'");
-    }
-    return user;
+            throw new OSecurityAccessException(
+                dbName,
+                "User or password not valid for username: "
+                    + userName
+                    + ", database: '"
+                    + dbName
+                    + "'");
+          }
+          return user;
+        });
   }
 
   @Override
@@ -354,7 +373,7 @@ public class OSecurityShared implements OSecurityInternal {
       throw new OSecurityAccessException(dbName, "Token not valid");
     }
 
-    OUser user = authToken.getUser((ODatabaseDocumentInternal) session);
+    OUser user = authToken.getUser((ODatabaseSessionInternal) session);
     if (user == null && authToken.getUserName() != null) {
       // Token handler may not support returning an OUser so let's get username (subject) and query:
       user = getUser(session, authToken.getUserName());
@@ -573,9 +592,9 @@ public class OSecurityShared implements OSecurityInternal {
           policies.put(currentResource, policy.getElement());
           session.save(roleDoc);
           if (session.getUser() != null && session.getUser().hasRole(role.getName(), true)) {
-            ((ODatabaseDocumentInternal) session).reloadUser();
+            ((ODatabaseSessionInternal) session).reloadUser();
           }
-          updateAllFilteredProperties((ODatabaseDocumentInternal) session);
+          updateAllFilteredProperties((ODatabaseSessionInternal) session);
           initPredicateSecurityOptimizations(session);
         });
   }
@@ -586,7 +605,7 @@ public class OSecurityShared implements OSecurityInternal {
     if (res instanceof OSecurityResourceProperty) {
       String clazzName = ((OSecurityResourceProperty) res).getClassName();
       OClass clazz =
-          ((ODatabaseDocumentInternal) session)
+          ((ODatabaseSessionInternal) session)
               .getMetadata()
               .getImmutableSchemaSnapshot()
               .getClass(clazzName);
@@ -642,7 +661,7 @@ public class OSecurityShared implements OSecurityInternal {
   public void saveSecurityPolicy(ODatabaseSession session, OSecurityPolicyImpl policy) {
     session.executeInTx(
         () ->
-            ((ODatabaseDocumentInternal) session)
+            ((ODatabaseSessionInternal) session)
                 .save(
                     policy.getElement(),
                     OSecurityPolicy.class.getSimpleName().toLowerCase(Locale.ENGLISH)));
@@ -672,8 +691,7 @@ public class OSecurityShared implements OSecurityInternal {
 
           session.executeInTx(() -> roleDoc.save());
 
-          role.reload();
-          updateAllFilteredProperties((ODatabaseDocumentInternal) session);
+          updateAllFilteredProperties((ODatabaseSessionInternal) session);
           initPredicateSecurityOptimizations(session);
         });
   }
@@ -1320,7 +1338,7 @@ public class OSecurityShared implements OSecurityInternal {
   public void incrementVersion(final ODatabaseSession session) {
     version.incrementAndGet();
     securityPredicateCache.clear();
-    updateAllFilteredProperties((ODatabaseDocumentInternal) session);
+    updateAllFilteredProperties((ODatabaseSessionInternal) session);
     initPredicateSecurityOptimizations(session);
   }
 
@@ -1331,14 +1349,14 @@ public class OSecurityShared implements OSecurityInternal {
     OSecurityUser user = session.getUser();
     try {
       if (user != null) {
-        ((ODatabaseDocumentInternal) session).setUser(null);
+        ((ODatabaseSessionInternal) session).setUser(null);
       }
 
       initPredicateSecurityOptimizationsInternal(session);
     } finally {
 
       if (user != null) {
-        ((ODatabaseDocumentInternal) session).setUser(user);
+        ((ODatabaseSessionInternal) session).setUser(user);
       }
     }
   }
@@ -1347,43 +1365,48 @@ public class OSecurityShared implements OSecurityInternal {
     Map<String, Map<String, Boolean>> result = new HashMap<>();
     Collection<OClass> allClasses = session.getMetadata().getSchema().getClasses();
 
-    if (!((ODatabaseDocumentInternal) session)
+    if (!((ODatabaseSessionInternal) session)
         .getMetadata()
         .getImmutableSchemaSnapshot()
         .existsClass("ORole")) {
       return;
     }
-    synchronized (this) {
-      try (OResultSet rs = session.query("select name, policies from ORole")) {
-        while (rs.hasNext()) {
-          OResult item = rs.next();
-          String roleName = item.getProperty("name");
 
-          Map<String, OIdentifiable> policies = item.getProperty("policies");
-          if (policies != null) {
-            for (Map.Entry<String, OIdentifiable> policyEntry : policies.entrySet()) {
-              OSecurityResource res = OSecurityResource.getInstance(policyEntry.getKey());
-              OElement policy = policyEntry.getValue().getRecord();
-              if (policy != null) {
-                for (OClass clazz : allClasses) {
-                  if (isClassInvolved(clazz, res)
-                      && !isAllAllowed(
-                          session, new OImmutableSecurityPolicy(new OSecurityPolicyImpl(policy)))) {
-                    Map<String, Boolean> roleMap = result.get(roleName);
-                    if (roleMap == null) {
-                      roleMap = new HashMap<>();
-                      result.put(roleName, roleMap);
+    session.executeInTx(
+        () -> {
+          synchronized (this) {
+            try (OResultSet rs = session.query("select name, policies from ORole")) {
+              while (rs.hasNext()) {
+                OResult item = rs.next();
+                String roleName = item.getProperty("name");
+
+                Map<String, OIdentifiable> policies = item.getProperty("policies");
+                if (policies != null) {
+                  for (Map.Entry<String, OIdentifiable> policyEntry : policies.entrySet()) {
+                    OSecurityResource res = OSecurityResource.getInstance(policyEntry.getKey());
+                    OElement policy = policyEntry.getValue().getRecord();
+                    if (policy != null) {
+                      for (OClass clazz : allClasses) {
+                        if (isClassInvolved(clazz, res)
+                            && !isAllAllowed(
+                                session,
+                                new OImmutableSecurityPolicy(new OSecurityPolicyImpl(policy)))) {
+                          Map<String, Boolean> roleMap = result.get(roleName);
+                          if (roleMap == null) {
+                            roleMap = new HashMap<>();
+                            result.put(roleName, roleMap);
+                          }
+                          roleMap.put(clazz.getName(), true);
+                        }
+                      }
                     }
-                    roleMap.put(clazz.getName(), true);
                   }
                 }
               }
             }
+            this.roleHasPredicateSecurityForClass = result;
           }
-        }
-      }
-      this.roleHasPredicateSecurityForClass = result;
-    }
+        });
   }
 
   private boolean isAllAllowed(ODatabaseSession db, OSecurityPolicy policy) {
@@ -1812,7 +1835,7 @@ public class OSecurityShared implements OSecurityInternal {
 
   @Override
   public synchronized Set<OSecurityResourceProperty> getAllFilteredProperties(
-      ODatabaseDocumentInternal database) {
+      ODatabaseSessionInternal database) {
     if (filteredProperties == null) {
       updateAllFilteredProperties(database);
     }
@@ -1822,7 +1845,7 @@ public class OSecurityShared implements OSecurityInternal {
     return new HashSet<>(filteredProperties);
   }
 
-  protected void updateAllFilteredProperties(ODatabaseDocumentInternal session) {
+  protected void updateAllFilteredProperties(ODatabaseSessionInternal session) {
     Set<OSecurityResourceProperty> result;
     if (session.getUser() == null) {
       result = calculateAllFilteredProperties(session);
@@ -1840,7 +1863,7 @@ public class OSecurityShared implements OSecurityInternal {
     }
   }
 
-  protected void updateAllFilteredPropertiesInternal(ODatabaseDocumentInternal session) {
+  protected void updateAllFilteredPropertiesInternal(ODatabaseSessionInternal session) {
     OSecurityUser user = session.getUser();
     try {
       if (user != null) {
@@ -1861,7 +1884,7 @@ public class OSecurityShared implements OSecurityInternal {
   protected Set<OSecurityResourceProperty> calculateAllFilteredProperties(
       ODatabaseSession session) {
     Set<OSecurityResourceProperty> result = new HashSet<>();
-    if (!((ODatabaseDocumentInternal) session)
+    if (!((ODatabaseSessionInternal) session)
         .getMetadata()
         .getImmutableSchemaSnapshot()
         .existsClass("ORole")) {

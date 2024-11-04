@@ -19,11 +19,10 @@
  */
 package com.orientechnologies.orient.core.record.impl;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordStringable;
 import java.io.UnsupportedEncodingException;
@@ -39,7 +38,7 @@ public class ORecordFlat extends ORecordAbstract implements ORecordStringable {
   public static final byte RECORD_TYPE = 'f';
   protected String value;
 
-  public ORecordFlat(ODatabaseDocumentInternal iDatabase) {
+  public ORecordFlat(ODatabaseSessionInternal iDatabase) {
     this();
     ODatabaseRecordThreadLocal.instance().set(iDatabase);
   }
@@ -125,9 +124,6 @@ public class ORecordFlat extends ORecordAbstract implements ORecordStringable {
     }
 
     if (value == null) {
-      // LAZY DESERIALIZATION
-      if (source == null && getIdentity() != null && getIdentity().isValid()) reload();
-
       // LAZY LOADING: LOAD THE RECORD FIRST
       try {
         value = new String(source, "UTF-8");
@@ -145,16 +141,6 @@ public class ORecordFlat extends ORecordAbstract implements ORecordStringable {
       return "Proxy of {" + primaryRecord + "}";
     }
     return super.toString() + " " + value();
-  }
-
-  @Override
-  public ORecord reload() {
-    if (primaryRecord != null) {
-      return primaryRecord.reload();
-    }
-
-    value = null;
-    return super.reload();
   }
 
   @Override

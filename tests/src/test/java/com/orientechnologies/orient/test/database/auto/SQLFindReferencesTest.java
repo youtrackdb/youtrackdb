@@ -26,7 +26,6 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -45,9 +44,9 @@ public class SQLFindReferencesTest extends DocumentDBBaseTest {
   private ORID ctuID;
   private ORID fbiID;
 
-  @Parameters(value = "url")
-  public SQLFindReferencesTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public SQLFindReferencesTest(boolean remote) {
+    super(remote);
   }
 
   @Test
@@ -201,7 +200,7 @@ public class SQLFindReferencesTest extends DocumentDBBaseTest {
 
   @AfterClass
   public void deleteTestEnvironment() {
-    database.open("admin", "admin");
+    database = createSessionInstance();
 
     carID.reset();
     carID = null;

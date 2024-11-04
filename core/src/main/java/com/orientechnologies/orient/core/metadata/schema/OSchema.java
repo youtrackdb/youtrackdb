@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.metadata.schema;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.viewmanager.ViewCreationListener;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.clusterselection.OClusterSelectionFactory;
@@ -89,7 +89,7 @@ public interface OSchema {
   OView createView(final String viewName, String statement);
 
   OView createView(
-      ODatabaseDocumentInternal database,
+      ODatabaseSessionInternal database,
       final String viewName,
       String statement,
       Map<String, Object> metadata);

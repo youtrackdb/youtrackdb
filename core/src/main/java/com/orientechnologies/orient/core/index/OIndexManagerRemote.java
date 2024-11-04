@@ -22,8 +22,8 @@ package com.orientechnologies.orient.core.index;
 import com.orientechnologies.common.listener.OProgressListener;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.OMultiKey;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OMetadataUpdateListener;
 import com.orientechnologies.orient.core.dictionary.ODictionary;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
@@ -69,7 +69,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
     this.storage = storage;
   }
 
-  public void load(ODatabaseDocumentInternal database) {
+  public void load(ODatabaseSessionInternal database) {
     if (!autoRecreateIndexesAfterCrash(database)) {
       acquireExclusiveLock();
       try {
@@ -92,7 +92,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
   public void reload() {
     acquireExclusiveLock();
     try {
-      ODatabaseDocumentInternal database = getDatabase();
+      ODatabaseSessionInternal database = getDatabase();
       ORecordId id =
           new ORecordId(database.getStorageInfo().getConfiguration().getIndexMgrRecordId());
 
@@ -116,11 +116,11 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
     throw new UnsupportedOperationException();
   }
 
-  public void create(ODatabaseDocumentInternal database) {
+  public void create(ODatabaseSessionInternal database) {
     throw new UnsupportedOperationException();
   }
 
-  public Collection<? extends OIndex> getIndexes(ODatabaseDocumentInternal database) {
+  public Collection<? extends OIndex> getIndexes(ODatabaseSessionInternal database) {
     final Collection<OIndex> rawResult = indexes.values();
     final List<OIndex> result = new ArrayList<>(rawResult.size());
     for (final OIndex index : rawResult) {
@@ -134,7 +134,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
     return index;
   }
 
-  public OIndex getIndex(ODatabaseDocumentInternal database, final String iName) {
+  public OIndex getIndex(ODatabaseSessionInternal database, final String iName) {
     final OIndex index = indexes.get(iName);
     if (index == null) return null;
     return index;
@@ -154,7 +154,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
   }
 
   public void setDefaultClusterName(
-      ODatabaseDocumentInternal database, final String defaultClusterName) {
+      ODatabaseSessionInternal database, final String defaultClusterName) {
     acquireExclusiveLock();
     try {
       this.defaultClusterName = defaultClusterName;
@@ -163,7 +163,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
     }
   }
 
-  public ODictionary<ORecord> getDictionary(ODatabaseDocumentInternal database) {
+  public ODictionary<ORecord> getDictionary(ODatabaseSessionInternal database) {
     OIndex idx;
     acquireSharedLock();
     try {
@@ -192,7 +192,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
   }
 
   public Set<OIndex> getClassInvolvedIndexes(
-      ODatabaseDocumentInternal database, final String className, Collection<String> fields) {
+      ODatabaseSessionInternal database, final String className, Collection<String> fields) {
     final OMultiKey multiKey = new OMultiKey(fields);
 
     final Map<OMultiKey, Set<OIndex>> propertyIndex = getIndexOnProperty(className);
@@ -214,7 +214,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
   }
 
   public Set<OIndex> getClassInvolvedIndexes(
-      ODatabaseDocumentInternal database, final String className, final String... fields) {
+      ODatabaseSessionInternal database, final String className, final String... fields) {
     return getClassInvolvedIndexes(database, className, Arrays.asList(fields));
   }
 
@@ -232,16 +232,14 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
     return areIndexed(className, Arrays.asList(fields));
   }
 
-  public Set<OIndex> getClassIndexes(ODatabaseDocumentInternal database, final String className) {
+  public Set<OIndex> getClassIndexes(ODatabaseSessionInternal database, final String className) {
     final HashSet<OIndex> coll = new HashSet<OIndex>(4);
     getClassIndexes(database, className, coll);
     return coll;
   }
 
   public void getClassIndexes(
-      ODatabaseDocumentInternal database,
-      final String className,
-      final Collection<OIndex> indexes) {
+      ODatabaseSessionInternal database, final String className, final Collection<OIndex> indexes) {
     getClassRawIndexes(className, indexes);
   }
 
@@ -266,7 +264,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
   }
 
   public OIndex getClassIndex(
-      ODatabaseDocumentInternal database, String className, String indexName) {
+      ODatabaseSessionInternal database, String className, String indexName) {
     className = className.toLowerCase();
 
     final OIndex index = indexes.get(indexName);
@@ -277,7 +275,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
     return null;
   }
 
-  public OIndex getClassAutoShardingIndex(ODatabaseDocumentInternal database, String className) {
+  public OIndex getClassAutoShardingIndex(ODatabaseSessionInternal database, String className) {
     className = className.toLowerCase();
 
     // LOOK FOR INDEX
@@ -300,7 +298,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
   }
 
   void internalAcquireExclusiveLock() {
-    final ODatabaseDocumentInternal databaseRecord = getDatabaseIfDefined();
+    final ODatabaseSessionInternal databaseRecord = getDatabaseIfDefined();
     if (databaseRecord != null && !databaseRecord.isClosed()) {
       final OMetadataInternal metadata = (OMetadataInternal) databaseRecord.getMetadata();
       if (metadata != null) metadata.makeThreadLocalSchemaSnapshot();
@@ -311,7 +309,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
   void internalReleaseExclusiveLock() {
     lock.writeLock().unlock();
 
-    final ODatabaseDocumentInternal databaseRecord = getDatabaseIfDefined();
+    final ODatabaseSessionInternal databaseRecord = getDatabaseIfDefined();
     if (databaseRecord != null && !databaseRecord.isClosed()) {
       final OMetadata metadata = databaseRecord.getMetadata();
       if (metadata != null) ((OMetadataInternal) metadata).clearThreadLocalSchemaSnapshot();
@@ -328,11 +326,11 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
     }
   }
 
-  protected static ODatabaseDocumentInternal getDatabase() {
+  protected static ODatabaseSessionInternal getDatabase() {
     return ODatabaseRecordThreadLocal.instance().get();
   }
 
-  private static ODatabaseDocumentInternal getDatabaseIfDefined() {
+  private static ODatabaseSessionInternal getDatabaseIfDefined() {
     return ODatabaseRecordThreadLocal.instance().getIfDefined();
   }
 
@@ -401,7 +399,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
   }
 
   public OIndex createIndex(
-      ODatabaseDocumentInternal database,
+      ODatabaseSessionInternal database,
       final String iName,
       final String iType,
       final OIndexDefinition iIndexDefinition,
@@ -439,7 +437,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
 
   @Override
   public OIndex createIndex(
-      ODatabaseDocumentInternal database,
+      ODatabaseSessionInternal database,
       String iName,
       String iType,
       OIndexDefinition indexDefinition,
@@ -457,7 +455,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
         null);
   }
 
-  public void dropIndex(ODatabaseDocumentInternal database, final String iIndexName) {
+  public void dropIndex(ODatabaseSessionInternal database, final String iIndexName) {
     acquireExclusiveLock();
     try {
       final String text = String.format(QUERY_DROP, iIndexName);
@@ -481,14 +479,14 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
   }
 
   @Override
-  public void recreateIndexes(ODatabaseDocumentInternal database) {
-    throw new UnsupportedOperationException("recreateIndexes(ODatabaseDocumentInternal)");
+  public void recreateIndexes(ODatabaseSessionInternal database) {
+    throw new UnsupportedOperationException("recreateIndexes(ODatabaseSessionInternal)");
   }
 
   public void waitTillIndexRestore() {}
 
   @Override
-  public boolean autoRecreateIndexesAfterCrash(ODatabaseDocumentInternal database) {
+  public boolean autoRecreateIndexesAfterCrash(ODatabaseSessionInternal database) {
     return false;
   }
 
@@ -580,7 +578,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
 
   protected void realReleaseExclusiveLock() {
     int val = writeLockNesting.decrementAndGet();
-    ODatabaseDocumentInternal database = getDatabaseIfDefined();
+    ODatabaseSessionInternal database = getDatabaseIfDefined();
     if (database != null) {
       database
           .getSharedContext()
@@ -614,7 +612,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
     return null;
   }
 
-  public OIndex preProcessBeforeReturn(ODatabaseDocumentInternal database, OIndex index) {
+  public OIndex preProcessBeforeReturn(ODatabaseSessionInternal database, OIndex index) {
     return index;
   }
 }

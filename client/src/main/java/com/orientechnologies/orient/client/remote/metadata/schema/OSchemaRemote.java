@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.client.remote.metadata.schema;
 
 import com.orientechnologies.orient.core.Orient;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
 import com.orientechnologies.orient.core.db.ODatabaseListener;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.viewmanager.ViewCreationListener;
 import com.orientechnologies.orient.core.exception.OSchemaException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -33,7 +33,7 @@ public class OSchemaRemote extends OSchemaShared {
 
   @Override
   public OClass getOrCreateClass(
-      ODatabaseDocumentInternal database, String iClassName, OClass... superClasses) {
+      ODatabaseSessionInternal database, String iClassName, OClass... superClasses) {
     if (iClassName == null) return null;
 
     acquireSchemaReadLock();
@@ -72,7 +72,7 @@ public class OSchemaRemote extends OSchemaShared {
   }
 
   public OClass createClass(
-      ODatabaseDocumentInternal database,
+      ODatabaseSessionInternal database,
       final String className,
       int[] clusterIds,
       OClass... superClasses) {
@@ -151,7 +151,7 @@ public class OSchemaRemote extends OSchemaShared {
   }
 
   public OClass createClass(
-      ODatabaseDocumentInternal database,
+      ODatabaseSessionInternal database,
       final String className,
       int clusters,
       OClass... superClasses) {
@@ -220,13 +220,13 @@ public class OSchemaRemote extends OSchemaShared {
   }
 
   public OView createView(
-      ODatabaseDocumentInternal database, OViewConfig cfg, ViewCreationListener listener)
+      ODatabaseSessionInternal database, OViewConfig cfg, ViewCreationListener listener)
       throws UnsupportedOperationException {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public OView createView(ODatabaseDocumentInternal database, OViewConfig cfg) {
+  public OView createView(ODatabaseSessionInternal database, OViewConfig cfg) {
     final Character wrongCharacter = OSchemaShared.checkClassNameIfValid(cfg.getName());
     if (wrongCharacter != null)
       throw new OSchemaException(
@@ -277,7 +277,7 @@ public class OSchemaRemote extends OSchemaShared {
 
   @Override
   public OView createView(
-      ODatabaseDocumentInternal database,
+      ODatabaseSessionInternal database,
       String name,
       String statement,
       Map<String, Object> metadata) {
@@ -342,7 +342,7 @@ public class OSchemaRemote extends OSchemaShared {
     }
   }
 
-  public void dropClass(ODatabaseDocumentInternal database, final String className) {
+  public void dropClass(ODatabaseSessionInternal database, final String className) {
 
     acquireSchemaWriteLock(database);
     try {
@@ -382,7 +382,7 @@ public class OSchemaRemote extends OSchemaShared {
     }
   }
 
-  public void dropView(ODatabaseDocumentInternal database, final String name) {
+  public void dropView(ODatabaseSessionInternal database, final String name) {
 
     acquireSchemaWriteLock(database);
     try {
@@ -423,12 +423,12 @@ public class OSchemaRemote extends OSchemaShared {
   }
 
   @Override
-  public void acquireSchemaWriteLock(ODatabaseDocumentInternal database) {
+  public void acquireSchemaWriteLock(ODatabaseSessionInternal database) {
     skipPush.set(true);
   }
 
   @Override
-  public void releaseSchemaWriteLock(ODatabaseDocumentInternal database, final boolean iSave) {
+  public void releaseSchemaWriteLock(ODatabaseSessionInternal database, final boolean iSave) {
     skipPush.set(false);
   }
 
@@ -446,13 +446,13 @@ public class OSchemaRemote extends OSchemaShared {
   }
 
   @Override
-  public int addBlobCluster(ODatabaseDocumentInternal database, int clusterId) {
+  public int addBlobCluster(ODatabaseSessionInternal database, int clusterId) {
     throw new OSchemaException(
         "Not supported operation use instead ODatabaseSession.addBlobCluster");
   }
 
   @Override
-  public void removeBlobCluster(ODatabaseDocumentInternal database, String clusterName) {
+  public void removeBlobCluster(ODatabaseSessionInternal database, String clusterName) {
     throw new OSchemaException("Not supported operation use instead ODatabaseSession.dropCluster");
   }
 }

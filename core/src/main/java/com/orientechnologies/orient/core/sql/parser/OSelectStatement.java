@@ -8,7 +8,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.executor.OInternalExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -287,10 +287,7 @@ public class OSelectStatement extends OStatement {
 
   @Override
   public OResultSet execute(
-      ODatabaseDocumentInternal db,
-      Object[] args,
-      OCommandContext parentCtx,
-      boolean usePlanCache) {
+      ODatabaseSessionInternal db, Object[] args, OCommandContext parentCtx, boolean usePlanCache) {
     OBasicCommandContext ctx = new OBasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
@@ -316,12 +313,12 @@ public class OSelectStatement extends OStatement {
 
   @Override
   public OResultSet execute(
-      ODatabaseDocumentInternal db, Map params, OCommandContext parentCtx, boolean usePlanCache) {
+      ODatabaseSessionInternal db, Map params, OCommandContext parentCtx, boolean usePlanCache) {
     OBasicCommandContext ctx = new OBasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
-    ctx.setDatabase((ODatabaseDocumentInternal) db);
+    ctx.setDatabase((ODatabaseSessionInternal) db);
     ctx.setInputParameters(params);
     OInternalExecutionPlan executionPlan;
     if (usePlanCache) {

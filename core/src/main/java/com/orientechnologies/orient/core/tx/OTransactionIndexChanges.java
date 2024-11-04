@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.tx;
 
 import com.orientechnologies.common.comparator.ODefaultComparator;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.IdentityChangeListener;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexInternal;
@@ -103,7 +103,7 @@ public class OTransactionIndexChanges implements IdentityChangeListener {
   }
 
   public OIndexInternal resolveAssociatedIndex(
-      String indexName, OIndexManagerAbstract indexManager, ODatabaseDocumentInternal db) {
+      String indexName, OIndexManagerAbstract indexManager, ODatabaseSessionInternal db) {
     if (resolvedIndex == null) {
       final OIndex index = indexManager.getIndex(db, indexName);
       if (index != null) resolvedIndex = index.getInternal();

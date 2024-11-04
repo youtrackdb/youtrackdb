@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.sql;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.OrientDB;
@@ -89,7 +89,7 @@ public class OLiveQueryV2Test {
 
   @Test
   public void testLiveInsert() throws InterruptedException {
-    ODatabaseDocumentInternal db = new ODatabaseDocumentTx("memory:OLiveQueryV2Test");
+    ODatabaseSessionInternal db = new ODatabaseDocumentTx("memory:OLiveQueryV2Test");
     db.activateOnCurrentThread();
     db.create();
     try {
@@ -133,8 +133,8 @@ public class OLiveQueryV2Test {
     final OrientDB context =
         OCreateDatabaseUtil.createDatabase(
             "testLiveInsertOnCluster", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
-    try (ODatabaseDocumentInternal db =
-        (ODatabaseDocumentInternal)
+    try (ODatabaseSessionInternal db =
+        (ODatabaseSessionInternal)
             context.open(
                 "testLiveInsertOnCluster", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
 
@@ -172,8 +172,8 @@ public class OLiveQueryV2Test {
     final OrientDB context =
         OCreateDatabaseUtil.createDatabase(
             "testLiveWithWhereCondition", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
-    try (ODatabaseDocumentInternal db =
-        (ODatabaseDocumentInternal)
+    try (ODatabaseSessionInternal db =
+        (ODatabaseSessionInternal)
             context.open(
                 "testLiveWithWhereCondition", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
 
@@ -205,7 +205,7 @@ public class OLiveQueryV2Test {
 
   @Test
   public void testRestrictedLiveInsert() throws ExecutionException, InterruptedException {
-    ODatabaseDocumentInternal db = new ODatabaseDocumentTx("memory:OLiveQueryTest");
+    ODatabaseSessionInternal db = new ODatabaseDocumentTx("memory:OLiveQueryTest");
     db.activateOnCurrentThread();
     db.create();
     try {
@@ -294,7 +294,7 @@ public class OLiveQueryV2Test {
   @Test
   public void testLiveProjections() throws InterruptedException {
 
-    ODatabaseDocumentInternal db = new ODatabaseDocumentTx("memory:OLiveQueryV2Test");
+    ODatabaseSessionInternal db = new ODatabaseDocumentTx("memory:OLiveQueryV2Test");
     db.activateOnCurrentThread();
     db.create();
     try {

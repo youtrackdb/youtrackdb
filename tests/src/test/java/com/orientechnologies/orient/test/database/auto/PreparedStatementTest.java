@@ -25,15 +25,14 @@ import java.util.Map;
 import java.util.Set;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test
 public class PreparedStatementTest extends DocumentDBBaseTest {
-  @Parameters(value = "url")
-  public PreparedStatementTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public PreparedStatementTest(boolean remote) {
+    super(remote);
   }
 
   @BeforeClass

@@ -21,7 +21,6 @@ import com.orientechnologies.orient.core.record.impl.OBlob;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ORecordBytes;
 import org.testng.Assert;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -29,9 +28,9 @@ public class BinaryTest extends DocumentDBBaseTest {
 
   private ORID rid;
 
-  @Parameters(value = "url")
-  public BinaryTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public BinaryTest(boolean remote) {
+    super(remote);
   }
 
   @Test
@@ -43,8 +42,9 @@ public class BinaryTest extends DocumentDBBaseTest {
     doc.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
-    doc.reload();
+    database.begin();
     Assert.assertEquals(new String((byte[]) doc.field("binary", OType.BINARY)), "Binary data");
+    database.rollback();
   }
 
   @Test

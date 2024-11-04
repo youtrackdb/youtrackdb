@@ -30,8 +30,8 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.command.OCommandExecutorAbstract;
 import com.orientechnologies.orient.core.command.OCommandRequest;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
@@ -133,7 +133,7 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
     if (strict) {
       parserText = addSemicolons(parserText);
 
-      ODatabaseDocumentInternal db = getDatabase();
+      ODatabaseSessionInternal db = getDatabase();
 
       byte[] bytes;
       try {
@@ -210,7 +210,7 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
 
   protected Object executeJsr223Script(
       final String language, final OCommandContext iContext, final Map<Object, Object> iArgs) {
-    ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().get();
+    ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
 
     final OScriptManager scriptManager = db.getSharedContext().getOrientDB().getScriptManager();
     CompiledScript compiledScript = request.getCompiledScript();
@@ -567,7 +567,7 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
   private Object executeCommand(final String lastCommand, final ODatabaseDocument db) {
     final OCommandSQL command = new OCommandSQL(lastCommand);
     Object result =
-        ((ODatabaseDocumentInternal) db)
+        ((ODatabaseSessionInternal) db)
             .command(command.setContext(getContext()))
             .execute(toMap(parameters));
     request.setFetchPlan(command.getFetchPlan());

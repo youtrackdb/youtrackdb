@@ -16,8 +16,8 @@
 package com.orientechnologies.orient.jdbc;
 
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
@@ -253,7 +253,7 @@ public class OrientJdbcConnection implements Connection {
   public void setHoldability(int holdability) throws SQLException {}
 
   public DatabaseMetaData getMetaData() throws SQLException {
-    return new OrientJdbcDatabaseMetaData(this, (ODatabaseDocumentInternal) getDatabase());
+    return new OrientJdbcDatabaseMetaData(this, (ODatabaseSessionInternal) getDatabase());
   }
 
   public int getTransactionIsolation() throws SQLException {

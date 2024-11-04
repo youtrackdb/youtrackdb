@@ -20,16 +20,15 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.List;
 import org.testng.Assert;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 /** SQL test against metadata. */
-@Test(groups = "sql-select")
+@Test
 public class SQLMetadataTest extends DocumentDBBaseTest {
-  @Parameters(value = "url")
-  public SQLMetadataTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public SQLMetadataTest(boolean remote) {
+    super(remote);
   }
 
   @Test

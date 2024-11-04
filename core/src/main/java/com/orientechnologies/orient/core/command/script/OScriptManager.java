@@ -36,7 +36,7 @@ import com.orientechnologies.orient.core.command.script.js.OJSScriptEngineFactor
 import com.orientechnologies.orient.core.command.script.transformer.OScriptTransformerImpl;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabase;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
@@ -278,7 +278,7 @@ public class OScriptManager {
   public Bindings bindContextVariables(
       ScriptEngine engine,
       final Bindings binding,
-      final ODatabaseDocumentInternal db,
+      final ODatabaseSessionInternal db,
       final OCommandContext iContext,
       final Map<Object, Object> iArgs) {
 
@@ -297,7 +297,7 @@ public class OScriptManager {
   public Bindings bind(
       ScriptEngine scriptEngine,
       final Bindings binding,
-      final ODatabaseDocumentInternal db,
+      final ODatabaseSessionInternal db,
       final OCommandContext iContext,
       final Map<Object, Object> iArgs) {
 
@@ -328,7 +328,7 @@ public class OScriptManager {
     }
   }
 
-  private void bindLegacyDatabaseAndUtil(Bindings binding, ODatabaseDocumentInternal db) {
+  private void bindLegacyDatabaseAndUtil(Bindings binding, ODatabaseSessionInternal db) {
     if (db != null) {
       // BIND FIXED VARIABLES
       //      binding.put("db", new OScriptDocumentDatabaseWrapper(db));
@@ -337,7 +337,7 @@ public class OScriptManager {
     binding.put("util", new OFunctionUtilWrapper());
   }
 
-  private void bindDatabase(Bindings binding, ODatabaseDocumentInternal db) {
+  private void bindDatabase(Bindings binding, ODatabaseSessionInternal db) {
     if (db != null) {
       binding.put("db", new OScriptDatabaseWrapper(db));
     }

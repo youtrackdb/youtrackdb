@@ -16,21 +16,20 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.io.IOException;
 import org.testng.Assert;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test(groups = "db")
 public class DbCopyTest extends DocumentDBBaseTest implements OCommandOutputListener {
 
-  @Parameters(value = {"url"})
-  public DbCopyTest(@Optional String url) {
-    super(url);
+  @Parameters(value = {"remote"})
+  public DbCopyTest(boolean remote) {
+    super(remote);
   }
 
   @Test
@@ -42,7 +41,7 @@ public class DbCopyTest extends DocumentDBBaseTest implements OCommandOutputList
         new Thread() {
           @Override
           public void run() {
-            final ODatabaseDocumentInternal otherDB = database.copy();
+            final ODatabaseSessionInternal otherDB = database.copy();
             otherDB.activateOnCurrentThread();
             for (int i = 0; i < 5; i++) {
               otherDB.begin();

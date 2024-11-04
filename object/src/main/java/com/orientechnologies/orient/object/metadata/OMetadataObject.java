@@ -16,7 +16,7 @@
  */
 package com.orientechnologies.orient.object.metadata;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OIndexManager;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
 import com.orientechnologies.orient.core.index.OIndexManagerProxy;
@@ -35,9 +35,9 @@ public class OMetadataObject implements OMetadataInternal {
 
   protected OMetadataInternal underlying;
   protected OSchemaProxyObject schema;
-  private ODatabaseDocumentInternal database;
+  private ODatabaseSessionInternal database;
 
-  public OMetadataObject(OMetadataInternal iUnderlying, ODatabaseDocumentInternal database) {
+  public OMetadataObject(OMetadataInternal iUnderlying, ODatabaseSessionInternal database) {
     underlying = iUnderlying;
     this.database = database;
   }

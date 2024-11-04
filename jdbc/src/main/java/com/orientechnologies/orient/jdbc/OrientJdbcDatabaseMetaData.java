@@ -16,7 +16,7 @@
 package com.orientechnologies.orient.jdbc;
 
 import com.orientechnologies.orient.core.OConstants;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.OMetadataInternal;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
@@ -49,10 +49,10 @@ import java.util.Set;
 public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
   protected static final List<String> TABLE_TYPES = Arrays.asList("TABLE", "SYSTEM TABLE");
   private final OrientJdbcConnection connection;
-  private final ODatabaseDocumentInternal database;
+  private final ODatabaseSessionInternal database;
 
   public OrientJdbcDatabaseMetaData(
-      OrientJdbcConnection iConnection, ODatabaseDocumentInternal iDatabase) {
+      OrientJdbcConnection iConnection, ODatabaseSessionInternal iDatabase) {
     connection = iConnection;
     database = iDatabase;
   }

@@ -32,11 +32,11 @@ import com.orientechnologies.orient.core.command.OCommandRequestInternal;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.OStorageEntryConfiguration;
 import com.orientechnologies.orient.core.db.ODatabase;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
 import com.orientechnologies.orient.core.db.ODatabaseListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OScenarioThreadLocal;
 import com.orientechnologies.orient.core.db.OSharedContext;
 import com.orientechnologies.orient.core.db.record.OCurrentStorageComponentsFactory;
@@ -130,7 +130,7 @@ import java.util.function.Supplier;
  */
 @SuppressWarnings("unchecked")
 public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabaseListener>
-    implements ODatabaseDocumentInternal {
+    implements ODatabaseSessionInternal {
 
   protected final Map<String, Object> properties = new HashMap<String, Object>();
   protected Map<ORecordHook, ORecordHook.HOOK_POSITION> unmodifiableHooks;
@@ -288,7 +288,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     return this;
   }
 
-  public ODatabaseDocumentInternal cleanOutRecord(final ORID iRecord, final int iVersion) {
+  public ODatabaseSessionInternal cleanOutRecord(final ORID iRecord, final int iVersion) {
     delete(iRecord, iVersion);
     return this;
   }
@@ -863,23 +863,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   public <RET extends ORecord> RET load(final ORID iRecordId, final String iFetchPlan) {
     checkIfActive();
     return (RET) currentTx.loadRecord(iRecordId, null, iFetchPlan, false);
-  }
-
-  @SuppressWarnings("unchecked")
-  public <RET extends ORecord> RET reload(final ORecord iRecord) {
-    return reload(iRecord, null, false);
-  }
-
-  @SuppressWarnings("unchecked")
-  public <RET extends ORecord> RET reload(final ORecord iRecord, final String iFetchPlan) {
-    return reload(iRecord, iFetchPlan, false);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public <RET extends ORecord> RET reload(
-      final ORecord iRecord, final String iFetchPlan, final boolean iIgnoreCache) {
-    return reload(iRecord, iFetchPlan, iIgnoreCache, true);
   }
 
   @Override
@@ -1914,7 +1897,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   @Override
   public boolean isActiveOnCurrentThread() {
     final ODatabaseRecordThreadLocal tl = ODatabaseRecordThreadLocal.instance();
-    final ODatabaseDocumentInternal db = tl.getIfDefined();
+    final ODatabaseSessionInternal db = tl.getIfDefined();
     return db == this;
   }
 
@@ -1996,7 +1979,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
 
   public void checkIfActive() {
     final ODatabaseRecordThreadLocal tl = ODatabaseRecordThreadLocal.instance();
-    ODatabaseDocumentInternal currentDatabase = tl != null ? tl.get() : null;
+    ODatabaseSessionInternal currentDatabase = tl != null ? tl.get() : null;
     if (currentDatabase instanceof ODatabaseDocumentTx) {
       currentDatabase = ((ODatabaseDocumentTx) currentDatabase).internal;
     }
@@ -2159,6 +2142,9 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     try {
       runnable.run();
       ok = true;
+    } catch (Exception e) {
+      OLogManager.instance().error(this, "Error during execution of transaction", e);
+      throw e;
     } finally {
       if (currentTx.isActive()) {
         if (ok) {
@@ -2180,6 +2166,9 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       var result = supplier.get();
       ok = true;
       return result;
+    } catch (Exception e) {
+      OLogManager.instance().error(this, "Error during execution of transaction", e);
+      throw e;
     } finally {
       if (currentTx.isActive()) {
         if (ok && currentTx.getStatus() != TXSTATUS.ROLLBACKING) {

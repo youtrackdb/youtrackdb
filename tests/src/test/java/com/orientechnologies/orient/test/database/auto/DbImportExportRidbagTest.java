@@ -17,7 +17,7 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
 import com.orientechnologies.orient.core.db.tool.ODatabaseExport;
@@ -27,12 +27,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import org.testng.Assert;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test(groups = {"db", "import-export"})
 public class DbImportExportRidbagTest extends DocumentDBBaseTest implements OCommandOutputListener {
+
   public static final String EXPORT_FILE_PATH = "target/db.export-ridbag.gz";
   public static final String NEW_DB_PATH = "target/test-import-ridbag";
   public static final String NEW_DB_URL = "target/test-import-ridbag";
@@ -41,9 +41,9 @@ public class DbImportExportRidbagTest extends DocumentDBBaseTest implements OCom
   private String exportFilePath;
   private boolean dumpMode = false;
 
-  @Parameters(value = {"url", "testPath"})
-  public DbImportExportRidbagTest(@Optional String url, String testPath) {
-    super(url);
+  @Parameters(value = {"remote", "testPath"})
+  public DbImportExportRidbagTest(boolean remote, String testPath) {
+    super(remote);
     this.testPath = testPath;
 
     exportFilePath = System.getProperty("exportFilePath", EXPORT_FILE_PATH);
@@ -51,8 +51,7 @@ public class DbImportExportRidbagTest extends DocumentDBBaseTest implements OCom
 
   @Test
   public void testDbExport() throws IOException {
-    ODatabaseDocumentInternal database = new ODatabaseDocumentTx(url);
-    database.open("admin", "admin");
+    ODatabaseSessionInternal database = acquireSession();
 
     database.command("insert into V set name ='a'");
     for (int i = 0; i < 100; i++) {
@@ -75,10 +74,15 @@ public class DbImportExportRidbagTest extends DocumentDBBaseTest implements OCom
   @Test(dependsOnMethods = "testDbExport")
   public void testDbImport() throws IOException {
     final File importDir = new File(testPath + "/" + NEW_DB_PATH);
-    if (importDir.exists()) for (File f : importDir.listFiles()) f.delete();
-    else importDir.mkdir();
+    if (importDir.exists()) {
+      for (File f : importDir.listFiles()) {
+        f.delete();
+      }
+    } else {
+      importDir.mkdir();
+    }
 
-    ODatabaseDocumentInternal database =
+    ODatabaseSessionInternal database =
         new ODatabaseDocumentTx(getStorageType() + ":" + testPath + "/" + NEW_DB_URL);
     database.create();
 
@@ -100,16 +104,17 @@ public class DbImportExportRidbagTest extends DocumentDBBaseTest implements OCom
 
   @Test(dependsOnMethods = "testDbImport")
   public void testCompareDatabases() throws IOException {
-    if ("remote".equals(getStorageType()) || url.startsWith("remote:")) {
+    if (remoteDB) {
       String env = getTestEnv();
-      if (env == null || env.equals("dev")) return;
+      if (env == null || env.equals("dev")) {
+        return;
+      }
 
       // EXECUTES ONLY IF NOT REMOTE ON CI/RELEASE TEST ENV
     }
 
-    ODatabaseDocumentInternal first = new ODatabaseDocumentTx(url);
-    first.open("admin", "admin");
-    ODatabaseDocumentInternal second =
+    ODatabaseSessionInternal first = acquireSession();
+    ODatabaseSessionInternal second =
         new ODatabaseDocumentTx(getStorageType() + ":" + testPath + "/" + NEW_DB_URL);
     second.open("admin", "admin");
 
@@ -123,9 +128,13 @@ public class DbImportExportRidbagTest extends DocumentDBBaseTest implements OCom
   @Test(enabled = false)
   public void onMessage(final String iText) {
     if (iText != null && iText.contains("ERR"))
-      // ACTIVATE DUMP MODE
+    // ACTIVATE DUMP MODE
+    {
       dumpMode = true;
+    }
 
-    if (dumpMode) OLogManager.instance().error(this, iText, null);
+    if (dumpMode) {
+      OLogManager.instance().error(this, iText, null);
+    }
   }
 }
