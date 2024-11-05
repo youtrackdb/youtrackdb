@@ -34,7 +34,7 @@ public interface ODatabaseSession extends ODatabaseDocument {
    * @see #activateOnCurrentThread()
    * @see #isActiveOnCurrentThread()
    */
-  static ODatabaseDocument getActiveSession() {
+  static ODatabaseSession getActiveSession() {
     final ODatabaseRecordThreadLocal tl = ODatabaseRecordThreadLocal.instance();
     return tl.get();
   }

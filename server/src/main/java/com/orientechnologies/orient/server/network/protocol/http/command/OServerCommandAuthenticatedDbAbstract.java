@@ -182,7 +182,7 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
     } finally {
       // clear local cache to ensure that zomby records will not pile up in cache.
       try {
-        ODatabaseDocumentInternal db = getProfiledDatabaseInstance(iRequest);
+        var db = getProfiledDatabaseInstance(iRequest);
         if (db != null && !db.getTransaction().isActive()) {
           db.activateOnCurrentThread();
           db.getLocalCache().clear();
