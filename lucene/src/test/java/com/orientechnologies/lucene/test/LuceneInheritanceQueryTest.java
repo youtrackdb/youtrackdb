@@ -18,7 +18,7 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -45,7 +45,7 @@ public class LuceneInheritanceQueryTest extends BaseLuceneTest {
     Assert.assertEquals(1, vertices.stream().count());
   }
 
-  protected void createSchema(ODatabaseDocumentInternal db) {
+  protected void createSchema(ODatabaseSessionInternal db) {
     final OClass c1 = db.createVertexClass("C1");
     c1.createProperty("name", OType.STRING);
     c1.createIndex("C1.name", "FULLTEXT", null, null, "LUCENE", new String[] {"name"});

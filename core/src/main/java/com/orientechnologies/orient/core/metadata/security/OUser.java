@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.metadata.security;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OSecurityAccessException;
 import com.orientechnologies.orient.core.exception.OSecurityException;
@@ -80,7 +80,7 @@ public class OUser extends OIdentity implements OSecurityUser {
   }
 
   public static boolean encodePassword(
-      ODatabaseDocumentInternal session, final ODocument iDocument) {
+      ODatabaseSessionInternal session, final ODocument iDocument) {
     final String name = iDocument.field("name");
     if (name == null) throw new OSecurityException("User name not found");
 
@@ -277,7 +277,7 @@ public class OUser extends OIdentity implements OSecurityUser {
   }
 
   public STATUSES getAccountStatus() {
-    final String status = (String) getDocument().field("status");
+    final String status = getDocument().field("status");
     if (status == null) throw new OSecurityException("User '" + getName() + "' has no status");
     return STATUSES.valueOf(status);
   }

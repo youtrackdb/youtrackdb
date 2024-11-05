@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.common.util.OPairLongObject;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
@@ -807,7 +807,7 @@ public class OMatchExecutionPlanner {
   }
 
   private String getLowerSubclass(
-      ODatabaseDocumentInternal db, String className1, String className2) {
+      ODatabaseSessionInternal db, String className1, String className2) {
     OSchema schema = db.getMetadata().getSchema();
     OClass class1 = schema.getClass(className1);
     OClass class2 = schema.getClass(className2);
@@ -856,7 +856,7 @@ public class OMatchExecutionPlanner {
     allAliases.addAll(aliasRids.keySet());
 
     OSchema schema =
-        ((ODatabaseDocumentInternal) ctx.getDatabase()).getMetadata().getImmutableSchemaSnapshot();
+        ((ODatabaseSessionInternal) ctx.getDatabase()).getMetadata().getImmutableSchemaSnapshot();
 
     Map<String, Long> result = new LinkedHashMap<String, Long>();
     for (String alias : allAliases) {

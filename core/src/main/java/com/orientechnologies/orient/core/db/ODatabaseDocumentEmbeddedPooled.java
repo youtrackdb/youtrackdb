@@ -45,12 +45,12 @@ public class ODatabaseDocumentEmbeddedPooled extends ODatabaseDocumentEmbedded {
   }
 
   @Override
-  public ODatabaseDocumentInternal copy() {
-    return (ODatabaseDocumentInternal) pool.acquire();
+  public ODatabaseSessionInternal copy() {
+    return (ODatabaseSessionInternal) pool.acquire();
   }
 
   public void realClose() {
-    ODatabaseDocumentInternal old = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    ODatabaseSessionInternal old = ODatabaseRecordThreadLocal.instance().getIfDefined();
     try {
       activateOnCurrentThread();
       super.close();

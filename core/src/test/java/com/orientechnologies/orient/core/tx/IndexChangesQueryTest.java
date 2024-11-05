@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.tx;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -23,14 +23,14 @@ public class IndexChangesQueryTest {
   private static final String FIELD_NAME = "value";
   private static final String INDEX_NAME = "idxTxAwareMultiValueGetEntriesTestIndex";
   private OrientDB orientDB;
-  private ODatabaseDocumentInternal database;
+  private ODatabaseSessionInternal database;
 
   @Before
   public void before() {
     orientDB =
         OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
     database =
-        (ODatabaseDocumentInternal)
+        (ODatabaseSessionInternal)
             orientDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     final OSchema schema = database.getMetadata().getSchema();

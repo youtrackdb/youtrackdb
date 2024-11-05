@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
@@ -46,7 +46,7 @@ public class CheckClassTypeStep extends AbstractExecutionStep {
     if (this.targetClass.equals(this.parentClass)) {
       return OExecutionStream.empty();
     }
-    ODatabaseDocumentInternal db = (ODatabaseDocumentInternal) context.getDatabase();
+    ODatabaseSessionInternal db = (ODatabaseSessionInternal) context.getDatabase();
 
     OSchema schema = db.getMetadata().getImmutableSchemaSnapshot();
     OClass parentClazz = schema.getClass(this.parentClass);

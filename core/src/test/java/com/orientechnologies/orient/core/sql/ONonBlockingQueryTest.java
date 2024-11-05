@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.sql;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.orient.core.command.OCommandResultListener;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.sql.query.OSQLNonBlockingQuery;
 import java.util.concurrent.CountDownLatch;
@@ -48,7 +48,7 @@ public class ONonBlockingQueryTest {
     // issue #5244
     OLiveCommandExecutorSQLFactory.init();
 
-    ODatabaseDocumentInternal db = new ODatabaseDocumentTx("memory:ONonBlockingQueryTest");
+    ODatabaseSessionInternal db = new ODatabaseDocumentTx("memory:ONonBlockingQueryTest");
     db.activateOnCurrentThread();
     db.create();
 

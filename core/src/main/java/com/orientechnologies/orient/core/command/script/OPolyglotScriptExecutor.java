@@ -7,8 +7,8 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.script.transformer.OScriptTransformer;
 import com.orientechnologies.orient.core.command.traverse.OAbstractScriptExecutor;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
@@ -28,38 +28,38 @@ import org.graalvm.polyglot.Value;
 
 /** Created by Luca Garulli */
 public class OPolyglotScriptExecutor extends OAbstractScriptExecutor
-    implements OResourcePoolListener<ODatabaseDocumentInternal, Context> {
+    implements OResourcePoolListener<ODatabaseSessionInternal, Context> {
   private final OScriptTransformer transformer;
-  protected ConcurrentHashMap<String, OResourcePool<ODatabaseDocumentInternal, Context>>
+  protected ConcurrentHashMap<String, OResourcePool<ODatabaseSessionInternal, Context>>
       contextPools =
-          new ConcurrentHashMap<String, OResourcePool<ODatabaseDocumentInternal, Context>>();
+          new ConcurrentHashMap<String, OResourcePool<ODatabaseSessionInternal, Context>>();
 
   public OPolyglotScriptExecutor(final String language, OScriptTransformer scriptTransformer) {
     super("javascript".equalsIgnoreCase(language) ? "js" : language);
     this.transformer = scriptTransformer;
   }
 
-  private Context resolveContext(ODatabaseDocumentInternal database) {
-    OResourcePool<ODatabaseDocumentInternal, Context> pool =
+  private Context resolveContext(ODatabaseSessionInternal database) {
+    OResourcePool<ODatabaseSessionInternal, Context> pool =
         contextPools.computeIfAbsent(
             database.getName(),
             (k) -> {
-              return new OResourcePool<ODatabaseDocumentInternal, Context>(
+              return new OResourcePool<ODatabaseSessionInternal, Context>(
                   database.getConfiguration().getValueAsInteger(OGlobalConfiguration.SCRIPT_POOL),
                   OPolyglotScriptExecutor.this);
             });
     return pool.getResource(database, 0);
   }
 
-  private void returnContext(Context context, ODatabaseDocumentInternal database) {
-    OResourcePool<ODatabaseDocumentInternal, Context> pool = contextPools.get(database.getName());
+  private void returnContext(Context context, ODatabaseSessionInternal database) {
+    OResourcePool<ODatabaseSessionInternal, Context> pool = contextPools.get(database.getName());
     if (pool != null) {
       pool.returnResource(context);
     }
   }
 
   @Override
-  public Context createNewResource(ODatabaseDocumentInternal database, Object... iAdditionalArgs) {
+  public Context createNewResource(ODatabaseSessionInternal database, Object... iAdditionalArgs) {
     final OScriptManager scriptManager =
         database.getSharedContext().getOrientDB().getScriptManager();
 
@@ -98,12 +98,12 @@ public class OPolyglotScriptExecutor extends OAbstractScriptExecutor
 
   @Override
   public boolean reuseResource(
-      ODatabaseDocumentInternal iKey, Object[] iAdditionalArgs, Context iValue) {
+      ODatabaseSessionInternal iKey, Object[] iAdditionalArgs, Context iValue) {
     return true;
   }
 
   @Override
-  public OResultSet execute(ODatabaseDocumentInternal database, String script, Object... params) {
+  public OResultSet execute(ODatabaseSessionInternal database, String script, Object... params) {
     preExecute(database, script, params);
 
     Int2ObjectOpenHashMap<Object> par = new Int2ObjectOpenHashMap<>();
@@ -115,7 +115,7 @@ public class OPolyglotScriptExecutor extends OAbstractScriptExecutor
   }
 
   @Override
-  public OResultSet execute(ODatabaseDocumentInternal database, String script, Map params) {
+  public OResultSet execute(ODatabaseSessionInternal database, String script, Map params) {
 
     preExecute(database, script, params);
 
@@ -147,7 +147,7 @@ public class OPolyglotScriptExecutor extends OAbstractScriptExecutor
   public Object executeFunction(
       OCommandContext context, final String functionName, final Map<Object, Object> iArgs) {
 
-    ODatabaseDocumentInternal database = (ODatabaseDocumentInternal) context.getDatabase();
+    ODatabaseSessionInternal database = (ODatabaseSessionInternal) context.getDatabase();
     if (database == null) {
       database = ODatabaseRecordThreadLocal.instance().get();
     }
@@ -199,7 +199,7 @@ public class OPolyglotScriptExecutor extends OAbstractScriptExecutor
 
   @Override
   public void close(String iDatabaseName) {
-    OResourcePool<ODatabaseDocumentInternal, Context> contextPool =
+    OResourcePool<ODatabaseSessionInternal, Context> contextPool =
         contextPools.remove(iDatabaseName);
     if (contextPool != null) {
       for (Context c : contextPool.getAllResources()) {
@@ -211,7 +211,7 @@ public class OPolyglotScriptExecutor extends OAbstractScriptExecutor
 
   @Override
   public void closeAll() {
-    for (OResourcePool<ODatabaseDocumentInternal, Context> d : contextPools.values()) {
+    for (OResourcePool<ODatabaseSessionInternal, Context> d : contextPools.values()) {
       for (Context c : d.getAllResources()) {
         c.close();
       }

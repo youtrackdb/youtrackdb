@@ -5,8 +5,8 @@ import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OExecutionThreadLocal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
@@ -67,7 +67,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     this.desc = desc;
     this.orderAsc = orderAsc;
 
-    ODatabaseDocumentInternal database = (ODatabaseDocumentInternal) ctx.getDatabase();
+    ODatabaseSessionInternal database = (ODatabaseSessionInternal) ctx.getDatabase();
     database.queryStartUsingViewIndex(desc.getIndex().getName());
   }
 
@@ -136,7 +136,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
 
   private void updateIndexStats() {
     // stats
-    OQueryStats stats = OQueryStats.get((ODatabaseDocumentInternal) ctx.getDatabase());
+    OQueryStats stats = OQueryStats.get((ODatabaseSessionInternal) ctx.getDatabase());
     OIndex index = desc.getIndex();
     OBooleanExpression condition = desc.getKeyCondition();
     OBinaryCondition additionalRangeCondition = desc.getAdditionalRangeCondition();
@@ -824,7 +824,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
         additionalRangeCondition = new OBinaryCondition(-1);
         additionalRangeCondition.deserialize(fromResult.getProperty("additionalRangeCondition"));
       }
-      ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().get();
+      ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
       OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, indexName);
       desc = new IndexSearchDescriptor(index, condition, additionalRangeCondition, null);
       orderAsc = fromResult.getProperty("orderAsc");

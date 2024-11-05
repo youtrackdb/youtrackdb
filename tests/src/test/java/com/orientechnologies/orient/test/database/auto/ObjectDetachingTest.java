@@ -20,7 +20,6 @@ import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTxInternal;
 import com.orientechnologies.orient.object.enhancement.OObjectEntitySerializer;
 import com.orientechnologies.orient.test.domain.base.EnumTest;
 import com.orientechnologies.orient.test.domain.base.JavaAttachDetachTestClass;
@@ -45,7 +44,6 @@ import java.util.Map;
 import java.util.Set;
 import javassist.util.proxy.Proxy;
 import org.testng.Assert;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -55,9 +53,9 @@ public class ObjectDetachingTest extends ObjectDBBaseTest {
   private Account account;
   private Profile profile;
 
-  @Parameters(value = "url")
-  public ObjectDetachingTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public ObjectDetachingTest(boolean remote) {
+    super(remote);
   }
 
   @Test
@@ -402,7 +400,7 @@ public class ObjectDetachingTest extends ObjectDBBaseTest {
     ORecordId id = (ORecordId) database.getRecordByUserObject(savedJavaObj, false).getIdentity();
     database.close();
 
-    database = new OObjectDatabaseTxInternal(url).open("admin", "admin");
+    database = createSessionInstance();
     JavaAttachDetachTestClass loadedJavaObj = (JavaAttachDetachTestClass) database.load(id);
     database.detach(loadedJavaObj);
     Assert.assertEquals(loadedJavaObj.text, "test");
@@ -516,7 +514,7 @@ public class ObjectDetachingTest extends ObjectDBBaseTest {
     ORecordId id = (ORecordId) database.getRecordByUserObject(savedJavaObj, false).getIdentity();
     database.close();
 
-    database = new OObjectDatabaseTxInternal(url).open("admin", "admin");
+    database = createSessionInstance();
     JavaAttachDetachTestClass loadedJavaObj = (JavaAttachDetachTestClass) database.load(id);
     database.detachAll(loadedJavaObj, false);
     Assert.assertEquals(loadedJavaObj.text, "test");
@@ -606,7 +604,7 @@ public class ObjectDetachingTest extends ObjectDBBaseTest {
     ORecordId id = (ORecordId) database.getRecordByUserObject(savedJavaObj, false).getIdentity();
     database.close();
 
-    database = new OObjectDatabaseTxInternal(url).open("admin", "admin");
+    database = createSessionInstance();
     JavaAttachDetachTestClass loadedJavaObj = database.load(id);
     loadedJavaObj = database.detach(loadedJavaObj, true);
     Assert.assertTrue(!(loadedJavaObj instanceof Proxy));
@@ -697,8 +695,8 @@ public class ObjectDetachingTest extends ObjectDBBaseTest {
     ORecordId id = (ORecordId) database.getRecordByUserObject(savedJavaObj, false).getIdentity();
     database.close();
 
-    database = new OObjectDatabaseTxInternal(url).open("admin", "admin");
-    JavaAttachDetachTestClass loadedJavaObj = (JavaAttachDetachTestClass) database.load(id);
+    database = createSessionInstance();
+    JavaAttachDetachTestClass loadedJavaObj = database.load(id);
     loadedJavaObj = database.detachAll(loadedJavaObj, true);
     Assert.assertTrue(!(loadedJavaObj instanceof Proxy));
     Assert.assertEquals(loadedJavaObj.text, "test");
@@ -764,12 +762,13 @@ public class ObjectDetachingTest extends ObjectDBBaseTest {
     database.command(command).close();
     database.commit();
 
-    realAddress = database.reload(anAddress, true);
+    database.begin();
+    realAddress = database.load(database.getIdentity(anAddress));
     Assert.assertNotNull(realAddress.getCity());
     // At this point, in OrientDB Studio everything is fine
     // The address has the good country @rid, with version +1
     // Now reload and detachAll the person
-    Profile newPerson = database.reload(aPerson, "*:-1", true);
+    Profile newPerson = database.load(database.getIdentity(aPerson));
     Profile finalPerson = database.detachAll(newPerson, true);
     // But with the reload, the country is null
     Assert.assertNotNull(finalPerson.getLocation().getCity()); // out = null
@@ -778,7 +777,7 @@ public class ObjectDetachingTest extends ObjectDBBaseTest {
     newPerson = (Profile) database.query(new OSQLSynchQuery<Object>(query), new Object[0]).get(0);
     finalPerson = database.detachAll(newPerson, true);
     Assert.assertNotNull(finalPerson.getLocation().getCity()); // out = null
-    // Close db
+    database.rollback();
   }
 
   public void testObjectSerialization() {

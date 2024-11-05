@@ -20,8 +20,6 @@
 package com.orientechnologies.orient.core.type;
 
 import com.orientechnologies.orient.core.annotation.ODocumentInstance;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.io.Serializable;
@@ -33,6 +31,7 @@ import java.io.Serializable;
  */
 @SuppressWarnings("unchecked")
 public class ODocumentWrapper implements Serializable {
+
   @ODocumentInstance private ODocument document;
 
   public ODocumentWrapper() {}
@@ -57,49 +56,10 @@ public class ODocumentWrapper implements Serializable {
     return document;
   }
 
-  void load() {
-    document = (ODocument) document.load();
-  }
-
   public <RET extends ODocumentWrapper> RET load(
       final String iFetchPlan, final boolean iIgnoreCache) {
     checkProxy();
     document = document.load(iFetchPlan, iIgnoreCache);
-    return (RET) this;
-  }
-
-  public <RET extends ODocumentWrapper> RET reload() {
-    checkProxy();
-    if (document.isUnloaded()) {
-      document = ODatabaseSession.getActiveSession().load(document.getIdentity());
-    } else {
-      document.reload();
-    }
-    return (RET) this;
-  }
-
-  public <RET extends ODocumentWrapper> RET reload(final String iFetchPlan) {
-    checkProxy();
-    if (document.isUnloaded()) {
-      document =
-          ((ODatabaseDocumentInternal) ODatabaseSession.getActiveSession())
-              .load(document.getIdentity(), iFetchPlan);
-    } else {
-      document.reload(iFetchPlan, true);
-    }
-    return (RET) this;
-  }
-
-  public <RET extends ODocumentWrapper> RET reload(
-      final String iFetchPlan, final boolean iIgnoreCache) {
-    checkProxy();
-    if (document.isUnloaded()) {
-      document =
-          ((ODatabaseDocumentInternal) ODatabaseSession.getActiveSession())
-              .load(document.getIdentity(), iFetchPlan, iIgnoreCache);
-    } else {
-      document.reload(iFetchPlan, iIgnoreCache);
-    }
     return (RET) this;
   }
 
@@ -139,13 +99,21 @@ public class ODocumentWrapper implements Serializable {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (obj == null) return false;
-    if (getClass() != obj.getClass()) return false;
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
     final ODocumentWrapper other = (ODocumentWrapper) obj;
     if (document == null) {
       return other.document == null;
-    } else return document.equals(other.document);
+    } else {
+      return document.equals(other.document);
+    }
   }
 
   @Override

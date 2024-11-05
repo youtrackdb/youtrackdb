@@ -3,7 +3,7 @@ package com.orientechnologies.orient.server.handler;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.parser.OSystemVariableResolver;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.tool.ODatabaseImport;
@@ -166,7 +166,7 @@ public class AutomaticBackupTest {
         .getContext()
         .execute(
             "create database ? plocal users (admin identified by 'admin' role admin)", DBNAME2);
-    ODatabaseDocumentInternal database2 = server.getDatabases().openNoAuthorization(DBNAME2);
+    ODatabaseSessionInternal database2 = server.getDatabases().openNoAuthorization(DBNAME2);
 
     database2.restore(new FileInputStream(BACKUPDIR + "/testautobackup.zip"), null, null, null);
 
@@ -241,9 +241,9 @@ public class AutomaticBackupTest {
 
     aBackup.sendShutdown();
 
-    final ODatabaseDocumentInternal database2 = new ODatabaseDocumentTx(URL2);
+    final ODatabaseSessionInternal database2 = new ODatabaseDocumentTx(URL2);
     if (database2.exists()) {
-      ((ODatabaseDocumentInternal) database2.open("admin", "admin")).drop();
+      ((ODatabaseSessionInternal) database2.open("admin", "admin")).drop();
     }
     database2.create();
 
@@ -360,7 +360,7 @@ public class AutomaticBackupTest {
         .execute(
             "create database ? plocal users (admin identified by 'admin' role admin)", DBNAME3);
 
-    ODatabaseDocumentInternal database2 = server.getDatabases().openNoAuthorization(DBNAME3);
+    ODatabaseSessionInternal database2 = server.getDatabases().openNoAuthorization(DBNAME3);
 
     new ODatabaseImport(database2, BACKUPDIR + "/fullExport.json.gz", null).importDatabase();
 

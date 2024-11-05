@@ -31,7 +31,7 @@ import com.orientechnologies.orient.core.collate.OCollateFactory;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.OCommandExecutor;
 import com.orientechnologies.orient.core.command.OCommandExecutorAbstract;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDBInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
@@ -72,7 +72,7 @@ public class OSQLEngine {
   private static OQueryOperator[] SORTED_OPERATORS = null;
   private static ClassLoader orientClassLoader = OSQLEngine.class.getClassLoader();
 
-  public static OStatement parse(String query, ODatabaseDocumentInternal db) {
+  public static OStatement parse(String query, ODatabaseSessionInternal db) {
     return OStatementCache.get(query, db);
   }
 
@@ -80,12 +80,12 @@ public class OSQLEngine {
     return OStatementCache.getServerStatement(query, db);
   }
 
-  public static List<OStatement> parseScript(String script, ODatabaseDocumentInternal db) {
+  public static List<OStatement> parseScript(String script, ODatabaseSessionInternal db) {
     final InputStream is = new ByteArrayInputStream(script.getBytes());
     return parseScript(is, db);
   }
 
-  public static List<OStatement> parseScript(InputStream script, ODatabaseDocumentInternal db) {
+  public static List<OStatement> parseScript(InputStream script, ODatabaseSessionInternal db) {
     try {
       final OrientSql osql = new OrientSql(script);
       List<OStatement> result = osql.parseScript();
@@ -552,7 +552,7 @@ public class OSQLEngine {
           new OSQLSynchQuery<Object>(iTarget.substring(1, iTarget.length() - 1));
       query.setContext(iContext);
 
-      final List<OIdentifiable> result = ((ODatabaseDocumentInternal) database).query(query, iArgs);
+      final List<OIdentifiable> result = ((ODatabaseSessionInternal) database).query(query, iArgs);
       if (result == null || result.isEmpty()) ids = Collections.emptySet();
       else {
         ids = new HashSet<OIdentifiable>((int) (result.size() * 1.3));

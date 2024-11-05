@@ -4,7 +4,7 @@ import com.orientechnologies.orient.client.remote.OrientDBRemote;
 import com.orientechnologies.orient.client.remote.metadata.schema.OSchemaRemote;
 import com.orientechnologies.orient.client.remote.metadata.security.OSecurityRemote;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OSharedContext;
 import com.orientechnologies.orient.core.db.OStringCache;
 import com.orientechnologies.orient.core.index.OIndexManagerRemote;
@@ -32,7 +32,7 @@ public class OSharedContextRemote extends OSharedContext {
     sequenceLibrary = new OSequenceLibraryImpl();
   }
 
-  public synchronized void load(ODatabaseDocumentInternal database) {
+  public synchronized void load(ODatabaseSessionInternal database) {
     final long timer = PROFILER.startChrono();
 
     try {
@@ -66,7 +66,7 @@ public class OSharedContextRemote extends OSharedContext {
     loaded = false;
   }
 
-  public synchronized void reload(ODatabaseDocumentInternal database) {
+  public synchronized void reload(ODatabaseSessionInternal database) {
     schema.reload(database);
     indexManager.reload();
     // The Immutable snapshot should be after index and schema that require and before everything

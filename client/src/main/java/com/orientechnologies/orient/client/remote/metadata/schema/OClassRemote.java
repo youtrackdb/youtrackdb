@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.client.remote.metadata.schema;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.OSchemaException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -36,7 +36,7 @@ public class OClassRemote extends OClassImpl {
     if (propertyName == null || propertyName.length() == 0)
       throw new OSchemaException("Property name is null or empty");
 
-    final ODatabaseDocumentInternal database = getDatabase();
+    final ODatabaseSessionInternal database = getDatabase();
     validatePropertyName(propertyName);
     if (database.getTransaction().isActive()) {
       throw new OSchemaException(
@@ -94,7 +94,7 @@ public class OClassRemote extends OClassImpl {
 
     acquireSchemaWriteLock();
     try {
-      final ODatabaseDocumentInternal database = getDatabase();
+      final ODatabaseSessionInternal database = getDatabase();
       final String cmd = String.format("alter class `%s` encryption %s", name, iValue);
       database.command(cmd);
     } finally {
@@ -109,7 +109,7 @@ public class OClassRemote extends OClassImpl {
 
     acquireSchemaWriteLock();
     try {
-      final ODatabaseDocumentInternal database = getDatabase();
+      final ODatabaseSessionInternal database = getDatabase();
       final String cmd = String.format("alter class `%s` clusterselection '%s'", name, value);
       database.command(cmd).close();
       return this;
@@ -123,7 +123,7 @@ public class OClassRemote extends OClassImpl {
 
     acquireSchemaWriteLock();
     try {
-      final ODatabaseDocumentInternal database = getDatabase();
+      final ODatabaseSessionInternal database = getDatabase();
       final String cmd = String.format("alter class `%s` custom %s = ?", getName(), name);
       database.command(cmd, value).close();
       return this;
@@ -137,7 +137,7 @@ public class OClassRemote extends OClassImpl {
 
     acquireSchemaWriteLock();
     try {
-      final ODatabaseDocumentInternal database = getDatabase();
+      final ODatabaseSessionInternal database = getDatabase();
       final String cmd = String.format("alter class `%s` custom clear", getName());
       database.command(cmd).close();
     } finally {
@@ -155,7 +155,7 @@ public class OClassRemote extends OClassImpl {
     }
     acquireSchemaWriteLock();
     try {
-      final ODatabaseDocumentInternal database = getDatabase();
+      final ODatabaseSessionInternal database = getDatabase();
       final StringBuilder sb = new StringBuilder();
       if (classes != null && classes.size() > 0) {
         for (OClass superClass : classes) {
@@ -174,7 +174,7 @@ public class OClassRemote extends OClassImpl {
 
   @Override
   public OClass addSuperClass(final OClass superClass) {
-    final ODatabaseDocumentInternal database = getDatabase();
+    final ODatabaseSessionInternal database = getDatabase();
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
     checkParametersConflict(superClass);
     acquireSchemaWriteLock();
@@ -194,7 +194,7 @@ public class OClassRemote extends OClassImpl {
 
   @Override
   public OClass removeSuperClass(OClass superClass) {
-    final ODatabaseDocumentInternal database = getDatabase();
+    final ODatabaseSessionInternal database = getDatabase();
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
     acquireSchemaWriteLock();
     try {
@@ -211,7 +211,7 @@ public class OClassRemote extends OClassImpl {
 
   public OClass setName(final String name) {
     if (getName().equals(name)) return this;
-    final ODatabaseDocumentInternal database = getDatabase();
+    final ODatabaseSessionInternal database = getDatabase();
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
     final Character wrongCharacter = OSchemaShared.checkClassNameIfValid(name);
     OClass oClass = database.getMetadata().getSchema().getClass(name);
@@ -246,7 +246,7 @@ public class OClassRemote extends OClassImpl {
       shortName = shortName.trim();
       if (shortName.isEmpty()) shortName = null;
     }
-    final ODatabaseDocumentInternal database = getDatabase();
+    final ODatabaseSessionInternal database = getDatabase();
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
     acquireSchemaWriteLock();
@@ -267,7 +267,7 @@ public class OClassRemote extends OClassImpl {
   /** {@inheritDoc} */
   @Override
   public OClass truncateCluster(String clusterName) {
-    final ODatabaseDocumentInternal database = getDatabase();
+    final ODatabaseSessionInternal database = getDatabase();
     database.checkSecurity(ORule.ResourceGeneric.CLASS, ORole.PERMISSION_DELETE, name);
     acquireSchemaReadLock();
     try {
@@ -282,7 +282,7 @@ public class OClassRemote extends OClassImpl {
   }
 
   public OClass setStrictMode(final boolean isStrict) {
-    final ODatabaseDocumentInternal database = getDatabase();
+    final ODatabaseSessionInternal database = getDatabase();
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
     acquireSchemaWriteLock();
     try {
@@ -300,7 +300,7 @@ public class OClassRemote extends OClassImpl {
       iDescription = iDescription.trim();
       if (iDescription.isEmpty()) iDescription = null;
     }
-    final ODatabaseDocumentInternal database = getDatabase();
+    final ODatabaseSessionInternal database = getDatabase();
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
     acquireSchemaWriteLock();
@@ -315,7 +315,7 @@ public class OClassRemote extends OClassImpl {
   }
 
   public OClass addClusterId(final int clusterId) {
-    final ODatabaseDocumentInternal database = getDatabase();
+    final ODatabaseSessionInternal database = getDatabase();
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
     if (isAbstract()) {
@@ -333,7 +333,7 @@ public class OClassRemote extends OClassImpl {
   }
 
   public OClass removeClusterId(final int clusterId) {
-    final ODatabaseDocumentInternal database = getDatabase();
+    final ODatabaseSessionInternal database = getDatabase();
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
     if (clusterIds.length == 1 && clusterId == clusterIds[0])
@@ -354,7 +354,7 @@ public class OClassRemote extends OClassImpl {
   }
 
   public void dropProperty(final String propertyName) {
-    final ODatabaseDocumentInternal database = getDatabase();
+    final ODatabaseSessionInternal database = getDatabase();
     if (database.getTransaction().isActive())
       throw new IllegalStateException("Cannot drop a property inside a transaction");
 
@@ -375,7 +375,7 @@ public class OClassRemote extends OClassImpl {
 
   @Override
   public OClass addCluster(final String clusterNameOrId) {
-    final ODatabaseDocumentInternal database = getDatabase();
+    final ODatabaseSessionInternal database = getDatabase();
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
     if (isAbstract()) {
@@ -395,7 +395,7 @@ public class OClassRemote extends OClassImpl {
   }
 
   public OClass setOverSize(final float overSize) {
-    final ODatabaseDocumentInternal database = getDatabase();
+    final ODatabaseSessionInternal database = getDatabase();
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
     acquireSchemaWriteLock();
     try {
@@ -411,7 +411,7 @@ public class OClassRemote extends OClassImpl {
   }
 
   public OClass setAbstract(boolean isAbstract) {
-    final ODatabaseDocumentInternal database = getDatabase();
+    final ODatabaseSessionInternal database = getDatabase();
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
     acquireSchemaWriteLock();
@@ -471,7 +471,7 @@ public class OClassRemote extends OClassImpl {
   }
 
   public void setDefaultClusterId(final int defaultClusterId) {
-    final ODatabaseDocumentInternal database = getDatabase();
+    final ODatabaseSessionInternal database = getDatabase();
     String clusterName = database.getClusterNameById(defaultClusterId);
     if (clusterName == null) {
       throw new OSchemaException("Cluster with id '" + defaultClusterId + "' does not exist");

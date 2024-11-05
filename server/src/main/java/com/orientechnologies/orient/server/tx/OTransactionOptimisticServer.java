@@ -3,7 +3,7 @@ package com.orientechnologies.orient.server.tx;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.client.remote.message.tx.ORecordOperationRequest;
 import com.orientechnologies.orient.core.Orient;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
@@ -29,7 +29,7 @@ import java.util.*;
  */
 public class OTransactionOptimisticServer extends OTransactionOptimistic {
 
-  public OTransactionOptimisticServer(ODatabaseDocumentInternal database, int txId) {
+  public OTransactionOptimisticServer(ODatabaseSessionInternal database, int txId) {
     super(database, txId);
   }
 

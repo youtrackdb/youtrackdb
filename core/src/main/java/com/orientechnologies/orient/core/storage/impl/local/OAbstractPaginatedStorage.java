@@ -52,9 +52,9 @@ import com.orientechnologies.orient.core.config.OStorageClusterConfiguration;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
 import com.orientechnologies.orient.core.config.OStorageConfigurationUpdateListener;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDBInternal;
 import com.orientechnologies.orient.core.db.record.OCurrentStorageComponentsFactory;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
@@ -2242,7 +2242,7 @@ public abstract class OAbstractPaginatedStorage
     try {
       txBegun.increment();
 
-      final ODatabaseDocumentInternal database = transaction.getDatabase();
+      final ODatabaseSessionInternal database = transaction.getDatabase();
       final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
       final TreeMap<String, OTransactionIndexChanges> indexOperations =
           getSortedIndexOperations(transaction);
@@ -4018,7 +4018,7 @@ public abstract class OAbstractPaginatedStorage
   @Override
   public final Object command(final OCommandRequestText command) {
     try {
-      final ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().get();
+      final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
       while (true) {
         try {
           final OCommandExecutor executor =
@@ -4055,7 +4055,7 @@ public abstract class OAbstractPaginatedStorage
       }
       final long beginTime = Orient.instance().getProfiler().startChrono();
       try {
-        final ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().get();
+        final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
         // CALL BEFORE COMMAND
         final Iterable<ODatabaseListener> listeners = db.getListeners();
         for (final ODatabaseListener oDatabaseListener : listeners) {
@@ -4082,7 +4082,7 @@ public abstract class OAbstractPaginatedStorage
 
       } finally {
         if (Orient.instance().getProfiler().isRecording()) {
-          final ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+          final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
           if (db != null) {
             final OSecurityUser user = db.getUser();
             final String userString = Optional.ofNullable(user).map(Object::toString).orElse(null);
@@ -5881,7 +5881,7 @@ public abstract class OAbstractPaginatedStorage
       final TreeMap<Integer, OCluster> clusters,
       final TreeMap<String, OTransactionIndexChanges> indexes,
       final OIndexManagerAbstract manager,
-      ODatabaseDocumentInternal db) {
+      ODatabaseSessionInternal db) {
     final OAtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
 
     for (final Integer clusterId : clusters.keySet()) {

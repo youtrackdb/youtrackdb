@@ -4,7 +4,7 @@ import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.client.remote.message.tx.IndexChange;
 import com.orientechnologies.orient.client.remote.message.tx.ORecordOperation38Response;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -38,7 +38,7 @@ public class OFetchTransaction38Response implements OBinaryResponse {
       Iterable<ORecordOperation> operations,
       Map<String, OTransactionIndexChanges> indexChanges,
       Map<ORID, ORID> updatedRids,
-      ODatabaseDocumentInternal database) {
+      ODatabaseSessionInternal database) {
     // In some cases the reference are update twice is not yet possible to guess what is the id in
     // the client
 

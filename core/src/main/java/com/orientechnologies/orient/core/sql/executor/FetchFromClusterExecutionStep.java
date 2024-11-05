@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.id.ORID;
@@ -56,7 +56,7 @@ public class FetchFromClusterExecutionStep extends AbstractExecutionStep {
     long maxClusterPosition = calculateMaxClusterPosition();
     ORecordIteratorCluster<ORecord> iterator =
         new ORecordIteratorCluster<>(
-            (ODatabaseDocumentInternal) ctx.getDatabase(),
+            (ODatabaseSessionInternal) ctx.getDatabase(),
             clusterId,
             minClusterPosition,
             maxClusterPosition);

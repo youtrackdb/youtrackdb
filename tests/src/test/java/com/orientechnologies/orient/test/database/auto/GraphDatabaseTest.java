@@ -33,16 +33,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.testng.Assert;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test
 public class GraphDatabaseTest extends DocumentDBBaseTest {
 
-  @Parameters(value = "url")
-  public GraphDatabaseTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public GraphDatabaseTest(boolean remote) {
+    super(remote);
   }
 
   @Test

@@ -20,15 +20,14 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import java.io.IOException;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test
 public class AlterDatabaseTest extends DocumentDBBaseTest {
-  @Parameters(value = "url")
-  public AlterDatabaseTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public AlterDatabaseTest(boolean remote) {
+    super(remote);
   }
 
   public void alterDateFormatOk() throws IOException {

@@ -24,25 +24,20 @@ import com.orientechnologies.orient.test.domain.whiz.Profile;
 import java.io.IOException;
 import java.util.List;
 import org.testng.Assert;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test(groups = "hook")
 public class HookTest extends ObjectDBBaseTest {
+
   private int callbackCount = 0;
   private Profile p;
   private Hook hook = new Hook();
 
-  @Parameters(value = "url")
-  public HookTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public HookTest(boolean remote) {
+    super(remote);
   }
-
-  @AfterMethod
-  @Override
-  public void afterMethod() throws Exception {}
 
   @Test
   public void testRegisterHook() throws IOException {
@@ -60,15 +55,19 @@ public class HookTest extends ObjectDBBaseTest {
 
   @Test(dependsOnMethods = "testRegisterHook")
   public void testHooksIsRegistered() throws IOException {
+    database.registerHook(hook);
     for (ORecordHook hook : database.getHooks().keySet()) {
-      if (hook.equals(this.hook)) return;
+      if (hook.equals(this.hook)) {
+        return;
+      }
     }
 
-    Assert.assertTrue(false);
+    Assert.fail();
   }
 
   @Test(dependsOnMethods = "testHooksIsRegistered")
   public void testHookCreate() {
+    database.registerHook(hook);
     database.begin();
     p = new Profile("HookTest");
 
@@ -83,6 +82,7 @@ public class HookTest extends ObjectDBBaseTest {
 
   @Test(dependsOnMethods = "testHookCreate")
   public void testHookRead() {
+    database.registerHook(hook);
     // TEST HOOKS ON READ
     List<Profile> result =
         database.query(
@@ -99,6 +99,7 @@ public class HookTest extends ObjectDBBaseTest {
 
   @Test(dependsOnMethods = "testHookRead")
   public void testHookUpdate() {
+    database.registerHook(hook);
     // TEST HOOKS ON UPDATE
     p.setValue(p.getValue() + 1000);
 
@@ -111,6 +112,7 @@ public class HookTest extends ObjectDBBaseTest {
 
   @Test(dependsOnMethods = "testHookUpdate")
   public void testHookDelete() {
+    database.registerHook(hook);
     // TEST HOOKS ON DELETE
     database.begin();
     database.delete(p);
@@ -120,11 +122,13 @@ public class HookTest extends ObjectDBBaseTest {
 
   @Test(dependsOnMethods = "testHookDelete")
   public void testUnregisterHook() throws IOException {
+    database.registerHook(hook);
     database.unregisterHook(hook);
     database.close();
   }
 
   public class Hook extends ORecordHookAbstract {
+
     @Override
     public DISTRIBUTED_EXECUTION_MODE getDistributedExecutionMode() {
       return DISTRIBUTED_EXECUTION_MODE.TARGET_NODE;
@@ -134,7 +138,9 @@ public class HookTest extends ObjectDBBaseTest {
     public RESULT onRecordBeforeCreate(ORecord iRecord) {
       if (iRecord instanceof ODocument
           && ((ODocument) iRecord).getClassName() != null
-          && ((ODocument) iRecord).getClassName().equals("Profile")) callbackCount += 1;
+          && ((ODocument) iRecord).getClassName().equals("Profile")) {
+        callbackCount += 1;
+      }
       return RESULT.RECORD_NOT_CHANGED;
     }
 
@@ -142,14 +148,18 @@ public class HookTest extends ObjectDBBaseTest {
     public void onRecordAfterCreate(ORecord iRecord) {
       if (iRecord instanceof ODocument
           && ((ODocument) iRecord).getClassName() != null
-          && ((ODocument) iRecord).getClassName().equals("Profile")) callbackCount += 10;
+          && ((ODocument) iRecord).getClassName().equals("Profile")) {
+        callbackCount += 10;
+      }
     }
 
     @Override
     public RESULT onRecordBeforeRead(ORecord iRecord) {
       if (iRecord instanceof ODocument
           && ((ODocument) iRecord).getClassName() != null
-          && ((ODocument) iRecord).getClassName().equals("Profile")) callbackCount += 20;
+          && ((ODocument) iRecord).getClassName().equals("Profile")) {
+        callbackCount += 20;
+      }
       return RESULT.RECORD_NOT_CHANGED;
     }
 
@@ -157,14 +167,18 @@ public class HookTest extends ObjectDBBaseTest {
     public void onRecordAfterRead(ORecord iRecord) {
       if (iRecord instanceof ODocument
           && ((ODocument) iRecord).getClassName() != null
-          && ((ODocument) iRecord).getClassName().equals("Profile")) callbackCount += 15;
+          && ((ODocument) iRecord).getClassName().equals("Profile")) {
+        callbackCount += 15;
+      }
     }
 
     @Override
     public RESULT onRecordBeforeUpdate(ORecord iRecord) {
       if (iRecord instanceof ODocument
           && ((ODocument) iRecord).getClassName() != null
-          && ((ODocument) iRecord).getClassName().equals("Profile")) callbackCount += 40;
+          && ((ODocument) iRecord).getClassName().equals("Profile")) {
+        callbackCount += 40;
+      }
       return RESULT.RECORD_NOT_CHANGED;
     }
 
@@ -172,14 +186,18 @@ public class HookTest extends ObjectDBBaseTest {
     public void onRecordAfterUpdate(ORecord iRecord) {
       if (iRecord instanceof ODocument
           && ((ODocument) iRecord).getClassName() != null
-          && ((ODocument) iRecord).getClassName().equals("Profile")) callbackCount += 50;
+          && ((ODocument) iRecord).getClassName().equals("Profile")) {
+        callbackCount += 50;
+      }
     }
 
     @Override
     public RESULT onRecordBeforeDelete(ORecord iRecord) {
       if (iRecord instanceof ODocument
           && ((ODocument) iRecord).getClassName() != null
-          && ((ODocument) iRecord).getClassName().equals("Profile")) callbackCount += 60;
+          && ((ODocument) iRecord).getClassName().equals("Profile")) {
+        callbackCount += 60;
+      }
       return RESULT.RECORD_NOT_CHANGED;
     }
 
@@ -187,7 +205,9 @@ public class HookTest extends ObjectDBBaseTest {
     public void onRecordAfterDelete(ORecord iRecord) {
       if (iRecord instanceof ODocument
           && ((ODocument) iRecord).getClassName() != null
-          && ((ODocument) iRecord).getClassName().equals("Profile")) callbackCount += 70;
+          && ((ODocument) iRecord).getClassName().equals("Profile")) {
+        callbackCount += 70;
+      }
     }
   }
 }

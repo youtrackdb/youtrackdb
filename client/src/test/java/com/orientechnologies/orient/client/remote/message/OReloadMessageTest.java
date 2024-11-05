@@ -4,8 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.orient.client.remote.message.push.OStorageConfigurationPayload;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
@@ -35,7 +35,7 @@ public class OReloadMessageTest {
   @Test
   public void testWriteReadResponse() throws IOException {
     OStorageConfiguration configuration =
-        ((ODatabaseDocumentInternal) session).getStorage().getConfiguration();
+        ((ODatabaseSessionInternal) session).getStorage().getConfiguration();
     OReloadResponse37 responseWrite = new OReloadResponse37(configuration);
     MockChannel channel = new MockChannel();
     responseWrite.write(channel, OChannelBinaryProtocol.CURRENT_PROTOCOL_VERSION, null);

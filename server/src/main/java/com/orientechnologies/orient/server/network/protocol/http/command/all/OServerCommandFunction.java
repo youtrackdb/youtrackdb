@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.all;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.server.config.OServerCommandConfiguration;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -45,7 +45,7 @@ public class OServerCommandFunction extends OServerCommandAbstractLogic {
       final OHttpRequest iRequest,
       final OHttpResponse iResponse,
       final Object iResult,
-      ODatabaseDocumentInternal databaseDocumentInternal)
+      ODatabaseSessionInternal databaseDocumentInternal)
       throws InterruptedException, IOException {
     iResponse.writeResult(iResult, databaseDocumentInternal);
   }

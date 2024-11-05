@@ -8,7 +8,7 @@ import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.db.ODatabase;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
@@ -30,7 +30,7 @@ public class MetadataPushTest {
   private ODatabaseDocument database;
 
   private OrientDB secondOrientDB;
-  private ODatabaseDocumentInternal secondDatabase;
+  private ODatabaseSessionInternal secondDatabase;
 
   @Before
   public void before() throws Exception {
@@ -47,7 +47,7 @@ public class MetadataPushTest {
 
     secondOrientDB = new OrientDB("remote:localhost", OrientDBConfig.defaultConfig());
     secondDatabase =
-        (ODatabaseDocumentInternal)
+        (ODatabaseSessionInternal)
             orientDB.open(MetadataPushTest.class.getSimpleName(), "admin", "admin");
   }
 
@@ -131,7 +131,9 @@ public class MetadataPushTest {
   @Test
   public void testSequencesUpdate() throws Exception {
     database.activateOnCurrentThread();
+    database.begin();
     database.command("CREATE SEQUENCE test TYPE CACHED");
+    database.commit();
     // Push done in background for now, do not guarantee update before command return.
     secondDatabase.activateOnCurrentThread();
     BaseMemoryDatabase.assertWithTimeout(

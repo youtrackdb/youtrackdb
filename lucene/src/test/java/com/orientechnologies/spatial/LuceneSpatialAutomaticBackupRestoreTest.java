@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.tool.ODatabaseImport;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -63,7 +63,7 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
   private String BACKUFILE = null;
 
   private OServer server;
-  private ODatabaseDocumentInternal db;
+  private ODatabaseSessionInternal db;
 
   @Rule public TestName name = new TestName();
 
@@ -108,7 +108,7 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
     orientDB.execute(
         "create database ? plocal users(admin identified by 'admin' role admin)", DBNAME);
 
-    db = (ODatabaseDocumentInternal) orientDB.open(DBNAME, "admin", "admin");
+    db = (ODatabaseSessionInternal) orientDB.open(DBNAME, "admin", "admin");
 
     db.command("create class City ").close();
     db.command("create property City.name string").close();
@@ -326,13 +326,13 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
     assertThat(db.query(query).stream()).hasSize(1);
   }
 
-  private ODatabaseDocumentInternal createAndOpen() {
+  private ODatabaseSessionInternal createAndOpen() {
     orientDB.execute(
         "create database ? plocal users(admin identified by 'admin' role admin)", DBNAME);
     return open();
   }
 
-  private ODatabaseDocumentInternal open() {
-    return (ODatabaseDocumentInternal) orientDB.open(DBNAME, "admin", "admin");
+  private ODatabaseSessionInternal open() {
+    return (ODatabaseSessionInternal) orientDB.open(DBNAME, "admin", "admin");
   }
 }

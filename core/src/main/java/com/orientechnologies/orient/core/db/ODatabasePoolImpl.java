@@ -30,7 +30,7 @@ import com.orientechnologies.orient.core.exception.ODatabaseException;
 
 /** Created by tglman on 07/07/16. */
 public class ODatabasePoolImpl implements ODatabasePoolInternal {
-  private volatile OResourcePool<Void, ODatabaseDocumentInternal> pool;
+  private volatile OResourcePool<Void, ODatabaseSessionInternal> pool;
   private final OrientDBInternal factory;
   private final OrientDBConfig config;
   private volatile long lastCloseTime = System.currentTimeMillis();
@@ -49,16 +49,16 @@ public class ODatabasePoolImpl implements ODatabasePoolInternal {
         new OResourcePool(
             min,
             max,
-            new OResourcePoolListener<Void, ODatabaseDocumentInternal>() {
+            new OResourcePoolListener<Void, ODatabaseSessionInternal>() {
               @Override
-              public ODatabaseDocumentInternal createNewResource(
+              public ODatabaseSessionInternal createNewResource(
                   Void iKey, Object... iAdditionalArgs) {
                 return factory.poolOpen(database, user, password, ODatabasePoolImpl.this);
               }
 
               @Override
               public boolean reuseResource(
-                  Void iKey, Object[] iAdditionalArgs, ODatabaseDocumentInternal iValue) {
+                  Void iKey, Object[] iAdditionalArgs, ODatabaseSessionInternal iValue) {
                 if (iValue.getStorage().isClosed()) {
                   return false;
                 }
@@ -72,7 +72,7 @@ public class ODatabasePoolImpl implements ODatabasePoolInternal {
 
   @Override
   public ODatabaseSession acquire() throws OAcquireTimeoutException {
-    OResourcePool<Void, ODatabaseDocumentInternal> p;
+    OResourcePool<Void, ODatabaseSessionInternal> p;
     synchronized (this) {
       p = pool;
     }
@@ -86,13 +86,13 @@ public class ODatabasePoolImpl implements ODatabasePoolInternal {
 
   @Override
   public synchronized void close() {
-    OResourcePool<Void, ODatabaseDocumentInternal> p;
+    OResourcePool<Void, ODatabaseSessionInternal> p;
     synchronized (this) {
       p = pool;
       pool = null;
     }
     if (p != null) {
-      for (ODatabaseDocumentInternal res : p.getAllResources()) {
+      for (ODatabaseSessionInternal res : p.getAllResources()) {
         res.realClose();
       }
       p.close();
@@ -100,8 +100,8 @@ public class ODatabasePoolImpl implements ODatabasePoolInternal {
     }
   }
 
-  public void release(ODatabaseDocumentInternal database) {
-    OResourcePool<Void, ODatabaseDocumentInternal> p;
+  public void release(ODatabaseSessionInternal database) {
+    OResourcePool<Void, ODatabaseSessionInternal> p;
     synchronized (this) {
       p = pool;
     }

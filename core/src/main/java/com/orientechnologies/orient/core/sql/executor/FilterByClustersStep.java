@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
@@ -19,7 +19,7 @@ public class FilterByClustersStep extends AbstractExecutionStep {
     this.clusters = filterClusters;
   }
 
-  private IntOpenHashSet init(ODatabaseDocumentInternal db) {
+  private IntOpenHashSet init(ODatabaseSessionInternal db) {
     var clusterIds = new IntOpenHashSet();
     for (var clusterName : clusters) {
       var clusterId = db.getClusterIdByName(clusterName);

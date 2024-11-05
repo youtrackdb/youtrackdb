@@ -5,15 +5,15 @@ import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test
 public class IndexConcurrentCommitTest extends DocumentDBBaseTest {
-  @Parameters(value = "url")
-  public IndexConcurrentCommitTest(@Optional String url) {
-    super(url);
+
+  @Parameters(value = "remote")
+  public IndexConcurrentCommitTest(boolean remote) {
+    super(remote);
   }
 
   public void testConcurrentUpdate() {
@@ -42,7 +42,9 @@ public class IndexConcurrentCommitTest extends DocumentDBBaseTest {
       // Ensure that the people made it in correctly
       final OResultSet result1 = database.query("select from Person");
       System.out.println("After transaction 1");
-      while (result1.hasNext()) System.out.println(result1.next());
+      while (result1.hasNext()) {
+        System.out.println(result1.next());
+      }
 
       // Transaction 2
       database.begin();
@@ -69,6 +71,8 @@ public class IndexConcurrentCommitTest extends DocumentDBBaseTest {
 
     final OResultSet result2 = database.command("select from Person");
     System.out.println("After transaction 2");
-    while (result2.hasNext()) System.out.println(result2.next());
+    while (result2.hasNext()) {
+      System.out.println(result2.next());
+    }
   }
 }

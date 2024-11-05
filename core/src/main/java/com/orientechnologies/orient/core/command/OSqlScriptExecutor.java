@@ -3,8 +3,8 @@ package com.orientechnologies.orient.core.command;
 import com.orientechnologies.orient.core.command.script.OCommandExecutorFunction;
 import com.orientechnologies.orient.core.command.script.OCommandFunction;
 import com.orientechnologies.orient.core.command.traverse.OAbstractScriptExecutor;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
@@ -32,7 +32,7 @@ public class OSqlScriptExecutor extends OAbstractScriptExecutor {
   }
 
   @Override
-  public OResultSet execute(ODatabaseDocumentInternal database, String script, Object... args)
+  public OResultSet execute(ODatabaseSessionInternal database, String script, Object... args)
       throws OCommandSQLParsingException, OCommandExecutionException {
 
     if (!script.trim().endsWith(";")) {
@@ -54,7 +54,7 @@ public class OSqlScriptExecutor extends OAbstractScriptExecutor {
   }
 
   @Override
-  public OResultSet execute(ODatabaseDocumentInternal database, String script, Map params) {
+  public OResultSet execute(ODatabaseSessionInternal database, String script, Map params) {
     if (!script.trim().endsWith(";")) {
       script += ";";
     }
@@ -133,7 +133,7 @@ public class OSqlScriptExecutor extends OAbstractScriptExecutor {
   public Object executeFunction(
       OCommandContext context, final String functionName, final Map<Object, Object> iArgs) {
 
-    ODatabaseDocumentInternal db = (ODatabaseDocumentInternal) context.getDatabase();
+    ODatabaseSessionInternal db = (ODatabaseSessionInternal) context.getDatabase();
     if (db == null) {
       db = ODatabaseRecordThreadLocal.instance().get();
     }

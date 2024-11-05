@@ -26,8 +26,8 @@ import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestInternal;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.command.OCommandResultListener;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.id.ORID;
@@ -98,7 +98,7 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
         originalTemp =
             parserText.substring(parserGetPreviousPosition(), parserGetCurrentPosition()).trim();
 
-      ODatabaseDocumentInternal curDb = ODatabaseRecordThreadLocal.instance().get();
+      ODatabaseSessionInternal curDb = ODatabaseRecordThreadLocal.instance().get();
       //      final OrientGraph graph = OGraphCommandExecutorSQLFactory.getGraph(false,
       // shutdownFlag);
       try {
@@ -204,7 +204,7 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
         && compiledFilter == null)
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
-    ODatabaseDocumentInternal db = getDatabase();
+    ODatabaseSessionInternal db = getDatabase();
     txAlreadyBegun = db.getTransaction().isActive();
 
     if (rids != null) {
@@ -426,7 +426,7 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
   public Set<String> getInvolvedClusters() {
     final HashSet<String> result = new HashSet<String>();
     if (rids != null) {
-      final ODatabaseDocumentInternal database = getDatabase();
+      final ODatabaseSessionInternal database = getDatabase();
       for (ORecordId rid : rids) {
         result.add(database.getClusterNameById(rid.getClusterId()));
       }

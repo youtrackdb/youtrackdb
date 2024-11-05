@@ -5,7 +5,6 @@ import static org.testng.Assert.assertEquals;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.storage.ORecordMetadata;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -16,9 +15,9 @@ import org.testng.annotations.Test;
 @Test(groups = {"crud"})
 public class RecordMetadataTest extends DocumentDBBaseTest {
 
-  @Parameters(value = "url")
-  public RecordMetadataTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public RecordMetadataTest(boolean remote) {
+    super(remote);
   }
 
   private static void assetORIDEquals(ORID actual, ORID expected) {

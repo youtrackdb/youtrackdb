@@ -2,8 +2,8 @@ package com.orientechnologies.orient.core.exception;
 
 import com.orientechnologies.common.exception.OErrorCode;
 import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 
 /**
  * @author Andrey Lomakin (a.lomakin-at-orientdb.com) <lomakin.andrey@gmail.com>.
@@ -49,7 +49,7 @@ public abstract class OCoreException extends OException {
     final ODatabaseRecordThreadLocal instance = ODatabaseRecordThreadLocal.instance();
 
     if (instance != null) {
-      final ODatabaseDocumentInternal database = instance.getIfDefined();
+      final ODatabaseSessionInternal database = instance.getIfDefined();
       if (database != null) {
         dbName = database.getName();
       } else {

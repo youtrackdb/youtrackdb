@@ -2,8 +2,8 @@ package com.orientechnologies.orient.core.db.tool;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -29,7 +29,7 @@ public class ODatabaseImportTest {
 
       final ODatabaseExport export =
           new ODatabaseExport(
-              (ODatabaseDocumentInternal) db,
+              (ODatabaseSessionInternal) db,
               output,
               new OCommandOutputListener() {
                 @Override
@@ -46,7 +46,7 @@ public class ODatabaseImportTest {
         orientDB.open(databaseName, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
       final ODatabaseImport importer =
           new ODatabaseImport(
-              (ODatabaseDocumentInternal) db,
+              (ODatabaseSessionInternal) db,
               new ByteArrayInputStream(output.toByteArray()),
               new OCommandOutputListener() {
                 @Override
@@ -75,7 +75,7 @@ public class ODatabaseImportTest {
 
       final ODatabaseExport export =
           new ODatabaseExport(
-              (ODatabaseDocumentInternal) db,
+              (ODatabaseSessionInternal) db,
               output,
               new OCommandOutputListener() {
                 @Override
@@ -93,7 +93,7 @@ public class ODatabaseImportTest {
         orientDB.open(databaseName, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
       final ODatabaseImport importer =
           new ODatabaseImport(
-              (ODatabaseDocumentInternal) db,
+              (ODatabaseSessionInternal) db,
               new ByteArrayInputStream(output.toByteArray()),
               new OCommandOutputListener() {
                 @Override

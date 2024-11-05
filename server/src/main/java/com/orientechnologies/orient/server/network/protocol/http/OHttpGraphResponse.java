@@ -21,8 +21,8 @@ package com.orientechnologies.orient.server.network.protocol.http;
 
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.util.OCallable;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.ODirection;
@@ -73,7 +73,7 @@ public class OHttpGraphResponse extends OHttpResponseAbstract {
       final String accept,
       final Map<String, Object> iAdditionalProperties,
       final String mode,
-      ODatabaseDocumentInternal databaseDocumentInternal)
+      ODatabaseSessionInternal databaseDocumentInternal)
       throws IOException {
     if (iRecords == null) {
       return;
@@ -95,7 +95,7 @@ public class OHttpGraphResponse extends OHttpResponseAbstract {
       throw new IllegalArgumentException("Graph mode cannot accept '" + accept + "'");
     }
 
-    ODatabaseDocumentInternal graph = ODatabaseRecordThreadLocal.instance().get();
+    ODatabaseSessionInternal graph = ODatabaseRecordThreadLocal.instance().get();
 
     try {
       // DIVIDE VERTICES FROM EDGES

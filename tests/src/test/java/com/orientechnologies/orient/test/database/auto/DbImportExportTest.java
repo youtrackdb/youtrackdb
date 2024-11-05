@@ -19,8 +19,8 @@ import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
@@ -42,7 +42,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import org.testng.Assert;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -57,24 +56,22 @@ public class DbImportExportTest extends DocumentDBBaseTest implements OCommandOu
   private String exportFilePath;
   private boolean dumpMode = false;
 
-  @Parameters(value = {"url", "testPath"})
-  public DbImportExportTest(@Optional String url, String testPath) {
-    super(url);
+  @Parameters(value = {"remote", "testPath"})
+  public DbImportExportTest(boolean remote, String testPath) {
+    super(remote);
     this.testPath = testPath;
     this.exportFilePath = System.getProperty("exportFilePath", EXPORT_FILE_PATH);
   }
 
   @Test
   public void testDbExport() throws IOException {
-    final ODatabaseDocumentInternal database = new ODatabaseDocumentTx(url);
-    database.open("admin", "admin");
+    final ODatabaseSessionInternal database = acquireSession();
 
     // ADD A CUSTOM TO THE CLASS
     database.command("alter class V custom onBeforeCreate=onBeforeCreateItem").close();
 
     final ODatabaseExport export =
-        new ODatabaseExport(
-            (ODatabaseDocumentInternal) database, testPath + "/" + exportFilePath, this);
+        new ODatabaseExport(database, testPath + "/" + exportFilePath, this);
     export.exportDatabase();
     export.close();
     database.close();
@@ -91,13 +88,12 @@ public class DbImportExportTest extends DocumentDBBaseTest implements OCommandOu
       importDir.mkdir();
     }
 
-    final ODatabaseDocumentInternal database =
+    final ODatabaseSessionInternal database =
         new ODatabaseDocumentTx(getStorageType() + ":" + testPath + "/" + NEW_DB_URL);
     database.create();
 
     final ODatabaseImport dbImport =
-        new ODatabaseImport(
-            (ODatabaseDocumentInternal) database, testPath + "/" + exportFilePath, this);
+        new ODatabaseImport(database, testPath + "/" + exportFilePath, this);
 
     // UNREGISTER ALL THE HOOKS
     for (final ORecordHook hook : new ArrayList<>(database.getHooks().keySet())) {
@@ -113,16 +109,15 @@ public class DbImportExportTest extends DocumentDBBaseTest implements OCommandOu
 
   @Test(dependsOnMethods = "testDbImport")
   public void testCompareDatabases() throws IOException {
-    if ("remote".equals(getStorageType()) || url.startsWith("remote:")) {
+    if (remoteDB) {
       final String env = getTestEnv();
       if (env == null || env.equals("dev")) {
         return;
       }
       // EXECUTES ONLY IF NOT REMOTE ON CI/RELEASE TEST ENV
     }
-    ODatabaseDocumentInternal first = new ODatabaseDocumentTx(url);
-    first.open("admin", "admin");
-    ODatabaseDocumentInternal second =
+    ODatabaseSessionInternal first = acquireSession();
+    ODatabaseSessionInternal second =
         new ODatabaseDocumentTx(getStorageType() + ":" + testPath + "/" + NEW_DB_URL);
     second.open("admin", "admin");
 
@@ -135,7 +130,7 @@ public class DbImportExportTest extends DocumentDBBaseTest implements OCommandOu
 
   @Test
   public void embeddedListMigration() throws Exception {
-    if ("remote".equals(getStorageType()) || url.startsWith("remote:")) {
+    if (remoteDB) {
       return;
     }
 
@@ -198,13 +193,13 @@ public class DbImportExportTest extends DocumentDBBaseTest implements OCommandOu
 
         final ODatabaseExport databaseExport =
             new ODatabaseExport(
-                (ODatabaseDocumentInternal) session, exportPath.getPath(), System.out::println);
+                (ODatabaseSessionInternal) session, exportPath.getPath(), System.out::println);
         databaseExport.exportDatabase();
       }
 
       orientDB.create("imported", ODatabaseType.PLOCAL);
-      try (final ODatabaseDocumentInternal session =
-          (ODatabaseDocumentInternal) orientDB.open("imported", "admin", "admin")) {
+      try (final ODatabaseSessionInternal session =
+          (ODatabaseSessionInternal) orientDB.open("imported", "admin", "admin")) {
         final ODatabaseImport databaseImport =
             new ODatabaseImport(session, exportPath.getPath(), System.out::println);
         databaseImport.run();

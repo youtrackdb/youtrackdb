@@ -16,7 +16,6 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -25,9 +24,9 @@ import org.testng.annotations.Test;
 @Test(groups = {"index"})
 public class LinkMapIndexTest extends DocumentDBBaseTest {
 
-  @Parameters(value = "url")
-  public LinkMapIndexTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public LinkMapIndexTest(boolean remote) {
+    super(remote);
   }
 
   @BeforeClass
@@ -43,8 +42,7 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
 
   @AfterClass
   public void destroySchema() {
-    //noinspection deprecation
-    database.open("admin", "admin");
+    database = createSessionInstance();
     database.getMetadata().getSchema().dropClass("LinkMapIndexTestClass");
     database.close();
   }

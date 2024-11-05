@@ -97,7 +97,7 @@ public class ORecordSerializerBinaryTest {
     db.save(doc);
     db.commit();
 
-    byte[] serializedDoc = serializer.toStream(doc.reload());
+    byte[] serializedDoc = serializer.toStream(doc);
     OResultBinary docBinary =
         (OResultBinary) serializer.getBinaryResult(db, serializedDoc, new ORecordId(-1, -1));
     Integer value = docBinary.getProperty("TestPropAny");
@@ -152,7 +152,7 @@ public class ORecordSerializerBinaryTest {
     db.save(root);
     db.commit();
 
-    byte[] rootBytes = serializer.toStream(root.reload());
+    byte[] rootBytes = serializer.toStream(root);
     OResultBinary docBinary =
         (OResultBinary) serializer.getBinaryResult(db, rootBytes, new ORecordId(-1, -1));
     OResultBinary embeddedBytesViaGet = docBinary.getProperty("TestEmbedded");
@@ -178,7 +178,7 @@ public class ORecordSerializerBinaryTest {
     db.save(root);
     db.commit();
 
-    byte[] rootBytes = serializer.toStream(root.reload());
+    byte[] rootBytes = serializer.toStream(root);
     embedded = root.field("TestEmbedded");
     byte[] embeddedNativeBytes = serializer.toStream(embedded);
     // want to update data pointers because first byte will be removed
@@ -221,7 +221,7 @@ public class ORecordSerializerBinaryTest {
     db.save(root);
     db.commit();
 
-    byte[] rootBytes = serializer.toStream(root.reload());
+    byte[] rootBytes = serializer.toStream(root);
 
     OResultBinary docBinary =
         (OResultBinary) serializer.getBinaryResult(db, rootBytes, new ORecordId(-1, -1));
@@ -247,7 +247,7 @@ public class ORecordSerializerBinaryTest {
     db.save(root);
     db.commit();
 
-    byte[] rootBytes = serializer.toStream(root.reload());
+    byte[] rootBytes = serializer.toStream(root);
     OResultBinary docBinary =
         (OResultBinary) serializer.getBinaryResult(db, rootBytes, new ORecordId(-1, -1));
     OResultBinary embeddedBytesViaGet = docBinary.getProperty("TestEmbedded");

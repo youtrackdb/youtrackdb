@@ -19,7 +19,7 @@ package com.orientechnologies.orient.core.sql;
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -104,7 +104,7 @@ public abstract class OCommandExecutorSQLSetAware extends OCommandExecutorSQLAbs
         .startsWith(OCommandExecutorSQLAbstract.CLUSTER_PREFIX)) {
       String clusterName =
           iTarget.substring(OCommandExecutorSQLAbstract.CLUSTER_PREFIX.length()).trim();
-      ODatabaseDocumentInternal db = getDatabase();
+      ODatabaseSessionInternal db = getDatabase();
       if (clusterName.startsWith("[") && clusterName.endsWith("]")) {
         String[] clusterNames = clusterName.substring(1, clusterName.length() - 1).split(",");
         OClass candidateClass = null;

@@ -22,16 +22,15 @@ import java.util.stream.Stream;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test(groups = {"index"})
 public class ClassIndexManagerTest extends DocumentDBBaseTest {
 
-  @Parameters(value = "url")
-  public ClassIndexManagerTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public ClassIndexManagerTest(boolean remote) {
+    super(remote);
   }
 
   @BeforeClass

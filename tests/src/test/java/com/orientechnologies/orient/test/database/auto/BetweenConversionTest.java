@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Set;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -23,9 +22,9 @@ import org.testng.annotations.Test;
 @Test
 public class BetweenConversionTest extends DocumentDBBaseTest {
 
-  @Parameters(value = "url")
-  public BetweenConversionTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public BetweenConversionTest(boolean remote) {
+    super(remote);
   }
 
   @BeforeClass
@@ -45,8 +44,11 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
       document.field("a", i);
       document.field("ai", i);
 
-      if (i < 5) document.field("vl", "v1");
-      else document.field("vl", "v2");
+      if (i < 5) {
+        document.field("vl", "v1");
+      } else {
+        document.field("vl", "v2");
+      }
 
       ODocument ed = new ODocument();
       ed.field("a", i);

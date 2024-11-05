@@ -93,9 +93,9 @@ public abstract class OSharedContext extends OListenerManger<OMetadataUpdateList
     return queryStats;
   }
 
-  public abstract void load(ODatabaseDocumentInternal oDatabaseDocumentInternal);
+  public abstract void load(ODatabaseSessionInternal oDatabaseDocumentInternal);
 
-  public abstract void reload(ODatabaseDocumentInternal database);
+  public abstract void reload(ODatabaseSessionInternal database);
 
   public abstract void close();
 
@@ -134,7 +134,7 @@ public abstract class OSharedContext extends OListenerManger<OMetadataUpdateList
   }
 
   public synchronized void reInit(
-      OAbstractPaginatedStorage storage2, ODatabaseDocumentInternal database) {
+      OAbstractPaginatedStorage storage2, ODatabaseSessionInternal database) {
     throw new UnsupportedOperationException();
   }
 

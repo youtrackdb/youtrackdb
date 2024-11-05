@@ -95,9 +95,8 @@ public class ODatabaseImportSimpleCompatibilityTest {
             databaseName, importDbUrl, OCreateDatabaseUtil.TYPE_MEMORY);
     importDatabase = orientDB.open(databaseName, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     try {
-      importer =
-          new ODatabaseImport((ODatabaseDocumentInternal) importDatabase, input, iText -> {});
-      export = new ODatabaseExport((ODatabaseDocumentInternal) importDatabase, output, iText -> {});
+      importer = new ODatabaseImport((ODatabaseSessionInternal) importDatabase, input, iText -> {});
+      export = new ODatabaseExport((ODatabaseSessionInternal) importDatabase, output, iText -> {});
     } catch (final IOException e) {
       e.printStackTrace();
     }

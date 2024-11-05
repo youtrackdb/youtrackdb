@@ -79,13 +79,19 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.NullArgumentException;
 
-/** Created by tglman on 08/04/16. */
+/**
+ * Created by tglman on 08/04/16.
+ */
 public class OrientDBEmbedded implements OrientDBInternal {
 
-  /** Keeps track of next possible storage id. */
+  /**
+   * Keeps track of next possible storage id.
+   */
   private static final AtomicInteger nextStorageId = new AtomicInteger();
 
-  /** Storage IDs current assigned to the storage. */
+  /**
+   * Storage IDs current assigned to the storage.
+   */
   private static final Set<Integer> currentStorageIds =
       Collections.newSetFromMap(new ConcurrentHashMap<>());
 
@@ -410,7 +416,7 @@ public class OrientDBEmbedded implements OrientDBInternal {
   }
 
   @Override
-  public ODatabaseDocumentInternal open(String name, String user, String password) {
+  public ODatabaseSessionInternal open(String name, String user, String password) {
     return open(name, user, password, null);
   }
 
@@ -468,7 +474,7 @@ public class OrientDBEmbedded implements OrientDBInternal {
   }
 
   @Override
-  public ODatabaseDocumentInternal open(
+  public ODatabaseSessionInternal open(
       String name, String user, String password, OrientDBConfig config) {
     checkDatabaseName(name);
     checkDefaultPassword(name, user, password);
@@ -492,7 +498,7 @@ public class OrientDBEmbedded implements OrientDBInternal {
   }
 
   @Override
-  public ODatabaseDocumentInternal open(
+  public ODatabaseSessionInternal open(
       OAuthenticationInfo authenticationInfo, OrientDBConfig config) {
     try {
       final ODatabaseDocumentEmbedded embedded;
@@ -561,7 +567,7 @@ public class OrientDBEmbedded implements OrientDBInternal {
     }
   }
 
-  public ODatabaseDocumentInternal poolOpen(
+  public ODatabaseSessionInternal poolOpen(
       String name, String user, String password, ODatabasePoolInternal pool) {
     final ODatabaseDocumentEmbedded embedded;
     synchronized (this) {
@@ -859,9 +865,9 @@ public class OrientDBEmbedded implements OrientDBInternal {
       checkOpen();
     }
     checkDatabaseName(name);
-    ODatabaseDocumentInternal current = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    ODatabaseSessionInternal current = ODatabaseRecordThreadLocal.instance().getIfDefined();
     try {
-      ODatabaseDocumentInternal db = openNoAuthenticate(name, user);
+      ODatabaseSessionInternal db = openNoAuthenticate(name, user);
       for (Iterator<ODatabaseLifecycleListener> it = orient.getDbLifecycleListeners();
           it.hasNext(); ) {
         it.next().onDrop(db);

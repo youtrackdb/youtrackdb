@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.metadata;
 
 import com.orientechnologies.common.profiler.OProfiler;
 import com.orientechnologies.orient.core.Orient;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OSharedContext;
 import com.orientechnologies.orient.core.index.OIndexManager;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
@@ -56,11 +56,11 @@ public class OMetadataDefault implements OMetadataInternal {
 
   private OImmutableSchema immutableSchema = null;
   private int immutableCount = 0;
-  private ODatabaseDocumentInternal database;
+  private ODatabaseSessionInternal database;
 
   public OMetadataDefault() {}
 
-  public OMetadataDefault(ODatabaseDocumentInternal databaseDocument) {
+  public OMetadataDefault(ODatabaseSessionInternal databaseDocument) {
     this.database = databaseDocument;
   }
 
@@ -144,7 +144,7 @@ public class OMetadataDefault implements OMetadataInternal {
     // ADD HERE THE CLOSE OF A PROXY OBJECT IF NEEDED
   }
 
-  protected ODatabaseDocumentInternal getDatabase() {
+  protected ODatabaseSessionInternal getDatabase() {
     return database;
   }
 

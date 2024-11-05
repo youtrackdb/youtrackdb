@@ -23,10 +23,10 @@ import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.command.OCommandResultListener;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.OSecurityException;
@@ -50,7 +50,7 @@ import java.util.Random;
 public class OCommandExecutorSQLLiveSelect extends OCommandExecutorSQLSelect
     implements OLiveQueryListener {
   public static final String KEYWORD_LIVE_SELECT = "LIVE SELECT";
-  private ODatabaseDocumentInternal execDb;
+  private ODatabaseSessionInternal execDb;
   private int token;
   private static final Random random = new Random();
 
@@ -58,7 +58,7 @@ public class OCommandExecutorSQLLiveSelect extends OCommandExecutorSQLSelect
 
   public Object execute(final Map<Object, Object> iArgs) {
     try {
-      final ODatabaseDocumentInternal db = getDatabase();
+      final ODatabaseSessionInternal db = getDatabase();
       execInSeparateDatabase(
           new OCallable() {
             @Override
@@ -103,7 +103,7 @@ public class OCommandExecutorSQLLiveSelect extends OCommandExecutorSQLSelect
 
   public void onLiveResult(final ORecordOperation iOp) {
 
-    ODatabaseDocumentInternal oldThreadLocal = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    ODatabaseSessionInternal oldThreadLocal = ODatabaseRecordThreadLocal.instance().getIfDefined();
     execDb.activateOnCurrentThread();
 
     try {
@@ -140,7 +140,7 @@ public class OCommandExecutorSQLLiveSelect extends OCommandExecutorSQLSelect
   }
 
   protected void execInSeparateDatabase(final OCallable iCallback) {
-    final ODatabaseDocumentInternal prevDb = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    final ODatabaseSessionInternal prevDb = ODatabaseRecordThreadLocal.instance().getIfDefined();
     try {
       iCallback.call(null);
     } finally {
@@ -163,11 +163,11 @@ public class OCommandExecutorSQLLiveSelect extends OCommandExecutorSQLSelect
       return false;
     }
     OSecurityInternal security =
-        ((ODatabaseDocumentInternal) execDb).getSharedContext().getSecurity();
+        ((ODatabaseSessionInternal) execDb).getSharedContext().getSecurity();
     boolean allowedByPolicy = security.canRead((ODatabaseSession) execDb, value.getRecord());
     return allowedByPolicy
         && ORestrictedAccessHook.isAllowed(
-            (ODatabaseDocumentInternal) execDb,
+            (ODatabaseSessionInternal) execDb,
             (ODocument) value.getRecord(),
             ORestrictedOperation.ALLOW_READ,
             false);
@@ -230,7 +230,7 @@ public class OCommandExecutorSQLLiveSelect extends OCommandExecutorSQLSelect
     }
 
     if (execDb != null) {
-      ODatabaseDocumentInternal oldThreadDB = ODatabaseRecordThreadLocal.instance().getIfDefined();
+      ODatabaseSessionInternal oldThreadDB = ODatabaseRecordThreadLocal.instance().getIfDefined();
       execDb.activateOnCurrentThread();
       execDb.close();
       if (oldThreadDB == null) {

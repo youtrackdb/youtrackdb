@@ -53,7 +53,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
-public interface ODatabaseDocumentInternal extends ODatabaseSession, ODatabaseInternal<ORecord> {
+public interface ODatabaseSessionInternal extends ODatabaseSession, ODatabaseInternal<ORecord> {
 
   String TYPE = "document";
 
@@ -147,7 +147,7 @@ public interface ODatabaseDocumentInternal extends ODatabaseSession, ODatabaseIn
 
   void setDefaultTransactionMode();
 
-  ODatabaseDocumentInternal copy();
+  ODatabaseSessionInternal copy();
 
   void recycle(ORecord record);
 
@@ -194,7 +194,7 @@ public interface ODatabaseDocumentInternal extends ODatabaseSession, ODatabaseIn
 
   void setUseLightweightEdges(boolean b);
 
-  ODatabaseDocumentInternal cleanOutRecord(ORID rid, int version);
+  ODatabaseSessionInternal cleanOutRecord(ORID rid, int version);
 
   default void realClose() {
     // Only implemented by pooled instances

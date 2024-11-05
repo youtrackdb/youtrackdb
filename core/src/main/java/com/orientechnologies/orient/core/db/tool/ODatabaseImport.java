@@ -28,8 +28,8 @@ import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabase.STATUS;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODocumentFieldWalker;
 import com.orientechnologies.orient.core.db.record.OClassTrigger;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
@@ -59,6 +59,7 @@ import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.metadata.security.OIdentity;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
+import com.orientechnologies.orient.core.metadata.security.OSecurityPolicy;
 import com.orientechnologies.orient.core.metadata.security.OSecurityShared;
 import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.record.OElement;
@@ -122,7 +123,6 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
 
   private boolean preserveClusterIDs = true;
   private boolean migrateLinks = true;
-  private boolean merge = false;
   private boolean rebuildIndexes = true;
 
   private final Set<String> indexesToRebuild = new HashSet<>();
@@ -133,7 +133,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
   private int maxRidbagStringSizeBeforeLazyImport = 100_000_000;
 
   public ODatabaseImport(
-      final ODatabaseDocumentInternal database,
+      final ODatabaseSessionInternal database,
       final String fileName,
       final OCommandOutputListener outputListener)
       throws IOException {
@@ -155,7 +155,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
   }
 
   public ODatabaseImport(
-      final ODatabaseDocumentInternal database,
+      final ODatabaseSessionInternal database,
       final InputStream inputStream,
       final OCommandOutputListener outputListener)
       throws IOException {
@@ -165,7 +165,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
   }
 
   private void createJsonReaderDefaultListenerAndDeclareIntent(
-      final ODatabaseDocumentInternal database,
+      final ODatabaseSessionInternal database,
       final OCommandOutputListener outputListener,
       final InputStream inputStream) {
     if (outputListener == null) {
@@ -193,17 +193,14 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
       if (option.equalsIgnoreCase("-preserveClusterIDs")) {
         preserveClusterIDs = Boolean.parseBoolean(items.get(0));
       } else {
-        if (option.equalsIgnoreCase("-merge")) {
-          merge = Boolean.parseBoolean(items.get(0));
+
+        if (option.equalsIgnoreCase("-migrateLinks")) {
+          migrateLinks = Boolean.parseBoolean(items.get(0));
         } else {
-          if (option.equalsIgnoreCase("-migrateLinks")) {
-            migrateLinks = Boolean.parseBoolean(items.get(0));
+          if (option.equalsIgnoreCase("-rebuildIndexes")) {
+            rebuildIndexes = Boolean.parseBoolean(items.get(0));
           } else {
-            if (option.equalsIgnoreCase("-rebuildIndexes")) {
-              rebuildIndexes = Boolean.parseBoolean(items.get(0));
-            } else {
-              super.parseSetting(option, items);
-            }
+            super.parseSetting(option, items);
           }
         }
       }
@@ -222,10 +219,8 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
       database.setValidationEnabled(false);
       database.setUser(null);
 
-      if (!merge) {
-        removeDefaultNonSecurityClasses();
-        database.getMetadata().getIndexManagerInternal().reload();
-      }
+      removeDefaultNonSecurityClasses();
+      database.getMetadata().getIndexManagerInternal().reload();
 
       for (final OIndex index :
           database.getMetadata().getIndexManagerInternal().getIndexes(database)) {
@@ -233,6 +228,8 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
           indexesToRebuild.add(index.getName());
         }
       }
+
+      var beforeImportSchemaSnapshot = database.getMetadata().getImmutableSchemaSnapshot();
 
       boolean clustersImported = false;
       while (jsonReader.hasNext() && jsonReader.lastChar() != '}') {
@@ -249,7 +246,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
               importSchema(clustersImported);
             } else {
               if (tag.equals("records")) {
-                importRecords();
+                importRecords(beforeImportSchemaSnapshot);
               } else {
                 if (tag.equals("indexes")) {
                   importIndexes();
@@ -410,14 +407,6 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
 
   public void setPreserveClusterIDs(boolean preserveClusterIDs) {
     this.preserveClusterIDs = preserveClusterIDs;
-  }
-
-  public boolean isMerge() {
-    return merge;
-  }
-
-  public void setMerge(boolean merge) {
-    this.merge = merge;
   }
 
   public boolean isDeleteRIDMapping() {
@@ -1295,7 +1284,8 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
    * type String, and thus has to be converted to InputStream, which can only be avoided by
    * introducing a new interface method.
    */
-  private ORID importRecord(final HashSet<ORID> recordsBeforeImport) throws Exception {
+  private ORID importRecord(HashSet<ORID> recordsBeforeImport, OSchema beforeImportSchemaSnapshot)
+      throws Exception {
     OPair<String, Map<String, ORidSet>> recordParse =
         jsonReader.readRecordString(this.maxRidbagStringSizeBeforeLazyImport);
     String value = recordParse.getKey().trim();
@@ -1433,20 +1423,52 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
       }
 
       final ORID rid = record.getIdentity().copy();
-
       final int clusterId = rid.getClusterId();
+
+      OElement systemRecord = null;
+      var cls = beforeImportSchemaSnapshot.getClassByClusterId(clusterId);
+      if (cls != null) {
+        assert record instanceof ODocument;
+
+        if (cls.getName().equals(OUser.CLASS_NAME)) {
+          try (var resultSet =
+              database.query(
+                  "select from " + OUser.CLASS_NAME + " where name = ?",
+                  ((ODocument) record).<String>getProperty("name"))) {
+            if (resultSet.hasNext()) {
+              systemRecord = resultSet.next().toElement();
+            }
+          }
+        } else if (cls.getName().equals(ORole.CLASS_NAME)) {
+          try (var resultSet =
+              database.query(
+                  "select from " + ORole.CLASS_NAME + " where name = ?",
+                  ((ODocument) record).<String>getProperty("name"))) {
+            if (resultSet.hasNext()) {
+              systemRecord = resultSet.next().toElement();
+            }
+          }
+        } else if (cls.getName().equals(OSecurityPolicy.class.getSimpleName())) {
+          try (var resultSet =
+              database.query(
+                  "select from " + OSecurityPolicy.class.getSimpleName() + " where name = ?",
+                  ((ODocument) record).<String>getProperty("name"))) {
+            if (resultSet.hasNext()) {
+              systemRecord = resultSet.next().toElement();
+            }
+          }
+        } else if (cls.getName().equals("V") || cls.getName().equals("E")) {
+          // skip it
+        } else {
+          throw new IllegalStateException("Class " + cls.getName() + " is not supported.");
+        }
+      }
 
       if ((clusterId != manualIndexCluster
           && clusterId != internalCluster
           && clusterId != indexCluster)) {
-        if (recordsBeforeImport.remove(rid)) {
-          final ORecord loadedRecord = database.load(rid);
-          if (loadedRecord == null) {
-            throw new IllegalStateException(
-                "Record with rid = " + rid + " should exist in database " + database.getName());
-          }
-
-          if (!record.getClass().isAssignableFrom(loadedRecord.getClass())) {
+        if (systemRecord != null) {
+          if (!record.getClass().isAssignableFrom(systemRecord.getClass())) {
             throw new IllegalStateException(
                 "Imported record and record stored in database under id "
                     + rid
@@ -1454,10 +1476,13 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
                     + "Stored record class is : "
                     + record.getClass()
                     + " and imported "
-                    + loadedRecord.getClass()
+                    + systemRecord.getClass()
                     + " .");
           }
-          ORecordInternal.setVersion(record, loadedRecord.getVersion());
+
+          ORecordInternal.setVersion(record, systemRecord.getVersion());
+          ORecordInternal.setIdentity(record, (ORecordId) systemRecord.getIdentity());
+          recordsBeforeImport.remove(systemRecord.getIdentity());
         } else {
           ORecordInternal.setVersion(record, 0);
           ORecordInternal.setIdentity(record, new OEmptyRecordId());
@@ -1490,13 +1515,13 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
       }
 
       // import skipped records (too big to be imported before)
-      if (skippedPartsIndexes.size() > 0) {
+      if (!skippedPartsIndexes.isEmpty()) {
         for (Integer skippedPartsIndex : skippedPartsIndexes) {
           importSkippedRidbag(record, value, skippedPartsIndex);
         }
       }
 
-      if (recordParse.value.size() > 0) {
+      if (!recordParse.value.isEmpty()) {
         importSkippedRidbag(record, recordParse.getValue());
       }
 
@@ -1527,10 +1552,11 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
         throw t;
       }
     }
+
     return record.getIdentity();
   }
 
-  private long importRecords() throws Exception {
+  private long importRecords(OSchema beforeImportSchemaSnapshot) throws Exception {
     long total = 0;
 
     final OSchema schema = database.getMetadata().getSchema();
@@ -1572,7 +1598,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
     OLogManager.instance().debug(this, "Detected exporter version " + exporterVersion + ".");
     while (jsonReader.lastChar() != ']') {
       // TODO: add special handling for `exporterVersion` / `ODatabaseExport.EXPORTER_VERSION` >= 13
-      rid = importRecord(recordsBeforeImport);
+      rid = importRecord(recordsBeforeImport, beforeImportSchemaSnapshot);
 
       total++;
       if (rid != null) {
@@ -1608,13 +1634,12 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
       }
     }
 
-    if (!merge) {
-      // remove all records which were absent in new database but
-      // exist in old database
-      for (final ORID leftOverRid : recordsBeforeImport) {
-        database.delete(leftOverRid);
-      }
+    // remove all records which were absent in new database but
+    // exist in old database
+    for (final ORID leftOverRid : recordsBeforeImport) {
+      database.delete(leftOverRid);
     }
+
     database.getMetadata().reload();
 
     final Set<ORID> brokenRids = new HashSet<>();

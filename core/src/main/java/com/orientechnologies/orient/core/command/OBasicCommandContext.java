@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.command;
 
 import com.orientechnologies.common.concur.OTimeoutException;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
@@ -47,7 +47,7 @@ public class OBasicCommandContext implements OCommandContext {
   public static final String TIMEOUT_STRATEGY = "TIMEOUT_STARTEGY";
   public static final String INVALID_COMPARE_COUNT = "INVALID_COMPARE_COUNT";
 
-  protected ODatabaseDocumentInternal database;
+  protected ODatabaseSessionInternal database;
   protected Object[] args;
 
   protected boolean recordMetrics = false;
@@ -71,7 +71,7 @@ public class OBasicCommandContext implements OCommandContext {
 
   public OBasicCommandContext() {}
 
-  public OBasicCommandContext(ODatabaseDocumentInternal session) {
+  public OBasicCommandContext(ODatabaseSessionInternal session) {
     this.database = session;
   }
 
@@ -384,7 +384,7 @@ public class OBasicCommandContext implements OCommandContext {
     return this.uniqueResult.add(toAdd);
   }
 
-  public ODatabaseDocumentInternal getDatabase() {
+  public ODatabaseSessionInternal getDatabase() {
     if (database != null) {
       return database;
     }
@@ -394,7 +394,7 @@ public class OBasicCommandContext implements OCommandContext {
     return null;
   }
 
-  public void setDatabase(ODatabaseDocumentInternal database) {
+  public void setDatabase(ODatabaseSessionInternal database) {
     this.database = database;
   }
 

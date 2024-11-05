@@ -21,10 +21,11 @@ package com.orientechnologies.orient.core.tx;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.ONoTxRecordReadException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -67,10 +68,11 @@ public class OTransactionNoTx extends OTransactionAbstract {
 
   private final NonTxReadMode nonTxReadMode;
 
-  public OTransactionNoTx(final ODatabaseDocumentInternal database) {
+  public OTransactionNoTx(final ODatabaseSessionInternal database) {
     super(database);
 
     this.nonTxReadMode = database.getNonTxReadMode();
+    assert this.nonTxReadMode != null;
   }
 
   public void begin() {
@@ -143,7 +145,7 @@ public class OTransactionNoTx extends OTransactionAbstract {
     if (nonTxReadMode == NonTxReadMode.WARN) {
       OLogManager.instance().warn(this, NON_TX_WARNING_READ_MESSAGE);
     } else if (nonTxReadMode == NonTxReadMode.EXCEPTION) {
-      throw new ODatabaseException(NON_TX_EXCEPTION_READ_MESSAGE);
+      throw new ONoTxRecordReadException(NON_TX_EXCEPTION_READ_MESSAGE);
     }
   }
 
@@ -222,6 +224,8 @@ public class OTransactionNoTx extends OTransactionAbstract {
   }
 
   public ORecordAbstract getRecord(final ORID rid) {
+    checkNonTXReads();
+
     return null;
   }
 

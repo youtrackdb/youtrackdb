@@ -63,6 +63,7 @@ import java.util.regex.Pattern;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFilterCondition {
+
   private static final String NULL_VALUE = "null";
   protected Object left;
   protected OQueryOperator operator;
@@ -92,16 +93,22 @@ public class OSQLFilterCondition {
             && iCurrentRecord.getIdentity().isPersistent();
 
     if (left instanceof OSQLQuery<?>)
-      // EXECUTE SUB QUERIES ONLY ONCE
+    // EXECUTE SUB QUERIES ONLY ONCE
+    {
       left = ((OSQLQuery<?>) left).setContext(iContext).execute();
+    }
 
     Object l = evaluate(iCurrentRecord, iCurrentResult, left, iContext, binaryEvaluation);
 
-    if (operator == null || operator.canShortCircuit(l)) return l;
+    if (operator == null || operator.canShortCircuit(l)) {
+      return l;
+    }
 
     if (right instanceof OSQLQuery<?>)
-      // EXECUTE SUB QUERIES ONLY ONCE
+    // EXECUTE SUB QUERIES ONLY ONCE
+    {
       right = ((OSQLQuery<?>) right).setContext(iContext).execute();
+    }
 
     Object r = evaluate(iCurrentRecord, iCurrentResult, right, iContext, binaryEvaluation);
     OImmutableSchema schema =
@@ -126,12 +133,16 @@ public class OSQLFilterCondition {
                   : null;
           r = new OBinaryField(null, type, bytes, collate);
           if (!(right instanceof OSQLFilterItem || right instanceof OSQLFilterCondition))
-            // FIXED VALUE, REPLACE IT
+          // FIXED VALUE, REPLACE IT
+          {
             right = r;
+          }
         }
       } else if (r instanceof OBinaryField)
-        // GET THE COPY OR MT REASONS
+      // GET THE COPY OR MT REASONS
+      {
         r = ((OBinaryField) r).copy();
+      }
     }
 
     if (binaryEvaluation && r instanceof OBinaryField) {
@@ -152,15 +163,21 @@ public class OSQLFilterCondition {
                   : null;
           l = new OBinaryField(null, type, bytes, collate);
           if (!(left instanceof OSQLFilterItem || left instanceof OSQLFilterCondition))
-            // FIXED VALUE, REPLACE IT
+          // FIXED VALUE, REPLACE IT
+          {
             left = l;
+          }
         }
       } else if (l instanceof OBinaryField)
-        // GET THE COPY OR MT REASONS
+      // GET THE COPY OR MT REASONS
+      {
         l = ((OBinaryField) l).copy();
+      }
     }
 
-    if (binaryEvaluation) binaryEvaluation = l instanceof OBinaryField && r instanceof OBinaryField;
+    if (binaryEvaluation) {
+      binaryEvaluation = l instanceof OBinaryField && r instanceof OBinaryField;
+    }
 
     if (!binaryEvaluation) {
       // no collate for regular expressions, otherwise quotes will result in no match
@@ -187,8 +204,9 @@ public class OSQLFilterCondition {
     } catch (OCommandExecutionException e) {
       throw e;
     } catch (Exception e) {
-      if (OLogManager.instance().isDebugEnabled())
+      if (OLogManager.instance().isDebugEnabled()) {
         OLogManager.instance().debug(this, "Error on evaluating expression (%s)", e, toString());
+      }
       result = Boolean.FALSE;
     }
 
@@ -398,16 +416,21 @@ public class OSQLFilterCondition {
       final Object iValue,
       final OCommandContext iContext,
       final boolean binaryEvaluation) {
-    if (iValue == null) return null;
+    if (iValue == null) {
+      return null;
+    }
 
-    if (iValue instanceof BytesContainer) return iValue;
+    if (iValue instanceof BytesContainer) {
+      return iValue;
+    }
 
     if (iCurrentRecord != null) {
       iCurrentRecord = iCurrentRecord.getRecord();
       if (iCurrentRecord != null
           && ((ORecord) iCurrentRecord).getInternalStatus() == ORecordElement.STATUS.NOT_LOADED) {
         try {
-          iCurrentRecord = iCurrentRecord.getRecord().load();
+          iCurrentRecord =
+              ((ORecord) iCurrentRecord).getDatabase().load(iCurrentRecord.getIdentity());
         } catch (ORecordNotFoundException ignore) {
           return null;
         }
@@ -420,7 +443,9 @@ public class OSQLFilterCondition {
         && !((ODocument) iCurrentRecord).isDirty()
         && !iCurrentRecord.getIdentity().isTemporary()) {
       final OBinaryField bField = ((OSQLFilterItemField) iValue).getBinaryField(iCurrentRecord);
-      if (bField != null) return bField;
+      if (bField != null) {
+        return bField;
+      }
     }
 
     if (iValue instanceof OSQLFilterItem) {

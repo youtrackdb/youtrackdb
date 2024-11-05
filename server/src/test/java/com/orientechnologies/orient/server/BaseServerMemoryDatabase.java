@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.server;
 
 import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import java.io.File;
@@ -12,7 +12,7 @@ import org.junit.rules.TestName;
 
 public class BaseServerMemoryDatabase {
 
-  protected ODatabaseDocumentInternal db;
+  protected ODatabaseSessionInternal db;
   protected OrientDB context;
   @Rule public TestName name = new TestName();
   protected OServer server;
@@ -34,7 +34,7 @@ public class BaseServerMemoryDatabase {
                 + name.getMethodName()
                 + " memory users(admin identified by 'adminpwd' role admin) ")
         .close();
-    db = (ODatabaseDocumentInternal) context.open(name.getMethodName(), "admin", "adminpwd");
+    db = (ODatabaseSessionInternal) context.open(name.getMethodName(), "admin", "adminpwd");
   }
 
   @After

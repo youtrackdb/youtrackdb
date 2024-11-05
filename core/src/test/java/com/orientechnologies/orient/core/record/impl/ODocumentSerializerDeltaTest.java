@@ -658,7 +658,7 @@ public class ODocumentSerializerDeltaTest {
       // ODocument originalDoc = doc.copy();
       ODocument originalDoc = new ODocument();
       ORecordInternal.unsetDirty(originalDoc);
-      originalDoc.fromStream(doc.reload().toStream());
+      originalDoc.fromStream(doc.toStream());
 
       @SuppressWarnings("unchecked")
       List<String> newArray = ((List<List<String>>) doc.field(fieldName)).get(0);

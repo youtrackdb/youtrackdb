@@ -4,7 +4,7 @@ import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OMetadataUpdateListener;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
 import com.orientechnologies.orient.core.metadata.schema.OSchemaShared;
@@ -41,7 +41,7 @@ public class OExecutionPlanCache implements OMetadataUpdateListener {
         };
   }
 
-  public static long getLastInvalidation(ODatabaseDocumentInternal db) {
+  public static long getLastInvalidation(ODatabaseSessionInternal db) {
     if (db == null) {
       throw new IllegalArgumentException("DB cannot be null");
     }
@@ -75,7 +75,7 @@ public class OExecutionPlanCache implements OMetadataUpdateListener {
    * @return a statement executor from the cache
    */
   public static OExecutionPlan get(
-      String statement, OCommandContext ctx, ODatabaseDocumentInternal db) {
+      String statement, OCommandContext ctx, ODatabaseSessionInternal db) {
     if (db == null) {
       throw new IllegalArgumentException("DB cannot be null");
     }
@@ -88,7 +88,7 @@ public class OExecutionPlanCache implements OMetadataUpdateListener {
     return result;
   }
 
-  public static void put(String statement, OExecutionPlan plan, ODatabaseDocumentInternal db) {
+  public static void put(String statement, OExecutionPlan plan, ODatabaseSessionInternal db) {
     if (db == null) {
       throw new IllegalArgumentException("DB cannot be null");
     }
@@ -100,7 +100,7 @@ public class OExecutionPlanCache implements OMetadataUpdateListener {
     resource.putInternal(statement, plan, db);
   }
 
-  public void putInternal(String statement, OExecutionPlan plan, ODatabaseDocumentInternal db) {
+  public void putInternal(String statement, OExecutionPlan plan, ODatabaseSessionInternal db) {
     if (statement == null) {
       return;
     }
@@ -126,7 +126,7 @@ public class OExecutionPlanCache implements OMetadataUpdateListener {
    * @return the corresponding executor, taking it from the internal cache, if it exists
    */
   public OExecutionPlan getInternal(
-      String statement, OCommandContext ctx, ODatabaseDocumentInternal db) {
+      String statement, OCommandContext ctx, ODatabaseSessionInternal db) {
     OInternalExecutionPlan result;
 
     long currentGlobalTimeout =
@@ -193,7 +193,7 @@ public class OExecutionPlanCache implements OMetadataUpdateListener {
     invalidate();
   }
 
-  public static OExecutionPlanCache instance(ODatabaseDocumentInternal db) {
+  public static OExecutionPlanCache instance(ODatabaseSessionInternal db) {
     if (db == null) {
       throw new IllegalArgumentException("DB cannot be null");
     }

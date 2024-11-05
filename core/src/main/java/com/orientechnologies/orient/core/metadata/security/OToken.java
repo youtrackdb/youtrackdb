@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.metadata.security;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.security.jwt.OTokenHeader;
 
@@ -23,7 +23,7 @@ public interface OToken {
 
   String getUserName();
 
-  OUser getUser(ODatabaseDocumentInternal db);
+  OUser getUser(ODatabaseSessionInternal db);
 
   String getDatabase();
 

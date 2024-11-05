@@ -26,8 +26,8 @@ import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.util.ORawPairObjectInteger;
 import com.orientechnologies.orient.core.OOrientShutdownListener;
 import com.orientechnologies.orient.core.OOrientStartupListener;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.OStorageException;
@@ -328,7 +328,7 @@ public final class OSBTreeCollectionManagerShared
     UUID ownerUUID = collection.getTemporaryId();
     if (ownerUUID != null) {
       final OBonsaiCollectionPointer pointer = collection.getPointer();
-      ODatabaseDocumentInternal session = ODatabaseRecordThreadLocal.instance().get();
+      ODatabaseSessionInternal session = ODatabaseRecordThreadLocal.instance().get();
       Map<UUID, OBonsaiCollectionPointer> changedPointers = session.getCollectionsChanges();
       if (pointer != null && pointer.isValid()) {
         changedPointers.put(ownerUUID, pointer);

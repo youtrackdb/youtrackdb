@@ -26,8 +26,8 @@ import com.orientechnologies.common.listener.OProgressListener;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
@@ -596,7 +596,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
   public boolean remove(Object key, final OIdentifiable rid) {
     key = getCollatingValue(key);
 
-    ODatabaseDocumentInternal database = getDatabase();
+    ODatabaseSessionInternal database = getDatabase();
     if (database.getTransaction().isActive()) {
       database.getTransaction().addIndexEntry(this, getName(), OPERATION.REMOVE, key, rid);
     } else {
@@ -610,7 +610,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
   public boolean remove(Object key) {
     key = getCollatingValue(key);
 
-    ODatabaseDocumentInternal database = getDatabase();
+    ODatabaseSessionInternal database = getDatabase();
     if (database.getTransaction().isActive()) {
       database.getTransaction().addIndexEntry(this, getName(), OPERATION.REMOVE, key, null);
     } else {
@@ -635,7 +635,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
   @Override
   @Deprecated
   public OIndex clear() {
-    ODatabaseDocumentInternal database = getDatabase();
+    ODatabaseSessionInternal database = getDatabase();
     if (database.getTransaction().isActive()) {
       database.getTransaction().addIndexEntry(this, this.getName(), OPERATION.CLEAR, null, null);
     } else {
@@ -668,7 +668,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
         //noinspection ObjectAllocationInLoop
         try {
           try (final Stream<ORawPair<Object, ORID>> stream = stream()) {
-            ODatabaseDocumentInternal database = getDatabase();
+            ODatabaseSessionInternal database = getDatabase();
             Iterator<ORawPair<Object, ORID>> iterator = stream.iterator();
             long count = 0;
             database.begin();
@@ -980,7 +980,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
     return engine.acquireAtomicExclusiveLock(key);
   }
 
-  protected static ODatabaseDocumentInternal getDatabase() {
+  protected static ODatabaseSessionInternal getDatabase() {
     return ODatabaseRecordThreadLocal.instance().get();
   }
 
@@ -998,7 +998,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
               + im.getIndexDefinition()
               + ")");
     }
-    ODatabaseDocumentInternal database = getDatabase();
+    ODatabaseSessionInternal database = getDatabase();
 
     database.begin();
     try {

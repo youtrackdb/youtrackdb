@@ -20,8 +20,8 @@
 package com.orientechnologies.orient.core.metadata.schema;
 
 import com.orientechnologies.common.util.OArrays;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.viewmanager.ViewCreationListener;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -57,7 +57,7 @@ public class OImmutableSchema implements OSchema {
   private final List<OGlobalProperty> properties;
   private final OClusterSelectionFactory clusterSelectionFactory;
 
-  public OImmutableSchema(OSchemaShared schemaShared, ODatabaseDocumentInternal database) {
+  public OImmutableSchema(OSchemaShared schemaShared, ODatabaseSessionInternal database) {
     version = schemaShared.getVersion();
     identity = schemaShared.getIdentity();
     clusterSelectionFactory = schemaShared.getClusterSelectionFactory();
@@ -281,7 +281,7 @@ public class OImmutableSchema implements OSchema {
     return clusterSelectionFactory;
   }
 
-  private ODatabaseDocumentInternal getDatabase() {
+  private ODatabaseSessionInternal getDatabase() {
     return ODatabaseRecordThreadLocal.instance().get();
   }
 
@@ -305,7 +305,7 @@ public class OImmutableSchema implements OSchema {
   }
 
   public OView createView(
-      ODatabaseDocumentInternal database,
+      ODatabaseSessionInternal database,
       final String viewName,
       String statement,
       Map<String, Object> metadata) {

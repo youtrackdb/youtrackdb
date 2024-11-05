@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OImmutableClass;
@@ -59,7 +59,7 @@ public class UpdateContentStep extends AbstractExecutionStep {
       fieldsToPreserve = new ODocument();
 
       final OClass restricted =
-          ((ODatabaseDocumentInternal) ctx.getDatabase())
+          ((ODatabaseSessionInternal) ctx.getDatabase())
               .getMetadata()
               .getImmutableSchemaSnapshot()
               .getClass(OSecurity.RESTRICTED_CLASSNAME);
@@ -82,7 +82,7 @@ public class UpdateContentStep extends AbstractExecutionStep {
 
     OClass recordClass =
         ODocumentInternal.getImmutableSchemaClass(
-            (ODatabaseDocumentInternal) ctx.getDatabase(), record.getRecord());
+            (ODatabaseSessionInternal) ctx.getDatabase(), record.getRecord());
     if (recordClass != null && recordClass.isSubClassOf("V")) {
       for (String fieldName : record.getPropertyNamesWithoutFiltration()) {
         if (fieldName.startsWith("in_") || fieldName.startsWith("out_")) {

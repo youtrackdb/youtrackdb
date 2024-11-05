@@ -15,7 +15,7 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 public class SQLCreateClassTest {
   @Test
   public void testSimpleCreate() {
-    ODatabaseDocumentInternal db =
+    ODatabaseSessionInternal db =
         new ODatabaseDocumentTx("memory:" + SQLCreateClassTest.class.getName());
     db.create();
     try {
@@ -37,7 +37,7 @@ public class SQLCreateClassTest {
 
   @Test
   public void testIfNotExists() {
-    ODatabaseDocumentInternal db =
+    ODatabaseSessionInternal db =
         new ODatabaseDocumentTx("memory:" + SQLCreateClassTest.class.getName() + "_ifNotExists");
     db.create();
     try {

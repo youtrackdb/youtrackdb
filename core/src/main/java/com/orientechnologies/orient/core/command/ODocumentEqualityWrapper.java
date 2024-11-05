@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.command;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
 
@@ -16,7 +16,7 @@ public class ODocumentEqualityWrapper {
 
   public boolean equals(Object obj) {
     if (obj instanceof ODocumentEqualityWrapper) {
-      ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+      ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
       return ODocumentHelper.hasSameContentOf(
           internal, db, ((ODocumentEqualityWrapper) obj).internal, db, null);
     }

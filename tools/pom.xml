@@ -20,116 +20,119 @@
    ~  */
    -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>com.orientechnologies</groupId>
-        <artifactId>orientdb-parent</artifactId>
-        <version>4.0.0-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
-    </parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.orientechnologies</groupId>
+    <artifactId>orientdb-parent</artifactId>
+    <version>4.0.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
 
-    <artifactId>orientdb-tools</artifactId>
+  <artifactId>orientdb-tools</artifactId>
 
-    <name>OrientDB Tools</name>
+  <name>OrientDB Tools</name>
 
-    <properties>
-        <jar.manifest.mainclass>com.orientechnologies.orient.console.OConsoleDatabaseApp</jar.manifest.mainclass>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <!--This property is updated automatically and is needed to make build reproducible-->
-        <project.build.outputTimestamp>2023-01-01T00:00:00Z</project.build.outputTimestamp>
-    </properties>
+  <properties>
+    <jar.manifest.mainclass>com.orientechnologies.orient.console.OConsoleDatabaseApp
+    </jar.manifest.mainclass>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <!--This property is updated automatically and is needed to make build reproducible-->
+    <project.build.outputTimestamp>2023-01-01T00:00:00Z</project.build.outputTimestamp>
+  </properties>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-jdk14</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.orientechnologies</groupId>
-            <artifactId>orientdb-test-commons</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.orientechnologies</groupId>
-            <artifactId>orientdb-client</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.orientechnologies</groupId>
-            <artifactId>orientdb-core</artifactId>
-            <version>${project.version}</version>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
+  <dependencies>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-jdk14</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.orientechnologies</groupId>
+      <artifactId>orientdb-test-commons</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.orientechnologies</groupId>
+      <artifactId>orientdb-client</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.orientechnologies</groupId>
+      <artifactId>orientdb-core</artifactId>
+      <version>${project.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
 
-        <dependency>
-            <groupId>jakarta.xml.bind</groupId>
-            <artifactId>jakarta.xml.bind-api</artifactId>
-            <version>3.0.1</version>
-        </dependency>
+    <dependency>
+      <groupId>jakarta.xml.bind</groupId>
+      <artifactId>jakarta.xml.bind-api</artifactId>
+      <version>3.0.1</version>
+    </dependency>
 
-        <dependency>
-            <groupId>org.glassfish.jaxb</groupId>
-            <artifactId>jaxb-core</artifactId>
-            <version>3.0.2</version>
-        </dependency>
-    </dependencies>
+    <dependency>
+      <groupId>org.glassfish.jaxb</groupId>
+      <artifactId>jaxb-core</artifactId>
+      <version>3.0.2</version>
+    </dependency>
+  </dependencies>
 
-    <build>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifest>
+              <mainClass>${jar.manifest.mainclass}</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+    <profile>
+      <id>java17</id>
+      <activation>
+        <jdk>[17,)</jdk>
+      </activation>
+      <properties>
+        <argLine>
+          -Xmx${heapSize}
+          -Dstorage.diskCache.bufferSize=4096
+          -Dmemory.directMemory.trackMode=true
+          -Djava.util.logging.manager=com.orientechnologies.common.log.ShutdownLogManager
+          -Dstorage.diskCache.checksumMode=storeAndThrow
+          -Dsecurity.warningDefaultUsers=false
+          -Dfile.log.deletion=false
+          -Dtx.nonTxReadsWarningMode=SILENT
+          --add-opens jdk.unsupported/sun.misc=ALL-UNNAMED
+          --add-opens java.base/sun.security.x509=ALL-UNNAMED
+        </argLine>
+      </properties>
+    </profile>
+    <profile>
+      <id>secondary-tests</id>
+      <build>
         <plugins>
-            <plugin>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <mainClass>${jar.manifest.mainclass}</mainClass>
-                        </manifest>
-                    </archive>
-                </configuration>
-            </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>${surefire.version}</version>
+            <configuration>
+              <includes>
+                <include>**/*ST.java</include>
+              </includes>
+            </configuration>
+          </plugin>
         </plugins>
-    </build>
-
-    <profiles>
-        <profile>
-            <id>java17</id>
-            <activation>
-                <jdk>[17,)</jdk>
-            </activation>
-            <properties>
-                <argLine>
-                    -Xmx${heapSize}
-                    -Dstorage.diskCache.bufferSize=4096
-                    -Dmemory.directMemory.trackMode=true
-                    -Djava.util.logging.manager=com.orientechnologies.common.log.ShutdownLogManager
-                    -Dstorage.diskCache.checksumMode=storeAndThrow
-                    -Dsecurity.warningDefaultUsers=false
-                    -Dfile.log.deletion=false
-                    -Dtx.nonTxReadsWarningMode=SILENT
-                    --add-opens jdk.unsupported/sun.misc=ALL-UNNAMED
-                    --add-opens java.base/sun.security.x509=ALL-UNNAMED
-                </argLine>
-            </properties>
-        </profile>
-        <profile>
-            <id>secondary-tests</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <version>${surefire.version}</version>
-                        <configuration>
-                            <includes>
-                                <include>**/*ST.java</include>
-                            </includes>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
+      </build>
+    </profile>
+  </profiles>
 
 </project>

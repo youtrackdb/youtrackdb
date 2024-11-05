@@ -22,16 +22,15 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.List;
 import org.testng.Assert;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test
 public class SQLBatchTest extends DocumentDBBaseTest {
 
-  @Parameters(value = "url")
-  public SQLBatchTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public SQLBatchTest(boolean remote) {
+    super(remote);
   }
 
   /** Issue #4349 (https://github.com/orientechnologies/orientdb/issues/4349) */

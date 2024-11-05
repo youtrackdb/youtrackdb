@@ -5,7 +5,7 @@ import com.orientechnologies.common.exception.OSystemException;
 import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.id.OImmutableRecordId;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -248,7 +248,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
   }
 
   public byte[] getSignedBinaryToken(
-      final ODatabaseDocumentInternal db,
+      final ODatabaseSessionInternal db,
       final OSecurityUser user,
       final ONetworkProtocolData data) {
     try {

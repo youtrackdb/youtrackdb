@@ -111,7 +111,7 @@ public class OQueryOperatorTraverse extends OQueryOperatorEqualityNotNulls {
 
       if (target.getInternalStatus() == ORecordElement.STATUS.NOT_LOADED)
         try {
-          target.load();
+          target.getDatabase().load(target);
         } catch (final ORecordNotFoundException ignore) {
           // INVALID RID
           return false;

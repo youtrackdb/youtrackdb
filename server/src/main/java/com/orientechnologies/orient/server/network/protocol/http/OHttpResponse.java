@@ -2,7 +2,7 @@ package com.orientechnologies.orient.server.network.protocol.http;
 
 import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.server.OClientConnection;
 import java.io.IOException;
@@ -30,14 +30,14 @@ public interface OHttpResponse {
 
   void writeContent(String iContent) throws IOException;
 
-  void writeResult(Object result, ODatabaseDocumentInternal databaseDocumentInternal)
+  void writeResult(Object result, ODatabaseSessionInternal databaseDocumentInternal)
       throws InterruptedException, IOException;
 
   void writeResult(
       Object iResult,
       String iFormat,
       String iAccept,
-      ODatabaseDocumentInternal databaseDocumentInternal)
+      ODatabaseSessionInternal databaseDocumentInternal)
       throws InterruptedException, IOException;
 
   void writeResult(
@@ -45,7 +45,7 @@ public interface OHttpResponse {
       String iFormat,
       String iAccept,
       Map<String, Object> iAdditionalProperties,
-      ODatabaseDocumentInternal databaseDocumentInternal)
+      ODatabaseSessionInternal databaseDocumentInternal)
       throws InterruptedException, IOException;
 
   void writeResult(
@@ -54,14 +54,14 @@ public interface OHttpResponse {
       String iAccept,
       Map<String, Object> iAdditionalProperties,
       String mode,
-      ODatabaseDocumentInternal databaseDocumentInternal)
+      ODatabaseSessionInternal databaseDocumentInternal)
       throws InterruptedException, IOException;
 
-  void writeRecords(Object iRecords, ODatabaseDocumentInternal databaseDocumentInternal)
+  void writeRecords(Object iRecords, ODatabaseSessionInternal databaseDocumentInternal)
       throws IOException;
 
   void writeRecords(
-      Object iRecords, String iFetchPlan, ODatabaseDocumentInternal databaseDocumentInternal)
+      Object iRecords, String iFetchPlan, ODatabaseSessionInternal databaseDocumentInternal)
       throws IOException;
 
   void writeRecords(
@@ -69,7 +69,7 @@ public interface OHttpResponse {
       String iFetchPlan,
       String iFormat,
       String accept,
-      ODatabaseDocumentInternal databaseDocumentInternal)
+      ODatabaseSessionInternal databaseDocumentInternal)
       throws IOException;
 
   void writeRecords(
@@ -78,7 +78,7 @@ public interface OHttpResponse {
       String iFormat,
       String accept,
       Map<String, Object> iAdditionalProperties,
-      ODatabaseDocumentInternal databaseDocumentInternal)
+      ODatabaseSessionInternal databaseDocumentInternal)
       throws IOException;
 
   void writeRecords(
@@ -88,14 +88,14 @@ public interface OHttpResponse {
       String accept,
       Map<String, Object> iAdditionalProperties,
       String mode,
-      ODatabaseDocumentInternal databaseDocumentInternal)
+      ODatabaseSessionInternal databaseDocumentInternal)
       throws IOException;
 
   void formatMultiValue(
       Iterator<?> iIterator,
       Writer buffer,
       String format,
-      ODatabaseDocumentInternal databaseDocumentInternal)
+      ODatabaseSessionInternal databaseDocumentInternal)
       throws IOException;
 
   void writeRecord(ORecord iRecord) throws IOException;

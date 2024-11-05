@@ -17,8 +17,8 @@
 package com.orientechnologies.orient.core.schedule;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDBInternal;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
@@ -122,7 +122,7 @@ public class OSchedulerImpl {
     throw new UnsupportedOperationException();
   }
 
-  public void load(ODatabaseDocumentInternal database) {
+  public void load(ODatabaseSessionInternal database) {
 
     if (database.getMetadata().getSchema().existsClass(OScheduledEvent.CLASS_NAME)) {
       final Iterable<ODocument> result = database.browseClass(OScheduledEvent.CLASS_NAME);
@@ -139,7 +139,7 @@ public class OSchedulerImpl {
     events.clear();
   }
 
-  public void create(ODatabaseDocumentInternal database) {
+  public void create(ODatabaseSessionInternal database) {
     if (database
         .getMetadata()
         .getImmutableSchemaSnapshot()

@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.command.OCommandResultListener;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLNonBlockingQuery;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
@@ -12,18 +12,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 public class NonBlockingQueryTest extends DocumentDBBaseTest {
-  @Parameters(value = "url")
-  public NonBlockingQueryTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public NonBlockingQueryTest(boolean remote) {
+    super(remote);
   }
 
   @BeforeClass
-  @Override
   public void beforeClass() throws Exception {
     super.beforeClass();
     database.command("create class Foo").close();
@@ -39,12 +37,12 @@ public class NonBlockingQueryTest extends DocumentDBBaseTest {
   @Test
   public void testClone() {
 
-    ODatabaseDocumentInternal db = database;
+    ODatabaseSessionInternal db = database;
 
     db.begin();
     db.command("insert into Foo (a) values ('bar')").close();
     db.commit();
-    ODatabaseDocumentInternal newDb = db.copy();
+    ODatabaseSessionInternal newDb = db.copy();
 
     List<ODocument> result = newDb.query(new OSQLSynchQuery<ODocument>("Select from Foo"));
     Assert.assertEquals(result.size(), 1);
@@ -54,7 +52,7 @@ public class NonBlockingQueryTest extends DocumentDBBaseTest {
 
   @Test
   public void testNonBlockingQuery() {
-    ODatabaseDocumentInternal db = database;
+    ODatabaseSessionInternal db = database;
     final AtomicInteger counter = new AtomicInteger(0); // db.begin();
     for (int i = 0; i < 1000; i++) {
       db.command("insert into Foo (a) values ('bar')").close();
@@ -97,7 +95,7 @@ public class NonBlockingQueryTest extends DocumentDBBaseTest {
     database.command("create property Foo.y integer").close();
     database.command("create index Foo_xy_index on Foo (x, y) notunique").close();
 
-    ODatabaseDocumentInternal db = database;
+    ODatabaseSessionInternal db = database;
     final AtomicInteger counter = new AtomicInteger(0); // db.begin();
     for (int i = 0; i < 1000; i++) {
       db.command("insert into Foo (a, x, y) values ('bar', ?, ?)", i, 1000 - i).close();

@@ -6,16 +6,15 @@ import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test(groups = {"index"})
 public class IndexClusterTest extends DocumentDBBaseTest {
 
-  @Parameters(value = "url")
-  public IndexClusterTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public IndexClusterTest(boolean remote) {
+    super(remote);
   }
 
   @Test

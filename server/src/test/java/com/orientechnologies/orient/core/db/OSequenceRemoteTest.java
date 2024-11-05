@@ -9,14 +9,14 @@ import org.junit.Test;
 /** Created by Enrico Risa on 19/05/2017. */
 public class OSequenceRemoteTest extends AbstractRemoteTest {
 
-  ODatabaseDocumentInternal db;
+  ODatabaseSessionInternal db;
 
   @Override
   public void setup() throws Exception {
     super.setup();
     OrientDB factory =
         new OrientDB("remote:localhost", "root", "root", OrientDBConfig.defaultConfig());
-    db = (ODatabaseDocumentInternal) factory.open(name.getMethodName(), "admin", "admin");
+    db = (ODatabaseSessionInternal) factory.open(name.getMethodName(), "admin", "admin");
   }
 
   @Override

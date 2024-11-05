@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
@@ -36,7 +36,7 @@ public class OServerCommandGetDictionary extends OServerCommandAuthenticatedDbAb
     String[] urlParts =
         checkSyntax(iRequest.getUrl(), 3, "Syntax error: dictionary/<database>/<key>");
 
-    ODatabaseDocumentInternal db = null;
+    ODatabaseSessionInternal db = null;
 
     try {
       db = getProfiledDatabaseInstance(iRequest);

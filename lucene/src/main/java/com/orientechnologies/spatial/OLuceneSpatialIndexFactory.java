@@ -21,9 +21,9 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.config.IndexEngineData;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexFactory;
@@ -144,7 +144,7 @@ public class OLuceneSpatialIndexFactory implements OIndexFactory, ODatabaseLifec
       if (db.isClosed()) return;
 
       OLogManager.instance().debug(this, "Dropping spatial indexes...");
-      final ODatabaseDocumentInternal internalDb = (ODatabaseDocumentInternal) db;
+      final ODatabaseSessionInternal internalDb = (ODatabaseSessionInternal) db;
       for (OIndex idx : internalDb.getMetadata().getIndexManagerInternal().getIndexes(internalDb)) {
 
         if (idx.getInternal() instanceof OLuceneSpatialIndex) {

@@ -28,8 +28,8 @@ import com.orientechnologies.orient.core.command.script.OCommandScriptException;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
 import com.orientechnologies.orient.core.db.ODatabase;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseListener;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseWrapperAbstract;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
@@ -94,7 +94,7 @@ import javassist.util.proxy.ProxyObject;
  */
 @SuppressWarnings("unchecked")
 public class OObjectDatabaseTxInternal
-    extends ODatabaseWrapperAbstract<ODatabaseDocumentInternal, Object>
+    extends ODatabaseWrapperAbstract<ODatabaseSessionInternal, Object>
     implements ODatabaseObjectInternal {
 
   public static final String TYPE = "object";
@@ -117,7 +117,7 @@ public class OObjectDatabaseTxInternal
    *
    * @param iDatabase an open database connection
    */
-  public OObjectDatabaseTxInternal(ODatabaseDocumentInternal iDatabase) {
+  public OObjectDatabaseTxInternal(ODatabaseSessionInternal iDatabase) {
     super(iDatabase);
     underlying.setDatabaseOwner(this);
     init();
@@ -332,7 +332,7 @@ public class OObjectDatabaseTxInternal
     return (RET) reload(iPojo, null, iIgnoreCache);
   }
 
-  public <RET> RET reload(Object iPojo, final String iFetchPlan, final boolean iIgnoreCache) {
+  private <RET> RET reload(Object iPojo, final String iFetchPlan, final boolean iIgnoreCache) {
     return reload(iPojo, iFetchPlan, iIgnoreCache, true);
   }
 
@@ -685,7 +685,7 @@ public class OObjectDatabaseTxInternal
   }
 
   @Override
-  public ODatabaseDocumentInternal getUnderlying() {
+  public ODatabaseSessionInternal getUnderlying() {
     return underlying;
   }
 
@@ -780,7 +780,7 @@ public class OObjectDatabaseTxInternal
   public Object stream2pojo(
       ODocument iRecord, final Object iPojo, final String iFetchPlan, boolean iReload) {
     if (iRecord.getInternalStatus() == ORecordElement.STATUS.NOT_LOADED) {
-      iRecord = (ODocument) iRecord.load();
+      iRecord = iRecord.load().getDatabase().load(iRecord.getIdentity());
     }
     if (iReload) {
       if (iPojo != null) {

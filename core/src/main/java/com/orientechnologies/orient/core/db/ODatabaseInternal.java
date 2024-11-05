@@ -268,6 +268,14 @@ public interface ODatabaseInternal<T> extends ODatabase<T> {
   void truncateCluster(String clusterName);
 
   /**
+   * Loads the entity and return it.
+   *
+   * @param iObject The entity to load. If the entity was already loaded it will be reloaded and all
+   *                the changes will be lost.
+   */
+  <RET extends T> RET load(T iObject);
+
+  /**
    * Counts all the entities in the specified cluster id.
    *
    * @param iCurrentClusterId Cluster id
@@ -497,17 +505,6 @@ public interface ODatabaseInternal<T> extends ODatabase<T> {
    * @return Cluster id
    */
   int addCluster(String iClusterName, int iRequestedId);
-
-  /**
-   * Force the reloading of the entity.
-   *
-   * @param iObject      The entity to load. If the entity was already loaded it will be reloaded
-   *                     and all the changes will be lost.
-   * @param iFetchPlan   Fetch plan used
-   * @param iIgnoreCache Ignore cache or use it
-   * @return The loaded entity
-   */
-  <RET extends T> RET reload(final T iObject, String iFetchPlan, boolean iIgnoreCache);
 
   /**
    * Loads a record using a fetch plan.

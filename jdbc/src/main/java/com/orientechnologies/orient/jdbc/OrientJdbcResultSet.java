@@ -16,7 +16,7 @@
 package com.orientechnologies.orient.jdbc;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordLazyList;
 import com.orientechnologies.orient.core.db.record.ORecordLazyMultiValue;
@@ -150,10 +150,10 @@ public class OrientJdbcResultSet implements ResultSet {
       try {
 
         OrientSql osql = null;
-        ODatabaseDocumentInternal db = null;
+        ODatabaseSessionInternal db = null;
         try {
           db =
-              (ODatabaseDocumentInternal)
+              (ODatabaseSessionInternal)
                   ((OrientJdbcConnection) statement.getConnection()).getDatabase();
           if (db == null) {
             osql = new OrientSql(new ByteArrayInputStream(statement.sql.getBytes()));

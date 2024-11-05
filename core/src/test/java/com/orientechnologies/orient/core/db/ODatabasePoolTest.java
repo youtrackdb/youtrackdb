@@ -16,7 +16,7 @@ public class ODatabasePoolTest {
         OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
     final ODatabasePool pool =
         new ODatabasePool(orientDb, "test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
-    var db = (ODatabaseDocumentInternal) pool.acquire();
+    var db = (ODatabaseSessionInternal) pool.acquire();
     db.executeInTx(() -> db.save(new ODocument(), db.getClusterNameById(db.getDefaultClusterId())));
     db.close();
     pool.close();
@@ -46,12 +46,12 @@ public class ODatabasePoolTest {
 
     final ODatabasePool pool =
         new ODatabasePool(orientDb, "test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
-    ODatabaseDocumentInternal db = (ODatabaseDocumentInternal) pool.acquire();
+    ODatabaseSessionInternal db = (ODatabaseSessionInternal) pool.acquire();
     db.createClass("Test");
     db.begin();
     db.save(new ODocument("Test"));
     db.close();
-    db = (ODatabaseDocumentInternal) pool.acquire();
+    db = (ODatabaseSessionInternal) pool.acquire();
     assertEquals(db.countClass("Test"), 0);
     db.close();
     pool.close();

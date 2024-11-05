@@ -305,14 +305,6 @@ public interface ODatabase<T> extends OBackupable, Closeable {
   }
 
   /**
-   * Loads the entity and return it.
-   *
-   * @param iObject The entity to load. If the entity was already loaded it will be reloaded and all
-   *                the changes will be lost.
-   */
-  <RET extends T> RET load(T iObject);
-
-  /**
    * Loads the entity by the Record ID.
    *
    * @param recordId The unique record id of the entity to load.

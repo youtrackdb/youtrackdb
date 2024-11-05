@@ -1,62 +1,64 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>orientdb-parent</artifactId>
-        <groupId>com.orientechnologies</groupId>
-        <version>4.0.0-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
-    </parent>
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <artifactId>orientdb-parent</artifactId>
+    <groupId>com.orientechnologies</groupId>
+    <version>4.0.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>orientdb-test-commons</artifactId>
-    <packaging>jar</packaging>
+  <artifactId>orientdb-test-commons</artifactId>
+  <packaging>jar</packaging>
 
-    <name>OrientDB Test Commons</name>
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  <name>OrientDB Test Commons</name>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <argLine>-Xmx${heapSize} --add-opens jdk.unsupported/sun.misc=ALL-UNNAMED
+      --add-opens java.base/sun.security.x509=ALL-UNNAMED
+      -Dmemory.directMemory.preallocate=false
+      -Dtx.nonTxReadsWarningMode=SILENT
+    </argLine>
+    <project.rootdir>${project.basedir}/../</project.rootdir>
+    <!--This property is updated automatically and is needed to make build reproducible-->
+    <project.build.outputTimestamp>2023-01-01T00:00:00Z</project.build.outputTimestamp>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.13.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>4.11.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <version>3.4.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-jdk14</artifactId>
+    </dependency>
+  </dependencies>
+
+  <profiles>
+    <profile>
+      <id>java17</id>
+      <activation>
+        <jdk>[17,)</jdk>
+      </activation>
+      <properties>
         <argLine>-Xmx${heapSize} --add-opens jdk.unsupported/sun.misc=ALL-UNNAMED
-            --add-opens java.base/sun.security.x509=ALL-UNNAMED
-            -Dmemory.directMemory.preallocate=false
-            -Dtx.nonTxReadsWarningMode=SILENT
+          --add-opens java.base/sun.security.x509=ALL-UNNAMED
         </argLine>
-        <project.rootdir>${project.basedir}/../</project.rootdir>
-        <!--This property is updated automatically and is needed to make build reproducible-->
-        <project.build.outputTimestamp>2023-01-01T00:00:00Z</project.build.outputTimestamp>
-    </properties>
+      </properties>
+    </profile>
 
-    <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>4.11.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-            <version>3.4.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-jdk14</artifactId>
-        </dependency>
-    </dependencies>
-
-    <profiles>
-        <profile>
-            <id>java17</id>
-            <activation>
-                <jdk>[17,)</jdk>
-            </activation>
-            <properties>
-                <argLine>-Xmx${heapSize} --add-opens jdk.unsupported/sun.misc=ALL-UNNAMED
-                    --add-opens java.base/sun.security.x509=ALL-UNNAMED
-                </argLine>
-            </properties>
-        </profile>
-
-    </profiles>
+  </profiles>
 </project>

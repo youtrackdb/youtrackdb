@@ -15,19 +15,13 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.client.db.ODatabaseHelper;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.object.db.OObjectDatabasePool;
 import com.orientechnologies.orient.object.enhancement.OObjectEntityEnhancer;
 import com.orientechnologies.orient.object.enhancement.OObjectMethodFilter;
 import com.orientechnologies.orient.test.domain.base.CustomMethodFilterTestClass;
-import java.io.IOException;
 import java.lang.reflect.Method;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -36,9 +30,9 @@ import org.testng.annotations.Test;
     dependsOnGroups = "detachingSchemaFull")
 public class ObjectEnhancingTestSchemaFull extends ObjectDBBaseTest {
 
-  @Parameters(value = "url")
-  public ObjectEnhancingTestSchemaFull(@Optional String url) {
-    super(url, "_objectschema");
+  @Parameters(value = "remote")
+  public ObjectEnhancingTestSchemaFull(boolean remote) {
+    super(remote, "test_objectschema");
   }
 
   @Test()
@@ -57,7 +51,7 @@ public class ObjectEnhancingTestSchemaFull extends ObjectDBBaseTest {
 
     ORID rid = database.getIdentity(testClass);
     database.close();
-    database = OObjectDatabasePool.global().acquire(url, "admin", "admin");
+    database = createSessionInstance();
     testClass = database.load(rid);
     Assert.assertEquals(testClass.getStandardField(), "testStandard");
     Assert.assertEquals(testClass.getUPPERCASEFIELD(), "testUpperCase");
@@ -105,13 +99,5 @@ public class ObjectEnhancingTestSchemaFull extends ObjectDBBaseTest {
       }
       return fieldName.toString();
     }
-  }
-
-  @AfterClass
-  public void end() throws IOException {
-    String prefix = url.substring(0, url.indexOf(':') + 1);
-    OLogManager.instance().info(this, "deleting database " + url);
-    ODatabaseHelper.dropDatabase(
-        OObjectDatabasePool.global().acquire(url, "admin", "admin"), prefix);
   }
 }

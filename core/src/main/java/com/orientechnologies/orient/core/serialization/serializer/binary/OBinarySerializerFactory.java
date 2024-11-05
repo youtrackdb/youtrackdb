@@ -37,8 +37,8 @@ import com.orientechnologies.common.serialization.types.ONullSerializer;
 import com.orientechnologies.common.serialization.types.OShortSerializer;
 import com.orientechnologies.common.serialization.types.OStringSerializer;
 import com.orientechnologies.common.serialization.types.OUTF8Serializer;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.OCompactedLinkSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.OLinkSerializer;
@@ -110,7 +110,7 @@ public class OBinarySerializerFactory {
   }
 
   public static OBinarySerializerFactory getInstance() {
-    final ODatabaseDocumentInternal database = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    final ODatabaseSessionInternal database = ODatabaseRecordThreadLocal.instance().getIfDefined();
     if (database != null) return database.getSerializerFactory();
     else return OBinarySerializerFactory.create(Integer.MAX_VALUE);
   }

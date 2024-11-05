@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.core.storage.ridbag.sbtree;
 
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
@@ -188,7 +188,7 @@ public class OMixedIndexRIDContainer implements Set<OIdentifiable> {
     }
 
     if (tree == null) {
-      final ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().get();
+      final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
       tree = new OIndexRIDContainerSBTree(fileId, (OAbstractPaginatedStorage) db.getStorage());
     }
 
@@ -206,7 +206,7 @@ public class OMixedIndexRIDContainer implements Set<OIdentifiable> {
 
     boolean treeWasCreated = false;
     if (tree == null) {
-      final ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().get();
+      final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
       tree = new OIndexRIDContainerSBTree(fileId, (OAbstractPaginatedStorage) db.getStorage());
       treeWasCreated = true;
     }
@@ -264,7 +264,7 @@ public class OMixedIndexRIDContainer implements Set<OIdentifiable> {
 
     if (c.size() > sizeDiff) {
       if (tree == null) {
-        final ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().get();
+        final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
         tree = new OIndexRIDContainerSBTree(fileId, (OAbstractPaginatedStorage) db.getStorage());
       }
 
@@ -312,7 +312,7 @@ public class OMixedIndexRIDContainer implements Set<OIdentifiable> {
       tree.delete();
       tree = null;
     } else if (fileId > 0) {
-      final ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().get();
+      final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
       tree = new OIndexRIDContainerSBTree(fileId, (OAbstractPaginatedStorage) db.getStorage());
       tree.delete();
     }

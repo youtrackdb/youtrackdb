@@ -3,8 +3,8 @@ package com.orientechnologies.orient.core.db.tool;
 import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
@@ -115,7 +115,7 @@ public class OGraphRepair {
       final OCommandOutputListener outputListener,
       final Map<String, List<String>> options,
       final boolean checkOnly) {
-    final ODatabaseDocumentInternal db = (ODatabaseDocumentInternal) graph;
+    final ODatabaseSessionInternal db = (ODatabaseSessionInternal) graph;
     final OMetadata metadata = db.getMetadata();
     final OSchema schema = metadata.getSchema();
     //    final OrientConfigurableGraph.Settings settings = graph.settings;
@@ -300,7 +300,7 @@ public class OGraphRepair {
       final OCommandOutputListener outputListener,
       final Map<String, List<String>> options,
       final boolean checkOnly) {
-    final ODatabaseDocumentInternal db = (ODatabaseDocumentInternal) graph;
+    final ODatabaseSessionInternal db = (ODatabaseSessionInternal) graph;
     final OMetadata metadata = db.getMetadata();
     final OSchema schema = metadata.getSchema();
 

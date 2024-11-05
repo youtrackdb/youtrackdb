@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.tx;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.Orient;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -69,7 +69,7 @@ public class OTransactionData {
     }
   }
 
-  public void fill(OTransactionInternal transaction, ODatabaseDocumentInternal database) {
+  public void fill(OTransactionInternal transaction, ODatabaseSessionInternal database) {
     transaction.fill(
         changes.stream()
             .map(

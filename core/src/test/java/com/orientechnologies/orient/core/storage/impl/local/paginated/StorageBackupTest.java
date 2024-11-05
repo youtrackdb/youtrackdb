@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.storage.impl.local.paginated;
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.OrientDBEmbedded;
@@ -94,8 +94,8 @@ public class StorageBackupTest {
     orientDB = new OrientDB("embedded:" + buildDirectory, OrientDBConfig.defaultConfig());
     final ODatabaseCompare compare =
         new ODatabaseCompare(
-            (ODatabaseDocumentInternal) orientDB.open(dbName, "admin", "admin"),
-            (ODatabaseDocumentInternal) orientDB.open(backupDbName, "admin", "admin"),
+            (ODatabaseSessionInternal) orientDB.open(dbName, "admin", "admin"),
+            (ODatabaseSessionInternal) orientDB.open(backupDbName, "admin", "admin"),
             System.out::println);
 
     Assert.assertTrue(compare.compare());
@@ -203,8 +203,8 @@ public class StorageBackupTest {
     orientDB = new OrientDB("embedded:" + buildDirectory, OrientDBConfig.defaultConfig());
     final ODatabaseCompare compare =
         new ODatabaseCompare(
-            (ODatabaseDocumentInternal) orientDB.open(dbName, "admin", "admin"),
-            (ODatabaseDocumentInternal) orientDB.open(backupDbName, "admin", "admin"),
+            (ODatabaseSessionInternal) orientDB.open(dbName, "admin", "admin"),
+            (ODatabaseSessionInternal) orientDB.open(backupDbName, "admin", "admin"),
             System.out::println);
 
     Assert.assertTrue(compare.compare());
@@ -311,8 +311,8 @@ public class StorageBackupTest {
 
     final ODatabaseCompare compare =
         new ODatabaseCompare(
-            (ODatabaseDocumentInternal) orientDB.open(dbName, "admin", "admin"),
-            (ODatabaseDocumentInternal) orientDB.open(backupDbName, "admin", "admin"),
+            (ODatabaseSessionInternal) orientDB.open(dbName, "admin", "admin"),
+            (ODatabaseSessionInternal) orientDB.open(backupDbName, "admin", "admin"),
             System.out::println);
 
     Assert.assertTrue(compare.compare());

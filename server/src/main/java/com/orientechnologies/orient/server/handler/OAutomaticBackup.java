@@ -29,7 +29,7 @@ import com.orientechnologies.common.parser.OVariableParser;
 import com.orientechnologies.common.parser.OVariableParserListener;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.tool.ODatabaseExport;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -183,7 +183,7 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
                 if (excludeDatabases.contains(dbName)) include = false;
 
                 if (include) {
-                  ODatabaseDocumentInternal db = null;
+                  ODatabaseSessionInternal db = null;
                   try {
                     db = serverInstance.getDatabases().openNoAuthorization(dbName);
 
@@ -394,7 +394,7 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
   }
 
   protected void incrementalBackupDatabase(
-      final String dbURL, String iPath, final ODatabaseDocumentInternal db) throws IOException {
+      final String dbURL, String iPath, final ODatabaseSessionInternal db) throws IOException {
     // APPEND DB NAME TO THE DIRECTORY NAME
     if (!iPath.endsWith("/")) iPath += "/";
     iPath += db.getName();
@@ -410,7 +410,7 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
   }
 
   protected void fullBackupDatabase(
-      final String dbURL, final String iPath, final ODatabaseDocumentInternal db)
+      final String dbURL, final String iPath, final ODatabaseSessionInternal db)
       throws IOException {
     OLogManager.instance()
         .info(this, "AutomaticBackup: executing full backup of database '%s' to %s", dbURL, iPath);
@@ -449,7 +449,7 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
   }
 
   protected void exportDatabase(
-      final String dbURL, final String iPath, final ODatabaseDocumentInternal db)
+      final String dbURL, final String iPath, final ODatabaseSessionInternal db)
       throws IOException {
 
     OLogManager.instance()

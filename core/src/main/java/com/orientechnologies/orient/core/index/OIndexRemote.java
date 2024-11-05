@@ -20,8 +20,8 @@
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.common.listener.OProgressListener;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -183,7 +183,7 @@ public abstract class OIndexRemote implements OIndex {
       }
     }
 
-    ODatabaseDocumentInternal database = getDatabase();
+    ODatabaseSessionInternal database = getDatabase();
     if (database.getTransaction().isActive()) {
       OTransaction singleTx = database.getTransaction();
       singleTx.addIndexEntry(this, getName(), OTransactionIndexChanges.OPERATION.PUT, key, value);
@@ -197,7 +197,7 @@ public abstract class OIndexRemote implements OIndex {
   }
 
   public boolean remove(final Object key) {
-    ODatabaseDocumentInternal database = getDatabase();
+    ODatabaseSessionInternal database = getDatabase();
     if (database.getTransaction().isActive()) {
       database.getTransaction().addIndexEntry(this, getName(), OPERATION.REMOVE, key, null);
     } else {
@@ -210,7 +210,7 @@ public abstract class OIndexRemote implements OIndex {
 
   public boolean remove(final Object key, final OIdentifiable rid) {
 
-    ODatabaseDocumentInternal database = getDatabase();
+    ODatabaseSessionInternal database = getDatabase();
     if (database.getTransaction().isActive()) {
       database.getTransaction().addIndexEntry(this, getName(), OPERATION.REMOVE, key, rid);
     } else {
@@ -532,7 +532,7 @@ public abstract class OIndexRemote implements OIndex {
     return this.name.compareTo(name);
   }
 
-  protected ODatabaseDocumentInternal getDatabase() {
+  protected ODatabaseSessionInternal getDatabase() {
     return ODatabaseRecordThreadLocal.instance().get();
   }
 }

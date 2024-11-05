@@ -13,17 +13,11 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.client.db.ODatabaseHelper;
 import com.orientechnologies.orient.client.remote.OStorageRemote;
 import com.orientechnologies.orient.core.db.ODatabase;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
-import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTxInternal;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -34,11 +28,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -47,26 +36,12 @@ import org.testng.annotations.Test;
  */
 public class MultipleDBTest extends DocumentDBBaseTest {
 
-  @Parameters(value = "url")
-  public MultipleDBTest(@Optional String url) {
-    super(url, "-");
+  public MultipleDBTest() {}
+
+  @Parameters(value = "remote")
+  public MultipleDBTest(boolean remote) {
+    super(remote);
   }
-
-  @BeforeClass
-  @Override
-  public void beforeClass() throws Exception {}
-
-  @BeforeMethod
-  @Override
-  public void beforeMethod() throws Exception {}
-
-  @AfterMethod
-  @Override
-  public void afterMethod() throws Exception {}
-
-  @AfterClass
-  @Override
-  public void afterClass() throws Exception {}
 
   @Test
   public void testObjectMultipleDBsThreaded() throws Exception {
@@ -74,133 +49,99 @@ public class MultipleDBTest extends DocumentDBBaseTest {
     final int operations_read = 1;
     final int dbs = 10;
 
-    final Set<String> times = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+    final Set<String> times = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
-    Set<Future> threads = new HashSet<Future>();
+    Set<Future<Void>> threads = new HashSet<>();
     ExecutorService executorService = Executors.newFixedThreadPool(4);
-
     for (int i = 0; i < dbs; i++) {
-
-      final String dbUrl = url + i;
-
+      var dbName = this.dbName + i;
       Callable<Void> t =
-          new Callable<Void>() {
+          () -> {
+            dropDatabase(dbName);
+            createDatabase(dbName);
+            try {
+              var db = createSessionInstance(dbName);
 
-            @Override
-            public Void call() throws InterruptedException, IOException {
-              OObjectDatabaseTxInternal db = new OObjectDatabaseTxInternal(dbUrl);
+              db.set(ODatabase.ATTRIBUTES.MINIMUMCLUSTERS, 1);
+              db.getMetadata().getSchema().getOrCreateClass("DummyObject");
 
-              ODatabaseHelper.deleteDatabase(db, getStorageType());
-              ODatabaseHelper.createDatabase(db, dbUrl, getStorageType());
-              try {
-                if (db.isClosed()) {
-                  db.open("admin", "admin");
-                }
+              long start = System.currentTimeMillis();
+              for (int j = 0; j < operations_write; j++) {
+                var dummy = db.newInstance("DummyObject");
+                dummy.setProperty("name", "name" + j);
 
-                db.set(ODatabase.ATTRIBUTES.MINIMUMCLUSTERS, 1);
-                db.getMetadata().getSchema().getOrCreateClass("DummyObject");
-                db.getEntityManager().registerEntityClass(DummyObject.class);
+                db.begin();
+                dummy = db.save(dummy);
+                db.commit();
 
-                long start = System.currentTimeMillis();
-                for (int j = 0; j < operations_write; j++) {
-                  DummyObject dummy = new DummyObject("name" + j);
-
-                  db.begin();
-                  dummy = db.save(dummy);
-                  db.commit();
-
-                  Assert.assertEquals(
-                      ((ORID) dummy.getId()).getClusterPosition(), j, "RID was " + dummy.getId());
-                }
-                long end = System.currentTimeMillis();
-
-                String time =
-                    "("
-                        + getDbId(db)
-                        + ") "
-                        + "Executed operations (WRITE) in: "
-                        + (end - start)
-                        + " ms";
-                // System.out.println(time);
-                times.add(time);
-
-                start = System.currentTimeMillis();
-                for (int j = 0; j < operations_read; j++) {
-                  List<DummyObject> l =
-                      db.query(new OSQLSynchQuery<DummyObject>(" select * from DummyObject "));
-                  Assert.assertEquals(l.size(), operations_write);
-
-                  // if ((j + 1) % 20000 == 0) {
-                  // System.out.println("(" + getDbId(tx) + ") " + "Operations (READ) executed: " +
-                  // j + 1);
-                  // }
-                }
-                end = System.currentTimeMillis();
-
-                time =
-                    "("
-                        + getDbId(db)
-                        + ") "
-                        + "Executed operations (READ) in: "
-                        + (end - start)
-                        + " ms";
-                // System.out.println(time);
-                times.add(time);
-
-                db.close();
-
-              } finally {
-                // System.out.println("(" + getDbId(tx) + ") " + "Dropping");
-                // System.out.flush();
-                ODatabaseHelper.deleteDatabase(db, getStorageType());
-                // System.out.println("(" + getDbId(tx) + ") " + "Dropped");
-                // System.out.flush();
+                Assert.assertEquals(
+                    dummy.getIdentity().getClusterPosition(), j, "RID was " + dummy.getIdentity());
               }
-              return null;
+              long end = System.currentTimeMillis();
+
+              String time =
+                  "("
+                      + getDbId(db)
+                      + ") "
+                      + "Executed operations (WRITE) in: "
+                      + (end - start)
+                      + " ms";
+              // System.out.println(time);
+              times.add(time);
+
+              start = System.currentTimeMillis();
+              for (int j = 0; j < operations_read; j++) {
+                List<DummyObject> l =
+                    db.query(new OSQLSynchQuery<DummyObject>(" select * from DummyObject "));
+                Assert.assertEquals(l.size(), operations_write);
+              }
+              end = System.currentTimeMillis();
+
+              time =
+                  "("
+                      + getDbId(db)
+                      + ") "
+                      + "Executed operations (READ) in: "
+                      + (end - start)
+                      + " ms";
+              // System.out.println(time);
+              times.add(time);
+
+              db.close();
+
+            } finally {
+              dropDatabase(dbName);
             }
+            return null;
           };
 
       threads.add(executorService.submit(t));
     }
 
-    for (Future future : threads) {
+    for (Future<Void> future : threads) {
       future.get();
     }
-
-    // System.out.println("Test testObjectMultipleDBsThreaded ended");
   }
 
   @Test
   public void testDocumentMultipleDBsThreaded() throws Exception {
-    if (url.startsWith("remote")) {
-      ODatabaseDocumentTx.closeAll();
-    }
     final int operations_write = 1000;
     final int operations_read = 1;
     final int dbs = 10;
 
-    final Set<String> times = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+    final Set<String> times = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
-    Set<Future> results = new HashSet<Future>();
+    Set<Future<Void>> results = new HashSet<>();
     ExecutorService executorService = Executors.newFixedThreadPool(4);
-
     for (int i = 0; i < dbs; i++) {
-
-      final String dbUrl = url + i;
-
+      var dbName = this.dbName + i;
       Callable<Void> t =
           () -> {
-            ODatabaseDocumentInternal db = new ODatabaseDocumentTx(dbUrl);
+            dropDatabase(dbName);
+            createDatabase(dbName);
 
-            ODatabaseHelper.deleteDatabase(db, getStorageType());
-            ODatabaseHelper.createDatabase(db, dbUrl, getStorageType());
-
-            try {
-              if (db.isClosed()) {
-                db.open("admin", "admin");
-              }
-
-              db.getMetadata().getSchema().createClass("DummyObject", 1, null);
+            try (var db = createSessionInstance(dbName)) {
+              db.getMetadata().getSchema().createClass("DummyObject", 1);
 
               long start = System.currentTimeMillis();
               for (int j = 0; j < operations_write; j++) {
@@ -244,9 +185,7 @@ public class MultipleDBTest extends DocumentDBBaseTest {
               times.add(time);
 
             } finally {
-              db.close();
-
-              ODatabaseHelper.deleteDatabase(db, getStorageType());
+              dropDatabase(dbName);
             }
             return null;
           };
@@ -254,12 +193,12 @@ public class MultipleDBTest extends DocumentDBBaseTest {
       results.add(executorService.submit(t));
     }
 
-    for (Future future : results) {
+    for (Future<Void> future : results) {
       future.get();
     }
   }
 
-  private String getDbId(ODatabaseInternal tx) {
+  private String getDbId(ODatabaseInternal<?> tx) {
     if (tx.getStorage() instanceof OStorageRemote) {
       return tx.getURL() + " - sessionId: " + ((OStorageRemote) tx.getStorage()).getSessionId();
     } else {

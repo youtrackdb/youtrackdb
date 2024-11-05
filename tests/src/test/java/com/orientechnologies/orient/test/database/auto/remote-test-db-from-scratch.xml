@@ -1,12 +1,10 @@
 <!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd">
 <suite name="Remote Test Suite" verbose="2" parallel="false">
-    <parameter name="url" value="remote:localhost/demo"/>
+    <parameter name="remote" value="true"/>
     <test name="DbCreation">
         <classes>
-            <class name="com.orientechnologies.orient.test.database.auto.RunServerTest"/>
             <class name="com.orientechnologies.orient.test.database.auto.DbCreationTest"/>
             <class name="com.orientechnologies.orient.test.database.auto.DbListenerTest"/>
-            <class name="com.orientechnologies.orient.test.database.auto.ServerTest"/>
             <class name="com.orientechnologies.orient.test.database.auto.DBMethodsTest"/>
             <class name="com.orientechnologies.orient.test.database.auto.DbCopyTest"/>
         </classes>
@@ -57,7 +55,6 @@
     <test name="Index">
         <classes>
             <class name="com.orientechnologies.orient.test.database.auto.DateIndexTest"/>
-            <class name="com.orientechnologies.orient.test.database.auto.SQLEscapingTest"/>
             <class name="com.orientechnologies.orient.test.database.auto.SQLSelectHashIndexReuseTest"/>
             <class name="com.orientechnologies.orient.test.database.auto.IndexTest"/>
             <class name="com.orientechnologies.orient.test.database.auto.IndexClusterTest"/>
@@ -146,19 +143,15 @@
             <class name="com.orientechnologies.orient.test.database.auto.MultipleDBTest"/>
             <class name="com.orientechnologies.orient.test.database.auto.ConcurrentUpdatesTest"/>
             <class name="com.orientechnologies.orient.test.database.auto.ConcurrentQueriesTest"/>
-            <class name="com.orientechnologies.orient.test.database.auto.DatabaseThreadFactoryTest"/>
             <class name="com.orientechnologies.orient.test.database.auto.CollateTest"/>
             <class name="com.orientechnologies.orient.test.database.auto.OEmbeddedRidBagTest"/>
             <class name="com.orientechnologies.orient.test.database.auto.OSBTreeRidBagTest"/>
-            <class name="com.orientechnologies.orient.test.database.auto.PoolTest"/>
             <class name="com.orientechnologies.orient.test.database.auto.RemoteProtocolCommandsTest"/>
-            <class name="com.orientechnologies.orient.test.database.auto.RecordReloadTest"/>
         </classes>
     </test>
     <test name="End">
         <classes>
             <class name="com.orientechnologies.orient.test.database.auto.DbClosedTest"/>
-            <class name="com.orientechnologies.orient.test.database.auto.DbDeleteTest"/>
         </classes>
     </test>
 </suite>

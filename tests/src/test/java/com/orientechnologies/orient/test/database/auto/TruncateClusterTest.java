@@ -7,16 +7,15 @@ import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.testng.Assert;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test
 public class TruncateClusterTest extends DocumentDBBaseTest {
 
-  @Parameters(value = "url")
-  public TruncateClusterTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public TruncateClusterTest(boolean remote) {
+    super(remote);
   }
 
   public void testSimpleCluster() {

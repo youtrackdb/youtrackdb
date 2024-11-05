@@ -15,7 +15,7 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.serialization.serializer.OJSONWriter;
@@ -44,7 +44,7 @@ public class OServerCommandPostUploadSingleFile extends OHttpMultipartRequestCom
   protected String fileName;
   protected String fileType;
   protected long now;
-  protected ODatabaseDocumentInternal database;
+  protected ODatabaseSessionInternal database;
 
   @Override
   public boolean execute(final OHttpRequest iRequest, OHttpResponse iResponse) throws Exception {

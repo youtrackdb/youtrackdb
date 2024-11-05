@@ -28,11 +28,12 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import org.testng.Assert;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-/** only for remote usage (it requires registered LiveQuery plugin) */
+/**
+ * only for remote usage (it requires registered LiveQuery plugin)
+ */
 @Test(groups = "Query")
 public class LiveQueryTest extends DocumentDBBaseTest implements OCommandOutputListener {
 
@@ -60,9 +61,9 @@ public class LiveQueryTest extends DocumentDBBaseTest implements OCommandOutputL
     }
   }
 
-  @Parameters(value = {"url"})
-  public LiveQueryTest(@Optional String url) {
-    super(url);
+  @Parameters(value = {"remote"})
+  public LiveQueryTest(boolean remote) {
+    super(remote);
   }
 
   @Test(enabled = false)

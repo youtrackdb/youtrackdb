@@ -17,7 +17,7 @@ package com.orientechnologies.security.auditing;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.Orient;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDBInternal;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.OElement;
@@ -88,8 +88,8 @@ public class OSystemDBImporter extends Thread {
   }
 
   private void importDB(final String dbName) {
-    ODatabaseDocumentInternal db = null;
-    ODatabaseDocumentInternal sysdb = null;
+    ODatabaseSessionInternal db = null;
+    ODatabaseSessionInternal sysdb = null;
 
     try {
       db = context.openNoAuthorization(dbName);

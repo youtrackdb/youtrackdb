@@ -24,7 +24,7 @@ import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.OMetadataInternal;
@@ -166,7 +166,7 @@ public class OCommandExecutorSQLCreateEdge extends OCommandExecutorSQLSetAware
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
 
-    ODatabaseDocumentInternal db = getDatabase();
+    ODatabaseSessionInternal db = getDatabase();
     final List<Object> edges = new ArrayList<Object>();
     Set<OIdentifiable> fromIds = null;
     Set<OIdentifiable> toIds = null;

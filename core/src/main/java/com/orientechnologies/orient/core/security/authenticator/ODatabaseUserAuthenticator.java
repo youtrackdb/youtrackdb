@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.security.authenticator;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OSecurityAccessException;
 import com.orientechnologies.orient.core.metadata.security.OSecurityShared;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
@@ -16,6 +16,7 @@ import com.orientechnologies.orient.core.security.OTokenSign;
 import com.orientechnologies.orient.enterprise.channel.binary.OTokenSecurityException;
 
 public class ODatabaseUserAuthenticator extends OSecurityAuthenticatorAbstract {
+
   private OTokenSign tokenSign;
 
   @Override
@@ -41,11 +42,10 @@ public class ODatabaseUserAuthenticator extends OSecurityAuthenticatorAbstract {
         throw new OSecurityAccessException(session.getName(), "Token not valid");
       }
 
-      OUser user = token.getToken().getUser((ODatabaseDocumentInternal) session);
+      OUser user = token.getToken().getUser((ODatabaseSessionInternal) session);
       if (user == null && token.getToken().getUserName() != null) {
         OSecurityShared databaseSecurity =
-            (OSecurityShared)
-                ((ODatabaseDocumentInternal) session).getSharedContext().getSecurity();
+            (OSecurityShared) ((ODatabaseSessionInternal) session).getSharedContext().getSecurity();
         user = databaseSecurity.getUserInternal(session, token.getToken().getUserName());
       }
       return user;
@@ -61,13 +61,14 @@ public class ODatabaseUserAuthenticator extends OSecurityAuthenticatorAbstract {
 
     String dbName = session.getName();
     OSecurityShared databaseSecurity =
-        (OSecurityShared) ((ODatabaseDocumentInternal) session).getSharedContext().getSecurity();
+        (OSecurityShared) ((ODatabaseSessionInternal) session).getSharedContext().getSecurity();
     OUser user = databaseSecurity.getUserInternal(session, username);
     if (user == null) {
       return null;
     }
-    if (user.getAccountStatus() != OSecurityUser.STATUSES.ACTIVE)
+    if (user.getAccountStatus() != OSecurityUser.STATUSES.ACTIVE) {
       throw new OSecurityAccessException(dbName, "User '" + username + "' is not active");
+    }
 
     // CHECK USER & PASSWORD
     if (!user.checkPassword(password)) {

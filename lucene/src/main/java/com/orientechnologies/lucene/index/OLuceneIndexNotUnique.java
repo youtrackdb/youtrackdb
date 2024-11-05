@@ -22,7 +22,7 @@ import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.lucene.OLuceneIndex;
 import com.orientechnologies.lucene.engine.OLuceneIndexEngine;
 import com.orientechnologies.lucene.tx.OLuceneTxChanges;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OInvalidIndexEngineIdException;
 import com.orientechnologies.orient.core.id.ORID;
@@ -63,7 +63,7 @@ public class OLuceneIndexNotUnique extends OIndexAbstract implements OLuceneInde
   @Override
   public boolean remove(final Object key, final OIdentifiable rid) {
 
-    ODatabaseDocumentInternal database = getDatabase();
+    ODatabaseSessionInternal database = getDatabase();
     if (key != null) {
       OTransaction transaction = database.getTransaction();
       if (transaction.isActive()) {
@@ -88,7 +88,7 @@ public class OLuceneIndexNotUnique extends OIndexAbstract implements OLuceneInde
   @Override
   public boolean remove(final Object key) {
     if (key != null) {
-      ODatabaseDocumentInternal database = getDatabase();
+      ODatabaseSessionInternal database = getDatabase();
       OTransaction transaction = database.getTransaction();
       if (transaction.isActive()) {
 
@@ -368,7 +368,7 @@ public class OLuceneIndexNotUnique extends OIndexAbstract implements OLuceneInde
       }
     }
     if (key != null) {
-      ODatabaseDocumentInternal db = getDatabase();
+      ODatabaseSessionInternal db = getDatabase();
       OTransaction transaction = db.getTransaction();
 
       if (transaction.isActive()) {

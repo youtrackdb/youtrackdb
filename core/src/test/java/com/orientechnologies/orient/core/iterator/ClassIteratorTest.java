@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.iterator;
 
 import com.orientechnologies.BaseMemoryDatabase;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -73,7 +73,7 @@ public class ClassIteratorTest extends BaseMemoryDatabase {
     // Use descending class iterator.
     final ORecordIteratorClass<ODocument> personIter =
         new ORecordIteratorClassDescendentOrder<ODocument>(
-            (ODatabaseDocumentInternal) db, (ODatabaseDocumentInternal) db, "Person", true);
+            (ODatabaseSessionInternal) db, (ODatabaseSessionInternal) db, "Person", true);
 
     personIter.setRange(null, null); // open range
 
@@ -99,7 +99,7 @@ public class ClassIteratorTest extends BaseMemoryDatabase {
 
     final ORecordIteratorClass<ODocument> personIter =
         new ORecordIteratorClass<ODocument>(
-            (ODatabaseDocumentInternal) db, "PersonMultipleClusters", true);
+            (ODatabaseSessionInternal) db, "PersonMultipleClusters", true);
 
     int docNum = 0;
 

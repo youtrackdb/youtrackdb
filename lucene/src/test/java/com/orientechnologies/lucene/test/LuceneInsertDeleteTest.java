@@ -26,7 +26,6 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.io.InputStream;
@@ -76,7 +75,7 @@ public class LuceneInsertDeleteTest extends BaseLuceneTest {
     db.commit();
 
     OIdentifiable next = (OIdentifiable) coll.iterator().next();
-    doc = db.load(next.<ORecord>getRecord());
+    doc = db.load(next.getIdentity());
 
     db.begin();
     doc = db.bindToSession(doc);

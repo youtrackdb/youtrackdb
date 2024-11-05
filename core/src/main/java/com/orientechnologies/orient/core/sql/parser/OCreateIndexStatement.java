@@ -4,7 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -69,7 +69,7 @@ public class OCreateIndexStatement extends ODDLStatement {
   }
 
   Object execute(OCommandContext ctx) {
-    final ODatabaseDocumentInternal database = (ODatabaseDocumentInternal) ctx.getDatabase();
+    final ODatabaseSessionInternal database = (ODatabaseSessionInternal) ctx.getDatabase();
 
     if (database.getMetadata().getIndexManagerInternal().existsIndex(name.getValue())) {
       if (ifNotExists) {
@@ -168,7 +168,7 @@ public class OCreateIndexStatement extends ODDLStatement {
       OClass oClass,
       String[] fields,
       String engine,
-      ODatabaseDocumentInternal database,
+      ODatabaseSessionInternal database,
       List<OCollate> collatesList,
       ODocument metadataDoc) {
     OIndex idx;

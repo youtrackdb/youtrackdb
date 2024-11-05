@@ -2,8 +2,8 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordLazyMap;
 import com.orientechnologies.orient.core.db.record.ORecordLazyMultiValue;
@@ -97,8 +97,7 @@ public class FindReferencesStep extends AbstractExecutionStep {
             targetClusterNames.add(clusterName);
           }
         }
-        OSchema schema =
-            ((ODatabaseDocumentInternal) db).getMetadata().getImmutableSchemaSnapshot();
+        OSchema schema = ((ODatabaseSessionInternal) db).getMetadata().getImmutableSchemaSnapshot();
         assert this.classes != null;
         for (OIdentifier className : this.classes) {
           OClass clazz = schema.getClass(className.getStringValue());
@@ -116,7 +115,7 @@ public class FindReferencesStep extends AbstractExecutionStep {
         .map(
             clusterName ->
                 new ORecordIteratorCluster<>(
-                    (ODatabaseDocumentInternal) db, db.getClusterIdByName(clusterName)))
+                    (ODatabaseSessionInternal) db, db.getClusterIdByName(clusterName)))
         .collect(Collectors.toList());
   }
 

@@ -1,12 +1,11 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import java.util.List;
 import java.util.Map;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -15,38 +14,41 @@ import org.testng.annotations.Test;
  * @since 7/3/14
  */
 @Test
-public abstract class DocumentDBBaseTest extends BaseTest<ODatabaseDocumentInternal> {
+public abstract class DocumentDBBaseTest extends BaseTest<ODatabaseSessionInternal> {
+
   protected DocumentDBBaseTest() {}
 
-  @Parameters(value = "url")
-  protected DocumentDBBaseTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  protected DocumentDBBaseTest(boolean remote) {
+    super(remote);
   }
 
-  @Parameters(value = "url")
-  protected DocumentDBBaseTest(@Optional String url, String prefix) {
-    super(url, prefix);
+  public DocumentDBBaseTest(boolean remote, String prefix) {
+    super(remote, prefix);
   }
 
-  protected ODatabaseDocumentInternal createDatabaseInstance(String url) {
-    return new ODatabaseDocumentTx(url);
+  @Override
+  protected ODatabaseSessionInternal createSessionInstance(
+      OrientDB orientDB, String dbName, String user, String password) {
+    var session = orientDB.open(dbName, user, password);
+    return (ODatabaseSessionInternal) session;
   }
 
-  protected List<ODocument> executeQuery(String sql, ODatabaseDocumentInternal db, Object... args) {
+  protected List<ODocument> executeQuery(String sql, ODatabaseSessionInternal db, Object... args) {
     return db.query(sql, args).stream()
         .map(OResult::toElement)
         .map(element -> (ODocument) element)
         .toList();
   }
 
-  protected List<ODocument> executeQuery(String sql, ODatabaseDocumentInternal db, Map args) {
+  protected List<ODocument> executeQuery(String sql, ODatabaseSessionInternal db, Map args) {
     return db.query(sql, args).stream()
         .map(OResult::toElement)
         .map(element -> (ODocument) element)
         .toList();
   }
 
-  protected List<ODocument> executeQuery(String sql, ODatabaseDocumentInternal db) {
+  protected List<ODocument> executeQuery(String sql, ODatabaseSessionInternal db) {
     return db.query(sql).stream()
         .map(OResult::toElement)
         .map(element -> (ODocument) element)
@@ -60,7 +62,7 @@ public abstract class DocumentDBBaseTest extends BaseTest<ODatabaseDocumentInter
         .toList();
   }
 
-  protected List<ODocument> executeQuery(String sql, Map args) {
+  protected List<ODocument> executeQuery(String sql, Map<?, ?> args) {
     return database.query(sql, args).stream()
         .map(OResult::toElement)
         .map(element -> (ODocument) element)

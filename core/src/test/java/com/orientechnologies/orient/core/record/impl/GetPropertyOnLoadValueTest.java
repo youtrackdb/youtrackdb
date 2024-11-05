@@ -2,8 +2,16 @@ package com.orientechnologies.orient.core.record.impl;
 
 import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.OVertex;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.IntStream;
 import org.junit.Assert;
@@ -46,9 +54,10 @@ public class GetPropertyOnLoadValueTest extends BaseMemoryDatabase {
             });
     doc.save();
     db.commit();
+
     db.begin();
-    doc.load();
-    doc.getPropertyOnLoadValue(OVertex.DIRECTION_OUT_PREFIX + "myLink");
+    var loadedDoc = db.<OElement>load(doc.getIdentity());
+    loadedDoc.getPropertyOnLoadValue(OVertex.DIRECTION_OUT_PREFIX + "myLink");
   }
 
   @Test
@@ -60,7 +69,7 @@ public class GetPropertyOnLoadValueTest extends BaseMemoryDatabase {
     doc.save();
     db.commit();
     db.begin();
-    doc.load();
+    doc = db.load(doc.getIdentity());
     List<Integer> storedList = doc.getProperty("list");
     storedList.add(4);
     doc.save();
@@ -77,7 +86,7 @@ public class GetPropertyOnLoadValueTest extends BaseMemoryDatabase {
     doc.save();
     db.commit();
     db.begin();
-    doc.load();
+    doc = db.load(doc.getIdentity());
     Set<Integer> storedSet = doc.getProperty("set");
     storedSet.add(4);
     doc.save();
@@ -102,7 +111,7 @@ public class GetPropertyOnLoadValueTest extends BaseMemoryDatabase {
     db.commit();
     db.begin();
     doc.setLazyLoad(true);
-    doc.load();
+    doc = db.load(doc.getIdentity());
     doc.setProperty("stringBlob", oBlob2);
     doc.save();
     ORecordBytes onLoad = doc.getPropertyOnLoadValue("stringBlob");

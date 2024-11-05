@@ -15,13 +15,16 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
+import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OrientDBConfigBuilder;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OSecurityException;
+import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.security.ORestrictedOperation;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.OSecurityShared;
-import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
@@ -32,166 +35,189 @@ import java.util.Collection;
 import java.util.Set;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test
 public class RestrictedTest extends DocumentDBBaseTest {
 
-  private ODocument adminRecord;
-  private ODocument writerRecord;
-  private OUser readUser;
+  private ORID adminRecordId;
+  private ORID writerRecordId;
 
-  private OUser readerUser = null;
   private ORole readerRole = null;
 
-  @Parameters(value = "url")
-  public RestrictedTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public RestrictedTest(boolean remote) {
+    super(remote);
+  }
+
+  @Override
+  protected OrientDBConfig createConfig(OrientDBConfigBuilder builder) {
+    builder.addConfig(OGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
+    return builder.build();
   }
 
   @Test
   public void testCreateRestrictedClass() {
-    database.open("admin", "admin");
+    database = createSessionInstance();
     database
         .getMetadata()
         .getSchema()
         .createClass("CMSDocument", database.getMetadata().getSchema().getClass("ORestricted"));
 
     database.begin();
-    adminRecord = new ODocument("CMSDocument").field("user", "admin").save();
+    var adminRecord = new ODocument("CMSDocument").field("user", "admin").save();
+    this.adminRecordId = adminRecord.getIdentity();
     database.commit();
 
-    adminRecord.reload();
-
-    readerUser = database.getMetadata().getSecurity().getUser("reader");
+    database.begin();
     readerRole = database.getMetadata().getSecurity().getRole("reader");
+    database.commit();
+
+    Assert.assertTrue(adminRecord.isUnloaded());
   }
 
   @Test(dependsOnMethods = "testCreateRestrictedClass")
   public void testFilteredQuery() throws IOException {
-    database.open("writer", "writer");
+    database = createSessionInstance("writer", "writer");
+    database.begin();
     OResultSet result = database.query("select from CMSDocument");
     Assert.assertEquals(result.stream().count(), 0);
+    database.commit();
   }
 
   @Test(dependsOnMethods = "testFilteredQuery")
   public void testCreateAsWriter() throws IOException {
-    database.open("writer", "writer");
+    database = createSessionInstance("writer", "writer");
     database.begin();
-    writerRecord = new ODocument("CMSDocument").field("user", "writer").save();
+    var writerRecord = new ODocument("CMSDocument").field("user", "writer").save();
+    this.writerRecordId = writerRecord.getIdentity();
     database.commit();
   }
 
   @Test(dependsOnMethods = "testCreateAsWriter")
   public void testFilteredQueryAsReader() throws IOException {
-    database.open("reader", "reader");
+    database = createSessionInstance("reader", "reader");
+
+    database.begin();
     OResultSet result = database.query("select from CMSDocument");
     Assert.assertEquals(result.stream().count(), 0);
+    database.commit();
   }
 
   @Test(dependsOnMethods = "testFilteredQueryAsReader")
   public void testFilteredQueryAsAdmin() throws IOException {
-    database.open("admin", "admin");
+    database = createSessionInstance();
+
+    database.begin();
     OResultSet result = database.query("select from CMSDocument where user = 'writer'");
     Assert.assertEquals(result.stream().count(), 1);
+    database.commit();
   }
 
   @Test(dependsOnMethods = "testFilteredQueryAsAdmin")
   public void testFilteredQueryAsWriter() throws IOException {
-    database.open("writer", "writer");
+    database = createSessionInstance("writer", "writer");
+
+    database.begin();
     OResultSet result = database.query("select from CMSDocument");
     Assert.assertEquals(result.stream().count(), 1);
+    database.commit();
   }
 
   @Test(dependsOnMethods = "testFilteredQueryAsWriter")
   public void testFilteredDirectReadAsWriter() throws IOException {
-    database.open("writer", "writer");
-    Assert.assertNull(database.load(adminRecord));
+    database = createSessionInstance("writer", "writer");
+    database.begin();
+    Assert.assertNull(database.load(adminRecordId.getIdentity()));
+    database.commit();
   }
 
   @Test(dependsOnMethods = "testFilteredDirectReadAsWriter")
   public void testFilteredDirectUpdateAsWriter() throws IOException {
-    database.open("writer", "writer");
-    adminRecord.field("user", "writer-hacker");
+    database = createSessionInstance("writer", "writer");
+    database.begin();
     try {
-      database.begin();
+      var adminRecord = new ODocument(this.adminRecordId);
+      adminRecord.field("user", "writer-hacker");
       adminRecord.save();
       database.commit();
-    } catch (OSecurityException e) {
-      // OK AS EXCEPTION
-    } catch (ORecordNotFoundException e) {
+    } catch (OSecurityException | ORecordNotFoundException e) {
       // OK AS EXCEPTION
     }
     database.close();
 
-    database.open("admin", "admin");
-    Assert.assertEquals(
-        ((ODocument) database.load(adminRecord.getIdentity())).field("user"), "admin");
+    database = createSessionInstance();
+    database.begin();
+    var adminRecord = database.<ODocument>load(this.adminRecordId);
+    Assert.assertEquals(adminRecord.field("user"), "admin");
+    database.commit();
   }
 
   @Test(dependsOnMethods = "testFilteredDirectUpdateAsWriter")
   public void testFilteredDirectDeleteAsWriter() throws IOException {
-    database.open("writer", "writer");
+    database = createSessionInstance("writer", "writer");
     try {
       database.begin();
-      adminRecord.delete();
+      database.delete(adminRecordId);
       database.commit();
-    } catch (OSecurityException e) {
-      // OK AS EXCEPTION
-    } catch (ORecordNotFoundException e) {
+    } catch (OSecurityException | ORecordNotFoundException e) {
       // OK AS EXCEPTION
     }
     database.close();
 
-    database.open("admin", "admin");
-    adminRecord.reload();
+    database = createSessionInstance();
+    database.begin();
+    var adminRecord = database.<ODocument>load(this.adminRecordId);
     Assert.assertEquals(adminRecord.field("user"), "admin");
+    database.commit();
   }
 
   @Test(dependsOnMethods = "testFilteredDirectDeleteAsWriter")
   public void testFilteredHackingAllowFieldAsWriter() throws IOException {
-    database.open("writer", "writer");
+    database = createSessionInstance("writer", "writer");
     try {
+      database.begin();
       // FORCE LOADING
+      ODocument adminRecord = new ODocument(this.adminRecordId);
       Set<OIdentifiable> allows = adminRecord.field(OSecurityShared.ALLOW_ALL_FIELD);
       allows.add(
           database.getMetadata().getSecurity().getUser(database.getUser().getName()).getIdentity());
-      database.begin();
       adminRecord.save();
       database.commit();
-    } catch (OSecurityException e) {
-      // OK AS EXCEPTION
-    } catch (ORecordNotFoundException e) {
+    } catch (OSecurityException | ORecordNotFoundException e) {
       // OK AS EXCEPTION
     }
     database.close();
 
-    database.open("admin", "admin");
-    adminRecord.reload();
+    database = createSessionInstance();
   }
 
   @Test(dependsOnMethods = "testFilteredHackingAllowFieldAsWriter")
   public void testAddReaderAsRole() throws IOException {
-    database.open("writer", "writer");
-    Set<OIdentifiable> allows =
-        ((ODocument) writerRecord.reload()).field(OSecurityShared.ALLOW_ALL_FIELD);
-    allows.add(readerRole.getIdentity());
+    database = createSessionInstance("writer", "writer");
     database.begin();
+    var writerRecord = database.<ODocument>load(this.writerRecordId);
+    Set<OIdentifiable> allows = writerRecord.field(OSecurityShared.ALLOW_ALL_FIELD);
+    allows.add(readerRole.getIdentity());
+
     writerRecord.save();
     database.commit();
   }
 
   @Test(dependsOnMethods = "testAddReaderAsRole")
   public void testReaderCanSeeWriterDocumentAfterPermission() throws IOException {
-    database.open("reader", "reader");
-    Assert.assertNotNull(database.load(writerRecord));
+    database = createSessionInstance("reader", "reader");
+    database.begin();
+    Assert.assertNotNull(database.load(writerRecordId.getIdentity()));
+    database.commit();
   }
 
   @Test(dependsOnMethods = "testReaderCanSeeWriterDocumentAfterPermission")
   public void testWriterRoleCanRemoveReader() throws IOException {
-    database.open("writer", "writer");
+    database = createSessionInstance("writer", "writer");
+    database.begin();
+    ODocument writerRecord = database.load(this.writerRecordId);
     Assert.assertEquals(
         ((Collection<?>) writerRecord.field(ORestrictedOperation.ALLOW_ALL.getFieldName())).size(),
         2);
@@ -202,21 +228,23 @@ public class RestrictedTest extends DocumentDBBaseTest {
     Assert.assertEquals(
         ((Collection<?>) writerRecord.field(ORestrictedOperation.ALLOW_ALL.getFieldName())).size(),
         1);
-    database.begin();
     writerRecord.save();
     database.commit();
   }
 
   @Test(dependsOnMethods = "testWriterRoleCanRemoveReader")
   public void testReaderCannotSeeWriterDocument() throws IOException {
-    database.open("reader", "reader");
-    Assert.assertNull(database.load(writerRecord.getIdentity()));
+    database = createSessionInstance("reader", "reader");
+    database.begin();
+    Assert.assertNull(database.load(writerRecordId.getIdentity()));
+    database.commit();
   }
 
   @Test(dependsOnMethods = "testReaderCannotSeeWriterDocument")
   public void testWriterAddReaderUserOnlyForRead() throws IOException {
-    database.open("writer", "writer");
+    database = createSessionInstance("writer", "writer");
     database.begin();
+    ODocument writerRecord = database.load(this.writerRecordId);
     database
         .getMetadata()
         .getSecurity()
@@ -227,8 +255,10 @@ public class RestrictedTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "testWriterAddReaderUserOnlyForRead")
   public void testReaderCanSeeWriterDocument() throws IOException {
-    database.open("reader", "reader");
-    Assert.assertNotNull(database.load(writerRecord.getIdentity()));
+    database = createSessionInstance("reader", "reader");
+    database.begin();
+    Assert.assertNotNull(database.load(writerRecordId.getIdentity()));
+    database.commit();
   }
 
   /**
@@ -236,8 +266,9 @@ public class RestrictedTest extends DocumentDBBaseTest {
    */
   @Test(dependsOnMethods = "testReaderCanSeeWriterDocument")
   public void testWriterRemoveReaderUserOnlyForRead() throws IOException {
-    database.open("writer", "writer");
+    database = createSessionInstance("writer", "writer");
     database.begin();
+    ODocument writerRecord = database.load(this.writerRecordId);
     database
         .getMetadata()
         .getSecurity()
@@ -248,24 +279,28 @@ public class RestrictedTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "testWriterRemoveReaderUserOnlyForRead")
   public void testReaderCannotSeeWriterDocumentAgain() throws IOException {
-    database.open("reader", "reader");
-    Assert.assertNull(database.load(writerRecord.getIdentity()));
+    database = createSessionInstance("reader", "reader");
+    database.begin();
+    Assert.assertNull(database.load(writerRecordId.getIdentity()));
+    database.commit();
   }
 
   @Test(dependsOnMethods = "testReaderCannotSeeWriterDocumentAgain")
   public void testReaderRoleInheritsFromWriterRole() throws IOException {
-    database.open("admin", "admin");
+    database = createSessionInstance();
+    database.begin();
     ORole reader = database.getMetadata().getSecurity().getRole("reader");
     reader.setParentRole(database.getMetadata().getSecurity().getRole("writer"));
-    database.begin();
+
     reader.save();
     database.commit();
   }
 
   @Test(dependsOnMethods = "testReaderRoleInheritsFromWriterRole")
   public void testWriterRoleCanSeeWriterDocument() throws IOException {
-    database.open("writer", "writer");
+    database = createSessionInstance("writer", "writer");
     database.begin();
+    ODocument writerRecord = database.load(this.writerRecordId);
     database
         .getMetadata()
         .getSecurity()
@@ -276,13 +311,16 @@ public class RestrictedTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "testWriterRoleCanSeeWriterDocument")
   public void testReaderRoleCanSeeInheritedDocument() {
-    database.open("reader", "reader");
-    Assert.assertNotNull(database.load(writerRecord.getIdentity()));
+    database = createSessionInstance("reader", "reader");
+
+    database.begin();
+    Assert.assertNotNull(database.load(writerRecordId.getIdentity()));
+    database.commit();
   }
 
   @Test(dependsOnMethods = "testReaderRoleCanSeeInheritedDocument")
   public void testReaderRoleDesntInheritsFromWriterRole() throws IOException {
-    database.open("admin", "admin");
+    database = createSessionInstance();
     ORole reader = database.getMetadata().getSecurity().getRole("reader");
     database.begin();
     reader.setParentRole(null);
@@ -295,7 +333,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
    */
   @Test(dependsOnMethods = "testReaderRoleDesntInheritsFromWriterRole")
   public void testTruncateClass() {
-    database.open("admin", "admin");
+    database = createSessionInstance();
     try {
       database.command("truncate class CMSDocument").close();
       Assert.fail();
@@ -306,7 +344,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "testTruncateClass")
   public void testTruncateUnderlyingCluster() {
-    database.open("admin", "admin");
+    database = createSessionInstance();
     try {
       database.command("truncate cluster CMSDocument").close();
     } catch (OSecurityException e) {
@@ -316,7 +354,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "testTruncateUnderlyingCluster")
   public void testUpdateRestricted() {
-    database.open("admin", "admin");
+    database = createSessionInstance();
     database
         .getMetadata()
         .getSchema()
@@ -324,24 +362,28 @@ public class RestrictedTest extends DocumentDBBaseTest {
             "TestUpdateRestricted", database.getMetadata().getSchema().getClass("ORestricted"));
 
     database.begin();
-    adminRecord = new ODocument("TestUpdateRestricted").field("user", "admin").save();
+    var adminRecord = new ODocument("TestUpdateRestricted").field("user", "admin").save();
+    this.adminRecordId = adminRecord.getIdentity();
     database.commit();
 
     database.close();
 
-    database.open("writer", "writer");
+    database = createSessionInstance("writer", "writer");
+    database.begin();
     OResultSet result = database.query("select from TestUpdateRestricted");
     Assert.assertEquals(result.stream().count(), 0);
+    database.commit();
 
     database.close();
 
-    database.open("admin", "admin");
+    database = createSessionInstance();
     database.begin();
     database
         .command(new OCommandSQL("update TestUpdateRestricted content {\"data\":\"My Test\"}"))
         .execute();
     database.commit();
 
+    database.begin();
     result = database.query("select from TestUpdateRestricted");
     OResult res = result.next();
     Assert.assertFalse(result.hasNext());
@@ -349,15 +391,17 @@ public class RestrictedTest extends DocumentDBBaseTest {
     final OElement doc = res.getElement().get();
     Assert.assertEquals(doc.getProperty("data"), "My Test");
     doc.setProperty("user", "admin");
-    database.begin();
+
     database.save(doc);
     database.commit();
 
     database.close();
 
-    database.open("writer", "writer");
+    database = createSessionInstance("writer", "writer");
+    database.begin();
     result = database.query("select from TestUpdateRestricted");
     Assert.assertEquals(result.stream().count(), 0);
+    database.commit();
   }
 
   @BeforeMethod

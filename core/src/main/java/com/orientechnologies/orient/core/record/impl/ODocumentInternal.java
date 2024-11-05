@@ -20,7 +20,7 @@
 
 package com.orientechnologies.orient.core.record.impl;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.metadata.schema.OGlobalProperty;
 import com.orientechnologies.orient.core.metadata.schema.OImmutableClass;
@@ -61,7 +61,7 @@ public class ODocumentInternal {
   }
 
   public static OImmutableClass getImmutableSchemaClass(
-      final ODatabaseDocumentInternal database, final ODocument oDocument) {
+      final ODatabaseSessionInternal database, final ODocument oDocument) {
     if (oDocument == null) {
       return null;
     }
@@ -106,11 +106,11 @@ public class ODocumentInternal {
     document.clearTrackData();
   }
 
-  public static void checkClass(ODocument doc, ODatabaseDocumentInternal database) {
+  public static void checkClass(ODocument doc, ODatabaseSessionInternal database) {
     doc.checkClass(database);
   }
 
-  public static void autoConvertValueToClass(ODatabaseDocumentInternal database, ODocument doc) {
+  public static void autoConvertValueToClass(ODatabaseSessionInternal database, ODocument doc) {
     doc.autoConvertFieldsToClass(database);
   }
 

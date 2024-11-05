@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.tx;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.id.ORID;
 import java.io.IOException;
@@ -59,7 +59,7 @@ public interface OTransactionInternal extends OTransaction {
    *
    * @return
    */
-  ODatabaseDocumentInternal getDatabase();
+  ODatabaseSessionInternal getDatabase();
 
   /**
    * Notify the transaction for the rid change, the changed will be tracked inside the transaction
@@ -78,7 +78,7 @@ public interface OTransactionInternal extends OTransaction {
    */
   ORecordOperation getRecordEntry(ORID currentRid);
 
-  void setDatabase(ODatabaseDocumentInternal database);
+  void setDatabase(ODatabaseSessionInternal database);
 
   @Nullable
   default byte[] getMetadata() {

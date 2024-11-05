@@ -1,23 +1,23 @@
 package com.orientechnologies.orient.core.query.live;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 
 /** Created by luigidellaquila on 15/06/17. */
 public class OLiveQueryMonitorEmbedded implements OLiveQueryMonitor {
 
   private final int token;
-  private final ODatabaseDocumentInternal db;
+  private final ODatabaseSessionInternal db;
 
-  public OLiveQueryMonitorEmbedded(int token, ODatabaseDocumentInternal dbCopy) {
+  public OLiveQueryMonitorEmbedded(int token, ODatabaseSessionInternal dbCopy) {
     this.token = token;
     this.db = dbCopy;
   }
 
   @Override
   public void unSubscribe() {
-    ODatabaseDocumentInternal prev = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    ODatabaseSessionInternal prev = ODatabaseRecordThreadLocal.instance().getIfDefined();
     db.activateOnCurrentThread();
     OLiveQueryHookV2.unsubscribe(token, db);
     if (prev != null) {

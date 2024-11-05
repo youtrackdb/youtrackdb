@@ -19,13 +19,13 @@
  */
 package com.orientechnologies.orient.core.tx;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.impl.ORecordBytes;
 
 public abstract class OTransactionAbstract implements OTransaction {
-  protected ODatabaseDocumentInternal database;
+  protected ODatabaseSessionInternal database;
   protected TXSTATUS status = TXSTATUS.INVALID;
 
   /**
@@ -35,7 +35,7 @@ public abstract class OTransactionAbstract implements OTransaction {
    */
   public static final ORecordAbstract DELETED_RECORD = new ORecordBytes();
 
-  protected OTransactionAbstract(final ODatabaseDocumentInternal iDatabase) {
+  protected OTransactionAbstract(final ODatabaseSessionInternal iDatabase) {
     database = iDatabase;
   }
 
@@ -49,13 +49,13 @@ public abstract class OTransactionAbstract implements OTransaction {
     return status;
   }
 
-  public ODatabaseDocumentInternal getDatabase() {
+  public ODatabaseSessionInternal getDatabase() {
     return database;
   }
 
   public abstract void internalRollback();
 
-  public void setDatabase(ODatabaseDocumentInternal database) {
+  public void setDatabase(ODatabaseSessionInternal database) {
     this.database = database;
   }
 }

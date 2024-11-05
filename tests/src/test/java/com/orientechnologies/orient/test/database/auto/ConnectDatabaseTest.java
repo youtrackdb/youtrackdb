@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -50,7 +50,7 @@ public class ConnectDatabaseTest {
 
     OGlobalConfiguration.NETWORK_BINARY_DNS_LOADBALANCING_ENABLED.setValue(true);
     try {
-      final ODatabaseDocumentInternal database =
+      final ODatabaseSessionInternal database =
           new ODatabaseDocumentTx("remote:orientechnologies.com/" + databaseName);
       database.open("admin", "admin");
       Assert.assertFalse(database.isClosed());

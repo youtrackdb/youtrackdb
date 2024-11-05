@@ -23,9 +23,9 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.thread.NonDaemonThreadFactory;
 import com.orientechnologies.common.thread.OThreadPoolExecutorWithLogging;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.OSequenceException;
@@ -49,7 +49,6 @@ import javax.annotation.Nonnull;
  * @since 3/2/2015
  */
 public abstract class OSequence {
-
   private static final ExecutorService sequenceExecutor =
       new OThreadPoolExecutorWithLogging(
           0,
@@ -221,10 +220,6 @@ public abstract class OSequence {
   private int maxRetry = DEF_MAX_RETRY;
 
   protected OSequence(ODocument document) {
-    if (!document.isDirty()) {
-      document.reload();
-    }
-
     Objects.requireNonNull(document);
     docRid = document.getIdentity();
   }
@@ -270,13 +265,10 @@ public abstract class OSequence {
 
   public boolean updateParams(CreateParams params) throws ODatabaseException {
     var db = getDatabase();
-    return db.computeInTx(
-        () -> {
-          var doc = db.<ODocument>load(docRid, null, true);
-          var result = updateParams(doc, params, false);
-          doc.save();
-          return result;
-        });
+    var doc = db.<ODocument>load(docRid);
+    var result = updateParams(doc, params, false);
+    doc.save();
+    return result;
   }
 
   boolean updateParams(ODocument document, CreateParams params, boolean executeViaDistributed)
@@ -391,7 +383,7 @@ public abstract class OSequence {
     document.setProperty(FIELD_TYPE, getSequenceType());
   }
 
-  protected final ODatabaseDocumentInternal getDatabase() {
+  protected final ODatabaseSessionInternal getDatabase() {
     return ODatabaseRecordThreadLocal.instance().get();
   }
 
@@ -499,14 +491,17 @@ public abstract class OSequence {
                           e);
                     }
                   } catch (Exception e) {
-                    throw OException.wrapException(
-                        new OSequenceException(
-                            "Error in transactional processing of "
-                                + getName()
-                                + "."
-                                + method
-                                + "()"),
-                        e);
+                    db.executeInTx(
+                        () -> {
+                          throw OException.wrapException(
+                              new OSequenceException(
+                                  "Error in transactional processing of "
+                                      + getName()
+                                      + "."
+                                      + method
+                                      + "()"),
+                              e);
+                        });
                   } finally {
                     updateLock.unlock();
                   }

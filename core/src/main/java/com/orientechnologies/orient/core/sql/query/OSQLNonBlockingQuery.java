@@ -23,8 +23,8 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.OUncaughtExceptionHandler;
 import com.orientechnologies.orient.core.command.OCommandRequestAsynch;
 import com.orientechnologies.orient.core.command.OCommandResultListener;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import java.util.Collection;
 import java.util.Iterator;
@@ -258,14 +258,14 @@ public class OSQLNonBlockingQuery<T extends Object> extends OSQLQuery<T>
 
   @Override
   public <RET> RET execute(final Object... iArgs) {
-    final ODatabaseDocumentInternal database = ODatabaseRecordThreadLocal.instance().get();
+    final ODatabaseSessionInternal database = ODatabaseRecordThreadLocal.instance().get();
 
     final ONonBlockingQueryFuture future = new ONonBlockingQueryFuture();
 
     if (database instanceof ODatabaseDocument) {
-      ODatabaseDocumentInternal currentThreadLocal =
+      ODatabaseSessionInternal currentThreadLocal =
           ODatabaseRecordThreadLocal.instance().getIfDefined();
-      final ODatabaseDocumentInternal db = database.copy();
+      final ODatabaseSessionInternal db = database.copy();
       if (currentThreadLocal != null) {
         currentThreadLocal.activateOnCurrentThread();
       } else {

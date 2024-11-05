@@ -15,14 +15,10 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentAbstract;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -49,7 +45,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.testng.Assert;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -65,27 +60,9 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
   private long startRecordNumber;
   private ODocument record;
 
-  @Parameters(value = "url")
-  public CRUDDocumentPhysicalTest(@Optional String url) {
-    super(url);
-  }
-
-  @Test
-  public void testPool() {
-    OPartitionedDatabasePool pool = new OPartitionedDatabasePool(url, "admin", "admin");
-    @SuppressWarnings("deprecation")
-    final ODatabaseDocument[] dbs = new ODatabaseDocumentTx[pool.getMaxPartitonSize()];
-
-    for (int i = 0; i < 10; ++i) {
-      for (int db = 0; db < dbs.length; ++db) {
-        dbs[db] = pool.acquire();
-      }
-      for (ODatabaseDocument oDatabaseDocumentTx : dbs) {
-        oDatabaseDocumentTx.close();
-      }
-    }
-
-    pool.close();
+  @Parameters(value = "remote")
+  public CRUDDocumentPhysicalTest(boolean remote) {
+    super(remote);
   }
 
   @Test
@@ -492,20 +469,25 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
   @Test
   public void commandWrongParameterNames() {
     ODocument doc = database.newInstance();
+    database.executeInTx(
+        () -> {
+          try {
+            doc.field("a:b", 10);
+            Assert.fail();
+          } catch (IllegalArgumentException e) {
+            Assert.assertTrue(true);
+          }
+        });
 
-    try {
-      doc.field("a:b", 10);
-      Assert.fail();
-    } catch (IllegalArgumentException e) {
-      Assert.assertTrue(true);
-    }
-
-    try {
-      doc.field("a,b", 10);
-      Assert.fail();
-    } catch (IllegalArgumentException e) {
-      Assert.assertTrue(true);
-    }
+    database.executeInTx(
+        () -> {
+          try {
+            doc.field("a,b", 10);
+            Assert.fail();
+          } catch (IllegalArgumentException e) {
+            Assert.assertTrue(true);
+          }
+        });
   }
 
   @Test
@@ -609,8 +591,7 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
       database.close();
     }
 
-    //noinspection deprecation
-    database.open("admin", "admin");
+    database = acquireSession();
 
     doc = testInvalidFetchPlanClearL1Cache(doc, docRid);
     doc = testInvalidFetchPlanClearL1Cache(doc, new ORecordId(1, 0));
@@ -640,7 +621,6 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
     doc.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
-    doc.reload(null, true);
     Assert.assertEquals(doc.field("test"), s);
   }
 
@@ -753,12 +733,13 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
     database.commit();
 
     database.close();
-    //noinspection deprecation
-    database.open("admin", "admin");
 
-    bank.reload();
+    database = acquireSession();
+
+    database.begin();
     Assert.assertTrue(((ODocument) bank.field("embedded")).isEmbedded());
     Assert.assertFalse(((ODocument) bank.field("embedded")).getIdentity().isPersistent());
+    database.rollback();
 
     database.begin();
     bank.delete();
@@ -797,35 +778,35 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
     database.commit();
 
     database.close();
-    //noinspection deprecation
-    database.open("admin", "admin");
+    database = acquireSession();
 
-    bank.reload();
+    database.executeInTx(
+        () -> {
+          ODocument changedDoc1 = bank.field("embedded.total", 100);
+          // MUST CHANGE THE PARENT DOC BECAUSE IT'S EMBEDDED
+          Assert.assertEquals(changedDoc1.field("name"), "MyBankChained");
+          Assert.assertEquals(changedDoc1.<Object>field("embedded.total"), 100);
 
-    ODocument changedDoc1 = bank.field("embedded.total", 100);
-    // MUST CHANGE THE PARENT DOC BECAUSE IT'S EMBEDDED
-    Assert.assertEquals(changedDoc1.field("name"), "MyBankChained");
-    Assert.assertEquals(changedDoc1.<Object>field("embedded.total"), 100);
+          ODocument changedDoc2 = bank.field("embeddeds.total", 200);
+          // MUST CHANGE THE PARENT DOC BECAUSE IT'S EMBEDDED
+          Assert.assertEquals(changedDoc2.field("name"), "MyBankChained");
 
-    ODocument changedDoc2 = bank.field("embeddeds.total", 200);
-    // MUST CHANGE THE PARENT DOC BECAUSE IT'S EMBEDDED
-    Assert.assertEquals(changedDoc2.field("name"), "MyBankChained");
+          Collection<Integer> intEmbeddeds = changedDoc2.field("embeddeds.total");
+          for (Integer e : intEmbeddeds) {
+            Assert.assertEquals(e.intValue(), 200);
+          }
 
-    Collection<Integer> intEmbeddeds = changedDoc2.field("embeddeds.total");
-    for (Integer e : intEmbeddeds) {
-      Assert.assertEquals(e.intValue(), 200);
-    }
+          ODocument changedDoc3 = bank.field("linked.total", 300);
+          // MUST CHANGE THE LINKED DOCUMENT
+          Assert.assertEquals(changedDoc3.field("name"), "linked1");
+          Assert.assertEquals(changedDoc3.<Object>field("total"), 300);
 
-    ODocument changedDoc3 = bank.field("linked.total", 300);
-    // MUST CHANGE THE LINKED DOCUMENT
-    Assert.assertEquals(changedDoc3.field("name"), "linked1");
-    Assert.assertEquals(changedDoc3.<Object>field("total"), 300);
-
-    try {
-      bank.field("linkeds.total", 400);
-      Assert.fail();
-    } catch (IllegalArgumentException ignored) {
-    }
+          try {
+            bank.field("linkeds.total", 400);
+            Assert.fail();
+          } catch (IllegalArgumentException ignored) {
+          }
+        });
 
     database.begin();
     ((ODocument) bank.field("linked")).delete();
@@ -842,7 +823,7 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
     ORecordSerializer current = ODatabaseDocumentAbstract.getDefaultSerializer();
     //noinspection deprecation
     ODatabaseDocumentAbstract.setDefaultSerializer(ORecordSerializerSchemaAware2CSV.INSTANCE);
-    ODatabaseDocumentInternal oldDb = ODatabaseRecordThreadLocal.instance().get();
+    ODatabaseSessionInternal oldDb = ODatabaseRecordThreadLocal.instance().get();
     ORecordSerializer dbser = oldDb.getSerializer();
     oldDb.setSerializer(ORecordSerializerSchemaAware2CSV.INSTANCE);
     final byte[] streamOrigin =
@@ -874,9 +855,11 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
     doc.save();
     database.commit();
 
-    doc.reload();
-    Assert.assertEquals(doc.getVersion(), oldVersion);
-    Assert.assertEquals(doc.field("name"), "modified");
+    database.executeInTx(
+        () -> {
+          Assert.assertEquals(doc.getVersion(), oldVersion);
+          Assert.assertEquals(doc.field("name"), "modified");
+        });
   }
 
   public void testCreateEmbddedClassDocument() {
@@ -927,8 +910,7 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
     doc.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
-    doc.reload();
-
+    database.begin();
     final List<ODocument> docsToRemove = new ArrayList<>(allDocs.size() / 2);
     for (int i = 0; i < 5; i++) {
       docsToRemove.add(allDocs.get(i));
@@ -942,19 +924,21 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
     for (int i = 5; i < 10; i++) {
       Assert.assertEquals(linkList.get(i - 5), allDocs.get(i));
     }
+    doc.save();
+    database.commit();
 
     database.begin();
     doc.save();
     database.commit();
 
-    doc.reload();
-
+    database.begin();
     linkList = doc.field("linkList");
     Assert.assertEquals(linkList.size(), 5);
 
     for (int i = 5; i < 10; i++) {
       Assert.assertEquals(linkList.get(i - 5), allDocs.get(i));
     }
+    database.commit();
   }
 
   public void testRemoveAndReload() {
@@ -977,17 +961,6 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
     {
       ODocument deletedDoc = database.load(doc1.getIdentity());
       Assert.assertNull(deletedDoc); // OK!
-    }
-    database.commit();
-
-    database.begin();
-    try {
-      doc1.reload();
-      Assert.fail(); // <=================== AssertionError
-    } catch (ORecordNotFoundException e) {
-      // OK
-      // The JavaDoc of #reload() is documented : "If the record does not exist a
-      // ORecordNotFoundException exception is thrown.".
     }
     database.commit();
   }

@@ -39,7 +39,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.testng.Assert;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -50,9 +49,9 @@ public class JSONTest extends DocumentDBBaseTest {
   public static final String FORMAT_WITHOUT_TYPES =
       "rid,version,class,type,attribSameRow,alwaysFetchEmbedded,fetchPlan:*:0";
 
-  @Parameters(value = "url")
-  public JSONTest(@Optional final String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public JSONTest(boolean remote) {
+    super(remote);
   }
 
   @Test
@@ -421,8 +420,7 @@ public class JSONTest extends DocumentDBBaseTest {
 
   @Test
   public void testFetchedJson() {
-    OObjectDatabaseTxInternal database = new OObjectDatabaseTxInternal(url);
-    database.open("admin", "admin");
+    OObjectDatabaseTxInternal database = new OObjectDatabaseTxInternal(acquireSession());
     try {
       database
           .getEntityManager()
@@ -464,18 +462,16 @@ public class JSONTest extends DocumentDBBaseTest {
             .collect(Collectors.toList());
 
     for (ODocument doc : result) {
-      doc.reload("*:0");
       String jsonFull = doc.toJSON();
       ORID rid = doc.getIdentity();
       database.close();
-      database.open("admin", "admin");
+      database = createSessionInstance();
       doc = database.load(rid);
       doc.setLazyLoad(false);
-      doc.reload("*:0");
       database.close();
       String jsonLoaded = doc.toJSON();
       Assert.assertEquals(jsonLoaded, jsonFull);
-      database.open("admin", "admin");
+      database = createSessionInstance();
       doc = database.load(rid);
       doc.setLazyLoad(false);
       doc.load("*:0");
@@ -486,22 +482,20 @@ public class JSONTest extends DocumentDBBaseTest {
     }
 
     if (database.isClosed()) {
-      database.open("admin", "admin");
+      database = createSessionInstance();
     }
 
     for (ODocument doc : result) {
-      doc.reload("*:1");
       String jsonFull = doc.toJSON();
       ORID rid = doc.getIdentity();
       database.close();
-      database.open("admin", "admin");
+      database = createSessionInstance();
       doc = database.load(rid);
       doc.setLazyLoad(false);
-      doc.reload("*:1");
       database.close();
       String jsonLoaded = doc.toJSON();
       Assert.assertEquals(jsonFull, jsonLoaded);
-      database.open("admin", "admin");
+      database = createSessionInstance();
       doc = database.load(rid);
       doc.setLazyLoad(false);
       doc.load("*:1");

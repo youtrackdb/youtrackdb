@@ -127,7 +127,7 @@ public class OLuceneIndexCrashRestoreIT {
   @Test
   public void testEntriesAddition() throws Exception {
     List<DataPropagationTask> futures = new ArrayList<>();
-    ODatabaseDocumentInternal db;
+    ODatabaseSessionInternal db;
     OResultSet res;
     try {
       createSchema(databasePool);
@@ -146,7 +146,7 @@ public class OLuceneIndexCrashRestoreIT {
         System.out.println("Wait for 30 seconds");
         TimeUnit.SECONDS.sleep(30);
 
-        db = (ODatabaseDocumentInternal) databasePool.acquire();
+        db = (ODatabaseSessionInternal) databasePool.acquire();
         // wildcard will not work
         res = db.query("select from Person where name lucene 'Robert' ");
         assertThat(res).hasSize(0);
@@ -200,7 +200,7 @@ public class OLuceneIndexCrashRestoreIT {
     databasePool = new ODatabasePool(orientdb, "testLuceneCrash", "admin", "admin");
 
     // test query
-    db = (ODatabaseDocumentInternal) databasePool.acquire();
+    db = (ODatabaseSessionInternal) databasePool.acquire();
     db.getMetadata().reload();
 
     OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Person.name");
@@ -247,7 +247,7 @@ public class OLuceneIndexCrashRestoreIT {
 
   private void createSchema(ODatabasePool pool) {
 
-    final ODatabaseDocumentInternal db = (ODatabaseDocumentInternal) pool.acquire();
+    final ODatabaseSessionInternal db = (ODatabaseSessionInternal) pool.acquire();
 
     System.out.println("create index for db:: " + db.getURL());
     db.command("Create class Person");

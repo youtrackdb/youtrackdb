@@ -19,7 +19,7 @@ import com.orientechnologies.orient.client.remote.message.ORebeginTransactionReq
 import com.orientechnologies.orient.client.remote.message.ORollbackTransactionRequest;
 import com.orientechnologies.orient.client.remote.message.OUpdateRecordRequest;
 import com.orientechnologies.orient.client.remote.message.OUpdateRecordResponse;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
@@ -55,7 +55,7 @@ public class OConnectionExecutorTransactionTest {
   @Mock private OClientConnection connection;
 
   private OrientDB orientDb;
-  private ODatabaseDocumentInternal database;
+  private ODatabaseSessionInternal database;
 
   @Before
   public void before() throws IOException {
@@ -69,7 +69,7 @@ public class OConnectionExecutorTransactionTest {
         "create database ? memory users (admin identified by 'admin' role admin)",
         OConnectionExecutorTransactionTest.class.getSimpleName());
     database =
-        (ODatabaseDocumentInternal)
+        (ODatabaseSessionInternal)
             orientDb.open(
                 OConnectionExecutorTransactionTest.class.getSimpleName(), "admin", "admin");
     database.createClass("test");

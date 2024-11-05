@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.record;
 
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
@@ -74,7 +74,7 @@ public class DocumentIndependentJavaSerializationTest {
         clazz.createProperty("test", OType.STRING);
         ObjectInputStream input = new ObjectInputStream(new ByteArrayInputStream(ser));
         ODocument doc1 = (ODocument) input.readObject();
-        assertEquals(doc1.recordFormat, ((ODatabaseDocumentInternal) db).getSerializer());
+        assertEquals(doc1.recordFormat, ((ODatabaseSessionInternal) db).getSerializer());
         assertEquals(doc1.getClassName(), "Test");
         assertEquals(doc1.field("test"), "Some Value");
       }

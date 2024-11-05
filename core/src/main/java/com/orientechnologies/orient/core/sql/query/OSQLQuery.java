@@ -21,8 +21,8 @@ package com.orientechnologies.orient.core.sql.query;
 
 import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OQueryParsingException;
 import com.orientechnologies.orient.core.exception.OSerializationException;
@@ -63,7 +63,7 @@ public abstract class OSQLQuery<T> extends OQueryAbstract<T> implements OCommand
   /** Delegates to the OQueryExecutor the query execution. */
   @SuppressWarnings("unchecked")
   public List<T> run(final Object... iArgs) {
-    final ODatabaseDocumentInternal database = ODatabaseRecordThreadLocal.instance().get();
+    final ODatabaseSessionInternal database = ODatabaseRecordThreadLocal.instance().get();
     if (database == null) throw new OQueryParsingException("No database configured");
 
     ((OMetadataInternal) database.getMetadata()).makeThreadLocalSchemaSnapshot();

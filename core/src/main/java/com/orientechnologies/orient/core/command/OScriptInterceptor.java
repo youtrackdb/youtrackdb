@@ -1,9 +1,8 @@
 package com.orientechnologies.orient.core.command;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 
 public interface OScriptInterceptor {
 
-  void preExecute(
-      ODatabaseDocumentInternal database, String language, String script, Object params);
+  void preExecute(ODatabaseSessionInternal database, String language, String script, Object params);
 }

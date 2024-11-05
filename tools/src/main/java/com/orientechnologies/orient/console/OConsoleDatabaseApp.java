@@ -46,7 +46,7 @@ import com.orientechnologies.orient.core.command.script.OCommandScript;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
 import com.orientechnologies.orient.core.config.OStorageEntryConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
@@ -121,7 +121,7 @@ import java.util.stream.Collectors;
 
 public class OConsoleDatabaseApp extends OConsoleApplication
     implements OCommandOutputListener, OProgressListener, OTableFormatter.OTableOutput {
-  protected ODatabaseDocumentInternal currentDatabase;
+  protected ODatabaseSessionInternal currentDatabase;
   protected String currentDatabaseName;
   protected ORecord currentRecord;
   protected int currentRecordIdx;
@@ -257,7 +257,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       // OPEN DB
       message("\nConnecting to database [" + iURL + "] with user '" + iUserName + "'...");
       currentDatabase =
-          (ODatabaseDocumentInternal)
+          (ODatabaseSessionInternal)
               orientDB.open(urlConnection.getDbName(), iUserName, iUserPassword);
       currentDatabaseName = currentDatabase.getName();
     }
@@ -391,8 +391,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       }
     }
     currentDatabase =
-        (ODatabaseDocumentInternal)
-            orientDB.open(urlConnection.getDbName(), userName, userPassword);
+        (ODatabaseSessionInternal) orientDB.open(urlConnection.getDbName(), userName, userPassword);
     currentDatabaseName = currentDatabase.getName();
 
     message("\nDatabase created successfully.");
@@ -2349,7 +2348,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     currentRecord = currentDatabase.getDictionary().get(iKey);
     if (currentRecord == null) message("\nEntry not found in dictionary.");
     else {
-      currentRecord = (ORecord) currentRecord.load();
+      currentRecord = currentRecord.getDatabase().load(currentRecord.getIdentity());
       displayRecord(null);
     }
   }
@@ -2524,12 +2523,12 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     } else {
       secondContext = firstContext;
     }
-    try (ODatabaseDocumentInternal firstDB =
-        (ODatabaseDocumentInternal)
+    try (ODatabaseSessionInternal firstDB =
+        (ODatabaseSessionInternal)
             firstContext.open(firstUrl.getDbName(), iUserName, iUserPassword)) {
 
-      try (ODatabaseDocumentInternal secondDB =
-          (ODatabaseDocumentInternal)
+      try (ODatabaseSessionInternal secondDB =
+          (ODatabaseSessionInternal)
               secondContext.open(secondUrl.getDbName(), iUserName, iUserPassword)) {
         final ODatabaseCompare compare = new ODatabaseCompare(firstDB, secondDB, this);
 
@@ -3014,7 +3013,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
   }
 
   /** Pass an existent database instance to be used as current. */
-  public OConsoleDatabaseApp setCurrentDatabase(final ODatabaseDocumentInternal iCurrentDatabase) {
+  public OConsoleDatabaseApp setCurrentDatabase(final ODatabaseSessionInternal iCurrentDatabase) {
     currentDatabase = iCurrentDatabase;
     currentDatabaseName = iCurrentDatabase.getName();
     return this;
@@ -3096,7 +3095,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       return;
     }
 
-    currentDatabase = (ODatabaseDocumentInternal) orientDB.open(dbName, user, password);
+    currentDatabase = (ODatabaseSessionInternal) orientDB.open(dbName, user, password);
 
     currentDatabaseName = currentDatabase.getName();
 

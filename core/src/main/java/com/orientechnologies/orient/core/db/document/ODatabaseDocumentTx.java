@@ -11,10 +11,10 @@ import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
 import com.orientechnologies.orient.core.db.ODatabase;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
@@ -93,7 +93,7 @@ import java.util.function.Supplier;
  * Created by tglman on 20/07/16. @Deprecated use {@link OrientDB} instead.
  */
 @Deprecated
-public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
+public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
 
   protected static ConcurrentMap<String, OrientDBInternal> embedded = new ConcurrentHashMap<>();
   protected static ConcurrentMap<String, OrientDBInternal> remote = new ConcurrentHashMap<>();
@@ -101,7 +101,7 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
   protected static final Lock embeddedLock = new ReentrantLock();
   protected static final Lock remoteLock = new ReentrantLock();
 
-  protected ODatabaseDocumentInternal internal;
+  protected ODatabaseSessionInternal internal;
   private final String url;
   private OrientDBInternal factory;
   private final String type;
@@ -227,7 +227,7 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
     this.ownerProtection = ownerProtection;
   }
 
-  protected ODatabaseDocumentTx(ODatabaseDocumentInternal ref, String baseUrl) {
+  public ODatabaseDocumentTx(ODatabaseSessionInternal ref, String baseUrl) {
     url = ref.getURL();
     type = ref.getType();
     this.baseUrl = baseUrl;
@@ -633,13 +633,6 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
 
   @Override
   public <RET extends ORecord> RET reload(
-      ORecord iObject, String iFetchPlan, boolean iIgnoreCache) {
-    checkOpenness();
-    return internal.reload(iObject, iFetchPlan, iIgnoreCache);
-  }
-
-  @Override
-  public <RET extends ORecord> RET reload(
       ORecord iObject, String iFetchPlan, boolean iIgnoreCache, boolean force) {
     checkOpenness();
     return internal.reload(iObject, iFetchPlan, iIgnoreCache, force);
@@ -690,7 +683,7 @@ public class ODatabaseDocumentTx implements ODatabaseDocumentInternal {
   }
 
   @Override
-  public ODatabaseDocumentInternal cleanOutRecord(ORID rid, int version) {
+  public ODatabaseSessionInternal cleanOutRecord(ORID rid, int version) {
     checkOpenness();
     internal.cleanOutRecord(rid, version);
     return this;

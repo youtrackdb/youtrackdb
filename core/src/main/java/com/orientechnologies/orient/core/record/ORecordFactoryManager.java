@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.record;
 
 import com.orientechnologies.common.exception.OSystemException;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.OBlob;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -48,7 +48,7 @@ public class ORecordFactoryManager {
   protected final ORecordFactory[] recordFactories = new ORecordFactory[Byte.MAX_VALUE];
 
   public interface ORecordFactory {
-    ORecord newRecord(ORID rid, ODatabaseDocumentInternal database);
+    ORecord newRecord(ORID rid, ODatabaseSessionInternal database);
   }
 
   public ORecordFactoryManager() {
@@ -84,7 +84,7 @@ public class ORecordFactoryManager {
     return name;
   }
 
-  public ORecord newInstance(ORID rid, ODatabaseDocumentInternal database) {
+  public ORecord newInstance(ORID rid, ODatabaseSessionInternal database) {
     try {
       return getFactory(database.getRecordType()).newRecord(rid, database);
     } catch (Exception e) {
@@ -93,7 +93,7 @@ public class ORecordFactoryManager {
   }
 
   public ORecordAbstract newInstance(
-      final byte iRecordType, ORID rid, ODatabaseDocumentInternal database) {
+      final byte iRecordType, ORID rid, ODatabaseSessionInternal database) {
     try {
       return (ORecordAbstract) getFactory(iRecordType).newRecord(rid, database);
     } catch (Exception e) {

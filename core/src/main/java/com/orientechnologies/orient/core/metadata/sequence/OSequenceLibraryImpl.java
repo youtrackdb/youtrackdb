@@ -21,7 +21,7 @@
 package com.orientechnologies.orient.core.metadata.sequence;
 
 import com.orientechnologies.common.concur.ONeedRetryException;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OMetadataUpdateListener;
 import com.orientechnologies.orient.core.exception.OSequenceException;
 import com.orientechnologies.orient.core.metadata.schema.OClassImpl;
@@ -44,11 +44,11 @@ public class OSequenceLibraryImpl {
   private final Map<String, OSequence> sequences = new ConcurrentHashMap<String, OSequence>();
   private final AtomicBoolean reloadNeeded = new AtomicBoolean(false);
 
-  public void create(ODatabaseDocumentInternal database) {
+  public void create(ODatabaseSessionInternal database) {
     init(database);
   }
 
-  public synchronized void load(final ODatabaseDocumentInternal db) {
+  public synchronized void load(final ODatabaseSessionInternal db) {
     sequences.clear();
 
     if (db.getMetadata().getImmutableSchemaSnapshot().existsClass(OSequence.CLASS_NAME)) {
@@ -68,17 +68,17 @@ public class OSequenceLibraryImpl {
     sequences.clear();
   }
 
-  public synchronized Set<String> getSequenceNames(ODatabaseDocumentInternal database) {
+  public synchronized Set<String> getSequenceNames(ODatabaseSessionInternal database) {
     reloadIfNeeded(database);
     return sequences.keySet();
   }
 
-  public synchronized int getSequenceCount(ODatabaseDocumentInternal database) {
+  public synchronized int getSequenceCount(ODatabaseSessionInternal database) {
     reloadIfNeeded(database);
     return sequences.size();
   }
 
-  public OSequence getSequence(final ODatabaseDocumentInternal database, final String iName) {
+  public OSequence getSequence(final ODatabaseSessionInternal database, final String iName) {
     final String name = iName.toUpperCase(Locale.ENGLISH);
     reloadIfNeeded(database);
     OSequence seq;
@@ -94,7 +94,7 @@ public class OSequenceLibraryImpl {
   }
 
   public synchronized OSequence createSequence(
-      final ODatabaseDocumentInternal database,
+      final ODatabaseSessionInternal database,
       final String iName,
       final SEQUENCE_TYPE sequenceType,
       final OSequence.CreateParams params) {
@@ -111,7 +111,7 @@ public class OSequenceLibraryImpl {
   }
 
   public synchronized void dropSequence(
-      final ODatabaseDocumentInternal database, final String iName) {
+      final ODatabaseSessionInternal database, final String iName) {
     final OSequence seq = getSequence(database, iName);
     if (seq != null) {
       try {
@@ -125,7 +125,7 @@ public class OSequenceLibraryImpl {
   }
 
   public void onSequenceCreated(
-      final ODatabaseDocumentInternal database, final ODocument iDocument) {
+      final ODatabaseSessionInternal database, final ODocument iDocument) {
     init(database);
 
     String name = OSequence.getSequenceName(iDocument);
@@ -148,7 +148,7 @@ public class OSequenceLibraryImpl {
   }
 
   public void onSequenceDropped(
-      final ODatabaseDocumentInternal database, final ODocument iDocument) {
+      final ODatabaseSessionInternal database, final ODocument iDocument) {
     String name = OSequence.getSequenceName(iDocument);
     if (name == null) {
       return;
@@ -160,7 +160,7 @@ public class OSequenceLibraryImpl {
     onSequenceLibraryUpdate(database);
   }
 
-  private void init(final ODatabaseDocumentInternal database) {
+  private void init(final ODatabaseSessionInternal database) {
     if (database.getMetadata().getSchema().existsClass(OSequence.CLASS_NAME)) {
       return;
     }
@@ -176,13 +176,13 @@ public class OSequenceLibraryImpl {
     }
   }
 
-  private void onSequenceLibraryUpdate(ODatabaseDocumentInternal database) {
+  private void onSequenceLibraryUpdate(ODatabaseSessionInternal database) {
     for (OMetadataUpdateListener one : database.getSharedContext().browseListeners()) {
       one.onSequenceLibraryUpdate(database.getName());
     }
   }
 
-  private void reloadIfNeeded(ODatabaseDocumentInternal database) {
+  private void reloadIfNeeded(ODatabaseSessionInternal database) {
     if (reloadNeeded.get()) {
       load(database);
       reloadNeeded.set(false);

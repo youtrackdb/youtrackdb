@@ -119,8 +119,8 @@ import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.config.OStorageClusterConfiguration;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OSharedContext;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
@@ -1129,7 +1129,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   public Object command(final OCommandRequestText iCommand) {
 
     final boolean live = iCommand instanceof OLiveQuery;
-    final ODatabaseDocumentInternal database = ODatabaseRecordThreadLocal.instance().get();
+    final ODatabaseSessionInternal database = ODatabaseRecordThreadLocal.instance().get();
     final boolean asynch =
         iCommand instanceof OCommandRequestAsynch
             && ((OCommandRequestAsynch) iCommand).isAsynchronous();
@@ -2185,11 +2185,11 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   }
 
   protected OStorageRemoteSession getCurrentSession() {
-    ODatabaseDocumentInternal db = null;
+    ODatabaseSessionInternal db = null;
     if (ODatabaseRecordThreadLocal.instance() != null) {
       db = ODatabaseRecordThreadLocal.instance().getIfDefined();
     }
-    ODatabaseDocumentInternal internal = ODatabaseDocumentTxInternal.getInternal(db);
+    ODatabaseSessionInternal internal = ODatabaseDocumentTxInternal.getInternal(db);
     if (internal == null || !(internal instanceof ODatabaseDocumentRemote)) {
       return null;
     }
@@ -2216,7 +2216,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
 
   public OStorageRemote copy(
       final ODatabaseDocumentRemote source, final ODatabaseDocumentRemote dest) {
-    ODatabaseDocumentInternal origin = null;
+    ODatabaseSessionInternal origin = null;
     if (ODatabaseRecordThreadLocal.instance() != null) {
       origin = ODatabaseRecordThreadLocal.instance().getIfDefined();
     }

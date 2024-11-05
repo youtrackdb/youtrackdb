@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
 import com.orientechnologies.common.util.OPatternConst;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -46,7 +46,7 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
   private static final String[] NAMES = {"POST|studio/*"};
 
   public boolean execute(final OHttpRequest iRequest, OHttpResponse iResponse) throws Exception {
-    ODatabaseDocumentInternal db = null;
+    ODatabaseSessionInternal db = null;
 
     try {
       final String[] urlParts =
@@ -239,7 +239,7 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
   private void executeClusters(
       final OHttpRequest iRequest,
       final OHttpResponse iResponse,
-      final ODatabaseDocumentInternal db,
+      final ODatabaseSessionInternal db,
       final String operation,
       final String rid,
       final String iClusterName,
@@ -286,8 +286,6 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
       if (rid == null) throw new IllegalArgumentException("Record ID not found in request");
 
       ODocument doc = new ODocument(className, new ORecordId(rid));
-      doc.reload(null, true);
-
       // BIND ALL CHANGED FIELDS
       for (Entry<String, String> f : fields.entrySet()) {
         final Object oldValue = doc.rawField(f.getKey());
@@ -360,7 +358,7 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
   private void executeClassIndexes(
       final OHttpRequest iRequest,
       final OHttpResponse iResponse,
-      final ODatabaseDocumentInternal db,
+      final ODatabaseSessionInternal db,
       final String operation,
       final String rid,
       final String className,

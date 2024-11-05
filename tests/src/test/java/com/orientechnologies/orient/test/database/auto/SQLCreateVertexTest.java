@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.testng.Assert;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -20,9 +19,9 @@ import org.testng.annotations.Test;
 @Test
 public class SQLCreateVertexTest extends DocumentDBBaseTest {
 
-  @Parameters(value = "url")
-  public SQLCreateVertexTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public SQLCreateVertexTest(boolean remote) {
+    super(remote);
   }
 
   public void testCreateVertexByContent() {
@@ -30,7 +29,7 @@ public class SQLCreateVertexTest extends DocumentDBBaseTest {
     System.out.println(Charset.defaultCharset());
     database.close();
 
-    database.open("admin", "admin");
+    database = createSessionInstance();
 
     OSchema schema = database.getMetadata().getSchema();
     if (!schema.existsClass("CreateVertexByContent")) {
@@ -86,7 +85,7 @@ public class SQLCreateVertexTest extends DocumentDBBaseTest {
 
   public void testCreateVertexBooleanProp() {
     database.close();
-    database.open("admin", "admin");
+    database = createSessionInstance();
 
     database.begin();
     database.command("create vertex set script = true").close();
@@ -102,7 +101,8 @@ public class SQLCreateVertexTest extends DocumentDBBaseTest {
 
   public void testIsClassName() {
     database.close();
-    database.open("admin", "admin");
+
+    database = createSessionInstance();
     database.createVertexClass("Like").createProperty("anything", OType.STRING);
     database.createVertexClass("Is").createProperty("anything", OType.STRING);
   }

@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.orientechnologies.orient.core.Orient;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentAbstract;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
@@ -38,7 +38,7 @@ public class TestNetworkSerializerIndipendency {
     ODatabaseDocumentAbstract.setDefaultSerializer(ORecordSerializerSchemaAware2CSV.INSTANCE);
     createDatabase();
 
-    ODatabaseDocumentInternal dbTx = null;
+    ODatabaseSessionInternal dbTx = null;
     try {
       ODatabaseDocumentAbstract.setDefaultSerializer(ORecordSerializerBinary.INSTANCE);
       dbTx = new ODatabaseDocumentTx("remote:localhost/test");
@@ -55,7 +55,7 @@ public class TestNetworkSerializerIndipendency {
     } finally {
       if (dbTx != null && !dbTx.isClosed()) {
         dbTx.close();
-        ((ODatabaseDocumentInternal) dbTx).getStorage().close();
+        ((ODatabaseSessionInternal) dbTx).getStorage().close();
       }
 
       dropDatabase();
@@ -81,7 +81,7 @@ public class TestNetworkSerializerIndipendency {
     ODatabaseDocumentAbstract.setDefaultSerializer(ORecordSerializerBinary.INSTANCE);
     createDatabase();
 
-    ODatabaseDocumentInternal dbTx = null;
+    ODatabaseSessionInternal dbTx = null;
     try {
       ODatabaseDocumentAbstract.setDefaultSerializer(ORecordSerializerSchemaAware2CSV.INSTANCE);
       dbTx = new ODatabaseDocumentTx("remote:localhost/test");

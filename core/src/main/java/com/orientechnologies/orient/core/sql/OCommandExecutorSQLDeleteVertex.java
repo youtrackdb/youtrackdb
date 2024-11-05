@@ -28,7 +28,7 @@ import com.orientechnologies.orient.core.command.OCommandRequestInternal;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.command.OCommandResultListener;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -59,7 +59,7 @@ public class OCommandExecutorSQLDeleteVertex extends OCommandExecutorSQLAbstract
   private static final String KEYWORD_BATCH = "BATCH";
   private ORecordId rid;
   private int removed = 0;
-  private ODatabaseDocumentInternal database;
+  private ODatabaseSessionInternal database;
   private OCommandRequest query;
   private String returning = "COUNT";
   private List<ORecord> allDeletedRecords;
@@ -185,7 +185,7 @@ public class OCommandExecutorSQLDeleteVertex extends OCommandExecutorSQLAbstract
 
     txAlreadyBegun = getDatabase().getTransaction().isActive();
 
-    ODatabaseDocumentInternal db = getDatabase();
+    ODatabaseSessionInternal db = getDatabase();
     if (rid != null) {
       // REMOVE PUNCTUAL RID
       db.begin();
@@ -220,7 +220,7 @@ public class OCommandExecutorSQLDeleteVertex extends OCommandExecutorSQLAbstract
     final OIdentifiable id = (OIdentifiable) iRecord;
     if (id.getIdentity().isValid()) {
       final ODocument record = id.getRecord();
-      ODatabaseDocumentInternal db = getDatabase();
+      ODatabaseSessionInternal db = getDatabase();
 
       final OVertex v = toVertex(record);
       if (v != null) {
@@ -253,7 +253,7 @@ public class OCommandExecutorSQLDeleteVertex extends OCommandExecutorSQLAbstract
 
   @Override
   public void end() {
-    ODatabaseDocumentInternal db = getDatabase();
+    ODatabaseSessionInternal db = getDatabase();
     if (!txAlreadyBegun) {
       db.commit();
     }

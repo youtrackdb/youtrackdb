@@ -15,8 +15,6 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.OMetadataDefault;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -24,31 +22,23 @@ import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test(groups = {"index"})
-public class SQLDropIndexTest {
-
-  private ODatabaseDocumentInternal database;
+public class SQLDropIndexTest extends DocumentDBBaseTest {
   private static final OType EXPECTED_PROP1_TYPE = OType.DOUBLE;
   private static final OType EXPECTED_PROP2_TYPE = OType.INTEGER;
-  private final String url;
 
-  @Parameters(value = "url")
-  public SQLDropIndexTest(@Optional final String url) {
-    this.url = BaseTest.prepareUrl(url);
+  @Parameters(value = "remote")
+  public SQLDropIndexTest(boolean remote) {
+    super(remote);
   }
 
   @BeforeClass
-  public void beforeClass() {
-    database = new ODatabaseDocumentTx(url);
-
-    if (database.isClosed()) database.open("admin", "admin");
+  public void beforeClass() throws Exception {
+    super.beforeClass();
 
     final OSchema schema = database.getMetadata().getSchema();
     final OClass oClass = schema.createClass("SQLDropIndexTestClass");
@@ -58,28 +48,21 @@ public class SQLDropIndexTest {
 
   @AfterClass
   public void afterClass() throws Exception {
-    if (database.isClosed()) database.open("admin", "admin");
+    if (database.isClosed()) {
+      database = createSessionInstance();
+    }
+
     database.command("delete from SQLDropIndexTestClass").close();
     database.command("drop class SQLDropIndexTestClass").close();
-    database.reload();
-    database.close();
-  }
 
-  @BeforeMethod
-  public void beforeMethod() {
-    if (database.isClosed()) database.open("admin", "admin");
-  }
-
-  @AfterMethod
-  public void afterMethod() {
-    database.close();
+    super.afterClass();
   }
 
   @Test
   public void testOldSyntax() throws Exception {
     database.command("CREATE INDEX SQLDropIndexTestClass.prop1 UNIQUE").close();
 
-    ((OMetadataDefault) database.getMetadata()).getIndexManagerInternal().reload();
+    database.getMetadata().getIndexManagerInternal().reload();
 
     OIndex index =
         database

@@ -20,7 +20,7 @@
 
 package com.orientechnologies.orient.core.serialization.serializer.record.binary;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OImmutableSchema;
@@ -75,7 +75,7 @@ public interface ODocumentSerializer {
 
   void deserializeDebug(
       BytesContainer bytes,
-      ODatabaseDocumentInternal db,
+      ODatabaseSessionInternal db,
       ORecordSerializationDebug debugInfo,
       OImmutableSchema schema);
 }

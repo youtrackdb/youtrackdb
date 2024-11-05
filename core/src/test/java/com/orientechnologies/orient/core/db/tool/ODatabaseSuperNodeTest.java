@@ -87,7 +87,7 @@ public class ODatabaseSuperNodeTest {
 
       final ODatabaseExport export =
           new ODatabaseExport(
-              (ODatabaseDocumentInternal) session,
+              (ODatabaseSessionInternal) session,
               output,
               new OCommandOutputListener() {
                 @Override
@@ -117,7 +117,7 @@ public class ODatabaseSuperNodeTest {
             databaseName + "_reImport", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
       final ODatabaseImport importer =
           new ODatabaseImport(
-              (ODatabaseDocumentInternal) db,
+              (ODatabaseSessionInternal) db,
               new ByteArrayInputStream(output.toByteArray()),
               new OCommandOutputListener() {
                 @Override

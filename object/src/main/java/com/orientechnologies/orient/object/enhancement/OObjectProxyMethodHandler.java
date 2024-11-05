@@ -19,8 +19,8 @@ package com.orientechnologies.orient.object.enhancement;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.reflection.OReflectionHelper;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.object.ODatabaseObjectInternal;
 import com.orientechnologies.orient.core.db.object.OObjectLazyMultivalueElement;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
@@ -81,7 +81,7 @@ public class OObjectProxyMethodHandler implements MethodHandler {
 
   public OObjectProxyMethodHandler(ODocument iDocument) {
     doc = iDocument;
-    final ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().get();
+    final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
     if (db.getDatabaseOwner() instanceof ODatabaseObjectInternal
         && !((ODatabaseObjectInternal) db.getDatabaseOwner()).isLazyLoading()) {
       doc.detach();

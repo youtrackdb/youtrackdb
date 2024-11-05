@@ -19,11 +19,10 @@
  */
 package com.orientechnologies.orient.core.record;
 
-import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.io.OIOUtils;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
@@ -35,7 +34,6 @@ import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.impl.ODirtyManager;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerJSON;
-import com.orientechnologies.orient.core.storage.cluster.OOfflineClusterException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -148,7 +146,7 @@ public abstract class ORecordAbstract implements ORecord {
     return this;
   }
 
-  protected ORecordAbstract fromStream(final byte[] iRecordBuffer, ODatabaseDocumentInternal db) {
+  protected ORecordAbstract fromStream(final byte[] iRecordBuffer, ODatabaseSessionInternal db) {
     if (dirty) {
       throw new ODatabaseException("Cannot call fromStream() on dirty records");
     }
@@ -301,7 +299,7 @@ public abstract class ORecordAbstract implements ORecord {
           getIdentity(), "The record has no id, probably it's new or transient yet ");
     }
 
-    final ORecord result = getDatabase().load(this);
+    final ORecord result = getDatabase().load(recordId);
 
     if (result == null) {
       throw new ORecordNotFoundException(getIdentity());
@@ -310,42 +308,12 @@ public abstract class ORecordAbstract implements ORecord {
     return result;
   }
 
-  public ODatabaseDocumentInternal getDatabase() {
+  public ODatabaseSessionInternal getDatabase() {
     return ODatabaseRecordThreadLocal.instance().get();
   }
 
-  public static ODatabaseDocumentInternal getDatabaseIfDefined() {
+  public static ODatabaseSessionInternal getDatabaseIfDefined() {
     return ODatabaseRecordThreadLocal.instance().getIfDefined();
-  }
-
-  public ORecord reload() {
-    return reload(null, true, true);
-  }
-
-  public ORecord reload(final String fetchPlan) {
-    return reload(fetchPlan, true);
-  }
-
-  public ORecord reload(final String fetchPlan, final boolean ignoreCache) {
-    return reload(fetchPlan, ignoreCache, true);
-  }
-
-  public ORecord reload(String fetchPlan, boolean ignoreCache, boolean force)
-      throws ORecordNotFoundException {
-    if (!getIdentity().isValid()) {
-      throw new ORecordNotFoundException(
-          getIdentity(), "The record has no id. It is probably new or still transient");
-    }
-
-    try {
-      getDatabase().reload(this, fetchPlan, ignoreCache, force);
-
-      return this;
-    } catch (OOfflineClusterException | ORecordNotFoundException e) {
-      throw e;
-    } catch (Exception e) {
-      throw OException.wrapException(new ORecordNotFoundException(getIdentity()), e);
-    }
   }
 
   public ORecordAbstract save() {
@@ -471,7 +439,7 @@ public abstract class ORecordAbstract implements ORecord {
       final int iVersion,
       final byte[] iBuffer,
       boolean iDirty,
-      ODatabaseDocumentInternal db) {
+      ODatabaseSessionInternal db) {
     if (dirty) {
       throw new ODatabaseException("Cannot call fill() on dirty records");
     }
@@ -530,7 +498,7 @@ public abstract class ORecordAbstract implements ORecord {
     }
   }
 
-  protected static ODatabaseDocumentInternal getDatabaseIfDefinedInternal() {
+  protected static ODatabaseSessionInternal getDatabaseIfDefinedInternal() {
     return ODatabaseRecordThreadLocal.instance().getIfDefined();
   }
 
@@ -547,7 +515,7 @@ public abstract class ORecordAbstract implements ORecord {
     }
   }
 
-  protected void setup(ODatabaseDocumentInternal db) {
+  protected void setup(ODatabaseSessionInternal db) {
     if (recordId == null) {
       recordId = new OEmptyRecordId();
     }
@@ -632,7 +600,6 @@ public abstract class ORecordAbstract implements ORecord {
     this.getDirtyManager().unTrack(this, id);
   }
 
-  @Override
   public void resetToNew() {
     if (!recordId.isNew()) {
       throw new IllegalStateException(

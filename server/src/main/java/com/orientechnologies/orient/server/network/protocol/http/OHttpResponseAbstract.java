@@ -24,7 +24,7 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.ORecord;
@@ -168,7 +168,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
   }
 
   @Override
-  public void writeResult(final Object result, ODatabaseDocumentInternal databaseDocumentInternal)
+  public void writeResult(final Object result, ODatabaseSessionInternal databaseDocumentInternal)
       throws InterruptedException, IOException {
     writeResult(result, null, null, null, databaseDocumentInternal);
   }
@@ -178,7 +178,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       Object iResult,
       final String iFormat,
       final String iAccept,
-      ODatabaseDocumentInternal databaseDocumentInternal)
+      ODatabaseSessionInternal databaseDocumentInternal)
       throws InterruptedException, IOException {
     writeResult(iResult, iFormat, iAccept, null, databaseDocumentInternal);
   }
@@ -189,7 +189,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       final String iFormat,
       final String iAccept,
       final Map<String, Object> iAdditionalProperties,
-      ODatabaseDocumentInternal databaseDocumentInternal)
+      ODatabaseSessionInternal databaseDocumentInternal)
       throws InterruptedException, IOException {
     writeResult(iResult, iFormat, iAccept, iAdditionalProperties, null, databaseDocumentInternal);
   }
@@ -201,7 +201,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       final String iAccept,
       final Map<String, Object> iAdditionalProperties,
       final String mode,
-      ODatabaseDocumentInternal databaseDocumentInternal)
+      ODatabaseSessionInternal databaseDocumentInternal)
       throws InterruptedException, IOException {
     if (iResult == null) {
       send(OHttpUtils.STATUS_OK_NOCONTENT_CODE, "", OHttpUtils.CONTENT_TEXT_PLAIN, null, null);
@@ -247,8 +247,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
   }
 
   @Override
-  public void writeRecords(
-      final Object iRecords, ODatabaseDocumentInternal databaseDocumentInternal)
+  public void writeRecords(final Object iRecords, ODatabaseSessionInternal databaseDocumentInternal)
       throws IOException {
     writeRecords(iRecords, null, null, null, null, databaseDocumentInternal);
   }
@@ -257,7 +256,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
   public void writeRecords(
       final Object iRecords,
       final String iFetchPlan,
-      ODatabaseDocumentInternal databaseDocumentInternal)
+      ODatabaseSessionInternal databaseDocumentInternal)
       throws IOException {
     writeRecords(iRecords, iFetchPlan, null, null, null, databaseDocumentInternal);
   }
@@ -268,7 +267,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       final String iFetchPlan,
       String iFormat,
       final String accept,
-      ODatabaseDocumentInternal databaseDocumentInternal)
+      ODatabaseSessionInternal databaseDocumentInternal)
       throws IOException {
     writeRecords(iRecords, iFetchPlan, iFormat, accept, null, databaseDocumentInternal);
   }
@@ -280,7 +279,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       String iFormat,
       final String accept,
       final Map<String, Object> iAdditionalProperties,
-      ODatabaseDocumentInternal databaseDocumentInternal)
+      ODatabaseSessionInternal databaseDocumentInternal)
       throws IOException {
     writeRecords(
         iRecords,
@@ -300,7 +299,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       final String accept,
       final Map<String, Object> iAdditionalProperties,
       final String mode,
-      ODatabaseDocumentInternal databaseDocumentInternal)
+      ODatabaseSessionInternal databaseDocumentInternal)
       throws IOException {
     if (iRecords == null) {
       send(OHttpUtils.STATUS_OK_NOCONTENT_CODE, "", OHttpUtils.CONTENT_TEXT_PLAIN, null, null);
@@ -447,7 +446,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       Map<String, Object> iAdditionalProperties,
       Iterator<?> it,
       Writer buffer,
-      ODatabaseDocumentInternal databaseDocumentInternal)
+      ODatabaseSessionInternal databaseDocumentInternal)
       throws IOException {
     final OJSONWriter json = new OJSONWriter(buffer, iFormat);
     json.beginObject();
@@ -486,7 +485,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       final Iterator<?> iIterator,
       final Writer buffer,
       final String format,
-      ODatabaseDocumentInternal databaseDocumentInternal)
+      ODatabaseSessionInternal databaseDocumentInternal)
       throws IOException {
     if (iIterator != null) {
       int counter = 0;

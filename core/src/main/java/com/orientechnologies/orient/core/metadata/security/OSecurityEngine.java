@@ -2,9 +2,9 @@ package com.orientechnologies.orient.core.metadata.security;
 
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OSecurityException;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -106,13 +106,13 @@ public class OSecurityEngine {
       OSecurityResourceProperty resource,
       OSecurityPolicy.Scope scope) {
     OClass clazz =
-        ((ODatabaseDocumentInternal) session)
+        ((ODatabaseSessionInternal) session)
             .getMetadata()
             .getImmutableSchemaSnapshot()
             .getClass(resource.getClassName());
     if (clazz == null) {
       clazz =
-          ((ODatabaseDocumentInternal) session)
+          ((ODatabaseSessionInternal) session)
               .getMetadata()
               .getImmutableSchemaSnapshot()
               .getView(resource.getClassName());
@@ -147,7 +147,7 @@ public class OSecurityEngine {
       OSecurityResourceClass resource,
       OSecurityPolicy.Scope scope) {
     OClass clazz =
-        ((ODatabaseDocumentInternal) session)
+        ((ODatabaseSessionInternal) session)
             .getMetadata()
             .getImmutableSchemaSnapshot()
             .getClass(resource.getClassName());

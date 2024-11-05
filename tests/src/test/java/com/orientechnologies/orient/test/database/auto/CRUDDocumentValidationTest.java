@@ -30,7 +30,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.testng.Assert;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -40,9 +39,9 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
   private ODocument record;
   private ODocument account;
 
-  @Parameters(value = "url")
-  public CRUDDocumentValidationTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public CRUDDocumentValidationTest(boolean remote) {
+    super(remote);
   }
 
   @Test
@@ -160,7 +159,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
     database.reload();
     database.getMetadata().reload();
     database.close();
-    database.open("admin", "admin");
+    database = acquireSession();
     List<OResult> result =
         database.query("SELECT FROM MyTestClass WHERE keyField = ?", "K1").stream()
             .collect(Collectors.toList());
@@ -195,7 +194,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
     database.commit();
 
     database.close();
-    database.open("admin", "admin");
+    database = acquireSession();
 
     List<OResult> result =
         database.query("SELECT FROM MyTestClass WHERE keyField = ?", "K2").stream()

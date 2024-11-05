@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.storage.index.hashindex.local.v2;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.exception.OCommandInterruptedException;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
@@ -20,7 +20,7 @@ import org.junit.Test;
  * @since 5/15/14
  */
 public class HashTableDirectoryV2Test {
-  private static ODatabaseDocumentInternal db;
+  private static ODatabaseSessionInternal db;
 
   private static HashTableDirectory directory;
 

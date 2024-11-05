@@ -62,8 +62,7 @@ public class OrientDBRemoteTest {
       factory.execute("create database test memory users (admin identified by 'admin' role admin)");
     }
 
-    ODatabaseDocumentInternal db =
-        (ODatabaseDocumentInternal) factory.open("test", "admin", "admin");
+    ODatabaseSessionInternal db = (ODatabaseSessionInternal) factory.open("test", "admin", "admin");
     db.begin();
     db.save(new ODocument(), db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
@@ -92,7 +91,7 @@ public class OrientDBRemoteTest {
       factory.execute("create database test memory users (admin identified by 'admin' role admin)");
 
     ODatabasePool pool = new ODatabasePool(factory, "test", "admin", "admin");
-    ODatabaseDocumentInternal db = (ODatabaseDocumentInternal) pool.acquire();
+    ODatabaseSessionInternal db = (ODatabaseSessionInternal) pool.acquire();
     db.begin();
     db.save(new ODocument(), db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
@@ -233,8 +232,8 @@ public class OrientDBRemoteTest {
   public void testCopyOpenedDatabase() {
     factory.execute("create database test memory users (admin identified by 'admin' role admin)");
     ODatabaseDocument db1;
-    try (ODatabaseDocumentInternal db =
-        (ODatabaseDocumentInternal) factory.open("test", "admin", "admin")) {
+    try (ODatabaseSessionInternal db =
+        (ODatabaseSessionInternal) factory.open("test", "admin", "admin")) {
       db1 = db.copy();
     }
     db1.activateOnCurrentThread();

@@ -8,7 +8,6 @@ import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.testng.Assert;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 
 /**
@@ -17,9 +16,9 @@ import org.testng.annotations.Parameters;
  * @since 04/12/14
  */
 public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
-  @Parameters(value = "url")
-  public SQLDeleteEdgeTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public SQLDeleteEdgeTest(boolean remote) {
+    super(remote);
   }
 
   public void testDeleteFromTo() {

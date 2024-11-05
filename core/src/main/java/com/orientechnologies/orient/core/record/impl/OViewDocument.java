@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.record.impl;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OImmutableClass;
 import com.orientechnologies.orient.core.metadata.schema.OView;
@@ -8,9 +8,13 @@ import com.orientechnologies.orient.core.record.OElement;
 
 public class OViewDocument extends ODocument {
 
-  private final OView view;
+  private OView view;
 
-  public OViewDocument(ODatabaseDocumentInternal database, ORID rid) {
+  public OViewDocument(ODatabaseSessionInternal database, int cluster) {
+    view = database.getViewFromCluster(cluster);
+  }
+
+  public OViewDocument(ODatabaseSessionInternal database, ORID rid) {
     super(database, rid);
     view = database.getViewFromCluster(rid.getClusterId());
   }

@@ -16,16 +16,15 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import org.testng.Assert;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test(groups = "sql-cluster-alter")
 public class SQLAlterClusterCommandTest extends DocumentDBBaseTest {
 
-  @Parameters(value = "url")
-  public SQLAlterClusterCommandTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public SQLAlterClusterCommandTest(boolean remote) {
+    super(remote);
   }
 
   @Test

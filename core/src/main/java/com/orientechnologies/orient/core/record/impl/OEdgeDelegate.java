@@ -19,12 +19,11 @@
  */
 package com.orientechnologies.orient.core.record.impl;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -86,16 +85,6 @@ public class OEdgeDelegate implements OEdgeInternal {
       return null; // TODO optional...?
     }
     return v.toVertex();
-  }
-
-  @Override
-  public void resetToNew() {
-    final ODocument doc = getRecord();
-    if (doc == null) {
-      return;
-    }
-
-    doc.resetToNew();
   }
 
   @Override
@@ -196,7 +185,7 @@ public class OEdgeDelegate implements OEdgeInternal {
     OVertexInternal.removeOutgoingEdge(from, this);
     OVertexInternal.removeIncomingEdge(to, this);
     this.element =
-        ((ODatabaseDocumentInternal) db)
+        ((ODatabaseSessionInternal) db)
             .newRegularEdge(
                 lightweightEdgeType == null ? "E" : lightweightEdgeType.getName(), from, to)
             .getRecord();
@@ -455,11 +444,6 @@ public class OEdgeDelegate implements OEdgeInternal {
       return element.isDirty();
     }
     return false;
-  }
-
-  @Override
-  public <RET extends ORecord> RET load() throws ORecordNotFoundException {
-    return (RET) element.load();
   }
 
   @Override

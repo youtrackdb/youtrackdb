@@ -20,7 +20,7 @@
  */
 package com.orientechnologies.orient.core.metadata.schema;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OProxedResource;
 import com.orientechnologies.orient.core.db.viewmanager.ViewCreationListener;
 import com.orientechnologies.orient.core.id.ORID;
@@ -42,7 +42,7 @@ import java.util.Set;
 @SuppressWarnings("unchecked")
 public class OSchemaProxy extends OProxedResource<OSchemaShared> implements OSchema {
 
-  public OSchemaProxy(final OSchemaShared iDelegate, final ODatabaseDocumentInternal iDatabase) {
+  public OSchemaProxy(final OSchemaShared iDelegate, final ODatabaseSessionInternal iDatabase) {
     super(iDelegate, iDatabase);
   }
 
@@ -180,7 +180,7 @@ public class OSchemaProxy extends OProxedResource<OSchemaShared> implements OSch
   }
 
   public OView createView(
-      ODatabaseDocumentInternal database,
+      ODatabaseSessionInternal database,
       final String viewName,
       String statement,
       Map<String, Object> metadata) {

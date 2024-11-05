@@ -4,7 +4,7 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabase.ATTRIBUTES;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.OVertex;
@@ -157,7 +157,7 @@ public class OOrderByItem {
         result = 1;
       } else if (aVal instanceof String && bVal instanceof String) {
 
-        ODatabaseDocumentInternal internal = ((ODatabaseDocumentInternal) ctx.getDatabase());
+        ODatabaseSessionInternal internal = ((ODatabaseSessionInternal) ctx.getDatabase());
         if (stringCollator == null) {
           String language = (String) internal.get(ATTRIBUTES.LOCALELANGUAGE);
           String country = (String) internal.get(ATTRIBUTES.LOCALECOUNTRY);

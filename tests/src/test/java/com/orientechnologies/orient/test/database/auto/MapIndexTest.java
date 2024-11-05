@@ -15,7 +15,6 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -26,9 +25,9 @@ import org.testng.annotations.Test;
 @Test(groups = {"index"})
 public class MapIndexTest extends ObjectDBBaseTest {
 
-  @Parameters(value = "url")
-  public MapIndexTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public MapIndexTest(boolean remote) {
+    super(remote);
   }
 
   @BeforeClass
@@ -53,7 +52,7 @@ public class MapIndexTest extends ObjectDBBaseTest {
 
   @AfterClass
   public void destroySchema() {
-    database.open("admin", "admin");
+    database = createSessionInstance();
     database.getMetadata().getSchema().dropClass("Mapper");
     database.getMetadata().getSchema().dropClass("MapIndexTestMovie");
     database.close();

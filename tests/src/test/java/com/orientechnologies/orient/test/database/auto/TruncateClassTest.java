@@ -33,16 +33,15 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.testng.Assert;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test
 public class TruncateClassTest extends DocumentDBBaseTest {
 
-  @Parameters(value = "url")
-  public TruncateClassTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public TruncateClassTest(boolean remote) {
+    super(remote);
   }
 
   @SuppressWarnings("unchecked")

@@ -17,42 +17,23 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabase;
-import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
-import com.orientechnologies.orient.test.database.base.SetupTest;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test(groups = "db")
 public class DbClosedTest extends DocumentDBBaseTest {
-  private OPartitionedDatabasePool pool;
 
-  @Parameters(value = {"url"})
-  public DbClosedTest(@Optional String url) {
-    super(url);
-    setAutoManageDatabase(false);
-    setDropDb(true);
-  }
-
-  @BeforeClass
-  public void before() {
-    pool = new OPartitionedDatabasePool(url, "admin", "admin");
-  }
-
-  @AfterClass
-  public void after() {
-    pool.close();
+  @Parameters(value = {"remote"})
+  public DbClosedTest(boolean remote) {
+    super(remote, "db-closed-test");
   }
 
   public void testDoubleDb() {
-    ODatabaseDocument db = pool.acquire();
+    ODatabaseDocument db = acquireSession();
 
     // now I am getting another db instance
-    ODatabaseDocument dbAnother = pool.acquire();
+    ODatabaseDocument dbAnother = acquireSession();
     dbAnother.close();
 
     db.activateOnCurrentThread();
@@ -60,28 +41,25 @@ public class DbClosedTest extends DocumentDBBaseTest {
   }
 
   public void testDoubleDbWindowsPath() {
-    ODatabaseDocument db = pool.acquire();
+    ODatabaseDocument db = acquireSession();
 
     // now I am getting another db instance
-    ODatabaseDocument dbAnother = pool.acquire();
+    ODatabaseDocument dbAnother = acquireSession();
     dbAnother.close();
 
     db.activateOnCurrentThread();
     db.close();
   }
 
-  @Test(dependsOnMethods = {"testDoubleDb", "testDoubleDbWindowsPath"})
-  public void testStorageClosed() {
-    if (SetupTest.instance().isReuseDatabase()) return;
-  }
-
   @Test
   public void testRemoteConns() {
-    if (!url.startsWith("remote:")) return;
+    if (remoteDB) {
+      return;
+    }
 
     final int max = OGlobalConfiguration.NETWORK_MAX_CONCURRENT_SESSIONS.getValueAsInteger();
     for (int i = 0; i < max * 2; ++i) {
-      final ODatabase db = new ODatabaseDocumentTx(url).open("admin", "admin");
+      final ODatabase db = acquireSession();
       db.close();
     }
   }

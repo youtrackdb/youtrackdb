@@ -60,8 +60,8 @@ public class OLuceneInsertUpdateSingleDocumentTransactionTest extends OLuceneBas
     doc1 = db.save(doc1);
     db.commit();
     db.begin();
-    doc = db.load(doc);
-    doc1 = db.load(doc1);
+    doc = db.load(doc.getIdentity());
+    doc1 = db.load(doc1.getIdentity());
     doc.field("name", "Rome");
     doc1.field("name", "Rome");
     db.save(doc);

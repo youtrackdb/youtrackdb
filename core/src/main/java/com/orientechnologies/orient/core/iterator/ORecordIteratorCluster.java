@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.iterator;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.ORecord;
@@ -36,17 +36,17 @@ public class ORecordIteratorCluster<REC extends ORecord> extends OIdentifiableIt
 
   private ORecord currentRecord;
 
-  public ORecordIteratorCluster(final ODatabaseDocumentInternal iDatabase, final int iClusterId) {
+  public ORecordIteratorCluster(final ODatabaseSessionInternal iDatabase, final int iClusterId) {
     this(iDatabase, iClusterId, ORID.CLUSTER_POS_INVALID, ORID.CLUSTER_POS_INVALID);
   }
 
-  protected ORecordIteratorCluster(final ODatabaseDocumentInternal database) {
+  protected ORecordIteratorCluster(final ODatabaseSessionInternal database) {
     super(database);
   }
 
   @Deprecated
   public ORecordIteratorCluster(
-      final ODatabaseDocumentInternal iDatabase,
+      final ODatabaseSessionInternal iDatabase,
       final int iClusterId,
       final long firstClusterEntry,
       final long lastClusterEntry) {

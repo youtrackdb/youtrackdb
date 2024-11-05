@@ -26,7 +26,6 @@ import java.util.Arrays;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -36,9 +35,9 @@ public class SQLDropPropertyIndexTest extends DocumentDBBaseTest {
   private static final OType EXPECTED_PROP1_TYPE = OType.DOUBLE;
   private static final OType EXPECTED_PROP2_TYPE = OType.INTEGER;
 
-  @Parameters(value = "url")
-  public SQLDropPropertyIndexTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public SQLDropPropertyIndexTest(boolean remote) {
+    super(remote);
   }
 
   @BeforeMethod

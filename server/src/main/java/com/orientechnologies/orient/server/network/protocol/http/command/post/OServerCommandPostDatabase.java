@@ -21,7 +21,7 @@ package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.OStorageEntryConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.engine.local.OEngineLocalPaginated;
 import com.orientechnologies.orient.core.engine.memory.OEngineMemory;
@@ -89,7 +89,7 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
         server.createDatabase(
             databaseName, ODatabaseType.valueOf(storageMode.toUpperCase(Locale.ENGLISH)), null);
 
-        try (ODatabaseDocumentInternal database =
+        try (ODatabaseSessionInternal database =
             server.openDatabase(databaseName, serverUser, serverPassword, null)) {
 
           if (createAdmin) {
@@ -129,9 +129,7 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
   }
 
   protected void sendDatabaseInfo(
-      final OHttpRequest iRequest,
-      final OHttpResponse iResponse,
-      final ODatabaseDocumentInternal db)
+      final OHttpRequest iRequest, final OHttpResponse iResponse, final ODatabaseSessionInternal db)
       throws IOException {
     final StringWriter buffer = new StringWriter();
     final OJSONWriter json = new OJSONWriter(buffer);
@@ -272,7 +270,7 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
   }
 
   protected void exportClass(
-      final ODatabaseDocumentInternal db, final OJSONWriter json, final OClass cls)
+      final ODatabaseSessionInternal db, final OJSONWriter json, final OClass cls)
       throws IOException {
     json.beginObject(2, true, null);
     json.writeAttribute(3, true, "name", cls.getName());

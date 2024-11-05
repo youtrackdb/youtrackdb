@@ -24,16 +24,15 @@ import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.List;
 import java.util.Set;
 import org.testng.Assert;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test(groups = "sql-select")
 public class GEOTest extends DocumentDBBaseTest {
 
-  @Parameters(value = "url")
-  public GEOTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public GEOTest(boolean remote) {
+    super(remote);
   }
 
   @Test

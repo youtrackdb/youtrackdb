@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.iterator;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -43,7 +43,7 @@ public class ORecordIteratorClass<REC extends ORecord> extends ORecordIteratorCl
   protected boolean polymorphic;
 
   public ORecordIteratorClass(
-      final ODatabaseDocumentInternal iDatabase,
+      final ODatabaseSessionInternal iDatabase,
       final String iClassName,
       final boolean iPolymorphic,
       boolean begin) {
@@ -53,7 +53,7 @@ public class ORecordIteratorClass<REC extends ORecord> extends ORecordIteratorCl
 
   @Deprecated
   public ORecordIteratorClass(
-      final ODatabaseDocumentInternal iDatabase,
+      final ODatabaseSessionInternal iDatabase,
       final String iClassName,
       final boolean iPolymorphic) {
     super(iDatabase);
@@ -74,7 +74,7 @@ public class ORecordIteratorClass<REC extends ORecord> extends ORecordIteratorCl
   }
 
   protected ORecordIteratorClass(
-      final ODatabaseDocumentInternal database, OClass targetClass, boolean polymorphic) {
+      final ODatabaseSessionInternal database, OClass targetClass, boolean polymorphic) {
     super(database, targetClass.getPolymorphicClusterIds());
     this.targetClass = targetClass;
     this.polymorphic = polymorphic;

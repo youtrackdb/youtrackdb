@@ -16,7 +16,7 @@
 
 package com.orientechnologies.orient.core.schedule;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OProxedResource;
 import java.util.Map;
 
@@ -29,8 +29,7 @@ import java.util.Map;
  * @since Mar 28, 2013
  */
 public class OSchedulerProxy extends OProxedResource<OSchedulerImpl> implements OScheduler {
-  public OSchedulerProxy(
-      final OSchedulerImpl iDelegate, final ODatabaseDocumentInternal iDatabase) {
+  public OSchedulerProxy(final OSchedulerImpl iDelegate, final ODatabaseSessionInternal iDatabase) {
     super(iDelegate, iDatabase);
   }
 

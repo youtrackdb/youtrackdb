@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.metadata.schema;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ public class OImmutableView extends OImmutableClass implements OView {
   }
 
   public void getRawClassIndexes(final Collection<OIndex> indexes) {
-    ODatabaseDocumentInternal database = getDatabase();
+    ODatabaseSessionInternal database = getDatabase();
     OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
     for (String indexName : activeIndexNames) {
       OIndex index = indexManager.getIndex(database, indexName);

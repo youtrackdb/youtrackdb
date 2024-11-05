@@ -25,8 +25,8 @@ import com.orientechnologies.common.serialization.types.OByteSerializer;
 import com.orientechnologies.common.serialization.types.OUUIDSerializer;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeTimeLine;
@@ -297,7 +297,7 @@ public class ORidBag
   }
 
   public void checkAndConvert() {
-    ODatabaseDocumentInternal database = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    ODatabaseSessionInternal database = ODatabaseRecordThreadLocal.instance().getIfDefined();
     if (database != null && !database.isRemote()) {
       if (isEmbedded()
           && ODatabaseRecordThreadLocal.instance().get().getSbTreeCollectionManager() != null

@@ -23,9 +23,9 @@ import com.orientechnologies.common.concur.resource.OCloseable;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.types.OModifiableInteger;
 import com.orientechnologies.common.util.OArrays;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OMetadataUpdateListener;
 import com.orientechnologies.orient.core.db.OScenarioThreadLocal;
 import com.orientechnologies.orient.core.db.viewmanager.ViewCreationListener;
@@ -180,7 +180,7 @@ public abstract class OSchemaShared implements OCloseable {
     return null;
   }
 
-  public OImmutableSchema makeSnapshot(ODatabaseDocumentInternal database) {
+  public OImmutableSchema makeSnapshot(ODatabaseSessionInternal database) {
     if (snapshot == null) {
       // Is null only in the case that is asked while the schema is created
       // all the other cases are already protected by a write lock
@@ -196,7 +196,7 @@ public abstract class OSchemaShared implements OCloseable {
     return snapshot;
   }
 
-  public void forceSnapshot(ODatabaseDocumentInternal database) {
+  public void forceSnapshot(ODatabaseSessionInternal database) {
     acquireSchemaReadLock();
     try {
       snapshot = new OImmutableSchema(this, database);
@@ -209,7 +209,7 @@ public abstract class OSchemaShared implements OCloseable {
     return clusterSelectionFactory;
   }
 
-  public int countClasses(ODatabaseDocumentInternal database) {
+  public int countClasses(ODatabaseSessionInternal database) {
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_READ);
 
     acquireSchemaReadLock();
@@ -220,7 +220,7 @@ public abstract class OSchemaShared implements OCloseable {
     }
   }
 
-  public int countViews(ODatabaseDocumentInternal database) {
+  public int countViews(ODatabaseSessionInternal database) {
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_READ);
 
     acquireSchemaReadLock();
@@ -247,49 +247,49 @@ public abstract class OSchemaShared implements OCloseable {
     }
   }
 
-  public OClass createClass(ODatabaseDocumentInternal database, final String className) {
+  public OClass createClass(ODatabaseSessionInternal database, final String className) {
     return createClass(database, className, (OClass) null, (int[]) null);
   }
 
   public OClass createClass(
-      ODatabaseDocumentInternal database, final String iClassName, final OClass iSuperClass) {
+      ODatabaseSessionInternal database, final String iClassName, final OClass iSuperClass) {
     return createClass(database, iClassName, iSuperClass, (int[]) null);
   }
 
   public OClass createClass(
-      ODatabaseDocumentInternal database, String iClassName, OClass... superClasses) {
+      ODatabaseSessionInternal database, String iClassName, OClass... superClasses) {
     return createClass(database, iClassName, (int[]) null, superClasses);
   }
 
-  public OClass getOrCreateClass(ODatabaseDocumentInternal database, final String iClassName) {
+  public OClass getOrCreateClass(ODatabaseSessionInternal database, final String iClassName) {
     return getOrCreateClass(database, iClassName, (OClass) null);
   }
 
   public OClass getOrCreateClass(
-      ODatabaseDocumentInternal database, final String iClassName, final OClass superClass) {
+      ODatabaseSessionInternal database, final String iClassName, final OClass superClass) {
     return getOrCreateClass(
         database, iClassName, superClass == null ? new OClass[0] : new OClass[] {superClass});
   }
 
   public abstract OClass getOrCreateClass(
-      ODatabaseDocumentInternal database, final String iClassName, final OClass... superClasses);
+      ODatabaseSessionInternal database, final String iClassName, final OClass... superClasses);
 
-  public OClass createAbstractClass(ODatabaseDocumentInternal database, final String className) {
+  public OClass createAbstractClass(ODatabaseSessionInternal database, final String className) {
     return createClass(database, className, null, new int[] {-1});
   }
 
   public OClass createAbstractClass(
-      ODatabaseDocumentInternal database, final String className, final OClass superClass) {
+      ODatabaseSessionInternal database, final String className, final OClass superClass) {
     return createClass(database, className, superClass, new int[] {-1});
   }
 
   public OClass createAbstractClass(
-      ODatabaseDocumentInternal database, String iClassName, OClass... superClasses) {
+      ODatabaseSessionInternal database, String iClassName, OClass... superClasses) {
     return createClass(database, iClassName, new int[] {-1}, superClasses);
   }
 
   public OClass createClass(
-      ODatabaseDocumentInternal database,
+      ODatabaseSessionInternal database,
       final String className,
       final OClass superClass,
       int[] clusterIds) {
@@ -297,27 +297,27 @@ public abstract class OSchemaShared implements OCloseable {
   }
 
   public abstract OClass createClass(
-      ODatabaseDocumentInternal database,
+      ODatabaseSessionInternal database,
       final String className,
       int[] clusterIds,
       OClass... superClasses);
 
   public abstract OClass createClass(
-      ODatabaseDocumentInternal database,
+      ODatabaseSessionInternal database,
       final String className,
       int clusters,
       OClass... superClasses);
 
   public abstract OView createView(
-      ODatabaseDocumentInternal database,
+      ODatabaseSessionInternal database,
       final String viewName,
       String statement,
       Map<String, Object> metadata);
 
-  public abstract OView createView(ODatabaseDocumentInternal database, OViewConfig cfg);
+  public abstract OView createView(ODatabaseSessionInternal database, OViewConfig cfg);
 
   public abstract OView createView(
-      ODatabaseDocumentInternal database, OViewConfig cfg, ViewCreationListener listener)
+      ODatabaseSessionInternal database, OViewConfig cfg, ViewCreationListener listener)
       throws UnsupportedOperationException;
 
   public abstract void checkEmbedded();
@@ -383,14 +383,14 @@ public abstract class OSchemaShared implements OCloseable {
    *
    * @see com.orientechnologies.orient.core.metadata.schema.OSchema#dropClass(java.lang.String)
    */
-  public abstract void dropClass(ODatabaseDocumentInternal database, final String className);
+  public abstract void dropClass(ODatabaseSessionInternal database, final String className);
 
-  public abstract void dropView(ODatabaseDocumentInternal database, final String viewName);
+  public abstract void dropView(ODatabaseSessionInternal database, final String viewName);
 
   /**
    * Reloads the schema inside a storage's shared lock.
    */
-  public void reload(ODatabaseDocumentInternal database) {
+  public void reload(ODatabaseSessionInternal database) {
     lock.writeLock().lock();
     try {
       identity = new ORecordId(database.getStorageInfo().getConfiguration().getSchemaRecordId());
@@ -482,17 +482,17 @@ public abstract class OSchemaShared implements OCloseable {
     lock.readLock().unlock();
   }
 
-  public void acquireSchemaWriteLock(ODatabaseDocumentInternal database) {
+  public void acquireSchemaWriteLock(ODatabaseSessionInternal database) {
     database.startExclusiveMetadataChange();
     lock.writeLock().lock();
     modificationCounter.increment();
   }
 
-  public void releaseSchemaWriteLock(ODatabaseDocumentInternal database) {
+  public void releaseSchemaWriteLock(ODatabaseSessionInternal database) {
     releaseSchemaWriteLock(database, true);
   }
 
-  public void releaseSchemaWriteLock(ODatabaseDocumentInternal database, final boolean iSave) {
+  public void releaseSchemaWriteLock(ODatabaseSessionInternal database, final boolean iSave) {
     int count;
     try {
       if (modificationCounter.intValue() == 1) {
@@ -525,7 +525,7 @@ public abstract class OSchemaShared implements OCloseable {
   }
 
   void changeClassName(
-      ODatabaseDocumentInternal database,
+      ODatabaseSessionInternal database,
       final String oldName,
       final String newName,
       final OClass cls) {
@@ -558,7 +558,7 @@ public abstract class OSchemaShared implements OCloseable {
   }
 
   void changeViewName(
-      ODatabaseDocumentInternal database,
+      ODatabaseSessionInternal database,
       final String oldName,
       final String newName,
       final OView view) {
@@ -740,7 +740,7 @@ public abstract class OSchemaShared implements OCloseable {
       }
 
       if (!hasGlobalProperties) {
-        ODatabaseDocumentInternal database = ODatabaseRecordThreadLocal.instance().get();
+        ODatabaseSessionInternal database = ODatabaseRecordThreadLocal.instance().get();
         if (database.getStorage() instanceof OAbstractPaginatedStorage) {
           saveInternal(database);
         }
@@ -840,7 +840,7 @@ public abstract class OSchemaShared implements OCloseable {
     }
   }
 
-  public Collection<OClass> getClasses(ODatabaseDocumentInternal database) {
+  public Collection<OClass> getClasses(ODatabaseSessionInternal database) {
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_READ);
     acquireSchemaReadLock();
     try {
@@ -850,7 +850,7 @@ public abstract class OSchemaShared implements OCloseable {
     }
   }
 
-  public Collection<OView> getViews(ODatabaseDocumentInternal database) {
+  public Collection<OView> getViews(ODatabaseSessionInternal database) {
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_READ);
     acquireSchemaReadLock();
     try {
@@ -861,7 +861,7 @@ public abstract class OSchemaShared implements OCloseable {
   }
 
   public Set<OClass> getClassesRelyOnCluster(
-      ODatabaseDocumentInternal database, final String clusterName) {
+      ODatabaseSessionInternal database, final String clusterName) {
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_READ);
 
     acquireSchemaReadLock();
@@ -881,7 +881,7 @@ public abstract class OSchemaShared implements OCloseable {
   }
 
   public Set<OView> getViewsRelyOnCluster(
-      ODatabaseDocumentInternal database, final String clusterName) {
+      ODatabaseSessionInternal database, final String clusterName) {
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_READ);
 
     acquireSchemaReadLock();
@@ -900,7 +900,7 @@ public abstract class OSchemaShared implements OCloseable {
     }
   }
 
-  public OSchemaShared load(ODatabaseDocumentInternal database) {
+  public OSchemaShared load(ODatabaseSessionInternal database) {
 
     lock.writeLock().lock();
     try {
@@ -908,8 +908,7 @@ public abstract class OSchemaShared implements OCloseable {
       if (!identity.isValid()) {
         throw new OSchemaNotCreatedException("Schema is not created and cannot be loaded");
       }
-      ODocument document = identity.getRecord();
-      document = database.reload(document, "*:-1 index:0", true);
+      ODocument document = database.load(identity);
       fromStream(document);
       ORecordInternal.unsetDirty(document);
       document.unload();
@@ -919,7 +918,7 @@ public abstract class OSchemaShared implements OCloseable {
     }
   }
 
-  public void create(final ODatabaseDocumentInternal database) {
+  public void create(final ODatabaseSessionInternal database) {
     lock.writeLock().lock();
     try {
       ODocument document =
@@ -989,11 +988,11 @@ public abstract class OSchemaShared implements OCloseable {
     return global;
   }
 
-  protected boolean executeThroughDistributedStorage(ODatabaseDocumentInternal database) {
+  protected boolean executeThroughDistributedStorage(ODatabaseSessionInternal database) {
     return !database.isLocalEnv();
   }
 
-  private void saveInternal(ODatabaseDocumentInternal database) {
+  private void saveInternal(ODatabaseSessionInternal database) {
 
     if (database.getTransaction().isActive()) {
       throw new OSchemaException(
@@ -1045,7 +1044,7 @@ public abstract class OSchemaShared implements OCloseable {
     }
   }
 
-  public int addBlobCluster(ODatabaseDocumentInternal database, int clusterId) {
+  public int addBlobCluster(ODatabaseSessionInternal database, int clusterId) {
     acquireSchemaWriteLock(database);
     try {
       checkClusterCanBeAdded(clusterId, null);
@@ -1056,7 +1055,7 @@ public abstract class OSchemaShared implements OCloseable {
     return clusterId;
   }
 
-  public void removeBlobCluster(ODatabaseDocumentInternal database, String clusterName) {
+  public void removeBlobCluster(ODatabaseSessionInternal database, String clusterName) {
     acquireSchemaWriteLock(database);
     try {
       int clusterId = getClusterId(database, clusterName);
@@ -1066,7 +1065,7 @@ public abstract class OSchemaShared implements OCloseable {
     }
   }
 
-  protected int getClusterId(ODatabaseDocumentInternal database, final String stringValue) {
+  protected int getClusterId(ODatabaseSessionInternal database, final String stringValue) {
     int clId;
     try {
       clId = Integer.parseInt(stringValue);
@@ -1076,7 +1075,7 @@ public abstract class OSchemaShared implements OCloseable {
     return clId;
   }
 
-  public int createClusterIfNeeded(ODatabaseDocumentInternal database, String nameOrId) {
+  public int createClusterIfNeeded(ODatabaseSessionInternal database, String nameOrId) {
     final String[] parts = nameOrId.split(" ");
     int clId = getClusterId(database, parts[0]);
 
@@ -1096,7 +1095,7 @@ public abstract class OSchemaShared implements OCloseable {
     return IntSets.unmodifiable(blobClusters);
   }
 
-  public void sendCommand(ODatabaseDocumentInternal database, String command) {
+  public void sendCommand(ODatabaseSessionInternal database, String command) {
     throw new UnsupportedOperationException();
   }
 }

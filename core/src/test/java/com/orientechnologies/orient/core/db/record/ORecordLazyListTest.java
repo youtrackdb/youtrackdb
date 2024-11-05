@@ -20,6 +20,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class ORecordLazyListTest {
+
   private OrientDB orientDb;
   private ODatabaseSession dbSession;
 
@@ -55,20 +56,17 @@ public class ORecordLazyListTest {
     mainDoc.save();
     dbSession.commit();
 
-    mainDoc = (ODocument) mainDoc.reload();
+    dbSession.begin();
     Collection<ODocument> origItems = mainDoc.field("items");
     Iterator<ODocument> it = origItems.iterator();
     assertTrue(it.next() instanceof ODocument);
     assertTrue(it.next() instanceof ODocument);
-    //  assertTrue(it.next() instanceof ODocument);
 
     List<ODocument> items = new ArrayList<ODocument>(origItems);
     assertTrue(items.get(0) instanceof ODocument);
-    //  assertEquals(doc1, items.get(0));
     assertTrue(items.get(1) instanceof ODocument);
-    //  assertEquals(doc2, items.get(1));
     assertTrue(items.get(2) instanceof ODocument);
-    //  assertEquals(doc3, items.get(2));
+    dbSession.rollback();
   }
 
   @After

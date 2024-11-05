@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.storage.cluster.v2;
 
 import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.storage.cache.OWriteCache;
@@ -45,8 +45,8 @@ public class FreeSpaceMapTestIT {
     orientDB.execute(
         "create database " + dbName + " plocal users ( admin identified by 'admin' role admin)");
 
-    final ODatabaseDocumentInternal databaseDocumentTx =
-        (ODatabaseDocumentInternal) orientDB.open(dbName, "admin", "admin");
+    final ODatabaseSessionInternal databaseDocumentTx =
+        (ODatabaseSessionInternal) orientDB.open(dbName, "admin", "admin");
 
     storage = (OAbstractPaginatedStorage) databaseDocumentTx.getStorage();
     atomicOperationsManager = storage.getAtomicOperationsManager();

@@ -24,7 +24,7 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.OQueryDatabaseState;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
@@ -285,7 +285,7 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
     OServerPluginHelper.invokeHandlerCallbackOnAfterClientRequest(server, connection, (byte) -1);
   }
 
-  private List<String> getActiveQueries(ODatabaseDocumentInternal database) {
+  private List<String> getActiveQueries(ODatabaseSessionInternal database) {
     if (database == null) {
       return null;
     }
@@ -1025,7 +1025,7 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
   }
 
   @Override
-  public void setDatabase(ODatabaseDocumentInternal db) {
+  public void setDatabase(ODatabaseSessionInternal db) {
     connection.setDatabase(db);
   }
 }

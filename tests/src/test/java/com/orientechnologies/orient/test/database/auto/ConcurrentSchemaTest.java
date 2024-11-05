@@ -20,19 +20,18 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.test.ConcurrentTestHelper;
 import com.orientechnologies.orient.test.TestFactory;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;
 import org.testng.Assert;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test
 public class ConcurrentSchemaTest extends DocumentDBBaseTest {
+
   private static final int THREADS = 10;
   private static final int CYCLES = 50;
 
@@ -41,18 +40,14 @@ public class ConcurrentSchemaTest extends DocumentDBBaseTest {
   private final AtomicLong counter = new AtomicLong();
 
   class CreateClassCommandExecutor implements Callable<Void> {
-    long id;
-    String url;
 
-    public CreateClassCommandExecutor(String url) {
-      this.url = url;
-    }
+    long id;
 
     @Override
     public Void call() {
       this.id = createClassThreadCounter.getAndIncrement();
       for (int i = 0; i < CYCLES; i++) {
-        ODatabaseDocument db = new ODatabaseDocumentTx(url).open("admin", "admin");
+        ODatabaseDocument db = acquireSession();
         try {
           final String clsName = "ConcurrentClassTest-" + id + "-" + i;
 
@@ -73,18 +68,16 @@ public class ConcurrentSchemaTest extends DocumentDBBaseTest {
   }
 
   class DropClassCommandExecutor implements Callable<Void> {
-    long id;
-    String url;
 
-    public DropClassCommandExecutor(String url) {
-      this.url = url;
-    }
+    long id;
+
+    public DropClassCommandExecutor() {}
 
     @Override
     public Void call() {
       this.id = dropClassThreadCounter.getAndIncrement();
       for (int i = 0; i < CYCLES; i++) {
-        ODatabaseDocument db = new ODatabaseDocumentTx(url).open("admin", "admin");
+        ODatabaseDocument db = acquireSession();
         try {
           final String clsName = "ConcurrentClassTest-" + id + "-" + i;
 
@@ -101,21 +94,19 @@ public class ConcurrentSchemaTest extends DocumentDBBaseTest {
     }
   }
 
-  @Parameters(value = "url")
-  public ConcurrentSchemaTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public ConcurrentSchemaTest(boolean remote) {
+    super(remote);
   }
 
   @Test
   public void concurrentCommands() throws Exception {
-    //    System.out.println("Create classes, spanning " + THREADS + " threads...");
-
     ConcurrentTestHelper.test(
         THREADS,
         new TestFactory<Void>() {
           @Override
           public Callable<Void> createWorker() {
-            return new CreateClassCommandExecutor(url);
+            return new CreateClassCommandExecutor();
           }
         });
 
@@ -135,7 +126,7 @@ public class ConcurrentSchemaTest extends DocumentDBBaseTest {
         new TestFactory<Void>() {
           @Override
           public Callable<Void> createWorker() {
-            return new DropClassCommandExecutor(url);
+            return new DropClassCommandExecutor();
           }
         });
 

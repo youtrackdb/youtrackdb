@@ -7,7 +7,7 @@ import static org.junit.Assert.assertNotNull;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.db.ODatabase;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.server.OServer;
@@ -21,7 +21,7 @@ public class RemoteMetadataReloadTest {
   private static final String SERVER_DIRECTORY = "./target/metadata-reload";
   private OServer server;
   private OrientDB orientDB;
-  private ODatabaseDocumentInternal database;
+  private ODatabaseSessionInternal database;
 
   @Before
   public void before() throws Exception {
@@ -35,7 +35,7 @@ public class RemoteMetadataReloadTest {
         "create database ? memory users (admin identified by 'admin' role admin)",
         RemoteMetadataReloadTest.class.getSimpleName());
     database =
-        (ODatabaseDocumentInternal)
+        (ODatabaseSessionInternal)
             orientDB.open(RemoteMetadataReloadTest.class.getSimpleName(), "admin", "admin");
   }
 
@@ -81,7 +81,10 @@ public class RemoteMetadataReloadTest {
 
   @Test
   public void testSequencesUpdate() throws InterruptedException {
+    database.begin();
     database.command("CREATE SEQUENCE test TYPE CACHED");
+    database.commit();
+
     assertNotNull(database.getMetadata().getSequenceLibrary().getSequence("test"));
   }
 }

@@ -2,8 +2,8 @@ package com.orientechnologies.orient.core.storage.impl.local.paginated;
 
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
 import com.orientechnologies.orient.core.id.ORID;
@@ -41,8 +41,8 @@ import org.junit.Test;
  * @since 14.06.13
  */
 public class LocalPaginatedStorageRestoreTx {
-  private ODatabaseDocumentInternal testDocumentTx;
-  private ODatabaseDocumentInternal baseDocumentTx;
+  private ODatabaseSessionInternal testDocumentTx;
+  private ODatabaseSessionInternal baseDocumentTx;
   private File buildDir;
 
   private ExecutorService executorService = Executors.newCachedThreadPool();
@@ -235,7 +235,7 @@ public class LocalPaginatedStorageRestoreTx {
     }
   }
 
-  private void createSchema(ODatabaseDocumentInternal databaseDocumentTx) {
+  private void createSchema(ODatabaseSessionInternal databaseDocumentTx) {
     ODatabaseRecordThreadLocal.instance().set(databaseDocumentTx);
 
     OSchema schema = databaseDocumentTx.getMetadata().getSchema();
@@ -257,7 +257,7 @@ public class LocalPaginatedStorageRestoreTx {
 
       Random random = new Random();
 
-      final ODatabaseDocumentInternal db = new ODatabaseDocumentTx(baseDocumentTx.getURL());
+      final ODatabaseSessionInternal db = new ODatabaseDocumentTx(baseDocumentTx.getURL());
       db.open("admin", "admin");
       int rollbacksCount = 0;
       try {

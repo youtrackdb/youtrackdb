@@ -35,9 +35,9 @@ import com.orientechnologies.orient.core.command.script.OCommandScriptException;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
 import com.orientechnologies.orient.core.db.ODatabase;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OHookReplacedRecordThreadLocal;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
@@ -121,9 +121,6 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
 
       localCache = new OLocalRecordCache();
 
-      init();
-
-      databaseOwner = this;
       try {
         var cfg = storage.getConfiguration();
         if (cfg != null) {
@@ -149,6 +146,9 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
         nonTxReadMode = NonTxReadMode.WARN;
       }
 
+      init();
+
+      databaseOwner = this;
     } catch (Exception t) {
       ODatabaseRecordThreadLocal.instance().remove();
 
@@ -236,7 +236,7 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
     return (DB) this;
   }
 
-  public ODatabaseDocumentInternal copy() {
+  public ODatabaseSessionInternal copy() {
     ODatabaseDocumentRemote database = new ODatabaseDocumentRemote(storage, this.sharedContext);
     database.storage = storage.copy(this, database);
     database.storage.addUser();
@@ -678,27 +678,16 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
     if (record == null) {
       throw new ODatabaseException("Cannot delete null document");
     }
-    var newTx = !currentTx.isActive();
-    if (newTx) {
-      //noinspection resource
-      begin();
-    }
     if (record instanceof OVertex) {
-      reload(record, "in*:2 out*:2");
       OVertexInternal.deleteLinks((OVertex) record);
     } else {
       if (record instanceof OEdge) {
-        reload(record, "in:1 out:1");
         OEdgeDocument.deleteLinks((OEdge) record);
       }
     }
 
     try {
       currentTx.deleteRecord((ORecordAbstract) record);
-      if (newTx) {
-        //noinspection resource
-        commit();
-      }
     } catch (OException e) {
       throw e;
     } catch (Exception e) {

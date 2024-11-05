@@ -23,8 +23,8 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.id.ORID;
@@ -104,7 +104,7 @@ public abstract class OCommandExecutorSQLResultsetAbstract extends OCommandExecu
     private Iterator<ORID> indexValuesIterator;
 
     private IndexValuesIterator(String indexName, boolean ascOrder) {
-      final ODatabaseDocumentInternal database = getDatabase();
+      final ODatabaseSessionInternal database = getDatabase();
       if (ascOrder) {
         indexValuesIterator =
             database
@@ -310,7 +310,7 @@ public abstract class OCommandExecutorSQLResultsetAbstract extends OCommandExecu
 
   protected boolean pushResult(Object rec) {
     if (rec instanceof ORecordAbstract record) {
-      final ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+      final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
       if (db != null) {
         var cached = db.getLocalCache().findRecord(record.getIdentity());
         if (cached != record) {
@@ -550,7 +550,7 @@ public abstract class OCommandExecutorSQLResultsetAbstract extends OCommandExecu
   protected Iterator<? extends OIdentifiable> searchInClasses(
       final OClass iCls, final boolean iPolymorphic, final boolean iAscendentOrder) {
 
-    final ODatabaseDocumentInternal database = getDatabase();
+    final ODatabaseSessionInternal database = getDatabase();
     database.checkSecurity(
         ORule.ResourceGeneric.CLASS,
         ORole.PERMISSION_READ,
@@ -572,7 +572,7 @@ public abstract class OCommandExecutorSQLResultsetAbstract extends OCommandExecu
   }
 
   protected void searchInClusters() {
-    final ODatabaseDocumentInternal database = getDatabase();
+    final ODatabaseSessionInternal database = getDatabase();
 
     final IntOpenHashSet clusterIds = new IntOpenHashSet();
     for (String clusterName : parsedTarget.getTargetClusters().keySet()) {

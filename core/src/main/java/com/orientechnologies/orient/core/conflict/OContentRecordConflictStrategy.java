@@ -20,8 +20,8 @@
 
 package com.orientechnologies.orient.core.conflict;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -58,7 +58,7 @@ public class OContentRecordConflictStrategy extends OVersionRecordConflictStrate
       final ODocument storedRecord = new ODocument(rid).fromStream(res.getResult().getBuffer());
       final ODocument newRecord = new ODocument().fromStream(iRecordContent);
 
-      final ODatabaseDocumentInternal currentDb = ODatabaseRecordThreadLocal.instance().get();
+      final ODatabaseSessionInternal currentDb = ODatabaseRecordThreadLocal.instance().get();
       hasSameContent =
           ODocumentHelper.hasSameContentOf(
               storedRecord, currentDb, newRecord, currentDb, null, false);

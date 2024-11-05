@@ -24,7 +24,7 @@ import static com.orientechnologies.orient.core.record.impl.ODocumentHelper.make
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -52,8 +52,8 @@ import java.util.stream.Stream;
 
 public class ODatabaseCompare extends ODatabaseImpExpAbstract {
 
-  private final ODatabaseDocumentInternal databaseOne;
-  private final ODatabaseDocumentInternal databaseTwo;
+  private final ODatabaseSessionInternal databaseOne;
+  private final ODatabaseSessionInternal databaseTwo;
 
   private boolean compareEntriesForAutomaticIndexes = false;
   private boolean autoDetectExportImportMap = true;
@@ -66,8 +66,8 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
   private int clusterDifference = 0;
 
   public ODatabaseCompare(
-      ODatabaseDocumentInternal databaseOne,
-      ODatabaseDocumentInternal databaseTwo,
+      ODatabaseSessionInternal databaseOne,
+      ODatabaseSessionInternal databaseTwo,
       final OCommandOutputListener iListener) {
     super(null, null, iListener);
 
@@ -680,10 +680,10 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
     listener.onMessage("\nChecking the number of clusters...");
 
     Collection<String> clusterNames1 =
-        makeDbCall(databaseOne, ODatabaseDocumentInternal::getClusterNames);
+        makeDbCall(databaseOne, ODatabaseSessionInternal::getClusterNames);
 
     Collection<String> clusterNames2 =
-        makeDbCall(databaseTwo, ODatabaseDocumentInternal::getClusterNames);
+        makeDbCall(databaseTwo, ODatabaseSessionInternal::getClusterNames);
 
     if (clusterNames1.size() != clusterNames2.size() - clusterDifference) {
       listener.onMessage(
@@ -774,7 +774,7 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
         "\nStarting deep comparison record by record. This may take a few minutes. Wait please...");
 
     Collection<String> clusterNames1 =
-        makeDbCall(databaseOne, ODatabaseDocumentInternal::getClusterNames);
+        makeDbCall(databaseOne, ODatabaseSessionInternal::getClusterNames);
 
     for (final String clusterName : clusterNames1) {
       // CHECK IF THE CLUSTER IS INCLUDED
@@ -796,7 +796,7 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
       @SuppressWarnings("ObjectAllocationInLoop")
       final ORecordId rid1 = new ORecordId(clusterId1);
 
-      ODatabaseDocumentInternal selectedDatabase = databaseOne;
+      ODatabaseSessionInternal selectedDatabase = databaseOne;
 
       OPhysicalPosition[] physicalPositions =
           makeDbCall(

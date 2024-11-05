@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.storage.index.sbtreebonsai.local;
 
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
@@ -32,7 +32,7 @@ import org.junit.Test;
 public class OSBTreeBonsaiLocalTestIT {
   private static final int KEYS_COUNT = 500000;
   protected static OSBTreeBonsaiLocal<Integer, OIdentifiable> sbTree;
-  protected static ODatabaseDocumentInternal db;
+  protected static ODatabaseSessionInternal db;
   private static OAtomicOperationsManager atomicOperationsManager;
 
   @BeforeClass
@@ -53,7 +53,7 @@ public class OSBTreeBonsaiLocalTestIT {
             "actualSBTreeBonsaiLocalTest", ".irs", (OAbstractPaginatedStorage) db.getStorage());
 
     atomicOperationsManager =
-        ((OAbstractPaginatedStorage) ((ODatabaseDocumentInternal) db).getStorage())
+        ((OAbstractPaginatedStorage) ((ODatabaseSessionInternal) db).getStorage())
             .getAtomicOperationsManager();
     atomicOperationsManager.executeInsideAtomicOperation(
         null, atomicOperation -> sbTree.createComponent(atomicOperation));

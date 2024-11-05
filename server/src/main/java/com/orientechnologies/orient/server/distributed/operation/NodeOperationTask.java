@@ -3,7 +3,7 @@ package com.orientechnologies.orient.server.distributed.operation;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.distributed.ODistributedRequestId;
 import com.orientechnologies.orient.server.distributed.ODistributedServerManager;
@@ -59,7 +59,7 @@ public class NodeOperationTask implements ORemoteTask {
       ODistributedRequestId requestId,
       OServer iServer,
       ODistributedServerManager iManager,
-      ODatabaseDocumentInternal database)
+      ODatabaseSessionInternal database)
       throws Exception {
 
     if (task != null) {

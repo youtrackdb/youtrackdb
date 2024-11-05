@@ -207,7 +207,7 @@ public class OQueryOperatorContainsValue extends OQueryOperatorEqualityNotNulls 
     final ORecord record = (ORecord) o;
     if (record.getRecord().getInternalStatus() == ORecordElement.STATUS.NOT_LOADED) {
       try {
-        o = record.<ORecord>load();
+        o = record.getDatabase().load(record.getIdentity());
       } catch (ORecordNotFoundException e) {
         throw OException.wrapException(
             new ODatabaseException("Error during loading record with id : " + record.getIdentity()),

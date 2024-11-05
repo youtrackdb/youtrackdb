@@ -19,8 +19,8 @@
 package com.orientechnologies.lucene.test;
 
 import com.orientechnologies.common.io.OIOUtils;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
@@ -38,7 +38,7 @@ public abstract class BaseLuceneTest {
 
   @Rule public TestName name = new TestName();
 
-  protected ODatabaseDocumentInternal db;
+  protected ODatabaseSessionInternal db;
   protected OrientDB context;
 
   protected ODatabaseType type;
@@ -67,7 +67,7 @@ public abstract class BaseLuceneTest {
         "create database ? " + type.toString() + " users(admin identified by 'admin' role admin) ",
         dbName);
 
-    db = (ODatabaseDocumentInternal) context.open(dbName, "admin", "admin");
+    db = (ODatabaseSessionInternal) context.open(dbName, "admin", "admin");
     db.set(ODatabaseSession.ATTRIBUTES.MINIMUMCLUSTERS, 8);
   }
 

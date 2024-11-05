@@ -28,7 +28,7 @@ import com.orientechnologies.common.serialization.types.OByteSerializer;
 import com.orientechnologies.common.serialization.types.ODecimalSerializer;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.db.record.ORecordLazyList;
@@ -569,7 +569,7 @@ public class ORecordSerializerBinaryV1 implements ODocumentSerializer {
 
   public void deserializeDebug(
       BytesContainer bytes,
-      ODatabaseDocumentInternal db,
+      ODatabaseSessionInternal db,
       ORecordSerializationDebug debugInfo,
       OImmutableSchema schema) {
 

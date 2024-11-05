@@ -108,13 +108,5 @@
             <source>${basedir}/../license.txt</source>
             <fileMode>444</fileMode>
         </file>
-        <file>
-            <source>${basedir}/../history.txt</source>
-            <fileMode>444</fileMode>
-        </file>
-        <file>
-            <source>${basedir}/../readme.txt</source>
-            <fileMode>444</fileMode>
-        </file>
     </files>
 </assembly>

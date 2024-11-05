@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.iterator;
 
 import com.orientechnologies.common.exception.OHighLevelException;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.ORecord;
@@ -46,7 +46,7 @@ public class ORecordIteratorClusters<REC extends ORecord> extends OIdentifiableI
 
   @Deprecated
   public ORecordIteratorClusters(
-      final ODatabaseDocumentInternal iDatabase, final int[] iClusterIds) {
+      final ODatabaseSessionInternal iDatabase, final int[] iClusterIds) {
     super(iDatabase);
 
     checkForSystemClusters(iDatabase, iClusterIds);
@@ -59,7 +59,7 @@ public class ORecordIteratorClusters<REC extends ORecord> extends OIdentifiableI
   }
 
   @Deprecated
-  protected ORecordIteratorClusters(final ODatabaseDocumentInternal iDatabase) {
+  protected ORecordIteratorClusters(final ODatabaseSessionInternal iDatabase) {
     super(iDatabase);
   }
 

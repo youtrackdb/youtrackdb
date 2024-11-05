@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.serialization.serializer.OJSONWriter;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
@@ -39,7 +39,7 @@ public class OServerCommandGetClass extends OServerCommandAuthenticatedDbAbstrac
     iRequest.getData().commandInfo = "Returns the information of a class in the schema";
     iRequest.getData().commandDetail = urlParts[2];
 
-    ODatabaseDocumentInternal db = null;
+    ODatabaseSessionInternal db = null;
 
     try {
       db = getProfiledDatabaseInstance(iRequest);

@@ -4,8 +4,8 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.OScenarioThreadLocal;
 import com.orientechnologies.orient.core.db.OrientDBInternal;
@@ -105,7 +105,7 @@ public class ViewManager {
         });
   }
 
-  private void registerLiveUpdates(ODatabaseDocumentInternal db) {
+  private void registerLiveUpdates(ODatabaseSessionInternal db) {
     boolean liveViewsExist = false;
     Collection<OView> views = db.getMetadata().getSchema().getViews();
     for (OView view : views) {
@@ -154,7 +154,7 @@ public class ViewManager {
             orientDB.executeNoAuthorization(
                 dbName,
                 (db) -> {
-                  ViewManager.this.updateViews((ODatabaseDocumentInternal) db);
+                  ViewManager.this.updateViews((ODatabaseSessionInternal) db);
                   return null;
                 });
           }
@@ -162,7 +162,7 @@ public class ViewManager {
     this.orientDB.schedule(timerTask, 1000, 1000);
   }
 
-  private void updateViews(ODatabaseDocumentInternal db) {
+  private void updateViews(ODatabaseSessionInternal db) {
     try {
       OView view;
       do {
@@ -214,7 +214,7 @@ public class ViewManager {
     }
   }
 
-  public void cleanUnusedViewIndexes(ODatabaseDocumentInternal db) {
+  public void cleanUnusedViewIndexes(ODatabaseSessionInternal db) {
     if (((ODatabaseDocumentEmbedded) db).getStorage().isIcrementalBackupRunning()) {
       // backup is running handle delete the next run
       return;
@@ -237,7 +237,7 @@ public class ViewManager {
     }
   }
 
-  public OView getNextViewToUpdate(ODatabaseDocumentInternal db) {
+  public OView getNextViewToUpdate(ODatabaseSessionInternal db) {
     OSchema schema = db.getMetadata().getImmutableSchemaSnapshot();
 
     Collection<OView> views = schema.getViews();
@@ -271,11 +271,11 @@ public class ViewManager {
     return this.refreshing.contains(view.getName());
   }
 
-  private boolean isLiveUpdate(ODatabaseDocumentInternal db, OView view) {
+  private boolean isLiveUpdate(ODatabaseSessionInternal db, OView view) {
     return OViewConfig.UPDATE_STRATEGY_LIVE.equalsIgnoreCase(view.getUpdateStrategy());
   }
 
-  protected boolean buildOnThisNode(ODatabaseDocumentInternal db, OView name) {
+  protected boolean buildOnThisNode(ODatabaseSessionInternal db, OView name) {
     return true;
   }
 
@@ -287,7 +287,7 @@ public class ViewManager {
    * @return true if there are no watch rules for this view; true if there are watch rules and some
    * of them happened since last update; true if the view was never updated; false otherwise.
    */
-  private boolean needsUpdateBasedOnWatchRules(OView view, ODatabaseDocumentInternal db) {
+  private boolean needsUpdateBasedOnWatchRules(OView view, ODatabaseSessionInternal db) {
     if (view == null) {
       return false;
     }
@@ -312,13 +312,13 @@ public class ViewManager {
     return false;
   }
 
-  private boolean isUpdateExpiredFor(OView view, ODatabaseDocumentInternal db) {
+  private boolean isUpdateExpiredFor(OView view, ODatabaseSessionInternal db) {
     long lastUpdate = view.getLastRefreshTime();
     int updateInterval = view.getUpdateIntervalSeconds();
     return lastUpdate + (updateInterval * 1000) < System.currentTimeMillis();
   }
 
-  public void updateView(OView view, ODatabaseDocumentInternal db) {
+  public void updateView(OView view, ODatabaseSessionInternal db) {
     OScenarioThreadLocal.executeAsDistributed(
         () -> {
           this.updateViewInternal(view, db);
@@ -326,7 +326,7 @@ public class ViewManager {
         });
   }
 
-  public void updateViewInternal(OView view, ODatabaseDocumentInternal db) {
+  public void updateViewInternal(OView view, ODatabaseSessionInternal db) {
     if (((ODatabaseDocumentEmbedded) db).getStorage().isIcrementalBackupRunning() || closed) {
       // backup is running handle rebuild the next run
       return;
@@ -405,7 +405,7 @@ public class ViewManager {
   }
 
   private void fillView(
-      ODatabaseDocumentInternal db,
+      ODatabaseSessionInternal db,
       String viewName,
       String query,
       String originRidField,
@@ -430,7 +430,7 @@ public class ViewManager {
 
   private void addItemToView(
       OResult item,
-      ODatabaseDocumentInternal db,
+      ODatabaseSessionInternal db,
       String originRidField,
       String viewName,
       String clusterName,
@@ -447,7 +447,7 @@ public class ViewManager {
   }
 
   private List<OIndex> createNewIndexesForView(
-      OView view, int cluster, ODatabaseDocumentInternal db) {
+      OView view, int cluster, ODatabaseSessionInternal db) {
     try {
       List<OIndex> result = new ArrayList<>();
       OIndexManagerAbstract idxMgr = db.getMetadata().getIndexManagerInternal();
@@ -494,7 +494,7 @@ public class ViewManager {
     return result;
   }
 
-  private String createNextClusterNameFor(OView view, ODatabaseDocumentInternal db) {
+  private String createNextClusterNameFor(OView view, ODatabaseSessionInternal db) {
     int i = 0;
     String viewName = view.getName();
     while (true) {
@@ -526,8 +526,8 @@ public class ViewManager {
         dbName,
         (databaseSession) -> {
           if (!buildOnThisNode(
-              (ODatabaseDocumentInternal) databaseSession,
-              ((ODatabaseDocumentInternal) databaseSession)
+              (ODatabaseSessionInternal) databaseSession,
+              ((ODatabaseSessionInternal) databaseSession)
                   .getMetadata()
                   .getSchema()
                   .getView(name))) {
@@ -536,7 +536,7 @@ public class ViewManager {
           try {
             OView view = databaseSession.getMetadata().getSchema().getView(name);
             if (view != null) {
-              updateView(view, (ODatabaseDocumentInternal) databaseSession);
+              updateView(view, (ODatabaseSessionInternal) databaseSession);
             }
             if (listener != null) {
               listener.afterCreate(databaseSession, name);
@@ -624,7 +624,7 @@ public class ViewManager {
     @Override
     public void onCreate(ODatabaseDocument db, OResult data) {
       OView view = db.getMetadata().getSchema().getView(viewName);
-      var dbInternal = (ODatabaseDocumentInternal) db;
+      var dbInternal = (ODatabaseSessionInternal) db;
       if (view != null) {
         int cluster = view.getClusterIds()[0];
         addItemToView(
@@ -648,15 +648,14 @@ public class ViewManager {
           while (rs.hasNext()) {
             OResult row = rs.next();
             row.getElement()
-                .ifPresent(
-                    elem -> updateViewRow(elem, after, view, (ODatabaseDocumentInternal) db));
+                .ifPresent(elem -> updateViewRow(elem, after, view, (ODatabaseSessionInternal) db));
           }
         }
       }
     }
 
     private void updateViewRow(
-        OElement viewRow, OResult origin, OView view, ODatabaseDocumentInternal db) {
+        OElement viewRow, OResult origin, OView view, ODatabaseSessionInternal db) {
       db.executeInTx(
           () -> {
             OStatement stm = OStatementCache.get(view.getQuery(), db);

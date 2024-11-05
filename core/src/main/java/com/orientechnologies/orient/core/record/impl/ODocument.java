@@ -27,9 +27,9 @@ import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentAbstract;
 import com.orientechnologies.orient.core.db.record.OAutoConvertToRecord;
@@ -158,11 +158,11 @@ public class ODocument extends ORecordAbstract
    * Internal constructor used on unmarshalling.
    */
   public ODocument(ODatabaseSession database) {
-    setup((ODatabaseDocumentInternal) database);
+    setup((ODatabaseSessionInternal) database);
   }
 
   public ODocument(ODatabaseSession database, ORID rid) {
-    setup((ODatabaseDocumentInternal) database);
+    setup((ODatabaseSessionInternal) database);
     this.recordId = (ORecordId) rid.copy();
   }
 
@@ -216,7 +216,7 @@ public class ODocument extends ORecordAbstract
     this(iClassName);
     recordId = (ORecordId) iRID.copy();
 
-    final ODatabaseDocumentInternal database = getDatabase();
+    final ODatabaseSessionInternal database = getDatabase();
     if (recordId.getClusterId() > -1) {
       final OSchema schema = database.getMetadata().getImmutableSchemaSnapshot();
       final OClass cls = schema.getClassByClusterId(recordId.getClusterId());
@@ -253,7 +253,7 @@ public class ODocument extends ORecordAbstract
    * @param iClassName Class name
    */
   public ODocument(ODatabaseSession session, final String iClassName) {
-    setup((ODatabaseDocumentInternal) session);
+    setup((ODatabaseSessionInternal) session);
     setClassName(iClassName);
   }
 
@@ -891,7 +891,7 @@ public class ODocument extends ORecordAbstract
     return (RET) oldValue;
   }
 
-  private static void validateFieldsSecurity(ODatabaseDocumentInternal internal, ODocument iRecord)
+  private static void validateFieldsSecurity(ODatabaseSessionInternal internal, ODocument iRecord)
       throws OValidationException {
     iRecord.checkForBinding();
     iRecord = (ODocument) iRecord.getRecord();
@@ -1565,23 +1565,11 @@ public class ODocument extends ORecordAbstract
     return (ODocument) result;
   }
 
-  @Override
-  public ODocument reload(final String fetchPlan, final boolean ignoreCache) {
-    super.reload(fetchPlan, ignoreCache);
-
-    if (!lazyLoad) {
-      checkForFields();
-    }
-
-    return this;
-  }
-
   public boolean hasSameContentOf(final ODocument iOther) {
     iOther.checkForBinding();
     checkForBinding();
 
-    final ODatabaseDocumentInternal currentDb =
-        ODatabaseRecordThreadLocal.instance().getIfDefined();
+    final ODatabaseSessionInternal currentDb = ODatabaseRecordThreadLocal.instance().getIfDefined();
     return ODocumentHelper.hasSameContentOf(this, currentDb, iOther, currentDb, null);
   }
 
@@ -2613,7 +2601,7 @@ public class ODocument extends ORecordAbstract
   }
 
   @Override
-  protected final ODocument fromStream(final byte[] iRecordBuffer, ODatabaseDocumentInternal db) {
+  protected final ODocument fromStream(final byte[] iRecordBuffer, ODatabaseSessionInternal db) {
     if (dirty) {
       throw new ODatabaseException("Cannot call fromStream() on dirty records");
     }
@@ -3157,7 +3145,7 @@ public class ODocument extends ORecordAbstract
       return;
     }
 
-    final ODatabaseDocumentInternal db = getDatabaseIfDefined();
+    final ODatabaseSessionInternal db = getDatabaseIfDefined();
     if (db != null) {
       final OClass _clazz = db.getMetadata().getImmutableSchemaSnapshot().getClass(iClassName);
       if (_clazz != null) {
@@ -3179,7 +3167,7 @@ public class ODocument extends ORecordAbstract
       return null;
     }
 
-    final ODatabaseDocumentInternal databaseRecord = getDatabaseIfDefined();
+    final ODatabaseSessionInternal databaseRecord = getDatabaseIfDefined();
     if (databaseRecord != null) {
       return databaseRecord.getMetadata().getSchema().getClass(className);
     }
@@ -3240,7 +3228,7 @@ public class ODocument extends ORecordAbstract
     checkForFields();
     autoConvertValues();
 
-    ODatabaseDocumentInternal internal = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    ODatabaseSessionInternal internal = ODatabaseRecordThreadLocal.instance().getIfDefined();
     if (internal != null) {
       validateFieldsSecurity(internal, this);
     }
@@ -3449,7 +3437,7 @@ public class ODocument extends ORecordAbstract
       final int iVersion,
       final byte[] iBuffer,
       final boolean iDirty,
-      ODatabaseDocumentInternal db) {
+      ODatabaseSessionInternal db) {
     if (dirty) {
       throw new ODatabaseException("Cannot call fill() on dirty records");
     }
@@ -3473,7 +3461,7 @@ public class ODocument extends ORecordAbstract
     }
     OGlobalProperty prop = schema.getGlobalPropertyById(id);
     if (prop == null) {
-      ODatabaseDocumentInternal db = getDatabase();
+      ODatabaseSessionInternal db = getDatabase();
       if (db == null || db.isClosed()) {
         throw new ODatabaseException(
             "Cannot unmarshall the document because no database is active, use detach for use the"
@@ -3505,7 +3493,7 @@ public class ODocument extends ORecordAbstract
     return getImmutableSchemaClass(null);
   }
 
-  protected OImmutableClass getImmutableSchemaClass(ODatabaseDocumentInternal database) {
+  protected OImmutableClass getImmutableSchemaClass(ODatabaseSessionInternal database) {
     if (immutableClazz == null) {
       if (className == null) {
         fetchClassName();
@@ -4033,7 +4021,7 @@ public class ODocument extends ORecordAbstract
    * Internal.
    */
   @Override
-  protected void setup(ODatabaseDocumentInternal db) {
+  protected void setup(ODatabaseSessionInternal db) {
     super.setup(db);
 
     if (db != null) {
@@ -4105,7 +4093,7 @@ public class ODocument extends ORecordAbstract
 
   private void fetchSchemaIfCan() {
     if (schema == null) {
-      ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+      ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
       if (db != null && !db.isClosed()) {
         OMetadataInternal metadata = db.getMetadata();
         schema = metadata.getImmutableSchemaSnapshot();
@@ -4113,7 +4101,7 @@ public class ODocument extends ORecordAbstract
     }
   }
 
-  private void fetchSchemaIfCan(ODatabaseDocumentInternal db) {
+  private void fetchSchemaIfCan(ODatabaseSessionInternal db) {
     if (schema == null) {
       if (db != null) {
         OMetadataInternal metadata = db.getMetadata();
@@ -4123,7 +4111,7 @@ public class ODocument extends ORecordAbstract
   }
 
   private void fetchClassName() {
-    final ODatabaseDocumentInternal database = getDatabaseIfDefinedInternal();
+    final ODatabaseSessionInternal database = getDatabaseIfDefinedInternal();
     if (recordId != null && database != null) {
       if (recordId.getClusterId() >= 0) {
         final OSchema schema = database.getMetadata().getImmutableSchemaSnapshot();
@@ -4137,7 +4125,7 @@ public class ODocument extends ORecordAbstract
     }
   }
 
-  void autoConvertFieldsToClass(final ODatabaseDocumentInternal database) {
+  void autoConvertFieldsToClass(final ODatabaseSessionInternal database) {
     checkForBinding();
     if (className != null) {
       OClass klazz = database.getMetadata().getImmutableSchemaSnapshot().getClass(className);
@@ -4232,7 +4220,7 @@ public class ODocument extends ORecordAbstract
     }
   }
 
-  void checkClass(ODatabaseDocumentInternal database) {
+  void checkClass(ODatabaseSessionInternal database) {
     checkForBinding();
     if (className == null) {
       fetchClassName();

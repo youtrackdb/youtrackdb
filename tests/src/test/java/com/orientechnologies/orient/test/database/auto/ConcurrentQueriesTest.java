@@ -17,14 +17,12 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.common.concur.ONeedRetryException;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.test.ConcurrentTestHelper;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -38,23 +36,17 @@ public class ConcurrentQueriesTest extends DocumentDBBaseTest {
   private final AtomicLong counter = new AtomicLong();
   private final AtomicLong totalRetries = new AtomicLong();
 
-  @Parameters(value = "url")
-  public ConcurrentQueriesTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public ConcurrentQueriesTest(boolean remote) {
+    super(remote);
   }
 
   class CommandExecutor implements Callable<Void> {
 
-    String url;
-
-    public CommandExecutor(String url) {
-      this.url = url;
-    }
-
     @Override
     public Void call() {
       for (int i = 0; i < CYCLES; i++) {
-        ODatabaseDocument db = new ODatabaseDocumentTx(url).open("admin", "admin");
+        ODatabaseDocument db = acquireSession();
         try {
           for (int retry = 0; retry < MAX_RETRIES; ++retry) {
             try {
@@ -95,9 +87,8 @@ public class ConcurrentQueriesTest extends DocumentDBBaseTest {
   }
 
   @Test
-  public void concurrentCommands() throws Exception {
-
-    ConcurrentTestHelper.test(THREADS, () -> new CommandExecutor(url));
+  public void concurrentCommands() {
+    ConcurrentTestHelper.test(THREADS, CommandExecutor::new);
     Assert.assertEquals(counter.get(), CYCLES * THREADS);
   }
 }

@@ -2,8 +2,8 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDBInternal;
 import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
 import java.io.ByteArrayInputStream;
@@ -59,7 +59,7 @@ public class OStatementCache {
    *     through statement parsing
    * @return a statement executor from the cache
    */
-  public static OStatement get(String statement, ODatabaseDocumentInternal db) {
+  public static OStatement get(String statement, ODatabaseSessionInternal db) {
     if (db == null) {
       return parse(statement);
     }
@@ -117,7 +117,7 @@ public class OStatementCache {
    */
   protected static OStatement parse(String statement) throws OCommandSQLParsingException {
     try {
-      ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+      ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
       InputStream is;
 
       if (db == null) {

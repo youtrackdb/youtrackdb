@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.db.document;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.OrientDBInternal;
 
@@ -9,14 +9,14 @@ public class ODatabaseDocumentTxInternal {
 
   private ODatabaseDocumentTxInternal() {}
 
-  public static ODatabaseDocumentInternal getInternal(ODatabaseDocumentInternal db) {
+  public static ODatabaseSessionInternal getInternal(ODatabaseSessionInternal db) {
     if (db instanceof ODatabaseDocumentTx) {
       db = ((ODatabaseDocumentTx) db).internal;
     }
     return db;
   }
 
-  public static ODatabaseDocumentTx wrap(ODatabaseDocumentInternal database) {
+  public static ODatabaseDocumentTx wrap(ODatabaseSessionInternal database) {
     return new ODatabaseDocumentTx(database, null);
   }
 

@@ -15,299 +15,250 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.client.db.ODatabaseHelper;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabase;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentPool;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.db.ODatabaseType;
+import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.exception.OCoreException;
 import com.orientechnologies.orient.core.exception.OStorageException;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTxInternal;
 import java.io.File;
-import java.io.IOException;
 import java.util.Locale;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-@Test(groups = "db")
-public class DbCreationTest extends ObjectDBBaseTest {
+@Test
+public class DbCreationTest {
 
-  private OPartitionedDatabasePool pool;
+  private static final String DB_NAME = "DbCreationTest";
 
-  @Parameters(value = "url")
-  public DbCreationTest(@Optional String url) {
-    super(url);
-    setAutoManageDatabase(false);
+  private OrientDB orientDB;
+  private final boolean remoteDB;
 
-    Orient.instance().getProfiler().startRecording();
+  @Parameters(value = "remote")
+  public DbCreationTest(@Optional Boolean remote) {
+    remoteDB = remote != null ? remote : false;
   }
 
   @BeforeClass
-  @Override
-  public void beforeClass() throws Exception {
-    pool = new OPartitionedDatabasePool(url, "admin", "admin");
+  public void beforeClass() {
+    initODB();
   }
 
   @AfterClass
-  @Override
-  public void afterClass() throws Exception {
-    pool.close();
+  public void afterClass() {
+    orientDB.close();
   }
 
-  @BeforeMethod
-  @Override
-  public void beforeMethod() throws Exception {}
+  private void initODB() {
+    var configBuilder = OrientDBConfig.builder();
+    configBuilder.addConfig(OGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
 
-  @AfterMethod
-  @Override
-  public void afterMethod() throws Exception {}
-
-  @AfterMethod
-  public void tearDown() {
-    if (url.contains("remote:")) ODatabaseDocumentPool.global().close();
+    if (remoteDB) {
+      orientDB =
+          OrientDB.remote(
+              "localhost",
+              "root",
+              "D2AFD02F20640EC8B7A5140F34FCA49D2289DB1F0D0598BB9DE8AAA75A0792F3",
+              configBuilder.build());
+    } else {
+      final String buildDirectory = System.getProperty("buildDirectory", ".");
+      orientDB = OrientDB.embedded(buildDirectory + "/test-db", configBuilder.build());
+    }
   }
 
   @Test
-  public void testDbCreationDefault() throws IOException {
-    if (ODatabaseHelper.existsDatabase(url))
-      ODatabaseHelper.dropDatabase(new OObjectDatabaseTxInternal(url), url, getStorageType());
+  public void testDbCreationDefault() {
+    if (orientDB.exists(DB_NAME)) {
+      orientDB.drop(DB_NAME);
+    }
 
-    ODatabaseHelper.createDatabase(new OObjectDatabaseTxInternal(url), url, getStorageType());
+    orientDB.create(DB_NAME, ODatabaseType.PLOCAL, "admin", "admin", "admin");
   }
 
   @Test(dependsOnMethods = {"testDbCreationDefault"})
-  public void testDbExists() throws IOException {
-    Assert.assertTrue(
-        ODatabaseHelper.existsDatabase(new ODatabaseDocumentTx(url), getStorageType()));
+  public void testDbExists() {
+    Assert.assertTrue(orientDB.exists(DB_NAME), "Database " + DB_NAME + " not found");
   }
 
   @Test(dependsOnMethods = {"testDbExists"})
   public void testDbOpen() {
-    database = new OObjectDatabaseTxInternal(url);
-    database.open("admin", "admin");
+    var database = orientDB.open(DB_NAME, "admin", "admin");
     Assert.assertNotNull(database.getName());
     database.close();
   }
 
   @Test(dependsOnMethods = {"testDbOpen"})
   public void testDbOpenWithLastAsSlash() {
-    database = new OObjectDatabaseTxInternal(url + "/");
-    database.open("admin", "admin");
-    database.close();
+    orientDB.close();
+
+    String url = calculateURL() + "/";
+
+    try (var odb = new OrientDB(url, "root", "root", OrientDBConfig.defaultConfig())) {
+      var database = odb.open(DB_NAME, "admin", "admin");
+      database.close();
+    }
+
+    initODB();
   }
 
   @Test(dependsOnMethods = {"testDbOpenWithLastAsSlash"})
   public void testDbOpenWithBackSlash() {
-    database = new OObjectDatabaseTxInternal(url.replace('/', '\\'));
-    database.open("admin", "admin");
-    database.close();
+    orientDB.close();
+
+    String url;
+    url = calculateURL();
+    url = url.replace('/', '\\');
+
+    try (var odb = new OrientDB(url, "root", "root", OrientDBConfig.defaultConfig())) {
+      var database = odb.open(DB_NAME, "admin", "admin");
+      database.close();
+    }
+
+    initODB();
+  }
+
+  private String calculateURL() {
+    String url;
+    if (remoteDB) {
+      url = "remote:localhost";
+    } else {
+      final String buildDirectory = System.getProperty("buildDirectory", ".");
+      url = "plocal:" + buildDirectory + "/test-db";
+    }
+    return url;
   }
 
   @Test(dependsOnMethods = {"testDbOpenWithBackSlash"})
-  public void testChangeLocale() throws IOException {
-    database = new OObjectDatabaseTxInternal(url);
-    database.open("admin", "admin");
-    database.command(" ALTER DATABASE LOCALELANGUAGE  ?", Locale.GERMANY.getLanguage()).close();
-    database.command(" ALTER DATABASE LOCALECOUNTRY  ?", Locale.GERMANY.getCountry()).close();
-    database.reload();
-    Assert.assertEquals(
-        database.get(ODatabase.ATTRIBUTES.LOCALELANGUAGE), Locale.GERMANY.getLanguage());
-    Assert.assertEquals(
-        database.get(ODatabase.ATTRIBUTES.LOCALECOUNTRY), Locale.GERMANY.getCountry());
-    database.set(ODatabase.ATTRIBUTES.LOCALECOUNTRY, Locale.ENGLISH.getCountry());
-    database.set(ODatabase.ATTRIBUTES.LOCALELANGUAGE, Locale.ENGLISH.getLanguage());
-    Assert.assertEquals(
-        database.get(ODatabase.ATTRIBUTES.LOCALECOUNTRY), Locale.ENGLISH.getCountry());
-    Assert.assertEquals(
-        database.get(ODatabase.ATTRIBUTES.LOCALELANGUAGE), Locale.ENGLISH.getLanguage());
-    database.close();
+  public void testChangeLocale() {
+    try (var database = orientDB.open(DB_NAME, "admin", "admin")) {
+      database.command(" ALTER DATABASE LOCALELANGUAGE  ?", Locale.GERMANY.getLanguage()).close();
+      database.command(" ALTER DATABASE LOCALECOUNTRY  ?", Locale.GERMANY.getCountry()).close();
+
+      Assert.assertEquals(
+          database.get(ODatabase.ATTRIBUTES.LOCALELANGUAGE), Locale.GERMANY.getLanguage());
+      Assert.assertEquals(
+          database.get(ODatabase.ATTRIBUTES.LOCALECOUNTRY), Locale.GERMANY.getCountry());
+      database.set(ODatabase.ATTRIBUTES.LOCALECOUNTRY, Locale.ENGLISH.getCountry());
+      database.set(ODatabase.ATTRIBUTES.LOCALELANGUAGE, Locale.ENGLISH.getLanguage());
+      Assert.assertEquals(
+          database.get(ODatabase.ATTRIBUTES.LOCALECOUNTRY), Locale.ENGLISH.getCountry());
+      Assert.assertEquals(
+          database.get(ODatabase.ATTRIBUTES.LOCALELANGUAGE), Locale.ENGLISH.getLanguage());
+    }
   }
 
   @Test(dependsOnMethods = {"testChangeLocale"})
-  public void testRoles() throws IOException {
-    database = new OObjectDatabaseTxInternal(url);
-    database.open("admin", "admin");
-    database.query("select from ORole where name = 'admin'").close();
-    database.close();
+  public void testRoles() {
+    try (var database = orientDB.open(DB_NAME, "admin", "admin")) {
+      database.begin();
+      database.query("select from ORole where name = 'admin'").close();
+      database.commit();
+    }
   }
 
   @Test(dependsOnMethods = {"testChangeLocale"})
-  public void testSubFolderDbCreate() throws IOException {
-    int pos = url.lastIndexOf("/");
-
-    final String u;
-    if (pos > -1) u = url.substring(0, pos) + "/sub/subTest";
-    else {
-      pos = url.lastIndexOf(":");
-      u = url.substring(0, pos + 1) + "sub/subTest";
+  public void testSubFolderDbCreate() {
+    if (remoteDB) {
+      return;
     }
 
-    ODatabaseDocumentInternal db = new ODatabaseDocumentTx(u);
+    var url = calculateURL();
 
-    ODatabaseHelper.dropDatabase(db, getStorageType());
-    ODatabaseHelper.createDatabase(db, u, getStorageType());
-    db.open("admin", "admin");
+    var odb = new OrientDB(url, "root", "root", OrientDBConfig.defaultConfig());
+    if (odb.exists("sub")) {
+      odb.drop("sub");
+    }
+
+    odb.create("sub", ODatabaseType.PLOCAL, "admin", "admin", "admin");
+    var db = odb.open("sub", "admin", "admin");
     db.close();
 
-    ODatabaseHelper.dropDatabase(db, getStorageType());
+    odb.drop("sub");
   }
 
   @Test(dependsOnMethods = {"testChangeLocale"})
-  public void testSubFolderDbCreateConnPool() throws IOException {
-    int pos = url.lastIndexOf("/");
-
-    final String u;
-    if (pos > -1) u = url.substring(0, pos) + "/sub/subTest";
-    else {
-      pos = url.lastIndexOf(":");
-      u = url.substring(0, pos + 1) + "sub/subTest";
+  public void testSubFolderDbCreateConnPool() {
+    if (remoteDB) {
+      return;
     }
 
-    ODatabaseDocument db = new ODatabaseDocumentTx(u);
+    var url = calculateURL();
 
-    ODatabaseHelper.dropDatabase(db, getStorageType());
-    ODatabaseHelper.createDatabase(db, u, getStorageType());
-
-    db = ODatabaseDocumentPool.global().acquire(u, "admin", "admin");
-    if (u.startsWith("remote:")) db.close();
-
-    ODatabaseHelper.dropDatabase(db, getStorageType());
-  }
-
-  @Test(dependsOnMethods = "testSubFolderDbCreateConnPool")
-  public void testCreateAndConnectionPool() throws IOException {
-    ODatabaseDocument db = new ODatabaseDocumentTx(url);
-
-    db.activateOnCurrentThread();
-    ODatabaseHelper.dropDatabase(db, getStorageType());
-
-    ODatabaseHelper.createDatabase(db, url, getStorageType());
-
-    if (pool != null) {
-      pool.close();
+    var odb = new OrientDB(url, "root", "root", OrientDBConfig.defaultConfig());
+    if (odb.exists("sub")) {
+      odb.drop("sub");
     }
-    pool = new OPartitionedDatabasePool(url, "admin", "admin");
 
-    // Get connection from pool
-    db = pool.acquire();
+    odb.create("sub", ODatabaseType.PLOCAL, "admin", "admin", "admin");
+    var db = odb.cachedPool("sub", "admin", "admin");
     db.close();
 
-    // Destroy db in the back of the pool
-    db = new ODatabaseDocumentTx(url);
-    ODatabaseHelper.dropDatabase(db, getStorageType());
-
-    // Re-create it so that the db exists for the pool
-    db = new ODatabaseDocumentTx(url);
-    ODatabaseHelper.createDatabase(db, url, getStorageType());
+    odb.drop("sub");
   }
 
-  @Test(dependsOnMethods = {"testCreateAndConnectionPool"})
-  public void testOpenCloseConnectionPool() throws IOException {
-    ODatabaseDocument db = new ODatabaseDocumentTx(url);
-    if (!ODatabaseHelper.existsDatabase(db, null)) {
-      ODatabaseHelper.createDatabase(db, url, getStorageType());
-      db.close();
-    }
-    if (pool != null) {
-      pool.close();
-    }
-    pool = new OPartitionedDatabasePool(url, "admin", "admin");
-
+  @Test(dependsOnMethods = {"testSubFolderDbCreateConnPool"})
+  public void testOpenCloseConnectionPool() {
     for (int i = 0; i < 500; i++) {
-      pool.acquire().close();
+      orientDB.cachedPool(DB_NAME, "admin", "admin").acquire().close();
     }
   }
 
   @Test(dependsOnMethods = {"testChangeLocale"})
-  public void testSubFolderMultipleDbCreateSameName() throws IOException {
-    int pos = url.lastIndexOf("/");
-    String u = url;
-
-    if (pos > -1) u = url.substring(0, pos);
-    else {
-      pos = url.lastIndexOf(":");
-      u = url.substring(0, pos + 1);
+  public void testSubFolderMultipleDbCreateSameName() {
+    if (remoteDB) {
+      return;
     }
 
     for (int i = 0; i < 3; ++i) {
-      String ur = u + "/a" + i + "$db";
-      ODatabaseDocumentInternal db = new ODatabaseDocumentTx(ur);
-
+      String dbName = "a" + i + "$db";
       try {
-        ODatabaseHelper.dropDatabase(db, getStorageType());
+        orientDB.drop(dbName);
+        Assert.fail();
       } catch (OStorageException e) {
-        Assert.assertTrue(e.getCause().getMessage().contains("doesn't exits."));
+        // ignore
       }
-      ODatabaseHelper.createDatabase(db, ur, getStorageType());
-      Assert.assertTrue(ODatabaseHelper.existsDatabase(db, getStorageType()));
-      db.open("admin", "admin");
+
+      orientDB.create(dbName, ODatabaseType.PLOCAL, "admin", "admin", "admin");
+      Assert.assertTrue(orientDB.exists(dbName));
+
+      orientDB.open(dbName, "admin", "admin").close();
     }
 
     for (int i = 0; i < 3; ++i) {
-      String ur = u + "/a" + i + "$db";
-      ODatabaseDocument db = new ODatabaseDocumentTx(ur);
-      Assert.assertTrue(ODatabaseHelper.existsDatabase(db, getStorageType()));
-      db.activateOnCurrentThread();
-      ODatabaseHelper.dropDatabase(db, getStorageType());
-      Assert.assertFalse(ODatabaseHelper.existsDatabase(db, getStorageType()));
+      String dbName = "a" + i + "$db";
+      Assert.assertTrue(orientDB.exists(dbName));
+      orientDB.drop(dbName);
+      Assert.assertFalse(orientDB.exists(dbName));
     }
   }
 
   public void testDbIsNotRemovedOnSecondTry() {
-    final String buildDirectory =
-        new File(System.getProperty("buildDirectory", ".")).getAbsolutePath();
-    final String dbPath =
-        buildDirectory + File.separator + this.getClass().getSimpleName() + "Remove";
-    final String dburl = "plocal:" + dbPath;
+    orientDB.create(DB_NAME + "Remove", ODatabaseType.PLOCAL, "admin", "admin", "admin");
 
-    ODatabaseDocumentInternal db = new ODatabaseDocumentTx(dburl);
-    db.create();
-    db.close();
-
-    Assert.assertTrue(new File(dbPath).exists());
-
-    final ODatabaseDocumentInternal dbTwo = new ODatabaseDocumentTx(dburl);
     try {
-      dbTwo.create();
+      orientDB.create(DB_NAME + "Remove", ODatabaseType.PLOCAL, "admin", "admin", "admin");
       Assert.fail();
-    } catch (ODatabaseException e) {
+    } catch (OCoreException e) {
       // ignore all is correct
     }
 
-    Assert.assertTrue(new File(dbPath).exists());
-
-    db = new ODatabaseDocumentTx(dburl);
-
-    db.open("admin", "admin");
-    db.drop();
-  }
-
-  public void testDbOutOfPath() throws IOException {
-    if (!url.startsWith("remote")) return;
-
-    // TRY UNIX PATH
-    try {
-      ODatabaseDocumentInternal db = new ODatabaseDocumentTx("remote:/db");
-      db.open("admin", "admin");
-      Assert.fail("Security breach: database with path /db was created");
-    } catch (Exception e) {
+    if (!remoteDB) {
+      final String buildDirectory = System.getProperty("buildDirectory", ".");
+      var path = buildDirectory + "/test-db/" + DB_NAME + "Remove";
+      Assert.assertTrue(new File(path).exists());
     }
 
-    // TRY WINDOWS PATH
+    orientDB.drop(DB_NAME + "Remove");
     try {
-      ODatabaseDocumentInternal db = new ODatabaseDocumentTx("remote:C:/db");
-      db.open("admin", "admin");
-      Assert.fail("Security breach: database with path c:/db was created");
-    } catch (Exception e) {
+      orientDB.drop(DB_NAME + "Remove");
+      Assert.fail();
+    } catch (OCoreException e) {
+      // ignore all is correct
     }
   }
 }

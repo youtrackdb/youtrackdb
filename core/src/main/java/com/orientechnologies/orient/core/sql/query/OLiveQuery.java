@@ -20,8 +20,8 @@
 package com.orientechnologies.orient.core.sql.query;
 
 import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
@@ -58,7 +58,7 @@ public class OLiveQuery<T> extends OSQLSynchQuery<T> {
 
   @Override
   public <RET> RET execute(Object... iArgs) {
-    ODatabaseDocumentInternal database = ODatabaseRecordThreadLocal.instance().get();
+    ODatabaseSessionInternal database = ODatabaseRecordThreadLocal.instance().get();
     if (database.isRemote()) {
       BackwardOLiveQueryResultListener listener = new BackwardOLiveQueryResultListener();
       OLiveQueryMonitor monitor = database.live(getText(), listener, iArgs);

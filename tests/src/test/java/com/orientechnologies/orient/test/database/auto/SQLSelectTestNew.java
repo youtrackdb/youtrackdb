@@ -16,7 +16,7 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.command.OCommandResultListener;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.OEmptyRecordId;
 import com.orientechnologies.orient.core.id.ORID;
@@ -53,7 +53,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -67,9 +66,9 @@ public class SQLSelectTestNew extends AbstractSelectTest {
 
   private ODocument record = new ODocument();
 
-  @Parameters(value = "url")
-  public SQLSelectTestNew(@Optional String url) throws Exception {
-    super(url);
+  @Parameters(value = "remote")
+  public SQLSelectTestNew(boolean remote) throws Exception {
+    super(remote);
   }
 
   @BeforeClass
@@ -2246,7 +2245,7 @@ public class SQLSelectTestNew extends AbstractSelectTest {
   }
 
   @Override
-  protected List<ODocument> executeQuery(String sql, ODatabaseDocumentInternal db, Object... args) {
+  protected List<ODocument> executeQuery(String sql, ODatabaseSessionInternal db, Object... args) {
     OResultSet rs = db.query(sql, args);
     List<ODocument> result = new ArrayList<>();
     while (rs.hasNext()) {

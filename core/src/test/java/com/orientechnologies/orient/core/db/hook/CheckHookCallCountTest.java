@@ -63,10 +63,12 @@ public class CheckHookCallCountTest extends BaseMemoryDatabase {
     doc.save();
     db.commit();
 
-    doc.reload();
+    db.begin();
     assertEquals(Integer.valueOf(2), doc.field("a"));
     assertEquals(Integer.valueOf(2), doc.field("b"));
     assertNull(doc.field("c"));
+    db.rollback();
+
     db.registerHook(
         new ODocumentHookAbstract(db) {
 
@@ -94,21 +96,25 @@ public class CheckHookCallCountTest extends BaseMemoryDatabase {
             return DISTRIBUTED_EXECUTION_MODE.SOURCE_NODE;
           }
         });
-    doc.reload();
+
+    db.begin();
     assertEquals(Integer.valueOf(2), doc.field("a"));
     assertEquals(Integer.valueOf(2), doc.field("b"));
     assertEquals(Integer.valueOf(4), doc.field("c"));
+    db.rollback();
 
     db.begin();
     doc = new ODocument(oClass);
     doc.field("a", 3);
     doc.field("b", 3);
     doc.save();
-    db.commit(); // FAILING here: infinite recursion
+    db.commit();
 
+    db.begin();
     assertEquals(Integer.valueOf(3), doc.field("a"));
     assertEquals(Integer.valueOf(3), doc.field("b"));
     assertEquals(Integer.valueOf(6), doc.field("c"));
+    db.rollback();
   }
 
   public class TestHook extends ODocumentHookAbstract {

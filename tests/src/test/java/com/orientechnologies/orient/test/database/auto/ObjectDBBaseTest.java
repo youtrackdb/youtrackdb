@@ -1,7 +1,8 @@
 package com.orientechnologies.orient.test.database.auto;
 
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTxInternal;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -13,18 +14,19 @@ import org.testng.annotations.Test;
 public class ObjectDBBaseTest extends BaseTest<OObjectDatabaseTxInternal> {
   public ObjectDBBaseTest() {}
 
-  @Parameters(value = "url")
-  public ObjectDBBaseTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public ObjectDBBaseTest(boolean remote) {
+    super(remote);
   }
 
-  @Parameters(value = "url")
-  public ObjectDBBaseTest(@Optional String url, String prefix) {
-    super(url, prefix);
+  public ObjectDBBaseTest(boolean remote, String prefix) {
+    super(remote, prefix);
   }
 
   @Override
-  protected OObjectDatabaseTxInternal createDatabaseInstance(String url) {
-    return new OObjectDatabaseTxInternal(url);
+  protected OObjectDatabaseTxInternal createSessionInstance(
+      OrientDB orientDB, String dbName, String user, String password) {
+    var session = orientDB.open(dbName, "admin", "admin");
+    return new OObjectDatabaseTxInternal((ODatabaseSessionInternal) session);
   }
 }

@@ -2,7 +2,7 @@ package com.orientechnologies.lucene.functions;
 
 import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.metadata.OMetadataInternal;
 import com.orientechnologies.orient.core.sql.parser.OExpression;
@@ -19,8 +19,7 @@ public class OLuceneFunctionsUtils {
 
   protected static OLuceneFullTextIndex getLuceneFullTextIndex(
       final OCommandContext ctx, final String indexName) {
-    final ODatabaseDocumentInternal documentDatabase =
-        (ODatabaseDocumentInternal) ctx.getDatabase();
+    final ODatabaseSessionInternal documentDatabase = (ODatabaseSessionInternal) ctx.getDatabase();
     documentDatabase.activateOnCurrentThread();
     final OMetadataInternal metadata = documentDatabase.getMetadata();
 

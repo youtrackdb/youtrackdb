@@ -1,171 +1,224 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.client.db.ODatabaseHelper;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.ODatabaseWrapperAbstract;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OrientDBConfigBuilder;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTxInternal;
-import java.io.IOException;
-import java.util.Collection;
+import com.orientechnologies.orient.server.OServer;
+import java.util.Locale;
 import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Optional;
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-@SuppressWarnings("deprecation")
 @Test
-public abstract class BaseTest<T extends ODatabaseInternal> {
+public abstract class BaseTest<T extends ODatabaseInternal<?>> {
 
-  private static final boolean keepDatabase = Boolean.getBoolean("orientdb.test.keepDatabase");
+  private OServer server;
 
-  public static String prepareUrl(String url) {
-    if (url != null) return url;
-
-    String storageType;
-    final String config = System.getProperty("orientdb.test.env");
-    if ("ci".equals(config) || "release".equals(config)) storageType = "plocal";
-    else storageType = System.getProperty("storageType");
-
-    if (storageType == null) storageType = "memory";
-
-    if ("remote".equals(storageType)) return storageType + ":localhost/demo";
-    else {
-      final String buildDirectory = System.getProperty("buildDirectory", ".");
-      return storageType + ":" + buildDirectory + "/test-db/demo";
-    }
-  }
+  public static final String DEFAULT_DB_NAME = "demo";
 
   protected T database;
-  protected String url;
-  private boolean dropDb = false;
-  private String storageType;
-  private boolean autoManageDatabase = true;
+  protected String dbName;
+
+  protected boolean remoteDB = false;
+  protected ODatabaseType databaseType;
+
+  public static OrientDB orientDB;
 
   protected BaseTest() {}
 
-  @Parameters(value = "url")
-  public BaseTest(@Optional String url) {
+  @Parameters(value = "remote")
+  public BaseTest(boolean remote) {
     String config = System.getProperty("orientdb.test.env");
-    if ("ci".equals(config) || "release".equals(config)) storageType = "plocal";
-    else storageType = System.getProperty("storageType");
 
-    if (storageType == null) storageType = "memory";
-
-    if (url == null) {
-      if ("remote".equals(storageType)) {
-        url = storageType + ":localhost/demo";
-        dropDb = !keepDatabase;
-      } else {
-        final String buildDirectory = System.getProperty("buildDirectory", ".");
-        url = storageType + ":" + buildDirectory + "/test-db/demo";
-        dropDb = !keepDatabase;
-      }
+    if ("ci".equals(config) || "release".equals(config)) {
+      databaseType = ODatabaseType.PLOCAL;
     }
 
-    if (!url.startsWith("remote:")) {
-      //noinspection deprecation
-      try (ODatabaseDocumentInternal db = new ODatabaseDocumentTx(url)) {
-        if (!db.exists()) db.create().close();
-      }
+    if (databaseType == null) {
+      databaseType = ODatabaseType.MEMORY;
     }
 
-    this.url = url;
+    this.remoteDB = remote;
+
+    this.dbName = DEFAULT_DB_NAME;
   }
 
-  @Parameters(value = "url")
-  public BaseTest(@Optional String url, String prefix) {
-    String config = System.getProperty("orientdb.test.env");
-    if ("ci".equals(config) || "release".equals(config)) storageType = "plocal";
-    else storageType = System.getProperty("storageType");
+  @Parameters(value = "remote")
+  public BaseTest(boolean remote, String prefix) {
+    this(remote);
+    this.dbName = prefix + DEFAULT_DB_NAME;
+  }
 
-    if (storageType == null) storageType = "memory";
-
-    if (url == null) {
-      final String buildDirectory = System.getProperty("buildDirectory", ".");
-      url = storageType + ":" + buildDirectory + "/test-db/demo" + prefix;
-      dropDb = !keepDatabase;
-    } else url = url + prefix;
-
-    if (!url.startsWith("remote:")) {
-      //noinspection deprecation
-      try (ODatabaseDocumentInternal db = new ODatabaseDocumentTx(url)) {
-        if (!db.exists()) db.create().close();
+  @BeforeSuite
+  public void beforeSuite() {
+    try {
+      if (remoteDB && server == null) {
+        server = new OServer(false);
+        server.startup(
+            BaseTest.class.getClassLoader().getResourceAsStream("orientdb-server-config.xml"));
+        server.activate();
       }
-    }
 
-    this.url = url;
+      if (orientDB == null) {
+        var builder = new OrientDBConfigBuilder();
+        if (remoteDB) {
+          orientDB =
+              new OrientDB(
+                  "remote:localhost",
+                  "root",
+                  "D2AFD02F20640EC8B7A5140F34FCA49D2289DB1F0D0598BB9DE8AAA75A0792F3",
+                  createConfig(builder));
+        } else {
+          final String buildDirectory = System.getProperty("buildDirectory", ".");
+          orientDB = OrientDB.embedded(buildDirectory + "/test-db", createConfig(builder));
+        }
+      }
+
+      createDatabase();
+    } catch (Exception e) {
+      throw new IllegalStateException(
+          "Cannot create database in test " + this.getClass().getSimpleName(), e);
+    }
+  }
+
+  protected void createDatabase(String dbName) {
+    orientDB.createIfNotExists(
+        dbName,
+        databaseType,
+        "admin",
+        "admin",
+        "admin",
+        "writer",
+        "writer",
+        "writer",
+        "reader",
+        "reader",
+        "reader");
+  }
+
+  protected void createDatabase() {
+    createDatabase(dbName);
+  }
+
+  protected void dropDatabase(String dbName) {
+    if (orientDB.exists(dbName)) {
+      orientDB.drop(dbName);
+    }
+  }
+
+  @AfterSuite
+  public void afterSuite() {
+    try {
+      if (orientDB != null) {
+        orientDB.close();
+        orientDB = null;
+      }
+
+      if (remoteDB && server != null) {
+        server.shutdown();
+        server = null;
+      }
+    } catch (Exception e) {
+      throw new IllegalStateException(
+          "Cannot close database instance in test " + this.getClass().getSimpleName(), e);
+    }
   }
 
   @BeforeClass
   public void beforeClass() throws Exception {
-    database = createDatabaseInstance(url);
-    this.url = database.getURL();
-
-    String remoteStorageType = storageType;
-
-    if (dropDb) {
-      if (storageType.equals("remote")) remoteStorageType = "plocal";
-
-      if (ODatabaseHelper.existsDatabase(database, remoteStorageType)) {
-        ODatabaseHelper.openDatabase(database);
-        ODatabaseHelper.dropDatabase(database, remoteStorageType);
-      }
-
-      createDatabase();
-    }
-
-    ODatabaseHelper.openDatabase(database);
-  }
-
-  @AfterClass
-  public void afterClass() throws Exception {
-    if (!autoManageDatabase) return;
-
-    if (dropDb) {
-      if (database.isClosed()) ODatabaseHelper.openDatabase(database);
-
-      String remoteStorageType = storageType;
-      if (storageType.equals("remote")) remoteStorageType = "plocal";
-
-      ODatabaseHelper.dropDatabase(database, remoteStorageType);
-    } else {
-      if (!database.isClosed()) {
-        database.activateOnCurrentThread();
-        database.close();
-      }
-    }
+    createDatabase();
+    newSession();
   }
 
   @BeforeMethod
   public void beforeMethod() throws Exception {
-    if (!autoManageDatabase) return;
-    database.activateOnCurrentThread();
-    if (database.isClosed()) ODatabaseHelper.openDatabase(database);
+    newSession();
+  }
+
+  private void newSession() {
+    try {
+      if (database == null) {
+        database = createSessionInstance();
+      }
+
+      database.activateOnCurrentThread();
+      if (database.isClosed()) {
+        database = createSessionInstance();
+      }
+    } catch (Exception e) {
+      throw new IllegalStateException(
+          "Cannot open database session in test " + this.getClass().getSimpleName(), e);
+    }
+  }
+
+  @AfterClass
+  public void afterClass() throws Exception {
+    closeSession();
   }
 
   @AfterMethod
   public void afterMethod() throws Exception {
-    if (!autoManageDatabase) return;
+    closeSession();
+  }
 
-    if (!database.isClosed()) {
-      database.activateOnCurrentThread();
-      database.close();
+  private void closeSession() {
+    try {
+      if (!database.isClosed()) {
+        database.activateOnCurrentThread();
+        database.close();
+      }
+    } catch (Exception e) {
+      throw new IllegalStateException(
+          "Cannot close database session in test " + this.getClass().getSimpleName(), e);
     }
   }
 
-  protected abstract T createDatabaseInstance(String url);
+  protected abstract T createSessionInstance(
+      OrientDB orientDB, String dbName, String user, String password);
 
-  protected void createDatabase() throws IOException {
-    ODatabaseHelper.createDatabase(database, database.getURL());
+  protected final T createSessionInstance() {
+    return createSessionInstance("admin", "admin");
+  }
+
+  protected final T createSessionInstance(String dbName) {
+    return createSessionInstance(dbName, "admin", "admin");
+  }
+
+  protected final T createSessionInstance(String dbName, String user, String password) {
+    return createSessionInstance(orientDB, dbName, user, password);
+  }
+
+  protected final T createSessionInstance(String user, String password) {
+    return createSessionInstance(dbName, user, password);
+  }
+
+  protected ODatabaseSessionInternal acquireSession() {
+    return acquireSession(dbName);
+  }
+
+  protected ODatabaseSessionInternal acquireSession(String dbName) {
+    return (ODatabaseSessionInternal) orientDB.open(dbName, "admin", "admin");
+  }
+
+  protected OrientDBConfig createConfig(OrientDBConfigBuilder builder) {
+    builder.addConfig(OGlobalConfiguration.NON_TX_READS_WARNING_MODE, "SILENT");
+    return builder.build();
   }
 
   protected static String getTestEnv() {
@@ -173,15 +226,18 @@ public abstract class BaseTest<T extends ODatabaseInternal> {
   }
 
   protected final String getStorageType() {
-    return storageType;
+    return databaseType.toString().toLowerCase(Locale.ROOT);
   }
 
   protected void createBasicTestSchema() {
-    ODatabaseInternal database = this.database;
-    if (database instanceof OObjectDatabaseTxInternal)
-      database = (ODatabaseInternal) database.getUnderlying();
+    ODatabaseInternal<?> database = this.database;
+    if (database instanceof OObjectDatabaseTxInternal) {
+      database = database.getUnderlying();
+    }
 
-    if (database.getMetadata().getSchema().existsClass("Whiz")) return;
+    if (database.getMetadata().getSchema().existsClass("Whiz")) {
+      return;
+    }
 
     database.addCluster("csv");
     database.addCluster("flat");
@@ -232,54 +288,20 @@ public abstract class BaseTest<T extends ODatabaseInternal> {
     animal.createProperty("name", OType.STRING);
   }
 
-  protected boolean isAutoManageDatabase() {
-    return autoManageDatabase;
-  }
-
-  @SuppressWarnings("SameParameterValue")
-  protected void setAutoManageDatabase(final boolean autoManageDatabase) {
-    this.autoManageDatabase = autoManageDatabase;
-  }
-
-  protected boolean isDropDb() {
-    return dropDb;
-  }
-
-  @SuppressWarnings("SameParameterValue")
-  protected void setDropDb(final boolean dropDb) {
-    this.dropDb = !keepDatabase && dropDb;
-  }
-
-  protected boolean skipTestIfRemote() {
-    // ONLY PLOCAL AND MEMORY STORAGES SUPPORTED
-    return !((ODatabaseDocumentInternal) database).isRemote();
-  }
-
   protected void checkEmbeddedDB() {
-    if (((ODatabaseInternal) database).getStorage().isRemote()) {
+    if (database.getStorage().isRemote()) {
       throw new SkipException("Test is running only in embedded database");
     }
   }
 
   protected OIndex getIndex(final String indexName) {
-    final ODatabaseDocumentInternal db;
+    final ODatabaseSessionInternal db;
     if (database instanceof ODatabaseWrapperAbstract) {
-      db = (ODatabaseDocumentInternal) database.getUnderlying();
+      db = database.getUnderlying();
     } else {
-      db = (ODatabaseDocumentInternal) database;
+      db = (ODatabaseSessionInternal) database;
     }
-    //noinspection unchecked
-    return (db.getMetadata()).getIndexManagerInternal().getIndex(db, indexName);
-  }
 
-  protected Collection<? extends OIndex> getIndexes() {
-    final ODatabaseDocumentInternal db;
-    if (database instanceof ODatabaseWrapperAbstract) {
-      db = (ODatabaseDocumentInternal) database.getUnderlying();
-    } else {
-      db = (ODatabaseDocumentInternal) database;
-    }
-    //noinspection unchecked
-    return db.getMetadata().getIndexManagerInternal().getIndexes(db);
+    return (db.getMetadata()).getIndexManagerInternal().getIndex(db, indexName);
   }
 }

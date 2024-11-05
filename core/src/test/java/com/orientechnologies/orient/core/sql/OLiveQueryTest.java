@@ -20,8 +20,8 @@
 package com.orientechnologies.orient.core.sql;
 
 import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.OrientDB;
@@ -154,7 +154,7 @@ public class OLiveQueryTest {
     OClass clazz = db.getMetadata().getSchema().createClass("test");
 
     int defaultCluster = clazz.getDefaultClusterId();
-    final OStorage storage = ((ODatabaseDocumentInternal) db).getStorage();
+    final OStorage storage = ((ODatabaseSessionInternal) db).getStorage();
 
     MyLiveQueryListener listener = new MyLiveQueryListener(new CountDownLatch(1));
 

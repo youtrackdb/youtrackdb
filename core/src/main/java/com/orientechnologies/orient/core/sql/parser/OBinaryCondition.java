@@ -5,7 +5,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -144,7 +144,7 @@ public class OBinaryCondition extends OBooleanExpression {
   }
 
   public OBinaryCondition isIndexedFunctionCondition(
-      OClass iSchemaClass, ODatabaseDocumentInternal database) {
+      OClass iSchemaClass, ODatabaseSessionInternal database) {
     if (left.isIndexedFunctionCal()) {
       return this;
     }
@@ -210,7 +210,7 @@ public class OBinaryCondition extends OBooleanExpression {
   }
 
   public List<OBinaryCondition> getIndexedFunctionConditions(
-      OClass iSchemaClass, ODatabaseDocumentInternal database) {
+      OClass iSchemaClass, ODatabaseSessionInternal database) {
     if (left.isIndexedFunctionCal()) {
       return Collections.singletonList(this);
     }

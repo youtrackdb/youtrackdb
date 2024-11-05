@@ -21,7 +21,7 @@
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeTimeLine;
@@ -48,7 +48,7 @@ import java.util.Set;
 public class OClassIndexManager {
 
   public static void checkIndexesAfterCreate(
-      ODocument document, ODatabaseDocumentInternal database) {
+      ODocument document, ODatabaseSessionInternal database) {
     document = checkForLoading(document);
     processIndexOnCreate(database, document);
   }
@@ -58,7 +58,7 @@ public class OClassIndexManager {
     addIndexEntry(document, document.getIdentity(), index);
   }
 
-  public static void processIndexOnCreate(ODatabaseDocumentInternal database, ODocument document) {
+  public static void processIndexOnCreate(ODatabaseSessionInternal database, ODocument document) {
     final OImmutableClass cls = ODocumentInternal.getImmutableSchemaClass(database, document);
     if (cls != null) {
       final Collection<OIndex> indexes = cls.getRawIndexes();
@@ -67,12 +67,12 @@ public class OClassIndexManager {
   }
 
   public static void checkIndexesAfterUpdate(
-      ODocument iDocument, ODatabaseDocumentInternal database) {
+      ODocument iDocument, ODatabaseSessionInternal database) {
     iDocument = checkForLoading(iDocument);
     processIndexOnUpdate(database, iDocument);
   }
 
-  public static void processIndexOnUpdate(ODatabaseDocumentInternal database, ODocument iDocument) {
+  public static void processIndexOnUpdate(ODatabaseSessionInternal database, ODocument iDocument) {
     final OImmutableClass cls = ODocumentInternal.getImmutableSchemaClass(database, iDocument);
     if (cls == null) {
       return;
@@ -89,7 +89,7 @@ public class OClassIndexManager {
   }
 
   public static void checkIndexesAfterDelete(
-      ODocument iDocument, ODatabaseDocumentInternal database) {
+      ODocument iDocument, ODatabaseSessionInternal database) {
     processIndexOnDelete(database, iDocument);
   }
 
@@ -350,7 +350,7 @@ public class OClassIndexManager {
   private static ODocument checkForLoading(final ODocument iRecord) {
     if (iRecord.getInternalStatus() == ORecordElement.STATUS.NOT_LOADED) {
       try {
-        return (ODocument) iRecord.load();
+        return iRecord.getDatabase().load(iRecord.getIdentity());
       } catch (final ORecordNotFoundException e) {
         throw OException.wrapException(
             new OIndexException("Error during loading of record with id " + iRecord.getIdentity()),
@@ -388,7 +388,7 @@ public class OClassIndexManager {
     } else if (!indexDefinition.isNullValuesIgnored() || key != null) addPut(index, key, rid);
   }
 
-  public static void processIndexOnDelete(ODatabaseDocumentInternal database, ODocument iDocument) {
+  public static void processIndexOnDelete(ODatabaseSessionInternal database, ODocument iDocument) {
     final OImmutableClass cls = ODocumentInternal.getImmutableSchemaClass(database, iDocument);
     if (cls == null) return;
 

@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import org.testng.Assert;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 
 /**
@@ -17,9 +16,9 @@ import org.testng.annotations.Parameters;
  */
 public class EmbeddedObjectSerializationTest extends DocumentDBBaseTest {
 
-  @Parameters(value = "url")
-  public EmbeddedObjectSerializationTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public EmbeddedObjectSerializationTest(boolean remote) {
+    super(remote);
   }
 
   public void testEmbeddedObjectSerialization() {

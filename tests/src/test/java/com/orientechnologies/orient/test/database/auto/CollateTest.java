@@ -20,16 +20,15 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.testng.Assert;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test
 public class CollateTest extends DocumentDBBaseTest {
 
-  @Parameters(value = "url")
-  public CollateTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public CollateTest(boolean remote) {
+    super(remote);
   }
 
   public void testQuery() {
@@ -63,15 +62,18 @@ public class CollateTest extends DocumentDBBaseTest {
         database.query(new OSQLSynchQuery<ODocument>("select from collateTest where csp = 'VAL'"));
     Assert.assertEquals(result.size(), 5);
 
-    for (ODocument document : result) Assert.assertEquals(document.field("csp"), "VAL");
+    for (ODocument document : result) {
+      Assert.assertEquals(document.field("csp"), "VAL");
+    }
 
     //noinspection deprecation
     result =
         database.query(new OSQLSynchQuery<ODocument>("select from collateTest where cip = 'VaL'"));
     Assert.assertEquals(result.size(), 10);
 
-    for (ODocument document : result)
+    for (ODocument document : result) {
       Assert.assertEquals((document.<String>field("cip")).toUpperCase(Locale.ENGLISH), "VAL");
+    }
   }
 
   public void testQueryNotNullCi() {
@@ -142,7 +144,9 @@ public class CollateTest extends DocumentDBBaseTest {
     List<ODocument> result = database.query(new OSQLSynchQuery<ODocument>(query));
     Assert.assertEquals(result.size(), 5);
 
-    for (ODocument document : result) Assert.assertEquals(document.field("csp"), "VAL");
+    for (ODocument document : result) {
+      Assert.assertEquals(document.field("csp"), "VAL");
+    }
 
     @SuppressWarnings("deprecation")
     ODocument explain = database.command(new OCommandSQL("explain " + query)).execute();
@@ -153,8 +157,9 @@ public class CollateTest extends DocumentDBBaseTest {
     result = database.query(new OSQLSynchQuery<ODocument>(query));
     Assert.assertEquals(result.size(), 10);
 
-    for (ODocument document : result)
+    for (ODocument document : result) {
       Assert.assertEquals((document.<String>field("cip")).toUpperCase(Locale.ENGLISH), "VAL");
+    }
 
     //noinspection deprecation
     explain = database.command(new OCommandSQL("explain " + query)).execute();
@@ -173,8 +178,11 @@ public class CollateTest extends DocumentDBBaseTest {
     for (int i = 0; i < 10; i++) {
       ODocument document = new ODocument("collateWasChangedIndexTest");
 
-      if (i % 2 == 0) document.field("cp", "VAL");
-      else document.field("cp", "val");
+      if (i % 2 == 0) {
+        document.field("cp", "VAL");
+      } else {
+        document.field("cp", "val");
+      }
 
       database.begin();
       document.save();
@@ -186,7 +194,9 @@ public class CollateTest extends DocumentDBBaseTest {
     List<ODocument> result = database.query(new OSQLSynchQuery<ODocument>(query));
     Assert.assertEquals(result.size(), 5);
 
-    for (ODocument document : result) Assert.assertEquals(document.field("cp"), "VAL");
+    for (ODocument document : result) {
+      Assert.assertEquals(document.field("cp"), "VAL");
+    }
 
     @SuppressWarnings("deprecation")
     ODocument explain = database.command(new OCommandSQL("explain " + query)).execute();
@@ -201,8 +211,9 @@ public class CollateTest extends DocumentDBBaseTest {
     result = database.query(new OSQLSynchQuery<ODocument>(query));
     Assert.assertEquals(result.size(), 10);
 
-    for (ODocument document : result)
+    for (ODocument document : result) {
       Assert.assertEquals((document.<String>field("cp")).toUpperCase(Locale.ENGLISH), "VAL");
+    }
 
     //noinspection deprecation
     explain = database.command(new OCommandSQL("explain " + query)).execute();
@@ -243,7 +254,9 @@ public class CollateTest extends DocumentDBBaseTest {
     List<ODocument> result = database.query(new OSQLSynchQuery<ODocument>(query));
     Assert.assertEquals(result.size(), 5);
 
-    for (ODocument document : result) Assert.assertEquals(document.field("csp"), "VAL");
+    for (ODocument document : result) {
+      Assert.assertEquals(document.field("csp"), "VAL");
+    }
 
     @SuppressWarnings("deprecation")
     ODocument explain = database.command(new OCommandSQL("explain " + query)).execute();
@@ -315,7 +328,9 @@ public class CollateTest extends DocumentDBBaseTest {
     List<ODocument> result = database.query(new OSQLSynchQuery<ODocument>(query));
     Assert.assertEquals(result.size(), 5);
 
-    for (ODocument document : result) Assert.assertEquals(document.field("csp"), "VAL");
+    for (ODocument document : result) {
+      Assert.assertEquals(document.field("csp"), "VAL");
+    }
 
     @SuppressWarnings("deprecation")
     ODocument explain = database.command(new OCommandSQL("explain " + query)).execute();
@@ -332,8 +347,9 @@ public class CollateTest extends DocumentDBBaseTest {
     result = database.query(new OSQLSynchQuery<ODocument>(query));
     Assert.assertEquals(result.size(), 10);
 
-    for (ODocument document : result)
+    for (ODocument document : result) {
       Assert.assertEquals(document.<String>field("csp").toUpperCase(Locale.ENGLISH), "VAL");
+    }
 
     //noinspection deprecation
     explain = database.command(new OCommandSQL("explain " + query)).execute();
@@ -380,7 +396,9 @@ public class CollateTest extends DocumentDBBaseTest {
             new OSQLSynchQuery<ODocument>("select from collateTestViaSQL where csp = 'VAL'"));
     Assert.assertEquals(result.size(), 5);
 
-    for (ODocument document : result) Assert.assertEquals(document.field("csp"), "VAL");
+    for (ODocument document : result) {
+      Assert.assertEquals(document.field("csp"), "VAL");
+    }
 
     //noinspection deprecation
     result =
@@ -388,7 +406,8 @@ public class CollateTest extends DocumentDBBaseTest {
             new OSQLSynchQuery<ODocument>("select from collateTestViaSQL where cip = 'VaL'"));
     Assert.assertEquals(result.size(), 10);
 
-    for (ODocument document : result)
+    for (ODocument document : result) {
       Assert.assertEquals((document.<String>field("cip")).toUpperCase(Locale.ENGLISH), "VAL");
+    }
   }
 }

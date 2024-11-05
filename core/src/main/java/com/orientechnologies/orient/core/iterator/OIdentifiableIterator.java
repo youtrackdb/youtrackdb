@@ -21,10 +21,11 @@ package com.orientechnologies.orient.core.iterator;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.ONoTxRecordReadException;
 import com.orientechnologies.orient.core.exception.OSecurityException;
 import com.orientechnologies.orient.core.id.OEmptyRecordId;
 import com.orientechnologies.orient.core.id.ORID;
@@ -50,7 +51,7 @@ import java.util.Set;
 public abstract class OIdentifiableIterator<REC extends OIdentifiable>
     implements Iterator<REC>, Iterable<REC> {
 
-  protected final ODatabaseDocumentInternal database;
+  protected final ODatabaseSessionInternal database;
   protected final ORecordId current = new OEmptyRecordId();
   private final OStorage dbStorage;
   protected boolean liveUpdated = false;
@@ -78,7 +79,7 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
    * @deprecated usage of this constructor may lead to deadlocks.
    */
   @Deprecated
-  public OIdentifiableIterator(final ODatabaseDocumentInternal iDatabase) {
+  public OIdentifiableIterator(final ODatabaseSessionInternal iDatabase) {
     database = iDatabase;
 
     dbStorage = database.getStorage();
@@ -247,6 +248,10 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
         throw e;
       }
 
+      if (e instanceof ONoTxRecordReadException) {
+        throw e;
+      }
+
       if (OGlobalConfiguration.DB_SKIP_BROKEN_RECORDS.getValueAsBoolean()) {
         brokenRIDs.add(current.copy());
 
@@ -370,7 +375,7 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
   }
 
   protected static void checkForSystemClusters(
-      final ODatabaseDocumentInternal iDatabase, final int[] iClusterIds) {
+      final ODatabaseSessionInternal iDatabase, final int[] iClusterIds) {
     if (iDatabase.isRemote()) {
       return;
     }

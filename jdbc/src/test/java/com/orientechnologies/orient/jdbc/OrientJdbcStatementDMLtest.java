@@ -17,7 +17,7 @@ package com.orientechnologies.orient.jdbc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import java.io.IOException;
@@ -103,7 +103,7 @@ public class OrientJdbcStatementDMLtest extends OrientJdbcDbPerMethodTemplateTes
     stmt.close();
 
     // double value test pattern?
-    var database = (ODatabaseDocumentInternal) conn.getDatabase();
+    var database = (ODatabaseSessionInternal) conn.getDatabase();
     assertThat(database.getClusterIdByName("account")).isNotNull();
     OClass account = database.getMetadata().getSchema().getClass("Account");
     assertThat(account).isNotNull();
@@ -125,7 +125,7 @@ public class OrientJdbcStatementDMLtest extends OrientJdbcDbPerMethodTemplateTes
     stmt.close();
 
     // double value test pattern?
-    ODatabaseDocumentInternal database = (ODatabaseDocumentInternal) conn.getDatabase();
+    ODatabaseSessionInternal database = (ODatabaseSessionInternal) conn.getDatabase();
     assertThat(database.getClusterIdByName("account")).isNotNull();
     OClass account = database.getMetadata().getSchema().getClass("Account");
     assertThat(account).isNotNull();

@@ -45,7 +45,6 @@ import java.util.Objects;
 import java.util.Set;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -53,16 +52,18 @@ import org.testng.annotations.Test;
 @SuppressWarnings("unchecked")
 public class SQLSelectTest extends AbstractSelectTest {
 
-  @Parameters(value = "url")
-  public SQLSelectTest(@Optional String url) {
-    super(url);
+  @Parameters(value = "remote")
+  public SQLSelectTest(boolean remote) {
+    super(remote);
   }
 
   @BeforeClass
   public void init() {
     if (!database.getMetadata().getSchema().existsClass("Profile")) {
       database.getMetadata().getSchema().createClass("Profile", 1);
+    }
 
+    if (!database.query("select from Profile").hasNext()) {
       for (int i = 0; i < 1000; ++i) {
         database.begin();
         database.<ODocument>newInstance("Profile").field("test", i).field("name", "N" + i).save();
@@ -72,6 +73,9 @@ public class SQLSelectTest extends AbstractSelectTest {
 
     if (!database.getMetadata().getSchema().existsClass("company")) {
       database.getMetadata().getSchema().createClass("company", 1);
+    }
+
+    if (!database.query("select from company").hasNext()) {
       for (int i = 0; i < 20; ++i) {
         database.begin();
         new ODocument("company").field("id", i).save();

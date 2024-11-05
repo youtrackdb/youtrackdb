@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.storage.impl.local.paginated;
 
 import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
@@ -21,7 +21,7 @@ public class StorageBackupTestWithLuceneIndex {
 
   private String buildDirectory;
 
-  private ODatabaseDocumentInternal db;
+  private ODatabaseSessionInternal db;
   private String dbDirectory;
   private String backedUpDbDirectory;
 
@@ -50,7 +50,7 @@ public class StorageBackupTestWithLuceneIndex {
       db.drop();
     }
 
-    final ODatabaseDocumentInternal backedUpDb =
+    final ODatabaseSessionInternal backedUpDb =
         new ODatabaseDocumentTx("plocal:" + backedUpDbDirectory);
     if (backedUpDb.exists()) {
       if (backedUpDb.isClosed()) {
@@ -100,7 +100,7 @@ public class StorageBackupTestWithLuceneIndex {
 
     OFileUtils.deleteRecursively(new File(backedUpDbDirectory));
 
-    final ODatabaseDocumentInternal backedUpDb =
+    final ODatabaseSessionInternal backedUpDb =
         new ODatabaseDocumentTx("plocal:" + backedUpDbDirectory);
     backedUpDb.create(backupDir.getAbsolutePath());
 
@@ -112,10 +112,10 @@ public class StorageBackupTestWithLuceneIndex {
     var orientDB = new OrientDB("embedded:" + buildDirectory, OrientDBConfig.defaultConfig());
     final ODatabaseCompare compare =
         new ODatabaseCompare(
-            (ODatabaseDocumentInternal)
+            (ODatabaseSessionInternal)
                 orientDB.open(
                     StorageBackupTestWithLuceneIndex.class.getSimpleName(), "admin", "admin"),
-            (ODatabaseDocumentInternal)
+            (ODatabaseSessionInternal)
                 orientDB.open(
                     StorageBackupTestWithLuceneIndex.class.getSimpleName() + "BackUp",
                     "admin",
@@ -178,7 +178,7 @@ public class StorageBackupTestWithLuceneIndex {
             + "BackUp";
     OFileUtils.deleteRecursively(new File(backedUpDbDirectory));
 
-    final ODatabaseDocumentInternal backedUpDb =
+    final ODatabaseSessionInternal backedUpDb =
         new ODatabaseDocumentTx("plocal:" + backedUpDbDirectory);
     backedUpDb.create(backupDir.getAbsolutePath());
 
@@ -190,10 +190,10 @@ public class StorageBackupTestWithLuceneIndex {
     var orientDB = new OrientDB("embedded:" + buildDirectory, OrientDBConfig.defaultConfig());
     final ODatabaseCompare compare =
         new ODatabaseCompare(
-            (ODatabaseDocumentInternal)
+            (ODatabaseSessionInternal)
                 orientDB.open(
                     StorageBackupTestWithLuceneIndex.class.getSimpleName(), "admin", "admin"),
-            (ODatabaseDocumentInternal)
+            (ODatabaseSessionInternal)
                 orientDB.open(
                     StorageBackupTestWithLuceneIndex.class.getSimpleName() + "BackUp",
                     "admin",
