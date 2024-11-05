@@ -37,6 +37,7 @@ import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
 import com.orientechnologies.orient.core.db.ODatabaseListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OScenarioThreadLocal;
 import com.orientechnologies.orient.core.db.OSharedContext;
 import com.orientechnologies.orient.core.db.record.OCurrentStorageComponentsFactory;

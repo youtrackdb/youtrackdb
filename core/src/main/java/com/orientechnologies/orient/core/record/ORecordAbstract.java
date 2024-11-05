@@ -21,6 +21,7 @@ package com.orientechnologies.orient.core.record;
 
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
@@ -145,7 +146,7 @@ public abstract class ORecordAbstract implements ORecord {
     return this;
   }
 
-  protected ORecordAbstract fromStream(final byte[] iRecordBuffer, ODatabaseDocumentInternal db) {
+  protected ORecordAbstract fromStream(final byte[] iRecordBuffer, ODatabaseSessionInternal db) {
     if (dirty) {
       throw new ODatabaseException("Cannot call fromStream() on dirty records");
     }
@@ -438,7 +439,7 @@ public abstract class ORecordAbstract implements ORecord {
       final int iVersion,
       final byte[] iBuffer,
       boolean iDirty,
-      ODatabaseDocumentInternal db) {
+      ODatabaseSessionInternal db) {
     if (dirty) {
       throw new ODatabaseException("Cannot call fill() on dirty records");
     }
@@ -514,7 +515,7 @@ public abstract class ORecordAbstract implements ORecord {
     }
   }
 
-  protected void setup(ODatabaseDocumentInternal db) {
+  protected void setup(ODatabaseSessionInternal db) {
     if (recordId == null) {
       recordId = new OEmptyRecordId();
     }

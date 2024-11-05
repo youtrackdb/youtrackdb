@@ -21,7 +21,6 @@ package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseStats;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
@@ -106,7 +105,7 @@ public class OServerCommandPostCommand extends OServerCommandAuthenticatedDbAbst
     iRequest.getData().commandInfo = "Command";
     iRequest.getData().commandDetail = text;
 
-    ODatabaseDocumentInternal db = null;
+    ODatabaseSessionInternal db = null;
 
     boolean ok = false;
     boolean txBegun = false;

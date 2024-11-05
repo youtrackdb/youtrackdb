@@ -81,7 +81,10 @@ public class RemoteMetadataReloadTest {
 
   @Test
   public void testSequencesUpdate() throws InterruptedException {
+    database.begin();
     database.command("CREATE SEQUENCE test TYPE CACHED");
+    database.commit();
+
     assertNotNull(database.getMetadata().getSequenceLibrary().getSequence("test"));
   }
 }

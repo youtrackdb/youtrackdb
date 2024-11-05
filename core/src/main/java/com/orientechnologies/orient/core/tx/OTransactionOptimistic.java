@@ -22,6 +22,7 @@ package com.orientechnologies.orient.core.tx;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.cache.OLocalRecordCache;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;

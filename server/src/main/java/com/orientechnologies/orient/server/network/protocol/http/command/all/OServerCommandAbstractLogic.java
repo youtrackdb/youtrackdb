@@ -22,7 +22,7 @@ package com.orientechnologies.orient.server.network.protocol.http.command.all;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.script.OCommandScriptException;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
@@ -38,7 +38,7 @@ public abstract class OServerCommandAbstractLogic extends OServerCommandAuthenti
   public boolean execute(final OHttpRequest iRequest, final OHttpResponse iResponse)
       throws Exception {
     final String[] parts = init(iRequest, iResponse);
-    ODatabaseDocumentInternal db = null;
+    ODatabaseSessionInternal db = null;
 
     try {
       db = getProfiledDatabaseInstance(iRequest);
@@ -123,6 +123,6 @@ public abstract class OServerCommandAbstractLogic extends OServerCommandAuthenti
       OHttpRequest iRequest,
       OHttpResponse iResponse,
       Object iResult,
-      ODatabaseDocumentInternal databaseDocumentInternal)
+      ODatabaseSessionInternal databaseDocumentInternal)
       throws InterruptedException, IOException;
 }

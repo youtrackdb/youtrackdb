@@ -2601,7 +2601,7 @@ public class ODocument extends ORecordAbstract
   }
 
   @Override
-  protected final ODocument fromStream(final byte[] iRecordBuffer, ODatabaseDocumentInternal db) {
+  protected final ODocument fromStream(final byte[] iRecordBuffer, ODatabaseSessionInternal db) {
     if (dirty) {
       throw new ODatabaseException("Cannot call fromStream() on dirty records");
     }
@@ -3437,7 +3437,7 @@ public class ODocument extends ORecordAbstract
       final int iVersion,
       final byte[] iBuffer,
       final boolean iDirty,
-      ODatabaseDocumentInternal db) {
+      ODatabaseSessionInternal db) {
     if (dirty) {
       throw new ODatabaseException("Cannot call fill() on dirty records");
     }
@@ -3493,7 +3493,7 @@ public class ODocument extends ORecordAbstract
     return getImmutableSchemaClass(null);
   }
 
-  protected OImmutableClass getImmutableSchemaClass(ODatabaseDocumentInternal database) {
+  protected OImmutableClass getImmutableSchemaClass(ODatabaseSessionInternal database) {
     if (immutableClazz == null) {
       if (className == null) {
         fetchClassName();
@@ -4021,7 +4021,7 @@ public class ODocument extends ORecordAbstract
    * Internal.
    */
   @Override
-  protected void setup(ODatabaseDocumentInternal db) {
+  protected void setup(ODatabaseSessionInternal db) {
     super.setup(db);
 
     if (db != null) {
@@ -4125,7 +4125,7 @@ public class ODocument extends ORecordAbstract
     }
   }
 
-  void autoConvertFieldsToClass(final ODatabaseDocumentInternal database) {
+  void autoConvertFieldsToClass(final ODatabaseSessionInternal database) {
     checkForBinding();
     if (className != null) {
       OClass klazz = database.getMetadata().getImmutableSchemaSnapshot().getClass(className);
@@ -4220,7 +4220,7 @@ public class ODocument extends ORecordAbstract
     }
   }
 
-  void checkClass(ODatabaseDocumentInternal database) {
+  void checkClass(ODatabaseSessionInternal database) {
     checkForBinding();
     if (className == null) {
       fetchClassName();

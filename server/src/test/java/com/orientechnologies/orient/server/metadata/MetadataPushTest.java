@@ -131,7 +131,9 @@ public class MetadataPushTest {
   @Test
   public void testSequencesUpdate() throws Exception {
     database.activateOnCurrentThread();
+    database.begin();
     database.command("CREATE SEQUENCE test TYPE CACHED");
+    database.commit();
     // Push done in background for now, do not guarantee update before command return.
     secondDatabase.activateOnCurrentThread();
     BaseMemoryDatabase.assertWithTimeout(
