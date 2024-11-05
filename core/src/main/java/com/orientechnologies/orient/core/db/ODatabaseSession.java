@@ -20,6 +20,7 @@
 package com.orientechnologies.orient.core.db;
 
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.record.ORecord;
 import java.util.function.Supplier;
 
 /**
@@ -40,21 +41,34 @@ public interface ODatabaseSession extends ODatabaseDocument {
   }
 
   /**
-   * Executes the passed in code in a transaction.
-   * Starts a transaction if not already started, in this case the transaction is committed after
-   * the code is executed or rolled back if an exception is thrown.
+   * Executes the passed in code in a transaction. Starts a transaction if not already started, in
+   * this case the transaction is committed after the code is executed or rolled back if an
+   * exception is thrown.
+   *
    * @param runnable Code to execute in transaction
    */
   void executeInTx(Runnable runnable);
 
   /**
-   * Executes the given code in a transaction.
-   * Starts a transaction if not already started, in this case the transaction is committed after
-   * the code is executed or rolled back if an exception is thrown.
+   * Executes the given code in a transaction. Starts a transaction if not already started, in this
+   * case the transaction is committed after the code is executed or rolled back if an exception is
+   * thrown.
    *
    * @param supplier Code to execute in transaction
+   * @param <T>      the type of the returned result
    * @return the result of the code execution
-   * @param <T> the type of the returned result
    */
   <T> T computeInTx(Supplier<T> supplier);
+
+  /**
+   * Binds current record to the session. It is mandatory to call this method in case you use
+   * records that are not created or loaded by the session. Method returns bounded instance of given
+   * record, usage of passed in instance is prohibited.
+   *
+   * @param record Record to bind to the session, passed in instance is <b>prohibited</b> for
+   *               further usage.
+   * @param <T>    Type of record.
+   * @return Bounded instance of given record.
+   */
+  <T extends ORecord> T bindToSession(T record);
 }

@@ -60,15 +60,6 @@ public interface ORecord extends ORecordElement, OIdentifiable, Serializable, OS
   boolean isUnloaded();
 
   /**
-   * Returns <code>true</code> if records servers as proxy for the real record in the storage. In
-   * such case it is recommended to call {@link #getRecord()} method to get the real record.
-   * Accessing of real record will increase system performance.
-   *
-   * @return <code>true</code> if records servers as proxy for the real record in the storage.
-   */
-  boolean isProxy();
-
-  /**
    * All the fields are deleted but the record identity is maintained. Use this to remove all the
    * document's fields.
    *

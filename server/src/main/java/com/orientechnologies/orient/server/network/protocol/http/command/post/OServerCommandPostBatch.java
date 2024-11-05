@@ -222,7 +222,7 @@ public class OServerCommandPostBatch extends OServerCommandDocumentAbstract {
       if (txBegun) db.commit();
 
       try {
-        iResponse.writeResult(lastResult);
+        iResponse.writeResult(lastResult, db);
       } catch (RuntimeException e) {
         OLogManager.instance()
             .error(

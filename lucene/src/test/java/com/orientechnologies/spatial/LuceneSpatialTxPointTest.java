@@ -29,7 +29,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by Enrico Risa on 07/08/15. */
+/**
+ * Created by Enrico Risa on 07/08/15.
+ */
 public class LuceneSpatialTxPointTest extends BaseSpatialLuceneTest {
 
   @Before
@@ -111,6 +113,7 @@ public class LuceneSpatialTxPointTest extends BaseSpatialLuceneTest {
 
     db.begin();
 
+    rome = db.bindToSession(rome);
     rome.field("location", newPoint(12.5, 41.9));
 
     db.save(rome);
@@ -143,6 +146,9 @@ public class LuceneSpatialTxPointTest extends BaseSpatialLuceneTest {
     db.commit();
 
     db.begin();
+
+    rome = db.bindToSession(rome);
+    london = db.bindToSession(london);
 
     rome.field("location", newPoint(12.5, 41.9));
     london.field("location", newPoint(-0.1275, 51.507222));

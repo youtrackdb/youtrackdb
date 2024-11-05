@@ -36,7 +36,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by Enrico Risa on 10/08/15. */
+/**
+ * Created by Enrico Risa on 10/08/15.
+ */
 public class LuceneTransactionCompositeQueryTest extends BaseLuceneTest {
 
   @Before
@@ -85,6 +87,7 @@ public class LuceneTransactionCompositeQueryTest extends BaseLuceneTest {
 
     db.begin();
 
+    doc = db.bindToSession(doc);
     db.delete(doc);
 
     String query = "select from Foo where name = 'Test' and bar lucene \"abc\" ";
@@ -136,6 +139,7 @@ public class LuceneTransactionCompositeQueryTest extends BaseLuceneTest {
 
     db.begin();
 
+    doc = db.bindToSession(doc);
     doc.field("bar", "removed");
     db.save(doc);
 
@@ -207,6 +211,7 @@ public class LuceneTransactionCompositeQueryTest extends BaseLuceneTest {
 
     db.begin();
 
+    doc = db.bindToSession(doc);
     doc.field("bar", "removed");
     db.save(doc);
 

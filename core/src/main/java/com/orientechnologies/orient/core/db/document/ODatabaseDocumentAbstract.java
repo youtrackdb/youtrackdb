@@ -36,7 +36,7 @@ import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
 import com.orientechnologies.orient.core.db.ODatabaseListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OScenarioThreadLocal;
 import com.orientechnologies.orient.core.db.OSharedContext;
 import com.orientechnologies.orient.core.db.record.OCurrentStorageComponentsFactory;
@@ -924,6 +924,44 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     return prefetchRecords;
   }
 
+  @Override
+  public <T extends ORecord> T bindToSession(T record) {
+    if (record == null) {
+      return null;
+    }
+
+    var rid = record.getIdentity();
+    if (!rid.isValid()) {
+      throw new ODatabaseException(
+          "Cannot bind record to session with invalid identity rid: " + rid);
+    }
+
+    checkOpenness();
+    checkIfActive();
+
+    var txRecord = currentTx.getRecord(rid);
+    if (txRecord == record) {
+      assert !txRecord.isUnloaded();
+      return record;
+    }
+
+    var cachedRecord = localCache.findRecord(rid);
+    if (cachedRecord == record) {
+      assert !cachedRecord.isUnloaded();
+      return record;
+    }
+
+    var result =
+        executeReadRecord(
+            (ORecordId) rid, null, -1, null, false, false, new SimpleRecordReader(false));
+    if (result == null) {
+      throw new ORecordNotFoundException(rid);
+    }
+
+    assert !result.isUnloaded();
+    return (T) result;
+  }
+
   /**
    * This method is internal, it can be subject to signature change or be removed, do not use.
    *
@@ -937,6 +975,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       final boolean ignoreCache,
       final boolean loadTombstones,
       RecordReader recordReader) {
+
     checkOpenness();
     checkIfActive();
 
@@ -959,16 +998,14 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       }
 
       var cachedRecord = getLocalCache().findRecord(rid);
-      assert cachedRecord == null || !cachedRecord.isProxy();
 
       if (record == null && !ignoreCache) {
         record = cachedRecord;
       }
 
       if (record != null && !record.isUnloaded()) {
-        assert !record.isProxy();
-
         OFetchHelper.checkFetchPlanValid(fetchPlan);
+
         if (beforeReadOperations(record)) {
           return null;
         }
@@ -981,10 +1018,11 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
         getLocalCache().updateRecord(record);
 
         if (iRecord != null && iRecord != record) {
-          iRecord.convertToProxyRecord((ORecordAbstract) record);
+          throw new IllegalStateException(
+              "Passed in record is not the same as the record in the database");
         }
 
-        assert !record.isProxy() && !record.isUnloaded();
+        assert !record.isUnloaded();
         return (RET) record;
       }
 
@@ -1024,7 +1062,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
                 .newInstance(recordBuffer.recordType, rid, this);
         ORecordInternal.unsetDirty(record);
       }
-      assert !record.isProxy();
 
       if (ORecordInternal.getRecordType(record) != recordBuffer.recordType) {
         throw new ODatabaseException("Record type is different from the one in the database");
@@ -1038,7 +1075,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       }
 
       if (ORecordVersionHelper.isTombstone(record.getVersion())) {
-        assert !record.isProxy() && !record.isUnloaded();
+        assert !record.isUnloaded();
         return (RET) record;
       }
 
@@ -1047,14 +1084,14 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       }
 
       if (iRecord != null && iRecord != record) {
-        iRecord.convertToProxyRecord((ORecordAbstract) record);
+        throw new ODatabaseException("Record type is different from the one in the database");
       }
 
       ORecordInternal.fromStream(record, recordBuffer.buffer, this);
       afterReadOperations(record);
 
       getLocalCache().updateRecord(record);
-      assert !record.isProxy() && !record.isUnloaded();
+      assert !record.isUnloaded();
 
       return (RET) record;
     } catch (OOfflineClusterException | ORecordNotFoundException t) {
@@ -1492,8 +1529,8 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
    * work also in schema-less mode). To validate the document the {@link ODocument#validate()} is
    * called.
    *
-   * @param iRecord      Record to save
-   * @param iClusterName Cluster name where to save the record
+   * @param record      Record to save
+   * @param clusterName Cluster name where to save the record
    * @return The Database instance itself giving a "fluent interface". Useful to call multiple
    * methods in chain.
    * @throws OConcurrentModificationException if the version of the document is different by the
@@ -1503,28 +1540,29 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
    * @see #setMVCC(boolean), {@link #isMVCC()}, ODocument#validate()
    */
   @Override
-  public <RET extends ORecord> RET save(ORecord iRecord, String iClusterName) {
+  public <RET extends ORecord> RET save(ORecord record, String clusterName) {
     checkOpenness();
 
-    if (iRecord.isUnloaded()) {
-      return (RET) iRecord;
+    if (record.isUnloaded()) {
+      throw new ODatabaseException(
+          "Record "
+              + record
+              + " is not bound to session, please call "
+              + ODatabaseSession.class.getSimpleName()
+              + ".bindToSession(record) before save it");
     }
 
-    if (iRecord.isProxy()) {
-      iRecord = iRecord.getRecord();
+    if (record instanceof OVertex) {
+      record = record.getRecord();
     }
-
-    if (iRecord instanceof OVertex) {
-      iRecord = iRecord.getRecord();
-    }
-    if (iRecord instanceof OEdge) {
-      if (((OEdge) iRecord).isLightweight()) {
-        iRecord = ((OEdge) iRecord).getFrom();
+    if (record instanceof OEdge) {
+      if (((OEdge) record).isLightweight()) {
+        record = ((OEdge) record).getFrom();
       } else {
-        iRecord = iRecord.getRecord();
+        record = record.getRecord();
       }
     }
-    return saveInternal((ORecordAbstract) iRecord, iClusterName);
+    return saveInternal((ORecordAbstract) record, clusterName);
   }
 
   private <RET extends ORecord> RET saveInternal(ORecordAbstract record, String clusterName) {

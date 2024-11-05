@@ -84,7 +84,7 @@ public class ODocumentWrapper implements Serializable {
   }
 
   private void checkProxy() {
-    if (document != null && document.isProxy()) {
+    if (document != null) {
       document = (ODocument) document.getRecord();
     }
   }

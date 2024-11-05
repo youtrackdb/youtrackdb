@@ -19,9 +19,13 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.patch;
 
+import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.id.OEmptyRecordId;
+import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.ORecordInternal;
+import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -37,81 +41,76 @@ public class OServerCommandPatchDocument extends OServerCommandDocumentAbstract 
         checkSyntax(iRequest.getUrl(), 2, "Syntax error: document/<database>[/<record-id>]");
 
     iRequest.getData().commandInfo = "Edit Document";
+    try (ODatabaseSession db = getProfiledDatabaseInstance(iRequest)) {
+      ORawPair<Boolean, ORID> result =
+          db.computeInTx(
+              () -> {
+                ORecordId recordId;
 
-    ODatabaseSession db = null;
-    com.orientechnologies.orient.core.id.ORecordId recordId;
-    final com.orientechnologies.orient.core.record.impl.ODocument doc;
+                if (urlParts.length > 2) {
+                  // EXTRACT RID
+                  final int parametersPos = urlParts[2].indexOf('?');
+                  final String rid =
+                      parametersPos > -1 ? urlParts[2].substring(0, parametersPos) : urlParts[2];
+                  recordId = new ORecordId(rid);
 
-    try {
-      db = getProfiledDatabaseInstance(iRequest);
+                  if (!recordId.isValid()) {
+                    throw new IllegalArgumentException("Invalid Record ID in request: " + recordId);
+                  }
+                } else {
+                  recordId = new OEmptyRecordId();
+                }
 
-      if (urlParts.length > 2) {
-        // EXTRACT RID
-        final int parametersPos = urlParts[2].indexOf('?');
-        final String rid =
-            parametersPos > -1 ? urlParts[2].substring(0, parametersPos) : urlParts[2];
-        recordId = new com.orientechnologies.orient.core.id.ORecordId(rid);
+                // UNMARSHALL DOCUMENT WITH REQUEST CONTENT
+                var doc = new ODocument();
+                doc.fromJSON(iRequest.getContent());
 
-        if (!recordId.isValid()) {
-          throw new IllegalArgumentException("Invalid Record ID in request: " + recordId);
-        }
-      } else {
-        recordId = new OEmptyRecordId();
-      }
+                if (iRequest.getIfMatch() != null)
+                // USE THE IF-MATCH HTTP HEADER AS VERSION
+                {
+                  ORecordInternal.setVersion(doc, Integer.parseInt(iRequest.getIfMatch()));
+                }
 
-      // UNMARSHALL DOCUMENT WITH REQUEST CONTENT
-      doc = new com.orientechnologies.orient.core.record.impl.ODocument();
-      doc.fromJSON(iRequest.getContent());
+                if (!recordId.isValid()) {
+                  recordId = (ORecordId) doc.getIdentity();
+                } else {
+                  ORecordInternal.setIdentity(doc, recordId);
+                }
 
-      if (iRequest.getIfMatch() != null)
-      // USE THE IF-MATCH HTTP HEADER AS VERSION
-      {
-        ORecordInternal.setVersion(doc, Integer.parseInt(iRequest.getIfMatch()));
-      }
+                if (!recordId.isValid()) {
+                  throw new IllegalArgumentException("Invalid Record ID in request: " + recordId);
+                }
 
-      if (!recordId.isValid()) {
-        recordId = (com.orientechnologies.orient.core.id.ORecordId) doc.getIdentity();
-      } else {
-        ORecordInternal.setIdentity(doc, recordId);
-      }
+                final ODocument currentDocument = db.load(recordId);
+                if (currentDocument == null) {
+                  return new ORawPair<>(false, recordId);
+                }
 
-      if (!recordId.isValid()) {
-        throw new IllegalArgumentException("Invalid Record ID in request: " + recordId);
-      }
+                boolean partialUpdateMode = true;
+                currentDocument.merge(doc, partialUpdateMode, false);
+                ORecordInternal.setVersion(currentDocument, doc.getVersion());
 
-      final com.orientechnologies.orient.core.record.impl.ODocument currentDocument =
-          db.load(recordId);
+                currentDocument.save();
+                return new ORawPair<>(true, recordId);
+              });
 
-      if (currentDocument == null) {
+      if (!result.first) {
         iResponse.send(
             OHttpUtils.STATUS_NOTFOUND_CODE,
             OHttpUtils.STATUS_NOTFOUND_DESCRIPTION,
             OHttpUtils.CONTENT_TEXT_PLAIN,
-            "Record " + recordId + " was not found.",
+            "Record " + result.second + " was not found.",
             null);
         return false;
       }
 
-      db.executeInTx(
-          () -> {
-            boolean partialUpdateMode = true;
-            currentDocument.merge(doc, partialUpdateMode, false);
-            ORecordInternal.setVersion(currentDocument, doc.getVersion());
-
-            currentDocument.save();
-          });
-
+      var record = db.load(result.second);
       iResponse.send(
           OHttpUtils.STATUS_OK_CODE,
           OHttpUtils.STATUS_OK_DESCRIPTION,
           OHttpUtils.CONTENT_TEXT_PLAIN,
-          currentDocument.toJSON(),
-          OHttpUtils.HEADER_ETAG + doc.getVersion());
-
-    } finally {
-      if (db != null) {
-        db.close();
-      }
+          record.toJSON(),
+          OHttpUtils.HEADER_ETAG + record.getVersion());
     }
     return false;
   }

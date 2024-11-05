@@ -2256,9 +2256,15 @@ public abstract class OAbstractPaginatedStorage
       final Set<ORecordOperation> newRecords = new TreeSet<>(COMMIT_RECORD_OPERATION_COMPARATOR);
 
       for (final ORecordOperation recordOperation : recordOperations) {
+        var record = recordOperation.getRecord();
+
+        if (record.isUnloaded()) {
+          throw new IllegalStateException(
+              "Unloaded record " + record.getIdentity() + " cannot be committed");
+        }
+
         if (recordOperation.type == ORecordOperation.CREATED
             || recordOperation.type == ORecordOperation.UPDATED) {
-          final ORecord record = recordOperation.getRecord();
           if (record instanceof ODocument) {
             ((ODocument) record).validate();
           }
@@ -2271,7 +2277,6 @@ public abstract class OAbstractPaginatedStorage
         } else if (recordOperation.type == ORecordOperation.CREATED) {
           newRecords.add(recordOperation);
 
-          final ORecord record = recordOperation.getRecord();
           final ORID rid = record.getIdentity();
 
           int clusterId = rid.getClusterId();

@@ -429,7 +429,8 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
 
       if (txRecord != null) {
         if (iRecord != null && txRecord != iRecord) {
-          iRecord.convertToProxyRecord(txRecord);
+          throw new IllegalStateException(
+              "Passed in record is not the same as the record in the database");
         }
 
         return txRecord;
@@ -487,7 +488,8 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
 
       if (txRecord != null) {
         if (passedRecord != null && txRecord != passedRecord) {
-          passedRecord.convertToProxyRecord(txRecord);
+          throw new IllegalStateException(
+              "Passed in record is not the same as the record in the database");
         }
         return txRecord;
       }
@@ -688,6 +690,15 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
   }
 
   public void addRecord(ORecordAbstract iRecord, byte iStatus, String iClusterName) {
+    if (iRecord.isUnloaded()) {
+      throw new ODatabaseException(
+          "Record "
+              + iRecord
+              + " is not bound to session, please call "
+              + ODatabaseSession.class.getSimpleName()
+              + ".bindToSession(record) before changing it");
+    }
+
     changed = true;
     checkTransactionValid();
 

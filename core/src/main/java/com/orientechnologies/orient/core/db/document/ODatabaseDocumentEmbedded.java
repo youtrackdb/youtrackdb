@@ -1080,12 +1080,6 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
       throw new ODatabaseException("Cannot delete null document");
     }
 
-    var newTx = !currentTx.isActive();
-    if (newTx) {
-      //noinspection resource
-      begin();
-    }
-
     if (record instanceof OElement) {
       if (((OElement) record).isVertex()) {
         OVertexInternal.deleteLinks(((OElement) record).toVertex());
@@ -1106,10 +1100,6 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
 
     try {
       currentTx.deleteRecord((ORecordAbstract) record);
-      if (newTx) {
-        //noinspection resource
-        commit();
-      }
     } catch (OException e) {
       throw e;
     } catch (Exception e) {
@@ -1633,8 +1623,11 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     }
 
     while (iteratorCluster.hasNext()) {
-      final ODocument document = iteratorCluster.next();
-      document.delete();
+      executeInTx(
+          () -> {
+            final ODocument document = bindToSession(iteratorCluster.next());
+            document.delete();
+          });
     }
 
     return dropClusterInternal(clusterId);

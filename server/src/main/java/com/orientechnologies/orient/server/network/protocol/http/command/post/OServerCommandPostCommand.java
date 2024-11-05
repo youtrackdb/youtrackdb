@@ -38,7 +38,12 @@ import com.orientechnologies.orient.core.sql.parser.OTraverseStatement;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.command.OServerCommandAuthenticatedDbAbstract;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TimerTask;
 
 public class OServerCommandPostCommand extends OServerCommandAuthenticatedDbAbstract {
 
@@ -101,13 +106,13 @@ public class OServerCommandPostCommand extends OServerCommandAuthenticatedDbAbst
     iRequest.getData().commandInfo = "Command";
     iRequest.getData().commandDetail = text;
 
-    ODatabaseDocument db = null;
+    ODatabaseDocumentInternal db = null;
 
     boolean ok = false;
     boolean txBegun = false;
     try {
       db = getProfiledDatabaseInstance(iRequest);
-      ((ODatabaseInternal) db).resetRecordLoadStats();
+      db.resetRecordLoadStats();
       OStatement stm = parseStatement(language, text, db);
 
       if (stm != null && !(stm instanceof ODDLStatement)) {
@@ -159,10 +164,10 @@ public class OServerCommandPostCommand extends OServerCommandAuthenticatedDbAbst
       }
 
       additionalContent.put("elapsedMs", elapsedMs);
-      ODatabaseStats dbStats = ((ODatabaseInternal) db).getStats();
+      ODatabaseStats dbStats = db.getStats();
       additionalContent.put("dbStats", dbStats.toResult().toElement());
 
-      iResponse.writeResult(response, format, accept, additionalContent, mode);
+      iResponse.writeResult(response, format, accept, additionalContent, mode, db);
       ok = true;
     } finally {
       if (db != null) {

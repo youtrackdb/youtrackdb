@@ -6,6 +6,8 @@ updates:
       interval: "weekly"
   - package-ecosystem: "npm"
     directory: "/studio"
+    schedule:
+      interval: "monthly"
     ignore:
       - dependency-name: "*"
   - package-ecosystem: "maven"

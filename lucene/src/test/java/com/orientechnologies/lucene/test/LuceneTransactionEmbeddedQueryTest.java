@@ -37,7 +37,9 @@ import java.util.stream.Stream;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by Enrico Risa on 10/08/15. */
+/**
+ * Created by Enrico Risa on 10/08/15.
+ */
 public class LuceneTransactionEmbeddedQueryTest {
 
   public LuceneTransactionEmbeddedQueryTest() {}
@@ -188,7 +190,7 @@ public class LuceneTransactionEmbeddedQueryTest {
       db.begin();
 
       // select in transaction while updating
-      OElement record = resultRecord.getElement().get();
+      OElement record = db.bindToSession(resultRecord.getElement().get());
       Collection p1 = record.getProperty("p1");
       p1.remove("update removed");
       db.save(record);
@@ -264,6 +266,7 @@ public class LuceneTransactionEmbeddedQueryTest {
 
       db.begin();
 
+      doc = db.bindToSession(doc);
       doc.field("p1", new String[] {"removed"});
       db.save(doc);
 

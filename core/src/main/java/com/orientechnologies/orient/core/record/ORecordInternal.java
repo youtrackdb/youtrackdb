@@ -42,8 +42,8 @@ public class ORecordInternal {
     return rec;
   }
 
-  public static void checkForLoading(ORecord record) {
-    ((ORecordAbstract) record).checkForLoading();
+  public static void checkForBinding(ORecord record) {
+    ((ORecordAbstract) record).checkForBinding();
   }
 
   public static ORecordAbstract fill(

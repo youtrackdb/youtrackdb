@@ -59,7 +59,7 @@ public class OServerCommandGetCluster extends OServerCommandAuthenticatedDbAbstr
           response.add(rec);
         }
 
-        iResponse.writeRecords(response);
+        iResponse.writeRecords(response, db);
       } else iResponse.send(OHttpUtils.STATUS_NOTFOUND_CODE, null, null, null, null);
 
     } finally {

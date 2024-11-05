@@ -38,7 +38,12 @@ import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.parser.OProjection;
 import com.orientechnologies.orient.core.sql.parser.OProjectionItem;
 import com.orientechnologies.orient.core.sql.parser.OSelectStatement;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -47,6 +52,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class OLiveQueryHookV2 {
 
   public static class OLiveQueryOp {
+
     public OResult before;
     public OResult after;
     public byte type;
@@ -167,14 +173,22 @@ public class OLiveQueryHookV2 {
       return;
     }
     List<OLiveQueryOp> list;
-    if (Boolean.FALSE.equals(database.getConfiguration().getValue(QUERY_LIVE_SUPPORT))) return;
+    if (Boolean.FALSE.equals(database.getConfiguration().getValue(QUERY_LIVE_SUPPORT))) {
+      return;
+    }
     synchronized (ops.pendingOps) {
       list = ops.pendingOps.remove(database);
     }
     // TODO sync
     if (list != null) {
       for (OLiveQueryOp item : list) {
-        item.originalDoc = item.originalDoc.copy();
+        var originalDoc = item.originalDoc;
+
+        if (originalDoc.isUnloaded()) {
+          originalDoc = database.load(originalDoc.getIdentity());
+        }
+
+        item.originalDoc = originalDoc;
         ops.enqueue(item);
       }
     }
@@ -183,7 +197,9 @@ public class OLiveQueryHookV2 {
   public static void removePendingDatabaseOps(ODatabaseDocument database) {
     try {
       if (database.isClosed()
-          || Boolean.FALSE.equals(database.getConfiguration().getValue(QUERY_LIVE_SUPPORT))) return;
+          || Boolean.FALSE.equals(database.getConfiguration().getValue(QUERY_LIVE_SUPPORT))) {
+        return;
+      }
       OLiveQueryOps ops = getOpsReference((ODatabaseInternal) database);
       synchronized (ops.pendingOps) {
         ops.pendingOps.remove(database);
@@ -197,8 +213,12 @@ public class OLiveQueryHookV2 {
   public static void addOp(ODocument iDocument, byte iType, ODatabaseDocument database) {
     ODatabaseDocument db = database;
     OLiveQueryOps ops = getOpsReference((ODatabaseInternal) db);
-    if (!ops.hasListeners()) return;
-    if (Boolean.FALSE.equals(database.getConfiguration().getValue(QUERY_LIVE_SUPPORT))) return;
+    if (!ops.hasListeners()) {
+      return;
+    }
+    if (Boolean.FALSE.equals(database.getConfiguration().getValue(QUERY_LIVE_SUPPORT))) {
+      return;
+    }
 
     Set<String> projectionsToLoad = calculateProjections(ops);
 

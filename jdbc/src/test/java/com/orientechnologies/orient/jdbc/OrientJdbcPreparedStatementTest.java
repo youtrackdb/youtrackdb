@@ -47,7 +47,7 @@ public class OrientJdbcPreparedStatementTest extends OrientJdbcDbPerMethodTempla
   }
 
   @Test
-  public void shouldExectuteSelectOne() throws SQLException {
+  public void shouldExecuteSelectOne() throws SQLException {
     PreparedStatement stmt = conn.prepareStatement("select 1");
     assertThat(stmt.execute()).isTrue();
     assertThat(stmt.getResultSet()).isNotNull();
@@ -109,9 +109,11 @@ public class OrientJdbcPreparedStatementTest extends OrientJdbcDbPerMethodTempla
     conn.createStatement().executeQuery("INSERT INTO Insertable(id) VALUES(2)");
     conn.createStatement().execute("commit");
 
+    conn.createStatement().execute("begin");
     PreparedStatement statement = conn.prepareStatement("DELETE FROM Insertable WHERE id > ?");
     statement.setInt(1, 0);
     int rowsDeleted = statement.executeUpdate();
+    conn.createStatement().execute("commit");
 
     assertThat(rowsDeleted).isEqualTo(2);
   }

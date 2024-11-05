@@ -341,6 +341,7 @@ public class OConnectionExecutorTransactionTest {
     OBinaryResponse createResponse = createRecordRequest.execute(executor);
     assertTrue(createResponse instanceof OCreateRecordResponse);
 
+    rec = database.load(rec.getIdentity());
     rec.setProperty("name", "bar");
     OUpdateRecordRequest updateRecordRequest =
         new OUpdateRecordRequest(

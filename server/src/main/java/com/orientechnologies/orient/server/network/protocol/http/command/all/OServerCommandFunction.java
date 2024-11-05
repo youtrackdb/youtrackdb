@@ -19,6 +19,7 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.all;
 
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.server.config.OServerCommandConfiguration;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -41,9 +42,12 @@ public class OServerCommandFunction extends OServerCommandAbstractLogic {
 
   @Override
   protected void handleResult(
-      final OHttpRequest iRequest, final OHttpResponse iResponse, final Object iResult)
+      final OHttpRequest iRequest,
+      final OHttpResponse iResponse,
+      final Object iResult,
+      ODatabaseDocumentInternal databaseDocumentInternal)
       throws InterruptedException, IOException {
-    iResponse.writeResult(iResult);
+    iResponse.writeResult(iResult, databaseDocumentInternal);
   }
 
   @Override

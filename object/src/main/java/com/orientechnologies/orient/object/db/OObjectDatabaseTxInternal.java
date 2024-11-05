@@ -516,7 +516,6 @@ public class OObjectDatabaseTxInternal
           // RE-REGISTER FOR NEW RECORDS SINCE THE ID HAS CHANGED
           registerUserObject(proxiedObject, record);
         }
-        ORecordInternal.checkForLoading(record);
       } finally {
         record.setInternalStatus(ORecordElement.STATUS.LOADED);
       }

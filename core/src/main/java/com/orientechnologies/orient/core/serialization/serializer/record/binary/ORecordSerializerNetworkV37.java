@@ -156,7 +156,7 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
   }
 
   public void serialize(final ODocument document, final BytesContainer bytes) {
-    ORecordInternal.checkForLoading(document);
+    ORecordInternal.checkForBinding(document);
     serializeClass(document, bytes);
     final Collection<Entry<String, ODocumentEntry>> fields = fetchEntries(document);
     OVarIntSerializer.write(bytes, fields.size());

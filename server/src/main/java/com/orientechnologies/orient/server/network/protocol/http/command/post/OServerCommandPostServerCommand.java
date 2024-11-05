@@ -112,7 +112,7 @@ public class OServerCommandPostServerCommand extends OServerCommandAuthenticated
     if (iRequest.getHeader("TE") != null) iResponse.setStreaming(true);
 
     additionalContent.put("elapsedMs", elapsedMs);
-    iResponse.writeResult(response, format, accept, additionalContent, mode);
+    iResponse.writeResult(response, format, accept, additionalContent, mode, null);
 
     return false;
   }

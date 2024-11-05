@@ -1996,16 +1996,21 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
 
   protected static void rewriteLinksInDocument(
       ODatabaseSession session, ODocument document, Set<ORID> brokenRids) {
-    doRewriteLinksInDocument(session, document, brokenRids);
+    var doc = doRewriteLinksInDocument(session, document, brokenRids);
 
-    session.executeInTx(document::save);
+    if (!doc.isDirty()) {
+      // nothing changed
+      return;
+    }
+
+    session.executeInTx(doc::save);
   }
 
-  protected static void doRewriteLinksInDocument(
+  protected static ODocument doRewriteLinksInDocument(
       ODatabaseSession session, ODocument document, Set<ORID> brokenRids) {
     final OLinksRewriter rewriter = new OLinksRewriter(new OConverterData(session, brokenRids));
     final ODocumentFieldWalker documentFieldWalker = new ODocumentFieldWalker();
-    documentFieldWalker.walkDocument(document, rewriter);
+    return documentFieldWalker.walkDocument(session, document, rewriter);
   }
 
   public int getMaxRidbagStringSizeBeforeLazyImport() {

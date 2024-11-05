@@ -36,7 +36,9 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-/** Created by enricorisa on 28/06/14. */
+/**
+ * Created by enricorisa on 28/06/14.
+ */
 public class OLuceneListIndexingTest extends OLuceneBaseTest {
 
   @Before
@@ -98,6 +100,7 @@ public class OLuceneListIndexingTest extends OLuceneBaseTest {
     }
     assertThat(coll).hasSize(2);
 
+    doc = db.bindToSession(doc);
     // modify london: it is rainy
     List<String> tags = doc.field("tags");
     tags.remove("Sunny");

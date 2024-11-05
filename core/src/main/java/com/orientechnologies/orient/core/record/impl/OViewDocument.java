@@ -5,7 +5,6 @@ import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OImmutableClass;
 import com.orientechnologies.orient.core.metadata.schema.OView;
 import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
 
 public class OViewDocument extends ODocument {
 
@@ -21,31 +20,15 @@ public class OViewDocument extends ODocument {
   }
 
   @Override
-  public void convertToProxyRecord(ORecordAbstract primaryRecord) {
-    if (!(primaryRecord instanceof OViewDocument)) {
-      throw new IllegalArgumentException("Can't convert to a proxy of OViewDocument");
-    }
-
-    super.convertToProxyRecord(primaryRecord);
-    view = null;
-  }
-
-  @Override
   public OView getSchemaClass() {
-    checkForLoading();
-    if (primaryRecord != null) {
-      return ((OViewDocument) primaryRecord).getSchemaClass();
-    }
+    checkForBinding();
 
     return view;
   }
 
   @Override
   protected OImmutableClass getImmutableSchemaClass() {
-    checkForLoading();
-    if (primaryRecord != null) {
-      return ((OViewDocument) primaryRecord).getImmutableSchemaClass();
-    }
+    checkForBinding();
 
     if (view instanceof OImmutableClass) {
       return (OImmutableClass) view;
@@ -56,22 +39,13 @@ public class OViewDocument extends ODocument {
 
   @Override
   public String getClassName() {
-    checkForLoading();
-    if (primaryRecord != null) {
-      return ((OViewDocument) primaryRecord).getClassName();
-    }
-
     OView clazz = getSchemaClass();
     return clazz == null ? null : clazz.getName();
   }
 
   @Override
   public void setProperty(String iFieldName, Object iPropertyValue) {
-    checkForLoading();
-    if (primaryRecord != null) {
-      ((OViewDocument) primaryRecord).setProperty(iFieldName, iPropertyValue);
-      return;
-    }
+    checkForBinding();
 
     super.setProperty(iFieldName, iPropertyValue);
     if (view != null && view.isUpdatable()) {
@@ -90,12 +64,7 @@ public class OViewDocument extends ODocument {
 
   @Override
   public void setPropertyWithoutValidation(String name, Object value) {
-    checkForLoading();
-    if (primaryRecord != null) {
-      ((OViewDocument) primaryRecord).setPropertyWithoutValidation(name, value);
-      return;
-    }
-
+    checkForBinding();
     super.setPropertyWithoutValidation(name, value);
 
     if (view != null && view.isUpdatable()) {

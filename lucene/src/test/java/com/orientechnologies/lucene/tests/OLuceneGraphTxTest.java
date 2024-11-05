@@ -53,6 +53,7 @@ public class OLuceneGraphTxTest extends OLuceneBaseTest {
 
     assertThat(resultSet).hasSize(1);
 
+    v = db.bindToSession(v);
     // modifiy vertex
     v.setProperty("name", "Berlin");
 

@@ -34,6 +34,7 @@ import java.io.UnsupportedEncodingException;
 @SuppressWarnings({"unchecked"})
 @Deprecated
 public class ORecordFlat extends ORecordAbstract implements ORecordStringable {
+
   private static final long serialVersionUID = 1L;
   public static final byte RECORD_TYPE = 'f';
   protected String value;
@@ -51,20 +52,7 @@ public class ORecordFlat extends ORecordAbstract implements ORecordStringable {
     setup(ODatabaseRecordThreadLocal.instance().getIfDefined());
   }
 
-  @Override
-  public void convertToProxyRecord(ORecordAbstract primaryRecord) {
-    if (!(primaryRecord instanceof ORecordFlat)) {
-      throw new IllegalArgumentException("Can't convert to a proxy of ORecordFlat");
-    }
-
-    super.convertToProxyRecord(primaryRecord);
-  }
-
   public ORecordFlat value(final String iValue) {
-    if (primaryRecord != null) {
-      ((ORecordFlat) primaryRecord).value(iValue);
-    }
-
     value = iValue;
     setDirty();
     return this;
@@ -72,10 +60,6 @@ public class ORecordFlat extends ORecordAbstract implements ORecordStringable {
 
   @Override
   public ORecordFlat reset() {
-    if (primaryRecord != null) {
-      ((ORecordFlat) primaryRecord).reset();
-    }
-
     super.reset();
     value = null;
     return this;
@@ -83,10 +67,6 @@ public class ORecordFlat extends ORecordAbstract implements ORecordStringable {
 
   @Override
   public ORecordFlat unload() {
-    if (primaryRecord != null) {
-      ((ORecordFlat) primaryRecord).unload();
-    }
-
     super.unload();
     value = null;
     return this;
@@ -94,20 +74,12 @@ public class ORecordFlat extends ORecordAbstract implements ORecordStringable {
 
   @Override
   public ORecordFlat clear() {
-    if (primaryRecord != null) {
-      ((ORecordFlat) primaryRecord).clear();
-    }
-
     super.clear();
     value = null;
     return this;
   }
 
   public ORecordFlat copy() {
-    if (primaryRecord != null) {
-      return (ORecordFlat) primaryRecord.copy();
-    }
-
     ORecordFlat cloned = new ORecordFlat();
     cloned.source = source;
     cloned.value = value;
@@ -119,10 +91,6 @@ public class ORecordFlat extends ORecordAbstract implements ORecordStringable {
   }
 
   public String value() {
-    if (primaryRecord != null) {
-      return ((ORecordFlat) primaryRecord).value();
-    }
-
     if (value == null) {
       // LAZY LOADING: LOAD THE RECORD FIRST
       try {
@@ -137,18 +105,11 @@ public class ORecordFlat extends ORecordAbstract implements ORecordStringable {
 
   @Override
   public String toString() {
-    if (primaryRecord != null) {
-      return "Proxy of {" + primaryRecord + "}";
-    }
     return super.toString() + " " + value();
   }
 
   @Override
   public ORecordAbstract fromStream(final byte[] iRecordBuffer) {
-    if (primaryRecord != null) {
-      return primaryRecord.fromStream(iRecordBuffer);
-    }
-
     super.fromStream(iRecordBuffer);
     value = null;
     return this;
@@ -156,33 +117,22 @@ public class ORecordFlat extends ORecordAbstract implements ORecordStringable {
 
   @Override
   public byte[] toStream() {
-    if (primaryRecord != null) {
-      return primaryRecord.toStream();
-    }
-
-    if (source == null && value != null)
+    if (source == null && value != null) {
       try {
         source = value.getBytes("UTF-8");
       } catch (UnsupportedEncodingException e) {
         throw new RuntimeException(e);
       }
+    }
     return source;
   }
 
   public int size() {
-    if (primaryRecord != null) {
-      return ((ORecordFlat) primaryRecord).size();
-    }
-
     final String v = value();
     return v != null ? v.length() : 0;
   }
 
   public byte getRecordType() {
-    if (primaryRecord != null) {
-      return ((ORecordFlat) primaryRecord).getRecordType();
-    }
-
     return RECORD_TYPE;
   }
 }

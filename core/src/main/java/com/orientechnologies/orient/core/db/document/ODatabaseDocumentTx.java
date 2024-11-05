@@ -1658,4 +1658,9 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
   public <T> T computeInTx(Supplier<T> supplier) {
     return internal.computeInTx(supplier);
   }
+
+  @Override
+  public <T extends ORecord> T bindToSession(T record) {
+    return internal.bindToSession(record);
+  }
 }

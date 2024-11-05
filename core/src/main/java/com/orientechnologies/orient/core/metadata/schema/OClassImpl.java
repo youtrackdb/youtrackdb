@@ -1366,7 +1366,7 @@ public abstract class OClassImpl implements OClass {
   public void fireDatabaseMigration(
       final ODatabaseSession database, final String propertyName, final OType type) {
     final boolean strictSQL =
-        ((ODatabaseInternal) database).getStorageInfo().getConfiguration().isStrictSql();
+        ((ODatabaseInternal<?>) database).getStorageInfo().getConfiguration().isStrictSql();
 
     try (OResultSet result =
         database.query(
@@ -1380,7 +1380,8 @@ public abstract class OClassImpl implements OClass {
       while (result.hasNext()) {
         database.executeInTx(
             () -> {
-              ODocument record = (ODocument) result.next().getElement().get();
+              ODocument record =
+                  database.bindToSession((ODocument) result.next().getElement().get());
               record.field(propertyName, record.field(propertyName), type);
               database.save(record);
             });
@@ -1406,7 +1407,8 @@ public abstract class OClassImpl implements OClass {
       while (result.hasNext()) {
         database.executeInTx(
             () -> {
-              ODocument record = (ODocument) result.next().getElement().get();
+              ODocument record =
+                  database.bindToSession((ODocument) result.next().getElement().get());
               record.setFieldType(propertyName, type);
               record.field(newPropertyName, record.field(propertyName), type);
               database.save(record);
