@@ -32,7 +32,6 @@ import com.orientechnologies.orient.core.exception.OPaginatedClusterException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.OMetadataInternal;
-import com.orientechnologies.orient.core.storage.OCluster;
 import com.orientechnologies.orient.core.storage.OPhysicalPosition;
 import com.orientechnologies.orient.core.storage.ORawBuffer;
 import com.orientechnologies.orient.core.storage.OStorage;
@@ -60,8 +59,6 @@ import java.util.ListIterator;
 import java.util.Optional;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
@@ -80,7 +77,6 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
 
   private static final int PAGE_INDEX_OFFSET = 16;
   private static final int RECORD_POSITION_MASK = 0xFFFF;
-  private static final Logger log = LoggerFactory.getLogger(OPaginatedClusterV2.class);
 
   private final boolean systemCluster;
   private final OClusterPositionMapV2 clusterPositionMap;
