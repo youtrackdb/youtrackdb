@@ -6,7 +6,9 @@ import static org.junit.Assert.assertNull;
 import com.orientechnologies.BaseMemoryDatabase;
 import org.junit.Test;
 
-/** Created by tglman on 10/02/16. */
+/**
+ * Created by tglman on 10/02/16.
+ */
 public class OFunctionLibraryTest extends BaseMemoryDatabase {
 
   @Test
@@ -34,7 +36,9 @@ public class OFunctionLibraryTest extends BaseMemoryDatabase {
     func = db.getMetadata().getFunctionLibrary().getFunction("TestFunc");
     assertNull(func);
     func = db.getMetadata().getFunctionLibrary().createFunction("TestFunc1");
+    db.begin();
     db.getMetadata().getFunctionLibrary().dropFunction(func);
+    db.commit();
     func = db.getMetadata().getFunctionLibrary().getFunction("TestFunc");
     assertNull(func);
   }

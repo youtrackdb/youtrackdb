@@ -51,6 +51,7 @@ public class DefaultValueTest extends BaseMemoryDatabase {
     ODocument saved = db.save(doc);
     db.commit();
 
+    saved = db.bindToSession(saved);
     assertNotNull(saved.field("date"));
     assertTrue(saved.field("date") instanceof Date);
     assertNotNull(saved.field("id"));
@@ -82,6 +83,7 @@ public class DefaultValueTest extends BaseMemoryDatabase {
     ODocument saved = db.save(doc);
     db.commit();
 
+    saved = db.bindToSession(saved);
     assertNotNull(saved.field("date"));
     assertTrue(saved.field("date") instanceof Date);
     assertNotNull(saved.field("id"));
@@ -110,6 +112,7 @@ public class DefaultValueTest extends BaseMemoryDatabase {
     ODocument saved = db.save(doc);
     db.commit();
 
+    saved = db.bindToSession(saved);
     assertNotNull(saved.field("date"));
     assertTrue(saved.field("date") instanceof Date);
     assertNotNull(saved.field("other"));
@@ -130,6 +133,7 @@ public class DefaultValueTest extends BaseMemoryDatabase {
     ODocument saved = db.save(doc);
     db.commit();
 
+    saved = db.bindToSession(saved);
     assertNotNull(saved.field("date"));
     assertEquals(ODateHelper.getDateTimeFormatInstance().format(saved.field("date")), value1);
     assertNotNull(saved.field("other"));
@@ -150,6 +154,7 @@ public class DefaultValueTest extends BaseMemoryDatabase {
     ODocument saved = db.save(doc);
     db.commit();
 
+    saved = db.bindToSession(saved);
     assertNotNull(saved.field("date"));
     assertTrue(saved.field("date") instanceof Date);
     assertNotNull(saved.field("other"));
@@ -171,6 +176,7 @@ public class DefaultValueTest extends BaseMemoryDatabase {
     db.begin();
     ODocument saved = db.save(doc);
     db.commit();
+    saved = db.bindToSession(saved);
     assertNotNull(saved.field("date"));
     assertEquals(ODateHelper.getDateTimeFormatInstance().format(saved.field("date")), value1);
     assertNotNull(saved.field("other"));
@@ -191,6 +197,9 @@ public class DefaultValueTest extends BaseMemoryDatabase {
     ODocument saved = db.save(doc);
     db.commit();
 
+    saved = db.bindToSession(saved);
+    doc = db.bindToSession(doc);
+
     assertNotNull(saved.field("date"));
     assertTrue(saved.field("date") instanceof Date);
     assertNotNull(saved.field("other"));
@@ -203,6 +212,7 @@ public class DefaultValueTest extends BaseMemoryDatabase {
     saved = db.save(saved);
     db.commit();
 
+    saved = db.bindToSession(saved);
     assertNotNull(saved.field("date"));
     assertEquals(ODateHelper.getDateTimeFormatInstance().format(saved.field("date")), val);
     assertEquals(saved.field("other"), "other1");

@@ -54,7 +54,7 @@ public class OContentRecordConflictStrategy extends OVersionRecordConflictStrate
 
     if (iRecordType == ODocument.RECORD_TYPE) {
       // No need lock, is already inside a lock.
-      OStorageOperationResult<ORawBuffer> res = storage.readRecord(rid, null, false, false, null);
+      OStorageOperationResult<ORawBuffer> res = storage.readRecord(rid, false, false, null);
       final ODocument storedRecord = new ODocument(rid).fromStream(res.getResult().getBuffer());
       final ODocument newRecord = new ODocument().fromStream(iRecordContent);
 

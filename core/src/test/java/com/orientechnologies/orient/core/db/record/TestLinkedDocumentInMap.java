@@ -22,6 +22,7 @@ public class TestLinkedDocumentInMap extends BaseMemoryDatabase {
     db.commit();
 
     db.begin();
+    jaimeDoc = db.bindToSession(jaimeDoc);
     ODocument tyrionDoc = new ODocument("PersonTest");
     tyrionDoc.fromJSON(
         "{\"@type\":\"d\",\"name\":\"tyrion\",\"emergency_contact\":[{\"relationship\":\"brother\",\"contact\":"
@@ -30,6 +31,7 @@ public class TestLinkedDocumentInMap extends BaseMemoryDatabase {
     tyrionDoc.save();
     db.commit();
 
+    tyrionDoc = db.bindToSession(tyrionDoc);
     List<Map<String, OIdentifiable>> res = tyrionDoc.field("emergency_contact");
     Map<String, OIdentifiable> doc = res.get(0);
     Assert.assertTrue(doc.get("contact").getIdentity().isValid());

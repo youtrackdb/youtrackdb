@@ -27,18 +27,21 @@ import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.metadata.security.OSecurityRole;
 import org.junit.Test;
 
-/** Created by Enrico Risa on 07/06/16. */
+/**
+ * Created by Enrico Risa on 07/06/16.
+ */
 public class OCommandExecutorSQLGrantRevokeTest extends BaseMemoryDatabase {
 
   @Test
   public void grantServerRemove() {
-
+    db.begin();
     ORole testRole =
         db.getMetadata()
             .getSecurity()
             .createRole("testRole", OSecurityRole.ALLOW_MODES.DENY_ALL_BUT);
 
     assertFalse(testRole.allow(ORule.ResourceGeneric.SERVER, "server", ORole.PERMISSION_EXECUTE));
+    db.commit();
 
     db.begin();
     db.command("GRANT execute on server.remove to testRole").close();

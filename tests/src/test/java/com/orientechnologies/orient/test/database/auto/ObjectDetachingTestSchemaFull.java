@@ -735,7 +735,6 @@ public class ObjectDetachingTestSchemaFull extends ObjectDBBaseTest {
     database.command(command).close();
     database.commit();
 
-    realAddress = database.reload(anAddress, true);
     Assert.assertNotNull(realAddress.getCity());
     // At this point, in OrientDB Studio everything is fine
     // The address has the good country @rid, with version +1

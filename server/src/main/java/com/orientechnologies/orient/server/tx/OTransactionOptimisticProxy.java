@@ -71,8 +71,8 @@ public class OTransactionOptimisticProxy extends OTransactionOptimistic {
   }
 
   @Override
-  public void begin() {
-    super.begin();
+  public int begin() {
+    int counter = super.begin();
     try {
       for (ORecordOperationRequest operation : this.operations) {
         final byte recordStatus = operation.getType();
@@ -181,6 +181,8 @@ public class OTransactionOptimisticProxy extends OTransactionOptimistic {
               "Cannot read transaction record from the network. Transaction aborted"),
           e);
     }
+
+    return counter;
   }
 
   @Override

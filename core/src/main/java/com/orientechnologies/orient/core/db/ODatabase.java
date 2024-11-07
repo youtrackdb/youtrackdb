@@ -74,7 +74,7 @@ public interface ODatabase<T> extends OBackupable, Closeable {
    * database if you switch between multiple databases instances on the same thread or if you pass
    * them across threads.
    */
-  ODatabase activateOnCurrentThread();
+  void activateOnCurrentThread();
 
   /**
    * Returns true if the current database instance is active on current thread, otherwise false.
@@ -173,9 +173,8 @@ public interface ODatabase<T> extends OBackupable, Closeable {
    *
    * @param iAttribute Attributes between #ATTRIBUTES enum
    * @param iValue     Value to set
-   * @return underlying
    */
-  <DB extends ODatabase> DB set(ATTRIBUTES iAttribute, Object iValue);
+  void set(ATTRIBUTES iAttribute, Object iValue);
 
   /**
    * Flush cached storage content to the disk.
@@ -338,19 +337,15 @@ public interface ODatabase<T> extends OBackupable, Closeable {
    * Deletes an entity from the database in synchronous mode.
    *
    * @param iObject The entity to delete.
-   * @return The Database instance itself giving a "fluent interface". Useful to call multiple
-   * methods in chain.
    */
-  ODatabase<T> delete(T iObject);
+  void delete(T iObject);
 
   /**
    * Deletes the entity with the received RID from the database.
    *
    * @param iRID The RecordID to delete.
-   * @return The Database instance itself giving a "fluent interface". Useful to call multiple
-   * methods in chain.
    */
-  ODatabase<T> delete(ORID iRID);
+  void delete(ORID iRID);
 
   /**
    * Return active transaction. Cannot be null. If no transaction is active, then a OTransactionNoTx
@@ -365,24 +360,27 @@ public interface ODatabase<T> extends OBackupable, Closeable {
    * running a nested call counter is incremented. A transaction once begun has to be closed by
    * calling the {@link #commit()} or {@link #rollback()}.
    *
-   * @return The Database instance itself giving a "fluent interface". Useful to call multiple
-   * methods in chain.
+   * @return Amount of nested transaction calls. First call is 1.
    */
-  ODatabase<T> begin();
+  int begin();
 
   /**
    * Commits the current transaction. The approach is all or nothing. All changes will be permanent
    * following the storage type. If the operation succeed all the entities changed inside the
    * transaction context will be effective. If the operation fails, all the changed entities will be
    * restored in the data store.
+   *
+   * @return true if the transaction is the last nested transaction and thus cmd can be committed,
+   * otherwise false. If false is returned, then there are still nested transaction that have to be
+   * committed.
    */
-  ODatabase<T> commit() throws OTransactionException;
+  boolean commit() throws OTransactionException;
 
   /**
    * Aborts the current running transaction. All the pending changed entities will be restored in
    * the data store.
    */
-  ODatabase<T> rollback() throws OTransactionException;
+  void rollback() throws OTransactionException;
 
   /**
    * Executes an SQL query. The result set has to be closed after usage <br>
@@ -513,13 +511,10 @@ public interface ODatabase<T> extends OBackupable, Closeable {
    * Registers a hook to listen all events for Records.
    *
    * @param iHookImpl ORecordHook implementation
-   * @return The Database instance itself giving a "fluent interface". Useful to call multiple
-   * methods in chain.
    */
-  <DB extends ODatabase<?>> DB registerHook(ORecordHook iHookImpl);
+  void registerHook(ORecordHook iHookImpl);
 
-  <DB extends ODatabase<?>> DB registerHook(
-      final ORecordHook iHookImpl, ORecordHook.HOOK_POSITION iPosition);
+  void registerHook(final ORecordHook iHookImpl, ORecordHook.HOOK_POSITION iPosition);
 
   /**
    * Retrieves all the registered hooks.
@@ -533,10 +528,8 @@ public interface ODatabase<T> extends OBackupable, Closeable {
    * Unregisters a previously registered hook.
    *
    * @param iHookImpl ORecordHook implementation
-   * @return The Database instance itself giving a "fluent interface". Useful to call multiple
-   * methods in chain. deprecated since 2.2
    */
-  <DB extends ODatabase<?>> DB unregisterHook(ORecordHook iHookImpl);
+  void unregisterHook(ORecordHook iHookImpl);
 
   /**
    * Retrieves all the registered listeners.

@@ -77,13 +77,13 @@ public class DuplicateDictionaryIndexChangesTxTest extends BaseMemoryDatabase {
   @Test
   public void testDuplicateNullsOnUpdate() {
     db.begin();
-    final ODocument person1 = db.newInstance("Person");
+    ODocument person1 = db.newInstance("Person");
     person1.field("name", (Object) null);
     db.save(person1);
-    final ODocument person2 = db.newInstance("Person");
+    ODocument person2 = db.newInstance("Person");
     person2.field("name", (Object) null);
     db.save(person2);
-    final ODocument person3 = db.newInstance("Person");
+    ODocument person3 = db.newInstance("Person");
     person3.field("name", (Object) null);
     db.save(person3);
     db.commit();
@@ -94,6 +94,10 @@ public class DuplicateDictionaryIndexChangesTxTest extends BaseMemoryDatabase {
     }
 
     db.begin();
+
+    person1 = db.bindToSession(person1);
+    person2 = db.bindToSession(person2);
+    person3 = db.bindToSession(person3);
 
     // change some names
     person1.field("name", "Name2").save();
@@ -106,6 +110,9 @@ public class DuplicateDictionaryIndexChangesTxTest extends BaseMemoryDatabase {
 
     // should never throw
     db.commit();
+
+    person2 = db.bindToSession(person2);
+    person3 = db.bindToSession(person3);
 
     // verify index state
     try (Stream<ORID> rids = index.getInternal().getRids("Name1")) {
@@ -156,13 +163,13 @@ public class DuplicateDictionaryIndexChangesTxTest extends BaseMemoryDatabase {
   @Test
   public void testDuplicateValuesOnUpdate() {
     db.begin();
-    final ODocument person1 = db.newInstance("Person");
+    ODocument person1 = db.newInstance("Person");
     person1.field("name", "Name1");
     db.save(person1);
-    final ODocument person2 = db.newInstance("Person");
+    ODocument person2 = db.newInstance("Person");
     person2.field("name", "Name2");
     db.save(person2);
-    final ODocument person3 = db.newInstance("Person");
+    ODocument person3 = db.newInstance("Person");
     person3.field("name", "Name3");
     db.save(person3);
     db.commit();
@@ -182,6 +189,10 @@ public class DuplicateDictionaryIndexChangesTxTest extends BaseMemoryDatabase {
 
     db.begin();
 
+    person1 = db.bindToSession(person1);
+    person2 = db.bindToSession(person2);
+    person3 = db.bindToSession(person3);
+
     // saved persons will have same name
     person1.field("name", "same").save();
     person2.field("name", "same").save();
@@ -194,6 +205,10 @@ public class DuplicateDictionaryIndexChangesTxTest extends BaseMemoryDatabase {
 
     // should never throw
     db.commit();
+
+    person1 = db.bindToSession(person1);
+    person2 = db.bindToSession(person2);
+    person3 = db.bindToSession(person3);
 
     // verify index state
     try (Stream<ORID> rids = index.getInternal().getRids("same")) {
@@ -253,16 +268,18 @@ public class DuplicateDictionaryIndexChangesTxTest extends BaseMemoryDatabase {
   @Test
   public void testDuplicateValuesOnUpdateDelete() {
     db.begin();
-    final ODocument person1 = db.newInstance("Person");
+    ODocument person1 = db.newInstance("Person");
     person1.field("name", "Name1");
     db.save(person1);
-    final ODocument person2 = db.newInstance("Person");
+
+    ODocument person2 = db.newInstance("Person");
     person2.field("name", "Name2");
     db.save(person2);
-    final ODocument person3 = db.newInstance("Person");
+
+    ODocument person3 = db.newInstance("Person");
     person3.field("name", "Name3");
     db.save(person3);
-    final ODocument person4 = db.newInstance("Person");
+    ODocument person4 = db.newInstance("Person");
     person4.field("name", "Name4");
     db.save(person4);
     db.commit();
@@ -278,6 +295,11 @@ public class DuplicateDictionaryIndexChangesTxTest extends BaseMemoryDatabase {
 
     db.begin();
 
+    person1 = db.bindToSession(person1);
+    person2 = db.bindToSession(person2);
+    person3 = db.bindToSession(person3);
+    person4 = db.bindToSession(person4);
+
     person1.delete();
     person2.field("name", "same").save();
     person3.delete();
@@ -288,11 +310,18 @@ public class DuplicateDictionaryIndexChangesTxTest extends BaseMemoryDatabase {
     // should never throw
     db.commit();
 
+    person2 = db.bindToSession(person2);
+    person4 = db.bindToSession(person4);
+
     // verify index state
     Assert.assertEquals(person4, getDocumentByKey("Name2"));
     Assert.assertNull(getDocumentByKey("same"));
 
     db.begin();
+
+    person2 = db.bindToSession(person2);
+    person4 = db.bindToSession(person4);
+
     person2.delete();
     person4.delete();
     db.commit();

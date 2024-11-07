@@ -27,7 +27,6 @@ import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OStorageException;
 import com.orientechnologies.orient.core.exception.OTransactionException;
 import com.orientechnologies.orient.core.hook.ORecordHook.TYPE;
@@ -107,7 +106,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
     this.id = id;
   }
 
-  public void begin() {
+  public int begin() {
     if (txStartCounter < 0) {
       throw new OTransactionException("Invalid value of TX counter: " + txStartCounter);
     }
@@ -126,6 +125,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
     }
 
     txStartCounter++;
+    return txStartCounter;
   }
 
   public void commit() {
@@ -410,47 +410,6 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
     internalRollback();
   }
 
-  public ORecord loadRecord(
-      final ORID rid,
-      final ORecordAbstract iRecord,
-      final String fetchPlan,
-      final boolean ignoreCache,
-      final boolean loadTombstone) {
-    checkTransactionValid();
-
-    if (iRecord != null) {
-      iRecord.incrementLoading();
-    }
-    try {
-      final ORecordAbstract txRecord = getRecord(rid);
-      if (txRecord == OTransactionAbstract.DELETED_RECORD) {
-        // DELETED IN TX
-        return null;
-      }
-
-      if (txRecord != null) {
-        if (iRecord != null && txRecord != iRecord) {
-          throw new IllegalStateException(
-              "Passed in record is not the same as the record in the database");
-        }
-
-        return txRecord;
-      }
-
-      if (rid.isTemporary()) {
-        return null;
-      }
-
-      // DELEGATE TO THE STORAGE, NO TOMBSTONES SUPPORT IN TX MODE
-      return database.<ORecordAbstract>executeReadRecord(
-          (ORecordId) rid, iRecord, -1, fetchPlan, ignoreCache, loadTombstone, null);
-    } finally {
-      if (iRecord != null) {
-        iRecord.decrementLoading();
-      }
-    }
-  }
-
   @Override
   public boolean exists(ORID rid) {
     checkTransactionValid();
@@ -468,59 +427,26 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
   }
 
   @Override
-  public ORecord reloadRecord(
-      ORID rid,
-      ORecordAbstract passedRecord,
-      String fetchPlan,
-      boolean ignoreCache,
-      boolean force) {
+  public ORecord loadRecord(ORID rid) {
+
     checkTransactionValid();
 
-    if (passedRecord != null) {
-      passedRecord.incrementLoading();
+    final ORecordAbstract txRecord = getRecord(rid);
+    if (txRecord == OTransactionAbstract.DELETED_RECORD) {
+      // DELETED IN TX
+      return null;
     }
-    try {
 
-      final ORecordAbstract txRecord = getRecord(rid);
-      if (txRecord == OTransactionAbstract.DELETED_RECORD) {
-        // DELETED IN TX
-        return null;
-      }
-
-      if (txRecord != null) {
-        if (passedRecord != null && txRecord != passedRecord) {
-          throw new IllegalStateException(
-              "Passed in record is not the same as the record in the database");
-        }
-        return txRecord;
-      }
-
-      if (rid.isTemporary()) {
-        return null;
-      }
-
-      // DELEGATE TO THE STORAGE, NO TOMBSTONES SUPPORT IN TX MODE
-      final ORecordAbstract record;
-      try {
-        record =
-            database.executeReadRecord(
-                (ORecordId) rid, passedRecord, -1, fetchPlan, ignoreCache, false, null);
-      } catch (final ORecordNotFoundException ignore) {
-        return null;
-      }
-
-      return record;
-    } finally {
-      if (passedRecord != null) {
-        passedRecord.decrementLoading();
-      }
+    if (txRecord != null) {
+      return txRecord;
     }
-  }
 
-  @Override
-  public ORecord loadRecord(
-      ORID rid, ORecordAbstract record, String fetchPlan, boolean ignoreCache) {
-    return loadRecord(rid, record, fetchPlan, ignoreCache, false);
+    if (rid.isTemporary()) {
+      return null;
+    }
+
+    // DELEGATE TO THE STORAGE, NO TOMBSTONES SUPPORT IN TX MODE
+    return database.<ORecordAbstract>executeReadRecord((ORecordId) rid);
   }
 
   public void deleteRecord(final ORecordAbstract iRecord) {
@@ -582,7 +508,12 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
         return null;
       }
       if (passedRecord.isUnloaded()) {
-        return passedRecord;
+        throw new ODatabaseException(
+            "Record "
+                + passedRecord
+                + " is not bound to session, please call "
+                + ODatabaseSession.class.getSimpleName()
+                + ".bindToSession(record) before changing it");
       }
       // fetch primary record if the record is a proxy record.
       passedRecord = passedRecord.getRecord();
@@ -1203,10 +1134,6 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
 
   public Map<ORID, ORID> getTxGeneratedRealRecordIdMap() {
     return txGeneratedRealRecordIdMap;
-  }
-
-  public int getNewRecordsPositionsGenerator() {
-    return newRecordsPositionsGenerator;
   }
 
   @Override

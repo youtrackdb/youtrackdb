@@ -177,6 +177,7 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
   public void testCreatePropertyFailOnExistingDataLinkMap() {
     final OSchema oSchema = db.getMetadata().getSchema();
     OClass oClass = oSchema.createClass("Test9");
+    oSchema.createClass("Test8");
 
     db.executeInTx(
         () -> {

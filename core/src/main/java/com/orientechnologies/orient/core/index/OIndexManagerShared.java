@@ -104,7 +104,7 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
         identity =
             new ORecordId(database.getStorageInfo().getConfiguration().getIndexMgrRecordId());
         // RELOAD IT
-        ODocument document = database.load(identity, "*:-1 index:0", true);
+        ODocument document = database.load(identity, null, false);
         fromStream(document);
         ORecordInternal.unsetDirty(document);
         document.unload();
@@ -118,7 +118,7 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
     acquireExclusiveLock();
     try {
       ODatabaseSessionInternal database = getDatabase();
-      ODocument document = database.load(identity, "*:-1 index:0", true);
+      ODocument document = database.load(identity, null, false);
       fromStream(document);
       ORecordInternal.unsetDirty(document);
       document.unload();
@@ -877,7 +877,7 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
   public ODocument toStream() {
     internalAcquireExclusiveLock();
     try {
-      ODocument document = getDatabase().load(identity, null, true);
+      ODocument document = getDatabase().load(identity, null, false);
       final OTrackedSet<ODocument> indexes = new OTrackedSet<>(document);
 
       for (final OIndex i : this.indexes.values()) {

@@ -26,17 +26,20 @@ public class DepthFetchPlanTest extends BaseMemoryDatabase {
     db.commit();
 
     db.begin();
+    doc = db.bindToSession(doc);
     doc1.field("name", "name1");
     doc1.field("ref", doc);
     db.save(doc1);
     db.commit();
 
     db.begin();
+    doc1 = db.bindToSession(doc1);
     doc2.field("name", "name2");
     doc2.field("ref", doc1);
     db.save(doc2);
     db.commit();
 
+    doc2 = db.bindToSession(doc2);
     OFetchContext context = new ORemoteFetchContext();
     CountFetchListener listener = new CountFetchListener();
     OFetchHelper.fetch(
@@ -59,23 +62,29 @@ public class DepthFetchPlanTest extends BaseMemoryDatabase {
     db.commit();
 
     db.begin();
+    doc = db.bindToSession(doc);
     doc1.field("name", "name1");
     doc1.field("ref", doc);
     db.save(doc1);
     db.commit();
 
     db.begin();
+    doc1 = db.bindToSession(doc1);
+
     doc2.field("name", "name2");
     doc2.field("ref", doc1);
     db.save(doc2);
     db.commit();
 
     db.begin();
+    doc2 = db.bindToSession(doc2);
+
     doc3.field("name", "name2");
     doc3.field("ref", doc2);
     db.save(doc3);
     db.commit();
 
+    doc3 = db.bindToSession(doc3);
     OFetchContext context = new ORemoteFetchContext();
     CountFetchListener listener = new CountFetchListener();
     OFetchHelper.fetch(doc3, doc3, OFetchHelper.buildFetchPlan("[*]ref:-1"), listener, context, "");

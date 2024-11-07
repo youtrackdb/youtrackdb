@@ -184,15 +184,12 @@ public class OObjectDatabaseTxInternal
     return underlying.getListeners();
   }
 
-  public <DBTYPE extends ODatabase<?>> DBTYPE registerHook(final ORecordHook iHookImpl) {
+  public void registerHook(final ORecordHook iHookImpl) {
     underlying.registerHook(iHookImpl);
-    return (DBTYPE) this;
   }
 
-  public <DBTYPE extends ODatabase<?>> DBTYPE registerHook(
-      final ORecordHook iHookImpl, ORecordHook.HOOK_POSITION iPosition) {
+  public void registerHook(final ORecordHook iHookImpl, ORecordHook.HOOK_POSITION iPosition) {
     underlying.registerHook(iHookImpl, iPosition);
-    return (DBTYPE) this;
   }
 
   public ORecordHook.RESULT callbackHooks(
@@ -204,9 +201,8 @@ public class OObjectDatabaseTxInternal
     return underlying.getHooks();
   }
 
-  public <DBTYPE extends ODatabase<?>> DBTYPE unregisterHook(final ORecordHook iHookImpl) {
+  public void unregisterHook(final ORecordHook iHookImpl) {
     underlying.unregisterHook(iHookImpl);
-    return (DBTYPE) this;
   }
 
   /**
@@ -322,33 +318,6 @@ public class OObjectDatabaseTxInternal
 
   public <RET> RET load(final Object iPojo) {
     return (RET) load(iPojo, null);
-  }
-
-  public <RET> RET reload(final Object iPojo) {
-    return (RET) reload(iPojo, null, true);
-  }
-
-  public <RET> RET reload(final Object iPojo, final boolean iIgnoreCache) {
-    return (RET) reload(iPojo, null, iIgnoreCache);
-  }
-
-  private <RET> RET reload(Object iPojo, final String iFetchPlan, final boolean iIgnoreCache) {
-    return reload(iPojo, iFetchPlan, iIgnoreCache, true);
-  }
-
-  @Override
-  public <RET> RET reload(Object iObject, String iFetchPlan, boolean iIgnoreCache, boolean force) {
-    checkOpenness();
-    if (iObject == null) {
-      return null;
-    }
-
-    // GET THE ASSOCIATED DOCUMENT
-    final ODocument record = getRecordByUserObject(iObject, true);
-    underlying.reload(record, iFetchPlan, iIgnoreCache, force);
-
-    iObject = stream2pojo(record, iObject, iFetchPlan, true);
-    return (RET) iObject;
   }
 
   public <RET> RET load(final Object iPojo, final String iFetchPlan) {
@@ -523,11 +492,11 @@ public class OObjectDatabaseTxInternal
     }
   }
 
-  public ODatabaseObjectInternal delete(final Object iPojo) {
+  public void delete(final Object iPojo) {
     checkOpenness();
 
     if (iPojo == null) {
-      return this;
+      return;
     }
 
     var newTx = !getTransaction().isActive();
@@ -553,16 +522,14 @@ public class OObjectDatabaseTxInternal
         commit();
       }
     }
-
-    return this;
   }
 
   @Override
-  public ODatabaseObjectInternal delete(final ORID iRID) {
+  public void delete(final ORID iRID) {
     checkOpenness();
 
     if (iRID == null) {
-      return this;
+      return;
     }
 
     final ORecord record = iRID.getRecord();
@@ -580,7 +547,6 @@ public class OObjectDatabaseTxInternal
         }
       }
     }
-    return this;
   }
 
   public ODatabaseObjectInternal delete(final ORecord iRecord) {
@@ -620,18 +586,17 @@ public class OObjectDatabaseTxInternal
     return underlying.getTransaction();
   }
 
-  public OObjectDatabaseTxInternal begin() {
-    underlying.begin();
-    return this;
+  public int begin() {
+    return underlying.begin();
   }
 
   @Override
-  public OObjectDatabaseTxInternal commit() {
+  public boolean commit() {
     // BY PASS DOCUMENT DB
     underlying.commit();
 
     if (getTransaction().isActive()) {
-      return this;
+      return false;
     }
 
     if (getTransaction().getRecordOperations() != null) {
@@ -653,16 +618,16 @@ public class OObjectDatabaseTxInternal
       }
     }
 
-    return this;
+    return true;
   }
 
   @Override
-  public OObjectDatabaseTxInternal rollback() {
-    return rollback(false);
+  public void rollback() {
+    rollback(false);
   }
 
   @Override
-  public OObjectDatabaseTxInternal rollback(final boolean force) throws OTransactionException {
+  public void rollback(final boolean force) throws OTransactionException {
     // BYPASS DOCUMENT DB
     underlying.rollback(force);
 
@@ -677,7 +642,6 @@ public class OObjectDatabaseTxInternal
         }
       }
     }
-    return this;
   }
 
   public OEntityManager getEntityManager() {
@@ -742,19 +706,19 @@ public class OObjectDatabaseTxInternal
     return new ODocument();
   }
 
-  public <DBTYPE extends ODatabase> DBTYPE checkSecurity(
+  public void checkSecurity(
       ORule.ResourceGeneric resourceGeneric, String resourceSpecific, final byte iOperation) {
-    return (DBTYPE) underlying.checkSecurity(resourceGeneric, resourceSpecific, iOperation);
+    underlying.checkSecurity(resourceGeneric, resourceSpecific, iOperation);
   }
 
-  public <DBTYPE extends ODatabase> DBTYPE checkSecurity(
+  public void checkSecurity(
       final ORule.ResourceGeneric iResource, final int iOperation, Object iResourceSpecific) {
-    return (DBTYPE) underlying.checkSecurity(iResource, iOperation, iResourceSpecific);
+    underlying.checkSecurity(iResource, iOperation, iResourceSpecific);
   }
 
-  public <DBTYPE extends ODatabase> DBTYPE checkSecurity(
+  public void checkSecurity(
       final ORule.ResourceGeneric iResource, final int iOperation, Object... iResourcesSpecific) {
-    return (DBTYPE) underlying.checkSecurity(iResource, iOperation, iResourcesSpecific);
+    underlying.checkSecurity(iResource, iOperation, iResourcesSpecific);
   }
 
   @Override

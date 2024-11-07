@@ -38,6 +38,8 @@ public class ODocumentTrackingNestedCollectionsTest extends BaseMemoryDatabase {
     db.commit();
 
     db.begin();
+
+    document = db.bindToSession(document);
     orid = document.getIdentity();
     objects = document.field("objects");
     subObjects = (Set) objects.iterator().next();
@@ -47,7 +49,6 @@ public class ODocumentTrackingNestedCollectionsTest extends BaseMemoryDatabase {
 
     document.save(db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
-    db.getLocalCache().clear();
 
     document = db.load(orid);
     objects = document.field("objects");
@@ -73,6 +74,7 @@ public class ODocumentTrackingNestedCollectionsTest extends BaseMemoryDatabase {
     document.save(db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
 
+    document = db.bindToSession(document);
     objects = document.field("objects");
     subObjects = (Set) objects.iterator().next();
     subObjects.add("one");
@@ -103,6 +105,7 @@ public class ODocumentTrackingNestedCollectionsTest extends BaseMemoryDatabase {
     document.save(db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
 
+    document = db.bindToSession(document);
     objects = document.field("objects");
     subObjects = (List) objects.iterator().next();
     subObjects.add("one");
@@ -133,6 +136,7 @@ public class ODocumentTrackingNestedCollectionsTest extends BaseMemoryDatabase {
     document.save(db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
 
+    document = db.bindToSession(document);
     objects = document.field("objects");
     subObjects = (Map) objects.values().iterator().next();
     subObjects.put("one", "String");

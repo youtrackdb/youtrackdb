@@ -94,7 +94,7 @@ public class LuceneInsertIntegrityRemoteTest extends BaseLuceneTest {
     db.save(doc);
     db.commit();
 
-    doc = db.load(doc.getIdentity(), null, true);
+    doc = db.load(doc.getIdentity(), null, false);
     Assert.assertEquals(doc.field("name"), "Berlin");
 
     try (Stream<ORID> stream = idx.getInternal().getRids("Rome")) {
@@ -119,7 +119,7 @@ public class LuceneInsertIntegrityRemoteTest extends BaseLuceneTest {
     // FIXME
     //    initDB();
     //
-    doc = db.load(doc.getIdentity(), null, true);
+    doc = db.load(doc.getIdentity(), null, false);
 
     Assert.assertEquals(doc.field("name"), "Berlin");
 

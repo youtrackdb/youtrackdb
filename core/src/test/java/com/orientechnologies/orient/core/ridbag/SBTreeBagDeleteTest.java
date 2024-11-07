@@ -16,7 +16,9 @@ import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollection
 import java.util.Collections;
 import org.junit.Test;
 
-/** Created by tglman on 01/07/16. */
+/**
+ * Created by tglman on 01/07/16.
+ */
 public class SBTreeBagDeleteTest extends BaseMemoryInternalDatabase {
 
   public void beforeTest() {
@@ -31,17 +33,21 @@ public class SBTreeBagDeleteTest extends BaseMemoryInternalDatabase {
     ORidBag bag = new ORidBag();
     int size =
         OGlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValueAsInteger() * 2;
-    for (int i = 0; i < size; i++) bag.add(new ORecordId(10, i));
+    for (int i = 0; i < size; i++) {
+      bag.add(new ORecordId(10, i));
+    }
     doc.field("bag", bag);
 
     db.begin();
     ORID id = db.save(doc, db.getClusterNameById(db.getDefaultClusterId())).getIdentity();
     db.commit();
 
+    doc = db.bindToSession(doc);
     bag = doc.field("bag");
     OBonsaiCollectionPointer pointer = bag.getPointer();
 
     db.begin();
+    doc = db.bindToSession(doc);
     db.delete(doc);
     db.commit();
 

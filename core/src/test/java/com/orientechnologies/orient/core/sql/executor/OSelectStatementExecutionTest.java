@@ -7,7 +7,6 @@ import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.viewmanager.ViewCreationListener;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
@@ -1854,25 +1853,23 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     OClass childClass = db.getMetadata().getSchema().createClass(childClassName);
     OClass parentClass = db.getMetadata().getSchema().createClass(parentClassName);
 
+    db.begin();
     int count = 10;
     int collSize = 11;
     for (int i = 0; i < count; i++) {
       List coll = new ArrayList<>();
       for (int j = 0; j < collSize; j++) {
-        db.begin();
         ODocument doc = db.newInstance(childClassName);
         doc.setProperty("name", "name" + i);
         doc.save();
         coll.add(doc);
-        db.commit();
       }
 
-      db.begin();
       ODocument parent = new ODocument(parentClassName);
       parent.setProperty("linked", coll);
       parent.save();
-      db.commit();
     }
+    db.commit();
 
     OResultSet result = db.query("select expand(linked) from " + parentClassName);
     printExecutionPlan(result);
@@ -1893,25 +1890,23 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     OClass childClass = db.getMetadata().getSchema().createClass(childClassName);
     OClass parentClass = db.getMetadata().getSchema().createClass(parentClassName);
 
+    db.begin();
     int count = 30;
     int collSize = 7;
     for (int i = 0; i < count; i++) {
       List coll = new ArrayList<>();
       for (int j = 0; j < collSize; j++) {
-        db.begin();
         ODocument doc = db.newInstance(childClassName);
         doc.setProperty("name", "name" + j);
         doc.save();
         coll.add(doc);
-        db.commit();
       }
 
-      db.begin();
       ODocument parent = new ODocument(parentClassName);
       parent.setProperty("linked", coll);
       parent.save();
-      db.commit();
     }
+    db.commit();
 
     OResultSet result =
         db.query("select expand(linked) from " + parentClassName + " order by name");
@@ -2193,6 +2188,9 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     OClass edgeClass = db.createEdgeClass(edgeClassName);
 
     db.begin();
+    doc1 = db.bindToSession(doc1);
+    doc2 = db.bindToSession(doc2);
+
     db.newEdge(doc1, doc2, edgeClass).save();
     db.commit();
 
@@ -4923,7 +4921,7 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testAsSetKeepsOrderWithExpand() {
     // init classes
     db.activateOnCurrentThread();
-    ODatabaseDocument ses = ODatabaseSession.getActiveSession();
+    ODatabaseSession ses = ODatabaseSession.getActiveSession();
     var car = ses.createVertexClass("Car");
     var engine = ses.createVertexClass("Engine");
     var body = ses.createVertexClass("BodyType");
@@ -4975,6 +4973,10 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     hatch1.addEdge(suv, bt);
     hatch1.save();
     ses.commit();
+
+    gasoline = ses.bindToSession(gasoline);
+    diesel = ses.bindToSession(diesel);
+    microwave = ses.bindToSession(microwave);
 
     var identities =
         String.join(

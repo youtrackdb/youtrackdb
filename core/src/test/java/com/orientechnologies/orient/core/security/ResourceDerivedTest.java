@@ -40,12 +40,14 @@ public class ResourceDerivedTest {
     orientDB.execute("create database test memory users (admin identified by 'admin' role admin)");
     ODatabaseSession db = orientDB.open("test", "admin", "admin");
 
+    db.begin();
     db.command(
         "CREATE SECURITY POLICY r SET create = (false), read = (true), before update = (false),"
             + " after update = (false), delete = (false), execute = (true)");
     db.command(
         "CREATE SECURITY POLICY rw SET create = (true), read = (true), before update = (true),"
             + " after update = (true), delete = (true), execute = (true)");
+    db.commit();
 
     db.command("CREATE CLASS Customer extends V ABSTRACT");
     db.command("CREATE PROPERTY Customer.name String");
@@ -59,7 +61,9 @@ public class ResourceDerivedTest {
     db.begin();
     db.command("INSERT INTO ORole SET name = 'tenant1', mode = 0");
     db.commit();
+    db.begin();
     db.command("ALTER ROLE tenant1 set policy rw ON database.class.*.*");
+    db.commit();
     db.begin();
     db.command("UPDATE ORole SET rules = {'database.class.customer': 2} WHERE name = ?", "tenant1");
     db.commit();
@@ -88,7 +92,9 @@ public class ResourceDerivedTest {
     db.command("INSERT INTO ORole SET name = 'tenant2', mode = 0");
     db.commit();
 
+    db.begin();
     db.command("ALTER ROLE tenant2 set policy rw ON database.class.*.*");
+    db.commit();
 
     db.begin();
     db.command(

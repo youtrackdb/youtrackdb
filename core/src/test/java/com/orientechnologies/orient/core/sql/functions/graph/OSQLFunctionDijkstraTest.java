@@ -4,8 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OVertex;
 import java.util.List;
@@ -16,7 +16,7 @@ import org.junit.Test;
 public class OSQLFunctionDijkstraTest {
 
   private OrientDB orientDB;
-  private ODatabaseDocument graph;
+  private ODatabaseSession graph;
 
   private OVertex v1;
   private OVertex v2;
@@ -77,6 +77,9 @@ public class OSQLFunctionDijkstraTest {
 
   @Test
   public void testExecute() throws Exception {
+    v1 = graph.bindToSession(v1);
+    v4 = graph.bindToSession(v4);
+
     final List<OVertex> result =
         functionDijkstra.execute(
             null, null, null, new Object[] {v1, v4, "'weight'"}, new OBasicCommandContext());

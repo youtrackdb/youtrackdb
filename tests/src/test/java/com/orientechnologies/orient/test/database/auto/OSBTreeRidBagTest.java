@@ -305,7 +305,7 @@ public class OSBTreeRidBagTest extends ORidBagTest {
 
     Assert.assertEquals(testRidBagFile.length(), testRidBagSize);
 
-    realDoc = database.load(realDoc.getIdentity(), "*:*", true);
+    realDoc = database.load(realDoc.getIdentity(), "*:*", false);
     ORidBag ridBag = realDoc.field("ridBag");
     Assert.assertEquals(ridBag.size(), 10);
   }

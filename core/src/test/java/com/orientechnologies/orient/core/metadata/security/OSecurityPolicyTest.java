@@ -1,7 +1,6 @@
 package com.orientechnologies.orient.core.metadata.security;
 
 import com.orientechnologies.BaseMemoryDatabase;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -19,8 +18,11 @@ public class OSecurityPolicyTest extends BaseMemoryDatabase {
             "select from " + OSecurityPolicy.class.getSimpleName() + " WHERE name = ?", "test");
     Assert.assertFalse(rs.hasNext());
     rs.close();
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
-    OSecurityPolicy policy = security.createSecurityPolicy(db, "test");
+    OSecurityInternal security = db.getSharedContext().getSecurity();
+
+    db.begin();
+    security.createSecurityPolicy(db, "test");
+    db.commit();
 
     rs =
         db.query(
@@ -34,16 +36,22 @@ public class OSecurityPolicyTest extends BaseMemoryDatabase {
 
   @Test
   public void testSecurityPolicyGet() {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
     Assert.assertNull(security.getSecurityPolicy(db, "test"));
+
+    db.begin();
     security.createSecurityPolicy(db, "test");
+    db.commit();
+
     Assert.assertNotNull(security.getSecurityPolicy(db, "test"));
   }
 
   @Test
   public void testValidPredicates() {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
     Assert.assertNull(security.getSecurityPolicy(db, "test"));
+
+    db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "test");
     policy.setCreateRule("name = 'create'");
     policy.setReadRule("name = 'read'");
@@ -53,6 +61,8 @@ public class OSecurityPolicyTest extends BaseMemoryDatabase {
     policy.setExecuteRule("name = 'execute'");
 
     security.saveSecurityPolicy(db, policy);
+    db.commit();
+
     OSecurityPolicy readPolicy = security.getSecurityPolicy(db, "test");
     Assert.assertNotNull(policy);
     Assert.assertEquals("name = 'create'", readPolicy.getCreateRule());
@@ -65,36 +75,51 @@ public class OSecurityPolicyTest extends BaseMemoryDatabase {
 
   @Test
   public void testInvalidPredicates() {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
     Assert.assertNull(security.getSecurityPolicy(db, "test"));
+
+    db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "test");
+    db.commit();
     try {
+      db.begin();
       policy.setCreateRule("foo bar");
+      db.commit();
       Assert.fail();
     } catch (IllegalArgumentException ex) {
     }
     try {
+      db.begin();
       policy.setReadRule("foo bar");
+      db.commit();
       Assert.fail();
     } catch (IllegalArgumentException ex) {
     }
     try {
+      db.begin();
       policy.setBeforeUpdateRule("foo bar");
+      db.commit();
       Assert.fail();
     } catch (IllegalArgumentException ex) {
     }
     try {
+      db.begin();
       policy.setAfterUpdateRule("foo bar");
+      db.commit();
       Assert.fail();
     } catch (IllegalArgumentException ex) {
     }
     try {
+      db.begin();
       policy.setDeleteRule("foo bar");
+      db.commit();
       Assert.fail();
     } catch (IllegalArgumentException ex) {
     }
     try {
+      db.begin();
       policy.setExecuteRule("foo bar");
+      db.commit();
       Assert.fail();
     } catch (IllegalArgumentException ex) {
     }
@@ -102,17 +127,22 @@ public class OSecurityPolicyTest extends BaseMemoryDatabase {
 
   @Test
   public void testAddPolicyToRole() {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
     Assert.assertNull(security.getSecurityPolicy(db, "test"));
+
+    db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "test");
     policy.setCreateRule("1 = 1");
     policy.setBeforeUpdateRule("1 = 2");
     policy.setActive(true);
     security.saveSecurityPolicy(db, policy);
+    db.commit();
 
+    db.begin();
     ORole reader = security.getRole(db, "reader");
     String resource = "database.class.Person";
     security.setSecurityPolicy(db, reader, resource, policy);
+    db.commit();
 
     ORID policyRid = policy.getElement().getIdentity();
     try (OResultSet rs = db.query("select from ORole where name = 'reader'")) {
@@ -128,19 +158,25 @@ public class OSecurityPolicyTest extends BaseMemoryDatabase {
 
   @Test
   public void testRemovePolicyToRole() {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
     Assert.assertNull(security.getSecurityPolicy(db, "test"));
+
+    db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "test");
     policy.setCreateRule("1 = 1");
     policy.setBeforeUpdateRule("1 = 2");
     policy.setActive(true);
     security.saveSecurityPolicy(db, policy);
+    db.commit();
 
+    db.begin();
     ORole reader = security.getRole(db, "reader");
     String resource = "database.class.Person";
     security.setSecurityPolicy(db, reader, resource, policy);
 
     security.removeSecurityPolicy(db, reader, resource);
+    db.commit();
+
     Assert.assertNull(security.getSecurityPolicy(db, reader, resource));
   }
 }

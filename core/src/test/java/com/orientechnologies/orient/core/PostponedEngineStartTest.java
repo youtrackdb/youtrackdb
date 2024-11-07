@@ -293,7 +293,6 @@ public class PostponedEngineStartTest {
         @Override
         public OStorageOperationResult<ORawBuffer> readRecord(
             ORecordId iRid,
-            String iFetchPlan,
             boolean iIgnoreCache,
             boolean prefetchRecords,
             ORecordCallback<ORawBuffer> iCallback) {

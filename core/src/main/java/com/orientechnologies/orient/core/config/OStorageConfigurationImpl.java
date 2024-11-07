@@ -301,8 +301,7 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
     try {
       initConfiguration(configuration);
 
-      final byte[] record =
-          storage.readRecord(CONFIG_RID, null, false, false, null).getResult().buffer;
+      final byte[] record = storage.readRecord(CONFIG_RID, false, false, null).getResult().buffer;
 
       if (record == null)
         throw new OStorageException(

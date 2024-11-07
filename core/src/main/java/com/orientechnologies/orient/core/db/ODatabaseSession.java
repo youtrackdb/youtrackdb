@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.db;
 
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import java.util.function.Supplier;
 
 /**
@@ -65,10 +65,10 @@ public interface ODatabaseSession extends ODatabaseDocument {
    * records that are not created or loaded by the session. Method returns bounded instance of given
    * record, usage of passed in instance is prohibited.
    *
-   * @param record Record to bind to the session, passed in instance is <b>prohibited</b> for
+   * @param identifiable Record to bind to the session, passed in instance is <b>prohibited</b> for
    *               further usage.
    * @param <T>    Type of record.
    * @return Bounded instance of given record.
    */
-  <T extends ORecord> T bindToSession(T record);
+  <T extends OIdentifiable> T bindToSession(T identifiable);
 }

@@ -1934,7 +1934,6 @@ public abstract class OAbstractPaginatedStorage
   @Override
   public OStorageOperationResult<ORawBuffer> readRecord(
       final ORecordId rid,
-      final String iFetchPlan,
       final boolean iIgnoreCache,
       final boolean prefetchRecords,
       final ORecordCallback<ORawBuffer> iCallback) {

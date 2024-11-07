@@ -140,7 +140,7 @@ public class OCommandExecutorSQLScriptTest extends BaseMemoryDatabase {
     script.append("commit;\n");
     List<ODocument> qResult = db.command(new OCommandScript("sql", script.toString())).execute();
 
-    assertThat(qResult.get(0).<Long>field("weight")).isEqualTo(4L);
+    assertThat(db.bindToSession(qResult.get(0)).<Long>field("weight")).isEqualTo(4L);
   }
 
   @Test

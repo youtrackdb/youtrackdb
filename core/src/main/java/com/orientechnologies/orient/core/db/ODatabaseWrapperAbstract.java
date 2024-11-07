@@ -62,8 +62,8 @@ public abstract class ODatabaseWrapperAbstract<DB extends ODatabaseInternal, T>
   }
 
   @Override
-  public ODatabase activateOnCurrentThread() {
-    return underlying.activateOnCurrentThread();
+  public void activateOnCurrentThread() {
+    underlying.activateOnCurrentThread();
   }
 
   @Override
@@ -325,8 +325,8 @@ public abstract class ODatabaseWrapperAbstract<DB extends ODatabaseInternal, T>
     return underlying.get(iAttribute);
   }
 
-  public <THISDB extends ODatabase> THISDB set(final ATTRIBUTES attribute, final Object iValue) {
-    return (THISDB) underlying.set(attribute, iValue);
+  public void set(final ATTRIBUTES attribute, final Object iValue) {
+    underlying.set(attribute, iValue);
   }
 
   public void registerListener(final ODatabaseListener iListener) {

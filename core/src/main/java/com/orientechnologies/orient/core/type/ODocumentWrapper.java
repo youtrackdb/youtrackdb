@@ -20,6 +20,7 @@
 package com.orientechnologies.orient.core.type;
 
 import com.orientechnologies.orient.core.annotation.ODocumentInstance;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.io.Serializable;
@@ -58,7 +59,6 @@ public class ODocumentWrapper implements Serializable {
 
   public <RET extends ODocumentWrapper> RET load(
       final String iFetchPlan, final boolean iIgnoreCache) {
-    checkProxy();
     document = document.load(iFetchPlan, iIgnoreCache);
     return (RET) this;
   }
@@ -69,24 +69,30 @@ public class ODocumentWrapper implements Serializable {
   }
 
   public <RET extends ODocumentWrapper> RET save(final String iClusterName) {
-    checkProxy();
     document.save(iClusterName);
     return (RET) this;
   }
 
   public ODocument getDocument() {
-    checkProxy();
+    if (document != null && document.isUnloaded()) {
+      var id = document.getIdentity();
+      if (id != null && id.isValid()) {
+        document = ODatabaseSession.getActiveSession().bindToSession(document);
+      }
+    }
+
     return document;
   }
 
   public void setDocument(ODocument document) {
-    this.document = document;
-  }
-
-  private void checkProxy() {
-    if (document != null) {
-      document = (ODocument) document.getRecord();
+    if (document != null && document.isUnloaded()) {
+      var id = document.getIdentity();
+      if (id != null && id.isValid()) {
+        document = ODatabaseSession.getActiveSession().bindToSession(document);
+      }
     }
+
+    this.document = document;
   }
 
   @Override

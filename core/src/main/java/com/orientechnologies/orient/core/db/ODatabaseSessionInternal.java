@@ -22,7 +22,6 @@ package com.orientechnologies.orient.core.db;
 
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.OQueryDatabaseState;
-import com.orientechnologies.orient.core.db.document.RecordReader;
 import com.orientechnologies.orient.core.db.record.OCurrentStorageComponentsFactory;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.hook.ORecordHook;
@@ -35,7 +34,6 @@ import com.orientechnologies.orient.core.metadata.sequence.OSequenceAction;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.OEdgeInternal;
@@ -94,7 +92,7 @@ public interface ODatabaseSessionInternal extends ODatabaseSession, ODatabaseInt
    */
   ORecordSerializer getSerializer();
 
-  void begin(OTransactionOptimistic tx);
+  int begin(OTransactionOptimistic tx);
 
   void setSerializer(ORecordSerializer serializer);
 
@@ -134,14 +132,7 @@ public interface ODatabaseSessionInternal extends ODatabaseSession, ODatabaseInt
 
   ORecordHook.RESULT callbackHooks(final ORecordHook.TYPE type, final OIdentifiable id);
 
-  <RET extends ORecord> RET executeReadRecord(
-      final ORecordId rid,
-      ORecordAbstract iRecord,
-      final int recordVersion,
-      final String fetchPlan,
-      final boolean ignoreCache,
-      final boolean loadTombstones,
-      RecordReader recordReader);
+  <RET extends ORecord> RET executeReadRecord(final ORecordId rid);
 
   boolean executeExists(ORID rid);
 
@@ -400,11 +391,9 @@ public interface ODatabaseSessionInternal extends ODatabaseSession, ODatabaseInt
    *
    * @param iResource  Resource where to execute the operation
    * @param iOperation Operation to execute against the resource
-   * @return The Database instance itself giving a "fluent interface". Useful to call multiple
-   * methods in chain.
    */
   @Deprecated
-  <DB extends ODatabaseDocument> DB checkSecurity(String iResource, int iOperation);
+  void checkSecurity(String iResource, int iOperation);
 
   /**
    * Tells if validation of record is active. Default is true.
@@ -452,12 +441,9 @@ public interface ODatabaseSessionInternal extends ODatabaseSession, ODatabaseInt
    * @param iResourceGeneric  Resource where to execute the operation, i.e.: database.clusters
    * @param iOperation        Operation to execute against the resource
    * @param iResourceSpecific Target resource, i.e.: "employee" to specify the cluster name.
-   * @return The Database instance itself giving a "fluent interface". Useful to call multiple
-   * methods in chain.
    */
   @Deprecated
-  <DB extends ODatabaseDocument> DB checkSecurity(
-      String iResourceGeneric, int iOperation, Object iResourceSpecific);
+  void checkSecurity(String iResourceGeneric, int iOperation, Object iResourceSpecific);
 
   /**
    * Checks if the operation against multiple resources is allowed for the current user. The check
@@ -472,10 +458,7 @@ public interface ODatabaseSessionInternal extends ODatabaseSession, ODatabaseInt
    * @param iOperation         Operation to execute against the resource
    * @param iResourcesSpecific Target resources as an array of Objects, i.e.: ["employee", 2] to
    *                           specify cluster name and id.
-   * @return The Database instance itself giving a "fluent interface". Useful to call multiple
-   * methods in chain.
    */
   @Deprecated
-  <DB extends ODatabaseDocument> DB checkSecurity(
-      String iResourceGeneric, int iOperation, Object... iResourcesSpecific);
+  void checkSecurity(String iResourceGeneric, int iOperation, Object... iResourcesSpecific);
 }

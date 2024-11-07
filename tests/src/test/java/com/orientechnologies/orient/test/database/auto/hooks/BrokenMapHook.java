@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class BrokenMapHook extends ORecordHookAbstract implements ORecordHook {
+
   private ODatabaseSessionInternal database;
 
   public BrokenMapHook() {
@@ -44,9 +45,8 @@ public class BrokenMapHook extends ORecordHookAbstract implements ORecordHook {
   }
 
   public RESULT onRecordBeforeUpdate(ORecord newRecord) {
-
     OElement newElement = (OElement) newRecord;
-    OElement oldElement = database.load(newElement.getIdentity(), null, true);
+    OElement oldElement = database.load(newElement.getIdentity(), null, false);
 
     if (oldElement != null) {
 

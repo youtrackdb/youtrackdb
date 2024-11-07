@@ -27,10 +27,12 @@ public class DirtyManagerReferenceCleanTest extends BaseMemoryDatabase {
     OIdentifiable id = doc.save(db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
 
+    db.begin();
     doc = db.load(id.getIdentity());
     doc1 = doc.field("ref");
     doc1.delete();
     doc.field("ab", "ab");
     Assert.assertFalse(ORecordInternal.getDirtyManager(doc).getUpdateRecords().contains(doc1));
+    db.commit();
   }
 }

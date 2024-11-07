@@ -43,7 +43,6 @@ import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.OSharedContext;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentAbstract;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
@@ -187,8 +186,7 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
   }
 
   @Override
-  public <DB extends ODatabase> DB set(ATTRIBUTES iAttribute, Object iValue) {
-
+  public void set(ATTRIBUTES iAttribute, Object iValue) {
     if (iAttribute == ATTRIBUTES.CUSTOM) {
       String stringValue = iValue.toString();
       int indx = stringValue != null ? stringValue.indexOf('=') : -1;
@@ -215,8 +213,6 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
       result.getResult().close();
       getStorageRemote().reload();
     }
-
-    return (DB) this;
   }
 
   @Override
@@ -363,8 +359,8 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
   }
 
   @Override
-  public ODatabaseDocumentRemote begin() {
-    super.begin();
+  public int begin() {
+    final int counter = super.begin();
 
     var optimistic = (OTransactionOptimistic) this.currentTx;
     storage.beginTransaction(this, optimistic);
@@ -372,17 +368,19 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
     optimistic.resetChangesTracking();
     optimistic.setSentToServer(true);
 
-    return this;
+    return counter;
   }
 
   @Override
   public OResultSet query(String query, Object... args) {
     checkOpenness();
     checkAndSendTransaction();
+
     ORemoteQueryResult result = storage.query(this, query, args);
     if (result.isReloadMetadata()) {
       reload();
     }
+
     return result.getResult();
   }
 
@@ -390,10 +388,12 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
   public OResultSet query(String query, Map args) {
     checkOpenness();
     checkAndSendTransaction();
+
     ORemoteQueryResult result = storage.query(this, query, args);
     if (result.isReloadMetadata()) {
       reload();
     }
+
     return result.getResult();
   }
 
@@ -409,10 +409,12 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
         checkAndSendTransaction();
       }
     }
+
     ORemoteQueryResult result = storage.command(this, query, args);
     if (result.isReloadMetadata()) {
       reload();
     }
+
     return result.getResult();
   }
 
@@ -420,10 +422,12 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
   public OResultSet command(String query, Object... args) {
     checkOpenness();
     checkAndSendTransaction();
+
     ORemoteQueryResult result = storage.command(this, query, args);
     if (result.isReloadMetadata()) {
       reload();
     }
+
     return result.getResult();
   }
 
@@ -431,11 +435,13 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
   public OResultSet command(String query, Map args) {
     checkOpenness();
     checkAndSendTransaction();
+
     ORemoteQueryResult result = storage.command(this, query, args);
 
     if (result.isReloadMetadata()) {
       reload();
     }
+
     return result.getResult();
   }
 
@@ -454,6 +460,7 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
     if (result.isReloadMetadata()) {
       reload();
     }
+
     return result.getResult();
   }
 
@@ -462,11 +469,13 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
       throws OCommandExecutionException, OCommandScriptException {
     checkOpenness();
     checkAndSendTransaction();
+
     ORemoteQueryResult result = storage.execute(this, language, script, args);
 
     if (result.isReloadMetadata()) {
       reload();
     }
+
     return result.getResult();
   }
 
@@ -673,7 +682,7 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
         "Not supported yet."); // To change body of generated methods, choose Tools | Templates.
   }
 
-  public ODatabaseDocumentAbstract delete(final ORecord record) {
+  public void delete(final ORecord record) {
     checkOpenness();
     if (record == null) {
       throw new ODatabaseException("Cannot delete null document");
@@ -705,7 +714,6 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
             new ODatabaseException("Error on deleting record " + record.getIdentity()), e);
       }
     }
-    return this;
   }
 
   @Override
@@ -858,39 +866,26 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
   }
 
   @Override
-  public <DB extends ODatabaseDocument> DB checkSecurity(
-      ORule.ResourceGeneric resourceGeneric, String resourceSpecific, int iOperation) {
-    return (DB) this;
-  }
+  public void checkSecurity(
+      ORule.ResourceGeneric resourceGeneric, String resourceSpecific, int iOperation) {}
 
   @Override
-  public <DB extends ODatabaseDocument> DB checkSecurity(
-      ORule.ResourceGeneric iResourceGeneric, int iOperation, Object iResourceSpecific) {
-    return (DB) this;
-  }
+  public void checkSecurity(
+      ORule.ResourceGeneric iResourceGeneric, int iOperation, Object iResourceSpecific) {}
 
   @Override
-  public <DB extends ODatabaseDocument> DB checkSecurity(
-      ORule.ResourceGeneric iResourceGeneric, int iOperation, Object... iResourcesSpecific) {
-    return (DB) this;
-  }
+  public void checkSecurity(
+      ORule.ResourceGeneric iResourceGeneric, int iOperation, Object... iResourcesSpecific) {}
 
   @Override
-  public <DB extends ODatabaseDocument> DB checkSecurity(String iResource, int iOperation) {
-    return (DB) this;
-  }
+  public void checkSecurity(String iResource, int iOperation) {}
 
   @Override
-  public <DB extends ODatabaseDocument> DB checkSecurity(
-      String iResourceGeneric, int iOperation, Object iResourceSpecific) {
-    return (DB) this;
-  }
+  public void checkSecurity(String iResourceGeneric, int iOperation, Object iResourceSpecific) {}
 
   @Override
-  public <DB extends ODatabaseDocument> DB checkSecurity(
-      String iResourceGeneric, int iOperation, Object... iResourcesSpecific) {
-    return (DB) this;
-  }
+  public void checkSecurity(
+      String iResourceGeneric, int iOperation, Object... iResourcesSpecific) {}
 
   @Override
   public boolean isRemote() {

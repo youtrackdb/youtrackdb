@@ -676,6 +676,7 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     db.commit();
 
     try {
+      d = db.bindToSession(d);
       ODocument newD = d.copy();
       ((Collection) newD.field("linkList")).add(new ODocument(clazz));
       newD.validate();

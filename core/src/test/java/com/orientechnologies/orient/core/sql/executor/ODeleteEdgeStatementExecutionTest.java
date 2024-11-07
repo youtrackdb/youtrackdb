@@ -25,6 +25,7 @@ public class ODeleteEdgeStatementExecutionTest extends BaseMemoryDatabase {
       v1.setProperty("name", "a" + i);
       v1.save();
       if (prev != null) {
+        prev = db.bindToSession(prev);
         prev.addEdge(v1, edgeClassName).save();
       }
       prev = v1;
@@ -39,6 +40,7 @@ public class ODeleteEdgeStatementExecutionTest extends BaseMemoryDatabase {
     Assert.assertEquals(9, rs.stream().count());
     rs.close();
 
+    db.begin();
     db.command(
             "DELETE EDGE "
                 + edgeClassName
@@ -48,6 +50,7 @@ public class ODeleteEdgeStatementExecutionTest extends BaseMemoryDatabase {
                 + vertexClassName
                 + " where name = 'a2')")
         .close();
+    db.commit();
 
     rs = db.query("SELECT FROM " + edgeClassName);
     Assert.assertEquals(8, rs.stream().count());
@@ -77,6 +80,7 @@ public class ODeleteEdgeStatementExecutionTest extends BaseMemoryDatabase {
       v1.setProperty("name", "a" + i);
       v1.save();
       if (prev != null) {
+        prev = db.bindToSession(prev);
         prev.addEdge(v1, edgeClassName).save();
       }
       prev = v1;
@@ -91,7 +95,9 @@ public class ODeleteEdgeStatementExecutionTest extends BaseMemoryDatabase {
     Assert.assertEquals(9, rs.stream().count());
     rs.close();
 
+    db.begin();
     db.command("DELETE EDGE " + edgeClassName).close();
+    db.commit();
 
     rs = db.query("SELECT FROM " + edgeClassName);
     Assert.assertEquals(0, rs.stream().count());

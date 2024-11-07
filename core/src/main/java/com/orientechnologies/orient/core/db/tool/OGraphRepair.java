@@ -116,182 +116,187 @@ public class OGraphRepair {
       final Map<String, List<String>> options,
       final boolean checkOnly) {
     final ODatabaseSessionInternal db = (ODatabaseSessionInternal) graph;
-    final OMetadata metadata = db.getMetadata();
-    final OSchema schema = metadata.getSchema();
-    //    final OrientConfigurableGraph.Settings settings = graph.settings;
+    db.executeInTx(
+        () -> {
+          final OMetadata metadata = db.getMetadata();
+          final OSchema schema = metadata.getSchema();
+          //    final OrientConfigurableGraph.Settings settings = graph.settings;
 
-    final boolean useVertexFieldsForEdgeLabels = true; // db.isUseVertexFieldsForEdgeLabels();
+          final boolean useVertexFieldsForEdgeLabels = true; // db.isUseVertexFieldsForEdgeLabels();
 
-    final OClass edgeClass = schema.getClass(OClass.EDGE_CLASS_NAME);
-    if (edgeClass != null) {
-      final long countEdges = db.countClass(edgeClass.getName());
+          final OClass edgeClass = schema.getClass(OClass.EDGE_CLASS_NAME);
+          if (edgeClass != null) {
+            final long countEdges = db.countClass(edgeClass.getName());
 
-      long skipEdges = 0l;
-      if (options != null && options.get("-skipEdges") != null) {
-        skipEdges = Long.parseLong(options.get("-skipEdges").get(0));
-      }
-
-      message(
-          outputListener, "Scanning " + countEdges + " edges (skipEdges=" + skipEdges + ")...\n");
-
-      long parsedEdges = 0l;
-      final long beginTime = System.currentTimeMillis();
-
-      for (ODocument edge : db.browseClass(edgeClass.getName())) {
-        if (!edge.isEdge()) {
-          continue;
-        }
-        final ORID edgeId = edge.getIdentity();
-
-        parsedEdges++;
-        if (skipEdges > 0 && parsedEdges <= skipEdges) {
-          continue;
-        }
-
-        stats.scannedEdges++;
-
-        if (eventListener != null) {
-          eventListener.onScannedEdge(edge);
-        }
-
-        if (outputListener != null && stats.scannedEdges % 100000 == 0) {
-          long speedPerSecond =
-              (long) (parsedEdges / ((System.currentTimeMillis() - beginTime) / 1000.0));
-          if (speedPerSecond < 1) {
-            speedPerSecond = 1;
-          }
-          final long remaining = (countEdges - parsedEdges) / speedPerSecond;
-
-          message(
-              outputListener,
-              "+ edges: scanned "
-                  + stats.scannedEdges
-                  + ", removed "
-                  + stats.removedEdges
-                  + " (estimated remaining time "
-                  + remaining
-                  + " secs)\n");
-        }
-
-        boolean outVertexMissing = false;
-
-        String removalReason = "";
-
-        final OIdentifiable out = edge.asEdge().get().getFrom();
-        if (out == null) {
-          outVertexMissing = true;
-        } else {
-          ODocument outVertex;
-          try {
-            outVertex = out.getRecord();
-          } catch (ORecordNotFoundException e) {
-            outVertex = null;
-          }
-
-          if (outVertex == null) {
-            outVertexMissing = true;
-          } else {
-            final String outFieldName =
-                OVertexInternal.getEdgeLinkFieldName(
-                    ODirection.OUT, edge.getClassName(), useVertexFieldsForEdgeLabels);
-
-            final Object outEdges = outVertex.field(outFieldName);
-            if (outEdges == null) {
-              outVertexMissing = true;
-            } else if (outEdges instanceof ORidBag) {
-              if (!((ORidBag) outEdges).contains(edgeId)) {
-                outVertexMissing = true;
-              }
-            } else if (outEdges instanceof Collection) {
-              if (!((Collection) outEdges).contains(edgeId)) {
-                outVertexMissing = true;
-              }
-            } else if (outEdges instanceof OIdentifiable) {
-              if (((OIdentifiable) outEdges).getIdentity().equals(edgeId)) {
-                outVertexMissing = true;
-              }
-            }
-          }
-        }
-
-        if (outVertexMissing) {
-          removalReason = "outgoing vertex (" + out + ") does not contain the edge";
-        }
-
-        boolean inVertexMissing = false;
-
-        final OIdentifiable in = edge.asEdge().get().getTo();
-        if (in == null) {
-          inVertexMissing = true;
-        } else {
-
-          ODocument inVertex;
-          try {
-            inVertex = in.getRecord();
-          } catch (ORecordNotFoundException e) {
-            inVertex = null;
-          }
-
-          if (inVertex == null) {
-            inVertexMissing = true;
-          } else {
-            final String inFieldName =
-                OVertexInternal.getEdgeLinkFieldName(
-                    ODirection.IN, edge.getClassName(), useVertexFieldsForEdgeLabels);
-
-            final Object inEdges = inVertex.field(inFieldName);
-            if (inEdges == null) {
-              inVertexMissing = true;
-            } else if (inEdges instanceof ORidBag) {
-              if (!((ORidBag) inEdges).contains(edgeId)) {
-                inVertexMissing = true;
-              }
-            } else if (inEdges instanceof Collection) {
-              if (!((Collection) inEdges).contains(edgeId)) {
-                inVertexMissing = true;
-              }
-            } else if (inEdges instanceof OIdentifiable) {
-              if (((OIdentifiable) inEdges).getIdentity().equals(edgeId)) {
-                inVertexMissing = true;
-              }
-            }
-          }
-        }
-
-        if (inVertexMissing) {
-          if (!removalReason.isEmpty()) {
-            removalReason += ", ";
-          }
-          removalReason += "incoming vertex (" + in + ") does not contain the edge";
-        }
-
-        if (outVertexMissing || inVertexMissing) {
-          try {
-            if (!checkOnly) {
-              message(
-                  outputListener,
-                  "+ deleting corrupted edge " + edge + " because " + removalReason + "\n");
-              edge.delete();
-            } else {
-              message(
-                  outputListener,
-                  "+ found corrupted edge " + edge + " because " + removalReason + "\n");
+            long skipEdges = 0L;
+            if (options != null && options.get("-skipEdges") != null) {
+              skipEdges = Long.parseLong(options.get("-skipEdges").get(0));
             }
 
-            stats.removedEdges++;
-            if (eventListener != null) {
-              eventListener.onRemovedEdge(edge);
-            }
-
-          } catch (Exception e) {
             message(
                 outputListener,
-                "Error on deleting edge " + edge.getIdentity() + " (" + e.getMessage() + ")");
+                "Scanning " + countEdges + " edges (skipEdges=" + skipEdges + ")...\n");
+
+            long parsedEdges = 0L;
+            final long beginTime = System.currentTimeMillis();
+
+            for (ODocument edge : db.browseClass(edgeClass.getName())) {
+              if (!edge.isEdge()) {
+                continue;
+              }
+              final ORID edgeId = edge.getIdentity();
+
+              parsedEdges++;
+              if (skipEdges > 0 && parsedEdges <= skipEdges) {
+                continue;
+              }
+
+              stats.scannedEdges++;
+
+              if (eventListener != null) {
+                eventListener.onScannedEdge(edge);
+              }
+
+              if (outputListener != null && stats.scannedEdges % 100000 == 0) {
+                long speedPerSecond =
+                    (long) (parsedEdges / ((System.currentTimeMillis() - beginTime) / 1000.0));
+                if (speedPerSecond < 1) {
+                  speedPerSecond = 1;
+                }
+                final long remaining = (countEdges - parsedEdges) / speedPerSecond;
+
+                message(
+                    outputListener,
+                    "+ edges: scanned "
+                        + stats.scannedEdges
+                        + ", removed "
+                        + stats.removedEdges
+                        + " (estimated remaining time "
+                        + remaining
+                        + " secs)\n");
+              }
+
+              boolean outVertexMissing = false;
+
+              String removalReason = "";
+
+              final OIdentifiable out = edge.asEdge().get().getFrom();
+              if (out == null) {
+                outVertexMissing = true;
+              } else {
+                ODocument outVertex;
+                try {
+                  outVertex = out.getRecord();
+                } catch (ORecordNotFoundException e) {
+                  outVertex = null;
+                }
+
+                if (outVertex == null) {
+                  outVertexMissing = true;
+                } else {
+                  final String outFieldName =
+                      OVertexInternal.getEdgeLinkFieldName(
+                          ODirection.OUT, edge.getClassName(), useVertexFieldsForEdgeLabels);
+
+                  final Object outEdges = outVertex.field(outFieldName);
+                  if (outEdges == null) {
+                    outVertexMissing = true;
+                  } else if (outEdges instanceof ORidBag) {
+                    if (!((ORidBag) outEdges).contains(edgeId)) {
+                      outVertexMissing = true;
+                    }
+                  } else if (outEdges instanceof Collection) {
+                    if (!((Collection) outEdges).contains(edgeId)) {
+                      outVertexMissing = true;
+                    }
+                  } else if (outEdges instanceof OIdentifiable) {
+                    if (((OIdentifiable) outEdges).getIdentity().equals(edgeId)) {
+                      outVertexMissing = true;
+                    }
+                  }
+                }
+              }
+
+              if (outVertexMissing) {
+                removalReason = "outgoing vertex (" + out + ") does not contain the edge";
+              }
+
+              boolean inVertexMissing = false;
+
+              final OIdentifiable in = edge.asEdge().get().getTo();
+              if (in == null) {
+                inVertexMissing = true;
+              } else {
+
+                ODocument inVertex;
+                try {
+                  inVertex = in.getRecord();
+                } catch (ORecordNotFoundException e) {
+                  inVertex = null;
+                }
+
+                if (inVertex == null) {
+                  inVertexMissing = true;
+                } else {
+                  final String inFieldName =
+                      OVertexInternal.getEdgeLinkFieldName(
+                          ODirection.IN, edge.getClassName(), useVertexFieldsForEdgeLabels);
+
+                  final Object inEdges = inVertex.field(inFieldName);
+                  if (inEdges == null) {
+                    inVertexMissing = true;
+                  } else if (inEdges instanceof ORidBag) {
+                    if (!((ORidBag) inEdges).contains(edgeId)) {
+                      inVertexMissing = true;
+                    }
+                  } else if (inEdges instanceof Collection) {
+                    if (!((Collection) inEdges).contains(edgeId)) {
+                      inVertexMissing = true;
+                    }
+                  } else if (inEdges instanceof OIdentifiable) {
+                    if (((OIdentifiable) inEdges).getIdentity().equals(edgeId)) {
+                      inVertexMissing = true;
+                    }
+                  }
+                }
+              }
+
+              if (inVertexMissing) {
+                if (!removalReason.isEmpty()) {
+                  removalReason += ", ";
+                }
+                removalReason += "incoming vertex (" + in + ") does not contain the edge";
+              }
+
+              if (outVertexMissing || inVertexMissing) {
+                try {
+                  if (!checkOnly) {
+                    message(
+                        outputListener,
+                        "+ deleting corrupted edge " + edge + " because " + removalReason + "\n");
+                    edge.delete();
+                  } else {
+                    message(
+                        outputListener,
+                        "+ found corrupted edge " + edge + " because " + removalReason + "\n");
+                  }
+
+                  stats.removedEdges++;
+                  if (eventListener != null) {
+                    eventListener.onRemovedEdge(edge);
+                  }
+
+                } catch (Exception e) {
+                  message(
+                      outputListener,
+                      "Error on deleting edge " + edge.getIdentity() + " (" + e.getMessage() + ")");
+                }
+              }
+            }
+
+            message(outputListener, "Scanning edges completed\n");
           }
-        }
-      }
-      message(outputListener, "Scanning edges completed\n");
-    }
+        });
   }
 
   protected void repairVertices(
@@ -307,25 +312,24 @@ public class OGraphRepair {
     final OClass vertexClass = schema.getClass(OClass.VERTEX_CLASS_NAME);
     if (vertexClass != null) {
       final long countVertices = db.countClass(vertexClass.getName());
+      graph.executeInTx(
+          () -> {
+            long skipVertices = 0l;
+            if (options != null && options.get("-skipVertices") != null) {
+              skipVertices = Long.parseLong(options.get("-skipVertices").get(0));
+            }
 
-      long skipVertices = 0l;
-      if (options != null && options.get("-skipVertices") != null) {
-        skipVertices = Long.parseLong(options.get("-skipVertices").get(0));
-      }
+            message(outputListener, "Scanning " + countVertices + " vertices...\n");
 
-      message(outputListener, "Scanning " + countVertices + " vertices...\n");
+            long[] parsedVertices = new long[] {0L};
+            final long beginTime = System.currentTimeMillis();
 
-      long[] parsedVertices = new long[] {0L};
-      final long beginTime = System.currentTimeMillis();
+            for (ODocument vertex : db.browseClass(vertexClass.getName())) {
+              parsedVertices[0]++;
+              if (skipVertices > 0 && parsedVertices[0] <= skipVertices) {
+                continue;
+              }
 
-      for (ODocument vertex : db.browseClass(vertexClass.getName())) {
-        parsedVertices[0]++;
-        if (skipVertices > 0 && parsedVertices[0] <= skipVertices) {
-          continue;
-        }
-
-        graph.executeInTx(
-            () -> {
               boolean vertexCorrupted = false;
               stats.scannedVertices++;
               if (eventListener != null) {
@@ -460,10 +464,10 @@ public class OGraphRepair {
                 message(outputListener, "+ optimized vertex " + vertex + "\n");
                 vertex.save();
               }
-            });
-      }
+            }
 
-      message(outputListener, "Scanning vertices completed\n");
+            message(outputListener, "Scanning vertices completed\n");
+          });
     }
   }
 

@@ -208,8 +208,8 @@ public class OScriptDocumentDatabaseWrapper {
     return database.getTransaction();
   }
 
-  public ODatabase<ORecord> begin() {
-    return database.begin();
+  public void begin() {
+    database.begin();
   }
 
   public int getClusterIdByName(String iClusterName) {
@@ -264,8 +264,8 @@ public class OScriptDocumentDatabaseWrapper {
     return database.getRecordType();
   }
 
-  public ODatabase<ORecord> delete(ORID iRid) {
-    return database.delete(iRid);
+  public void delete(ORID iRid) {
+    database.delete(iRid);
   }
 
   public <RET extends ORecord> RET load(ORID iRecordId) {
@@ -278,10 +278,6 @@ public class OScriptDocumentDatabaseWrapper {
 
   public <RET extends ORecord> RET load(ORID iRecordId, String iFetchPlan, boolean iIgnoreCache) {
     return (RET) database.load(iRecordId, iFetchPlan, iIgnoreCache);
-  }
-
-  public <RET extends ORecord> RET getRecord(OIdentifiable iIdentifiable) {
-    return (RET) database.getRecord(iIdentifiable);
   }
 
   public int getDefaultClusterId() {
@@ -324,8 +320,8 @@ public class OScriptDocumentDatabaseWrapper {
     return database.get(iAttribute);
   }
 
-  public <THISDB extends ODatabase> THISDB set(ATTRIBUTES attribute, Object iValue) {
-    return (THISDB) database.set(attribute, iValue);
+  public void set(ATTRIBUTES attribute, Object iValue) {
+    database.set(attribute, iValue);
   }
 
   public void setInternal(ATTRIBUTES attribute, Object iValue) {
@@ -344,20 +340,20 @@ public class OScriptDocumentDatabaseWrapper {
     return database.getSize();
   }
 
-  public ODatabaseDocument delete(ODocument iRecord) {
-    return (ODatabaseDocument) database.delete(iRecord);
+  public void delete(ODocument iRecord) {
+    database.delete(iRecord);
   }
 
   public long countClass(String iClassName) {
     return database.countClass(iClassName);
   }
 
-  public ODatabase<ORecord> commit() {
-    return database.commit();
+  public void commit() {
+    database.commit();
   }
 
-  public ODatabase<ORecord> rollback() {
-    return database.rollback();
+  public void rollback() {
+    database.rollback();
   }
 
   public String getType() {

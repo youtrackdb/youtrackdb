@@ -1,8 +1,6 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.BaseMemoryDatabase;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.metadata.security.OSecurityInternal;
 import com.orientechnologies.orient.core.metadata.security.OSecurityPolicy;
 import org.junit.Assert;
@@ -15,12 +13,13 @@ public class OAlterSecurityPolicyStatementExecutionTest extends BaseMemoryDataba
 
   @Test
   public void testPlain() {
+    db.begin();
     db.command("CREATE SECURITY POLICY foo").close();
-
     db.command("ALTER SECURITY POLICY foo SET READ = (name = 'foo')").close();
+    db.commit();
 
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
-    OSecurityPolicy policy = security.getSecurityPolicy((ODatabaseSession) db, "foo");
+    OSecurityInternal security = db.getSharedContext().getSecurity();
+    OSecurityPolicy policy = security.getSecurityPolicy(db, "foo");
     Assert.assertNotNull(policy);
     Assert.assertNotNull("foo", policy.getName());
     Assert.assertEquals("name = 'foo'", policy.getReadRule().toString());
@@ -30,9 +29,11 @@ public class OAlterSecurityPolicyStatementExecutionTest extends BaseMemoryDataba
     Assert.assertNull(policy.getDeleteRule());
     Assert.assertNull(policy.getExecuteRule());
 
+    db.begin();
     db.command("ALTER SECURITY POLICY foo REMOVE READ").close();
+    db.commit();
 
-    policy = security.getSecurityPolicy((ODatabaseSession) db, "foo");
+    policy = security.getSecurityPolicy(db, "foo");
     Assert.assertNotNull(policy);
     Assert.assertNull(policy.getReadRule());
   }

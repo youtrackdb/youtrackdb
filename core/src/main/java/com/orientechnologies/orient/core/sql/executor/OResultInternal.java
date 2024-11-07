@@ -1,5 +1,6 @@
 package com.orientechnologies.orient.core.sql.executor;
 
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.OContextualRecordId;
@@ -18,7 +19,15 @@ import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.record.impl.OElementInternal;
 import com.orientechnologies.orient.core.serialization.OSerializableStream;
 import java.io.Serializable;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -474,12 +483,23 @@ public class OResultInternal implements OResult {
   }
 
   public void loadElement() {
-    if (element == null || element instanceof OElement) {
+    if (element == null) {
       return;
     }
+    if (element instanceof OElement elem) {
+      if (elem.isUnloaded()) {
+        var id = elem.getIdentity();
+        if (id != null && id.isValid()) {
+          element = ODatabaseSession.getActiveSession().bindToSession(elem);
+        }
+      }
+      return;
+    }
+
     if (element instanceof OContextualRecordId) {
       this.addMetadata(((OContextualRecordId) element).getContext());
     }
+
     this.element = element.getRecord();
   }
 

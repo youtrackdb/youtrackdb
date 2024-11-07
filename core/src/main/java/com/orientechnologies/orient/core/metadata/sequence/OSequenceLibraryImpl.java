@@ -118,7 +118,7 @@ public class OSequenceLibraryImpl {
         database.delete(seq.docRid);
         sequences.remove(iName.toUpperCase(Locale.ENGLISH));
       } catch (ONeedRetryException e) {
-        var rec = database.load(seq.docRid, null, true);
+        var rec = database.load(seq.docRid, null, false);
         rec.delete();
       }
     }

@@ -68,6 +68,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
 
       doc.setProperty(fieldName, testValue);
@@ -121,6 +122,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      doc = db.bindToSession(doc);
       nestedDoc = doc.field(nestedDocField);
       nestedDoc.setProperty(fieldName, testValue);
 
@@ -130,6 +132,7 @@ public class ODocumentSerializerDeltaTest {
 
       byte[] bytes = serializerDelta.serializeDelta(doc);
       // test serialization/deserialization
+      originalDoc = db.bindToSession(originalDoc);
       serializerDelta.deserializeDelta(bytes, originalDoc);
       nestedDoc = originalDoc.field(nestedDocField);
       assertEquals(nestedDoc.field(fieldName), testValue);
@@ -168,6 +171,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
 
       List<String> newArray = doc.field(fieldName);
@@ -216,6 +220,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
 
       Set<String> newArray = doc.field(fieldName);
@@ -268,6 +273,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
 
       @SuppressWarnings("unchecked")
@@ -320,6 +326,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
 
       @SuppressWarnings("unchecked")
@@ -376,6 +383,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
 
       @SuppressWarnings("unchecked")
@@ -438,6 +446,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
 
       originalValue = doc.getProperty(fieldName);
@@ -493,6 +502,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
 
       @SuppressWarnings("unchecked")
@@ -554,6 +564,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
 
       @SuppressWarnings("unchecked")
@@ -603,6 +614,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
 
       List<String> newArray = doc.field(fieldName);
@@ -658,6 +670,8 @@ public class ODocumentSerializerDeltaTest {
       // ODocument originalDoc = doc.copy();
       ODocument originalDoc = new ODocument();
       ORecordInternal.unsetDirty(originalDoc);
+
+      doc = db.bindToSession(doc);
       originalDoc.fromStream(doc.toStream());
 
       @SuppressWarnings("unchecked")
@@ -708,6 +722,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
 
       List<String> newArray = doc.field(fieldName);
@@ -755,6 +770,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
 
       doc.setProperty(fieldName, testValue);
@@ -797,6 +813,7 @@ public class ODocumentSerializerDeltaTest {
 
       doc = db.save(doc);
       db.commit();
+      doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
 
       doc.removeProperty(fieldName);
@@ -849,6 +866,7 @@ public class ODocumentSerializerDeltaTest {
       rootDoc = db.save(rootDoc);
       db.commit();
 
+      rootDoc = db.bindToSession(rootDoc);
       ODocument originalDoc = rootDoc.copy();
 
       doc = rootDoc.field(nestedFieldName);
@@ -904,6 +922,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
 
       @SuppressWarnings("unchecked")
@@ -952,6 +971,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
 
       Map<String, String> containedMap = doc.field(fieldName);
@@ -1001,6 +1021,8 @@ public class ODocumentSerializerDeltaTest {
 
       doc = db.save(doc);
       db.commit();
+
+      doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
 
       @SuppressWarnings("unchecked")
@@ -1054,6 +1076,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
 
       Map<String, ODocument> containedMap = doc.field(fieldName);
@@ -1114,6 +1137,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
 
       Map<String, String> containedMap = (Map<String, String>) ((List) doc.field(fieldName)).get(0);
@@ -1168,15 +1192,22 @@ public class ODocumentSerializerDeltaTest {
       third = db.save(third);
       db.commit();
 
+      first = db.bindToSession(first);
+      second = db.bindToSession(second);
+      third = db.bindToSession(third);
+
       ridBag = new ORidBag();
       ridBag.add(first);
       ridBag.add(second);
       ridBag.add(third);
+
+      doc = db.bindToSession(doc);
       doc.field(fieldName, ridBag, OType.LINKBAG);
       // test serialization/deserialization
       ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
       byte[] bytes = serializerDelta.serializeDelta(doc);
+      originalDoc = db.bindToSession(originalDoc);
       serializerDelta.deserializeDelta(bytes, originalDoc);
 
       ORidBag mergedRidbag = originalDoc.field(fieldName);
@@ -1215,13 +1246,22 @@ public class ODocumentSerializerDeltaTest {
       db.commit();
 
       db.begin();
+      first = db.bindToSession(first);
+      second = db.bindToSession(second);
+      third = db.bindToSession(third);
+
       ORidBag ridBag = new ORidBag();
       ridBag.add(first);
       ridBag.add(second);
       ridBag.add(third);
+
       doc.field(fieldName, ridBag, OType.LINKBAG);
       doc = db.save(doc);
       db.commit();
+
+      first = db.bindToSession(first);
+      second = db.bindToSession(second);
+      doc = db.bindToSession(doc);
 
       ODocument originalDoc = doc.copy();
 
@@ -1275,12 +1315,16 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
 
       db.begin();
       ODocument third = new ODocument(claz);
       third = db.save(third);
       db.commit();
+
+      doc = db.bindToSession(doc);
+      third = db.bindToSession(third);
 
       ridBag = doc.getProperty(fieldName);
       ridBag.add(third);
@@ -1333,6 +1377,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
       ridBag = doc.getProperty(fieldName);
       ridBag.remove(third);
@@ -1385,6 +1430,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
 
       ridBag = new ORidBag();
@@ -1438,6 +1484,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
       doc.setProperty("one", null);
       ((List<String>) doc.getProperty("list")).add(null);
@@ -1481,7 +1528,7 @@ public class ODocumentSerializerDeltaTest {
       db.begin();
       ODocument doc = new ODocument(claz);
       OIdentifiable link = db.save(new ODocument("testClass"));
-      OIdentifiable link1 = db.save(new ODocument("testClass"));
+      var link1 = db.save(new ODocument("testClass"));
       doc.setProperty("linkList", Arrays.asList(link, link1, link1));
       doc.setProperty("linkSet", new HashSet<>(Arrays.asList(link, link1)));
       Map<String, OIdentifiable> linkMap = new HashMap<>();
@@ -1491,10 +1538,14 @@ public class ODocumentSerializerDeltaTest {
       doc.setProperty("linkMap", linkMap);
       doc = db.save(doc);
 
-      OIdentifiable link2 = db.save(new ODocument("testClass"));
+      ODocument link2 = db.save(new ODocument("testClass"));
       db.commit();
 
+      doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
+      link2 = db.bindToSession(link2);
+      link1 = db.bindToSession(link1);
+
       ((List<OIdentifiable>) doc.getProperty("linkList")).set(1, link2);
       ((List<OIdentifiable>) doc.getProperty("linkList")).remove(link1);
       ((List<OIdentifiable>) doc.getProperty("linkList")).add(link2);
@@ -1553,15 +1604,16 @@ public class ODocumentSerializerDeltaTest {
       doc.setProperty("mapNested", mapNested);
       doc.setProperty("map1", map1);
       Map<String, OElement> mapEmbedded = new HashMap<>();
-      OElement embedded = db.newEmbeddedElement();
+      OElement embedded = db.newElement();
       embedded.setProperty("other", 1);
       mapEmbedded.put("first", embedded);
-      doc.setProperty("mapEmbedded", mapEmbedded);
+      doc.setProperty("mapEmbedded", mapEmbedded, OType.EMBEDDEDMAP);
       doc = db.save(doc);
       db.commit();
 
+      doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
-      OElement embedded1 = db.newEmbeddedElement();
+      OElement embedded1 = db.newElement();
       embedded1.setProperty("other", 1);
       ((Map<String, OElement>) doc.getProperty("mapEmbedded")).put("newDoc", embedded1);
       ((Map<String, String>) doc.getProperty("map")).put("value", "other");

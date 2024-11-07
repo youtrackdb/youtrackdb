@@ -177,11 +177,16 @@ public class OFunctionLibraryImpl {
   }
 
   public synchronized void dropFunction(String iName) {
-    reloadIfNeeded(ODatabaseRecordThreadLocal.instance().get());
-    OFunction function = getFunction(iName);
-    ODocument doc = function.getDocument();
-    doc.delete();
-    functions.remove(iName.toUpperCase(Locale.ENGLISH));
+    var db = ODatabaseRecordThreadLocal.instance().get();
+    reloadIfNeeded(db);
+
+    db.executeInTx(
+        () -> {
+          OFunction function = getFunction(iName);
+          ODocument doc = function.getDocument();
+          doc.delete();
+          functions.remove(iName.toUpperCase(Locale.ENGLISH));
+        });
   }
 
   public void updatedFunction(ODocument function) {

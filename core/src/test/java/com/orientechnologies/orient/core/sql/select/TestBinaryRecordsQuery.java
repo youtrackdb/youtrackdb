@@ -49,8 +49,10 @@ public class TestBinaryRecordsQuery extends BaseMemoryDatabase {
     ORecord rec = db.save(new ORecordBytes("blabla".getBytes()), "BlobCluster");
     db.commit();
 
+    db.begin();
     OResultSet res = db.command("delete from (select from cluster:BlobCluster)");
-    db.getLocalCache().clear();
+    db.commit();
+
     assertEquals(1, (long) res.next().getProperty("count"));
     rec = db.load(rec.getIdentity());
     assertNull(rec);
@@ -66,13 +68,15 @@ public class TestBinaryRecordsQuery extends BaseMemoryDatabase {
 
     db.begin();
     ODocument doc = new ODocument("RecordPointer");
-    doc.field("ref", rec);
+    doc.field("ref", db.bindToSession(rec));
     db.save(doc);
     db.commit();
 
+    db.begin();
     OResultSet res =
         db.command("delete from cluster:BlobCluster where @rid in (select ref from RecordPointer)");
-    db.getLocalCache().clear();
+    db.commit();
+
     assertEquals(1, (long) res.next().getProperty("count"));
     rec = db.load(rec.getIdentity());
     assertNull(rec);
@@ -89,19 +93,21 @@ public class TestBinaryRecordsQuery extends BaseMemoryDatabase {
 
     db.begin();
     ODocument doc = new ODocument("RecordPointer");
-    doc.field("ref", rec);
+    doc.field("ref", db.bindToSession(rec));
     db.save(doc);
     db.commit();
 
     db.begin();
     ODocument doc1 = new ODocument("RecordPointer");
-    doc1.field("ref", rec1);
+    doc1.field("ref", db.bindToSession(rec1));
     db.save(doc1);
     db.commit();
 
+    db.begin();
     OResultSet res = db.command("delete from (select expand(ref) from RecordPointer)");
-    db.getLocalCache().clear();
     assertEquals(2, (long) res.next().getProperty("count"));
+    db.commit();
+
     rec = db.load(rec.getIdentity());
     assertNull(rec);
     rec = db.load(rec1.getIdentity());

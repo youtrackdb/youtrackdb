@@ -68,11 +68,11 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
             try {
               db.begin();
 
-              ODocument vDoc1 = db.load(rid1, null, true);
+              ODocument vDoc1 = db.load(rid1, null, false);
               vDoc1.field(threadName, vDoc1.field(threadName) + ";" + i);
               vDoc1.save();
 
-              ODocument vDoc2 = db.load(rid2, null, true);
+              ODocument vDoc2 = db.load(rid2, null, false);
               vDoc2.field(threadName, vDoc2.field(threadName) + ";" + i);
               vDoc2.save();
 
@@ -192,7 +192,7 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(counter.get(), OPTIMISTIC_CYCLES * THREADS);
 
-    doc1 = database.load(rid1, null, true);
+    doc1 = database.load(rid1, null, false);
 
     for (int i = 0; i < THREADS; ++i) {
       Assert.assertEquals(doc1.field(ops[i].threadName), ops[i].fieldValue, ops[i].threadName);
@@ -200,7 +200,7 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
 
     doc1.toJSON();
 
-    doc2 = database.load(rid2, null, true);
+    doc2 = database.load(rid2, null, false);
 
     for (int i = 0; i < THREADS; ++i) {
       Assert.assertEquals(doc2.field(ops[i].threadName), ops[i].fieldValue, ops[i].threadName);
@@ -255,7 +255,7 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(counter.get(), PESSIMISTIC_CYCLES * THREADS);
 
-    doc1 = database.load(rid1, null, true);
+    doc1 = database.load(rid1, null, false);
     Assert.assertEquals(doc1.<Object>field("total"), PESSIMISTIC_CYCLES * THREADS);
 
     database.close();

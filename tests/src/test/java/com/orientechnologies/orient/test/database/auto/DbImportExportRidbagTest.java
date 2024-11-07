@@ -94,7 +94,6 @@ public class DbImportExportRidbagTest extends DocumentDBBaseTest implements OCom
       database.unregisterHook(hook);
     }
 
-    dbImport.setPreserveRids(true);
     dbImport.setDeleteRIDMapping(false);
     dbImport.importDatabase();
     dbImport.close();

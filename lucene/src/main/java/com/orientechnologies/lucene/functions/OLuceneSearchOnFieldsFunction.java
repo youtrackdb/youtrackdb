@@ -28,7 +28,9 @@ import java.util.stream.Stream;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.memory.MemoryIndex;
 
-/** Created by frank on 15/01/2017. */
+/**
+ * Created by frank on 15/01/2017.
+ */
 public class OLuceneSearchOnFieldsFunction extends OLuceneSearchFunctionTemplate {
 
   public static final String NAME = "search_fields";
@@ -59,13 +61,17 @@ public class OLuceneSearchOnFieldsFunction extends OLuceneSearchFunctionTemplate
     OResult result = (OResult) iThis;
 
     OElement element = result.toElement();
-    if (!element.getSchemaType().isPresent()) return false;
+    if (!element.getSchemaType().isPresent()) {
+      return false;
+    }
     String className = element.getSchemaType().get().getName();
     List<String> fieldNames = (List<String>) params[0];
 
     OLuceneFullTextIndex index = searchForIndex(className, ctx, fieldNames);
 
-    if (index == null) return false;
+    if (index == null) {
+      return false;
+    }
 
     String query = (String) params[1];
 
@@ -151,15 +157,16 @@ public class OLuceneSearchOnFieldsFunction extends OLuceneSearchFunctionTemplate
 
   private OLuceneFullTextIndex searchForIndex(
       String className, OCommandContext ctx, List<String> fieldNames) {
-    OMetadataInternal dbMetadata =
-        (OMetadataInternal) ctx.getDatabase().activateOnCurrentThread().getMetadata();
+    var db = ctx.getDatabase();
+    db.activateOnCurrentThread();
+    OMetadataInternal dbMetadata = db.getMetadata();
 
     List<OLuceneFullTextIndex> indices =
         dbMetadata.getImmutableSchemaSnapshot().getClass(className).getIndexes().stream()
             .filter(idx -> idx instanceof OLuceneFullTextIndex)
             .map(idx -> (OLuceneFullTextIndex) idx)
             .filter(idx -> intersect(idx.getDefinition().getFields(), fieldNames))
-            .collect(Collectors.toList());
+            .toList();
 
     if (indices.size() > 1) {
       throw new IllegalArgumentException(

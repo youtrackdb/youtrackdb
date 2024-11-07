@@ -192,7 +192,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
 
       db2.activateOnCurrentThread();
 
-      OBlob record2 = db2.load(record1.getIdentity(), "*:-1", true);
+      OBlob record2 = db2.load(record1.getIdentity(), "*:-1", false);
       Assert.assertEquals(record2.getVersion(), v1 + 1);
       Assert.assertTrue(new String(record2.toStream()).contains("second"));
 
@@ -406,7 +406,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
               () -> {
                 final ODatabaseSessionInternal db = acquireSession();
                 try {
-                  ODocument brokenDocTwo = db.load(brokenDocOne.getIdentity(), "*:-1", true);
+                  ODocument brokenDocTwo = db.load(brokenDocOne.getIdentity(), "*:-1", false);
                   brokenDocTwo.field("v", "vstr");
 
                   db.begin();

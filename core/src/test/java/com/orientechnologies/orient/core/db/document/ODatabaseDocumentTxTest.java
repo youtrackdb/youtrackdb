@@ -53,7 +53,7 @@ public class ODatabaseDocumentTxTest extends BaseMemoryDatabase {
       Assert.assertEquals(db.countClass("TestSubclass", false), 2);
       Assert.assertEquals(db.countClass("TestSubclass", true), 2);
 
-      toDelete.delete().save();
+      db.bindToSession(toDelete).delete().save();
       // 1 SUB, 1 SUPER
 
       Assert.assertEquals(db.countClass("TestSuperclass", false), 1);
@@ -263,7 +263,7 @@ public class ODatabaseDocumentTxTest extends BaseMemoryDatabase {
     OVertex doc2 = db.newVertex(vertexClass);
     doc2.setProperty("name", "second");
     doc2.save();
-    db.newEdge(doc1, doc2, "testEdge").save();
+    db.newEdge(db.bindToSession(doc1), doc2, "testEdge").save();
     db.commit();
 
     try (OResultSet rs = db.query("SELECT out() as o FROM " + vertexClass)) {

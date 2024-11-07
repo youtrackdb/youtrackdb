@@ -43,62 +43,62 @@
     <module>distribution</module>
   </modules>
 
-    <scm>
-        <connection>scm:git:git@github.com:laa/orientdb.git</connection>
-        <developerConnection>scm:git:git@github.com:laa/orientdb.git</developerConnection>
-        <url>scm:git:git@github.com:laa/orientdb.git</url>
-        <tag>HEAD</tag>
-    </scm>
-    <issueManagement>
-        <system>GitHub Issues</system>
-        <url>https://github.com/laa/orientdb/issues</url>
-    </issueManagement>
-    <distributionManagement>
-        <snapshotRepository>
-            <id>space-orientdb-daily</id>
-            <url>https://packages.jetbrains.team/maven/p/xodus/orientdb-daily</url>
-        </snapshotRepository>
-    </distributionManagement>
-    <repositories>
-        <repository>
-            <id>space-orientdb-daily</id>
-            <url>https://packages.jetbrains.team/maven/p/xodus/orientdb-daily</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
+  <scm>
+    <connection>scm:git:git@github.com:laa/orientdb.git</connection>
+    <developerConnection>scm:git:git@github.com:laa/orientdb.git</developerConnection>
+    <url>scm:git:git@github.com:laa/orientdb.git</url>
+    <tag>HEAD</tag>
+  </scm>
+  <issueManagement>
+    <system>GitHub Issues</system>
+    <url>https://github.com/laa/orientdb/issues</url>
+  </issueManagement>
+  <distributionManagement>
+    <snapshotRepository>
+      <id>space-orientdb-daily</id>
+      <url>https://packages.jetbrains.team/maven/p/xodus/orientdb-daily</url>
+    </snapshotRepository>
+  </distributionManagement>
+  <repositories>
+    <repository>
+      <id>space-orientdb-daily</id>
+      <url>https://packages.jetbrains.team/maven/p/xodus/orientdb-daily</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.build.resourceEncoding>UTF-8</project.build.resourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <maven.compiler.release>17</maven.compiler.release>
-        <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ssZ</maven.build.timestamp.format>
-        <!--This property is updated automatically and is needed to make build reproducible-->
-        <project.build.outputTimestamp>2023-01-01T00:00:00Z</project.build.outputTimestamp>
-        <!--suppress UnresolvedMavenProperty -->
-        <implementation.build>${scmBranch}@r${buildNumber}</implementation.build>
-        <blueprints.version>2.6.0</blueprints.version>
-        <!-- | shared build/report plugins version -->
-        <surefire.version>3.5.2</surefire.version>
-        <license.location>license.txt</license.location>
-        <!--Override with the given url on external modules-->
-        <!--<license.location>https://github.com/orientechnologies/orientdb/raw/develop/ODB-ASL-LICENSE.txt</license.location>-->
-        <heapSize>2048m</heapSize>
-        <javaassist.version>3.30.2-GA</javaassist.version>
-        <jaxb.api.version>2.3.0</jaxb.api.version>
-        <project.rootdir>${project.basedir}/</project.rootdir>
-        <graalvm.version>21.3.12</graalvm.version>
-        <slf4j.version>2.0.16</slf4j.version>
-        <slf4j.version>2.0.16</slf4j.version>
-        <toolchain.jdk.version>[17,22)</toolchain.jdk.version>
-    </properties>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.build.resourceEncoding>UTF-8</project.build.resourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <maven.compiler.release>17</maven.compiler.release>
+    <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ssZ</maven.build.timestamp.format>
+    <!--This property is updated automatically and is needed to make build reproducible-->
+    <project.build.outputTimestamp>2023-01-01T00:00:00Z</project.build.outputTimestamp>
+    <!--suppress UnresolvedMavenProperty -->
+    <implementation.build>${scmBranch}@r${buildNumber}</implementation.build>
+    <blueprints.version>2.6.0</blueprints.version>
+    <!-- | shared build/report plugins version -->
+    <surefire.version>3.5.2</surefire.version>
+    <license.location>license.txt</license.location>
+    <!--Override with the given url on external modules-->
+    <!--<license.location>https://github.com/orientechnologies/orientdb/raw/develop/ODB-ASL-LICENSE.txt</license.location>-->
+    <heapSize>2048m</heapSize>
+    <javaassist.version>3.30.2-GA</javaassist.version>
+    <jaxb.api.version>2.3.0</jaxb.api.version>
+    <project.rootdir>${project.basedir}/</project.rootdir>
+    <graalvm.version>21.3.12</graalvm.version>
+    <slf4j.version>2.0.16</slf4j.version>
+    <slf4j.version>2.0.16</slf4j.version>
+    <toolchain.jdk.version>[17,22)</toolchain.jdk.version>
+  </properties>
 
 
   <dependencyManagement>
@@ -160,17 +160,17 @@
           <version>3.7.1</version>
         </plugin>
 
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>buildnumber-maven-plugin</artifactId>
-                    <version>3.2.1</version>
-                </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>buildnumber-maven-plugin</artifactId>
+          <version>3.2.1</version>
+        </plugin>
 
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>versions-maven-plugin</artifactId>
-                    <version>2.17.1</version>
-                </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>versions-maven-plugin</artifactId>
+          <version>2.17.1</version>
+        </plugin>
 
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -208,17 +208,17 @@
           <version>3.12.1</version>
         </plugin>
 
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-site-plugin</artifactId>
-                    <version>4.0.0-M16</version>
-                </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>4.0.0-M16</version>
+        </plugin>
 
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.4.2</version>
-                </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>3.4.2</version>
+        </plugin>
 
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -242,11 +242,11 @@
           </configuration>
         </plugin>
 
-                <plugin>
-                    <groupId>com.diffplug.spotless</groupId>
-                    <artifactId>spotless-maven-plugin</artifactId>
-                    <version>2.43.0</version>
-                </plugin>
+        <plugin>
+          <groupId>com.diffplug.spotless</groupId>
+          <artifactId>spotless-maven-plugin</artifactId>
+          <version>2.43.0</version>
+        </plugin>
 
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -254,60 +254,60 @@
           <version>3.21.0</version>
         </plugin>
 
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-release-plugin</artifactId>
-                    <version>3.1.1</version>
-                    <configuration>
-                        <allowTimestampedSnapshots>true</allowTimestampedSnapshots>
-                        <pushChanges>false</pushChanges>
-                        <tagNameFormat>@{project.version}</tagNameFormat>
-                        <scmCommentPrefix>OrientDB</scmCommentPrefix>
-                        <localCheckout>true</localCheckout>
-                    </configuration>
-                </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-release-plugin</artifactId>
+          <version>3.1.1</version>
+          <configuration>
+            <allowTimestampedSnapshots>true</allowTimestampedSnapshots>
+            <pushChanges>false</pushChanges>
+            <tagNameFormat>@{project.version}</tagNameFormat>
+            <scmCommentPrefix>OrientDB</scmCommentPrefix>
+            <localCheckout>true</localCheckout>
+          </configuration>
+        </plugin>
 
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>animal-sniffer-maven-plugin</artifactId>
-                    <version>1.24</version>
-                    <configuration>
-                        <!--
-                        Keep aligned with the maven-compiler-plugins source/target, ATM this is 1.6,
-                        so we use the java16 signature.
-                        -->
-                        <signature>
-                            <groupId>org.codehaus.mojo.signature</groupId>
-                            <artifactId>java16</artifactId>
-                            <version>1.1</version>
-                        </signature>
-                    </configuration>
-                </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>animal-sniffer-maven-plugin</artifactId>
+          <version>1.24</version>
+          <configuration>
+            <!--
+            Keep aligned with the maven-compiler-plugins source/target, ATM this is 1.6,
+            so we use the java16 signature.
+            -->
+            <signature>
+              <groupId>org.codehaus.mojo.signature</groupId>
+              <artifactId>java16</artifactId>
+              <version>1.1</version>
+            </signature>
+          </configuration>
+        </plugin>
 
-                <plugin>
-                    <groupId>com.mycila</groupId>
-                    <artifactId>license-maven-plugin</artifactId>
-                    <version>4.6</version>
-                    <inherited>true</inherited>
-                    <configuration>
-                        <header>${license.location}</header>
-                        <aggregate>true</aggregate>
-                        <failIfMissing>true</failIfMissing>
-                        <encoding>UTF-8</encoding>
-                        <useDefaultExcludes>true</useDefaultExcludes>
-                        <strictCheck>true</strictCheck>
-                        <excludes>
-                            <exclude>**/assembly/**</exclude>
-                            <exclude>**/config/**</exclude>
-                            <exclude>**/resources/**</exclude>
-                            <exclude>emptyfile*</exclude>
-                            <exclude>*.txt</exclude>
-                            <exclude>*.properties</exclude>
-                        </excludes>
-                    </configuration>
-                    <executions>
-                    </executions>
-                </plugin>
+        <plugin>
+          <groupId>com.mycila</groupId>
+          <artifactId>license-maven-plugin</artifactId>
+          <version>4.6</version>
+          <inherited>true</inherited>
+          <configuration>
+            <header>${license.location}</header>
+            <aggregate>true</aggregate>
+            <failIfMissing>true</failIfMissing>
+            <encoding>UTF-8</encoding>
+            <useDefaultExcludes>true</useDefaultExcludes>
+            <strictCheck>true</strictCheck>
+            <excludes>
+              <exclude>**/assembly/**</exclude>
+              <exclude>**/config/**</exclude>
+              <exclude>**/resources/**</exclude>
+              <exclude>emptyfile*</exclude>
+              <exclude>*.txt</exclude>
+              <exclude>*.properties</exclude>
+            </excludes>
+          </configuration>
+          <executions>
+          </executions>
+        </plugin>
 
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
@@ -424,57 +424,57 @@
         </executions>
       </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>com.diffplug.spotless</groupId>
-                <artifactId>spotless-maven-plugin</artifactId>
-                <version>2.43.0</version>
-                <configuration>
-                    <java>
-                        <googleJavaFormat>
-                            <version>1.19.2</version>
-                            <style>GOOGLE</style>
-                            <reflowLongStrings>true</reflowLongStrings>
-                            <formatJavadoc>false</formatJavadoc>
-                        </googleJavaFormat>
-                        <removeUnusedImports/>
-                        <importOrder/>
-                    </java>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <version>2.43.0</version>
+        <configuration>
+          <java>
+            <googleJavaFormat>
+              <version>1.19.2</version>
+              <style>GOOGLE</style>
+              <reflowLongStrings>true</reflowLongStrings>
+              <formatJavadoc>false</formatJavadoc>
+            </googleJavaFormat>
+            <removeUnusedImports/>
+            <importOrder/>
+          </java>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>compile</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-enforcer-plugin</artifactId>
-                <version>3.5.0</version>
-                <executions>
-                    <execution>
-                        <id>enforce-maven</id>
-                        <goals>
-                            <goal>enforce</goal>
-                        </goals>
-                        <configuration>
-                            <rules>
-                                <requireMavenVersion>
-                                    <version>3.5.4</version>
-                                </requireMavenVersion>
-                            </rules>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>3.5.0</version>
+        <executions>
+          <execution>
+            <id>enforce-maven</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireMavenVersion>
+                  <version>3.5.4</version>
+                </requireMavenVersion>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
 
   </build>
 

@@ -87,6 +87,11 @@ public class OSuffixIdentifier extends SimpleNode {
         if (rec == null) {
           return null;
         }
+
+        if (rec.isUnloaded()) {
+          rec = getDatabase().bindToSession(rec);
+        }
+
         Object result = rec.getProperty(varName);
         if (result == null && ctx != null) {
           result = ctx.getVariable(varName);
@@ -305,17 +310,26 @@ public class OSuffixIdentifier extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OSuffixIdentifier that = (OSuffixIdentifier) o;
 
-    if (star != that.star) return false;
-    if (identifier != null ? !identifier.equals(that.identifier) : that.identifier != null)
+    if (star != that.star) {
       return false;
+    }
+    if (identifier != null ? !identifier.equals(that.identifier) : that.identifier != null) {
+      return false;
+    }
     if (recordAttribute != null
         ? !recordAttribute.equals(that.recordAttribute)
-        : that.recordAttribute != null) return false;
+        : that.recordAttribute != null) {
+      return false;
+    }
 
     return true;
   }

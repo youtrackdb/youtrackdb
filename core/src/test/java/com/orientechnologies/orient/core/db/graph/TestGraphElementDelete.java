@@ -49,7 +49,7 @@ public class TestGraphElementDelete {
     database.commit();
 
     database.begin();
-    database.delete(vertex);
+    database.delete(database.bindToSession(vertex));
     database.commit();
 
     assertNull(database.load(edge.getIdentity()));
@@ -66,10 +66,10 @@ public class TestGraphElementDelete {
     database.commit();
 
     database.begin();
-    database.delete(edge);
+    database.delete(database.bindToSession(edge));
     database.commit();
 
-    assertFalse(vertex.getEdges(ODirection.OUT, "E").iterator().hasNext());
+    assertFalse(database.bindToSession(vertex).getEdges(ODirection.OUT, "E").iterator().hasNext());
   }
 
   @Test

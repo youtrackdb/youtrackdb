@@ -62,8 +62,25 @@ public class OTraverseTest extends BaseMemoryDatabase {
 
     db.executeInTx(() -> rootDocument.save(db.getClusterNameById(db.getDefaultClusterId())));
 
+    rootDocument = db.bindToSession(rootDocument);
     final List<ODocument> expectedResult =
-        Arrays.asList(rootDocument, a, aa, ab, b, ba, bb, c1, c1a, c1b, c2, c2a, c2b, c3, c3a, c3b);
+        Arrays.asList(
+            rootDocument,
+            db.bindToSession(a),
+            db.bindToSession(aa),
+            db.bindToSession(ab),
+            db.bindToSession(b),
+            db.bindToSession(ba),
+            db.bindToSession(bb),
+            db.bindToSession(c1),
+            db.bindToSession(c1a),
+            db.bindToSession(c1b),
+            db.bindToSession(c2),
+            db.bindToSession(c2a),
+            db.bindToSession(c2b),
+            db.bindToSession(c3),
+            db.bindToSession(c3a),
+            db.bindToSession(c3b));
 
     final List<OIdentifiable> results = traverse.execute();
 
@@ -107,8 +124,25 @@ public class OTraverseTest extends BaseMemoryDatabase {
 
     db.executeInTx(() -> rootDocument.save(db.getClusterNameById(db.getDefaultClusterId())));
 
+    rootDocument = db.bindToSession(rootDocument);
     final List<ODocument> expectedResult =
-        Arrays.asList(rootDocument, a, b, aa, ab, ba, bb, c1, c2, c3, c1a, c1b, c2a, c2b, c3a, c3b);
+        Arrays.asList(
+            rootDocument,
+            db.bindToSession(a),
+            db.bindToSession(b),
+            db.bindToSession(aa),
+            db.bindToSession(ab),
+            db.bindToSession(ba),
+            db.bindToSession(bb),
+            db.bindToSession(c1),
+            db.bindToSession(c2),
+            db.bindToSession(c3),
+            db.bindToSession(c1a),
+            db.bindToSession(c1b),
+            db.bindToSession(c2a),
+            db.bindToSession(c2b),
+            db.bindToSession(c3a),
+            db.bindToSession(c3b));
 
     final List<OIdentifiable> results = traverse.execute();
 

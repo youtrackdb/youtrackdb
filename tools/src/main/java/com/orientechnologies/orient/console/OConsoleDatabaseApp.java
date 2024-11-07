@@ -53,7 +53,6 @@ import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.OrientDBConfigBuilder;
 import com.orientechnologies.orient.core.db.OrientDBInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.db.document.SimpleRecordReader;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.tool.OBonsaiTreeRepair;
 import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
@@ -676,19 +675,6 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     loadRecordInternal(iRecordId, null);
   }
 
-  @ConsoleCommand(description = "Reloads a record using passed fetch plan")
-  public void reloadRecord(
-      @ConsoleParameter(
-              name = "record-id",
-              description =
-                  "The unique Record Id of the record to load. If you do not have the Record Id,"
-                      + " execute a query first")
-          String iRecordId,
-      @ConsoleParameter(name = "fetch-plan", description = "The fetch plan to load the record with")
-          String iFetchPlan) {
-    reloadRecordInternal(iRecordId, iFetchPlan);
-  }
-
   @ConsoleCommand(
       description = "Reload a record and set it as the current one",
       onlineHelp = "Console-Command-Reload-Record")
@@ -699,7 +685,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
                   "The unique Record Id of the record to load. If you do not have the Record Id,"
                       + " execute a query first")
           String iRecordId) {
-    reloadRecordInternal(iRecordId, null);
+    reloadRecordInternal(iRecordId);
   }
 
   @ConsoleCommand(
@@ -2772,24 +2758,6 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     }
   }
 
-  @ConsoleCommand(description = "Export a database schema")
-  public void exportSchema(
-      @ConsoleParameter(name = "output-file", description = "Output file path")
-          final String iOutputFilePath)
-      throws IOException {
-    checkForDatabase();
-
-    message("\nExporting current database to: " + iOutputFilePath + "...");
-
-    try {
-      ODatabaseExport exporter = new ODatabaseExport(currentDatabase, iOutputFilePath, this);
-      exporter.setIncludeRecords(false);
-      exporter.exportDatabase().close();
-    } catch (ODatabaseExportException e) {
-      printError(e);
-    }
-  }
-
   @ConsoleCommand(
       description = "Export the current record in the requested format",
       onlineHelp = "Console-Command-Export-Record")
@@ -3055,18 +3023,10 @@ public class OConsoleDatabaseApp extends OConsoleApplication
   }
 
   /** Should be used only by console commands */
-  public void reloadRecordInternal(String iRecordId, String iFetchPlan) {
+  public void reloadRecordInternal(String iRecordId) {
     checkForDatabase();
 
-    currentRecord =
-        currentDatabase.executeReadRecord(
-            new ORecordId(iRecordId),
-            null,
-            -1,
-            iFetchPlan,
-            true,
-            false,
-            new SimpleRecordReader(false));
+    currentRecord = currentDatabase.executeReadRecord(new ORecordId(iRecordId));
     displayRecord(null);
 
     message("\nOK");

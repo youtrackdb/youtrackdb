@@ -61,11 +61,13 @@ public class OSecurityEngineTest {
     OSecurityInternal security = ((ODatabaseInternal<?>) db).getSharedContext().getSecurity();
     db.createClass("Person");
 
+    db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "policy1");
     policy.setActive(true);
     policy.setReadRule("name = 'admin'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "admin"), "database.class.*", policy);
+    db.commit();
 
     OBooleanExpression pred =
         OSecurityEngine.getPredicateForSecurityResource(
@@ -80,11 +82,13 @@ public class OSecurityEngineTest {
 
     db.createClass("Person");
 
+    db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "policy1");
     policy.setActive(true);
     policy.setReadRule("name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "admin"), "database.class.Person", policy);
+    db.commit();
 
     OBooleanExpression pred =
         OSecurityEngine.getPredicateForSecurityResource(
@@ -100,11 +104,13 @@ public class OSecurityEngineTest {
     db.createClass("Person");
     db.createClass("Employee", "Person");
 
+    db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "policy1");
     policy.setActive(true);
     policy.setReadRule("name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "admin"), "database.class.Person", policy);
+    db.commit();
 
     OBooleanExpression pred =
         OSecurityEngine.getPredicateForSecurityResource(
@@ -120,6 +126,7 @@ public class OSecurityEngineTest {
     db.createClass("Person");
     db.createClass("Employee", "Person");
 
+    db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "policy1");
     policy.setActive(true);
     policy.setReadRule("name = 'foo'");
@@ -132,6 +139,7 @@ public class OSecurityEngineTest {
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(
         db, security.getRole(db, "admin"), "database.class.Employee", policy);
+    db.commit();
 
     OBooleanExpression pred =
         OSecurityEngine.getPredicateForSecurityResource(
@@ -147,6 +155,7 @@ public class OSecurityEngineTest {
     db.createClass("Person");
     db.createClass("Employee", "Person");
 
+    db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "policy1");
     policy.setActive(true);
     policy.setReadRule("name = 'admin'");
@@ -158,6 +167,7 @@ public class OSecurityEngineTest {
     policy.setReadRule("name = 'bar' OR name = 'admin'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "admin"), "database.class.*", policy);
+    db.commit();
 
     OBooleanExpression pred =
         OSecurityEngine.getPredicateForSecurityResource(
@@ -174,6 +184,7 @@ public class OSecurityEngineTest {
     db.createClass("Foo");
     db.createClass("Employee", "Person", "Foo");
 
+    db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "policy1");
     policy.setActive(true);
     policy.setReadRule("name = 'foo'");
@@ -185,6 +196,7 @@ public class OSecurityEngineTest {
     policy.setReadRule("surname = 'bar'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "admin"), "database.class.Foo", policy);
+    db.commit();
 
     OBooleanExpression pred =
         OSecurityEngine.getPredicateForSecurityResource(
@@ -210,6 +222,7 @@ public class OSecurityEngineTest {
 
     db.createClass("Person");
 
+    db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "policy1");
     policy.setActive(true);
     policy.setReadRule("name = 'foo'");
@@ -221,6 +234,7 @@ public class OSecurityEngineTest {
     policy.setReadRule("surname = 'bar'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "reader"), "database.class.Person", policy);
+    db.commit();
 
     OBooleanExpression pred =
         OSecurityEngine.getPredicateForSecurityResource(
@@ -254,11 +268,13 @@ public class OSecurityEngineTest {
               return record2;
             });
 
+    db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "policy1");
     policy.setActive(true);
     policy.setReadRule("name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "admin"), "database.class.Person", policy);
+    db.commit();
 
     OBooleanExpression pred =
         OSecurityEngine.getPredicateForSecurityResource(

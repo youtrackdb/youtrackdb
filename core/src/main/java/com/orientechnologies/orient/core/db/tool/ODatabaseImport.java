@@ -66,7 +66,6 @@ import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.record.impl.OElementInternal;
 import com.orientechnologies.orient.core.serialization.serializer.OJSONReader;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
@@ -1096,23 +1095,6 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
       }
 
       name = OClassImpl.decodeClassName(name);
-      if (name != null)
-      // CHECK IF THE CLUSTER IS INCLUDED
-      {
-        if (includeClusters != null) {
-          if (!includeClusters.contains(name)) {
-            jsonReader.readNext(OJSONReader.NEXT_IN_ARRAY);
-            continue;
-          }
-        } else {
-          if (excludeClusters != null) {
-            if (excludeClusters.contains(name)) {
-              jsonReader.readNext(OJSONReader.NEXT_IN_ARRAY);
-              continue;
-            }
-          }
-        }
-      }
 
       int clusterIdFromJson;
       if (exporterVersion < 9) {
@@ -1361,28 +1343,6 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
       }
 
       // CHECK IF THE CLUSTER IS INCLUDED
-      if (includeClusters != null) {
-        if (!includeClusters.contains(
-            database.getClusterNameById(record.getIdentity().getClusterId()))) {
-          recordsBeforeImport.remove(record.getIdentity());
-          return null;
-        }
-      } else {
-        if (excludeClusters != null) {
-          if (excludeClusters.contains(
-              database.getClusterNameById(record.getIdentity().getClusterId()))) {
-            recordsBeforeImport.remove(record.getIdentity());
-            return null;
-          }
-        }
-      }
-
-      if (record instanceof ODocument && excludeClasses != null) {
-        if (excludeClasses.contains(((ODocument) record).getClassName())) {
-          recordsBeforeImport.remove(record.getIdentity());
-          return null;
-        }
-      }
 
       if (record.getIdentity().getClusterId() == 0
           && record.getIdentity().getClusterPosition() == 1) {
@@ -1490,18 +1450,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
         record.setDirty();
 
         var recordToSave = record;
-        database.executeInTx(
-            () -> {
-              if (!preserveRids
-                  && recordToSave instanceof ODocument
-                  && ODocumentInternal.getImmutableSchemaClass(database, ((ODocument) recordToSave))
-                      != null) {
-                recordToSave.save();
-              } else {
-                recordToSave.save(database.getClusterNameById(clusterId));
-              }
-            });
-
+        database.executeInTx(() -> recordToSave.save(database.getClusterNameById(clusterId)));
         if (!rid.equals(record.getIdentity())) {
           // SAVE IT ONLY IF DIFFERENT
           var recordRid = record.getIdentity();
@@ -1637,7 +1586,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
     // remove all records which were absent in new database but
     // exist in old database
     for (final ORID leftOverRid : recordsBeforeImport) {
-      database.delete(leftOverRid);
+      database.executeInTx(() -> database.delete(leftOverRid));
     }
 
     database.getMetadata().reload();

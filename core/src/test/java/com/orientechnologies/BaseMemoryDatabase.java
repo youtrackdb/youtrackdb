@@ -6,6 +6,7 @@ import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.OrientDBConfigBuilder;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import java.io.File;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -21,7 +22,11 @@ public class BaseMemoryDatabase {
   @Before
   public void beforeTest() {
     var builder = OrientDBConfig.builder();
-    context = OrientDB.embedded(this.getClass().getSimpleName(), createConfig(builder));
+    final String buildDirectory = System.getProperty("buildDirectory", ".");
+    context =
+        OrientDB.embedded(
+            buildDirectory + File.separator + this.getClass().getSimpleName(),
+            createConfig(builder));
     String dbName = name.getMethodName();
     dbName = dbName.replace('[', '_');
     dbName = dbName.replace(']', '_');

@@ -21,7 +21,6 @@
 package com.orientechnologies.orient.core.db.document;
 
 import com.orientechnologies.orient.core.db.ODatabase;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OSchemaException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
@@ -89,23 +88,12 @@ public interface ODatabaseDocument extends ODatabase<ORecord> {
   void freeze(boolean throwException);
 
   /**
-   * Returns the record for a OIdentifiable instance. If the argument received already is a ORecord
-   * instance, then it's returned as is, otherwise a new ORecord is created with the identity
-   * received and returned.
-   *
-   * @return A ORecord instance
-   */
-  <RET extends ORecord> RET getRecord(OIdentifiable iIdentifiable);
-
-  /**
    * Checks if the operation on a resource is allowed for the current user.
    *
    * @param resourceGeneric Generic Resource where to execute the operation
    * @param iOperation      Operation to execute against the resource
-   * @return The Database instance itself giving a "fluent interface". Useful to call multiple
-   * methods in chain.
    */
-  <DB extends ODatabaseDocument> DB checkSecurity(
+  void checkSecurity(
       ORule.ResourceGeneric resourceGeneric, String resourceSpecific, int iOperation);
 
   /**
@@ -120,10 +108,8 @@ public interface ODatabaseDocument extends ODatabase<ORecord> {
    * @param iResourceGeneric  Resource where to execute the operation, i.e.: database.clusters
    * @param iOperation        Operation to execute against the resource
    * @param iResourceSpecific Target resource, i.e.: "employee" to specify the cluster name.
-   * @return The Database instance itself giving a "fluent interface". Useful to call multiple
-   * methods in chain.
    */
-  <DB extends ODatabaseDocument> DB checkSecurity(
+  void checkSecurity(
       ORule.ResourceGeneric iResourceGeneric, int iOperation, Object iResourceSpecific);
 
   /**
@@ -139,10 +125,8 @@ public interface ODatabaseDocument extends ODatabase<ORecord> {
    * @param iOperation         Operation to execute against the resource
    * @param iResourcesSpecific Target resources as an array of Objects, i.e.: ["employee", 2] to
    *                           specify cluster name and id.
-   * @return The Database instance itself giving a "fluent interface". Useful to call multiple
-   * methods in chain.
    */
-  <DB extends ODatabaseDocument> DB checkSecurity(
+  void checkSecurity(
       ORule.ResourceGeneric iResourceGeneric, int iOperation, Object... iResourcesSpecific);
 
   /**
@@ -163,10 +147,6 @@ public interface ODatabaseDocument extends ODatabase<ORecord> {
   OElement newElement();
 
   OElement newElement(final String className);
-
-  OElement newEmbeddedElement();
-
-  OElement newEmbeddedElement(final String className);
 
   /**
    * Creates a new Edge of type E

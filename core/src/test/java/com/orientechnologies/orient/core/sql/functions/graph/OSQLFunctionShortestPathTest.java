@@ -4,8 +4,8 @@ import static java.util.Arrays.asList;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.OVertex;
 import java.util.HashMap;
@@ -19,7 +19,7 @@ import org.junit.Test;
 public class OSQLFunctionShortestPathTest {
 
   private OrientDB orientDB;
-  private ODatabaseDocument graph;
+  private ODatabaseSession graph;
 
   private Map<Integer, OVertex> vertices = new HashMap<Integer, OVertex>();
   private OSQLFunctionShortestPath function;
@@ -75,7 +75,9 @@ public class OSQLFunctionShortestPathTest {
   }
 
   @Test
-  public void testExecute() throws Exception {
+  public void testExecute() {
+    bindVertices();
+
     final List<ORID> result =
         function.execute(
             null,
@@ -91,7 +93,9 @@ public class OSQLFunctionShortestPathTest {
   }
 
   @Test
-  public void testExecuteOut() throws Exception {
+  public void testExecuteOut() {
+    bindVertices();
+
     final List<ORID> result =
         function.execute(
             null,
@@ -108,7 +112,9 @@ public class OSQLFunctionShortestPathTest {
   }
 
   @Test
-  public void testExecuteOnlyEdge1() throws Exception {
+  public void testExecuteOnlyEdge1() {
+    bindVertices();
+
     final List<ORID> result =
         function.execute(
             null,
@@ -125,7 +131,9 @@ public class OSQLFunctionShortestPathTest {
   }
 
   @Test
-  public void testExecuteOnlyEdge1AndEdge2() throws Exception {
+  public void testExecuteOnlyEdge1AndEdge2() {
+    bindVertices();
+
     final List<ORID> result =
         function.execute(
             null,
@@ -141,7 +149,9 @@ public class OSQLFunctionShortestPathTest {
   }
 
   @Test
-  public void testLong() throws Exception {
+  public void testLong() {
+    bindVertices();
+
     final List<ORID> result =
         function.execute(
             null,
@@ -160,7 +170,9 @@ public class OSQLFunctionShortestPathTest {
   }
 
   @Test
-  public void testMaxDepth1() throws Exception {
+  public void testMaxDepth1() {
+    bindVertices();
+
     Map<String, Object> additionalParams = new HashMap<String, Object>();
     additionalParams.put(OSQLFunctionShortestPath.PARAM_MAX_DEPTH, 11);
     final List<ORID> result =
@@ -175,7 +187,9 @@ public class OSQLFunctionShortestPathTest {
   }
 
   @Test
-  public void testMaxDepth2() throws Exception {
+  public void testMaxDepth2() {
+    bindVertices();
+
     Map<String, Object> additionalParams = new HashMap<String, Object>();
     additionalParams.put(OSQLFunctionShortestPath.PARAM_MAX_DEPTH, 12);
     final List<ORID> result =
@@ -190,7 +204,9 @@ public class OSQLFunctionShortestPathTest {
   }
 
   @Test
-  public void testMaxDepth3() throws Exception {
+  public void testMaxDepth3() {
+    bindVertices();
+
     Map<String, Object> additionalParams = new HashMap<String, Object>();
     additionalParams.put(OSQLFunctionShortestPath.PARAM_MAX_DEPTH, 10);
     final List<ORID> result =
@@ -205,7 +221,9 @@ public class OSQLFunctionShortestPathTest {
   }
 
   @Test
-  public void testMaxDepth4() throws Exception {
+  public void testMaxDepth4() {
+    bindVertices();
+
     Map<String, Object> additionalParams = new HashMap<String, Object>();
     additionalParams.put(OSQLFunctionShortestPath.PARAM_MAX_DEPTH, 3);
     final List<ORID> result =
@@ -217,5 +235,14 @@ public class OSQLFunctionShortestPathTest {
             new OBasicCommandContext());
 
     Assert.assertEquals(0, result.size());
+  }
+
+  private void bindVertices() {
+    var newVertices = new HashMap<Integer, OVertex>();
+    for (var entry : vertices.entrySet()) {
+      newVertices.put(entry.getKey(), graph.bindToSession(entry.getValue()));
+    }
+
+    vertices = newVertices;
   }
 }

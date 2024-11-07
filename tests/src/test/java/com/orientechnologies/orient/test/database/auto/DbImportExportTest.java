@@ -94,12 +94,10 @@ public class DbImportExportTest extends DocumentDBBaseTest implements OCommandOu
 
     final ODatabaseImport dbImport =
         new ODatabaseImport(database, testPath + "/" + exportFilePath, this);
-
     // UNREGISTER ALL THE HOOKS
     for (final ORecordHook hook : new ArrayList<>(database.getHooks().keySet())) {
       database.unregisterHook(hook);
     }
-    dbImport.setPreserveRids(true);
     dbImport.setDeleteRIDMapping(false);
     dbImport.importDatabase();
     dbImport.close();
