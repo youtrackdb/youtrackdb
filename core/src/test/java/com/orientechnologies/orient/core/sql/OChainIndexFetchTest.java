@@ -32,6 +32,8 @@ public class OChainIndexFetchTest extends BaseMemoryDatabase {
     db.commit();
 
     db.begin();
+
+    doc = db.bindToSession(doc);
     ODocument doc1 = new ODocument(baseClass);
     doc1.field("ref", doc);
 

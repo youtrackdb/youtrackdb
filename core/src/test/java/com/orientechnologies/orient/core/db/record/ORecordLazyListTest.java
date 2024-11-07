@@ -57,6 +57,8 @@ public class ORecordLazyListTest {
     dbSession.commit();
 
     dbSession.begin();
+
+    mainDoc = dbSession.bindToSession(mainDoc);
     Collection<ODocument> origItems = mainDoc.field("items");
     Iterator<ODocument> it = origItems.iterator();
     assertTrue(it.next() instanceof ODocument);

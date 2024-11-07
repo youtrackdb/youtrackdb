@@ -26,6 +26,8 @@ public class ODeleteStatementExecutionTest extends BaseMemoryDatabase {
       doc.save();
       db.commit();
     }
+
+    db.begin();
     OResultSet result = db.command("delete from  " + className + " where name = 'name4'");
     printExecutionPlan(result);
     for (int i = 0; i < 1; i++) {
@@ -35,6 +37,7 @@ public class ODeleteStatementExecutionTest extends BaseMemoryDatabase {
       Assert.assertEquals((Object) 1L, item.getProperty("count"));
     }
     Assert.assertFalse(result.hasNext());
+    db.commit();
 
     result = db.query("select from " + className);
     for (int i = 0; i < 9; i++) {
@@ -88,6 +91,7 @@ public class ODeleteStatementExecutionTest extends BaseMemoryDatabase {
       db.commit();
     }
 
+    db.begin();
     OResultSet result = db.command("delete from  " + className + " where name = 'name4' unsafe");
 
     printExecutionPlan(result);
@@ -98,6 +102,7 @@ public class ODeleteStatementExecutionTest extends BaseMemoryDatabase {
       Assert.assertEquals((Object) 1L, item.getProperty("count"));
     }
     Assert.assertFalse(result.hasNext());
+    db.commit();
 
     result = db.query("select from " + className);
     for (int i = 0; i < 9; i++) {
@@ -127,6 +132,8 @@ public class ODeleteStatementExecutionTest extends BaseMemoryDatabase {
       doc.save();
       db.commit();
     }
+
+    db.begin();
     OResultSet result =
         db.command("delete from  " + className + " return before where name = 'name4' ");
     printExecutionPlan(result);
@@ -137,6 +144,7 @@ public class ODeleteStatementExecutionTest extends BaseMemoryDatabase {
       Assert.assertEquals(fourthId, item.getRecordId());
     }
     Assert.assertFalse(result.hasNext());
+    db.commit();
 
     result = db.query("select from " + className);
     for (int i = 0; i < 9; i++) {
@@ -160,6 +168,7 @@ public class ODeleteStatementExecutionTest extends BaseMemoryDatabase {
       doc.save();
       db.commit();
     }
+    db.begin();
     OResultSet result = db.command("delete from  " + className + " limit 5");
     printExecutionPlan(result);
     for (int i = 0; i < 1; i++) {
@@ -169,6 +178,7 @@ public class ODeleteStatementExecutionTest extends BaseMemoryDatabase {
       Assert.assertEquals((Object) 5L, item.getProperty("count"));
     }
     Assert.assertFalse(result.hasNext());
+    db.commit();
 
     result = db.query("select from " + className);
     for (int i = 0; i < 5; i++) {

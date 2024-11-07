@@ -25,7 +25,7 @@ public class DefaultClusterTest {
                 return vertex;
               });
 
-      final ODocument embedded = v.getProperty("embedded");
+      final ODocument embedded = db.bindToSession(v).getProperty("embedded");
       Assert.assertFalse("Found: " + embedded.getIdentity(), embedded.getIdentity().isValid());
     }
   }

@@ -355,7 +355,7 @@ public interface ODatabaseInternal<T> extends ODatabase<T> {
   @Deprecated
   ODictionary<T> getDictionary();
 
-  ODatabase<T> rollback(boolean force) throws OTransactionException;
+  void rollback(boolean force) throws OTransactionException;
 
   /**
    * Execute a query against the database. If the OStorage used is remote (OStorageRemote) then the
@@ -524,21 +524,6 @@ public interface ODatabaseInternal<T> extends ODatabase<T> {
    * @return The record received
    */
   <RET extends T> RET load(T iObject, String iFetchPlan, boolean iIgnoreCache);
-
-  /**
-   * Force the reloading of the entity.
-   *
-   * @param iObject      The entity to load. If the entity was already loaded it will be reloaded
-   *                     and all the changes will be lost.
-   * @param iFetchPlan   Fetch plan used
-   * @param iIgnoreCache Ignore cache or use it
-   * @param force        Force to reload record even if storage has the same record as reloaded
-   *                     record, it is useful if fetch plan is not null and alongside with root
-   *                     record linked records will be reloaded.
-   * @return The loaded entity
-   */
-  <RET extends T> RET reload(
-      final T iObject, String iFetchPlan, boolean iIgnoreCache, boolean force);
 
   /**
    * Loads the entity by the Record ID using a fetch plan.

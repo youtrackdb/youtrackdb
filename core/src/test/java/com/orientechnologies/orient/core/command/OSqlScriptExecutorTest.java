@@ -11,8 +11,11 @@ import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by luigidellaquila on 10/02/17. */
+/**
+ * Created by luigidellaquila on 10/02/17.
+ */
 public class OSqlScriptExecutorTest {
+
   @Test
   public void testPlain() {
     final OrientDB factory =
@@ -22,15 +25,15 @@ public class OSqlScriptExecutorTest {
     final ODatabaseDocument db =
         factory.open(dbName, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
-    String script = "insert into V set name ='a';";
-    script += "insert into V set name ='b';";
-    script += "insert into V set name ='c';";
-    script += "insert into V set name ='d';";
+    String script = "begin;\n";
+    script += "insert into V set name ='a';\n";
+    script += "insert into V set name ='b';\n";
+    script += "insert into V set name ='c';\n";
+    script += "insert into V set name ='d';\n";
+    script += "commit;\n";
     script += "select from v;";
 
-    db.begin();
     OResultSet result = db.execute("sql", script);
-    db.commit();
     List<Object> list =
         result.stream().map(x -> x.getProperty("name")).collect(Collectors.toList());
     result.close();
@@ -55,15 +58,15 @@ public class OSqlScriptExecutorTest {
     final ODatabaseDocument db =
         factory.open(dbName, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
-    String script = "insert into V set name ='a';";
-    script += "insert into V set name ='b';";
-    script += "insert into V set name ='c';";
-    script += "insert into V set name ='d';";
+    String script = "begin;\n";
+    script += "insert into V set name ='a';\n";
+    script += "insert into V set name ='b';\n";
+    script += "insert into V set name ='c';\n";
+    script += "insert into V set name ='d';\n";
+    script += "commit;\n";
     script += "select from v where name = ?;";
 
-    db.begin();
     OResultSet result = db.execute("sql", script, "a");
-    db.commit();
     List<Object> list =
         result.stream().map(x -> x.getProperty("name")).collect(Collectors.toList());
     result.close();
@@ -86,19 +89,18 @@ public class OSqlScriptExecutorTest {
     final ODatabaseDocument db =
         factory.open(dbName, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
-    String script = "insert into V set name ='a';";
-    script += "insert into V set name ='b';";
-    script += "insert into V set name ='c';";
-    script += "insert into V set name ='d';";
+    String script = "begin;\n";
+    script += "insert into V set name ='a';\n";
+    script += "insert into V set name ='b';\n";
+    script += "insert into V set name ='c';\n";
+    script += "insert into V set name ='d';\n";
+    script += "commit;\n";
     script += "select from v where name = :name;";
 
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("name", "a");
 
-    db.begin();
     OResultSet result = db.execute("sql", script, params);
-    db.commit();
-
     List<Object> list =
         result.stream().map(x -> x.getProperty("name")).collect(Collectors.toList());
     result.close();

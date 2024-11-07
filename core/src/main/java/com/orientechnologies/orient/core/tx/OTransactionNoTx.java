@@ -75,7 +75,7 @@ public class OTransactionNoTx extends OTransactionAbstract {
     assert this.nonTxReadMode != null;
   }
 
-  public void begin() {
+  public int begin() {
     throw new UnsupportedOperationException("Begin is not supported in no tx mode");
   }
 
@@ -97,48 +97,13 @@ public class OTransactionNoTx extends OTransactionAbstract {
     throw new UnsupportedOperationException("Rollback is not supported in no tx mode");
   }
 
-  public ORecord loadRecord(
-      final ORID iRid,
-      final ORecordAbstract iRecord,
-      final String iFetchPlan,
-      final boolean ignoreCache,
-      final boolean loadTombstone) {
+  public ORecord loadRecord(final ORID rid) {
     checkNonTXReads();
-
-    if (iRid.isNew()) {
+    if (rid.isNew()) {
       return null;
     }
 
-    if (iRecord != null) {
-      iRecord.incrementLoading();
-    }
-    try {
-      return database.executeReadRecord(
-          (ORecordId) iRid, iRecord, -1, iFetchPlan, ignoreCache, loadTombstone, null);
-    } finally {
-      if (iRecord != null) {
-        iRecord.decrementLoading();
-      }
-    }
-  }
-
-  @Deprecated
-  public ORecord loadRecord(
-      final ORID iRid,
-      final ORecordAbstract iRecord,
-      final String iFetchPlan,
-      final boolean ignoreCache,
-      final boolean iUpdateCache,
-      final boolean loadTombstone) {
-    return loadRecord(iRid, iRecord, iFetchPlan, ignoreCache, loadTombstone);
-  }
-
-  public ORecord loadRecord(
-      final ORID iRid,
-      final ORecordAbstract iRecord,
-      final String iFetchPlan,
-      final boolean ignoreCache) {
-    return loadRecord(iRid, iRecord, iFetchPlan, ignoreCache, false);
+    return database.executeReadRecord((ORecordId) rid);
   }
 
   private void checkNonTXReads() {
@@ -156,39 +121,6 @@ public class OTransactionNoTx extends OTransactionAbstract {
     }
 
     return database.executeExists(rid);
-  }
-
-  @Override
-  public ORecord reloadRecord(
-      ORID rid, ORecordAbstract record, String fetchPlan, boolean ignoreCache, boolean force) {
-    checkNonTXReads();
-
-    if (rid.isNew()) {
-      return null;
-    }
-
-    if (record != null) {
-      record.incrementLoading();
-    }
-    try {
-      final ORecord loadedRecord =
-          database.executeReadRecord(
-              (ORecordId) rid, record, -1, fetchPlan, ignoreCache, false, null);
-
-      if (force) {
-        return loadedRecord;
-      } else {
-        if (loadedRecord == null) {
-          return record;
-        }
-
-        return loadedRecord;
-      }
-    } finally {
-      if (record != null) {
-        record.decrementLoading();
-      }
-    }
   }
 
   public ORecord saveRecord(final ORecordAbstract iRecord, final String iClusterName) {

@@ -68,7 +68,7 @@ public class OCommandExecutorSQLUpdateTest extends BaseMemoryDatabase {
     db.command("UPDATE company set employees = (SELECT FROM employee)").close();
     db.commit();
 
-    assertEquals(((Set) r.getProperty("employees")).size(), 4);
+    assertEquals(((Set) db.bindToSession(r).getProperty("employees")).size(), 4);
 
     db.begin();
     db.command(
@@ -77,7 +77,7 @@ public class OCommandExecutorSQLUpdateTest extends BaseMemoryDatabase {
         .close();
     db.commit();
 
-    assertEquals(((Set) r.getProperty("employees")).size(), 3);
+    assertEquals(((Set) db.bindToSession(r).getProperty("employees")).size(), 3);
   }
 
   @Test
@@ -286,19 +286,21 @@ public class OCommandExecutorSQLUpdateTest extends BaseMemoryDatabase {
     db.command("UPDATE test set count += 2").close();
     db.commit();
 
-    Assertions.assertThat(queried.<Integer>getProperty("count")).isEqualTo(22);
+    Assertions.assertThat(db.bindToSession(queried).<Integer>getProperty("count")).isEqualTo(22);
 
     db.begin();
     db.command("UPDATE test set map.nestedCount = map.nestedCount + 5").close();
     db.commit();
 
-    Assertions.assertThat(queried.<Map>getProperty("map").get("nestedCount")).isEqualTo(15);
+    Assertions.assertThat(db.bindToSession(queried).<Map>getProperty("map").get("nestedCount"))
+        .isEqualTo(15);
 
     db.begin();
     db.command("UPDATE test set map.nestedCount = map.nestedCount+ 5").close();
     db.commit();
 
-    Assertions.assertThat(queried.<Map>getProperty("map").get("nestedCount")).isEqualTo(20);
+    Assertions.assertThat(db.bindToSession(queried).<Map>getProperty("map").get("nestedCount"))
+        .isEqualTo(20);
   }
 
   @Test
@@ -321,7 +323,7 @@ public class OCommandExecutorSQLUpdateTest extends BaseMemoryDatabase {
     db.command("UPDATE test SET text = :text", params).close();
     db.commit();
 
-    assertEquals(queried.getProperty("text"), "single \"");
+    assertEquals(db.bindToSession(queried).getProperty("text"), "single \"");
   }
 
   @Test
@@ -346,7 +348,7 @@ public class OCommandExecutorSQLUpdateTest extends BaseMemoryDatabase {
     db.command("UPDATE test SET text = :text", params).close();
     db.commit();
 
-    assertEquals(queried.getProperty("text"), "quoted \"value\" string");
+    assertEquals(db.bindToSession(queried).getProperty("text"), "quoted \"value\" string");
   }
 
   @Test
@@ -553,6 +555,7 @@ public class OCommandExecutorSQLUpdateTest extends BaseMemoryDatabase {
 
     db.begin();
     ODocument d = new ODocument("TestSource");
+    state = db.bindToSession(state);
     d.setProperty("name", "foo");
     d.setProperty("linked", state);
     db.save(d);

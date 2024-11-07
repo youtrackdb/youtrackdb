@@ -39,7 +39,7 @@ public class TestGraphOperations extends BaseMemoryDatabase {
 
     try {
       db.begin();
-      edge = vertex.addEdge(vertex1, "TestLabel");
+      edge = db.bindToSession(vertex).addEdge(db.bindToSession(vertex1), "TestLabel");
       edge.setProperty("key", "unique");
       db.save(edge);
       db.commit();
@@ -49,10 +49,8 @@ public class TestGraphOperations extends BaseMemoryDatabase {
     }
 
     db.begin();
-    edge = vertex.addEdge(vertex1, "TestLabel");
-
+    edge = db.bindToSession(vertex).addEdge(db.bindToSession(vertex1), "TestLabel");
     edge.setProperty("key", "notunique");
-
     db.save(edge);
     db.commit();
   }

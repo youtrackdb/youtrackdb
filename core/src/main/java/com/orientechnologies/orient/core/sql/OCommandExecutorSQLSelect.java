@@ -599,7 +599,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
 
     ORecord record = null;
     if (!(id instanceof ORecord)) {
-      record = getDatabase().load(id.getIdentity(), null, !isUseCache());
+      record = getDatabase().load(id.getIdentity(), null, false);
       if (id instanceof OContextualRecordId && ((OContextualRecordId) id).getContext() != null) {
         Map<String, Object> ridContext = ((OContextualRecordId) id).getContext();
         for (String key : ridContext.keySet()) {

@@ -47,16 +47,22 @@ public class SQLCreateVertexAndEdgeTest extends BaseMemoryDatabase {
     db.begin();
     OVertex v1 = db.command("create vertex").next().getVertex().get();
     db.commit();
+
+    v1 = db.bindToSession(v1);
     Assert.assertEquals(v1.getSchemaType().get().getName(), "V");
 
     db.begin();
     OVertex v2 = db.command("create vertex V1").next().getVertex().get();
     db.commit();
+
+    v2 = db.bindToSession(v2);
     Assert.assertEquals(v2.getSchemaType().get().getName(), "V1");
 
     db.begin();
     OVertex v3 = db.command("create vertex set brand = 'fiat'").next().getVertex().get();
     db.commit();
+
+    v3 = db.bindToSession(v3);
     Assert.assertEquals(v3.getSchemaType().get().getName(), "V");
     Assert.assertEquals(v3.getProperty("brand"), "fiat");
 
@@ -64,6 +70,8 @@ public class SQLCreateVertexAndEdgeTest extends BaseMemoryDatabase {
     OVertex v4 =
         db.command("create vertex V1 set brand = 'fiat',name = 'wow'").next().getVertex().get();
     db.commit();
+
+    v4 = db.bindToSession(v4);
     Assert.assertEquals(v4.getSchemaType().get().getName(), "V1");
     Assert.assertEquals(v4.getProperty("brand"), "fiat");
     Assert.assertEquals(v4.getProperty("name"), "wow");
@@ -71,6 +79,8 @@ public class SQLCreateVertexAndEdgeTest extends BaseMemoryDatabase {
     db.begin();
     OVertex v5 = db.command("create vertex V1 cluster vdefault").next().getVertex().get();
     db.commit();
+
+    v5 = db.bindToSession(v5);
     Assert.assertEquals(v5.getSchemaType().get().getName(), "V1");
     Assert.assertEquals(v5.getIdentity().getClusterId(), vclusterId);
 
@@ -127,7 +137,9 @@ public class SQLCreateVertexAndEdgeTest extends BaseMemoryDatabase {
     Assert.assertEquals(e5.getIdentity().getClusterId(), eclusterId);
   }
 
-  /** from issue #2925 */
+  /**
+   * from issue #2925
+   */
   @Test
   public void testSqlScriptThatCreatesEdge() {
     long start = System.currentTimeMillis();
@@ -163,6 +175,7 @@ public class SQLCreateVertexAndEdgeTest extends BaseMemoryDatabase {
     OVertex v1 = db.command("create vertex").next().getVertex().get();
     db.commit();
 
+    v1 = db.bindToSession(v1);
     Assert.assertEquals(v1.getSchemaType().get().getName(), "V");
 
     ORID vid = v1.getIdentity();

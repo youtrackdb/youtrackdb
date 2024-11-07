@@ -184,7 +184,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
 
       Assert.assertEquals(records, 1);
 
-      ODocument loadedDoc = database.load(doc.getIdentity().get(), "*:-1", true);
+      ODocument loadedDoc = database.load(doc.getIdentity().get(), "*:-1", false);
       Assert.assertEquals(((List<?>) loadedDoc.field("addresses")).size(), 3);
       Assert.assertEquals(
           ((OIdentifiable) ((List<?>) loadedDoc.field("addresses")).get(0))

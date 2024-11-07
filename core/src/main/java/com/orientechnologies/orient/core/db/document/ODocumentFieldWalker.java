@@ -58,11 +58,13 @@ public class ODocumentFieldWalker {
       ODatabaseSession session, ODocument document, ODocumentFieldVisitor fieldWalker) {
     final Set<ODocument> walked = Collections.newSetFromMap(new IdentityHashMap<>());
 
-    if (!document.getIdentity().isValid()) {
-      return document;
+    ODocument doc;
+    if (document.getIdentity().isValid()) {
+      doc = session.bindToSession(document);
+    } else {
+      doc = document;
     }
 
-    var doc = session.bindToSession(document);
     walkDocument(session, doc, fieldWalker, walked);
     walked.clear();
     return doc;

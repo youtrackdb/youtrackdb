@@ -30,7 +30,6 @@ import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexInternal;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
-import com.orientechnologies.orient.core.metadata.OMetadataDefault;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
@@ -83,10 +82,6 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
     this.databaseTwo = databaseTwo;
 
     // exclude automatically generated clusters
-    excludeClusters.add("orids");
-    excludeClusters.add(OMetadataDefault.CLUSTER_INDEX_NAME);
-    excludeClusters.add(OMetadataDefault.CLUSTER_MANUAL_INDEX_NAME);
-
     excludeIndexes.add(ODatabaseImport.EXPORT_IMPORT_INDEX_NAME);
 
     final OSchema schema = databaseTwo.getMetadata().getSchema();
@@ -96,7 +91,6 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
       final int[] clusterIds = cls.getClusterIds();
       for (final int clusterId : clusterIds) {
         final String clusterName = databaseTwo.getClusterNameById(clusterId);
-        excludeClusters.add(clusterName);
       }
 
       clusterDifference = clusterIds.length;
@@ -110,10 +104,6 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
 
   public void addExcludeIndexes(String index) {
     excludeIndexes.add(index);
-  }
-
-  public void addExcludeClusters(String cluster) {
-    excludeClusters.add(cluster);
   }
 
   public boolean compare() {
@@ -698,18 +688,6 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
 
     for (final String clusterName : clusterNames1) {
       // CHECK IF THE CLUSTER IS INCLUDED
-      if (includeClusters != null) {
-        if (!includeClusters.contains(clusterName)) {
-          continue;
-        }
-      } else {
-        if (excludeClusters != null) {
-          if (excludeClusters.contains(clusterName)) {
-            continue;
-          }
-        }
-      }
-
       ok = true;
       final int cluster1Id =
           makeDbCall(databaseTwo, database -> database.getClusterIdByName(clusterName));
@@ -778,18 +756,6 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
 
     for (final String clusterName : clusterNames1) {
       // CHECK IF THE CLUSTER IS INCLUDED
-      if (includeClusters != null) {
-        if (!includeClusters.contains(clusterName)) {
-          continue;
-        }
-      } else {
-        if (excludeClusters != null) {
-          if (excludeClusters.contains(clusterName)) {
-            continue;
-          }
-        }
-      }
-
       final int clusterId1 =
           makeDbCall(databaseOne, database -> database.getClusterIdByName(clusterName));
 
@@ -853,18 +819,12 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
                 makeDbCall(
                     databaseOne,
                     database ->
-                        database
-                            .getStorage()
-                            .readRecord(rid1, null, true, false, null)
-                            .getResult());
+                        database.getStorage().readRecord(rid1, true, false, null).getResult());
             final ORawBuffer buffer2 =
                 makeDbCall(
                     databaseTwo,
                     database ->
-                        database
-                            .getStorage()
-                            .readRecord(rid2, null, true, false, null)
-                            .getResult());
+                        database.getStorage().readRecord(rid2, true, false, null).getResult());
 
             //noinspection StatementWithEmptyBody
             if (buffer1 == null && buffer2 == null) {

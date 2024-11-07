@@ -71,15 +71,17 @@ public class PredicateSecurityTest {
 
   @Test
   public void testCreate() {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
 
+    db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(true);
     policy.setCreateRule("name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "writer"), "database.class.Person", policy);
+    db.commit();
 
     db.close();
     this.db =
@@ -107,15 +109,17 @@ public class PredicateSecurityTest {
 
   @Test
   public void testSqlCreate() throws InterruptedException {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
 
+    db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(true);
     policy.setCreateRule("name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "writer"), "database.class.Person", policy);
+    db.commit();
 
     db.close();
     Thread.sleep(500);
@@ -138,15 +142,17 @@ public class PredicateSecurityTest {
 
   @Test
   public void testSqlRead() {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
 
+    db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(true);
     policy.setReadRule("name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "reader"), "database.class.Person", policy);
+    db.commit();
 
     db.executeInTx(
         () -> {
@@ -181,11 +187,13 @@ public class PredicateSecurityTest {
     person.createProperty("name", OType.STRING);
     db.command("create index Person.name on Person (name) NOTUNIQUE");
 
+    db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(true);
     policy.setReadRule("name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "reader"), "database.class.Person", policy);
+    db.commit();
 
     db.executeInTx(
         () -> {
@@ -212,17 +220,19 @@ public class PredicateSecurityTest {
 
   @Test
   public void testSqlReadWithIndex2() {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
 
     OClass person = db.createClass("Person");
     person.createProperty("name", OType.STRING);
     db.command("create index Person.name on Person (name) NOTUNIQUE");
 
+    db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(true);
     policy.setReadRule("surname = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "reader"), "database.class.Person", policy);
+    db.commit();
 
     db.executeInTx(
         () -> {
@@ -254,15 +264,17 @@ public class PredicateSecurityTest {
 
   @Test
   public void testBeforeUpdateCreate() throws InterruptedException {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
 
+    db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(true);
     policy.setBeforeUpdateRule("name = 'bar'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "writer"), "database.class.Person", policy);
+    db.commit();
 
     db.close();
     Thread.sleep(500);
@@ -280,6 +292,7 @@ public class PredicateSecurityTest {
             });
 
     try {
+      elem = db.bindToSession(elem);
       elem.setProperty("name", "baz");
       var elemToSave = elem;
       db.executeInTx(() -> db.save(elemToSave));
@@ -294,15 +307,17 @@ public class PredicateSecurityTest {
 
   @Test
   public void testBeforeUpdateCreateSQL() throws InterruptedException {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
 
+    db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(true);
     policy.setBeforeUpdateRule("name = 'bar'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "writer"), "database.class.Person", policy);
+    db.commit();
 
     db.close();
 
@@ -337,21 +352,23 @@ public class PredicateSecurityTest {
     } catch (OSecurityException ex) {
     }
 
-    Assert.assertEquals("foo", elem.getProperty("name"));
+    Assert.assertEquals("foo", db.bindToSession(elem).getProperty("name"));
     return true;
   }
 
   @Test
   public void testAfterUpdate() {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
 
+    db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(true);
     policy.setAfterUpdateRule("name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "writer"), "database.class.Person", policy);
+    db.commit();
 
     db.close();
     this.db =
@@ -368,6 +385,7 @@ public class PredicateSecurityTest {
             });
 
     try {
+      elem = db.bindToSession(elem);
       elem.setProperty("name", "bar");
       var elemToSave = elem;
       db.executeInTx(() -> db.save(elemToSave));
@@ -386,11 +404,13 @@ public class PredicateSecurityTest {
 
     db.createClass("Person");
 
+    db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(true);
     policy.setAfterUpdateRule("name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "writer"), "database.class.Person", policy);
+    db.commit();
 
     db.close();
     this.db =
@@ -414,7 +434,7 @@ public class PredicateSecurityTest {
     } catch (OSecurityException ex) {
     }
 
-    Assert.assertEquals("foo", elem.getProperty("name"));
+    Assert.assertEquals("foo", db.bindToSession(elem).getProperty("name"));
   }
 
   @Test
@@ -423,11 +443,13 @@ public class PredicateSecurityTest {
 
     db.createClass("Person");
 
+    db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(true);
     policy.setDeleteRule("name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "writer"), "database.class.Person", policy);
+    db.commit();
 
     db.close();
     this.db =
@@ -445,7 +467,7 @@ public class PredicateSecurityTest {
 
     try {
       var elemToDelete = elem;
-      db.executeInTx(() -> db.delete(elemToDelete));
+      db.executeInTx(() -> db.delete(db.bindToSession(elemToDelete)));
       Assert.fail();
     } catch (OSecurityException ex) {
     }
@@ -460,7 +482,7 @@ public class PredicateSecurityTest {
             });
 
     var elemToDelete = elem;
-    db.executeInTx(() -> db.delete(elemToDelete));
+    db.executeInTx(() -> db.delete(db.bindToSession(elemToDelete)));
   }
 
   @Test
@@ -469,11 +491,13 @@ public class PredicateSecurityTest {
 
     db.createClass("Person");
 
+    db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(true);
     policy.setDeleteRule("name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "writer"), "database.class.Person", policy);
+    db.commit();
 
     db.close();
     this.db =
@@ -494,9 +518,13 @@ public class PredicateSecurityTest {
           db.save(elem);
         });
 
+    db.begin();
     db.command("delete from Person where name = 'foo'");
+    db.commit();
     try {
+      db.begin();
       db.command("delete from Person where name = 'bar'");
+      db.commit();
       Assert.fail();
     } catch (OSecurityException ex) {
     }
@@ -515,11 +543,13 @@ public class PredicateSecurityTest {
     OClass person = db.createClass("Person");
     person.createProperty("name", OType.STRING);
 
+    db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(true);
     policy.setReadRule("name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "reader"), "database.class.Person", policy);
+    db.commit();
 
     db.executeInTx(
         () -> {
@@ -552,11 +582,13 @@ public class PredicateSecurityTest {
     person.createProperty("name", OType.STRING);
     db.command("create index Person.name on Person (name) NOTUNIQUE");
 
+    db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(true);
     policy.setReadRule("name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "reader"), "database.class.Person", policy);
+    db.commit();
 
     db.executeInTx(
         () -> {
@@ -593,11 +625,13 @@ public class PredicateSecurityTest {
     person.createProperty("name", OType.STRING);
     db.command("create index Person.name on Person (name) NOTUNIQUE");
 
+    db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(true);
     policy.setReadRule("name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "reader"), "database.class.Person", policy);
+    db.commit();
 
     db.executeInTx(
         () -> {

@@ -53,6 +53,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class OIndexManagerRemote implements OIndexManagerAbstract {
+
   private final AtomicBoolean skipPush = new AtomicBoolean(false);
   private static final String QUERY_DROP = "drop index `%s` if exists";
   private final OStorageInfo storage;
@@ -74,15 +75,20 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
       acquireExclusiveLock();
       try {
         if (database.getStorageInfo().getConfiguration().getIndexMgrRecordId() == null)
-          // @COMPATIBILITY: CREATE THE INDEX MGR
+        // @COMPATIBILITY: CREATE THE INDEX MGR
+        {
           create(database);
+        }
 
         // RELOAD IT
         ORecordId id =
             new ORecordId(database.getStorageInfo().getConfiguration().getIndexMgrRecordId());
 
-        ODocument document = database.load(id, "*:-1 index:0", true);
-        fromStream(document);
+        database.executeInTx(
+            () -> {
+              ODocument document = database.load(id, null, false);
+              fromStream(document);
+            });
       } finally {
         releaseExclusiveLock();
       }
@@ -96,9 +102,11 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
       ORecordId id =
           new ORecordId(database.getStorageInfo().getConfiguration().getIndexMgrRecordId());
 
-      ODocument document = database.load(id, "*:-1 index:0", true);
-
-      fromStream(document);
+      database.executeInTx(
+          () -> {
+            ODocument document = database.load(id, null, false);
+            fromStream(document);
+          });
     } finally {
       releaseExclusiveLock();
     }
@@ -136,7 +144,9 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
 
   public OIndex getIndex(ODatabaseSessionInternal database, final String iName) {
     final OIndex index = indexes.get(iName);
-    if (index == null) return null;
+    if (index == null) {
+      return null;
+    }
     return index;
   }
 
@@ -197,8 +207,9 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
 
     final Map<OMultiKey, Set<OIndex>> propertyIndex = getIndexOnProperty(className);
 
-    if (propertyIndex == null || !propertyIndex.containsKey(multiKey))
+    if (propertyIndex == null || !propertyIndex.containsKey(multiKey)) {
       return Collections.emptySet();
+    }
 
     final Set<OIndex> rawResult = propertyIndex.get(multiKey);
     final Set<OIndex> transactionalResult = new HashSet<>(rawResult.size());
@@ -223,7 +234,9 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
 
     final Map<OMultiKey, Set<OIndex>> propertyIndex = getIndexOnProperty(className);
 
-    if (propertyIndex == null) return false;
+    if (propertyIndex == null) {
+      return false;
+    }
 
     return propertyIndex.containsKey(multiKey) && !propertyIndex.get(multiKey).isEmpty();
   }
@@ -246,19 +259,27 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
   public void getClassRawIndexes(final String className, final Collection<OIndex> indexes) {
     final Map<OMultiKey, Set<OIndex>> propertyIndex = getIndexOnProperty(className);
 
-    if (propertyIndex == null) return;
+    if (propertyIndex == null) {
+      return;
+    }
 
-    for (final Set<OIndex> propertyIndexes : propertyIndex.values())
+    for (final Set<OIndex> propertyIndexes : propertyIndex.values()) {
       indexes.addAll(propertyIndexes);
+    }
   }
 
   public OIndexUnique getClassUniqueIndex(final String className) {
     final Map<OMultiKey, Set<OIndex>> propertyIndex = getIndexOnProperty(className);
 
-    if (propertyIndex != null)
-      for (final Set<OIndex> propertyIndexes : propertyIndex.values())
-        for (final OIndex index : propertyIndexes)
-          if (index instanceof OIndexUnique) return (OIndexUnique) index;
+    if (propertyIndex != null) {
+      for (final Set<OIndex> propertyIndexes : propertyIndex.values()) {
+        for (final OIndex index : propertyIndexes) {
+          if (index instanceof OIndexUnique) {
+            return (OIndexUnique) index;
+          }
+        }
+      }
+    }
 
     return null;
   }
@@ -271,7 +292,9 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
     if (index != null
         && index.getDefinition() != null
         && index.getDefinition().getClassName() != null
-        && className.equals(index.getDefinition().getClassName().toLowerCase())) return index;
+        && className.equals(index.getDefinition().getClassName().toLowerCase())) {
+      return index;
+    }
     return null;
   }
 
@@ -284,7 +307,9 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
           && OAutoShardingIndexFactory.AUTOSHARDING_ALGORITHM.equals(index.getAlgorithm())
           && index.getDefinition() != null
           && index.getDefinition().getClassName() != null
-          && className.equals(index.getDefinition().getClassName().toLowerCase())) return index;
+          && className.equals(index.getDefinition().getClassName().toLowerCase())) {
+        return index;
+      }
     }
     return null;
   }
@@ -301,7 +326,9 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
     final ODatabaseSessionInternal databaseRecord = getDatabaseIfDefined();
     if (databaseRecord != null && !databaseRecord.isClosed()) {
       final OMetadataInternal metadata = (OMetadataInternal) databaseRecord.getMetadata();
-      if (metadata != null) metadata.makeThreadLocalSchemaSnapshot();
+      if (metadata != null) {
+        metadata.makeThreadLocalSchemaSnapshot();
+      }
     }
     lock.writeLock().lock();
   }
@@ -312,7 +339,9 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
     final ODatabaseSessionInternal databaseRecord = getDatabaseIfDefined();
     if (databaseRecord != null && !databaseRecord.isClosed()) {
       final OMetadata metadata = databaseRecord.getMetadata();
-      if (metadata != null) ((OMetadataInternal) metadata).clearThreadLocalSchemaSnapshot();
+      if (metadata != null) {
+        ((OMetadataInternal) metadata).clearThreadLocalSchemaSnapshot();
+      }
     }
   }
 
@@ -340,7 +369,9 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
       indexes.put(index.getName(), index);
 
       final OIndexDefinition indexDefinition = index.getDefinition();
-      if (indexDefinition == null || indexDefinition.getClassName() == null) return;
+      if (indexDefinition == null || indexDefinition.getClassName() == null) {
+        return;
+      }
 
       Map<OMultiKey, Set<OIndex>> propertyIndex =
           getIndexOnProperty(indexDefinition.getClassName());
@@ -358,8 +389,11 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
         final OMultiKey multiKey = new OMultiKey(fields);
         Set<OIndex> indexSet = propertyIndex.get(multiKey);
 
-        if (indexSet == null) indexSet = new HashSet<>();
-        else indexSet = new HashSet<>(indexSet);
+        if (indexSet == null) {
+          indexSet = new HashSet<>();
+        } else {
+          indexSet = new HashSet<>(indexSet);
+        }
 
         indexSet.add(index);
         propertyIndex.put(multiKey, indexSet);
@@ -409,21 +443,28 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
       String engine) {
 
     String createIndexDDL;
-    if (iIndexDefinition != null)
+    if (iIndexDefinition != null) {
       createIndexDDL = iIndexDefinition.toCreateIndexDDL(iName, iType, engine);
-    else createIndexDDL = new OSimpleKeyIndexDefinition().toCreateIndexDDL(iName, iType, engine);
+    } else {
+      createIndexDDL = new OSimpleKeyIndexDefinition().toCreateIndexDDL(iName, iType, engine);
+    }
 
-    if (metadata != null)
+    if (metadata != null) {
       createIndexDDL +=
           " " + OCommandExecutorSQLCreateIndex.KEYWORD_METADATA + " " + metadata.toJSON();
+    }
 
     acquireExclusiveLock();
     try {
-      if (progressListener != null) progressListener.onBegin(this, 0, false);
+      if (progressListener != null) {
+        progressListener.onBegin(this, 0, false);
+      }
 
       database.command(createIndexDDL).close();
 
-      if (progressListener != null) progressListener.onCompletition(this, true);
+      if (progressListener != null) {
+        progressListener.onCompletition(this, true);
+      }
 
       reload();
 
@@ -505,7 +546,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
       OIndexDefinition indexDefinition,
       ORID identity,
       ODocument configuration) {
-    if (isMultiValueIndex)
+    if (isMultiValueIndex) {
       return new OIndexRemoteMultiValue(
           name,
           type,
@@ -515,6 +556,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
           configuration,
           clustersToIndex,
           getStorage().getName());
+    }
 
     return new OIndexRemoteOneValue(
         name,

@@ -26,7 +26,9 @@ public class ODropUserStatementExecutionTest extends BaseMemoryDatabase {
     Assert.assertEquals("admin", roles.get(0));
     result.close();
 
+    db.begin();
     result = db.command("DROP USER test");
+    db.commit();
     result.close();
 
     result = db.query("SELECT name, roles.name as roles FROM OUser WHERE name = 'test'");

@@ -1643,7 +1643,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     document.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
-    document = database.load(document.getIdentity(), "*:-1", true);
+    document = database.load(document.getIdentity(), "*:-1", false);
     ridBag = document.field("ridBag");
     Assert.assertEquals(ridBag.size(), size);
 

@@ -870,7 +870,7 @@ public class IndexTest extends ObjectDBBaseTest {
         // do delete
         db.begin();
         for (final ODocument recordToDelete : recordsToDelete) {
-          Assert.assertNotNull(db.delete(recordToDelete));
+          db.delete(recordToDelete);
         }
         db.commit();
 

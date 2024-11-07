@@ -1,5 +1,6 @@
 package com.orientechnologies.orient.core.metadata.security;
 
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
@@ -19,6 +20,9 @@ public class OSecurityPolicyImpl implements OSecurityPolicy {
   }
 
   public OElement getElement() {
+    if (element.isUnloaded()) {
+      element = ODatabaseSession.getActiveSession().bindToSession(element);
+    }
     return element;
   }
 
@@ -27,77 +31,83 @@ public class OSecurityPolicyImpl implements OSecurityPolicy {
   }
 
   public String getName() {
-    return element.getProperty("name");
+    return getElement().getProperty("name");
   }
 
   public void setName(String name) {
-    element.setProperty("name", name);
+    getElement().setProperty("name", name);
   }
 
   public boolean isActive() {
-    return Boolean.TRUE.equals(this.element.getProperty("active"));
+    return Boolean.TRUE.equals(this.getElement().getProperty("active"));
   }
 
   public void setActive(Boolean active) {
-    this.element.setProperty("active", active);
+    this.getElement().setProperty("active", active);
   }
 
   public String getCreateRule() {
+    var element = getElement();
     return element == null ? null : element.getProperty("create");
   }
 
   public void setCreateRule(String rule) throws IllegalArgumentException {
     validatePredicate(rule);
-    element.setProperty("create", rule);
+    getElement().setProperty("create", rule);
   }
 
   public String getReadRule() {
+    var element = getElement();
     return element == null ? null : element.getProperty("read");
   }
 
   public void setReadRule(String rule) throws IllegalArgumentException {
     validatePredicate(rule);
-    element.setProperty("read", rule);
+    getElement().setProperty("read", rule);
   }
 
   public String getBeforeUpdateRule() {
+    var element = getElement();
     return element == null ? null : element.getProperty("beforeUpdate");
   }
 
   public void setBeforeUpdateRule(String rule) throws IllegalArgumentException {
     validatePredicate(rule);
-    element.setProperty("beforeUpdate", rule);
+    getElement().setProperty("beforeUpdate", rule);
   }
 
   public String getAfterUpdateRule() {
+    var element = getElement();
     return element == null ? null : element.getProperty("afterUpdate");
   }
 
   public void setAfterUpdateRule(String rule) throws IllegalArgumentException {
     validatePredicate(rule);
-    element.setProperty("afterUpdate", rule);
+    getElement().setProperty("afterUpdate", rule);
   }
 
   public String getDeleteRule() {
+    var element = getElement();
     return element == null ? null : element.getProperty("delete");
   }
 
   public void setDeleteRule(String rule) throws IllegalArgumentException {
     validatePredicate(rule);
-    element.setProperty("delete", rule);
+    getElement().setProperty("delete", rule);
   }
 
   public String getExecuteRule() {
+    var element = getElement();
     return element == null ? null : element.getProperty("execute");
   }
 
   public void setExecuteRule(String rule) throws IllegalArgumentException {
     validatePredicate(rule);
-    element.setProperty("execute", rule);
+    getElement().setProperty("execute", rule);
   }
 
   protected static void validatePredicate(String predicate) throws IllegalArgumentException {
-    if (predicate == null || predicate.trim().length() == 0) {
+    if (predicate == null || predicate.trim().isEmpty()) {
       return;
     }
     try {

@@ -63,7 +63,9 @@ public class ODeleteStatementTest extends BaseMemoryDatabase {
     bar.save();
     db.commit();
 
+    db.begin();
     db.command("delete from (select expand(arr) from Bar) where k = 'key2'").close();
+    db.commit();
 
     try (OResultSet result = db.query("select from Foo")) {
       Assert.assertNotNull(result);

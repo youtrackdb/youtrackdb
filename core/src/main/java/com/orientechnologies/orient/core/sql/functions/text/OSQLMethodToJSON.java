@@ -18,6 +18,7 @@ package com.orientechnologies.orient.core.sql.functions.text;
 
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -62,9 +63,12 @@ public class OSQLMethodToJSON extends OAbstractSQLMethod {
     }
     if (iThis instanceof ORecord) {
 
-      final ORecord record = (ORecord) iThis;
-      return iParams.length == 1 ? record.toJSON(format) : record.toJSON();
+      ORecord record = (ORecord) iThis;
+      if (record.isUnloaded()) {
+        record = ODatabaseSession.getActiveSession().bindToSession(record);
+      }
 
+      return iParams.length == 1 ? record.toJSON(format) : record.toJSON();
     } else if (iThis instanceof Map) {
 
       final ODocument doc = new ODocument().fromMap((Map<String, Object>) iThis);

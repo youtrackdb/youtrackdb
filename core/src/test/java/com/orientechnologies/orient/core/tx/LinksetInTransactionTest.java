@@ -29,6 +29,8 @@ public class LinksetInTransactionTest extends BaseMemoryDatabase {
 
     /* Only in transaction - without transaction all OK */
     db.begin();
+    withLinks1 = db.bindToSession(withLinks1);
+    link1 = db.bindToSession(link1);
 
     /* Add a new linked record */
     OElement link2 = db.newInstance("Linked");
@@ -51,6 +53,7 @@ public class LinksetInTransactionTest extends BaseMemoryDatabase {
     Assert.assertTrue(links.size() == 0);
     db.commit();
 
+    withLinks1 = db.bindToSession(withLinks1);
     links = withLinks1.getProperty("links");
     /* Initial record was removed */
     Assert.assertFalse(links.contains(link1));

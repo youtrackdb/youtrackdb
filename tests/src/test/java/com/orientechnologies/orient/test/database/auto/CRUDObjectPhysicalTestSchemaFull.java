@@ -1288,8 +1288,6 @@ public class CRUDObjectPhysicalTestSchemaFull extends ObjectDBBaseTest {
     database.setLazyLoading(false);
     for (JavaComplexTestClass reloaded :
         database.browseClass(JavaComplexTestClass.class).setFetchPlan("*:-1")) {
-      database.reload(reloaded);
-
       database.begin();
       Child c4 = database.newInstance(Child.class);
       c4.setName("The Observer");
@@ -1302,7 +1300,6 @@ public class CRUDObjectPhysicalTestSchemaFull extends ObjectDBBaseTest {
     database = createSessionInstance();
     for (JavaComplexTestClass reloaded :
         database.browseClass(JavaComplexTestClass.class).setFetchPlan("*:-1")) {
-      database.reload(reloaded);
       Assert.assertTrue(reloaded.getChildren().containsKey("The Observer"));
       Assert.assertTrue(reloaded.getChildren().get("The Observer") != null);
       Assert.assertEquals(reloaded.getChildren().get("The Observer").getName(), "The Observer");
@@ -1365,8 +1362,6 @@ public class CRUDObjectPhysicalTestSchemaFull extends ObjectDBBaseTest {
     database.setLazyLoading(false);
     for (JavaComplexTestClass reloaded :
         database.browseClass(JavaComplexTestClass.class).setFetchPlan("*:-1")) {
-      database.reload(reloaded);
-
       Child c4 = new Child();
       c4.setName("The Observer");
 
@@ -1380,7 +1375,6 @@ public class CRUDObjectPhysicalTestSchemaFull extends ObjectDBBaseTest {
     database = createSessionInstance();
     for (JavaComplexTestClass reloaded :
         database.browseClass(JavaComplexTestClass.class).setFetchPlan("*:-1")) {
-      database.reload(reloaded);
       Assert.assertTrue(reloaded.getChildren().containsKey("The Observer"));
       Assert.assertTrue(reloaded.getChildren().get("The Observer") != null);
       Assert.assertEquals(reloaded.getChildren().get("The Observer").getName(), "The Observer");

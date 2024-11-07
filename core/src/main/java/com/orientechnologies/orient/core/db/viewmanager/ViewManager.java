@@ -411,7 +411,6 @@ public class ViewManager {
       String originRidField,
       String clusterName,
       List<OIndex> indexes) {
-    db.getLocalCache().clear();
     int iterationCount = 0;
     try (OResultSet rs = db.query(query)) {
       db.begin();
@@ -658,6 +657,7 @@ public class ViewManager {
         OElement viewRow, OResult origin, OView view, ODatabaseSessionInternal db) {
       db.executeInTx(
           () -> {
+            var boundRow = db.bindToSession(viewRow);
             OStatement stm = OStatementCache.get(view.getQuery(), db);
             if (stm instanceof OSelectStatement) {
               OProjection projection = ((OSelectStatement) stm).getProjection();
@@ -670,15 +670,15 @@ public class ViewManager {
                     continue;
                   }
                   Object value = origin.getProperty(s);
-                  viewRow.setProperty(s, value);
+                  boundRow.setProperty(s, value);
                 }
               } else {
                 for (OProjectionItem oProjectionItem : projection.getItems()) {
                   Object value = oProjectionItem.execute(origin, new OBasicCommandContext());
-                  viewRow.setProperty(oProjectionItem.getProjectionAliasAsString(), value);
+                  boundRow.setProperty(oProjectionItem.getProjectionAliasAsString(), value);
                 }
               }
-              viewRow.save();
+              boundRow.save();
             }
           });
     }

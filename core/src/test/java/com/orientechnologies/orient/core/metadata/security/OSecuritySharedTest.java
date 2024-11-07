@@ -1,7 +1,6 @@
 package com.orientechnologies.orient.core.metadata.security;
 
 import com.orientechnologies.BaseMemoryDatabase;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -9,41 +8,54 @@ public class OSecuritySharedTest extends BaseMemoryDatabase {
 
   @Test
   public void testCreateSecurityPolicy() {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
+    db.begin();
     security.createSecurityPolicy(db, "testPolicy");
+    db.commit();
     Assert.assertNotNull(security.getSecurityPolicy(db, "testPolicy"));
   }
 
   @Test
   public void testDeleteSecurityPolicy() {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
+    db.begin();
     security.createSecurityPolicy(db, "testPolicy");
+    db.commit();
+
+    db.begin();
     security.deleteSecurityPolicy(db, "testPolicy");
+    db.commit();
+
     Assert.assertNull(security.getSecurityPolicy(db, "testPolicy"));
   }
 
   @Test
   public void testUpdateSecurityPolicy() {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
+    db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(true);
     policy.setReadRule("name = 'foo'");
     security.saveSecurityPolicy(db, policy);
+    db.commit();
+
     Assert.assertTrue(security.getSecurityPolicy(db, "testPolicy").isActive());
     Assert.assertEquals("name = 'foo'", security.getSecurityPolicy(db, "testPolicy").getReadRule());
   }
 
   @Test
   public void testBindPolicyToRole() {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
 
+    db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(true);
     policy.setReadRule("name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "reader"), "database.class.Person", policy);
+    db.commit();
 
     Assert.assertEquals(
         "testPolicy",
@@ -55,16 +67,21 @@ public class OSecuritySharedTest extends BaseMemoryDatabase {
 
   @Test
   public void testUnbindPolicyFromRole() {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
 
+    db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(true);
     policy.setReadRule("name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "reader"), "database.class.Person", policy);
+    db.commit();
+
+    db.begin();
     security.removeSecurityPolicy(db, security.getRole(db, "reader"), "database.class.Person");
+    db.commit();
 
     Assert.assertNull(
         security

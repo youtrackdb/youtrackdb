@@ -324,7 +324,7 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
     coreDoc.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
-    ODocument coreDocCopy = database.load(coreDoc.getIdentity(), "*:-1", true);
+    ODocument coreDocCopy = database.load(coreDoc.getIdentity(), null, false);
     Assert.assertNotSame(coreDocCopy, coreDoc);
 
     coreDocCopy.setLazyLoad(false);
@@ -882,7 +882,7 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
     testClass2Document.save("testCreateEmbddedClass2" + SUFFIX);
     database.commit();
 
-    testClass2Document = database.load(testClass2Document.getIdentity(), "*:-1", true);
+    testClass2Document = database.load(testClass2Document.getIdentity(), null, false);
     Assert.assertNotNull(testClass2Document);
 
     Assert.assertEquals(testClass2Document.getSchemaClass(), testClass2);
@@ -1009,7 +1009,6 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
     } catch (Exception ignored) {
     }
     // CLEAR L1 CACHE, THIS WILL PUT IT IN L2 CACHE
-    database.getLocalCache().clear();
     try {
       // LOAD DOCUMENT, CHECK BEFORE GETTING IT FROM L2 CACHE
       doc = database.load(docRid, "invalid");

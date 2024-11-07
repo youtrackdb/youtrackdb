@@ -27,7 +27,9 @@ import java.util.stream.Stream;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.memory.MemoryIndex;
 
-/** Created by frank on 15/01/2017. */
+/**
+ * Created by frank on 15/01/2017.
+ */
 public class OLuceneSearchOnClassFunction extends OLuceneSearchFunctionTemplate {
 
   public static final String NAME = "search_class";
@@ -72,7 +74,9 @@ public class OLuceneSearchOnClassFunction extends OLuceneSearchFunctionTemplate 
 
     OLuceneFullTextIndex index = searchForIndex(ctx, className);
 
-    if (index == null) return false;
+    if (index == null) {
+      return false;
+    }
 
     String query = (String) params[0];
 
@@ -164,8 +168,9 @@ public class OLuceneSearchOnClassFunction extends OLuceneSearchFunctionTemplate 
   }
 
   private OLuceneFullTextIndex searchForIndex(OCommandContext ctx, String className) {
-    OMetadataInternal dbMetadata =
-        (OMetadataInternal) ctx.getDatabase().activateOnCurrentThread().getMetadata();
+    var db = ctx.getDatabase();
+    db.activateOnCurrentThread();
+    OMetadataInternal dbMetadata = db.getMetadata();
 
     List<OLuceneFullTextIndex> indices =
         dbMetadata.getImmutableSchemaSnapshot().getClass(className).getIndexes().stream()

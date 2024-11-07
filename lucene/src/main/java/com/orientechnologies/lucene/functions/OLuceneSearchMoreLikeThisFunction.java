@@ -41,7 +41,9 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 
-/** Created by frank on 15/01/2017. */
+/**
+ * Created by frank on 15/01/2017.
+ */
 public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
     implements OIndexableSQLFunction {
 
@@ -82,7 +84,9 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
 
     OLuceneFullTextIndex index = this.searchForIndex(target, ctx);
 
-    if (index == null) return Collections.emptySet();
+    if (index == null) {
+      return Collections.emptySet();
+    }
 
     IndexSearcher searcher = index.searcher();
 
@@ -242,8 +246,9 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
                           String property = element.getProperty(fieldName);
                           try {
                             Query fieldQuery = mlt.like(fieldName, new StringReader(property));
-                            if (!fieldQuery.toString().isEmpty())
+                            if (!fieldQuery.toString().isEmpty()) {
                               queryBuilder.add(fieldQuery, Occur.SHOULD);
+                            }
                           } catch (IOException e) {
                             // FIXME handle me!
                             OLogManager.instance()
@@ -269,8 +274,9 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
   }
 
   private OLuceneFullTextIndex searchForIndex(OCommandContext ctx, String className) {
-    OMetadataInternal dbMetadata =
-        (OMetadataInternal) ctx.getDatabase().activateOnCurrentThread().getMetadata();
+    var db = ctx.getDatabase();
+    db.activateOnCurrentThread();
+    OMetadataInternal dbMetadata = db.getMetadata();
 
     List<OLuceneFullTextIndex> indices =
         dbMetadata.getImmutableSchemaSnapshot().getClass(className).getIndexes().stream()
@@ -294,7 +300,9 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
       OExpression... args) {
     OLuceneFullTextIndex index = this.searchForIndex(target, ctx);
 
-    if (index != null) return index.size();
+    if (index != null) {
+      return index.size();
+    }
     return 0;
   }
 

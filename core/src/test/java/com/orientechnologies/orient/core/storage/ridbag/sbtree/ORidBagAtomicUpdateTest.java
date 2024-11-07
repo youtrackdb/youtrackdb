@@ -55,6 +55,9 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
 
     db.begin();
 
+    rootDoc = db.bindToSession(rootDoc);
+    ridBag = rootDoc.field("ridBag");
+
     ODocument docOne = new ODocument();
     ODocument docTwo = new ODocument();
 
@@ -74,7 +77,8 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
   @Test
   public void testAddTwoNewDocumentsWithCME() throws Exception {
     db.begin();
-    final ODocument cmeDoc = new ODocument();
+
+    ODocument cmeDoc = new ODocument();
     cmeDoc.save(db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
 
@@ -88,11 +92,16 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
     db.commit();
 
     db.begin();
+    cmeDoc = db.bindToSession(cmeDoc);
     cmeDoc.field("v", "v");
     cmeDoc.save(db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
 
     db.begin();
+
+    cmeDoc = db.bindToSession(cmeDoc);
+    rootDoc = db.bindToSession(rootDoc);
+    ridBag = rootDoc.field("ridBag");
 
     cmeDoc.field("v", "v234");
     cmeDoc.save(db.getClusterNameById(db.getDefaultClusterId()));
@@ -138,10 +147,9 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
 
     long recordsCount = db.countClusterElements(db.getDefaultClusterId());
 
-    rootDoc = db.load(rootDoc.getIdentity());
-    ridBag = rootDoc.field("ridBag");
-
     db.begin();
+    rootDoc = db.bindToSession(rootDoc);
+    ridBag = rootDoc.field("ridBag");
 
     ODocument docThree = new ODocument();
     ODocument docFour = new ODocument();
@@ -185,6 +193,9 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
     final int version = rootDoc.getVersion();
 
     db.begin();
+    rootDoc = db.bindToSession(rootDoc);
+    ridBag = rootDoc.field("ridBag");
+
     ODocument docTwo = new ODocument();
     ridBag.add(docTwo);
 
@@ -221,6 +232,9 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
     final int version = rootDoc.getVersion();
 
     db.begin();
+    rootDoc = db.bindToSession(rootDoc);
+    ridBag = rootDoc.field("ridBag");
+
     ODocument docTwo = new ODocument();
     ridBag.add(docTwo);
 
@@ -240,7 +254,7 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
   @Test
   public void testAddTwoAdditionalNewDocumentsWithCME() throws Exception {
     db.begin();
-    final ODocument cmeDoc = new ODocument();
+    ODocument cmeDoc = new ODocument();
     cmeDoc.save(db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
 
@@ -263,11 +277,12 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
 
     long recordsCount = db.countClusterElements(db.getDefaultClusterId());
 
-    rootDoc = db.load(rootDoc.getIdentity());
-    db.getLocalCache().clear();
-
     db.begin();
+
+    cmeDoc = db.bindToSession(cmeDoc);
     cmeDoc.field("v", "v");
+
+    rootDoc = db.load(rootDoc.getIdentity());
     ridBag = rootDoc.field("ridBag");
 
     ODocument docThree = new ODocument();
@@ -351,6 +366,8 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
     ridBag = rootDoc.field("ridBag");
 
     db.begin();
+    rootDoc = db.bindToSession(rootDoc);
+    ridBag = rootDoc.field("ridBag");
 
     ODocument docThree = new ODocument();
     docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
@@ -381,7 +398,7 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
   @Test
   public void testAddTwoAdditionalSavedDocumentsWithCME() throws Exception {
     db.begin();
-    final ODocument cmeDoc = new ODocument();
+    ODocument cmeDoc = new ODocument();
     cmeDoc.save(db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
 
@@ -409,6 +426,7 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
 
     db.begin();
 
+    cmeDoc = db.bindToSession(cmeDoc);
     cmeDoc.field("v", "v");
     cmeDoc.save(db.getClusterNameById(db.getDefaultClusterId()));
 
@@ -416,6 +434,9 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
     docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
     ODocument docFour = new ODocument();
     docFour.save(db.getClusterNameById(db.getDefaultClusterId()));
+
+    rootDoc = db.bindToSession(rootDoc);
+    ridBag = rootDoc.field("ridBag");
 
     ridBag.add(docThree);
     ridBag.add(docFour);
@@ -466,16 +487,16 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
     db.commit();
 
     long recordsCount = db.countClusterElements(db.getDefaultClusterId());
-    rootDoc = db.load(rootDoc.getIdentity());
-    ridBag = rootDoc.field("ridBag");
 
     db.begin();
-
     ODocument docThree = new ODocument();
     docThree.save(db.getClusterNameById(db.getDefaultClusterId()));
 
     ODocument docFour = new ODocument();
     docFour.save(db.getClusterNameById(db.getDefaultClusterId()));
+
+    rootDoc = db.bindToSession(rootDoc);
+    ridBag = rootDoc.field("ridBag");
 
     ridBag.add(docThree);
     ridBag.add(docFour);
@@ -525,7 +546,7 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
   @Test
   public void testAddInternalDocumentsAndSubDocumentsWithCME() throws Exception {
     db.begin();
-    final ODocument cmeDoc = new ODocument();
+    ODocument cmeDoc = new ODocument();
     cmeDoc.save(db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
 
@@ -549,11 +570,9 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
     db.commit();
 
     long recordsCount = db.countClusterElements(db.getDefaultClusterId());
-    rootDoc = db.load(rootDoc.getIdentity());
-    ridBag = rootDoc.field("ridBag");
 
     db.begin();
-
+    cmeDoc = db.bindToSession(cmeDoc);
     cmeDoc.field("v", "v2");
     cmeDoc.save();
 
@@ -562,6 +581,9 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
 
     ODocument docFour = new ODocument();
     docFour.save(db.getClusterNameById(db.getDefaultClusterId()));
+
+    rootDoc = db.bindToSession(rootDoc);
+    ridBag = rootDoc.field("ridBag");
 
     ridBag.add(docThree);
     ridBag.add(docFour);
@@ -614,133 +636,6 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
   }
 
   @Test
-  public void testRandomModificationsNotTx() {
-    final long seed = System.currentTimeMillis();
-    System.out.println("testRandomModificationsNotTx seed: " + seed);
-
-    final Random rnd = new Random(seed);
-    final int iterations = 20;
-    for (int n = 0; n < iterations; n++) {
-      final int amountOfAddedDocs = rnd.nextInt(10) + 10;
-      final int amountOfAddedDocsAfterSave = rnd.nextInt(5) + 5;
-      final int amountOfDeletedDocs = rnd.nextInt(5) + 5;
-
-      List<OIdentifiable> addedDocuments = new ArrayList<OIdentifiable>();
-
-      ODocument document = new ODocument();
-      ORidBag ridBag = new ORidBag();
-      document.field("ridBag", ridBag);
-
-      for (int i = 0; i < amountOfAddedDocs; i++) {
-        db.begin();
-        final ODocument docToAdd = new ODocument();
-        docToAdd.save(db.getClusterNameById(db.getDefaultClusterId()));
-        db.commit();
-        addedDocuments.add(docToAdd.getIdentity());
-        ridBag.add(docToAdd);
-      }
-
-      db.begin();
-      document.save(db.getClusterNameById(db.getDefaultClusterId()));
-      db.commit();
-
-      db.getLocalCache().clear();
-      ODocument staleDocument = db.load(document.getIdentity());
-      ORidBag staleRidBag = staleDocument.field("ridBag");
-
-      Assert.assertNotSame(document, staleDocument);
-      Assert.assertNotSame(ridBag, staleRidBag);
-
-      int k = 0;
-      Iterator<OIdentifiable> iterator = staleRidBag.iterator();
-      while (k < amountOfDeletedDocs && iterator.hasNext()) {
-        iterator.next();
-        if (rnd.nextBoolean()) {
-          iterator.remove();
-          k++;
-        }
-
-        if (!iterator.hasNext()) {
-          iterator = staleRidBag.iterator();
-        }
-      }
-
-      for (k = 0; k < amountOfAddedDocsAfterSave; k++) {
-        db.begin();
-        ODocument docToAdd = new ODocument();
-        docToAdd.save(db.getClusterNameById(db.getDefaultClusterId()));
-        db.commit();
-
-        staleRidBag.add(docToAdd);
-        addedDocuments.add(docToAdd);
-      }
-
-      Assert.assertEquals(staleRidBag.size(), addedDocuments.size() - amountOfDeletedDocs);
-
-      db.begin();
-      document.setDirty();
-      document.save(db.getClusterNameById(db.getDefaultClusterId()));
-      staleDocument.save(db.getClusterNameById(db.getDefaultClusterId()));
-      db.commit();
-
-      document = db.load(document.getIdentity());
-      ridBag = document.field("ridBag");
-
-      Assert.assertEquals(ridBag.size(), addedDocuments.size() - amountOfDeletedDocs);
-      iterator = ridBag.iterator();
-      while (iterator.hasNext()) {
-        Assert.assertTrue(addedDocuments.contains(iterator.next()));
-      }
-    }
-  }
-
-  @Test
-  public void testVisibility() {
-    db.begin();
-    ODocument document = new ODocument();
-    ORidBag ridBag = new ORidBag();
-
-    document.field("ridBag", ridBag);
-    ODocument docOne = new ODocument();
-    docOne.save(db.getClusterNameById(db.getDefaultClusterId()));
-
-    ODocument docTwo = new ODocument();
-    docTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
-
-    ridBag.add(docOne);
-    ridBag.add(docTwo);
-
-    document.save(db.getClusterNameById(db.getDefaultClusterId()));
-    db.commit();
-
-    ODocument copyOne = db.load(document.getIdentity());
-
-    db.getLocalCache().clear();
-    ODocument copyTwo = db.load(document.getIdentity());
-
-    Assert.assertNotSame(copyOne, copyTwo);
-
-    ORidBag ridBagOne = copyOne.field("ridBag");
-    ORidBag ridBagTwo = copyTwo.field("ridBag");
-
-    db.begin();
-    ODocument docTree = new ODocument();
-    docTree.save(db.getClusterNameById(db.getDefaultClusterId()));
-
-    ODocument docFour = new ODocument();
-    docFour.save(db.getClusterNameById(db.getDefaultClusterId()));
-    db.commit();
-
-    ridBagOne.remove(docOne);
-
-    ridBagOne.add(docTree);
-    ridBagTwo.add(docFour);
-
-    Assert.assertEquals(ridBagOne.size(), 2);
-    Assert.assertEquals(ridBagTwo.size(), 3);
-  }
-
-  @Test
   public void testRandomChangedInTxLevel2() {
     testRandomChangedInTx(2);
   }
@@ -774,8 +669,8 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
 
     rootDoc = db.load(rootDoc.getIdentity());
     db.begin();
-    deleteDocsForLevel(amountOfDeletedDocsPerLevel, 0, levels, rootDoc, rnd);
-    addDocsForLevel(amountOfAddedDocsAfterSavePerLevel, 0, levels, rootDoc);
+    deleteDocsForLevel(db, amountOfDeletedDocsPerLevel, 0, levels, rootDoc, rnd);
+    addDocsForLevel(db, amountOfAddedDocsAfterSavePerLevel, 0, levels, rootDoc);
     db.rollback();
 
     rootDoc = db.load(rootDoc.getIdentity());
@@ -785,7 +680,7 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
   @Test
   public void testRandomChangedInTxWithCME() throws Exception {
     db.begin();
-    final ODocument cmeDoc = new ODocument();
+    ODocument cmeDoc = new ODocument();
     cmeDoc.save(db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
 
@@ -804,8 +699,8 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
       amountOfDeletedDocsPerLevel.add(rnd.nextInt(5) + 5);
     }
 
-    db.getLocalCache().clear();
     db.begin();
+    cmeDoc = db.bindToSession(cmeDoc);
     cmeDoc.field("v", "v");
     cmeDoc.save(db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
@@ -819,9 +714,10 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
 
     rootDoc = db.load(rootDoc.getIdentity());
     db.begin();
-    deleteDocsForLevel(amountOfDeletedDocsPerLevel, 0, levels, rootDoc, rnd);
-    addDocsForLevel(amountOfAddedDocsAfterSavePerLevel, 0, levels, rootDoc);
+    deleteDocsForLevel(db, amountOfDeletedDocsPerLevel, 0, levels, rootDoc, rnd);
+    addDocsForLevel(db, amountOfAddedDocsAfterSavePerLevel, 0, levels, rootDoc);
 
+    cmeDoc = db.bindToSession(cmeDoc);
     cmeDoc.field("v", "vn");
     cmeDoc.save(db.getClusterNameById(db.getDefaultClusterId()));
 
@@ -852,6 +748,7 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
     db.commit();
 
     db.begin();
+    document = db.bindToSession(document);
     ridBag = document.field("ridBag");
     for (int i = 0; i < 3; i++) {
       ODocument docToAdd = new ODocument();
@@ -863,6 +760,7 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
     document.save(db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
 
+    document = db.bindToSession(document);
     ridBag = document.field("ridBag");
     Assert.assertEquals(docsToAdd.size(), 3);
     Assert.assertTrue(ridBag.isEmbedded());
@@ -871,6 +769,9 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
     ridBag = document.field("ridBag");
 
     db.begin();
+    document = db.bindToSession(document);
+    ridBag = document.field("ridBag");
+
     for (int i = 0; i < 3; i++) {
       ODocument docToAdd = new ODocument();
       docToAdd.save(db.getClusterNameById(db.getDefaultClusterId()));
@@ -915,6 +816,7 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
     db.commit();
 
     db.begin();
+    document = db.bindToSession(document);
     ridBag = document.field("ridBag");
 
     for (int i = 0; i < 3; i++) {
@@ -933,15 +835,16 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
 
     document = db.load(document.getIdentity());
 
-    db.getLocalCache().clear();
     ODocument staleDocument = db.load(cmeDocument.getIdentity());
     Assert.assertNotSame(staleDocument, cmeDocument);
 
     db.begin();
 
+    cmeDocument = db.bindToSession(cmeDocument);
     cmeDocument.field("v", "v234");
     cmeDocument.save(db.getClusterNameById(db.getDefaultClusterId()));
 
+    document = db.bindToSession(document);
     ridBag = document.field("ridBag");
     for (int i = 0; i < 3; i++) {
       ODocument docToAdd = new ODocument();
@@ -986,6 +889,7 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
     db.commit();
 
     db.begin();
+    document = db.bindToSession(document);
     ridBag = document.field("ridBag");
     for (int i = 0; i < 3; i++) {
       ODocument docToAdd = new ODocument();
@@ -1005,6 +909,7 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
     var rid = document.getIdentity();
 
     db.begin();
+    document = db.bindToSession(document);
     ridBag = document.field("ridBag");
     for (int i = 0; i < 3; i++) {
       ODocument docToAdd = new ODocument();
@@ -1066,6 +971,7 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
     db.commit();
 
     db.begin();
+    document = db.bindToSession(document);
     ridBag = document.field("ridBag");
 
     for (int i = 0; i < 10; i++) {
@@ -1079,6 +985,7 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
 
     db.commit();
 
+    document = db.bindToSession(document);
     ridBag = document.field("ridBag");
     Assert.assertEquals(docsToAdd.size(), 10);
     Assert.assertTrue(!ridBag.isEmbedded());
@@ -1086,6 +993,7 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
     document = db.load(document.getIdentity());
 
     db.begin();
+    document = db.bindToSession(document);
     ridBag = document.field("ridBag");
     for (int i = 0; i < 4; i++) {
       OIdentifiable docToRemove = docsToAdd.get(i);
@@ -1130,6 +1038,7 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
     db.commit();
 
     db.begin();
+    document = db.bindToSession(document);
     ridBag = document.field("ridBag");
 
     for (int i = 0; i < 10; i++) {
@@ -1150,9 +1059,11 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
     document.field("ridBag");
 
     db.begin();
+    cmeDoc = db.bindToSession(cmeDoc);
     cmeDoc.field("v", "sd");
     cmeDoc.save(db.getClusterNameById(db.getDefaultClusterId()));
 
+    document = db.bindToSession(document);
     ridBag = document.field("ridBag");
     for (int i = 0; i < 4; i++) {
       OIdentifiable docToRemove = docsToAdd.get(i);
@@ -1214,18 +1125,20 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
   }
 
   private void deleteDocsForLevel(
+      ODatabaseSessionInternal db,
       List<Integer> amountOfDeletedDocsPerLevel,
       int level,
       int levels,
       ODocument rootDoc,
       Random rnd) {
+    rootDoc = db.bindToSession(rootDoc);
     ORidBag ridBag = rootDoc.field("ridBag");
     Iterator<OIdentifiable> iter = ridBag.iterator();
     while (iter.hasNext()) {
       OIdentifiable identifiable = iter.next();
       ODocument doc = identifiable.getRecord();
       if (level + 1 < levels) {
-        deleteDocsForLevel(amountOfDeletedDocsPerLevel, level + 1, levels, doc, rnd);
+        deleteDocsForLevel(db, amountOfDeletedDocsPerLevel, level + 1, levels, doc, rnd);
       }
     }
 
@@ -1249,13 +1162,18 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
   }
 
   private void addDocsForLevel(
-      List<Integer> amountOfAddedDocsAfterSavePerLevel, int level, int levels, ODocument rootDoc) {
+      ODatabaseSessionInternal db,
+      List<Integer> amountOfAddedDocsAfterSavePerLevel,
+      int level,
+      int levels,
+      ODocument rootDoc) {
+    rootDoc = db.bindToSession(rootDoc);
     ORidBag ridBag = rootDoc.field("ridBag");
 
     for (OIdentifiable identifiable : ridBag) {
       ODocument doc = identifiable.getRecord();
       if (level + 1 < levels) {
-        addDocsForLevel(amountOfAddedDocsAfterSavePerLevel, level + 1, levels, doc);
+        addDocsForLevel(db, amountOfAddedDocsAfterSavePerLevel, level + 1, levels, doc);
       }
     }
 

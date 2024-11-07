@@ -50,12 +50,15 @@ public class ORevokeStatementExecutionTest {
 
   @Test
   public void testSimple() {
+    db.begin();
     ORole testRole =
         db.getMetadata()
             .getSecurity()
             .createRole("testRole", OSecurityRole.ALLOW_MODES.DENY_ALL_BUT);
     Assert.assertFalse(
         testRole.allow(ORule.ResourceGeneric.SERVER, "server", ORole.PERMISSION_EXECUTE));
+    db.commit();
+
     db.begin();
     db.command("GRANT execute on server.remove to testRole");
     db.commit();
@@ -76,18 +79,24 @@ public class ORevokeStatementExecutionTest {
 
     db.createClass("Person");
 
+    db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(true);
     policy.setReadRule("name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "reader"), "database.class.Person", policy);
+    db.commit();
+
     Assert.assertEquals(
         "testPolicy",
         security
             .getSecurityPolicies(db, security.getRole(db, "reader"))
             .get("database.class.Person")
             .getName());
+    db.begin();
     db.command("REVOKE POLICY ON database.class.Person FROM reader").close();
+    db.commit();
+
     Assert.assertNull(
         security
             .getSecurityPolicies(db, security.getRole(db, "reader"))

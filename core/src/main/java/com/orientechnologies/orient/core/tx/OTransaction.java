@@ -41,7 +41,7 @@ public interface OTransaction {
     ROLLED_BACK
   }
 
-  void begin();
+  int begin();
 
   void commit();
 
@@ -56,12 +56,9 @@ public interface OTransaction {
   @Deprecated
   void clearRecordEntries();
 
-  ORecord loadRecord(ORID iRid, ORecordAbstract iRecord, String iFetchPlan, boolean ignoreCache);
+  ORecord loadRecord(ORID rid);
 
   boolean exists(ORID rid);
-
-  ORecord reloadRecord(
-      ORID iRid, ORecordAbstract iRecord, String iFetchPlan, boolean ignoreCache, boolean force);
 
   TXSTATUS getStatus();
 

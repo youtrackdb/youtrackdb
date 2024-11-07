@@ -101,7 +101,7 @@ public class TestImportRewriteLinks {
 
         ODatabaseImport.doRewriteLinksInDocument(session, doc, brokenRids);
 
-        Assert.assertEquals(emb1.field("link"), new ORecordId(10, 3));
+        Assert.assertEquals(new ORecordId(10, 3), emb1.field("link"));
         Assert.assertEquals(emb1.field("negativeLink"), new ORecordId(-1, -42));
         Assert.assertNull(emb1.field("brokenLink"));
 

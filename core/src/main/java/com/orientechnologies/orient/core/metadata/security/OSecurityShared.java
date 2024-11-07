@@ -237,14 +237,11 @@ public class OSecurityShared implements OSecurityInternal {
       final ODocument iDocument,
       final String iAllowFieldName,
       final OIdentifiable iId) {
-    return session.computeInTx(
-        () -> {
-          Set<OIdentifiable> field = iDocument.field(iAllowFieldName);
-          if (field != null) {
-            field.remove(iId);
-          }
-          return iId;
-        });
+    Set<OIdentifiable> field = iDocument.field(iAllowFieldName);
+    if (field != null) {
+      field.remove(iId);
+    }
+    return iId;
   }
 
   @Override
@@ -328,36 +325,28 @@ public class OSecurityShared implements OSecurityInternal {
   @Override
   public OSecurityUser securityAuthenticate(
       ODatabaseSession session, String userName, String password) {
-    return session.computeInTx(
-        () -> {
-          OSecurityUser user;
-          final String dbName = session.getName();
-          assert !((ODatabaseSessionInternal) session).isRemote();
-          user = security.authenticate(session, userName, password);
+    OSecurityUser user;
+    final String dbName = session.getName();
+    assert !((ODatabaseSessionInternal) session).isRemote();
+    user = security.authenticate(session, userName, password);
 
-          if (user != null) {
-            if (user.getAccountStatus() != OSecurityUser.STATUSES.ACTIVE) {
-              throw new OSecurityAccessException(
-                  dbName, "User '" + user.getName() + "' is not active");
-            }
-          } else {
-            // WAIT A BIT TO AVOID BRUTE FORCE
-            try {
-              Thread.sleep(200);
-            } catch (InterruptedException ignore) {
-              Thread.currentThread().interrupt();
-            }
+    if (user != null) {
+      if (user.getAccountStatus() != OSecurityUser.STATUSES.ACTIVE) {
+        throw new OSecurityAccessException(dbName, "User '" + user.getName() + "' is not active");
+      }
+    } else {
+      // WAIT A BIT TO AVOID BRUTE FORCE
+      try {
+        Thread.sleep(200);
+      } catch (InterruptedException ignore) {
+        Thread.currentThread().interrupt();
+      }
 
-            throw new OSecurityAccessException(
-                dbName,
-                "User or password not valid for username: "
-                    + userName
-                    + ", database: '"
-                    + dbName
-                    + "'");
-          }
-          return user;
-        });
+      throw new OSecurityAccessException(
+          dbName,
+          "User or password not valid for username: " + userName + ", database: '" + dbName + "'");
+    }
+    return user;
   }
 
   @Override
@@ -408,18 +397,15 @@ public class OSecurityShared implements OSecurityInternal {
       final String iUserName,
       final String iUserPassword,
       final String... iRoles) {
-    return session.computeInTx(
-        () -> {
-          final OUser user = new OUser(iUserName, iUserPassword);
+    final OUser user = new OUser(iUserName, iUserPassword);
 
-          if (iRoles != null) {
-            for (String r : iRoles) {
-              user.addRole(r);
-            }
-          }
+    if (iRoles != null) {
+      for (String r : iRoles) {
+        user.addRole(r);
+      }
+    }
 
-          return user.save();
-        });
+    return user.save();
   }
 
   public OUser createUser(
@@ -427,30 +413,24 @@ public class OSecurityShared implements OSecurityInternal {
       final String userName,
       final String userPassword,
       final ORole... roles) {
-    return session.computeInTx(
-        () -> {
-          final OUser user = new OUser(userName, userPassword);
+    final OUser user = new OUser(userName, userPassword);
 
-          if (roles != null) {
-            for (ORole r : roles) {
-              user.addRole(r);
-            }
-          }
+    if (roles != null) {
+      for (ORole r : roles) {
+        user.addRole(r);
+      }
+    }
 
-          return user.save();
-        });
+    return user.save();
   }
 
   public boolean dropUser(final ODatabaseSession session, final String iUserName) {
-    return session.computeInTx(
-        () -> {
-          final Number removed;
-          try (OResultSet res = session.command("delete from OUser where name = ?", iUserName)) {
-            removed = res.next().getProperty("count");
-          }
+    final Number removed;
+    try (OResultSet res = session.command("delete from OUser where name = ?", iUserName)) {
+      removed = res.next().getProperty("count");
+    }
 
-          return removed != null && removed.intValue() > 0;
-        });
+    return removed != null && removed.intValue() > 0;
   }
 
   public ORole getRole(final ODatabaseSession session, final OIdentifiable iRole) {
@@ -470,17 +450,14 @@ public class OSecurityShared implements OSecurityInternal {
       return null;
     }
 
-    return session.computeInTx(
-        () -> {
-          try (final OResultSet result =
-              session.query("select from ORole where name = ? limit 1", iRoleName)) {
-            if (result.hasNext()) {
-              return new ORole((ODocument) result.next().getElement().get());
-            }
-          }
+    try (final OResultSet result =
+        session.query("select from ORole where name = ? limit 1", iRoleName)) {
+      if (result.hasNext()) {
+        return new ORole((ODocument) result.next().getElement().get());
+      }
+    }
 
-          return null;
-        });
+    return null;
   }
 
   public ORID getRoleRID(final ODatabaseSession session, final String iRoleName) {
@@ -508,11 +485,8 @@ public class OSecurityShared implements OSecurityInternal {
       final String iRoleName,
       final ORole iParent,
       final ORole.ALLOW_MODES iAllowMode) {
-    return session.computeInTx(
-        () -> {
-          final ORole role = new ORole(iRoleName, iParent, iAllowMode);
-          return role.save();
-        });
+    final ORole role = new ORole(iRoleName, iParent, iAllowMode);
+    return role.save();
   }
 
   public boolean dropRole(final ODatabaseSession session, final String iRoleName) {
@@ -553,50 +527,42 @@ public class OSecurityShared implements OSecurityInternal {
 
   public void setSecurityPolicyWithBitmask(
       ODatabaseSession session, OSecurityRole role, String resource, int legacyPolicy) {
-    session.executeInTx(
-        () -> {
-          String policyName = "default_" + legacyPolicy;
-          OSecurityPolicyImpl policy = getSecurityPolicy(session, policyName);
-          if (policy == null) {
-            policy = createSecurityPolicy(session, policyName);
-            policy.setCreateRule((legacyPolicy & ORole.PERMISSION_CREATE) > 0 ? "true" : "false");
-            policy.setReadRule((legacyPolicy & ORole.PERMISSION_READ) > 0 ? "true" : "false");
-            policy.setBeforeUpdateRule(
-                (legacyPolicy & ORole.PERMISSION_UPDATE) > 0 ? "true" : "false");
-            policy.setAfterUpdateRule(
-                (legacyPolicy & ORole.PERMISSION_UPDATE) > 0 ? "true" : "false");
-            policy.setDeleteRule((legacyPolicy & ORole.PERMISSION_DELETE) > 0 ? "true" : "false");
-            policy.setExecuteRule((legacyPolicy & ORole.PERMISSION_EXECUTE) > 0 ? "true" : "false");
-            saveSecurityPolicy(session, policy);
-          }
-          setSecurityPolicy(session, role, resource, policy);
-        });
+    String policyName = "default_" + legacyPolicy;
+    OSecurityPolicyImpl policy = getSecurityPolicy(session, policyName);
+    if (policy == null) {
+      policy = createSecurityPolicy(session, policyName);
+      policy.setCreateRule((legacyPolicy & ORole.PERMISSION_CREATE) > 0 ? "true" : "false");
+      policy.setReadRule((legacyPolicy & ORole.PERMISSION_READ) > 0 ? "true" : "false");
+      policy.setBeforeUpdateRule((legacyPolicy & ORole.PERMISSION_UPDATE) > 0 ? "true" : "false");
+      policy.setAfterUpdateRule((legacyPolicy & ORole.PERMISSION_UPDATE) > 0 ? "true" : "false");
+      policy.setDeleteRule((legacyPolicy & ORole.PERMISSION_DELETE) > 0 ? "true" : "false");
+      policy.setExecuteRule((legacyPolicy & ORole.PERMISSION_EXECUTE) > 0 ? "true" : "false");
+      saveSecurityPolicy(session, policy);
+    }
+    setSecurityPolicy(session, role, resource, policy);
   }
 
   @Override
   public void setSecurityPolicy(
       ODatabaseSession session, OSecurityRole role, String resource, OSecurityPolicyImpl policy) {
-    session.executeInTx(
-        () -> {
-          var currentResource = normalizeSecurityResource(session, resource);
-          OElement roleDoc = session.load(role.getIdentity().getIdentity());
-          if (roleDoc == null) {
-            return;
-          }
-          validatePolicyWithIndexes(session, currentResource);
-          Map<String, OIdentifiable> policies = roleDoc.getProperty("policies");
-          if (policies == null) {
-            policies = new HashMap<>();
-            roleDoc.setProperty("policies", policies);
-          }
-          policies.put(currentResource, policy.getElement());
-          session.save(roleDoc);
-          if (session.getUser() != null && session.getUser().hasRole(role.getName(), true)) {
-            ((ODatabaseSessionInternal) session).reloadUser();
-          }
-          updateAllFilteredProperties((ODatabaseSessionInternal) session);
-          initPredicateSecurityOptimizations(session);
-        });
+    var currentResource = normalizeSecurityResource(session, resource);
+    OElement roleDoc = session.load(role.getIdentity().getIdentity());
+    if (roleDoc == null) {
+      return;
+    }
+    validatePolicyWithIndexes(session, currentResource);
+    Map<String, OIdentifiable> policies = roleDoc.getProperty("policies");
+    if (policies == null) {
+      policies = new HashMap<>();
+      roleDoc.setProperty("policies", policies);
+    }
+    policies.put(currentResource, policy.getElement());
+    session.save(roleDoc);
+    if (session.getUser() != null && session.getUser().hasRole(role.getName(), true)) {
+      ((ODatabaseSessionInternal) session).reloadUser();
+    }
+    updateAllFilteredProperties((ODatabaseSessionInternal) session);
+    initPredicateSecurityOptimizations(session);
   }
 
   private void validatePolicyWithIndexes(ODatabaseSession session, String resource)
@@ -634,14 +600,11 @@ public class OSecurityShared implements OSecurityInternal {
 
   @Override
   public OSecurityPolicyImpl createSecurityPolicy(ODatabaseSession session, String name) {
-    return session.computeInTx(
-        () -> {
-          OElement elem = session.newElement(OSecurityPolicy.class.getSimpleName());
-          elem.setProperty("name", name);
-          OSecurityPolicyImpl policy = new OSecurityPolicyImpl(elem);
-          saveSecurityPolicy(session, policy);
-          return policy;
-        });
+    OElement elem = session.newElement(OSecurityPolicy.class.getSimpleName());
+    elem.setProperty("name", name);
+    OSecurityPolicyImpl policy = new OSecurityPolicyImpl(elem);
+    saveSecurityPolicy(session, policy);
+    return policy;
   }
 
   @Override
@@ -659,12 +622,9 @@ public class OSecurityShared implements OSecurityInternal {
 
   @Override
   public void saveSecurityPolicy(ODatabaseSession session, OSecurityPolicyImpl policy) {
-    session.executeInTx(
-        () ->
-            ((ODatabaseSessionInternal) session)
-                .save(
-                    policy.getElement(),
-                    OSecurityPolicy.class.getSimpleName().toLowerCase(Locale.ENGLISH)));
+    ((ODatabaseSessionInternal) session)
+        .save(
+            policy.getElement(), OSecurityPolicy.class.getSimpleName().toLowerCase(Locale.ENGLISH));
   }
 
   @Override
@@ -676,24 +636,21 @@ public class OSecurityShared implements OSecurityInternal {
 
   @Override
   public void removeSecurityPolicy(ODatabaseSession session, ORole role, String resource) {
-    session.executeInTx(
-        () -> {
-          String calculatedResource = normalizeSecurityResource(session, resource);
-          final OElement roleDoc = session.load(role.getIdentity().getIdentity());
-          if (roleDoc == null) {
-            return;
-          }
-          Map<String, OIdentifiable> policies = roleDoc.getProperty("policies");
-          if (policies == null) {
-            return;
-          }
-          policies.remove(calculatedResource);
+    String calculatedResource = normalizeSecurityResource(session, resource);
+    final OElement roleDoc = session.load(role.getIdentity().getIdentity());
+    if (roleDoc == null) {
+      return;
+    }
+    Map<String, OIdentifiable> policies = roleDoc.getProperty("policies");
+    if (policies == null) {
+      return;
+    }
+    policies.remove(calculatedResource);
 
-          session.executeInTx(() -> roleDoc.save());
+    roleDoc.save();
 
-          updateAllFilteredProperties((ODatabaseSessionInternal) session);
-          initPredicateSecurityOptimizations(session);
-        });
+    updateAllFilteredProperties((ODatabaseSessionInternal) session);
+    initPredicateSecurityOptimizations(session);
   }
 
   private String normalizeSecurityResource(ODatabaseSession session, String resource) {

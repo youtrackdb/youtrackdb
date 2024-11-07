@@ -57,6 +57,7 @@ public class SQLUpdateEdgeTest extends BaseMemoryDatabase {
             .get();
     db.commit();
 
+    v4 = db.bindToSession(v4);
     assertEquals(v4.getSchemaType().get().getName(), "V1");
     assertEquals(v4.getProperty("brand"), "fiat");
     assertEquals(v4.getProperty("name"), "wow");

@@ -903,7 +903,6 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
 
   public OStorageOperationResult<ORawBuffer> readRecord(
       final ORecordId iRid,
-      final String iFetchPlan,
       final boolean iIgnoreCache,
       boolean prefetchRecords,
       final ORecordCallback<ORawBuffer> iCallback) {
@@ -914,7 +913,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
       return new OStorageOperationResult<ORawBuffer>(null);
     }
 
-    OReadRecordRequest request = new OReadRecordRequest(iIgnoreCache, iRid, iFetchPlan, false);
+    OReadRecordRequest request = new OReadRecordRequest(iIgnoreCache, iRid, null, false);
     OReadRecordResponse response = networkOperation(request, "Error on read record " + iRid);
 
     return new OStorageOperationResult<ORawBuffer>(response.getResult());

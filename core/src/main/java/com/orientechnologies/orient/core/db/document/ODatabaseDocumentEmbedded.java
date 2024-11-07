@@ -399,7 +399,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
   }
 
   @Override
-  public <DB extends ODatabase> DB set(final ATTRIBUTES iAttribute, final Object iValue) {
+  public void set(final ATTRIBUTES iAttribute, final Object iValue) {
     checkIfActive();
 
     if (iAttribute == null) {
@@ -529,8 +529,6 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
         throw new IllegalArgumentException(
             "Option '" + iAttribute + "' not supported on alter database");
     }
-
-    return (DB) this;
   }
 
   private void clearCustomInternal() {
@@ -1069,11 +1067,8 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
    * the database, then a {@link OConcurrentModificationException} exception is thrown.
    *
    * @param record record to delete
-   * @return The Database instance itself giving a "fluent interface". Useful to call multiple
-   * methods in chain.
-   * @see #setMVCC(boolean), {@link #isMVCC()}
    */
-  public ODatabaseDocumentAbstract delete(ORecord record) {
+  public void delete(ORecord record) {
     checkOpenness();
 
     if (record == null) {
@@ -1117,7 +1112,6 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
             new ODatabaseException("Error on deleting record " + record.getIdentity()), e);
       }
     }
-    return this;
   }
 
   @Override
@@ -1377,7 +1371,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
   /**
    * {@inheritDoc}
    */
-  public <DB extends ODatabaseDocument> DB checkSecurity(
+  public void checkSecurity(
       final ORule.ResourceGeneric resourceGeneric,
       final String resourceSpecific,
       final int iOperation) {
@@ -1400,13 +1394,12 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
         throw e;
       }
     }
-    return (DB) this;
   }
 
   /**
    * {@inheritDoc}
    */
-  public <DB extends ODatabaseDocument> DB checkSecurity(
+  public void checkSecurity(
       final ORule.ResourceGeneric iResourceGeneric,
       final int iOperation,
       final Object... iResourcesSpecific) {
@@ -1417,13 +1410,12 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
         checkSecurity(iResourceGeneric, target == null ? null : target.toString(), iOperation);
       }
     }
-    return (DB) this;
   }
 
   /**
    * {@inheritDoc}
    */
-  public <DB extends ODatabaseDocument> DB checkSecurity(
+  public void checkSecurity(
       final ORule.ResourceGeneric iResourceGeneric,
       final int iOperation,
       final Object iResourceSpecific) {
@@ -1432,14 +1424,11 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
         iResourceGeneric,
         iResourceSpecific == null ? null : iResourceSpecific.toString(),
         iOperation);
-
-    return (DB) this;
   }
 
   @Override
   @Deprecated
-  public <DB extends ODatabaseDocument> DB checkSecurity(
-      final String iResource, final int iOperation) {
+  public void checkSecurity(final String iResource, final int iOperation) {
     final String resourceSpecific = ORule.mapLegacyResourceToSpecificResource(iResource);
     final ORule.ResourceGeneric resourceGeneric =
         ORule.mapLegacyResourceToGenericResource(iResource);
@@ -1448,29 +1437,29 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
       checkSecurity(resourceGeneric, null, iOperation);
     }
 
-    return checkSecurity(resourceGeneric, resourceSpecific, iOperation);
+    checkSecurity(resourceGeneric, resourceSpecific, iOperation);
   }
 
   @Override
   @Deprecated
-  public <DB extends ODatabaseDocument> DB checkSecurity(
+  public void checkSecurity(
       final String iResourceGeneric, final int iOperation, final Object iResourceSpecific) {
     final ORule.ResourceGeneric resourceGeneric =
         ORule.mapLegacyResourceToGenericResource(iResourceGeneric);
     if (iResourceSpecific == null || iResourceSpecific.equals("*")) {
-      return checkSecurity(resourceGeneric, iOperation, (Object) null);
+      checkSecurity(resourceGeneric, iOperation, (Object) null);
     }
 
-    return checkSecurity(resourceGeneric, iOperation, iResourceSpecific);
+    checkSecurity(resourceGeneric, iOperation, iResourceSpecific);
   }
 
   @Override
   @Deprecated
-  public <DB extends ODatabaseDocument> DB checkSecurity(
+  public void checkSecurity(
       final String iResourceGeneric, final int iOperation, final Object... iResourcesSpecific) {
     final ORule.ResourceGeneric resourceGeneric =
         ORule.mapLegacyResourceToGenericResource(iResourceGeneric);
-    return checkSecurity(resourceGeneric, iOperation, iResourcesSpecific);
+    checkSecurity(resourceGeneric, iOperation, iResourcesSpecific);
   }
 
   @Override
@@ -1947,6 +1936,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
   public long truncateClusterInternal(String clusterName) {
     checkSecurity(ORule.ResourceGeneric.CLUSTER, ORole.PERMISSION_DELETE, clusterName);
     checkForClusterPermissions(clusterName);
+
     int id = getClusterIdByName(clusterName);
     if (id == -1) {
       throw new ODatabaseException("Cluster with name " + clusterName + " does not exist");
@@ -1955,12 +1945,17 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     if (clazz != null) {
       checkSecurity(ORule.ResourceGeneric.CLASS, ORole.PERMISSION_DELETE, clazz.getName());
     }
+
     long count = 0;
     final ORecordIteratorCluster<ORecord> iteratorCluster =
         new ORecordIteratorCluster<ORecord>(this, id);
+
     while (iteratorCluster.hasNext()) {
-      final ORecord record = iteratorCluster.next();
-      record.delete();
+      executeInTx(
+          () -> {
+            final ORecord record = bindToSession(iteratorCluster.next());
+            record.delete();
+          });
       count++;
     }
     return count;

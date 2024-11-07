@@ -1476,25 +1476,6 @@ public class ODocument extends ORecordAbstract
   }
 
   /**
-   * Returns an empty record as place-holder of the current. Used when a record is requested, but
-   * only the identity is needed.
-   *
-   * @return placeholder of this document
-   */
-  @Deprecated
-  public ORecord placeholder() {
-    checkForBinding();
-
-    final ODocument cloned = new ODocument();
-    cloned.source = null;
-    cloned.recordId = recordId;
-    cloned.status = STATUS.NOT_LOADED;
-    cloned.dirty = false;
-    cloned.contentChanged = false;
-    return cloned;
-  }
-
-  /**
    * Detaches all the connected records. If new records are linked to the document the detaching
    * cannot be completed and false will be returned. RidBag types cannot be fully detached when the
    * database is connected using "remote" protocol.

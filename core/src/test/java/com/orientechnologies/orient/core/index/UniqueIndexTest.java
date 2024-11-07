@@ -48,6 +48,7 @@ public class UniqueIndexTest extends BaseMemoryDatabase {
     db.commit();
 
     db.begin();
+    secondEntity = db.bindToSession(secondEntity);
     secondEntity.setProperty("type", "type1");
     secondEntity.save();
     try {
@@ -87,8 +88,12 @@ public class UniqueIndexTest extends BaseMemoryDatabase {
     db.commit();
 
     db.begin();
+    secondEntity = db.bindToSession(secondEntity);
+    thirdEntity = db.bindToSession(thirdEntity);
+
     secondEntity.setProperty("type", "type1");
     secondEntity.deleteEdge(thirdEntity, linkClass);
+
     secondEntity.save();
     db.commit();
   }
@@ -121,6 +126,11 @@ public class UniqueIndexTest extends BaseMemoryDatabase {
     db.commit();
 
     db.begin();
+
+    firstEntity = db.bindToSession(firstEntity);
+    thirdEntity = db.bindToSession(thirdEntity);
+    secondEntity = db.bindToSession(secondEntity);
+
     firstEntity.deleteEdge(thirdEntity, linkClass);
     secondEntity.addLightWeightEdge(thirdEntity, linkClass);
 

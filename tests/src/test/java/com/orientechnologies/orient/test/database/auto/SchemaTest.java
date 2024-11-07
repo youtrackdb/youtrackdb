@@ -433,8 +433,6 @@ public class SchemaTest extends DocumentDBBaseTest {
 
     oClass.set(OClass.ATTRIBUTES.NAME, "RenameClassTest2");
 
-    database.getLocalCache().clear();
-
     result = database.query("select from RenameClassTest2");
     Assert.assertEquals(result.stream().count(), 2);
   }
@@ -843,8 +841,6 @@ public class SchemaTest extends DocumentDBBaseTest {
         .command(
             new OCommandSQL("ALTER CLUSTER TestRenameClusterNew name TestRenameClusterOriginal"))
         .execute();
-
-    databaseDocumentTx.getLocalCache().clear();
 
     List<ODocument> result =
         databaseDocumentTx.query(

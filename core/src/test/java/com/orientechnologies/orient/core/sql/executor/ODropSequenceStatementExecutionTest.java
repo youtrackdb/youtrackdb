@@ -25,12 +25,14 @@ public class ODropSequenceStatementExecutionTest extends BaseMemoryDatabase {
     }
 
     Assert.assertNotNull(db.getMetadata().getSequenceLibrary().getSequence(name));
+    db.begin();
     OResultSet result = db.command("drop sequence " + name);
     Assert.assertTrue(result.hasNext());
     OResult next = result.next();
     Assert.assertEquals("drop sequence", next.getProperty("operation"));
     Assert.assertFalse(result.hasNext());
     result.close();
+    db.commit();
 
     Assert.assertNull(db.getMetadata().getSequenceLibrary().getSequence(name));
   }
@@ -68,12 +70,14 @@ public class ODropSequenceStatementExecutionTest extends BaseMemoryDatabase {
     }
 
     Assert.assertNotNull(db.getMetadata().getSequenceLibrary().getSequence(name));
+    db.begin();
     result = db.command("drop sequence " + name + " if exists");
     Assert.assertTrue(result.hasNext());
     OResult next = result.next();
     Assert.assertEquals("drop sequence", next.getProperty("operation"));
     Assert.assertFalse(result.hasNext());
     result.close();
+    db.commit();
 
     Assert.assertNull(db.getMetadata().getSequenceLibrary().getSequence(name));
   }

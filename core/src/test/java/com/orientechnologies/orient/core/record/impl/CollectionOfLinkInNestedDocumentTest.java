@@ -33,7 +33,6 @@ public class CollectionOfLinkInNestedDocumentTest extends BaseMemoryDatabase {
     OIdentifiable id = db.save(base, db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
 
-    db.getLocalCache().clear();
     ODocument base1 = db.load(id.getIdentity());
     ODocument nest1 = base1.field("nested");
     assertNotNull(nest1);
@@ -60,7 +59,6 @@ public class CollectionOfLinkInNestedDocumentTest extends BaseMemoryDatabase {
     OIdentifiable id = db.save(base, db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
 
-    db.getLocalCache().clear();
     ODocument base1 = db.load(id.getIdentity());
     ODocument nest1 = base1.field("nested");
     assertNotNull(nest1);
@@ -86,7 +84,6 @@ public class CollectionOfLinkInNestedDocumentTest extends BaseMemoryDatabase {
     OIdentifiable id = db.save(base, db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
 
-    db.getLocalCache().clear();
     ODocument base1 = db.load(id.getIdentity());
     ODocument nest1 = base1.field("nested");
     assertNotNull(nest1);

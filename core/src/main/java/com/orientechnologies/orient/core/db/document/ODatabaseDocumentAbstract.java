@@ -52,7 +52,6 @@ import com.orientechnologies.orient.core.exception.OSecurityException;
 import com.orientechnologies.orient.core.exception.OTransactionBlockedException;
 import com.orientechnologies.orient.core.exception.OTransactionException;
 import com.orientechnologies.orient.core.exception.OValidationException;
-import com.orientechnologies.orient.core.fetch.OFetchHelper;
 import com.orientechnologies.orient.core.hook.ORecordHook;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -83,7 +82,6 @@ import com.orientechnologies.orient.core.record.ORecordVersionHelper;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.record.impl.OBlob;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.record.impl.ODocumentEmbedded;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.record.impl.OEdgeDelegate;
 import com.orientechnologies.orient.core.record.impl.OEdgeDocument;
@@ -269,24 +267,16 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
    */
   public <RET extends ORecord> RET load(
       final ORID iRecordId, final String iFetchPlan, final boolean iIgnoreCache) {
-    return executeReadRecord(
-        (ORecordId) iRecordId,
-        null,
-        -1,
-        iFetchPlan,
-        iIgnoreCache,
-        false,
-        new SimpleRecordReader(prefetchRecords));
+    return executeReadRecord((ORecordId) iRecordId);
   }
 
   /**
    * Deletes the record checking the version.
    */
-  private ODatabase<ORecord> delete(final ORID iRecord, final int iVersion) {
+  private void delete(final ORID iRecord, final int iVersion) {
     final ORecord record = load(iRecord);
     ORecordInternal.setVersion(record, iVersion);
     delete(record);
-    return this;
   }
 
   public ODatabaseSessionInternal cleanOutRecord(final ORID iRecord, final int iVersion) {
@@ -330,8 +320,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     checkSecurity(ORule.ResourceGeneric.CLUSTER, ORole.PERMISSION_READ, iClusterName);
     checkIfActive();
     final int clusterId = getClusterIdByName(iClusterName);
-    return new ORecordIteratorCluster<REC>(
-        this, clusterId, startClusterPosition, endClusterPosition);
+    return new ORecordIteratorCluster<>(this, clusterId, startClusterPosition, endClusterPosition);
   }
 
   /**
@@ -518,8 +507,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   /**
    * {@inheritDoc}
    */
-  public <DB extends ODatabase<?>> DB registerHook(
-      final ORecordHook iHookImpl, final ORecordHook.HOOK_POSITION iPosition) {
+  public void registerHook(final ORecordHook iHookImpl, final ORecordHook.HOOK_POSITION iPosition) {
     checkOpenness();
     checkIfActive();
 
@@ -535,27 +523,25 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       }
     }
     compileHooks();
-    return (DB) this;
   }
 
   /**
    * {@inheritDoc}
    */
-  public <DB extends ODatabase<?>> DB registerHook(final ORecordHook iHookImpl) {
-    return registerHook(iHookImpl, ORecordHook.HOOK_POSITION.REGULAR);
+  public void registerHook(final ORecordHook iHookImpl) {
+    registerHook(iHookImpl, ORecordHook.HOOK_POSITION.REGULAR);
   }
 
   /**
    * {@inheritDoc}
    */
-  public <DB extends ODatabase<?>> DB unregisterHook(final ORecordHook iHookImpl) {
+  public void unregisterHook(final ORecordHook iHookImpl) {
     checkIfActive();
     if (iHookImpl != null) {
       iHookImpl.onUnregister();
       hooks.remove(iHookImpl);
       compileHooks();
     }
-    return (DB) this;
   }
 
   /**
@@ -781,48 +767,23 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       throw new IllegalArgumentException("attribute is null");
     }
     final OStorageInfo storage = getStorageInfo();
-    switch (iAttribute) {
-      case STATUS:
-        return getStatus();
-      case DEFAULTCLUSTERID:
-        return getDefaultClusterId();
-      case TYPE:
-        return getMetadata().getImmutableSchemaSnapshot().existsClass("V") ? "graph" : "document";
-      case DATEFORMAT:
-        return storage.getConfiguration().getDateFormat();
-
-      case DATETIMEFORMAT:
-        return storage.getConfiguration().getDateTimeFormat();
-
-      case TIMEZONE:
-        return storage.getConfiguration().getTimeZone().getID();
-
-      case LOCALECOUNTRY:
-        return storage.getConfiguration().getLocaleCountry();
-
-      case LOCALELANGUAGE:
-        return storage.getConfiguration().getLocaleLanguage();
-
-      case CHARSET:
-        return storage.getConfiguration().getCharset();
-
-      case CUSTOM:
-        return storage.getConfiguration().getProperties();
-
-      case CLUSTERSELECTION:
-        return storage.getConfiguration().getClusterSelection();
-
-      case MINIMUMCLUSTERS:
-        return storage.getConfiguration().getMinimumClusters();
-
-      case CONFLICTSTRATEGY:
-        return storage.getConfiguration().getConflictStrategy();
-
-      case VALIDATION:
-        return storage.getConfiguration().isValidationEnabled();
-    }
-
-    return null;
+    return switch (iAttribute) {
+      case STATUS -> getStatus();
+      case DEFAULTCLUSTERID -> getDefaultClusterId();
+      case TYPE ->
+          getMetadata().getImmutableSchemaSnapshot().existsClass("V") ? "graph" : "document";
+      case DATEFORMAT -> storage.getConfiguration().getDateFormat();
+      case DATETIMEFORMAT -> storage.getConfiguration().getDateTimeFormat();
+      case TIMEZONE -> storage.getConfiguration().getTimeZone().getID();
+      case LOCALECOUNTRY -> storage.getConfiguration().getLocaleCountry();
+      case LOCALELANGUAGE -> storage.getConfiguration().getLocaleLanguage();
+      case CHARSET -> storage.getConfiguration().getCharset();
+      case CUSTOM -> storage.getConfiguration().getProperties();
+      case CLUSTERSELECTION -> storage.getConfiguration().getClusterSelection();
+      case MINIMUMCLUSTERS -> storage.getConfiguration().getMinimumClusters();
+      case CONFLICTSTRATEGY -> storage.getConfiguration().getConflictStrategy();
+      case VALIDATION -> storage.getConfiguration().isValidationEnabled();
+    };
   }
 
   public OTransaction getTransaction() {
@@ -834,23 +795,21 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   @Override
   public <RET extends ORecord> RET load(final ORecord iRecord, final String iFetchPlan) {
     checkIfActive();
-    return (RET)
-        currentTx.loadRecord(iRecord.getIdentity(), (ORecordAbstract) iRecord, iFetchPlan, false);
+    return (RET) currentTx.loadRecord(iRecord.getIdentity());
   }
 
   @SuppressWarnings("unchecked")
   @Override
   public <RET extends ORecord> RET load(final ORecord iRecord) {
     checkIfActive();
-    return (RET)
-        currentTx.loadRecord(iRecord.getIdentity(), (ORecordAbstract) iRecord, null, false);
+    return (RET) currentTx.loadRecord(iRecord.getIdentity());
   }
 
   @SuppressWarnings("unchecked")
   @Override
   public <RET extends ORecord> RET load(final ORID recordId) {
     checkIfActive();
-    return (RET) currentTx.loadRecord(recordId, null, null, false);
+    return (RET) currentTx.loadRecord(recordId);
   }
 
   @Override
@@ -863,28 +822,13 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   @Override
   public <RET extends ORecord> RET load(final ORID iRecordId, final String iFetchPlan) {
     checkIfActive();
-    return (RET) currentTx.loadRecord(iRecordId, null, iFetchPlan, false);
-  }
-
-  @Override
-  public <RET extends ORecord> RET reload(
-      ORecord record, String fetchPlan, boolean ignoreCache, boolean force) {
-    checkIfActive();
-
-    var loadedRecord =
-        currentTx.reloadRecord(
-            record.getIdentity(), (ORecordAbstract) record, fetchPlan, ignoreCache, force);
-    if (loadedRecord == null) {
-      throw new ORecordNotFoundException(record.getIdentity());
-    }
-
-    return (RET) loadedRecord;
+    return (RET) currentTx.loadRecord(iRecordId);
   }
 
   /**
    * Deletes the record without checking the version.
    */
-  public ODatabaseDocument delete(final ORID iRecord) {
+  public void delete(final ORID iRecord) {
     checkOpenness();
     checkIfActive();
 
@@ -892,7 +836,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     if (rec != null) {
       delete(rec);
     }
-    return this;
   }
 
   @Override
@@ -905,14 +848,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
    */
   public <RET extends ORecord> RET load(
       final ORecord iRecord, final String iFetchPlan, final boolean iIgnoreCache) {
-    return executeReadRecord(
-        (ORecordId) iRecord.getIdentity(),
-        (ORecordAbstract) iRecord,
-        -1,
-        iFetchPlan,
-        iIgnoreCache,
-        false,
-        new SimpleRecordReader(prefetchRecords));
+    return executeReadRecord((ORecordId) iRecord.getIdentity());
   }
 
   @Override
@@ -926,13 +862,13 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   }
 
   @Override
-  public <T extends ORecord> T bindToSession(T record) {
-    if (record == null) {
-      return null;
+  public <T extends OIdentifiable> T bindToSession(T identifiable) {
+    if (!(identifiable instanceof ORecord record)) {
+      return identifiable;
     }
 
     var rid = record.getIdentity();
-    if (!rid.isValid()) {
+    if (rid == null || !rid.isValid()) {
       throw new ODatabaseException(
           "Cannot bind record to session with invalid identity rid: " + rid);
     }
@@ -940,21 +876,22 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     checkOpenness();
     checkIfActive();
 
+    // unwrap the record if wrapper is passed
+    record = record.getRecord();
+
     var txRecord = currentTx.getRecord(rid);
     if (txRecord == record) {
       assert !txRecord.isUnloaded();
-      return record;
+      return (T) record;
     }
 
     var cachedRecord = localCache.findRecord(rid);
     if (cachedRecord == record) {
       assert !cachedRecord.isUnloaded();
-      return record;
+      return (T) record;
     }
 
-    var result =
-        executeReadRecord(
-            (ORecordId) rid, null, -1, null, false, false, new SimpleRecordReader(false));
+    var result = executeReadRecord((ORecordId) rid);
     if (result == null) {
       throw new ORecordNotFoundException(rid);
     }
@@ -963,28 +900,11 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     return (T) result;
   }
 
-  /**
-   * This method is internal, it can be subject to signature change or be removed, do not use.
-   *
-   * @Internal
-   */
-  public final <RET extends ORecord> RET executeReadRecord(
-      final ORecordId rid,
-      ORecordAbstract iRecord,
-      final int recordVersion,
-      final String fetchPlan,
-      final boolean ignoreCache,
-      final boolean loadTombstones,
-      RecordReader recordReader) {
-
+  public final <RET extends ORecord> RET executeReadRecord(final ORecordId rid) {
     checkOpenness();
     checkIfActive();
 
     getMetadata().makeThreadLocalSchemaSnapshot();
-    if (iRecord != null) {
-      iRecord.incrementLoading();
-      ORecordInternal.unsetDirty(iRecord);
-    }
     try {
       checkSecurity(
           ORule.ResourceGeneric.CLUSTER,
@@ -999,14 +919,11 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       }
 
       var cachedRecord = getLocalCache().findRecord(rid);
-
-      if (record == null && !ignoreCache) {
+      if (record == null) {
         record = cachedRecord;
       }
 
       if (record != null && !record.isUnloaded()) {
-        OFetchHelper.checkFetchPlanValid(fetchPlan);
-
         if (beforeReadOperations(record)) {
           return null;
         }
@@ -1017,11 +934,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
         }
 
         getLocalCache().updateRecord(record);
-
-        if (iRecord != null && iRecord != record) {
-          throw new IllegalStateException(
-              "Passed in record is not the same as the record in the database");
-        }
 
         assert !record.isUnloaded();
         return (RET) record;
@@ -1040,19 +952,11 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       if (!rid.isValid()) {
         recordBuffer = null;
       } else {
-        OFetchHelper.checkFetchPlanValid(fetchPlan);
-        recordBuffer =
-            getStorage()
-                .readRecord(rid, fetchPlan, ignoreCache, isPrefetchRecords(), null)
-                .getResult();
+        recordBuffer = getStorage().readRecord(rid, false, isPrefetchRecords(), null).getResult();
       }
 
       if (recordBuffer == null) {
         return null;
-      }
-
-      if (record == null && iRecord != null) {
-        record = iRecord.getRecord();
       }
 
       if (record == null) {
@@ -1084,10 +988,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
         return null;
       }
 
-      if (iRecord != null && iRecord != record) {
-        throw new ODatabaseException("Record type is different from the one in the database");
-      }
-
       ORecordInternal.fromStream(record, recordBuffer.buffer, this);
       afterReadOperations(record);
 
@@ -1113,9 +1013,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       }
     } finally {
       getMetadata().clearThreadLocalSchemaSnapshot();
-      if (iRecord != null) {
-        iRecord.decrementLoading();
-      }
     }
   }
 
@@ -1188,18 +1085,15 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     return rid.getClusterId();
   }
 
-  public ODatabaseDocumentAbstract begin() {
+  public int begin() {
     if (currentTx.isActive()) {
-      currentTx.begin();
-
-      return this;
+      return currentTx.begin();
     }
 
-    begin(newTxInstance());
-    return this;
+    return begin(newTxInstance());
   }
 
-  public void begin(OTransactionOptimistic transaction) {
+  public int begin(OTransactionOptimistic transaction) {
     checkOpenness();
     checkIfActive();
 
@@ -1210,8 +1104,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
 
     if (currentTx.isActive()) {
       if (currentTx instanceof OTransactionOptimistic) {
-        currentTx.begin();
-        return;
+        return currentTx.begin();
       }
     }
 
@@ -1226,7 +1119,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
 
     currentTx = transaction;
 
-    currentTx.begin();
+    return currentTx.begin();
   }
 
   protected OTransactionOptimistic newTxInstance() {
@@ -1265,16 +1158,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   @Override
   public ODocument newInstance(final String iClassName) {
     return new ODocument(this, iClassName);
-  }
-
-  @Override
-  public OElement newEmbeddedElement() {
-    return new ODocumentEmbedded(this);
-  }
-
-  @Override
-  public OElement newEmbeddedElement(String className) {
-    return new ODocumentEmbedded(className, this);
   }
 
   @Override
@@ -1544,6 +1427,15 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   public <RET extends ORecord> RET save(ORecord record, String clusterName) {
     checkOpenness();
 
+    if (record instanceof OEdge edge) {
+      if (edge.isLightweight()) {
+        record = edge.getFrom();
+      }
+    }
+
+    // unwrap the record if wrapper is passed
+    record = record.getRecord();
+
     if (record.isUnloaded()) {
       throw new ODatabaseException(
           "Record "
@@ -1553,16 +1445,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
               + ".bindToSession(record) before save it");
     }
 
-    if (record instanceof OVertex) {
-      record = record.getRecord();
-    }
-    if (record instanceof OEdge) {
-      if (((OEdge) record).isLightweight()) {
-        record = ((OEdge) record).getFrom();
-      } else {
-        record = record.getRecord();
-      }
-    }
     return saveInternal((ORecordAbstract) record, clusterName);
   }
 
@@ -1651,7 +1533,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       for (ORecordOperation op : getTransaction().getRecordOperations()) {
         if (op.type == ORecordOperation.DELETED) {
           final ORecord rec = op.getRecord();
-          if (rec != null && rec instanceof ODocument) {
+          if (rec instanceof ODocument) {
             OClass schemaClass = ODocumentInternal.getImmutableSchemaClass(((ODocument) rec));
             if (iPolymorphic) {
               if (schemaClass.isSubClassOf(className)) {
@@ -1667,7 +1549,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
         }
         if (op.type == ORecordOperation.CREATED) {
           final ORecord rec = op.getRecord();
-          if (rec != null && rec instanceof ODocument) {
+          if (rec instanceof ODocument) {
             OClass schemaClass = ODocumentInternal.getImmutableSchemaClass(((ODocument) rec));
             if (schemaClass != null) {
               if (iPolymorphic) {
@@ -1693,7 +1575,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
    * {@inheritDoc}
    */
   @Override
-  public ODatabase<ORecord> commit() {
+  public boolean commit() {
     checkOpenness();
     checkIfActive();
 
@@ -1708,7 +1590,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     if (currentTx.amountOfNestedTxs() > 1) {
       // This just do count down no real commit here
       currentTx.commit();
-      return this;
+      return false;
     }
 
     // WAKE UP LISTENERS
@@ -1755,8 +1637,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
 
     // WAKE UP LISTENERS
     afterCommitOperations();
-
-    return this;
+    return true;
   }
 
   protected void beforeCommitOperations() {
@@ -1826,19 +1707,19 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
    * {@inheritDoc}
    */
   @Override
-  public ODatabase<ORecord> rollback() {
-    return rollback(false);
+  public void rollback() {
+    rollback(false);
   }
 
   @Override
-  public ODatabaseDocument rollback(boolean force) throws OTransactionException {
+  public void rollback(boolean force) throws OTransactionException {
     checkOpenness();
     if (currentTx.isActive()) {
 
       if (!force && currentTx.amountOfNestedTxs() > 1) {
         // This just decrement the counter no real rollback here
         currentTx.rollback();
-        return this;
+        return;
       }
 
       // WAKE UP LISTENERS
@@ -1847,13 +1728,10 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       // WAKE UP LISTENERS
       afterRollbackOperations();
     }
-    return this;
   }
 
   /**
    * This method is internal, it can be subject to signature change or be removed, do not use.
-   *
-   * @Internal
    */
   @Override
   public <DB extends ODatabase> DB getUnderlying() {
@@ -1927,10 +1805,9 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
    * Activates current database instance on current thread.
    */
   @Override
-  public ODatabaseDocumentAbstract activateOnCurrentThread() {
+  public void activateOnCurrentThread() {
     final ODatabaseRecordThreadLocal tl = ODatabaseRecordThreadLocal.instance();
     tl.set(this);
-    return this;
   }
 
   @Override
@@ -2105,7 +1982,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       if (OLogManager.instance().isDebugEnabled()) {
         activeQueries.values().stream()
             .map(pendingQuery -> pendingQuery.getResultSet().getExecutionPlan())
-            .filter(plan -> plan != null)
+            .filter(Objects::nonNull)
             .forEach(plan -> OLogManager.instance().debug(this, plan.toString()));
       }
     }
@@ -2172,7 +2049,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     return collectionsChanges;
   }
 
-  @SuppressWarnings("resource")
   @Override
   public void executeInTx(Runnable runnable) {
     var ok = false;
@@ -2195,7 +2071,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     }
   }
 
-  @SuppressWarnings("resource")
   @Override
   public <T> T computeInTx(Supplier<T> supplier) {
     activateOnCurrentThread();

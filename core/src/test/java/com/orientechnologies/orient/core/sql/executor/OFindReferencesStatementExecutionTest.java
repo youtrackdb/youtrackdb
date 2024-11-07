@@ -32,6 +32,7 @@ public class OFindReferencesStatementExecutionTest extends BaseMemoryDatabase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
+      linked = db.bindToSession(linked);
       ODocument doc = new ODocument(name2);
       doc.field("counter", i);
       if (i % 2 == 0) {

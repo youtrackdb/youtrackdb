@@ -18,7 +18,7 @@ public class ODocumentTransactionalValidationTest extends BaseMemoryInternalData
   public void simpleConstraintShouldBeCheckedOnCommitFalseTest() {
     OClass clazz = db.createVertexClass("Validation");
     clazz.createProperty("int", OType.INTEGER).setMandatory(true);
-    db.begin().activateOnCurrentThread();
+    db.begin();
     var vertex = db.newVertex(clazz.getName());
     vertex.save();
     db.commit();
@@ -35,7 +35,7 @@ public class ODocumentTransactionalValidationTest extends BaseMemoryInternalData
     db.commit();
     db.begin();
     db.begin();
-    Integer value = vertex.getProperty("int");
+    Integer value = db.bindToSession(vertex).getProperty("int");
     Assert.assertEquals((Integer) 11, value);
   }
 
@@ -49,7 +49,7 @@ public class ODocumentTransactionalValidationTest extends BaseMemoryInternalData
     vertex.save();
     db.commit();
     db.begin();
-    Integer value = vertex.getProperty("int");
+    Integer value = db.bindToSession(vertex).getProperty("int");
     Assert.assertEquals((Integer) 11, value);
   }
 
@@ -65,7 +65,7 @@ public class ODocumentTransactionalValidationTest extends BaseMemoryInternalData
     vertex.save();
     vertex.setProperty("str", "abacorrect");
     db.commit();
-    Assert.assertEquals("abacorrect", vertex.getProperty("str"));
+    Assert.assertEquals("abacorrect", db.bindToSession(vertex).getProperty("str"));
   }
 
   @Test(expected = OValidationException.class)
@@ -137,6 +137,7 @@ public class ODocumentTransactionalValidationTest extends BaseMemoryInternalData
     vrt.save();
     db.commit();
     db.begin();
+    vrt = db.bindToSession(vrt);
     List<Integer> arr = vrt.getProperty("arr");
     arr.clear();
     vrt.save();
@@ -158,6 +159,7 @@ public class ODocumentTransactionalValidationTest extends BaseMemoryInternalData
     vrt.save();
     db.commit();
     db.begin();
+    vrt = db.bindToSession(vrt);
     vrt.getEdges(ODirection.OUT, edgeClass).forEach(OElement::delete);
     vrt.save();
     OVertex link2 = db.newVertex(linkClass.getName());
@@ -177,7 +179,7 @@ public class ODocumentTransactionalValidationTest extends BaseMemoryInternalData
   public void maxConstraintOnFloatPropertyDuringTransaction() {
     OClass clazz = db.createVertexClass("Validation");
     clazz.createProperty("dbl", OType.FLOAT).setMandatory(true).setMin("-10");
-    db.begin().activateOnCurrentThread();
+    db.begin();
     var vertex = db.newVertex(clazz.getName());
     vertex.setProperty("dbl", -100.0);
     vertex.save();
@@ -185,6 +187,7 @@ public class ODocumentTransactionalValidationTest extends BaseMemoryInternalData
     vertex.save();
     db.commit();
     db.begin();
+    vertex = db.bindToSession(vertex);
     float actual = vertex.getProperty("dbl");
     Assert.assertEquals(2.39, actual, 0.01);
     db.commit();
@@ -194,7 +197,7 @@ public class ODocumentTransactionalValidationTest extends BaseMemoryInternalData
   public void maxConstraintOnFloatPropertyOnTransaction() {
     OClass clazz = db.createVertexClass("Validation");
     clazz.createProperty("dbl", OType.FLOAT).setMandatory(true).setMin("-10");
-    db.begin().activateOnCurrentThread();
+    db.begin();
     var vertex = db.newVertex(clazz.getName());
     vertex.setProperty("dbl", -100.0);
     vertex.save();

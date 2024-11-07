@@ -1078,7 +1078,6 @@ public class ObjectTreeTest extends ObjectDBBaseTest {
     Assert.assertEquals(serialized, 4);
     Assert.assertEquals(unserialized, 0);
 
-    pojo = database.reload(pojo);
     Assert.assertEquals(unserialized, 0);
 
     pojo.getCustom();

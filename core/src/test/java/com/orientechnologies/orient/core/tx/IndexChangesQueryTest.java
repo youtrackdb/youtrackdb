@@ -104,6 +104,10 @@ public class IndexChangesQueryTest {
 
     database.begin();
 
+    doc1 = database.bindToSession(doc1);
+    doc2 = database.bindToSession(doc2);
+    doc3 = database.bindToSession(doc3);
+
     doc1.delete();
     doc2.delete();
     doc3.delete();

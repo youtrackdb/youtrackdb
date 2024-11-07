@@ -80,12 +80,11 @@ public class DbImportStreamExportTest extends DocumentDBBaseTest implements OCom
 
     final ODatabaseImport dbImport =
         new ODatabaseImport(database, new FileInputStream(importDir), this);
-
     // UNREGISTER ALL THE HOOKS
     for (final ORecordHook hook : new ArrayList<>(database.getHooks().keySet())) {
       database.unregisterHook(hook);
     }
-    dbImport.setPreserveRids(true);
+
     dbImport.setDeleteRIDMapping(false);
     dbImport.importDatabase();
     dbImport.close();

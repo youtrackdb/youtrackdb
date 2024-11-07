@@ -75,78 +75,78 @@
       <scope>test</scope>
     </dependency>
 
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>testcontainers</artifactId>
-            <version>1.20.3</version>
-            <scope>test</scope>
-        </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>testcontainers</artifactId>
+      <version>1.20.3</version>
+      <scope>test</scope>
+    </dependency>
 
-    </dependencies>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.6.0</version>
-                <executions>
-                    <execution>
-                        <id>build-db</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>${java.home}/bin/java</executable>
-                            <workingDirectory>${project.basedir}</workingDirectory>
-                            <arguments>
-                                <argument>-Xmx${heapSize}</argument>
-                                <argument>-DridBag.embeddedToSbtreeBonsaiThreshold=10000000</argument>
-                                <argument>-Dmemory.directMemory.preallocate=false</argument>
-                                <argument>-Dtx.nonTxReadsWarningMode=SILENT</argument>
-                                <argument>-classpath</argument>
-                                <classpath />
-                                <argument>com.orientechnologies.orient.console.OConsoleDatabaseApp</argument>
-                                <argument>connect env embedded:${basedir}/target/databases/ root root;</argument>
-                                <argument>create database demodb plocal users (admin identified by 'admin' role admin, reader identified by 'reader' role reader, writer identified by 'writer' role writer);</argument>
-                                <argument>open demodb admin admin;</argument>
-                                <argument>LOAD SCRIPT ${basedir}/src/main/resources/demodb-1-schema.osql;</argument>
-                                <argument>LOAD SCRIPT ${basedir}/src/main/resources/demodb-2.osql;</argument>
-                                <argument>LOAD SCRIPT ${basedir}/src/main/resources/demodb-3.osql;</argument>
-                                <argument>LOAD SCRIPT ${basedir}/src/main/resources/demodb-4.osql;</argument>
-                                <argument>LOAD SCRIPT ${basedir}/src/main/resources/demodb-5.osql;</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>distribution-package</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <configuration>
-                            <appendAssemblyId>false</appendAssemblyId>
-                            <descriptors>
-                                <descriptor>${basedir}/src/main/assembly/archive.xml</descriptor>
-                            </descriptors>
-                            <filters>
-                                <filter />
-                            </filters>
-                            <ignoreDirFormatExtensions>false</ignoreDirFormatExtensions>
-                            <tarLongFileMode>posix</tarLongFileMode>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-    <profiles>
+  </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>1.6.0</version>
+        <executions>
+          <execution>
+            <id>build-db</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>${java.home}/bin/java</executable>
+              <workingDirectory>${project.basedir}</workingDirectory>
+              <arguments>
+                <argument>-Xmx${heapSize}</argument>
+                <argument>-DridBag.embeddedToSbtreeBonsaiThreshold=10000000</argument>
+                <argument>-Dmemory.directMemory.preallocate=false</argument>
+                <argument>-Dtx.nonTxReadsWarningMode=SILENT</argument>
+                <argument>-classpath</argument>
+                <classpath/>
+                <argument>com.orientechnologies.orient.console.OConsoleDatabaseApp</argument>
+                <argument>connect env embedded:${basedir}/target/databases/ root root;</argument>
+                <argument>create database demodb plocal users (admin identified by 'admin' role admin, reader identified by 'reader' role reader, writer identified by 'writer' role writer);</argument>
+                <argument>open demodb admin admin;</argument>
+                <argument>LOAD SCRIPT ${basedir}/src/main/resources/demodb-1-schema.osql;</argument>
+                <argument>LOAD SCRIPT ${basedir}/src/main/resources/demodb-2.osql;</argument>
+                <argument>LOAD SCRIPT ${basedir}/src/main/resources/demodb-3.osql;</argument>
+                <argument>LOAD SCRIPT ${basedir}/src/main/resources/demodb-4.osql;</argument>
+                <argument>LOAD SCRIPT ${basedir}/src/main/resources/demodb-5.osql;</argument>
+              </arguments>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>distribution-package</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <configuration>
+              <appendAssemblyId>false</appendAssemblyId>
+              <descriptors>
+                <descriptor>${basedir}/src/main/assembly/archive.xml</descriptor>
+              </descriptors>
+              <filters>
+                <filter/>
+              </filters>
+              <ignoreDirFormatExtensions>false</ignoreDirFormatExtensions>
+              <tarLongFileMode>posix</tarLongFileMode>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+  <profiles>
 
     <profile>
       <id>java17</id>

@@ -137,24 +137,11 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
 
       long time = System.nanoTime();
 
-      if (includeInfo) {
-        exportInfo();
-      }
-      if (includeClusterDefinitions) {
-        exportClusters();
-      }
-      if (includeSchema) {
-        exportSchema();
-      }
-      if (includeRecords) {
-        exportRecords();
-      }
-      if (includeIndexDefinitions) {
-        exportIndexDefinitions();
-      }
-      if (includeManualIndexes) {
-        exportManualIndexes();
-      }
+      exportInfo();
+      exportClusters();
+      exportSchema();
+      exportRecords();
+      exportIndexDefinitions();
 
       listener.onMessage(
           "\n\nDatabase export completed in " + ((System.nanoTime() - time) / 1000000) + "ms");
@@ -178,29 +165,6 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
     int level = 1;
     listener.onMessage("\nExporting records...");
 
-    if (excludeClasses != null && !excludeClasses.isEmpty()) {
-      final OSchema schema = database.getMetadata().getSchema();
-      for (String cls : excludeClasses) {
-        final OClass schemaClass = schema.getClass(cls);
-        if (schemaClass == null) {
-          listener.onMessage("\nWARN: Can not find class with name " + cls);
-        } else {
-          final int[] clusterIds = schemaClass.getClusterIds();
-          if (clusterIds != null) {
-            for (final int clusterId : clusterIds) {
-              final String clusterName =
-                  database.getClusterNameById(clusterId).toUpperCase(Locale.ENGLISH);
-              if (!excludeClusters.contains(clusterName)) {
-                listener.onMessage(
-                    "\n- Cluster " + clusterName + " will be excluded during the export...");
-                excludeClusters.add(clusterName);
-              }
-            }
-          }
-        }
-      }
-    }
-
     final Set<ORID> brokenRids = new HashSet<>();
 
     writer.beginCollection(level, true, "records");
@@ -212,27 +176,9 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
       exportedClusters++;
 
       long clusterExportedRecordsTot = 0;
-
       if (clusterName != null) {
         // CHECK IF THE CLUSTER IS INCLUDED
-        if (includeClusters != null) {
-          if (!includeClusters.contains(clusterName.toUpperCase(Locale.ENGLISH))) {
-            continue;
-          }
-        } else if (excludeClusters != null) {
-          if (excludeClusters.contains(clusterName.toUpperCase(Locale.ENGLISH))) {
-            continue;
-          }
-        }
-
-        if (excludeClusters != null
-            && excludeClusters.contains(clusterName.toUpperCase(Locale.ENGLISH))) {
-          continue;
-        }
-
         clusterExportedRecordsTot = database.countClusterElements(clusterName);
-      } else if (includeClusters != null && !includeClusters.isEmpty()) {
-        continue;
       }
 
       listener.onMessage(
@@ -256,17 +202,6 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
                   doc.getClassName() != null
                       ? doc.getClassName().toUpperCase(Locale.ENGLISH)
                       : null;
-              if (includeClasses != null) {
-                if (!includeClasses.contains(className)) {
-                  continue;
-                }
-              } else if (excludeClasses != null) {
-                if (excludeClasses.contains(className)) {
-                  continue;
-                }
-              }
-            } else if (includeClasses != null && !includeClasses.isEmpty()) {
-              continue;
             }
 
             if (exportRecord(
@@ -408,16 +343,6 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
       }
 
       // CHECK IF THE CLUSTER IS INCLUDED
-      if (includeClusters != null) {
-        if (!includeClusters.contains(clusterName.toUpperCase(Locale.ENGLISH))) {
-          continue;
-        }
-      } else if (excludeClusters != null) {
-        if (excludeClusters.contains(clusterName.toUpperCase(Locale.ENGLISH))) {
-          continue;
-        }
-      }
-
       writer.beginObject(2, true, null);
 
       writer.writeAttribute(0, false, "name", clusterName);
@@ -478,16 +403,6 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
       }
 
       // CHECK TO FILTER CLASS
-      if (includeClasses != null) {
-        if (!includeClasses.contains(clsName)) {
-          continue;
-        }
-      } else if (excludeClasses != null) {
-        if (excludeClasses.contains(clsName)) {
-          continue;
-        }
-      }
-
       listener.onMessage("\n- Index " + index.getName() + "...");
       writer.beginObject(2, true, null);
       writer.writeAttribute(3, true, "name", index.getName());
@@ -618,16 +533,6 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
 
       for (OClass cls : classes) {
         // CHECK TO FILTER CLASS
-        if (includeClasses != null) {
-          if (!includeClasses.contains(cls.getName().toUpperCase(Locale.ENGLISH))) {
-            continue;
-          }
-        } else if (excludeClasses != null) {
-          if (excludeClasses.contains(cls.getName().toUpperCase(Locale.ENGLISH))) {
-            continue;
-          }
-        }
-
         writer.beginObject(3, true, null);
         writer.writeAttribute(0, false, "name", cls.getName());
         writer.writeAttribute(0, false, "default-cluster-id", cls.getDefaultClusterId());

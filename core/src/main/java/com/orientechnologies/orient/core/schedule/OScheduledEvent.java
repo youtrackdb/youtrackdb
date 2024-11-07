@@ -271,8 +271,7 @@ public class OScheduledEvent extends ODocumentWrapper {
 
     private boolean executeEvent() {
       for (int retry = 0; retry < 10; ++retry) {
-        var eventDoc = event.getDocument();
-        var db = eventDoc.getDatabase();
+        var db = ODatabaseSession.getActiveSession();
 
         try {
           if (isEventAlreadyExecuted()) {
@@ -280,6 +279,7 @@ public class OScheduledEvent extends ODocumentWrapper {
           }
 
           db.begin();
+          var eventDoc = event.getDocument();
           eventDoc.field(PROP_STATUS, STATUS.RUNNING);
           eventDoc.field(PROP_STARTTIME, System.currentTimeMillis());
           eventDoc.field(PROP_EXEC_ID, event.nextExecutionId.get());

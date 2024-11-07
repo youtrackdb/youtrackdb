@@ -97,6 +97,7 @@ public class ORecordSerializerBinaryTest {
     db.save(doc);
     db.commit();
 
+    doc = db.bindToSession(doc);
     byte[] serializedDoc = serializer.toStream(doc);
     OResultBinary docBinary =
         (OResultBinary) serializer.getBinaryResult(db, serializedDoc, new ORecordId(-1, -1));
@@ -152,6 +153,7 @@ public class ORecordSerializerBinaryTest {
     db.save(root);
     db.commit();
 
+    root = db.bindToSession(root);
     byte[] rootBytes = serializer.toStream(root);
     OResultBinary docBinary =
         (OResultBinary) serializer.getBinaryResult(db, rootBytes, new ORecordId(-1, -1));
@@ -178,6 +180,7 @@ public class ORecordSerializerBinaryTest {
     db.save(root);
     db.commit();
 
+    root = db.bindToSession(root);
     byte[] rootBytes = serializer.toStream(root);
     embedded = root.field("TestEmbedded");
     byte[] embeddedNativeBytes = serializer.toStream(embedded);
@@ -221,6 +224,7 @@ public class ORecordSerializerBinaryTest {
     db.save(root);
     db.commit();
 
+    root = db.bindToSession(root);
     byte[] rootBytes = serializer.toStream(root);
 
     OResultBinary docBinary =
@@ -247,6 +251,7 @@ public class ORecordSerializerBinaryTest {
     db.save(root);
     db.commit();
 
+    root = db.bindToSession(root);
     byte[] rootBytes = serializer.toStream(root);
     OResultBinary docBinary =
         (OResultBinary) serializer.getBinaryResult(db, rootBytes, new ORecordId(-1, -1));

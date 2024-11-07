@@ -123,6 +123,9 @@ public class ORecordLazySetTest extends BaseMemoryDatabase {
   @Test()
   public void testSetRemoveNotPersistent() {
     ORecordLazySet set = new ORecordLazySet(new ODocument());
+    doc1 = db.bindToSession(doc1);
+    doc2 = db.bindToSession(doc2);
+
     set.add(doc1);
     set.add(doc2);
     set.add(new ORecordId(5, 1000));

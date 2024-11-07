@@ -45,7 +45,6 @@ import com.orientechnologies.orient.core.query.OQuery;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.record.impl.OBlob;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -270,7 +269,7 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
   }
 
   @Override
-  public void begin(OTransactionOptimistic tx) {
+  public int begin(OTransactionOptimistic tx) {
     throw new UnsupportedOperationException();
   }
 
@@ -292,17 +291,10 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
   }
 
   @Override
-  public <RET extends ORecord> RET executeReadRecord(
-      ORecordId rid,
-      ORecordAbstract iRecord,
-      int recordVersion,
-      String fetchPlan,
-      boolean ignoreCache,
-      boolean loadTombstones,
-      RecordReader recordReader) {
+  public <RET extends ORecord> RET executeReadRecord(ORecordId rid) {
     checkOpenness();
-    return internal.executeReadRecord(
-        rid, iRecord, recordVersion, fetchPlan, ignoreCache, loadTombstones, recordReader);
+
+    return internal.executeReadRecord(rid);
   }
 
   @Override
@@ -318,18 +310,15 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
   }
 
   @Override
-  public <DB extends ODatabase<?>> DB registerHook(ORecordHook iHookImpl) {
+  public void registerHook(ORecordHook iHookImpl) {
     checkOpenness();
     internal.registerHook(iHookImpl);
-    return (DB) this;
   }
 
   @Override
-  public <DB extends ODatabase<?>> DB registerHook(
-      ORecordHook iHookImpl, ORecordHook.HOOK_POSITION iPosition) {
+  public void registerHook(ORecordHook iHookImpl, ORecordHook.HOOK_POSITION iPosition) {
     checkOpenness();
     internal.registerHook(iHookImpl, iPosition);
-    return (DB) this;
   }
 
   @Override
@@ -339,10 +328,9 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
   }
 
   @Override
-  public <DB extends ODatabase<?>> DB unregisterHook(ORecordHook iHookImpl) {
+  public void unregisterHook(ORecordHook iHookImpl) {
     checkOpenness();
     internal.unregisterHook(iHookImpl);
-    return (DB) this;
   }
 
   @Override
@@ -569,18 +557,6 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
     return internal.newElement(className);
   }
 
-  @Override
-  public OElement newEmbeddedElement() {
-    checkOpenness();
-    return internal.newEmbeddedElement();
-  }
-
-  @Override
-  public OElement newEmbeddedElement(String className) {
-    checkOpenness();
-    return internal.newEmbeddedElement(className);
-  }
-
   public boolean isUseLightweightEdges() {
     return internal.isUseLightweightEdges();
   }
@@ -632,13 +608,6 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
   }
 
   @Override
-  public <RET extends ORecord> RET reload(
-      ORecord iObject, String iFetchPlan, boolean iIgnoreCache, boolean force) {
-    checkOpenness();
-    return internal.reload(iObject, iFetchPlan, iIgnoreCache, force);
-  }
-
-  @Override
   public <RET extends ORecord> RET load(ORID recordId) {
     checkOpenness();
     return internal.load(recordId);
@@ -669,17 +638,15 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
   }
 
   @Override
-  public ODatabase<ORecord> delete(ORecord iObject) {
+  public void delete(ORecord iObject) {
     checkOpenness();
     internal.delete(iObject);
-    return this;
   }
 
   @Override
-  public ODatabase<ORecord> delete(ORID iRID) {
+  public void delete(ORID iRID) {
     checkOpenness();
     internal.delete(iRID);
-    return this;
   }
 
   @Override
@@ -708,31 +675,27 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
   }
 
   @Override
-  public ODatabase<ORecord> begin() {
+  public int begin() {
     checkOpenness();
-    internal.begin();
-    return this;
+    return internal.begin();
   }
 
   @Override
-  public ODatabase<ORecord> commit() throws OTransactionException {
+  public boolean commit() throws OTransactionException {
     checkOpenness();
-    internal.commit();
-    return this;
+    return internal.commit();
   }
 
   @Override
-  public ODatabase<ORecord> rollback() throws OTransactionException {
+  public void rollback() throws OTransactionException {
     checkOpenness();
     internal.rollback();
-    return this;
   }
 
   @Override
-  public ODatabase<ORecord> rollback(boolean force) throws OTransactionException {
+  public void rollback(boolean force) throws OTransactionException {
     checkOpenness();
     internal.rollback(force);
-    return this;
   }
 
   @Override
@@ -795,12 +758,6 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
   }
 
   @Override
-  public <RET extends ORecord> RET getRecord(OIdentifiable iIdentifiable) {
-    checkOpenness();
-    return internal.getRecord(iIdentifiable);
-  }
-
-  @Override
   public byte getRecordType() {
     checkOpenness();
     return internal.getRecordType();
@@ -819,27 +776,24 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
   }
 
   @Override
-  public <DB extends ODatabaseDocument> DB checkSecurity(
+  public void checkSecurity(
       ORule.ResourceGeneric resourceGeneric, String resourceSpecific, int iOperation) {
     checkOpenness();
     internal.checkSecurity(resourceGeneric, resourceSpecific, iOperation);
-    return (DB) this;
   }
 
   @Override
-  public <DB extends ODatabaseDocument> DB checkSecurity(
+  public void checkSecurity(
       ORule.ResourceGeneric iResourceGeneric, int iOperation, Object iResourceSpecific) {
     checkOpenness();
     internal.checkSecurity(iResourceGeneric, iOperation, iResourceSpecific);
-    return (DB) this;
   }
 
   @Override
-  public <DB extends ODatabaseDocument> DB checkSecurity(
+  public void checkSecurity(
       ORule.ResourceGeneric iResourceGeneric, int iOperation, Object... iResourcesSpecific) {
     checkOpenness();
     internal.checkSecurity(iResourceGeneric, iOperation, iResourcesSpecific);
-    return (DB) this;
   }
 
   @Override
@@ -856,26 +810,21 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
   }
 
   @Override
-  public <DB extends ODatabaseDocument> DB checkSecurity(String iResource, int iOperation) {
+  public void checkSecurity(String iResource, int iOperation) {
     checkOpenness();
     internal.checkSecurity(iResource, iOperation);
-    return (DB) this;
   }
 
   @Override
-  public <DB extends ODatabaseDocument> DB checkSecurity(
-      String iResourceGeneric, int iOperation, Object iResourceSpecific) {
+  public void checkSecurity(String iResourceGeneric, int iOperation, Object iResourceSpecific) {
     checkOpenness();
     internal.checkSecurity(iResourceGeneric, iOperation, iResourceSpecific);
-    return (DB) this;
   }
 
   @Override
-  public <DB extends ODatabaseDocument> DB checkSecurity(
-      String iResourceGeneric, int iOperation, Object... iResourcesSpecific) {
+  public void checkSecurity(String iResourceGeneric, int iOperation, Object... iResourcesSpecific) {
     checkOpenness();
     internal.checkSecurity(iResourceGeneric, iOperation, iResourcesSpecific);
-    return (DB) this;
   }
 
   @Override
@@ -1003,11 +952,10 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
   }
 
   @Override
-  public ODatabase activateOnCurrentThread() {
+  public void activateOnCurrentThread() {
     if (internal != null) {
       internal.activateOnCurrentThread();
     }
-    return this;
   }
 
   @Override
@@ -1257,13 +1205,12 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
   }
 
   @Override
-  public <DB extends ODatabase> DB set(ATTRIBUTES iAttribute, Object iValue) {
+  public void set(ATTRIBUTES iAttribute, Object iValue) {
     if (internal != null) {
       internal.set(iAttribute, iValue);
     } else {
       preopenAttributes.put(iAttribute, iValue);
     }
-    return (DB) this;
   }
 
   @Override
@@ -1660,7 +1607,7 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
   }
 
   @Override
-  public <T extends ORecord> T bindToSession(T record) {
-    return internal.bindToSession(record);
+  public <T extends OIdentifiable> T bindToSession(T identifiable) {
+    return internal.bindToSession(identifiable);
   }
 }

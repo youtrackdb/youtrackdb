@@ -287,6 +287,7 @@ public class ODocumentTest {
       db.commit();
 
       db.begin();
+      doc = db.bindToSession(doc);
       assertEquals(doc.field("name"), "My Name");
       assertEquals(doc.field("property"), "value1");
       doc.undo();
@@ -302,6 +303,7 @@ public class ODocumentTest {
       db.commit();
 
       db.begin();
+      doc = db.bindToSession(doc);
       doc.field("name", "My Name 4");
       doc.field("property", "value4");
       doc.undo("property");
@@ -310,6 +312,7 @@ public class ODocumentTest {
       doc.save();
       db.commit();
 
+      doc = db.bindToSession(doc);
       doc.undo("property");
       assertEquals(doc.field("name"), "My Name 4");
       assertEquals(doc.field("property"), "value1");

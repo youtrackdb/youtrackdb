@@ -9,6 +9,7 @@ import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.storage.impl.local.OStorageRecoverEventListener;
+import java.util.Objects;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -110,16 +111,16 @@ public class GraphRecoveringTest {
       try (var session = orientDB.open("testRecoverBrokenGraphAllEdges", "admin", "admin")) {
         init(session);
 
+        session.begin();
         for (var e :
             session.query("select from E").stream()
                 .map(OResult::toElement)
                 .map(OElement::toEdge)
                 .toList()) {
-          session.begin();
           e.<ODocument>getRecord().removeField("out");
           e.save();
-          session.commit();
         }
+        session.commit();
 
         final TestListener eventListener = new TestListener();
 
@@ -147,20 +148,21 @@ public class GraphRecoveringTest {
           orientDB.open("testRecoverBrokenGraphLinksInVerticesNonLW", "admin", "admin")) {
         init(session);
 
+        session.begin();
         for (var v :
             session.query("select from V").stream()
                 .map(OResult::toElement)
+                .filter(Objects::nonNull)
                 .map(OElement::toVertex)
                 .toList()) {
           for (String f : v.<ODocument>getRecord().fieldNames()) {
             if (f.startsWith(OVertex.DIRECTION_OUT_PREFIX)) {
-              session.begin();
               v.<ODocument>getRecord().removeField(f);
               v.save();
-              session.commit();
             }
           }
         }
+        session.commit();
 
         final TestListener eventListener = new TestListener();
 

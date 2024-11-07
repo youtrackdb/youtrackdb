@@ -182,12 +182,6 @@ public interface ODatabaseObjectInternal
 
   ORID getIdentity(final Object iPojo);
 
-  <RET> RET reload(final Object iPojo);
-
-  <RET> RET reload(final Object iPojo, final boolean iIgnoreCache);
-
-  <RET> RET reload(Object iObject, String iFetchPlan, boolean iIgnoreCache, boolean force);
-
   @Override
   OMetadataObject getMetadata();
 

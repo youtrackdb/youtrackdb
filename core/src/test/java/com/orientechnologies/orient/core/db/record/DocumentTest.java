@@ -65,7 +65,7 @@ public class DocumentTest extends BaseMemoryDatabase {
     doc.save();
     db.commit();
 
-    Map<String, Object> map = doc.toMap();
+    Map<String, Object> map = db.bindToSession(doc).toMap();
 
     Assert.assertEquals(map.size(), 4);
     Assert.assertEquals(map.get("name"), "Jay");

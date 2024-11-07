@@ -56,11 +56,15 @@ public class OSequenceCached extends OSequence {
     var currentParams = params;
     db.executeInTx(
         () -> {
-          setCacheSize(document, currentParams.cacheSize);
+          var boundDocument = db.bindToSession(document);
+          setCacheSize(boundDocument, currentParams.cacheSize);
           cacheStart = cacheEnd = 0L;
           allocateCache(
-              document, currentParams.cacheSize, getOrderType(document), getLimitValue(document));
-          document.save();
+              boundDocument,
+              currentParams.cacheSize,
+              getOrderType(boundDocument),
+              getLimitValue(boundDocument));
+          boundDocument.save();
         });
   }
 

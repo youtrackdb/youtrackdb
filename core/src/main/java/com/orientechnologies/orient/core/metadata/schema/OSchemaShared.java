@@ -394,11 +394,14 @@ public abstract class OSchemaShared implements OCloseable {
     lock.writeLock().lock();
     try {
       identity = new ORecordId(database.getStorageInfo().getConfiguration().getSchemaRecordId());
-      ODocument document = database.load(identity);
-      fromStream(document);
-      forceSnapshot(database);
-      ORecordInternal.unsetDirty(document);
-      document.unload();
+      database.executeInTx(
+          () -> {
+            ODocument document = database.load(identity);
+            fromStream(document);
+            forceSnapshot(database);
+            ORecordInternal.unsetDirty(document);
+            document.unload();
+          });
     } finally {
       lock.writeLock().unlock();
     }
@@ -908,10 +911,13 @@ public abstract class OSchemaShared implements OCloseable {
       if (!identity.isValid()) {
         throw new OSchemaNotCreatedException("Schema is not created and cannot be loaded");
       }
-      ODocument document = database.load(identity);
-      fromStream(document);
-      ORecordInternal.unsetDirty(document);
-      document.unload();
+      database.executeInTx(
+          () -> {
+            ODocument document = database.load(identity);
+            fromStream(document);
+            ORecordInternal.unsetDirty(document);
+            document.unload();
+          });
       return this;
     } finally {
       lock.writeLock().unlock();

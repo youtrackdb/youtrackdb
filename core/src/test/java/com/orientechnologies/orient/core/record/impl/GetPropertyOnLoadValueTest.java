@@ -110,6 +110,8 @@ public class GetPropertyOnLoadValueTest extends BaseMemoryDatabase {
     doc.save();
     db.commit();
     db.begin();
+
+    doc = db.bindToSession(doc);
     doc.setLazyLoad(true);
     doc = db.load(doc.getIdentity());
     doc.setProperty("stringBlob", oBlob2);
@@ -170,15 +172,13 @@ public class GetPropertyOnLoadValueTest extends BaseMemoryDatabase {
     db.commit();
     for (var txId = 0; txId < 5; txId++) {
       db.begin();
-      propertyNames.forEach(
-          name -> {
-            initialValues.put(name, doc.getProperty(name));
-          });
+      var boundDoc = db.bindToSession(doc);
+      propertyNames.forEach(name -> initialValues.put(name, boundDoc.getProperty(name)));
       for (var i = 0; i < 1000; i++) {
         var operation = operations.get(random.nextInt(operations.size()));
         var propertyName = propertyNames.get(random.nextInt(propertyNames.size()));
-        operation.apply(doc, propertyName);
-        assertInitialValues(doc, initialValues);
+        operation.apply(boundDoc, propertyName);
+        assertInitialValues(boundDoc, initialValues);
       }
       db.commit();
     }

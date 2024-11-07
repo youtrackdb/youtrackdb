@@ -246,8 +246,6 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   }
 
   public void testDocumentEmbeddedListTrackingAfterSaveCacheDisabled() {
-    database.getLocalCache().clear();
-
     database.begin();
     final ODocument document = new ODocument();
 
@@ -282,8 +280,6 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   }
 
   public void testDocumentEmbeddedMapTrackingAfterSaveCacheDisabled() {
-    database.getLocalCache().clear();
-
     database.begin();
     final ODocument document = new ODocument();
 
@@ -318,8 +314,6 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   }
 
   public void testDocumentEmbeddedSetTrackingAfterSaveCacheDisabled() {
-    database.getLocalCache().clear();
-
     database.begin();
     final ODocument document = new ODocument();
 
@@ -354,8 +348,6 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   }
 
   public void testDocumentLinkSetTrackingAfterSaveCacheDisabled() {
-    database.getLocalCache().clear();
-
     database.begin();
     final ODocument docOne = new ODocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
@@ -388,8 +380,6 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   }
 
   public void testDocumentLinkListTrackingAfterSaveCacheDisabled() {
-    database.getLocalCache().clear();
-
     database.begin();
     final ODocument docOne = new ODocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
@@ -422,8 +412,6 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   }
 
   public void testDocumentLinkMapTrackingAfterSaveCacheDisabled() {
-    database.getLocalCache().clear();
-
     database.begin();
     final ODocument docOne = new ODocument();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));

@@ -13,6 +13,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class HookChangeValidationTest extends BaseMemoryDatabase {
+
   @Test
   public void testHookCreateChangeTx() {
 
@@ -92,6 +93,7 @@ public class HookChangeValidationTest extends BaseMemoryDatabase {
     doc.save();
     db.commit();
 
+    doc = db.bindToSession(doc);
     assertEquals("value1-create", doc.field("property1"));
     assertEquals("value2-create", doc.field("property2"));
     assertEquals("value3-create", doc.field("property3"));

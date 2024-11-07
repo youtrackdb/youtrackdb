@@ -325,7 +325,9 @@ public class OCreateViewStatementExecutionTest extends BaseMemoryDatabase {
           }
         });
 
+    db.begin();
     db.command("DELETE FROM " + className + " WHERE name = 'name3'").close();
+    db.commit();
 
     assertWithTimeout(
         db,

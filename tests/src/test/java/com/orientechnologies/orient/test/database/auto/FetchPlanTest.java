@@ -104,8 +104,6 @@ public class FetchPlanTest extends DocumentDBBaseTest {
     database.save(doc6);
 
     database.commit();
-
-    database.getLocalCache().clear();
   }
 
   @AfterMethod
@@ -121,7 +119,6 @@ public class FetchPlanTest extends DocumentDBBaseTest {
 
     final long times = Orient.instance().getProfiler().getCounter("Cache.reused");
 
-    database.getLocalCache().clear();
     List<ODocument> resultset =
         database.query(new OSQLSynchQuery<ODocument>("select * from FetchClass"));
     Assert.assertEquals(Orient.instance().getProfiler().getCounter("Cache.reused"), times);
@@ -241,7 +238,6 @@ public class FetchPlanTest extends DocumentDBBaseTest {
       database.save(d);
       database.commit();
     }
-    database.getLocalCache().clear();
     resultset =
         database.query(
             new OSQLSynchQuery<ODocument>("select * from FetchClass where name = 'forth' "));
@@ -272,7 +268,6 @@ public class FetchPlanTest extends DocumentDBBaseTest {
       database.save(d);
       database.commit();
     }
-    database.getLocalCache().clear();
     resultset =
         database.query(
             new OSQLSynchQuery<ODocument>("select * from SecondFetchClass where name = 'sixth1'"));
@@ -295,7 +290,6 @@ public class FetchPlanTest extends DocumentDBBaseTest {
       database.delete(d);
       database.commit();
     }
-    database.getLocalCache().clear();
     resultset =
         database.query(
             new OSQLSynchQuery<ODocument>("select * from SecondFetchClass where name = 'fifth'"));

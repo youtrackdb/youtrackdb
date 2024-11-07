@@ -64,6 +64,7 @@ public class CheckHookCallCountTest extends BaseMemoryDatabase {
     db.commit();
 
     db.begin();
+    doc = db.bindToSession(doc);
     assertEquals(Integer.valueOf(2), doc.field("a"));
     assertEquals(Integer.valueOf(2), doc.field("b"));
     assertNull(doc.field("c"));
@@ -98,6 +99,7 @@ public class CheckHookCallCountTest extends BaseMemoryDatabase {
         });
 
     db.begin();
+    doc = db.bindToSession(doc);
     assertEquals(Integer.valueOf(2), doc.field("a"));
     assertEquals(Integer.valueOf(2), doc.field("b"));
     assertEquals(Integer.valueOf(4), doc.field("c"));
@@ -111,6 +113,7 @@ public class CheckHookCallCountTest extends BaseMemoryDatabase {
     db.commit();
 
     db.begin();
+    doc = db.bindToSession(doc);
     assertEquals(Integer.valueOf(3), doc.field("a"));
     assertEquals(Integer.valueOf(3), doc.field("b"));
     assertEquals(Integer.valueOf(6), doc.field("c"));
