@@ -10,10 +10,7 @@ public class InputStreamWindow {
 
   private int bufferSize = 0;
 
-  public InputStreamWindow(
-      InputStream inputStream,
-      int windowSize
-  ) throws IOException {
+  public InputStreamWindow(InputStream inputStream, int windowSize) throws IOException {
     this.inputStream = inputStream;
     this.buffer = new byte[windowSize];
     advance(windowSize);

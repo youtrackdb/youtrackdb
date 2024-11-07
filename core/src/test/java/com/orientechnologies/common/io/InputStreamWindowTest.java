@@ -18,7 +18,7 @@ public class InputStreamWindowTest {
     final var window = new InputStreamWindow(stream, windowSize);
 
     int pageIdx = 0;
-    final var result  = new byte[ALL_BYTES.length];
+    final var result = new byte[ALL_BYTES.length];
     while (window.size() > 0) {
       for (int i = 0; i < window.size(); i++) {
         result[pageIdx * windowSize + i] = window.get()[i];
@@ -45,10 +45,7 @@ public class InputStreamWindowTest {
       final var stream = new ByteArrayInputStream(bytes);
       final var window = new InputStreamWindow(stream, windowSize);
 
-      assertEquals(
-          Math.min(windowSize, inputSize),
-          window.availableBytes(0, inputSize)
-      );
+      assertEquals(Math.min(windowSize, inputSize), window.availableBytes(0, inputSize));
 
       window.advance(79);
 
@@ -56,7 +53,6 @@ public class InputStreamWindowTest {
 
       assertEquals(21, window.availableBytes(0, inputSize));
     }
-
   }
 
   private static final byte[] ALL_BYTES;

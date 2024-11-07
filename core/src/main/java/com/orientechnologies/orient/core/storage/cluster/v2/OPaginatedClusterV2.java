@@ -346,16 +346,15 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
         recordVersion,
         recordType,
         allocatedPosition,
-        atomicOperation
-    );
-//    return createRecordFromBytes(
-//        content,
-//        content.length,
-//        recordVersion,
-//        recordType,
-//        allocatedPosition,
-//        atomicOperation
-//    );
+        atomicOperation);
+    //    return createRecordFromBytes(
+    //        content,
+    //        content.length,
+    //        recordVersion,
+    //        recordType,
+    //        allocatedPosition,
+    //        atomicOperation
+    //    );
   }
 
   private OPhysicalPosition createRecordFromBytes(
@@ -419,8 +418,7 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
       int recordVersion,
       byte recordType,
       OPhysicalPosition allocatedPosition,
-      OAtomicOperation atomicOperation
-  ) {
+      OAtomicOperation atomicOperation) {
 
     // todo: don't forget to close the stream
     final InputStreamWindow source;
@@ -430,21 +428,20 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
       throw OException.wrapException(new OIOException("Error on reading content from record"), e);
     }
 
-//    if (!source.hasContent(MIN_ENTRY_SIZE)) {
-//      return createRecordFromBytes(
-//          source.get(),
-//          source.size(),
-//          recordVersion,
-//          recordType,
-//          allocatedPosition,
-//          atomicOperation
-//      );
-//    }
+    //    if (!source.hasContent(MIN_ENTRY_SIZE)) {
+    //      return createRecordFromBytes(
+    //          source.get(),
+    //          source.size(),
+    //          recordVersion,
+    //          recordType,
+    //          allocatedPosition,
+    //          atomicOperation
+    //      );
+    //    }
 
     return calculateInsideComponentOperation(
         atomicOperation,
         operation -> {
-
           acquireExclusiveLock();
 
           try {
@@ -489,7 +486,6 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
           } finally {
             releaseExclusiveLock();
           }
-
         });
   }
 
@@ -528,7 +524,8 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
       final long nextRecordPointer,
       final OAtomicOperation atomicOperation,
       final Int2ObjectFunction<OClusterPage> pageSupplier,
-      final Consumer<OClusterPage> pagePostProcessor) throws IOException {
+      final Consumer<OClusterPage> pagePostProcessor)
+      throws IOException {
 
     assert source.hasContent();
 
@@ -556,9 +553,9 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
 
       // 1. checking the next page
       final int availableContentSize =
-          isFirstEntry ?
-              source.availableBytes(0, MAX_ENTRY_SIZE - clusterEntrySize) :
-              source.availableBytes(pendingPageBytes, MAX_ENTRY_SIZE);
+          isFirstEntry
+              ? source.availableBytes(0, MAX_ENTRY_SIZE - clusterEntrySize)
+              : source.availableBytes(pendingPageBytes, MAX_ENTRY_SIZE);
 
       if (availableContentSize > 0) {
         final int requiredEntrySpace =
@@ -566,19 +563,19 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
         nextPage = pageSupplier.apply(requiredEntrySpace);
         assert nextPage != null;
 
-
         final int availableInPage = nextPage.getMaxRecordSize() - MIN_ENTRY_SIZE;
         // todo: what if isFirstEntry == true && availableInPage < BYTE_SIZE + INT_SIZE?
         if (availableInPage > 0) {
           final var bytesToWrite = Math.min(availableInPage, requiredEntrySpace);
           nextPageBytes = isFirstEntry ? bytesToWrite - clusterEntrySize : bytesToWrite;
 
-          final int[] recPosPair = nextPage.findRecordPosition(
-              recordVersion,
-              calculateChunkSize(bytesToWrite),
-              -1,
-              atomicOperation.getBookedRecordPositions(id, nextPage.getCacheEntry().getPageIndex())
-          );
+          final int[] recPosPair =
+              nextPage.findRecordPosition(
+                  recordVersion,
+                  calculateChunkSize(bytesToWrite),
+                  -1,
+                  atomicOperation.getBookedRecordPositions(
+                      id, nextPage.getCacheEntry().getPageIndex()));
 
           nextPagePosition = recPosPair[0];
           nextPageIndex = nextPage.getCacheEntry().getPageIndex();
@@ -596,8 +593,7 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
           freeSpaceMap.updatePageFreeSpace(
               atomicOperation,
               nextPage.getCacheEntry().getPageIndex(),
-              nextPage.getMaxRecordSize()
-          );
+              nextPage.getMaxRecordSize());
 
           continue; // moving to the next page, this one doesn't have enough space
         }
@@ -622,10 +618,10 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
                   contentSize,
                   calculateChunkSize(bytesToWrite),
                   calculateClusterEntrySize(pendingPageBytes), // todo: very unclear logic.
-                  nextPage == null ? nextRecordPointer
+                  nextPage == null
+                      ? nextRecordPointer
                       : createPagePointer(nextPageIndex, nextPageOffset),
-                  recordType
-              );
+                  recordType);
 
           final byte[] chunk = pair.first;
           final int chuckSize =
@@ -643,8 +639,7 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
         freeSpaceMap.updatePageFreeSpace(
             atomicOperation,
             pendingPage.getCacheEntry().getPageIndex(),
-            pendingPage.getMaxRecordSize()
-        );
+            pendingPage.getMaxRecordSize());
       }
 
       pendingPage = nextPage;
@@ -655,12 +650,12 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
 
     assert firstPageIndex >= 0;
     try (final var firstPage = loadPageForWrite(atomicOperation, fileId, firstPageIndex, false)) {
-      new OClusterPage(firstPage).setRecordEntrySize(
-          firstPagePosition + 3 * OIntegerSerializer.INT_SIZE + 1, contentSize);
+      new OClusterPage(firstPage)
+          .setRecordEntrySize(firstPagePosition + 3 * OIntegerSerializer.INT_SIZE + 1, contentSize);
 
       // verifyChecksum true or false?
     }
-    return new int[]{firstPageIndex, firstPageOffset, contentSize};
+    return new int[] {firstPageIndex, firstPageOffset, contentSize};
   }
 
   private int[] serializeRecordBytes(
@@ -696,9 +691,12 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
 
           final ORawPairObjectInteger<byte[]> pair =
               serializeEntryChunk(
-                  content, content.length, pageChunkSize, bytesToWrite,
-                  nextRecordPointers, recordType
-              );
+                  content,
+                  content.length,
+                  pageChunkSize,
+                  bytesToWrite,
+                  nextRecordPointers,
+                  recordType);
           final byte[] chunk = pair.first;
 
           final OCacheEntry cacheEntry = page.getCacheEntry();
@@ -738,8 +736,7 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
       final int chunkSize,
       final int bytesToWrite,
       final long nextPagePointer,
-      final byte recordType
-  ) {
+      final byte recordType) {
     final byte[] chunk = new byte[chunkSize];
     int offset = chunkSize - OLongSerializer.LONG_SIZE;
 

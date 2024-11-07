@@ -164,7 +164,7 @@ public final class OClusterPage extends ODurablePage {
     // todo: is it ok to set this before write?
     setFreePosition(freePosition);
 
-    return new int[]{freePosition, entryIndex};
+    return new int[] {freePosition, entryIndex};
   }
 
   public int appendRecord(

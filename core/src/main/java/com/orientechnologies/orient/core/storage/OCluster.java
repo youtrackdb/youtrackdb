@@ -24,12 +24,9 @@ import com.orientechnologies.common.io.OIOException;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.orient.core.config.OStorageClusterConfiguration;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.storage.impl.local.OClusterBrowsePage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
-
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -109,9 +106,7 @@ public interface OCluster {
     }
 
     return createRecord(
-        contentBytes, recordVersion, recordType,
-        allocatedPosition, atomicOperation
-    );
+        contentBytes, recordVersion, recordType, allocatedPosition, atomicOperation);
   }
 
   boolean deleteRecord(OAtomicOperation atomicOperation, long clusterPosition);
