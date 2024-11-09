@@ -3,14 +3,14 @@ package com.orientechnologies.common.io;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class InputStreamWindow {
+public class NaiveInputStreamWindow implements BytesSource {
 
   private final InputStream inputStream;
   private final byte[] buffer;
 
   private int bufferSize = 0;
 
-  public InputStreamWindow(InputStream inputStream, int windowSize) throws IOException {
+  public NaiveInputStreamWindow(InputStream inputStream, int windowSize) throws IOException {
     this.inputStream = inputStream;
     this.buffer = new byte[windowSize];
     advance(windowSize);
@@ -20,20 +20,12 @@ public class InputStreamWindow {
     return buffer;
   }
 
-  public int availableBytes(int offset, int limit) {
-    return Math.max(Math.min(bufferSize - offset, limit), 0);
+  public int availableBytes(int offset) {
+    return Math.max(bufferSize - offset, 0);
   }
 
   public int size() {
     return bufferSize;
-  }
-
-  public boolean hasContent(int offset) {
-    return bufferSize > offset;
-  }
-
-  public boolean hasContent() {
-    return hasContent(0);
   }
 
   public boolean advance(int advanceBytes) throws IOException {
@@ -59,5 +51,15 @@ public class InputStreamWindow {
 
     bufferSize = Math.max(newSize, 0);
     return bufferSize > 0;
+  }
+
+  @Override
+  public void copyTo(byte[] dest, int destOffset, int len) {
+    System.arraycopy(buffer, 0, dest, destOffset, len);
+  }
+
+  @Override
+  public void close() throws IOException {
+    inputStream.close();
   }
 }

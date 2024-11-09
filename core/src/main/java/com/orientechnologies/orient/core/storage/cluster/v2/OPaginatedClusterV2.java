@@ -16,7 +16,9 @@
 package com.orientechnologies.orient.core.storage.cluster.v2;
 
 import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.common.io.InputStreamWindow;
+import com.orientechnologies.common.io.ByteArraySource;
+import com.orientechnologies.common.io.BytesSource;
+import com.orientechnologies.common.io.CircularInputStreamWindow;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.io.OIOException;
 import com.orientechnologies.common.log.OLogManager;
@@ -341,8 +343,8 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
       byte recordType,
       OPhysicalPosition allocatedPosition,
       OAtomicOperation atomicOperation) {
-    return createRecord(
-        new ByteArrayInputStream(content),
+    return createRecordFromSource(
+        new ByteArraySource(content),
         recordVersion,
         recordType,
         allocatedPosition,
@@ -420,25 +422,25 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
       OPhysicalPosition allocatedPosition,
       OAtomicOperation atomicOperation) {
 
-    // todo: don't forget to close the stream
-    final InputStreamWindow source;
+    final BytesSource source;
     try {
-      source = new InputStreamWindow(content, MAX_ENTRY_SIZE * 2);
+      source = new CircularInputStreamWindow(content, MAX_ENTRY_SIZE * 2);
     } catch (IOException e) {
       throw OException.wrapException(new OIOException("Error on reading content from record"), e);
     }
 
-    //    if (!source.hasContent(MIN_ENTRY_SIZE)) {
-    //      return createRecordFromBytes(
-    //          source.get(),
-    //          source.size(),
-    //          recordVersion,
-    //          recordType,
-    //          allocatedPosition,
-    //          atomicOperation
-    //      );
-    //    }
+    return createRecordFromSource(
+        source, recordVersion, recordType, allocatedPosition, atomicOperation);
+  }
 
+  public OPhysicalPosition createRecordFromSource(
+      BytesSource source,
+      int recordVersion,
+      byte recordType,
+      OPhysicalPosition allocatedPosition,
+      OAtomicOperation atomicOperation) {
+
+    // todo: don't forget to close the source
     return calculateInsideComponentOperation(
         atomicOperation,
         operation -> {
@@ -518,7 +520,7 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
   }
 
   private int[] serializeRecordStream(
-      final InputStreamWindow source,
+      final BytesSource source,
       final byte recordType,
       final int recordVersion,
       final long nextRecordPointer,
@@ -613,8 +615,8 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
           final var bytesToWrite =
               pendingPageIsFirst ? pendingPageBytes + clusterEntrySize : pendingPageBytes;
           final ORawPairObjectInteger<byte[]> pair =
-              serializeEntryChunk(
-                  source.get(),
+              serializeEntryChunkNew(
+                  source,
                   contentSize,
                   calculateChunkSize(bytesToWrite),
                   calculateClusterEntrySize(pendingPageBytes), // todo: very unclear logic.
@@ -787,7 +789,7 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
 
           if (recordSizePart == OIntegerSerializer.INT_SIZE
               && spaceLeft == OIntegerSerializer.INT_SIZE) {
-            OIntegerSerializer.INSTANCE.serializeNative(recordContent.length, chunk, 0);
+            OIntegerSerializer.INSTANCE.serializeNative(recordLength, chunk, 0);
             written += OIntegerSerializer.INT_SIZE;
           } else {
             final ByteOrder byteOrder = ByteOrder.nativeOrder();
@@ -795,14 +797,111 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
               for (int sizeOffset = (recordSizePart - 1) << 3;
                   sizeOffset >= 0 && spaceLeft > 0;
                   sizeOffset -= 8, spaceLeft--, written++) {
-                final byte sizeByte = (byte) (0xFF & (recordContent.length >> sizeOffset));
+                final byte sizeByte = (byte) (0xFF & (recordLength >> sizeOffset));
                 chunk[spaceLeft - 1] = sizeByte;
               }
             } else {
               for (int sizeOffset = (OIntegerSerializer.INT_SIZE - recordSizePart) << 3;
                   sizeOffset < OIntegerSerializer.INT_SIZE & spaceLeft > 0;
                   sizeOffset += 8, spaceLeft--, written++) {
-                final byte sizeByte = (byte) (0xFF & (recordContent.length >> sizeOffset));
+                final byte sizeByte = (byte) (0xFF & (recordLength >> sizeOffset));
+                chunk[spaceLeft - 1] = sizeByte;
+              }
+            }
+
+            if (spaceLeft > 0) {
+              chunk[0] = recordType;
+              chunk[firstRecordOffset] = 1;
+              written++;
+            }
+          }
+        }
+      }
+    }
+
+    return new ORawPairObjectInteger<>(chunk, written);
+  }
+
+  // this method is almost an exact copy of serializeEntryChunk,
+  // but it uses BytesSource instead of byte array
+  private ORawPairObjectInteger<byte[]> serializeEntryChunkNew(
+      final BytesSource recordContent,
+      final int recordLength,
+      final int chunkSize,
+      final int bytesToWrite,
+      final long nextPagePointer,
+      final byte recordType
+  ) {
+    final byte[] chunk = new byte[chunkSize];
+    int offset = chunkSize - OLongSerializer.LONG_SIZE;
+
+    OLongSerializer.INSTANCE.serializeNative(nextPagePointer, chunk, offset);
+
+    int written = 0;
+    // entry - entry size - record type
+    final int contentSize = bytesToWrite - OIntegerSerializer.INT_SIZE - OByteSerializer.BYTE_SIZE;
+    // skip first record flag
+    final int firstRecordOffset = --offset;
+
+    // there are records data to write
+    if (contentSize > 0) {
+      final int contentToWrite = Math.min(contentSize, offset); // MIN(BR, CH)
+      assert
+          contentSize == contentToWrite :
+          "contentSize: " + contentSize + ", contentToWrite: " + contentToWrite;
+      recordContent.copyTo(chunk, offset - contentToWrite, contentToWrite);
+//      System.arraycopy(
+//          recordContent,
+//          contentSize - contentToWrite, // BR - MIN(BR, CH) = 0 or BR - CH
+//          chunk,
+//          offset - contentToWrite, // CH - MIN(BR, CH) = 0 or CH - BR
+//          contentToWrite);
+      written = contentToWrite;
+    }
+
+    int spaceLeft = chunkSize - written - OLongSerializer.LONG_SIZE - OByteSerializer.BYTE_SIZE;
+
+    if (spaceLeft > 0) {
+      final int spaceToWrite = bytesToWrite - written;
+      assert spaceToWrite <= OIntegerSerializer.INT_SIZE + OByteSerializer.BYTE_SIZE;
+
+      // we need to write only record type
+      if (spaceToWrite == 1) {
+        chunk[0] = recordType;
+        chunk[firstRecordOffset] = 1;
+        written++;
+      } else {
+        // at least part of record size and record type has to be written
+        // record size and record type can be written at once
+        if (spaceLeft == OIntegerSerializer.INT_SIZE + OByteSerializer.BYTE_SIZE) {
+          chunk[0] = recordType;
+          OIntegerSerializer.INSTANCE.serializeNative(
+              recordLength, chunk, OByteSerializer.BYTE_SIZE);
+          chunk[firstRecordOffset] = 1;
+
+          written += OIntegerSerializer.INT_SIZE + OByteSerializer.BYTE_SIZE;
+        } else {
+          final int recordSizePart = spaceToWrite - OByteSerializer.BYTE_SIZE;
+          assert recordSizePart <= OIntegerSerializer.INT_SIZE;
+
+          if (recordSizePart == OIntegerSerializer.INT_SIZE
+              && spaceLeft == OIntegerSerializer.INT_SIZE) {
+            OIntegerSerializer.INSTANCE.serializeNative(recordLength, chunk, 0);
+            written += OIntegerSerializer.INT_SIZE;
+          } else {
+            final ByteOrder byteOrder = ByteOrder.nativeOrder();
+            if (byteOrder == ByteOrder.LITTLE_ENDIAN) {
+              for (int sizeOffset = (recordSizePart - 1) << 3;
+                  sizeOffset >= 0 && spaceLeft > 0;
+                  sizeOffset -= 8, spaceLeft--, written++) {
+                final byte sizeByte = (byte) (0xFF & (recordLength >> sizeOffset));
+                chunk[spaceLeft - 1] = sizeByte;
+              }
+            } else {
+              for (int sizeOffset = (OIntegerSerializer.INT_SIZE - recordSizePart) << 3;
+                  sizeOffset < OIntegerSerializer.INT_SIZE & spaceLeft > 0;
+                  sizeOffset += 8, spaceLeft--, written++) {
+                final byte sizeByte = (byte) (0xFF & (recordLength >> sizeOffset));
                 chunk[spaceLeft - 1] = sizeByte;
               }
             }

@@ -15,7 +15,7 @@ public class InputStreamWindowTest {
 
     final var stream = new ByteArrayInputStream(ALL_BYTES);
     final var windowSize = 100;
-    final var window = new InputStreamWindow(stream, windowSize);
+    final var window = new NaiveInputStreamWindow(stream, windowSize);
 
     int pageIdx = 0;
     final var result = new byte[ALL_BYTES.length];
@@ -43,7 +43,7 @@ public class InputStreamWindowTest {
     for (Integer windowSize : List.of(80, 100, 160, 200)) {
 
       final var stream = new ByteArrayInputStream(bytes);
-      final var window = new InputStreamWindow(stream, windowSize);
+      final var window = new NaiveInputStreamWindow(stream, windowSize);
 
       assertEquals(Math.min(windowSize, inputSize), window.availableBytes(0, inputSize));
 
