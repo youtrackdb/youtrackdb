@@ -118,6 +118,23 @@ public interface OCluster {
       byte recordType,
       OAtomicOperation atomicOperation);
 
+  default void updateRecord(
+      long clusterPosition,
+      InputStream content,
+      int recordVersion,
+      byte recordType,
+      OAtomicOperation atomicOperation) {
+    final byte[] contentBytes;
+    try (final ByteArrayOutputStream out = new ByteArrayOutputStream(8192)) {
+      OIOUtils.copyStream(content, out);
+      contentBytes = out.toByteArray();
+    } catch (IOException e) {
+      throw OException.wrapException(new OIOException("Error on reading content"), e);
+    }
+
+    updateRecord(clusterPosition, contentBytes, recordVersion, recordType, atomicOperation);
+  }
+
   ORawBuffer readRecord(long clusterPosition, boolean prefetchRecords) throws IOException;
 
   ORawBuffer readRecordIfVersionIsNotLatest(long clusterPosition, int recordVersion)
