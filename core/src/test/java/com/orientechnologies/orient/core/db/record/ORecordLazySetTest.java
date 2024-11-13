@@ -55,26 +55,12 @@ public class ORecordLazySetTest extends BaseMemoryDatabase {
   }
 
   @Test
-  public void testIteratorConvertToRecord() {
-    ORecordLazySet set = new ORecordLazySet(new ODocument());
-    set.add(rid1);
-    set.add(rid2);
-    set.add(rid3);
-    for (OIdentifiable oIdentifiable : set) {
-      assertTrue(oIdentifiable instanceof ODocument);
-    }
-    assertEquals(set.size(), 3);
-  }
-
-  @Test
   public void testConvertToLink() {
     ORecordLazySet set = new ORecordLazySet(new ODocument());
     set.add(rid1);
     set.add(rid2);
     set.add(rid3);
-    for (OIdentifiable oIdentifiable : set) {
-      assertTrue(oIdentifiable instanceof ODocument);
-    }
+
     set.convertRecords2Links();
     assertEquals(set.size(), 3);
     Iterator<OIdentifiable> val = set.rawIterator();

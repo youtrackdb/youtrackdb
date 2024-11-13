@@ -348,11 +348,11 @@ public class OSQLEngine {
     }
     if (OMultiValue.isMultiValue(iCurrent) || iCurrent instanceof Iterator) {
       final OMultiCollectionIterator<Object> result = new OMultiCollectionIterator<Object>();
-      for (Object o : OMultiValue.getMultiValueIterable(iCurrent, false)) {
+      for (Object o : OMultiValue.getMultiValueIterable(iCurrent)) {
         if (iContext != null && !iContext.checkTimeout()) return null;
 
         if (OMultiValue.isMultiValue(o) || o instanceof Iterator) {
-          for (Object inner : OMultiValue.getMultiValueIterable(o, false)) {
+          for (Object inner : OMultiValue.getMultiValueIterable(o)) {
             result.add(iCallable.call((OIdentifiable) inner));
           }
         } else result.add(iCallable.call((OIdentifiable) o));

@@ -54,7 +54,6 @@ public class OEmbeddedRidBag implements ORidBagDelegate {
   private Object[] entries = OCommonConst.EMPTY_OBJECT_ARRAY;
   private int entriesLength = 0;
 
-  private boolean convertToRecord = true;
   private int size = 0;
 
   private transient ORecordElement owner;
@@ -79,15 +78,12 @@ public class OEmbeddedRidBag implements ORidBagDelegate {
   }
 
   private final class EntriesIterator implements Iterator<OIdentifiable>, OResettable, OSizeable {
-
-    private final boolean convertToRecord;
     private int currentIndex = -1;
     private int nextIndex = -1;
     private boolean currentRemoved;
 
-    private EntriesIterator(boolean convertToRecord) {
+    private EntriesIterator() {
       reset();
-      this.convertToRecord = convertToRecord;
     }
 
     @Override
@@ -129,7 +125,7 @@ public class OEmbeddedRidBag implements ORidBagDelegate {
         nextValue = entries[currentIndex];
       }
 
-      if (!convertToRecord && nextValue != null) {
+      if (nextValue != null) {
         if (((OIdentifiable) nextValue).getIdentity().isPersistent()) {
           entries[currentIndex] = ((OIdentifiable) nextValue).getIdentity();
         }
@@ -137,12 +133,7 @@ public class OEmbeddedRidBag implements ORidBagDelegate {
 
       nextIndex = nextIndex();
 
-      final OIdentifiable identifiable = (OIdentifiable) nextValue;
-      if (convertToRecord) {
-        return identifiable.getRecord();
-      }
-
-      return identifiable;
+      return (OIdentifiable) nextValue;
     }
 
     @Override
@@ -282,7 +273,6 @@ public class OEmbeddedRidBag implements ORidBagDelegate {
     copy.contentWasChanged = contentWasChanged;
     copy.entries = entries;
     copy.entriesLength = entriesLength;
-    copy.convertToRecord = convertToRecord;
     copy.size = size;
     copy.owner = owner;
     copy.tracker = this.tracker;
@@ -328,12 +318,12 @@ public class OEmbeddedRidBag implements ORidBagDelegate {
 
   @Override
   public Iterator<OIdentifiable> iterator() {
-    return new EntriesIterator(convertToRecord);
+    return new EntriesIterator();
   }
 
   @Override
   public Iterator<OIdentifiable> rawIterator() {
-    return new EntriesIterator(false);
+    return new EntriesIterator();
   }
 
   @Override
@@ -371,16 +361,6 @@ public class OEmbeddedRidBag implements ORidBagDelegate {
     }
 
     return true;
-  }
-
-  @Override
-  public boolean isAutoConvertToRecord() {
-    return convertToRecord;
-  }
-
-  @Override
-  public void setAutoConvertToRecord(boolean convertToRecord) {
-    this.convertToRecord = convertToRecord;
   }
 
   @Override

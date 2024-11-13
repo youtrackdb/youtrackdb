@@ -26,7 +26,6 @@ import com.orientechnologies.orient.core.db.OStringCache;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.db.record.ORecordLazyMap;
-import com.orientechnologies.orient.core.db.record.ORecordLazyMultiValue;
 import com.orientechnologies.orient.core.db.record.OTrackedMultiValue;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBagDelegate;
@@ -276,29 +275,12 @@ public class HelperClasses {
       final BytesContainer bytes, final Collection<OIdentifiable> value) {
     final int pos = OVarIntSerializer.write(bytes, value.size());
 
-    final boolean disabledAutoConversion =
-        value instanceof ORecordLazyMultiValue
-            && ((ORecordLazyMultiValue) value).isAutoConvertToRecord();
-
-    if (disabledAutoConversion)
-    // AVOID TO FETCH RECORD
-    {
-      ((ORecordLazyMultiValue) value).setAutoConvertToRecord(false);
-    }
-
-    try {
-      for (OIdentifiable itemValue : value) {
-        // TODO: handle the null links
-        if (itemValue == null) {
-          writeNullLink(bytes);
-        } else {
-          writeOptimizedLink(bytes, itemValue);
-        }
-      }
-
-    } finally {
-      if (disabledAutoConversion) {
-        ((ORecordLazyMultiValue) value).setAutoConvertToRecord(true);
+    for (OIdentifiable itemValue : value) {
+      // TODO: handle the null links
+      if (itemValue == null) {
+        writeNullLink(bytes);
+      } else {
+        writeOptimizedLink(bytes, itemValue);
       }
     }
 
@@ -330,33 +312,16 @@ public class HelperClasses {
   }
 
   public static int writeLinkMap(final BytesContainer bytes, final Map<Object, OIdentifiable> map) {
-    final boolean disabledAutoConversion =
-        map instanceof ORecordLazyMultiValue
-            && ((ORecordLazyMultiValue) map).isAutoConvertToRecord();
-
-    if (disabledAutoConversion)
-    // AVOID TO FETCH RECORD
-    {
-      ((ORecordLazyMultiValue) map).setAutoConvertToRecord(false);
-    }
-
-    try {
-      final int fullPos = OVarIntSerializer.write(bytes, map.size());
-      for (Map.Entry<Object, OIdentifiable> entry : map.entrySet()) {
-        writeString(bytes, entry.getKey().toString());
-        if (entry.getValue() == null) {
-          writeNullLink(bytes);
-        } else {
-          writeOptimizedLink(bytes, entry.getValue());
-        }
-      }
-      return fullPos;
-
-    } finally {
-      if (disabledAutoConversion) {
-        ((ORecordLazyMultiValue) map).setAutoConvertToRecord(true);
+    final int fullPos = OVarIntSerializer.write(bytes, map.size());
+    for (Map.Entry<Object, OIdentifiable> entry : map.entrySet()) {
+      writeString(bytes, entry.getKey().toString());
+      if (entry.getValue() == null) {
+        writeNullLink(bytes);
+      } else {
+        writeOptimizedLink(bytes, entry.getValue());
       }
     }
+    return fullPos;
   }
 
   public static Map<Object, OIdentifiable> readLinkMap(

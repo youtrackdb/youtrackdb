@@ -98,73 +98,61 @@ public class ORecordLazyList extends OTrackedList<OIdentifiable> implements ORec
    * @return iterator that just returns the elements without conversion.
    */
   public Iterator<OIdentifiable> rawIterator() {
-    lazyLoad(false);
-    final Iterator<OIdentifiable> subIterator =
-        new OLazyIterator<OIdentifiable>() {
-          private int pos = -1;
 
-          public boolean hasNext() {
-            return pos < size() - 1;
-          }
+    return new OLazyIterator<>() {
+      private int pos = -1;
 
-          public OIdentifiable next() {
-            return ORecordLazyList.this.rawGet(++pos);
-          }
+      public boolean hasNext() {
+        return pos < size() - 1;
+      }
 
-          public void remove() {
-            ORecordLazyList.this.remove(pos);
-          }
+      public OIdentifiable next() {
+        return ORecordLazyList.this.rawGet(++pos);
+      }
 
-          public OIdentifiable update(final OIdentifiable iValue) {
-            return ORecordLazyList.this.set(pos, iValue);
-          }
-        };
-    return new OLazyRecordIterator(sourceRecord, subIterator, false);
+      public void remove() {
+        ORecordLazyList.this.remove(pos);
+      }
+
+      public OIdentifiable update(final OIdentifiable iValue) {
+        return ORecordLazyList.this.set(pos, iValue);
+      }
+    };
   }
 
   public OIdentifiable rawGet(final int index) {
-    lazyLoad(false);
     return super.get(index);
   }
 
   @Override
   public OLazyIterator<OIdentifiable> iterator() {
-    lazyLoad(false);
-    return new OLazyRecordIterator(
-        sourceRecord,
-        new OLazyIteratorListWrapper<OIdentifiable>(super.listIterator()),
-        autoConvertToRecord);
+    return new OLazyIteratorListWrapper<>(super.listIterator());
   }
 
   @Override
   public ListIterator<OIdentifiable> listIterator() {
-    lazyLoad(false);
     return super.listIterator();
   }
 
   @Override
   public ListIterator<OIdentifiable> listIterator(int index) {
-    lazyLoad(false);
     return super.listIterator(index);
   }
 
   @Override
   public boolean contains(final Object o) {
-    lazyLoad(false);
     return super.contains(o);
   }
 
   @Override
   public boolean add(OIdentifiable e) {
     preAdd(e);
-    lazyLoad(true);
     return super.add(e);
   }
 
   @Override
   public void add(int index, OIdentifiable e) {
     preAdd(e);
-    lazyLoad(true);
     super.add(index, e);
   }
 
@@ -188,7 +176,6 @@ public class ORecordLazyList extends OTrackedList<OIdentifiable> implements ORec
 
   @Override
   public OIdentifiable set(int index, OIdentifiable e) {
-    lazyLoad(true);
 
     if (e != null) {
       ORecordInternal.track(sourceRecord, e);
@@ -205,26 +192,22 @@ public class ORecordLazyList extends OTrackedList<OIdentifiable> implements ORec
 
   @Override
   public OIdentifiable get(final int index) {
-    lazyLoad(false);
     if (autoConvertToRecord) convertLink2Record(index);
     return super.get(index);
   }
 
   @Override
   public int indexOf(final Object o) {
-    lazyLoad(false);
     return super.indexOf(o);
   }
 
   @Override
   public int lastIndexOf(final Object o) {
-    lazyLoad(false);
     return super.lastIndexOf(o);
   }
 
   @Override
   public OIdentifiable remove(final int iIndex) {
-    lazyLoad(true);
     return super.remove(iIndex);
   }
 
@@ -234,7 +217,6 @@ public class ORecordLazyList extends OTrackedList<OIdentifiable> implements ORec
       return clearDeletedRecords();
     }
     final boolean result;
-    lazyLoad(true);
     result = super.remove(iElement);
 
     if (isEmpty()) contentType = MULTIVALUE_CONTENT_TYPE.EMPTY;
@@ -244,14 +226,12 @@ public class ORecordLazyList extends OTrackedList<OIdentifiable> implements ORec
 
   @Override
   public void clear() {
-    lazyLoad(true);
     super.clear();
     contentType = MULTIVALUE_CONTENT_TYPE.EMPTY;
   }
 
   @Override
   public int size() {
-    lazyLoad(false);
     return super.size();
   }
 
@@ -263,13 +243,11 @@ public class ORecordLazyList extends OTrackedList<OIdentifiable> implements ORec
 
   @Override
   public <T> T[] toArray(final T[] a) {
-    lazyLoad(false);
     convertLinks2Records();
     return super.toArray(a);
   }
 
   public void convertLinks2Records() {
-    lazyLoad(false);
     if (contentType == MULTIVALUE_CONTENT_TYPE.ALL_RECORDS || !autoConvertToRecord)
       // PRECONDITIONS
       return;
@@ -326,10 +304,6 @@ public class ORecordLazyList extends OTrackedList<OIdentifiable> implements ORec
     for (int i = 0; i < tot; ++i) copy.add(rawGet(i));
 
     return copy;
-  }
-
-  public boolean lazyLoad(final boolean iInvalidateStream) {
-    return true;
   }
 
   public boolean detach() {

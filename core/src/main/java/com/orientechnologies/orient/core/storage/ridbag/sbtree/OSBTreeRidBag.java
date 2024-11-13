@@ -28,7 +28,6 @@ import com.orientechnologies.common.util.OResettable;
 import com.orientechnologies.common.util.OSizeable;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OAutoConvertToRecord;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeTimeLine;
@@ -93,8 +92,6 @@ public class OSBTreeRidBag implements ORidBagDelegate {
   private final OSimpleMultiValueTracker<OIdentifiable, OIdentifiable> tracker =
       new OSimpleMultiValueTracker<>(this);
 
-  private boolean autoConvertToRecord = true;
-
   private transient ORecordElement owner;
   private boolean dirty;
   private boolean transactionDirty = false;
@@ -130,12 +127,10 @@ public class OSBTreeRidBag implements ORidBagDelegate {
     }
   }
 
-  private final class RIDBagIterator
-      implements Iterator<OIdentifiable>, OResettable, OSizeable, OAutoConvertToRecord {
+  private final class RIDBagIterator implements Iterator<OIdentifiable>, OResettable, OSizeable {
 
     private final NavigableMap<OIdentifiable, Change> changedValues;
     private final SBTreeMapEntryIterator sbTreeIterator;
-    private boolean convertToRecord;
     private Iterator<Map.Entry<OIdentifiable, OModifiableInteger>> newEntryIterator;
     private Iterator<Map.Entry<OIdentifiable, Change>> changedValuesIterator;
     private Map.Entry<OIdentifiable, Change> nextChange;
@@ -148,11 +143,10 @@ public class OSBTreeRidBag implements ORidBagDelegate {
     private RIDBagIterator(
         IdentityHashMap<OIdentifiable, OModifiableInteger> newEntries,
         NavigableMap<OIdentifiable, Change> changedValues,
-        SBTreeMapEntryIterator sbTreeIterator,
-        boolean convertToRecord) {
+        SBTreeMapEntryIterator sbTreeIterator) {
       newEntryIterator = newEntries.entrySet().iterator();
       this.changedValues = changedValues;
-      this.convertToRecord = convertToRecord;
+
       this.changedValuesIterator = changedValues.entrySet().iterator();
       this.sbTreeIterator = sbTreeIterator;
 
@@ -220,10 +214,6 @@ public class OSBTreeRidBag implements ORidBagDelegate {
         throw new NoSuchElementException();
       }
 
-      if (convertToRecord) {
-        return currentValue.getRecord();
-      }
-
       return currentValue;
     }
 
@@ -288,16 +278,6 @@ public class OSBTreeRidBag implements ORidBagDelegate {
     @Override
     public int size() {
       return OSBTreeRidBag.this.size();
-    }
-
-    @Override
-    public boolean isAutoConvertToRecord() {
-      return convertToRecord;
-    }
-
-    @Override
-    public void setAutoConvertToRecord(final boolean convertToRecord) {
-      this.convertToRecord = convertToRecord;
     }
 
     private Map.Entry<OIdentifiable, Change> nextChangedNotRemovedEntry(
@@ -470,8 +450,7 @@ public class OSBTreeRidBag implements ORidBagDelegate {
     return new RIDBagIterator(
         new IdentityHashMap<>(newEntries),
         changes,
-        collectionPointer != null ? new SBTreeMapEntryIterator(1000) : null,
-        autoConvertToRecord);
+        collectionPointer != null ? new SBTreeMapEntryIterator(1000) : null);
   }
 
   @Override
@@ -479,8 +458,7 @@ public class OSBTreeRidBag implements ORidBagDelegate {
     return new RIDBagIterator(
         new IdentityHashMap<>(newEntries),
         changes,
-        collectionPointer != null ? new SBTreeMapEntryIterator(1000) : null,
-        false);
+        collectionPointer != null ? new SBTreeMapEntryIterator(1000) : null);
   }
 
   @Override
@@ -543,16 +521,6 @@ public class OSBTreeRidBag implements ORidBagDelegate {
 
       mergeDiffEntry(rec, diff);
     }
-  }
-
-  @Override
-  public boolean isAutoConvertToRecord() {
-    return autoConvertToRecord;
-  }
-
-  @Override
-  public void setAutoConvertToRecord(boolean convertToRecord) {
-    autoConvertToRecord = convertToRecord;
   }
 
   @Override

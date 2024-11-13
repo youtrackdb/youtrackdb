@@ -79,7 +79,7 @@ public class OSQLMethodToJSON extends OAbstractSQLMethod {
       StringBuilder builder = new StringBuilder();
       builder.append("[");
       boolean first = true;
-      for (Object o : OMultiValue.getMultiValueIterable(iThis, false)) {
+      for (Object o : OMultiValue.getMultiValueIterable(iThis)) {
         if (!first) {
           builder.append(",");
         }

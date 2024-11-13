@@ -86,7 +86,7 @@ public class OSQLFunctionIntersect extends OSQLFunctionMultiValueAbstract<Object
     }
 
     // IN-LINE MODE (STATELESS)
-    Iterator iterator = OMultiValue.getMultiValueIterator(value, false);
+    Iterator iterator = (Iterator<Object>) OMultiValue.getMultiValueIterator(value);
 
     for (int i = 1; i < iParams.length; ++i) {
       value = iParams[i];
@@ -96,7 +96,7 @@ public class OSQLFunctionIntersect extends OSQLFunctionMultiValueAbstract<Object
 
       if (value != null) {
         value = intersectWith(iterator, value);
-        iterator = OMultiValue.getMultiValueIterator(value, false);
+        iterator = (Iterator<Object>) OMultiValue.getMultiValueIterator(value);
       } else {
         return new ArrayList().iterator();
       }

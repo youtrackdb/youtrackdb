@@ -20,10 +20,7 @@
 package com.orientechnologies.orient.core.db.record;
 
 import com.orientechnologies.common.collection.OLazyIterator;
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.OIdentityChangeListener;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.ORecordInternal;
@@ -64,7 +61,6 @@ public class ORecordLazySet extends AbstractCollection<OIdentifiable>
         ORecordLazyMultiValue,
         OIdentityChangeListener {
 
-  protected boolean autoConvertToRecord = true;
   protected final ORecordElement sourceRecord;
   protected Map<OIdentifiable, Object> map = new HashMap<>();
   protected static final Object ENTRY_REMOVAL = new Object();
@@ -136,17 +132,8 @@ public class ORecordLazySet extends AbstractCollection<OIdentifiable>
     if (c == null || c.size() == 0) {
       return false;
     }
-    boolean convert = false;
-    if (c instanceof OAutoConvertToRecord) {
-      convert = ((OAutoConvertToRecord) c).isAutoConvertToRecord();
-      ((OAutoConvertToRecord) c).setAutoConvertToRecord(false);
-    }
     for (OIdentifiable o : c) {
       add(o);
-    }
-
-    if (c instanceof OAutoConvertToRecord) {
-      ((OAutoConvertToRecord) c).setAutoConvertToRecord(convert);
     }
     return true;
   }
@@ -315,72 +302,52 @@ public class ORecordLazySet extends AbstractCollection<OIdentifiable>
 
   @Override
   public Iterator<OIdentifiable> iterator() {
-    return new OLazyRecordIterator(
-        new OLazyIterator<>() {
-          {
-            iter = ORecordLazySet.this.map.entrySet().iterator();
-          }
+    return new OLazyIterator<>() {
+      {
+        iter = ORecordLazySet.this.map.entrySet().iterator();
+      }
 
-          private Iterator<Entry<OIdentifiable, Object>> iter;
-          private Entry<OIdentifiable, Object> last;
+      private Iterator<Entry<OIdentifiable, Object>> iter;
+      private Entry<OIdentifiable, Object> last;
 
-          @Override
-          public boolean hasNext() {
-            return iter.hasNext();
-          }
+      @Override
+      public boolean hasNext() {
+        return iter.hasNext();
+      }
 
-          @Override
-          public OIdentifiable next() {
-            Entry<OIdentifiable, Object> entry = iter.next();
-            last = entry;
-            if (entry.getValue() != ENTRY_REMOVAL) {
-              return (OIdentifiable) entry.getValue();
-            }
-            if (entry.getKey() instanceof ORecordId
-                && autoConvertToRecord
-                && ODatabaseRecordThreadLocal.instance().isDefined()) {
-              try {
-                final ORecord rec = entry.getKey().getRecord();
-                if (sourceRecord != null && rec != null) {
-                  ORecordInternal.track(sourceRecord, rec);
-                }
-                if (iter instanceof OLazyIterator<?>) {
-                  ((OLazyIterator<Entry<OIdentifiable, Object>>) iter).update(entry);
-                }
-                last = entry;
-              } catch (Exception e) {
-                OLogManager.instance().error(this, "Error on iterating record collection", e);
-                entry = null;
-              }
-            }
+      @Override
+      public OIdentifiable next() {
+        Entry<OIdentifiable, Object> entry = iter.next();
+        last = entry;
+        if (entry.getValue() != ENTRY_REMOVAL) {
+          return (OIdentifiable) entry.getValue();
+        }
 
-            return entry == null ? null : entry.getKey();
-          }
+        return entry.getKey();
+      }
 
-          @Override
-          public void remove() {
-            iter.remove();
-            if (last.getKey() instanceof ORecord) {
-              ORecordInternal.removeIdentityChangeListener(
-                  (ORecord) last.getKey(), ORecordLazySet.this);
-            }
-          }
+      @Override
+      public void remove() {
+        iter.remove();
+        if (last.getKey() instanceof ORecord) {
+          ORecordInternal.removeIdentityChangeListener(
+              (ORecord) last.getKey(), ORecordLazySet.this);
+        }
+      }
 
-          @Override
-          public OIdentifiable update(OIdentifiable iValue) {
-            if (iValue != null) {
-              map.put(iValue.getIdentity(), iValue.getRecord());
-            }
-            return iValue;
-          }
-        },
-        autoConvertToRecord);
+      @Override
+      public OIdentifiable update(OIdentifiable iValue) {
+        if (iValue != null) {
+          map.put(iValue.getIdentity(), iValue.getRecord());
+        }
+        return iValue;
+      }
+    };
   }
 
   @Override
   public Iterator<OIdentifiable> rawIterator() {
-    return new OLazyRecordIterator(
-        new ORecordTrackedIterator(sourceRecord, map.keySet().iterator()), false);
+    return new ORecordTrackedIterator(sourceRecord, map.keySet().iterator());
   }
 
   @Override
@@ -471,16 +438,6 @@ public class ORecordLazySet extends AbstractCollection<OIdentifiable>
       return true;
     }
     return false;
-  }
-
-  @Override
-  public boolean isAutoConvertToRecord() {
-    return autoConvertToRecord;
-  }
-
-  @Override
-  public void setAutoConvertToRecord(boolean convertToRecord) {
-    this.autoConvertToRecord = convertToRecord;
   }
 
   @Override

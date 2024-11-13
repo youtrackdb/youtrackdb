@@ -200,14 +200,14 @@ public class OQueryOperatorIn extends OQueryOperatorEqualityNotNulls {
       if (iLeft instanceof OSQLFilterItem)
         iLeft = ((OSQLFilterItem) iLeft).getValue(null, null, null);
 
-      ridCollection = OMultiValue.getMultiValueIterable(iLeft, false);
+      ridCollection = OMultiValue.getMultiValueIterable(iLeft);
       ridSize = OMultiValue.getSize(iLeft);
     } else if (iLeft instanceof OSQLFilterItemField
         && ODocumentHelper.ATTRIBUTE_RID.equals(((OSQLFilterItemField) iLeft).getRoot())) {
       if (iRight instanceof OSQLFilterItem)
         iRight = ((OSQLFilterItem) iRight).getValue(null, null, null);
 
-      ridCollection = OMultiValue.getMultiValueIterable(iRight, false);
+      ridCollection = OMultiValue.getMultiValueIterable(iRight);
       ridSize = OMultiValue.getSize(iRight);
     } else return null;
 
@@ -230,7 +230,7 @@ public class OQueryOperatorIn extends OQueryOperatorEqualityNotNulls {
         final Collection<Object> collectionToMatch = (Collection<Object>) iRight;
 
         boolean found = false;
-        for (final Object o1 : OMultiValue.getMultiValueIterable(iLeft, false)) {
+        for (final Object o1 : OMultiValue.getMultiValueIterable(iLeft)) {
           for (final Object o2 : collectionToMatch) {
             if (OQueryOperatorEquals.equals(o1, o2)) {
               found = true;
@@ -243,7 +243,7 @@ public class OQueryOperatorIn extends OQueryOperatorEqualityNotNulls {
         // AGAINST SINGLE ITEM
         if (iLeft instanceof Set<?>) return ((Set) iLeft).contains(iRight);
 
-        for (final Object o : OMultiValue.getMultiValueIterable(iLeft, false)) {
+        for (final Object o : OMultiValue.getMultiValueIterable(iLeft)) {
           if (OQueryOperatorEquals.equals(iRight, o)) return true;
         }
       }
@@ -251,7 +251,7 @@ public class OQueryOperatorIn extends OQueryOperatorEqualityNotNulls {
 
       if (iRight instanceof Set<?>) return ((Set) iRight).contains(iLeft);
 
-      for (final Object o : OMultiValue.getMultiValueIterable(iRight, false)) {
+      for (final Object o : OMultiValue.getMultiValueIterable(iRight)) {
         if (OQueryOperatorEquals.equals(iLeft, o)) return true;
       }
     } else if (iLeft.getClass().isArray()) {

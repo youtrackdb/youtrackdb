@@ -61,13 +61,13 @@ public class ORecordLazyListTest {
     mainDoc = dbSession.bindToSession(mainDoc);
     Collection<ODocument> origItems = mainDoc.field("items");
     Iterator<ODocument> it = origItems.iterator();
-    assertTrue(it.next() instanceof ODocument);
-    assertTrue(it.next() instanceof ODocument);
+    assertTrue(it.next() != null);
+    assertTrue(it.next() != null);
 
     List<ODocument> items = new ArrayList<ODocument>(origItems);
-    assertTrue(items.get(0) instanceof ODocument);
-    assertTrue(items.get(1) instanceof ODocument);
-    assertTrue(items.get(2) instanceof ODocument);
+    assertTrue(items.get(0) != null);
+    assertTrue(items.get(1) != null);
+    assertTrue(items.get(2) != null);
     dbSession.rollback();
   }
 

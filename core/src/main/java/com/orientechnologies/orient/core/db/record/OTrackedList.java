@@ -88,19 +88,9 @@ public class OTrackedList<T> extends ArrayList<T>
 
   @Override
   public boolean addAll(final Collection<? extends T> c) {
-    boolean convert = false;
-    if (c instanceof OAutoConvertToRecord) {
-      convert = ((OAutoConvertToRecord) c).isAutoConvertToRecord();
-      ((OAutoConvertToRecord) c).setAutoConvertToRecord(false);
-    }
     for (T o : c) {
       add(o);
     }
-
-    if (c instanceof OAutoConvertToRecord) {
-      ((OAutoConvertToRecord) c).setAutoConvertToRecord(convert);
-    }
-
     return true;
   }
 

@@ -104,14 +104,13 @@ public class OUser extends OIdentity implements OSecurityUser {
     if (getDocument() != null) return;
 
     setDocument(iSource);
-    var document = getDocument();
 
-    roles = new HashSet<ORole>();
-    final Collection<ODocument> loadedRoles = iSource.field("roles");
+    roles = new HashSet<>();
+    final Collection<OIdentifiable> loadedRoles = iSource.field("roles");
     if (loadedRoles != null)
-      for (final ODocument d : loadedRoles) {
+      for (final OIdentifiable d : loadedRoles) {
         if (d != null) {
-          ORole role = createRole(d);
+          ORole role = createRole(d.getRecord());
           if (role != null) roles.add(role);
         } else
           OLogManager.instance()

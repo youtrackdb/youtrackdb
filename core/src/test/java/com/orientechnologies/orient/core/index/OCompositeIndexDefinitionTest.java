@@ -107,7 +107,6 @@ public class OCompositeIndexDefinitionTest {
         new OPropertyRidBagIndexDefinition("testCollectionClass", "fTwo"));
 
     ORidBag ridBag = new ORidBag();
-    ridBag.setAutoConvertToRecord(false);
     ridBag.add(new ORecordId("#1:10"));
     ridBag.add(new ORecordId("#1:11"));
     ridBag.add(new ORecordId("#1:11"));
@@ -213,7 +212,6 @@ public class OCompositeIndexDefinitionTest {
         new OPropertyIndexDefinition("testCollectionClass", "fOne", OType.INTEGER));
 
     ORidBag ridBag = new ORidBag();
-    ridBag.setAutoConvertToRecord(false);
     ridBag.add(new ORecordId("#1:10"));
     ridBag.add(new ORecordId("#1:11"));
     ridBag.add(new ORecordId("#1:11"));
@@ -264,7 +262,6 @@ public class OCompositeIndexDefinitionTest {
         new OPropertyIndexDefinition("testCollectionClass", "fThree", OType.STRING));
 
     ORidBag ridBag = new ORidBag();
-    ridBag.setAutoConvertToRecord(false);
     ridBag.add(new ORecordId("#1:10"));
     ridBag.add(new ORecordId("#1:11"));
     ridBag.add(new ORecordId("#1:11"));
@@ -479,7 +476,6 @@ public class OCompositeIndexDefinitionTest {
     final ODocument document = new ODocument();
 
     final ORidBag ridBag = new ORidBag();
-    ridBag.setAutoConvertToRecord(false);
     ridBag.add(new ORecordId("#1:10"));
     ridBag.add(new ORecordId("#1:11"));
     ridBag.add(new ORecordId("#1:11"));
@@ -534,7 +530,6 @@ public class OCompositeIndexDefinitionTest {
   @Test
   public void testDocumentToIndexRidBagValueSuccessfulTwo() {
     final ORidBag ridBag = new ORidBag();
-    ridBag.setAutoConvertToRecord(false);
     ridBag.add(new ORecordId("#1:10"));
     ridBag.add(new ORecordId("#1:11"));
     ridBag.add(new ORecordId("#1:11"));
@@ -596,7 +591,6 @@ public class OCompositeIndexDefinitionTest {
     final ODocument document = new ODocument();
 
     final ORidBag ridBag = new ORidBag();
-    ridBag.setAutoConvertToRecord(false);
     ridBag.add(new ORecordId("#1:10"));
     ridBag.add(new ORecordId("#1:11"));
     ridBag.add(new ORecordId("#1:11"));

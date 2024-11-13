@@ -69,8 +69,9 @@ public class OEdgeIterator extends OLazyWrapperIterator<OEdge> {
   }
 
   public OEdge createGraphElement(final Object iObject) {
-    if (iObject instanceof OElement && ((OElement) iObject).isEdge())
+    if (iObject instanceof OElement && ((OElement) iObject).isEdge()) {
       return ((OElement) iObject).asEdge().get();
+    }
 
     final OIdentifiable rec = (OIdentifiable) iObject;
 
@@ -124,16 +125,24 @@ public class OEdgeIterator extends OLazyWrapperIterator<OEdge> {
     } else if (value.isEdge()) {
       // EDGE
       edge = value.asEdge().get();
-    } else
+    } else {
       throw new IllegalStateException(
           "Invalid content found while iterating edges, value '" + value + "' is not an edge");
+    }
 
     return edge;
   }
 
+  @Override
+  public OEdge next() {
+    return createGraphElement(super.next());
+  }
+
   public boolean filter(final OEdge iObject) {
     if (targetVertex != null
-        && !targetVertex.equals(iObject.getVertex(connection.getKey().opposite()))) return false;
+        && !targetVertex.equals(iObject.getVertex(connection.getKey().opposite()))) {
+      return false;
+    }
 
     return iObject.isLabeled(labels);
   }

@@ -161,7 +161,7 @@ public final class OCommandResponse implements OBinaryResponse {
               final byte collectionType = result instanceof Set ? (byte) 's' : (byte) 'l';
               channel.writeByte(collectionType);
               channel.writeInt(OMultiValue.getSize(result));
-              for (Object o : OMultiValue.getMultiValueIterable(result, false)) {
+              for (Object o : OMultiValue.getMultiValueIterable(result)) {
                 try {
                   if (load && o instanceof ORecordId) {
                     o = ((ORecordId) o).getRecord();

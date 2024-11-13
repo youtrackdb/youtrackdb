@@ -1,7 +1,6 @@
 package com.orientechnologies.orient.core.db.tool.importer;
 
 import com.orientechnologies.orient.core.db.document.ODocumentFieldVisitor;
-import com.orientechnologies.orient.core.db.record.ORecordLazyMultiValue;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 
 /** Created by tglman on 28/07/17. */
@@ -15,22 +14,12 @@ public final class OLinksRewriter implements ODocumentFieldVisitor {
   @Override
   public Object visitField(OType type, OType linkedType, Object value) {
     boolean oldAutoConvertValue = false;
-    if (value instanceof ORecordLazyMultiValue) {
-      ORecordLazyMultiValue multiValue = (ORecordLazyMultiValue) value;
-      oldAutoConvertValue = multiValue.isAutoConvertToRecord();
-      multiValue.setAutoConvertToRecord(false);
-    }
 
     final OValuesConverter valuesConverter =
         OImportConvertersFactory.INSTANCE.getConverter(value, converterData);
     if (valuesConverter == null) return value;
 
     final Object newValue = valuesConverter.convert(value);
-
-    if (value instanceof ORecordLazyMultiValue) {
-      ORecordLazyMultiValue multiValue = (ORecordLazyMultiValue) value;
-      multiValue.setAutoConvertToRecord(oldAutoConvertValue);
-    }
 
     // this code intentionally uses == instead of equals, in such case we may distinguish rids which
     // already contained in

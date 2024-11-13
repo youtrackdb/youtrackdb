@@ -35,7 +35,7 @@ public class ORecordLazySetPersistentTest extends BaseMemoryDatabase {
     {
       ODocument doc1 = db.load(orid1);
       assertNotNull(doc1);
-      Set<ODocument> linkset = doc1.field("linkset");
+      Set<OIdentifiable> linkset = doc1.field("linkset");
       assertNotNull(linkset);
       assertEquals(1, linkset.size());
 
