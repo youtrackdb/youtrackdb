@@ -182,7 +182,7 @@ public class OTraverseRecordProcess extends OTraverseAbstractProcess<OIdentifiab
           if (fieldValue instanceof ORecordLazyMultiValue) {
             coll = ((ORecordLazyMultiValue) fieldValue).rawIterator();
           } else {
-            coll = OMultiValue.getMultiValueIterator(fieldValue, false);
+            coll = (Iterator<Object>) OMultiValue.getMultiValueIterator(fieldValue);
           }
 
           subProcess =

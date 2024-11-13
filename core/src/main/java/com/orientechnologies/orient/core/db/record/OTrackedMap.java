@@ -129,17 +129,8 @@ public class OTrackedMap<T> extends LinkedHashMap<Object, T>
 
   @Override
   public void putAll(Map<?, ? extends T> m) {
-    boolean convert = false;
-    if (m instanceof OAutoConvertToRecord) {
-      convert = ((OAutoConvertToRecord) m).isAutoConvertToRecord();
-      ((OAutoConvertToRecord) m).setAutoConvertToRecord(false);
-    }
     for (Map.Entry<?, ? extends T> entry : m.entrySet()) {
       put(entry.getKey(), entry.getValue());
-    }
-
-    if (m instanceof OAutoConvertToRecord) {
-      ((OAutoConvertToRecord) m).setAutoConvertToRecord(convert);
     }
   }
 

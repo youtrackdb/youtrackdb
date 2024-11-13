@@ -134,7 +134,7 @@ public class OInCondition extends OBooleanExpression {
           return true;
         }
         if (OMultiValue.isMultiValue(iLeft)) {
-          for (final Object o : OMultiValue.getMultiValueIterable(iLeft, false)) {
+          for (final Object o : OMultiValue.getMultiValueIterable(iLeft)) {
             if (!set.contains(o)) {
               return false;
             }
@@ -142,7 +142,7 @@ public class OInCondition extends OBooleanExpression {
         }
       }
 
-      for (final Object rightItem : OMultiValue.getMultiValueIterable(iRight, false)) {
+      for (final Object rightItem : OMultiValue.getMultiValueIterable(iRight)) {
         if (OQueryOperatorEquals.equals(iLeft, rightItem)) {
           return true;
         }
@@ -153,7 +153,7 @@ public class OInCondition extends OBooleanExpression {
               return true;
             }
           } else {
-            for (final Object leftItem : OMultiValue.getMultiValueIterable(iLeft, false)) {
+            for (final Object leftItem : OMultiValue.getMultiValueIterable(iLeft)) {
               if (compareItems(rightItem, leftItem)) {
                 return true;
               }

@@ -37,7 +37,7 @@ public class ORidBagBasicTest extends BaseMemoryDatabase {
 
     assertEquals(bag.size(), 1);
 
-    assertEquals(null, bag1.iterator().next());
+    assertEquals(new ORecordId(3, 1000), bag1.iterator().next());
   }
 
   @Test(expected = IllegalArgumentException.class)

@@ -20,7 +20,6 @@
 package com.orientechnologies.orient.core.db.tool;
 
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.db.record.ORecordLazyMultiValue;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -34,6 +33,7 @@ import java.util.List;
  * @since v2.2.0
  */
 public class ODatabaseRepair extends ODatabaseTool {
+
   private boolean removeBrokenLinks = true;
 
   @Override
@@ -51,7 +51,9 @@ public class ODatabaseRepair extends ODatabaseTool {
   public void run() {
     long errors = 0;
 
-    if (removeBrokenLinks) errors += removeBrokenLinks();
+    if (removeBrokenLinks) {
+      errors += removeBrokenLinks();
+    }
 
     message("\nRepair database complete (" + errors + " errors)");
   }
@@ -77,7 +79,7 @@ public class ODatabaseRepair extends ODatabaseTool {
                   doc.field(fieldName, (OIdentifiable) null);
                   fixedLinks++;
                   changed = true;
-                  if (verbose)
+                  if (verbose) {
                     message(
                         "\n--- reset link "
                             + ((OIdentifiable) fieldValue).getIdentity()
@@ -86,11 +88,9 @@ public class ODatabaseRepair extends ODatabaseTool {
                             + "' (rid="
                             + doc.getIdentity()
                             + ")");
+                  }
                 }
               } else if (fieldValue instanceof Iterable<?>) {
-                if (fieldValue instanceof ORecordLazyMultiValue)
-                  ((ORecordLazyMultiValue) fieldValue).setAutoConvertToRecord(false);
-
                 final Iterator<Object> it = ((Iterable) fieldValue).iterator();
                 for (int i = 0; it.hasNext(); ++i) {
                   final Object v = it.next();
@@ -98,7 +98,7 @@ public class ODatabaseRepair extends ODatabaseTool {
                     it.remove();
                     fixedLinks++;
                     changed = true;
-                    if (verbose)
+                    if (verbose) {
                       message(
                           "\n--- reset link "
                               + ((OIdentifiable) v).getIdentity()
@@ -109,6 +109,7 @@ public class ODatabaseRepair extends ODatabaseTool {
                               + "' (rid="
                               + doc.getIdentity()
                               + ")");
+                    }
                   }
                 }
               }
@@ -118,7 +119,9 @@ public class ODatabaseRepair extends ODatabaseTool {
               modifiedDocuments++;
               doc.save();
 
-              if (verbose) message("\n-- updated document " + doc.getIdentity());
+              if (verbose) {
+                message("\n-- updated document " + doc.getIdentity());
+              }
             }
           }
         } catch (Exception ignore) {
@@ -141,13 +144,20 @@ public class ODatabaseRepair extends ODatabaseTool {
     if (fieldValue instanceof OIdentifiable) {
       final ORID id = ((OIdentifiable) fieldValue).getIdentity();
 
-      if (id.getClusterId() == 0 && id.getClusterPosition() == 0) return true;
+      if (id.getClusterId() == 0 && id.getClusterPosition() == 0) {
+        return true;
+      }
 
-      if (id.isValid())
+      if (id.isValid()) {
         if (id.isPersistent()) {
           final ORecord connected = ((OIdentifiable) fieldValue).getRecord();
-          if (connected == null) return true;
-        } else return true;
+          if (connected == null) {
+            return true;
+          }
+        } else {
+          return true;
+        }
+      }
     }
     return false;
   }

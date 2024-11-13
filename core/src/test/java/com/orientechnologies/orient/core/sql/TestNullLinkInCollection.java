@@ -11,9 +11,12 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by tglman on 02/12/15. */
+/**
+ * Created by tglman on 02/12/15.
+ */
 public class TestNullLinkInCollection extends BaseMemoryDatabase {
 
   public void beforeTest() {
@@ -48,7 +51,8 @@ public class TestNullLinkInCollection extends BaseMemoryDatabase {
     db.commit();
 
     try (OResultSet res = db.query("select items from Test")) {
-      assertNull(((Set) res.next().getProperty("items")).iterator().next());
+      Assert.assertEquals(
+          new ORecordId(10, 20), ((Set) res.next().getProperty("items")).iterator().next());
     }
   }
 }

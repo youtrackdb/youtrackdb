@@ -32,7 +32,6 @@ import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentAbstract;
-import com.orientechnologies.orient.core.db.record.OAutoConvertToRecord;
 import com.orientechnologies.orient.core.db.record.ODetachable;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
@@ -40,7 +39,6 @@ import com.orientechnologies.orient.core.db.record.OMultiValueChangeTimeLine;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.db.record.ORecordLazyList;
 import com.orientechnologies.orient.core.db.record.ORecordLazyMap;
-import com.orientechnologies.orient.core.db.record.ORecordLazyMultiValue;
 import com.orientechnologies.orient.core.db.record.ORecordLazySet;
 import com.orientechnologies.orient.core.db.record.OTrackedList;
 import com.orientechnologies.orient.core.db.record.OTrackedMap;
@@ -1206,16 +1204,8 @@ public class ODocument extends ORecordAbstract
           }
         }
       } else {
-        boolean autoconvert = false;
-        if (values instanceof ORecordLazyMultiValue) {
-          autoconvert = ((ORecordLazyMultiValue) values).isAutoConvertToRecord();
-          ((ORecordLazyMultiValue) values).setAutoConvertToRecord(false);
-        }
         for (Object object : values) {
           validateLink(property, object, true);
-        }
-        if (values instanceof ORecordLazyMultiValue) {
-          ((ORecordLazyMultiValue) values).setAutoConvertToRecord(autoconvert);
         }
       }
     }
@@ -2749,15 +2739,6 @@ public class ODocument extends ORecordAbstract
 
     this.lazyLoad = iLazyLoad;
     checkForFields();
-
-    if (fields != null) {
-      // PROPAGATE LAZINESS TO THE FIELDS
-      for (Entry<String, ODocumentEntry> field : fields.entrySet()) {
-        if (field.getValue().value instanceof ORecordLazyMultiValue) {
-          ((ORecordLazyMultiValue) field.getValue().value).setAutoConvertToRecord(false);
-        }
-      }
-    }
   }
 
   public boolean isTrackingChanges() {
@@ -3343,20 +3324,11 @@ public class ODocument extends ORecordAbstract
       if (curValue != null && curValue.exists()) {
         final Object value = curValue.value;
         if (iMergeSingleItemsOfMultiValueFields) {
-          boolean autoConvert = false;
-          if (otherValue instanceof OAutoConvertToRecord) {
-            autoConvert = ((OAutoConvertToRecord) otherValue).isAutoConvertToRecord();
-            ((OAutoConvertToRecord) otherValue).setAutoConvertToRecord(false);
-          }
           if (value instanceof Map<?, ?>) {
             final Map<String, Object> map = (Map<String, Object>) value;
             final Map<String, Object> otherMap = (Map<String, Object>) otherValue;
 
             map.putAll(otherMap);
-            if (otherValue instanceof OAutoConvertToRecord) {
-              ((OAutoConvertToRecord) otherValue).setAutoConvertToRecord(autoConvert);
-            }
-
             continue;
           } else {
             if (OMultiValue.isMultiValue(value) && !(value instanceof ORidBag)) {
@@ -3364,10 +3336,6 @@ public class ODocument extends ORecordAbstract
                 if (!OMultiValue.contains(value, item)) {
                   OMultiValue.add(value, item);
                 }
-              }
-              // JUMP RAW REPLACE
-              if (otherValue instanceof OAutoConvertToRecord) {
-                ((OAutoConvertToRecord) otherValue).setAutoConvertToRecord(autoConvert);
               }
               continue;
             }
@@ -3832,24 +3800,18 @@ public class ODocument extends ORecordAbstract
         entry.enableTracking(this);
         entry.value = newValue;
         if (fieldType == OType.LINKSET || fieldType == OType.LINKLIST) {
-          boolean pre = ((OAutoConvertToRecord) newValue).isAutoConvertToRecord();
-          ((OAutoConvertToRecord) newValue).setAutoConvertToRecord(false);
           for (OIdentifiable rec : (Collection<OIdentifiable>) newValue) {
             if (rec instanceof ODocument) {
               ((ODocument) rec).convertAllMultiValuesToTrackedVersions();
             }
           }
-          ((OAutoConvertToRecord) newValue).setAutoConvertToRecord(pre);
         } else {
           if (fieldType == OType.LINKMAP) {
-            boolean pre = ((OAutoConvertToRecord) newValue).isAutoConvertToRecord();
-            ((OAutoConvertToRecord) newValue).setAutoConvertToRecord(false);
             for (OIdentifiable rec : (Collection<OIdentifiable>) ((Map<?, ?>) newValue).values()) {
               if (rec instanceof ODocument) {
                 ((ODocument) rec).convertAllMultiValuesToTrackedVersions();
               }
             }
-            ((OAutoConvertToRecord) newValue).setAutoConvertToRecord(pre);
           }
         }
       }

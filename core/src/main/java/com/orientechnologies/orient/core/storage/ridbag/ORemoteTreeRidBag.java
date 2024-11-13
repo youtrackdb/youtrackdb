@@ -47,13 +47,14 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 public class ORemoteTreeRidBag implements ORidBagDelegate {
-  /** Entries with not valid id. */
+
+  /**
+   * Entries with not valid id.
+   */
   private int size;
 
   private final OSimpleMultiValueTracker<OIdentifiable, OIdentifiable> tracker =
       new OSimpleMultiValueTracker<>(this);
-
-  private boolean autoConvertToRecord = true;
 
   private transient ORecordElement owner;
   private boolean dirty;
@@ -63,6 +64,7 @@ public class ORemoteTreeRidBag implements ORidBagDelegate {
   private OBonsaiCollectionPointer collectionPointer;
 
   private class RemovableIterator implements Iterator<OIdentifiable> {
+
     private Iterator<OIdentifiable> iter;
     private OIdentifiable next;
     private OIdentifiable removeNext;
@@ -146,17 +148,7 @@ public class ORemoteTreeRidBag implements ORidBagDelegate {
   @Override
   public Iterator<OIdentifiable> iterator() {
     List<OIdentifiable> set = loadElements();
-    if (this.isAutoConvertToRecord()) {
-      return new RemovableIterator(
-          set.stream()
-              .map(
-                  (x) -> {
-                    return (OIdentifiable) x.getRecord();
-                  })
-              .iterator());
-    } else {
-      return new RemovableIterator(set.iterator());
-    }
+    return new RemovableIterator(set.iterator());
   }
 
   @Override
@@ -197,16 +189,6 @@ public class ORemoteTreeRidBag implements ORidBagDelegate {
   @Override
   public boolean convertRecords2Links() {
     return true;
-  }
-
-  @Override
-  public boolean isAutoConvertToRecord() {
-    return autoConvertToRecord;
-  }
-
-  @Override
-  public void setAutoConvertToRecord(boolean convertToRecord) {
-    autoConvertToRecord = convertToRecord;
   }
 
   @Override
@@ -427,7 +409,9 @@ public class ORemoteTreeRidBag implements ORidBagDelegate {
 
   @Override
   public void setDirtyNoChanged() {
-    if (owner != null) owner.setDirtyNoChanged();
+    if (owner != null) {
+      owner.setDirtyNoChanged();
+    }
     this.dirty = true;
     this.transactionDirty = true;
   }

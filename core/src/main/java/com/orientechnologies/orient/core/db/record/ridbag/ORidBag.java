@@ -217,16 +217,6 @@ public class ORidBag
   }
 
   @Override
-  public boolean isAutoConvertToRecord() {
-    return delegate.isAutoConvertToRecord();
-  }
-
-  @Override
-  public void setAutoConvertToRecord(boolean convertToRecord) {
-    delegate.setAutoConvertToRecord(convertToRecord);
-  }
-
-  @Override
   public boolean detach() {
     return delegate.detach();
   }
@@ -312,8 +302,6 @@ public class ORidBag
   private void convertToEmbedded() {
     ORidBagDelegate oldDelegate = delegate;
     boolean isTransactionModified = oldDelegate.isTransactionModified();
-    boolean oldAutoConvert = oldDelegate.isAutoConvertToRecord();
-    oldDelegate.setAutoConvertToRecord(false);
     delegate = new OEmbeddedRidBag();
 
     final ORecordElement owner = oldDelegate.getOwner();
@@ -331,7 +319,6 @@ public class ORidBag
     delegate.setTransactionModified(isTransactionModified);
     delegate.enableTracking(owner);
 
-    oldDelegate.setAutoConvertToRecord(oldAutoConvert);
     oldDelegate.requestDelete();
   }
 
@@ -339,8 +326,6 @@ public class ORidBag
     ORidBagDelegate oldDelegate = delegate;
     boolean isTransactionModified = oldDelegate.isTransactionModified();
     delegate = new OSBTreeRidBag();
-    boolean oldAutoConvert = oldDelegate.isAutoConvertToRecord();
-    oldDelegate.setAutoConvertToRecord(false);
 
     final ORecordElement owner = oldDelegate.getOwner();
     delegate.disableTracking(owner);
@@ -356,7 +341,6 @@ public class ORidBag
     delegate.setTransactionModified(isTransactionModified);
     delegate.enableTracking(owner);
 
-    oldDelegate.setAutoConvertToRecord(oldAutoConvert);
     oldDelegate.requestDelete();
   }
 

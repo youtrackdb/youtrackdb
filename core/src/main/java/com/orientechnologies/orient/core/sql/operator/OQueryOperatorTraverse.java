@@ -158,7 +158,7 @@ public class OQueryOperatorTraverse extends OQueryOperatorEqualityNotNulls {
           return true;
       }
     } else if (OMultiValue.isMultiValue(iTarget)) {
-      final Iterable<Object> collection = OMultiValue.getMultiValueIterable(iTarget, false);
+      final Iterable<Object> collection = OMultiValue.getMultiValueIterable(iTarget);
       for (final Object o : collection) {
         if (traverse(o, iCondition, iLevel + 1, iEvaluatedRecords, iContext) == Boolean.TRUE)
           return true;

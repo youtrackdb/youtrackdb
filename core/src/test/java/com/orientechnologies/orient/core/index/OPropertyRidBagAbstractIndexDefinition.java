@@ -30,7 +30,6 @@ public abstract class OPropertyRidBagAbstractIndexDefinition {
   @Test
   public void testCreateValueSingleParameter() {
     ORidBag ridBag = new ORidBag();
-    ridBag.setAutoConvertToRecord(false);
 
     ridBag.add(new ORecordId("#1:12"));
     ridBag.add(new ORecordId("#1:23"));
@@ -49,7 +48,6 @@ public abstract class OPropertyRidBagAbstractIndexDefinition {
   @Test
   public void testCreateValueTwoParameters() {
     ORidBag ridBag = new ORidBag();
-    ridBag.setAutoConvertToRecord(false);
 
     ridBag.add(new ORecordId("#1:12"));
     ridBag.add(new ORecordId("#1:23"));
@@ -73,7 +71,6 @@ public abstract class OPropertyRidBagAbstractIndexDefinition {
   @Test
   public void testCreateValueSingleParameterArrayParams() {
     ORidBag ridBag = new ORidBag();
-    ridBag.setAutoConvertToRecord(false);
 
     ridBag.add(new ORecordId("#1:12"));
     ridBag.add(new ORecordId("#1:23"));
@@ -92,7 +89,6 @@ public abstract class OPropertyRidBagAbstractIndexDefinition {
   @Test
   public void testCreateValueTwoParametersArrayParams() {
     ORidBag ridBag = new ORidBag();
-    ridBag.setAutoConvertToRecord(false);
 
     ridBag.add(new ORecordId("#1:12"));
     ridBag.add(new ORecordId("#1:23"));
@@ -116,7 +112,6 @@ public abstract class OPropertyRidBagAbstractIndexDefinition {
   @Test
   public void testGetDocumentValueToIndex() {
     ORidBag ridBag = new ORidBag();
-    ridBag.setAutoConvertToRecord(false);
 
     ridBag.add(new ORecordId("#1:12"));
     ridBag.add(new ORecordId("#1:23"));
