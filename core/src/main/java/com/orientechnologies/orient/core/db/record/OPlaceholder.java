@@ -27,6 +27,7 @@ import com.orientechnologies.orient.core.serialization.OStreamable;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import javax.annotation.Nonnull;
 
 /**
  * Base interface for identifiable objects. This abstraction is required to use ORID and ORecord in
@@ -59,6 +60,7 @@ public class OPlaceholder implements OIdentifiable, OStreamable {
     return rid;
   }
 
+  @Nonnull
   @Override
   public <T extends ORecord> T getRecord() {
     return rid.getRecord();

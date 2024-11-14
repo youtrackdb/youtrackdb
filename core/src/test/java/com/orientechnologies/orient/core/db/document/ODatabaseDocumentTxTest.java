@@ -53,7 +53,7 @@ public class ODatabaseDocumentTxTest extends BaseMemoryDatabase {
       Assert.assertEquals(db.countClass("TestSubclass", false), 2);
       Assert.assertEquals(db.countClass("TestSubclass", true), 2);
 
-      db.bindToSession(toDelete).delete().save();
+      db.bindToSession(toDelete).delete();
       // 1 SUB, 1 SUPER
 
       Assert.assertEquals(db.countClass("TestSuperclass", false), 1);

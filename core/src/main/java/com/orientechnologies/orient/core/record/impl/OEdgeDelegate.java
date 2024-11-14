@@ -19,9 +19,6 @@
  */
 package com.orientechnologies.orient.core.record.impl;
 
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.exception.OSerializationException;
@@ -31,6 +28,7 @@ import com.orientechnologies.orient.core.metadata.schema.OImmutableClass;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.serialization.OSerializableStream;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
@@ -103,7 +101,7 @@ public class OEdgeDelegate implements OEdgeInternal {
     assert result != null;
 
     var id = result.getIdentity();
-    var db = getDatabase();
+    var db = doc.getDatabase();
     var schema = db.getMetadata().getSchema();
 
     if (schema.getClassByClusterId(id.getClusterId()).isVertexType()) {
@@ -111,6 +109,11 @@ public class OEdgeDelegate implements OEdgeInternal {
     }
 
     return null;
+  }
+
+  @Override
+  public boolean isEmbedded() {
+    return false;
   }
 
   @Override
@@ -153,8 +156,7 @@ public class OEdgeDelegate implements OEdgeInternal {
     assert result != null;
 
     var id = result.getIdentity();
-    var db = getDatabase();
-    var schema = db.getMetadata().getSchema();
+    var schema = doc.getDatabase().getMetadata().getSchema();
 
     if (schema.getClassByClusterId(id.getClusterId()).isVertexType()) {
       return id;
@@ -168,25 +170,25 @@ public class OEdgeDelegate implements OEdgeInternal {
     return this.element == null;
   }
 
-  public OEdge delete() {
+  public void delete() {
     if (element != null) {
       element.delete();
     } else {
       OEdgeDocument.deleteLinks(this);
     }
-    return this;
   }
 
   @Override
   public void promoteToRegularEdge() {
-    ODatabaseDocument db = getDatabase();
+
     var from = getFrom();
     OVertex to = getTo();
     OVertexInternal.removeOutgoingEdge(from, this);
     OVertexInternal.removeIncomingEdge(to, this);
+
+    var db = ((ORecordAbstract) from.getRecord()).getDatabase();
     this.element =
-        ((ODatabaseSessionInternal) db)
-            .newRegularEdge(
+        db.newRegularEdge(
                 lightweightEdgeType == null ? "E" : lightweightEdgeType.getName(), from, to)
             .getRecord();
     this.lightweightEdgeType = null;
@@ -290,6 +292,7 @@ public class OEdgeDelegate implements OEdgeInternal {
     return element.getIdentity();
   }
 
+  @Nonnull
   @Override
   public <T extends ORecord> T getRecord() {
 
@@ -427,15 +430,6 @@ public class OEdgeDelegate implements OEdgeInternal {
       return element.getVersion();
     }
     return 1;
-  }
-
-  @Override
-  public ODatabaseDocument getDatabase() {
-    if (element != null) {
-      return element.getDatabase();
-    } else {
-      return ODatabaseRecordThreadLocal.instance().getIfDefined();
-    }
   }
 
   @Override

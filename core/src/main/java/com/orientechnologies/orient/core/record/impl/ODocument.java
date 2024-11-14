@@ -127,7 +127,6 @@ public class ODocument extends ORecordAbstract
         ODetachable,
         Externalizable,
         OElementInternal {
-
   public static final byte RECORD_TYPE = 'd';
   private static final String[] EMPTY_STRINGS = new String[] {};
   private int fieldSize;
@@ -448,6 +447,7 @@ public class ODocument extends ORecordAbstract
         }
       }
     }
+
     return fields;
   }
 
@@ -455,11 +455,11 @@ public class ODocument extends ORecordAbstract
   public Set<String> getPropertyNames() {
     checkForBinding();
 
-    return getPropertyNamesWithoutFiltration();
+    return getPropertyNamesInternal();
   }
 
   @Override
-  public Set<String> getPropertyNamesWithoutFiltration() {
+  public Set<String> getPropertyNamesInternal() {
     checkForBinding();
 
     return calculatePropertyNames();
@@ -475,16 +475,16 @@ public class ODocument extends ORecordAbstract
   public <RET> RET getProperty(final String fieldName) {
     checkForBinding();
 
-    return getPropertyWithoutValidation(fieldName);
+    return getPropertyInternal(fieldName);
   }
 
   @Override
-  public <RET> RET getPropertyWithoutValidation(String name) {
-    return getPropertyWithoutValidation(name, isLazyLoad());
+  public <RET> RET getPropertyInternal(String name) {
+    return getPropertyInternal(name, isLazyLoad());
   }
 
   @Override
-  public <RET> RET getPropertyWithoutValidation(String name, boolean lazyLoad) {
+  public <RET> RET getPropertyInternal(String name, boolean lazyLoad) {
     checkForBinding();
 
     if (name == null) {
@@ -552,7 +552,7 @@ public class ODocument extends ORecordAbstract
       }
       return onLoadValue;
     } else {
-      return getPropertyWithoutValidation(name);
+      return getPropertyInternal(name);
     }
   }
 
@@ -583,12 +583,12 @@ public class ODocument extends ORecordAbstract
   public OIdentifiable getLinkProperty(String fieldName) {
     checkForBinding();
 
-    return getLinkPropertyWithoutValidation(fieldName);
+    return getLinkPropertyInternal(fieldName);
   }
 
   @Nullable
   @Override
-  public OIdentifiable getLinkPropertyWithoutValidation(String name) {
+  public OIdentifiable getLinkPropertyInternal(String name) {
     checkForBinding();
 
     if (name == null) {
@@ -640,11 +640,11 @@ public class ODocument extends ORecordAbstract
   public void setProperty(final String iFieldName, Object iPropertyValue) {
     checkForBinding();
 
-    setPropertyWithoutValidation(iFieldName, iPropertyValue);
+    setPropertyInternal(iFieldName, iPropertyValue);
   }
 
   @Override
-  public void setPropertyWithoutValidation(String name, Object value) {
+  public void setPropertyInternal(String name, Object value) {
     checkForBinding();
 
     if (value instanceof OElement element
@@ -652,7 +652,7 @@ public class ODocument extends ORecordAbstract
         && !element.getIdentity().isValid()) {
       setProperty(name, value, OType.EMBEDDED);
     } else {
-      setPropertyWithoutValidation(name, value, OCommonConst.EMPTY_TYPES_ARRAY);
+      setPropertyInternal(name, value, OCommonConst.EMPTY_TYPES_ARRAY);
     }
   }
 
@@ -666,11 +666,11 @@ public class ODocument extends ORecordAbstract
   public void setProperty(String name, Object value, OType... types) {
     checkForBinding();
 
-    setPropertyWithoutValidation(name, value, types);
+    setPropertyInternal(name, value, types);
   }
 
   @Override
-  public void setPropertyWithoutValidation(String name, Object value, OType... type) {
+  public void setPropertyInternal(String name, Object value, OType... type) {
     checkForBinding();
 
     if (name == null) {
@@ -834,21 +834,20 @@ public class ODocument extends ORecordAbstract
   }
 
   @Override
-  public ODocument delete() {
+  public void delete() {
     checkForBinding();
 
     super.delete();
-    return this;
   }
 
   public <RET> RET removeProperty(final String iFieldName) {
     checkForBinding();
 
-    return removePropertyWithoutValidation(iFieldName);
+    return removePropertyInternal(iFieldName);
   }
 
   @Override
-  public <RET> RET removePropertyWithoutValidation(String name) {
+  public <RET> RET removePropertyInternal(String name) {
     checkForBinding();
     checkForFields();
 
@@ -2674,7 +2673,7 @@ public class ODocument extends ORecordAbstract
   public ODocument reset() {
     checkForBinding();
 
-    ODatabaseDocument db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    var db = ODatabaseRecordThreadLocal.instance().getIfDefined();
     if (db != null && db.getTransaction().isActive()) {
       throw new IllegalStateException(
           "Cannot reset documents during a transaction. Create a new one each time");
@@ -3381,18 +3380,18 @@ public class ODocument extends ORecordAbstract
 
         if (!bagsMerged && (value != null && !value.equals(otherValue))
             || (value == null && otherValue != null)) {
-          setPropertyWithoutValidation(f, otherValue);
+          setPropertyInternal(f, otherValue);
         }
       } else {
-        setPropertyWithoutValidation(f, otherValue);
+        setPropertyInternal(f, otherValue);
       }
     }
 
     if (!iUpdateOnlyMode) {
       // REMOVE PROPERTIES NOT FOUND IN OTHER DOC
-      for (String f : getPropertyNamesWithoutFiltration()) {
+      for (String f : getPropertyNamesInternal()) {
         if (!iOther.containsKey(f) || !iOther.get(f).exists()) {
-          removePropertyWithoutValidation(f);
+          removePropertyInternal(f);
         }
       }
     }
@@ -3724,8 +3723,6 @@ public class ODocument extends ORecordAbstract
   }
 
   void removeOwner(final ORecordElement iRecordElement) {
-    checkForBinding();
-
     if (owner != null && owner.get() == iRecordElement) {
       owner = null;
     }

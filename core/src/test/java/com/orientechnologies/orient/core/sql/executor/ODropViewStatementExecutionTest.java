@@ -18,7 +18,6 @@ public class ODropViewStatementExecutionTest extends BaseMemoryDatabase {
     schema.createClass(className);
     schema.createView(viewName, "SELECT FROM " + className);
 
-    schema.reload();
     Assert.assertNotNull(schema.getView(viewName));
 
     OResultSet result = db.command("drop view " + viewName);
@@ -27,7 +26,6 @@ public class ODropViewStatementExecutionTest extends BaseMemoryDatabase {
     Assert.assertEquals("drop view", next.getProperty("operation"));
     Assert.assertFalse(result.hasNext());
     result.close();
-    schema.reload();
     Assert.assertNull(schema.getView(viewName));
   }
 
@@ -39,7 +37,6 @@ public class ODropViewStatementExecutionTest extends BaseMemoryDatabase {
     schema.createClass(className);
     schema.createView(viewName, "SELECT FROM " + className);
 
-    schema.reload();
     Assert.assertNotNull(schema.getView(viewName));
 
     OResultSet result = db.command("drop view " + viewName + " if exists");
@@ -48,12 +45,10 @@ public class ODropViewStatementExecutionTest extends BaseMemoryDatabase {
     Assert.assertEquals("drop view", next.getProperty("operation"));
     Assert.assertFalse(result.hasNext());
     result.close();
-    schema.reload();
     Assert.assertNull(schema.getView(viewName));
 
     result = db.command("drop view " + viewName + " if exists");
     result.close();
-    schema.reload();
     Assert.assertNull(schema.getView(viewName));
   }
 }

@@ -7,18 +7,18 @@ import java.util.Set;
 import javax.annotation.Nullable;
 
 public interface OElementInternal extends OElement {
-  Set<String> getPropertyNamesWithoutFiltration();
+  Set<String> getPropertyNamesInternal();
 
-  void setPropertyWithoutValidation(String name, Object value);
+  void setPropertyInternal(String name, Object value);
 
-  void setPropertyWithoutValidation(String name, Object value, OType... type);
+  void setPropertyInternal(String name, Object value, OType... type);
 
-  <RET> RET removePropertyWithoutValidation(String name);
+  <RET> RET removePropertyInternal(String name);
 
-  <RET> RET getPropertyWithoutValidation(String name);
+  <RET> RET getPropertyInternal(String name);
 
-  <RET> RET getPropertyWithoutValidation(String name, boolean lazyLoading);
+  <RET> RET getPropertyInternal(String name, boolean lazyLoading);
 
   @Nullable
-  OIdentifiable getLinkPropertyWithoutValidation(String name);
+  OIdentifiable getLinkPropertyInternal(String name);
 }

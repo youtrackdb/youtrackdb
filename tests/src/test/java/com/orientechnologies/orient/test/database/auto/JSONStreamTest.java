@@ -27,7 +27,6 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.serialization.serializer.OJSONWriter;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerSchemaAware2CSV;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTxInternal;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -368,36 +367,20 @@ public class JSONStreamTest extends DocumentDBBaseTest {
 
   @Test
   public void testFetchedJson() throws IOException {
-    final OObjectDatabaseTxInternal database = new OObjectDatabaseTxInternal(acquireSession());
-    try {
-      database
-          .getEntityManager()
-          .registerEntityClasses("com.orientechnologies.orient.test.domain.business");
-      database
-          .getEntityManager()
-          .registerEntityClasses("com.orientechnologies.orient.test.domain.whiz");
-      database
-          .getEntityManager()
-          .registerEntityClasses("com.orientechnologies.orient.test.domain.base");
+    final List<ODocument> result =
+        database
+            .command(
+                new OSQLSynchQuery<ODocument>(
+                    "select * from Profile where name = 'Barack' and surname = 'Obama'"))
+            .execute();
 
-      final List<ODocument> result =
-          database
-              .getUnderlying()
-              .command(
-                  new OSQLSynchQuery<ODocument>(
-                      "select * from Profile where name = 'Barack' and surname = 'Obama'"))
-              .execute();
-
-      for (final ODocument doc : result) {
-        final String jsonFull =
-            doc.toJSON("type,rid,version,class,keepTypes,attribSameRow,indent:0,fetchPlan:*:-1");
-        final ODocument loadedDoc =
-            new ODocument()
-                .fromJSON(new ByteArrayInputStream(jsonFull.getBytes(StandardCharsets.UTF_8)));
-        Assert.assertTrue(doc.hasSameContentOf(loadedDoc));
-      }
-    } finally {
-      database.close();
+    for (final ODocument doc : result) {
+      final String jsonFull =
+          doc.toJSON("type,rid,version,class,keepTypes,attribSameRow,indent:0,fetchPlan:*:-1");
+      final ODocument loadedDoc =
+          new ODocument()
+              .fromJSON(new ByteArrayInputStream(jsonFull.getBytes(StandardCharsets.UTF_8)));
+      Assert.assertTrue(doc.hasSameContentOf(loadedDoc));
     }
   }
 

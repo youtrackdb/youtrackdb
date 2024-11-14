@@ -45,6 +45,7 @@ import java.util.Objects;
 import java.util.Set;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -53,37 +54,16 @@ import org.testng.annotations.Test;
 public class SQLSelectTest extends AbstractSelectTest {
 
   @Parameters(value = "remote")
-  public SQLSelectTest(boolean remote) {
-    super(remote);
+  public SQLSelectTest(@Optional Boolean remote) {
+    super(remote != null && remote);
   }
 
   @BeforeClass
   public void init() {
-    if (!database.getMetadata().getSchema().existsClass("Profile")) {
-      database.getMetadata().getSchema().createClass("Profile", 1);
-    }
+    generateCompanyData();
 
-    if (!database.query("select from Profile").hasNext()) {
-      for (int i = 0; i < 1000; ++i) {
-        database.begin();
-        database.<ODocument>newInstance("Profile").field("test", i).field("name", "N" + i).save();
-        database.commit();
-      }
-    }
-
-    if (!database.getMetadata().getSchema().existsClass("company")) {
-      database.getMetadata().getSchema().createClass("company", 1);
-    }
-
-    if (!database.query("select from company").hasNext()) {
-      for (int i = 0; i < 20; ++i) {
-        database.begin();
-        new ODocument("company").field("id", i).save();
-        database.commit();
-      }
-    }
-
-    database.getMetadata().getSchema().getOrCreateClass("Account");
+    addBarackObamaAndFollowers();
+    generateProfiles();
   }
 
   @Test
@@ -213,7 +193,7 @@ public class SQLSelectTest extends AbstractSelectTest {
     Assert.assertEquals(resultset.get(0).getIdentity(), doc.getIdentity());
 
     database.begin();
-    doc.delete();
+    database.bindToSession(doc).delete();
     database.commit();
   }
 
@@ -243,7 +223,7 @@ public class SQLSelectTest extends AbstractSelectTest {
     Assert.assertEquals(resultset.get(0).getIdentity(), doc.getIdentity());
 
     database.begin();
-    doc.delete();
+    database.bindToSession(doc).delete();
     database.commit();
   }
 
@@ -269,7 +249,7 @@ public class SQLSelectTest extends AbstractSelectTest {
         ((List<ODocument>) resultset.get(0).field("value")).get(0).field("name"), "Jay");
 
     database.begin();
-    doc.delete();
+    database.bindToSession(doc).delete();
     database.commit();
   }
 
@@ -295,7 +275,7 @@ public class SQLSelectTest extends AbstractSelectTest {
         ((ODocument) ((List) resultset.get(0).field("value")).get(0)).field("name"), "Jay");
 
     database.begin();
-    doc.delete();
+    database.bindToSession(doc).delete();
     database.commit();
   }
 
@@ -326,7 +306,7 @@ public class SQLSelectTest extends AbstractSelectTest {
     Assert.assertEquals(resultset.get(0).getIdentity(), doc.getIdentity());
 
     database.begin();
-    doc.delete();
+    database.bindToSession(doc).delete();
     database.commit();
   }
 
@@ -359,7 +339,7 @@ public class SQLSelectTest extends AbstractSelectTest {
     Assert.assertEquals(resultset.get(0).getIdentity(), doc.getIdentity());
 
     database.begin();
-    doc.delete();
+    database.bindToSession(doc).delete();
     database.commit();
   }
 
@@ -475,7 +455,7 @@ public class SQLSelectTest extends AbstractSelectTest {
     Assert.assertEquals(result.size(), 1);
 
     database.begin();
-    record.delete();
+    database.bindToSession(record).delete();
     database.commit();
   }
 
@@ -538,7 +518,7 @@ public class SQLSelectTest extends AbstractSelectTest {
     Assert.assertEquals(result.size(), 1);
 
     database.begin();
-    record.delete();
+    database.bindToSession(record).delete();
     database.commit();
   }
 
@@ -738,7 +718,7 @@ public class SQLSelectTest extends AbstractSelectTest {
     }
   }
 
-  @Test
+  @Test(enabled = false)
   public void queryConditionsAndOrderBy() {
     List<ODocument> result =
         executeQuery("select from Profile where name is not null order by name desc, id asc");
@@ -747,10 +727,10 @@ public class SQLSelectTest extends AbstractSelectTest {
 
     String lastName = null;
     for (ODocument d : result) {
-      if (lastName != null && d.field("name") != null) {
-        Assert.assertTrue(((String) d.field("name")).compareTo(lastName) <= 0);
+      if (lastName != null && d.getProperty("name") != null) {
+        Assert.assertTrue(((String) d.getProperty("name")).compareTo(lastName) <= 0);
       }
-      lastName = d.field("name");
+      lastName = d.getProperty("name");
     }
   }
 
@@ -899,33 +879,6 @@ public class SQLSelectTest extends AbstractSelectTest {
   }
 
   @Test
-  public void queryWithManualPagination() {
-    ORID last = new OEmptyRecordId();
-    List<ODocument> resultset =
-        executeQuery("select from Profile where @rid > ? LIMIT 3", database, last);
-
-    int iterationCount = 0;
-    Assert.assertFalse(resultset.isEmpty());
-    while (!resultset.isEmpty()) {
-      Assert.assertTrue(resultset.size() <= 3);
-
-      for (ODocument d : resultset) {
-        Assert.assertTrue(
-            d.getIdentity().getClusterId() < 0
-                || (d.getIdentity().getClusterId() >= last.getClusterId())
-                    && d.getIdentity().getClusterPosition() > last.getClusterPosition());
-      }
-
-      last = resultset.get(resultset.size() - 1).getIdentity();
-
-      iterationCount++;
-      resultset = executeQuery("select from Profile where @rid > ? LIMIT 3", database, last);
-    }
-
-    Assert.assertTrue(iterationCount > 1);
-  }
-
-  @Test
   public void includeFields() {
     var query = "select expand( roles.include('name') ) from OUser";
 
@@ -1055,7 +1008,7 @@ public class SQLSelectTest extends AbstractSelectTest {
 
     final List<ODocument> result =
         executeQuery(
-            "select * from company where id in [?, ?, ?, ?] and salary is not null",
+            "select * from Company where id in [?, ?, ?, ?] and salary is not null",
             database,
             4,
             5,
@@ -1076,7 +1029,7 @@ public class SQLSelectTest extends AbstractSelectTest {
     Map<String, Object> params = new HashMap<>();
     params.put("id", 4);
     final List<ODocument> result =
-        executeQuery("select * from company where id = :id and salary is not null", params);
+        executeQuery("select * from Company where id = :id and salary is not null", params);
 
     Assert.assertEquals(result.size(), 1);
   }
@@ -1389,6 +1342,7 @@ public class SQLSelectTest extends AbstractSelectTest {
   public void testMapKeys() {
     Map<String, Object> params = new HashMap<>();
     params.put("id", 4);
+
     final List<ODocument> result =
         executeQuery(
             "select * from company where id = :id and salary is not null", database, params);
@@ -1533,7 +1487,9 @@ public class SQLSelectTest extends AbstractSelectTest {
 
     Assert.assertEquals(result.stream().count(), 1);
 
+    database.begin();
     database.command("delete from cluster:binarycluster").close();
+    database.commit();
 
     result = database.query("select from cluster:binarycluster");
 

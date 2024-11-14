@@ -56,11 +56,11 @@ public class UpdateEdgePointersStep extends AbstractExecutionStep {
 
     if (currentOut instanceof Collection<?> col && col.size() == 1) {
       currentOut = col.iterator().next();
-      record.setPropertyWithoutValidation("out", currentOut);
+      record.setPropertyInternal("out", currentOut);
     }
     if (currentIn instanceof Collection<?> col && col.size() == 1) {
       currentIn = col.iterator().next();
-      record.setPropertyWithoutValidation("in", currentIn);
+      record.setPropertyInternal("in", currentIn);
     }
 
     validateOutInForEdge(currentOut, currentIn);

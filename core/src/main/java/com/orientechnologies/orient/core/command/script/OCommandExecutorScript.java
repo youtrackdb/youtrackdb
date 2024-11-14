@@ -262,7 +262,7 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
 
   // TODO: CREATE A REGULAR JSR223 SCRIPT IMPL
   protected Object executeSQL() {
-    ODatabaseDocument db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    var db = ODatabaseRecordThreadLocal.instance().getIfDefined();
     try {
 
       return executeSQLScript(parserText, db);
@@ -279,7 +279,7 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
         "Error on execution of the script: " + iText, request.getText(), 0);
   }
 
-  protected Object executeSQLScript(final String iText, final ODatabaseDocument db)
+  protected Object executeSQLScript(final String iText, final ODatabaseSessionInternal db)
       throws IOException {
     Object lastResult = null;
     int maxRetry = 1;

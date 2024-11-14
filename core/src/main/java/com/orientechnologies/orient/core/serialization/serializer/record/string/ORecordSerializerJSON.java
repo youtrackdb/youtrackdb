@@ -445,7 +445,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
 
                       if (type != null) {
                         // TREAT IT AS EMBEDDED
-                        doc.setPropertyWithoutValidation(fieldName, v, type);
+                        doc.setPropertyInternal(fieldName, v, type);
                         return;
                       }
                     } else {
@@ -485,9 +485,9 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
                   }
 
                   if (type != null) {
-                    doc.setPropertyWithoutValidation(fieldName, v, type);
+                    doc.setPropertyInternal(fieldName, v, type);
                   } else {
-                    doc.setPropertyWithoutValidation(fieldName, v);
+                    doc.setPropertyInternal(fieldName, v);
                   }
                 }
               }

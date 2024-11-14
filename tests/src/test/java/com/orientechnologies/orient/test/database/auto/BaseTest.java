@@ -9,10 +9,6 @@ import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.OrientDBConfigBuilder;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTxInternal;
 import com.orientechnologies.orient.server.OServer;
 import java.util.Locale;
 import org.testng.SkipException;
@@ -227,65 +223,6 @@ public abstract class BaseTest<T extends ODatabaseInternal<?>> {
 
   protected final String getStorageType() {
     return databaseType.toString().toLowerCase(Locale.ROOT);
-  }
-
-  protected void createBasicTestSchema() {
-    ODatabaseInternal<?> database = this.database;
-    if (database instanceof OObjectDatabaseTxInternal) {
-      database = database.getUnderlying();
-    }
-
-    if (database.getMetadata().getSchema().existsClass("Whiz")) {
-      return;
-    }
-
-    database.addCluster("csv");
-    database.addCluster("flat");
-    database.addCluster("binary");
-
-    OClass account = database.getMetadata().getSchema().createClass("Account", 1, (OClass[]) null);
-    account.createProperty("id", OType.INTEGER);
-    account.createProperty("birthDate", OType.DATE);
-    account.createProperty("binary", OType.BINARY);
-
-    database.getMetadata().getSchema().createClass("Company", account);
-
-    OClass profile = database.getMetadata().getSchema().createClass("Profile", 1, (OClass[]) null);
-    profile
-        .createProperty("nick", OType.STRING)
-        .setMin("3")
-        .setMax("30")
-        .createIndex(OClass.INDEX_TYPE.UNIQUE, new ODocument().field("ignoreNullValues", true));
-    profile
-        .createProperty("name", OType.STRING)
-        .setMin("3")
-        .setMax("30")
-        .createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
-    profile.createProperty("surname", OType.STRING).setMin("3").setMax("30");
-    profile.createProperty("registeredOn", OType.DATETIME).setMin("2010-01-01 00:00:00");
-    profile.createProperty("lastAccessOn", OType.DATETIME).setMin("2010-01-01 00:00:00");
-    profile.createProperty("photo", OType.TRANSIENT);
-
-    OClass whiz = database.getMetadata().getSchema().createClass("Whiz", 1, (OClass[]) null);
-    whiz.createProperty("id", OType.INTEGER);
-    whiz.createProperty("account", OType.LINK, account);
-    whiz.createProperty("date", OType.DATE).setMin("2010-01-01");
-    whiz.createProperty("text", OType.STRING).setMandatory(true).setMin("1").setMax("140");
-    whiz.createProperty("replyTo", OType.LINK, account);
-
-    OClass strictTest =
-        database.getMetadata().getSchema().createClass("StrictTest", 1, (OClass[]) null);
-    strictTest.setStrictMode(true);
-    strictTest.createProperty("id", OType.INTEGER).isMandatory();
-    strictTest.createProperty("name", OType.STRING);
-
-    OClass animalRace =
-        database.getMetadata().getSchema().createClass("AnimalRace", 1, (OClass[]) null);
-    animalRace.createProperty("name", OType.STRING);
-
-    OClass animal = database.getMetadata().getSchema().createClass("Animal", 1, (OClass[]) null);
-    animal.createProperty("races", OType.LINKSET, animalRace);
-    animal.createProperty("name", OType.STRING);
   }
 
   protected void checkEmbeddedDB() {

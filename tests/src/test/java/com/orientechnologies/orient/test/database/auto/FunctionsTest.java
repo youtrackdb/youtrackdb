@@ -93,10 +93,6 @@ public class FunctionsTest extends DocumentDBBaseTest {
 
     final int TOT = 1000;
     final int threadNum = OGlobalConfiguration.SCRIPT_POOL.getValueAsInteger() * 3;
-    // System.out.println("Starting " + threadNum + " concurrent threads with scriptPool="
-    // + OGlobalConfiguration.SCRIPT_POOL.getValueAsInteger() + " executing function for " + TOT + "
-    // times");
-
     final AtomicLong counter = new AtomicLong();
 
     final Thread[] threads = new Thread[threadNum];

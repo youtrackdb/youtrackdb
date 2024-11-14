@@ -1611,7 +1611,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
     OElement doc = (OElement) record;
     bags.forEach(
         (field, ridset) -> {
-          ORidBag ridbag = ((OElementInternal) record).getPropertyWithoutValidation(field);
+          ORidBag ridbag = ((OElementInternal) record).getPropertyInternal(field);
           ridset.forEach(
               rid -> {
                 ridbag.add(rid);
@@ -1643,7 +1643,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
             '\t');
 
     String fieldName = OIOUtils.getStringContent(builder.toString());
-    ORidBag bag = doc.getPropertyWithoutValidation(fieldName);
+    ORidBag bag = doc.getPropertyInternal(fieldName);
 
     if (!(value.charAt(nextIndex) == '[')) {
       throw new ODatabaseImportException("Cannot import field: " + fieldName + " (too big)");

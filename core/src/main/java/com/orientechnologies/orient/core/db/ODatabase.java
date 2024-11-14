@@ -33,11 +33,11 @@ import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
-import com.orientechnologies.orient.core.tx.OTransaction;
 import com.orientechnologies.orient.core.util.OBackupable;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import java.io.Closeable;
 import java.util.Map;
+import javax.annotation.Nonnull;
 
 /**
  * Generic Database interface. Represents the lower level of the Database providing raw API to
@@ -309,6 +309,7 @@ public interface ODatabase<T> extends OBackupable, Closeable {
    * @param recordId The unique record id of the entity to load.
    * @return The loaded entity
    */
+  @Nonnull
   <RET extends T> RET load(ORID recordId);
 
   /**
@@ -348,15 +349,7 @@ public interface ODatabase<T> extends OBackupable, Closeable {
   void delete(ORID iRID);
 
   /**
-   * Return active transaction. Cannot be null. If no transaction is active, then a OTransactionNoTx
-   * instance is returned.
-   *
-   * @return OTransaction implementation
-   */
-  OTransaction getTransaction();
-
-  /**
-   * Begins a new transaction. By default the type is OPTIMISTIC. If a previous transaction is
+   * Begins a new transaction.If a previous transaction is
    * running a nested call counter is incremented. A transaction once begun has to be closed by
    * calling the {@link #commit()} or {@link #rollback()}.
    *

@@ -7,6 +7,7 @@ import com.orientechnologies.orient.core.db.record.OTrackedList;
 import com.orientechnologies.orient.core.db.record.OTrackedMap;
 import com.orientechnologies.orient.core.db.record.OTrackedSet;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.ORecordInternal;
@@ -293,7 +294,7 @@ public class OCompositeIndexDefinitionTest {
     compositeIndexDefinition.createValue(Arrays.asList(1, 2), Arrays.asList(12));
   }
 
-  @Test(expected = NumberFormatException.class)
+  @Test(expected = ODatabaseException.class)
   public void testCreateValueWrongParam() {
     compositeIndex.createValue(Arrays.asList("1t2", "test"));
   }
@@ -305,7 +306,7 @@ public class OCompositeIndexDefinitionTest {
     Assert.assertEquals(result, new OCompositeKey(Arrays.asList(12, "test")));
   }
 
-  @Test(expected = NumberFormatException.class)
+  @Test(expected = ODatabaseException.class)
   public void testCreateValueWrongParamArrayParams() {
     compositeIndex.createValue("1t2", "test");
   }
@@ -643,7 +644,7 @@ public class OCompositeIndexDefinitionTest {
     compositeIndexDefinition.getDocumentValueToIndex(document);
   }
 
-  @Test(expected = NumberFormatException.class)
+  @Test(expected = ODatabaseException.class)
   public void testDocumentToIndexWrongField() {
     final ODocument document = new ODocument();
 

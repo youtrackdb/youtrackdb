@@ -22,7 +22,7 @@ import org.junit.Test;
 public class TransactionMetadataTest {
 
   private OrientDB orientDB;
-  private ODatabaseSession db;
+  private ODatabaseSessionInternal db;
   private static final String DB_NAME = TransactionMetadataTest.class.getSimpleName();
 
   @Before
@@ -30,7 +30,9 @@ public class TransactionMetadataTest {
     orientDB =
         OCreateDatabaseUtil.createDatabase(
             DB_NAME, "embedded:./target/", OCreateDatabaseUtil.TYPE_PLOCAL);
-    db = orientDB.open(DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    db =
+        (ODatabaseSessionInternal)
+            orientDB.open(DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
   }
 
   @Test
@@ -52,7 +54,9 @@ public class TransactionMetadataTest {
             OrientDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
-    db = orientDB.open(DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    db =
+        (ODatabaseSessionInternal)
+            orientDB.open(DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     Optional<byte[]> fromStorage =
         ((OAbstractPaginatedStorage) ((ODatabaseSessionInternal) db).getStorage())
@@ -109,6 +113,7 @@ public class TransactionMetadataTest {
   }
 
   private static class TestMetadataHolder implements OTxMetadataHolder {
+
     private final byte[] metadata;
 
     public TestMetadataHolder(byte[] metadata) {

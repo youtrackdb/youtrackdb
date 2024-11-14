@@ -25,7 +25,6 @@ import com.orientechnologies.orient.core.exception.OSchemaException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.ORecord;
@@ -86,48 +85,6 @@ public interface ODatabaseDocument extends ODatabase<ORecord> {
    *                       exception will be thrown in case of write command will be performed.
    */
   void freeze(boolean throwException);
-
-  /**
-   * Checks if the operation on a resource is allowed for the current user.
-   *
-   * @param resourceGeneric Generic Resource where to execute the operation
-   * @param iOperation      Operation to execute against the resource
-   */
-  void checkSecurity(
-      ORule.ResourceGeneric resourceGeneric, String resourceSpecific, int iOperation);
-
-  /**
-   * Checks if the operation on a resource is allowed for the current user. The check is made in two
-   * steps:
-   *
-   * <ol>
-   *   <li>Access to all the resource as *
-   *   <li>Access to the specific target resource
-   * </ol>
-   *
-   * @param iResourceGeneric  Resource where to execute the operation, i.e.: database.clusters
-   * @param iOperation        Operation to execute against the resource
-   * @param iResourceSpecific Target resource, i.e.: "employee" to specify the cluster name.
-   */
-  void checkSecurity(
-      ORule.ResourceGeneric iResourceGeneric, int iOperation, Object iResourceSpecific);
-
-  /**
-   * Checks if the operation against multiple resources is allowed for the current user. The check
-   * is made in two steps:
-   *
-   * <ol>
-   *   <li>Access to all the resource as *
-   *   <li>Access to the specific target resources
-   * </ol>
-   *
-   * @param iResourceGeneric   Resource where to execute the operation, i.e.: database.clusters
-   * @param iOperation         Operation to execute against the resource
-   * @param iResourcesSpecific Target resources as an array of Objects, i.e.: ["employee", 2] to
-   *                           specify cluster name and id.
-   */
-  void checkSecurity(
-      ORule.ResourceGeneric iResourceGeneric, int iOperation, Object... iResourcesSpecific);
 
   /**
    * @return <code>true</code> if database is obtained from the pool and <code>false</code>

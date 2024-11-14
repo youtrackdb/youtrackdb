@@ -43,10 +43,8 @@ public class SQLCreateClassTest {
     try {
       Assert.assertFalse(db.getMetadata().getSchema().existsClass("testIfNotExists"));
       db.command("create class testIfNotExists if not exists").close();
-      db.getMetadata().getSchema().reload();
       Assert.assertTrue(db.getMetadata().getSchema().existsClass("testIfNotExists"));
       db.command("create class testIfNotExists if not exists").close();
-      db.getMetadata().getSchema().reload();
       Assert.assertTrue(db.getMetadata().getSchema().existsClass("testIfNotExists"));
       try {
         db.command("create class testIfNotExists").close();

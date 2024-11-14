@@ -15,6 +15,7 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
+import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -24,15 +25,16 @@ import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.List;
 import java.util.Set;
 import org.testng.Assert;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-@Test(groups = "sql-select")
+@Test
 public class GEOTest extends DocumentDBBaseTest {
 
   @Parameters(value = "remote")
-  public GEOTest(boolean remote) {
-    super(remote);
+  public GEOTest(@Optional Boolean remote) {
+    super(remote != null && remote);
   }
 
   @Test
@@ -107,13 +109,9 @@ public class GEOTest extends DocumentDBBaseTest {
     try {
       result.get(0).field("x", "--wrong--");
       Assert.assertTrue(false);
-    } catch (NumberFormatException e) {
+    } catch (ODatabaseException e) {
       Assert.assertTrue(true);
     }
-
-    database.begin();
-    result.get(0).save();
-    database.commit();
 
     result =
         database

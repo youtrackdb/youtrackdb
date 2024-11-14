@@ -35,6 +35,7 @@ import java.util.Collection;
 import java.util.Set;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -47,8 +48,8 @@ public class RestrictedTest extends DocumentDBBaseTest {
   private ORole readerRole = null;
 
   @Parameters(value = "remote")
-  public RestrictedTest(boolean remote) {
-    super(remote);
+  public RestrictedTest(@Optional Boolean remote) {
+    super(remote != null && remote);
   }
 
   @Override
@@ -138,8 +139,8 @@ public class RestrictedTest extends DocumentDBBaseTest {
     database = createSessionInstance("writer", "writer");
     database.begin();
     try {
-      var adminRecord = new ODocument(this.adminRecordId);
-      adminRecord.field("user", "writer-hacker");
+      var adminRecord = database.loadElement(this.adminRecordId);
+      adminRecord.setProperty("user", "writer-hacker");
       adminRecord.save();
       database.commit();
     } catch (OSecurityException | ORecordNotFoundException e) {

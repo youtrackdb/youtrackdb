@@ -15,12 +15,11 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
-import com.orientechnologies.orient.test.domain.whiz.Collector;
+import com.orientechnologies.orient.core.record.OElement;
+import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -29,24 +28,24 @@ import java.util.stream.Stream;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-@Test(groups = {"index"})
-public class CollectionIndexTest extends ObjectDBBaseTest {
+@Test
+public class CollectionIndexTest extends DocumentDBBaseTest {
 
   @Parameters(value = "remote")
-  public CollectionIndexTest(boolean remote) {
-    super(remote);
+  public CollectionIndexTest(@Optional Boolean remote) {
+    super(remote != null && remote);
   }
 
   @BeforeClass
   public void setupSchema() {
-    database
-        .getEntityManager()
-        .registerEntityClasses("com.orientechnologies.orient.test.domain.whiz");
-
-    final OClass collector = database.getMetadata().getSchema().getClass("Collector");
+    if (database.getMetadata().getSchema().existsClass("Collector")) {
+      database.getMetadata().getSchema().dropClass("Collector");
+    }
+    final OClass collector = database.createClass("Collector");
     collector.createProperty("id", OType.STRING);
     collector
         .createProperty("stringCollection", OType.EMBEDDEDLIST, OType.STRING)
@@ -55,7 +54,9 @@ public class CollectionIndexTest extends ObjectDBBaseTest {
 
   @AfterMethod
   public void afterMethod() throws Exception {
+    database.begin();
     database.command("delete from Collector").close();
+    database.commit();
 
     super.afterMethod();
   }
@@ -63,9 +64,10 @@ public class CollectionIndexTest extends ObjectDBBaseTest {
   public void testIndexCollection() {
     checkEmbeddedDB();
 
-    Collector collector = new Collector();
-    collector.setStringCollection(Arrays.asList("spam", "eggs"));
     database.begin();
+    OElement collector = database.newElement("Collector");
+    collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
+
     database.save(collector);
     database.commit();
 
@@ -90,8 +92,8 @@ public class CollectionIndexTest extends ObjectDBBaseTest {
 
     try {
       database.begin();
-      Collector collector = new Collector();
-      collector.setStringCollection(Arrays.asList("spam", "eggs"));
+      OElement collector = database.newElement("Collector");
+      collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
       database.save(collector);
       database.commit();
     } catch (Exception e) {
@@ -118,10 +120,10 @@ public class CollectionIndexTest extends ObjectDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    Collector collector = new Collector();
-    collector.setStringCollection(Arrays.asList("spam", "eggs"));
+    OElement collector = database.newElement("Collector");
+    collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
     collector = database.save(collector);
-    collector.setStringCollection(Arrays.asList("spam", "bacon"));
+    collector.setProperty("stringCollection", Arrays.asList("spam", "bacon"));
     database.save(collector);
     database.commit();
 
@@ -144,14 +146,15 @@ public class CollectionIndexTest extends ObjectDBBaseTest {
   public void testIndexCollectionUpdateInTx() {
     checkEmbeddedDB();
 
-    Collector collector = new Collector();
-    collector.setStringCollection(Arrays.asList("spam", "eggs"));
+    OElement collector = database.newElement("Collector");
+    collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
     database.begin();
     collector = database.save(collector);
     database.commit();
     try {
       database.begin();
-      collector.setStringCollection(Arrays.asList("spam", "bacon"));
+      collector = database.bindToSession(collector);
+      collector.setProperty("stringCollection", Arrays.asList("spam", "bacon"));
       database.save(collector);
       database.commit();
     } catch (Exception e) {
@@ -179,13 +182,14 @@ public class CollectionIndexTest extends ObjectDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    Collector collector = new Collector();
-    collector.setStringCollection(Arrays.asList("spam", "eggs"));
+    OElement collector = database.newElement("Collector");
+    collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
     collector = database.save(collector);
     database.commit();
 
     database.begin();
-    collector.setStringCollection(Arrays.asList("spam", "bacon"));
+    collector = database.bindToSession(collector);
+    collector.setProperty("stringCollection", Arrays.asList("spam", "bacon"));
     database.save(collector);
     database.rollback();
 
@@ -209,8 +213,8 @@ public class CollectionIndexTest extends ObjectDBBaseTest {
   public void testIndexCollectionUpdateAddItem() {
     checkEmbeddedDB();
 
-    Collector collector = new Collector();
-    collector.setStringCollection(Arrays.asList("spam", "eggs"));
+    OElement collector = database.newElement("Collector");
+    collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
 
     database.begin();
     collector = database.save(collector);
@@ -219,7 +223,9 @@ public class CollectionIndexTest extends ObjectDBBaseTest {
     database.begin();
     database
         .command(
-            "UPDATE " + collector.getId() + " set stringCollection = stringCollection || 'cookies'")
+            "UPDATE "
+                + collector.getIdentity()
+                + " set stringCollection = stringCollection || 'cookies'")
         .close();
     database.commit();
 
@@ -242,16 +248,16 @@ public class CollectionIndexTest extends ObjectDBBaseTest {
   public void testIndexCollectionUpdateAddItemInTx() {
     checkEmbeddedDB();
 
-    Collector collector = new Collector();
-    collector.setStringCollection(new ArrayList<>(Arrays.asList("spam", "eggs")));
+    OElement collector = database.newElement("Collector");
+    collector.setProperty("stringCollection", new ArrayList<>(Arrays.asList("spam", "eggs")));
     database.begin();
     collector = database.save(collector);
     database.commit();
 
     try {
       database.begin();
-      Collector loadedCollector = database.load(new ORecordId(collector.getId()));
-      loadedCollector.getStringCollection().add("cookies");
+      OElement loadedCollector = database.load(collector.getIdentity());
+      loadedCollector.<List<String>>getProperty("stringCollection").add("cookies");
       database.save(loadedCollector);
       database.commit();
     } catch (Exception e) {
@@ -279,15 +285,15 @@ public class CollectionIndexTest extends ObjectDBBaseTest {
   public void testIndexCollectionUpdateAddItemInTxRollback() {
     checkEmbeddedDB();
 
-    Collector collector = new Collector();
-    collector.setStringCollection(new ArrayList<>(Arrays.asList("spam", "eggs")));
+    OElement collector = database.newElement("Collector");
+    collector.setProperty("stringCollection", new ArrayList<>(Arrays.asList("spam", "eggs")));
     database.begin();
     collector = database.save(collector);
     database.commit();
 
     database.begin();
-    Collector loadedCollector = database.load(new ORecordId(collector.getId()));
-    loadedCollector.getStringCollection().add("cookies");
+    OElement loadedCollector = database.load(collector.getIdentity());
+    loadedCollector.<List<String>>getProperty("stringCollection").add("cookies");
     database.save(loadedCollector);
     database.rollback();
 
@@ -310,16 +316,16 @@ public class CollectionIndexTest extends ObjectDBBaseTest {
   public void testIndexCollectionUpdateRemoveItemInTx() {
     checkEmbeddedDB();
 
-    Collector collector = new Collector();
-    collector.setStringCollection(new ArrayList<>(Arrays.asList("spam", "eggs")));
+    OElement collector = database.newElement("Collector");
+    collector.setProperty("stringCollection", new ArrayList<>(Arrays.asList("spam", "eggs")));
     database.begin();
     collector = database.save(collector);
     database.commit();
 
     try {
       database.begin();
-      Collector loadedCollector = database.load(new ORecordId(collector.getId()));
-      loadedCollector.getStringCollection().remove("spam");
+      OElement loadedCollector = database.load(collector.getIdentity());
+      loadedCollector.<List<String>>getProperty("stringCollection").remove("spam");
       database.save(loadedCollector);
       database.commit();
     } catch (Exception e) {
@@ -346,15 +352,15 @@ public class CollectionIndexTest extends ObjectDBBaseTest {
   public void testIndexCollectionUpdateRemoveItemInTxRollback() {
     checkEmbeddedDB();
 
-    Collector collector = new Collector();
-    collector.setStringCollection(new ArrayList<>(Arrays.asList("spam", "eggs")));
+    OElement collector = database.newElement("Collector");
+    collector.setProperty("stringCollection", new ArrayList<>(Arrays.asList("spam", "eggs")));
     database.begin();
     collector = database.save(collector);
     database.commit();
 
     database.begin();
-    Collector loadedCollector = database.load(new ORecordId(collector.getId()));
-    loadedCollector.getStringCollection().remove("spam");
+    OElement loadedCollector = database.load(collector.getIdentity());
+    loadedCollector.<List<String>>getProperty("stringCollection").remove("spam");
     database.save(loadedCollector);
     database.rollback();
 
@@ -377,14 +383,16 @@ public class CollectionIndexTest extends ObjectDBBaseTest {
   public void testIndexCollectionUpdateRemoveItem() {
     checkEmbeddedDB();
 
-    Collector collector = new Collector();
-    collector.setStringCollection(Arrays.asList("spam", "eggs"));
+    OElement collector = database.newElement("Collector");
+    collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
     database.begin();
     collector = database.save(collector);
     database.commit();
 
     database.begin();
-    database.command("UPDATE " + collector.getId() + " remove stringCollection = 'spam'").close();
+    database
+        .command("UPDATE " + collector.getIdentity() + " remove stringCollection = 'spam'")
+        .close();
     database.commit();
 
     final OIndex index = getIndex("Collector.stringCollection");
@@ -405,8 +413,8 @@ public class CollectionIndexTest extends ObjectDBBaseTest {
   public void testIndexCollectionRemove() {
     checkEmbeddedDB();
 
-    Collector collector = new Collector();
-    collector.setStringCollection(Arrays.asList("spam", "eggs"));
+    OElement collector = database.newElement("Collector");
+    collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
     database.begin();
     collector = database.save(collector);
     database.delete(collector);
@@ -420,14 +428,14 @@ public class CollectionIndexTest extends ObjectDBBaseTest {
   public void testIndexCollectionRemoveInTx() {
     checkEmbeddedDB();
 
-    Collector collector = new Collector();
-    collector.setStringCollection(Arrays.asList("spam", "eggs"));
+    OElement collector = database.newElement("Collector");
+    collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
     database.begin();
     collector = database.save(collector);
     database.commit();
     try {
       database.begin();
-      database.delete(collector);
+      database.delete(database.bindToSession(collector));
       database.commit();
     } catch (Exception e) {
       database.rollback();
@@ -442,14 +450,14 @@ public class CollectionIndexTest extends ObjectDBBaseTest {
   public void testIndexCollectionRemoveInTxRollback() {
     checkEmbeddedDB();
 
-    Collector collector = new Collector();
-    collector.setStringCollection(Arrays.asList("spam", "eggs"));
+    OElement collector = database.newElement("Collector");
+    collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
     database.begin();
     collector = database.save(collector);
     database.commit();
 
     database.begin();
-    database.delete(collector);
+    database.delete(database.bindToSession(collector));
     database.rollback();
 
     final OIndex index = getIndex("Collector.stringCollection");
@@ -469,20 +477,18 @@ public class CollectionIndexTest extends ObjectDBBaseTest {
   }
 
   public void testIndexCollectionSQL() {
-    Collector collector = new Collector();
-    collector.setStringCollection(Arrays.asList("spam", "eggs"));
+    OElement collector = database.newElement("Collector");
+    collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
 
     database.begin();
     database.save(collector);
     database.commit();
 
-    List<Collector> result =
-        database.query(
-            new OSQLSynchQuery<Collector>(
-                "select * from Collector where stringCollection contains ?"),
-            "eggs");
+    List<ODocument> result =
+        executeQuery("select * from Collector where stringCollection contains ?", "eggs");
     Assert.assertNotNull(result);
     Assert.assertEquals(result.size(), 1);
-    Assert.assertEquals(Arrays.asList("spam", "eggs"), result.get(0).getStringCollection());
+    Assert.assertEquals(
+        Arrays.asList("spam", "eggs"), result.get(0).getProperty("stringCollection"));
   }
 }

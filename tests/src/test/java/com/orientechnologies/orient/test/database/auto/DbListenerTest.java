@@ -242,6 +242,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
     final DocumentChangeListener cl = new DocumentChangeListener(database);
 
     database.begin();
+    rec = database.bindToSession(rec);
     rec.field("surname", "Miner").save();
     database.commit();
 
@@ -258,10 +259,11 @@ public class DbListenerTest extends DocumentDBBaseTest {
     v.save();
 
     database.commit();
+    database.begin();
     final DocumentChangeListener cl = new DocumentChangeListener(database);
 
+    v = database.bindToSession(v);
     v.setProperty("surname", "Miner");
-    database.begin();
     v.save();
     database.commit();
     database.close();

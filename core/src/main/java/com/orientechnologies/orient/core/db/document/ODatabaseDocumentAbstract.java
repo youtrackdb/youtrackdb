@@ -78,7 +78,6 @@ import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.ORecordVersionHelper;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.record.impl.OBlob;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -121,6 +120,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
+import javax.annotation.Nonnull;
 
 /**
  * Document API entrypoint.
@@ -805,6 +805,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     return (RET) currentTx.loadRecord(iRecord.getIdentity());
   }
 
+  @Nonnull
   @SuppressWarnings("unchecked")
   @Override
   public <RET extends ORecord> RET load(final ORID recordId) {
@@ -866,6 +867,9 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     if (!(identifiable instanceof ORecord record)) {
       return identifiable;
     }
+    if (identifiable instanceof OEdge edge && edge.isLightweight()) {
+      return (T) edge;
+    }
 
     var rid = record.getIdentity();
     if (rid == null || !rid.isValid()) {
@@ -900,6 +904,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     return (T) result;
   }
 
+  @Nonnull
   public final <RET extends ORecord> RET executeReadRecord(final ORecordId rid) {
     checkOpenness();
     checkIfActive();
@@ -915,7 +920,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       var record = getTransaction().getRecord(rid);
       if (record == OTransactionAbstract.DELETED_RECORD) {
         // DELETED IN TX
-        return null;
+        throw new ORecordNotFoundException(rid);
       }
 
       var cachedRecord = getLocalCache().findRecord(rid);
@@ -925,7 +930,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
 
       if (record != null && !record.isUnloaded()) {
         if (beforeReadOperations(record)) {
-          return null;
+          throw new ORecordNotFoundException(rid);
         }
 
         afterReadOperations(record);
@@ -956,11 +961,10 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       }
 
       if (recordBuffer == null) {
-        return null;
+        throw new ORecordNotFoundException(rid);
       }
 
       if (record == null) {
-        // NO SAME RECORD TYPE: CAN'T REUSE OLD ONE BUT CREATE A NEW ONE FOR IT
         record =
             Orient.instance()
                 .getRecordFactoryManager()
@@ -979,13 +983,8 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
         ODocumentInternal.checkClass((ODocument) record, this);
       }
 
-      if (ORecordVersionHelper.isTombstone(record.getVersion())) {
-        assert !record.isUnloaded();
-        return (RET) record;
-      }
-
       if (beforeReadOperations(record)) {
-        return null;
+        throw new ORecordNotFoundException(rid);
       }
 
       ORecordInternal.fromStream(record, recordBuffer.buffer, this);
@@ -1283,8 +1282,8 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       OVertexInternal.createLink(to.getRecord(), from.getRecord(), inFieldName);
     } else {
       edge = newEdgeInternal(className);
-      edge.setPropertyWithoutValidation(OEdgeInternal.DIRECTION_OUT, currentVertex.getRecord());
-      edge.setPropertyWithoutValidation(OEdge.DIRECTION_IN, inDocument.getRecord());
+      edge.setPropertyInternal(OEdgeInternal.DIRECTION_OUT, currentVertex.getRecord());
+      edge.setPropertyInternal(OEdge.DIRECTION_IN, inDocument.getRecord());
 
       if (!outDocumentModified) {
         // OUT-VERTEX ---> IN-VERTEX/EDGE
@@ -2065,7 +2064,11 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
         if (ok) {
           commit();
         } else {
-          rollback();
+          if (isActiveOnCurrentThread()) {
+            rollback();
+          } else {
+            currentTx.rollback();
+          }
         }
       }
     }
@@ -2088,9 +2091,24 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
         if (ok && currentTx.getStatus() != TXSTATUS.ROLLBACKING) {
           commit();
         } else {
-          rollback();
+          if (isActiveOnCurrentThread()) {
+            rollback();
+          } else {
+            currentTx.rollback();
+          }
         }
       }
     }
+  }
+
+  @Override
+  public int activeTxCount() {
+    var transaction = getTransaction();
+
+    if (transaction.isActive()) {
+      return transaction.amountOfNestedTxs();
+    }
+
+    return 0;
   }
 }

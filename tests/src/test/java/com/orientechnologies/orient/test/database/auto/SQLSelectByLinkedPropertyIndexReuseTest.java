@@ -55,7 +55,6 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
     database.command("drop class lpirtStudent").close();
     database.command("drop class lpirtGroup").close();
     database.command("drop class lpirtCurator").close();
-    database.getMetadata().getSchema().reload();
 
     super.afterClass();
   }

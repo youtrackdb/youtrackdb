@@ -2,6 +2,7 @@ package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.util.Arrays;
@@ -61,7 +62,7 @@ public class OSimpleKeyIndexDefinitionTest {
     Assert.assertNull(result);
   }
 
-  @Test(expected = NumberFormatException.class)
+  @Test(expected = ODatabaseException.class)
   public void testWrongParamTypeListItem() {
     simpleKeyIndexDefinition.createValue(Arrays.asList("a", "3"));
   }
@@ -102,7 +103,7 @@ public class OSimpleKeyIndexDefinitionTest {
     Assert.assertNull(result);
   }
 
-  @Test(expected = NumberFormatException.class)
+  @Test(expected = ODatabaseException.class)
   public void testWrongParamType() {
     simpleKeyIndexDefinition.createValue("a", "3");
   }

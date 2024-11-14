@@ -98,7 +98,10 @@ public class DbCreationTest {
 
     String url = calculateURL() + "/";
 
-    try (var odb = new OrientDB(url, "root", "root", OrientDBConfig.defaultConfig())) {
+    var configBuilder = OrientDBConfig.builder();
+    configBuilder.addConfig(OGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
+
+    try (var odb = new OrientDB(url, "root", "root", configBuilder.build())) {
       var database = odb.open(DB_NAME, "admin", "admin");
       database.close();
     }
@@ -114,7 +117,10 @@ public class DbCreationTest {
     url = calculateURL();
     url = url.replace('/', '\\');
 
-    try (var odb = new OrientDB(url, "root", "root", OrientDBConfig.defaultConfig())) {
+    var configBuilder = OrientDBConfig.builder();
+    configBuilder.addConfig(OGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
+
+    try (var odb = new OrientDB(url, "root", "root", configBuilder.build())) {
       var database = odb.open(DB_NAME, "admin", "admin");
       database.close();
     }
@@ -169,7 +175,9 @@ public class DbCreationTest {
 
     var url = calculateURL();
 
-    var odb = new OrientDB(url, "root", "root", OrientDBConfig.defaultConfig());
+    var configBuilder = OrientDBConfig.builder();
+    configBuilder.addConfig(OGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
+    var odb = new OrientDB(url, "root", "root", configBuilder.build());
     if (odb.exists("sub")) {
       odb.drop("sub");
     }
@@ -189,7 +197,10 @@ public class DbCreationTest {
 
     var url = calculateURL();
 
-    var odb = new OrientDB(url, "root", "root", OrientDBConfig.defaultConfig());
+    var configBuilder = OrientDBConfig.builder();
+    configBuilder.addConfig(OGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
+
+    var odb = new OrientDB(url, "root", "root", configBuilder.build());
     if (odb.exists("sub")) {
       odb.drop("sub");
     }

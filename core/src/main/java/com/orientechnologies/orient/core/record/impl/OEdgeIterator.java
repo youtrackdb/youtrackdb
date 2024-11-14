@@ -30,6 +30,7 @@ import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.OVertex;
 import java.util.Iterator;
 
@@ -69,8 +70,9 @@ public class OEdgeIterator extends OLazyWrapperIterator<OEdge> {
   }
 
   public OEdge createGraphElement(final Object iObject) {
-    if (iObject instanceof OElement && ((OElement) iObject).isEdge())
+    if (iObject instanceof OElement && ((OElement) iObject).isEdge()) {
       return ((OElement) iObject).asEdge().get();
+    }
 
     final OIdentifiable rec = (OIdentifiable) iObject;
 
@@ -96,7 +98,7 @@ public class OEdgeIterator extends OLazyWrapperIterator<OEdge> {
               rec,
               sourceVertex != null ? sourceVertex.getIdentity() : null,
               targetVertex != null ? targetVertex.getIdentity() : null,
-              record.getDatabase().getURL());
+              ((ORecordAbstract) record).getDatabase().getURL());
       return null;
     }
 
@@ -124,16 +126,19 @@ public class OEdgeIterator extends OLazyWrapperIterator<OEdge> {
     } else if (value.isEdge()) {
       // EDGE
       edge = value.asEdge().get();
-    } else
+    } else {
       throw new IllegalStateException(
           "Invalid content found while iterating edges, value '" + value + "' is not an edge");
+    }
 
     return edge;
   }
 
   public boolean filter(final OEdge iObject) {
     if (targetVertex != null
-        && !targetVertex.equals(iObject.getVertex(connection.getKey().opposite()))) return false;
+        && !targetVertex.equals(iObject.getVertex(connection.getKey().opposite()))) {
+      return false;
+    }
 
     return iObject.isLabeled(labels);
   }

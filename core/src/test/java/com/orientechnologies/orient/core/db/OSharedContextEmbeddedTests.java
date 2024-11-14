@@ -12,7 +12,7 @@ public class OSharedContextEmbeddedTests {
   public void testSimpleConfigStore() {
     try (OrientDB orientDb = new OrientDB("embedded:", OrientDBConfig.defaultConfig())) {
       orientDb.execute("create database test memory users(admin identified by 'admin' role admin)");
-      try (ODatabaseSession session = orientDb.open("test", "admin", "admin")) {
+      try (var session = (ODatabaseSessionInternal) orientDb.open("test", "admin", "admin")) {
         OSharedContextEmbedded shared =
             (OSharedContextEmbedded) ((ODatabaseDocumentEmbedded) session).getSharedContext();
         ODocument config = new ODocument();
@@ -28,9 +28,8 @@ public class OSharedContextEmbeddedTests {
   public void testConfigStoreDouble() {
     try (OrientDB orientDb = new OrientDB("embedded:", OrientDBConfig.defaultConfig())) {
       orientDb.execute("create database test memory users(admin identified by 'admin' role admin)");
-      try (ODatabaseSession session = orientDb.open("test", "admin", "admin")) {
-        OSharedContextEmbedded shared =
-            (OSharedContextEmbedded) ((ODatabaseDocumentEmbedded) session).getSharedContext();
+      try (var session = (ODatabaseSessionInternal) orientDb.open("test", "admin", "admin")) {
+        OSharedContextEmbedded shared = (OSharedContextEmbedded) session.getSharedContext();
         ODocument config = new ODocument();
         config.setProperty("one", "two");
         shared.saveConfig(session, "simple", config);

@@ -30,6 +30,7 @@ import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorClass;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorCluster;
 import com.orientechnologies.orient.core.metadata.schema.OView;
+import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.metadata.sequence.OSequenceAction;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OElement;
@@ -43,6 +44,7 @@ import com.orientechnologies.orient.core.sql.executor.OExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
+import com.orientechnologies.orient.core.tx.OTransaction;
 import com.orientechnologies.orient.core.tx.OTransactionData;
 import com.orientechnologies.orient.core.tx.OTransactionNoTx;
 import com.orientechnologies.orient.core.tx.OTransactionOptimistic;
@@ -50,6 +52,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
+import javax.annotation.Nonnull;
 
 public interface ODatabaseSessionInternal extends ODatabaseSession, ODatabaseInternal<ORecord> {
 
@@ -132,6 +135,7 @@ public interface ODatabaseSessionInternal extends ODatabaseSession, ODatabaseInt
 
   ORecordHook.RESULT callbackHooks(final ORecordHook.TYPE type, final OIdentifiable id);
 
+  @Nonnull
   <RET extends ORecord> RET executeReadRecord(final ORecordId rid);
 
   boolean executeExists(ORID rid);
@@ -461,4 +465,54 @@ public interface ODatabaseSessionInternal extends ODatabaseSession, ODatabaseInt
    */
   @Deprecated
   void checkSecurity(String iResourceGeneric, int iOperation, Object... iResourcesSpecific);
+
+  /**
+   * Checks if the operation on a resource is allowed for the current user.
+   *
+   * @param resourceGeneric Generic Resource where to execute the operation
+   * @param iOperation      Operation to execute against the resource
+   */
+  void checkSecurity(
+      ORule.ResourceGeneric resourceGeneric, String resourceSpecific, int iOperation);
+
+  /**
+   * Checks if the operation on a resource is allowed for the current user. The check is made in two
+   * steps:
+   *
+   * <ol>
+   *   <li>Access to all the resource as *
+   *   <li>Access to the specific target resource
+   * </ol>
+   *
+   * @param iResourceGeneric  Resource where to execute the operation, i.e.: database.clusters
+   * @param iOperation        Operation to execute against the resource
+   * @param iResourceSpecific Target resource, i.e.: "employee" to specify the cluster name.
+   */
+  void checkSecurity(
+      ORule.ResourceGeneric iResourceGeneric, int iOperation, Object iResourceSpecific);
+
+  /**
+   * Checks if the operation against multiple resources is allowed for the current user. The check
+   * is made in two steps:
+   *
+   * <ol>
+   *   <li>Access to all the resource as *
+   *   <li>Access to the specific target resources
+   * </ol>
+   *
+   * @param iResourceGeneric   Resource where to execute the operation, i.e.: database.clusters
+   * @param iOperation         Operation to execute against the resource
+   * @param iResourcesSpecific Target resources as an array of Objects, i.e.: ["employee", 2] to
+   *                           specify cluster name and id.
+   */
+  void checkSecurity(
+      ORule.ResourceGeneric iResourceGeneric, int iOperation, Object... iResourcesSpecific);
+
+  /**
+   * Return active transaction. Cannot be null. If no transaction is active, then a OTransactionNoTx
+   * instance is returned.
+   *
+   * @return OTransaction implementation
+   */
+  OTransaction getTransaction();
 }

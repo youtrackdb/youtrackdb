@@ -1,6 +1,7 @@
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.util.Arrays;
@@ -30,7 +31,7 @@ public class OPropertyIndexDefinitionTest {
     Assert.assertEquals(result, 12);
   }
 
-  @Test(expected = NumberFormatException.class)
+  @Test(expected = ODatabaseException.class)
   public void testCreateValueWrongParameter() {
     propertyIndex.createValue(Collections.singletonList("tt"));
   }
@@ -47,7 +48,7 @@ public class OPropertyIndexDefinitionTest {
     Assert.assertEquals(result, 12);
   }
 
-  @Test(expected = NumberFormatException.class)
+  @Test(expected = ODatabaseException.class)
   public void testCreateValueWrongParameterArrayParams() {
     propertyIndex.createValue("tt");
   }

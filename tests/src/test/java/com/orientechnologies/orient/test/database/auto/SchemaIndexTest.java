@@ -38,7 +38,6 @@ public class SchemaIndexTest extends DocumentDBBaseTest {
       database.command("drop class SchemaIndexTest").close();
     }
     database.command("drop class SchemaSharedIndexSuperTest").close();
-    database.getMetadata().getSchema().reload();
   }
 
   @Test
@@ -55,7 +54,6 @@ public class SchemaIndexTest extends DocumentDBBaseTest {
             .getIndex(database, "SchemaSharedIndexCompositeIndex"));
 
     database.getMetadata().getSchema().dropClass("SchemaIndexTest");
-    database.getMetadata().getSchema().reload();
     database.getMetadata().getIndexManagerInternal().reload();
 
     Assert.assertNull(database.getMetadata().getSchema().getClass("SchemaIndexTest"));
@@ -86,8 +84,6 @@ public class SchemaIndexTest extends DocumentDBBaseTest {
                   "Class 'SchemaSharedIndexSuperTest' cannot be dropped because it has sub"
                       + " classes"));
     }
-
-    database.getMetadata().getSchema().reload();
 
     Assert.assertNotNull(database.getMetadata().getSchema().getClass("SchemaIndexTest"));
     Assert.assertNotNull(database.getMetadata().getSchema().getClass("SchemaSharedIndexSuperTest"));

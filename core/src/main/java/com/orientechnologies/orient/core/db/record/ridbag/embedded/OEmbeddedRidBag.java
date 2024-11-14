@@ -142,6 +142,7 @@ public class OEmbeddedRidBag implements ORidBagDelegate {
         return identifiable.getRecord();
       }
 
+      assert identifiable != null;
       return identifiable;
     }
 

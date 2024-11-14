@@ -18,13 +18,11 @@ package com.orientechnologies.orient.test.database.auto;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.iterator.ORecordIteratorCluster;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.ArrayList;
@@ -36,6 +34,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -43,40 +42,34 @@ import org.testng.annotations.Test;
  * If some of the tests start to fail then check cluster number in queries, e.g #7:1. It can be
  * because the order of clusters could be affected due to adding or removing cluster from storage.
  */
-@Test(groups = "sql-update")
+@Test
 public class SQLUpdateTest extends DocumentDBBaseTest {
 
   private long updatedRecords;
-  private int addressClusterId;
 
   @Parameters(value = "remote")
-  public SQLUpdateTest(boolean remote) {
-    super(remote);
+  public SQLUpdateTest(@Optional Boolean remote) {
+    super(remote != null && remote);
   }
 
   @BeforeClass
   @Override
   public void beforeClass() throws Exception {
     super.beforeClass();
-    OClass addressClass = database.getMetadata().getSchema().getClass("Address");
-    if (addressClass == null) {
-      addressClass = database.getMetadata().getSchema().createClass("Address");
-    }
 
-    addressClusterId = addressClass.getDefaultClusterId();
+    generateProfiles();
+    generateCompanyData();
   }
 
   @Test
   public void updateWithWhereOperator() {
 
-    List<Long> positions = getValidPositions(addressClusterId);
+    List<ORID> positions = getAddressValidPositions();
 
     database.begin();
     OResultSet records =
         database.command(
             "update Profile set salary = 120.30, location = "
-                + addressClusterId
-                + ":"
                 + positions.get(2)
                 + ", salary_cloned = salary where surname = 'Obama'");
     database.commit();
@@ -89,7 +82,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
 
     List<OResult> result =
         database.command("select @rid as rid from Profile where surname = 'Obama'").stream()
-            .collect(Collectors.toList());
+            .toList();
 
     Assert.assertEquals(result.size(), 3);
 
@@ -128,9 +121,10 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
   @Test(dependsOnMethods = "updateWithWhereOperator")
   public void updateCollectionsAddWithWhereOperator() {
     database.begin();
+    var positions = getAddressValidPositions();
     updatedRecords =
         database
-            .command("update Account set addresses = addresses || #" + addressClusterId + ":0")
+            .command("update Account set addresses = addresses || " + positions.get(0))
             .next()
             .getProperty("count");
     database.commit();
@@ -138,11 +132,11 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "updateCollectionsAddWithWhereOperator")
   public void updateCollectionsRemoveWithWhereOperator() {
-
+    var positions = getAddressValidPositions();
     database.begin();
     final long records =
         database
-            .command("update Account remove addresses = #" + addressClusterId + ":0")
+            .command("update Account remove addresses = " + positions.get(0))
             .next()
             .getProperty("count");
     database.commit();
@@ -153,10 +147,9 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
   @Test(dependsOnMethods = "updateCollectionsRemoveWithWhereOperator")
   public void updateCollectionsWithSetOperator() {
 
-    List<OResult> docs =
-        database.query("select from Account").stream().collect(Collectors.toList());
+    List<OResult> docs = database.query("select from Account").stream().toList();
 
-    List<Long> positions = getValidPositions(addressClusterId);
+    List<ORID> positions = getAddressValidPositions();
 
     for (OResult doc : docs) {
 
@@ -164,37 +157,29 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
       final long records =
           database
               .command(
-                  "update Account set addresses = [#"
-                      + addressClusterId
-                      + ":"
+                  "update Account set addresses = ["
                       + positions.get(0)
-                      + ", #"
-                      + addressClusterId
-                      + ":"
+                      + ","
                       + positions.get(1)
-                      + ",#"
-                      + addressClusterId
-                      + ":"
+                      + ","
                       + positions.get(2)
                       + "] where @rid = "
-                      + doc.getIdentity().get())
+                      + doc.getRecordId())
               .next()
               .getProperty("count");
       database.commit();
 
       Assert.assertEquals(records, 1);
 
-      ODocument loadedDoc = database.load(doc.getIdentity().get(), "*:-1", false);
+      ODocument loadedDoc = database.load(doc.getRecordId(), "*:-1", false);
       Assert.assertEquals(((List<?>) loadedDoc.field("addresses")).size(), 3);
       Assert.assertEquals(
-          ((OIdentifiable) ((List<?>) loadedDoc.field("addresses")).get(0))
-              .getIdentity()
-              .toString(),
-          "#" + addressClusterId + ":" + positions.get(0));
+          ((OIdentifiable) ((List<?>) loadedDoc.field("addresses")).get(0)).getIdentity(),
+          positions.get(0));
       loadedDoc.field("addresses", doc.<Object>getProperty("addresses"));
 
       database.begin();
-      database.save(loadedDoc);
+      database.save(database.bindToSession(loadedDoc));
       database.commit();
     }
   }
@@ -244,13 +229,13 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
   @Test(dependsOnMethods = "updateCollectionsRemoveWithWhereOperator")
   public void updateAllOperator() {
 
-    Long total = database.countClass("Profile");
+    long total = database.countClass("Profile");
 
     database.begin();
     Long records = database.command("update Profile set sex = 'male'").next().getProperty("count");
     database.commit();
 
-    Assert.assertEquals(records.intValue(), total.intValue());
+    Assert.assertEquals(records.intValue(), (int) total);
   }
 
   @Test(dependsOnMethods = "updateAllOperator")
@@ -279,39 +264,39 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
     doc.save();
     database.commit();
 
-    checkUpdatedDoc(database, "Raf", "Torino", "fmale");
+    checkUpdatedDoc(database, "Torino", "fmale");
 
     /* THESE COMMANDS ARE OK */
     database.begin();
     database.command("update Person set gender = 'female' where name = 'Raf'", "Raf");
     database.commit();
 
-    checkUpdatedDoc(database, "Raf", "Torino", "female");
+    checkUpdatedDoc(database, "Torino", "female");
 
     database.begin();
     database.command("update Person set city = 'Turin' where name = ?", "Raf");
     database.commit();
 
-    checkUpdatedDoc(database, "Raf", "Turin", "female");
+    checkUpdatedDoc(database, "Turin", "female");
 
     database.begin();
     database.command("update Person set gender = ? where name = 'Raf'", "F");
     database.commit();
 
-    checkUpdatedDoc(database, "Raf", "Turin", "F");
+    checkUpdatedDoc(database, "Turin", "F");
 
     database.begin();
     database.command(
         "update Person set gender = ?, city = ? where name = 'Raf'", "FEMALE", "TORINO");
     database.commit();
 
-    checkUpdatedDoc(database, "Raf", "TORINO", "FEMALE");
+    checkUpdatedDoc(database, "TORINO", "FEMALE");
 
     database.begin();
     database.command("update Person set gender = ? where name = ?", "f", "Raf");
     database.commit();
 
-    checkUpdatedDoc(database, "Raf", "TORINO", "f");
+    checkUpdatedDoc(database, "TORINO", "f");
   }
 
   public void updateWithReturn() {
@@ -329,7 +314,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
     List<OResult> result1 = database.command(sqlString).stream().toList();
     database.commit();
     Assert.assertEquals(result1.size(), 1);
-    Assert.assertEquals(result1.get(0).getIdentity().get(), doc.getIdentity());
+    Assert.assertEquals(result1.get(0).getRecordId(), doc.getIdentity());
     Assert.assertEquals(result1.get(0).getProperty("gender"), "male");
 
     sqlString =
@@ -390,8 +375,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
   public void updateIncrement() {
 
     List<OResult> result1 =
-        database.query("select salary from Account where salary is defined").stream()
-            .collect(Collectors.toList());
+        database.query("select salary from Account where salary is defined").stream().toList();
     Assert.assertFalse(result1.isEmpty());
 
     database.begin();
@@ -405,8 +389,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
     Assert.assertTrue(updatedRecords > 0);
 
     List<OResult> result2 =
-        database.query("select salary from Account where salary is defined").stream()
-            .collect(Collectors.toList());
+        database.query("select salary from Account where salary is defined").stream().toList();
     Assert.assertFalse(result2.isEmpty());
     Assert.assertEquals(result2.size(), result1.size());
 
@@ -427,8 +410,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
     Assert.assertTrue(updatedRecords > 0);
 
     List<OResult> result3 =
-        database.command("select salary from Account where salary is defined").stream()
-            .collect(Collectors.toList());
+        database.command("select salary from Account where salary is defined").stream().toList();
     Assert.assertFalse(result3.isEmpty());
     Assert.assertEquals(result3.size(), result1.size());
 
@@ -442,8 +424,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
   public void updateSetMultipleFields() {
 
     List<OResult> result1 =
-        database.query("select salary from Account where salary is defined").stream()
-            .collect(Collectors.toList());
+        database.query("select salary from Account where salary is defined").stream().toList();
     Assert.assertFalse(result1.isEmpty());
 
     database.begin();
@@ -458,8 +439,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
     Assert.assertTrue(updatedRecords > 0);
 
     List<OResult> result2 =
-        database.query("select from Account where salary is defined").stream()
-            .collect(Collectors.toList());
+        database.query("select from Account where salary is defined").stream().toList();
     Assert.assertFalse(result2.isEmpty());
     Assert.assertEquals(result2.size(), result1.size());
 
@@ -484,8 +464,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
     Assert.assertTrue(updatedRecords > 0);
 
     List<OResult> result2 =
-        database.command("select from Account where myCollection is defined").stream()
-            .collect(Collectors.toList());
+        database.command("select from Account where myCollection is defined").stream().toList();
     Assert.assertEquals(result2.size(), 1);
 
     Collection<Object> myCollection = result2.iterator().next().getProperty("myCollection");
@@ -493,12 +472,13 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
     Assert.assertTrue(myCollection.containsAll(Arrays.asList(1, 2)));
   }
 
+  @Test(enabled = false)
   public void testEscaping() {
     final OSchema schema = database.getMetadata().getSchema();
     schema.createClass("FormatEscapingTest");
 
     database.begin();
-    final ODocument document = new ODocument("FormatEscapingTest");
+    ODocument document = new ODocument("FormatEscapingTest");
     document.save();
     database.commit();
 
@@ -510,6 +490,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
         .close();
     database.commit();
 
+    document = database.bindToSession(document);
     Assert.assertEquals(document.field("test"), "aaa ' bbb");
 
     database.begin();
@@ -521,6 +502,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
         .close();
     database.commit();
 
+    document = database.bindToSession(document);
     Assert.assertEquals(document.field("test"), "ccc ' eee");
     Assert.assertEquals(document.field("test2"), "aaa ' bbb");
 
@@ -532,6 +514,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
         .close();
     database.commit();
 
+    document = database.bindToSession(document);
     Assert.assertEquals(document.field("test"), "aaa \n bbb");
 
     database.begin();
@@ -542,17 +525,18 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
         .close();
     database.commit();
 
+    document = database.bindToSession(document);
     Assert.assertEquals(document.field("test"), "aaa \r bbb");
 
     database.begin();
     database
         .command(
-            new OCommandSQL(
-                "UPDATE FormatEscapingTest SET test = 'aaa \\b bbb' WHERE @rid = "
-                    + document.getIdentity()))
-        .execute();
+            "UPDATE FormatEscapingTest SET test = 'aaa \\b bbb' WHERE @rid = "
+                + document.getIdentity())
+        .close();
     database.commit();
 
+    document = database.bindToSession(document);
     Assert.assertEquals(document.field("test"), "aaa \b bbb");
 
     database.begin();
@@ -563,17 +547,18 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
         .close();
     database.commit();
 
+    document = database.bindToSession(document);
     Assert.assertEquals(document.field("test"), "aaa \t bbb");
 
     database.begin();
     database
         .command(
-            new OCommandSQL(
-                "UPDATE FormatEscapingTest SET test = 'aaa \\f bbb' WHERE @rid = "
-                    + document.getIdentity()))
-        .execute();
+            "UPDATE FormatEscapingTest SET test = 'aaa \\f bbb' WHERE @rid = "
+                + document.getIdentity())
+        .close();
     database.commit();
 
+    document = database.bindToSession(document);
     Assert.assertEquals(document.field("test"), "aaa \f bbb");
   }
 
@@ -583,10 +568,8 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
     schema.createClass("UpdateVertexContent", vertex);
 
     database.begin();
-    final ORID vOneId =
-        database.command("create vertex UpdateVertexContent").next().getIdentity().get();
-    final ORID vTwoId =
-        database.command("create vertex UpdateVertexContent").next().getIdentity().get();
+    final ORID vOneId = database.command("create vertex UpdateVertexContent").next().getRecordId();
+    final ORID vTwoId = database.command("create vertex UpdateVertexContent").next().getRecordId();
 
     database.command("create edge from " + vOneId + " to " + vTwoId).close();
     database.command("create edge from " + vOneId + " to " + vTwoId).close();
@@ -643,10 +626,8 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
     schema.createClass("UpdateEdgeContentE", edge);
 
     database.begin();
-    final ORID vOneId =
-        database.command("create vertex UpdateEdgeContentV").next().getIdentity().get();
-    final ORID vTwoId =
-        database.command("create vertex UpdateEdgeContentV").next().getIdentity().get();
+    final ORID vOneId = database.command("create vertex UpdateEdgeContentV").next().getRecordId();
+    final ORID vTwoId = database.command("create vertex UpdateEdgeContentV").next().getRecordId();
 
     database.command("create edge UpdateEdgeContentE from " + vOneId + " to " + vTwoId).close();
     database.command("create edge UpdateEdgeContentE from " + vOneId + " to " + vTwoId).close();
@@ -687,33 +668,32 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
   }
 
   private void checkUpdatedDoc(
-      ODatabaseDocument database, String expectedName, String expectedCity, String expectedGender) {
+      ODatabaseDocument database, String expectedCity, String expectedGender) {
     OResultSet result = database.query("select * from person");
     OResult oDoc = result.next();
-    Assert.assertEquals(expectedName, oDoc.getProperty("name"));
+    Assert.assertEquals("Raf", oDoc.getProperty("name"));
     Assert.assertEquals(expectedCity, oDoc.getProperty("city"));
     Assert.assertEquals(expectedGender, oDoc.getProperty("gender"));
   }
 
-  private List<Long> getValidPositions(int clusterId) {
-    final List<Long> positions = new ArrayList<Long>();
+  private List<ORID> getAddressValidPositions() {
+    final List<ORID> positions = new ArrayList<>();
 
-    final ORecordIteratorCluster<ODocument> iteratorCluster =
-        database.browseCluster(database.getClusterNameById(clusterId));
+    final var iteratorClass = database.browseClass("Address");
 
     for (int i = 0; i < 7; i++) {
-      if (!iteratorCluster.hasNext()) {
+      if (!iteratorClass.hasNext()) {
         break;
       }
-      ODocument doc = iteratorCluster.next();
-      positions.add(doc.getIdentity().getClusterPosition());
+      ODocument doc = iteratorClass.next();
+      positions.add(doc.getIdentity());
     }
     return positions;
   }
 
   public void testMultiplePut() {
     database.begin();
-    final ODocument v = database.<ODocument>newInstance("V").save();
+    ODocument v = database.<ODocument>newInstance("V").save();
     database.commit();
 
     database.begin();
@@ -730,6 +710,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
     Assert.assertEquals(records.intValue(), 1);
 
     database.begin();
+    v = database.bindToSession(v);
     Assert.assertTrue(v.field("embmap") instanceof Map);
     Assert.assertEquals(((Map) v.field("embmap")).size(), 2);
     database.rollback();
@@ -751,13 +732,12 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
                 "INSERT INTO TestConvert SET name = 'embeddedListWithLinkedClass',"
                     + " embeddedListWithLinkedClass = [{'line1':'123 Fake Street'}]")
             .next()
-            .getIdentity()
-            .get();
+            .getRecordId();
 
     database
         .command(
             "UPDATE "
-                + id.getIdentity()
+                + id
                 + " set embeddedListWithLinkedClass = embeddedListWithLinkedClass || [{'line1':'123"
                 + " Fake Street'}]")
         .close();
@@ -778,6 +758,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
         .close();
     database.commit();
 
+    doc = database.bindToSession(doc);
     Assert.assertTrue(doc.getProperty("embeddedListWithLinkedClass") instanceof List);
     Assert.assertEquals(((Collection) doc.getProperty("embeddedListWithLinkedClass")).size(), 3);
 

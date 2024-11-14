@@ -25,7 +25,7 @@ import org.junit.Test;
 public class TransactionMetadataTest {
 
   private OrientDB orientDB;
-  private ODatabaseSession db;
+  private ODatabaseSessionInternal db;
   private static final String DB_NAME = TransactionMetadataTest.class.getSimpleName();
 
   @Before
@@ -34,7 +34,7 @@ public class TransactionMetadataTest {
     orientDB = new OrientDB("embedded:./target/", OrientDBConfig.defaultConfig());
     orientDB.execute(
         "create database `" + DB_NAME + "` plocal users(admin identified by 'admin' role admin)");
-    db = orientDB.open(DB_NAME, "admin", "admin");
+    db = (ODatabaseSessionInternal) orientDB.open(DB_NAME, "admin", "admin");
   }
 
   @Test

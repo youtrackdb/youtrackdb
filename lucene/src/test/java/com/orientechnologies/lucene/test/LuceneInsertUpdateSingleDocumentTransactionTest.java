@@ -54,7 +54,6 @@ public class LuceneInsertUpdateSingleDocumentTransactionTest extends BaseLuceneT
     db.close();
     db = (ODatabaseSessionInternal) openDatabase();
     OSchema schema = db.getMetadata().getSchema();
-    schema.reload();
     db.begin();
     ODocument doc = new ODocument("City");
     doc.field("name", "");

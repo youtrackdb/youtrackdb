@@ -100,7 +100,7 @@ public class OPropertyMapIndexDefinition extends OPropertyIndexDefinition
   @Override
   protected void serializeToStream(ODocument document) {
     super.serializeToStream(document);
-    document.setPropertyWithoutValidation("mapIndexBy", indexBy.toString());
+    document.setPropertyInternal("mapIndexBy", indexBy.toString());
   }
 
   @Override

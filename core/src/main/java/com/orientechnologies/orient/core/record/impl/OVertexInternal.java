@@ -3,8 +3,6 @@ package com.orientechnologies.orient.core.record.impl;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordLazyList;
 import com.orientechnologies.orient.core.db.record.ORecordLazyMultiValue;
@@ -42,12 +40,12 @@ public interface OVertexInternal extends OVertex, OElementInternal {
 
   @Override
   default Set<String> getPropertyNames() {
-    return filterPropertyNames(getBaseDocument().getPropertyNamesWithoutFiltration());
+    return filterPropertyNames(getBaseDocument().getPropertyNamesInternal());
   }
 
   @Override
-  default Set<String> getPropertyNamesWithoutFiltration() {
-    return getBaseDocument().getPropertyNamesWithoutFiltration();
+  default Set<String> getPropertyNamesInternal() {
+    return getBaseDocument().getPropertyNamesInternal();
   }
 
   static Set<String> filterPropertyNames(Set<String> propertyNames) {
@@ -75,17 +73,17 @@ public interface OVertexInternal extends OVertex, OElementInternal {
   default <RET> RET getProperty(String name) {
     checkPropertyName(name);
 
-    return getBaseDocument().getPropertyWithoutValidation(name);
+    return getBaseDocument().getPropertyInternal(name);
   }
 
   @Override
-  default <RET> RET getPropertyWithoutValidation(String name, boolean lazyLoading) {
-    return getBaseDocument().getPropertyWithoutValidation(name, lazyLoading);
+  default <RET> RET getPropertyInternal(String name, boolean lazyLoading) {
+    return getBaseDocument().getPropertyInternal(name, lazyLoading);
   }
 
   @Override
-  default <RET> RET getPropertyWithoutValidation(String name) {
-    return getBaseDocument().getPropertyWithoutValidation(name);
+  default <RET> RET getPropertyInternal(String name) {
+    return getBaseDocument().getPropertyInternal(name);
   }
 
   @Override
@@ -95,8 +93,8 @@ public interface OVertexInternal extends OVertex, OElementInternal {
 
   @Nullable
   @Override
-  default OIdentifiable getLinkPropertyWithoutValidation(String name) {
-    return getBaseDocument().getLinkPropertyWithoutValidation(name);
+  default OIdentifiable getLinkPropertyInternal(String name) {
+    return getBaseDocument().getLinkPropertyInternal(name);
   }
 
   @Nullable
@@ -118,12 +116,12 @@ public interface OVertexInternal extends OVertex, OElementInternal {
   default void setProperty(String name, Object value) {
     checkPropertyName(name);
 
-    getBaseDocument().setPropertyWithoutValidation(name, value);
+    getBaseDocument().setPropertyInternal(name, value);
   }
 
   @Override
-  default void setPropertyWithoutValidation(String name, Object value) {
-    getBaseDocument().setPropertyWithoutValidation(name, value);
+  default void setPropertyInternal(String name, Object value) {
+    getBaseDocument().setPropertyInternal(name, value);
   }
 
   @Override
@@ -137,24 +135,24 @@ public interface OVertexInternal extends OVertex, OElementInternal {
   default void setProperty(String name, Object value, OType... fieldType) {
     checkPropertyName(name);
 
-    getBaseDocument().setPropertyWithoutValidation(name, value, fieldType);
+    getBaseDocument().setPropertyInternal(name, value, fieldType);
   }
 
   @Override
-  default void setPropertyWithoutValidation(String name, Object value, OType... type) {
-    getBaseDocument().setPropertyWithoutValidation(name, value, type);
+  default void setPropertyInternal(String name, Object value, OType... type) {
+    getBaseDocument().setPropertyInternal(name, value, type);
   }
 
   @Override
   default <RET> RET removeProperty(String name) {
     checkPropertyName(name);
 
-    return getBaseDocument().removePropertyWithoutValidation(name);
+    return getBaseDocument().removePropertyInternal(name);
   }
 
   @Override
-  default <RET> RET removePropertyWithoutValidation(String name) {
-    return getBaseDocument().removePropertyWithoutValidation(name);
+  default <RET> RET removePropertyInternal(String name) {
+    return getBaseDocument().removePropertyInternal(name);
   }
 
   @Override
@@ -169,7 +167,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
 
   @Override
   default Set<String> getEdgeNames(ODirection direction) {
-    var propertyNames = getBaseDocument().getPropertyNamesWithoutFiltration();
+    var propertyNames = getBaseDocument().getPropertyNamesInternal();
     var edgeNames = new HashSet<String>();
 
     for (var propertyName : propertyNames) {
@@ -226,14 +224,13 @@ public interface OVertexInternal extends OVertex, OElementInternal {
 
   @Override
   default OEdge addEdge(OVertex to, String type) {
-    ODatabaseDocument db = getDatabase();
+    var db = getBaseDocument().getDatabase();
     return db.newEdge(this, to, type == null ? OEdgeInternal.CLASS_NAME : type);
   }
 
   @Override
   default OEdge addLightWeightEdge(OVertex to, String label) {
-    ODatabaseSessionInternal db = (ODatabaseSessionInternal) getDatabase();
-
+    var db = getBaseDocument().getDatabase();
     return db.addLightweightEdge(this, to, label);
   }
 
@@ -316,7 +313,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
   }
 
   private Iterable<OEdge> getEdgesInternal(ODirection direction, String[] labels) {
-    var db = (ODatabaseSessionInternal) getDatabase();
+    var db = getBaseDocument().getDatabase();
     var schema = db.getMetadata().getImmutableSchemaSnapshot();
 
     labels = resolveAliases(schema, labels);
@@ -349,7 +346,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
 
       Object fieldValue;
 
-      fieldValue = doc.getPropertyWithoutValidation(fieldName);
+      fieldValue = doc.getPropertyInternal(fieldName);
 
       if (fieldValue != null) {
         if (fieldValue instanceof OIdentifiable) {
@@ -523,8 +520,8 @@ public interface OVertexInternal extends OVertex, OElementInternal {
 
     final Object fieldValue =
         iVertexToRemove != null
-            ? vertex.getPropertyWithoutValidation(fieldName)
-            : vertex.removePropertyWithoutValidation(fieldName);
+            ? vertex.getPropertyInternal(fieldName)
+            : vertex.removePropertyInternal(fieldName);
     if (fieldValue == null) {
       return;
     }
@@ -536,7 +533,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
         if (!fieldValue.equals(iVertexToRemove)) {
           return;
         }
-        vertex.setPropertyWithoutValidation(fieldName, newVertex);
+        vertex.setPropertyInternal(fieldName, newVertex);
       }
 
     } else if (fieldValue instanceof ORidBag bag) {
@@ -581,7 +578,8 @@ public interface OVertexInternal extends OVertex, OElementInternal {
 
   @Override
   default ORID moveTo(final String className, final String clusterName) {
-    var db = (ODatabaseSessionInternal) getDatabase();
+    final ODocument baseDoc = getBaseDocument();
+    var db = baseDoc.getDatabase();
     if (checkDeletedInTx(getIdentity())) {
       throw new ORecordNotFoundException(
           getIdentity(), "The vertex " + getIdentity() + " has been deleted");
@@ -600,7 +598,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
             oldIdentity, "The vertex " + oldIdentity + " has been deleted");
       }
 
-      final ODocument doc = getBaseDocument().copy();
+      var doc = baseDoc.copy();
 
       // DELETE THE OLD RECORD FIRST TO AVOID ISSUES WITH UNIQUE CONSTRAINTS
       copyRidBags(oldRecord, doc);
@@ -649,8 +647,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
           replaceLinks(inRecord, inFieldName, oldIdentity, newIdentity);
         } else {
           // REPLACE WITH NEW VERTEX
-          ((OElementInternal) oe)
-              .setPropertyWithoutValidation(OEdgeInternal.DIRECTION_OUT, newIdentity);
+          ((OElementInternal) oe).setPropertyInternal(OEdgeInternal.DIRECTION_OUT, newIdentity);
         }
 
         db.save(oe);
@@ -683,7 +680,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
           replaceLinks(outRecord, outFieldName, oldIdentity, newIdentity);
         } else {
           // REPLACE WITH NEW VERTEX
-          ((OEdgeInternal) ine).setPropertyWithoutValidation(OEdge.DIRECTION_IN, newIdentity);
+          ((OEdgeInternal) ine).setPropertyInternal(OEdge.DIRECTION_IN, newIdentity);
         }
 
         db.save(ine);
@@ -705,7 +702,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
 
   private static void detachRidbags(ORecord oldRecord) {
     ODocument oldDoc = (ODocument) oldRecord;
-    for (String field : oldDoc.getPropertyNamesWithoutFiltration()) {
+    for (String field : oldDoc.getPropertyNamesInternal()) {
       if (field.equalsIgnoreCase(OEdgeInternal.DIRECTION_OUT)
           || field.equalsIgnoreCase(OEdgeInternal.DIRECTION_IN)
           || field.startsWith(DIRECTION_OUT_PREFIX)
@@ -714,14 +711,14 @@ public interface OVertexInternal extends OVertex, OElementInternal {
           || field.startsWith("IN_")) {
         Object val = oldDoc.rawField(field);
         if (val instanceof ORidBag) {
-          oldDoc.removePropertyWithoutValidation(field);
+          oldDoc.removePropertyInternal(field);
         }
       }
     }
   }
 
   static boolean checkDeletedInTx(ORID id) {
-    ODatabaseDocument db = ODatabaseRecordThreadLocal.instance().get();
+    var db = ODatabaseRecordThreadLocal.instance().get();
     if (db == null) {
       return false;
     }
@@ -736,7 +733,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
 
   private static void copyRidBags(ORecord oldRecord, ODocument newDoc) {
     ODocument oldDoc = (ODocument) oldRecord;
-    for (String field : oldDoc.getPropertyNamesWithoutFiltration()) {
+    for (String field : oldDoc.getPropertyNamesInternal()) {
       if (field.equalsIgnoreCase(OEdgeInternal.DIRECTION_OUT)
           || field.equalsIgnoreCase(OEdgeInternal.DIRECTION_IN)
           || field.startsWith(DIRECTION_OUT_PREFIX)
@@ -751,7 +748,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
             while (rawIter.hasNext()) {
               newBag.add(rawIter.next());
             }
-            newDoc.setPropertyWithoutValidation(field, newBag);
+            newDoc.setPropertyInternal(field, newBag);
           }
         }
       }
@@ -826,7 +823,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
       var inFieldName = OVertex.getEdgeLinkFieldName(direction, edgeClass);
       var prevRecord = prevInVertex.<ODocument>getRecord();
 
-      var prevLink = prevRecord.getPropertyWithoutValidation(inFieldName);
+      var prevLink = prevRecord.getPropertyInternal(inFieldName);
       if (prevLink != null) {
         removeVertexLink(prevRecord, inFieldName, prevLink, edgeClass, edge);
       }
@@ -863,7 +860,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
 
   @Override
   default void deleteEdge(OVertex to, String label) {
-    var db = (ODatabaseSessionInternal) getDatabase();
+    var db = getBaseDocument().getDatabase();
     var schema = db.getMetadata().getImmutableSchemaSnapshot();
     OClass cl = schema.getClass(label);
 
@@ -880,17 +877,16 @@ public interface OVertexInternal extends OVertex, OElementInternal {
   }
 
   default void deleteEdge(OVertex to, OClass cls) {
-    var db = (ODatabaseSessionInternal) getDatabase();
-
     var label = cls.getName();
     var outFieldName = OVertex.getEdgeLinkFieldName(ODirection.OUT, label);
     var inFieldName = OVertex.getEdgeLinkFieldName(ODirection.IN, label);
 
     var from = getBaseDocument();
-    var outLink = from.getPropertyWithoutValidation(outFieldName);
+    var db = from.getDatabase();
+    var outLink = from.getPropertyInternal(outFieldName);
 
     var toInternal = (OVertexInternal) to;
-    var inLink = toInternal.getPropertyWithoutValidation(inFieldName);
+    var inLink = toInternal.getPropertyInternal(inFieldName);
 
     if (inLink instanceof OIdentifiable edgeId && inLink.equals(outLink)) {
       // record edge
@@ -924,7 +920,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
     } else if (link instanceof ORidBag) {
       ((ORidBag) link).remove(identifiable);
     } else if (link instanceof OIdentifiable && link.equals(vertex)) {
-      vertex.removePropertyWithoutValidation(fieldName);
+      vertex.removePropertyInternal(fieldName);
     } else {
       throw new IllegalArgumentException(
           label + " is not a valid link in vertex with rid " + vertex.getIdentity());
@@ -938,7 +934,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
       final ODocument fromVertex, final OIdentifiable to, final String fieldName) {
     final Object out;
     OType outType = fromVertex.fieldType(fieldName);
-    Object found = fromVertex.getPropertyWithoutValidation(fieldName);
+    Object found = fromVertex.getPropertyInternal(fieldName);
 
     final OClass linkClass = ODocumentInternal.getImmutableSchemaClass(fromVertex);
     if (linkClass == null) {
@@ -1012,7 +1008,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
     if (out != null)
     // OVERWRITE IT
     {
-      fromVertex.setPropertyWithoutValidation(fieldName, out, outType);
+      fromVertex.setPropertyInternal(fieldName, out, outType);
     }
   }
 
@@ -1029,7 +1025,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
 
   private static void removeLinkFromEdge(
       ODocument vertex, OEdge edge, String edgeField, OIdentifiable edgeId, ODirection direction) {
-    Object edgeProp = vertex.getPropertyWithoutValidation(edgeField);
+    Object edgeProp = vertex.getPropertyInternal(edgeField);
     ORID oppositeVertexId = null;
     if (direction == ODirection.IN) {
       var fromIdentifiable = edge.getFromIdentifiable();
@@ -1062,7 +1058,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
             && ((OIdentifiable) edgeProp).getIdentity() != null
             && ((OIdentifiable) edgeProp).getIdentity().equals(edgeId)
         || edge.isLightweight()) {
-      vertex.removePropertyWithoutValidation(edgeField);
+      vertex.removePropertyInternal(edgeField);
     } else {
       OLogManager.instance()
           .warn(

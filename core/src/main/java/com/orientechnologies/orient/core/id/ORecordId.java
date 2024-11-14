@@ -24,6 +24,7 @@ import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.serialization.OBinaryProtocol;
 import com.orientechnologies.orient.core.serialization.OMemoryStream;
@@ -302,10 +303,10 @@ public class ORecordId implements ORID {
     return this;
   }
 
-  @SuppressWarnings("unchecked")
+  @Nonnull
   public <T extends ORecord> T getRecord() {
     if (!isValid()) {
-      return null;
+      throw new ORecordNotFoundException(this);
     }
 
     final ODatabaseDocument db = ODatabaseRecordThreadLocal.instance().get();
@@ -316,7 +317,7 @@ public class ORecordId implements ORID {
               + " ODatabaseRecordThreadLocal.instance().set(db);");
     }
 
-    return (T) db.load(this);
+    return db.load(this);
   }
 
   private void checkClusterLimits() {

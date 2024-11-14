@@ -2,6 +2,7 @@ package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
+import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -263,7 +264,7 @@ public class OPropertyMapIndexDefinitionTest {
     Assert.assertEquals(result, 12);
   }
 
-  @Test(expected = NumberFormatException.class)
+  @Test(expected = ODatabaseException.class)
   public void testCreateWrongSingleValueByValue() {
     propertyIndexByValue.createSingleValue("tt");
   }

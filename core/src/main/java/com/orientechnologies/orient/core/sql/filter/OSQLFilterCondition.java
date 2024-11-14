@@ -429,8 +429,8 @@ public class OSQLFilterCondition {
       if (iCurrentRecord != null
           && ((ORecord) iCurrentRecord).getInternalStatus() == ORecordElement.STATUS.NOT_LOADED) {
         try {
-          iCurrentRecord =
-              ((ORecord) iCurrentRecord).getDatabase().load(iCurrentRecord.getIdentity());
+          var db = iContext.getDatabase();
+          iCurrentRecord = db.bindToSession(iCurrentRecord);
         } catch (ORecordNotFoundException ignore) {
           return null;
         }

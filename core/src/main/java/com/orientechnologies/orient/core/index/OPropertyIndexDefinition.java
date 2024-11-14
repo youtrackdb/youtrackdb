@@ -140,11 +140,11 @@ public class OPropertyIndexDefinition extends OAbstractIndexDefinition {
   protected void serializeToStream(ODocument document) {
     super.serializeToStream(document);
 
-    document.setPropertyWithoutValidation("className", className);
-    document.setPropertyWithoutValidation("field", field);
-    document.setPropertyWithoutValidation("keyType", keyType.toString());
-    document.setPropertyWithoutValidation("collate", collate.getName());
-    document.setPropertyWithoutValidation("nullValuesIgnored", isNullValuesIgnored());
+    document.setPropertyInternal("className", className);
+    document.setPropertyInternal("field", field);
+    document.setPropertyInternal("keyType", keyType.toString());
+    document.setPropertyInternal("collate", collate.getName());
+    document.setPropertyInternal("nullValuesIgnored", isNullValuesIgnored());
   }
 
   protected void serializeFromStream(ODocument document) {

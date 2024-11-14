@@ -39,6 +39,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -52,8 +53,8 @@ public class OSBTreeRidBagTest extends ORidBagTest {
   private int bottomThreshold;
 
   @Parameters(value = "remote")
-  public OSBTreeRidBagTest(boolean remote) {
-    super(remote);
+  public OSBTreeRidBagTest(@Optional Boolean remote) {
+    super(remote != null && remote);
   }
 
   @BeforeClass
@@ -150,6 +151,10 @@ public class OSBTreeRidBagTest extends ORidBagTest {
             .save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
+    scuti = database.bindToSession(scuti);
+    cygni = database.bindToSession(cygni);
+    scorpii = database.bindToSession(scorpii);
+
     HashSet<ODocument> expectedResult = new HashSet<ODocument>();
     expectedResult.addAll(Arrays.asList(scuti, scorpii));
 
@@ -165,6 +170,7 @@ public class OSBTreeRidBagTest extends ORidBagTest {
     doc.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
+    doc = database.bindToSession(doc);
     bag = doc.field("ridBag");
     bag.remove(cygni);
 
@@ -207,6 +213,7 @@ public class OSBTreeRidBagTest extends ORidBagTest {
     database.commit();
 
     database.begin();
+    doc = database.bindToSession(doc);
     ODocument doc_5 = new ODocument();
     doc_5.save(database.getClusterNameById(database.getDefaultClusterId()));
 
@@ -221,6 +228,7 @@ public class OSBTreeRidBagTest extends ORidBagTest {
     database.commit();
 
     database.begin();
+    doc = database.bindToSession(doc);
     bag = doc.field("ridBag");
     Assert.assertEquals(bag.size(), 6);
 

@@ -16,7 +16,6 @@ public class AlterClassClusterTest extends BaseMemoryDatabase {
     clazz.addCluster("TestOneMore");
 
     clazz.removeClusterId(db.getClusterIdByName("Test"));
-    db.getMetadata().getSchema().reload();
     clazz = db.getMetadata().getSchema().getClass("Test");
     assertEquals(clazz.getDefaultClusterId(), db.getClusterIdByName("TestOneMore"));
   }

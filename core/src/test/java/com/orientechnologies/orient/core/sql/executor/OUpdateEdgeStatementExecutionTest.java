@@ -19,8 +19,6 @@ public class OUpdateEdgeStatementExecutionTest extends BaseMemoryDatabase {
 
     db.command("create class E1 extends E");
 
-    db.getMetadata().getSchema().reload();
-
     // VERTEXES
 
     db.begin();

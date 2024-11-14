@@ -17,10 +17,8 @@ import com.orientechnologies.orient.client.remote.OStorageRemote;
 import com.orientechnologies.orient.core.db.ODatabase;
 import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,6 +26,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import org.testng.Assert;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -39,8 +38,8 @@ public class MultipleDBTest extends DocumentDBBaseTest {
   public MultipleDBTest() {}
 
   @Parameters(value = "remote")
-  public MultipleDBTest(boolean remote) {
-    super(remote);
+  public MultipleDBTest(@Optional Boolean remote) {
+    super(remote != null && remote);
   }
 
   @Test
@@ -91,8 +90,7 @@ public class MultipleDBTest extends DocumentDBBaseTest {
 
               start = System.currentTimeMillis();
               for (int j = 0; j < operations_read; j++) {
-                List<DummyObject> l =
-                    db.query(new OSQLSynchQuery<DummyObject>(" select * from DummyObject "));
+                var l = db.query(" select * from DummyObject ").stream().toList();
                 Assert.assertEquals(l.size(), operations_write);
               }
               end = System.currentTimeMillis();
@@ -169,8 +167,7 @@ public class MultipleDBTest extends DocumentDBBaseTest {
 
               start = System.currentTimeMillis();
               for (int j = 0; j < operations_read; j++) {
-                List<DummyObject> l =
-                    db.query(new OSQLSynchQuery<DummyObject>(" select * from DummyObject "));
+                var l = db.query(" select * from DummyObject ").stream().toList();
                 Assert.assertEquals(l.size(), operations_write);
               }
               end = System.currentTimeMillis();

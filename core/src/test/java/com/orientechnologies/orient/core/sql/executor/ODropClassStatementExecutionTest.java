@@ -18,7 +18,6 @@ public class ODropClassStatementExecutionTest extends BaseMemoryDatabase {
     OSchema schema = db.getMetadata().getSchema();
     schema.createClass(className);
 
-    schema.reload();
     Assert.assertNotNull(schema.getClass(className));
 
     OResultSet result = db.command("drop class " + className);
@@ -27,7 +26,6 @@ public class ODropClassStatementExecutionTest extends BaseMemoryDatabase {
     Assert.assertEquals("drop class", next.getProperty("operation"));
     Assert.assertFalse(result.hasNext());
     result.close();
-    schema.reload();
     Assert.assertNull(schema.getClass(className));
   }
 
@@ -55,7 +53,6 @@ public class ODropClassStatementExecutionTest extends BaseMemoryDatabase {
     Assert.assertEquals("drop class", next.getProperty("operation"));
     Assert.assertFalse(result.hasNext());
     result.close();
-    schema.reload();
     Assert.assertNull(schema.getClass(className));
   }
 
@@ -65,7 +62,6 @@ public class ODropClassStatementExecutionTest extends BaseMemoryDatabase {
     OSchema schema = db.getMetadata().getSchema();
     schema.createClass(className);
 
-    schema.reload();
     Assert.assertNotNull(schema.getClass(className));
 
     OResultSet result = db.command("drop class " + className + " if exists");
@@ -74,12 +70,10 @@ public class ODropClassStatementExecutionTest extends BaseMemoryDatabase {
     Assert.assertEquals("drop class", next.getProperty("operation"));
     Assert.assertFalse(result.hasNext());
     result.close();
-    schema.reload();
     Assert.assertNull(schema.getClass(className));
 
     result = db.command("drop class " + className + " if exists");
     result.close();
-    schema.reload();
     Assert.assertNull(schema.getClass(className));
   }
 
@@ -89,7 +83,6 @@ public class ODropClassStatementExecutionTest extends BaseMemoryDatabase {
     OSchema schema = db.getMetadata().getSchema();
     schema.createClass(className);
 
-    schema.reload();
     Assert.assertNotNull(schema.getClass(className));
 
     OResultSet result = db.command("drop class ?", className);
@@ -98,7 +91,6 @@ public class ODropClassStatementExecutionTest extends BaseMemoryDatabase {
     Assert.assertEquals("drop class", next.getProperty("operation"));
     Assert.assertFalse(result.hasNext());
     result.close();
-    schema.reload();
     Assert.assertNull(schema.getClass(className));
   }
 }

@@ -87,6 +87,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
+import javax.annotation.Nonnull;
 
 /**
  * Created by tglman on 20/07/16. @Deprecated use {@link OrientDB} instead.
@@ -290,6 +291,7 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
     return internal.callbackHooks(type, id);
   }
 
+  @Nonnull
   @Override
   public <RET extends ORecord> RET executeReadRecord(ORecordId rid) {
     checkOpenness();
@@ -607,6 +609,7 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
     return internal.load(iObject, iFetchPlan, iIgnoreCache);
   }
 
+  @Nonnull
   @Override
   public <RET extends ORecord> RET load(ORID recordId) {
     checkOpenness();
@@ -1609,5 +1612,10 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
   @Override
   public <T extends OIdentifiable> T bindToSession(T identifiable) {
     return internal.bindToSession(identifiable);
+  }
+
+  @Override
+  public int activeTxCount() {
+    return internal.activeTxCount();
   }
 }

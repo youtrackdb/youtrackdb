@@ -171,7 +171,7 @@ public class ODocumentSerializerDelta {
       } else {
         value = deserializeValue(bytes, type, document);
       }
-      document.setPropertyWithoutValidation(fieldName, value, type);
+      document.setPropertyInternal(fieldName, value, type);
     }
   }
 
@@ -200,7 +200,7 @@ public class ODocumentSerializerDelta {
         case REMOVED:
           String property = readString(bytes);
           if (toFill != null) {
-            toFill.removePropertyWithoutValidation(property);
+            toFill.removePropertyInternal(property);
           }
           break;
       }
@@ -212,7 +212,7 @@ public class ODocumentSerializerDelta {
     OType type = readNullableType(bytes);
     Object toUpdate;
     if (toFill != null) {
-      toUpdate = toFill.getPropertyWithoutValidation(name);
+      toUpdate = toFill.getPropertyInternal(name);
     } else {
       toUpdate = null;
     }
@@ -567,7 +567,7 @@ public class ODocumentSerializerDelta {
       value = null;
     }
     if (toFill != null) {
-      toFill.setPropertyWithoutValidation(name, value, type);
+      toFill.setPropertyInternal(name, value, type);
     }
   }
 

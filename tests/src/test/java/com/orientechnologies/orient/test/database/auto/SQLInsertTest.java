@@ -42,6 +42,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.testng.Assert;
 import org.testng.annotations.Ignore;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -49,12 +50,12 @@ import org.testng.annotations.Test;
  * If some of the tests start to fail then check cluster number in queries, e.g #7:1. It can be
  * because the order of clusters could be affected due to adding or removing cluster from storage.
  */
-@Test(groups = "sql-insert")
+@Test
 public class SQLInsertTest extends DocumentDBBaseTest {
 
   @Parameters(value = "remote")
-  public SQLInsertTest(boolean remote) {
-    super(remote);
+  public SQLInsertTest(@Optional Boolean remote) {
+    super(remote != null && remote);
   }
 
   @Test
@@ -99,6 +100,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .get();
     database.commit();
 
+    doc = database.bindToSession(doc);
     Assert.assertNotNull(doc);
     Assert.assertEquals(doc.getProperty("name"), "Luca");
     Assert.assertEquals(doc.getProperty("surname"), "Smith");
@@ -121,6 +123,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .get();
     database.commit();
 
+    doc = database.bindToSession(doc);
     Assert.assertNotNull(doc);
     Assert.assertEquals(doc.getProperty("name"), "Luca");
     Assert.assertEquals(doc.getProperty("surname"), "Smith");
@@ -153,6 +156,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .get();
     database.commit();
 
+    doc = database.bindToSession(doc);
     Assert.assertNotNull(doc);
     Assert.assertEquals(doc.getProperty("name"), "Marc");
     Assert.assertEquals(doc.getProperty("surname"), "Smith");
@@ -161,7 +165,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     Assert.assertEquals(doc.getProperty("dummy"), "hooray");
 
     database.begin();
-    database.delete(doc);
+    database.delete(database.bindToSession(doc));
     database.commit();
 
     database.begin();
@@ -180,6 +184,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .get();
     database.commit();
 
+    doc = database.bindToSession(doc);
     Assert.assertNotNull(doc);
     Assert.assertEquals(doc.getProperty("name"), "Marc");
     Assert.assertEquals(doc.getProperty("surname"), "Smith");
@@ -206,6 +211,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
 
     Assert.assertNotNull(doc);
 
+    doc = database.bindToSession(doc);
     Assert.assertEquals(doc.getProperty("equaledges"), "no");
     Assert.assertEquals(doc.getProperty("name"), "circle");
     Assert.assertTrue(doc.getProperty("properties") instanceof Map);
@@ -217,7 +223,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     Assert.assertEquals(entries.get("blaaa"), "zigzag");
 
     database.begin();
-    database.delete(doc);
+    database.delete(database.bindToSession(doc));
     database.commit();
 
     database.begin();
@@ -231,6 +237,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .get();
     database.commit();
 
+    doc = database.bindToSession(doc);
     Assert.assertNotNull(doc);
 
     Assert.assertEquals(doc.getProperty("equaledges"), "no");
@@ -260,6 +267,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
 
     Assert.assertNotNull(doc);
 
+    doc = database.bindToSession(doc);
     Assert.assertEquals(doc.getProperty("equaledges"), "yes");
     Assert.assertEquals(doc.getProperty("name"), "square");
     Assert.assertTrue(doc.getProperty("list") instanceof List);
@@ -273,7 +281,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     Assert.assertEquals(entries.get(3), "right");
 
     database.begin();
-    database.delete(doc);
+    database.delete(database.bindToSession(doc));
     database.commit();
 
     database.begin();
@@ -287,6 +295,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .get();
     database.commit();
 
+    doc = database.bindToSession(doc);
     Assert.assertNotNull(doc);
 
     Assert.assertEquals(doc.getProperty("equaledges"), "yes");
@@ -347,6 +356,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .get();
     database.commit();
 
+    doc = database.bindToSession(doc);
     Assert.assertNotNull(doc);
     Assert.assertNotNull(doc.getProperty("names"));
     Assert.assertTrue(doc.getProperty("names") instanceof Collection);
@@ -399,6 +409,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
 
     ODocument record = result.getRecord();
 
+    record = database.bindToSession(record);
     Assert.assertEquals(record.<Object>field("id"), 3232);
     Assert.assertEquals(record.field("name"), "my name");
     Map<String, String> map = record.field("map");
@@ -410,7 +421,6 @@ public class SQLInsertTest extends DocumentDBBaseTest {
   @Test
   public void insertSelect() {
     database.command("CREATE CLASS UserCopy").close();
-    database.getMetadata().getSchema().reload();
 
     database.begin();
     long inserted =
@@ -435,7 +445,6 @@ public class SQLInsertTest extends DocumentDBBaseTest {
   public void insertSelectFromProjection() {
     database.command("CREATE CLASS ProjectedInsert").close();
     database.command("CREATE property ProjectedInsert.a Integer (max 3)").close();
-    database.getMetadata().getSchema().reload();
 
     database.begin();
     database.command("INSERT INTO ProjectedInsert FROM select 10 as a ").close();
@@ -447,7 +456,6 @@ public class SQLInsertTest extends DocumentDBBaseTest {
   public void insertWithReturn() {
     if (!database.getMetadata().getSchema().existsClass("actor2")) {
       database.command("CREATE CLASS Actor2").close();
-      database.getMetadata().getSchema().reload();
     }
 
     // RETURN with $current.
@@ -534,6 +542,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .get();
     database.commit();
 
+    doc = database.bindToSession(doc);
     Assert.assertTrue(doc.getProperty("embeddedSetNoLinkedClass") instanceof Set);
 
     Set addr = doc.getProperty("embeddedSetNoLinkedClass");
@@ -561,6 +570,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .get();
     database.commit();
 
+    doc = database.bindToSession(doc);
     Assert.assertTrue(doc.getProperty("embeddedSetWithLinkedClass") instanceof Set);
 
     Set addr = doc.getProperty("embeddedSetWithLinkedClass");
@@ -586,6 +596,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .get();
     database.commit();
 
+    doc = database.bindToSession(doc);
     Assert.assertTrue(doc.getProperty("embeddedListNoLinkedClass") instanceof List);
 
     List addr = doc.getProperty("embeddedListNoLinkedClass");
@@ -615,6 +626,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .get();
     database.commit();
 
+    doc = database.bindToSession(doc);
     Assert.assertTrue(doc.getProperty("embeddedListWithLinkedClass") instanceof List);
 
     List addr = doc.getProperty("embeddedListWithLinkedClass");
@@ -642,6 +654,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .get();
     database.commit();
 
+    doc = database.bindToSession(doc);
     Assert.assertTrue(doc.getProperty("embeddedMapNoLinkedClass") instanceof Map);
 
     Map addr = doc.getProperty("embeddedMapNoLinkedClass");
@@ -668,6 +681,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .execute();
     database.commit();
 
+    doc = database.bindToSession(doc);
     Assert.assertTrue(doc.field("embeddedMapWithLinkedClass") instanceof Map);
 
     Map addr = doc.field("embeddedMapWithLinkedClass");
@@ -692,6 +706,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .execute();
     database.commit();
 
+    doc = database.bindToSession(doc);
     Assert.assertTrue(doc.field("embeddedNoLinkedClass") instanceof ODocument);
   }
 
@@ -750,6 +765,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .get();
     database.commit();
 
+    doc = database.bindToSession(doc);
     Assert.assertTrue(doc.getProperty("embeddedWithLinkedClass") instanceof ODocument);
     Assert.assertEquals(
         ((ODocument) doc.getProperty("embeddedWithLinkedClass")).getClassName(),
@@ -779,6 +795,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .get();
     database.commit();
 
+    doc = database.bindToSession(doc);
     Assert.assertTrue(doc.getProperty("like") instanceof OIdentifiable);
     Assert.assertEquals(
         ((ODocument) doc.getProperty("like")).getClassName(), "EmbeddedWithRecordAttributes_Like");
@@ -808,6 +825,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
             .get();
     database.commit();
 
+    doc = database.bindToSession(doc);
     Assert.assertTrue(doc.getProperty("like") instanceof OIdentifiable);
     Assert.assertEquals(
         ((ODocument) doc.getProperty("like")).getClassName(), "EmbeddedWithRecordAttributes2_Like");

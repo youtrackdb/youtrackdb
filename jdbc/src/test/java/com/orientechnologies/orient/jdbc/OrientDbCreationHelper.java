@@ -306,7 +306,5 @@ public class OrientDbCreationHelper {
     }
 
     schema.createClass("Writes", e);
-
-    schema.reload();
   }
 }

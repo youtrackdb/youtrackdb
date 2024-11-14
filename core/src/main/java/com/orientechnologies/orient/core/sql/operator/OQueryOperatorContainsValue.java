@@ -19,13 +19,9 @@
  */
 package com.orientechnologies.orient.core.sql.operator;
 
-import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.db.record.ORecordElement;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OCompositeIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -35,7 +31,6 @@ import com.orientechnologies.orient.core.index.OIndexInternal;
 import com.orientechnologies.orient.core.index.OPropertyMapIndexDefinition;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
@@ -57,8 +52,9 @@ public class OQueryOperatorContainsValue extends OQueryOperatorEqualityNotNulls 
 
   @Override
   public OIndexReuseType getIndexReuseType(final Object iLeft, final Object iRight) {
-    if (!(iRight instanceof OSQLFilterCondition) && !(iLeft instanceof OSQLFilterCondition))
+    if (!(iRight instanceof OSQLFilterCondition) && !(iLeft instanceof OSQLFilterCondition)) {
       return OIndexReuseType.INDEX_METHOD;
+    }
 
     return OIndexReuseType.NO_INDEX;
   }
@@ -70,17 +66,23 @@ public class OQueryOperatorContainsValue extends OQueryOperatorEqualityNotNulls 
 
     final OIndexInternal internalIndex = index.getInternal();
     Stream<ORawPair<Object, ORID>> stream;
-    if (!internalIndex.canBeUsedInEqualityOperators()) return null;
+    if (!internalIndex.canBeUsedInEqualityOperators()) {
+      return null;
+    }
 
     if (indexDefinition.getParamCount() == 1) {
       if (!((indexDefinition instanceof OPropertyMapIndexDefinition)
           && ((OPropertyMapIndexDefinition) indexDefinition).getIndexBy()
-              == OPropertyMapIndexDefinition.INDEX_BY.VALUE)) return null;
+              == OPropertyMapIndexDefinition.INDEX_BY.VALUE)) {
+        return null;
+      }
 
       final Object key =
           ((OIndexDefinitionMultiValue) indexDefinition).createSingleValue(keyParams.get(0));
 
-      if (key == null) return null;
+      if (key == null) {
+        return null;
+      }
 
       stream = index.getInternal().getRids(key).map((rid) -> new ORawPair<>(key, rid));
     } else {
@@ -93,11 +95,15 @@ public class OQueryOperatorContainsValue extends OQueryOperatorEqualityNotNulls 
               instanceof OPropertyMapIndexDefinition)
           && ((OPropertyMapIndexDefinition) compositeIndexDefinition.getMultiValueDefinition())
                   .getIndexBy()
-              == OPropertyMapIndexDefinition.INDEX_BY.VALUE)) return null;
+              == OPropertyMapIndexDefinition.INDEX_BY.VALUE)) {
+        return null;
+      }
 
       final Object keyOne = compositeIndexDefinition.createSingleValue(keyParams);
 
-      if (keyOne == null) return null;
+      if (keyOne == null) {
+        return null;
+      }
 
       if (internalIndex.hasRangeQuerySupport()) {
         final Object keyTwo = compositeIndexDefinition.createSingleValue(keyParams);
@@ -106,7 +112,9 @@ public class OQueryOperatorContainsValue extends OQueryOperatorEqualityNotNulls 
       } else {
         if (indexDefinition.getParamCount() == keyParams.size()) {
           stream = index.getInternal().getRids(keyOne).map((rid) -> new ORawPair<>(keyOne, rid));
-        } else return null;
+        } else {
+          return null;
+        }
       }
     }
 
@@ -133,11 +141,13 @@ public class OQueryOperatorContainsValue extends OQueryOperatorEqualityNotNulls 
       final Object iRight,
       OCommandContext iContext) {
     final OSQLFilterCondition condition;
-    if (iCondition.getLeft() instanceof OSQLFilterCondition)
+    if (iCondition.getLeft() instanceof OSQLFilterCondition) {
       condition = (OSQLFilterCondition) iCondition.getLeft();
-    else if (iCondition.getRight() instanceof OSQLFilterCondition)
+    } else if (iCondition.getRight() instanceof OSQLFilterCondition) {
       condition = (OSQLFilterCondition) iCondition.getRight();
-    else condition = null;
+    } else {
+      condition = null;
+    }
 
     OType type = null;
     if (iCondition.getLeft() instanceof OSQLFilterItemField
@@ -169,8 +179,9 @@ public class OQueryOperatorContainsValue extends OQueryOperatorEqualityNotNulls 
       if (condition != null) {
         // CHECK AGAINST A CONDITION
         for (Object o : map.values()) {
-          o = loadIfNeed(o);
-          if ((Boolean) condition.evaluate((ODocument) o, null, iContext)) return true;
+          if ((Boolean) condition.evaluate((ODocument) o, null, iContext)) {
+            return true;
+          }
         }
       } else {
         for (Object val : map.values()) {
@@ -192,28 +203,17 @@ public class OQueryOperatorContainsValue extends OQueryOperatorEqualityNotNulls 
       final Map<String, ?> map = (Map<String, ?>) iRight;
 
       if (condition != null)
-        // CHECK AGAINST A CONDITION
+      // CHECK AGAINST A CONDITION
+      {
         for (Object o : map.values()) {
-          o = loadIfNeed(o);
-          if ((Boolean) condition.evaluate((ODocument) o, null, iContext)) return true;
-          else return map.containsValue(iLeft);
+          if ((Boolean) condition.evaluate((ODocument) o, null, iContext)) {
+            return true;
+          } else {
+            return map.containsValue(iLeft);
+          }
         }
-    }
-    return false;
-  }
-
-  @SuppressWarnings({"unchecked", "rawtypes"})
-  private Object loadIfNeed(Object o) {
-    final ORecord record = (ORecord) o;
-    if (record.getRecord().getInternalStatus() == ORecordElement.STATUS.NOT_LOADED) {
-      try {
-        o = record.getDatabase().load(record.getIdentity());
-      } catch (ORecordNotFoundException e) {
-        throw OException.wrapException(
-            new ODatabaseException("Error during loading record with id : " + record.getIdentity()),
-            e);
       }
     }
-    return o;
+    return false;
   }
 }

@@ -20,8 +20,10 @@
 package com.orientechnologies.orient.core.record;
 
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.record.impl.OBlob;
 import java.util.Collection;
 import java.util.Optional;
 import javax.annotation.Nullable;
@@ -29,6 +31,7 @@ import javax.annotation.Nullable;
 /**
  * Implementation of a generic element. It's bound to the record and allows to read and write
  * values. It's schema aware.
+ *
  * @author Luigi Dell'Aquila
  */
 public interface OElement extends ORecord {
@@ -44,18 +47,121 @@ public interface OElement extends ORecord {
    * Gets a property given its name This method loads linked record automatically if you prefer to
    * work with lazy loaded record use {@link #getLinkProperty(String)}
    *
-   * @param name the property name
-   * @param <RET>
+   * @param name  the property name
+   * @param <RET> the type of the property
    * @return Returns the property value
+   * @see #getLinkProperty(String)
+   * @see #getElementProperty(String)
+   * @see #getVertexProperty(String)
+   * @see #getEdgeProperty(String)
+   * @see #getBlobProperty(String)
    */
   <RET> RET getProperty(String name);
 
   /**
-   * Gets a property value on time of transaction start. This will work for scalar values, and collections of scalar values. Will throw exception in case of called with name starting with {@code #OVertex.DIRECTION_OUT_PREFIX} or {@code #OVertex.DIRECTION_IN_PREFIX}.
-   * @param name the property name*
-   * @param <RET>
-   * @throws IllegalArgumentException if name starts with {@code #OVertex.DIRECTION_OUT_PREFIX} or {@code #OVertex.DIRECTION_IN_PREFIX}.
+   * Returns the property value as an OElement. If the property is a link, it will be loaded and
+   * returned as an OElement. If the property is an OElement, exception will be thrown.
+   *
+   * @param name the property name
+   * @return the property value as an OElement
+   * @throws ODatabaseException if the property is not an OElement
+   */
+  default OElement getElementProperty(String name) {
+    var property = getProperty(name);
+    if (property == null) {
+      return null;
+    }
+
+    if (property instanceof OElement) {
+      return (OElement) property;
+    } else if (property instanceof OIdentifiable identifiable) {
+      return identifiable.getElement();
+    }
+
+    throw new ODatabaseException(
+        "Property "
+            + name
+            + " is not an element property, it is a "
+            + property.getClass().getName());
+  }
+
+  /**
+   * Returns the property value as an OVertex. If the property is a link, it will be loaded and
+   * returned as an OVertex. If the property is an OVertex, exception will be thrown.
+   *
+   * @param propertyName the property name
+   * @return the property value as an OVertex
+   * @throws ODatabaseException if the property is not an OVertex
+   */
+  default OVertex getVertexProperty(String propertyName) {
+    var element = getElementProperty(propertyName);
+    if (element == null) {
+      return null;
+    }
+
+    return element
+        .asVertex()
+        .orElseThrow(() -> new ODatabaseException("Property " + propertyName + " is not a vertex"));
+  }
+
+  /**
+   * Returns the property value as an OEdge. If the property is a link, it will be loaded and
+   * returned as an OEdge. If the property is an OEdge, exception will be thrown.
+   *
+   * @param propertyName the property name
+   * @return the property value as an OEdge
+   * @throws ODatabaseException if the property is not an OEdge
+   */
+  default OEdge getEdgeProperty(String propertyName) {
+    var element = getElementProperty(propertyName);
+    if (element == null) {
+      return null;
+    }
+
+    return element
+        .asEdge()
+        .orElseThrow(() -> new ODatabaseException("Property " + propertyName + " is not an edge"));
+  }
+
+  /**
+   * boolean containsProperty(String name);
+   * <p>
+   * /** Returns the property value as an OBlob. If the property is a link, it will be loaded and
+   * returned as an OBlob. If the property is an OBlob, exception will be thrown.
+   *
+   * @param propertyName the property name
+   * @return the property value as an OBlob
+   * @throws ODatabaseException if the property is not an OBlob
+   */
+  default OBlob getBlobProperty(String propertyName) {
+    var property = getProperty(propertyName);
+    if (property == null) {
+      return null;
+    }
+
+    if (property instanceof OBlob) {
+      return (OBlob) property;
+    } else if (property instanceof OIdentifiable identifiable) {
+      return identifiable.getBlob();
+    }
+
+    throw new ODatabaseException(
+        "Property "
+            + propertyName
+            + " is not a blob property, it is a "
+            + property.getClass().getName());
+  }
+
+  /**
+   * Gets a property value on time of transaction start. This will work for scalar values, and
+   * collections of scalar values. Will throw exception in case of called with name starting with
+   * {@code #OVertex.DIRECTION_OUT_PREFIX} or {@code #OVertex.DIRECTION_IN_PREFIX}.
+   *
+   * @param name  the property name*
+   * @param <RET> the type of the property
    * @return Returns property value on time of transaction start.
+   * @throws IllegalArgumentException if name starts with {@code #OVertex.DIRECTION_OUT_PREFIX} or
+   *                                  {@code #OVertex.DIRECTION_IN_PREFIX}.
    */
   <RET> RET getPropertyOnLoadValue(String name);
 
@@ -74,7 +180,7 @@ public interface OElement extends ORecord {
   /**
    * Check if a property exists in the Element
    *
-   * @param propertyName
+   * @param propertyName the property name
    * @return true if exists otherwise false.
    */
   boolean hasProperty(final String propertyName);
@@ -82,7 +188,7 @@ public interface OElement extends ORecord {
   /**
    * Sets a property value
    *
-   * @param name the property name
+   * @param name  the property name
    * @param value the property value
    */
   void setProperty(String name, Object value);
@@ -90,8 +196,8 @@ public interface OElement extends ORecord {
   /**
    * Sets a property value
    *
-   * @param name the property name
-   * @param value the property value
+   * @param name      the property name
+   * @param value     the property value
    * @param fieldType Forced type (not auto-determined)
    */
   void setProperty(String name, Object value, OType... fieldType);
@@ -107,7 +213,7 @@ public interface OElement extends ORecord {
    * Returns an instance of OVertex representing current element
    *
    * @return An OVertex that represents the current element. An empty optional if the current
-   *     element is not a vertex
+   * element is not a vertex
    */
   Optional<OVertex> asVertex();
 
@@ -115,7 +221,7 @@ public interface OElement extends ORecord {
    * Converts the current element to an OVertex.
    *
    * @return An OVertex that represents the current element. Returns null if the current element is
-   *     not a vertex.
+   * not a vertex.
    */
   @Nullable
   OVertex toVertex();
@@ -124,7 +230,7 @@ public interface OElement extends ORecord {
    * Returns an instance of OEdge representing current element
    *
    * @return An OEdge that represents the current element. An empty optional if the current element
-   *     is not an edge
+   * is not an edge
    */
   Optional<OEdge> asEdge();
 
@@ -132,7 +238,7 @@ public interface OElement extends ORecord {
    * Converts the current element to an OEdge.
    *
    * @return an OEdge that represents the current element. If the current element is not an edge,
-   *     returns null.
+   * returns null.
    */
   @Nullable
   OEdge toEdge();
@@ -155,7 +261,7 @@ public interface OElement extends ORecord {
    * Returns the type of current element, ie the class in the schema (if any)
    *
    * @return the type of current element. An empty optional is returned if current element does not
-   *     have a schema
+   * have a schema
    */
   Optional<OClass> getSchemaType();
 
@@ -163,25 +269,39 @@ public interface OElement extends ORecord {
    * Retrieves the schema class associated with this element.
    *
    * @return the schema class associated with this element, or null if it does not have a schema
-   *     class
+   * class
    */
   @Nullable
   OClass getSchemaClass();
 
   /**
-   * Deletes the current element from the database
+   * Retrieves the class name associated with this element.
    *
-   * @return the current element
+   * @return the class name associated with this element, or null if it does not have a schema class
    */
-  @Override
-  OElement delete();
+  @Nullable
+  default String getClassName() {
+    var schemaClass = getSchemaClass();
+    if (schemaClass == null) {
+      return null;
+    }
+
+    return schemaClass.getName();
+  }
 
   /**
    * Creates a copy of the record. All the record contents are copied.
    *
    * @return The Object instance itself giving a "fluent interface". Useful to call multiple methods
-   *     in chain.
+   * in chain.
    */
   @Override
   OElement copy();
+
+  /**
+   * Returns true if the current element is embedded
+   *
+   * @return true if the current element is embedded
+   */
+  boolean isEmbedded();
 }

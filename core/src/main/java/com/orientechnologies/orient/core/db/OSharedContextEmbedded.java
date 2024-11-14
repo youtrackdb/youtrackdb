@@ -187,7 +187,7 @@ public class OSharedContextEmbedded extends OSharedContext {
     this.load(database);
   }
 
-  public synchronized ODocument loadConfig(ODatabaseSession session, String name) {
+  public synchronized ODocument loadConfig(ODatabaseSessionInternal session, String name) {
     return (ODocument)
         OScenarioThreadLocal.executeAsDistributed(
             () -> {
@@ -208,7 +208,8 @@ public class OSharedContextEmbedded extends OSharedContext {
   /**
    * Store a configuration with a key, without checking eventual update version.
    */
-  public synchronized void saveConfig(ODatabaseSession session, String name, ODocument value) {
+  public synchronized void saveConfig(
+      ODatabaseSessionInternal session, String name, ODocument value) {
     OScenarioThreadLocal.executeAsDistributed(
         () -> {
           assert !session.getTransaction().isActive();
@@ -250,11 +251,12 @@ public class OSharedContextEmbedded extends OSharedContext {
         });
   }
 
-  public ODocument loadDistributedConfig(ODatabaseSession session) {
+  public ODocument loadDistributedConfig(ODatabaseSessionInternal session) {
     return loadConfig(session, "ditributedConfig");
   }
 
-  public void saveDistributedConfig(ODatabaseSession session, String name, ODocument value) {
+  public void saveDistributedConfig(
+      ODatabaseSessionInternal session, String name, ODocument value) {
     this.saveConfig(session, "ditributedConfig", value);
   }
 }

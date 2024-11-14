@@ -318,10 +318,8 @@ public interface OVertex extends OElement {
 
   /**
    * Deletes the current vertex.
-   *
-   * @return the deleted vertex
    */
-  OVertex delete();
+  void delete();
 
   /**
    * Creates a copy of the current vertex.

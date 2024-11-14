@@ -60,8 +60,6 @@ public class SQLDropClassIndexTest extends DocumentDBBaseTest {
             .getIndex(database, "SQLDropClassCompositeIndex"));
 
     database.command("DROP CLASS SQLDropClassTestClass").close();
-    database.getMetadata().getIndexManagerInternal().reload();
-    database.getMetadata().getSchema().reload();
 
     Assert.assertNull(database.getMetadata().getSchema().getClass("SQLDropClassTestClass"));
     Assert.assertNull(

@@ -2287,7 +2287,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
       uniqueResult.clear();
     }
 
-    final ODatabaseDocument database = getDatabase();
+    final var database = getDatabase();
     database.checkSecurity(
         ORule.ResourceGeneric.CLASS,
         ORole.PERMISSION_READ,

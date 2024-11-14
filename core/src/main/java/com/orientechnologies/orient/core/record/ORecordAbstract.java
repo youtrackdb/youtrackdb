@@ -90,6 +90,7 @@ public abstract class ORecordAbstract implements ORecord {
     return null;
   }
 
+  @Nonnull
   public ORecordAbstract getRecord() {
     return this;
   }
@@ -326,11 +327,10 @@ public abstract class ORecordAbstract implements ORecord {
     return this;
   }
 
-  public ORecordAbstract delete() {
+  public void delete() {
     checkForBinding();
     //noinspection resource
     getDatabase().delete(this);
-    return this;
   }
 
   public int getSize() {

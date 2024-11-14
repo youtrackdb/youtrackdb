@@ -30,7 +30,6 @@ import com.orientechnologies.orient.core.serialization.serializer.record.string.
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerSchemaAware2CSV;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTxInternal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -39,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.testng.Assert;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -50,8 +50,8 @@ public class JSONTest extends DocumentDBBaseTest {
       "rid,version,class,type,attribSameRow,alwaysFetchEmbedded,fetchPlan:*:0";
 
   @Parameters(value = "remote")
-  public JSONTest(boolean remote) {
-    super(remote);
+  public JSONTest(@Optional Boolean remote) {
+    super(remote != null && remote);
   }
 
   @Test
@@ -61,7 +61,7 @@ public class JSONTest extends DocumentDBBaseTest {
   }
 
   @Test
-  public void testNullList() throws Exception {
+  public void testNullList() {
     final ODocument documentSource = new ODocument();
     documentSource.fromJSON("{\"list\" : [\"string\", null]}");
 
@@ -420,35 +420,19 @@ public class JSONTest extends DocumentDBBaseTest {
 
   @Test
   public void testFetchedJson() {
-    OObjectDatabaseTxInternal database = new OObjectDatabaseTxInternal(acquireSession());
-    try {
-      database
-          .getEntityManager()
-          .registerEntityClasses("com.orientechnologies.orient.test.domain.business");
-      database
-          .getEntityManager()
-          .registerEntityClasses("com.orientechnologies.orient.test.domain.whiz");
-      database
-          .getEntityManager()
-          .registerEntityClasses("com.orientechnologies.orient.test.domain.base");
+    List<ODocument> result =
+        database
+            .command("select * from Profile where name = 'Barack' and surname = 'Obama'")
+            .stream()
+            .map((e) -> (ODocument) e.toElement())
+            .toList();
 
-      List<ODocument> result =
-          database
-              .getUnderlying()
-              .command("select * from Profile where name = 'Barack' and surname = 'Obama'")
-              .stream()
-              .map((e) -> (ODocument) e.toElement())
-              .collect(Collectors.toList());
+    for (ODocument doc : result) {
+      String jsonFull =
+          doc.toJSON("type,rid,version,class,keepTypes,attribSameRow,indent:0,fetchPlan:*:-1");
+      ODocument loadedDoc = new ODocument().fromJSON(jsonFull);
 
-      for (ODocument doc : result) {
-        String jsonFull =
-            doc.toJSON("type,rid,version,class,keepTypes,attribSameRow,indent:0,fetchPlan:*:-1");
-        ODocument loadedDoc = new ODocument().fromJSON(jsonFull);
-
-        Assert.assertTrue(doc.hasSameContentOf(loadedDoc));
-      }
-    } finally {
-      database.close();
+      Assert.assertTrue(doc.hasSameContentOf(loadedDoc));
     }
   }
 
@@ -508,7 +492,7 @@ public class JSONTest extends DocumentDBBaseTest {
 
   // Requires JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES
   public void testSpecialChar() {
-    final ODocument doc =
+    ODocument doc =
         new ODocument()
             .fromJSON(
                 "{name:{\"%Field\":[\"value1\",\"value2\"],\"%Field2\":{},\"%Field3\":\"value3\"}}");
@@ -516,12 +500,17 @@ public class JSONTest extends DocumentDBBaseTest {
     doc.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
+    database.begin();
+    doc = database.bindToSession(doc);
+    doc.detach();
+
     final ODocument loadedDoc = database.load(doc.getIdentity());
     Assert.assertEquals(doc, loadedDoc);
+    database.commit();
   }
 
   public void testArrayOfArray() {
-    final ODocument doc = new ODocument();
+    ODocument doc = new ODocument();
     doc.fromJSON(
         "{\"@type\": \"d\",\"@class\": \"Track\",\"type\": \"LineString\",\"coordinates\": [ [ 100,"
             + "  0 ],  [ 101, 1 ] ]}");
@@ -529,13 +518,16 @@ public class JSONTest extends DocumentDBBaseTest {
     database.begin();
     doc.save();
     database.commit();
+    database.begin();
+    doc = database.bindToSession(doc);
+    doc.detach();
 
     final ODocument loadedDoc = database.load(doc.getIdentity());
     Assert.assertTrue(doc.hasSameContentOf(loadedDoc));
   }
 
   public void testLongTypes() {
-    final ODocument doc = new ODocument();
+    ODocument doc = new ODocument();
     doc.fromJSON(
         "{\"@type\": \"d\",\"@class\": \"Track\",\"type\": \"LineString\",\"coordinates\": [ ["
             + " 32874387347347,  0 ],  [ -23736753287327, 1 ] ]}");
@@ -544,22 +536,31 @@ public class JSONTest extends DocumentDBBaseTest {
     doc.save();
     database.commit();
 
+    database.begin();
+    doc = database.bindToSession(doc);
+    doc.detach();
+
     final ODocument loadedDoc = database.load(doc.getIdentity());
     Assert.assertTrue(doc.hasSameContentOf(loadedDoc));
+    database.commit();
   }
 
   // Requires JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES
   public void testSpecialChars() {
-    final ODocument doc =
+    ODocument doc =
         new ODocument()
             .fromJSON(
                 "{Field:{\"Key1\":[\"Value1\",\"Value2\"],\"Key2\":{\"%%dummy%%\":null},\"Key3\":\"Value3\"}}");
     database.begin();
     doc.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
+    database.begin();
+    doc = database.bindToSession(doc);
+    doc.detach();
 
     final ODocument loadedDoc = database.load(doc.getIdentity());
     Assert.assertEquals(doc, loadedDoc);
+    database.commit();
   }
 
   public void testJsonToStream() {
@@ -1012,6 +1013,7 @@ public class JSONTest extends DocumentDBBaseTest {
     jaimeDoc.save();
     database.commit();
 
+    jaimeDoc = database.bindToSession(jaimeDoc);
     // The link between jaime and cersei is saved properly - the #2263 test case
     ODocument cerseiDoc = new ODocument("NestedLinkCreation");
     cerseiDoc.fromJSON(
@@ -1020,6 +1022,7 @@ public class JSONTest extends DocumentDBBaseTest {
     cerseiDoc.save();
     database.commit();
 
+    jaimeDoc = database.bindToSession(jaimeDoc);
     // The link between jamie and tyrion is not saved properly
     ODocument tyrionDoc = new ODocument("NestedLinkCreation");
     tyrionDoc.fromJSON(
@@ -1177,9 +1180,11 @@ public class JSONTest extends DocumentDBBaseTest {
     adamDoc.save();
     database.commit();
 
+    database.begin();
+    adamDoc = database.bindToSession(adamDoc);
     ODocument eveDoc = new ODocument("InnerDocCreation");
     eveDoc.fromJSON("{\"@type\":\"d\",\"name\":\"eve\",\"friends\":[" + adamDoc.toJSON() + "]}");
-    database.begin();
+
     eveDoc.save();
     database.commit();
 
@@ -1342,6 +1347,7 @@ public class JSONTest extends DocumentDBBaseTest {
     eveDoc.field("name", "eve");
     eveDoc.save();
 
+    adamDoc = database.bindToSession(adamDoc);
     final ODocument nestedWithTypeD = new ODocument("JSONTxDocTwo");
     nestedWithTypeD.fromJSON(
         "{\"@type\":\"d\",\"event_name\":\"world cup 2014\",\"admin\":["

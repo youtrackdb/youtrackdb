@@ -74,8 +74,7 @@ public class UpdateContentStep extends AbstractExecutionStep {
           if (preDefaultValues == null) {
             preDefaultValues = new HashMap<>();
           }
-          preDefaultValues.put(
-              prop.getName(), record.<Object>getPropertyWithoutValidation(prop.getName()));
+          preDefaultValues.put(prop.getName(), record.<Object>getPropertyInternal(prop.getName()));
         }
       }
     }
@@ -84,21 +83,21 @@ public class UpdateContentStep extends AbstractExecutionStep {
         ODocumentInternal.getImmutableSchemaClass(
             (ODatabaseSessionInternal) ctx.getDatabase(), record.getRecord());
     if (recordClass != null && recordClass.isSubClassOf("V")) {
-      for (String fieldName : record.getPropertyNamesWithoutFiltration()) {
+      for (String fieldName : record.getPropertyNamesInternal()) {
         if (fieldName.startsWith("in_") || fieldName.startsWith("out_")) {
           if (fieldsToPreserve == null) {
             fieldsToPreserve = new ODocument();
           }
-          fieldsToPreserve.field(fieldName, record.<Object>getPropertyWithoutValidation(fieldName));
+          fieldsToPreserve.field(fieldName, record.<Object>getPropertyInternal(fieldName));
         }
       }
     } else if (recordClass != null && recordClass.isSubClassOf("E")) {
-      for (String fieldName : record.getPropertyNamesWithoutFiltration()) {
+      for (String fieldName : record.getPropertyNamesInternal()) {
         if (fieldName.equals("in") || fieldName.equals("out")) {
           if (fieldsToPreserve == null) {
             fieldsToPreserve = new ODocument();
           }
-          fieldsToPreserve.field(fieldName, record.<Object>getPropertyWithoutValidation(fieldName));
+          fieldsToPreserve.field(fieldName, record.<Object>getPropertyInternal(fieldName));
         }
       }
     }

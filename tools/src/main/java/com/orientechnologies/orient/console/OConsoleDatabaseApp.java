@@ -76,6 +76,7 @@ import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.impl.OBlob;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.security.OSecurityManager;
@@ -122,7 +123,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     implements OCommandOutputListener, OProgressListener, OTableFormatter.OTableOutput {
   protected ODatabaseSessionInternal currentDatabase;
   protected String currentDatabaseName;
-  protected ORecord currentRecord;
+  protected ORecordAbstract currentRecord;
   protected int currentRecordIdx;
   protected List<OIdentifiable> currentResultSet;
   protected Object currentResult;
@@ -3288,7 +3289,8 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
   protected OIdentifiable setCurrentRecord(final int iIndex) {
     currentRecordIdx = iIndex;
-    if (iIndex < currentResultSet.size()) currentRecord = (ORecord) currentResultSet.get(iIndex);
+    if (iIndex < currentResultSet.size())
+      currentRecord = (ORecordAbstract) currentResultSet.get(iIndex);
     else currentRecord = null;
     return currentRecord;
   }
@@ -3394,7 +3396,9 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     currentResultSet = iResultset;
     currentRecordIdx = 0;
     currentRecord =
-        iResultset == null || iResultset.isEmpty() ? null : (ORecord) iResultset.get(0).getRecord();
+        iResultset == null || iResultset.isEmpty()
+            ? null
+            : (ORecordAbstract) iResultset.get(0).getRecord();
   }
 
   protected void resetResultSet() {

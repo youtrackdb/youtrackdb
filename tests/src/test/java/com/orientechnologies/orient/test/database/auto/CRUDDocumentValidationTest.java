@@ -18,6 +18,7 @@ package com.orientechnologies.orient.test.database.auto;
 import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.db.ODatabase;
+import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.OValidationException;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -28,25 +29,24 @@ import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.testng.Assert;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-@Test(groups = {"crud", "record-document"})
+@Test
 public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
 
   private ODocument record;
   private ODocument account;
 
   @Parameters(value = "remote")
-  public CRUDDocumentValidationTest(boolean remote) {
-    super(remote);
+  public CRUDDocumentValidationTest(@Optional Boolean remote) {
+    super(remote != null && remote);
   }
 
   @Test
   public void openDb() {
-    createBasicTestSchema();
     database.begin();
     account = new ODocument("Account");
     account.save();
@@ -67,6 +67,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
   public void validationMinString() {
     database.begin();
     record = database.newInstance("Whiz");
+    account = database.bindToSession(account);
     record.field("account", account);
     record.field("id", 23723);
     record.field("text", "");
@@ -81,6 +82,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
   public void validationMaxString() {
     database.begin();
     record = database.newInstance("Whiz");
+    account = database.bindToSession(account);
     record.field("account", account);
     record.field("id", 23723);
     record.field(
@@ -98,6 +100,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
   public void validationMinDate() throws ParseException {
     database.begin();
     record = database.newInstance("Whiz");
+    account = database.bindToSession(account);
     record.field("account", account);
     record.field("date", new SimpleDateFormat("dd/MM/yyyy").parse("01/33/1976"));
     record.field("text", "test");
@@ -105,7 +108,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
     database.commit();
   }
 
-  @Test(dependsOnMethods = "validationMinDate", expectedExceptions = OValidationException.class)
+  @Test(dependsOnMethods = "validationMinDate", expectedExceptions = ODatabaseException.class)
   public void validationEmbeddedType() throws ParseException {
     database.begin();
     record = database.newInstance("Whiz");
@@ -135,7 +138,6 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
   public void createSchemaForMandatoryNullableTest() throws ParseException {
     if (database.getMetadata().getSchema().existsClass("MyTestClass")) {
       database.getMetadata().getSchema().dropClass("MyTestClass");
-      database.getMetadata().getSchema().reload();
     }
 
     database.command("CREATE CLASS MyTestClass").close();
@@ -161,8 +163,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
     database.close();
     database = acquireSession();
     List<OResult> result =
-        database.query("SELECT FROM MyTestClass WHERE keyField = ?", "K1").stream()
-            .collect(Collectors.toList());
+        database.query("SELECT FROM MyTestClass WHERE keyField = ?", "K1").stream().toList();
     Assert.assertEquals(1, result.size());
     OResult doc = result.get(0);
     Assert.assertTrue(doc.hasProperty("keyField"));
@@ -173,10 +174,10 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
   @Test(dependsOnMethods = "createSchemaForMandatoryNullableTest")
   public void testUpdateDocDefined() {
     List<OResult> result =
-        database.query("SELECT FROM MyTestClass WHERE keyField = ?", "K1").stream()
-            .collect(Collectors.toList());
+        database.query("SELECT FROM MyTestClass WHERE keyField = ?", "K1").stream().toList();
     Assert.assertEquals(1, result.size());
     OElement readDoc = result.get(0).toElement();
+    assert readDoc != null;
     readDoc.setProperty("keyField", "K1N");
     database.begin();
     readDoc.save();
@@ -197,10 +198,10 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
     database = acquireSession();
 
     List<OResult> result =
-        database.query("SELECT FROM MyTestClass WHERE keyField = ?", "K2").stream()
-            .collect(Collectors.toList());
+        database.query("SELECT FROM MyTestClass WHERE keyField = ?", "K2").stream().toList();
     Assert.assertEquals(1, result.size());
     OElement readDoc = result.get(0).toElement();
+    assert readDoc != null;
     readDoc.setProperty("keyField", "K2N");
     database.begin();
     readDoc.save();
@@ -219,10 +220,10 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
     database.commit();
 
     List<OResult> result =
-        database.query("SELECT FROM MyTestClass WHERE keyField = ?", "K3").stream()
-            .collect(Collectors.toList());
+        database.query("SELECT FROM MyTestClass WHERE keyField = ?", "K3").stream().toList();
     Assert.assertEquals(1, result.size());
     OElement readDoc = result.get(0).toElement();
+    assert readDoc != null;
     readDoc.setProperty("keyField", "K3N");
 
     database.begin();
@@ -239,7 +240,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
       doc.save();
       database.commit();
       Assert.fail();
-    } catch (OValidationException e) {
+    } catch (OValidationException ignored) {
     }
 
     database.command("ALTER DATABASE " + ODatabase.ATTRIBUTES.VALIDATION.name() + " FALSE").close();
@@ -252,7 +253,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
       database.commit();
 
       database.begin();
-      doc.delete();
+      database.bindToSession(doc).delete();
       database.commit();
     } finally {
       database.setValidationEnabled(true);

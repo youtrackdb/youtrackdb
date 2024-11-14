@@ -40,7 +40,7 @@ public class OUpdatableResult extends OResultInternal {
 
   @Override
   public void setProperty(String name, Object value) {
-    ((OElementInternal) element).setPropertyWithoutValidation(name, value);
+    ((OElementInternal) element).setPropertyInternal(name, value);
   }
 
   public void removeProperty(String name) {

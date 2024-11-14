@@ -8,7 +8,6 @@ import com.orientechnologies.orient.client.remote.message.tx.IndexChange;
 import com.orientechnologies.orient.client.remote.message.tx.ORecordOperationRequest;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.OSerializationException;
@@ -16,6 +15,7 @@ import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
@@ -49,8 +49,9 @@ public class OMessageHelper {
   public static void writeIdentifiable(
       OChannelDataOutput channel, final OIdentifiable o, ORecordSerializer serializer)
       throws IOException {
-    if (o == null) channel.writeShort(OChannelBinaryProtocol.RECORD_NULL);
-    else if (o instanceof ORecordId) {
+    if (o == null) {
+      channel.writeShort(OChannelBinaryProtocol.RECORD_NULL);
+    } else if (o instanceof ORecordId) {
       channel.writeShort(OChannelBinaryProtocol.RECORD_RID);
       channel.writeRID((ORID) o);
     } else {
@@ -81,14 +82,16 @@ public class OMessageHelper {
 
     final byte[] stream;
     String dbSerializerName = null;
-    if (ODatabaseRecordThreadLocal.instance().getIfDefined() != null)
-      dbSerializerName =
-          ((ODatabaseSessionInternal) iRecord.getDatabase()).getSerializer().toString();
+    if (ODatabaseRecordThreadLocal.instance().getIfDefined() != null) {
+      dbSerializerName = (((ORecordAbstract) iRecord).getDatabase()).getSerializer().toString();
+    }
     if (ORecordInternal.getRecordType(iRecord) == ODocument.RECORD_TYPE
         && (dbSerializerName == null || !dbSerializerName.equals(serializer.toString()))) {
       ((ODocument) iRecord).deserializeFields();
       stream = serializer.toStream(iRecord);
-    } else stream = iRecord.toStream();
+    } else {
+      stream = iRecord.toStream();
+    }
 
     return stream;
   }
@@ -330,12 +333,14 @@ public class OMessageHelper {
         for (OTransactionIndexChangesPerKey.OTransactionIndexEntry perKeyChange :
             change.getEntriesAsList()) {
           OTransactionIndexChanges.OPERATION op = perKeyChange.getOperation();
-          if (op == OTransactionIndexChanges.OPERATION.REMOVE && perKeyChange.getValue() == null)
+          if (op == OTransactionIndexChanges.OPERATION.REMOVE && perKeyChange.getValue() == null) {
             op = OTransactionIndexChanges.OPERATION.CLEAR;
+          }
 
           network.writeInt(op.ordinal());
-          if (op != OTransactionIndexChanges.OPERATION.CLEAR)
+          if (op != OTransactionIndexChanges.OPERATION.CLEAR) {
             network.writeRID(perKeyChange.getValue().getIdentity());
+          }
         }
       }
     }
@@ -390,7 +395,9 @@ public class OMessageHelper {
   public static OIdentifiable readIdentifiable(
       final OChannelDataInput network, ORecordSerializer serializer) throws IOException {
     final int classId = network.readShort();
-    if (classId == OChannelBinaryProtocol.RECORD_NULL) return null;
+    if (classId == OChannelBinaryProtocol.RECORD_NULL) {
+      return null;
+    }
 
     if (classId == OChannelBinaryProtocol.RECORD_RID) {
       return network.readRID();

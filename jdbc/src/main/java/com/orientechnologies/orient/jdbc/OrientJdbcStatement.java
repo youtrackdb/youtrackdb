@@ -18,7 +18,7 @@ package com.orientechnologies.orient.jdbc;
 import static java.lang.Boolean.parseBoolean;
 
 import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OQueryParsingException;
 import com.orientechnologies.orient.core.sql.executor.OInternalResultSet;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -42,7 +42,7 @@ import java.util.Properties;
 public class OrientJdbcStatement implements Statement {
 
   protected final OrientJdbcConnection connection;
-  protected final ODatabaseSession database;
+  protected final ODatabaseSessionInternal database;
   protected final List<String> batches;
   protected final int resultSetType;
   protected final int resultSetConcurrency;
@@ -86,9 +86,8 @@ public class OrientJdbcStatement implements Statement {
       int resultSetConcurrency,
       int resultSetHoldability) {
     this.connection = iConnection;
-    this.database = iConnection.getDatabase();
+    this.database = (ODatabaseSessionInternal) iConnection.getDatabase();
     database.activateOnCurrentThread();
-    //    documents = emptyList();
     batches = new ArrayList<>();
     this.resultSetType = resultSetType;
     this.resultSetConcurrency = resultSetConcurrency;

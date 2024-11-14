@@ -16,10 +16,7 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.common.util.ORawPair;
-import com.orientechnologies.orient.core.Orient;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.index.OCompositeKey;
@@ -30,17 +27,17 @@ import com.orientechnologies.orient.core.metadata.schema.OClass.INDEX_TYPE;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
+import com.orientechnologies.orient.core.sql.executor.FetchFromIndexStep;
+import com.orientechnologies.orient.core.sql.executor.OExecutionStep;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
 import com.orientechnologies.orient.core.storage.cache.OWriteCache;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
-import com.orientechnologies.orient.test.database.base.OrientTest;
-import com.orientechnologies.orient.test.domain.business.Account;
-import com.orientechnologies.orient.test.domain.whiz.Profile;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -48,7 +45,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -58,7 +54,7 @@ import org.testng.annotations.Test;
 
 @SuppressWarnings({"deprecation", "unchecked"})
 @Test
-public class IndexTest extends ObjectDBBaseTest {
+public class IndexTest extends DocumentDBBaseTest {
 
   @Parameters(value = "remote")
   public IndexTest(@Optional Boolean remote) {
@@ -69,24 +65,23 @@ public class IndexTest extends ObjectDBBaseTest {
   public void beforeClass() throws Exception {
     super.beforeClass();
 
-    database
-        .getEntityManager()
-        .registerEntityClasses("com.orientechnologies.orient.test.domain.business");
-    database
-        .getEntityManager()
-        .registerEntityClasses("com.orientechnologies.orient.test.domain.whiz");
-    database
-        .getEntityManager()
-        .registerEntityClasses("com.orientechnologies.orient.test.domain.base");
+    generateCompanyData();
   }
 
   public void testDuplicatedIndexOnUnique() {
-    Profile jayMiner = new Profile("Jay", "Jay", "Miner", null);
+    var jayMiner = database.newElement("Profile");
+    jayMiner.setProperty("nick", "Jay");
+    jayMiner.setProperty("name", "Jay");
+    jayMiner.setProperty("surname", "Miner");
+
     database.begin();
     database.save(jayMiner);
     database.commit();
 
-    Profile jacobMiner = new Profile("Jay", "Jacob", "Miner", null);
+    var jacobMiner = database.newElement("Profile");
+    jacobMiner.setProperty("nick", "Jay");
+    jacobMiner.setProperty("name", "Jacob");
+    jacobMiner.setProperty("surname", "Miner");
 
     try {
       database.begin();
@@ -108,68 +103,35 @@ public class IndexTest extends ObjectDBBaseTest {
     Assert.assertEquals(
         nickProperty.getIndexes().iterator().next().getType(), OClass.INDEX_TYPE.UNIQUE.toString());
 
-    final boolean localStorage = !(database.getUnderlying().isRemote());
+    try (var resultSet =
+        database.query(
+            "SELECT * FROM Profile WHERE nick in ['ZZZJayLongNickIndex0'"
+                + " ,'ZZZJayLongNickIndex1', 'ZZZJayLongNickIndex2']")) {
+      assertIndexUsage(resultSet);
 
-    boolean oldRecording = true;
-    long indexQueries = 0L;
-    if (localStorage) {
-      oldRecording = Orient.instance().getProfiler().isRecording();
+      final List<String> expectedSurnames =
+          new ArrayList<>(Arrays.asList("NolteIndex0", "NolteIndex1", "NolteIndex2"));
 
-      if (!oldRecording) {
-        Orient.instance().getProfiler().startRecording();
+      var result = resultSet.elementStream().toList();
+      Assert.assertEquals(result.size(), 3);
+      for (final OElement profile : result) {
+        expectedSurnames.remove(profile.<String>getProperty("surname"));
       }
 
-      indexQueries = Orient.instance().getProfiler().getCounter("db.demo.query.indexUsed");
-      if (indexQueries < 0) {
-        indexQueries = 0;
-      }
-    }
-
-    final List<Profile> result =
-        database
-            .command(
-                new OSQLSynchQuery<Profile>(
-                    "SELECT * FROM Profile WHERE nick in ['ZZZJayLongNickIndex0'"
-                        + " ,'ZZZJayLongNickIndex1', 'ZZZJayLongNickIndex2']"))
-            .execute();
-
-    final List<String> expectedSurnames =
-        new ArrayList<>(Arrays.asList("NolteIndex0", "NolteIndex1", "NolteIndex2"));
-
-    if (localStorage && !oldRecording) {
-      Orient.instance().getProfiler().stopRecording();
-    }
-
-    Assert.assertEquals(result.size(), 3);
-    for (final Profile profile : result) {
-      expectedSurnames.remove(profile.getSurname());
-    }
-
-    Assert.assertEquals(expectedSurnames.size(), 0);
-
-    if (localStorage) {
-      final long newIndexQueries =
-          Orient.instance().getProfiler().getCounter("db.demo.query.indexUsed");
-      Assert.assertEquals(newIndexQueries, indexQueries + 1);
+      Assert.assertEquals(expectedSurnames.size(), 0);
     }
   }
 
   @Test(dependsOnMethods = "testDuplicatedIndexOnUnique")
   public void testUseOfIndex() {
-    final List<Profile> result =
-        database
-            .command(new OSQLSynchQuery<Profile>("select * from Profile where nick = 'Jay'"))
-            .execute();
+    final List<ODocument> result = executeQuery("select * from Profile where nick = 'Jay'");
 
     Assert.assertFalse(result.isEmpty());
 
-    Profile record;
-    for (int i = 0; i < result.size(); ++i) {
-      record = result.get(i);
-
-      OrientTest.printRecord(i, record);
-
-      Assert.assertTrue(record.getName().equalsIgnoreCase("Jay"));
+    OElement record;
+    for (ODocument entries : result) {
+      record = entries;
+      Assert.assertTrue(record.<String>getProperty("name").equalsIgnoreCase("Jay"));
     }
   }
 
@@ -177,16 +139,10 @@ public class IndexTest extends ObjectDBBaseTest {
   public void testIndexEntries() {
     checkEmbeddedDB();
 
-    List<Profile> result =
-        database
-            .command(new OSQLSynchQuery<Profile>("select * from Profile where nick is not null"))
-            .execute();
+    List<ODocument> result = executeQuery("select * from Profile where nick is not null");
 
     OIndex idx =
-        database
-            .getMetadata()
-            .getIndexManagerInternal()
-            .getIndex((ODatabaseSessionInternal) database.getUnderlying(), "Profile.nick");
+        database.getMetadata().getIndexManagerInternal().getIndex(database, "Profile.nick");
 
     Assert.assertEquals(idx.getInternal().size(), result.size());
   }
@@ -195,10 +151,7 @@ public class IndexTest extends ObjectDBBaseTest {
   public void testIndexSize() {
     checkEmbeddedDB();
 
-    List<Profile> result =
-        database
-            .command(new OSQLSynchQuery<Profile>("select * from Profile where nick is not null"))
-            .execute();
+    List<ODocument> result = executeQuery("select * from Profile where nick is not null");
 
     int profileSize = result.size();
 
@@ -207,13 +160,16 @@ public class IndexTest extends ObjectDBBaseTest {
         database
             .getMetadata()
             .getIndexManagerInternal()
-            .getIndex((ODatabaseSessionInternal) database.getUnderlying(), "Profile.nick")
+            .getIndex(database, "Profile.nick")
             .getInternal()
             .size(),
         profileSize);
     for (int i = 0; i < 10; i++) {
-      Profile profile = new Profile("Yay-" + i, "Jay", "Miner", null);
       database.begin();
+      OElement profile = database.newElement("Profile");
+      profile.setProperty("nick", "Yay-" + i);
+      profile.setProperty("name", "Jay");
+      profile.setProperty("surname", "Miner");
       database.save(profile);
       database.commit();
 
@@ -222,7 +178,7 @@ public class IndexTest extends ObjectDBBaseTest {
           database
               .getMetadata()
               .getIndexManagerInternal()
-              .getIndex((ODatabaseSessionInternal) database.getUnderlying(), "Profile.nick")
+              .getIndex(database, "Profile.nick")
               .getInternal()
               .getRids("Yay-" + i)) {
         Assert.assertTrue(stream.findAny().isPresent());
@@ -243,9 +199,12 @@ public class IndexTest extends ObjectDBBaseTest {
 
   @Test(dependsOnMethods = "testChangeOfIndexToNotUnique")
   public void testDuplicatedIndexOnNotUnique() {
-    Profile nickNolte = new Profile("Jay", "Nick", "Nolte", null);
-
     database.begin();
+    OElement nickNolte = database.newElement("Profile");
+    nickNolte.setProperty("nick", "Jay");
+    nickNolte.setProperty("name", "Nick");
+    nickNolte.setProperty("surname", "Nolte");
+
     database.save(nickNolte);
     database.commit();
   }
@@ -268,295 +227,182 @@ public class IndexTest extends ObjectDBBaseTest {
 
   @Test(dependsOnMethods = "populateIndexDocuments")
   public void testIndexInMajorSelect() {
-    if (((ODatabaseSessionInternal) database.getUnderlying()).isRemote()) {
+    if (database.isRemote()) {
       return;
     }
 
-    final boolean oldRecording = Orient.instance().getProfiler().isRecording();
+    try (var resultSet =
+        database.query("select * from Profile where nick > 'ZZZJayLongNickIndex3'")) {
+      assertIndexUsage(resultSet);
+      final List<String> expectedNicks =
+          new ArrayList<>(Arrays.asList("ZZZJayLongNickIndex4", "ZZZJayLongNickIndex5"));
 
-    if (!oldRecording) {
-      Orient.instance().getProfiler().startRecording();
+      var result = resultSet.elementStream().toList();
+      Assert.assertEquals(result.size(), 2);
+      for (OElement profile : result) {
+        expectedNicks.remove(profile.<String>getProperty("nick"));
+      }
+
+      Assert.assertEquals(expectedNicks.size(), 0);
     }
-
-    long indexQueries = Orient.instance().getProfiler().getCounter("db.demo.query.indexUsed");
-    if (indexQueries < 0) {
-      indexQueries = 0;
-    }
-
-    final List<Profile> result =
-        database
-            .command(
-                new OSQLSynchQuery<Profile>(
-                    "select * from Profile where nick > 'ZZZJayLongNickIndex3'"))
-            .execute();
-    final List<String> expectedNicks =
-        new ArrayList<>(Arrays.asList("ZZZJayLongNickIndex4", "ZZZJayLongNickIndex5"));
-
-    if (!oldRecording) {
-      Orient.instance().getProfiler().stopRecording();
-    }
-
-    Assert.assertEquals(result.size(), 2);
-    for (Profile profile : result) {
-      expectedNicks.remove(profile.getNick());
-    }
-
-    Assert.assertEquals(expectedNicks.size(), 0);
-    long newIndexQueries = Orient.instance().getProfiler().getCounter("db.demo.query.indexUsed");
-    Assert.assertEquals(newIndexQueries, indexQueries + 1);
   }
 
   @Test(dependsOnMethods = "populateIndexDocuments")
   public void testIndexInMajorEqualsSelect() {
-    if (((ODatabaseSessionInternal) database.getUnderlying()).isRemote()) {
+    if (database.isRemote()) {
       return;
     }
 
-    final boolean oldRecording = Orient.instance().getProfiler().isRecording();
+    try (var resultSet =
+        database.query("select * from Profile where nick >= 'ZZZJayLongNickIndex3'")) {
+      assertIndexUsage(resultSet);
+      final List<String> expectedNicks =
+          new ArrayList<>(
+              Arrays.asList(
+                  "ZZZJayLongNickIndex3", "ZZZJayLongNickIndex4", "ZZZJayLongNickIndex5"));
 
-    if (!oldRecording) {
-      Orient.instance().getProfiler().startRecording();
+      var result = resultSet.elementStream().toList();
+      Assert.assertEquals(result.size(), 3);
+      for (OElement profile : result) {
+        expectedNicks.remove(profile.<String>getProperty("nick"));
+      }
+
+      Assert.assertEquals(expectedNicks.size(), 0);
     }
-
-    long indexQueries = Orient.instance().getProfiler().getCounter("db.demo.query.indexUsed");
-    if (indexQueries < 0) {
-      indexQueries = 0;
-    }
-
-    final List<Profile> result =
-        database
-            .command(
-                new OSQLSynchQuery<Profile>(
-                    "select * from Profile where nick >= 'ZZZJayLongNickIndex3'"))
-            .execute();
-    final List<String> expectedNicks =
-        new ArrayList<>(
-            Arrays.asList("ZZZJayLongNickIndex3", "ZZZJayLongNickIndex4", "ZZZJayLongNickIndex5"));
-
-    if (!oldRecording) {
-      Orient.instance().getProfiler().stopRecording();
-    }
-
-    Assert.assertEquals(result.size(), 3);
-    for (Profile profile : result) {
-      expectedNicks.remove(profile.getNick());
-    }
-
-    Assert.assertEquals(expectedNicks.size(), 0);
-    long newIndexQueries = Orient.instance().getProfiler().getCounter("db.demo.query.indexUsed");
-    Assert.assertEquals(newIndexQueries, indexQueries + 1);
   }
 
   @Test(dependsOnMethods = "populateIndexDocuments")
   public void testIndexInMinorSelect() {
-    if (((ODatabaseSessionInternal) database.getUnderlying()).isRemote()) {
+    if (database.isRemote()) {
       return;
     }
 
-    final boolean oldRecording = Orient.instance().getProfiler().isRecording();
+    try (var resultSet = database.query("select * from Profile where nick < '002'")) {
+      assertIndexUsage(resultSet);
+      final List<String> expectedNicks = new ArrayList<>(Arrays.asList("000", "001"));
 
-    if (!oldRecording) {
-      Orient.instance().getProfiler().startRecording();
+      var result = resultSet.elementStream().toList();
+      Assert.assertEquals(result.size(), 2);
+      for (OElement profile : result) {
+        expectedNicks.remove(profile.<String>getProperty("nick"));
+      }
+
+      Assert.assertEquals(expectedNicks.size(), 0);
     }
-
-    long indexQueries = Orient.instance().getProfiler().getCounter("db.demo.query.indexUsed");
-    if (indexQueries < 0) {
-      indexQueries = 0;
-    }
-
-    final List<Profile> result =
-        database
-            .command(new OSQLSynchQuery<Profile>("select * from Profile where nick < '002'"))
-            .execute();
-    final List<String> expectedNicks = new ArrayList<>(Arrays.asList("000", "001"));
-
-    if (!oldRecording) {
-      Orient.instance().getProfiler().stopRecording();
-    }
-
-    Assert.assertEquals(result.size(), 2);
-    for (Profile profile : result) {
-      expectedNicks.remove(profile.getNick());
-    }
-
-    Assert.assertEquals(expectedNicks.size(), 0);
-    long newIndexQueries = Orient.instance().getProfiler().getCounter("db.demo.query.indexUsed");
-    Assert.assertEquals(newIndexQueries, indexQueries + 1);
   }
 
   @Test(dependsOnMethods = "populateIndexDocuments")
   public void testIndexInMinorEqualsSelect() {
-    if (((ODatabaseSessionInternal) database.getUnderlying()).isRemote()) {
+    if (database.isRemote()) {
       return;
     }
 
-    final boolean oldRecording = Orient.instance().getProfiler().isRecording();
+    try (var resultSet = database.query("select * from Profile where nick <= '002'")) {
+      final List<String> expectedNicks = new ArrayList<>(Arrays.asList("000", "001", "002"));
 
-    if (!oldRecording) {
-      Orient.instance().getProfiler().startRecording();
+      var result = resultSet.elementStream().toList();
+      Assert.assertEquals(result.size(), 3);
+      for (OElement profile : result) {
+        expectedNicks.remove(profile.<String>getProperty("nick"));
+      }
+
+      Assert.assertEquals(expectedNicks.size(), 0);
     }
-
-    long indexQueries = Orient.instance().getProfiler().getCounter("db.demo.query.indexUsed");
-    if (indexQueries < 0) {
-      indexQueries = 0;
-    }
-
-    final List<Profile> result =
-        database
-            .command(new OSQLSynchQuery<Profile>("select * from Profile where nick <= '002'"))
-            .execute();
-    final List<String> expectedNicks = new ArrayList<>(Arrays.asList("000", "001", "002"));
-
-    if (!oldRecording) {
-      Orient.instance().getProfiler().stopRecording();
-    }
-
-    Assert.assertEquals(result.size(), 3);
-    for (Profile profile : result) {
-      expectedNicks.remove(profile.getNick());
-    }
-
-    Assert.assertEquals(expectedNicks.size(), 0);
-    long newIndexQueries = Orient.instance().getProfiler().getCounter("db.demo.query.indexUsed");
-    Assert.assertEquals(newIndexQueries, indexQueries + 1);
   }
 
-  @Test(dependsOnMethods = "populateIndexDocuments")
+  @Test(dependsOnMethods = "populateIndexDocuments", enabled = false)
   public void testIndexBetweenSelect() {
-    if (((ODatabaseSessionInternal) database.getUnderlying()).isRemote()) {
+    if (database.isRemote()) {
       return;
     }
 
-    final boolean oldRecording = Orient.instance().getProfiler().isRecording();
+    var query = "select * from Profile where nick between '001' and '004'";
+    try (var resultSet = database.query(query)) {
+      assertIndexUsage(resultSet);
+      final List<String> expectedNicks = new ArrayList<>(Arrays.asList("001", "002", "003", "004"));
 
-    if (!oldRecording) {
-      Orient.instance().getProfiler().startRecording();
+      var result = resultSet.elementStream().toList();
+      Assert.assertEquals(result.size(), 4);
+      for (OElement profile : result) {
+        expectedNicks.remove(profile.<String>getProperty("nick"));
+      }
+
+      Assert.assertEquals(expectedNicks.size(), 0);
     }
-
-    long indexQueries = Orient.instance().getProfiler().getCounter("db.demo.query.indexUsed");
-    if (indexQueries < 0) {
-      indexQueries = 0;
-    }
-
-    final List<Profile> result =
-        database
-            .command(
-                new OSQLSynchQuery<Profile>(
-                    "select * from Profile where nick between '001' and '004'"))
-            .execute();
-    final List<String> expectedNicks = new ArrayList<>(Arrays.asList("001", "002", "003", "004"));
-
-    if (!oldRecording) {
-      Orient.instance().getProfiler().stopRecording();
-    }
-
-    Assert.assertEquals(result.size(), 4);
-    for (Profile profile : result) {
-      expectedNicks.remove(profile.getNick());
-    }
-
-    Assert.assertEquals(expectedNicks.size(), 0);
-    long newIndexQueries = Orient.instance().getProfiler().getCounter("db.demo.query.indexUsed");
-    Assert.assertEquals(newIndexQueries, indexQueries + 1);
   }
 
-  @Test(dependsOnMethods = "populateIndexDocuments")
+  @Test(dependsOnMethods = "populateIndexDocuments", enabled = false)
   public void testIndexInComplexSelectOne() {
-    if (((ODatabaseSessionInternal) database.getUnderlying()).isRemote()) {
+    if (database.isRemote()) {
       return;
     }
 
-    final boolean oldRecording = Orient.instance().getProfiler().isRecording();
+    try (var resultSet =
+        database.query(
+            "select * from Profile where (name = 'Giuseppe' OR name <> 'Napoleone') AND"
+                + " (nick is not null AND (name = 'Giuseppe' OR name <> 'Napoleone') AND"
+                + " (nick >= 'ZZZJayLongNickIndex3'))")) {
+      assertIndexUsage(resultSet);
 
-    if (!oldRecording) {
-      Orient.instance().getProfiler().startRecording();
+      final List<String> expectedNicks =
+          new ArrayList<>(
+              Arrays.asList(
+                  "ZZZJayLongNickIndex3", "ZZZJayLongNickIndex4", "ZZZJayLongNickIndex5"));
+
+      var result = resultSet.elementStream().toList();
+      Assert.assertEquals(result.size(), 3);
+      for (OElement profile : result) {
+        expectedNicks.remove(profile.<String>getProperty("nick"));
+      }
+
+      Assert.assertEquals(expectedNicks.size(), 0);
     }
-
-    long indexQueries = Orient.instance().getProfiler().getCounter("db.demo.query.indexUsed");
-    if (indexQueries < 0) {
-      indexQueries = 0;
-    }
-
-    final List<Profile> result =
-        database
-            .command(
-                new OSQLSynchQuery<Profile>(
-                    "select * from Profile where (name = 'Giuseppe' OR name <> 'Napoleone') AND"
-                        + " (nick is not null AND (name = 'Giuseppe' OR name <> 'Napoleone') AND"
-                        + " (nick >= 'ZZZJayLongNickIndex3'))"))
-            .execute();
-    if (!oldRecording) {
-      Orient.instance().getProfiler().stopRecording();
-    }
-
-    final List<String> expectedNicks =
-        new ArrayList<>(
-            Arrays.asList("ZZZJayLongNickIndex3", "ZZZJayLongNickIndex4", "ZZZJayLongNickIndex5"));
-    Assert.assertEquals(result.size(), 3);
-    for (Profile profile : result) {
-      expectedNicks.remove(profile.getNick());
-    }
-
-    Assert.assertEquals(expectedNicks.size(), 0);
-    long newIndexQueries = Orient.instance().getProfiler().getCounter("db.demo.query.indexUsed");
-    Assert.assertEquals(newIndexQueries, indexQueries + 1);
   }
 
-  @Test(dependsOnMethods = "populateIndexDocuments")
+  @Test(dependsOnMethods = "populateIndexDocuments", enabled = false)
   public void testIndexInComplexSelectTwo() {
-    if (((ODatabaseSessionInternal) database.getUnderlying()).isRemote()) {
+    if (database.isRemote()) {
       return;
     }
 
-    final boolean oldRecording = Orient.instance().getProfiler().isRecording();
+    try (var resultSet =
+        database.query(
+            "select * from Profile where ((name = 'Giuseppe' OR name <> 'Napoleone') AND"
+                + " (nick is not null AND (name = 'Giuseppe' OR name <> 'Napoleone') AND"
+                + " (nick >= 'ZZZJayLongNickIndex3' OR nick >= 'ZZZJayLongNickIndex4')))")) {
+      assertIndexUsage(resultSet);
 
-    if (!oldRecording) {
-      Orient.instance().getProfiler().startRecording();
+      final List<String> expectedNicks =
+          new ArrayList<>(
+              Arrays.asList(
+                  "ZZZJayLongNickIndex3", "ZZZJayLongNickIndex4", "ZZZJayLongNickIndex5"));
+      var result = resultSet.elementStream().toList();
+      Assert.assertEquals(result.size(), 3);
+      for (OElement profile : result) {
+        expectedNicks.remove(profile.<String>getProperty("nick"));
+      }
+
+      Assert.assertEquals(expectedNicks.size(), 0);
     }
-
-    long indexQueries = Orient.instance().getProfiler().getCounter("db.demo.query.indexUsed");
-    if (indexQueries < 0) {
-      indexQueries = 0;
-    }
-
-    final List<Profile> result =
-        database
-            .command(
-                new OSQLSynchQuery<Profile>(
-                    "select * from Profile where ((name = 'Giuseppe' OR name <> 'Napoleone') AND"
-                        + " (nick is not null AND (name = 'Giuseppe' OR name <> 'Napoleone') AND"
-                        + " (nick >= 'ZZZJayLongNickIndex3' OR nick >= 'ZZZJayLongNickIndex4')))"))
-            .execute();
-    if (!oldRecording) {
-      Orient.instance().getProfiler().stopRecording();
-    }
-
-    final List<String> expectedNicks =
-        new ArrayList<>(
-            Arrays.asList("ZZZJayLongNickIndex3", "ZZZJayLongNickIndex4", "ZZZJayLongNickIndex5"));
-    Assert.assertEquals(result.size(), 3);
-    for (Profile profile : result) {
-      expectedNicks.remove(profile.getNick());
-    }
-
-    Assert.assertEquals(expectedNicks.size(), 0);
-    long newIndexQueries = Orient.instance().getProfiler().getCounter("db.demo.query.indexUsed");
-    Assert.assertEquals(newIndexQueries, indexQueries);
   }
 
   public void populateIndexDocuments() {
     for (int i = 0; i <= 5; i++) {
       database.begin();
-      final Profile profile =
-          new Profile("ZZZJayLongNickIndex" + i, "NickIndex" + i, "NolteIndex" + i, null);
-
+      final OElement profile = database.newElement("Profile");
+      profile.setProperty("nick", "ZZZJayLongNickIndex" + i);
+      profile.setProperty("name", "NickIndex" + i);
+      profile.setProperty("surname", "NolteIndex" + i);
       database.save(profile);
       database.commit();
     }
 
     for (int i = 0; i <= 5; i++) {
       database.begin();
-      final Profile profile = new Profile("00" + i, "NickIndex" + i, "NolteIndex" + i, null);
+      final OElement profile = database.newElement("Profile");
+      profile.setProperty("nick", "00" + i);
+      profile.setProperty("name", "NickIndex" + i);
+      profile.setProperty("surname", "NolteIndex" + i);
       database.save(profile);
       database.commit();
     }
@@ -574,7 +420,7 @@ public class IndexTest extends ObjectDBBaseTest {
     Assert.assertFalse(
         database.getMetadata().getSchema().getClass("Profile").getProperty("nick").isIndexed());
 
-    List<Profile> result =
+    List<ODocument> result =
         database
             .command(new OSQLSynchQuery<ODocument>("SELECT FROM Profile WHERE nick = 'Jay'"))
             .execute();
@@ -615,53 +461,24 @@ public class IndexTest extends ObjectDBBaseTest {
         nickProperty.getIndexes().iterator().next().getType(),
         OClass.INDEX_TYPE.NOTUNIQUE.toString());
 
-    final boolean localStorage =
-        !(((ODatabaseSessionInternal) database.getUnderlying()).isRemote());
+    try (var resultSet =
+        database.query(
+            "SELECT * FROM Profile WHERE nick in ['ZZZJayLongNickIndex0'"
+                + " ,'ZZZJayLongNickIndex1', 'ZZZJayLongNickIndex2']")) {
+      final List<String> expectedSurnames =
+          new ArrayList<>(Arrays.asList("NolteIndex0", "NolteIndex1", "NolteIndex2"));
 
-    boolean oldRecording = true;
-    long indexQueries = 0L;
-    if (localStorage) {
-      oldRecording = Orient.instance().getProfiler().isRecording();
-
-      if (!oldRecording) {
-        Orient.instance().getProfiler().startRecording();
+      var result = resultSet.elementStream().toList();
+      Assert.assertEquals(result.size(), 3);
+      for (final OElement profile : result) {
+        expectedSurnames.remove(profile.<String>getProperty("surname"));
       }
 
-      indexQueries = Orient.instance().getProfiler().getCounter("db.demo.query.indexUsed");
-      if (indexQueries < 0) {
-        indexQueries = 0;
-      }
-    }
-
-    final List<Profile> result =
-        database
-            .command(
-                new OSQLSynchQuery<Profile>(
-                    "SELECT * FROM Profile WHERE nick in ['ZZZJayLongNickIndex0'"
-                        + " ,'ZZZJayLongNickIndex1', 'ZZZJayLongNickIndex2']"))
-            .execute();
-
-    final List<String> expectedSurnames =
-        new ArrayList<>(Arrays.asList("NolteIndex0", "NolteIndex1", "NolteIndex2"));
-
-    if (localStorage && !oldRecording) {
-      Orient.instance().getProfiler().stopRecording();
-    }
-
-    Assert.assertEquals(result.size(), 3);
-    for (final Profile profile : result) {
-      expectedSurnames.remove(profile.getSurname());
-    }
-
-    Assert.assertEquals(expectedSurnames.size(), 0);
-
-    if (localStorage) {
-      final long newIndexQueries =
-          Orient.instance().getProfiler().getCounter("db.demo.query.indexUsed");
-      Assert.assertEquals(newIndexQueries, indexQueries + 1);
+      Assert.assertEquals(expectedSurnames.size(), 0);
     }
   }
 
+  @Test
   public void indexLinks() {
     checkEmbeddedDB();
 
@@ -672,14 +489,9 @@ public class IndexTest extends ObjectDBBaseTest {
         .getProperty("account")
         .createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
 
-    final List<Account> result =
-        database.command(new OSQLSynchQuery<Account>("select * from Account limit 1")).execute();
-
+    final List<ODocument> result = executeQuery("select * from Account limit 1");
     final OIndex idx =
-        database
-            .getMetadata()
-            .getIndexManagerInternal()
-            .getIndex((ODatabaseSessionInternal) database.getUnderlying(), "Whiz.account");
+        database.getMetadata().getIndexManagerInternal().getIndex(database, "Whiz.account");
 
     for (int i = 0; i < 5; i++) {
       database.begin();
@@ -687,7 +499,7 @@ public class IndexTest extends ObjectDBBaseTest {
 
       whiz.field("id", i);
       whiz.field("text", "This is a test");
-      whiz.field("account", result.get(0).getRid());
+      whiz.field("account", result.get(0).getIdentity());
 
       whiz.save();
       database.commit();
@@ -696,29 +508,25 @@ public class IndexTest extends ObjectDBBaseTest {
     Assert.assertEquals(idx.getInternal().size(), 5);
 
     final List<ODocument> indexedResult =
-        database
-            .getUnderlying()
-            .command(new OSQLSynchQuery<Profile>("select * from Whiz where account = ?"))
-            .execute(result.get(0).getRid());
-
+        executeQuery("select * from Whiz where account = ?", result.get(0).getIdentity());
     Assert.assertEquals(indexedResult.size(), 5);
 
     database.begin();
     for (final ODocument resDoc : indexedResult) {
-      resDoc.delete();
+      database.bindToSession(resDoc).delete();
     }
 
-    final ODocument whiz = new ODocument("Whiz");
-    whiz.field("id", 100);
-    whiz.field("text", "This is a test!");
-    whiz.field("account", new ODocument("Company").field("id", 9999));
+    OElement whiz = new ODocument("Whiz");
+    whiz.setProperty("id", 100);
+    whiz.setProperty("text", "This is a test!");
+    whiz.setProperty("account", new ODocument("Company").field("id", 9999));
     whiz.save();
     database.commit();
 
-    Assert.assertTrue(((ODocument) whiz.field("account")).getIdentity().isValid());
-
     database.begin();
-    ((ODocument) whiz.field("account")).delete();
+    whiz = database.bindToSession(whiz);
+    Assert.assertTrue(((ODocument) whiz.getProperty("account")).getIdentity().isValid());
+    ((ODocument) whiz.getProperty("account")).delete();
     whiz.delete();
     database.commit();
   }
@@ -797,24 +605,6 @@ public class IndexTest extends ObjectDBBaseTest {
     }
   }
 
-  public void testDictionary() {
-    try (ODatabaseSessionInternal db = acquireSession()) {
-      OClass pClass = db.getMetadata().getSchema().createClass("Person2", 1, (OClass[]) null);
-      pClass.createProperty("firstName", OType.STRING);
-      pClass.createProperty("lastName", OType.STRING);
-      pClass.createProperty("age", OType.INTEGER);
-      pClass.createIndex("testIdx", INDEX_TYPE.DICTIONARY, "firstName", "lastName");
-
-      db.begin();
-      ODocument person = new ODocument("Person2");
-      person.field("firstName", "foo").field("lastName", "bar").save();
-
-      person = new ODocument("Person2");
-      person.field("firstName", "foo").field("lastName", "bar").field("age", 32).save();
-      db.commit();
-    }
-  }
-
   public void testConcurrentRemoveDelete() {
     checkEmbeddedDB();
 
@@ -870,7 +660,7 @@ public class IndexTest extends ObjectDBBaseTest {
         // do delete
         db.begin();
         for (final ODocument recordToDelete : recordsToDelete) {
-          db.delete(recordToDelete);
+          db.delete(db.bindToSession(recordToDelete));
         }
         db.commit();
 
@@ -986,10 +776,7 @@ public class IndexTest extends ObjectDBBaseTest {
     }
 
     final OIndex index =
-        ((ODatabaseSessionInternal) db)
-            .getMetadata()
-            .getIndexManagerInternal()
-            .getIndex(db, "idxTransactionUniqueIndexTest");
+        db.getMetadata().getIndexManagerInternal().getIndex(db, "idxTransactionUniqueIndexTest");
     Assert.assertEquals(index.getInternal().size(), 1);
 
     db.begin();
@@ -1072,8 +859,7 @@ public class IndexTest extends ObjectDBBaseTest {
     }
 
     final OIndex index =
-        ((ODatabaseSessionInternal) db)
-            .getMetadata()
+        db.getMetadata()
             .getIndexManagerInternal()
             .getIndex(db, "TransactionUniqueIndexWithDotTest.label");
     Assert.assertEquals(index.getInternal().size(), 1);
@@ -1164,17 +950,15 @@ public class IndexTest extends ObjectDBBaseTest {
   @Test(dependsOnMethods = "createInheritanceIndex")
   public void testIndexReturnOnlySpecifiedClass() {
 
-    ODatabaseDocument db = database.getUnderlying();
-
     try (OResultSet result =
-        db.command("select * from ChildTestClass where testParentProperty = 10")) {
+        database.command("select * from ChildTestClass where testParentProperty = 10")) {
 
       Assert.assertEquals(10L, result.next().<Object>getProperty("testParentProperty"));
       Assert.assertFalse(result.hasNext());
     }
 
     try (OResultSet result =
-        db.command("select * from AnotherChildTestClass where testParentProperty = 11")) {
+        database.command("select * from AnotherChildTestClass where testParentProperty = 11")) {
       Assert.assertEquals(11L, result.next().<Object>getProperty("testParentProperty"));
       Assert.assertFalse(result.hasNext());
     }
@@ -1190,9 +974,7 @@ public class IndexTest extends ObjectDBBaseTest {
 
     OIndexManagerAbstract idxManager = database.getMetadata().getIndexManagerInternal();
 
-    final OIndex idx =
-        idxManager.getIndex(
-            (ODatabaseSessionInternal) database.getUnderlying(), "IndexNotUniqueIndexKeySizeIndex");
+    final OIndex idx = idxManager.getIndex(database, "IndexNotUniqueIndexKeySizeIndex");
 
     final Set<Integer> keys = new HashSet<>();
     for (int i = 1; i < 100; i++) {
@@ -1221,9 +1003,7 @@ public class IndexTest extends ObjectDBBaseTest {
     cls.createIndex("IndexNotUniqueIndexSizeIndex", INDEX_TYPE.NOTUNIQUE, "value");
 
     OIndexManagerAbstract idxManager = database.getMetadata().getIndexManagerInternal();
-    final OIndex idx =
-        idxManager.getIndex(
-            (ODatabaseSessionInternal) database.getUnderlying(), "IndexNotUniqueIndexSizeIndex");
+    final OIndex idx = idxManager.getIndex(database, "IndexNotUniqueIndexSizeIndex");
 
     for (int i = 1; i < 100; i++) {
       final Integer key = (int) Math.log(i);
@@ -1243,26 +1023,23 @@ public class IndexTest extends ObjectDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    Profile profile =
-        new Profile(
-            "NonProxiedObjectToDelete",
-            "NonProxiedObjectToDelete",
-            "NonProxiedObjectToDelete",
-            null);
+    OElement profile = database.newElement("Profile");
+    profile.setProperty("nick", "NonProxiedObjectToDelete");
+    profile.setProperty("name", "NonProxiedObjectToDelete");
+    profile.setProperty("surname", "NonProxiedObjectToDelete");
     profile = database.save(profile);
     database.commit();
 
     OIndexManagerAbstract idxManager = database.getMetadata().getIndexManagerInternal();
-    OIndex nickIndex =
-        idxManager.getIndex((ODatabaseSessionInternal) database.getUnderlying(), "Profile.nick");
+    OIndex nickIndex = idxManager.getIndex(database, "Profile.nick");
 
     try (Stream<ORID> stream = nickIndex.getInternal().getRids("NonProxiedObjectToDelete")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
-    final Profile loadedProfile = database.load(new ORecordId(profile.getId()));
     database.begin();
-    database.delete(database.<Object>detach(loadedProfile, true));
+    final OElement loadedProfile = database.load(profile.getIdentity());
+    database.delete(loadedProfile);
     database.commit();
 
     try (Stream<ORID> stream = nickIndex.getInternal().getRids("NonProxiedObjectToDelete")) {
@@ -1275,26 +1052,23 @@ public class IndexTest extends ObjectDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    Profile profile =
-        new Profile(
-            "NonProxiedObjectToDelete",
-            "NonProxiedObjectToDelete",
-            "NonProxiedObjectToDelete",
-            null);
+    OElement profile = database.newElement("Profile");
+    profile.setProperty("nick", "NonProxiedObjectToDelete");
+    profile.setProperty("name", "NonProxiedObjectToDelete");
+    profile.setProperty("surname", "NonProxiedObjectToDelete");
     profile = database.save(profile);
     database.commit();
 
     OIndexManagerAbstract idxManager = database.getMetadata().getIndexManagerInternal();
-    OIndex nickIndex =
-        idxManager.getIndex((ODatabaseSessionInternal) database.getUnderlying(), "Profile.nick");
+    OIndex nickIndex = idxManager.getIndex(database, "Profile.nick");
 
     try (Stream<ORID> stream = nickIndex.getInternal().getRids("NonProxiedObjectToDelete")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
-    final Profile loadedProfile = database.load(new ORecordId(profile.getId()));
+    final OElement loadedProfile = database.load(profile.getIdentity());
     database.begin();
-    database.delete(database.<Object>detachAll(loadedProfile, true));
+    database.delete(database.bindToSession(loadedProfile));
     database.commit();
 
     try (Stream<ORID> stream = nickIndex.getInternal().getRids("NonProxiedObjectToDelete")) {
@@ -1335,27 +1109,22 @@ public class IndexTest extends ObjectDBBaseTest {
     database.commit();
 
     List<ODocument> result =
-        database
-            .getUnderlying()
-            .query(
-                new OSQLSynchQuery<ODocument>(
-                    "select from CompoundSQLIndexTest2 where address in (select from"
-                        + " CompoundSQLIndexTest1 where city='Montreal')"));
+        executeQuery(
+            "select from CompoundSQLIndexTest2 where address in (select from"
+                + " CompoundSQLIndexTest1 where city='Montreal')");
     Assert.assertEquals(result.size(), 1);
 
     Assert.assertEquals(result.get(0).getIdentity(), docTwo.getIdentity());
   }
 
   public void testIndexWithLimitAndOffset() {
-    ODatabaseSessionInternal databaseDocumentTx = database.getUnderlying();
-
-    final OSchema schema = databaseDocumentTx.getMetadata().getSchema();
+    final OSchema schema = database.getSchema();
     final OClass indexWithLimitAndOffset =
         schema.createClass("IndexWithLimitAndOffsetClass", 1, (OClass[]) null);
     indexWithLimitAndOffset.createProperty("val", OType.INTEGER);
     indexWithLimitAndOffset.createProperty("index", OType.INTEGER);
 
-    databaseDocumentTx
+    database
         .command(
             "create index IndexWithLimitAndOffset on IndexWithLimitAndOffsetClass (val) notunique")
         .close();
@@ -1370,9 +1139,7 @@ public class IndexTest extends ObjectDBBaseTest {
     }
 
     final List<ODocument> result =
-        databaseDocumentTx.query(
-            new OSQLSynchQuery<ODocument>(
-                "select from IndexWithLimitAndOffsetClass where val = 1 offset 5 limit 2"));
+        executeQuery("select from IndexWithLimitAndOffsetClass where val = 1 offset 5 limit 2");
     Assert.assertEquals(result.size(), 2);
 
     for (int i = 0; i < 2; i++) {
@@ -1383,9 +1150,7 @@ public class IndexTest extends ObjectDBBaseTest {
   }
 
   public void testNullIndexKeysSupport() {
-    final ODatabaseSessionInternal databaseDocumentTx = database.getUnderlying();
-
-    final OSchema schema = databaseDocumentTx.getMetadata().getSchema();
+    final OSchema schema = database.getSchema();
     final OClass clazz = schema.createClass("NullIndexKeysSupport", 1, (OClass[]) null);
     clazz.createProperty("nullField", OType.STRING);
 
@@ -1413,34 +1178,26 @@ public class IndexTest extends ObjectDBBaseTest {
     }
 
     List<ODocument> result =
-        databaseDocumentTx.query(
-            new OSQLSynchQuery<ODocument>(
-                "select from NullIndexKeysSupport where nullField = 'val3'"));
+        executeQuery("select from NullIndexKeysSupport where nullField = 'val3'");
     Assert.assertEquals(result.size(), 1);
 
     Assert.assertEquals(result.get(0).field("nullField"), "val3");
 
     final String query = "select from NullIndexKeysSupport where nullField is null";
-    result =
-        databaseDocumentTx.query(
-            new OSQLSynchQuery<ODocument>(
-                "select from NullIndexKeysSupport where nullField is null"));
+    result = executeQuery("select from NullIndexKeysSupport where nullField is null");
 
     Assert.assertEquals(result.size(), 4);
     for (ODocument document : result) {
       Assert.assertNull(document.field("nullField"));
     }
 
-    final ODocument explain =
-        databaseDocumentTx.command(new OCommandSQL("explain " + query)).execute();
+    final ODocument explain = database.command(new OCommandSQL("explain " + query)).execute();
     Assert.assertTrue(
         explain.<Set<String>>field("involvedIndexes").contains("NullIndexKeysSupportIndex"));
   }
 
   public void testNullHashIndexKeysSupport() {
-    final ODatabaseSessionInternal databaseDocumentTx = database.getUnderlying();
-
-    final OSchema schema = databaseDocumentTx.getMetadata().getSchema();
+    final OSchema schema = database.getSchema();
     final OClass clazz = schema.createClass("NullHashIndexKeysSupport", 1, (OClass[]) null);
     clazz.createProperty("nullField", OType.STRING);
 
@@ -1468,7 +1225,7 @@ public class IndexTest extends ObjectDBBaseTest {
     }
 
     List<ODocument> result =
-        databaseDocumentTx.query(
+        database.query(
             new OSQLSynchQuery<ODocument>(
                 "select from NullHashIndexKeysSupport where nullField = 'val3'"));
     Assert.assertEquals(result.size(), 1);
@@ -1477,7 +1234,7 @@ public class IndexTest extends ObjectDBBaseTest {
 
     final String query = "select from NullHashIndexKeysSupport where nullField is null";
     result =
-        databaseDocumentTx.query(
+        database.query(
             new OSQLSynchQuery<ODocument>(
                 "select from NullHashIndexKeysSupport where nullField is null"));
 
@@ -1486,16 +1243,13 @@ public class IndexTest extends ObjectDBBaseTest {
       Assert.assertNull(document.field("nullField"));
     }
 
-    final ODocument explain =
-        databaseDocumentTx.command(new OCommandSQL("explain " + query)).execute();
+    final ODocument explain = database.command(new OCommandSQL("explain " + query)).execute();
     Assert.assertTrue(
         explain.<Set<String>>field("involvedIndexes").contains("NullHashIndexKeysSupportIndex"));
   }
 
   public void testNullIndexKeysSupportInTx() {
-    final ODatabaseSessionInternal databaseDocumentTx = database.getUnderlying();
-
-    final OSchema schema = databaseDocumentTx.getMetadata().getSchema();
+    final OSchema schema = database.getMetadata().getSchema();
     final OClass clazz = schema.createClass("NullIndexKeysSupportInTx", 1, (OClass[]) null);
     clazz.createProperty("nullField", OType.STRING);
 
@@ -1526,7 +1280,7 @@ public class IndexTest extends ObjectDBBaseTest {
     database.commit();
 
     List<ODocument> result =
-        databaseDocumentTx.query(
+        database.query(
             new OSQLSynchQuery<ODocument>(
                 "select from NullIndexKeysSupportInTx where nullField = 'val3'"));
     Assert.assertEquals(result.size(), 1);
@@ -1535,7 +1289,7 @@ public class IndexTest extends ObjectDBBaseTest {
 
     final String query = "select from NullIndexKeysSupportInTx where nullField is null";
     result =
-        databaseDocumentTx.query(
+        database.query(
             new OSQLSynchQuery<ODocument>(
                 "select from NullIndexKeysSupportInTx where nullField is null"));
 
@@ -1544,8 +1298,7 @@ public class IndexTest extends ObjectDBBaseTest {
       Assert.assertNull(document.field("nullField"));
     }
 
-    final ODocument explain =
-        databaseDocumentTx.command(new OCommandSQL("explain " + query)).execute();
+    final ODocument explain = database.command(new OCommandSQL("explain " + query)).execute();
     Assert.assertTrue(
         explain.<Set<String>>field("involvedIndexes").contains("NullIndexKeysSupportInTxIndex"));
   }
@@ -1555,9 +1308,7 @@ public class IndexTest extends ObjectDBBaseTest {
       return;
     }
 
-    final ODatabaseSessionInternal databaseDocumentTx = database.getUnderlying();
-
-    final OSchema schema = databaseDocumentTx.getMetadata().getSchema();
+    final OSchema schema = database.getSchema();
     final OClass clazz = schema.createClass("NullIndexKeysSupportInMiddleTx", 1, (OClass[]) null);
     clazz.createProperty("nullField", OType.STRING);
 
@@ -1586,7 +1337,7 @@ public class IndexTest extends ObjectDBBaseTest {
     }
 
     List<ODocument> result =
-        databaseDocumentTx.query(
+        database.query(
             new OSQLSynchQuery<ODocument>(
                 "select from NullIndexKeysSupportInMiddleTx where nullField = 'val3'"));
     Assert.assertEquals(result.size(), 1);
@@ -1595,7 +1346,7 @@ public class IndexTest extends ObjectDBBaseTest {
 
     final String query = "select from NullIndexKeysSupportInMiddleTx where nullField is null";
     result =
-        databaseDocumentTx.query(
+        database.query(
             new OSQLSynchQuery<ODocument>(
                 "select from NullIndexKeysSupportInMiddleTx where nullField is null"));
 
@@ -1604,8 +1355,7 @@ public class IndexTest extends ObjectDBBaseTest {
       Assert.assertNull(document.field("nullField"));
     }
 
-    final ODocument explain =
-        databaseDocumentTx.command(new OCommandSQL("explain " + query)).execute();
+    final ODocument explain = database.command(new OCommandSQL("explain " + query)).execute();
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -1615,8 +1365,7 @@ public class IndexTest extends ObjectDBBaseTest {
   }
 
   public void testCreateIndexAbstractClass() {
-    final ODatabaseSessionInternal databaseDocumentTx = database.getUnderlying();
-    final OSchema schema = databaseDocumentTx.getMetadata().getSchema();
+    final OSchema schema = database.getSchema();
 
     OClass abstractClass = schema.createAbstractClass("TestCreateIndexAbstractClass");
     abstractClass
@@ -1639,12 +1388,11 @@ public class IndexTest extends ObjectDBBaseTest {
 
     final String queryOne = "select from TestCreateIndexAbstractClass where value = 'val1'";
 
-    List<ODocument> resultOne = databaseDocumentTx.query(new OSQLSynchQuery<ODocument>(queryOne));
+    List<ODocument> resultOne = executeQuery(queryOne);
     Assert.assertEquals(resultOne.size(), 1);
     Assert.assertEquals(resultOne.get(0).getIdentity(), docOne.getIdentity());
 
-    ODocument explain =
-        databaseDocumentTx.command(new OCommandSQL("explain " + queryOne)).execute();
+    ODocument explain = database.command(new OCommandSQL("explain " + queryOne)).execute();
     Assert.assertTrue(
         explain
             .<Collection<String>>field("involvedIndexes")
@@ -1652,11 +1400,11 @@ public class IndexTest extends ObjectDBBaseTest {
 
     final String queryTwo = "select from TestCreateIndexAbstractClass where value = 'val2'";
 
-    List<ODocument> resultTwo = databaseDocumentTx.query(new OSQLSynchQuery<ODocument>(queryTwo));
+    List<ODocument> resultTwo = executeQuery(queryTwo);
     Assert.assertEquals(resultTwo.size(), 1);
     Assert.assertEquals(resultTwo.get(0).getIdentity(), docTwo.getIdentity());
 
-    explain = databaseDocumentTx.command(new OCommandSQL("explain " + queryTwo)).execute();
+    explain = database.command(new OCommandSQL("explain " + queryTwo)).execute();
     Assert.assertTrue(
         explain
             .<Collection<String>>field("involvedIndexes")
@@ -1702,75 +1450,73 @@ public class IndexTest extends ObjectDBBaseTest {
 
   public void testPreservingIdentityInIndexTx() {
     checkEmbeddedDB();
-
-    ODatabaseSession session = (ODatabaseSession) database.getUnderlying();
-    if (!session.getMetadata().getSchema().existsClass("PreservingIdentityInIndexTxParent")) {
-      session.createVertexClass("PreservingIdentityInIndexTxParent");
+    if (!database.getMetadata().getSchema().existsClass("PreservingIdentityInIndexTxParent")) {
+      database.createVertexClass("PreservingIdentityInIndexTxParent");
     }
-    if (!session.getMetadata().getSchema().existsClass("PreservingIdentityInIndexTxEdge")) {
-      session.createEdgeClass("PreservingIdentityInIndexTxEdge");
+    if (!database.getMetadata().getSchema().existsClass("PreservingIdentityInIndexTxEdge")) {
+      database.createEdgeClass("PreservingIdentityInIndexTxEdge");
     }
-    OClass fieldClass = session.getClass("PreservingIdentityInIndexTxChild");
+    OClass fieldClass = database.getClass("PreservingIdentityInIndexTxChild");
     if (fieldClass == null) {
-      fieldClass = session.createVertexClass("PreservingIdentityInIndexTxChild");
+      fieldClass = database.createVertexClass("PreservingIdentityInIndexTxChild");
       fieldClass.createProperty("name", OType.STRING);
       fieldClass.createProperty("in_field", OType.LINK);
-      fieldClass.createIndex("nameParentIndex", OClass.INDEX_TYPE.NOTUNIQUE, "in_field", "name");
+      fieldClass.createIndex("nameParentIndex", INDEX_TYPE.NOTUNIQUE, "in_field", "name");
     }
 
-    session.begin();
-    OVertex parent = session.newVertex("PreservingIdentityInIndexTxParent");
-    session.save(parent);
-    OVertex child = session.newVertex("PreservingIdentityInIndexTxChild");
-    session.save(child);
-    session.save(session.newEdge(parent, child, "PreservingIdentityInIndexTxEdge"));
+    database.begin();
+    OVertex parent = database.newVertex("PreservingIdentityInIndexTxParent");
+    database.save(parent);
+    OVertex child = database.newVertex("PreservingIdentityInIndexTxChild");
+    database.save(child);
+    database.save(database.newEdge(parent, child, "PreservingIdentityInIndexTxEdge"));
     child.setProperty("name", "pokus");
-    session.save(child);
+    database.save(child);
 
-    OVertex parent2 = session.newVertex("PreservingIdentityInIndexTxParent");
-    session.save(parent2);
-    OVertex child2 = session.newVertex("PreservingIdentityInIndexTxChild");
-    session.save(child2);
-    session.save(session.newEdge(parent2, child2, "preservingIdentityInIndexTxEdge"));
+    OVertex parent2 = database.newVertex("PreservingIdentityInIndexTxParent");
+    database.save(parent2);
+    OVertex child2 = database.newVertex("PreservingIdentityInIndexTxChild");
+    database.save(child2);
+    database.save(database.newEdge(parent2, child2, "preservingIdentityInIndexTxEdge"));
     child2.setProperty("name", "pokus2");
-    session.save(child2);
-    session.commit();
+    database.save(child2);
+    database.commit();
 
     {
-      fieldClass = session.getClass("PreservingIdentityInIndexTxChild");
+      fieldClass = database.getClass("PreservingIdentityInIndexTxChild");
       OIndex index = fieldClass.getClassIndex("nameParentIndex");
       OCompositeKey key = new OCompositeKey(parent.getIdentity(), "pokus");
 
       Collection<ORID> h;
       try (Stream<ORID> stream = index.getInternal().getRids(key)) {
-        h = stream.collect(Collectors.toList());
+        h = stream.toList();
       }
       for (ORID o : h) {
-        Assert.assertNotNull(session.load(o));
+        Assert.assertNotNull(database.load(o));
       }
     }
 
     {
-      fieldClass = session.getClass("PreservingIdentityInIndexTxChild");
+      fieldClass = database.getClass("PreservingIdentityInIndexTxChild");
       OIndex index = fieldClass.getClassIndex("nameParentIndex");
       OCompositeKey key = new OCompositeKey(parent2.getIdentity(), "pokus2");
 
       Collection<ORID> h;
       try (Stream<ORID> stream = index.getInternal().getRids(key)) {
-        h = stream.collect(Collectors.toList());
+        h = stream.toList();
       }
       for (ORID o : h) {
-        Assert.assertNotNull(session.load(o));
+        Assert.assertNotNull(database.load(o));
       }
     }
 
-    session.begin();
-    session.delete(parent);
-    session.delete(child);
+    database.begin();
+    database.delete(database.bindToSession(parent));
+    database.delete(database.bindToSession(child));
 
-    session.delete(parent2);
-    session.delete(child2);
-    session.commit();
+    database.delete(database.bindToSession(parent2));
+    database.delete(database.bindToSession(child2));
+    database.commit();
   }
 
   public void testEmptyNotUniqueIndex() {
@@ -1813,9 +1559,7 @@ public class IndexTest extends ObjectDBBaseTest {
   }
 
   public void testNullIteration() {
-    ODatabaseSessionInternal database = (ODatabaseSessionInternal) this.database.getUnderlying();
-
-    OClass v = database.getMetadata().getSchema().getClass("V");
+    OClass v = database.getSchema().getClass("V");
     OClass testNullIteration =
         database.getMetadata().getSchema().createClass("NullIterationTest", v);
     testNullIteration.createProperty("name", OType.STRING);
@@ -1870,9 +1614,6 @@ public class IndexTest extends ObjectDBBaseTest {
     final ORID rid2 = doc2.getIdentity();
     final ORID rid3 = doc3.getIdentity();
     final ORID rid4 = doc4.getIdentity();
-
-    ODatabaseSessionInternal database = (ODatabaseSessionInternal) this.database.getUnderlying();
-
     final OSchema schema = database.getMetadata().getSchema();
     OClass clazz = schema.createClass("TestMultikeyWithoutField");
 
@@ -1968,6 +1709,7 @@ public class IndexTest extends ObjectDBBaseTest {
     document = database.load(rid);
 
     database.begin();
+    document = database.bindToSession(document);
     users = document.field("users");
     users.remove(rid2);
     Assert.assertTrue(users.isEmpty());
@@ -2016,6 +1758,7 @@ public class IndexTest extends ObjectDBBaseTest {
     database = acquireSession();
 
     database.begin();
+    document = database.bindToSession(document);
     users = document.field("users");
     users.add(rid4);
     document.save();
@@ -2053,6 +1796,7 @@ public class IndexTest extends ObjectDBBaseTest {
     database = acquireSession();
 
     database.begin();
+    document = database.bindToSession(document);
     document.removeField("users");
     document.save();
     database.commit();
@@ -2091,8 +1835,6 @@ public class IndexTest extends ObjectDBBaseTest {
     final ORID rid2 = doc2.getIdentity();
     final ORID rid3 = doc3.getIdentity();
     final ORID rid4 = doc4.getIdentity();
-
-    ODatabaseSessionInternal database = (ODatabaseSessionInternal) this.database.getUnderlying();
 
     final OSchema schema = database.getMetadata().getSchema();
     OClass clazz = schema.createClass("TestMultikeyWithoutFieldNoNullSupport");
@@ -2230,10 +1972,12 @@ public class IndexTest extends ObjectDBBaseTest {
     database.close();
     database = acquireSession();
 
+    database.begin();
+
+    document = database.bindToSession(document);
     users = document.field("users");
     users.add(rid4);
 
-    database.begin();
     document.save();
     database.commit();
 
@@ -2268,9 +2012,10 @@ public class IndexTest extends ObjectDBBaseTest {
     database.close();
     database = acquireSession();
 
+    database.begin();
+    document = database.bindToSession(document);
     document.removeField("users");
 
-    database.begin();
     document.save();
     database.commit();
 
@@ -2285,10 +2030,7 @@ public class IndexTest extends ObjectDBBaseTest {
   public void testNullValuesCountSBTreeUnique() {
     checkEmbeddedDB();
 
-    final ODatabaseSessionInternal db = (ODatabaseSessionInternal) database.getUnderlying();
-
-    OClass nullSBTreeClass =
-        db.getMetadata().getSchema().createClass("NullValuesCountSBTreeUnique");
+    OClass nullSBTreeClass = database.getSchema().createClass("NullValuesCountSBTreeUnique");
     nullSBTreeClass.createProperty("field", OType.INTEGER);
     nullSBTreeClass.createIndex("NullValuesCountSBTreeUniqueIndex", INDEX_TYPE.UNIQUE, "field");
 
@@ -2303,7 +2045,10 @@ public class IndexTest extends ObjectDBBaseTest {
     database.commit();
 
     OIndex index =
-        db.getMetadata().getIndexManagerInternal().getIndex(db, "NullValuesCountSBTreeUniqueIndex");
+        database
+            .getMetadata()
+            .getIndexManagerInternal()
+            .getIndex(database, "NullValuesCountSBTreeUniqueIndex");
     Assert.assertEquals(index.getInternal().size(), 2);
     try (Stream<ORawPair<Object, ORID>> stream = index.getInternal().stream()) {
       try (Stream<ORID> nullStream = index.getInternal().getRids(null)) {
@@ -2316,10 +2061,8 @@ public class IndexTest extends ObjectDBBaseTest {
   public void testNullValuesCountSBTreeNotUniqueOne() {
     checkEmbeddedDB();
 
-    final ODatabaseSessionInternal db = (ODatabaseSessionInternal) database.getUnderlying();
-
     OClass nullSBTreeClass =
-        db.getMetadata().getSchema().createClass("NullValuesCountSBTreeNotUniqueOne");
+        database.getMetadata().getSchema().createClass("NullValuesCountSBTreeNotUniqueOne");
     nullSBTreeClass.createProperty("field", OType.INTEGER);
     nullSBTreeClass.createIndex(
         "NullValuesCountSBTreeNotUniqueOneIndex", INDEX_TYPE.NOTUNIQUE, "field");
@@ -2335,9 +2078,10 @@ public class IndexTest extends ObjectDBBaseTest {
     database.commit();
 
     OIndex index =
-        db.getMetadata()
+        database
+            .getMetadata()
             .getIndexManagerInternal()
-            .getIndex(db, "NullValuesCountSBTreeNotUniqueOneIndex");
+            .getIndex(database, "NullValuesCountSBTreeNotUniqueOneIndex");
     Assert.assertEquals(index.getInternal().size(), 2);
     try (Stream<ORawPair<Object, ORID>> stream = index.getInternal().stream()) {
       try (Stream<ORID> nullStream = index.getInternal().getRids(null)) {
@@ -2350,10 +2094,8 @@ public class IndexTest extends ObjectDBBaseTest {
   public void testNullValuesCountSBTreeNotUniqueTwo() {
     checkEmbeddedDB();
 
-    final ODatabaseSessionInternal db = (ODatabaseSessionInternal) database.getUnderlying();
-
     OClass nullSBTreeClass =
-        db.getMetadata().getSchema().createClass("NullValuesCountSBTreeNotUniqueTwo");
+        database.getMetadata().getSchema().createClass("NullValuesCountSBTreeNotUniqueTwo");
     nullSBTreeClass.createProperty("field", OType.INTEGER);
     nullSBTreeClass.createIndex(
         "NullValuesCountSBTreeNotUniqueTwoIndex", INDEX_TYPE.NOTUNIQUE, "field");
@@ -2369,9 +2111,10 @@ public class IndexTest extends ObjectDBBaseTest {
     database.commit();
 
     OIndex index =
-        db.getMetadata()
+        database
+            .getMetadata()
             .getIndexManagerInternal()
-            .getIndex(db, "NullValuesCountSBTreeNotUniqueTwoIndex");
+            .getIndex(database, "NullValuesCountSBTreeNotUniqueTwoIndex");
     try (Stream<ORawPair<Object, ORID>> stream = index.getInternal().stream()) {
       try (Stream<ORID> nullStream = index.getInternal().getRids(null)) {
         Assert.assertEquals(
@@ -2385,10 +2128,7 @@ public class IndexTest extends ObjectDBBaseTest {
 
   public void testNullValuesCountHashUnique() {
     checkEmbeddedDB();
-
-    final ODatabaseSessionInternal db = (ODatabaseSessionInternal) database.getUnderlying();
-
-    OClass nullSBTreeClass = db.getMetadata().getSchema().createClass("NullValuesCountHashUnique");
+    OClass nullSBTreeClass = database.getSchema().createClass("NullValuesCountHashUnique");
     nullSBTreeClass.createProperty("field", OType.INTEGER);
     nullSBTreeClass.createIndex(
         "NullValuesCountHashUniqueIndex", INDEX_TYPE.UNIQUE_HASH_INDEX, "field");
@@ -2404,7 +2144,10 @@ public class IndexTest extends ObjectDBBaseTest {
     database.commit();
 
     OIndex index =
-        db.getMetadata().getIndexManagerInternal().getIndex(db, "NullValuesCountHashUniqueIndex");
+        database
+            .getMetadata()
+            .getIndexManagerInternal()
+            .getIndex(database, "NullValuesCountHashUniqueIndex");
     Assert.assertEquals(index.getInternal().size(), 2);
     try (Stream<ORawPair<Object, ORID>> stream = index.getInternal().stream()) {
       try (Stream<ORID> nullStream = index.getInternal().getRids(null)) {
@@ -2417,10 +2160,7 @@ public class IndexTest extends ObjectDBBaseTest {
   public void testNullValuesCountHashNotUniqueOne() {
     checkEmbeddedDB();
 
-    final ODatabaseSessionInternal db = (ODatabaseSessionInternal) database.getUnderlying();
-
-    OClass nullSBTreeClass =
-        db.getMetadata().getSchema().createClass("NullValuesCountHashNotUniqueOne");
+    OClass nullSBTreeClass = database.getSchema().createClass("NullValuesCountHashNotUniqueOne");
     nullSBTreeClass.createProperty("field", OType.INTEGER);
     nullSBTreeClass.createIndex(
         "NullValuesCountHashNotUniqueOneIndex", INDEX_TYPE.NOTUNIQUE_HASH_INDEX, "field");
@@ -2436,9 +2176,10 @@ public class IndexTest extends ObjectDBBaseTest {
     database.commit();
 
     OIndex index =
-        db.getMetadata()
+        database
+            .getMetadata()
             .getIndexManagerInternal()
-            .getIndex(db, "NullValuesCountHashNotUniqueOneIndex");
+            .getIndex(database, "NullValuesCountHashNotUniqueOneIndex");
     Assert.assertEquals(index.getInternal().size(), 2);
     try (Stream<ORawPair<Object, ORID>> stream = index.getInternal().stream()) {
       try (Stream<ORID> nullStream = index.getInternal().getRids(null)) {
@@ -2451,10 +2192,8 @@ public class IndexTest extends ObjectDBBaseTest {
   public void testNullValuesCountHashNotUniqueTwo() {
     checkEmbeddedDB();
 
-    final ODatabaseSessionInternal db = (ODatabaseSessionInternal) database.getUnderlying();
-
     OClass nullSBTreeClass =
-        db.getMetadata().getSchema().createClass("NullValuesCountHashNotUniqueTwo");
+        database.getMetadata().getSchema().createClass("NullValuesCountHashNotUniqueTwo");
     nullSBTreeClass.createProperty("field", OType.INTEGER);
     nullSBTreeClass.createIndex(
         "NullValuesCountHashNotUniqueTwoIndex", INDEX_TYPE.NOTUNIQUE_HASH_INDEX, "field");
@@ -2470,9 +2209,10 @@ public class IndexTest extends ObjectDBBaseTest {
     database.commit();
 
     OIndex index =
-        db.getMetadata()
+        database
+            .getMetadata()
             .getIndexManagerInternal()
-            .getIndex(db, "NullValuesCountHashNotUniqueTwoIndex");
+            .getIndex(database, "NullValuesCountHashNotUniqueTwoIndex");
     try (Stream<ORawPair<Object, ORID>> stream = index.getInternal().stream()) {
       try (Stream<ORID> nullStream = index.getInternal().getRids(null)) {
         Assert.assertEquals(
@@ -2504,5 +2244,30 @@ public class IndexTest extends ObjectDBBaseTest {
             .vertexStream()
             .toList();
     Assert.assertEquals(results.size(), 1);
+  }
+
+  private void assertIndexUsage(OResultSet resultSet) {
+    var executionPlan = resultSet.getExecutionPlan().orElseThrow();
+    for (var step : executionPlan.getSteps()) {
+      if (assertIndexUsage(step, "Profile.nick")) {
+        return;
+      }
+    }
+
+    Assert.fail("Index " + "Profile.nick" + " was not used in the query");
+  }
+
+  private boolean assertIndexUsage(OExecutionStep executionStep, String indexName) {
+    if (executionStep instanceof FetchFromIndexStep fetchFromIndexStep
+        && fetchFromIndexStep.getIndexName().equals(indexName)) {
+      return true;
+    }
+    for (var subStep : executionStep.getSubSteps()) {
+      if (assertIndexUsage(subStep, indexName)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }

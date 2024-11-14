@@ -24,7 +24,6 @@ public class TestMultiSuperClasses extends BaseMemoryInternalDatabase {
     bClass.createProperty("propertyDouble", OType.DOUBLE);
     OClass cClass = oSchema.createClass("javaC", aClass, bClass);
     testClassCreationBranch(aClass, bClass, cClass);
-    oSchema.reload();
     testClassCreationBranch(aClass, bClass, cClass);
     oSchema = ((ODatabaseSessionInternal) db).getMetadata().getImmutableSchemaSnapshot();
     aClass = oSchema.getClass("javaA");
@@ -68,19 +67,15 @@ public class TestMultiSuperClasses extends BaseMemoryInternalDatabase {
     OClass bClass = oSchema.createAbstractClass("sqlB");
     OClass cClass = oSchema.createClass("sqlC");
     db.command("alter class sqlC superclasses sqlA, sqlB").close();
-    oSchema.reload();
     assertTrue(cClass.isSubClassOf(aClass));
     assertTrue(cClass.isSubClassOf(bClass));
     db.command("alter class sqlC superclass sqlA").close();
-    oSchema.reload();
     assertTrue(cClass.isSubClassOf(aClass));
     assertFalse(cClass.isSubClassOf(bClass));
     db.command("alter class sqlC superclass +sqlB").close();
-    oSchema.reload();
     assertTrue(cClass.isSubClassOf(aClass));
     assertTrue(cClass.isSubClassOf(bClass));
     db.command("alter class sqlC superclass -sqlA").close();
-    oSchema.reload();
     assertFalse(cClass.isSubClassOf(aClass));
     assertTrue(cClass.isSubClassOf(bClass));
   }
@@ -92,7 +87,7 @@ public class TestMultiSuperClasses extends BaseMemoryInternalDatabase {
     db.command("create class sql2A abstract").close();
     db.command("create class sql2B abstract").close();
     db.command("create class sql2C extends sql2A, sql2B abstract").close();
-    oSchema.reload();
+
     OClass aClass = oSchema.getClass("sql2A");
     OClass bClass = oSchema.getClass("sql2B");
     OClass cClass = oSchema.getClass("sql2C");

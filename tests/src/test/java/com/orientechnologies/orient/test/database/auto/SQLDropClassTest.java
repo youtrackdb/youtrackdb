@@ -31,13 +31,10 @@ public class SQLDropClassTest {
     try {
       Assert.assertFalse(db.getMetadata().getSchema().existsClass("testIfExists"));
       db.command("create class testIfExists if not exists").close();
-      db.getMetadata().getSchema().reload();
       Assert.assertTrue(db.getMetadata().getSchema().existsClass("testIfExists"));
       db.command("drop class testIfExists if exists").close();
-      db.getMetadata().getSchema().reload();
       Assert.assertFalse(db.getMetadata().getSchema().existsClass("testIfExists"));
       db.command("drop class testIfExists if exists").close();
-      db.getMetadata().getSchema().reload();
       Assert.assertFalse(db.getMetadata().getSchema().existsClass("testIfExists"));
 
     } finally {

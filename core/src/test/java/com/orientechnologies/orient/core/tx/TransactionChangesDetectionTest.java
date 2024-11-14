@@ -1,19 +1,25 @@
 package com.orientechnologies.orient.core.tx;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by tglman on 02/01/17. */
+/**
+ * Created by tglman on 02/01/17.
+ */
 public class TransactionChangesDetectionTest {
+
   private OrientDB factory;
-  private ODatabaseDocument database;
+  private ODatabaseSessionInternal database;
 
   @Before
   public void before() {
@@ -23,10 +29,11 @@ public class TransactionChangesDetectionTest {
             "embedded:",
             OCreateDatabaseUtil.TYPE_MEMORY);
     database =
-        factory.open(
-            TransactionChangesDetectionTest.class.getSimpleName(),
-            "admin",
-            OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+        (ODatabaseSessionInternal)
+            factory.open(
+                TransactionChangesDetectionTest.class.getSimpleName(),
+                "admin",
+                OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     database.createClass("test");
   }
 

@@ -1423,7 +1423,7 @@ public class OSecurityShared implements OSecurityInternal {
         }
       }
     }
-    Set<String> props = document.getPropertyNamesWithoutFiltration();
+    Set<String> props = document.getPropertyNamesInternal();
     Set<String> result = new HashSet<>();
 
     for (String prop : props) {
@@ -1664,7 +1664,7 @@ public class OSecurityShared implements OSecurityInternal {
   public static OResultInternal calculateBefore(ODocument iDocument, ODatabaseSession db) {
     // iDocument = db.load(iDocument.getIdentity(), null, true);
     OResultInternal result = new OResultInternal();
-    for (String prop : iDocument.getPropertyNamesWithoutFiltration()) {
+    for (String prop : iDocument.getPropertyNamesInternal()) {
       result.setProperty(prop, unboxRidbags(iDocument.getProperty(prop)));
     }
     result.setProperty("@rid", iDocument.getIdentity());

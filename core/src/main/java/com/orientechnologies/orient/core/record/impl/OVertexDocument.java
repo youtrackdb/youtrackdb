@@ -41,7 +41,7 @@ public class OVertexDocument extends ODocument implements OVertexInternal {
 
     OVertexInternal.checkPropertyName(fieldName);
 
-    return getPropertyWithoutValidation(fieldName);
+    return getPropertyInternal(fieldName);
   }
 
   @Nullable
@@ -60,7 +60,7 @@ public class OVertexDocument extends ODocument implements OVertexInternal {
 
     OVertexInternal.checkPropertyName(fieldName);
 
-    setPropertyWithoutValidation(fieldName, propertyValue);
+    setPropertyInternal(fieldName, propertyValue);
   }
 
   @Override
@@ -77,7 +77,7 @@ public class OVertexDocument extends ODocument implements OVertexInternal {
     checkForBinding();
     OVertexInternal.checkPropertyName(fieldName);
 
-    return removePropertyWithoutValidation(fieldName);
+    return removePropertyInternal(fieldName);
   }
 
   @Override
@@ -87,11 +87,10 @@ public class OVertexDocument extends ODocument implements OVertexInternal {
   }
 
   @Override
-  public OVertexDocument delete() {
+  public void delete() {
     checkForBinding();
 
     super.delete();
-    return this;
   }
 
   @Override

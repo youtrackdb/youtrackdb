@@ -53,7 +53,6 @@ public class SQLDropPropertyIndexTest extends DocumentDBBaseTest {
   @AfterMethod
   public void afterMethod() throws Exception {
     database.command("drop class DropPropertyIndexTestClass").close();
-    database.getMetadata().getSchema().reload();
 
     super.afterMethod();
   }

@@ -370,16 +370,16 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
     final List<ODocument> inds = new ArrayList<>(indexDefinitions.size());
     final List<String> indClasses = new ArrayList<>(indexDefinitions.size());
 
-    document.setPropertyWithoutValidation("className", className);
+    document.setPropertyInternal("className", className);
     for (final OIndexDefinition indexDefinition : indexDefinitions) {
       final ODocument indexDocument = indexDefinition.toStream(new ODocument());
       inds.add(indexDocument);
 
       indClasses.add(indexDefinition.getClass().getName());
     }
-    document.setPropertyWithoutValidation("indexDefinitions", inds, OType.EMBEDDEDLIST);
-    document.setPropertyWithoutValidation("indClasses", indClasses, OType.EMBEDDEDLIST);
-    document.setPropertyWithoutValidation("nullValuesIgnored", isNullValuesIgnored());
+    document.setPropertyInternal("indexDefinitions", inds, OType.EMBEDDEDLIST);
+    document.setPropertyInternal("indClasses", indClasses, OType.EMBEDDEDLIST);
+    document.setPropertyInternal("nullValuesIgnored", isNullValuesIgnored());
   }
 
   /** {@inheritDoc} */

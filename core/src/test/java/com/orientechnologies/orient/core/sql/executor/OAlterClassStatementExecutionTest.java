@@ -18,7 +18,6 @@ public class OAlterClassStatementExecutionTest extends BaseMemoryDatabase {
     OSchema schema = db.getMetadata().getSchema();
     schema.createClass(className);
     OResultSet result = db.command("alter class " + className + " name " + className + "_new");
-    schema.reload();
     Assert.assertNull(schema.getClass(className));
     Assert.assertNotNull(schema.getClass(className + "_new"));
     result.close();
@@ -28,7 +27,6 @@ public class OAlterClassStatementExecutionTest extends BaseMemoryDatabase {
   public void testName2() {
     String className = "testName2";
     OSchema schema = db.getMetadata().getSchema();
-    schema.reload();
     OClass e = schema.getClass("E");
     if (e == null) {
       schema.createClass("E");
@@ -42,7 +40,6 @@ public class OAlterClassStatementExecutionTest extends BaseMemoryDatabase {
     } catch (Exception ex) {
       Assert.fail();
     }
-    schema.reload();
     Assert.assertNotNull(schema.getClass(className));
     Assert.assertNull(schema.getClass(className + "_new"));
   }
@@ -53,7 +50,6 @@ public class OAlterClassStatementExecutionTest extends BaseMemoryDatabase {
     OSchema schema = db.getMetadata().getSchema();
     schema.createClass(className);
     OResultSet result = db.command("alter class " + className + " shortname " + className + "_new");
-    schema.reload();
     OClass clazz = schema.getClass(className);
     Assert.assertEquals(className + "_new", clazz.getShortName());
     result.close();
@@ -66,7 +62,6 @@ public class OAlterClassStatementExecutionTest extends BaseMemoryDatabase {
     schema.createClass(className);
     OResultSet result =
         db.command("alter class " + className + " addcluster " + className + "_new");
-    schema.reload();
     OClass clazz = schema.getClass(className);
     boolean found = false;
     for (int i : clazz.getClusterIds()) {
@@ -86,7 +81,6 @@ public class OAlterClassStatementExecutionTest extends BaseMemoryDatabase {
     schema.createClass(className);
     OResultSet result =
         db.command("alter class " + className + " addcluster " + className + "_new");
-    schema.reload();
     OClass clazz = schema.getClass(className);
     boolean found = false;
     for (int i : clazz.getClusterIds()) {
@@ -99,7 +93,6 @@ public class OAlterClassStatementExecutionTest extends BaseMemoryDatabase {
     Assert.assertTrue(found);
 
     result = db.command("alter class " + className + " removecluster " + className + "_new");
-    schema.reload();
     clazz = schema.getClass(className);
     found = false;
     for (int i : clazz.getClusterIds()) {
@@ -120,7 +113,6 @@ public class OAlterClassStatementExecutionTest extends BaseMemoryDatabase {
     schema.createClass(className);
     OClass superclass = schema.createClass(superclassName);
     OResultSet result = db.command("alter class " + className + " superclass " + superclassName);
-    schema.reload();
     Assert.assertTrue(schema.getClass(className).getSuperClasses().contains(superclass));
     result.close();
   }
@@ -142,7 +134,6 @@ public class OAlterClassStatementExecutionTest extends BaseMemoryDatabase {
                 + superclassName
                 + ", "
                 + superclassName2);
-    schema.reload();
     Assert.assertTrue(schema.getClass(className).getSuperClasses().contains(superclass));
     Assert.assertTrue(schema.getClass(className).getSuperClasses().contains(superclass2));
     result.close();
@@ -154,7 +145,6 @@ public class OAlterClassStatementExecutionTest extends BaseMemoryDatabase {
     OSchema schema = db.getMetadata().getSchema();
     schema.createClass(className);
     OResultSet result = db.command("alter class " + className + " oversize 10");
-    schema.reload();
     OClass clazz = schema.getClass(className);
     Assert.assertEquals((Object) 10.0f, clazz.getOverSize());
     result.close();
@@ -166,7 +156,6 @@ public class OAlterClassStatementExecutionTest extends BaseMemoryDatabase {
     OSchema schema = db.getMetadata().getSchema();
     schema.createClass(className);
     OResultSet result = db.command("alter class " + className + " strictmode true");
-    schema.reload();
     OClass clazz = schema.getClass(className);
     Assert.assertTrue(clazz.isStrictMode());
     result.close();
@@ -178,7 +167,6 @@ public class OAlterClassStatementExecutionTest extends BaseMemoryDatabase {
     OSchema schema = db.getMetadata().getSchema();
     schema.createClass(className);
     OResultSet result = db.command("alter class " + className + " custom foo = 'bar'");
-    schema.reload();
     OClass clazz = schema.getClass(className);
     Assert.assertEquals("bar", clazz.getCustom("foo"));
     result.close();
@@ -190,7 +178,6 @@ public class OAlterClassStatementExecutionTest extends BaseMemoryDatabase {
     OSchema schema = db.getMetadata().getSchema();
     schema.createClass(className);
     OResultSet result = db.command("alter class " + className + " custom foo = ?", "bar");
-    schema.reload();
     OClass clazz = schema.getClass(className);
     Assert.assertEquals("bar", clazz.getCustom("foo"));
     result.close();
@@ -202,7 +189,6 @@ public class OAlterClassStatementExecutionTest extends BaseMemoryDatabase {
     OSchema schema = db.getMetadata().getSchema();
     schema.createClass(className);
     OResultSet result = db.command("alter class " + className + " abstract true");
-    schema.reload();
     OClass clazz = schema.getClass(className);
     Assert.assertTrue(clazz.isAbstract());
     result.close();
@@ -225,7 +211,6 @@ public class OAlterClassStatementExecutionTest extends BaseMemoryDatabase {
     }
     OResultSet result =
         db.command("alter class " + className + " name " + className + "_new unsafe");
-    schema.reload();
     Assert.assertNull(schema.getClass(className));
     Assert.assertNotNull(schema.getClass(className + "_new"));
     result.close();
@@ -254,7 +239,6 @@ public class OAlterClassStatementExecutionTest extends BaseMemoryDatabase {
     } catch (OCommandExecutionException ex) {
     }
 
-    schema.reload();
     Assert.assertEquals(firstNonDefault, schema.getClass(className).getDefaultClusterId());
   }
 }
