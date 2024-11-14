@@ -30,7 +30,6 @@ import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordLazyList;
-import com.orientechnologies.orient.core.db.record.ORecordLazyMultiValue;
 import com.orientechnologies.orient.core.db.record.ORecordLazySet;
 import com.orientechnologies.orient.core.db.record.OTrackedList;
 import com.orientechnologies.orient.core.db.record.OTrackedSet;
@@ -429,10 +428,6 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
 
                   if (v != null) {
                     if (v instanceof Collection<?> && !((Collection<?>) v).isEmpty()) {
-                      if (v instanceof ORecordLazyMultiValue) {
-                        ((ORecordLazyMultiValue) v).setAutoConvertToRecord(false);
-                      }
-
                       // CHECK IF THE COLLECTION IS EMBEDDED
                       if (type == null) {
                         // TRY TO UNDERSTAND BY FIRST ITEM

@@ -134,6 +134,11 @@ public class OEdgeIterator extends OLazyWrapperIterator<OEdge> {
     return edge;
   }
 
+  @Override
+  public OEdge next() {
+    return createGraphElement(super.next());
+  }
+
   public boolean filter(final OEdge iObject) {
     if (targetVertex != null
         && !targetVertex.equals(iObject.getVertex(connection.getKey().opposite()))) {

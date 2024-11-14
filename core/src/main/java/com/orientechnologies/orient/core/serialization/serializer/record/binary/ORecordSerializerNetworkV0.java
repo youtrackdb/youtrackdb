@@ -30,7 +30,6 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.db.record.ORecordLazyList;
 import com.orientechnologies.orient.core.db.record.ORecordLazyMap;
-import com.orientechnologies.orient.core.db.record.ORecordLazyMultiValue;
 import com.orientechnologies.orient.core.db.record.ORecordLazySet;
 import com.orientechnologies.orient.core.db.record.OTrackedList;
 import com.orientechnologies.orient.core.db.record.OTrackedMap;
@@ -617,30 +616,17 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
   }
 
   private int writeLinkMap(final BytesContainer bytes, final Map<Object, OIdentifiable> map) {
-    final boolean disabledAutoConversion =
-        map instanceof ORecordLazyMultiValue
-            && ((ORecordLazyMultiValue) map).isAutoConvertToRecord();
-
-    if (disabledAutoConversion)
-      // AVOID TO FETCH RECORD
-      ((ORecordLazyMultiValue) map).setAutoConvertToRecord(false);
-
-    try {
-      final int fullPos = OVarIntSerializer.write(bytes, map.size());
-      for (Entry<Object, OIdentifiable> entry : map.entrySet()) {
-        // TODO:check skip of complex types
-        // FIXME: changed to support only string key on map
-        final OType type = OType.STRING;
-        writeOType(bytes, bytes.alloc(1), type);
-        writeString(bytes, entry.getKey().toString());
-        if (entry.getValue() == null) writeNullLink(bytes);
-        else writeOptimizedLink(bytes, entry.getValue());
-      }
-      return fullPos;
-
-    } finally {
-      if (disabledAutoConversion) ((ORecordLazyMultiValue) map).setAutoConvertToRecord(true);
+    final int fullPos = OVarIntSerializer.write(bytes, map.size());
+    for (Entry<Object, OIdentifiable> entry : map.entrySet()) {
+      // TODO:check skip of complex types
+      // FIXME: changed to support only string key on map
+      final OType type = OType.STRING;
+      writeOType(bytes, bytes.alloc(1), type);
+      writeString(bytes, entry.getKey().toString());
+      if (entry.getValue() == null) writeNullLink(bytes);
+      else writeOptimizedLink(bytes, entry.getValue());
     }
+    return fullPos;
   }
 
   @SuppressWarnings("unchecked")
@@ -702,24 +688,10 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
   private int writeLinkCollection(
       final BytesContainer bytes, final Collection<OIdentifiable> value) {
     final int pos = OVarIntSerializer.write(bytes, value.size());
-
-    final boolean disabledAutoConversion =
-        value instanceof ORecordLazyMultiValue
-            && ((ORecordLazyMultiValue) value).isAutoConvertToRecord();
-
-    if (disabledAutoConversion)
-      // AVOID TO FETCH RECORD
-      ((ORecordLazyMultiValue) value).setAutoConvertToRecord(false);
-
-    try {
-      for (OIdentifiable itemValue : value) {
-        // TODO: handle the null links
-        if (itemValue == null) writeNullLink(bytes);
-        else writeOptimizedLink(bytes, itemValue);
-      }
-
-    } finally {
-      if (disabledAutoConversion) ((ORecordLazyMultiValue) value).setAutoConvertToRecord(true);
+    for (OIdentifiable itemValue : value) {
+      // TODO: handle the null links
+      if (itemValue == null) writeNullLink(bytes);
+      else writeOptimizedLink(bytes, itemValue);
     }
 
     return pos;

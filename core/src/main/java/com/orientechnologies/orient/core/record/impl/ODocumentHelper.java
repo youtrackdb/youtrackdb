@@ -188,7 +188,7 @@ public class ODocumentHelper {
           }
         } else if (OMultiValue.isMultiValue(iValue)) {
           // GENERIC MULTI VALUE
-          for (Object s : OMultiValue.getMultiValueIterable(iValue, false)) {
+          for (Object s : OMultiValue.getMultiValueIterable(iValue)) {
             ((Collection<Object>) newValue).add(s);
           }
         }
@@ -339,7 +339,7 @@ public class ODocumentHelper {
             value = getMapEntry((Map<String, ?>) value, fieldName);
           } else if (OMultiValue.isMultiValue(value)) {
             final HashSet<Object> temp = new LinkedHashSet<Object>();
-            for (Object o : OMultiValue.getMultiValueIterable(value, false)) {
+            for (Object o : OMultiValue.getMultiValueIterable(value)) {
               if (o instanceof OIdentifiable) {
                 Object r = getFieldValue(o, iFieldName);
                 if (r != null) {
@@ -653,7 +653,7 @@ public class ODocumentHelper {
             value = getMapEntry((Map<String, ?>) value, fieldName);
           } else if (OMultiValue.isMultiValue(value)) {
             final Set<Object> values = new LinkedHashSet<Object>();
-            for (Object v : OMultiValue.getMultiValueIterable(value, false)) {
+            for (Object v : OMultiValue.getMultiValueIterable(value)) {
               final Object item;
 
               if (v instanceof OIdentifiable) {
@@ -939,12 +939,12 @@ public class ODocumentHelper {
     } else if (function.startsWith("ASSTRING(")) {
       result = currentValue.toString();
     } else if (function.startsWith("ASINTEGER(")) {
-      result = new Integer(currentValue.toString());
+      result = Integer.parseInt(currentValue.toString());
     } else if (function.startsWith("ASFLOAT(")) {
-      result = new Float(currentValue.toString());
+      result = Float.parseFloat(currentValue.toString());
     } else if (function.startsWith("ASBOOLEAN(")) {
       if (currentValue instanceof String) {
-        result = new Boolean((String) currentValue);
+        result = Boolean.parseBoolean((String) currentValue);
       } else if (currentValue instanceof Number) {
         final int bValue = ((Number) currentValue).intValue();
         if (bValue == 0) {
@@ -1308,115 +1308,95 @@ public class ODocumentHelper {
     boolean oldMyAutoConvert = false;
     boolean oldOtherAutoConvert = false;
 
-    if (myMap instanceof ORecordLazyMultiValue) {
-      oldMyAutoConvert = ((ORecordLazyMultiValue) myMap).isAutoConvertToRecord();
-      ((ORecordLazyMultiValue) myMap).setAutoConvertToRecord(false);
-    }
+    final Iterator<Entry<Object, Object>> myEntryIterator =
+        makeDbCall(
+            iMyDb,
+            new ODbRelatedCall<Iterator<Entry<Object, Object>>>() {
+              public Iterator<Entry<Object, Object>> call(ODatabaseSessionInternal database) {
+                return myMap.entrySet().iterator();
+              }
+            });
 
-    if (otherMap instanceof ORecordLazyMultiValue) {
-      oldOtherAutoConvert = ((ORecordLazyMultiValue) otherMap).isAutoConvertToRecord();
-      ((ORecordLazyMultiValue) otherMap).setAutoConvertToRecord(false);
-    }
-
-    try {
-      final Iterator<Entry<Object, Object>> myEntryIterator =
+    while (makeDbCall(
+        iMyDb,
+        new ODbRelatedCall<Boolean>() {
+          public Boolean call(ODatabaseSessionInternal database) {
+            return myEntryIterator.hasNext();
+          }
+        })) {
+      final Entry<Object, Object> myEntry =
           makeDbCall(
               iMyDb,
-              new ODbRelatedCall<Iterator<Entry<Object, Object>>>() {
-                public Iterator<Entry<Object, Object>> call(ODatabaseSessionInternal database) {
-                  return myMap.entrySet().iterator();
+              new ODbRelatedCall<Entry<Object, Object>>() {
+                public Entry<Object, Object> call(ODatabaseSessionInternal database) {
+                  return myEntryIterator.next();
+                }
+              });
+      final Object myKey =
+          makeDbCall(
+              iMyDb,
+              new ODbRelatedCall<Object>() {
+                public Object call(ODatabaseSessionInternal database) {
+                  return myEntry.getKey();
                 }
               });
 
-      while (makeDbCall(
-          iMyDb,
+      if (makeDbCall(
+          iOtherDb,
           new ODbRelatedCall<Boolean>() {
             public Boolean call(ODatabaseSessionInternal database) {
-              return myEntryIterator.hasNext();
+              return !otherMap.containsKey(myKey);
             }
           })) {
-        final Entry<Object, Object> myEntry =
+        return false;
+      }
+
+      if (myEntry.getValue() instanceof ODocument) {
+        if (!hasSameContentOf(
             makeDbCall(
                 iMyDb,
-                new ODbRelatedCall<Entry<Object, Object>>() {
-                  public Entry<Object, Object> call(ODatabaseSessionInternal database) {
-                    return myEntryIterator.next();
+                new ODbRelatedCall<ODocument>() {
+                  public ODocument call(ODatabaseSessionInternal database) {
+                    return (ODocument) myEntry.getValue();
                   }
-                });
-        final Object myKey =
+                }),
+            iMyDb,
+            makeDbCall(
+                iOtherDb,
+                new ODbRelatedCall<ODocument>() {
+                  public ODocument call(ODatabaseSessionInternal database) {
+                    return ((OIdentifiable) otherMap.get(myEntry.getKey())).getRecord();
+                  }
+                }),
+            iOtherDb,
+            ridMapper)) {
+          return false;
+        }
+      } else {
+        final Object myValue =
             makeDbCall(
                 iMyDb,
                 new ODbRelatedCall<Object>() {
                   public Object call(ODatabaseSessionInternal database) {
-                    return myEntry.getKey();
+                    return myEntry.getValue();
                   }
                 });
 
-        if (makeDbCall(
-            iOtherDb,
-            new ODbRelatedCall<Boolean>() {
-              public Boolean call(ODatabaseSessionInternal database) {
-                return !otherMap.containsKey(myKey);
-              }
-            })) {
+        final Object otherValue =
+            makeDbCall(
+                iOtherDb,
+                new ODbRelatedCall<Object>() {
+                  public Object call(ODatabaseSessionInternal database) {
+                    return otherMap.get(myEntry.getKey());
+                  }
+                });
+
+        if (!compareScalarValues(myValue, iMyDb, otherValue, iOtherDb, ridMapper)) {
           return false;
         }
-
-        if (myEntry.getValue() instanceof ODocument) {
-          if (!hasSameContentOf(
-              makeDbCall(
-                  iMyDb,
-                  new ODbRelatedCall<ODocument>() {
-                    public ODocument call(ODatabaseSessionInternal database) {
-                      return (ODocument) myEntry.getValue();
-                    }
-                  }),
-              iMyDb,
-              makeDbCall(
-                  iOtherDb,
-                  new ODbRelatedCall<ODocument>() {
-                    public ODocument call(ODatabaseSessionInternal database) {
-                      return ((OIdentifiable) otherMap.get(myEntry.getKey())).getRecord();
-                    }
-                  }),
-              iOtherDb,
-              ridMapper)) {
-            return false;
-          }
-        } else {
-          final Object myValue =
-              makeDbCall(
-                  iMyDb,
-                  new ODbRelatedCall<Object>() {
-                    public Object call(ODatabaseSessionInternal database) {
-                      return myEntry.getValue();
-                    }
-                  });
-
-          final Object otherValue =
-              makeDbCall(
-                  iOtherDb,
-                  new ODbRelatedCall<Object>() {
-                    public Object call(ODatabaseSessionInternal database) {
-                      return otherMap.get(myEntry.getKey());
-                    }
-                  });
-
-          if (!compareScalarValues(myValue, iMyDb, otherValue, iOtherDb, ridMapper)) {
-            return false;
-          }
-        }
-      }
-      return true;
-    } finally {
-      if (myMap instanceof ORecordLazyMultiValue) {
-        ((ORecordLazyMultiValue) myMap).setAutoConvertToRecord(oldMyAutoConvert);
-      }
-
-      if (otherMap instanceof ORecordLazyMultiValue) {
-        ((ORecordLazyMultiValue) otherMap).setAutoConvertToRecord(oldOtherAutoConvert);
       }
     }
+    return true;
   }
 
   public static boolean compareCollections(
@@ -1432,77 +1412,54 @@ public class ODocumentHelper {
       return false;
     }
 
-    boolean oldMyAutoConvert = false;
-    boolean oldOtherAutoConvert = false;
+    final Iterator<?> myIterator =
+        makeDbCall(
+            iMyDb,
+            new ODbRelatedCall<Iterator<?>>() {
+              public Iterator<?> call(ODatabaseSessionInternal database) {
+                return myCollection.iterator();
+              }
+            });
 
-    if (myCollection instanceof ORecordLazyMultiValue) {
-      oldMyAutoConvert = ((ORecordLazyMultiValue) myCollection).isAutoConvertToRecord();
-      ((ORecordLazyMultiValue) myCollection).setAutoConvertToRecord(false);
-    }
+    final Iterator<?> otherIterator =
+        makeDbCall(
+            iOtherDb,
+            new ODbRelatedCall<Iterator<?>>() {
+              public Iterator<?> call(ODatabaseSessionInternal database) {
+                return otherCollection.iterator();
+              }
+            });
 
-    if (otherCollection instanceof ORecordLazyMultiValue) {
-      oldOtherAutoConvert = ((ORecordLazyMultiValue) otherCollection).isAutoConvertToRecord();
-      ((ORecordLazyMultiValue) otherCollection).setAutoConvertToRecord(false);
-    }
-
-    try {
-      final Iterator<?> myIterator =
+    while (makeDbCall(
+        iMyDb,
+        new ODbRelatedCall<Boolean>() {
+          public Boolean call(ODatabaseSessionInternal database) {
+            return myIterator.hasNext();
+          }
+        })) {
+      final Object myNextVal =
           makeDbCall(
               iMyDb,
-              new ODbRelatedCall<Iterator<?>>() {
-                public Iterator<?> call(ODatabaseSessionInternal database) {
-                  return myCollection.iterator();
+              new ODbRelatedCall<Object>() {
+                public Object call(ODatabaseSessionInternal database) {
+                  return myIterator.next();
                 }
               });
 
-      final Iterator<?> otherIterator =
+      final Object otherNextVal =
           makeDbCall(
               iOtherDb,
-              new ODbRelatedCall<Iterator<?>>() {
-                public Iterator<?> call(ODatabaseSessionInternal database) {
-                  return otherCollection.iterator();
+              new ODbRelatedCall<Object>() {
+                public Object call(ODatabaseSessionInternal database) {
+                  return otherIterator.next();
                 }
               });
 
-      while (makeDbCall(
-          iMyDb,
-          new ODbRelatedCall<Boolean>() {
-            public Boolean call(ODatabaseSessionInternal database) {
-              return myIterator.hasNext();
-            }
-          })) {
-        final Object myNextVal =
-            makeDbCall(
-                iMyDb,
-                new ODbRelatedCall<Object>() {
-                  public Object call(ODatabaseSessionInternal database) {
-                    return myIterator.next();
-                  }
-                });
-
-        final Object otherNextVal =
-            makeDbCall(
-                iOtherDb,
-                new ODbRelatedCall<Object>() {
-                  public Object call(ODatabaseSessionInternal database) {
-                    return otherIterator.next();
-                  }
-                });
-
-        if (!hasSameContentItem(myNextVal, iMyDb, otherNextVal, iOtherDb, ridMapper)) {
-          return false;
-        }
-      }
-      return true;
-    } finally {
-      if (myCollection instanceof ORecordLazyMultiValue) {
-        ((ORecordLazyMultiValue) myCollection).setAutoConvertToRecord(oldMyAutoConvert);
-      }
-
-      if (otherCollection instanceof ORecordLazyMultiValue) {
-        ((ORecordLazyMultiValue) otherCollection).setAutoConvertToRecord(oldOtherAutoConvert);
+      if (!hasSameContentItem(myNextVal, iMyDb, otherNextVal, iOtherDb, ridMapper)) {
+        return false;
       }
     }
+    return true;
   }
 
   public static boolean compareSets(
@@ -1536,90 +1493,67 @@ public class ODocumentHelper {
       return false;
     }
 
-    boolean oldMyAutoConvert = false;
-    boolean oldOtherAutoConvert = false;
+    final Iterator<?> myIterator =
+        makeDbCall(
+            iMyDb,
+            new ODbRelatedCall<Iterator<?>>() {
+              public Iterator<?> call(ODatabaseSessionInternal database) {
+                return mySet.iterator();
+              }
+            });
 
-    if (mySet instanceof ORecordLazyMultiValue) {
-      oldMyAutoConvert = ((ORecordLazyMultiValue) mySet).isAutoConvertToRecord();
-      ((ORecordLazyMultiValue) mySet).setAutoConvertToRecord(false);
-    }
+    while (makeDbCall(
+        iMyDb,
+        new ODbRelatedCall<Boolean>() {
+          public Boolean call(ODatabaseSessionInternal database) {
+            return myIterator.hasNext();
+          }
+        })) {
 
-    if (otherSet instanceof ORecordLazyMultiValue) {
-      oldOtherAutoConvert = ((ORecordLazyMultiValue) otherSet).isAutoConvertToRecord();
-      ((ORecordLazyMultiValue) otherSet).setAutoConvertToRecord(false);
-    }
-
-    try {
-      final Iterator<?> myIterator =
+      final Iterator<?> otherIterator =
           makeDbCall(
-              iMyDb,
+              iOtherDb,
               new ODbRelatedCall<Iterator<?>>() {
                 public Iterator<?> call(ODatabaseSessionInternal database) {
-                  return mySet.iterator();
+                  return otherSet.iterator();
                 }
               });
 
-      while (makeDbCall(
-          iMyDb,
-          new ODbRelatedCall<Boolean>() {
-            public Boolean call(ODatabaseSessionInternal database) {
-              return myIterator.hasNext();
-            }
-          })) {
+      final Object myNextVal =
+          makeDbCall(
+              iMyDb,
+              new ODbRelatedCall<Object>() {
+                public Object call(ODatabaseSessionInternal database) {
+                  return myIterator.next();
+                }
+              });
 
-        final Iterator<?> otherIterator =
+      boolean found = false;
+      while (!found
+          && makeDbCall(
+              iOtherDb,
+              new ODbRelatedCall<Boolean>() {
+                public Boolean call(ODatabaseSessionInternal database) {
+                  return otherIterator.hasNext();
+                }
+              })) {
+        final Object otherNextVal =
             makeDbCall(
                 iOtherDb,
-                new ODbRelatedCall<Iterator<?>>() {
-                  public Iterator<?> call(ODatabaseSessionInternal database) {
-                    return otherSet.iterator();
-                  }
-                });
-
-        final Object myNextVal =
-            makeDbCall(
-                iMyDb,
                 new ODbRelatedCall<Object>() {
                   public Object call(ODatabaseSessionInternal database) {
-                    return myIterator.next();
+                    return otherIterator.next();
                   }
                 });
 
-        boolean found = false;
-        while (!found
-            && makeDbCall(
-                iOtherDb,
-                new ODbRelatedCall<Boolean>() {
-                  public Boolean call(ODatabaseSessionInternal database) {
-                    return otherIterator.hasNext();
-                  }
-                })) {
-          final Object otherNextVal =
-              makeDbCall(
-                  iOtherDb,
-                  new ODbRelatedCall<Object>() {
-                    public Object call(ODatabaseSessionInternal database) {
-                      return otherIterator.next();
-                    }
-                  });
-
-          found = hasSameContentItem(myNextVal, iMyDb, otherNextVal, iOtherDb, ridMapper);
-        }
-
-        if (!found) {
-          return false;
-        }
-      }
-      return true;
-    } finally {
-      if (mySet instanceof ORecordLazyMultiValue) {
-        ((ORecordLazyMultiValue) mySet).setAutoConvertToRecord(oldMyAutoConvert);
+        found = hasSameContentItem(myNextVal, iMyDb, otherNextVal, iOtherDb, ridMapper);
       }
 
-      if (otherSet instanceof ORecordLazyMultiValue) {
-        ((ORecordLazyMultiValue) otherSet).setAutoConvertToRecord(oldOtherAutoConvert);
+      if (!found) {
+        return false;
       }
     }
+    return true;
   }
 
   public static boolean compareBags(
@@ -1656,12 +1590,6 @@ public class ODocumentHelper {
         return false;
       }
 
-      final boolean oldMyAutoConvert = myBag.isAutoConvertToRecord();
-      myBag.setAutoConvertToRecord(false);
-
-      final boolean oldOtherAutoConvert = otherBag.isAutoConvertToRecord();
-      otherBag.setAutoConvertToRecord(false);
-
       final List<ORID> otherBagCopy =
           makeDbCall(
               iOtherDb,
@@ -1677,68 +1605,63 @@ public class ODocumentHelper {
                 }
               });
 
-      try {
-        final Iterator<OIdentifiable> myIterator =
+      final Iterator<OIdentifiable> myIterator =
+          makeDbCall(
+              iMyDb,
+              new ODbRelatedCall<Iterator<OIdentifiable>>() {
+                public Iterator<OIdentifiable> call(final ODatabaseSessionInternal database) {
+                  return myBag.iterator();
+                }
+              });
+
+      while (makeDbCall(
+          iMyDb,
+          new ODbRelatedCall<Boolean>() {
+            public Boolean call(final ODatabaseSessionInternal database) {
+              return myIterator.hasNext();
+            }
+          })) {
+        final OIdentifiable myIdentifiable =
             makeDbCall(
                 iMyDb,
-                new ODbRelatedCall<Iterator<OIdentifiable>>() {
-                  public Iterator<OIdentifiable> call(final ODatabaseSessionInternal database) {
-                    return myBag.iterator();
+                new ODbRelatedCall<OIdentifiable>() {
+                  @Override
+                  public OIdentifiable call(final ODatabaseSessionInternal database) {
+                    return myIterator.next();
                   }
                 });
 
-        while (makeDbCall(
-            iMyDb,
-            new ODbRelatedCall<Boolean>() {
-              public Boolean call(final ODatabaseSessionInternal database) {
-                return myIterator.hasNext();
-              }
-            })) {
-          final OIdentifiable myIdentifiable =
-              makeDbCall(
-                  iMyDb,
-                  new ODbRelatedCall<OIdentifiable>() {
-                    @Override
-                    public OIdentifiable call(final ODatabaseSessionInternal database) {
-                      return myIterator.next();
-                    }
-                  });
-
-          final ORID otherRid;
-          if (ridMapper != null) {
-            ORID convertedRid = ridMapper.map(myIdentifiable.getIdentity());
-            if (convertedRid != null) {
-              otherRid = convertedRid;
-            } else {
-              otherRid = myIdentifiable.getIdentity();
-            }
+        final ORID otherRid;
+        if (ridMapper != null) {
+          ORID convertedRid = ridMapper.map(myIdentifiable.getIdentity());
+          if (convertedRid != null) {
+            otherRid = convertedRid;
           } else {
             otherRid = myIdentifiable.getIdentity();
           }
-
-          makeDbCall(
-              iOtherDb,
-              new ODbRelatedCall<Object>() {
-                @Override
-                public Object call(final ODatabaseSessionInternal database) {
-                  otherBagCopy.remove(otherRid);
-                  return null;
-                }
-              });
+        } else {
+          otherRid = myIdentifiable.getIdentity();
         }
 
-        return makeDbCall(
+        makeDbCall(
             iOtherDb,
-            new ODbRelatedCall<Boolean>() {
+            new ODbRelatedCall<Object>() {
               @Override
-              public Boolean call(ODatabaseSessionInternal database) {
-                return otherBagCopy.isEmpty();
+              public Object call(final ODatabaseSessionInternal database) {
+                otherBagCopy.remove(otherRid);
+                return null;
               }
             });
-      } finally {
-        myBag.setAutoConvertToRecord(oldMyAutoConvert);
-        otherBag.setAutoConvertToRecord(oldOtherAutoConvert);
       }
+
+      return makeDbCall(
+          iOtherDb,
+          new ODbRelatedCall<Boolean>() {
+            @Override
+            public Boolean call(ODatabaseSessionInternal database) {
+              return otherBagCopy.isEmpty();
+            }
+          });
     } finally {
       if (currentDb != null) {
         currentDb.activateOnCurrentThread();

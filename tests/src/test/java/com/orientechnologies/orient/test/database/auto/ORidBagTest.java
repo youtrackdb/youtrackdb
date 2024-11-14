@@ -40,7 +40,6 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
 
   public void testAdd() throws Exception {
     ORidBag bag = new ORidBag();
-    bag.setAutoConvertToRecord(false);
 
     bag.add(new ORecordId("#77:1"));
     Assert.assertTrue(bag.contains(new ORecordId("#77:1")));
@@ -58,7 +57,6 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
 
   public void testAdd2() throws Exception {
     ORidBag bag = new ORidBag();
-    bag.setAutoConvertToRecord(false);
 
     bag.add(new ORecordId("#77:2"));
     bag.add(new ORecordId("#77:2"));
@@ -72,7 +70,6 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
 
   public void testAddRemoveInTheMiddleOfIteration() {
     ORidBag bag = new ORidBag();
-    bag.setAutoConvertToRecord(false);
 
     bag.add(new ORecordId("#77:2"));
     bag.add(new ORecordId("#77:2"));
@@ -164,7 +161,6 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
 
   public void testAddRemove() {
     ORidBag bag = new ORidBag();
-    bag.setAutoConvertToRecord(false);
 
     bag.add(new ORecordId("#77:2"));
     bag.add(new ORecordId("#77:2"));
@@ -240,7 +236,6 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
 
   public void testAddRemoveSBTreeContainsValues() {
     ORidBag bag = new ORidBag();
-    bag.setAutoConvertToRecord(false);
 
     bag.add(new ORecordId("#77:2"));
     bag.add(new ORecordId("#77:2"));
@@ -323,7 +318,6 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
   public void testAddRemoveDuringIterationSBTreeContainsValues() {
     database.begin();
     ORidBag bag = new ORidBag();
-    bag.setAutoConvertToRecord(false);
     assertEmbedded(bag.isEmbedded());
 
     bag.add(new ORecordId("#77:2"));
@@ -424,7 +418,6 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
 
   public void testEmptyIterator() throws Exception {
     ORidBag bag = new ORidBag();
-    bag.setAutoConvertToRecord(false);
     assertEmbedded(bag.isEmbedded());
     assertEquals(bag.size(), 0);
 
@@ -438,7 +431,6 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
 
     ORidBag bag = new ORidBag();
     assertEmbedded(bag.isEmbedded());
-    bag.setAutoConvertToRecord(false);
 
     bag.add(new ORecordId("#77:2"));
     rids.add(new ORecordId("#77:2"));
@@ -608,7 +600,6 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     expected.add(new ORecordId("#77:16"));
 
     ORidBag bag = new ORidBag();
-    bag.setAutoConvertToRecord(false);
 
     bag.addAll(expected);
     assertEmbedded(bag.isEmbedded());
@@ -628,7 +619,6 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
 
     ORidBag bag = new ORidBag();
     assertEmbedded(bag.isEmbedded());
-    bag.setAutoConvertToRecord(false);
 
     bag.add(new ORecordId("#77:2"));
     rids.add(new ORecordId("#77:2"));
@@ -764,7 +754,6 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     List<OIdentifiable> rids = new ArrayList<OIdentifiable>();
 
     ORidBag bag = new ORidBag();
-    bag.setAutoConvertToRecord(false);
     assertEmbedded(bag.isEmbedded());
 
     bag.add(new ORecordId("#77:2"));
@@ -938,7 +927,6 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
 
     final ORidBag bag = new ORidBag();
     assertEmbedded(bag.isEmbedded());
-    bag.setAutoConvertToRecord(false);
     bag.addAll(expected);
     assertEmbedded(bag.isEmbedded());
 

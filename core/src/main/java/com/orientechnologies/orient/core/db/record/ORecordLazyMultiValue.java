@@ -22,14 +22,11 @@ package com.orientechnologies.orient.core.db.record;
 import com.orientechnologies.common.util.OSizeable;
 import java.util.Iterator;
 
-public interface ORecordLazyMultiValue extends OAutoConvertToRecord, ODetachable, OSizeable {
+public interface ORecordLazyMultiValue extends ODetachable, OSizeable {
   Iterator<OIdentifiable> rawIterator();
 
   /**
    * Browse all the set to convert all the items into records.
-   *
-   * <p>It converts only items that already loaded into memory from storage. To convert records that
-   * will be fetched from disk later use {@link #setAutoConvertToRecord(boolean)}
    */
   void convertLinks2Records();
 

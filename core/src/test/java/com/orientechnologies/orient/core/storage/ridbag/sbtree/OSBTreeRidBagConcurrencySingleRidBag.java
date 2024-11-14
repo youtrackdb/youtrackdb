@@ -66,7 +66,6 @@ public class OSBTreeRidBagConcurrencySingleRidBag {
 
     ODocument document = new ODocument();
     ORidBag ridBag = new ORidBag();
-    ridBag.setAutoConvertToRecord(false);
 
     document.field("ridBag", ridBag);
     for (int i = 0; i < 100; i++) {

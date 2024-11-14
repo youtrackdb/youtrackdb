@@ -43,6 +43,7 @@ import java.util.Set;
 @SuppressWarnings("serial")
 public class OTrackedSet<T> extends LinkedHashSet<T>
     implements ORecordElement, OTrackedMultiValue<T, T>, Serializable {
+
   protected final ORecordElement sourceRecord;
   private final boolean embeddedCollection;
   protected Class<?> genericClass;
@@ -97,11 +98,7 @@ public class OTrackedSet<T> extends LinkedHashSet<T>
 
   @Override
   public boolean addAll(Collection<? extends T> c) {
-    boolean convert = false;
-    if (c instanceof OAutoConvertToRecord) {
-      convert = ((OAutoConvertToRecord) c).isAutoConvertToRecord();
-      ((OAutoConvertToRecord) c).setAutoConvertToRecord(false);
-    }
+
     boolean modified = false;
     for (T o : c) {
       if (add(o)) {
@@ -109,9 +106,6 @@ public class OTrackedSet<T> extends LinkedHashSet<T>
       }
     }
 
-    if (c instanceof OAutoConvertToRecord) {
-      ((OAutoConvertToRecord) c).setAutoConvertToRecord(convert);
-    }
     return modified;
   }
 

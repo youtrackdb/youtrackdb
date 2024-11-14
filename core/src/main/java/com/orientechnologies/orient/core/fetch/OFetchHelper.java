@@ -848,7 +848,7 @@ public class OFetchHelper {
       linked = (Iterable<OIdentifiable>) fieldValue;
       context.onBeforeCollection(iRootRecord, fieldName, iUserObject, linked);
     } else if (fieldValue.getClass().isArray()) {
-      linked = OMultiValue.getMultiValueIterable(fieldValue, false);
+      linked = OMultiValue.getMultiValueIterable(fieldValue);
       context.onBeforeCollection(iRootRecord, fieldName, iUserObject, linked);
     } else if (fieldValue instanceof Map<?, ?>) {
       linked = ((Map<?, ?>) fieldValue).values();

@@ -57,12 +57,6 @@ public class ORecordMultiValueHelper {
   }
 
   public static String toString(final ORecordLazyMultiValue iMultivalue) {
-    final boolean previousAutoConvertSetting = iMultivalue.isAutoConvertToRecord();
-    iMultivalue.setAutoConvertToRecord(false);
-
-    final String result = OMultiValue.toString(iMultivalue);
-
-    iMultivalue.setAutoConvertToRecord(previousAutoConvertSetting);
-    return result;
+    return OMultiValue.toString(iMultivalue);
   }
 }
