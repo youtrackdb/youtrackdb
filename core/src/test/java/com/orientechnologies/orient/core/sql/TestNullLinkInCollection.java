@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.sql;
 
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -29,14 +29,14 @@ public class TestNullLinkInCollection extends BaseMemoryDatabase {
 
     db.begin();
     ODocument doc = new ODocument("Test");
-    List<ORecordId> docs = new ArrayList<ORecordId>();
+    List<ORecordId> docs = new ArrayList<>();
     docs.add(new ORecordId(10, 20));
     doc.field("items", docs, OType.LINKLIST);
     db.save(doc);
     db.commit();
 
     try (OResultSet res = db.query("select items from Test")) {
-      assertNull(((List) res.next().getProperty("items")).get(0));
+      assertEquals(new ORecordId(10, 20), ((List) res.next().getProperty("items")).get(0));
     }
   }
 
@@ -44,7 +44,7 @@ public class TestNullLinkInCollection extends BaseMemoryDatabase {
   public void testLinkSetRemovedRecord() {
     db.begin();
     ODocument doc = new ODocument("Test");
-    Set<ORecordId> docs = new HashSet<ORecordId>();
+    Set<ORecordId> docs = new HashSet<>();
     docs.add(new ORecordId(10, 20));
     doc.field("items", docs, OType.LINKSET);
     db.save(doc);

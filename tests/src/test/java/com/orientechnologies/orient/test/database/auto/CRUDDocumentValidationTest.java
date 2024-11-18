@@ -17,7 +17,7 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
-import com.orientechnologies.orient.core.db.ODatabase;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.OValidationException;
 import com.orientechnologies.orient.core.record.OElement;
@@ -243,7 +243,9 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
     } catch (OValidationException ignored) {
     }
 
-    database.command("ALTER DATABASE " + ODatabase.ATTRIBUTES.VALIDATION.name() + " FALSE").close();
+    database
+        .command("ALTER DATABASE " + ODatabaseSession.ATTRIBUTES.VALIDATION.name() + " FALSE")
+        .close();
     database.setValidationEnabled(false);
     try {
 
@@ -258,7 +260,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
     } finally {
       database.setValidationEnabled(true);
       database
-          .command("ALTER DATABASE " + ODatabase.ATTRIBUTES.VALIDATION.name() + " TRUE")
+          .command("ALTER DATABASE " + ODatabaseSession.ATTRIBUTES.VALIDATION.name() + " TRUE")
           .close();
     }
   }

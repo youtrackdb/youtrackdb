@@ -48,70 +48,7 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
 
   @Test
   public void populate() {
-    OClass vehicleClass = database.createVertexClass("GraphVehicle");
-    database.createClass("GraphCar", vehicleClass.getName());
-    database.createClass("GraphMotocycle", "GraphVehicle");
-
-    database.begin();
-    var carNode = database.newVertex("GraphCar");
-    carNode.setProperty("brand", "Hyundai");
-    carNode.setProperty("model", "Coupe");
-    carNode.setProperty("year", 2003);
-    carNode.save();
-
-    var motoNode = database.newVertex("GraphMotocycle");
-    motoNode.setProperty("brand", "Yamaha");
-    motoNode.setProperty("model", "X-City 250");
-    motoNode.setProperty("year", 2009);
-    motoNode.save();
-
-    database.commit();
-
-    database.begin();
-    carNode = database.bindToSession(carNode);
-    motoNode = database.bindToSession(motoNode);
-    database.newEdge(carNode, motoNode).save();
-
-    List<OResult> result =
-        database.query("select from GraphVehicle").stream().collect(Collectors.toList());
-    Assert.assertEquals(result.size(), 2);
-    for (OResult v : result) {
-      Assert.assertTrue(v.getElement().get().getSchemaType().get().isSubClassOf(vehicleClass));
-    }
-
-    database.commit();
-    result = database.query("select from GraphVehicle").stream().toList();
-    Assert.assertEquals(result.size(), 2);
-
-    OEdge edge1 = null;
-    OEdge edge2 = null;
-
-    for (OResult v : result) {
-      Assert.assertTrue(v.getElement().get().getSchemaType().get().isSubClassOf("GraphVehicle"));
-
-      if (v.getElement().get().getSchemaType().isPresent()
-          && v.getElement().get().getSchemaType().get().getName().equals("GraphCar")) {
-        Assert.assertEquals(
-            CollectionUtils.size(
-                database.<OVertex>load(v.getIdentity().get()).getEdges(ODirection.OUT)),
-            1);
-        edge1 =
-            database
-                .<OVertex>load(v.getIdentity().get())
-                .getEdges(ODirection.OUT)
-                .iterator()
-                .next();
-      } else {
-        Assert.assertEquals(
-            CollectionUtils.size(
-                database.<OVertex>load(v.getIdentity().get()).getEdges(ODirection.IN)),
-            1);
-        edge2 =
-            database.<OVertex>load(v.getIdentity().get()).getEdges(ODirection.IN).iterator().next();
-      }
-    }
-
-    Assert.assertEquals(edge1, edge2);
+    generateGraphData();
   }
 
   @Test(dependsOnMethods = "populate")

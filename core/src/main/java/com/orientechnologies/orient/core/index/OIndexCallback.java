@@ -19,8 +19,9 @@
  */
 package com.orientechnologies.orient.core.index;
 
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 
 public interface OIndexCallback {
-  Object getDocumentValueToIndex(ODocument iDocument);
+  Object getDocumentValueToIndex(ODatabaseSessionInternal session, ODocument iDocument);
 }

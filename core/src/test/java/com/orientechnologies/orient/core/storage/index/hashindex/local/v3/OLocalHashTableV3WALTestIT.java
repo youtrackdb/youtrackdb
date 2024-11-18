@@ -4,7 +4,6 @@ import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
@@ -91,9 +90,10 @@ public class OLocalHashTableV3WALTestIT extends OLocalHashTableV3Base {
         .getViewManager()
         .close();
     expectedStorage =
-        ((OLocalPaginatedStorage) ((ODatabaseInternal<?>) expectedDatabaseDocumentTx).getStorage());
+        ((OLocalPaginatedStorage)
+            ((ODatabaseSessionInternal) expectedDatabaseDocumentTx).getStorage());
     actualStorage =
-        (OLocalPaginatedStorage) ((ODatabaseInternal<?>) databaseDocumentTx).getStorage();
+        (OLocalPaginatedStorage) ((ODatabaseSessionInternal) databaseDocumentTx).getStorage();
 
     atomicOperationsManager = actualStorage.getAtomicOperationsManager();
 
@@ -101,10 +101,11 @@ public class OLocalHashTableV3WALTestIT extends OLocalHashTableV3Base {
     expectedStorageDir = expectedStorage.getStoragePath().toString();
 
     actualWriteCache =
-        ((OLocalPaginatedStorage) ((ODatabaseInternal<?>) databaseDocumentTx).getStorage())
+        ((OLocalPaginatedStorage) ((ODatabaseSessionInternal) databaseDocumentTx).getStorage())
             .getWriteCache();
     expectedWriteCache =
-        ((OLocalPaginatedStorage) ((ODatabaseInternal<?>) expectedDatabaseDocumentTx).getStorage())
+        ((OLocalPaginatedStorage)
+                ((ODatabaseSessionInternal) expectedDatabaseDocumentTx).getStorage())
             .getWriteCache();
 
     CASDiskWriteAheadLog diskWriteAheadLog = (CASDiskWriteAheadLog) actualStorage.getWALInstance();
@@ -133,7 +134,8 @@ public class OLocalHashTableV3WALTestIT extends OLocalHashTableV3Base {
             ".tsc",
             ".obf",
             ".nbh",
-            (OAbstractPaginatedStorage) ((ODatabaseInternal<?>) databaseDocumentTx).getStorage());
+            (OAbstractPaginatedStorage)
+                ((ODatabaseSessionInternal) databaseDocumentTx).getStorage());
     atomicOperationsManager.executeInsideAtomicOperation(
         null,
         atomicOperation ->
@@ -270,7 +272,7 @@ public class OLocalHashTableV3WALTestIT extends OLocalHashTableV3Base {
   private void restoreDataFromWAL() throws IOException {
     final OReadCache expectedReadCache =
         ((OAbstractPaginatedStorage)
-                ((ODatabaseInternal<?>) expectedDatabaseDocumentTx).getStorage())
+                ((ODatabaseSessionInternal) expectedDatabaseDocumentTx).getStorage())
             .getReadCache();
 
     CASDiskWriteAheadLog log =

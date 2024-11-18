@@ -3,8 +3,6 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.metadata.security.OSecurityInternal;
 import com.orientechnologies.orient.core.metadata.security.OSecurityPolicyImpl;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -33,8 +31,8 @@ public class OCreateSecurityPolicyStatement extends OSimpleExecStatement {
 
   @Override
   public OExecutionStream executeSimple(OCommandContext ctx) {
-    ODatabaseSession db = ctx.getDatabase();
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    var db = ctx.getDatabase();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, name.getStringValue());
     policy.setActive(true);
     if (create != null) {

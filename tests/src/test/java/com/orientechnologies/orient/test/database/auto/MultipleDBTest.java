@@ -14,8 +14,8 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.client.remote.OStorageRemote;
-import com.orientechnologies.orient.core.db.ODatabase;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.util.Collections;
 import java.util.HashSet;
@@ -61,7 +61,7 @@ public class MultipleDBTest extends DocumentDBBaseTest {
             try {
               var db = createSessionInstance(dbName);
 
-              db.set(ODatabase.ATTRIBUTES.MINIMUMCLUSTERS, 1);
+              db.set(ODatabaseSession.ATTRIBUTES.MINIMUMCLUSTERS, 1);
               db.getMetadata().getSchema().getOrCreateClass("DummyObject");
 
               long start = System.currentTimeMillis();
@@ -195,7 +195,7 @@ public class MultipleDBTest extends DocumentDBBaseTest {
     }
   }
 
-  private String getDbId(ODatabaseInternal<?> tx) {
+  private String getDbId(ODatabaseSessionInternal tx) {
     if (tx.getStorage() instanceof OStorageRemote) {
       return tx.getURL() + " - sessionId: " + ((OStorageRemote) tx.getStorage()).getSessionId();
     } else {

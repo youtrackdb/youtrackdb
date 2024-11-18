@@ -9,7 +9,6 @@ import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.OrientDBEmbedded;
 import com.orientechnologies.orient.core.db.OrientDBInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
@@ -51,7 +50,7 @@ public class StorageBackupMTIT {
       orientDB.execute(
           "create database " + dbName + " plocal users ( admin identified by 'admin' role admin)");
 
-      ODatabaseDocument db = orientDB.open(dbName, "admin", "admin");
+      var db = orientDB.open(dbName, "admin", "admin");
 
       final OSchema schema = db.getMetadata().getSchema();
       final OClass backupClass = schema.createClass("BackupClass");
@@ -163,7 +162,7 @@ public class StorageBackupMTIT {
       orientDB.execute(
           "create database " + dbName + " plocal users ( admin identified by 'admin' role admin)");
 
-      ODatabaseDocument db = orientDB.open(dbName, "admin", "admin");
+      var db = orientDB.open(dbName, "admin", "admin");
 
       final OSchema schema = db.getMetadata().getSchema();
       final OClass backupClass = schema.createClass("BackupClass");
@@ -253,7 +252,7 @@ public class StorageBackupMTIT {
 
       System.out.println(Thread.currentThread() + " - start writing");
 
-      try (ODatabaseDocument ignored = orientDB.open(dbName, "admin", "admin")) {
+      try (var ignored = orientDB.open(dbName, "admin", "admin")) {
         final Random random = new Random();
         while (!stop) {
           try {
@@ -296,7 +295,7 @@ public class StorageBackupMTIT {
     public Void call() throws Exception {
       latch.await();
 
-      try (ODatabaseDocument db = orientDB.open(dbName, "admin", "admin")) {
+      try (var db = orientDB.open(dbName, "admin", "admin")) {
         System.out.println(Thread.currentThread() + " - start backup");
         while (!stop) {
           TimeUnit.MINUTES.sleep(1);

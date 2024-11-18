@@ -9,7 +9,6 @@ import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.OSerializationException;
@@ -441,7 +440,7 @@ public class ODocumentSchemalessBinarySerializationTest {
   public void testLinkCollections() {
     try (OrientDB ctx = new OrientDB("embedded:", OrientDBConfig.defaultConfig())) {
       ctx.execute("create database test memory users(admin identified by 'adminpwd' role admin)");
-      try (ODatabaseDocument db = ctx.open("test", "admin", "adminpwd")) {
+      try (var db = ctx.open("test", "admin", "adminpwd")) {
         ODocument document = new ODocument();
         Set<ORecordId> linkSet = new HashSet<ORecordId>();
         linkSet.add(new ORecordId(10, 20));
@@ -636,7 +635,7 @@ public class ODocumentSchemalessBinarySerializationTest {
     // needs a database because of the lazy loading
     try (OrientDB ctx = new OrientDB("embedded:", OrientDBConfig.defaultConfig())) {
       ctx.execute("create database test memory users(admin identified by 'adminpwd' role admin)");
-      try (ODatabaseDocument db = ctx.open("test", "admin", "adminpwd")) {
+      try (var db = ctx.open("test", "admin", "adminpwd")) {
         ODocument document = new ODocument();
 
         Map<String, OIdentifiable> map = new HashMap<String, OIdentifiable>();
@@ -656,7 +655,7 @@ public class ODocumentSchemalessBinarySerializationTest {
   public void testDocumentSimple() {
     try (OrientDB ctx = new OrientDB("embedded:", OrientDBConfig.defaultConfig())) {
       ctx.execute("create database test memory users(admin identified by 'adminpwd' role admin)");
-      try (ODatabaseDocument db = ctx.open("test", "admin", "adminpwd")) {
+      try (var db = ctx.open("test", "admin", "adminpwd")) {
         ODocument document = new ODocument("TestClass");
         document.field("test", "test");
         byte[] res = serializer.toStream(document);

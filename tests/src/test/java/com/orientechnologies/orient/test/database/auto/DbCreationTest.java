@@ -16,7 +16,7 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabase;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
@@ -146,15 +146,15 @@ public class DbCreationTest {
       database.command(" ALTER DATABASE LOCALECOUNTRY  ?", Locale.GERMANY.getCountry()).close();
 
       Assert.assertEquals(
-          database.get(ODatabase.ATTRIBUTES.LOCALELANGUAGE), Locale.GERMANY.getLanguage());
+          database.get(ODatabaseSession.ATTRIBUTES.LOCALELANGUAGE), Locale.GERMANY.getLanguage());
       Assert.assertEquals(
-          database.get(ODatabase.ATTRIBUTES.LOCALECOUNTRY), Locale.GERMANY.getCountry());
-      database.set(ODatabase.ATTRIBUTES.LOCALECOUNTRY, Locale.ENGLISH.getCountry());
-      database.set(ODatabase.ATTRIBUTES.LOCALELANGUAGE, Locale.ENGLISH.getLanguage());
+          database.get(ODatabaseSession.ATTRIBUTES.LOCALECOUNTRY), Locale.GERMANY.getCountry());
+      database.set(ODatabaseSession.ATTRIBUTES.LOCALECOUNTRY, Locale.ENGLISH.getCountry());
+      database.set(ODatabaseSession.ATTRIBUTES.LOCALELANGUAGE, Locale.ENGLISH.getLanguage());
       Assert.assertEquals(
-          database.get(ODatabase.ATTRIBUTES.LOCALECOUNTRY), Locale.ENGLISH.getCountry());
+          database.get(ODatabaseSession.ATTRIBUTES.LOCALECOUNTRY), Locale.ENGLISH.getCountry());
       Assert.assertEquals(
-          database.get(ODatabase.ATTRIBUTES.LOCALELANGUAGE), Locale.ENGLISH.getLanguage());
+          database.get(ODatabaseSession.ATTRIBUTES.LOCALELANGUAGE), Locale.ENGLISH.getLanguage());
     }
   }
 

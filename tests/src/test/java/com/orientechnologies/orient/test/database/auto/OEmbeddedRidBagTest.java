@@ -1,6 +1,5 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.client.db.ODatabaseHelper;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import java.io.IOException;
@@ -13,6 +12,7 @@ import org.testng.annotations.Test;
 
 @Test
 public class OEmbeddedRidBagTest extends ORidBagTest {
+
   private int topThreshold;
   private int bottomThreshold;
 
@@ -32,9 +32,7 @@ public class OEmbeddedRidBagTest extends ORidBagTest {
     OGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(Integer.MAX_VALUE);
 
     if (database.isRemote()) {
-      OServerAdmin server =
-          new OServerAdmin(database.getURL())
-              .connect("root", ODatabaseHelper.getServerRootPassword());
+      OServerAdmin server = new OServerAdmin(database.getURL()).connect("root", SERVER_PASSWORD);
       server.setGlobalConfiguration(
           OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD, Integer.MAX_VALUE);
       server.setGlobalConfiguration(
@@ -49,9 +47,7 @@ public class OEmbeddedRidBagTest extends ORidBagTest {
     OGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(bottomThreshold);
 
     if (database.isRemote()) {
-      OServerAdmin server =
-          new OServerAdmin(database.getURL())
-              .connect("root", ODatabaseHelper.getServerRootPassword());
+      OServerAdmin server = new OServerAdmin(database.getURL()).connect("root", SERVER_PASSWORD);
       server.setGlobalConfiguration(
           OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD, topThreshold);
       server.setGlobalConfiguration(

@@ -2,7 +2,6 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordLazyMap;
@@ -30,8 +29,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-/** Created by luigidellaquila on 07/09/16. */
+/**
+ * Created by luigidellaquila on 07/09/16.
+ */
 public class FindReferencesStep extends AbstractExecutionStep {
+
   private final List<OIdentifier> classes;
   private final List<OCluster> clusters;
 
@@ -77,8 +79,7 @@ public class FindReferencesStep extends AbstractExecutionStep {
   }
 
   private List<ORecordIteratorCluster<ORecord>> initClusterIterators(OCommandContext ctx) {
-    @SuppressWarnings("rawtypes")
-    ODatabaseInternal db = (ODatabaseInternal) ctx.getDatabase();
+    var db = ctx.getDatabase();
     Collection<String> targetClusterNames = new HashSet<>();
 
     if ((this.classes == null || this.classes.isEmpty())

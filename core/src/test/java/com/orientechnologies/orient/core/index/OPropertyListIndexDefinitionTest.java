@@ -1,5 +1,6 @@
 package com.orientechnologies.orient.core.index;
 
+import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -17,7 +18,8 @@ import org.junit.Test;
  * @author LomakiA <a href="mailto:a.lomakin@orientechnologies.com">Andrey Lomakin</a>
  * @since 20.12.11
  */
-public class OPropertyListIndexDefinitionTest {
+public class OPropertyListIndexDefinitionTest extends BaseMemoryDatabase {
+
   private OPropertyListIndexDefinition propertyIndex;
 
   @Before
@@ -28,7 +30,7 @@ public class OPropertyListIndexDefinitionTest {
   @Test
   public void testCreateValueSingleParameter() {
     final Object result =
-        propertyIndex.createValue(Collections.singletonList(Arrays.asList("12", "23")));
+        propertyIndex.createValue(db, Collections.singletonList(Arrays.asList("12", "23")));
 
     Assert.assertTrue(result instanceof Collection);
 
@@ -41,7 +43,8 @@ public class OPropertyListIndexDefinitionTest {
 
   @Test
   public void testCreateValueTwoParameters() {
-    final Object result = propertyIndex.createValue(Arrays.asList(Arrays.asList("12", "23"), "25"));
+    final Object result =
+        propertyIndex.createValue(db, Arrays.asList(Arrays.asList("12", "23"), "25"));
 
     Assert.assertTrue(result instanceof Collection);
 
@@ -55,7 +58,7 @@ public class OPropertyListIndexDefinitionTest {
   @Test
   public void testCreateValueWrongParameter() {
     try {
-      propertyIndex.createValue(Collections.singletonList("tt"));
+      propertyIndex.createValue(db, Collections.singletonList("tt"));
       Assert.fail();
     } catch (OIndexException x) {
 
@@ -64,7 +67,7 @@ public class OPropertyListIndexDefinitionTest {
 
   @Test
   public void testCreateValueSingleParameterArrayParams() {
-    final Object result = propertyIndex.createValue((Object) Arrays.asList("12", "23"));
+    final Object result = propertyIndex.createValue(db, (Object) Arrays.asList("12", "23"));
 
     Assert.assertTrue(result instanceof Collection);
 
@@ -77,7 +80,7 @@ public class OPropertyListIndexDefinitionTest {
 
   @Test
   public void testCreateValueTwoParametersArrayParams() {
-    final Object result = propertyIndex.createValue(Arrays.asList("12", "23"), "25");
+    final Object result = propertyIndex.createValue(db, Arrays.asList("12", "23"), "25");
 
     Assert.assertTrue(result instanceof Collection);
 
@@ -90,7 +93,7 @@ public class OPropertyListIndexDefinitionTest {
 
   @Test
   public void testCreateValueWrongParameterArrayParams() {
-    Assert.assertNull(propertyIndex.createValue("tt"));
+    Assert.assertNull(propertyIndex.createValue(db, "tt"));
   }
 
   @Test
@@ -100,7 +103,7 @@ public class OPropertyListIndexDefinitionTest {
     document.field("fOne", Arrays.asList("12", "23"));
     document.field("fTwo", 10);
 
-    final Object result = propertyIndex.getDocumentValueToIndex(document);
+    final Object result = propertyIndex.getDocumentValueToIndex(db, document);
     Assert.assertTrue(result instanceof Collection);
 
     final Collection<?> collectionResult = (Collection<?>) result;
@@ -112,13 +115,13 @@ public class OPropertyListIndexDefinitionTest {
 
   @Test
   public void testCreateSingleValue() {
-    final Object result = propertyIndex.createSingleValue("12");
+    final Object result = propertyIndex.createSingleValue(db, "12");
     Assert.assertEquals(result, 12);
   }
 
   @Test(expected = OIndexException.class)
   public void testCreateSingleValueWrongParameter() {
-    propertyIndex.createSingleValue("tt");
+    propertyIndex.createSingleValue(db, "tt");
   }
 
   @Test
@@ -130,7 +133,7 @@ public class OPropertyListIndexDefinitionTest {
 
     final OMultiValueChangeEvent<Integer, Integer> multiValueChangeEvent =
         new OMultiValueChangeEvent<Integer, Integer>(OMultiValueChangeEvent.OChangeType.ADD, 0, 42);
-    propertyIndex.processChangeEvent(multiValueChangeEvent, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEvent, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
     addedKeys.put(42, 1);
@@ -152,7 +155,7 @@ public class OPropertyListIndexDefinitionTest {
     final OMultiValueChangeEvent<Integer, String> multiValueChangeEvent =
         new OMultiValueChangeEvent<Integer, String>(
             OMultiValueChangeEvent.OChangeType.ADD, 0, "42");
-    propertyIndex.processChangeEvent(multiValueChangeEvent, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEvent, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
     addedKeys.put(42, 1);
@@ -176,8 +179,8 @@ public class OPropertyListIndexDefinitionTest {
     final OMultiValueChangeEvent<Integer, Integer> multiValueChangeEventTwo =
         new OMultiValueChangeEvent<Integer, Integer>(OMultiValueChangeEvent.OChangeType.ADD, 1, 42);
 
-    propertyIndex.processChangeEvent(multiValueChangeEventOne, keysToAdd, keysToRemove);
-    propertyIndex.processChangeEvent(multiValueChangeEventTwo, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEventOne, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEventTwo, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
     addedKeys.put(42, 2);
@@ -201,8 +204,8 @@ public class OPropertyListIndexDefinitionTest {
     final OMultiValueChangeEvent<Integer, Integer> multiValueChangeEventTwo =
         new OMultiValueChangeEvent<Integer, Integer>(OMultiValueChangeEvent.OChangeType.ADD, 1, 43);
 
-    propertyIndex.processChangeEvent(multiValueChangeEventOne, keysToAdd, keysToRemove);
-    propertyIndex.processChangeEvent(multiValueChangeEventTwo, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEventOne, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEventTwo, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
     addedKeys.put(42, 1);
@@ -226,7 +229,7 @@ public class OPropertyListIndexDefinitionTest {
         new OMultiValueChangeEvent<Integer, Integer>(
             OMultiValueChangeEvent.OChangeType.REMOVE, 0, null, 42);
 
-    propertyIndex.processChangeEvent(multiValueChangeEvent, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEvent, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
 
@@ -249,7 +252,7 @@ public class OPropertyListIndexDefinitionTest {
         new OMultiValueChangeEvent<Integer, String>(
             OMultiValueChangeEvent.OChangeType.REMOVE, 0, null, "42");
 
-    propertyIndex.processChangeEvent(multiValueChangeEvent, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEvent, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
 
@@ -275,8 +278,8 @@ public class OPropertyListIndexDefinitionTest {
         new OMultiValueChangeEvent<Integer, Integer>(
             OMultiValueChangeEvent.OChangeType.REMOVE, 1, null, 42);
 
-    propertyIndex.processChangeEvent(multiValueChangeEventOne, keysToAdd, keysToRemove);
-    propertyIndex.processChangeEvent(multiValueChangeEventTwo, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEventOne, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEventTwo, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
 
@@ -301,8 +304,8 @@ public class OPropertyListIndexDefinitionTest {
         new OMultiValueChangeEvent<Integer, Integer>(
             OMultiValueChangeEvent.OChangeType.ADD, 1, 555);
 
-    propertyIndex.processChangeEvent(multiValueChangeEventOne, keysToAdd, keysToRemove);
-    propertyIndex.processChangeEvent(multiValueChangeEventTwo, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEventOne, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEventTwo, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
     addedKeys.put(42, 1);
@@ -328,8 +331,8 @@ public class OPropertyListIndexDefinitionTest {
         new OMultiValueChangeEvent<Integer, Integer>(
             OMultiValueChangeEvent.OChangeType.REMOVE, 0, null, 42);
 
-    propertyIndex.processChangeEvent(multiValueChangeEventOne, keysToAdd, keysToRemove);
-    propertyIndex.processChangeEvent(multiValueChangeEventTwo, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEventOne, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEventTwo, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
     final Map<Object, Integer> removedKeys = new HashMap<Object, Integer>();
@@ -352,8 +355,8 @@ public class OPropertyListIndexDefinitionTest {
         new OMultiValueChangeEvent<Integer, Integer>(
             OMultiValueChangeEvent.OChangeType.REMOVE, 0, null, 55);
 
-    propertyIndex.processChangeEvent(multiValueChangeEventOne, keysToAdd, keysToRemove);
-    propertyIndex.processChangeEvent(multiValueChangeEventTwo, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEventOne, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEventTwo, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
     addedKeys.put(42, 1);
@@ -380,9 +383,9 @@ public class OPropertyListIndexDefinitionTest {
         new OMultiValueChangeEvent<Integer, Integer>(
             OMultiValueChangeEvent.OChangeType.REMOVE, 0, null, 42);
 
-    propertyIndex.processChangeEvent(multiValueChangeEventOne, keysToAdd, keysToRemove);
-    propertyIndex.processChangeEvent(multiValueChangeEventTwo, keysToAdd, keysToRemove);
-    propertyIndex.processChangeEvent(multiValueChangeEventThree, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEventOne, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEventTwo, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEventThree, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
     addedKeys.put(42, 1);
@@ -410,9 +413,9 @@ public class OPropertyListIndexDefinitionTest {
         new OMultiValueChangeEvent<Integer, Integer>(
             OMultiValueChangeEvent.OChangeType.REMOVE, 0, null, 42);
 
-    propertyIndex.processChangeEvent(multiValueChangeEventOne, keysToAdd, keysToRemove);
-    propertyIndex.processChangeEvent(multiValueChangeEventTwo, keysToAdd, keysToRemove);
-    propertyIndex.processChangeEvent(multiValueChangeEventThree, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEventOne, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEventTwo, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEventThree, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
 
@@ -440,9 +443,9 @@ public class OPropertyListIndexDefinitionTest {
     final OMultiValueChangeEvent<Integer, Integer> multiValueChangeEventThree =
         new OMultiValueChangeEvent<Integer, Integer>(OMultiValueChangeEvent.OChangeType.ADD, 1, 42);
 
-    propertyIndex.processChangeEvent(multiValueChangeEventOne, keysToAdd, keysToRemove);
-    propertyIndex.processChangeEvent(multiValueChangeEventTwo, keysToAdd, keysToRemove);
-    propertyIndex.processChangeEvent(multiValueChangeEventThree, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEventOne, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEventTwo, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEventThree, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
 
@@ -465,7 +468,7 @@ public class OPropertyListIndexDefinitionTest {
         new OMultiValueChangeEvent<Integer, Integer>(
             OMultiValueChangeEvent.OChangeType.UPDATE, 0, 41, 42);
 
-    propertyIndex.processChangeEvent(multiValueChangeEvent, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEvent, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
     addedKeys.put(41, 1);
@@ -489,7 +492,7 @@ public class OPropertyListIndexDefinitionTest {
         new OMultiValueChangeEvent<Integer, String>(
             OMultiValueChangeEvent.OChangeType.UPDATE, 0, "41", "42");
 
-    propertyIndex.processChangeEvent(multiValueChangeEvent, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEvent, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
     addedKeys.put(41, 1);

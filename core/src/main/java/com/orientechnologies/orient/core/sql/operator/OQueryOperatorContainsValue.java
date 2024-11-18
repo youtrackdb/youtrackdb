@@ -78,7 +78,8 @@ public class OQueryOperatorContainsValue extends OQueryOperatorEqualityNotNulls 
       }
 
       final Object key =
-          ((OIndexDefinitionMultiValue) indexDefinition).createSingleValue(keyParams.get(0));
+          ((OIndexDefinitionMultiValue) indexDefinition)
+              .createSingleValue(iContext.getDatabase(), keyParams.get(0));
 
       if (key == null) {
         return null;
@@ -99,14 +100,16 @@ public class OQueryOperatorContainsValue extends OQueryOperatorEqualityNotNulls 
         return null;
       }
 
-      final Object keyOne = compositeIndexDefinition.createSingleValue(keyParams);
+      final Object keyOne =
+          compositeIndexDefinition.createSingleValue(iContext.getDatabase(), keyParams);
 
       if (keyOne == null) {
         return null;
       }
 
       if (internalIndex.hasRangeQuerySupport()) {
-        final Object keyTwo = compositeIndexDefinition.createSingleValue(keyParams);
+        final Object keyTwo =
+            compositeIndexDefinition.createSingleValue(iContext.getDatabase(), keyParams);
 
         stream = index.getInternal().streamEntriesBetween(keyOne, true, keyTwo, true, ascSortOrder);
       } else {

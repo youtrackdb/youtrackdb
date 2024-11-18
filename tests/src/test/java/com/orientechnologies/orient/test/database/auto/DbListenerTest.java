@@ -17,9 +17,8 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.command.OCommandExecutor;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.db.ODatabase;
 import com.orientechnologies.orient.core.db.ODatabaseListener;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.hook.ODocumentHookAbstract;
 import com.orientechnologies.orient.core.hook.ORecordHook;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -59,7 +58,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
 
     final Map<ODocument, List<String>> changes = new HashMap<ODocument, List<String>>();
 
-    public DocumentChangeListener(final ODatabaseDocument db) {
+    public DocumentChangeListener(final ODatabaseSession db) {
       db.registerHook(
           new ODocumentHookAbstract(db) {
 
@@ -85,32 +84,32 @@ public class DbListenerTest extends DocumentDBBaseTest {
   public class DbListener implements ODatabaseListener {
 
     @Override
-    public void onAfterTxCommit(ODatabase iDatabase) {
+    public void onAfterTxCommit(ODatabaseSession iDatabase) {
       onAfterTxCommit++;
     }
 
     @Override
-    public void onAfterTxRollback(ODatabase iDatabase) {
+    public void onAfterTxRollback(ODatabaseSession iDatabase) {
       onAfterTxRollback++;
     }
 
     @Override
-    public void onBeforeTxBegin(ODatabase iDatabase) {
+    public void onBeforeTxBegin(ODatabaseSession iDatabase) {
       onBeforeTxBegin++;
     }
 
     @Override
-    public void onBeforeTxCommit(ODatabase iDatabase) {
+    public void onBeforeTxCommit(ODatabaseSession iDatabase) {
       onBeforeTxCommit++;
     }
 
     @Override
-    public void onBeforeTxRollback(ODatabase iDatabase) {
+    public void onBeforeTxRollback(ODatabaseSession iDatabase) {
       onBeforeTxRollback++;
     }
 
     @Override
-    public void onClose(ODatabase iDatabase) {
+    public void onClose(ODatabaseSession iDatabase) {
       onClose++;
     }
 
@@ -126,23 +125,23 @@ public class DbListenerTest extends DocumentDBBaseTest {
     }
 
     @Override
-    public void onCreate(ODatabase iDatabase) {
+    public void onCreate(ODatabaseSession iDatabase) {
       onCreate++;
     }
 
     @Override
-    public void onDelete(ODatabase iDatabase) {
+    public void onDelete(ODatabaseSession iDatabase) {
       onDelete++;
     }
 
     @Override
-    public void onOpen(ODatabase iDatabase) {
+    public void onOpen(ODatabaseSession iDatabase) {
       onOpen++;
     }
 
     @Override
     public boolean onCorruptionRepairDatabase(
-        ODatabase iDatabase, final String iReason, String iWhatWillbeFixed) {
+        ODatabaseSession iDatabase, final String iReason, String iWhatWillbeFixed) {
       onCorruption++;
       return true;
     }

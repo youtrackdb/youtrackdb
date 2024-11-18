@@ -142,7 +142,12 @@ public class OJson extends SimpleNode {
     if (className != null || (type != null && "d".equalsIgnoreCase(type))) {
       OUpdatableResult element = null;
       if (source != null) {
-        element = new OUpdatableResult((OElement) ctx.getDatabase().load(source.getIdentity()));
+        var identity = source.getIdentity();
+        if (identity.isPersistent()) {
+          element = new OUpdatableResult(ctx.getDatabase().load(source.getIdentity()));
+        } else if (identity instanceof OElement el) {
+          element = new OUpdatableResult(el);
+        }
       }
       return toDocument(element, ctx, className);
     } else {
@@ -236,12 +241,18 @@ public class OJson extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OJson oJson = (OJson) o;
 
-    if (items != null ? !items.equals(oJson.items) : oJson.items != null) return false;
+    if (items != null ? !items.equals(oJson.items) : oJson.items != null) {
+      return false;
+    }
 
     return true;
   }

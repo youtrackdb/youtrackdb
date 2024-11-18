@@ -25,7 +25,6 @@ import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.exception.OClusterDoesNotExistException;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.storage.OCluster;
@@ -62,8 +61,6 @@ public class OCommandExecutorSQLAlterCluster extends OCommandExecutorSQLAbstract
     try {
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
-
-      final ODatabaseDocument database = getDatabase();
 
       init((OCommandRequestText) iRequest);
 

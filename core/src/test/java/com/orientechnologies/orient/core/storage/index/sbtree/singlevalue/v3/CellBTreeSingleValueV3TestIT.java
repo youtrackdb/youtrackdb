@@ -5,8 +5,8 @@ import com.orientechnologies.common.exception.OHighLevelException;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.serialization.types.OUTF8Serializer;
 import com.orientechnologies.common.util.ORawPair;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.id.ORID;
@@ -53,7 +53,7 @@ public class CellBTreeSingleValueV3TestIT {
     OAbstractPaginatedStorage storage;
     try (ODatabaseSession databaseDocumentTx = orientDB.open(dbName, "admin", "admin")) {
       storage =
-          (OAbstractPaginatedStorage) ((ODatabaseInternal<?>) databaseDocumentTx).getStorage();
+          (OAbstractPaginatedStorage) ((ODatabaseSessionInternal) databaseDocumentTx).getStorage();
     }
     singleValueTree = new CellBTreeSingleValueV3<>("singleBTree", ".sbt", ".nbt", storage);
     atomicOperationsManager = storage.getAtomicOperationsManager();

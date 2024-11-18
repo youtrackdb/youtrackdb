@@ -22,6 +22,7 @@ package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.collate.ODefaultCollate;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
@@ -32,6 +33,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 
 public class OSimpleKeyIndexDefinition extends OAbstractIndexDefinition {
+
   private OType[] keyTypes;
 
   public OSimpleKeyIndexDefinition(final OType... keyTypes) {
@@ -76,22 +78,29 @@ public class OSimpleKeyIndexDefinition extends OAbstractIndexDefinition {
     return null;
   }
 
-  public Object createValue(final List<?> params) {
-    return createValue(params != null ? params.toArray() : null);
+  public Object createValue(ODatabaseSessionInternal session, final List<?> params) {
+    return createValue(session, params != null ? params.toArray() : null);
   }
 
-  public Object createValue(final Object... params) {
-    if (params == null || params.length == 0) return null;
+  public Object createValue(ODatabaseSessionInternal session, final Object... params) {
+    if (params == null || params.length == 0) {
+      return null;
+    }
 
-    if (keyTypes.length == 1) return OType.convert(params[0], keyTypes[0].getDefaultJavaType());
+    if (keyTypes.length == 1) {
+      return OType.convert(refreshRid(session, params[0]), keyTypes[0].getDefaultJavaType());
+    }
 
     final OCompositeKey compositeKey = new OCompositeKey();
 
     for (int i = 0; i < params.length; ++i) {
       final Comparable<?> paramValue =
-          (Comparable<?>) OType.convert(params[i], keyTypes[i].getDefaultJavaType());
+          (Comparable<?>)
+              OType.convert(refreshRid(session, params[i]), keyTypes[i].getDefaultJavaType());
 
-      if (paramValue == null) return null;
+      if (paramValue == null) {
+        return null;
+      }
       compositeKey.addKey(paramValue);
     }
 
@@ -118,15 +127,20 @@ public class OSimpleKeyIndexDefinition extends OAbstractIndexDefinition {
 
     final List<String> keyTypeNames = new ArrayList<>(keyTypes.length);
 
-    for (final OType keyType : keyTypes) keyTypeNames.add(keyType.toString());
+    for (final OType keyType : keyTypes) {
+      keyTypeNames.add(keyType.toString());
+    }
 
     document.field("keyTypes", keyTypeNames, OType.EMBEDDEDLIST);
     if (collate instanceof OCompositeCollate) {
       List<String> collatesNames = new ArrayList<>();
-      for (OCollate curCollate : ((OCompositeCollate) this.collate).getCollates())
+      for (OCollate curCollate : ((OCompositeCollate) this.collate).getCollates()) {
         collatesNames.add(curCollate.getName());
+      }
       document.field("collates", collatesNames, OType.EMBEDDEDLIST);
-    } else document.field("collate", collate.getName());
+    } else {
+      document.field("collate", collate.getName());
+    }
 
     document.field("nullValuesIgnored", isNullValuesIgnored());
   }
@@ -165,14 +179,19 @@ public class OSimpleKeyIndexDefinition extends OAbstractIndexDefinition {
     setNullValuesIgnored(!Boolean.FALSE.equals(document.<Boolean>field("nullValuesIgnored")));
   }
 
-  public Object getDocumentValueToIndex(final ODocument iDocument) {
+  public Object getDocumentValueToIndex(
+      ODatabaseSessionInternal session, final ODocument iDocument) {
     throw new OIndexException("This method is not supported in given index definition.");
   }
 
   @Override
   public boolean equals(final Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     final OSimpleKeyIndexDefinition that = (OSimpleKeyIndexDefinition) o;
     return Arrays.equals(keyTypes, that.keyTypes);

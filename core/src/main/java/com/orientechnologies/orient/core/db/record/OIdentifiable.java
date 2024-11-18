@@ -20,6 +20,7 @@
 package com.orientechnologies.orient.core.db.record;
 
 import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OElement;
@@ -28,6 +29,7 @@ import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.record.impl.OBlob;
 import java.util.Comparator;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Base interface for identifiable objects. This abstraction is required to use ORID and ORecord in
@@ -36,6 +38,7 @@ import javax.annotation.Nonnull;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OIdentifiable extends Comparable<OIdentifiable>, Comparator<OIdentifiable> {
+
   /**
    * Returns the record identity.
    *
@@ -54,6 +57,21 @@ public interface OIdentifiable extends Comparable<OIdentifiable>, Comparator<OId
   <T extends ORecord> T getRecord();
 
   /**
+   * Returns the record instance, or null if the record does not exist.
+   *
+   * @return ORecord instance or null if the record does not exist
+   * @see #getRecord()
+   */
+  @Nullable
+  default <T extends ORecord> T getRecordSilently() {
+    try {
+      return getRecord();
+    } catch (ORecordNotFoundException e) {
+      return null;
+    }
+  }
+
+  /**
    * Returns the element instance associated with given identifiable, otherwise throws exception.
    *
    * @return ORecord instance
@@ -67,6 +85,22 @@ public interface OIdentifiable extends Comparable<OIdentifiable>, Comparator<OId
     }
 
     throw new ODatabaseException("Record " + getIdentity() + " is not an element.");
+  }
+
+  /**
+   * Returns the element instance associated with given identifiable, or null if the record does not
+   * exist.
+   *
+   * @return ORecord instance or null if the record does not exist
+   * @see #getElement()
+   */
+  @Nullable
+  default OElement getElementSilently() {
+    try {
+      return getElement();
+    } catch (ORecordNotFoundException e) {
+      return null;
+    }
   }
 
   /**
@@ -86,6 +120,22 @@ public interface OIdentifiable extends Comparable<OIdentifiable>, Comparator<OId
   }
 
   /**
+   * Returns the blob instance associated with given identifiable, or null if the record does not
+   * exist.
+   *
+   * @return ORecord instance or null if the record does not exist
+   * @see #getBlob()
+   */
+  @Nullable
+  default OBlob getBlobSilently() {
+    try {
+      return getBlob();
+    } catch (ORecordNotFoundException e) {
+      return null;
+    }
+  }
+
+  /**
    * Returns the edge instance associated with given identifiable, otherwise throws exception.
    *
    * @return ORecord instance
@@ -102,6 +152,22 @@ public interface OIdentifiable extends Comparable<OIdentifiable>, Comparator<OId
   }
 
   /**
+   * Returns the edge instance associated with given identifiable, or null if the record does not
+   * exist.
+   *
+   * @return ORecord instance or null if the record does not exist
+   * @see #getEdge()
+   */
+  @Nullable
+  default OEdge getEdgeSilently() {
+    try {
+      return getEdge();
+    } catch (ORecordNotFoundException e) {
+      return null;
+    }
+  }
+
+  /**
    * Returns the vertex instance associated with given identifiable, otherwise throws exception.
    *
    * @return ORecord instance
@@ -115,5 +181,21 @@ public interface OIdentifiable extends Comparable<OIdentifiable>, Comparator<OId
     }
 
     throw new ODatabaseException("Record " + getIdentity() + " is not a vertex.");
+  }
+
+  /**
+   * Returns the vertex instance associated with given identifiable, or null if the record does not
+   * exist.
+   *
+   * @return ORecord instance or null if the record does not exist
+   * @see #getVertex()
+   */
+  @Nullable
+  default OVertex getVertexSilently() {
+    try {
+      return getVertex();
+    } catch (ORecordNotFoundException e) {
+      return null;
+    }
   }
 }

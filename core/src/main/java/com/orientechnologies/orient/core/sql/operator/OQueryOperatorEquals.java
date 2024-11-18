@@ -58,7 +58,9 @@ public class OQueryOperatorEquals extends OQueryOperatorEqualityNotNulls {
   public OQueryOperatorEquals() {
     super("=", 5, false);
     ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
-    if (db != null) binaryEvaluate = db.getSerializer().getSupportBinaryEvaluate();
+    if (db != null) {
+      binaryEvaluate = db.getSerializer().getSupportBinaryEvaluate();
+    }
   }
 
   public static boolean equals(final Object iLeft, final Object iRight, OType type) {
@@ -71,7 +73,9 @@ public class OQueryOperatorEquals extends OQueryOperatorEqualityNotNulls {
   }
 
   public static boolean equals(Object iLeft, Object iRight) {
-    if (iLeft == null || iRight == null) return false;
+    if (iLeft == null || iRight == null) {
+      return false;
+    }
 
     if (iLeft == iRight) {
       return true;
@@ -79,11 +83,15 @@ public class OQueryOperatorEquals extends OQueryOperatorEqualityNotNulls {
 
     // RECORD & ORID
     /*from this is only legacy query engine */
-    if (iLeft instanceof ORecord) return comparesValues(iRight, (ORecord) iLeft, true);
-    else if (iRight instanceof ORecord) return comparesValues(iLeft, (ORecord) iRight, true);
+    if (iLeft instanceof ORecord) {
+      return comparesValues(iRight, (ORecord) iLeft, true);
+    } else if (iRight instanceof ORecord) {
+      return comparesValues(iLeft, (ORecord) iRight, true);
+    }
     /*till this is only legacy query engine */
-    else if (iRight instanceof OResult) return comparesValues(iLeft, (OResult) iRight, true);
     else if (iRight instanceof OResult) {
+      return comparesValues(iLeft, (OResult) iRight, true);
+    } else if (iRight instanceof OResult) {
       return comparesValues(iLeft, (OResult) iRight, true);
     }
 
@@ -97,7 +105,9 @@ public class OQueryOperatorEquals extends OQueryOperatorEqualityNotNulls {
     try {
       final Object right = OType.convert(iRight, iLeft.getClass());
 
-      if (right == null) return false;
+      if (right == null) {
+        return false;
+      }
       if (iLeft instanceof byte[] && iRight instanceof byte[]) {
         return Arrays.equals((byte[]) iLeft, (byte[]) iRight);
       }
@@ -120,7 +130,9 @@ public class OQueryOperatorEquals extends OQueryOperatorEqualityNotNulls {
         if (fieldValue != null) {
           if (iConsiderIn && OMultiValue.isMultiValue(fieldValue)) {
             for (Object o : OMultiValue.getMultiValueIterable(fieldValue)) {
-              if (o != null && o.equals(iValue)) return true;
+              if (o != null && o.equals(iValue)) {
+                return true;
+              }
             }
           }
 
@@ -144,7 +156,9 @@ public class OQueryOperatorEquals extends OQueryOperatorEqualityNotNulls {
         if (fieldValue != null) {
           if (iConsiderIn && OMultiValue.isMultiValue(fieldValue)) {
             for (Object o : OMultiValue.getMultiValueIterable(fieldValue)) {
-              if (o != null && o.equals(iValue)) return true;
+              if (o != null && o.equals(iValue)) {
+                return true;
+              }
             }
           }
 
@@ -158,9 +172,12 @@ public class OQueryOperatorEquals extends OQueryOperatorEqualityNotNulls {
 
   @Override
   public OIndexReuseType getIndexReuseType(final Object iLeft, final Object iRight) {
-    if (iLeft instanceof OIdentifiable && iRight instanceof OIdentifiable)
+    if (iLeft instanceof OIdentifiable && iRight instanceof OIdentifiable) {
       return OIndexReuseType.NO_INDEX;
-    if (iRight == null || iLeft == null) return OIndexReuseType.NO_INDEX;
+    }
+    if (iRight == null || iLeft == null) {
+      return OIndexReuseType.NO_INDEX;
+    }
 
     return OIndexReuseType.INDEX_METHOD;
   }
@@ -172,15 +189,23 @@ public class OQueryOperatorEquals extends OQueryOperatorEqualityNotNulls {
 
     final OIndexInternal internalIndex = index.getInternal();
     Stream<ORawPair<Object, ORID>> stream;
-    if (!internalIndex.canBeUsedInEqualityOperators()) return null;
+    if (!internalIndex.canBeUsedInEqualityOperators()) {
+      return null;
+    }
 
     if (indexDefinition.getParamCount() == 1) {
       final Object key;
-      if (indexDefinition instanceof OIndexDefinitionMultiValue)
-        key = ((OIndexDefinitionMultiValue) indexDefinition).createSingleValue(keyParams.get(0));
-      else key = indexDefinition.createValue(keyParams);
+      if (indexDefinition instanceof OIndexDefinitionMultiValue) {
+        key =
+            ((OIndexDefinitionMultiValue) indexDefinition)
+                .createSingleValue(iContext.getDatabase(), keyParams.get(0));
+      } else {
+        key = indexDefinition.createValue(iContext.getDatabase(), keyParams);
+      }
 
-      if (key == null) return null;
+      if (key == null) {
+        return null;
+      }
 
       stream = index.getInternal().getRids(key).map((rid) -> new ORawPair<>(key, rid));
     } else {
@@ -190,18 +215,24 @@ public class OQueryOperatorEquals extends OQueryOperatorEqualityNotNulls {
       final OCompositeIndexDefinition compositeIndexDefinition =
           (OCompositeIndexDefinition) indexDefinition;
 
-      final Object keyOne = compositeIndexDefinition.createSingleValue(keyParams);
+      final Object keyOne =
+          compositeIndexDefinition.createSingleValue(iContext.getDatabase(), keyParams);
 
-      if (keyOne == null) return null;
+      if (keyOne == null) {
+        return null;
+      }
 
-      final Object keyTwo = compositeIndexDefinition.createSingleValue(keyParams);
+      final Object keyTwo =
+          compositeIndexDefinition.createSingleValue(iContext.getDatabase(), keyParams);
 
       if (internalIndex.hasRangeQuerySupport()) {
         stream = index.getInternal().streamEntriesBetween(keyOne, true, keyTwo, true, ascSortOrder);
       } else {
         if (indexDefinition.getParamCount() == keyParams.size()) {
           stream = index.getInternal().getRids(keyOne).map((rid) -> new ORawPair<>(keyOne, rid));
-        } else return null;
+        } else {
+          return null;
+        }
       }
     }
 
@@ -212,22 +243,28 @@ public class OQueryOperatorEquals extends OQueryOperatorEqualityNotNulls {
   @Override
   public ORID getBeginRidRange(final Object iLeft, final Object iRight) {
     if (iLeft instanceof OSQLFilterItemField
-        && ODocumentHelper.ATTRIBUTE_RID.equals(((OSQLFilterItemField) iLeft).getRoot()))
-      if (iRight instanceof ORID) return (ORID) iRight;
-      else {
+        && ODocumentHelper.ATTRIBUTE_RID.equals(((OSQLFilterItemField) iLeft).getRoot())) {
+      if (iRight instanceof ORID) {
+        return (ORID) iRight;
+      } else {
         if (iRight instanceof OSQLFilterItemParameter
-            && ((OSQLFilterItemParameter) iRight).getValue(null, null, null) instanceof ORID)
+            && ((OSQLFilterItemParameter) iRight).getValue(null, null, null) instanceof ORID) {
           return (ORID) ((OSQLFilterItemParameter) iRight).getValue(null, null, null);
+        }
       }
+    }
 
     if (iRight instanceof OSQLFilterItemField
-        && ODocumentHelper.ATTRIBUTE_RID.equals(((OSQLFilterItemField) iRight).getRoot()))
-      if (iLeft instanceof ORID) return (ORID) iLeft;
-      else {
+        && ODocumentHelper.ATTRIBUTE_RID.equals(((OSQLFilterItemField) iRight).getRoot())) {
+      if (iLeft instanceof ORID) {
+        return (ORID) iLeft;
+      } else {
         if (iLeft instanceof OSQLFilterItemParameter
-            && ((OSQLFilterItemParameter) iLeft).getValue(null, null, null) instanceof ORID)
+            && ((OSQLFilterItemParameter) iLeft).getValue(null, null, null) instanceof ORID) {
           return (ORID) ((OSQLFilterItemParameter) iLeft).getValue(null, null, null);
+        }
       }
+    }
 
     return null;
   }

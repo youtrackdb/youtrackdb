@@ -1,10 +1,8 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.ODatabaseWrapperAbstract;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.OrientDBConfigBuilder;
@@ -22,8 +20,10 @@ import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test
-public abstract class BaseTest<T extends ODatabaseInternal<?>> {
+public abstract class BaseTest<T extends ODatabaseSessionInternal> {
 
+  public static final String SERVER_PASSWORD =
+      "D2AFD02F20640EC8B7A5140F34FCA49D2289DB1F0D0598BB9DE8AAA75A0792F3";
   private OServer server;
 
   public static final String DEFAULT_DB_NAME = "demo";
@@ -51,7 +51,6 @@ public abstract class BaseTest<T extends ODatabaseInternal<?>> {
     }
 
     this.remoteDB = remote;
-
     this.dbName = DEFAULT_DB_NAME;
   }
 
@@ -75,11 +74,7 @@ public abstract class BaseTest<T extends ODatabaseInternal<?>> {
         var builder = new OrientDBConfigBuilder();
         if (remoteDB) {
           orientDB =
-              new OrientDB(
-                  "remote:localhost",
-                  "root",
-                  "D2AFD02F20640EC8B7A5140F34FCA49D2289DB1F0D0598BB9DE8AAA75A0792F3",
-                  createConfig(builder));
+              new OrientDB("remote:localhost", "root", SERVER_PASSWORD, createConfig(builder));
         } else {
           final String buildDirectory = System.getProperty("buildDirectory", ".");
           orientDB = OrientDB.embedded(buildDirectory + "/test-db", createConfig(builder));
@@ -232,12 +227,7 @@ public abstract class BaseTest<T extends ODatabaseInternal<?>> {
   }
 
   protected OIndex getIndex(final String indexName) {
-    final ODatabaseSessionInternal db;
-    if (database instanceof ODatabaseWrapperAbstract) {
-      db = database.getUnderlying();
-    } else {
-      db = (ODatabaseSessionInternal) database;
-    }
+    final ODatabaseSessionInternal db = (ODatabaseSessionInternal) database;
 
     return (db.getMetadata()).getIndexManagerInternal().getIndex(db, indexName);
   }

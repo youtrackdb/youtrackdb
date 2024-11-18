@@ -43,6 +43,7 @@ import org.testng.annotations.Test;
 
 @Test
 public class SchemaTest extends DocumentDBBaseTest {
+
   @Parameters(value = "remote")
   public SchemaTest(@Optional Boolean remote) {
     super(remote != null && remote);
@@ -149,6 +150,7 @@ public class SchemaTest extends DocumentDBBaseTest {
                 database.commit();
 
                 database.begin();
+                doc = database.bindToSession(doc);
                 doc.delete();
                 database.commit();
 

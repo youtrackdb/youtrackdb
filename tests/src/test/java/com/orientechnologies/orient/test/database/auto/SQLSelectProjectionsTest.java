@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -34,8 +36,17 @@ import org.testng.annotations.Test;
 public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
 
   @Parameters(value = "remote")
-  public SQLSelectProjectionsTest(boolean remote) {
-    super(remote);
+  public SQLSelectProjectionsTest(@Optional Boolean remote) {
+    super(remote != null && remote);
+  }
+
+  @BeforeClass
+  @Override
+  public void beforeClass() throws Exception {
+    super.beforeClass();
+
+    generateGraphData();
+    generateProfiles();
   }
 
   @Test

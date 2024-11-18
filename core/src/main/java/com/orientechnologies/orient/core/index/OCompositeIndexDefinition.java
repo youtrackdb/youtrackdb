@@ -21,6 +21,7 @@ package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.collate.OCollate;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -41,8 +42,11 @@ import java.util.Locale;
 import java.util.Map;
 import javax.annotation.Nonnull;
 
-/** Index that consist of several indexDefinitions like {@link OPropertyIndexDefinition}. */
+/**
+ * Index that consist of several indexDefinitions like {@link OPropertyIndexDefinition}.
+ */
 public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
+
   private final List<OIndexDefinition> indexDefinitions;
   private String className;
   private int multiValueDefinitionIndex = -1;
@@ -68,7 +72,7 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
    * Constructor for new index creation.
    *
    * @param iClassName - name of class which is owner of this index
-   * @param iIndexes List of indexDefinitions to add in given index.
+   * @param iIndexes   List of indexDefinitions to add in given index.
    */
   public OCompositeIndexDefinition(
       final String iClassName, final List<? extends OIndexDefinition> iIndexes) {
@@ -79,17 +83,21 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
       indexDefinitions.add(indexDefinition);
       collate.addCollate(indexDefinition.getCollate());
 
-      if (indexDefinition instanceof OIndexDefinitionMultiValue)
-        if (multiValueDefinitionIndex == -1)
+      if (indexDefinition instanceof OIndexDefinitionMultiValue) {
+        if (multiValueDefinitionIndex == -1) {
           multiValueDefinitionIndex = indexDefinitions.size() - 1;
-        else
+        } else {
           throw new OIndexException("Composite key cannot contain more than one collection item");
+        }
+      }
     }
 
     className = iClassName;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   public String getClassName() {
     return className;
   }
@@ -102,14 +110,19 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
   public void addIndex(final OIndexDefinition indexDefinition) {
     indexDefinitions.add(indexDefinition);
     if (indexDefinition instanceof OIndexDefinitionMultiValue) {
-      if (multiValueDefinitionIndex == -1) multiValueDefinitionIndex = indexDefinitions.size() - 1;
-      else throw new OIndexException("Composite key cannot contain more than one collection item");
+      if (multiValueDefinitionIndex == -1) {
+        multiValueDefinitionIndex = indexDefinitions.size() - 1;
+      } else {
+        throw new OIndexException("Composite key cannot contain more than one collection item");
+      }
     }
 
     collate.addCollate(indexDefinition.getCollate());
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   public List<String> getFields() {
     final List<String> fields = new LinkedList<>();
     for (final OIndexDefinition indexDefinition : indexDefinitions) {
@@ -118,7 +131,9 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
     return Collections.unmodifiableList(fields);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   public List<String> getFieldsToIndex() {
     final List<String> fields = new LinkedList<>();
     for (final OIndexDefinition indexDefinition : indexDefinitions) {
@@ -127,8 +142,11 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
     return Collections.unmodifiableList(fields);
   }
 
-  /** {@inheritDoc} */
-  public Object getDocumentValueToIndex(final ODocument iDocument) {
+  /**
+   * {@inheritDoc}
+   */
+  public Object getDocumentValueToIndex(
+      ODatabaseSessionInternal session, final ODocument iDocument) {
     final List<OCompositeKey> compositeKeys = new ArrayList<>(10);
     final OCompositeKey firstKey = new OCompositeKey();
     boolean containsCollection = false;
@@ -136,9 +154,11 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
     compositeKeys.add(firstKey);
 
     for (final OIndexDefinition indexDefinition : indexDefinitions) {
-      final Object result = indexDefinition.getDocumentValueToIndex(iDocument);
+      final Object result = indexDefinition.getDocumentValueToIndex(session, iDocument);
 
-      if (result == null && isNullValuesIgnored()) return null;
+      if (result == null && isNullValuesIgnored()) {
+        return null;
+      }
 
       // for empty collections we add null key in index
       if (result instanceof Collection
@@ -150,7 +170,9 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
       containsCollection = addKey(firstKey, compositeKeys, containsCollection, result);
     }
 
-    if (!containsCollection) return firstKey;
+    if (!containsCollection) {
+      return firstKey;
+    }
 
     return compositeKeys;
   }
@@ -160,14 +182,17 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
   }
 
   public String getMultiValueField() {
-    if (multiValueDefinitionIndex >= 0)
+    if (multiValueDefinitionIndex >= 0) {
       return indexDefinitions.get(multiValueDefinitionIndex).getFields().get(0);
+    }
 
     return null;
   }
 
-  /** {@inheritDoc} */
-  public Object createValue(final List<?> params) {
+  /**
+   * {@inheritDoc}
+   */
+  public Object createValue(ODatabaseSessionInternal session, final List<?> params) {
     int currentParamIndex = 0;
     final OCompositeKey firstKey = new OCompositeKey();
 
@@ -177,43 +202,54 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
     boolean containsCollection = false;
 
     for (final OIndexDefinition indexDefinition : indexDefinitions) {
-      if (currentParamIndex + 1 > params.size()) break;
+      if (currentParamIndex + 1 > params.size()) {
+        break;
+      }
 
       final int endIndex =
           Math.min(currentParamIndex + indexDefinition.getParamCount(), params.size());
       final List<?> indexParams = params.subList(currentParamIndex, endIndex);
       currentParamIndex += indexDefinition.getParamCount();
 
-      final Object keyValue = indexDefinition.createValue(indexParams);
+      final Object keyValue = indexDefinition.createValue(session, indexParams);
 
-      if (keyValue == null && isNullValuesIgnored()) return null;
+      if (keyValue == null && isNullValuesIgnored()) {
+        return null;
+      }
 
       // for empty collections we add null key in index
       if (keyValue instanceof Collection
           && ((Collection<?>) keyValue).isEmpty()
-          && isNullValuesIgnored()) return null;
+          && isNullValuesIgnored()) {
+        return null;
+      }
 
       containsCollection = addKey(firstKey, compositeKeys, containsCollection, keyValue);
     }
 
-    if (!containsCollection) return firstKey;
+    if (!containsCollection) {
+      return firstKey;
+    }
 
     return compositeKeys;
   }
 
   public OIndexDefinitionMultiValue getMultiValueDefinition() {
-    if (multiValueDefinitionIndex > -1)
+    if (multiValueDefinitionIndex > -1) {
       return (OIndexDefinitionMultiValue) indexDefinitions.get(multiValueDefinitionIndex);
+    }
 
     return null;
   }
 
-  public OCompositeKey createSingleValue(final List<?> params) {
+  public OCompositeKey createSingleValue(ODatabaseSessionInternal session, final List<?> params) {
     final OCompositeKey compositeKey = new OCompositeKey();
     int currentParamIndex = 0;
 
     for (final OIndexDefinition indexDefinition : indexDefinitions) {
-      if (currentParamIndex + 1 > params.size()) break;
+      if (currentParamIndex + 1 > params.size()) {
+        break;
+      }
 
       final int endIndex =
           Math.min(currentParamIndex + indexDefinition.getParamCount(), params.size());
@@ -223,12 +259,17 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
 
       final Object keyValue;
 
-      if (indexDefinition instanceof OIndexDefinitionMultiValue)
+      if (indexDefinition instanceof OIndexDefinitionMultiValue) {
         keyValue =
-            ((OIndexDefinitionMultiValue) indexDefinition).createSingleValue(indexParams.toArray());
-      else keyValue = indexDefinition.createValue(indexParams);
+            ((OIndexDefinitionMultiValue) indexDefinition)
+                .createSingleValue(session, indexParams.toArray());
+      } else {
+        keyValue = indexDefinition.createValue(session, indexParams);
+      }
 
-      if (keyValue == null && isNullValuesIgnored()) return null;
+      if (keyValue == null && isNullValuesIgnored()) {
+        return null;
+      }
 
       compositeKey.addKey(keyValue);
     }
@@ -248,19 +289,25 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
       final int collectionSize;
 
       // we insert null if collection is empty
-      if (collectionKey.isEmpty()) collectionSize = 1;
-      else collectionSize = collectionKey.size();
+      if (collectionKey.isEmpty()) {
+        collectionSize = 1;
+      } else {
+        collectionSize = collectionKey.size();
+      }
 
       // if that is first collection we split single composite key on several keys, each of those
       // composite keys contain single item from collection
       if (!containsCollection)
-        // sure we need to expand collection only if collection size more than one, otherwise
-        // collection of composite keys already contains original composite key
+      // sure we need to expand collection only if collection size more than one, otherwise
+      // collection of composite keys already contains original composite key
+      {
         for (int i = 1; i < collectionSize; i++) {
           final OCompositeKey compositeKey = new OCompositeKey(firstKey.getKeys());
           compositeKeys.add(compositeKey);
         }
-      else throw new OIndexException("Composite key cannot contain more than one collection item");
+      } else {
+        throw new OIndexException("Composite key cannot contain more than one collection item");
+      }
 
       int compositeIndex = 0;
       if (!collectionKey.isEmpty()) {
@@ -275,21 +322,30 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
       }
 
       containsCollection = true;
-    } else if (containsCollection)
-      for (final OCompositeKey compositeKey : compositeKeys) compositeKey.addKey(keyValue);
-    else firstKey.addKey(keyValue);
+    } else if (containsCollection) {
+      for (final OCompositeKey compositeKey : compositeKeys) {
+        compositeKey.addKey(keyValue);
+      }
+    } else {
+      firstKey.addKey(keyValue);
+    }
 
     return containsCollection;
   }
 
-  /** {@inheritDoc} */
-  public Object createValue(final Object... params) {
-    if (params.length == 1 && params[0] instanceof Collection) return params[0];
+  /**
+   * {@inheritDoc}
+   */
+  public Object createValue(ODatabaseSessionInternal session, final Object... params) {
+    if (params.length == 1 && params[0] instanceof Collection) {
+      return params[0];
+    }
 
-    return createValue(Arrays.asList(params));
+    return createValue(session, Arrays.asList(params));
   }
 
   public void processChangeEvent(
+      ODatabaseSessionInternal session,
       OMultiValueChangeEvent<?, ?> changeEvent,
       Object2IntOpenHashMap<OCompositeKey> keysToAdd,
       Object2IntOpenHashMap<OCompositeKey> keysToRemove,
@@ -299,40 +355,54 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
         (OIndexDefinitionMultiValue) indexDefinitions.get(multiValueDefinitionIndex);
 
     final CompositeWrapperMap compositeWrapperKeysToAdd =
-        new CompositeWrapperMap(keysToAdd, indexDefinitions, params, multiValueDefinitionIndex);
+        new CompositeWrapperMap(
+            session, keysToAdd, indexDefinitions, params, multiValueDefinitionIndex);
 
     final CompositeWrapperMap compositeWrapperKeysToRemove =
-        new CompositeWrapperMap(keysToRemove, indexDefinitions, params, multiValueDefinitionIndex);
+        new CompositeWrapperMap(
+            session, keysToRemove, indexDefinitions, params, multiValueDefinitionIndex);
 
     indexDefinitionMultiValue.processChangeEvent(
-        changeEvent, compositeWrapperKeysToAdd, compositeWrapperKeysToRemove);
+        session, changeEvent, compositeWrapperKeysToAdd, compositeWrapperKeysToRemove);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   public int getParamCount() {
     int total = 0;
-    for (final OIndexDefinition indexDefinition : indexDefinitions)
+    for (final OIndexDefinition indexDefinition : indexDefinitions) {
       total += indexDefinition.getParamCount();
+    }
     return total;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   public OType[] getTypes() {
     final List<OType> types = new LinkedList<>();
-    for (final OIndexDefinition indexDefinition : indexDefinitions)
+    for (final OIndexDefinition indexDefinition : indexDefinitions) {
       Collections.addAll(types, indexDefinition.getTypes());
+    }
 
     return types.toArray(new OType[0]);
   }
 
   @Override
   public boolean equals(final Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     final OCompositeIndexDefinition that = (OCompositeIndexDefinition) o;
 
-    if (!className.equals(that.className)) return false;
+    if (!className.equals(that.className)) {
+      return false;
+    }
     return indexDefinitions.equals(that.indexDefinitions);
   }
 
@@ -382,7 +452,9 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
     document.setPropertyInternal("nullValuesIgnored", isNullValuesIgnored());
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   public String toCreateIndexDDL(final String indexName, final String indexType, String engine) {
     final StringBuilder ddl = new StringBuilder("create index ");
     ddl.append('`').append(indexName).append('`').append(" on ").append(className).append(" ( ");
@@ -396,14 +468,18 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
     }
     ddl.append(" ) ").append(indexType).append(' ');
 
-    if (engine != null)
+    if (engine != null) {
       ddl.append(OCommandExecutorSQLCreateIndex.KEYWORD_ENGINE + " ").append(engine).append(' ');
+    }
 
     if (multiValueDefinitionIndex == -1) {
       boolean first = true;
       for (OType oType : getTypes()) {
-        if (first) first = false;
-        else ddl.append(", ");
+        if (first) {
+          first = false;
+        } else {
+          ddl.append(", ");
+        }
 
         ddl.append(oType.name());
       }
@@ -456,8 +532,9 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
         indexDefinitions.add(indexDefinition);
         collate.addCollate(indexDefinition.getCollate());
 
-        if (indexDefinition instanceof OIndexDefinitionMultiValue)
+        if (indexDefinition instanceof OIndexDefinitionMultiValue) {
           multiValueDefinitionIndex = indexDefinitions.size() - 1;
+        }
       }
 
       setNullValuesIgnored(!Boolean.FALSE.equals(document.<Boolean>field("nullValuesIgnored")));
@@ -482,16 +559,20 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
   }
 
   private static final class CompositeWrapperMap implements Object2IntMap<Object> {
+
     private final Object2IntOpenHashMap<OCompositeKey> underlying;
     private final Object[] params;
     private final List<OIndexDefinition> indexDefinitions;
     private final int multiValueIndex;
+    private ODatabaseSessionInternal session;
 
     private CompositeWrapperMap(
+        ODatabaseSessionInternal session,
         Object2IntOpenHashMap<OCompositeKey> underlying,
         List<OIndexDefinition> indexDefinitions,
         Object[] params,
         int multiValueIndex) {
+      this.session = session;
       this.underlying = underlying;
       this.params = params;
       this.multiValueIndex = multiValueIndex;
@@ -507,7 +588,7 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
     }
 
     public boolean containsKey(Object key) {
-      final OCompositeKey compositeKey = convertToCompositeKey(key);
+      final OCompositeKey compositeKey = convertToCompositeKey(session, key);
 
       return underlying.containsKey(compositeKey);
     }
@@ -534,16 +615,16 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
 
     @Override
     public int getInt(Object o) {
-      return underlying.getInt(convertToCompositeKey(o));
+      return underlying.getInt(convertToCompositeKey(session, o));
     }
 
     public int put(Object key, int value) {
-      final OCompositeKey compositeKey = convertToCompositeKey(key);
+      final OCompositeKey compositeKey = convertToCompositeKey(session, key);
       return underlying.put(compositeKey, value);
     }
 
     public int removeInt(Object key) {
-      return underlying.removeInt(convertToCompositeKey(key));
+      return underlying.removeInt(convertToCompositeKey(session, key));
     }
 
     public void clear() {
@@ -566,18 +647,19 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
       return underlying.values();
     }
 
-    private OCompositeKey convertToCompositeKey(Object key) {
+    private OCompositeKey convertToCompositeKey(ODatabaseSessionInternal session, Object key) {
       final OCompositeKey compositeKey = new OCompositeKey();
 
       int paramsIndex = 0;
       for (int i = 0; i < indexDefinitions.size(); i++) {
         final OIndexDefinition indexDefinition = indexDefinitions.get(i);
         if (i != multiValueIndex) {
-          compositeKey.addKey(indexDefinition.createValue(params[paramsIndex]));
+          compositeKey.addKey(indexDefinition.createValue(session, params[paramsIndex]));
           paramsIndex++;
-        } else
+        } else {
           compositeKey.addKey(
-              ((OIndexDefinitionMultiValue) indexDefinition).createSingleValue(key));
+              ((OIndexDefinitionMultiValue) indexDefinition).createSingleValue(session, key));
+        }
       }
       return compositeKey;
     }

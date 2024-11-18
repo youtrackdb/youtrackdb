@@ -41,7 +41,7 @@ public class RecordMetadataTest extends DocumentDBBaseTest {
 
       final ORecordMetadata metadata = database.getRecordMetadata(doc.getIdentity());
       assetORIDEquals(doc.getIdentity(), metadata.getRecordId());
-      assertEquals(doc.getVersion(), metadata.getVersion());
+      assertEquals(database.bindToSession(doc).getVersion(), metadata.getVersion());
     }
   }
 }

@@ -10,7 +10,6 @@ import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.OStorageDoesNotExistException;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -265,8 +264,7 @@ public class OrientDBEmbeddedTests {
               + OCreateDatabaseUtil.NEW_ADMIN_PASSWORD
               + "' role admin)");
     }
-    final ODatabaseDocument db =
-        orientDb.open("some", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    var db = orientDb.open("some", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     orientDb.drop("some1");
     db.close();
     orientDb.close();

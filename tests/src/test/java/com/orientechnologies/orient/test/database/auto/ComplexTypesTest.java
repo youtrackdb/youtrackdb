@@ -15,6 +15,7 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
+import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -27,18 +28,20 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import org.testng.Assert;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @SuppressWarnings("unchecked")
-@Test(groups = {"crud", "record-vobject"})
+@Test
 public class ComplexTypesTest extends DocumentDBBaseTest {
 
   @Parameters(value = "remote")
-  public ComplexTypesTest(boolean remote) {
-    super(remote);
+  public ComplexTypesTest(@Optional Boolean remote) {
+    super(remote != null && remote);
   }
 
   @Test
@@ -159,7 +162,9 @@ public class ComplexTypesTest extends DocumentDBBaseTest {
       ODocument d = it.next();
       Assert.assertTrue(d instanceof ODocument);
 
-      if (d.field("name").equals("Marcus")) Assert.assertEquals(d.getClassName(), "Account");
+      if (d.field("name").equals("Marcus")) {
+        Assert.assertEquals(d.getClassName(), "Account");
+      }
 
       ++tot;
     }
@@ -192,15 +197,16 @@ public class ComplexTypesTest extends DocumentDBBaseTest {
     Assert.assertTrue(loadedDoc.containsField("linkedSet"));
     Assert.assertTrue(loadedDoc.field("linkedSet", Set.class) instanceof Set<?>);
 
-    final Iterator<ODocument> it =
-        ((Collection<ODocument>) loadedDoc.field("linkedSet")).iterator();
+    final Iterator<OIdentifiable> it =
+        ((Collection<OIdentifiable>) loadedDoc.field("linkedSet")).iterator();
 
     int tot = 0;
     while (it.hasNext()) {
-      ODocument d = it.next();
-      Assert.assertTrue(d instanceof ODocument);
+      var d = it.next().getElement();
 
-      if (d.field("name").equals("Marcus")) Assert.assertEquals(d.getClassName(), "Account");
+      if (Objects.equals(d.getProperty("name"), "Marcus")) {
+        Assert.assertEquals(d.getClassName(), "Account");
+      }
 
       ++tot;
     }

@@ -47,7 +47,9 @@ public class CountFromIndexWithKeyStep extends AbstractExecutionStep {
 
   private OResult produce(OCommandContext ctx) {
     OIndex idx = ctx.getDatabase().getMetadata().getIndexManager().getIndex(target.getIndexName());
-    Object val = idx.getDefinition().createValue(keyValue.execute(new OResultInternal(), ctx));
+    Object val =
+        idx.getDefinition()
+            .createValue(ctx.getDatabase(), keyValue.execute(new OResultInternal(), ctx));
     long size = idx.getInternal().getRids(val).distinct().count();
     OResultInternal result = new OResultInternal();
     result.setProperty(alias, size);

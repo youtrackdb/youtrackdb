@@ -58,7 +58,6 @@ import com.orientechnologies.orient.core.index.engine.v1.OCellBTreeMultiValueInd
 import com.orientechnologies.orient.core.storage.OChecksumMode;
 import com.orientechnologies.orient.core.storage.ORawBuffer;
 import com.orientechnologies.orient.core.storage.ORecordCallback;
-import com.orientechnologies.orient.core.storage.OStorageOperationResult;
 import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
 import com.orientechnologies.orient.core.storage.cache.OReadCache;
 import com.orientechnologies.orient.core.storage.cache.local.OWOWCache;
@@ -1985,7 +1984,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
   }
 
   @Override
-  public OStorageOperationResult<ORawBuffer> readRecord(
+  public ORawBuffer readRecord(
       ORecordId iRid,
       boolean iIgnoreCache,
       boolean prefetchRecords,

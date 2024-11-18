@@ -37,6 +37,7 @@ import com.orientechnologies.orient.core.db.record.OTrackedList;
 import com.orientechnologies.orient.core.db.record.OTrackedMap;
 import com.orientechnologies.orient.core.db.record.OTrackedSet;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.core.exception.OValidationException;
 import com.orientechnologies.orient.core.id.ORID;
@@ -529,11 +530,13 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
     ORecordId id =
         new ORecordId(OVarIntSerializer.readAsInteger(bytes), OVarIntSerializer.readAsLong(bytes));
     if (id.isTemporary()) {
-      OIdentifiable persRef = id.getRecord();
-      if (persRef != null) {
-        return persRef;
+      try {
+        return id.getRecord();
+      } catch (ORecordNotFoundException rnf) {
+        return id;
       }
     }
+
     return id;
   }
 
@@ -743,9 +746,10 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
 
   protected int writeOptimizedLink(final BytesContainer bytes, OIdentifiable link) {
     if (!link.getIdentity().isPersistent()) {
-      final ORecord real = link.getRecord();
-      if (real != null) {
-        link = real;
+      try {
+        link = link.getRecord();
+      } catch (ORecordNotFoundException rnfe) {
+        // ignore it
       }
     }
     final int pos = OVarIntSerializer.write(bytes, link.getIdentity().getClusterId());

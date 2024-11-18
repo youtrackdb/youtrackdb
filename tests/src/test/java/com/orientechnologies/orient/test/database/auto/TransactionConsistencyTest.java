@@ -98,6 +98,8 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
         Assert.fail("Should not failed here...");
       }
       vDocA_db1 = database1.bindToSession(vDocA_db1);
+      vDocB_db1 = database1.bindToSession(vDocB_db1);
+
       Assert.assertEquals(vDocA_db1.field(NAME), "docA_v3");
       // Keep the last versions.
       // Following updates should failed and reverted.
@@ -327,16 +329,16 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     loadedJack.field("occupation", "agent");
     loadedJack.save();
     database.commit();
-    Assert.assertTrue(jackLastVersion != loadedJack.getVersion());
+    Assert.assertTrue(jackLastVersion != database.bindToSession(loadedJack).getVersion());
 
     loadedJack = database.load(jack.getIdentity());
-    Assert.assertTrue(jackLastVersion != loadedJack.getVersion());
+    Assert.assertTrue(jackLastVersion != database.bindToSession(loadedJack).getVersion());
 
     database.close();
 
     database = acquireSession();
     loadedJack = database.load(jack.getIdentity());
-    Assert.assertTrue(jackLastVersion != loadedJack.getVersion());
+    Assert.assertTrue(jackLastVersion != database.bindToSession(loadedJack).getVersion());
     database.close();
   }
 

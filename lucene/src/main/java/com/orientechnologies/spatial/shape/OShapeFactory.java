@@ -15,7 +15,7 @@
  */
 package com.orientechnologies.spatial.shape;
 
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -61,7 +61,7 @@ public class OShapeFactory extends OComplexShapeBuilder {
   }
 
   @Override
-  public void initClazz(ODatabaseInternal db) {
+  public void initClazz(ODatabaseSessionInternal db) {
     for (OShapeBuilder f : factories.values()) {
       f.initClazz(db);
     }

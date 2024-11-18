@@ -53,7 +53,9 @@ public class OQueryOperatorMajor extends OQueryOperatorEqualityNotNulls {
   public OQueryOperatorMajor() {
     super(">", 5, false);
     ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
-    if (db != null) binaryEvaluate = db.getSerializer().getSupportBinaryEvaluate();
+    if (db != null) {
+      binaryEvaluate = db.getSerializer().getSupportBinaryEvaluate();
+    }
   }
 
   @Override
@@ -65,13 +67,17 @@ public class OQueryOperatorMajor extends OQueryOperatorEqualityNotNulls {
       final Object iRight,
       OCommandContext iContext) {
     final Object right = OType.convert(iRight, iLeft.getClass());
-    if (right == null) return false;
+    if (right == null) {
+      return false;
+    }
     return ((Comparable<Object>) iLeft).compareTo(right) > 0;
   }
 
   @Override
   public OIndexReuseType getIndexReuseType(final Object iLeft, final Object iRight) {
-    if (iRight == null || iLeft == null) return OIndexReuseType.NO_INDEX;
+    if (iRight == null || iLeft == null) {
+      return OIndexReuseType.NO_INDEX;
+    }
     return OIndexReuseType.INDEX_METHOD;
   }
 
@@ -82,16 +88,23 @@ public class OQueryOperatorMajor extends OQueryOperatorEqualityNotNulls {
 
     Stream<ORawPair<Object, ORID>> stream;
     final OIndexInternal internalIndex = index.getInternal();
-    if (!internalIndex.canBeUsedInEqualityOperators() || !internalIndex.hasRangeQuerySupport())
+    if (!internalIndex.canBeUsedInEqualityOperators() || !internalIndex.hasRangeQuerySupport()) {
       return null;
+    }
 
     if (indexDefinition.getParamCount() == 1) {
       final Object key;
-      if (indexDefinition instanceof OIndexDefinitionMultiValue)
-        key = ((OIndexDefinitionMultiValue) indexDefinition).createSingleValue(keyParams.get(0));
-      else key = indexDefinition.createValue(keyParams);
+      if (indexDefinition instanceof OIndexDefinitionMultiValue) {
+        key =
+            ((OIndexDefinitionMultiValue) indexDefinition)
+                .createSingleValue(iContext.getDatabase(), keyParams.get(0));
+      } else {
+        key = indexDefinition.createValue(iContext.getDatabase(), keyParams);
+      }
 
-      if (key == null) return null;
+      if (key == null) {
+        return null;
+      }
 
       stream = index.getInternal().streamEntriesMajor(key, false, ascSortOrder);
     } else {
@@ -105,14 +118,20 @@ public class OQueryOperatorMajor extends OQueryOperatorEqualityNotNulls {
       final OCompositeIndexDefinition compositeIndexDefinition =
           (OCompositeIndexDefinition) indexDefinition;
 
-      final Object keyOne = compositeIndexDefinition.createSingleValue(keyParams);
+      final Object keyOne =
+          compositeIndexDefinition.createSingleValue(iContext.getDatabase(), keyParams);
 
-      if (keyOne == null) return null;
+      if (keyOne == null) {
+        return null;
+      }
 
       final Object keyTwo =
-          compositeIndexDefinition.createSingleValue(keyParams.subList(0, keyParams.size() - 1));
+          compositeIndexDefinition.createSingleValue(
+              iContext.getDatabase(), keyParams.subList(0, keyParams.size() - 1));
 
-      if (keyTwo == null) return null;
+      if (keyTwo == null) {
+        return null;
+      }
 
       stream = index.getInternal().streamEntriesBetween(keyOne, false, keyTwo, true, ascSortOrder);
     }
@@ -124,14 +143,17 @@ public class OQueryOperatorMajor extends OQueryOperatorEqualityNotNulls {
   @Override
   public ORID getBeginRidRange(final Object iLeft, final Object iRight) {
     if (iLeft instanceof OSQLFilterItemField
-        && ODocumentHelper.ATTRIBUTE_RID.equals(((OSQLFilterItemField) iLeft).getRoot()))
-      if (iRight instanceof ORID) return new ORecordId(((ORID) iRight).next());
-      else {
+        && ODocumentHelper.ATTRIBUTE_RID.equals(((OSQLFilterItemField) iLeft).getRoot())) {
+      if (iRight instanceof ORID) {
+        return new ORecordId(((ORID) iRight).next());
+      } else {
         if (iRight instanceof OSQLFilterItemParameter
-            && ((OSQLFilterItemParameter) iRight).getValue(null, null, null) instanceof ORID)
+            && ((OSQLFilterItemParameter) iRight).getValue(null, null, null) instanceof ORID) {
           return new ORecordId(
               ((ORID) ((OSQLFilterItemParameter) iRight).getValue(null, null, null)).next());
+        }
       }
+    }
     return null;
   }
 

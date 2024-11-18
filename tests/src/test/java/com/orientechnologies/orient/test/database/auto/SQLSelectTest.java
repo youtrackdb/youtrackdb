@@ -373,7 +373,7 @@ public class SQLSelectTest extends AbstractSelectTest {
     record.field("name", "Cat");
 
     database.begin();
-    Collection<ODocument> races = new HashSet<>();
+    Collection<OIdentifiable> races = new HashSet<>();
     races.add(((ODocument) database.newInstance("AnimalRace")).field("name", "European"));
     races.add(((ODocument) database.newInstance("AnimalRace")).field("name", "Siamese"));
     record.field("age", 10);
@@ -390,12 +390,13 @@ public class SQLSelectTest extends AbstractSelectTest {
     for (int i = 0; i < result.size() && !found; ++i) {
       record = result.get(i);
 
-      Assert.assertTrue(record.getClassName().equalsIgnoreCase("animal"));
+      Assert.assertTrue(Objects.requireNonNull(record.getClassName()).equalsIgnoreCase("animal"));
       Assert.assertNotNull(record.field("races"));
 
       races = record.field("races");
-      for (ODocument race : races) {
-        if (race.field("name").equals("European") || race.field("name").equals("Asiatic")) {
+      for (OIdentifiable race : races) {
+        if (Objects.equals(race.getElement().getProperty("name"), "European")
+            || Objects.equals(race.getElement().getProperty("name"), "Asiatic")) {
           found = true;
           break;
         }
@@ -412,12 +413,13 @@ public class SQLSelectTest extends AbstractSelectTest {
     for (int i = 0; i < result.size() && !found; ++i) {
       record = result.get(i);
 
-      Assert.assertTrue(record.getClassName().equalsIgnoreCase("animal"));
+      Assert.assertTrue(Objects.requireNonNull(record.getClassName()).equalsIgnoreCase("animal"));
       Assert.assertNotNull(record.field("races"));
 
       races = record.field("races");
-      for (ODocument race : races) {
-        if (race.field("name").equals("European") || race.field("name").equals("Asiatic")) {
+      for (OIdentifiable race : races) {
+        if (Objects.equals(race.getElement().getProperty("name"), "European")
+            || Objects.equals(race.getElement().getProperty("name"), "Asiatic")) {
           found = true;
           break;
         }

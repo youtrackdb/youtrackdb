@@ -21,6 +21,9 @@ package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.collate.ODefaultCollate;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
 
@@ -30,6 +33,7 @@ import com.orientechnologies.orient.core.sql.OSQLEngine;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public abstract class OAbstractIndexDefinition implements OIndexDefinition {
+
   protected OCollate collate = new ODefaultCollate();
   private boolean nullValuesIgnored = true;
 
@@ -40,26 +44,38 @@ public abstract class OAbstractIndexDefinition implements OIndexDefinition {
   }
 
   public void setCollate(final OCollate collate) {
-    if (collate == null) throw new IllegalArgumentException("COLLATE cannot be null");
+    if (collate == null) {
+      throw new IllegalArgumentException("COLLATE cannot be null");
+    }
     this.collate = collate;
   }
 
   public void setCollate(String iCollate) {
-    if (iCollate == null) iCollate = ODefaultCollate.NAME;
+    if (iCollate == null) {
+      iCollate = ODefaultCollate.NAME;
+    }
 
     setCollate(OSQLEngine.getCollate(iCollate));
   }
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OAbstractIndexDefinition that = (OAbstractIndexDefinition) o;
 
-    if (!collate.equals(that.collate)) return false;
+    if (!collate.equals(that.collate)) {
+      return false;
+    }
 
-    if (nullValuesIgnored != that.nullValuesIgnored) return false;
+    if (nullValuesIgnored != that.nullValuesIgnored) {
+      return false;
+    }
 
     return true;
   }
@@ -84,4 +100,19 @@ public abstract class OAbstractIndexDefinition implements OIndexDefinition {
   protected void serializeToStream(ODocument document) {}
 
   protected void serializeFromStream(ODocument document) {}
+
+  protected static <T> T refreshRid(ODatabaseSessionInternal session, T value) {
+    if (value instanceof ORID rid) {
+      if (rid.isNew()) {
+        try {
+          var record = session.load(rid);
+          //noinspection unchecked
+          value = (T) record.getIdentity();
+        } catch (ORecordNotFoundException rnf) {
+          return value;
+        }
+      }
+    }
+    return value;
+  }
 }

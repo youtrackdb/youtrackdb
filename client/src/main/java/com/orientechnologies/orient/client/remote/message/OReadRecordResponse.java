@@ -22,7 +22,6 @@ package com.orientechnologies.orient.client.remote.message;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
@@ -91,7 +90,7 @@ public final class OReadRecordResponse implements OBinaryResponse {
     buffer = new ORawBuffer(bytes, recVersion, type);
 
     // TODO: This should not be here, move it in a callback or similar
-    final ODatabaseDocument database = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    var database = ODatabaseRecordThreadLocal.instance().getIfDefined();
     ORecordAbstract record;
     while (network.readByte() == 2) {
       record = (ORecordAbstract) OMessageHelper.readIdentifiable(network, serializer);

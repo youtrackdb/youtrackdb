@@ -24,11 +24,11 @@ import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OScenarioThreadLocal;
 import com.orientechnologies.orient.core.db.OSystemDatabase;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OClassTrigger;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordLazySet;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OSecurityAccessException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -939,7 +939,7 @@ public class OSecurityShared implements OSecurityInternal {
     adminRole.save();
   }
 
-  private void createOrUpdateORestrictedClass(final ODatabaseDocument database) {
+  private void createOrUpdateORestrictedClass(final ODatabaseSession database) {
     OClass restrictedClass = database.getMetadata().getSchema().getClass(RESTRICTED_CLASSNAME);
     boolean unsafe = false;
     if (restrictedClass == null) {
@@ -978,7 +978,7 @@ public class OSecurityShared implements OSecurityInternal {
   }
 
   private void createOrUpdateOUserClass(
-      final ODatabaseDocument database, OClass identityClass, OClass roleClass) {
+      final ODatabaseSession database, OClass identityClass, OClass roleClass) {
     boolean unsafe = false;
     OClass userClass = database.getMetadata().getSchema().getClass("OUser");
     if (userClass == null) {
@@ -1023,7 +1023,7 @@ public class OSecurityShared implements OSecurityInternal {
     }
   }
 
-  private OClass createOrUpdateOSecurityPolicyClass(final ODatabaseDocument database) {
+  private OClass createOrUpdateOSecurityPolicyClass(final ODatabaseSession database) {
     OClass policyClass = database.getMetadata().getSchema().getClass("OSecurityPolicy");
     boolean unsafe = false;
     if (policyClass == null) {
@@ -1073,7 +1073,7 @@ public class OSecurityShared implements OSecurityInternal {
     return policyClass;
   }
 
-  private OClass createOrUpdateORoleClass(final ODatabaseDocument database, OClass identityClass) {
+  private OClass createOrUpdateORoleClass(final ODatabaseSession database, OClass identityClass) {
     OClass roleClass = database.getMetadata().getSchema().getClass("ORole");
     boolean unsafe = false;
     if (roleClass == null) {
@@ -1341,21 +1341,21 @@ public class OSecurityShared implements OSecurityInternal {
                 if (policies != null) {
                   for (Map.Entry<String, OIdentifiable> policyEntry : policies.entrySet()) {
                     OSecurityResource res = OSecurityResource.getInstance(policyEntry.getKey());
-                    OElement policy = policyEntry.getValue().getRecord();
-                    if (policy != null) {
+                    try {
+                      OElement policy = policyEntry.getValue().getRecord();
+
                       for (OClass clazz : allClasses) {
                         if (isClassInvolved(clazz, res)
                             && !isAllAllowed(
                                 session,
                                 new OImmutableSecurityPolicy(new OSecurityPolicyImpl(policy)))) {
-                          Map<String, Boolean> roleMap = result.get(roleName);
-                          if (roleMap == null) {
-                            roleMap = new HashMap<>();
-                            result.put(roleName, roleMap);
-                          }
+                          Map<String, Boolean> roleMap =
+                              result.computeIfAbsent(roleName, k -> new HashMap<>());
                           roleMap.put(clazz.getName(), true);
                         }
                       }
+                    } catch (ORecordNotFoundException rne) {
+                      // ignore
                     }
                   }
                 }

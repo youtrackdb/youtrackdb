@@ -173,18 +173,16 @@ public class OSecurityRemote implements OSecurityInternal {
       final String userName,
       final String userPassword,
       final ORole... roles) {
-    return session.computeInTx(
-        () -> {
-          final OUser user = new OUser(userName, userPassword);
 
-          if (roles != null) {
-            for (ORole r : roles) {
-              user.addRole(r);
-            }
-          }
+    final OUser user = new OUser(userName, userPassword);
 
-          return user.save();
-        });
+    if (roles != null) {
+      for (ORole r : roles) {
+        user.addRole(r);
+      }
+    }
+
+    return user.save();
   }
 
   @Override
@@ -233,11 +231,9 @@ public class OSecurityRemote implements OSecurityInternal {
 
   public ORole getRole(final ODatabaseSession session, final OIdentifiable iRole) {
     final ODocument doc = session.load(iRole.getIdentity());
-    if (doc != null) {
-      OImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(doc);
-      if (clazz != null && clazz.isOrole()) {
-        return new ORole(doc);
-      }
+    OImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(doc);
+    if (clazz != null && clazz.isOrole()) {
+      return new ORole(doc);
     }
 
     return null;

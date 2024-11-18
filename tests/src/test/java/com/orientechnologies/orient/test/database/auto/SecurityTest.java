@@ -331,15 +331,13 @@ public class SecurityTest extends DocumentDBBaseTest {
     database = createSessionInstance();
     try {
       OSecurity security = database.getMetadata().getSecurity();
-
       String userName = "";
       try {
         database.begin();
         ORole reader = security.getRole("reader");
-
         security.createUser(userName, "foobar", reader);
-        Assert.assertTrue(false);
         database.commit();
+        Assert.fail();
       } catch (OValidationException ve) {
         Assert.assertTrue(true);
       }

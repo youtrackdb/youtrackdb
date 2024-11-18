@@ -26,7 +26,8 @@ import org.testng.annotations.Test;
 public class LinkListIndexTest extends DocumentDBBaseTest {
   @Parameters(value = "remote")
   public LinkListIndexTest(@Optional Boolean remote) {
-    super(remote != null && remote);
+    // super(remote != null && remote);
+    super(true);
   }
 
   @BeforeClass

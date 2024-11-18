@@ -33,25 +33,25 @@ import com.orientechnologies.orient.core.sql.executor.OResultSet;
 public interface ODatabaseListener {
 
   @Deprecated
-  void onCreate(final ODatabase iDatabase);
+  void onCreate(final ODatabaseSession iDatabase);
 
   @Deprecated
-  void onDelete(final ODatabase iDatabase);
+  void onDelete(final ODatabaseSession iDatabase);
 
   @Deprecated
-  void onOpen(final ODatabase iDatabase);
+  void onOpen(final ODatabaseSession iDatabase);
 
-  void onBeforeTxBegin(final ODatabase iDatabase);
+  void onBeforeTxBegin(final ODatabaseSession iDatabase);
 
-  void onBeforeTxRollback(final ODatabase iDatabase);
+  void onBeforeTxRollback(final ODatabaseSession iDatabase);
 
-  void onAfterTxRollback(final ODatabase iDatabase);
+  void onAfterTxRollback(final ODatabaseSession iDatabase);
 
-  void onBeforeTxCommit(final ODatabase iDatabase);
+  void onBeforeTxCommit(final ODatabaseSession iDatabase);
 
-  void onAfterTxCommit(final ODatabase iDatabase);
+  void onAfterTxCommit(final ODatabaseSession iDatabase);
 
-  void onClose(final ODatabase iDatabase);
+  void onClose(final ODatabaseSession iDatabase);
 
   @Deprecated
   void onBeforeCommand(final OCommandRequestText iCommand, final OCommandExecutor executor);
@@ -60,17 +60,17 @@ public interface ODatabaseListener {
   void onAfterCommand(
       final OCommandRequestText iCommand, final OCommandExecutor executor, Object result);
 
-  default void onCreateClass(ODatabase iDatabase, OClass iClass) {}
+  default void onCreateClass(ODatabaseSession iDatabase, OClass iClass) {}
 
-  default void onDropClass(ODatabase iDatabase, OClass iClass) {}
+  default void onDropClass(ODatabaseSession iDatabase, OClass iClass) {}
 
-  default void onCreateView(ODatabase database, OView view) {}
+  default void onCreateView(ODatabaseSession database, OView view) {}
 
-  default void onDropView(ODatabase database, OView view) {}
+  default void onDropView(ODatabaseSession database, OView view) {}
 
-  default void onCommandStart(ODatabase database, OResultSet resultSet) {}
+  default void onCommandStart(ODatabaseSession database, OResultSet resultSet) {}
 
-  default void onCommandEnd(ODatabase database, OResultSet resultSet) {}
+  default void onCommandEnd(ODatabaseSession database, OResultSet resultSet) {}
 
   /**
    * Callback to decide if repair the database upon corruption.
@@ -82,7 +82,7 @@ public interface ODatabaseListener {
    */
   @Deprecated
   default boolean onCorruptionRepairDatabase(
-      final ODatabase iDatabase, final String iReason, String iWhatWillbeFixed) {
+      final ODatabaseSession iDatabase, final String iReason, String iWhatWillbeFixed) {
     return false;
   }
 }

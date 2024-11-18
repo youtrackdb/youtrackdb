@@ -23,10 +23,9 @@ package com.orientechnologies.orient.core.record.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import com.orientechnologies.orient.core.db.ODatabase;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerBinary;
@@ -79,13 +78,13 @@ public class ODateConversionTestCase {
   public void testDateFormantWithMethod() throws ParseException {
     try (OrientDB ctx = new OrientDB("embedded:", OrientDBConfig.defaultConfig())) {
       ctx.execute("create database test memory users(admin identified by 'adminpwd' role admin)");
-      try (ODatabaseDocument db = ctx.open("test", "admin", "adminpwd")) {
+      try (var db = ctx.open("test", "admin", "adminpwd")) {
 
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         format.setTimeZone(TimeZone.getTimeZone("GMT"));
         Date date = format.parse("2016-08-31 23:30:00");
 
-        db.set(ODatabase.ATTRIBUTES.TIMEZONE, "GMT");
+        db.set(ODatabaseSession.ATTRIBUTES.TIMEZONE, "GMT");
 
         ODocument doc = new ODocument();
 

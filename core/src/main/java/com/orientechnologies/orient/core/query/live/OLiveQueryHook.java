@@ -23,9 +23,8 @@ import static com.orientechnologies.orient.core.config.OGlobalConfiguration.QUER
 
 import com.orientechnologies.common.concur.resource.OCloseable;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.ODatabase;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -34,13 +33,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/** Created by luigidellaquila on 16/03/15. */
+/**
+ * Created by luigidellaquila on 16/03/15.
+ */
 public class OLiveQueryHook {
 
   public static class OLiveQueryOps implements OCloseable {
 
-    protected Map<ODatabaseDocument, List<ORecordOperation>> pendingOps =
-        new ConcurrentHashMap<ODatabaseDocument, List<ORecordOperation>>();
+    protected Map<ODatabaseSession, List<ORecordOperation>> pendingOps = new ConcurrentHashMap<>();
     private OLiveQueryQueueThread queueThread = new OLiveQueryQueueThread();
     private Object threadLock = new Object();
 
@@ -60,12 +60,12 @@ public class OLiveQueryHook {
     }
   }
 
-  public static OLiveQueryOps getOpsReference(ODatabaseInternal db) {
+  public static OLiveQueryOps getOpsReference(ODatabaseSessionInternal db) {
     return db.getSharedContext().getLiveQueryOps();
   }
 
   public static Integer subscribe(
-      Integer token, OLiveQueryListener iListener, ODatabaseInternal db) {
+      Integer token, OLiveQueryListener iListener, ODatabaseSessionInternal db) {
     if (Boolean.FALSE.equals(db.getConfiguration().getValue(QUERY_LIVE_SUPPORT))) {
       OLogManager.instance()
           .warn(
@@ -86,7 +86,7 @@ public class OLiveQueryHook {
     return ops.queueThread.subscribe(token, iListener);
   }
 
-  public static void unsubscribe(Integer id, ODatabaseInternal db) {
+  public static void unsubscribe(Integer id, ODatabaseSessionInternal db) {
     if (Boolean.FALSE.equals(db.getConfiguration().getValue(QUERY_LIVE_SUPPORT))) {
       OLogManager.instance()
           .warn(
@@ -106,13 +106,15 @@ public class OLiveQueryHook {
     }
   }
 
-  public static void notifyForTxChanges(ODatabase iDatabase) {
+  public static void notifyForTxChanges(ODatabaseSession iDatabase) {
 
-    OLiveQueryOps ops = getOpsReference((ODatabaseInternal) iDatabase);
+    OLiveQueryOps ops = getOpsReference((ODatabaseSessionInternal) iDatabase);
     if (ops.pendingOps.isEmpty()) {
       return;
     }
-    if (Boolean.FALSE.equals(iDatabase.getConfiguration().getValue(QUERY_LIVE_SUPPORT))) return;
+    if (Boolean.FALSE.equals(iDatabase.getConfiguration().getValue(QUERY_LIVE_SUPPORT))) {
+      return;
+    }
 
     List<ORecordOperation> list;
     synchronized (ops.pendingOps) {
@@ -127,12 +129,13 @@ public class OLiveQueryHook {
     }
   }
 
-  public static void removePendingDatabaseOps(ODatabase iDatabase) {
+  public static void removePendingDatabaseOps(ODatabaseSession iDatabase) {
     try {
       if (iDatabase.isClosed()
-          || Boolean.FALSE.equals(iDatabase.getConfiguration().getValue(QUERY_LIVE_SUPPORT)))
+          || Boolean.FALSE.equals(iDatabase.getConfiguration().getValue(QUERY_LIVE_SUPPORT))) {
         return;
-      OLiveQueryOps ops = getOpsReference((ODatabaseInternal) iDatabase);
+      }
+      OLiveQueryOps ops = getOpsReference((ODatabaseSessionInternal) iDatabase);
       synchronized (ops.pendingOps) {
         ops.pendingOps.remove(iDatabase);
       }
@@ -142,11 +145,15 @@ public class OLiveQueryHook {
     }
   }
 
-  public static void addOp(ODocument iDocument, byte iType, ODatabaseDocument database) {
-    ODatabaseDocument db = database;
-    OLiveQueryOps ops = getOpsReference((ODatabaseInternal) db);
-    if (!ops.queueThread.hasListeners()) return;
-    if (Boolean.FALSE.equals(database.getConfiguration().getValue(QUERY_LIVE_SUPPORT))) return;
+  public static void addOp(ODocument iDocument, byte iType, ODatabaseSession database) {
+    var db = database;
+    OLiveQueryOps ops = getOpsReference((ODatabaseSessionInternal) db);
+    if (!ops.queueThread.hasListeners()) {
+      return;
+    }
+    if (Boolean.FALSE.equals(database.getConfiguration().getValue(QUERY_LIVE_SUPPORT))) {
+      return;
+    }
     ORecordOperation result = new ORecordOperation(iDocument, iType);
     synchronized (ops.pendingOps) {
       List<ORecordOperation> list = ops.pendingOps.get(db);

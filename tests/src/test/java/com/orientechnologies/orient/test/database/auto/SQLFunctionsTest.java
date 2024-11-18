@@ -44,6 +44,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -51,8 +53,18 @@ import org.testng.annotations.Test;
 public class SQLFunctionsTest extends DocumentDBBaseTest {
 
   @Parameters(value = "remote")
-  public SQLFunctionsTest(boolean remote) {
-    super(remote);
+  public SQLFunctionsTest(@Optional Boolean remote) {
+    super(remote != null && remote);
+  }
+
+  @BeforeClass
+  @Override
+  public void beforeClass() throws Exception {
+    super.beforeClass();
+
+    generateCompanyData();
+    generateProfiles();
+    generateGraphData();
   }
 
   @Test
@@ -131,6 +143,7 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
 
     database.getMetadata().getSchema().createClass("QueryCountExtendsRestrictedClass", restricted);
 
+    database.begin();
     OUser admin = database.getMetadata().getSecurity().getUser("admin");
     OUser reader = database.getMetadata().getSecurity().getUser("reader");
 
@@ -142,9 +155,7 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
             .createRole("byPassRestrictedRole", ORole.ALLOW_MODES.DENY_ALL_BUT);
     byPassRestrictedRole.addRule(
         ORule.ResourceGeneric.BYPASS_RESTRICTED, null, ORole.PERMISSION_READ);
-    database.begin();
     byPassRestrictedRole.save();
-    database.commit();
 
     database
         .getMetadata()
@@ -155,13 +166,13 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
     docAdmin.field(
         "_allowRead",
         new HashSet<OIdentifiable>(Collections.singletonList(admin.getIdentity().getIdentity())));
-    database.begin();
+
     docAdmin.save();
     database.commit();
 
+    database.begin();
     ODocument docReader = new ODocument("QueryCountExtendsRestrictedClass");
     docReader.field("_allowRead", new HashSet<>(Collections.singletonList(reader.getIdentity())));
-    database.begin();
     docReader.save();
     database.commit();
 

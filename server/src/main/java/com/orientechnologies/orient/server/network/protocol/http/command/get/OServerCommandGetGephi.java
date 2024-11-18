@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OVertex;
@@ -63,7 +63,7 @@ public class OServerCommandGetGephi extends OServerCommandAuthenticatedDbAbstrac
     iRequest.getData().commandInfo = "Gephi";
     iRequest.getData().commandDetail = text;
 
-    final ODatabaseDocument db = getProfiledDatabaseInstance(iRequest);
+    var db = getProfiledDatabaseInstance(iRequest);
 
     ;
     try {
@@ -197,7 +197,7 @@ public class OServerCommandGetGephi extends OServerCommandAuthenticatedDbAbstrac
   }
 
   protected OResultSet executeStatement(
-      String language, String text, Object params, ODatabaseDocument db) {
+      String language, String text, Object params, ODatabaseSession db) {
     OResultSet result;
     if (params instanceof Map) {
       result = db.command(text, (Map) params);

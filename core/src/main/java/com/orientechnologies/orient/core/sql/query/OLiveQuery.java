@@ -21,10 +21,10 @@ package com.orientechnologies.orient.core.sql.query;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -73,33 +73,34 @@ public class OLiveQuery<T> extends OSQLSynchQuery<T> {
   }
 
   private class BackwardOLiveQueryResultListener implements OLiveQueryResultListener {
+
     protected int token;
 
     @Override
-    public void onCreate(ODatabaseDocument database, OResult data) {
+    public void onCreate(ODatabaseSession database, OResult data) {
       ((OLocalLiveResultListener) getResultListener())
           .onLiveResult(token, new ORecordOperation(data.toElement(), ORecordOperation.CREATED));
     }
 
     @Override
-    public void onUpdate(ODatabaseDocument database, OResult before, OResult after) {
+    public void onUpdate(ODatabaseSession database, OResult before, OResult after) {
       ((OLocalLiveResultListener) getResultListener())
           .onLiveResult(token, new ORecordOperation(after.toElement(), ORecordOperation.UPDATED));
     }
 
     @Override
-    public void onDelete(ODatabaseDocument database, OResult data) {
+    public void onDelete(ODatabaseSession database, OResult data) {
       ((OLocalLiveResultListener) getResultListener())
           .onLiveResult(token, new ORecordOperation(data.toElement(), ORecordOperation.DELETED));
     }
 
     @Override
-    public void onError(ODatabaseDocument database, OException exception) {
+    public void onError(ODatabaseSession database, OException exception) {
       ((OLocalLiveResultListener) getResultListener()).onError(token);
     }
 
     @Override
-    public void onEnd(ODatabaseDocument database) {
+    public void onEnd(ODatabaseSession database) {
       ((OLocalLiveResultListener) getResultListener()).onUnsubscribe(token);
     }
   }

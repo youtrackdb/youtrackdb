@@ -2,6 +2,7 @@ package com.orientechnologies.orient.core.db;
 
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.viewmanager.ViewManager;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.index.OIndexException;
@@ -217,8 +218,10 @@ public class OSharedContextEmbedded extends OSharedContext {
           String id = storage.getConfiguration().getProperty(propertyName);
           if (id != null) {
             ORecordId recordId = new ORecordId(id);
-            ORecordAbstract record = session.load(recordId);
-            if (record == null) {
+            ORecordAbstract record;
+            try {
+              record = session.load(recordId);
+            } catch (ORecordNotFoundException rnfe) {
               record = new ODocument();
               ORecordInternal.unsetDirty(record);
             }

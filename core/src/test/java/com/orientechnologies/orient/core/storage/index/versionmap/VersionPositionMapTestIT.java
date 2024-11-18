@@ -40,7 +40,7 @@ public class VersionPositionMapTestIT {
 
     ODatabaseSession databaseSession =
         orientDB.open(DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
-    storage = (OAbstractPaginatedStorage) ((ODatabaseInternal<?>) databaseSession).getStorage();
+    storage = (OAbstractPaginatedStorage) ((ODatabaseSessionInternal) databaseSession).getStorage();
     atomicOperationsManager = storage.getAtomicOperationsManager();
     databaseSession.close();
   }

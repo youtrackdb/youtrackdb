@@ -19,9 +19,10 @@
  */
 package com.orientechnologies.orient.core.tx;
 
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -29,6 +30,7 @@ import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.util.List;
+import javax.annotation.Nonnull;
 
 public interface OTransaction {
 
@@ -51,12 +53,13 @@ public interface OTransaction {
 
   void rollback(boolean force, int commitLevelDiff);
 
-  ODatabaseDocument getDatabase();
+  ODatabaseSession getDatabase();
 
   @Deprecated
   void clearRecordEntries();
 
-  ORecord loadRecord(ORID rid);
+  @Nonnull
+  ORecord loadRecord(ORID rid) throws ORecordNotFoundException;
 
   boolean exists(ORID rid);
 

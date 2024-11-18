@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.core.db.tool;
 
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.id.ORID;
@@ -26,7 +26,7 @@ import java.util.Set;
  */
 public class OBonsaiTreeRepair {
 
-  public void repairDatabaseRidbags(ODatabaseDocument db, OCommandOutputListener outputListener) {
+  public void repairDatabaseRidbags(ODatabaseSession db, OCommandOutputListener outputListener) {
     message(outputListener, "Repair of ridbags is started ...\n");
 
     final OMetadata metadata = db.getMetadata();

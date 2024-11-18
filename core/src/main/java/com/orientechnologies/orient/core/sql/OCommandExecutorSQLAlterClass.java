@@ -24,8 +24,8 @@ import com.orientechnologies.orient.core.command.OCommandDistributedReplicateReq
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OClass.ATTRIBUTES;
@@ -60,8 +60,6 @@ public class OCommandExecutorSQLAlterClass extends OCommandExecutorSQLAbstract
     try {
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
-
-      final ODatabaseDocument database = getDatabase();
 
       init((OCommandRequestText) iRequest);
 
@@ -189,7 +187,7 @@ public class OCommandExecutorSQLAlterClass extends OCommandExecutorSQLAbstract
   }
 
   protected void checkClassExists(
-      ODatabaseDocument database, String targetClass, String superClass) {
+      ODatabaseSession database, String targetClass, String superClass) {
     if (superClass.startsWith("+") || superClass.startsWith("-")) {
       superClass = superClass.substring(1);
     }

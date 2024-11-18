@@ -142,7 +142,8 @@ public class CreateEdgesStep extends AbstractExecutionStep {
               }
               OEdge edgeToUpdate = null;
               if (uniqueIndex != null) {
-                OEdge existingEdge = getExistingEdge(currentFrom, currentTo, uniqueIndex);
+                OEdge existingEdge =
+                    getExistingEdge(ctx.getDatabase(), currentFrom, currentTo, uniqueIndex);
                 if (existingEdge != null) {
                   edgeToUpdate = existingEdge;
                 }
@@ -168,9 +169,15 @@ public class CreateEdgesStep extends AbstractExecutionStep {
             });
   }
 
-  private OEdge getExistingEdge(OVertex currentFrom, OVertex currentTo, OIndex uniqueIndex) {
+  private OEdge getExistingEdge(
+      ODatabaseSessionInternal session,
+      OVertex currentFrom,
+      OVertex currentTo,
+      OIndex uniqueIndex) {
     Object key =
-        uniqueIndex.getDefinition().createValue(currentFrom.getIdentity(), currentTo.getIdentity());
+        uniqueIndex
+            .getDefinition()
+            .createValue(session, currentFrom.getIdentity(), currentTo.getIdentity());
 
     final Iterator<ORID> iterator;
     try (Stream<ORID> stream = uniqueIndex.getInternal().getRids(key)) {

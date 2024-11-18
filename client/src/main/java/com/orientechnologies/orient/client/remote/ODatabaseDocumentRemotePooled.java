@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.client.remote;
 
 import com.orientechnologies.orient.client.remote.db.document.ODatabaseDocumentRemote;
-import com.orientechnologies.orient.core.db.ODatabase;
 import com.orientechnologies.orient.core.db.ODatabasePoolInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OSharedContext;
 
@@ -37,7 +37,7 @@ public class ODatabaseDocumentRemotePooled extends ODatabaseDocumentRemote {
 
   public void reuse() {
     activateOnCurrentThread();
-    setStatus(ODatabase.STATUS.OPEN);
+    setStatus(ODatabaseSession.STATUS.OPEN);
   }
 
   public void realClose() {

@@ -18,9 +18,9 @@ package com.orientechnologies.orient.test.database.auto;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import java.io.IOException;
@@ -45,28 +45,28 @@ public class LiveQuery30Test extends DocumentDBBaseTest implements OCommandOutpu
     public int unsubscribe;
 
     @Override
-    public void onCreate(ODatabaseDocument database, OResult data) {
+    public void onCreate(ODatabaseSession database, OResult data) {
       ops.add(new OPair<>("create", data));
       latch.countDown();
     }
 
     @Override
-    public void onUpdate(ODatabaseDocument database, OResult before, OResult after) {
+    public void onUpdate(ODatabaseSession database, OResult before, OResult after) {
       ops.add(new OPair<>("update", after));
       latch.countDown();
     }
 
     @Override
-    public void onDelete(ODatabaseDocument database, OResult data) {
+    public void onDelete(ODatabaseSession database, OResult data) {
       ops.add(new OPair<>("delete", data));
       latch.countDown();
     }
 
     @Override
-    public void onError(ODatabaseDocument database, OException exception) {}
+    public void onError(ODatabaseSession database, OException exception) {}
 
     @Override
-    public void onEnd(ODatabaseDocument database) {
+    public void onEnd(ODatabaseSession database) {
       unsubscribe = 1;
       unLatch.countDown();
     }

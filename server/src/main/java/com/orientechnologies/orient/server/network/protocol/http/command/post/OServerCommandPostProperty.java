@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.util.Map;
 
 public class OServerCommandPostProperty extends OServerCommandAuthenticatedDbAbstract {
+
   private static final String PROPERTY_TYPE_JSON_FIELD = "propertyType";
   private static final String LINKED_CLASS_JSON_FIELD = "linkedClass";
   private static final String LINKED_TYPE_JSON_FIELD = "linkedType";
@@ -39,22 +40,24 @@ public class OServerCommandPostProperty extends OServerCommandAuthenticatedDbAbs
 
   @Override
   public boolean execute(final OHttpRequest iRequest, OHttpResponse iResponse) throws Exception {
-    ODatabaseDocument db = null;
+    ODatabaseSession db = null;
     try {
       db = getProfiledDatabaseInstance(iRequest);
-      if (iRequest.getContent() == null || iRequest.getContent().length() <= 0)
+      if (iRequest.getContent() == null || iRequest.getContent().length() <= 0) {
         return addSingleProperty(iRequest, iResponse, db);
-      else {
+      } else {
         return addMultipreProperties(iRequest, iResponse, db);
       }
     } finally {
-      if (db != null) db.close();
+      if (db != null) {
+        db.close();
+      }
     }
   }
 
   @SuppressWarnings("unused")
   protected boolean addSingleProperty(
-      final OHttpRequest iRequest, final OHttpResponse iResponse, final ODatabaseDocument db)
+      final OHttpRequest iRequest, final OHttpResponse iResponse, final ODatabaseSession db)
       throws InterruptedException, IOException {
     String[] urlParts =
         checkSyntax(
@@ -66,8 +69,9 @@ public class OServerCommandPostProperty extends OServerCommandAuthenticatedDbAbs
     iRequest.getData().commandInfo = "Create property";
     iRequest.getData().commandDetail = urlParts[2] + "." + urlParts[3];
 
-    if (db.getMetadata().getSchema().getClass(urlParts[2]) == null)
+    if (db.getMetadata().getSchema().getClass(urlParts[2]) == null) {
       throw new IllegalArgumentException("Invalid class '" + urlParts[2] + "'");
+    }
 
     final OClass cls = db.getMetadata().getSchema().getClass(urlParts[2]);
 
@@ -129,7 +133,7 @@ public class OServerCommandPostProperty extends OServerCommandAuthenticatedDbAbs
 
   @SuppressWarnings({"unchecked", "unused"})
   protected boolean addMultipreProperties(
-      final OHttpRequest iRequest, final OHttpResponse iResponse, final ODatabaseDocument db)
+      final OHttpRequest iRequest, final OHttpResponse iResponse, final ODatabaseSession db)
       throws InterruptedException, IOException {
     String[] urlParts =
         checkSyntax(iRequest.getUrl(), 3, "Syntax error: property/<database>/<class-name>");
@@ -137,8 +141,9 @@ public class OServerCommandPostProperty extends OServerCommandAuthenticatedDbAbs
     iRequest.getData().commandInfo = "Create property";
     iRequest.getData().commandDetail = urlParts[2];
 
-    if (db.getMetadata().getSchema().getClass(urlParts[2]) == null)
+    if (db.getMetadata().getSchema().getClass(urlParts[2]) == null) {
       throw new IllegalArgumentException("Invalid class '" + urlParts[2] + "'");
+    }
 
     final OClass cls = db.getMetadata().getSchema().getClass(urlParts[2]);
 

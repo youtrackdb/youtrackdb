@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.db.document;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.BaseMemoryDatabase;
-import com.orientechnologies.orient.core.db.ODatabase;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommitSerializationException;
@@ -68,12 +68,12 @@ public class ODatabaseDocumentTxTest extends BaseMemoryDatabase {
   @Test
   public void testTimezone() {
 
-    db.set(ODatabase.ATTRIBUTES.TIMEZONE, "Europe/Rome");
-    Object newTimezone = db.get(ODatabase.ATTRIBUTES.TIMEZONE);
+    db.set(ODatabaseSession.ATTRIBUTES.TIMEZONE, "Europe/Rome");
+    Object newTimezone = db.get(ODatabaseSession.ATTRIBUTES.TIMEZONE);
     Assert.assertEquals(newTimezone, "Europe/Rome");
 
-    db.set(ODatabase.ATTRIBUTES.TIMEZONE, "foobar");
-    newTimezone = db.get(ODatabase.ATTRIBUTES.TIMEZONE);
+    db.set(ODatabaseSession.ATTRIBUTES.TIMEZONE, "foobar");
+    newTimezone = db.get(ODatabaseSession.ATTRIBUTES.TIMEZONE);
     Assert.assertEquals(newTimezone, "GMT");
   }
 

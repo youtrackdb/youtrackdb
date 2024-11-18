@@ -1,5 +1,6 @@
 package com.orientechnologies.orient.core.index;
 
+import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
@@ -19,7 +20,8 @@ import org.junit.Test;
  * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 1/30/14
  */
-public abstract class OPropertyRidBagAbstractIndexDefinition {
+public abstract class OPropertyRidBagAbstractIndexDefinition extends BaseMemoryDatabase {
+
   private OPropertyRidBagIndexDefinition propertyIndex;
 
   @Before
@@ -34,7 +36,7 @@ public abstract class OPropertyRidBagAbstractIndexDefinition {
     ridBag.add(new ORecordId("#1:12"));
     ridBag.add(new ORecordId("#1:23"));
 
-    final Object result = propertyIndex.createValue(Collections.singletonList(ridBag));
+    final Object result = propertyIndex.createValue(db, Collections.singletonList(ridBag));
 
     Assert.assertTrue(result instanceof Collection);
 
@@ -52,7 +54,7 @@ public abstract class OPropertyRidBagAbstractIndexDefinition {
     ridBag.add(new ORecordId("#1:12"));
     ridBag.add(new ORecordId("#1:23"));
 
-    final Object result = propertyIndex.createValue(Arrays.asList(ridBag, "25"));
+    final Object result = propertyIndex.createValue(db, Arrays.asList(ridBag, "25"));
 
     Assert.assertTrue(result instanceof Collection);
 
@@ -65,7 +67,7 @@ public abstract class OPropertyRidBagAbstractIndexDefinition {
 
   @Test
   public void testCreateValueWrongParameter() {
-    Assert.assertNull(propertyIndex.createValue(Collections.singletonList("tt")));
+    Assert.assertNull(propertyIndex.createValue(db, Collections.singletonList("tt")));
   }
 
   @Test
@@ -75,7 +77,7 @@ public abstract class OPropertyRidBagAbstractIndexDefinition {
     ridBag.add(new ORecordId("#1:12"));
     ridBag.add(new ORecordId("#1:23"));
 
-    final Object result = propertyIndex.createValue((Object) ridBag);
+    final Object result = propertyIndex.createValue(db, ridBag);
 
     Assert.assertTrue(result instanceof Collection);
 
@@ -93,7 +95,7 @@ public abstract class OPropertyRidBagAbstractIndexDefinition {
     ridBag.add(new ORecordId("#1:12"));
     ridBag.add(new ORecordId("#1:23"));
 
-    final Object result = propertyIndex.createValue(ridBag, "25");
+    final Object result = propertyIndex.createValue(db, ridBag, "25");
 
     Assert.assertTrue(result instanceof Collection);
 
@@ -106,7 +108,7 @@ public abstract class OPropertyRidBagAbstractIndexDefinition {
 
   @Test
   public void testCreateValueWrongParameterArrayParams() {
-    Assert.assertNull(propertyIndex.createValue("tt"));
+    Assert.assertNull(propertyIndex.createValue(db, "tt"));
   }
 
   @Test
@@ -121,7 +123,7 @@ public abstract class OPropertyRidBagAbstractIndexDefinition {
     document.field("fOne", ridBag);
     document.field("fTwo", 10);
 
-    final Object result = propertyIndex.getDocumentValueToIndex(document);
+    final Object result = propertyIndex.getDocumentValueToIndex(db, document);
     Assert.assertTrue(result instanceof Collection);
 
     final Collection<?> collectionResult = (Collection<?>) result;
@@ -142,7 +144,7 @@ public abstract class OPropertyRidBagAbstractIndexDefinition {
     final OMultiValueChangeEvent<OIdentifiable, OIdentifiable> multiValueChangeEvent =
         new OMultiValueChangeEvent<OIdentifiable, OIdentifiable>(
             OMultiValueChangeEvent.OChangeType.ADD, new ORecordId("#1:12"), new ORecordId("#1:12"));
-    propertyIndex.processChangeEvent(multiValueChangeEvent, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEvent, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
     addedKeys.put(new ORecordId("#1:12"), 1);
@@ -168,8 +170,8 @@ public abstract class OPropertyRidBagAbstractIndexDefinition {
         new OMultiValueChangeEvent<OIdentifiable, OIdentifiable>(
             OMultiValueChangeEvent.OChangeType.ADD, new ORecordId("#1:12"), new ORecordId("#1:12"));
 
-    propertyIndex.processChangeEvent(multiValueChangeEventOne, keysToAdd, keysToRemove);
-    propertyIndex.processChangeEvent(multiValueChangeEventTwo, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEventOne, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEventTwo, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
     addedKeys.put(new ORecordId("#1:12"), 2);
@@ -195,8 +197,8 @@ public abstract class OPropertyRidBagAbstractIndexDefinition {
         new OMultiValueChangeEvent<OIdentifiable, OIdentifiable>(
             OMultiValueChangeEvent.OChangeType.ADD, new ORecordId("#1:13"), new ORecordId("#1:13"));
 
-    propertyIndex.processChangeEvent(multiValueChangeEventOne, keysToAdd, keysToRemove);
-    propertyIndex.processChangeEvent(multiValueChangeEventTwo, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEventOne, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEventTwo, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
     addedKeys.put(new ORecordId("#1:12"), 1);
@@ -223,7 +225,7 @@ public abstract class OPropertyRidBagAbstractIndexDefinition {
             null,
             new ORecordId("#1:12"));
 
-    propertyIndex.processChangeEvent(multiValueChangeEvent, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEvent, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
 
@@ -255,8 +257,8 @@ public abstract class OPropertyRidBagAbstractIndexDefinition {
             null,
             new ORecordId("#1:12"));
 
-    propertyIndex.processChangeEvent(multiValueChangeEventOne, keysToAdd, keysToRemove);
-    propertyIndex.processChangeEvent(multiValueChangeEventTwo, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEventOne, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEventTwo, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
 
@@ -285,8 +287,8 @@ public abstract class OPropertyRidBagAbstractIndexDefinition {
             null,
             new ORecordId("#1:12"));
 
-    propertyIndex.processChangeEvent(multiValueChangeEventOne, keysToAdd, keysToRemove);
-    propertyIndex.processChangeEvent(multiValueChangeEventTwo, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEventOne, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEventTwo, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
     final Map<Object, Integer> removedKeys = new HashMap<Object, Integer>();
@@ -313,8 +315,8 @@ public abstract class OPropertyRidBagAbstractIndexDefinition {
             null,
             new ORecordId("#1:13"));
 
-    propertyIndex.processChangeEvent(multiValueChangeEventOne, keysToAdd, keysToRemove);
-    propertyIndex.processChangeEvent(multiValueChangeEventTwo, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEventOne, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEventTwo, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
     addedKeys.put(new ORecordId("#1:12"), 1);
@@ -346,9 +348,9 @@ public abstract class OPropertyRidBagAbstractIndexDefinition {
             null,
             new ORecordId("#1:12"));
 
-    propertyIndex.processChangeEvent(multiValueChangeEventOne, keysToAdd, keysToRemove);
-    propertyIndex.processChangeEvent(multiValueChangeEventTwo, keysToAdd, keysToRemove);
-    propertyIndex.processChangeEvent(multiValueChangeEventThree, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEventOne, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEventTwo, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEventThree, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
     addedKeys.put(new ORecordId("#1:12"), 1);
@@ -383,9 +385,9 @@ public abstract class OPropertyRidBagAbstractIndexDefinition {
             null,
             new ORecordId("#1:12"));
 
-    propertyIndex.processChangeEvent(multiValueChangeEventOne, keysToAdd, keysToRemove);
-    propertyIndex.processChangeEvent(multiValueChangeEventTwo, keysToAdd, keysToRemove);
-    propertyIndex.processChangeEvent(multiValueChangeEventThree, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEventOne, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEventTwo, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEventThree, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
 
@@ -420,9 +422,9 @@ public abstract class OPropertyRidBagAbstractIndexDefinition {
         new OMultiValueChangeEvent<OIdentifiable, OIdentifiable>(
             OMultiValueChangeEvent.OChangeType.ADD, new ORecordId("#1:12"), new ORecordId("#1:12"));
 
-    propertyIndex.processChangeEvent(multiValueChangeEventOne, keysToAdd, keysToRemove);
-    propertyIndex.processChangeEvent(multiValueChangeEventTwo, keysToAdd, keysToRemove);
-    propertyIndex.processChangeEvent(multiValueChangeEventThree, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEventOne, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEventTwo, keysToAdd, keysToRemove);
+    propertyIndex.processChangeEvent(db, multiValueChangeEventThree, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
 

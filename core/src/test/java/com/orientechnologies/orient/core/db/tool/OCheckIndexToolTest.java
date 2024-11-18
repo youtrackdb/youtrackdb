@@ -35,7 +35,7 @@ public class OCheckIndexToolTest extends BaseMemoryInternalDatabase {
     }
 
     OIndex idx = db.getMetadata().getIndexManagerInternal().getIndex(db, "Foo.name");
-    Object key = idx.getDefinition().createValue("a");
+    Object key = idx.getDefinition().createValue(db, "a");
     idx.remove(key, rid);
 
     OResultSet result = db.query("SELECT FROM Foo");

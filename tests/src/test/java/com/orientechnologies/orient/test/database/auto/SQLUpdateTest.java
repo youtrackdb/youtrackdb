@@ -15,7 +15,7 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -668,7 +668,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
   }
 
   private void checkUpdatedDoc(
-      ODatabaseDocument database, String expectedCity, String expectedGender) {
+      ODatabaseSession database, String expectedCity, String expectedGender) {
     OResultSet result = database.query("select * from person");
     OResult oDoc = result.next();
     Assert.assertEquals("Raf", oDoc.getProperty("name"));

@@ -3,11 +3,10 @@ package com.orientechnologies.orient.core.storage.impl.local.paginated;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
 import com.orientechnologies.common.serialization.types.OStringSerializer;
-import com.orientechnologies.orient.core.db.ODatabase;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.cache.OWriteCache;
@@ -33,14 +32,16 @@ public class InvalidRemovedFileIdsIT {
     deleteDirectory(new File(dbPath));
 
     final OrientDBConfig config =
-        OrientDBConfig.builder().addAttribute(ODatabase.ATTRIBUTES.MINIMUMCLUSTERS, 1).build();
+        OrientDBConfig.builder()
+            .addAttribute(ODatabaseSession.ATTRIBUTES.MINIMUMCLUSTERS, 1)
+            .build();
 
     OrientDB orientDB = new OrientDB("plocal:" + buildDirectory, config);
     orientDB.execute(
         "create database " + dbName + " plocal users ( admin identified by 'admin' role admin)");
-    ODatabaseDocument db = orientDB.open(dbName, "admin", "admin");
+    var db = orientDB.open(dbName, "admin", "admin");
 
-    OStorage storage = ((ODatabaseInternal) db).getStorage();
+    OStorage storage = ((ODatabaseSessionInternal) db).getStorage();
     OWriteCache writeCache = ((OAbstractPaginatedStorage) storage).getWriteCache();
     Map<String, Long> files = writeCache.files();
 
@@ -85,7 +86,7 @@ public class InvalidRemovedFileIdsIT {
     schema.createClass("c3");
     schema.createClass("c4");
 
-    storage = ((ODatabaseInternal) db).getStorage();
+    storage = ((ODatabaseSessionInternal) db).getStorage();
     writeCache = ((OAbstractPaginatedStorage) storage).getWriteCache();
 
     files = writeCache.files();

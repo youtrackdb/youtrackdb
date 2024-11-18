@@ -25,6 +25,7 @@ import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OInvalidIndexEngineIdException;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.security.OPropertyAccess;
@@ -37,6 +38,7 @@ import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedSt
 import com.orientechnologies.orient.core.tx.OTransactionIndexChangesPerKey;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -90,16 +92,15 @@ public interface OIndexInternal extends OIndex {
    * Remove given cluster from the list of clusters that should be automatically indexed.
    *
    * @param iClusterName Cluster to remove.
-   * @return Current index instance.
    */
-  OIndex removeCluster(final String iClusterName);
+  void removeCluster(final String iClusterName);
 
   /**
-   * Indicates whether given index can be used to calculate result of {@link
-   * com.orientechnologies.orient.core.sql.operator.OQueryOperatorEquality} operators.
+   * Indicates whether given index can be used to calculate result of
+   * {@link com.orientechnologies.orient.core.sql.operator.OQueryOperatorEquality} operators.
    *
-   * @return {@code true} if given index can be used to calculate result of {@link
-   *     com.orientechnologies.orient.core.sql.operator.OQueryOperatorEquality} operators.
+   * @return {@code true} if given index can be used to calculate result of
+   * {@link com.orientechnologies.orient.core.sql.operator.OQueryOperatorEquality} operators.
    */
   boolean canBeUsedInEqualityOperators();
 
@@ -122,12 +123,12 @@ public interface OIndexInternal extends OIndex {
    * Acquires exclusive lock in the active atomic operation running on the current thread for this
    * index.
    *
-   * <p>If this index supports a more narrow locking, for example key-based sharding, it may use the
-   * provided {@code key} to infer a more narrow lock scope, but that is not a requirement.
+   * <p>If this index supports a more narrow locking, for example key-based sharding, it may use
+   * the provided {@code key} to infer a more narrow lock scope, but that is not a requirement.
    *
    * @param key the index key to lock.
    * @return {@code true} if this index was locked entirely, {@code false} if this index locking is
-   *     sensitive to the provided {@code key} and only some subset of this index was locked.
+   * sensitive to the provided {@code key} and only some subset of this index was locked.
    */
   boolean acquireAtomicExclusiveLock(Object key);
 
@@ -147,12 +148,12 @@ public interface OIndexInternal extends OIndex {
   /**
    * Returns stream which presents subset of index data between passed in keys.
    *
-   * @param fromKey Lower border of index data.
+   * @param fromKey       Lower border of index data.
    * @param fromInclusive Indicates whether lower border should be inclusive or exclusive.
-   * @param toKey Upper border of index data.
-   * @param toInclusive Indicates whether upper border should be inclusive or exclusive.
-   * @param ascOrder Flag which determines whether data iterated by stream should be in ascending or
-   *     descending order.
+   * @param toKey         Upper border of index data.
+   * @param toInclusive   Indicates whether upper border should be inclusive or exclusive.
+   * @param ascOrder      Flag which determines whether data iterated by stream should be in
+   *                      ascending or descending order.
    * @return Cursor which presents subset of index data between passed in keys.
    */
   Stream<ORawPair<Object, ORID>> streamEntriesBetween(
@@ -161,9 +162,9 @@ public interface OIndexInternal extends OIndex {
   /**
    * Returns stream which presents data associated with passed in keys.
    *
-   * @param keys Keys data of which should be returned.
+   * @param keys         Keys data of which should be returned.
    * @param ascSortOrder Flag which determines whether data iterated by stream should be in
-   *     ascending or descending order.
+   *                     ascending or descending order.
    * @return stream which presents data associated with passed in keys.
    */
   Stream<ORawPair<Object, ORID>> streamEntries(Collection<?> keys, boolean ascSortOrder);
@@ -172,12 +173,12 @@ public interface OIndexInternal extends OIndex {
    * Returns stream which presents subset of data which associated with key which is greater than
    * passed in key.
    *
-   * @param fromKey Lower border of index data.
+   * @param fromKey       Lower border of index data.
    * @param fromInclusive Indicates whether lower border should be inclusive or exclusive.
-   * @param ascOrder Flag which determines whether data iterated by stream should be in ascending or
-   *     descending order.
+   * @param ascOrder      Flag which determines whether data iterated by stream should be in
+   *                      ascending or descending order.
    * @return stream which presents subset of data which associated with key which is greater than
-   *     passed in key.
+   * passed in key.
    */
   Stream<ORawPair<Object, ORID>> streamEntriesMajor(
       Object fromKey, boolean fromInclusive, boolean ascOrder);
@@ -186,12 +187,12 @@ public interface OIndexInternal extends OIndex {
    * Returns stream which presents subset of data which associated with key which is less than
    * passed in key.
    *
-   * @param toKey Upper border of index data.
+   * @param toKey       Upper border of index data.
    * @param toInclusive Indicates Indicates whether upper border should be inclusive or exclusive.
-   * @param ascOrder Flag which determines whether data iterated by stream should be in ascending or
-   *     descending order.
+   * @param ascOrder    Flag which determines whether data iterated by stream should be in ascending
+   *                    or descending order.
    * @return stream which presents subset of data which associated with key which is less than
-   *     passed in key.
+   * passed in key.
    */
   Stream<ORawPair<Object, ORID>> streamEntriesMinor(
       Object toKey, boolean toInclusive, boolean ascOrder);
@@ -210,7 +211,11 @@ public interface OIndexInternal extends OIndex {
     }
     OSecurityInternal security = db.getSharedContext().getSecurity();
     if (isReadRestrictedBySecurityPolicy(indexClass, db, security)) {
-      item = item.getRecord();
+      try {
+        item = item.getRecord();
+      } catch (ORecordNotFoundException e) {
+        item = null;
+      }
     }
     if (item == null) {
       return null;
@@ -218,7 +223,11 @@ public interface OIndexInternal extends OIndex {
     if (idx.getDefinition().getFields().size() == 1) {
       String indexProp = idx.getDefinition().getFields().get(0);
       if (isLabelSecurityDefined(db, security, indexClass, indexProp)) {
-        item = item.getRecord();
+        try {
+          item = item.getRecord();
+        } catch (ORecordNotFoundException e) {
+          item = null;
+        }
         if (item == null) {
           return null;
         }
@@ -302,7 +311,14 @@ public interface OIndexInternal extends OIndex {
     if (isReadRestrictedBySecurityPolicy(indexClass, db, security)) {
       items =
           items.stream()
-              .map(x -> x.getRecord()) // force record load, that triggers security checks
+              .map(
+                  x -> {
+                    try {
+                      return x.getRecord();
+                    } catch (ORecordNotFoundException e) {
+                      return null;
+                    }
+                  }) // force record load, that triggers security checks
               .filter(x -> x != null)
               .map(x -> ((ORecord) x).getIdentity())
               .collect(Collectors.toList());
@@ -314,8 +330,15 @@ public interface OIndexInternal extends OIndex {
 
         items =
             items.stream()
-                .map(x -> x.getRecord())
-                .filter(x -> x != null)
+                .map(
+                    x -> {
+                      try {
+                        return x.getRecord();
+                      } catch (ORecordNotFoundException e) {
+                        return null;
+                      }
+                    })
+                .filter(Objects::nonNull)
                 .filter(
                     x ->
                         !(x instanceof ODocument)

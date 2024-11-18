@@ -26,7 +26,6 @@ import static org.junit.Assert.assertNull;
 
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.functions.misc.OSQLFunctionUUID;
 import org.junit.Before;
@@ -57,7 +56,7 @@ public class OSQLFunctionUUIDTest {
   public void testQuery() {
     try (OrientDB ctx = new OrientDB("embedded:./", OrientDBConfig.defaultConfig())) {
       ctx.execute("create database test memory users(admin identified by 'adminpwd' role admin)");
-      try (ODatabaseDocument db = ctx.open("test", "admin", "adminpwd")) {
+      try (var db = ctx.open("test", "admin", "adminpwd")) {
 
         try (final OResultSet result = db.query("select uuid() as uuid")) {
           assertNotNull(result.next().getProperty("uuid"));

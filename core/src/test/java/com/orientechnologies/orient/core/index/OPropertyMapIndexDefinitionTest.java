@@ -1,5 +1,6 @@
 package com.orientechnologies.orient.core.index;
 
+import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
@@ -21,7 +22,8 @@ import org.junit.Test;
  * @author LomakiA <a href="mailto:a.lomakin@orientechnologies.com">Andrey Lomakin</a>
  * @since 20.12.11
  */
-public class OPropertyMapIndexDefinitionTest {
+public class OPropertyMapIndexDefinitionTest extends BaseMemoryDatabase {
+
   private final Map<String, Integer> mapToTest = new HashMap<String, Integer>();
   private OPropertyMapIndexDefinition propertyIndexByKey;
   private OPropertyMapIndexDefinition propertyIndexByValue;
@@ -48,7 +50,7 @@ public class OPropertyMapIndexDefinitionTest {
 
   @Test
   public void testCreateValueByKeySingleParameter() {
-    final Object result = propertyIndexByKey.createValue(Collections.singletonList(mapToTest));
+    final Object result = propertyIndexByKey.createValue(db, Collections.singletonList(mapToTest));
     Assert.assertTrue(result instanceof Collection);
 
     final Collection<?> collectionResult = (Collection<?>) result;
@@ -60,7 +62,8 @@ public class OPropertyMapIndexDefinitionTest {
 
   @Test
   public void testCreateValueByValueSingleParameter() {
-    final Object result = propertyIndexByValue.createValue(Collections.singletonList(mapToTest));
+    final Object result =
+        propertyIndexByValue.createValue(db, Collections.singletonList(mapToTest));
     Assert.assertTrue(result instanceof Collection);
 
     final Collection<?> collectionResult = (Collection<?>) result;
@@ -72,7 +75,7 @@ public class OPropertyMapIndexDefinitionTest {
 
   @Test
   public void testCreateValueByKeyTwoParameters() {
-    final Object result = propertyIndexByKey.createValue(Arrays.asList(mapToTest, "25"));
+    final Object result = propertyIndexByKey.createValue(db, Arrays.asList(mapToTest, "25"));
 
     Assert.assertTrue(result instanceof Collection);
 
@@ -85,7 +88,7 @@ public class OPropertyMapIndexDefinitionTest {
 
   @Test
   public void testCreateValueByValueTwoParameters() {
-    final Object result = propertyIndexByValue.createValue(Arrays.asList(mapToTest, "25"));
+    final Object result = propertyIndexByValue.createValue(db, Arrays.asList(mapToTest, "25"));
 
     Assert.assertTrue(result instanceof Collection);
 
@@ -98,13 +101,13 @@ public class OPropertyMapIndexDefinitionTest {
 
   @Test
   public void testCreateValueWrongParameter() {
-    final Object result = propertyIndexByKey.createValue(Collections.singletonList("tt"));
+    final Object result = propertyIndexByKey.createValue(db, Collections.singletonList("tt"));
     Assert.assertNull(result);
   }
 
   @Test
   public void testCreateValueByKeySingleParameterArrayParams() {
-    final Object result = propertyIndexByKey.createValue(mapToTest);
+    final Object result = propertyIndexByKey.createValue(db, mapToTest);
     Assert.assertTrue(result instanceof Collection);
 
     final Collection<?> collectionResult = (Collection<?>) result;
@@ -116,7 +119,7 @@ public class OPropertyMapIndexDefinitionTest {
 
   @Test
   public void testCreateValueByValueSingleParameterArrayParams() {
-    final Object result = propertyIndexByValue.createValue(mapToTest);
+    final Object result = propertyIndexByValue.createValue(db, mapToTest);
     Assert.assertTrue(result instanceof Collection);
 
     final Collection<?> collectionResult = (Collection<?>) result;
@@ -128,7 +131,7 @@ public class OPropertyMapIndexDefinitionTest {
 
   @Test
   public void testCreateValueByKeyTwoParametersArrayParams() {
-    final Object result = propertyIndexByKey.createValue(mapToTest, "25");
+    final Object result = propertyIndexByKey.createValue(db, mapToTest, "25");
 
     Assert.assertTrue(result instanceof Collection);
 
@@ -141,7 +144,7 @@ public class OPropertyMapIndexDefinitionTest {
 
   @Test
   public void testCreateValueByValueTwoParametersArrayParams() {
-    final Object result = propertyIndexByValue.createValue(mapToTest, "25");
+    final Object result = propertyIndexByValue.createValue(db, mapToTest, "25");
 
     Assert.assertTrue(result instanceof Collection);
 
@@ -154,7 +157,7 @@ public class OPropertyMapIndexDefinitionTest {
 
   @Test
   public void testCreateValueWrongParameterArrayParams() {
-    final Object result = propertyIndexByKey.createValue("tt");
+    final Object result = propertyIndexByKey.createValue(db, "tt");
     Assert.assertNull(result);
   }
 
@@ -165,7 +168,7 @@ public class OPropertyMapIndexDefinitionTest {
     document.field("fOne", mapToTest);
     document.field("fTwo", 10);
 
-    final Object result = propertyIndexByKey.getDocumentValueToIndex(document);
+    final Object result = propertyIndexByKey.getDocumentValueToIndex(db, document);
     Assert.assertTrue(result instanceof Collection);
 
     final Collection<?> collectionResult = (Collection<?>) result;
@@ -182,7 +185,7 @@ public class OPropertyMapIndexDefinitionTest {
     document.field("fOne", mapToTest);
     document.field("fTwo", 10);
 
-    final Object result = propertyIndexByValue.getDocumentValueToIndex(document);
+    final Object result = propertyIndexByValue.getDocumentValueToIndex(db, document);
     Assert.assertTrue(result instanceof Collection);
 
     final Collection<?> collectionResult = (Collection<?>) result;
@@ -254,19 +257,19 @@ public class OPropertyMapIndexDefinitionTest {
 
   @Test
   public void testCreateSingleValueByKey() {
-    final Object result = propertyIndexByKey.createSingleValue("tt");
+    final Object result = propertyIndexByKey.createSingleValue(db, "tt");
     Assert.assertEquals(result, "tt");
   }
 
   @Test
   public void testCreateSingleValueByValue() {
-    final Object result = propertyIndexByValue.createSingleValue("12");
+    final Object result = propertyIndexByValue.createSingleValue(db, "12");
     Assert.assertEquals(result, 12);
   }
 
   @Test(expected = ODatabaseException.class)
   public void testCreateWrongSingleValueByValue() {
-    propertyIndexByValue.createSingleValue("tt");
+    propertyIndexByValue.createSingleValue(db, "tt");
   }
 
   @Test(expected = NullPointerException.class)
@@ -304,7 +307,7 @@ public class OPropertyMapIndexDefinitionTest {
         new OMultiValueChangeEvent<String, String>(
             OMultiValueChangeEvent.OChangeType.ADD, "key1", "value1");
 
-    propertyIndexByKey.processChangeEvent(multiValueChangeEvent, keysToAdd, keysToRemove);
+    propertyIndexByKey.processChangeEvent(db, multiValueChangeEvent, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
     addedKeys.put("key1", 1);
@@ -327,7 +330,8 @@ public class OPropertyMapIndexDefinitionTest {
         new OMultiValueChangeEvent<String, String>(
             OMultiValueChangeEvent.OChangeType.ADD, "12", "value1");
 
-    propertyIndexByIntegerKey.processChangeEvent(multiValueChangeEvent, keysToAdd, keysToRemove);
+    propertyIndexByIntegerKey.processChangeEvent(
+        db, multiValueChangeEvent, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
     addedKeys.put(12, 1);
@@ -350,7 +354,7 @@ public class OPropertyMapIndexDefinitionTest {
         new OMultiValueChangeEvent<String, Integer>(
             OMultiValueChangeEvent.OChangeType.ADD, "key1", 42);
 
-    propertyIndexByValue.processChangeEvent(multiValueChangeEvent, keysToAdd, keysToRemove);
+    propertyIndexByValue.processChangeEvent(db, multiValueChangeEvent, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
     addedKeys.put(42, 1);
@@ -373,7 +377,7 @@ public class OPropertyMapIndexDefinitionTest {
         new OMultiValueChangeEvent<String, String>(
             OMultiValueChangeEvent.OChangeType.ADD, "12", "42");
 
-    propertyIndexByValue.processChangeEvent(multiValueChangeEvent, keysToAdd, keysToRemove);
+    propertyIndexByValue.processChangeEvent(db, multiValueChangeEvent, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
     addedKeys.put(42, 1);
@@ -396,7 +400,7 @@ public class OPropertyMapIndexDefinitionTest {
         new OMultiValueChangeEvent<String, String>(
             OMultiValueChangeEvent.OChangeType.REMOVE, "key1", "value1");
 
-    propertyIndexByKey.processChangeEvent(multiValueChangeEvent, keysToAdd, keysToRemove);
+    propertyIndexByKey.processChangeEvent(db, multiValueChangeEvent, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
     final Map<Object, Integer> removedKeys = new HashMap<Object, Integer>();
@@ -418,7 +422,8 @@ public class OPropertyMapIndexDefinitionTest {
         new OMultiValueChangeEvent<String, String>(
             OMultiValueChangeEvent.OChangeType.REMOVE, "12", "value1");
 
-    propertyIndexByIntegerKey.processChangeEvent(multiValueChangeEvent, keysToAdd, keysToRemove);
+    propertyIndexByIntegerKey.processChangeEvent(
+        db, multiValueChangeEvent, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
 
@@ -441,7 +446,7 @@ public class OPropertyMapIndexDefinitionTest {
         new OMultiValueChangeEvent<String, Integer>(
             OMultiValueChangeEvent.OChangeType.REMOVE, "key1", null, 42);
 
-    propertyIndexByValue.processChangeEvent(multiValueChangeEvent, keysToAdd, keysToRemove);
+    propertyIndexByValue.processChangeEvent(db, multiValueChangeEvent, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
     final Map<Object, Integer> removedKeys = new HashMap<Object, Integer>();
@@ -463,7 +468,7 @@ public class OPropertyMapIndexDefinitionTest {
         new OMultiValueChangeEvent<String, String>(
             OMultiValueChangeEvent.OChangeType.REMOVE, "12", null, "42");
 
-    propertyIndexByValue.processChangeEvent(multiValueChangeEvent, keysToAdd, keysToRemove);
+    propertyIndexByValue.processChangeEvent(db, multiValueChangeEvent, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
     final Map<Object, Integer> removedKeys = new HashMap<Object, Integer>();
@@ -485,7 +490,7 @@ public class OPropertyMapIndexDefinitionTest {
         new OMultiValueChangeEvent<String, Integer>(
             OMultiValueChangeEvent.OChangeType.UPDATE, "key1", 42);
 
-    propertyIndexByKey.processChangeEvent(multiValueChangeEvent, keysToAdd, keysToRemove);
+    propertyIndexByKey.processChangeEvent(db, multiValueChangeEvent, keysToAdd, keysToRemove);
     Assert.assertTrue(keysToAdd.isEmpty());
     Assert.assertTrue(keysToRemove.isEmpty());
   }
@@ -502,7 +507,7 @@ public class OPropertyMapIndexDefinitionTest {
         new OMultiValueChangeEvent<String, Integer>(
             OMultiValueChangeEvent.OChangeType.UPDATE, "key1", 41, 42);
 
-    propertyIndexByValue.processChangeEvent(multiValueChangeEvent, keysToAdd, keysToRemove);
+    propertyIndexByValue.processChangeEvent(db, multiValueChangeEvent, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
     addedKeys.put(41, 1);
@@ -526,7 +531,7 @@ public class OPropertyMapIndexDefinitionTest {
         new OMultiValueChangeEvent<String, String>(
             OMultiValueChangeEvent.OChangeType.UPDATE, "12", "42", "41");
 
-    propertyIndexByValue.processChangeEvent(multiValueChangeEvent, keysToAdd, keysToRemove);
+    propertyIndexByValue.processChangeEvent(db, multiValueChangeEvent, keysToAdd, keysToRemove);
 
     final Map<Object, Integer> addedKeys = new HashMap<Object, Integer>();
     addedKeys.put(42, 1);

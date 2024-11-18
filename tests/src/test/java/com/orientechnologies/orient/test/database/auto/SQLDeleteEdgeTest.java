@@ -8,17 +8,19 @@ import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.testng.Assert;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 
 /**
  * @author Andrey Lomakin (a.lomakin-at-orientdb.com) <a
- *     href="mailto:lomakin.andrey@gmail.com">Andrey Lomakin</a>
+ * href="mailto:lomakin.andrey@gmail.com">Andrey Lomakin</a>
  * @since 04/12/14
  */
 public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
+
   @Parameters(value = "remote")
-  public SQLDeleteEdgeTest(boolean remote) {
-    super(remote);
+  public SQLDeleteEdgeTest(@Optional Boolean remote) {
+    super(remote != null && remote);
   }
 
   public void testDeleteFromTo() {
@@ -251,7 +253,9 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
       Assert.assertTrue(true);
     }
 
+    database.begin();
     database.command("DELETE VERTEX SuperV").close();
+    database.commit();
 
     try {
       database.command("DROP CLASS SuperV").close();

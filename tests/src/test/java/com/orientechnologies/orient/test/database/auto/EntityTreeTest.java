@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -126,11 +127,13 @@ public class EntityTreeTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(result.size(), 1);
     for (ODocument profile : result) {
-      final Collection<ODocument> followers = profile.field("followers");
+      final Collection<OIdentifiable> followers = profile.field("followers");
       if (followers != null) {
-        for (ODocument follower : followers) {
+        for (OIdentifiable follower : followers) {
           Assert.assertTrue(
-              ((Collection<ODocument>) follower.field("followings")).contains(profile));
+              ((Collection<OIdentifiable>)
+                      Objects.requireNonNull(follower.getElement().getProperty("followings")))
+                  .contains(profile));
         }
       }
     }

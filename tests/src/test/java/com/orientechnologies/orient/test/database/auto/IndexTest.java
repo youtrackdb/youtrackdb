@@ -98,6 +98,8 @@ public class IndexTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "populateIndexDocuments")
   public void testIndexInUniqueIndex() {
+    checkEmbeddedDB();
+
     final OProperty nickProperty =
         database.getMetadata().getSchema().getClass("Profile").getProperty("nick");
     Assert.assertEquals(

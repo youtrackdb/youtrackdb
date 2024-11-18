@@ -16,7 +16,7 @@
 package com.orientechnologies.spatial.shape;
 
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.io.IOException;
@@ -105,7 +105,7 @@ public abstract class OShapeBuilder<T extends Shape> {
     return fromDoc(doc);
   }
 
-  public abstract void initClazz(ODatabaseInternal db);
+  public abstract void initClazz(ODatabaseSessionInternal db);
 
   public String asText(T shape) {
     return SHAPE_FACTORY.getGeometryFrom(shape).toText();
@@ -153,7 +153,7 @@ public abstract class OShapeBuilder<T extends Shape> {
     return SHAPE_FACTORY.makeShape(geometry);
   }
 
-  protected OClass superClass(ODatabaseInternal db) {
+  protected OClass superClass(ODatabaseSessionInternal db) {
     return db.getMetadata().getSchema().getClass(BASE_CLASS);
   }
 

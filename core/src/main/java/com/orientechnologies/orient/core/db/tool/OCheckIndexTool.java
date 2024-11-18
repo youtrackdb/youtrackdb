@@ -19,6 +19,7 @@
  */
 package com.orientechnologies.orient.core.db.tool;
 
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
@@ -63,7 +64,7 @@ public class OCheckIndexTool extends ODatabaseTool {
       if (!canCheck(index)) {
         continue;
       }
-      checkIndex(index);
+      checkIndex(database, index);
     }
     message("Total errors found on indexes: " + getTotalErrors());
   }
@@ -86,17 +87,18 @@ public class OCheckIndexTool extends ODatabaseTool {
     return true;
   }
 
-  private void checkIndex(OIndex index) {
+  private void checkIndex(ODatabaseSessionInternal session, OIndex index) {
     List<String> fields = index.getDefinition().getFields();
     String className = index.getDefinition().getClassName();
     OClass clazz = database.getMetadata().getImmutableSchemaSnapshot().getClass(className);
     int[] clusterIds = clazz.getPolymorphicClusterIds();
     for (int clusterId : clusterIds) {
-      checkCluster(clusterId, index, fields);
+      checkCluster(session, clusterId, index, fields);
     }
   }
 
-  private void checkCluster(int clusterId, OIndex index, List<String> fields) {
+  private void checkCluster(
+      ODatabaseSessionInternal session, int clusterId, OIndex index, List<String> fields) {
     long totRecordsForCluster = database.countClusterElements(clusterId);
     String clusterName = database.getClusterNameById(clusterId);
 
@@ -114,7 +116,7 @@ public class OCheckIndexTool extends ODatabaseTool {
       ORecord record = iter.next();
       if (record instanceof ODocument) {
         ODocument doc = (ODocument) record;
-        checkThatRecordIsIndexed(doc, index, fields);
+        checkThatRecordIsIndexed(session, doc, index, fields);
       }
       count++;
     }
@@ -138,14 +140,15 @@ public class OCheckIndexTool extends ODatabaseTool {
     message(msg.toString());
   }
 
-  private void checkThatRecordIsIndexed(ODocument doc, OIndex index, List<String> fields) {
+  private void checkThatRecordIsIndexed(
+      ODatabaseSessionInternal session, ODocument doc, OIndex index, List<String> fields) {
     Object[] vals = new Object[fields.size()];
     ORID docId = doc.getIdentity();
     for (int i = 0; i < vals.length; i++) {
       vals[i] = doc.field(fields.get(i));
     }
 
-    Object indexKey = index.getDefinition().createValue(vals);
+    Object indexKey = index.getDefinition().createValue(session, vals);
     if (indexKey == null) {
       return;
     }

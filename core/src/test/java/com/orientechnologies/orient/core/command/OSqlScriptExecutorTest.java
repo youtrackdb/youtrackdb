@@ -2,7 +2,6 @@ package com.orientechnologies.orient.core.command;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.HashMap;
 import java.util.List;
@@ -22,8 +21,7 @@ public class OSqlScriptExecutorTest {
         OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
     final String dbName = getClass().getSimpleName() + "test";
     OCreateDatabaseUtil.createDatabase(dbName, factory, OCreateDatabaseUtil.TYPE_MEMORY);
-    final ODatabaseDocument db =
-        factory.open(dbName, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    var db = factory.open(dbName, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     String script = "begin;\n";
     script += "insert into V set name ='a';\n";
@@ -55,8 +53,7 @@ public class OSqlScriptExecutorTest {
         OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
     final String dbName = getClass().getSimpleName() + "test";
     OCreateDatabaseUtil.createDatabase(dbName, factory, OCreateDatabaseUtil.TYPE_MEMORY);
-    final ODatabaseDocument db =
-        factory.open(dbName, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    var db = factory.open(dbName, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     String script = "begin;\n";
     script += "insert into V set name ='a';\n";
@@ -86,8 +83,7 @@ public class OSqlScriptExecutorTest {
         OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
     final String dbName = getClass().getSimpleName() + "test";
     OCreateDatabaseUtil.createDatabase(dbName, factory, OCreateDatabaseUtil.TYPE_MEMORY);
-    final ODatabaseDocument db =
-        factory.open(dbName, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    var db = factory.open(dbName, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     String script = "begin;\n";
     script += "insert into V set name ='a';\n";
@@ -121,8 +117,7 @@ public class OSqlScriptExecutorTest {
         OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
     final String dbName = getClass().getSimpleName() + "test";
     OCreateDatabaseUtil.createDatabase(dbName, factory, OCreateDatabaseUtil.TYPE_MEMORY);
-    final ODatabaseDocument db =
-        factory.open(dbName, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    var db = factory.open(dbName, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     String script = "begin;";
     script += "let $v1 = create vertex v set name = 'Foo';";

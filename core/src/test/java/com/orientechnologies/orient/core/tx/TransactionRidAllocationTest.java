@@ -1,15 +1,14 @@
 package com.orientechnologies.orient.core.tx;
 
 import static junit.framework.TestCase.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.OConcurrentCreateException;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.ORecord;
@@ -19,6 +18,7 @@ import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedSt
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -50,10 +50,15 @@ public class TransactionRidAllocationTest {
     ORID generated = v.getIdentity();
     assertTrue(generated.isValid());
 
-    final ODatabaseDocument db1 =
-        orientDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    var db1 = orientDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
-    assertNull(db1.load(generated));
+    try {
+      db1.load(generated);
+      Assert.fail();
+    } catch (ORecordNotFoundException e) {
+      // ignore
+    }
+
     db1.close();
   }
 
@@ -69,8 +74,7 @@ public class TransactionRidAllocationTest {
     ((OAbstractPaginatedStorage) db.getStorage())
         .commitPreAllocated((OTransactionOptimistic) db.getTransaction());
 
-    final ODatabaseDocument db1 =
-        orientDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    var db1 = orientDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     assertNotNull(db1.load(generated));
     db1.close();
@@ -112,7 +116,7 @@ public class TransactionRidAllocationTest {
     ((OAbstractPaginatedStorage) db.getStorage())
         .commitPreAllocated((OTransactionOptimistic) db.getTransaction());
 
-    ODatabaseDocument db1 = orientDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    var db1 = orientDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     assertNotNull(db1.load(generated));
 
     db1.close();
@@ -120,8 +124,7 @@ public class TransactionRidAllocationTest {
     ((OAbstractPaginatedStorage) second.getStorage())
         .commitPreAllocated((OTransactionOptimistic) second.getTransaction());
     second.close();
-    final ODatabaseDocument db2 =
-        orientDB.open("secondTest", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    var db2 = orientDB.open("secondTest", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     assertNotNull(db2.load(generated));
     db2.close();
   }
@@ -188,8 +191,7 @@ public class TransactionRidAllocationTest {
     ((OAbstractPaginatedStorage) db.getStorage())
         .commitPreAllocated((OTransactionOptimistic) db.getTransaction());
 
-    final ODatabaseDocument db1 =
-        orientDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    var db1 = orientDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     for (final ORID id : allocated) {
       assertNotNull(db1.load(id));
     }

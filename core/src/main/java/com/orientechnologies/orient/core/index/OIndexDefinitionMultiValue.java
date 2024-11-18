@@ -19,6 +19,7 @@
  */
 package com.orientechnologies.orient.core.index;
 
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 
@@ -34,20 +35,23 @@ public interface OIndexDefinitionMultiValue extends OIndexDefinition {
   /**
    * Converts passed in value in the key of single index entry.
    *
-   * @param param Value to convert.
+   * @param session Current database session.
+   * @param param   Value to convert.
    * @return Index key.
    */
-  public Object createSingleValue(final Object... param);
+  Object createSingleValue(ODatabaseSessionInternal session, final Object... param);
 
   /**
    * Process event that contains operation on collection and extract values that should be added
    * removed from index to reflect collection changes in the given index.
    *
-   * @param changeEvent Event that describes operation that was performed on collection.
-   * @param keysToAdd Values that should be added to related index.
+   * @param session
+   * @param changeEvent  Event that describes operation that was performed on collection.
+   * @param keysToAdd    Values that should be added to related index.
    * @param keysToRemove Values that should be removed to related index.
    */
-  public void processChangeEvent(
+  void processChangeEvent(
+      ODatabaseSessionInternal session,
       final OMultiValueChangeEvent<?, ?> changeEvent,
       final Object2IntMap<Object> keysToAdd,
       final Object2IntMap<Object> keysToRemove);

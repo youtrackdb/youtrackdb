@@ -4,8 +4,8 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
@@ -95,7 +95,7 @@ public class DefaultValuesTrivialTest {
     }
   }
 
-  private static Date getDatabaseSysdate(ODatabaseDocument database) {
+  private static Date getDatabaseSysdate(ODatabaseSession database) {
     try (OResultSet dates = database.query("SELECT sysdate() as sysdate")) {
       return dates.next().getProperty("sysdate");
     }

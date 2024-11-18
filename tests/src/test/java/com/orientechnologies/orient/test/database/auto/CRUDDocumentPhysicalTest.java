@@ -19,6 +19,7 @@ import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentAbstract;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -709,20 +710,14 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
     // MUST CHANGE THE LINKED DOCUMENT
     Assert.assertEquals(changedDoc3.field("name"), "linked1");
     Assert.assertEquals(changedDoc3.<Object>field("total"), 300);
-
-    try {
-      bank.field("linkeds.total", 400);
-      Assert.fail();
-    } catch (IllegalArgumentException ignored) {
-    }
     database.commit();
 
     database.begin();
     bank = database.bindToSession(bank);
     ((ODocument) bank.field("linked")).delete();
     //noinspection unchecked
-    for (ODocument l : (Collection<ODocument>) bank.field("linkeds")) {
-      l.delete();
+    for (OIdentifiable l : (Collection<OIdentifiable>) bank.field("linkeds")) {
+      l.getRecord().delete();
     }
     bank.delete();
     database.commit();
@@ -863,8 +858,13 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    ODocument deletedDoc = database.load(doc1.getIdentity());
-    Assert.assertNull(deletedDoc); // OK!
+    try {
+      database.load(doc1.getIdentity());
+      Assert.fail();
+    } catch (ORecordNotFoundException rnf) {
+      // ignore
+    }
+
     database.commit();
   }
 

@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.id;
 
 import com.orientechnologies.common.util.OPatternConst;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
@@ -309,7 +309,7 @@ public class ORecordId implements ORID {
       throw new ORecordNotFoundException(this);
     }
 
-    final ODatabaseDocument db = ODatabaseRecordThreadLocal.instance().get();
+    final ODatabaseSession db = ODatabaseRecordThreadLocal.instance().get();
     if (db == null) {
       throw new ODatabaseException(
           "No database found in current thread local space. If you manually control databases over"

@@ -2,7 +2,6 @@ package com.orientechnologies.orient.server.script;
 
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.server.OServer;
 import org.junit.After;
@@ -34,8 +33,7 @@ public class JSScriptServerTest {
     orientDB.execute(
         "create database ? memory users (admin identified by 'admin' role admin)",
         name.getMethodName());
-    try (ODatabaseDocument db = orientDB.open(name.getMethodName(), "admin", "admin")) {
-
+    try (var db = orientDB.open(name.getMethodName(), "admin", "admin")) {
       try (OResultSet resultSet = db.execute("javascript", "new java.math.BigDecimal(1.0);")) {
         Assert.assertEquals(1, resultSet.stream().count());
       }

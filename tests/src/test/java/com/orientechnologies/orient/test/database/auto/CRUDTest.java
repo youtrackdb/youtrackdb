@@ -41,6 +41,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import org.testng.Assert;
@@ -505,7 +506,7 @@ public class CRUDTest extends DocumentDBBaseTest {
     database.rollback();
   }
 
-  protected void checkCollectionImplementations(ODocument doc) {
+  protected static void checkCollectionImplementations(ODocument doc) {
     Object collectionObj = doc.field("list");
     boolean validImplementation =
         (collectionObj instanceof OTrackedList<?>)
@@ -1418,10 +1419,9 @@ public class CRUDTest extends DocumentDBBaseTest {
 
     p.setProperty("stringMap", stringMap);
 
-    for (String referenceRelativ : relatives.keySet()) {
+    for (Entry<String, String> entry : relatives.entrySet()) {
       Assert.assertEquals(
-          relatives.get(referenceRelativ),
-          p.<Map<String, String>>getProperty("stringMap").get(referenceRelativ));
+          entry.getValue(), p.<Map<String, String>>getProperty("stringMap").get(entry.getKey()));
     }
 
     database.begin();
@@ -1433,10 +1433,10 @@ public class CRUDTest extends DocumentDBBaseTest {
     database = createSessionInstance();
     OElement loaded = database.load(rid);
     Assert.assertNotNull(loaded.<Map<String, String>>getProperty("stringMap"));
-    for (String referenceRelativ : relatives.keySet()) {
+    for (Entry<String, String> entry : relatives.entrySet()) {
       Assert.assertEquals(
-          relatives.get(referenceRelativ),
-          loaded.<Map<String, String>>getProperty("stringMap").get(referenceRelativ));
+          entry.getValue(),
+          loaded.<Map<String, String>>getProperty("stringMap").get(entry.getKey()));
     }
     loaded.<Map<String, String>>getProperty("stringMap").put("brother", "Nike");
     relatives.put("brother", "Nike");
@@ -1446,19 +1446,19 @@ public class CRUDTest extends DocumentDBBaseTest {
     database.commit();
 
     loaded = database.bindToSession(loaded);
-    for (String referenceRelativ : relatives.keySet()) {
+    for (Entry<String, String> entry : relatives.entrySet()) {
       Assert.assertEquals(
-          relatives.get(referenceRelativ),
-          loaded.<Map<String, String>>getProperty("stringMap").get(referenceRelativ));
+          entry.getValue(),
+          loaded.<Map<String, String>>getProperty("stringMap").get(entry.getKey()));
     }
     database.close();
     database = createSessionInstance();
     loaded = database.load(rid);
     Assert.assertNotNull(loaded.<Map<String, String>>getProperty("stringMap"));
-    for (String referenceRelativ : relatives.keySet()) {
+    for (Entry<String, String> entry : relatives.entrySet()) {
       Assert.assertEquals(
-          relatives.get(referenceRelativ),
-          loaded.<Map<String, String>>getProperty("stringMap").get(referenceRelativ));
+          entry.getValue(),
+          loaded.<Map<String, String>>getProperty("stringMap").get(entry.getKey()));
     }
 
     database.begin();
@@ -1470,10 +1470,9 @@ public class CRUDTest extends DocumentDBBaseTest {
     p.setProperty("name", "Chuck");
     p.setProperty("stringMap", relatives);
 
-    for (String referenceRelativ : relatives.keySet()) {
+    for (Entry<String, String> entry : relatives.entrySet()) {
       Assert.assertEquals(
-          relatives.get(referenceRelativ),
-          p.<Map<String, String>>getProperty("stringMap").get(referenceRelativ));
+          entry.getValue(), p.<Map<String, String>>getProperty("stringMap").get(entry.getKey()));
     }
 
     database.begin();
@@ -1485,10 +1484,10 @@ public class CRUDTest extends DocumentDBBaseTest {
     database = createSessionInstance();
     loaded = database.load(rid);
     Assert.assertNotNull(loaded.<Map<String, String>>getProperty("stringMap"));
-    for (String referenceRelativ : relatives.keySet()) {
+    for (Entry<String, String> entry : relatives.entrySet()) {
       Assert.assertEquals(
-          relatives.get(referenceRelativ),
-          loaded.<Map<String, String>>getProperty("stringMap").get(referenceRelativ));
+          entry.getValue(),
+          loaded.<Map<String, String>>getProperty("stringMap").get(entry.getKey()));
     }
     loaded.<Map<String, String>>getProperty("stringMap").put("brother", "Nike");
     relatives.put("brother", "Nike");
@@ -1497,20 +1496,20 @@ public class CRUDTest extends DocumentDBBaseTest {
     database.save(loaded);
     database.commit();
 
-    for (String referenceRelativ : relatives.keySet()) {
+    for (Entry<String, String> entry : relatives.entrySet()) {
       loaded = database.bindToSession(loaded);
       Assert.assertEquals(
-          relatives.get(referenceRelativ),
-          loaded.<Map<String, String>>getProperty("stringMap").get(referenceRelativ));
+          entry.getValue(),
+          loaded.<Map<String, String>>getProperty("stringMap").get(entry.getKey()));
     }
     database.close();
     database = createSessionInstance();
     loaded = database.load(rid);
     Assert.assertNotNull(loaded.<Map<String, String>>getProperty("stringMap"));
-    for (String referenceRelativ : relatives.keySet()) {
+    for (Entry<String, String> entry : relatives.entrySet()) {
       Assert.assertEquals(
-          relatives.get(referenceRelativ),
-          loaded.<Map<String, String>>getProperty("stringMap").get(referenceRelativ));
+          entry.getValue(),
+          loaded.<Map<String, String>>getProperty("stringMap").get(entry.getKey()));
     }
     database.begin();
     database.delete(database.bindToSession(loaded));
@@ -1521,10 +1520,9 @@ public class CRUDTest extends DocumentDBBaseTest {
     p.setProperty("name", "Chuck");
     p.setProperty("stringMap", relatives);
 
-    for (String referenceRelativ : relatives.keySet()) {
+    for (Entry<String, String> entry : relatives.entrySet()) {
       Assert.assertEquals(
-          relatives.get(referenceRelativ),
-          p.<Map<String, String>>getProperty("stringMap").get(referenceRelativ));
+          entry.getValue(), p.<Map<String, String>>getProperty("stringMap").get(entry.getKey()));
     }
 
     database.begin();
@@ -1536,10 +1534,10 @@ public class CRUDTest extends DocumentDBBaseTest {
     database = createSessionInstance();
     loaded = database.load(rid);
     Assert.assertNotNull(loaded.<Map<String, String>>getProperty("stringMap"));
-    for (String referenceRelativ : relatives.keySet()) {
+    for (Entry<String, String> entry : relatives.entrySet()) {
       Assert.assertEquals(
-          relatives.get(referenceRelativ),
-          loaded.<Map<String, String>>getProperty("stringMap").get(referenceRelativ));
+          entry.getValue(),
+          loaded.<Map<String, String>>getProperty("stringMap").get(entry.getKey()));
     }
     loaded.<Map<String, String>>getProperty("stringMap").put("brother", "Nike");
     relatives.put("brother", "Nike");
@@ -1548,20 +1546,20 @@ public class CRUDTest extends DocumentDBBaseTest {
     database.save(loaded);
     database.commit();
 
-    for (String referenceRelativ : relatives.keySet()) {
+    for (Entry<String, String> entry : relatives.entrySet()) {
       loaded = database.bindToSession(loaded);
       Assert.assertEquals(
-          relatives.get(referenceRelativ),
-          loaded.<Map<String, String>>getProperty("stringMap").get(referenceRelativ));
+          entry.getValue(),
+          loaded.<Map<String, String>>getProperty("stringMap").get(entry.getKey()));
     }
     database.close();
     database = createSessionInstance();
     loaded = database.load(rid);
     Assert.assertNotNull(loaded.<Map<String, String>>getProperty("stringMap"));
-    for (String referenceRelativ : relatives.keySet()) {
+    for (Entry<String, String> entry : relatives.entrySet()) {
       Assert.assertEquals(
-          relatives.get(referenceRelativ),
-          loaded.<Map<String, String>>getProperty("stringMap").get(referenceRelativ));
+          entry.getValue(),
+          loaded.<Map<String, String>>getProperty("stringMap").get(entry.getKey()));
     }
     database.begin();
     database.delete(database.bindToSession(loaded));
@@ -1652,10 +1650,10 @@ public class CRUDTest extends DocumentDBBaseTest {
 
     p.setProperty("stringListMap", songAndMovies);
 
-    for (String referenceRelativ : songAndMovies.keySet()) {
+    for (Entry<String, List<String>> entry : songAndMovies.entrySet()) {
       Assert.assertEquals(
-          songAndMovies.get(referenceRelativ),
-          p.<Map<String, List<String>>>getProperty("stringListMap").get(referenceRelativ));
+          entry.getValue(),
+          p.<Map<String, List<String>>>getProperty("stringListMap").get(entry.getKey()));
     }
 
     database.begin();
@@ -1667,10 +1665,10 @@ public class CRUDTest extends DocumentDBBaseTest {
     database = createSessionInstance();
     OElement loaded = database.load(rid);
     Assert.assertNotNull(loaded.<Map<String, List<String>>>getProperty("stringListMap"));
-    for (String reference : songAndMovies.keySet()) {
+    for (Entry<String, List<String>> entry : songAndMovies.entrySet()) {
       Assert.assertEquals(
-          songAndMovies.get(reference),
-          loaded.<Map<String, List<String>>>getProperty("stringListMap").get(reference));
+          entry.getValue(),
+          loaded.<Map<String, List<String>>>getProperty("stringListMap").get(entry.getKey()));
     }
 
     database.begin();
@@ -1682,10 +1680,10 @@ public class CRUDTest extends DocumentDBBaseTest {
     p.setProperty("name", "Chuck");
     p.setProperty("stringListMap", songAndMovies);
 
-    for (String referenceRelativ : songAndMovies.keySet()) {
+    for (Entry<String, List<String>> entry : songAndMovies.entrySet()) {
       Assert.assertEquals(
-          songAndMovies.get(referenceRelativ),
-          p.<Map<String, List<String>>>getProperty("stringListMap").get(referenceRelativ));
+          entry.getValue(),
+          p.<Map<String, List<String>>>getProperty("stringListMap").get(entry.getKey()));
     }
 
     database.begin();
@@ -1697,10 +1695,10 @@ public class CRUDTest extends DocumentDBBaseTest {
     database = createSessionInstance();
     loaded = database.load(rid);
     Assert.assertNotNull(loaded.<Map<String, List<String>>>getProperty("stringListMap"));
-    for (String referenceRelativ : songAndMovies.keySet()) {
+    for (Entry<String, List<String>> entry : songAndMovies.entrySet()) {
       Assert.assertEquals(
-          songAndMovies.get(referenceRelativ),
-          loaded.<Map<String, List<String>>>getProperty("stringListMap").get(referenceRelativ));
+          entry.getValue(),
+          loaded.<Map<String, List<String>>>getProperty("stringListMap").get(entry.getKey()));
     }
 
     database.begin();
@@ -1725,10 +1723,10 @@ public class CRUDTest extends DocumentDBBaseTest {
 
     p.setProperty("stringListMap", stringListMap);
 
-    for (String referenceRelativ : songAndMovies.keySet()) {
+    for (Entry<String, List<String>> entry : songAndMovies.entrySet()) {
       Assert.assertEquals(
-          songAndMovies.get(referenceRelativ),
-          p.<Map<String, List<String>>>getProperty("stringListMap").get(referenceRelativ));
+          entry.getValue(),
+          p.<Map<String, List<String>>>getProperty("stringListMap").get(entry.getKey()));
     }
 
     database.begin();
@@ -1740,10 +1738,10 @@ public class CRUDTest extends DocumentDBBaseTest {
     database = createSessionInstance();
     loaded = database.load(rid);
     Assert.assertNotNull(loaded.<Map<String, List<String>>>getProperty("stringListMap"));
-    for (String referenceRelativ : songAndMovies.keySet()) {
+    for (Entry<String, List<String>> entry : songAndMovies.entrySet()) {
       Assert.assertEquals(
-          songAndMovies.get(referenceRelativ),
-          loaded.<Map<String, List<String>>>getProperty("stringListMap").get(referenceRelativ));
+          entry.getValue(),
+          loaded.<Map<String, List<String>>>getProperty("stringListMap").get(entry.getKey()));
     }
 
     database.begin();
@@ -1755,10 +1753,10 @@ public class CRUDTest extends DocumentDBBaseTest {
     p.setProperty("name", "Chuck");
     p.setProperty("stringListMap", songAndMovies);
 
-    for (String referenceRelativ : songAndMovies.keySet()) {
+    for (Entry<String, List<String>> entry : songAndMovies.entrySet()) {
       Assert.assertEquals(
-          songAndMovies.get(referenceRelativ),
-          p.<Map<String, List<String>>>getProperty("stringListMap").get(referenceRelativ));
+          entry.getValue(),
+          p.<Map<String, List<String>>>getProperty("stringListMap").get(entry.getKey()));
     }
 
     database.begin();
@@ -1770,10 +1768,10 @@ public class CRUDTest extends DocumentDBBaseTest {
     database = createSessionInstance();
     loaded = database.load(rid);
     Assert.assertNotNull(loaded.<Map<String, List<String>>>getProperty("stringListMap"));
-    for (String referenceRelativ : songAndMovies.keySet()) {
+    for (Entry<String, List<String>> entry : songAndMovies.entrySet()) {
       Assert.assertEquals(
-          songAndMovies.get(referenceRelativ),
-          loaded.<Map<String, List<String>>>getProperty("stringListMap").get(referenceRelativ));
+          entry.getValue(),
+          loaded.<Map<String, List<String>>>getProperty("stringListMap").get(entry.getKey()));
     }
 
     database.begin();
@@ -1806,10 +1804,9 @@ public class CRUDTest extends DocumentDBBaseTest {
 
     p.setProperty("mapObject", mapObject);
 
-    for (String referenceRelativ : relatives.keySet()) {
+    for (Entry<String, Object> entry : relatives.entrySet()) {
       Assert.assertEquals(
-          relatives.get(referenceRelativ),
-          p.<Map<String, Object>>getProperty("mapObject").get(referenceRelativ));
+          entry.getValue(), p.<Map<String, Object>>getProperty("mapObject").get(entry.getKey()));
     }
 
     database.begin();
@@ -1821,10 +1818,10 @@ public class CRUDTest extends DocumentDBBaseTest {
     database = createSessionInstance();
     OElement loaded = database.load(rid);
     Assert.assertNotNull(loaded.<Map<String, Object>>getProperty("mapObject"));
-    for (String referenceRelativ : relatives.keySet()) {
+    for (Entry<String, Object> entry : relatives.entrySet()) {
       Assert.assertEquals(
-          relatives.get(referenceRelativ),
-          loaded.<Map<String, Object>>getProperty("mapObject").get(referenceRelativ));
+          entry.getValue(),
+          loaded.<Map<String, Object>>getProperty("mapObject").get(entry.getKey()));
     }
     loaded.<Map<String, Object>>getProperty("mapObject").put("brother", "Nike");
     relatives.put("brother", "Nike");
@@ -1833,21 +1830,21 @@ public class CRUDTest extends DocumentDBBaseTest {
     database.save(loaded);
     database.commit();
 
-    for (String referenceRelativ : relatives.keySet()) {
+    for (Entry<String, Object> entry : relatives.entrySet()) {
       loaded = database.bindToSession(loaded);
       Assert.assertEquals(
-          relatives.get(referenceRelativ),
-          loaded.<Map<String, Object>>getProperty("mapObject").get(referenceRelativ));
+          entry.getValue(),
+          loaded.<Map<String, Object>>getProperty("mapObject").get(entry.getKey()));
     }
 
     database.close();
     database = createSessionInstance();
     loaded = database.load(rid);
     Assert.assertNotNull(loaded.<Map<String, Object>>getProperty("mapObject"));
-    for (String referenceRelativ : relatives.keySet()) {
+    for (Entry<String, Object> entry : relatives.entrySet()) {
       Assert.assertEquals(
-          relatives.get(referenceRelativ),
-          loaded.<Map<String, Object>>getProperty("mapObject").get(referenceRelativ));
+          entry.getValue(),
+          loaded.<Map<String, Object>>getProperty("mapObject").get(entry.getKey()));
     }
 
     database.begin();
@@ -1860,10 +1857,9 @@ public class CRUDTest extends DocumentDBBaseTest {
 
     p.setProperty("mapObject", relatives);
 
-    for (String referenceRelativ : relatives.keySet()) {
+    for (Entry<String, Object> entry : relatives.entrySet()) {
       Assert.assertEquals(
-          relatives.get(referenceRelativ),
-          p.<Map<String, Object>>getProperty("mapObject").get(referenceRelativ));
+          entry.getValue(), p.<Map<String, Object>>getProperty("mapObject").get(entry.getKey()));
     }
 
     database.begin();
@@ -1875,10 +1871,10 @@ public class CRUDTest extends DocumentDBBaseTest {
     database = createSessionInstance();
     loaded = database.load(rid);
     Assert.assertNotNull(loaded.<Map<String, Object>>getProperty("mapObject"));
-    for (String referenceRelativ : relatives.keySet()) {
+    for (Entry<String, Object> entry : relatives.entrySet()) {
       Assert.assertEquals(
-          relatives.get(referenceRelativ),
-          loaded.<Map<String, Object>>getProperty("mapObject").get(referenceRelativ));
+          entry.getValue(),
+          loaded.<Map<String, Object>>getProperty("mapObject").get(entry.getKey()));
     }
 
     loaded.<Map<String, Object>>getProperty("mapObject").put("brother", "Nike");
@@ -1888,21 +1884,21 @@ public class CRUDTest extends DocumentDBBaseTest {
     database.save(loaded);
     database.commit();
 
-    for (String referenceRelativ : relatives.keySet()) {
+    for (Entry<String, Object> entry : relatives.entrySet()) {
       loaded = database.bindToSession(loaded);
       Assert.assertEquals(
-          relatives.get(referenceRelativ),
-          loaded.<Map<String, Object>>getProperty("mapObject").get(referenceRelativ));
+          entry.getValue(),
+          loaded.<Map<String, Object>>getProperty("mapObject").get(entry.getKey()));
     }
 
     database.close();
     database = createSessionInstance();
     loaded = database.load(rid);
     Assert.assertNotNull(loaded.<Map<String, Object>>getProperty("mapObject"));
-    for (String referenceRelativ : relatives.keySet()) {
+    for (Entry<String, Object> entry : relatives.entrySet()) {
       Assert.assertEquals(
-          relatives.get(referenceRelativ),
-          loaded.<Map<String, Object>>getProperty("mapObject").get(referenceRelativ));
+          entry.getValue(),
+          loaded.<Map<String, Object>>getProperty("mapObject").get(entry.getKey()));
     }
 
     database.begin();
@@ -1913,10 +1909,9 @@ public class CRUDTest extends DocumentDBBaseTest {
     p.setProperty("name", "Chuck");
     p.setProperty("mapObject", relatives);
 
-    for (String referenceRelativ : relatives.keySet()) {
+    for (Entry<String, Object> entry : relatives.entrySet()) {
       Assert.assertEquals(
-          relatives.get(referenceRelativ),
-          p.<Map<String, Object>>getProperty("mapObject").get(referenceRelativ));
+          entry.getValue(), p.<Map<String, Object>>getProperty("mapObject").get(entry.getKey()));
     }
 
     database.begin();
@@ -1928,10 +1923,10 @@ public class CRUDTest extends DocumentDBBaseTest {
     database = createSessionInstance();
     loaded = database.load(rid);
     Assert.assertNotNull(loaded.<Map<String, Object>>getProperty("mapObject"));
-    for (String referenceRelativ : relatives.keySet()) {
+    for (Entry<String, Object> entry : relatives.entrySet()) {
       Assert.assertEquals(
-          relatives.get(referenceRelativ),
-          loaded.<Map<String, Object>>getProperty("mapObject").get(referenceRelativ));
+          entry.getValue(),
+          loaded.<Map<String, Object>>getProperty("mapObject").get(entry.getKey()));
     }
     loaded.<Map<String, Object>>getProperty("mapObject").put("brother", "Nike");
 
@@ -1940,21 +1935,21 @@ public class CRUDTest extends DocumentDBBaseTest {
     database.save(loaded);
     database.commit();
 
-    for (String referenceRelativ : relatives.keySet()) {
+    for (Entry<String, Object> entry : relatives.entrySet()) {
       loaded = database.bindToSession(loaded);
       Assert.assertEquals(
-          relatives.get(referenceRelativ),
-          loaded.<Map<String, Object>>getProperty("mapObject").get(referenceRelativ));
+          entry.getValue(),
+          loaded.<Map<String, Object>>getProperty("mapObject").get(entry.getKey()));
     }
     database.close();
     database = createSessionInstance();
     loaded = database.load(rid);
 
     Assert.assertNotNull(loaded.<Map<String, Object>>getProperty("mapObject"));
-    for (String referenceRelativ : relatives.keySet()) {
+    for (Entry<String, Object> entry : relatives.entrySet()) {
       Assert.assertEquals(
-          relatives.get(referenceRelativ),
-          loaded.<Map<String, Object>>getProperty("mapObject").get(referenceRelativ));
+          entry.getValue(),
+          loaded.<Map<String, Object>>getProperty("mapObject").get(entry.getKey()));
     }
 
     database.begin();
@@ -2094,8 +2089,8 @@ public class CRUDTest extends DocumentDBBaseTest {
                 .getBytes(),
             out.toByteArray());
         Assert.assertEquals(
-            "this is a bytearray test. if you read this Object database has stored it correctly",
-            out.toString());
+            out.toString(),
+            "this is a bytearray test. if you read this Object database has stored it correctly");
       }
     } catch (IOException ioe) {
       Assert.fail();
@@ -2103,13 +2098,13 @@ public class CRUDTest extends DocumentDBBaseTest {
     }
     Assert.assertTrue(loaded.getElementProperty("document") instanceof ODocument);
     Assert.assertEquals(
-        "testValue", loaded.getElementProperty("document").getProperty("testField"));
+        loaded.getElementProperty("document").getProperty("testField"), "testValue");
     Assert.assertTrue(loaded.getElementProperty("document").getIdentity().isPersistent());
 
     Assert.assertTrue(loaded.getElementProperty("embeddedDocument") instanceof ODocument);
     Assert.assertEquals(
-        "testEmbeddedValue",
-        loaded.getElementProperty("embeddedDocument").getProperty("testEmbeddedField"));
+        loaded.getElementProperty("embeddedDocument").getProperty("testEmbeddedField"),
+        "testEmbeddedValue");
     Assert.assertFalse(loaded.getElementProperty("embeddedDocument").getIdentity().isValid());
 
     database.close();
@@ -2137,9 +2132,9 @@ public class CRUDTest extends DocumentDBBaseTest {
                 .getBytes(),
             out.toByteArray());
         Assert.assertEquals(
+            out.toString(),
             "this is a bytearray test. if you read this Object database has stored it"
-                + " correctlyVERSION2",
-            out.toString());
+                + " correctlyVERSION2");
       }
     } catch (IOException ioe) {
       Assert.fail();
@@ -2161,9 +2156,9 @@ public class CRUDTest extends DocumentDBBaseTest {
                 .getBytes(),
             out.toByteArray());
         Assert.assertEquals(
+            out.toString(),
             "this is a bytearray test. if you read this Object database has stored it"
-                + " correctlyVERSION2",
-            out.toString());
+                + " correctlyVERSION2");
       }
     } catch (IOException ioe) {
       Assert.fail();
@@ -2195,9 +2190,9 @@ public class CRUDTest extends DocumentDBBaseTest {
                 .getBytes(),
             out.toByteArray());
         Assert.assertEquals(
+            out.toString(),
             "this is a bytearray test. if you read this Object database has stored it"
-                + " correctlyVERSION2",
-            out.toString());
+                + " correctlyVERSION2");
       }
     } catch (IOException ioe) {
       Assert.fail();
@@ -2219,9 +2214,9 @@ public class CRUDTest extends DocumentDBBaseTest {
                 .getBytes(),
             out.toByteArray());
         Assert.assertEquals(
+            out.toString(),
             "this is a bytearray test. if you read this Object database has stored it"
-                + " correctlyVERSION2",
-            out.toString());
+                + " correctlyVERSION2");
       }
     } catch (IOException ioe) {
       Assert.fail();
@@ -2273,7 +2268,9 @@ public class CRUDTest extends DocumentDBBaseTest {
         city.setProperty("country", country);
         newAddress.setProperty("city", city);
 
-        addresses.add(0, newAddress);
+        var newAddresses = new ArrayList<>(addresses);
+        newAddresses.add(0, newAddress);
+        a.setProperty("addresses", newAddresses);
       }
 
       a.setProperty("salary", (i + 500.10f));
@@ -2289,9 +2286,8 @@ public class CRUDTest extends DocumentDBBaseTest {
   public void testUpdate() {
     int i = 0;
     OElement a;
-    for (var iterator = database.browseClass("Account"); iterator.hasNext(); ) {
-      iterator.setFetchPlan("*:1");
-      a = iterator.next();
+    for (var iterator = database.query("select from Account"); iterator.hasNext(); ) {
+      a = iterator.next().toElement();
 
       if (i % 2 == 0) {
         Assert.assertEquals(

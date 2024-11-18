@@ -4,7 +4,10 @@ import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.record.ODirection;
+import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OElement;
+import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import java.util.ArrayList;
@@ -14,6 +17,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import org.apache.commons.collections4.CollectionUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Parameters;
@@ -109,18 +114,21 @@ public abstract class DocumentDBBaseTest extends BaseTest<ODatabaseSessionIntern
       bObama.setProperty("nick", "ThePresident");
       bObama.setProperty("name", "Barack");
       bObama.setProperty("surname", "Obama");
+      bObama.setProperty("followings", Collections.emptySet());
 
       var follower1 = database.newElement("Profile");
       follower1.setProperty("nick", "PresidentSon1");
       follower1.setProperty("name", "Malia Ann");
       follower1.setProperty("surname", "Obama");
       follower1.setProperty("followings", Collections.singleton(bObama));
+      follower1.setProperty("followers", Collections.emptySet());
 
       var follower2 = database.newElement("Profile");
       follower2.setProperty("nick", "PresidentSon2");
       follower2.setProperty("name", "Natasha");
       follower2.setProperty("surname", "Obama");
       follower2.setProperty("followings", Collections.singleton(bObama));
+      follower2.setProperty("followers", Collections.emptySet());
 
       var followers = new HashSet<OElement>();
       followers.add(follower1);
@@ -170,7 +178,9 @@ public abstract class DocumentDBBaseTest extends BaseTest<ODatabaseSessionIntern
         }
         element.setProperty("binary", binary);
         element.save();
-        Assert.assertTrue(accountClusterIds.contains(element.getIdentity().getClusterId()));
+        if (!remoteDB) {
+          Assert.assertTrue(accountClusterIds.contains(element.getIdentity().getClusterId()));
+        }
         database.commit();
       }
     }
@@ -552,5 +562,76 @@ public abstract class DocumentDBBaseTest extends BaseTest<ODatabaseSessionIntern
     cls.createProperty("byteSimple", OType.BYTE).setDefaultValue("0");
     cls.createProperty("shortSimple", OType.SHORT).setDefaultValue("0");
     cls.createProperty("dateField", OType.DATETIME);
+  }
+
+  protected void generateGraphData() {
+    if (database.getSchema().existsClass("GraphVehicle")) {
+      return;
+    }
+
+    OClass vehicleClass = database.createVertexClass("GraphVehicle");
+    database.createClass("GraphCar", vehicleClass.getName());
+    database.createClass("GraphMotocycle", "GraphVehicle");
+
+    database.begin();
+    var carNode = database.newVertex("GraphCar");
+    carNode.setProperty("brand", "Hyundai");
+    carNode.setProperty("model", "Coupe");
+    carNode.setProperty("year", 2003);
+    carNode.save();
+
+    var motoNode = database.newVertex("GraphMotocycle");
+    motoNode.setProperty("brand", "Yamaha");
+    motoNode.setProperty("model", "X-City 250");
+    motoNode.setProperty("year", 2009);
+    motoNode.save();
+
+    database.commit();
+
+    database.begin();
+    carNode = database.bindToSession(carNode);
+    motoNode = database.bindToSession(motoNode);
+    database.newEdge(carNode, motoNode).save();
+
+    List<OResult> result =
+        database.query("select from GraphVehicle").stream().collect(Collectors.toList());
+    Assert.assertEquals(result.size(), 2);
+    for (OResult v : result) {
+      Assert.assertTrue(v.getElement().get().getSchemaType().get().isSubClassOf(vehicleClass));
+    }
+
+    database.commit();
+    result = database.query("select from GraphVehicle").stream().toList();
+    Assert.assertEquals(result.size(), 2);
+
+    OEdge edge1 = null;
+    OEdge edge2 = null;
+
+    for (OResult v : result) {
+      Assert.assertTrue(v.getElement().get().getSchemaType().get().isSubClassOf("GraphVehicle"));
+
+      if (v.getElement().get().getSchemaType().isPresent()
+          && v.getElement().get().getSchemaType().get().getName().equals("GraphCar")) {
+        Assert.assertEquals(
+            CollectionUtils.size(
+                database.<OVertex>load(v.getIdentity().get()).getEdges(ODirection.OUT)),
+            1);
+        edge1 =
+            database
+                .<OVertex>load(v.getIdentity().get())
+                .getEdges(ODirection.OUT)
+                .iterator()
+                .next();
+      } else {
+        Assert.assertEquals(
+            CollectionUtils.size(
+                database.<OVertex>load(v.getIdentity().get()).getEdges(ODirection.IN)),
+            1);
+        edge2 =
+            database.<OVertex>load(v.getIdentity().get()).getEdges(ODirection.IN).iterator().next();
+      }
+    }
+
+    Assert.assertEquals(edge1, edge2);
   }
 }

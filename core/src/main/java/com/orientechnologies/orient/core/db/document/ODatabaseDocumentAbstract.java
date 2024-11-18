@@ -31,8 +31,6 @@ import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestInternal;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.OStorageEntryConfiguration;
-import com.orientechnologies.orient.core.db.ODatabase;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
 import com.orientechnologies.orient.core.db.ODatabaseListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
@@ -137,7 +135,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   protected ORecordSerializer serializer;
   protected String url;
   protected STATUS status;
-  protected ODatabaseInternal<?> databaseOwner;
+  protected ODatabaseSessionInternal databaseOwner;
   protected OMetadataDefault metadata;
   protected OImmutableUser user;
   protected final byte recordType = ODocument.RECORD_TYPE;
@@ -382,8 +380,8 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
    * {@inheritDoc}
    */
   @Override
-  public ODatabaseInternal<?> getDatabaseOwner() {
-    ODatabaseInternal<?> current = databaseOwner;
+  public ODatabaseSessionInternal getDatabaseOwner() {
+    ODatabaseSessionInternal current = databaseOwner;
     while (current != null && current != this && current.getDatabaseOwner() != current) {
       current = current.getDatabaseOwner();
     }
@@ -394,7 +392,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
    * {@inheritDoc}
    */
   @Override
-  public ODatabaseInternal<ORecord> setDatabaseOwner(ODatabaseInternal<?> iOwner) {
+  public ODatabaseSessionInternal setDatabaseOwner(ODatabaseSessionInternal iOwner) {
     databaseOwner = iOwner;
     return this;
   }
@@ -409,7 +407,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   /**
    * {@inheritDoc}
    */
-  public ODatabaseDocument setRetainRecords(boolean retainRecords) {
+  public ODatabaseSession setRetainRecords(boolean retainRecords) {
     this.retainRecords = retainRecords;
     return this;
   }
@@ -417,10 +415,10 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   /**
    * {@inheritDoc}
    */
-  public <DB extends ODatabase> DB setStatus(final STATUS status) {
+  public ODatabaseSession setStatus(final STATUS status) {
     checkIfActive();
     setStatusInternal(status);
-    return (DB) this;
+    return this;
   }
 
   public void setStatusInternal(final STATUS status) {
@@ -491,7 +489,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   /**
    * {@inheritDoc}
    */
-  public <DB extends ODatabase<?>> DB setMVCC(boolean mvcc) {
+  public ODatabaseSession setMVCC(boolean mvcc) {
     throw new UnsupportedOperationException();
   }
 
@@ -646,9 +644,9 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
   /**
    * {@inheritDoc}
    */
-  public <DB extends ODatabaseDocument> DB setValidationEnabled(final boolean iEnabled) {
+  public ODatabaseSession setValidationEnabled(final boolean iEnabled) {
     set(ATTRIBUTES.VALIDATION, iEnabled);
-    return (DB) this;
+    return this;
   }
 
   @Override
@@ -793,16 +791,16 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
 
   @SuppressWarnings("unchecked")
   @Override
-  public <RET extends ORecord> RET load(final ORecord iRecord, final String iFetchPlan) {
+  public <RET extends ORecord> RET load(final ORecord record, final String iFetchPlan) {
     checkIfActive();
-    return (RET) currentTx.loadRecord(iRecord.getIdentity());
+    return (RET) currentTx.loadRecord(record.getIdentity());
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public <RET extends ORecord> RET load(final ORecord iRecord) {
+  public <RET extends ORecord> RET load(final ORecord record) {
     checkIfActive();
-    return (RET) currentTx.loadRecord(iRecord.getIdentity());
+    return (RET) currentTx.loadRecord(record.getIdentity());
   }
 
   @Nonnull
@@ -834,9 +832,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     checkIfActive();
 
     final ORecord rec = load(iRecord);
-    if (rec != null) {
-      delete(rec);
-    }
+    delete(rec);
   }
 
   @Override
@@ -957,7 +953,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       if (!rid.isValid()) {
         recordBuffer = null;
       } else {
-        recordBuffer = getStorage().readRecord(rid, false, isPrefetchRecords(), null).getResult();
+        recordBuffer = getStorage().readRecord(rid, false, prefetchRecords, null);
       }
 
       if (recordBuffer == null) {
@@ -1383,7 +1379,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
    * work also in schema-less mode). To validate the document the {@link ODocument#validate()} is
    * called.
    *
-   * @param iRecord Record to save.
+   * @param record Record to save.
    * @return The Database instance itself giving a "fluent interface". Useful to call multiple
    * methods in chain.
    * @throws OConcurrentModificationException if the version of the document is different by the
@@ -1393,8 +1389,8 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
    * @see #setMVCC(boolean), {@link #isMVCC()}
    */
   @Override
-  public <RET extends ORecord> RET save(final ORecord iRecord) {
-    return save(iRecord, null);
+  public <RET extends ORecord> RET save(final ORecord record) {
+    return save(record, null);
   }
 
   /**
@@ -1479,8 +1475,8 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       }
     }
 
-    if (!getSerializer().equals(ORecordInternal.getRecordSerializer(doc))) {
-      ORecordInternal.setRecordSerializer(doc, getSerializer());
+    if (!serializer.equals(ORecordInternal.getRecordSerializer(doc))) {
+      ORecordInternal.setRecordSerializer(doc, serializer);
     }
 
     doc = (ODocument) currentTx.saveRecord(record, clusterName);
@@ -1733,7 +1729,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
    * This method is internal, it can be subject to signature change or be removed, do not use.
    */
   @Override
-  public <DB extends ODatabase> DB getUnderlying() {
+  public ODatabaseSession getUnderlying() {
     throw new UnsupportedOperationException();
   }
 
@@ -2056,9 +2052,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     try {
       runnable.run();
       ok = true;
-    } catch (Exception e) {
-      OLogManager.instance().error(this, "Error during execution of transaction", e);
-      throw e;
     } finally {
       if (currentTx.isActive()) {
         if (ok) {
@@ -2083,9 +2076,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       var result = supplier.get();
       ok = true;
       return result;
-    } catch (Exception e) {
-      OLogManager.instance().error(this, "Error during execution of transaction", e);
-      throw e;
     } finally {
       if (currentTx.isActive()) {
         if (ok && currentTx.getStatus() != TXSTATUS.ROLLBACKING) {

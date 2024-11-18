@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.storage.index.sbtree.local.v1;
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.encryption.OEncryption;
@@ -31,8 +31,10 @@ public class SBTreeV1TestEncryptionTestIT extends SBTreeV1TestIT {
             "sbTreeEncrypted",
             ".sbt",
             ".nbt",
-            (OAbstractPaginatedStorage) ((ODatabaseInternal<?>) databaseDocumentTx).getStorage());
-    storage = (OAbstractPaginatedStorage) ((ODatabaseInternal<?>) databaseDocumentTx).getStorage();
+            (OAbstractPaginatedStorage)
+                ((ODatabaseSessionInternal) databaseDocumentTx).getStorage());
+    storage =
+        (OAbstractPaginatedStorage) ((ODatabaseSessionInternal) databaseDocumentTx).getStorage();
     atomicOperationsManager = storage.getAtomicOperationsManager();
     final OEncryption encryption =
         OEncryptionFactory.INSTANCE.getEncryption("aes/gcm", "T1JJRU5UREJfSVNfQ09PTA==");

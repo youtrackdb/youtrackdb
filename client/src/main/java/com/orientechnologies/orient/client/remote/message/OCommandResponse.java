@@ -27,8 +27,8 @@ import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.client.remote.SimpleValueFetchPlanCommandListener;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.command.OCommandResultListener;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OStorageException;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -99,6 +99,7 @@ public final class OCommandResponse implements OBinaryResponse {
       channel.writeByte((byte) 0); // NO MORE RECORDS
     } else {
       serializeValue(
+          database,
           channel,
           (SimpleValueFetchPlanCommandListener) listener,
           result,
@@ -121,6 +122,7 @@ public final class OCommandResponse implements OBinaryResponse {
   }
 
   public void serializeValue(
+      ODatabaseSessionInternal session,
       OChannelDataOutput channel,
       final SimpleValueFetchPlanCommandListener listener,
       Object result,
@@ -133,7 +135,7 @@ public final class OCommandResponse implements OBinaryResponse {
       // NULL VALUE
       channel.writeByte((byte) 'n');
     } else {
-      if (result instanceof OIdentifiable) {
+      if (result instanceof OIdentifiable identifiable) {
         // RECORD
         channel.writeByte((byte) 'r');
         if (load && result instanceof ORecordId) {
@@ -143,7 +145,13 @@ public final class OCommandResponse implements OBinaryResponse {
         if (listener != null) {
           listener.result(result);
         }
-        OMessageHelper.writeIdentifiable(channel, (OIdentifiable) result, recordSerializer);
+        if (identifiable instanceof ORecord record) {
+          if (record.isUnloaded() && record.getIdentity().isPersistent()) {
+            identifiable = session.bindToSession(record);
+          }
+        }
+
+        OMessageHelper.writeIdentifiable(channel, identifiable, recordSerializer);
       } else {
         if (result instanceof ODocumentWrapper) {
           // RECORD
@@ -375,7 +383,7 @@ public final class OCommandResponse implements OBinaryResponse {
 
   protected Object readSynchResult(
       final OChannelDataInput network,
-      final ODatabaseDocument database,
+      final ODatabaseSession database,
       List<ORecord> temporaryResults)
       throws IOException {
     ORecordSerializer serializer = ORecordSerializerNetworkV37Client.INSTANCE;

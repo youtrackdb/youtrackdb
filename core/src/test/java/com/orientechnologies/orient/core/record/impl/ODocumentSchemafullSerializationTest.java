@@ -162,7 +162,7 @@ public abstract class ODocumentSchemafullSerializationTest extends BaseMemoryInt
     assertEquals(extr.<Object>field(BYTE_FIELD), document.field(BYTE_FIELD));
     assertEquals(extr.<Object>field(BOOLEAN_FIELD), document.field(BOOLEAN_FIELD));
     assertEquals(extr.<Object>field(DATE_FIELD), document.field(DATE_FIELD));
-    assertEquals(extr.<Object>field(RECORDID_FIELD), document.field(RECORDID_FIELD));
+    assertEquals(extr.getProperty(RECORDID_FIELD), document.getProperty(RECORDID_FIELD));
   }
 
   @SuppressWarnings({"rawtypes", "unchecked"})

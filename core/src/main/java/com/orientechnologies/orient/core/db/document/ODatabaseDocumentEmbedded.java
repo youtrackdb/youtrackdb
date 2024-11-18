@@ -26,14 +26,13 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.cache.OLocalRecordCache;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
-import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.command.OScriptExecutor;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
-import com.orientechnologies.orient.core.db.ODatabase;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
 import com.orientechnologies.orient.core.db.ODatabaseListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseStats;
 import com.orientechnologies.orient.core.db.OHookReplacedRecordThreadLocal;
@@ -111,21 +110,16 @@ import com.orientechnologies.orient.core.tx.OTransactionAbstract;
 import com.orientechnologies.orient.core.tx.OTransactionNoTx;
 import com.orientechnologies.orient.core.tx.OTransactionNoTx.NonTxReadMode;
 import com.orientechnologies.orient.core.tx.OTransactionOptimistic;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -190,7 +184,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     }
   }
 
-  public <DB extends ODatabase> DB open(final String iUserName, final String iUserPassword) {
+  public ODatabaseSession open(final String iUserName, final String iUserPassword) {
     throw new UnsupportedOperationException("Use OrientDB");
   }
 
@@ -326,12 +320,12 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
    * methods in chain.
    */
   @Deprecated
-  public <DB extends ODatabase> DB open(final OToken iToken) {
+  public ODatabaseSession open(final OToken iToken) {
     throw new UnsupportedOperationException("Deprecated Method");
   }
 
   @Override
-  public <DB extends ODatabase> DB create() {
+  public ODatabaseSession create() {
     throw new UnsupportedOperationException("Deprecated Method");
   }
 
@@ -552,7 +546,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     }
   }
 
-  public <DB extends ODatabase> DB setCustom(final String name, final Object iValue) {
+  public ODatabaseSession setCustom(final String name, final Object iValue) {
     checkIfActive();
 
     if ("clear".equalsIgnoreCase(name) && iValue == null) {
@@ -567,20 +561,19 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
       }
     }
 
-    return (DB) this;
+    return this;
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public <DB extends ODatabase> DB create(String incrementalBackupPath) {
+  public ODatabaseSession create(String incrementalBackupPath) {
     throw new UnsupportedOperationException("use OrientDB");
   }
 
   @Override
-  public <DB extends ODatabase> DB create(
-      final Map<OGlobalConfiguration, Object> iInitialSettings) {
+  public ODatabaseSession create(final Map<OGlobalConfiguration, Object> iInitialSettings) {
     throw new UnsupportedOperationException("use OrientDB");
   }
 
@@ -1764,37 +1757,6 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
           .error(
               this, "Storage of type " + s.getType() + " does not support freeze operation", null);
       return null;
-    }
-  }
-
-  @Override
-  public List<String> backup(
-      final OutputStream out,
-      final Map<String, Object> options,
-      final Callable<Object> callable,
-      final OCommandOutputListener iListener,
-      final int compressionLevel,
-      final int bufferSize)
-      throws IOException {
-    checkOpenness();
-    checkSecurity(ORule.ResourceGeneric.DATABASE, "backup", ORole.PERMISSION_EXECUTE);
-    return getStorage().backup(out, options, callable, iListener, compressionLevel, bufferSize);
-  }
-
-  @Override
-  public void restore(
-      final InputStream in,
-      final Map<String, Object> options,
-      final Callable<Object> callable,
-      final OCommandOutputListener iListener)
-      throws IOException {
-    checkOpenness();
-
-    getStorage().restore(in, options, callable, iListener);
-
-    if (!isClosed()) {
-      loadMetadata();
-      sharedContext.reload(this);
     }
   }
 

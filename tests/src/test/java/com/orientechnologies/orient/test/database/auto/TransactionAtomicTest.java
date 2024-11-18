@@ -17,8 +17,8 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.command.OCommandExecutor;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.db.ODatabase;
 import com.orientechnologies.orient.core.db.ODatabaseListener;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.orientechnologies.orient.core.exception.OTransactionException;
@@ -30,15 +30,16 @@ import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
 import java.io.IOException;
 import org.testng.Assert;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-@Test(groups = "dictionary")
+@Test
 public class TransactionAtomicTest extends DocumentDBBaseTest {
 
   @Parameters(value = "remote")
-  public TransactionAtomicTest(boolean remote) {
-    super(remote);
+  public TransactionAtomicTest(@Optional Boolean remote) {
+    super(remote != null && remote);
   }
 
   @Test
@@ -63,10 +64,12 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
     db2.commit();
 
     db2.begin();
+    record2 = db2.bindToSession(record2);
     record2.field("value", "This is the third version").save();
     db2.commit();
 
     db1.activateOnCurrentThread();
+    record1 = db1.bindToSession(record1);
     Assert.assertEquals(record1.field("value"), "This is the third version");
     db1.close();
 
@@ -85,11 +88,12 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
     doc.save();
     database.commit();
 
+    database.begin();
+    doc = database.bindToSession(doc);
     doc.setDirty();
     doc.field("testmvcc", true);
     ORecordInternal.setVersion(doc, doc.getVersion() + 1);
     try {
-      database.begin();
       doc.save();
       database.commit();
       Assert.fail();
@@ -112,24 +116,24 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
         new ODatabaseListener() {
 
           @Override
-          public void onAfterTxCommit(ODatabase iDatabase) {}
+          public void onAfterTxCommit(ODatabaseSession iDatabase) {}
 
           @Override
-          public void onAfterTxRollback(ODatabase iDatabase) {}
+          public void onAfterTxRollback(ODatabaseSession iDatabase) {}
 
           @Override
-          public void onBeforeTxBegin(ODatabase iDatabase) {}
+          public void onBeforeTxBegin(ODatabaseSession iDatabase) {}
 
           @Override
-          public void onBeforeTxCommit(ODatabase iDatabase) {
+          public void onBeforeTxCommit(ODatabaseSession iDatabase) {
             throw new RuntimeException("Rollback test");
           }
 
           @Override
-          public void onBeforeTxRollback(ODatabase iDatabase) {}
+          public void onBeforeTxRollback(ODatabaseSession iDatabase) {}
 
           @Override
-          public void onClose(ODatabase iDatabase) {}
+          public void onClose(ODatabaseSession iDatabase) {}
 
           @Override
           public void onBeforeCommand(OCommandRequestText iCommand, OCommandExecutor executor) {}
@@ -139,17 +143,17 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
               OCommandRequestText iCommand, OCommandExecutor executor, Object result) {}
 
           @Override
-          public void onCreate(ODatabase iDatabase) {}
+          public void onCreate(ODatabaseSession iDatabase) {}
 
           @Override
-          public void onDelete(ODatabase iDatabase) {}
+          public void onDelete(ODatabaseSession iDatabase) {}
 
           @Override
-          public void onOpen(ODatabase iDatabase) {}
+          public void onOpen(ODatabaseSession iDatabase) {}
 
           @Override
           public boolean onCorruptionRepairDatabase(
-              ODatabase iDatabase, final String iReason, String iWhatWillbeFixed) {
+              ODatabaseSession iDatabase, final String iReason, String iWhatWillbeFixed) {
             return true;
           }
         };
@@ -221,9 +225,11 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
   public void testTransactionalSQL() {
     long prev = database.countClass("Account");
 
+    database.begin();
     database
         .command(new OCommandSQL("transactional insert into Account set name = 'txTest1'"))
         .execute();
+    database.commit();
 
     Assert.assertEquals(database.countClass("Account"), prev + 1);
   }

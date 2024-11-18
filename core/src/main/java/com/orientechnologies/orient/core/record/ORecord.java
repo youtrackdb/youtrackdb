@@ -19,7 +19,6 @@
  */
 package com.orientechnologies.orient.core.record;
 
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.id.ORID;
@@ -191,7 +190,7 @@ public interface ORecord extends ORecordElement, OIdentifiable, Serializable, OS
 
   /**
    * Checks if the record exists in the database. It adheres the same rules
-   * {@link ODatabaseDocument#exists(ORID)}.
+   * {@link com.orientechnologies.orient.core.db.ODatabaseSession#exists(ORID)}.
    *
    * @return true if the record exists, otherwise false
    */

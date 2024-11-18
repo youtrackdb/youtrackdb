@@ -20,7 +20,6 @@
 
 package com.orientechnologies.orient.core.storage.index.sbtree;
 
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OIndexRIDContainer;
@@ -36,6 +35,7 @@ import java.util.NoSuchElementException;
  * @author Artem Orobets (enisher-at-gmail.com)
  */
 public class OSBTreeMapEntryIterator<K, V> implements Iterator<Map.Entry<K, V>> {
+
   private LinkedList<Map.Entry<K, V>> preFetchedValues;
   private final OTreeInternal<K, V> sbTree;
   private K firstKey;
@@ -62,7 +62,7 @@ public class OSBTreeMapEntryIterator<K, V> implements Iterator<Map.Entry<K, V>> 
   }
 
   private void prefetchData(boolean firstTime) {
-    ODatabaseInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    var db = ODatabaseRecordThreadLocal.instance().getIfDefined();
     long begin = System.currentTimeMillis();
     try {
       sbTree.loadEntriesMajor(

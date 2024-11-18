@@ -21,9 +21,11 @@ package com.orientechnologies.orient.core.metadata.security;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import java.io.Serial;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -31,8 +33,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 /**
- * Contains the user settings about security and permissions roles.<br>
- * Allowed operation are the classic CRUD, namely:
+ * Contains the user settings about security and permissions roles.<br> Allowed operation are the
+ * classic CRUD, namely:
  *
  * <ul>
  *   <li>CREATE
@@ -40,11 +42,12 @@ import java.util.Set;
  *   <li>UPDATE
  *   <li>DELETE
  * </ul>
- *
+ * <p>
  * Mode = ALLOW (allow all but) or DENY (deny all but)
  */
 @SuppressWarnings("unchecked")
 public class ORole extends OIdentity implements OSecurityRole {
+
   public static final String ADMIN = "admin";
   public static final String CLASS_NAME = "ORole";
   public static final int PERMISSION_NONE = 0;
@@ -61,7 +64,7 @@ public class ORole extends OIdentity implements OSecurityRole {
           + PERMISSION_EXECUTE;
   protected static final byte STREAM_DENY = 0;
   protected static final byte STREAM_ALLOW = 1;
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
   // CRUD OPERATIONS
   private static Int2ObjectOpenHashMap<String> PERMISSION_BIT_NAMES;
   protected ALLOW_MODES mode = ALLOW_MODES.DENY_ALL_BUT;
@@ -69,7 +72,9 @@ public class ORole extends OIdentity implements OSecurityRole {
 
   private Map<ORule.ResourceGeneric, ORule> rules = new HashMap<ORule.ResourceGeneric, ORule>();
 
-  /** Constructor used in unmarshalling. */
+  /**
+   * Constructor used in unmarshalling.
+   */
   public ORole() {}
 
   public ORole(final String iName, final ORole iParent, final ALLOW_MODES iAllowMode) {
@@ -95,7 +100,9 @@ public class ORole extends OIdentity implements OSecurityRole {
     updateRolesDocumentContent();
   }
 
-  /** Create the role by reading the source document. */
+  /**
+   * Create the role by reading the source document.
+   */
   public ORole(final ODocument iSource) {
     fromStream(iSource);
   }
@@ -111,13 +118,17 @@ public class ORole extends OIdentity implements OSecurityRole {
     final StringBuilder returnValue = new StringBuilder(128);
     for (Entry<Integer, String> p : PERMISSION_BIT_NAMES.entrySet()) {
       if ((permission & p.getKey()) == p.getKey()) {
-        if (returnValue.length() > 0) returnValue.append(", ");
+        if (returnValue.length() > 0) {
+          returnValue.append(", ");
+        }
         returnValue.append(p.getValue());
         permission &= ~p.getKey();
       }
     }
     if (permission != 0) {
-      if (returnValue.length() > 0) returnValue.append(", ");
+      if (returnValue.length() > 0) {
+        returnValue.append(", ");
+      }
       returnValue.append("Unknown 0x");
       returnValue.append(Integer.toHexString(permission));
     }
@@ -126,17 +137,19 @@ public class ORole extends OIdentity implements OSecurityRole {
   }
 
   public static int registerPermissionBit(final int bitNo, final String iName) {
-    if (bitNo < 0 || bitNo > 31)
+    if (bitNo < 0 || bitNo > 31) {
       throw new IndexOutOfBoundsException(
           "Permission bit number must be positive and less than 32");
+    }
 
     final int value = 1 << bitNo;
     if (PERMISSION_BIT_NAMES == null) {
       PERMISSION_BIT_NAMES = new Int2ObjectOpenHashMap<>();
     }
 
-    if (PERMISSION_BIT_NAMES.containsKey(value))
+    if (PERMISSION_BIT_NAMES.containsKey(value)) {
       throw new IndexOutOfBoundsException("Permission bit number " + bitNo + " already in use");
+    }
 
     PERMISSION_BIT_NAMES.put(value, iName);
     return value;
@@ -196,8 +209,10 @@ public class ORole extends OIdentity implements OSecurityRole {
     }
 
     if (getName().equals("admin") && !hasRule(ORule.ResourceGeneric.BYPASS_RESTRICTED, null))
-      // FIX 1.5.1 TO ASSIGN database.bypassRestricted rule to the role
+    // FIX 1.5.1 TO ASSIGN database.bypassRestricted rule to the role
+    {
       addRule(ORule.ResourceGeneric.BYPASS_RESTRICTED, null, ORole.PERMISSION_ALL).save();
+    }
 
     if (rolesNeedToBeUpdated) {
       updateRolesDocumentContent();
@@ -212,12 +227,16 @@ public class ORole extends OIdentity implements OSecurityRole {
     final ORule rule = rules.get(resourceGeneric);
     if (rule != null) {
       final Boolean allowed = rule.isAllowed(resourceSpecific, iCRUDOperation);
-      if (allowed != null) return allowed;
+      if (allowed != null) {
+        return allowed;
+      }
     }
 
     if (parentRole != null)
-      // DELEGATE TO THE PARENT ROLE IF ANY
+    // DELEGATE TO THE PARENT ROLE IF ANY
+    {
       return parentRole.allow(resourceGeneric, resourceSpecific, iCRUDOperation);
+    }
 
     return false;
   }
@@ -225,11 +244,11 @@ public class ORole extends OIdentity implements OSecurityRole {
   public boolean hasRule(final ORule.ResourceGeneric resourceGeneric, String resourceSpecific) {
     ORule rule = rules.get(resourceGeneric);
 
-    if (rule == null) return false;
+    if (rule == null) {
+      return false;
+    }
 
-    if (resourceSpecific != null && !rule.containsSpecificResource(resourceSpecific)) return false;
-
-    return true;
+    return resourceSpecific == null || rule.containsSpecificResource(resourceSpecific);
   }
 
   public ORole addRule(
@@ -257,8 +276,9 @@ public class ORole extends OIdentity implements OSecurityRole {
     final ORule.ResourceGeneric resourceGeneric =
         ORule.mapLegacyResourceToGenericResource(iResource);
 
-    if (specificResource == null || specificResource.equals("*"))
+    if (specificResource == null || specificResource.equals("*")) {
       return allow(resourceGeneric, null, iCRUDOperation);
+    }
 
     return allow(resourceGeneric, specificResource, iCRUDOperation);
   }
@@ -270,8 +290,9 @@ public class ORole extends OIdentity implements OSecurityRole {
     final ORule.ResourceGeneric resourceGeneric =
         ORule.mapLegacyResourceToGenericResource(iResource);
 
-    if (specificResource == null || specificResource.equals("*"))
+    if (specificResource == null || specificResource.equals("*")) {
       return hasRule(resourceGeneric, null);
+    }
 
     return hasRule(resourceGeneric, specificResource);
   }
@@ -283,8 +304,9 @@ public class ORole extends OIdentity implements OSecurityRole {
     final ORule.ResourceGeneric resourceGeneric =
         ORule.mapLegacyResourceToGenericResource(iResource);
 
-    if (specificResource == null || specificResource.equals("*"))
+    if (specificResource == null || specificResource.equals("*")) {
       return addRule(resourceGeneric, null, iOperation);
+    }
 
     return addRule(resourceGeneric, specificResource, iOperation);
   }
@@ -296,8 +318,9 @@ public class ORole extends OIdentity implements OSecurityRole {
     final ORule.ResourceGeneric resourceGeneric =
         ORule.mapLegacyResourceToGenericResource(iResource);
 
-    if (specificResource == null || specificResource.equals("*"))
+    if (specificResource == null || specificResource.equals("*")) {
       return grant(resourceGeneric, null, iOperation);
+    }
 
     return grant(resourceGeneric, specificResource, iOperation);
   }
@@ -309,8 +332,9 @@ public class ORole extends OIdentity implements OSecurityRole {
     final ORule.ResourceGeneric resourceGeneric =
         ORule.mapLegacyResourceToGenericResource(iResource);
 
-    if (specificResource == null || specificResource.equals("*"))
+    if (specificResource == null || specificResource.equals("*")) {
       return revoke(resourceGeneric, null, iOperation);
+    }
 
     return revoke(resourceGeneric, specificResource, iOperation);
   }
@@ -336,10 +360,14 @@ public class ORole extends OIdentity implements OSecurityRole {
     return this;
   }
 
-  /** Revoke a permission to the resource. */
+  /**
+   * Revoke a permission to the resource.
+   */
   public ORole revoke(
       final ORule.ResourceGeneric resourceGeneric, String resourceSpecific, final int iOperation) {
-    if (iOperation == PERMISSION_NONE) return this;
+    if (iOperation == PERMISSION_NONE) {
+      return this;
+    }
 
     ORule rule = rules.get(resourceGeneric);
 
@@ -422,7 +450,7 @@ public class ORole extends OIdentity implements OSecurityRole {
   }
 
   private void loadOldVersionOfRules(final Map<String, Number> storedRules) {
-    if (storedRules != null)
+    if (storedRules != null) {
       for (Entry<String, Number> a : storedRules.entrySet()) {
         ORule.ResourceGeneric resourceGeneric =
             ORule.mapLegacyResourceToGenericResource(a.getKey());
@@ -439,10 +467,11 @@ public class ORole extends OIdentity implements OSecurityRole {
           rule.grantAccess(specificResource, a.getValue().intValue());
         }
       }
+    }
   }
 
-  private ODocument updateRolesDocumentContent() {
-    return getDocument().field("rules", getRules());
+  private void updateRolesDocumentContent() {
+    getDocument().field("rules", getRules());
   }
 
   @Override
@@ -451,16 +480,16 @@ public class ORole extends OIdentity implements OSecurityRole {
     if (policies == null) {
       return null;
     }
-    Map<String, OSecurityPolicy> result = new HashMap<String, OSecurityPolicy>();
-    policies
-        .entrySet()
-        .forEach(
-            x -> {
-              OElement rec = x.getValue().getRecord();
-              if (rec != null) {
-                result.put(x.getKey(), new OSecurityPolicyImpl(rec));
-              }
-            });
+    Map<String, OSecurityPolicy> result = new HashMap<>();
+    policies.forEach(
+        (key, value) -> {
+          try {
+            OElement rec = value.getRecord();
+            result.put(key, new OSecurityPolicyImpl(rec));
+          } catch (ORecordNotFoundException rnf) {
+            // ignore
+          }
+        });
     return result;
   }
 
@@ -474,10 +503,14 @@ public class ORole extends OIdentity implements OSecurityRole {
     if (entry == null) {
       return null;
     }
-    OElement policy = entry.getRecord();
-    if (policy == null) {
+    OElement policy;
+    try {
+      policy = entry.getRecord();
+
+    } catch (ORecordNotFoundException rnf) {
       return null;
     }
+
     return new OSecurityPolicyImpl(policy);
   }
 }

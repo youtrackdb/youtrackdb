@@ -22,11 +22,9 @@ package com.orientechnologies.orient.server.handler;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.Orient;
-import com.orientechnologies.orient.core.db.ODatabase;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.hook.ORecordHook;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.server.config.OServerConfiguration;
@@ -71,13 +69,13 @@ public class OConfigurableHooksManager implements ODatabaseLifecycleListener {
   }
 
   @Override
-  public void onCreate(final ODatabaseInternal iDatabase) {
+  public void onCreate(final ODatabaseSessionInternal iDatabase) {
     onOpen(iDatabase);
   }
 
-  public void onOpen(ODatabaseInternal iDatabase) {
-    if (!((ODatabaseSessionInternal) iDatabase).isRemote()) {
-      final ODatabase<?> db = (ODatabase<?>) iDatabase;
+  public void onOpen(ODatabaseSessionInternal iDatabase) {
+    if (!iDatabase.isRemote()) {
+      var db = iDatabase;
       for (OServerHookConfiguration hook : configuredHooks) {
         try {
           final ORecordHook.HOOK_POSITION pos = ORecordHook.HOOK_POSITION.valueOf(hook.position);
@@ -85,7 +83,7 @@ public class OConfigurableHooksManager implements ODatabaseLifecycleListener {
           final ORecordHook h;
           Constructor constructor = null;
           try {
-            constructor = klass.getConstructor(ODatabaseDocument.class);
+            constructor = klass.getConstructor(ODatabaseSession.class);
           } catch (NoSuchMethodException ex) {
             // Ignore
           }
@@ -126,10 +124,10 @@ public class OConfigurableHooksManager implements ODatabaseLifecycleListener {
   }
 
   @Override
-  public void onClose(ODatabaseInternal iDatabase) {}
+  public void onClose(ODatabaseSessionInternal iDatabase) {}
 
   @Override
-  public void onDrop(ODatabaseInternal iDatabase) {}
+  public void onDrop(ODatabaseSessionInternal iDatabase) {}
 
   @Override
   public void onLocalNodeConfigurationRequest(ODocument iConfiguration) {}

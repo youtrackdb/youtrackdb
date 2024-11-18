@@ -21,8 +21,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.testng.Assert;
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Ignore;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -30,17 +31,16 @@ import org.testng.annotations.Test;
 public class SQLSelectGroupByTest extends DocumentDBBaseTest {
 
   @Parameters(value = "remote")
-  public SQLSelectGroupByTest(boolean remote) {
-    super(remote);
+  public SQLSelectGroupByTest(@Optional Boolean remote) {
+    super(remote != null && remote);
   }
 
-  @BeforeMethod
+  @BeforeClass
   @Override
-  public void beforeMethod() throws Exception {
-    super.beforeMethod();
+  public void beforeClass() throws Exception {
+    super.beforeClass();
 
-    if (!database.getMetadata().getSchema().existsClass("Account"))
-      database.getMetadata().getSchema().createClass("Account");
+    generateCompanyData();
   }
 
   @Test
@@ -53,7 +53,9 @@ public class SQLSelectGroupByTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(result.size() > 1);
     Set<Object> set = new HashSet<Object>();
-    for (ODocument d : result) set.add(d.field("location"));
+    for (ODocument d : result) {
+      set.add(d.field("location"));
+    }
     Assert.assertEquals(result.size(), set.size());
   }
 
@@ -89,7 +91,9 @@ public class SQLSelectGroupByTest extends DocumentDBBaseTest {
     Assert.assertTrue(result.size() > 1);
     String last = null;
     for (ODocument d : result) {
-      if (last != null) Assert.assertTrue(last.compareTo(d.field("location")) < 0);
+      if (last != null) {
+        Assert.assertTrue(last.compareTo(d.field("location")) < 0);
+      }
       last = d.field("location");
     }
 
@@ -100,7 +104,9 @@ public class SQLSelectGroupByTest extends DocumentDBBaseTest {
     for (ODocument d : result) {
       Object current = d.field("location");
       if (current != null) {
-        if (last != null) Assert.assertTrue(last.compareTo((String) current) > 0);
+        if (last != null) {
+          Assert.assertTrue(last.compareTo((String) current) > 0);
+        }
       }
       last = d.field("location");
     }
@@ -137,7 +143,10 @@ public class SQLSelectGroupByTest extends DocumentDBBaseTest {
 
       Assert.assertTrue(foundNullGroup);
     } finally {
+      database.begin();
       database.command("delete vertex GroupByTest").close();
+      database.commit();
+
       database.command("drop class GroupByTest UNSAFE").close();
     }
   }

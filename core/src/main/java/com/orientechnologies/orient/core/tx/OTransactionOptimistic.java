@@ -27,6 +27,7 @@ import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OStorageException;
 import com.orientechnologies.orient.core.exception.OTransactionException;
 import com.orientechnologies.orient.core.hook.ORecordHook.TYPE;
@@ -69,6 +70,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class OTransactionOptimistic extends OTransactionAbstract implements OTransactionInternal {
@@ -427,14 +429,14 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
   }
 
   @Override
-  public ORecord loadRecord(ORID rid) {
+  public @Nonnull ORecord loadRecord(ORID rid) {
 
     checkTransactionValid();
 
     final ORecordAbstract txRecord = getRecord(rid);
     if (txRecord == OTransactionAbstract.DELETED_RECORD) {
       // DELETED IN TX
-      return null;
+      throw new ORecordNotFoundException(rid);
     }
 
     if (txRecord != null) {
@@ -442,7 +444,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
     }
 
     if (rid.isTemporary()) {
-      return null;
+      throw new ORecordNotFoundException(rid);
     }
 
     // DELEGATE TO THE STORAGE, NO TOMBSTONES SUPPORT IN TX MODE

@@ -21,7 +21,6 @@
 package com.orientechnologies.orient.server.handler;
 
 import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.parser.OSystemVariableResolver;
@@ -38,11 +37,7 @@ import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
 import com.orientechnologies.orient.server.plugin.OServerPluginAbstract;
 import com.orientechnologies.orient.server.plugin.OServerPluginConfigurable;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -77,7 +72,6 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
   }
 
   public enum MODE {
-    FULL_BACKUP,
     INCREMENTAL_BACKUP,
     EXPORT
   }
@@ -87,7 +81,7 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
   private long delay = -1;
   private int bufferSize = 1048576;
   private int compressionLevel = 9;
-  private MODE mode = MODE.FULL_BACKUP;
+  private MODE mode = MODE.INCREMENTAL_BACKUP;
   private String exportOptions;
 
   private String targetDirectory = "backup";
@@ -107,50 +101,60 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
         configFile = param.value.trim();
 
         final File f = new File(OSystemVariableResolver.resolveSystemVariables(configFile));
-        if (!f.exists())
+        if (!f.exists()) {
           throw new OConfigurationException(
               "Automatic Backup configuration file '"
                   + configFile
                   + "' not found. Automatic Backup will be disabled");
+        }
         break;
 
         // LEGACY <v2.2: CONVERT ALL SETTINGS IN JSON
       } else if (param.name.equalsIgnoreCase("enabled")) {
         configuration.field("enabled", Boolean.parseBoolean(param.value));
-      } else if (param.name.equalsIgnoreCase("delay")) configuration.field("delay", param.value);
-      else if (param.name.equalsIgnoreCase("firstTime")) {
+      } else if (param.name.equalsIgnoreCase("delay")) {
+        configuration.field("delay", param.value);
+      } else if (param.name.equalsIgnoreCase("firstTime")) {
         configuration.field("firstTime", param.value);
-      } else if (param.name.equalsIgnoreCase("target.directory"))
+      } else if (param.name.equalsIgnoreCase("target.directory")) {
         configuration.field("targetDirectory", param.value);
-      else if (param.name.equalsIgnoreCase("db.include") && param.value.trim().length() > 0)
+      } else if (param.name.equalsIgnoreCase("db.include") && param.value.trim().length() > 0) {
         configuration.field("dbInclude", param.value);
-      else if (param.name.equalsIgnoreCase("db.exclude") && param.value.trim().length() > 0)
+      } else if (param.name.equalsIgnoreCase("db.exclude") && param.value.trim().length() > 0) {
         configuration.field("dbExclude", param.value);
-      else if (param.name.equalsIgnoreCase("target.fileName"))
+      } else if (param.name.equalsIgnoreCase("target.fileName")) {
         configuration.field("targetFileName", param.value);
-      else if (param.name.equalsIgnoreCase("bufferSize"))
+      } else if (param.name.equalsIgnoreCase("bufferSize")) {
         configuration.field("bufferSize", Integer.parseInt(param.value));
-      else if (param.name.equalsIgnoreCase("compressionLevel"))
+      } else if (param.name.equalsIgnoreCase("compressionLevel")) {
         configuration.field("compressionLevel", Integer.parseInt(param.value));
-      else if (param.name.equalsIgnoreCase("mode")) configuration.field("mode", param.value);
-      else if (param.name.equalsIgnoreCase("exportOptions"))
+      } else if (param.name.equalsIgnoreCase("mode")) {
+        configuration.field("mode", param.value);
+      } else if (param.name.equalsIgnoreCase("exportOptions")) {
         configuration.field("exportOptions", param.value);
+      }
     }
 
     // LOAD CFG FROM JSON FILE. THIS FILE, IF SPECIFIED, OVERWRITE DEFAULT AND XML SETTINGS
     configure();
 
     if (enabled) {
-      if (delay <= 0) throw new OConfigurationException("Cannot find mandatory parameter 'delay'");
-      if (!targetDirectory.endsWith("/")) targetDirectory += "/";
+      if (delay <= 0) {
+        throw new OConfigurationException("Cannot find mandatory parameter 'delay'");
+      }
+      if (!targetDirectory.endsWith("/")) {
+        targetDirectory += "/";
+      }
 
       final File filePath = new File(targetDirectory);
       if (filePath.exists()) {
-        if (!filePath.isDirectory())
+        if (!filePath.isDirectory()) {
           throw new OConfigurationException("Parameter 'path' points to a file, not a directory");
-      } else
+        }
+      } else {
         // CREATE BACKUP FOLDER(S) IF ANY
         filePath.mkdirs();
+      }
 
       OLogManager.instance()
           .info(
@@ -177,33 +181,23 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
 
                 boolean include;
 
-                if (includeDatabases.size() > 0) include = includeDatabases.contains(dbName);
-                else include = true;
+                if (!includeDatabases.isEmpty()) {
+                  include = includeDatabases.contains(dbName);
+                } else {
+                  include = true;
+                }
 
-                if (excludeDatabases.contains(dbName)) include = false;
+                if (excludeDatabases.contains(dbName)) {
+                  include = false;
+                }
 
                 if (include) {
-                  ODatabaseSessionInternal db = null;
-                  try {
-                    db = serverInstance.getDatabases().openNoAuthorization(dbName);
+                  try (ODatabaseSessionInternal db =
+                      serverInstance.getDatabases().openNoAuthorization(dbName)) {
 
                     final long begin = System.currentTimeMillis();
 
                     switch (mode) {
-                      case FULL_BACKUP:
-                        fullBackupDatabase(dbURL, targetDirectory + getFileName(database), db);
-
-                        OLogManager.instance()
-                            .info(
-                                this,
-                                "Full Backup of database '"
-                                    + dbURL
-                                    + "' completed in "
-                                    + (System.currentTimeMillis() - begin)
-                                    + "ms");
-
-                        break;
-
                       case INCREMENTAL_BACKUP:
                         incrementalBackupDatabase(dbURL, targetDirectory, db);
 
@@ -262,9 +256,6 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
                           .error(this, "Error on listener for database '" + dbURL, l);
                     }
                     errors++;
-
-                  } finally {
-                    if (db != null) db.close();
                   }
                 }
               }
@@ -337,9 +328,9 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
           // DISABLE IT
           return;
         }
-      } else if (settingName.equalsIgnoreCase("delay"))
+      } else if (settingName.equalsIgnoreCase("delay")) {
         delay = OIOUtils.getTimeAsMillisecs(settingValue);
-      else if (settingName.equalsIgnoreCase("firstTime")) {
+      } else if (settingName.equalsIgnoreCase("firstTime")) {
         try {
           firstTime = OIOUtils.getTodayWithTime(settingValueAsString);
           if (firstTime.before(new Date())) {
@@ -354,23 +345,30 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
                   "Parameter 'firstTime' has invalid format, expected: HH:mm:ss"),
               e);
         }
-      } else if (settingName.equalsIgnoreCase("targetDirectory"))
+      } else if (settingName.equalsIgnoreCase("targetDirectory")) {
         targetDirectory = settingValueAsString;
-      else if (settingName.equalsIgnoreCase("dbInclude")) {
+      } else if (settingName.equalsIgnoreCase("dbInclude")) {
         String[] included = getDbsList(settingName, settingValueAsString);
-        for (String db : included) includeDatabases.add(db);
+        for (String db : included) {
+          includeDatabases.add(db);
+        }
       } else if (settingName.equalsIgnoreCase("dbExclude")
           && settingValueAsString.trim().length() > 0) {
         String[] excluded = getDbsList(settingName, settingValueAsString);
-        for (String db : excluded) excludeDatabases.add(db);
-      } else if (settingName.equalsIgnoreCase("targetFileName"))
+        for (String db : excluded) {
+          excludeDatabases.add(db);
+        }
+      } else if (settingName.equalsIgnoreCase("targetFileName")) {
         targetFileName = settingValueAsString;
-      else if (settingName.equalsIgnoreCase("bufferSize")) bufferSize = (Integer) settingValue;
-      else if (settingName.equalsIgnoreCase("compressionLevel"))
+      } else if (settingName.equalsIgnoreCase("bufferSize")) {
+        bufferSize = (Integer) settingValue;
+      } else if (settingName.equalsIgnoreCase("compressionLevel")) {
         compressionLevel = (Integer) settingValue;
-      else if (settingName.equalsIgnoreCase("mode"))
+      } else if (settingName.equalsIgnoreCase("mode")) {
         mode = MODE.valueOf(settingValueAsString.toUpperCase(Locale.ENGLISH));
-      else if (settingName.equalsIgnoreCase("exportOptions")) exportOptions = settingValueAsString;
+      } else if (settingName.equalsIgnoreCase("exportOptions")) {
+        exportOptions = settingValueAsString;
+      }
     }
   }
 
@@ -396,7 +394,9 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
   protected void incrementalBackupDatabase(
       final String dbURL, String iPath, final ODatabaseSessionInternal db) throws IOException {
     // APPEND DB NAME TO THE DIRECTORY NAME
-    if (!iPath.endsWith("/")) iPath += "/";
+    if (!iPath.endsWith("/")) {
+      iPath += "/";
+    }
     iPath += db.getName();
 
     OLogManager.instance()
@@ -407,45 +407,6 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
             iPath);
 
     db.incrementalBackup(iPath);
-  }
-
-  protected void fullBackupDatabase(
-      final String dbURL, final String iPath, final ODatabaseSessionInternal db)
-      throws IOException {
-    OLogManager.instance()
-        .info(this, "AutomaticBackup: executing full backup of database '%s' to %s", dbURL, iPath);
-
-    final Path filePath = Paths.get(iPath);
-    OFileUtils.prepareForFileCreationOrReplacement(filePath, this, "backing up");
-
-    final String tempFileName = iPath + ".tmp";
-    final Path tempFilePath = Paths.get(tempFileName);
-    OFileUtils.prepareForFileCreationOrReplacement(tempFilePath, this, "backing up");
-
-    try {
-      try (FileOutputStream fileOutputStream = new FileOutputStream(tempFileName)) {
-        db.backup(
-            fileOutputStream,
-            null,
-            null,
-            new OCommandOutputListener() {
-              @Override
-              public void onMessage(String iText) {
-                OLogManager.instance().info(this, iText);
-              }
-            },
-            compressionLevel,
-            bufferSize);
-      }
-
-      OFileUtils.atomicMoveWithFallback(tempFilePath, filePath, this);
-    } catch (Exception e) {
-      OLogManager.instance()
-          .error(
-              this, "Error during backup processing, file %s will be deleted\n", e, tempFileName);
-      Files.deleteIfExists(tempFilePath);
-      throw e;
-    }
   }
 
   protected void exportDatabase(
@@ -466,8 +427,9 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
               }
             });
 
-    if (exportOptions != null && !exportOptions.trim().isEmpty())
+    if (exportOptions != null && !exportOptions.trim().isEmpty()) {
       exp.setOptions(exportOptions.trim());
+    }
 
     exp.exportDatabase().close();
   }
@@ -481,8 +443,9 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
             new OVariableParserListener() {
               @Override
               public String resolve(final String iVariable) {
-                if (iVariable.equalsIgnoreCase(VARIABLES.DBNAME.toString())) return dbName.getKey();
-                else if (iVariable.startsWith(VARIABLES.DATE.toString())) {
+                if (iVariable.equalsIgnoreCase(VARIABLES.DBNAME.toString())) {
+                  return dbName.getKey();
+                } else if (iVariable.startsWith(VARIABLES.DATE.toString())) {
                   return new SimpleDateFormat(
                           iVariable.substring(VARIABLES.DATE.toString().length() + 1))
                       .format(new Date());
@@ -517,6 +480,7 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
   }
 
   public interface OAutomaticBackupListener {
+
     void onBackupCompleted(String database);
 
     void onBackupError(String database, Exception e);

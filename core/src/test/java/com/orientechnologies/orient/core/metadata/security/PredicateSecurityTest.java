@@ -2,7 +2,6 @@ package com.orientechnologies.orient.core.metadata.security;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
@@ -181,7 +180,7 @@ public class PredicateSecurityTest {
 
   @Test
   public void testSqlReadWithIndex() {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
 
     OClass person = db.createClass("Person");
     person.createProperty("name", OType.STRING);
@@ -400,7 +399,7 @@ public class PredicateSecurityTest {
 
   @Test
   public void testAfterUpdateSQL() {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
 
     db.createClass("Person");
 
@@ -439,7 +438,7 @@ public class PredicateSecurityTest {
 
   @Test
   public void testDelete() {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
 
     db.createClass("Person");
 
@@ -487,7 +486,7 @@ public class PredicateSecurityTest {
 
   @Test
   public void testDeleteSQL() {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
 
     db.createClass("Person");
 
@@ -538,7 +537,7 @@ public class PredicateSecurityTest {
 
   @Test
   public void testSqlCount() {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
 
     OClass person = db.createClass("Person");
     person.createProperty("name", OType.STRING);
@@ -619,7 +618,7 @@ public class PredicateSecurityTest {
 
   @Test
   public void testIndexGet() {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
 
     OClass person = db.createClass("Person");
     person.createProperty("name", OType.STRING);

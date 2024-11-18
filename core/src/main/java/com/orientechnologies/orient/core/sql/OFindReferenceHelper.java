@@ -21,8 +21,8 @@ package com.orientechnologies.orient.core.sql;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordLazyMap;
 import com.orientechnologies.orient.core.db.record.ORecordLazyMultiValue;
@@ -56,7 +56,7 @@ public class OFindReferenceHelper {
 
     final Map<ORID, Set<ORID>> map = new HashMap<ORID, Set<ORID>>();
     for (ORID rid : iRecordIds) {
-      map.put(rid, new HashSet<ORID>());
+      map.put(rid, new HashSet<>());
     }
 
     if (classList == null || classList.isEmpty()) {
@@ -91,7 +91,7 @@ public class OFindReferenceHelper {
   }
 
   private static void browseCluster(
-      final ODatabaseDocument iDatabase,
+      final ODatabaseSession iDatabase,
       final Set<ORID> iSourceRIDs,
       final Map<ORID, Set<ORID>> map,
       final String iClusterName) {

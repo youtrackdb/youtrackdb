@@ -26,7 +26,6 @@ import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.OClassImpl;
@@ -172,7 +171,7 @@ public class OCommandExecutorSQLDropProperty extends OCommandExecutorSQLAbstract
   }
 
   private void dropRelatedIndexes(final List<OIndex> indexes) {
-    final ODatabaseDocument database = getDatabase();
+    var database = getDatabase();
     for (final OIndex index : indexes) {
       database.command("DROP INDEX " + index.getName()).close();
     }

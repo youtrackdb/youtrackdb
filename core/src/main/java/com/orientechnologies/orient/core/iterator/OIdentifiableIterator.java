@@ -26,6 +26,7 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.ONoTxRecordReadException;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OSecurityException;
 import com.orientechnologies.orient.core.id.OEmptyRecordId;
 import com.orientechnologies.orient.core.id.ORID;
@@ -234,9 +235,11 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
       return null;
     }
 
-    ORecord iRecord = null;
+    ORecord record;
     try {
-      iRecord = database.load(current, fetchPlan, false);
+      record = database.load(current, fetchPlan, false);
+    } catch (ORecordNotFoundException rne) {
+      record = null;
     } catch (ODatabaseException e) {
       if (Thread.interrupted() || database.isClosed())
       // THREAD INTERRUPTED: RETURN
@@ -253,6 +256,7 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
       }
 
       if (OGlobalConfiguration.DB_SKIP_BROKEN_RECORDS.getValueAsBoolean()) {
+        record = null;
         brokenRIDs.add(current.copy());
 
         OLogManager.instance()
@@ -263,9 +267,9 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
       }
     }
 
-    if (iRecord != null) {
+    if (record != null) {
       browsedRecords++;
-      return iRecord;
+      return record;
     }
 
     return null;

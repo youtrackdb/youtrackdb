@@ -2,8 +2,8 @@ package com.orientechnologies.orient.core.metadata.security;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.exception.OSecurityException;
@@ -65,7 +65,7 @@ public class ColumnSecurityTest {
 
   @Test
   public void testIndexWithPolicy() {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
 
     OClass person = db.createClass("Person");
     person.createProperty("name", OType.STRING);
@@ -82,7 +82,7 @@ public class ColumnSecurityTest {
 
   @Test
   public void testIndexWithPolicy1() throws InterruptedException {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
 
     OClass person = db.createClass("Person");
     person.createProperty("name", OType.STRING);
@@ -106,7 +106,7 @@ public class ColumnSecurityTest {
 
   @Test
   public void testIndexWithPolicy2() {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
 
     OClass person = db.createClass("Person");
     person.createProperty("name", OType.STRING);
@@ -127,7 +127,7 @@ public class ColumnSecurityTest {
 
   @Test
   public void testIndexWithPolicy3() {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
 
     OClass person = db.createClass("Person");
     person.createProperty("name", OType.STRING);
@@ -144,7 +144,7 @@ public class ColumnSecurityTest {
 
   @Test
   public void testIndexWithPolicy4() {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
 
     OClass person = db.createClass("Person");
     person.createProperty("name", OType.STRING);
@@ -162,7 +162,7 @@ public class ColumnSecurityTest {
 
   @Test
   public void testIndexWithPolicy5() {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
 
     OClass person = db.createClass("Person");
     person.createProperty("name", OType.STRING);
@@ -185,7 +185,7 @@ public class ColumnSecurityTest {
 
   @Test
   public void testIndexWithPolicy6() {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
 
     OClass person = db.createClass("Person");
     person.createProperty("name", OType.STRING);
@@ -202,7 +202,7 @@ public class ColumnSecurityTest {
 
   @Test
   public void testReadFilterOneProperty() {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
 
     db.createClass("Person");
 
@@ -246,7 +246,7 @@ public class ColumnSecurityTest {
 
   @Test
   public void testReadFilterOnePropertyWithIndex() {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
 
     OClass clazz = db.createClass("Person");
     clazz.createProperty("name", OType.STRING);
@@ -286,7 +286,7 @@ public class ColumnSecurityTest {
 
   @Test
   public void testReadWithPredicateAndQuery() throws InterruptedException {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
 
     db.createClass("Person");
 
@@ -351,7 +351,7 @@ public class ColumnSecurityTest {
 
   @Test
   public void testReadFilterOnePropertyWithQuery() {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
 
     db.createClass("Person");
 
@@ -385,7 +385,7 @@ public class ColumnSecurityTest {
 
   @Test
   public void testCreate() {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
 
     db.createClass("Person");
 
@@ -417,7 +417,7 @@ public class ColumnSecurityTest {
 
   @Test
   public void testBeforeUpdate() {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
 
     db.createClass("Person");
 
@@ -459,7 +459,7 @@ public class ColumnSecurityTest {
 
   @Test
   public void testAfterUpdate() {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
 
     db.createClass("Person");
 

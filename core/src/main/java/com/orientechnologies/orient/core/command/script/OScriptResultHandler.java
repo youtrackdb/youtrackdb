@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.command.script;
 
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import javax.script.Bindings;
 import javax.script.ScriptEngine;
 
@@ -29,5 +29,5 @@ import javax.script.ScriptEngine;
  * @author Enrico Risa (e.risa--(at)--orientdb.com)
  */
 public interface OScriptResultHandler {
-  Object handle(Object result, ScriptEngine engine, Bindings binding, ODatabaseDocument database);
+  Object handle(Object result, ScriptEngine engine, Bindings binding, ODatabaseSession database);
 }

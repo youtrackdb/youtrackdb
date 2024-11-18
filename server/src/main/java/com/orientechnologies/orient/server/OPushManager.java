@@ -142,7 +142,7 @@ public class OPushManager implements OMetadataUpdateListener {
   @Override
   public void onIndexManagerUpdate(String database, OIndexManagerAbstract indexManager) {
     var document = ((OIndexManagerShared) indexManager).toNetworkStream();
-    OPushIndexManagerRequest request = new OPushIndexManagerRequest(document);
+    OPushIndexManagerRequest request = new OPushIndexManagerRequest(document.copy());
     this.indexManager.send(database, request, this);
     ORecordInternal.unsetDirty(document);
     document.unload();

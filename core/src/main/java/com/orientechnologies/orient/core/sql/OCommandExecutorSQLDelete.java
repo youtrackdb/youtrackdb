@@ -282,7 +282,9 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
         if (KEYWORD_KEY.equalsIgnoreCase(compiledFilter.getRootCondition().getLeft().toString()))
         // FOUND KEY ONLY
         {
-          key = getIndexKey(index.getDefinition(), compiledFilter.getRootCondition().getRight());
+          key =
+              getIndexKey(
+                  database, index.getDefinition(), compiledFilter.getRootCondition().getRight());
         } else if (KEYWORD_RID.equalsIgnoreCase(
             compiledFilter.getRootCondition().getLeft().toString())) {
           // BY RID
@@ -293,7 +295,7 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
           final OSQLFilterCondition leftCondition =
               (OSQLFilterCondition) compiledFilter.getRootCondition().getLeft();
           if (KEYWORD_KEY.equalsIgnoreCase(leftCondition.getLeft().toString())) {
-            key = getIndexKey(index.getDefinition(), leftCondition.getRight());
+            key = getIndexKey(database, index.getDefinition(), leftCondition.getRight());
           }
 
           final OSQLFilterCondition rightCondition =
@@ -411,7 +413,8 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
     return returning;
   }
 
-  private Object getIndexKey(final OIndexDefinition indexDefinition, Object value) {
+  private Object getIndexKey(
+      ODatabaseSessionInternal session, final OIndexDefinition indexDefinition, Object value) {
     if (indexDefinition instanceof OCompositeIndexDefinition) {
       if (value instanceof List) {
         final List<?> values = (List<?>) value;
@@ -420,13 +423,13 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
         for (Object o : values) {
           keyParams.add(OSQLHelper.getValue(o));
         }
-        return indexDefinition.createValue(keyParams);
+        return indexDefinition.createValue(session, keyParams);
       } else {
         value = OSQLHelper.getValue(value);
         if (value instanceof OCompositeKey) {
           return value;
         } else {
-          return indexDefinition.createValue(value);
+          return indexDefinition.createValue(session, value);
         }
       }
     } else {

@@ -2,13 +2,13 @@ package com.orientechnologies.orient.core.db.graph;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OElement;
@@ -52,7 +52,12 @@ public class TestGraphElementDelete {
     database.delete(database.bindToSession(vertex));
     database.commit();
 
-    assertNull(database.load(edge.getIdentity()));
+    try {
+      database.load(edge.getIdentity());
+      Assert.fail();
+    } catch (ORecordNotFoundException e) {
+      // ignore
+    }
   }
 
   @Test

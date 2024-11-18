@@ -1,7 +1,6 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.BaseMemoryDatabase;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.metadata.security.OSecurityInternal;
@@ -35,7 +34,7 @@ public class OGrantStatementExecutionTest extends BaseMemoryDatabase {
 
   @Test
   public void testGrantPolicy() {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
 

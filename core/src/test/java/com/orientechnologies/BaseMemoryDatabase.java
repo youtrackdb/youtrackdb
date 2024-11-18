@@ -1,11 +1,11 @@
 package com.orientechnologies;
 
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.OrientDBConfigBuilder;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import java.io.File;
 import org.junit.After;
 import org.junit.Before;
@@ -47,12 +47,15 @@ public class BaseMemoryDatabase {
 
   @After
   public void afterTest() {
-    db.close();
-    context.drop(databaseName);
-    context.close();
+    if (!db.isClosed()) {
+      db.activateOnCurrentThread();
+      db.close();
+      context.drop(databaseName);
+      context.close();
+    }
   }
 
-  public static void assertWithTimeout(ODatabaseDocument session, Runnable runnable)
+  public static void assertWithTimeout(ODatabaseSession session, Runnable runnable)
       throws Exception {
     for (int i = 0; i < 30 * 60 * 10; i++) {
       try {

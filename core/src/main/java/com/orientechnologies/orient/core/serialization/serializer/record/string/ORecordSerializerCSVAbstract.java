@@ -24,8 +24,8 @@ import com.orientechnologies.common.collection.OMultiCollectionIterator;
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.ODatabase;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.db.record.ORecordLazyList;
@@ -609,7 +609,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
   }
 
   public void embeddedMapToStream(
-      ODatabase<?> iDatabase,
+      ODatabaseSession iDatabase,
       final StringBuilder iOutput,
       final OClass iLinkedClass,
       OType iLinkedType,
@@ -786,7 +786,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
   }
 
   public StringBuilder embeddedCollectionToStream(
-      ODatabase<?> iDatabase,
+      ODatabaseSession iDatabase,
       final StringBuilder iOutput,
       final OClass iLinkedClass,
       final OType iLinkedType,

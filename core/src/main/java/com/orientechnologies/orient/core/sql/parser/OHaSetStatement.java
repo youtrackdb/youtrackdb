@@ -3,8 +3,6 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.enterprise.OEnterpriseEndpoint;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -15,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 public class OHaSetStatement extends OSimpleExecStatement {
+
   protected OIdentifier operation;
   protected OExpression key;
   protected OExpression value;
@@ -44,7 +43,7 @@ public class OHaSetStatement extends OSimpleExecStatement {
         value = null;
       }
     }
-    ODatabaseInternal db = (ODatabaseInternal) ctx.getDatabase();
+    var db = ctx.getDatabase();
 
     OEnterpriseEndpoint ee = db.getEnterpriseEndpoint();
     if (ee == null) {
@@ -54,7 +53,7 @@ public class OHaSetStatement extends OSimpleExecStatement {
     if (operation.equalsIgnoreCase("status")) {
       String finalResult;
       try {
-        ee.haSetDbStatus((ODatabaseDocument) db, String.valueOf(key), String.valueOf(value));
+        ee.haSetDbStatus(db, String.valueOf(key), String.valueOf(value));
         finalResult = "OK";
       } catch (UnsupportedOperationException e) {
         finalResult = e.getMessage();
@@ -66,7 +65,7 @@ public class OHaSetStatement extends OSimpleExecStatement {
     } else if (operation.equalsIgnoreCase("owner")) {
       String finalResult;
       try {
-        ee.haSetOwner((ODatabaseDocument) db, String.valueOf(key), String.valueOf(value));
+        ee.haSetOwner(db, String.valueOf(key), String.valueOf(value));
         finalResult = "OK";
       } catch (UnsupportedOperationException e) {
         finalResult = e.getMessage();
@@ -78,7 +77,7 @@ public class OHaSetStatement extends OSimpleExecStatement {
     } else if (operation.equalsIgnoreCase("role")) {
       String finalResult;
       try {
-        ee.haSetRole((ODatabaseDocument) db, String.valueOf(key), String.valueOf(value));
+        ee.haSetRole(db, String.valueOf(key), String.valueOf(value));
         finalResult = "OK";
       } catch (UnsupportedOperationException e) {
         finalResult = e.getMessage();

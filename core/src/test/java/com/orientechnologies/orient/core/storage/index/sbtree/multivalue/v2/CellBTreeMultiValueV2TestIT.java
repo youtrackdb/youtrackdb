@@ -6,8 +6,8 @@ import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.serialization.types.OUTF8Serializer;
 import com.orientechnologies.common.types.OModifiableInteger;
 import com.orientechnologies.common.util.ORawPair;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.id.ORID;
@@ -56,7 +56,8 @@ public class CellBTreeMultiValueV2TestIT {
         "create database " + DB_NAME + " plocal users ( admin identified by 'admin' role admin)");
 
     try (ODatabaseSession databaseDocumentTx = orientDB.open(DB_NAME, "admin", "admin")) {
-      storage = (OAbstractPaginatedStorage) ((ODatabaseInternal) databaseDocumentTx).getStorage();
+      storage =
+          (OAbstractPaginatedStorage) ((ODatabaseSessionInternal) databaseDocumentTx).getStorage();
     }
 
     atomicOperationsManager = storage.getAtomicOperationsManager();

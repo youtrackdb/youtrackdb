@@ -7,7 +7,6 @@ import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.OrientDBEmbedded;
 import com.orientechnologies.orient.core.db.OrientDBInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
@@ -39,7 +38,7 @@ public class StorageBackupTest {
     orientDB.execute(
         "create database `" + dbName + "` plocal users(admin identified by 'admin' role admin)");
 
-    ODatabaseDocument db = orientDB.open(dbName, "admin", "admin");
+    var db = orientDB.open(dbName, "admin", "admin");
 
     final OSchema schema = db.getMetadata().getSchema();
     final OClass backupClass = schema.createClass("BackupClass");
@@ -125,7 +124,7 @@ public class StorageBackupTest {
     orientDB.execute(
         "create database `" + dbName + "` plocal users(admin identified by 'admin' role admin)");
 
-    ODatabaseDocument db = orientDB.open(dbName, "admin", "admin");
+    var db = orientDB.open(dbName, "admin", "admin");
 
     final OSchema schema = db.getMetadata().getSchema();
     final OClass backupClass = schema.createClass("BackupClass");
@@ -238,7 +237,7 @@ public class StorageBackupTest {
     orientDB.execute(
         "create database `" + dbName + "` plocal users(admin identified by 'admin' role admin)");
 
-    ODatabaseDocument db = orientDB.open(dbName, "admin", "admin");
+    var db = orientDB.open(dbName, "admin", "admin");
 
     final OSchema schema = db.getMetadata().getSchema();
     final OClass backupClass = schema.createClass("BackupClass");

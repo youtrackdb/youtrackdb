@@ -77,7 +77,7 @@ public interface OStorage extends OBackupable, OStorageInfo {
   boolean isClosed();
 
   // CRUD OPERATIONS
-  OStorageOperationResult<ORawBuffer> readRecord(
+  ORawBuffer readRecord(
       ORecordId iRid,
       boolean iIgnoreCache,
       boolean prefetchRecords,

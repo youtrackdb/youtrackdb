@@ -2,8 +2,8 @@ package com.orientechnologies.orient.core.storage.index.sbtreebonsai.global.btre
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.util.ORawPairObjectInteger;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
@@ -72,7 +72,7 @@ public class BTreeTestIT {
         "create database " + DB_NAME + " plocal users ( admin identified by 'admin' role admin)");
 
     ODatabaseSession databaseSession = orientDB.open(DB_NAME, "admin", "admin");
-    storage = (OAbstractPaginatedStorage) ((ODatabaseInternal<?>) databaseSession).getStorage();
+    storage = (OAbstractPaginatedStorage) ((ODatabaseSessionInternal) databaseSession).getStorage();
     atomicOperationsManager = storage.getAtomicOperationsManager();
     databaseSession.close();
   }

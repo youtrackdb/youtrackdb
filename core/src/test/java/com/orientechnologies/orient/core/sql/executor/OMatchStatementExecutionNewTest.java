@@ -1,11 +1,8 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import static org.junit.Assert.fail;
-
 import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.common.profiler.OProfiler;
 import com.orientechnologies.orient.core.Orient;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.OElement;
@@ -2422,17 +2419,6 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
     try (OResultSet rs = db.query(query)) {
       Assert.assertEquals(1L, rs.stream().count());
     }
-  }
-
-  private long indexUsages(ODatabaseDocument db) {
-    final long oldIndexUsage;
-    try {
-      oldIndexUsage = getProfilerInstance().getCounter("db." + DB_NAME + ".query.indexUsed");
-      return oldIndexUsage == -1 ? 0 : oldIndexUsage;
-    } catch (Exception e) {
-      fail();
-    }
-    return -1l;
   }
 
   private OProfiler getProfilerInstance() {

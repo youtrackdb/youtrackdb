@@ -59,11 +59,13 @@ public class OQueryOperatorContains extends OQueryOperatorEqualityNotNulls {
       final Object iRight,
       OCommandContext iContext) {
     final OSQLFilterCondition condition;
-    if (iCondition.getLeft() instanceof OSQLFilterCondition)
+    if (iCondition.getLeft() instanceof OSQLFilterCondition) {
       condition = (OSQLFilterCondition) iCondition.getLeft();
-    else if (iCondition.getRight() instanceof OSQLFilterCondition)
+    } else if (iCondition.getRight() instanceof OSQLFilterCondition) {
       condition = (OSQLFilterCondition) iCondition.getRight();
-    else condition = null;
+    } else {
+      condition = null;
+    }
 
     if (iLeft instanceof Iterable<?>) {
 
@@ -73,21 +75,29 @@ public class OQueryOperatorContains extends OQueryOperatorEqualityNotNulls {
         // CHECK AGAINST A CONDITION
         for (final Object o : iterable) {
           final OIdentifiable id;
-          if (o instanceof OIdentifiable) id = (OIdentifiable) o;
-          else if (o instanceof Map<?, ?>) {
+          if (o instanceof OIdentifiable) {
+            id = (OIdentifiable) o;
+          } else if (o instanceof Map<?, ?>) {
             final Iterator<Object> iter = ((Map<?, Object>) o).values().iterator();
             final Object v = iter.hasNext() ? iter.next() : null;
-            if (v instanceof OIdentifiable) id = (OIdentifiable) v;
-            else
-              // TRANSFORM THE ENTIRE MAP IN A DOCUMENT. PROBABLY HAS BEEN IMPORTED FROM JSON
+            if (v instanceof OIdentifiable) {
+              id = (OIdentifiable) v;
+            } else
+            // TRANSFORM THE ENTIRE MAP IN A DOCUMENT. PROBABLY HAS BEEN IMPORTED FROM JSON
+            {
               id = new ODocument((Map) o);
+            }
 
           } else if (o instanceof Iterable<?>) {
             final Iterator<OIdentifiable> iter = ((Iterable<OIdentifiable>) o).iterator();
             id = iter.hasNext() ? iter.next() : null;
-          } else continue;
+          } else {
+            continue;
+          }
 
-          if ((Boolean) condition.evaluate(id, null, iContext) == Boolean.TRUE) return true;
+          if ((Boolean) condition.evaluate(id, null, iContext) == Boolean.TRUE) {
+            return true;
+          }
         }
       } else {
         // CHECK AGAINST A SINGLE VALUE
@@ -111,7 +121,9 @@ public class OQueryOperatorContains extends OQueryOperatorEqualityNotNulls {
           }
         }
         for (final Object o : iterable) {
-          if (OQueryOperatorEquals.equals(iRight, o, type)) return true;
+          if (OQueryOperatorEquals.equals(iRight, o, type)) {
+            return true;
+          }
         }
       }
     } else if (iRight instanceof Iterable<?>) {
@@ -121,12 +133,16 @@ public class OQueryOperatorContains extends OQueryOperatorEqualityNotNulls {
 
       if (condition != null) {
         for (final OIdentifiable o : iterable) {
-          if ((Boolean) condition.evaluate(o, null, iContext) == Boolean.TRUE) return true;
+          if ((Boolean) condition.evaluate(o, null, iContext) == Boolean.TRUE) {
+            return true;
+          }
         }
       } else {
         // CHECK AGAINST A SINGLE VALUE
         for (final Object o : iterable) {
-          if (OQueryOperatorEquals.equals(iLeft, o)) return true;
+          if (OQueryOperatorEquals.equals(iLeft, o)) {
+            return true;
+          }
         }
       }
     }
@@ -135,8 +151,9 @@ public class OQueryOperatorContains extends OQueryOperatorEqualityNotNulls {
 
   @Override
   public OIndexReuseType getIndexReuseType(final Object iLeft, final Object iRight) {
-    if (!(iLeft instanceof OSQLFilterCondition) && !(iRight instanceof OSQLFilterCondition))
+    if (!(iLeft instanceof OSQLFilterCondition) && !(iRight instanceof OSQLFilterCondition)) {
       return OIndexReuseType.INDEX_METHOD;
+    }
 
     return OIndexReuseType.NO_INDEX;
   }
@@ -144,19 +161,28 @@ public class OQueryOperatorContains extends OQueryOperatorEqualityNotNulls {
   @Override
   public Stream<ORawPair<Object, ORID>> executeIndexQuery(
       OCommandContext iContext, OIndex index, List<Object> keyParams, boolean ascSortOrder) {
+    var database = iContext.getDatabase();
     final OIndexDefinition indexDefinition = index.getDefinition();
 
     Stream<ORawPair<Object, ORID>> stream;
     final OIndexInternal internalIndex = index.getInternal();
-    if (!internalIndex.canBeUsedInEqualityOperators()) return null;
+    if (!internalIndex.canBeUsedInEqualityOperators()) {
+      return null;
+    }
 
     if (indexDefinition.getParamCount() == 1) {
       final Object key;
-      if (indexDefinition instanceof OIndexDefinitionMultiValue)
-        key = ((OIndexDefinitionMultiValue) indexDefinition).createSingleValue(keyParams.get(0));
-      else key = indexDefinition.createValue(keyParams);
+      if (indexDefinition instanceof OIndexDefinitionMultiValue) {
+        key =
+            ((OIndexDefinitionMultiValue) indexDefinition)
+                .createSingleValue(database, keyParams.get(0));
+      } else {
+        key = indexDefinition.createValue(database, keyParams);
+      }
 
-      if (key == null) return null;
+      if (key == null) {
+        return null;
+      }
 
       stream = index.getInternal().getRids(key).map((rid) -> new ORawPair<>(key, rid));
     } else {
@@ -166,18 +192,22 @@ public class OQueryOperatorContains extends OQueryOperatorEqualityNotNulls {
       final OCompositeIndexDefinition compositeIndexDefinition =
           (OCompositeIndexDefinition) indexDefinition;
 
-      final Object keyOne = compositeIndexDefinition.createSingleValue(keyParams);
+      final Object keyOne = compositeIndexDefinition.createSingleValue(database, keyParams);
 
-      if (keyOne == null) return null;
+      if (keyOne == null) {
+        return null;
+      }
 
-      final Object keyTwo = compositeIndexDefinition.createSingleValue(keyParams);
+      final Object keyTwo = compositeIndexDefinition.createSingleValue(database, keyParams);
       if (internalIndex.hasRangeQuerySupport()) {
         stream = index.getInternal().streamEntriesBetween(keyOne, true, keyTwo, true, ascSortOrder);
       } else {
         int indexParamCount = indexDefinition.getParamCount();
         if (indexParamCount == keyParams.size()) {
           stream = index.getInternal().getRids(keyOne).map((rid) -> new ORawPair<>(keyOne, rid));
-        } else return null;
+        } else {
+          return null;
+        }
       }
     }
 

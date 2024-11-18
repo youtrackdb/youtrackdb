@@ -20,6 +20,7 @@
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.common.serialization.types.OBinarySerializer;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -36,6 +37,7 @@ import javax.annotation.Nonnull;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class ORuntimeKeyIndexDefinition<T> extends OAbstractIndexDefinition {
+
   private transient OBinarySerializer<T> serializer;
 
   @SuppressWarnings("unchecked")
@@ -44,11 +46,12 @@ public class ORuntimeKeyIndexDefinition<T> extends OAbstractIndexDefinition {
 
     serializer =
         (OBinarySerializer<T>) OBinarySerializerFactory.getInstance().getObjectSerializer(iId);
-    if (serializer == null)
+    if (serializer == null) {
       throw new OConfigurationException(
           "Runtime index definition cannot find binary serializer with id="
               + iId
               + ". Assure to plug custom serializer into the server.");
+    }
   }
 
   public ORuntimeKeyIndexDefinition() {}
@@ -65,12 +68,12 @@ public class ORuntimeKeyIndexDefinition<T> extends OAbstractIndexDefinition {
     return null;
   }
 
-  public Comparable<?> createValue(final List<?> params) {
-    return (Comparable<?>) params.get(0);
+  public Comparable<?> createValue(ODatabaseSessionInternal session, final List<?> params) {
+    return (Comparable<?>) refreshRid(session, params.get(0));
   }
 
-  public Comparable<?> createValue(final Object... params) {
-    return createValue(Arrays.asList(params));
+  public Comparable<?> createValue(ODatabaseSessionInternal session, final Object... params) {
+    return createValue(session, Arrays.asList(params));
   }
 
   public int getParamCount() {
@@ -109,23 +112,29 @@ public class ORuntimeKeyIndexDefinition<T> extends OAbstractIndexDefinition {
     serializer =
         (OBinarySerializer<T>)
             OBinarySerializerFactory.getInstance().getObjectSerializer(keySerializerId);
-    if (serializer == null)
+    if (serializer == null) {
       throw new OConfigurationException(
           "Runtime index definition cannot find binary serializer with id="
               + keySerializerId
               + ". Assure to plug custom serializer into the server.");
+    }
 
     setNullValuesIgnored(!Boolean.FALSE.equals(document.<Boolean>field("nullValuesIgnored")));
   }
 
-  public Object getDocumentValueToIndex(final ODocument iDocument) {
+  public Object getDocumentValueToIndex(
+      ODatabaseSessionInternal session, final ODocument iDocument) {
     throw new OIndexException("This method is not supported in given index definition.");
   }
 
   @Override
   public boolean equals(final Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     final ORuntimeKeyIndexDefinition<?> that = (ORuntimeKeyIndexDefinition<?>) o;
     return serializer.equals(that.serializer);
@@ -143,7 +152,9 @@ public class ORuntimeKeyIndexDefinition<T> extends OAbstractIndexDefinition {
     return "ORuntimeKeyIndexDefinition{" + "serializer=" + serializer.getId() + '}';
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   public String toCreateIndexDDL(final String indexName, final String indexType, String engine) {
     return "create index `" + indexName + "` " + indexType + ' ' + "runtime " + serializer.getId();
   }

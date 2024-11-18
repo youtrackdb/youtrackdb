@@ -56,6 +56,7 @@ public interface OElement extends ORecord {
    * @see #getEdgeProperty(String)
    * @see #getBlobProperty(String)
    */
+  @Nullable
   <RET> RET getProperty(String name);
 
   /**
@@ -66,6 +67,7 @@ public interface OElement extends ORecord {
    * @return the property value as an OElement
    * @throws ODatabaseException if the property is not an OElement
    */
+  @Nullable
   default OElement getElementProperty(String name) {
     var property = getProperty(name);
     if (property == null) {
@@ -93,6 +95,7 @@ public interface OElement extends ORecord {
    * @return the property value as an OVertex
    * @throws ODatabaseException if the property is not an OVertex
    */
+  @Nullable
   default OVertex getVertexProperty(String propertyName) {
     var element = getElementProperty(propertyName);
     if (element == null) {
@@ -112,6 +115,7 @@ public interface OElement extends ORecord {
    * @return the property value as an OEdge
    * @throws ODatabaseException if the property is not an OEdge
    */
+  @Nullable
   default OEdge getEdgeProperty(String propertyName) {
     var element = getElementProperty(propertyName);
     if (element == null) {
@@ -133,6 +137,7 @@ public interface OElement extends ORecord {
    * @return the property value as an OBlob
    * @throws ODatabaseException if the property is not an OBlob
    */
+  @Nullable
   default OBlob getBlobProperty(String propertyName) {
     var property = getProperty(propertyName);
     if (property == null) {

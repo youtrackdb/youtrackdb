@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.config.OStorageEntryConfiguration;
-import com.orientechnologies.orient.core.db.ODatabase;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
@@ -14,11 +14,11 @@ public class OAlterDatabaseStatementExecutionTest extends BaseMemoryDatabase {
 
   @Test
   public void testSetProperty() {
-    Object previousValue = db.get(ODatabase.ATTRIBUTES.MINIMUMCLUSTERS);
+    Object previousValue = db.get(ODatabaseSession.ATTRIBUTES.MINIMUMCLUSTERS);
 
     OResultSet result = db.command("alter database MINIMUMCLUSTERS 12");
 
-    Object currentValue = db.get(ODatabase.ATTRIBUTES.MINIMUMCLUSTERS);
+    Object currentValue = db.get(ODatabaseSession.ATTRIBUTES.MINIMUMCLUSTERS);
 
     Assert.assertNotNull(result);
     Assert.assertTrue(result.hasNext());
@@ -33,7 +33,7 @@ public class OAlterDatabaseStatementExecutionTest extends BaseMemoryDatabase {
   @Test
   public void testSetCustom() {
     List<OStorageEntryConfiguration> previousCustoms =
-        (List<OStorageEntryConfiguration>) db.get(ODatabase.ATTRIBUTES.CUSTOM);
+        (List<OStorageEntryConfiguration>) db.get(ODatabaseSession.ATTRIBUTES.CUSTOM);
     Object prev = null;
     for (OStorageEntryConfiguration entry : previousCustoms) {
       if (entry.name.equals("foo")) {
@@ -42,7 +42,7 @@ public class OAlterDatabaseStatementExecutionTest extends BaseMemoryDatabase {
     }
     OResultSet result = db.command("alter database custom foo = 'bar'");
 
-    previousCustoms = (List<OStorageEntryConfiguration>) db.get(ODatabase.ATTRIBUTES.CUSTOM);
+    previousCustoms = (List<OStorageEntryConfiguration>) db.get(ODatabaseSession.ATTRIBUTES.CUSTOM);
     Object after = null;
     for (OStorageEntryConfiguration entry : previousCustoms) {
       if (entry.name.equals("foo")) {

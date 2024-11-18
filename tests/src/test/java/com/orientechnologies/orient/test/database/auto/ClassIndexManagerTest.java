@@ -28,6 +28,7 @@ import org.testng.annotations.Test;
 
 @Test
 public class ClassIndexManagerTest extends DocumentDBBaseTest {
+
   @Parameters(value = "remote")
   public ClassIndexManagerTest(@Optional Boolean remote) {
     super(remote != null ? remote : false);
@@ -455,7 +456,9 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
 
     final OIndexDefinition compositeIndexDefinition = compositeIndex.getDefinition();
     try (Stream<ORID> rids =
-        compositeIndex.getInternal().getRids(compositeIndexDefinition.createValue("a", 1))) {
+        compositeIndex
+            .getInternal()
+            .getRids(compositeIndexDefinition.createValue(database, "a", 1))) {
       Assert.assertTrue(rids.findFirst().isPresent());
     }
     Assert.assertEquals(compositeIndex.getInternal().size(), 1);
@@ -584,7 +587,9 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
       Assert.assertTrue(stream.findAny().isPresent());
     }
     try (Stream<ORID> stream =
-        compositeIndex.getInternal().getRids(compositeIndexDefinition.createValue("a", 2))) {
+        compositeIndex
+            .getInternal()
+            .getRids(compositeIndexDefinition.createValue(database, "a", 2))) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
   }
@@ -623,7 +628,9 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
       Assert.assertTrue(stream.findAny().isPresent());
     }
     try (Stream<ORID> stream =
-        compositeIndex.getInternal().getRids(compositeIndexDefinition.createValue("a", 2))) {
+        compositeIndex
+            .getInternal()
+            .getRids(compositeIndexDefinition.createValue(database, "a", 2))) {
       Assert.assertTrue(stream.findFirst().isPresent());
     }
   }

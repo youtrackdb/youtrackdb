@@ -10,7 +10,6 @@ import com.orientechnologies.orient.core.db.ODatabasePool;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.enterprise.channel.binary.OTokenSecurityException;
 import com.orientechnologies.orient.server.OServer;
@@ -29,7 +28,7 @@ public class RemoteTokenExpireTest {
   private static final String SERVER_DIRECTORY = "./target/token";
   private OServer server;
   private OrientDB orientDB;
-  private ODatabaseDocument session;
+  private ODatabaseSession session;
   private int oldPageSize;
 
   private long expireTimeout = 500;

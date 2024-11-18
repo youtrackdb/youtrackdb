@@ -771,7 +771,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
     }
   }
 
-  public OIndexAbstract removeCluster(String iClusterName) {
+  public void removeCluster(String iClusterName) {
     acquireExclusiveLock();
     try {
       if (clustersToIndex.remove(iClusterName)) {
@@ -779,7 +779,6 @@ public abstract class OIndexAbstract implements OIndexInternal {
         rebuild();
       }
 
-      return this;
     } finally {
       releaseExclusiveLock();
     }
@@ -1009,7 +1008,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
 
         if (record instanceof ODocument) {
           final ODocument doc = (ODocument) record;
-          OClassIndexManager.reIndex(doc, this);
+          OClassIndexManager.reIndex(database, doc, this);
           ++documentIndexed;
         }
 

@@ -130,7 +130,13 @@ public class RestrictedTest extends DocumentDBBaseTest {
   public void testFilteredDirectReadAsWriter() throws IOException {
     database = createSessionInstance("writer", "writer");
     database.begin();
-    Assert.assertNull(database.load(adminRecordId.getIdentity()));
+    try {
+      database.load(adminRecordId.getIdentity());
+      Assert.fail();
+    } catch (ORecordNotFoundException e) {
+      // ignore
+    }
+
     database.commit();
   }
 
@@ -180,7 +186,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
     try {
       database.begin();
       // FORCE LOADING
-      ODocument adminRecord = new ODocument(this.adminRecordId);
+      ODocument adminRecord = database.load(this.adminRecordId);
       Set<OIdentifiable> allows = adminRecord.field(OSecurityShared.ALLOW_ALL_FIELD);
       allows.add(
           database.getMetadata().getSecurity().getUser(database.getUser().getName()).getIdentity());
@@ -237,7 +243,12 @@ public class RestrictedTest extends DocumentDBBaseTest {
   public void testReaderCannotSeeWriterDocument() throws IOException {
     database = createSessionInstance("reader", "reader");
     database.begin();
-    Assert.assertNull(database.load(writerRecordId.getIdentity()));
+    try {
+      database.load(writerRecordId.getIdentity());
+      Assert.fail();
+    } catch (ORecordNotFoundException e) {
+      // ignore
+    }
     database.commit();
   }
 
@@ -282,7 +293,12 @@ public class RestrictedTest extends DocumentDBBaseTest {
   public void testReaderCannotSeeWriterDocumentAgain() throws IOException {
     database = createSessionInstance("reader", "reader");
     database.begin();
-    Assert.assertNull(database.load(writerRecordId.getIdentity()));
+    try {
+      database.load(writerRecordId.getIdentity());
+      Assert.fail();
+    } catch (ORecordNotFoundException e) {
+      // ignore
+    }
     database.commit();
   }
 
@@ -322,8 +338,8 @@ public class RestrictedTest extends DocumentDBBaseTest {
   @Test(dependsOnMethods = "testReaderRoleCanSeeInheritedDocument")
   public void testReaderRoleDesntInheritsFromWriterRole() throws IOException {
     database = createSessionInstance();
-    ORole reader = database.getMetadata().getSecurity().getRole("reader");
     database.begin();
+    ORole reader = database.getMetadata().getSecurity().getRole("reader");
     reader.setParentRole(null);
     reader.save();
     database.commit();

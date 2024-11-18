@@ -60,7 +60,7 @@ public class OMessageHelper {
   }
 
   public static void writeRecord(
-      OChannelDataOutput channel, final ORecord iRecord, ORecordSerializer serializer)
+      OChannelDataOutput channel, ORecord iRecord, ORecordSerializer serializer)
       throws IOException {
     channel.writeShort((short) 0);
     channel.writeByte(ORecordInternal.getRecordType(iRecord));
@@ -72,7 +72,7 @@ public class OMessageHelper {
     } catch (Exception e) {
       channel.writeBytes(null);
       final String message =
-          "Error on unmarshalling record " + iRecord.getIdentity().toString() + " (" + e + ")";
+          "Error on marshalling record " + iRecord.getIdentity().toString() + " (" + e + ")";
 
       throw OException.wrapException(new OSerializationException(message), e);
     }
@@ -517,8 +517,7 @@ public class OMessageHelper {
 
   private static ORecord readDocument(OChannelDataInput channel) throws IOException {
     ORecordSerializer serializer = ORecordSerializerNetworkV37Client.INSTANCE;
-    final ORecord record = (ORecord) readIdentifiable(channel, serializer);
-    return record;
+    return (ORecord) readIdentifiable(channel, serializer);
   }
 
   private static OResultInternal readProjection(OChannelDataInput channel) throws IOException {

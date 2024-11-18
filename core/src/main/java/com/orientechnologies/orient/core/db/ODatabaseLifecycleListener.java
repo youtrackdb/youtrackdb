@@ -42,23 +42,23 @@ public interface ODatabaseLifecycleListener {
     return PRIORITY.LAST;
   }
 
-  void onCreate(ODatabaseInternal iDatabase);
+  void onCreate(ODatabaseSessionInternal iDatabase);
 
-  void onOpen(ODatabaseInternal iDatabase);
+  void onOpen(ODatabaseSessionInternal iDatabase);
 
-  void onClose(ODatabaseInternal iDatabase);
+  void onClose(ODatabaseSessionInternal iDatabase);
 
-  void onDrop(ODatabaseInternal iDatabase);
-
-  @Deprecated
-  default void onCreateClass(ODatabaseInternal iDatabase, OClass iClass) {}
+  void onDrop(ODatabaseSessionInternal iDatabase);
 
   @Deprecated
-  default void onDropClass(ODatabaseInternal iDatabase, OClass iClass) {}
+  default void onCreateClass(ODatabaseSessionInternal iDatabase, OClass iClass) {}
 
-  default void onCreateView(ODatabaseInternal database, OView view) {}
+  @Deprecated
+  default void onDropClass(ODatabaseSessionInternal iDatabase, OClass iClass) {}
 
-  default void onDropView(ODatabaseInternal database, OView cls) {}
+  default void onCreateView(ODatabaseSessionInternal database, OView view) {}
+
+  default void onDropView(ODatabaseSessionInternal database, OView cls) {}
 
   /**
    * Event called during the retrieving of distributed configuration, usually at startup and when

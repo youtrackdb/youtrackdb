@@ -21,6 +21,7 @@
 package com.orientechnologies.orient.core.sql;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
@@ -46,14 +47,17 @@ import java.util.Set;
 public class OFilterAnalyzer {
 
   public List<OIndex> getInvolvedIndexes(
-      OClass iSchemaClass, OIndexSearchResult searchResultFields) {
+      ODatabaseSessionInternal session,
+      OClass iSchemaClass,
+      OIndexSearchResult searchResultFields) {
     final Set<OIndex> involvedIndexes =
         iSchemaClass.getInvolvedIndexes(searchResultFields.fields());
 
     final List<OIndex> result = new ArrayList<OIndex>(involvedIndexes.size());
 
     if (searchResultFields.lastField.isLong()) {
-      result.addAll(OChainedIndexProxy.createProxies(iSchemaClass, searchResultFields.lastField));
+      result.addAll(
+          OChainedIndexProxy.createProxies(session, iSchemaClass, searchResultFields.lastField));
     } else {
       for (OIndex involvedIndex : involvedIndexes) {
         result.add(involvedIndex);
@@ -102,9 +106,9 @@ public class OFilterAnalyzer {
    * Analyzes a query filter for a possible indexation options. The results are sorted by amount of
    * fields. So the most specific items go first.
    *
-   * @param condition to analyze
+   * @param condition   to analyze
    * @param schemaClass the class that is scanned by query
-   * @param context of the query
+   * @param context     of the query
    * @return list of OIndexSearchResult items
    */
   public List<OIndexSearchResult> analyzeCondition(
@@ -239,7 +243,7 @@ public class OFilterAnalyzer {
    * Add SQL filter field to the search candidate list.
    *
    * @param iCondition Condition item
-   * @param iItem Value to search
+   * @param iItem      Value to search
    * @return true if the property was indexed and found, otherwise false
    */
   private OIndexSearchResult createIndexedProperty(

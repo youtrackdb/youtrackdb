@@ -16,8 +16,7 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabase;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -30,10 +29,10 @@ public class DbClosedTest extends DocumentDBBaseTest {
   }
 
   public void testDoubleDb() {
-    ODatabaseDocument db = acquireSession();
+    ODatabaseSession db = acquireSession();
 
     // now I am getting another db instance
-    ODatabaseDocument dbAnother = acquireSession();
+    ODatabaseSession dbAnother = acquireSession();
     dbAnother.close();
 
     db.activateOnCurrentThread();
@@ -41,10 +40,10 @@ public class DbClosedTest extends DocumentDBBaseTest {
   }
 
   public void testDoubleDbWindowsPath() {
-    ODatabaseDocument db = acquireSession();
+    ODatabaseSession db = acquireSession();
 
     // now I am getting another db instance
-    ODatabaseDocument dbAnother = acquireSession();
+    ODatabaseSession dbAnother = acquireSession();
     dbAnother.close();
 
     db.activateOnCurrentThread();
@@ -59,7 +58,7 @@ public class DbClosedTest extends DocumentDBBaseTest {
 
     final int max = OGlobalConfiguration.NETWORK_MAX_CONCURRENT_SESSIONS.getValueAsInteger();
     for (int i = 0; i < max * 2; ++i) {
-      final ODatabase db = acquireSession();
+      final ODatabaseSession db = acquireSession();
       db.close();
     }
   }

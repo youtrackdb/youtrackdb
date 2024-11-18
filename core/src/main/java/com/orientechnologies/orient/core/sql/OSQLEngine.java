@@ -31,9 +31,9 @@ import com.orientechnologies.orient.core.collate.OCollateFactory;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.OCommandExecutor;
 import com.orientechnologies.orient.core.command.OCommandExecutorAbstract;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDBInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -541,7 +541,7 @@ public class OSQLEngine {
   }
 
   public Set<OIdentifiable> parseRIDTarget(
-      final ODatabaseDocument database,
+      final ODatabaseSession database,
       String iTarget,
       final OCommandContext iContext,
       Map<Object, Object> iArgs) {

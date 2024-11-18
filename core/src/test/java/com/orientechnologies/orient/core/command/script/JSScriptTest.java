@@ -5,7 +5,6 @@ import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.io.IOException;
@@ -29,8 +28,7 @@ public class JSScriptTest {
   public void jsSimpleTest() {
     final OrientDB orientDB =
         OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
-    final ODatabaseDocument db =
-        orientDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    var db = orientDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     try {
       OResultSet resultSet = db.execute("javascript", "'foo'");
       Assert.assertEquals(true, resultSet.hasNext());
@@ -47,8 +45,7 @@ public class JSScriptTest {
   public void jsQueryTest() {
     final OrientDB orientDB =
         OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
-    final ODatabaseDocument db =
-        orientDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    var db = orientDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     try {
       String script = "db.query('select from OUser')";
       OResultSet resultSet = db.execute("javascript", script);
@@ -74,8 +71,7 @@ public class JSScriptTest {
   public void jsScriptTest() throws IOException {
     final OrientDB orientDB =
         OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
-    final ODatabaseDocument db =
-        orientDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    var db = orientDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     try {
       InputStream stream = ClassLoader.getSystemResourceAsStream("fixtures/scriptTest.js");
       OResultSet resultSet = db.execute("javascript", OIOUtils.readStreamAsString(stream));
@@ -103,8 +99,7 @@ public class JSScriptTest {
   public void jsScriptCountTest() throws IOException {
     final OrientDB orientDB =
         OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
-    final ODatabaseDocument db =
-        orientDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    var db = orientDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     try {
       InputStream stream = ClassLoader.getSystemResourceAsStream("fixtures/scriptCountTest.js");
       OResultSet resultSet = db.execute("javascript", OIOUtils.readStreamAsString(stream));
@@ -126,8 +121,7 @@ public class JSScriptTest {
     final OrientDB orientDB =
         OCreateDatabaseUtil.createDatabase(
             name.getMethodName(), "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
-    final ODatabaseDocument db =
-        orientDB.open(name.getMethodName(), "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    var db = orientDB.open(name.getMethodName(), "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     try {
       final OResultSet result =
           db.execute(
@@ -152,8 +146,7 @@ public class JSScriptTest {
     final OrientDB orientDB =
         OCreateDatabaseUtil.createDatabase(
             name.getMethodName(), "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
-    final ODatabaseDocument db =
-        orientDB.open(name.getMethodName(), "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    var db = orientDB.open(name.getMethodName(), "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     OScriptManager scriptManager = OrientDBInternal.extract(orientDB).getScriptManager();
 
     try {
@@ -176,8 +169,7 @@ public class JSScriptTest {
     final OrientDB orientDB =
         OCreateDatabaseUtil.createDatabase(
             name.getMethodName(), "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
-    final ODatabaseDocument db =
-        orientDB.open(name.getMethodName(), "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    var db = orientDB.open(name.getMethodName(), "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     try {
       OResultSet resultSet = db.execute("javascript", "Math.random()");
       Assert.assertEquals(1, resultSet.stream().count());
@@ -192,8 +184,7 @@ public class JSScriptTest {
     final OrientDB orientDB =
         OCreateDatabaseUtil.createDatabase(
             name.getMethodName(), "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
-    final ODatabaseDocument db =
-        orientDB.open(name.getMethodName(), "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    var db = orientDB.open(name.getMethodName(), "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     try {
       OResultSet resultSet =
           db.execute(
@@ -213,7 +204,7 @@ public class JSScriptTest {
         OCreateDatabaseUtil.createDatabase(
             name.getMethodName(), "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
     final OScriptManager scriptManager = OrientDBInternal.extract(orientDB).getScriptManager();
-    try (final ODatabaseDocument db =
+    try (var db =
         orientDB.open(name.getMethodName(), "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
       scriptManager.addAllowedPackages(new HashSet<>(Arrays.asList("java.math.BigDecimal")));
 
@@ -257,7 +248,7 @@ public class JSScriptTest {
     final OrientDB orientDB =
         OCreateDatabaseUtil.createDatabase(
             name.getMethodName(), "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
-    try (final ODatabaseDocument db =
+    try (var db =
         orientDB.open(name.getMethodName(), "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
       try (OResultSet resultSet =
           db.execute("javascript", "Orient.instance().getScriptManager().addAllowedPackages([])")) {

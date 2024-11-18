@@ -5,7 +5,6 @@ import static org.junit.Assert.assertEquals;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
@@ -70,7 +69,7 @@ public class ODatabasePoolRemoteTest {
     }
 
     ODatabasePool pool = new ODatabasePool(orientDb, "test", "admin", "admin");
-    ODatabaseDocument db = pool.acquire();
+    var db = pool.acquire();
     db.close();
     pool.close();
     orientDb.close();

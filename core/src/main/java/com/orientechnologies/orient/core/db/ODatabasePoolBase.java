@@ -30,11 +30,12 @@ import java.util.Map;
  *
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
-public abstract class ODatabasePoolBase<DB extends ODatabaseInternal> extends Thread {
+public abstract class ODatabasePoolBase extends Thread {
+
   protected final String url;
   protected final String userName;
   protected final String userPassword;
-  protected ODatabasePoolAbstract<DB> dbPool;
+  protected ODatabasePoolAbstract dbPool;
 
   protected ODatabasePoolBase() {
     url = userName = userPassword = null;
@@ -47,61 +48,71 @@ public abstract class ODatabasePoolBase<DB extends ODatabaseInternal> extends Th
     userPassword = iUserPassword;
   }
 
-  public ODatabasePoolBase<DB> setup() {
-    if (dbPool == null)
+  public ODatabasePoolBase setup() {
+    if (dbPool == null) {
       setup(
           OGlobalConfiguration.DB_POOL_MIN.getValueAsInteger(),
           OGlobalConfiguration.DB_POOL_MAX.getValueAsInteger());
+    }
 
     return this;
   }
 
-  public ODatabasePoolBase<DB> setup(final int iMinSize, final int iMaxSize) {
-    if (dbPool == null) setup(iMinSize, iMaxSize, 6, 64);
+  public ODatabasePoolBase setup(final int iMinSize, final int iMaxSize) {
+    if (dbPool == null) {
+      setup(iMinSize, iMaxSize, 6, 64);
+    }
 
     return this;
   }
 
-  public ODatabasePoolBase<DB> setup(
+  public ODatabasePoolBase setup(
       final int iMinSize,
       final int iMaxSize,
       final long idleTimeout,
       final long timeBetweenEvictionRunsMillis) {
-    if (dbPool == null)
+    if (dbPool == null) {
       synchronized (this) {
         if (dbPool == null) {
           dbPool =
-              new ODatabasePoolAbstract<DB>(
+              new ODatabasePoolAbstract(
                   this, iMinSize, iMaxSize, idleTimeout, timeBetweenEvictionRunsMillis) {
 
                 public void onShutdown() {
-                  if (owner instanceof ODatabasePoolBase<?>) ((ODatabasePoolBase<?>) owner).close();
+                  if (owner instanceof ODatabasePoolBase) {
+                    ((ODatabasePoolBase) owner).close();
+                  }
                 }
 
-                public DB createNewResource(
+                public ODatabaseSession createNewResource(
                     final String iDatabaseName, final Object... iAdditionalArgs) {
-                  if (iAdditionalArgs.length < 2)
+                  if (iAdditionalArgs.length < 2) {
                     throw new OSecurityAccessException("Username and/or password missed");
+                  }
 
                   return createResource(owner, iDatabaseName, iAdditionalArgs);
                 }
 
                 public boolean reuseResource(
-                    final String iKey, final Object[] iAdditionalArgs, final DB iValue) {
+                    final String iKey,
+                    final Object[] iAdditionalArgs,
+                    final ODatabaseSession iValue) {
                   if (((ODatabasePooled) iValue).isUnderlyingOpen()) {
                     ((ODatabasePooled) iValue).reuse(owner, iAdditionalArgs);
-                    if (iValue.getStorage().isClosed())
-                      // STORAGE HAS BEEN CLOSED: REOPEN IT
-                      iValue
+                    if (((ODatabaseSessionInternal) iValue).getStorage().isClosed())
+                    // STORAGE HAS BEEN CLOSED: REOPEN IT
+                    {
+                      ((ODatabaseSessionInternal) iValue)
                           .getStorage()
                           .open(
                               (String) iAdditionalArgs[0],
                               (String) iAdditionalArgs[1],
                               new OContextConfiguration());
-                    else if (!iValue.getUser().checkPassword((String) iAdditionalArgs[1]))
+                    } else if (!iValue.getUser().checkPassword((String) iAdditionalArgs[1])) {
                       throw new OSecurityAccessException(
                           iValue.getName(),
                           "User or password not valid for database: '" + iValue.getName() + "'");
+                    }
 
                     return true;
                   }
@@ -110,6 +121,7 @@ public abstract class ODatabasePoolBase<DB extends ODatabaseInternal> extends Th
               };
         }
       }
+    }
     return this;
   }
 
@@ -119,7 +131,7 @@ public abstract class ODatabasePoolBase<DB extends ODatabaseInternal> extends Th
    *
    * @return A pooled database instance
    */
-  public DB acquire() {
+  public ODatabaseSession acquire() {
     setup();
     return dbPool.acquire(url, userName, userPassword);
   }
@@ -128,12 +140,13 @@ public abstract class ODatabasePoolBase<DB extends ODatabaseInternal> extends Th
    * Acquires a connection from the pool. If the pool is empty, then the caller thread will wait for
    * it.
    *
-   * @param iName Database name
-   * @param iUserName User name
+   * @param iName         Database name
+   * @param iUserName     User name
    * @param iUserPassword User password
    * @return A pooled database instance
    */
-  public DB acquire(final String iName, final String iUserName, final String iUserPassword) {
+  public ODatabaseSession acquire(
+      final String iName, final String iUserName, final String iUserPassword) {
     setup();
     return dbPool.acquire(iName, iUserName, iUserPassword);
   }
@@ -142,7 +155,7 @@ public abstract class ODatabasePoolBase<DB extends ODatabaseInternal> extends Th
    * Returns amount of available connections which you can acquire for given source and user name.
    * Source id is consist of "source name" and "source user name".
    *
-   * @param name Source name.
+   * @param name     Source name.
    * @param userName User name which is used to acquire source.
    * @return amount of available connections which you can acquire for given source and user name.
    */
@@ -160,12 +173,12 @@ public abstract class ODatabasePoolBase<DB extends ODatabaseInternal> extends Th
    * Acquires a connection from the pool specifying options. If the pool is empty, then the caller
    * thread will wait for it.
    *
-   * @param iName Database name
-   * @param iUserName User name
+   * @param iName         Database name
+   * @param iUserName     User name
    * @param iUserPassword User password
    * @return A pooled database instance
    */
-  public DB acquire(
+  public ODatabaseSession acquire(
       final String iName,
       final String iUserName,
       final String iUserPassword,
@@ -175,7 +188,9 @@ public abstract class ODatabasePoolBase<DB extends ODatabaseInternal> extends Th
   }
 
   public int getConnectionsInCurrentThread(final String name, final String userName) {
-    if (dbPool == null) return 0;
+    if (dbPool == null) {
+      return 0;
+    }
     return dbPool.getConnectionsInCurrentThread(name, userName);
   }
 
@@ -184,11 +199,15 @@ public abstract class ODatabasePoolBase<DB extends ODatabaseInternal> extends Th
    *
    * @param iDatabase
    */
-  public void release(final DB iDatabase) {
-    if (dbPool != null) dbPool.release(iDatabase);
+  public void release(final ODatabaseSessionInternal iDatabase) {
+    if (dbPool != null) {
+      dbPool.release(iDatabase);
+    }
   }
 
-  /** Closes the entire pool freeing all the connections. */
+  /**
+   * Closes the entire pool freeing all the connections.
+   */
   public void close() {
     if (dbPool != null) {
       dbPool.close();
@@ -196,18 +215,24 @@ public abstract class ODatabasePoolBase<DB extends ODatabaseInternal> extends Th
     }
   }
 
-  /** Returns the maximum size of the pool */
+  /**
+   * Returns the maximum size of the pool
+   */
   public int getMaxSize() {
     setup();
     return dbPool.getMaxSize();
   }
 
-  /** Returns all the configured pools. */
-  public Map<String, OReentrantResourcePool<String, DB>> getPools() {
+  /**
+   * Returns all the configured pools.
+   */
+  public Map<String, OReentrantResourcePool<String, ODatabaseSession>> getPools() {
     return dbPool.getPools();
   }
 
-  /** Removes a pool by name/user */
+  /**
+   * Removes a pool by name/user
+   */
   public void remove(final String iName, final String iUser) {
     dbPool.remove(iName, iUser);
   }
@@ -217,6 +242,6 @@ public abstract class ODatabasePoolBase<DB extends ODatabaseInternal> extends Th
     close();
   }
 
-  protected abstract DB createResource(
+  protected abstract ODatabaseSessionInternal createResource(
       Object owner, String iDatabaseName, Object... iAdditionalArgs);
 }

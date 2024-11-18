@@ -2,9 +2,9 @@ package com.orientechnologies.orient.core.metadata.security;
 
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OSecurityException;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -417,8 +417,8 @@ public class OSecurityEngine {
     try {
       // Create a new instance of ODocument with a user record id, this will lazy load the user data
       // at the first access with the same execution permission of the policy
-      final ODocument user = session.getUser().getIdentity().getRecord();
-      return ((ODatabaseInternal) session)
+      OIdentifiable user = session.getUser().getIdentity();
+      return ((ODatabaseSessionInternal) session)
           .getSharedContext()
           .getOrientDB()
           .executeNoAuthorization(
@@ -426,16 +426,11 @@ public class OSecurityEngine {
               (db -> {
                 OBasicCommandContext ctx = new OBasicCommandContext();
                 ctx.setDatabase(db);
-                ctx.setDynamicVariable(
-                    "$currentUser",
-                    (inContext) -> {
-                      return user;
-                    });
+                ctx.setDynamicVariable("$currentUser", (inContext) -> user.getRecord());
                 return predicate.evaluate(record, ctx);
               }))
           .get();
     } catch (Exception e) {
-      e.printStackTrace();
       throw new OSecurityException("Cannot execute security predicate");
     }
   }
@@ -452,7 +447,7 @@ public class OSecurityEngine {
       // Create a new instance of ODocument with a user record id, this will lazy load the user data
       // at the first access with the same execution permission of the policy
       final ODocument user = session.getUser().getIdentity().getRecord();
-      return ((ODatabaseInternal) session)
+      return ((ODatabaseSessionInternal) session)
           .getSharedContext()
           .getOrientDB()
           .executeNoAuthorization(

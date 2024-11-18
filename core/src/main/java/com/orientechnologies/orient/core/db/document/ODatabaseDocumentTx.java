@@ -4,16 +4,14 @@ import static com.orientechnologies.orient.core.db.document.ODatabaseDocumentTxI
 
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.cache.OLocalRecordCache;
-import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.script.OCommandScriptException;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
-import com.orientechnologies.orient.core.db.ODatabase;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
@@ -67,9 +65,6 @@ import com.orientechnologies.orient.core.tx.OTransactionOptimistic;
 import com.orientechnologies.orient.core.util.OURLConnection;
 import com.orientechnologies.orient.core.util.OURLHelper;
 import it.unimi.dsi.fastutil.ints.IntSet;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -79,7 +74,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
@@ -111,7 +105,7 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
   private final Map<ATTRIBUTES, Object> preopenAttributes = new HashMap<>();
   // TODO review for the case of browseListener before open.
   private final Set<ODatabaseListener> preopenListener = new HashSet<>();
-  private ODatabaseInternal<?> databaseOwner;
+  private ODatabaseSessionInternal databaseOwner;
   private OStorage delegateStorage;
   private ORecordConflictStrategy conflictStrategy;
   private ORecordSerializer serializer;
@@ -346,7 +340,7 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
   }
 
   @Override
-  public <DB extends ODatabase<?>> DB setMVCC(boolean iValue) {
+  public ODatabaseSession setMVCC(boolean iValue) {
     return null;
   }
 
@@ -361,23 +355,23 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
   }
 
   @Override
-  public <DB extends ODatabase<?>> DB setConflictStrategy(String iStrategyName) {
+  public ODatabaseSession setConflictStrategy(String iStrategyName) {
     if (internal != null) {
       internal.setConflictStrategy(iStrategyName);
     } else {
       conflictStrategy = Orient.instance().getRecordConflictStrategy().getStrategy(iStrategyName);
     }
-    return (DB) this;
+    return this;
   }
 
   @Override
-  public <DB extends ODatabase<?>> DB setConflictStrategy(ORecordConflictStrategy iResolver) {
+  public ODatabaseSession setConflictStrategy(ORecordConflictStrategy iResolver) {
     if (internal != null) {
       internal.setConflictStrategy(iResolver);
     } else {
       conflictStrategy = iResolver;
     }
-    return (DB) this;
+    return this;
   }
 
   @Override
@@ -442,8 +436,8 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
   }
 
   @Override
-  public ODatabaseInternal<?> getDatabaseOwner() {
-    ODatabaseInternal<?> current = databaseOwner;
+  public ODatabaseSessionInternal getDatabaseOwner() {
+    ODatabaseSessionInternal current = databaseOwner;
 
     while (current != null && current != this && current.getDatabaseOwner() != current) {
       current = current.getDatabaseOwner();
@@ -455,7 +449,7 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
   }
 
   @Override
-  public ODatabaseInternal<?> setDatabaseOwner(ODatabaseInternal<?> iOwner) {
+  public ODatabaseSessionInternal setDatabaseOwner(ODatabaseSessionInternal iOwner) {
     databaseOwner = iOwner;
     if (internal != null) {
       internal.setDatabaseOwner(iOwner);
@@ -464,7 +458,7 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
   }
 
   @Override
-  public <DB extends ODatabase> DB getUnderlying() {
+  public ODatabaseSession getUnderlying() {
     return internal.getUnderlying();
   }
 
@@ -475,7 +469,7 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
   }
 
   @Override
-  public <DB extends ODatabase> DB open(OToken iToken) {
+  public ODatabaseSession open(OToken iToken) {
     throw new UnsupportedOperationException();
   }
 
@@ -592,15 +586,15 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
   }
 
   @Override
-  public <RET extends ORecord> RET load(ORecord iObject) {
+  public <RET extends ORecord> RET load(ORecord record) {
     checkOpenness();
-    return internal.load(iObject);
+    return internal.load(record);
   }
 
   @Override
-  public <RET extends ORecord> RET load(ORecord iObject, String iFetchPlan) {
+  public <RET extends ORecord> RET load(ORecord record, String iFetchPlan) {
     checkOpenness();
-    return internal.load(iObject, iFetchPlan);
+    return internal.load(record, iFetchPlan);
   }
 
   @Override
@@ -629,9 +623,9 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
   }
 
   @Override
-  public <RET extends ORecord> RET save(ORecord iObject) {
+  public <RET extends ORecord> RET save(ORecord record) {
     checkOpenness();
-    return internal.save(iObject);
+    return internal.save(record);
   }
 
   @Override
@@ -641,9 +635,9 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
   }
 
   @Override
-  public void delete(ORecord iObject) {
+  public void delete(ORecord record) {
     checkOpenness();
-    internal.delete(iObject);
+    internal.delete(record);
   }
 
   @Override
@@ -773,7 +767,7 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
   }
 
   @Override
-  public ODatabaseDocument setRetainRecords(boolean iValue) {
+  public ODatabaseSession setRetainRecords(boolean iValue) {
     checkOpenness();
     return internal.setRetainRecords(iValue);
   }
@@ -806,10 +800,10 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
   }
 
   @Override
-  public <DB extends ODatabaseDocument> DB setValidationEnabled(boolean iEnabled) {
+  public ODatabaseSession setValidationEnabled(boolean iEnabled) {
     checkOpenness();
     internal.setValidationEnabled(iEnabled);
-    return (DB) this;
+    return this;
   }
 
   @Override
@@ -836,7 +830,7 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
   }
 
   @Override
-  public <DB extends ODatabase> DB open(String iUserName, String iUserPassword) {
+  public ODatabaseSession open(String iUserName, String iUserPassword) {
     setupThreadOwner();
     try {
       if ("remote".equals(type)) {
@@ -865,7 +859,7 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
       clearOwner();
       throw e;
     }
-    return (DB) this;
+    return this;
   }
 
   protected void setupThreadOwner() {
@@ -890,18 +884,18 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
   }
 
   @Override
-  public <DB extends ODatabase> DB create() {
+  public ODatabaseSession create() {
     return create((Map<OGlobalConfiguration, Object>) null);
   }
 
   @Override
   @Deprecated
-  public <DB extends ODatabase> DB create(String incrementalBackupPath) {
+  public ODatabaseSession create(String incrementalBackupPath) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public <DB extends ODatabase> DB create(Map<OGlobalConfiguration, Object> iInitialSettings) {
+  public ODatabaseSession create(Map<OGlobalConfiguration, Object> iInitialSettings) {
     setupThreadOwner();
     try {
       OrientDBConfig config = buildConfig(iInitialSettings);
@@ -951,7 +945,7 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
       clearOwner();
       throw e;
     }
-    return (DB) this;
+    return this;
   }
 
   @Override
@@ -1021,10 +1015,10 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
   }
 
   @Override
-  public <DB extends ODatabase> DB setStatus(STATUS iStatus) {
+  public ODatabaseSession setStatus(STATUS iStatus) {
     checkOpenness();
     internal.setStatus(iStatus);
-    return (DB) this;
+    return this;
   }
 
   @Override
@@ -1281,30 +1275,6 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
     return internal.countView(viewName);
   }
 
-  @Override
-  public List<String> backup(
-      OutputStream out,
-      Map<String, Object> options,
-      Callable<Object> callable,
-      OCommandOutputListener iListener,
-      int compressionLevel,
-      int bufferSize)
-      throws IOException {
-    checkOpenness();
-    return internal.backup(out, options, callable, iListener, compressionLevel, bufferSize);
-  }
-
-  @Override
-  public void restore(
-      InputStream in,
-      Map<String, Object> options,
-      Callable<Object> callable,
-      OCommandOutputListener iListener)
-      throws IOException {
-    checkOpenness();
-    internal.restore(in, options, callable, iListener);
-  }
-
   public void setSerializer(ORecordSerializer serializer) {
     if (internal != null) {
       internal.setSerializer(serializer);
@@ -1388,7 +1358,7 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
   }
 
   @Override
-  public <DB extends ODatabase> DB setCustom(String name, Object iValue) {
+  public ODatabaseSession setCustom(String name, Object iValue) {
     return internal.setCustom(name, iValue);
   }
 

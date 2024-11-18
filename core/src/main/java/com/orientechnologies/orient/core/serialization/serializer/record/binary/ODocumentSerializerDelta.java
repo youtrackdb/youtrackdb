@@ -1548,14 +1548,17 @@ public class ODocumentSerializerDelta {
       var rid = new ORecordId(clusterId, clusterPos);
 
       if (rid.isTemporary()) {
-        // rid will be changed during commit we need to keep track original rid
-        var record = rid.getRecord();
+        try {
+          // rid will be changed during commit we need to keep track original rid
+          var record = rid.getRecord();
 
-        if (record != null) {
           rid = (ORecordId) record.getIdentity();
           if (rid == null) {
             rid = new ORecordId(clusterId, clusterPos);
           }
+
+        } catch (ORecordNotFoundException rnf) {
+          return rid;
         }
       }
 

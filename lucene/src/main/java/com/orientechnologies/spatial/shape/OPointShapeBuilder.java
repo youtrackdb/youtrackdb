@@ -16,7 +16,7 @@
 package com.orientechnologies.spatial.shape;
 
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
@@ -42,7 +42,7 @@ public class OPointShapeBuilder extends OShapeBuilder<Point> {
   }
 
   @Override
-  public void initClazz(ODatabaseInternal db) {
+  public void initClazz(ODatabaseSessionInternal db) {
 
     OSchema schema = db.getMetadata().getSchema();
     OClass point = schema.createAbstractClass(getName(), superClass(db));

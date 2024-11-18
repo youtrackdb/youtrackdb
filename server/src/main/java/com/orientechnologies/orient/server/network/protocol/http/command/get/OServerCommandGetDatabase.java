@@ -24,8 +24,8 @@ import com.orientechnologies.orient.core.OConstants;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
 import com.orientechnologies.orient.core.config.OStorageEntryConfiguration;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.exception.OSecurityAccessException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
@@ -328,7 +328,7 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
     }
   }
 
-  private void exportSecurityInfo(ODatabaseDocument db, OJSONWriter json) throws IOException {
+  private void exportSecurityInfo(ODatabaseSession db, OJSONWriter json) throws IOException {
     json.beginCollection("users");
     for (ODocument doc : db.getMetadata().getSecurity().getAllUsers()) {
       OUser user = new OUser(doc);

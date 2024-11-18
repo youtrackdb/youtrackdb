@@ -51,7 +51,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 
-/** Created by Enrico Risa on 07/07/15. */
+/**
+ * Created by Enrico Risa on 07/07/15.
+ */
 public class LuceneSpatialAutomaticBackupRestoreTest {
 
   private static final String DBNAME = "OLuceneAutomaticBackupRestoreTest";
@@ -126,7 +128,6 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
   }
 
   protected ODocument newCity(String name, final Double longitude, final Double latitude) {
-
     ODocument city =
         new ODocument("City")
             .field("name", name)
@@ -161,95 +162,12 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
   }
 
   @Test
-  public void shouldBackupAndRestore() throws IOException, InterruptedException {
-
-    String query =
-        "select * from City where  ST_WITHIN(location,'POLYGON ((12.314015 41.8262816, 12.314015"
-            + " 41.963125, 12.6605063 41.963125, 12.6605063 41.8262816, 12.314015 41.8262816))') ="
-            + " true";
-    OResultSet docs = db.query(query);
-
-    Assert.assertEquals(docs.stream().count(), 1);
-
-    String jsonConfig =
-        OIOUtils.readStreamAsString(
-            getClass().getClassLoader().getResourceAsStream("automatic-backup.json"));
-
-    ODocument doc =
-        new ODocument()
-            .fromJSON(jsonConfig)
-            .field("enabled", true)
-            .field("targetFileName", "${DBNAME}.zip")
-            .field("targetDirectory", BACKUPDIR)
-            .field("dbInclude", new String[] {DBNAME})
-            .field(
-                "firstTime",
-                new SimpleDateFormat("HH:mm:ss")
-                    .format(new Date(System.currentTimeMillis() + 2000)));
-
-    OIOUtils.writeFile(
-        new File(tempFolder.getAbsolutePath() + "/config/automatic-backup.json"), doc.toJSON());
-
-    final OAutomaticBackup aBackup = new OAutomaticBackup();
-
-    final OServerParameterConfiguration[] config = new OServerParameterConfiguration[] {};
-
-    aBackup.config(server, config);
-
-    final CountDownLatch latch = new CountDownLatch(1);
-
-    aBackup.registerListener(
-        new OAutomaticBackup.OAutomaticBackupListener() {
-          @Override
-          public void onBackupCompleted(String database) {
-
-            System.out.println("complete ");
-            latch.countDown();
-          }
-
-          @Override
-          public void onBackupError(String database, Exception e) {
-            System.out.println("e.getMessage() = " + e.getMessage());
-          }
-        });
-
-    latch.await();
-
-    aBackup.sendShutdown();
-
-    // RESTORE
-    dropIfExists();
-
-    db = createAndOpen();
-
-    FileInputStream stream = new FileInputStream(new File(BACKUFILE + ".zip"));
-
-    db.restore(stream, null, null, null);
-
-    db.close();
-
-    // VERIFY
-    db = open();
-
-    assertThat(db.countClass("City")).isEqualTo(1);
-
-    OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.location");
-
-    assertThat(index).isNotNull();
-    assertThat(index.getType()).isEqualTo(OClass.INDEX_TYPE.SPATIAL.name());
-
-    assertThat(db.query(query).stream()).hasSize(1);
-  }
-
-  @Test
   public void shouldExportImport() throws IOException, InterruptedException {
-
     String query =
         "select * from City where  ST_WITHIN(location,'POLYGON ((12.314015 41.8262816, 12.314015"
             + " 41.963125, 12.6605063 41.963125, 12.6605063 41.8262816, 12.314015 41.8262816))') ="
             + " true";
     OResultSet docs = db.query(query);
-
     Assert.assertEquals(docs.stream().count(), 1);
 
     String jsonConfig =

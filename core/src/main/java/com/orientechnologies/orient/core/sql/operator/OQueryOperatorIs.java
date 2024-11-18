@@ -54,19 +54,27 @@ public class OQueryOperatorIs extends OQueryOperatorEquality {
       Object iRight,
       OCommandContext iContext) {
     if (iCondition.getLeft() instanceof OSQLFilterItemField) {
-      if (OSQLHelper.DEFINED.equals(iCondition.getRight()))
+      if (OSQLHelper.DEFINED.equals(iCondition.getRight())) {
         return evaluateDefined(iRecord, "" + iCondition.getLeft());
+      }
 
       if (iCondition.getRight() instanceof OSQLFilterItemField
-          && "not defined".equalsIgnoreCase("" + iCondition.getRight()))
+          && "not defined".equalsIgnoreCase("" + iCondition.getRight())) {
         return !evaluateDefined(iRecord, "" + iCondition.getLeft());
+      }
     }
 
-    if (OSQLHelper.NOT_NULL.equals(iRight)) return iLeft != null;
-    else if (OSQLHelper.NOT_NULL.equals(iLeft)) return iRight != null;
-    else if (OSQLHelper.DEFINED.equals(iLeft)) return evaluateDefined(iRecord, (String) iRight);
-    else if (OSQLHelper.DEFINED.equals(iRight)) return evaluateDefined(iRecord, (String) iLeft);
-    else return iLeft == iRight;
+    if (OSQLHelper.NOT_NULL.equals(iRight)) {
+      return iLeft != null;
+    } else if (OSQLHelper.NOT_NULL.equals(iLeft)) {
+      return iRight != null;
+    } else if (OSQLHelper.DEFINED.equals(iLeft)) {
+      return evaluateDefined(iRecord, (String) iRight);
+    } else if (OSQLHelper.DEFINED.equals(iRight)) {
+      return evaluateDefined(iRecord, (String) iLeft);
+    } else {
+      return iLeft == iRight;
+    }
   }
 
   protected boolean evaluateDefined(final OIdentifiable iRecord, final String iFieldName) {
@@ -78,7 +86,9 @@ public class OQueryOperatorIs extends OQueryOperatorEquality {
 
   @Override
   public OIndexReuseType getIndexReuseType(final Object iLeft, final Object iRight) {
-    if (iRight == null) return OIndexReuseType.INDEX_METHOD;
+    if (iRight == null) {
+      return OIndexReuseType.INDEX_METHOD;
+    }
 
     return OIndexReuseType.NO_INDEX;
   }
@@ -91,13 +101,19 @@ public class OQueryOperatorIs extends OQueryOperatorEquality {
 
     final OIndexInternal internalIndex = index.getInternal();
     Stream<ORawPair<Object, ORID>> stream;
-    if (!internalIndex.canBeUsedInEqualityOperators()) return null;
+    if (!internalIndex.canBeUsedInEqualityOperators()) {
+      return null;
+    }
 
     if (indexDefinition.getParamCount() == 1) {
       final Object key;
-      if (indexDefinition instanceof OIndexDefinitionMultiValue)
-        key = ((OIndexDefinitionMultiValue) indexDefinition).createSingleValue(keyParams.get(0));
-      else key = indexDefinition.createValue(keyParams);
+      if (indexDefinition instanceof OIndexDefinitionMultiValue) {
+        key =
+            ((OIndexDefinitionMultiValue) indexDefinition)
+                .createSingleValue(iContext.getDatabase(), keyParams.get(0));
+      } else {
+        key = indexDefinition.createValue(iContext.getDatabase(), keyParams);
+      }
 
       stream = index.getInternal().getRids(key).map((rid) -> new ORawPair<>(key, rid));
     } else {
@@ -107,15 +123,19 @@ public class OQueryOperatorIs extends OQueryOperatorEquality {
       final OCompositeIndexDefinition compositeIndexDefinition =
           (OCompositeIndexDefinition) indexDefinition;
 
-      final Object keyOne = compositeIndexDefinition.createSingleValue(keyParams);
-      final Object keyTwo = compositeIndexDefinition.createSingleValue(keyParams);
+      final Object keyOne =
+          compositeIndexDefinition.createSingleValue(iContext.getDatabase(), keyParams);
+      final Object keyTwo =
+          compositeIndexDefinition.createSingleValue(iContext.getDatabase(), keyParams);
 
       if (internalIndex.hasRangeQuerySupport()) {
         stream = index.getInternal().streamEntriesBetween(keyOne, true, keyTwo, true, ascSortOrder);
       } else {
         if (indexDefinition.getParamCount() == keyParams.size()) {
           stream = index.getInternal().getRids(keyOne).map((rid) -> new ORawPair<>(keyOne, rid));
-        } else return null;
+        } else {
+          return null;
+        }
       }
     }
 

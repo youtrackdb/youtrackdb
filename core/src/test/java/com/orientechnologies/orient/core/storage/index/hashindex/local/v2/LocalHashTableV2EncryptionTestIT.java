@@ -2,8 +2,7 @@ package com.orientechnologies.orient.core.storage.index.hashindex.local.v2;
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.encryption.OEncryption;
@@ -32,8 +31,9 @@ public class LocalHashTableV2EncryptionTestIT extends LocalHashTableV2Base {
     orientDB.execute(
         "create database " + DB_NAME + " plocal users ( admin identified by 'admin' role admin)");
 
-    ODatabaseSession databaseDocumentTx = orientDB.open(DB_NAME, "admin", "admin");
-    storage = (OAbstractPaginatedStorage) ((ODatabaseInternal) databaseDocumentTx).getStorage();
+    var databaseDocumentTx = orientDB.open(DB_NAME, "admin", "admin");
+    storage =
+        (OAbstractPaginatedStorage) ((ODatabaseSessionInternal) databaseDocumentTx).getStorage();
 
     final OEncryption encryption =
         OEncryptionFactory.INSTANCE.getEncryption("aes/gcm", "T1JJRU5UREJfSVNfQ09PTA==");

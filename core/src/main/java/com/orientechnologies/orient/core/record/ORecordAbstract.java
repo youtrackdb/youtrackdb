@@ -300,13 +300,7 @@ public abstract class ORecordAbstract implements ORecord {
           getIdentity(), "The record has no id, probably it's new or transient yet ");
     }
 
-    final ORecord result = getDatabase().load(recordId);
-
-    if (result == null) {
-      throw new ORecordNotFoundException(getIdentity());
-    }
-
-    return result;
+    return getDatabase().load(recordId);
   }
 
   public ODatabaseSessionInternal getDatabase() {

@@ -30,13 +30,12 @@ import com.orientechnologies.orient.client.remote.message.ORemoteResultSet;
 import com.orientechnologies.orient.client.remote.metadata.schema.OSchemaRemote;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.cache.OLocalRecordCache;
-import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.command.script.OCommandScriptException;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
-import com.orientechnologies.orient.core.db.ODatabase;
 import com.orientechnologies.orient.core.db.ODatabaseListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OHookReplacedRecordThreadLocal;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
@@ -83,15 +82,10 @@ import com.orientechnologies.orient.core.tx.OTransactionIndexChanges;
 import com.orientechnologies.orient.core.tx.OTransactionNoTx;
 import com.orientechnologies.orient.core.tx.OTransactionNoTx.NonTxReadMode;
 import com.orientechnologies.orient.core.tx.OTransactionOptimistic;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -155,28 +149,27 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
     }
   }
 
-  public <DB extends ODatabase> DB open(final String iUserName, final String iUserPassword) {
+  public ODatabaseSession open(final String iUserName, final String iUserPassword) {
     throw new UnsupportedOperationException("Use OrientDB");
   }
 
   @Deprecated
-  public <DB extends ODatabase> DB open(final OToken iToken) {
+  public ODatabaseSession open(final OToken iToken) {
     throw new UnsupportedOperationException("Deprecated Method");
   }
 
   @Override
-  public <DB extends ODatabase> DB create() {
+  public ODatabaseSession create() {
     throw new UnsupportedOperationException("Deprecated Method");
   }
 
   @Override
-  public <DB extends ODatabase> DB create(String incrementalBackupPath) {
+  public ODatabaseSession create(String incrementalBackupPath) {
     throw new UnsupportedOperationException("use OrientDB");
   }
 
   @Override
-  public <DB extends ODatabase> DB create(
-      final Map<OGlobalConfiguration, Object> iInitialSettings) {
+  public ODatabaseSession create(final Map<OGlobalConfiguration, Object> iInitialSettings) {
     throw new UnsupportedOperationException("use OrientDB");
   }
 
@@ -216,7 +209,7 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
   }
 
   @Override
-  public <DB extends ODatabase> DB setCustom(String name, Object iValue) {
+  public ODatabaseSession setCustom(String name, Object iValue) {
     if ("clear".equals(name) && iValue == null) {
       String query = "alter database CUSTOM 'clear'";
       // Bypass the database command for avoid transaction management
@@ -229,7 +222,7 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
       result.getResult().close();
       getStorageRemote().reload();
     }
-    return (DB) this;
+    return this;
   }
 
   public ODatabaseSessionInternal copy() {
@@ -944,30 +937,6 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
                 + " use OrientDB instance instead",
             null);
     return;
-  }
-
-  @Override
-  public List<String> backup(
-      final OutputStream out,
-      final Map<String, Object> options,
-      final Callable<Object> callable,
-      final OCommandOutputListener iListener,
-      final int compressionLevel,
-      final int bufferSize)
-      throws IOException {
-    throw new UnsupportedOperationException(
-        "backup is not supported against remote storage. Use OrientDB instance command instead");
-  }
-
-  @Override
-  public void restore(
-      final InputStream in,
-      final Map<String, Object> options,
-      final Callable<Object> callable,
-      final OCommandOutputListener iListener)
-      throws IOException {
-    throw new UnsupportedOperationException(
-        "restore is not supported against remote instance. Use OrientDB instance command instead");
   }
 
   /**

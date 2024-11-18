@@ -1,5 +1,6 @@
 package com.orientechnologies.orient.core.index;
 
+import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
@@ -13,7 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 @SuppressWarnings("unchecked")
-public class OSimpleKeyIndexDefinitionTest {
+public class OSimpleKeyIndexDefinitionTest extends BaseMemoryDatabase {
 
   private OSimpleKeyIndexDefinition simpleKeyIndexDefinition;
 
@@ -36,13 +37,13 @@ public class OSimpleKeyIndexDefinitionTest {
   public void testCreateValueSimpleKey() {
     final OSimpleKeyIndexDefinition keyIndexDefinition =
         new OSimpleKeyIndexDefinition(OType.INTEGER);
-    final Object result = keyIndexDefinition.createValue("2");
+    final Object result = keyIndexDefinition.createValue(db, "2");
     Assert.assertEquals(result, 2);
   }
 
   @Test
   public void testCreateValueCompositeKeyListParam() {
-    final Object result = simpleKeyIndexDefinition.createValue(Arrays.asList("2", "3"));
+    final Object result = simpleKeyIndexDefinition.createValue(db, Arrays.asList("2", "3"));
 
     final OCompositeKey compositeKey = new OCompositeKey(Arrays.asList(2, "3"));
     Assert.assertEquals(result, compositeKey);
@@ -50,26 +51,26 @@ public class OSimpleKeyIndexDefinitionTest {
 
   @Test
   public void testCreateValueCompositeKeyNullListParam() {
-    final Object result = simpleKeyIndexDefinition.createValue(Arrays.asList((Object) null));
+    final Object result = simpleKeyIndexDefinition.createValue(db, Arrays.asList((Object) null));
 
     Assert.assertNull(result);
   }
 
   @Test
   public void testNullParamListItem() {
-    final Object result = simpleKeyIndexDefinition.createValue(Arrays.asList("2", null));
+    final Object result = simpleKeyIndexDefinition.createValue(db, Arrays.asList("2", null));
 
     Assert.assertNull(result);
   }
 
   @Test(expected = ODatabaseException.class)
   public void testWrongParamTypeListItem() {
-    simpleKeyIndexDefinition.createValue(Arrays.asList("a", "3"));
+    simpleKeyIndexDefinition.createValue(db, Arrays.asList("a", "3"));
   }
 
   @Test
   public void testCreateValueCompositeKey() {
-    final Object result = simpleKeyIndexDefinition.createValue("2", "3");
+    final Object result = simpleKeyIndexDefinition.createValue(db, "2", "3");
 
     final OCompositeKey compositeKey = new OCompositeKey(Arrays.asList(2, "3"));
     Assert.assertEquals(result, compositeKey);
@@ -77,35 +78,35 @@ public class OSimpleKeyIndexDefinitionTest {
 
   @Test
   public void testCreateValueCompositeKeyNullParamList() {
-    final Object result = simpleKeyIndexDefinition.createValue((List<?>) null);
+    final Object result = simpleKeyIndexDefinition.createValue(db, (List<?>) null);
 
     Assert.assertNull(result);
   }
 
   @Test
   public void testCreateValueCompositeKeyNullParam() {
-    final Object result = simpleKeyIndexDefinition.createValue((Object) null);
+    final Object result = simpleKeyIndexDefinition.createValue(db, (Object) null);
 
     Assert.assertNull(result);
   }
 
   @Test
   public void testCreateValueCompositeKeyEmptyList() {
-    final Object result = simpleKeyIndexDefinition.createValue(Collections.emptyList());
+    final Object result = simpleKeyIndexDefinition.createValue(db, Collections.emptyList());
 
     Assert.assertNull(result);
   }
 
   @Test
   public void testNullParamItem() {
-    final Object result = simpleKeyIndexDefinition.createValue("2", null);
+    final Object result = simpleKeyIndexDefinition.createValue(db, "2", null);
 
     Assert.assertNull(result);
   }
 
   @Test(expected = ODatabaseException.class)
   public void testWrongParamType() {
-    simpleKeyIndexDefinition.createValue("a", "3");
+    simpleKeyIndexDefinition.createValue(db, "a", "3");
   }
 
   @Test
@@ -158,6 +159,6 @@ public class OSimpleKeyIndexDefinitionTest {
 
   @Test(expected = OIndexException.class)
   public void testGetDocumentValueToIndex() {
-    simpleKeyIndexDefinition.getDocumentValueToIndex(new ODocument());
+    simpleKeyIndexDefinition.getDocumentValueToIndex(db, new ODocument());
   }
 }

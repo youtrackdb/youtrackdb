@@ -22,7 +22,7 @@ package com.orientechnologies.orient.core.db;
 import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabase.ATTRIBUTES;
+import com.orientechnologies.orient.core.db.ODatabaseSession.ATTRIBUTES;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;

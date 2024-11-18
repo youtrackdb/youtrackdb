@@ -26,6 +26,7 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.ONoTxRecordReadException;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -37,6 +38,7 @@ import com.orientechnologies.orient.core.tx.OTransactionIndexChanges.OPERATION;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nonnull;
 
 /**
  * No operation transaction.
@@ -97,10 +99,10 @@ public class OTransactionNoTx extends OTransactionAbstract {
     throw new UnsupportedOperationException("Rollback is not supported in no tx mode");
   }
 
-  public ORecord loadRecord(final ORID rid) {
+  public @Nonnull ORecord loadRecord(final ORID rid) {
     checkNonTXReads();
     if (rid.isNew()) {
-      return null;
+      throw new ORecordNotFoundException(rid);
     }
 
     return database.executeReadRecord((ORecordId) rid);

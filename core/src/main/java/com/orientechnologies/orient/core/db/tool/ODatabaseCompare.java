@@ -89,10 +89,6 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
 
     if (cls != null) {
       final int[] clusterIds = cls.getClusterIds();
-      for (final int clusterId : clusterIds) {
-        final String clusterName = databaseTwo.getClusterNameById(clusterId);
-      }
-
       clusterDifference = clusterIds.length;
     }
   }
@@ -100,10 +96,6 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
   @Override
   public void run() {
     compare();
-  }
-
-  public void addExcludeIndexes(String index) {
-    excludeIndexes.add(index);
   }
 
   public boolean compare() {
@@ -207,7 +199,7 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
       final List<String> sc2 = clazz2.getSuperClassesNames();
 
       if (!sc1.isEmpty() || !sc2.isEmpty()) {
-        if (!sc1.containsAll(sc2) || !sc2.containsAll(sc1)) {
+        if (!new HashSet<>(sc1).containsAll(sc2) || !new HashSet<>(sc2).containsAll(sc1)) {
           listener.onMessage(
               "\n- ERR: Class definition for "
                   + clazz.getName()
@@ -383,7 +375,7 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
     }
   }
 
-  @SuppressWarnings({"rawtypes", "ObjectAllocationInLoop"})
+  @SuppressWarnings({"ObjectAllocationInLoop"})
   private void compareIndexes(ODocumentHelper.RIDMapper ridMapper) {
     listener.onMessage("\nStarting index comparison:");
 
@@ -567,7 +559,6 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
       if (((compareEntriesForAutomaticIndexes && !indexOne.getType().equals("DICTIONARY"))
           || !indexOne.isAutomatic())) {
 
-        //noinspection resource
         try (final Stream<Object> keyStream =
             makeDbCall(databaseOne, database -> ((OIndexInternal) indexOne).keyStream())) {
           final Iterator<Object> indexKeyIteratorOne =
@@ -575,10 +566,8 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
           while (makeDbCall(databaseOne, database -> indexKeyIteratorOne.hasNext())) {
             final Object indexKey = makeDbCall(databaseOne, database -> indexKeyIteratorOne.next());
 
-            //noinspection resource
             try (Stream<ORID> indexOneStream =
                 makeDbCall(databaseOne, database -> indexOne.getInternal().getRids(indexKey))) {
-              //noinspection resource
               try (Stream<ORID> indexTwoValue =
                   makeDbCall(databaseTwo, database -> indexTwo.getInternal().getRids(indexKey))) {
                 differences +=
@@ -790,6 +779,7 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
             @SuppressWarnings("ObjectAllocationInLoop")
             final ODocument doc1 = new ODocument();
             databaseTwo.activateOnCurrentThread();
+
             @SuppressWarnings("ObjectAllocationInLoop")
             final ODocument doc2 = new ODocument();
 
@@ -818,13 +808,11 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
             final ORawBuffer buffer1 =
                 makeDbCall(
                     databaseOne,
-                    database ->
-                        database.getStorage().readRecord(rid1, true, false, null).getResult());
+                    database -> database.getStorage().readRecord(rid1, true, false, null));
             final ORawBuffer buffer2 =
                 makeDbCall(
                     databaseTwo,
-                    database ->
-                        database.getStorage().readRecord(rid2, true, false, null).getResult());
+                    database -> database.getStorage().readRecord(rid2, true, false, null));
 
             //noinspection StatementWithEmptyBody
             if (buffer1 == null && buffer2 == null) {
@@ -889,7 +877,7 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
                               databaseOne,
                               database -> {
                                 ORecordInternal.unsetDirty(doc1);
-                                doc1.fromStream(buffer1.buffer);
+                                ORecordInternal.fromStream(doc1, buffer1.buffer, database);
                                 return null;
                               });
 
@@ -897,7 +885,7 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
                               databaseTwo,
                               database -> {
                                 ORecordInternal.unsetDirty(doc2);
-                                doc2.fromStream(buffer2.buffer);
+                                ORecordInternal.fromStream(doc2, buffer2.buffer, database);
                                 return null;
                               });
 
