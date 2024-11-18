@@ -294,7 +294,7 @@ public class OSBTreeRidBagTest extends ORidBagTest {
 
     for (int i = 0; i < 100; i++) {
       database.begin();
-      testDocument.delete();
+      database.bindToSession(testDocument).delete();
       database.commit();
 
       testDocument = crateTestDeleteDoc(realDoc);
