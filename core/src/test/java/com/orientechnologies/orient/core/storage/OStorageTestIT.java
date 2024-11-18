@@ -2,7 +2,6 @@ package com.orientechnologies.orient.core.storage;
 
 import com.orientechnologies.orient.core.OConstants;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabase;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OSharedContext;
@@ -48,7 +47,7 @@ public class OStorageTestIT {
             .addConfig(
                 OGlobalConfiguration.STORAGE_CHECKSUM_MODE,
                 OChecksumMode.StoreAndSwitchReadOnlyMode)
-            .addAttribute(ODatabase.ATTRIBUTES.MINIMUMCLUSTERS, 1)
+            .addAttribute(ODatabaseSession.ATTRIBUTES.MINIMUMCLUSTERS, 1)
             .build();
 
     orientDB = new OrientDB("embedded:" + buildPath.toFile().getAbsolutePath(), config);
@@ -112,7 +111,7 @@ public class OStorageTestIT {
             .addConfig(
                 OGlobalConfiguration.STORAGE_CHECKSUM_MODE,
                 OChecksumMode.StoreAndSwitchReadOnlyMode)
-            .addAttribute(ODatabase.ATTRIBUTES.MINIMUMCLUSTERS, 1)
+            .addAttribute(ODatabaseSession.ATTRIBUTES.MINIMUMCLUSTERS, 1)
             .build();
 
     orientDB = new OrientDB("embedded:" + buildPath.toFile().getAbsolutePath(), config);
@@ -172,7 +171,7 @@ public class OStorageTestIT {
     OrientDBConfig config =
         OrientDBConfig.builder()
             .addConfig(OGlobalConfiguration.STORAGE_CHECKSUM_MODE, OChecksumMode.StoreAndVerify)
-            .addAttribute(ODatabase.ATTRIBUTES.MINIMUMCLUSTERS, 1)
+            .addAttribute(ODatabaseSession.ATTRIBUTES.MINIMUMCLUSTERS, 1)
             .build();
 
     orientDB = new OrientDB("embedded:" + buildPath.toFile().getAbsolutePath(), config);
@@ -234,7 +233,7 @@ public class OStorageTestIT {
     OrientDBConfig config =
         OrientDBConfig.builder()
             .addConfig(OGlobalConfiguration.STORAGE_CHECKSUM_MODE, OChecksumMode.StoreAndVerify)
-            .addAttribute(ODatabase.ATTRIBUTES.MINIMUMCLUSTERS, 1)
+            .addAttribute(ODatabaseSession.ATTRIBUTES.MINIMUMCLUSTERS, 1)
             .build();
 
     orientDB = new OrientDB("embedded:" + buildPath.toFile().getAbsolutePath(), config);

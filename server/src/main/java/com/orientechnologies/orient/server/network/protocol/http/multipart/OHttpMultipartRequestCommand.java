@@ -15,7 +15,7 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.multipart;
 
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -43,7 +43,7 @@ public abstract class OHttpMultipartRequestCommand<B, F>
       final OHttpResponse iResponse,
       final OHttpMultipartContentParser<B> standardContentParser,
       final OHttpMultipartContentParser<F> fileContentParser,
-      final ODatabaseDocument database)
+      final ODatabaseSession database)
       throws Exception {
     char currChar;
     boolean endRequest = false;
@@ -281,7 +281,7 @@ public abstract class OHttpMultipartRequestCommand<B, F>
       final OHttpMultipartContentParser<B> contentParser,
       final HashMap<String, String> headers,
       final OHttpMultipartContentInputStream in,
-      ODatabaseDocument database)
+      ODatabaseSession database)
       throws Exception {
     B result = contentParser.parse(iRequest, headers, in, database);
     parseStatus = STATUS.STATUS_EXPECTED_END_REQUEST;
@@ -293,7 +293,7 @@ public abstract class OHttpMultipartRequestCommand<B, F>
       final OHttpMultipartContentParser<F> contentParser,
       final HashMap<String, String> headers,
       final OHttpMultipartContentInputStream in,
-      ODatabaseDocument database)
+      ODatabaseSession database)
       throws Exception {
     F result = contentParser.parse(iRequest, headers, in, database);
     parseStatus = STATUS.STATUS_EXPECTED_END_REQUEST;

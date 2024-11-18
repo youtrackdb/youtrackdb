@@ -9,7 +9,6 @@ import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.OScenarioThreadLocal;
 import com.orientechnologies.orient.core.db.OrientDBInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentEmbedded;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
@@ -186,7 +185,7 @@ public class ViewManager {
     }
   }
 
-  public void cleanUnusedViewClusters(ODatabaseDocument db) {
+  public void cleanUnusedViewClusters(ODatabaseSession db) {
     if (((ODatabaseDocumentEmbedded) db).getStorage().isIcrementalBackupRunning()) {
       // backup is running handle delete the next run
       return;
@@ -441,7 +440,7 @@ public class ViewManager {
       newRow.setProperty("@view", viewName);
     }
     db.save(newRow, clusterName);
-    OClassIndexManager.addIndexesEntries((ODocument) newRow, indexes);
+    OClassIndexManager.addIndexesEntries(db, (ODocument) newRow, indexes);
     db.commit();
   }
 
@@ -510,7 +509,7 @@ public class ViewManager {
     }
   }
 
-  private OElement copyElement(OResult item, ODatabaseDocument db) {
+  private OElement copyElement(OResult item, ODatabaseSession db) {
     OElement newRow = db.newElement();
     for (String prop : item.getPropertyNames()) {
       if (!prop.equalsIgnoreCase("@rid") && !prop.equalsIgnoreCase("@class")) {
@@ -621,7 +620,7 @@ public class ViewManager {
     }
 
     @Override
-    public void onCreate(ODatabaseDocument db, OResult data) {
+    public void onCreate(ODatabaseSession db, OResult data) {
       OView view = db.getMetadata().getSchema().getView(viewName);
       var dbInternal = (ODatabaseSessionInternal) db;
       if (view != null) {
@@ -637,7 +636,7 @@ public class ViewManager {
     }
 
     @Override
-    public void onUpdate(ODatabaseDocument db, OResult before, OResult after) {
+    public void onUpdate(ODatabaseSession db, OResult before, OResult after) {
       OView view = db.getMetadata().getSchema().getView(viewName);
       if (view != null && view.getOriginRidField() != null) {
         try (OResultSet rs =
@@ -684,7 +683,7 @@ public class ViewManager {
     }
 
     @Override
-    public void onDelete(ODatabaseDocument db, OResult data) {
+    public void onDelete(ODatabaseSession db, OResult data) {
       OView view = db.getMetadata().getSchema().getView(viewName);
       if (view != null && view.getOriginRidField() != null) {
         try (OResultSet rs =
@@ -699,11 +698,11 @@ public class ViewManager {
     }
 
     @Override
-    public void onError(ODatabaseDocument database, OException exception) {
+    public void onError(ODatabaseSession database, OException exception) {
       OLogManager.instance().error(ViewManager.this, "Error updating view " + viewName, exception);
     }
 
     @Override
-    public void onEnd(ODatabaseDocument database) {}
+    public void onEnd(ODatabaseSession database) {}
   }
 }

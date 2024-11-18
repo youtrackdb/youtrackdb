@@ -9,7 +9,6 @@ import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.OrientDBEmbedded;
 import com.orientechnologies.orient.core.db.OrientDBInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -61,7 +60,7 @@ public class StorageBackupMTTest {
       orientDB.execute(
           "create database `" + dbName + "` plocal users(admin identified by 'admin' role admin)");
 
-      ODatabaseDocument db = orientDB.open(dbName, "admin", "admin");
+      var db = orientDB.open(dbName, "admin", "admin");
 
       final OSchema schema = db.getMetadata().getSchema();
       final OClass backupClass = schema.createClass("BackupClass");
@@ -181,7 +180,7 @@ public class StorageBackupMTTest {
       orientDB.execute(
           "create database `" + dbName + "` plocal users(admin identified by 'admin' role admin)");
 
-      ODatabaseDocument db = orientDB.open(dbName, "admin", "admin");
+      var db = orientDB.open(dbName, "admin", "admin");
 
       final OSchema schema = db.getMetadata().getSchema();
       final OClass backupClass = schema.createClass("BackupClass");
@@ -279,7 +278,7 @@ public class StorageBackupMTTest {
 
       System.out.println(Thread.currentThread() + " - start writing");
 
-      try (ODatabaseDocument db = orientDB.open(dbName, "admin", "admin")) {
+      try (var db = orientDB.open(dbName, "admin", "admin")) {
 
         Random random = new Random();
         List<ORID> ids = new ArrayList<>();
@@ -343,7 +342,7 @@ public class StorageBackupMTTest {
     public Void call() throws Exception {
       started.await();
 
-      try (ODatabaseDocument db = orientDB.open(dbName, "admin", "admin")) {
+      try (var db = orientDB.open(dbName, "admin", "admin")) {
         System.out.println(Thread.currentThread() + " - start backup");
         while (!backupIterationRecordCount.isEmpty()) {
           CountDownLatch latch = backupIterationRecordCount.pop();

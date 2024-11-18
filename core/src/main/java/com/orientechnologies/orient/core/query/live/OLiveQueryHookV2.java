@@ -23,8 +23,8 @@ import static com.orientechnologies.orient.core.config.OGlobalConfiguration.QUER
 
 import com.orientechnologies.common.concur.resource.OCloseable;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
@@ -68,8 +68,7 @@ public class OLiveQueryHookV2 {
 
   public static class OLiveQueryOps implements OCloseable {
 
-    protected Map<ODatabaseDocument, List<OLiveQueryOp>> pendingOps =
-        new ConcurrentHashMap<ODatabaseDocument, List<OLiveQueryOp>>();
+    protected Map<ODatabaseSession, List<OLiveQueryOp>> pendingOps = new ConcurrentHashMap<>();
     private OLiveQueryQueueThreadV2 queueThread = new OLiveQueryQueueThreadV2(this);
     private final Object threadLock = new Object();
 
@@ -121,12 +120,12 @@ public class OLiveQueryHookV2 {
     }
   }
 
-  public static OLiveQueryOps getOpsReference(ODatabaseInternal db) {
+  public static OLiveQueryOps getOpsReference(ODatabaseSessionInternal db) {
     return db.getSharedContext().getLiveQueryOpsV2();
   }
 
   public static Integer subscribe(
-      Integer token, OLiveQueryListenerV2 iListener, ODatabaseInternal db) {
+      Integer token, OLiveQueryListenerV2 iListener, ODatabaseSessionInternal db) {
     if (Boolean.FALSE.equals(db.getConfiguration().getValue(QUERY_LIVE_SUPPORT))) {
       OLogManager.instance()
           .warn(
@@ -147,7 +146,7 @@ public class OLiveQueryHookV2 {
     return ops.subscribe(token, iListener);
   }
 
-  public static void unsubscribe(Integer id, ODatabaseInternal db) {
+  public static void unsubscribe(Integer id, ODatabaseSessionInternal db) {
     if (Boolean.FALSE.equals(db.getConfiguration().getValue(QUERY_LIVE_SUPPORT))) {
       OLogManager.instance()
           .warn(
@@ -167,8 +166,8 @@ public class OLiveQueryHookV2 {
     }
   }
 
-  public static void notifyForTxChanges(ODatabaseDocument database) {
-    OLiveQueryOps ops = getOpsReference((ODatabaseInternal) database);
+  public static void notifyForTxChanges(ODatabaseSession database) {
+    OLiveQueryOps ops = getOpsReference((ODatabaseSessionInternal) database);
     if (ops.pendingOps.isEmpty()) {
       return;
     }
@@ -194,13 +193,13 @@ public class OLiveQueryHookV2 {
     }
   }
 
-  public static void removePendingDatabaseOps(ODatabaseDocument database) {
+  public static void removePendingDatabaseOps(ODatabaseSession database) {
     try {
       if (database.isClosed()
           || Boolean.FALSE.equals(database.getConfiguration().getValue(QUERY_LIVE_SUPPORT))) {
         return;
       }
-      OLiveQueryOps ops = getOpsReference((ODatabaseInternal) database);
+      OLiveQueryOps ops = getOpsReference((ODatabaseSessionInternal) database);
       synchronized (ops.pendingOps) {
         ops.pendingOps.remove(database);
       }
@@ -210,9 +209,9 @@ public class OLiveQueryHookV2 {
     }
   }
 
-  public static void addOp(ODocument iDocument, byte iType, ODatabaseDocument database) {
-    ODatabaseDocument db = database;
-    OLiveQueryOps ops = getOpsReference((ODatabaseInternal) db);
+  public static void addOp(ODocument iDocument, byte iType, ODatabaseSession database) {
+    ODatabaseSession db = database;
+    OLiveQueryOps ops = getOpsReference((ODatabaseSessionInternal) db);
     if (!ops.hasListeners()) {
       return;
     }
@@ -288,9 +287,9 @@ public class OLiveQueryHookV2 {
   public static OResultInternal calculateBefore(
       ODocument iDocument, Set<String> projectionsToLoad) {
     OResultInternal result = new OResultInternal();
-    for (String prop : iDocument.getPropertyNamesWithoutFiltration()) {
+    for (String prop : iDocument.getPropertyNamesInternal()) {
       if (projectionsToLoad == null || projectionsToLoad.contains(prop)) {
-        result.setProperty(prop, unboxRidbags(iDocument.getPropertyWithoutValidation(prop)));
+        result.setProperty(prop, unboxRidbags(iDocument.getPropertyInternal(prop)));
       }
     }
     result.setProperty("@rid", iDocument.getIdentity());
@@ -322,9 +321,9 @@ public class OLiveQueryHookV2 {
   private static OResultInternal calculateAfter(
       ODocument iDocument, Set<String> projectionsToLoad) {
     OResultInternal result = new OResultInternal();
-    for (String prop : iDocument.getPropertyNamesWithoutFiltration()) {
+    for (String prop : iDocument.getPropertyNamesInternal()) {
       if (projectionsToLoad == null || projectionsToLoad.contains(prop)) {
-        result.setProperty(prop, unboxRidbags(iDocument.getPropertyWithoutValidation(prop)));
+        result.setProperty(prop, unboxRidbags(iDocument.getPropertyInternal(prop)));
       }
     }
     result.setProperty("@rid", iDocument.getIdentity());

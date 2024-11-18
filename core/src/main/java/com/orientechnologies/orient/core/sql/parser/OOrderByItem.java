@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabase.ATTRIBUTES;
+import com.orientechnologies.orient.core.db.ODatabaseSession.ATTRIBUTES;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.record.ODirection;

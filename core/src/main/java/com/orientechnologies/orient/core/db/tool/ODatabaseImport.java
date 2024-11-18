@@ -27,8 +27,8 @@ import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabase.STATUS;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSession.STATUS;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODocumentFieldWalker;
 import com.orientechnologies.orient.core.db.record.OClassTrigger;
@@ -1611,7 +1611,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
     OElement doc = (OElement) record;
     bags.forEach(
         (field, ridset) -> {
-          ORidBag ridbag = ((OElementInternal) record).getPropertyWithoutValidation(field);
+          ORidBag ridbag = ((OElementInternal) record).getPropertyInternal(field);
           ridset.forEach(
               rid -> {
                 ridbag.add(rid);
@@ -1643,7 +1643,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
             '\t');
 
     String fieldName = OIOUtils.getStringContent(builder.toString());
-    ORidBag bag = doc.getPropertyWithoutValidation(fieldName);
+    ORidBag bag = doc.getPropertyInternal(fieldName);
 
     if (!(value.charAt(nextIndex) == '[')) {
       throw new ODatabaseImportException("Cannot import field: " + fieldName + " (too big)");

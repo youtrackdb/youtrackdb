@@ -26,7 +26,6 @@ import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.id.ORID;
@@ -97,22 +96,22 @@ public class OLiveQueryTest {
     public void onUnsubscribe(int iLiveToken) {}
 
     @Override
-    public void onCreate(ODatabaseDocument database, OResult data) {
+    public void onCreate(ODatabaseSession database, OResult data) {
       created.add(data);
       latch.countDown();
     }
 
     @Override
-    public void onUpdate(ODatabaseDocument database, OResult before, OResult after) {}
+    public void onUpdate(ODatabaseSession database, OResult before, OResult after) {}
 
     @Override
-    public void onDelete(ODatabaseDocument database, OResult data) {}
+    public void onDelete(ODatabaseSession database, OResult data) {}
 
     @Override
-    public void onError(ODatabaseDocument database, OException exception) {}
+    public void onError(ODatabaseSession database, OException exception) {}
 
     @Override
-    public void onEnd(ODatabaseDocument database) {}
+    public void onEnd(ODatabaseSession database) {}
   }
 
   @Test
@@ -213,23 +212,23 @@ public class OLiveQueryTest {
                       new OLiveQueryResultListener() {
 
                         @Override
-                        public void onCreate(ODatabaseDocument database, OResult data) {
+                        public void onCreate(ODatabaseSession database, OResult data) {
                           integer.incrementAndGet();
                           dataArrived.countDown();
                         }
 
                         @Override
                         public void onUpdate(
-                            ODatabaseDocument database, OResult before, OResult after) {}
+                            ODatabaseSession database, OResult before, OResult after) {}
 
                         @Override
-                        public void onDelete(ODatabaseDocument database, OResult data) {}
+                        public void onDelete(ODatabaseSession database, OResult data) {}
 
                         @Override
-                        public void onError(ODatabaseDocument database, OException exception) {}
+                        public void onError(ODatabaseSession database, OException exception) {}
 
                         @Override
-                        public void onEnd(ODatabaseDocument database) {}
+                        public void onEnd(ODatabaseSession database) {}
                       });
                 } catch (RuntimeException e) {
                   e.printStackTrace();

@@ -3,8 +3,8 @@ package com.orientechnologies.orient.core.storage.index.sbtree.local.v1;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.OLinkSerializer;
@@ -63,7 +63,8 @@ public class SBTreeV1WALTestIT extends SBTreeV1TestIT {
     OFileUtils.deleteRecursively(buildDir);
 
     orientDB = new OrientDB("plocal:" + buildDir, OrientDBConfig.defaultConfig());
-    storage = (OAbstractPaginatedStorage) ((ODatabaseInternal<?>) databaseDocumentTx).getStorage();
+    storage =
+        (OAbstractPaginatedStorage) ((ODatabaseSessionInternal) databaseDocumentTx).getStorage();
     createExpectedSBTree();
     createActualSBTree();
   }
@@ -84,7 +85,7 @@ public class SBTreeV1WALTestIT extends SBTreeV1TestIT {
 
     databaseDocumentTx = orientDB.open(ACTUAL_DB_NAME, "admin", "admin");
     actualStorage =
-        (OLocalPaginatedStorage) ((ODatabaseInternal<?>) databaseDocumentTx).getStorage();
+        (OLocalPaginatedStorage) ((ODatabaseSessionInternal) databaseDocumentTx).getStorage();
     actualStorageDir = actualStorage.getStoragePath().toString();
     CASDiskWriteAheadLog writeAheadLog = (CASDiskWriteAheadLog) actualStorage.getWALInstance();
 
@@ -116,7 +117,8 @@ public class SBTreeV1WALTestIT extends SBTreeV1TestIT {
 
     expectedDatabaseDocumentTx = orientDB.open(EXPECTED_DB_NAME, "admin", "admin");
     expectedStorage =
-        (OLocalPaginatedStorage) ((ODatabaseInternal<?>) expectedDatabaseDocumentTx).getStorage();
+        (OLocalPaginatedStorage)
+            ((ODatabaseSessionInternal) expectedDatabaseDocumentTx).getStorage();
     expectedReadCache = expectedStorage.getReadCache();
     expectedWriteCache = expectedStorage.getWriteCache();
 

@@ -14,15 +14,16 @@ import java.util.Set;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-@Test(groups = {"index"})
+@Test
 public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
 
   @Parameters(value = "remote")
-  public SQLSelectIndexReuseTest(boolean remote) {
-    super(remote);
+  public SQLSelectIndexReuseTest(@Optional Boolean remote) {
+    super(remote != null && remote);
   }
 
   @BeforeClass
@@ -3023,7 +3024,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     Assert.assertEquals(result.<Object>field("count", Long.class), 2L);
 
     database.begin();
-    doc.delete();
+    database.bindToSession(doc).delete();
     database.commit();
 
     Assert.assertEquals(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage + 1);

@@ -21,8 +21,8 @@ package com.orientechnologies.lucene.tests;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orientechnologies.orient.core.db.ODatabasePool;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
@@ -100,7 +100,7 @@ public class OLuceneInsertReadMultiThreadTest extends OLuceneBaseTest {
     @Override
     public void run() {
 
-      final ODatabaseDocument db = pool.acquire();
+      final ODatabaseSession db = pool.acquire();
       db.activateOnCurrentThread();
       db.begin();
       int i = 0;
@@ -133,7 +133,7 @@ public class OLuceneInsertReadMultiThreadTest extends OLuceneBaseTest {
     @Override
     public void run() {
 
-      final ODatabaseDocument db = pool.acquire();
+      final ODatabaseSession db = pool.acquire();
       db.activateOnCurrentThread();
       OSchema schema = db.getMetadata().getSchema();
       OIndex idx = schema.getClass("City").getClassIndex("City.name");

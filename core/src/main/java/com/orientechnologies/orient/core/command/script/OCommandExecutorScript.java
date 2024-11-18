@@ -31,8 +31,8 @@ import com.orientechnologies.orient.core.command.OCommandDistributedReplicateReq
 import com.orientechnologies.orient.core.command.OCommandExecutorAbstract;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
@@ -262,7 +262,7 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
 
   // TODO: CREATE A REGULAR JSR223 SCRIPT IMPL
   protected Object executeSQL() {
-    ODatabaseDocument db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    var db = ODatabaseRecordThreadLocal.instance().getIfDefined();
     try {
 
       return executeSQLScript(parserText, db);
@@ -279,7 +279,7 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
         "Error on execution of the script: " + iText, request.getText(), 0);
   }
 
-  protected Object executeSQLScript(final String iText, final ODatabaseDocument db)
+  protected Object executeSQLScript(final String iText, final ODatabaseSessionInternal db)
       throws IOException {
     Object lastResult = null;
     int maxRetry = 1;
@@ -564,7 +564,7 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
     }
   }
 
-  private Object executeCommand(final String lastCommand, final ODatabaseDocument db) {
+  private Object executeCommand(final String lastCommand, final ODatabaseSession db) {
     final OCommandSQL command = new OCommandSQL(lastCommand);
     Object result =
         ((ODatabaseSessionInternal) db)
@@ -583,7 +583,7 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
     return parameters;
   }
 
-  private Object getValue(final String iValue, final ODatabaseDocument db) {
+  private Object getValue(final String iValue, final ODatabaseSession db) {
     Object lastResult = null;
     boolean recordResultSet = true;
     if (iValue.equalsIgnoreCase("NULL")) {
@@ -682,22 +682,22 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
     }
   }
 
-  private void executeConsoleLog(final String lastCommand, final ODatabaseDocument db) {
+  private void executeConsoleLog(final String lastCommand, final ODatabaseSession db) {
     final String value = lastCommand.substring("console.log ".length()).trim();
     OLogManager.instance().info(this, "%s", getValue(OIOUtils.wrapStringContent(value, '\''), db));
   }
 
-  private void executeConsoleOutput(final String lastCommand, final ODatabaseDocument db) {
+  private void executeConsoleOutput(final String lastCommand, final ODatabaseSession db) {
     final String value = lastCommand.substring("console.output ".length()).trim();
     System.out.println(getValue(OIOUtils.wrapStringContent(value, '\''), db));
   }
 
-  private void executeConsoleError(final String lastCommand, final ODatabaseDocument db) {
+  private void executeConsoleError(final String lastCommand, final ODatabaseSession db) {
     final String value = lastCommand.substring("console.error ".length()).trim();
     System.err.println(getValue(OIOUtils.wrapStringContent(value, '\''), db));
   }
 
-  private Object executeLet(final String lastCommand, final ODatabaseDocument db) {
+  private Object executeLet(final String lastCommand, final ODatabaseSession db) {
     final int equalsPos = lastCommand.indexOf('=');
     final String variable = lastCommand.substring("let ".length(), equalsPos).trim();
     final String cmd = lastCommand.substring(equalsPos + 1).trim();

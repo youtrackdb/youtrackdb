@@ -29,7 +29,7 @@ public class OEdgeDocument extends ODocument implements OEdgeInternal {
 
   @Override
   public OVertex getFrom() {
-    Object result = getPropertyWithoutValidation(DIRECTION_OUT);
+    Object result = getPropertyInternal(DIRECTION_OUT);
     if (!(result instanceof OElement v)) {
       return null;
     }
@@ -47,7 +47,7 @@ public class OEdgeDocument extends ODocument implements OEdgeInternal {
     var db = getDatabase();
     var schema = db.getMetadata().getImmutableSchemaSnapshot();
 
-    var result = getLinkPropertyWithoutValidation(DIRECTION_OUT);
+    var result = getLinkPropertyInternal(DIRECTION_OUT);
     if (result == null) {
       return null;
     }
@@ -62,7 +62,7 @@ public class OEdgeDocument extends ODocument implements OEdgeInternal {
 
   @Override
   public OVertex getTo() {
-    Object result = getPropertyWithoutValidation(DIRECTION_IN);
+    Object result = getPropertyInternal(DIRECTION_IN);
     if (!(result instanceof OElement v)) {
       return null;
     }
@@ -79,7 +79,7 @@ public class OEdgeDocument extends ODocument implements OEdgeInternal {
     var db = getDatabase();
     var schema = db.getMetadata().getImmutableSchemaSnapshot();
 
-    var result = getLinkPropertyWithoutValidation(DIRECTION_IN);
+    var result = getLinkPropertyInternal(DIRECTION_IN);
     if (result == null) {
       return null;
     }
@@ -98,11 +98,10 @@ public class OEdgeDocument extends ODocument implements OEdgeInternal {
     return false;
   }
 
-  public OEdgeDocument delete() {
+  public void delete() {
     checkForBinding();
 
     super.delete();
-    return this;
   }
 
   @Override
@@ -131,7 +130,7 @@ public class OEdgeDocument extends ODocument implements OEdgeInternal {
 
     OEdgeInternal.checkPropertyName(fieldName);
 
-    return getPropertyWithoutValidation(fieldName);
+    return getPropertyInternal(fieldName);
   }
 
   @Nullable
@@ -150,7 +149,7 @@ public class OEdgeDocument extends ODocument implements OEdgeInternal {
 
     OEdgeInternal.checkPropertyName(fieldName);
 
-    setPropertyWithoutValidation(fieldName, propertyValue);
+    setPropertyInternal(fieldName, propertyValue);
   }
 
   @Override
@@ -166,7 +165,7 @@ public class OEdgeDocument extends ODocument implements OEdgeInternal {
     checkForBinding();
     OEdgeInternal.checkPropertyName(fieldName);
 
-    return removePropertyWithoutValidation(fieldName);
+    return removePropertyInternal(fieldName);
   }
 
   @Override

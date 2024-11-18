@@ -53,7 +53,6 @@ public class LuceneInsertUpdateSingleDocumentNoTxTest extends BaseLuceneTest {
     db.close();
     db = (ODatabaseSessionInternal) openDatabase();
     OSchema schema = db.getMetadata().getSchema();
-    schema.reload();
     ODocument doc = new ODocument("City");
     doc.field("name", "");
     ODocument doc1 = new ODocument("City");

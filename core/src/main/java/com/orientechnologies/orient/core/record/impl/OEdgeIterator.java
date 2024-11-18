@@ -30,6 +30,7 @@ import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.OVertex;
 import java.util.Iterator;
 
@@ -97,7 +98,7 @@ public class OEdgeIterator extends OLazyWrapperIterator<OEdge> {
               rec,
               sourceVertex != null ? sourceVertex.getIdentity() : null,
               targetVertex != null ? targetVertex.getIdentity() : null,
-              record.getDatabase().getURL());
+              ((ORecordAbstract) record).getDatabase().getURL());
       return null;
     }
 

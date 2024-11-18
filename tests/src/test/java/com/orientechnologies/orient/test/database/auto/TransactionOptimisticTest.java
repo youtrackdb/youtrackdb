@@ -17,6 +17,7 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.record.ORecordInternal;
@@ -32,6 +33,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import org.testng.Assert;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -39,8 +41,8 @@ import org.testng.annotations.Test;
 public class TransactionOptimisticTest extends DocumentDBBaseTest {
 
   @Parameters(value = "remote")
-  public TransactionOptimisticTest(boolean remote) {
-    super(remote);
+  public TransactionOptimisticTest(@Optional Boolean remote) {
+    super(remote != null && remote);
   }
 
   @Test
@@ -158,6 +160,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
       record.save();
       database.commit();
 
+      record = database.bindToSession(record);
       Assert.assertEquals(record.getVersion(), v1 + 1);
       Assert.assertTrue(new String(record.toStream()).contains("second"));
     } finally {
@@ -264,23 +267,23 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
 
     ODocument loadedJack = database.load(jack.getIdentity());
     Assert.assertEquals(loadedJack.field("name"), "Jack");
-    Collection<ODocument> jackFollowings = loadedJack.field("following");
+    Collection<OIdentifiable> jackFollowings = loadedJack.field("following");
     Assert.assertNotNull(jackFollowings);
     Assert.assertEquals(jackFollowings.size(), 1);
 
-    ODocument loadedKim = jackFollowings.iterator().next();
-    Assert.assertEquals(loadedKim.field("name"), "Kim");
-    Collection<ODocument> kimFollowings = loadedKim.field("following");
+    var loadedKim = jackFollowings.iterator().next().getElement();
+    Assert.assertEquals(loadedKim.getProperty("name"), "Kim");
+    Collection<OIdentifiable> kimFollowings = loadedKim.getProperty("following");
     Assert.assertNotNull(kimFollowings);
     Assert.assertEquals(kimFollowings.size(), 1);
 
-    ODocument loadedTeri = kimFollowings.iterator().next();
-    Assert.assertEquals(loadedTeri.field("name"), "Teri");
-    Collection<ODocument> teriFollowings = loadedTeri.field("following");
+    var loadedTeri = kimFollowings.iterator().next().getElement();
+    Assert.assertEquals(loadedTeri.getProperty("name"), "Teri");
+    Collection<OIdentifiable> teriFollowings = loadedTeri.getProperty("following");
     Assert.assertNotNull(teriFollowings);
     Assert.assertEquals(teriFollowings.size(), 1);
 
-    Assert.assertEquals(teriFollowings.iterator().next().field("name"), "Jack");
+    Assert.assertEquals(teriFollowings.iterator().next().getElement().getProperty("name"), "Jack");
 
     database.close();
   }
@@ -386,6 +389,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
       assertFuture = executorService.submit(assertEmptyRecord);
       assertFuture.get();
 
+      brokenDocOne = database.bindToSession(brokenDocOne);
       brokenDocOne.setDirty();
       brokenDocOne.save();
 
@@ -401,19 +405,17 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
       externalDocThree.save();
       database.commit();
 
+      var brokenRid = brokenDocOne.getIdentity();
       executorService
           .submit(
               () -> {
-                final ODatabaseSessionInternal db = acquireSession();
-                try {
-                  ODocument brokenDocTwo = db.load(brokenDocOne.getIdentity(), "*:-1", false);
+                try (ODatabaseSessionInternal db = acquireSession()) {
+                  ODocument brokenDocTwo = db.load(brokenRid);
                   brokenDocTwo.field("v", "vstr");
 
                   db.begin();
                   brokenDocTwo.save();
                   db.commit();
-                } finally {
-                  db.close();
                 }
               })
           .get();

@@ -3,7 +3,6 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OServerCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.OSystemDatabase;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.security.ORole;
@@ -58,7 +57,7 @@ public class OAlterSystemRoleStatement extends OSimpleExecServerStatement {
         (db) -> {
           List<OResult> rs = new ArrayList<>();
 
-          OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+          OSecurityInternal security = db.getSharedContext().getSecurity();
 
           ORole role = db.getMetadata().getSecurity().getRole(name.getStringValue());
           if (role == null) {

@@ -20,6 +20,7 @@ import com.orientechnologies.orient.core.db.record.ORecordLazyList;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.OBlob;
+import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import java.math.BigDecimal;
 import java.sql.ResultSetMetaData;
@@ -93,7 +94,9 @@ public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
   @Override
   public String getColumnClassName(final int column) throws SQLException {
     Object value = this.resultSet.getObject(column);
-    if (value == null) return null;
+    if (value == null) {
+      return null;
+    }
     return value.getClass().getCanonicalName();
   }
 
@@ -116,7 +119,9 @@ public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
   public int getColumnType(final int column) throws SQLException {
     final OResult currentRecord = getCurrentRecord();
 
-    if (column > fieldNames.length) return Types.NULL;
+    if (column > fieldNames.length) {
+      return Types.NULL;
+    }
 
     String fieldName = fieldNames[column - 1];
 
@@ -145,7 +150,9 @@ public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
         boolean stop = false;
         while (iterator.hasNext() && !stop) {
           listElement = iterator.next();
-          if (!(listElement instanceof OBlob)) stop = true;
+          if (!(listElement instanceof OBlob)) {
+            stop = true;
+          }
         }
         if (!stop) {
           return Types.BLOB;
@@ -176,7 +183,9 @@ public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
             boolean stop = false;
             while (iterator.hasNext() && !stop) {
               listElement = iterator.next();
-              if (!(listElement instanceof OBlob)) stop = true;
+              if (!(listElement instanceof OBlob)) {
+                stop = true;
+              }
             }
             if (stop) {
               return typesSqlTypes.get(otype);
@@ -192,23 +201,38 @@ public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
 
   protected OResult getCurrentRecord() throws SQLException {
     final OResult currentRecord = resultSet.unwrap(OResult.class);
-    if (currentRecord == null) throw new SQLException("No current record");
+    if (currentRecord == null) {
+      throw new SQLException("No current record");
+    }
     return currentRecord;
   }
 
   private int getSQLTypeFromJavaClass(final Object value) {
-    if (value instanceof Boolean) return typesSqlTypes.get(OType.BOOLEAN);
-    else if (value instanceof Byte) return typesSqlTypes.get(OType.BYTE);
-    else if (value instanceof Date) return typesSqlTypes.get(OType.DATETIME);
-    else if (value instanceof Double) return typesSqlTypes.get(OType.DOUBLE);
-    else if (value instanceof BigDecimal) return typesSqlTypes.get(OType.DECIMAL);
-    else if (value instanceof Float) return typesSqlTypes.get(OType.FLOAT);
-    else if (value instanceof Integer) return typesSqlTypes.get(OType.INTEGER);
-    else if (value instanceof Long) return typesSqlTypes.get(OType.LONG);
-    else if (value instanceof Short) return typesSqlTypes.get(OType.SHORT);
-    else if (value instanceof String) return typesSqlTypes.get(OType.STRING);
-    else if (value instanceof List) return typesSqlTypes.get(OType.EMBEDDEDLIST);
-    else return Types.JAVA_OBJECT;
+    if (value instanceof Boolean) {
+      return typesSqlTypes.get(OType.BOOLEAN);
+    } else if (value instanceof Byte) {
+      return typesSqlTypes.get(OType.BYTE);
+    } else if (value instanceof Date) {
+      return typesSqlTypes.get(OType.DATETIME);
+    } else if (value instanceof Double) {
+      return typesSqlTypes.get(OType.DOUBLE);
+    } else if (value instanceof BigDecimal) {
+      return typesSqlTypes.get(OType.DECIMAL);
+    } else if (value instanceof Float) {
+      return typesSqlTypes.get(OType.FLOAT);
+    } else if (value instanceof Integer) {
+      return typesSqlTypes.get(OType.INTEGER);
+    } else if (value instanceof Long) {
+      return typesSqlTypes.get(OType.LONG);
+    } else if (value instanceof Short) {
+      return typesSqlTypes.get(OType.SHORT);
+    } else if (value instanceof String) {
+      return typesSqlTypes.get(OType.STRING);
+    } else if (value instanceof List) {
+      return typesSqlTypes.get(OType.EMBEDDEDLIST);
+    } else {
+      return Types.JAVA_OBJECT;
+    }
   }
 
   @Override
@@ -236,8 +260,11 @@ public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
 
   public String getSchemaName(final int column) throws SQLException {
     final OResult currentRecord = getCurrentRecord();
-    if (currentRecord == null) return "";
-    else return currentRecord.toElement().getDatabase().getName();
+    if (currentRecord == null) {
+      return "";
+    } else {
+      return ((ODocument) currentRecord.toElement()).getDatabase().getName();
+    }
   }
 
   public String getTableName(final int column) throws SQLException {

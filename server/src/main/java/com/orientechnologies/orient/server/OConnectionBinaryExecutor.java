@@ -34,6 +34,7 @@ import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.query.live.OLiveQueryHookV2;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.OBlob;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -1150,8 +1151,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     final byte[] stream;
     String dbSerializerName = null;
     if (ODatabaseRecordThreadLocal.instance().getIfDefined() != null) {
-      dbSerializerName =
-          ((ODatabaseSessionInternal) iRecord.getDatabase()).getSerializer().toString();
+      dbSerializerName = ((ORecordAbstract) iRecord).getDatabase().getSerializer().toString();
     }
     String name = connection.getData().getSerializationImpl();
     if (ORecordInternal.getRecordType(iRecord) == ODocument.RECORD_TYPE

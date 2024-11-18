@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.command.script;
 
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import javax.script.Bindings;
 import javax.script.ScriptEngine;
 
@@ -29,7 +29,7 @@ import javax.script.ScriptEngine;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OScriptInjection {
-  void bind(ScriptEngine engine, Bindings binding, ODatabaseDocument database);
+  void bind(ScriptEngine engine, Bindings binding, ODatabaseSession database);
 
   void unbind(ScriptEngine engine, Bindings binding);
 }

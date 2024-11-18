@@ -95,11 +95,11 @@ public class OOptimizeDatabaseStatement extends OSimpleExecStatement {
         if (doc.fields() == 2) {
           final ORID edgeIdentity = doc.getIdentity();
 
-          final ODocument outV = doc.getPropertyWithoutValidation("out");
-          final ODocument inV = doc.getPropertyWithoutValidation("in");
+          final ODocument outV = doc.getPropertyInternal("out");
+          final ODocument inV = doc.getPropertyInternal("in");
 
           // OUTGOING
-          final Object outField = outV.getPropertyWithoutValidation("out_" + doc.getClassName());
+          final Object outField = outV.getPropertyInternal("out_" + doc.getClassName());
           if (outField instanceof ORidBag) {
             final Iterator<OIdentifiable> it = ((ORidBag) outField).iterator();
             while (it.hasNext()) {
@@ -116,7 +116,7 @@ public class OOptimizeDatabaseStatement extends OSimpleExecStatement {
           outV.save();
 
           // INCOMING
-          final Object inField = inV.getPropertyWithoutValidation("in_" + doc.getClassName());
+          final Object inField = inV.getPropertyInternal("in_" + doc.getClassName());
           if (outField instanceof ORidBag) {
             final Iterator<OIdentifiable> it = ((ORidBag) inField).iterator();
             while (it.hasNext()) {

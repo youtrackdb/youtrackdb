@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.orient.core.exception.OValidationException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -106,7 +107,7 @@ public class ORecordLazySetTest extends BaseMemoryDatabase {
     assertTrue(set.isEmpty());
   }
 
-  @Test()
+  @Test
   public void testSetRemoveNotPersistent() {
     ORecordLazySet set = new ORecordLazySet(new ODocument());
     doc1 = db.bindToSession(doc1);
@@ -120,16 +121,17 @@ public class ORecordLazySetTest extends BaseMemoryDatabase {
     assertEquals(set.size(), 2);
   }
 
-  @Test
+  @Test(expected = OValidationException.class)
   public void testSetWithNotExistentRecordWithValidation() {
     OClass test = db.getMetadata().getSchema().createClass("test");
     OClass test1 = db.getMetadata().getSchema().createClass("test1");
     test.createProperty("fi", OType.LINKSET).setLinkedClass(test1);
+
+    db.begin();
     ODocument doc = new ODocument(test);
     ORecordLazySet set = new ORecordLazySet(doc);
     set.add(new ORecordId(5, 1000));
     doc.field("fi", set);
-    db.begin();
     db.save(doc);
     db.commit();
   }

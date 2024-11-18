@@ -241,8 +241,8 @@ public class OResultInternal implements OResult {
   private static Object wrap(Object input) {
     if (input instanceof OElementInternal elem && !((OElement) input).getIdentity().isValid()) {
       OResultInternal result = new OResultInternal();
-      for (String prop : elem.getPropertyNamesWithoutFiltration()) {
-        result.setProperty(prop, elem.getPropertyWithoutValidation(prop));
+      for (String prop : elem.getPropertyNamesInternal()) {
+        result.setProperty(prop, elem.getPropertyInternal(prop));
       }
       elem.getSchemaType().ifPresent(x -> result.setProperty("@class", x.getName()));
       return result;

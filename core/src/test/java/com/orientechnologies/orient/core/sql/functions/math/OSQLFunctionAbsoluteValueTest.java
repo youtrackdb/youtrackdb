@@ -7,7 +7,6 @@ import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -163,7 +162,7 @@ public class OSQLFunctionAbsoluteValueTest {
   public void testFromQuery() {
     try (OrientDB ctx = new OrientDB("embedded:./", OrientDBConfig.defaultConfig())) {
       ctx.execute("create database test memory users(admin identified by 'adminpwd' role admin)");
-      try (ODatabaseDocument db = ctx.open("test", "admin", "adminpwd")) {
+      try (var db = ctx.open("test", "admin", "adminpwd")) {
         try (OResultSet result = db.query("select abs(-45.4) as abs")) {
           assertThat(result.next().<Float>getProperty("abs")).isEqualTo(45.4f);
         }

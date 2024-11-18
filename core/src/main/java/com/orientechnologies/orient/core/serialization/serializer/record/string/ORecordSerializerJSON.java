@@ -27,7 +27,7 @@ import com.orientechnologies.common.parser.OStringParser;
 import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordLazyList;
 import com.orientechnologies.orient.core.db.record.ORecordLazySet;
@@ -440,7 +440,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
 
                       if (type != null) {
                         // TREAT IT AS EMBEDDED
-                        doc.setPropertyWithoutValidation(fieldName, v, type);
+                        doc.setPropertyInternal(fieldName, v, type);
                         return;
                       }
                     } else {
@@ -480,9 +480,9 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
                   }
 
                   if (type != null) {
-                    doc.setPropertyWithoutValidation(fieldName, v, type);
+                    doc.setPropertyInternal(fieldName, v, type);
                   } else {
-                    doc.setPropertyWithoutValidation(fieldName, v);
+                    doc.setPropertyInternal(fieldName, v);
                   }
                 }
               }
@@ -875,7 +875,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
     if (shouldBeDeserializedAsEmbedded(recordInternal, iType)) {
       ODocumentInternal.addOwner(recordInternal, iRecord);
     } else {
-      ODatabaseDocument database = ODatabaseRecordThreadLocal.instance().getIfDefined();
+      ODatabaseSession database = ODatabaseRecordThreadLocal.instance().getIfDefined();
 
       if (rid.isPersistent() && database != null) {
         ODocument documentToMerge = database.load(rid);

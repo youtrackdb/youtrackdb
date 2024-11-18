@@ -3,6 +3,7 @@ package com.orientechnologies.orient.core.metadata.schema;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import com.orientechnologies.orient.core.exception.ODatabaseException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -50,7 +51,7 @@ public class OTypeConvertTest {
     assertEquals(result, null);
   }
 
-  @Test
+  @Test(expected = ODatabaseException.class)
   public void testCannotConvert() {
     // Expected behavior is to not convert and return null
     Object result = OType.convert(true, Long.class);
@@ -297,7 +298,7 @@ public class OTypeConvertTest {
     assertEquals(result, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = ODatabaseException.class)
   public void testToBooleanFromInvalidString() {
     OType.convert("invalid", Boolean.class);
   }

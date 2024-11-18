@@ -19,7 +19,6 @@
  */
 package com.orientechnologies.orient.core.record.impl;
 
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.exception.OSerializationException;
@@ -46,9 +45,8 @@ public class OVertexDelegate implements OVertexInternal {
   }
 
   @Override
-  public OVertex delete() {
+  public void delete() {
     element.delete();
-    return this;
   }
 
   public void resetToNew() {
@@ -98,6 +96,7 @@ public class OVertexDelegate implements OVertexInternal {
     return element.getSchemaClass();
   }
 
+  @Nonnull
   @SuppressWarnings("unchecked")
   @Override
   public ODocument getRecord() {
@@ -191,6 +190,11 @@ public class OVertexDelegate implements OVertexInternal {
   }
 
   @Override
+  public boolean isEmbedded() {
+    return false;
+  }
+
+  @Override
   public ORID getIdentity() {
     return element.getIdentity();
   }
@@ -198,11 +202,6 @@ public class OVertexDelegate implements OVertexInternal {
   @Override
   public int getVersion() {
     return element.getVersion();
-  }
-
-  @Override
-  public ODatabaseDocument getDatabase() {
-    return element.getDatabase();
   }
 
   @Override

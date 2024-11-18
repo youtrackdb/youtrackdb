@@ -72,6 +72,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 @SuppressWarnings("serial")
 public class OStorageConfigurationImpl implements OSerializableStream, OStorageConfiguration {
+
   private static final ORecordId CONFIG_RID = new OImmutableRecordId(0, 0);
 
   protected final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
@@ -111,7 +112,9 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
   private transient boolean validation = true;
   protected OStorageConfigurationUpdateListener updateListener;
 
-  /** Version of product release under which storage was created */
+  /**
+   * Version of product release under which storage was created
+   */
   private String createdAtVersion;
 
   protected final Charset streamCharset;
@@ -185,7 +188,9 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
     }
   }
 
-  /** Sets version of product release under which storage was created. */
+  /**
+   * Sets version of product release under which storage was created.
+   */
   public void setCreationVersion(String version) {
     lock.writeLock().lock();
     try {
@@ -301,11 +306,12 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
     try {
       initConfiguration(configuration);
 
-      final byte[] record = storage.readRecord(CONFIG_RID, false, false, null).getResult().buffer;
+      final byte[] record = storage.readRecord(CONFIG_RID, false, false, null).buffer;
 
-      if (record == null)
+      if (record == null) {
         throw new OStorageException(
             "Cannot load database configuration. The database seems corrupted");
+      }
 
       fromStream(record, 0, record.length, streamCharset);
     } finally {
@@ -403,8 +409,9 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
       int index = 0;
       version = Integer.parseInt(read(values[index++]));
 
-      if (version < 14)
+      if (version < 14) {
         throw new OStorageException("cannot open database created with a version before 2.0 ");
+      }
 
       name = read(values[index++]);
 
@@ -420,7 +427,7 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
       if (localeLanguage == null || localeCountry == null) {
         final Locale locale = Locale.getDefault();
 
-        if (localeLanguage == null)
+        if (localeLanguage == null) {
           OLogManager.instance()
               .warn(
                   this,
@@ -428,8 +435,9 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
                       + " locale "
                       + locale
                       + " will be used");
+        }
 
-        if (localeCountry == null)
+        if (localeCountry == null) {
           OLogManager.instance()
               .warn(
                   this,
@@ -437,6 +445,7 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
                       + " locale "
                       + locale
                       + " will be used");
+        }
       }
 
       dateFormat = read(values[index++]);
@@ -462,7 +471,9 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
       for (int i = 0; i < size; ++i) {
         final int clusterId = Integer.parseInt(read(values[index++]));
 
-        if (clusterId == -1) continue;
+        if (clusterId == -1) {
+          continue;
+        }
 
         final String clusterName = read(values[index++]);
         //noinspection ResultOfMethodCallIgnored
@@ -481,10 +492,12 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
             final String clusterCompression = read(values[index++]);
 
             if (determineStorageCompression == null)
-              // TRY TO DETERMINE THE STORAGE COMPRESSION. BEFORE VERSION 11 IT WASN'T STORED IN
-              // STORAGE CFG, SO GET FROM THE FIRST
-              // CLUSTER
+            // TRY TO DETERMINE THE STORAGE COMPRESSION. BEFORE VERSION 11 IT WASN'T STORED IN
+            // STORAGE CFG, SO GET FROM THE FIRST
+            // CLUSTER
+            {
               determineStorageCompression = clusterCompression;
+            }
 
             String clusterEncryption = null;
             if (version >= 15) {
@@ -528,14 +541,18 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
         }
 
         // MAKE ROOMS, EVENTUALLY FILLING EMPTIES ENTRIES
-        for (int c = clusters.size(); c <= clusterId; ++c) clusters.add(null);
+        for (int c = clusters.size(); c <= clusterId; ++c) {
+          clusters.add(null);
+        }
 
         clusters.set(clusterId, currentCluster);
       }
 
       size = Integer.parseInt(read(values[index++]));
       clearProperties();
-      for (int i = 0; i < size; ++i) setProperty(read(values[index++]), read(values[index++]));
+      for (int i = 0; i < size; ++i) {
+        setProperty(read(values[index++]), read(values[index++]));
+      }
 
       binaryFormatVersion = Integer.parseInt(read(values[index++]));
 
@@ -556,10 +573,13 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
 
         final OGlobalConfiguration cfg = OGlobalConfiguration.findByKey(key);
         if (cfg != null) {
-          if (value != null) configuration.setValue(key, OType.convert(value, cfg.getType()));
-        } else
+          if (value != null) {
+            configuration.setValue(key, OType.convert(value, cfg.getType()));
+          }
+        } else {
           OLogManager.instance()
               .warn(this, "Ignored storage configuration because not supported: %s=%s", key, value);
+        }
       }
 
       if (version > 15) {
@@ -570,8 +590,11 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
           final String algorithm = read(values[index++]);
           final String indexType;
 
-          if (version > 16) indexType = read(values[index++]);
-          else indexType = "";
+          if (version > 16) {
+            indexType = read(values[index++]);
+          } else {
+            indexType = "";
+          }
 
           final byte valueSerializerId = Byte.parseByte(read(values[index++]));
           final byte keySerializerId = Byte.parseByte(read(values[index++]));
@@ -582,7 +605,9 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
           if (read(values[index]) == null) {
             durableInNonTxMode = null;
             index++;
-          } else durableInNonTxMode = Boolean.parseBoolean(read(values[index++]));
+          } else {
+            durableInNonTxMode = Boolean.parseBoolean(read(values[index++]));
+          }
 
           final int version = Integer.parseInt(read(values[index++]));
           final boolean nullValuesSupport = Boolean.parseBoolean(read((values[index++])));
@@ -605,8 +630,9 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
 
           final int propertiesSize = Integer.parseInt(read(values[index++]));
           final Map<String, String> engineProperties;
-          if (propertiesSize == 0) engineProperties = null;
-          else {
+          if (propertiesSize == 0) {
+            engineProperties = null;
+          } else {
             engineProperties = new HashMap<>(propertiesSize);
             for (int n = 0; n < propertiesSize; n++) {
               final String key = read(values[index++]);
@@ -666,8 +692,8 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
   }
 
   /**
-   * @deprecated because method uses native encoding use {@link #fromStream(byte[], int, int,
-   *     Charset)} instead.
+   * @deprecated because method uses native encoding use
+   * {@link #fromStream(byte[], int, int, Charset)} instead.
    */
   @Override
   @Deprecated
@@ -688,7 +714,9 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
     return toStream(Integer.MAX_VALUE, charset);
   }
 
-  /** Added version used for managed Network Versioning. */
+  /**
+   * Added version used for managed Network Versioning.
+   */
   public byte[] toStream(final int iNetworkVersion, Charset charset)
       throws OSerializationException {
     lock.readLock().lock();
@@ -709,7 +737,9 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
 
       write(buffer, timeZone.getID());
       write(buffer, charset);
-      if (iNetworkVersion > 24) write(buffer, conflictStrategy);
+      if (iNetworkVersion > 24) {
+        write(buffer, conflictStrategy);
+      }
 
       phySegmentToStream(buffer, fileTemplate);
 
@@ -735,9 +765,15 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
           write(buffer, paginatedClusterConfiguration.recordGrowFactor);
           write(buffer, paginatedClusterConfiguration.compression);
 
-          if (iNetworkVersion >= 31) write(buffer, paginatedClusterConfiguration.encryption);
-          if (iNetworkVersion > 24) write(buffer, paginatedClusterConfiguration.conflictStrategy);
-          if (iNetworkVersion > 25) write(buffer, paginatedClusterConfiguration.getStatus().name());
+          if (iNetworkVersion >= 31) {
+            write(buffer, paginatedClusterConfiguration.encryption);
+          }
+          if (iNetworkVersion > 24) {
+            write(buffer, paginatedClusterConfiguration.conflictStrategy);
+          }
+          if (iNetworkVersion > 25) {
+            write(buffer, paginatedClusterConfiguration.getStatus().name());
+          }
 
           if (iNetworkVersion >= Integer.MAX_VALUE) {
             write(buffer, paginatedClusterConfiguration.getBinaryVersion());
@@ -757,7 +793,9 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
       }
       synchronized (properties) {
         write(buffer, properties.size());
-        for (OStorageEntryConfiguration e : properties) entryToStream(buffer, e);
+        for (OStorageEntryConfiguration e : properties) {
+          entryToStream(buffer, e);
+        }
       }
 
       write(buffer, binaryFormatVersion);
@@ -914,13 +952,14 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
     try {
       final IndexEngineData oldEngine = indexEngines.putIfAbsent(name, engineData);
 
-      if (oldEngine != null)
+      if (oldEngine != null) {
         OLogManager.instance()
             .warn(
                 this,
                 "Index engine with name '"
                     + engineData.getName()
                     + "' already contained in database configuration");
+      }
 
       update();
     } finally {
@@ -962,7 +1001,9 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
     lock.writeLock().lock();
     try {
       final OStorageClusterConfiguration clusterCfg = clusters.get(clusterId);
-      if (clusterCfg != null) clusterCfg.setStatus(iStatus);
+      if (clusterCfg != null) {
+        clusterCfg.setStatus(iStatus);
+      }
       update();
     } finally {
       lock.writeLock().unlock();
@@ -1159,7 +1200,9 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
     lock.writeLock().lock();
     try {
 
-      if ("validation".equalsIgnoreCase(iName)) validation = "true".equalsIgnoreCase(iValue);
+      if ("validation".equalsIgnoreCase(iName)) {
+        validation = "true".equalsIgnoreCase(iValue);
+      }
 
       for (final OStorageEntryConfiguration e : properties) {
         if (e.name.equalsIgnoreCase(iName)) {
@@ -1180,7 +1223,9 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
     lock.readLock().lock();
     try {
       for (final OStorageEntryConfiguration e : properties) {
-        if (e.name.equalsIgnoreCase(iName)) return e.value;
+        if (e.name.equalsIgnoreCase(iName)) {
+          return e.value;
+        }
       }
       return null;
     } finally {
@@ -1274,7 +1319,9 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
     write(iBuffer, iSegment.defrag);
 
     write(iBuffer, iSegment.infoFiles.length);
-    for (OStorageFileConfiguration f : iSegment.infoFiles) fileToStream(iBuffer, f);
+    for (OStorageFileConfiguration f : iSegment.infoFiles) {
+      fileToStream(iBuffer, f);
+    }
   }
 
   private void fileToStream(final StringBuilder iBuffer, final OStorageFileConfiguration iFile) {
@@ -1289,12 +1336,16 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
   }
 
   private String read(final String iValue) {
-    if (iValue.equals(" ")) return null;
+    if (iValue.equals(" ")) {
+      return null;
+    }
     return iValue;
   }
 
   private void write(final StringBuilder iBuffer, final Object iValue) {
-    if (iBuffer.length() > 0) iBuffer.append('|');
+    if (iBuffer.length() > 0) {
+      iBuffer.append('|');
+    }
     iBuffer.append(iValue != null ? iValue.toString() : ' ');
   }
 

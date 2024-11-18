@@ -807,7 +807,7 @@ public abstract class OAbstractPaginatedStorage
                       + "' ("
                       + i
                       + "): file not found. It will be excluded from current database '"
-                      + getName()
+                      + name
                       + "'.",
                   e);
 
@@ -1932,13 +1932,13 @@ public abstract class OAbstractPaginatedStorage
   }
 
   @Override
-  public OStorageOperationResult<ORawBuffer> readRecord(
+  public ORawBuffer readRecord(
       final ORecordId rid,
       final boolean iIgnoreCache,
       final boolean prefetchRecords,
       final ORecordCallback<ORawBuffer> iCallback) {
     try {
-      return new OStorageOperationResult<>(readRecord(rid, prefetchRecords));
+      return readRecord(rid, prefetchRecords);
     } catch (final RuntimeException ee) {
       throw logAndPrepareForRethrow(ee);
     } catch (final Error ee) {
@@ -1948,7 +1948,7 @@ public abstract class OAbstractPaginatedStorage
     }
   }
 
-  public final OStorageOperationResult<Integer> updateRecord(
+  public final void updateRecord(
       final ORecordId rid,
       final boolean updateContent,
       final byte[] content,
@@ -1972,7 +1972,7 @@ public abstract class OAbstractPaginatedStorage
           makeStorageDirty();
 
           final OCluster cluster = doGetAndCheckCluster(rid.getClusterId());
-          return atomicOperationsManager.calculateInsideAtomicOperation(
+          atomicOperationsManager.calculateInsideAtomicOperation(
               null,
               atomicOperation ->
                   doUpdateRecord(
@@ -2506,7 +2506,7 @@ public abstract class OAbstractPaginatedStorage
         }
         makeStorageDirty();
 
-        final int binaryFormatVersion = getConfiguration().getBinaryFormatVersion();
+        final int binaryFormatVersion = configuration.getBinaryFormatVersion();
         final byte valueSerializerId = indexMetadata.getValueSerializerId(binaryFormatVersion);
 
         final OBinarySerializer<?> keySerializer = determineKeySerializer(indexDefinition);
@@ -2663,7 +2663,7 @@ public abstract class OAbstractPaginatedStorage
   }
 
   public OBinarySerializer<?> resolveObjectSerializer(final byte serializerId) {
-    return getComponentsFactory().binarySerializerFactory.getObjectSerializer(serializerId);
+    return componentsFactory.binarySerializerFactory.getObjectSerializer(serializerId);
   }
 
   public static OEncryption loadEncryption(
@@ -3965,7 +3965,7 @@ public abstract class OAbstractPaginatedStorage
   }
 
   @SuppressWarnings("unused")
-  public String getMode() {
+  public static String getMode() {
     return "rw";
   }
 
@@ -4058,6 +4058,7 @@ public abstract class OAbstractPaginatedStorage
         // CALL BEFORE COMMAND
         final Iterable<ODatabaseListener> listeners = db.getListeners();
         for (final ODatabaseListener oDatabaseListener : listeners) {
+          //noinspection deprecation
           oDatabaseListener.onBeforeCommand(iCommand, executor);
         }
 
@@ -4067,6 +4068,7 @@ public abstract class OAbstractPaginatedStorage
 
         // CALL AFTER COMMAND
         for (final ODatabaseListener oDatabaseListener : listeners) {
+          //noinspection deprecation
           oDatabaseListener.onAfterCommand(iCommand, executor, result);
         }
 
@@ -4934,7 +4936,7 @@ public abstract class OAbstractPaginatedStorage
     }
   }
 
-  private boolean doRecordExists(final OCluster clusterSegment, final ORID rid) {
+  private static boolean doRecordExists(final OCluster clusterSegment, final ORID rid) {
     try {
       return clusterSegment.exists(rid.getClusterPosition());
     } catch (final IOException e) {
@@ -6525,7 +6527,7 @@ public abstract class OAbstractPaginatedStorage
   }
 
   @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-  private boolean isDistributedMode(final byte[] metadata) {
+  private static boolean isDistributedMode(final byte[] metadata) {
     return metadata == null;
   }
 
@@ -6534,7 +6536,7 @@ public abstract class OAbstractPaginatedStorage
     return isIndexUniqueByType(engineData.getIndexType());
   }
 
-  private boolean isIndexUniqueByType(final String indexType) {
+  private static boolean isIndexUniqueByType(final String indexType) {
     //noinspection deprecation
     return indexType.equals(INDEX_TYPE.UNIQUE.name())
         || indexType.equals(INDEX_TYPE.UNIQUE_HASH_INDEX.name())

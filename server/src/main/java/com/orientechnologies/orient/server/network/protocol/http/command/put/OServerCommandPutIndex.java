@@ -66,7 +66,7 @@ public class OServerCommandPutIndex extends OServerCommandDocumentAbstract {
 
       final OIndexDefinition indexDefinition = index.getDefinition();
       final Object key;
-      if (indexDefinition != null) key = indexDefinition.createValue(urlParts[3]);
+      if (indexDefinition != null) key = indexDefinition.createValue(db, urlParts[3]);
       else key = urlParts[3];
 
       if (key == null) throw new IllegalArgumentException("Invalid key value : " + urlParts[3]);

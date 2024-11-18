@@ -23,7 +23,6 @@ import com.orientechnologies.common.listener.OProgressListener;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.OArrays;
 import com.orientechnologies.common.util.OCommonConst;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
@@ -40,7 +39,6 @@ import com.orientechnologies.orient.core.metadata.schema.clusterselection.OClust
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sharding.auto.OAutoShardingClusterSelectionStrategy;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -1366,7 +1364,7 @@ public abstract class OClassImpl implements OClass {
   public void fireDatabaseMigration(
       final ODatabaseSession database, final String propertyName, final OType type) {
     final boolean strictSQL =
-        ((ODatabaseInternal<?>) database).getStorageInfo().getConfiguration().isStrictSql();
+        ((ODatabaseSessionInternal) database).getStorageInfo().getConfiguration().isStrictSql();
 
     try (OResultSet result =
         database.query(
@@ -1395,7 +1393,7 @@ public abstract class OClassImpl implements OClass {
       final String newPropertyName,
       final OType type) {
     final boolean strictSQL =
-        ((ODatabaseInternal<?>) database).getStorageInfo().getConfiguration().isStrictSql();
+        ((ODatabaseSessionInternal) database).getStorageInfo().getConfiguration().isStrictSql();
 
     try (OResultSet result =
         database.query(
@@ -1418,7 +1416,7 @@ public abstract class OClassImpl implements OClass {
   }
 
   public void checkPersistentPropertyType(
-      final ODatabaseInternal<ORecord> database,
+      final ODatabaseSessionInternal database,
       final String propertyName,
       final OType type,
       OClass linkedClass) {
@@ -1471,7 +1469,7 @@ public abstract class OClassImpl implements OClass {
   }
 
   protected void checkAllLikedObjects(
-      ODatabaseInternal<ORecord> database, String propertyName, OType type, OClass linkedClass) {
+      ODatabaseSessionInternal database, String propertyName, OType type, OClass linkedClass) {
     final StringBuilder builder = new StringBuilder(256);
     builder.append("select from ");
     builder.append(getEscapedName(name, true));

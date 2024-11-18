@@ -25,7 +25,6 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSaveThreadLocal;
 import com.orientechnologies.orient.core.storage.ORawBuffer;
 import com.orientechnologies.orient.core.storage.OStorage;
-import com.orientechnologies.orient.core.storage.OStorageOperationResult;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -47,8 +46,8 @@ public class OAutoMergeRecordConflictStrategy extends OVersionRecordConflictStra
 
     if (iRecordType == ODocument.RECORD_TYPE) {
       // No need lock, is already inside a lock. Use database to read temporary objects too
-      OStorageOperationResult<ORawBuffer> res = storage.readRecord(rid, false, false, null);
-      final ODocument storedRecord = new ODocument(rid).fromStream(res.getResult().getBuffer());
+      ORawBuffer res = storage.readRecord(rid, false, false, null);
+      final ODocument storedRecord = new ODocument(rid).fromStream(res.buffer);
 
       ODocument newRecord = (ODocument) ORecordSaveThreadLocal.getLast();
       if (newRecord == null || !newRecord.getIdentity().equals(rid))

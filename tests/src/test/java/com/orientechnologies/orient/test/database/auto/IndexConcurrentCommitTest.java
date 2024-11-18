@@ -41,7 +41,6 @@ public class IndexConcurrentCommitTest extends DocumentDBBaseTest {
 
       // Ensure that the people made it in correctly
       final OResultSet result1 = database.query("select from Person");
-      System.out.println("After transaction 1");
       while (result1.hasNext()) {
         System.out.println(result1.next());
       }

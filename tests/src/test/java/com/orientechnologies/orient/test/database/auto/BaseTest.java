@@ -1,18 +1,12 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.ODatabaseWrapperAbstract;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.OrientDBConfigBuilder;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTxInternal;
 import com.orientechnologies.orient.server.OServer;
 import java.util.Locale;
 import org.testng.SkipException;
@@ -26,8 +20,10 @@ import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test
-public abstract class BaseTest<T extends ODatabaseInternal<?>> {
+public abstract class BaseTest<T extends ODatabaseSessionInternal> {
 
+  public static final String SERVER_PASSWORD =
+      "D2AFD02F20640EC8B7A5140F34FCA49D2289DB1F0D0598BB9DE8AAA75A0792F3";
   private OServer server;
 
   public static final String DEFAULT_DB_NAME = "demo";
@@ -55,7 +51,6 @@ public abstract class BaseTest<T extends ODatabaseInternal<?>> {
     }
 
     this.remoteDB = remote;
-
     this.dbName = DEFAULT_DB_NAME;
   }
 
@@ -79,11 +74,7 @@ public abstract class BaseTest<T extends ODatabaseInternal<?>> {
         var builder = new OrientDBConfigBuilder();
         if (remoteDB) {
           orientDB =
-              new OrientDB(
-                  "remote:localhost",
-                  "root",
-                  "D2AFD02F20640EC8B7A5140F34FCA49D2289DB1F0D0598BB9DE8AAA75A0792F3",
-                  createConfig(builder));
+              new OrientDB("remote:localhost", "root", SERVER_PASSWORD, createConfig(builder));
         } else {
           final String buildDirectory = System.getProperty("buildDirectory", ".");
           orientDB = OrientDB.embedded(buildDirectory + "/test-db", createConfig(builder));
@@ -229,65 +220,6 @@ public abstract class BaseTest<T extends ODatabaseInternal<?>> {
     return databaseType.toString().toLowerCase(Locale.ROOT);
   }
 
-  protected void createBasicTestSchema() {
-    ODatabaseInternal<?> database = this.database;
-    if (database instanceof OObjectDatabaseTxInternal) {
-      database = database.getUnderlying();
-    }
-
-    if (database.getMetadata().getSchema().existsClass("Whiz")) {
-      return;
-    }
-
-    database.addCluster("csv");
-    database.addCluster("flat");
-    database.addCluster("binary");
-
-    OClass account = database.getMetadata().getSchema().createClass("Account", 1, (OClass[]) null);
-    account.createProperty("id", OType.INTEGER);
-    account.createProperty("birthDate", OType.DATE);
-    account.createProperty("binary", OType.BINARY);
-
-    database.getMetadata().getSchema().createClass("Company", account);
-
-    OClass profile = database.getMetadata().getSchema().createClass("Profile", 1, (OClass[]) null);
-    profile
-        .createProperty("nick", OType.STRING)
-        .setMin("3")
-        .setMax("30")
-        .createIndex(OClass.INDEX_TYPE.UNIQUE, new ODocument().field("ignoreNullValues", true));
-    profile
-        .createProperty("name", OType.STRING)
-        .setMin("3")
-        .setMax("30")
-        .createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
-    profile.createProperty("surname", OType.STRING).setMin("3").setMax("30");
-    profile.createProperty("registeredOn", OType.DATETIME).setMin("2010-01-01 00:00:00");
-    profile.createProperty("lastAccessOn", OType.DATETIME).setMin("2010-01-01 00:00:00");
-    profile.createProperty("photo", OType.TRANSIENT);
-
-    OClass whiz = database.getMetadata().getSchema().createClass("Whiz", 1, (OClass[]) null);
-    whiz.createProperty("id", OType.INTEGER);
-    whiz.createProperty("account", OType.LINK, account);
-    whiz.createProperty("date", OType.DATE).setMin("2010-01-01");
-    whiz.createProperty("text", OType.STRING).setMandatory(true).setMin("1").setMax("140");
-    whiz.createProperty("replyTo", OType.LINK, account);
-
-    OClass strictTest =
-        database.getMetadata().getSchema().createClass("StrictTest", 1, (OClass[]) null);
-    strictTest.setStrictMode(true);
-    strictTest.createProperty("id", OType.INTEGER).isMandatory();
-    strictTest.createProperty("name", OType.STRING);
-
-    OClass animalRace =
-        database.getMetadata().getSchema().createClass("AnimalRace", 1, (OClass[]) null);
-    animalRace.createProperty("name", OType.STRING);
-
-    OClass animal = database.getMetadata().getSchema().createClass("Animal", 1, (OClass[]) null);
-    animal.createProperty("races", OType.LINKSET, animalRace);
-    animal.createProperty("name", OType.STRING);
-  }
-
   protected void checkEmbeddedDB() {
     if (database.getStorage().isRemote()) {
       throw new SkipException("Test is running only in embedded database");
@@ -295,12 +227,7 @@ public abstract class BaseTest<T extends ODatabaseInternal<?>> {
   }
 
   protected OIndex getIndex(final String indexName) {
-    final ODatabaseSessionInternal db;
-    if (database instanceof ODatabaseWrapperAbstract) {
-      db = database.getUnderlying();
-    } else {
-      db = (ODatabaseSessionInternal) database;
-    }
+    final ODatabaseSessionInternal db = (ODatabaseSessionInternal) database;
 
     return (db.getMetadata()).getIndexManagerInternal().getIndex(db, indexName);
   }

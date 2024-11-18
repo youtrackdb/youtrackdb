@@ -1,8 +1,8 @@
 package com.orientechnologies.spatial;
 
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -15,7 +15,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by frank on 15/12/2016. */
+/**
+ * Created by frank on 15/12/2016.
+ */
 public class LuceneSpatialDropTest {
 
   private int insertcount;
@@ -61,14 +63,14 @@ public class LuceneSpatialDropTest {
     dbPool.close();
 
     // reopen to drop
-    db = new ODatabaseDocumentTx(dbName).open("admin", "admin");
+    db = (ODatabaseSessionInternal) new ODatabaseDocumentTx(dbName).open("admin", "admin");
 
     db.drop();
     File dbFolder = new File(dbName);
     Assert.assertEquals(false, dbFolder.exists());
   }
 
-  private void fillDb(ODatabaseDocument db, int count) {
+  private void fillDb(ODatabaseSession db, int count) {
     for (int i = 0; i < count; i++) {
       ODocument doc = new ODocument("test");
       doc.field("name", "TestInsert" + i);

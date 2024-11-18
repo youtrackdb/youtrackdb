@@ -16,7 +16,7 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.common.concur.ONeedRetryException;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.test.ConcurrentTestHelper;
 import java.util.concurrent.Callable;
@@ -46,7 +46,7 @@ public class ConcurrentQueriesTest extends DocumentDBBaseTest {
     @Override
     public Void call() {
       for (int i = 0; i < CYCLES; i++) {
-        ODatabaseDocument db = acquireSession();
+        ODatabaseSession db = acquireSession();
         try {
           for (int retry = 0; retry < MAX_RETRIES; ++retry) {
             try {

@@ -26,15 +26,16 @@ import java.util.Collection;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-@Test(groups = {"index"})
+@Test
 public class PropertyIndexTest extends DocumentDBBaseTest {
 
   @Parameters(value = "remote")
-  public PropertyIndexTest(boolean remote) {
-    super(remote);
+  public PropertyIndexTest(@Optional Boolean remote) {
+    super(remote != null && remote);
   }
 
   @BeforeClass
@@ -57,7 +58,10 @@ public class PropertyIndexTest extends DocumentDBBaseTest {
       database = createSessionInstance();
     }
 
+    database.begin();
     database.command("delete from PropertyIndexTestClass");
+    database.commit();
+
     database.command("drop class PropertyIndexTestClass");
 
     super.afterClass();

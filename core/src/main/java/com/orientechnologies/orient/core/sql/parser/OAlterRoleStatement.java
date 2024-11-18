@@ -3,7 +3,6 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.OSecurityInternal;
@@ -52,7 +51,7 @@ public class OAlterRoleStatement extends OSimpleExecStatement {
   public OExecutionStream executeSimple(OCommandContext ctx) {
     List<OResult> rs = new ArrayList<>();
     var db = ctx.getDatabase();
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
     ORole role = db.getMetadata().getSecurity().getRole(name.getStringValue());
     if (role == null) {
       throw new OCommandExecutionException("role not found: " + name.getStringValue());

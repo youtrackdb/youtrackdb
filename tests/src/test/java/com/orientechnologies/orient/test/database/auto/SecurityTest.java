@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Ignore;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -42,8 +43,8 @@ import org.testng.annotations.Test;
 public class SecurityTest extends DocumentDBBaseTest {
 
   @Parameters(value = "remote")
-  public SecurityTest(boolean remote) {
-    super(remote);
+  public SecurityTest(@Optional Boolean remote) {
+    super(remote != null && remote);
   }
 
   @BeforeMethod
@@ -188,13 +189,19 @@ public class SecurityTest extends DocumentDBBaseTest {
           database = createSessionInstance();
           security = database.getMetadata().getSecurity();
         } finally {
+          database.begin();
           security.dropUser("writerChild");
+          database.commit();
         }
       } finally {
+        database.begin();
         security.dropRole("writerGrandChild");
+        database.commit();
       }
     } finally {
+      database.begin();
       security.dropRole("writerChild");
+      database.commit();
     }
   }
 
@@ -202,22 +209,21 @@ public class SecurityTest extends DocumentDBBaseTest {
   public void testQuotedUserName() {
     database = createSessionInstance();
 
+    database.begin();
     OSecurity security = database.getMetadata().getSecurity();
 
     ORole adminRole = security.getRole("admin");
     security.createUser("user'quoted", "foobar", adminRole);
-
-    database.close();
-
-    database = createSessionInstance("user'quoted", "foobar");
+    database.commit();
     database.close();
 
     database = createSessionInstance();
+    database.begin();
     security = database.getMetadata().getSecurity();
     OUser user = security.getUser("user'quoted");
     Assert.assertNotNull(user);
     security.dropUser(user.getName());
-
+    database.commit();
     database.close();
 
     try {
@@ -234,7 +240,9 @@ public class SecurityTest extends DocumentDBBaseTest {
 
     OSecurity security = database.getMetadata().getSecurity();
 
-    OUser newUser = security.createUser("noRole", "noRole", (String[]) null);
+    database.begin();
+    security.createUser("noRole", "noRole", (String[]) null);
+    database.commit();
 
     database.close();
 
@@ -243,8 +251,10 @@ public class SecurityTest extends DocumentDBBaseTest {
       Assert.fail();
     } catch (OSecurityAccessException e) {
       database = createSessionInstance();
+      database.begin();
       security = database.getMetadata().getSecurity();
       security.dropUser("noRole");
+      database.commit();
     }
   }
 
@@ -321,12 +331,13 @@ public class SecurityTest extends DocumentDBBaseTest {
     database = createSessionInstance();
     try {
       OSecurity security = database.getMetadata().getSecurity();
-
-      ORole reader = security.getRole("reader");
       String userName = "";
       try {
+        database.begin();
+        ORole reader = security.getRole("reader");
         security.createUser(userName, "foobar", reader);
-        Assert.assertTrue(false);
+        database.commit();
+        Assert.fail();
       } catch (OValidationException ve) {
         Assert.assertTrue(true);
       }
@@ -345,7 +356,9 @@ public class SecurityTest extends DocumentDBBaseTest {
       ORole reader = security.getRole("reader");
       final String userName = "  ";
       try {
+        database.begin();
         security.createUser(userName, "foobar", reader);
+        database.commit();
         Assert.assertTrue(false);
       } catch (OValidationException ve) {
         Assert.assertTrue(true);
@@ -365,7 +378,9 @@ public class SecurityTest extends DocumentDBBaseTest {
       ORole reader = security.getRole("reader");
       final String userName = " sas";
       try {
+        database.begin();
         security.createUser(userName, "foobar", reader);
+        database.commit();
         Assert.assertTrue(false);
       } catch (OValidationException ve) {
         Assert.assertTrue(true);
@@ -385,7 +400,9 @@ public class SecurityTest extends DocumentDBBaseTest {
       ORole reader = security.getRole("reader");
       final String userName = "sas ";
       try {
+        database.begin();
         security.createUser(userName, "foobar", reader);
+        database.commit();
         Assert.assertTrue(false);
       } catch (OValidationException ve) {
         Assert.assertTrue(true);
@@ -405,7 +422,9 @@ public class SecurityTest extends DocumentDBBaseTest {
       ORole reader = security.getRole("reader");
       final String userName = " sas ";
       try {
+        database.begin();
         security.createUser(userName, "foobar", reader);
+        database.commit();
         Assert.assertTrue(false);
       } catch (OValidationException ve) {
         Assert.assertTrue(true);
@@ -424,10 +443,16 @@ public class SecurityTest extends DocumentDBBaseTest {
 
       ORole reader = security.getRole("reader");
       final String userName = "s a s";
+      database.begin();
       security.createUser(userName, "foobar", reader);
+      database.commit();
+      database.begin();
       Assert.assertNotNull(security.getUser(userName));
       security.dropUser(userName);
+      database.commit();
+      database.begin();
       Assert.assertNull(security.getUser(userName));
+      database.commit();
     } finally {
       database.close();
     }

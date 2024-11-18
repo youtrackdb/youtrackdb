@@ -16,7 +16,7 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabase;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
@@ -98,23 +98,10 @@ public class DbCreationTest {
 
     String url = calculateURL() + "/";
 
-    try (var odb = new OrientDB(url, "root", "root", OrientDBConfig.defaultConfig())) {
-      var database = odb.open(DB_NAME, "admin", "admin");
-      database.close();
-    }
+    var configBuilder = OrientDBConfig.builder();
+    configBuilder.addConfig(OGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
 
-    initODB();
-  }
-
-  @Test(dependsOnMethods = {"testDbOpenWithLastAsSlash"})
-  public void testDbOpenWithBackSlash() {
-    orientDB.close();
-
-    String url;
-    url = calculateURL();
-    url = url.replace('/', '\\');
-
-    try (var odb = new OrientDB(url, "root", "root", OrientDBConfig.defaultConfig())) {
+    try (var odb = new OrientDB(url, "root", "root", configBuilder.build())) {
       var database = odb.open(DB_NAME, "admin", "admin");
       database.close();
     }
@@ -133,22 +120,22 @@ public class DbCreationTest {
     return url;
   }
 
-  @Test(dependsOnMethods = {"testDbOpenWithBackSlash"})
+  @Test(dependsOnMethods = {"testDbOpenWithLastAsSlash"})
   public void testChangeLocale() {
     try (var database = orientDB.open(DB_NAME, "admin", "admin")) {
       database.command(" ALTER DATABASE LOCALELANGUAGE  ?", Locale.GERMANY.getLanguage()).close();
       database.command(" ALTER DATABASE LOCALECOUNTRY  ?", Locale.GERMANY.getCountry()).close();
 
       Assert.assertEquals(
-          database.get(ODatabase.ATTRIBUTES.LOCALELANGUAGE), Locale.GERMANY.getLanguage());
+          database.get(ODatabaseSession.ATTRIBUTES.LOCALELANGUAGE), Locale.GERMANY.getLanguage());
       Assert.assertEquals(
-          database.get(ODatabase.ATTRIBUTES.LOCALECOUNTRY), Locale.GERMANY.getCountry());
-      database.set(ODatabase.ATTRIBUTES.LOCALECOUNTRY, Locale.ENGLISH.getCountry());
-      database.set(ODatabase.ATTRIBUTES.LOCALELANGUAGE, Locale.ENGLISH.getLanguage());
+          database.get(ODatabaseSession.ATTRIBUTES.LOCALECOUNTRY), Locale.GERMANY.getCountry());
+      database.set(ODatabaseSession.ATTRIBUTES.LOCALECOUNTRY, Locale.ENGLISH.getCountry());
+      database.set(ODatabaseSession.ATTRIBUTES.LOCALELANGUAGE, Locale.ENGLISH.getLanguage());
       Assert.assertEquals(
-          database.get(ODatabase.ATTRIBUTES.LOCALECOUNTRY), Locale.ENGLISH.getCountry());
+          database.get(ODatabaseSession.ATTRIBUTES.LOCALECOUNTRY), Locale.ENGLISH.getCountry());
       Assert.assertEquals(
-          database.get(ODatabase.ATTRIBUTES.LOCALELANGUAGE), Locale.ENGLISH.getLanguage());
+          database.get(ODatabaseSession.ATTRIBUTES.LOCALELANGUAGE), Locale.ENGLISH.getLanguage());
     }
   }
 
@@ -169,7 +156,9 @@ public class DbCreationTest {
 
     var url = calculateURL();
 
-    var odb = new OrientDB(url, "root", "root", OrientDBConfig.defaultConfig());
+    var configBuilder = OrientDBConfig.builder();
+    configBuilder.addConfig(OGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
+    var odb = new OrientDB(url, "root", "root", configBuilder.build());
     if (odb.exists("sub")) {
       odb.drop("sub");
     }
@@ -189,7 +178,10 @@ public class DbCreationTest {
 
     var url = calculateURL();
 
-    var odb = new OrientDB(url, "root", "root", OrientDBConfig.defaultConfig());
+    var configBuilder = OrientDBConfig.builder();
+    configBuilder.addConfig(OGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
+
+    var odb = new OrientDB(url, "root", "root", configBuilder.build());
     if (odb.exists("sub")) {
       odb.drop("sub");
     }

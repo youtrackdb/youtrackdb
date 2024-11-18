@@ -480,7 +480,7 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
     return new int[] {nextPageIndex, nextPageOffset, 0};
   }
 
-  private ORawPairObjectInteger<byte[]> serializeEntryChunk(
+  private static ORawPairObjectInteger<byte[]> serializeEntryChunk(
       final byte[] recordContent,
       final int chunkSize,
       final int bytesToWrite,

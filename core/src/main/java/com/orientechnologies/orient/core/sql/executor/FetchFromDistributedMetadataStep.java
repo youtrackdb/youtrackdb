@@ -36,8 +36,8 @@ public class FetchFromDistributedMetadataStep extends AbstractExecutionStep {
     doc.setTrackingChanges(false);
     doc.deserializeFields();
 
-    for (String alias : doc.getPropertyNamesWithoutFiltration()) {
-      result.setProperty(alias, doc.getPropertyWithoutValidation(alias));
+    for (String alias : doc.getPropertyNamesInternal()) {
+      result.setProperty(alias, doc.getPropertyInternal(alias));
     }
     return result;
   }

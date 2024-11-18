@@ -22,15 +22,16 @@ import java.util.stream.Stream;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-@Test(groups = {"index"})
+@Test
 public class ClassIndexManagerTest extends DocumentDBBaseTest {
 
   @Parameters(value = "remote")
-  public ClassIndexManagerTest(boolean remote) {
-    super(remote);
+  public ClassIndexManagerTest(@Optional Boolean remote) {
+    super(remote != null ? remote : false);
   }
 
   @BeforeClass
@@ -119,17 +120,22 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
         new ODocument().fields("ignoreNullValues", true),
         new String[] {"prop0", "prop1"});
 
-    schema.reload();
-
     database.close();
   }
 
   @AfterMethod
   public void afterMethod() throws Exception {
+    database.begin();
     database.command("delete from classIndexManagerTestClass").close();
-    ;
+    database.commit();
+
+    database.begin();
     database.command("delete from classIndexManagerTestClassTwo").close();
+    database.commit();
+
+    database.begin();
     database.command("delete from classIndexManagerTestSuperClass").close();
+    database.commit();
 
     if (!database.getStorage().isRemote()) {
       Assert.assertEquals(
@@ -225,25 +231,27 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   }
 
   public void testPropertiesCheckUniqueIndexDubKeysUpdate() {
-    final ODocument docOne = new ODocument("classIndexManagerTestClass");
-    final ODocument docTwo = new ODocument("classIndexManagerTestClass");
+    database.begin();
+    ODocument docOne = new ODocument("classIndexManagerTestClass");
+    ODocument docTwo = new ODocument("classIndexManagerTestClass");
 
     boolean exceptionThrown = false;
     docOne.field("prop1", "a");
-    database.begin();
+
     docOne.save();
     database.commit();
 
+    database.begin();
     docTwo.field("prop1", "b");
 
-    database.begin();
     docTwo.save();
     database.commit();
 
     try {
+      database.begin();
+      docTwo = database.bindToSession(docTwo);
       docTwo.field("prop1", "a");
 
-      database.begin();
       docTwo.save();
       database.commit();
     } catch (ORecordDuplicatedException e) {
@@ -253,21 +261,25 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   }
 
   public void testPropertiesCheckUniqueIndexDubKeyIsNullUpdate() {
-    final ODocument docOne = new ODocument("classIndexManagerTestClass");
-    final ODocument docTwo = new ODocument("classIndexManagerTestClass");
+    database.begin();
+    ODocument docOne = new ODocument("classIndexManagerTestClass");
+    ODocument docTwo = new ODocument("classIndexManagerTestClass");
 
     docOne.field("prop1", "a");
-    database.begin();
+
     docOne.save();
     database.commit();
 
-    docTwo.field("prop1", "b");
     database.begin();
+    docTwo.field("prop1", "b");
+
     docTwo.save();
     database.commit();
 
-    docTwo.field("prop1", (String) null);
     database.begin();
+    docTwo = database.bindToSession(docTwo);
+    docTwo.field("prop1", (String) null);
+
     docTwo.save();
     database.commit();
   }
@@ -384,33 +396,35 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    docOne.delete();
+    database.bindToSession(docOne).delete();
     database.commit();
   }
 
   public void testDeleteModifiedDocumentWithoutClass() {
-    final ODocument docOne = new ODocument();
+    ODocument docOne = new ODocument();
     docOne.field("prop1", "a");
 
     database.begin();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
-    docOne.field("prop1", "b");
-
     database.begin();
+    docOne = database.bindToSession(docOne);
+    docOne.field("prop1", "b");
     docOne.delete();
     database.commit();
   }
 
   public void testDocumentUpdateWithoutDirtyFields() {
-    final ODocument docOne = new ODocument("classIndexManagerTestClass");
-    docOne.field("prop1", "a");
     database.begin();
+    ODocument docOne = new ODocument("classIndexManagerTestClass");
+    docOne.field("prop1", "a");
+
     docOne.save();
     database.commit();
 
     database.begin();
+    docOne = database.bindToSession(docOne);
     docOne.setDirty();
     docOne.save();
     database.commit();
@@ -442,7 +456,9 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
 
     final OIndexDefinition compositeIndexDefinition = compositeIndex.getDefinition();
     try (Stream<ORID> rids =
-        compositeIndex.getInternal().getRids(compositeIndexDefinition.createValue("a", 1))) {
+        compositeIndex
+            .getInternal()
+            .getRids(compositeIndexDefinition.createValue(database, "a", 1))) {
       Assert.assertTrue(rids.findFirst().isPresent());
     }
     Assert.assertEquals(compositeIndex.getInternal().size(), 1);
@@ -457,12 +473,12 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   public void testUpdateDocumentIndexRecordRemoved() {
     checkEmbeddedDB();
 
-    final ODocument doc = new ODocument("classIndexManagerTestClass");
+    database.begin();
+    ODocument doc = new ODocument("classIndexManagerTestClass");
     doc.field("prop0", "x");
     doc.field("prop1", "a");
     doc.field("prop2", 1);
 
-    database.begin();
     doc.save();
     database.commit();
 
@@ -478,10 +494,11 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     Assert.assertEquals(compositeIndex.getInternal().size(), 1);
     Assert.assertEquals(propZeroIndex.getInternal().size(), 1);
 
+    database.begin();
+    doc = database.bindToSession(doc);
     doc.removeField("prop2");
     doc.removeField("prop0");
 
-    database.begin();
     doc.save();
     database.commit();
 
@@ -493,13 +510,13 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   public void testUpdateDocumentNullKeyIndexRecordRemoved() {
     checkEmbeddedDB();
 
-    final ODocument doc = new ODocument("classIndexManagerTestClass");
+    database.begin();
+    ODocument doc = new ODocument("classIndexManagerTestClass");
 
     doc.field("prop0", "x");
     doc.field("prop1", "a");
     doc.field("prop2", 1);
 
-    database.begin();
     doc.save();
     database.commit();
 
@@ -516,6 +533,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     Assert.assertEquals(propZeroIndex.getInternal().size(), 1);
 
     database.begin();
+    doc = database.bindToSession(doc);
     doc.field("prop2", (Object) null);
     doc.field("prop0", (Object) null);
     doc.save();
@@ -529,12 +547,12 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   public void testUpdateDocumentIndexRecordUpdated() {
     checkEmbeddedDB();
 
-    final ODocument doc = new ODocument("classIndexManagerTestClass");
+    database.begin();
+    ODocument doc = new ODocument("classIndexManagerTestClass");
     doc.field("prop0", "x");
     doc.field("prop1", "a");
     doc.field("prop2", 1);
 
-    database.begin();
     doc.save();
     database.commit();
 
@@ -552,6 +570,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     Assert.assertEquals(propZeroIndex.getInternal().size(), 1);
 
     database.begin();
+    doc = database.bindToSession(doc);
     doc.field("prop2", 2);
     doc.field("prop0", "y");
     doc.save();
@@ -568,7 +587,9 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
       Assert.assertTrue(stream.findAny().isPresent());
     }
     try (Stream<ORID> stream =
-        compositeIndex.getInternal().getRids(compositeIndexDefinition.createValue("a", 2))) {
+        compositeIndex
+            .getInternal()
+            .getRids(compositeIndexDefinition.createValue(database, "a", 2))) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
   }
@@ -576,11 +597,11 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   public void testUpdateDocumentIndexRecordUpdatedFromNullField() {
     checkEmbeddedDB();
 
-    final ODocument doc = new ODocument("classIndexManagerTestClass");
+    database.begin();
+    ODocument doc = new ODocument("classIndexManagerTestClass");
     doc.field("prop1", "a");
     doc.field("prop2", (Object) null);
 
-    database.begin();
     doc.save();
     database.commit();
 
@@ -595,6 +616,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     Assert.assertEquals(compositeIndex.getInternal().size(), 0);
 
     database.begin();
+    doc = database.bindToSession(doc);
     doc.field("prop2", 2);
     doc.save();
     database.commit();
@@ -606,7 +628,9 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
       Assert.assertTrue(stream.findAny().isPresent());
     }
     try (Stream<ORID> stream =
-        compositeIndex.getInternal().getRids(compositeIndexDefinition.createValue("a", 2))) {
+        compositeIndex
+            .getInternal()
+            .getRids(compositeIndexDefinition.createValue(database, "a", 2))) {
       Assert.assertTrue(stream.findFirst().isPresent());
     }
   }
@@ -621,13 +645,13 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(propFourIndex.getInternal().size(), 0);
 
-    final ODocument doc = new ODocument("classIndexManagerTestClass");
+    database.begin();
+    ODocument doc = new ODocument("classIndexManagerTestClass");
 
     final List<String> listProperty = new ArrayList<>();
     listProperty.add("value1");
     listProperty.add("value2");
 
-    database.begin();
     doc.field("prop4", listProperty);
     doc.save();
     database.commit();
@@ -640,6 +664,8 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
+    database.begin();
+    doc = database.bindToSession(doc);
     List<String> trackedList = doc.field("prop4");
     trackedList.set(0, "value3");
 
@@ -650,7 +676,6 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     trackedList.remove("value2");
     trackedList.add("value5");
 
-    database.begin();
     doc.save();
     database.commit();
 
@@ -678,13 +703,13 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(propFiveIndexKey.getInternal().size(), 0);
 
-    final ODocument doc = new ODocument("classIndexManagerTestClass");
+    database.begin();
+    ODocument doc = new ODocument("classIndexManagerTestClass");
 
     final Map<String, String> mapProperty = new HashMap<>();
     mapProperty.put("key1", "value1");
     mapProperty.put("key2", "value2");
 
-    database.begin();
     doc.field("prop5", mapProperty);
     doc.save();
     database.commit();
@@ -697,6 +722,8 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
+    database.begin();
+    doc = database.bindToSession(doc);
     Map<String, String> trackedMap = doc.field("prop5");
     trackedMap.put("key3", "value3");
     trackedMap.put("key4", "value4");
@@ -710,7 +737,6 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
 
     trackedMap.remove("key8");
 
-    database.begin();
     doc.save();
     database.commit();
 
@@ -756,13 +782,13 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(propSixIndex.getInternal().size(), 0);
 
-    final ODocument doc = new ODocument("classIndexManagerTestClass");
+    database.begin();
+    ODocument doc = new ODocument("classIndexManagerTestClass");
 
     final Set<String> setProperty = new HashSet<>();
     setProperty.add("value1");
     setProperty.add("value2");
 
-    database.begin();
     doc.field("prop6", setProperty);
     doc.save();
     database.commit();
@@ -775,6 +801,8 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
+    database.begin();
+    doc = database.bindToSession(doc);
     Set<String> trackedSet = doc.field("prop6");
 
     //noinspection OverwrittenKey
@@ -787,7 +815,6 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     trackedSet.remove("value2");
     trackedSet.add("value5");
 
-    database.begin();
     doc.save();
     database.commit();
 
@@ -810,13 +837,13 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(propFourIndex.getInternal().size(), 0);
 
-    final ODocument doc = new ODocument("classIndexManagerTestClass");
+    database.begin();
+    ODocument doc = new ODocument("classIndexManagerTestClass");
 
     final List<String> listProperty = new ArrayList<>();
     listProperty.add("value1");
     listProperty.add("value2");
 
-    database.begin();
     doc.field("prop4", listProperty);
     doc.save();
     database.commit();
@@ -829,6 +856,8 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
+    database.begin();
+    doc = database.bindToSession(doc);
     List<String> trackedList = doc.field("prop4");
     trackedList.set(0, "value3");
 
@@ -839,7 +868,6 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     trackedList.remove("value2");
     trackedList.add("value5");
 
-    database.begin();
     doc.save();
     database.commit();
 
@@ -854,12 +882,13 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
+    database.begin();
+    doc = database.bindToSession(doc);
     trackedList = doc.field("prop4");
     trackedList.remove("value3");
     trackedList.remove("value4");
     trackedList.add("value8");
 
-    database.begin();
     doc.delete();
     database.commit();
 
@@ -877,13 +906,13 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(propFiveIndexKey.getInternal().size(), 0);
 
-    final ODocument doc = new ODocument("classIndexManagerTestClass");
+    database.begin();
+    ODocument doc = new ODocument("classIndexManagerTestClass");
 
     final Map<String, String> mapProperty = new HashMap<>();
     mapProperty.put("key1", "value1");
     mapProperty.put("key2", "value2");
 
-    database.begin();
     doc.field("prop5", mapProperty);
     doc.save();
     database.commit();
@@ -896,6 +925,8 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
+    database.begin();
+    doc = database.bindToSession(doc);
     Map<String, String> trackedMap = doc.field("prop5");
     trackedMap.put("key3", "value3");
     trackedMap.put("key4", "value4");
@@ -909,7 +940,6 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
 
     trackedMap.remove("key8");
 
-    database.begin();
     doc.save();
     database.commit();
 
@@ -944,6 +974,8 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
+    database.begin();
+    doc = database.bindToSession(doc);
     trackedMap = doc.field("prop5");
 
     trackedMap.remove("key1");
@@ -952,7 +984,6 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     trackedMap.put("key6", "value10");
     trackedMap.put("key11", "value11");
 
-    database.begin();
     doc.delete();
     database.commit();
 
@@ -970,13 +1001,13 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(propSixIndex.getInternal().size(), 0);
 
-    final ODocument doc = new ODocument("classIndexManagerTestClass");
+    database.begin();
+    ODocument doc = new ODocument("classIndexManagerTestClass");
 
     final Set<String> setProperty = new HashSet<>();
     setProperty.add("value1");
     setProperty.add("value2");
 
-    database.begin();
     doc.field("prop6", setProperty);
     doc.save();
     database.commit();
@@ -989,6 +1020,8 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
+    database.begin();
+    doc = database.bindToSession(doc);
     Set<String> trackedSet = doc.field("prop6");
 
     //noinspection OverwrittenKey
@@ -1001,7 +1034,6 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     trackedSet.remove("value2");
     trackedSet.add("value5");
 
-    database.begin();
     doc.save();
     database.commit();
 
@@ -1013,11 +1045,12 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
+    database.begin();
+    doc = database.bindToSession(doc);
     trackedSet = doc.field("prop6");
     trackedSet.remove("value1");
     trackedSet.add("value6");
 
-    database.begin();
     doc.delete();
     database.commit();
 
@@ -1049,7 +1082,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     Assert.assertEquals(compositeIndex.getInternal().size(), 1);
 
     database.begin();
-    doc.delete();
+    database.bindToSession(doc).delete();
     database.commit();
 
     Assert.assertEquals(propZeroIndex.getInternal().size(), 0);
@@ -1060,12 +1093,12 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   public void testDeleteUpdatedDocumentIndexRecordDeleted() {
     checkEmbeddedDB();
 
-    final ODocument doc = new ODocument("classIndexManagerTestClass");
+    database.begin();
+    ODocument doc = new ODocument("classIndexManagerTestClass");
     doc.field("prop0", "x");
     doc.field("prop1", "a");
     doc.field("prop2", 1);
 
-    database.begin();
     doc.save();
     database.commit();
 
@@ -1081,10 +1114,11 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     Assert.assertEquals(propOneIndex.getInternal().size(), 1);
     Assert.assertEquals(compositeIndex.getInternal().size(), 1);
 
+    database.begin();
+    doc = database.bindToSession(doc);
     doc.field("prop2", 2);
     doc.field("prop0", "y");
 
-    database.begin();
     doc.delete();
     database.commit();
 
@@ -1096,11 +1130,11 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   public void testDeleteUpdatedDocumentNullFieldIndexRecordDeleted() {
     checkEmbeddedDB();
 
+    database.begin();
     final ODocument doc = new ODocument("classIndexManagerTestClass");
     doc.field("prop1", "a");
     doc.field("prop2", (Object) null);
 
-    database.begin();
     doc.save();
     database.commit();
 
@@ -1114,7 +1148,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     Assert.assertEquals(compositeIndex.getInternal().size(), 0);
 
     database.begin();
-    doc.delete();
+    database.bindToSession(doc).delete();
     database.commit();
 
     Assert.assertEquals(propOneIndex.getInternal().size(), 0);
@@ -1124,11 +1158,11 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   public void testDeleteUpdatedDocumentOrigNullFieldIndexRecordDeleted() {
     checkEmbeddedDB();
 
-    final ODocument doc = new ODocument("classIndexManagerTestClass");
+    database.begin();
+    ODocument doc = new ODocument("classIndexManagerTestClass");
     doc.field("prop1", "a");
     doc.field("prop2", (Object) null);
 
-    database.begin();
     doc.save();
     database.commit();
 
@@ -1141,9 +1175,10 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     Assert.assertEquals(propOneIndex.getInternal().size(), 1);
     Assert.assertEquals(compositeIndex.getInternal().size(), 0);
 
+    database.begin();
+    doc = database.bindToSession(doc);
     doc.field("prop2", 2);
 
-    database.begin();
     doc.delete();
     database.commit();
 
@@ -1154,15 +1189,16 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   public void testNoClassIndexesUpdate() {
     checkEmbeddedDB();
 
-    final ODocument doc = new ODocument("classIndexManagerTestClassTwo");
+    database.begin();
+    ODocument doc = new ODocument("classIndexManagerTestClassTwo");
     doc.field("prop1", "a");
 
-    database.begin();
     doc.save();
     database.commit();
-
-    doc.field("prop1", "b");
     database.begin();
+    doc = database.bindToSession(doc);
+    doc.field("prop1", "b");
+
     doc.save();
     database.commit();
 
@@ -1176,15 +1212,15 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   }
 
   public void testNoClassIndexesDelete() {
-    final ODocument doc = new ODocument("classIndexManagerTestClassTwo");
+    database.begin();
+    ODocument doc = new ODocument("classIndexManagerTestClassTwo");
     doc.field("prop1", "a");
 
-    database.begin();
     doc.save();
     database.commit();
 
     database.begin();
-    doc.delete();
+    database.bindToSession(doc).delete();
     database.commit();
   }
 
@@ -1215,7 +1251,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     }
 
     database.begin();
-    doc.delete();
+    database.bindToSession(doc).delete();
     database.commit();
 
     Assert.assertEquals(index.getInternal().size(), 0);
@@ -1224,12 +1260,12 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   public void testCollectionCompositeNullSimpleFieldCreation() {
     checkEmbeddedDB();
 
+    database.begin();
     final ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", (Object) null);
     doc.field("prop2", Arrays.asList(1, 2));
 
-    database.begin();
     doc.save();
     database.commit();
 
@@ -1241,7 +1277,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     Assert.assertEquals(index.getInternal().size(), 0);
 
     database.begin();
-    doc.delete();
+    database.bindToSession(doc).delete();
     database.commit();
   }
 
@@ -1265,22 +1301,23 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     Assert.assertEquals(index.getInternal().size(), 0);
 
     database.begin();
-    doc.delete();
+    database.bindToSession(doc).delete();
     database.commit();
   }
 
   public void testCollectionCompositeUpdateSimpleField() {
     checkEmbeddedDB();
 
-    final ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
+    database.begin();
+    ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
-    database.begin();
     doc.save();
     database.commit();
 
+    database.begin();
     final OIndex index =
         database
             .getMetadata()
@@ -1288,9 +1325,9 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
             .getIndex(database, "classIndexManagerTestIndexValueAndCollection");
     Assert.assertEquals(index.getInternal().size(), 2);
 
+    doc = database.bindToSession(doc);
     doc.field("prop1", "test2");
 
-    database.begin();
     doc.save();
     database.commit();
 
@@ -1304,7 +1341,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     Assert.assertEquals(index.getInternal().size(), 2);
 
     database.begin();
-    doc.delete();
+    database.bindToSession(doc).delete();
     database.commit();
 
     Assert.assertEquals(index.getInternal().size(), 0);
@@ -1313,15 +1350,16 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   public void testCollectionCompositeUpdateCollectionWasAssigned() {
     checkEmbeddedDB();
 
-    final ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
+    database.begin();
+    ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
-    database.begin();
     doc.save();
     database.commit();
 
+    database.begin();
     final OIndex index =
         database
             .getMetadata()
@@ -1329,9 +1367,9 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
             .getIndex(database, "classIndexManagerTestIndexValueAndCollection");
     Assert.assertEquals(index.getInternal().size(), 2);
 
+    doc = database.bindToSession(doc);
     doc.field("prop2", Arrays.asList(1, 3));
 
-    database.begin();
     doc.save();
     database.commit();
 
@@ -1345,7 +1383,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     Assert.assertEquals(index.getInternal().size(), 2);
 
     database.begin();
-    doc.delete();
+    database.bindToSession(doc).delete();
     database.commit();
 
     Assert.assertEquals(index.getInternal().size(), 0);
@@ -1354,15 +1392,16 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   public void testCollectionCompositeUpdateCollectionWasChanged() {
     checkEmbeddedDB();
 
-    final ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
+    database.begin();
+    ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
-    database.begin();
     doc.save();
     database.commit();
 
+    database.begin();
     final OIndex index =
         database
             .getMetadata()
@@ -1370,6 +1409,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
             .getIndex(database, "classIndexManagerTestIndexValueAndCollection");
     Assert.assertEquals(index.getInternal().size(), 2);
 
+    doc = database.bindToSession(doc);
     List<Integer> docList = doc.field("prop2");
     docList.add(3);
     docList.add(4);
@@ -1377,7 +1417,6 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
 
     docList.remove(0);
 
-    database.begin();
     doc.save();
     database.commit();
 
@@ -1397,7 +1436,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     Assert.assertEquals(index.getInternal().size(), 4);
 
     database.begin();
-    doc.delete();
+    database.bindToSession(doc).delete();
     database.commit();
 
     Assert.assertEquals(index.getInternal().size(), 0);
@@ -1406,15 +1445,16 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   public void testCollectionCompositeUpdateCollectionWasChangedSimpleFieldWasAssigned() {
     checkEmbeddedDB();
 
-    final ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
+    database.begin();
+    ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
-    database.begin();
     doc.save();
     database.commit();
 
+    database.begin();
     final OIndex index =
         database
             .getMetadata()
@@ -1422,6 +1462,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
             .getIndex(database, "classIndexManagerTestIndexValueAndCollection");
     Assert.assertEquals(index.getInternal().size(), 2);
 
+    doc = database.bindToSession(doc);
     List<Integer> docList = doc.field("prop2");
     docList.add(3);
     docList.add(4);
@@ -1431,7 +1472,6 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
 
     doc.field("prop1", "test2");
 
-    database.begin();
     doc.save();
     database.commit();
 
@@ -1451,7 +1491,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     }
 
     database.begin();
-    doc.delete();
+    database.bindToSession(doc).delete();
     database.commit();
 
     Assert.assertEquals(index.getInternal().size(), 0);
@@ -1460,15 +1500,16 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   public void testCollectionCompositeUpdateSimpleFieldNull() {
     checkEmbeddedDB();
 
-    final ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
+    database.begin();
+    ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
-    database.begin();
     doc.save();
     database.commit();
 
+    database.begin();
     final OIndex index =
         database
             .getMetadata()
@@ -1476,16 +1517,16 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
             .getIndex(database, "classIndexManagerTestIndexValueAndCollection");
     Assert.assertEquals(index.getInternal().size(), 2);
 
+    doc = database.bindToSession(doc);
     doc.field("prop1", (Object) null);
 
-    database.begin();
     doc.save();
     database.commit();
 
     Assert.assertEquals(index.getInternal().size(), 0);
 
     database.begin();
-    doc.delete();
+    database.bindToSession(doc).delete();
     database.commit();
 
     Assert.assertEquals(index.getInternal().size(), 0);
@@ -1494,15 +1535,16 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   public void testCollectionCompositeUpdateCollectionWasAssignedNull() {
     checkEmbeddedDB();
 
-    final ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
+    database.begin();
+    ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
-    database.begin();
     doc.save();
     database.commit();
 
+    database.begin();
     final OIndex index =
         database
             .getMetadata()
@@ -1510,16 +1552,16 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
             .getIndex(database, "classIndexManagerTestIndexValueAndCollection");
     Assert.assertEquals(index.getInternal().size(), 2);
 
+    doc = database.bindToSession(doc);
     doc.field("prop2", (Object) null);
 
-    database.begin();
     doc.save();
     database.commit();
 
     Assert.assertEquals(index.getInternal().size(), 0);
 
     database.begin();
-    doc.delete();
+    database.bindToSession(doc).delete();
     database.commit();
 
     Assert.assertEquals(index.getInternal().size(), 0);
@@ -1528,15 +1570,17 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   public void testCollectionCompositeUpdateBothAssignedNull() {
     checkEmbeddedDB();
 
-    final ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
+    database.begin();
+    ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
-    database.begin();
     doc.save();
     database.commit();
 
+    database.begin();
+    doc = database.bindToSession(doc);
     final OIndex index =
         database
             .getMetadata()
@@ -1547,14 +1591,13 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     doc.field("prop2", (Object) null);
     doc.field("prop1", (Object) null);
 
-    database.begin();
     doc.save();
     database.commit();
 
     Assert.assertEquals(index.getInternal().size(), 0);
 
     database.begin();
-    doc.delete();
+    database.bindToSession(doc).delete();
     database.commit();
 
     Assert.assertEquals(index.getInternal().size(), 0);
@@ -1563,15 +1606,16 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   public void testCollectionCompositeUpdateCollectionWasChangedSimpleFieldWasAssignedNull() {
     checkEmbeddedDB();
 
-    final ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
+    database.begin();
+    ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
-    database.begin();
     doc.save();
     database.commit();
 
+    database.begin();
     final OIndex index =
         database
             .getMetadata()
@@ -1579,6 +1623,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
             .getIndex(database, "classIndexManagerTestIndexValueAndCollection");
     Assert.assertEquals(index.getInternal().size(), 2);
 
+    doc = database.bindToSession(doc);
     List<Integer> docList = doc.field("prop2");
     docList.add(3);
     docList.add(4);
@@ -1588,14 +1633,13 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
 
     doc.field("prop1", (Object) null);
 
-    database.begin();
     doc.save();
     database.commit();
 
     Assert.assertEquals(index.getInternal().size(), 0);
 
     database.begin();
-    doc.delete();
+    database.bindToSession(doc).delete();
     database.commit();
 
     Assert.assertEquals(index.getInternal().size(), 0);
@@ -1604,15 +1648,16 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   public void testCollectionCompositeDeleteSimpleFieldAssigend() {
     checkEmbeddedDB();
 
-    final ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
+    database.begin();
+    ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
-    database.begin();
     doc.save();
     database.commit();
 
+    database.begin();
     final OIndex index =
         database
             .getMetadata()
@@ -1620,9 +1665,9 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
             .getIndex(database, "classIndexManagerTestIndexValueAndCollection");
     Assert.assertEquals(index.getInternal().size(), 2);
 
+    doc = database.bindToSession(doc);
     doc.field("prop1", "test2");
 
-    database.begin();
     doc.delete();
     database.commit();
 
@@ -1632,15 +1677,16 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   public void testCollectionCompositeDeleteCollectionFieldAssigend() {
     checkEmbeddedDB();
 
-    final ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
+    database.begin();
+    ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
-    database.begin();
     doc.save();
     database.commit();
 
+    database.begin();
     final OIndex index =
         database
             .getMetadata()
@@ -1648,9 +1694,9 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
             .getIndex(database, "classIndexManagerTestIndexValueAndCollection");
     Assert.assertEquals(index.getInternal().size(), 2);
 
+    doc = database.bindToSession(doc);
     doc.field("prop2", Arrays.asList(1, 3));
 
-    database.begin();
     doc.delete();
     database.commit();
 
@@ -1660,15 +1706,16 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   public void testCollectionCompositeDeleteCollectionFieldChanged() {
     checkEmbeddedDB();
 
-    final ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
+    database.begin();
+    ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
-    database.begin();
     doc.save();
     database.commit();
 
+    database.begin();
     final OIndex index =
         database
             .getMetadata()
@@ -1676,13 +1723,13 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
             .getIndex(database, "classIndexManagerTestIndexValueAndCollection");
     Assert.assertEquals(index.getInternal().size(), 2);
 
+    doc = database.bindToSession(doc);
     List<Integer> docList = doc.field("prop2");
     docList.add(3);
     docList.add(4);
 
     docList.remove(1);
 
-    database.begin();
     doc.delete();
     database.commit();
 
@@ -1692,15 +1739,17 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   public void testCollectionCompositeDeleteBothCollectionSimpleFieldChanged() {
     checkEmbeddedDB();
 
-    final ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
+    database.begin();
+    ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
-    database.begin();
     doc.save();
     database.commit();
 
+    database.begin();
+    doc = database.bindToSession(doc);
     final OIndex index =
         database
             .getMetadata()
@@ -1716,7 +1765,6 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
 
     doc.field("prop1", "test2");
 
-    database.begin();
     doc.delete();
     database.commit();
 
@@ -1726,15 +1774,16 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   public void testCollectionCompositeDeleteBothCollectionSimpleFieldAssigend() {
     checkEmbeddedDB();
 
-    final ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
+    database.begin();
+    ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
-    database.begin();
     doc.save();
     database.commit();
 
+    database.begin();
     final OIndex index =
         database
             .getMetadata()
@@ -1742,10 +1791,10 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
             .getIndex(database, "classIndexManagerTestIndexValueAndCollection");
     Assert.assertEquals(index.getInternal().size(), 2);
 
+    doc = database.bindToSession(doc);
     doc.field("prop2", Arrays.asList(1, 3));
     doc.field("prop1", "test2");
 
-    database.begin();
     doc.delete();
     database.commit();
 
@@ -1755,15 +1804,17 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   public void testCollectionCompositeDeleteSimpleFieldNull() {
     checkEmbeddedDB();
 
-    final ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
+    database.begin();
+    ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
-    database.begin();
     doc.save();
     database.commit();
 
+    database.begin();
+    doc = database.bindToSession(doc);
     final OIndex index =
         database
             .getMetadata()
@@ -1773,7 +1824,6 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
 
     doc.field("prop1", (Object) null);
 
-    database.begin();
     doc.delete();
     database.commit();
 
@@ -1783,15 +1833,16 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   public void testCollectionCompositeDeleteCollectionFieldNull() {
     checkEmbeddedDB();
 
-    final ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
+    database.begin();
+    ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
-    database.begin();
     doc.save();
     database.commit();
 
+    database.begin();
     final OIndex index =
         database
             .getMetadata()
@@ -1799,9 +1850,9 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
             .getIndex(database, "classIndexManagerTestIndexValueAndCollection");
     Assert.assertEquals(index.getInternal().size(), 2);
 
+    doc = database.bindToSession(doc);
     doc.field("prop2", (Object) null);
 
-    database.begin();
     doc.delete();
     database.commit();
 
@@ -1811,15 +1862,17 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   public void testCollectionCompositeDeleteBothSimpleCollectionFieldNull() {
     checkEmbeddedDB();
 
-    final ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
+    database.begin();
+    ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
-    database.begin();
     doc.save();
     database.commit();
 
+    database.begin();
+    doc = database.bindToSession(doc);
     final OIndex index =
         database
             .getMetadata()
@@ -1830,7 +1883,6 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     doc.field("prop2", (Object) null);
     doc.field("prop1", (Object) null);
 
-    database.begin();
     doc.delete();
     database.commit();
 
@@ -1840,15 +1892,17 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   public void testCollectionCompositeDeleteCollectionFieldChangedSimpleFieldNull() {
     checkEmbeddedDB();
 
-    final ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
+    database.begin();
+    ODocument doc = new ODocument("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
 
-    database.begin();
     doc.save();
     database.commit();
 
+    database.begin();
+    doc = database.bindToSession(doc);
     final OIndex index =
         database
             .getMetadata()
@@ -1864,7 +1918,6 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
 
     doc.field("prop1", (Object) null);
 
-    database.begin();
     doc.delete();
     database.commit();
 

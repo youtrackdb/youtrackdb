@@ -19,12 +19,11 @@ import com.orientechnologies.common.parser.OVariableParser;
 import com.orientechnologies.common.parser.OVariableParserListener;
 import com.orientechnologies.orient.core.command.OCommandExecutor;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.db.ODatabase;
 import com.orientechnologies.orient.core.db.ODatabaseListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OSystemDatabase;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.hook.ORecordHookAbstract;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OImmutableClass;
@@ -45,12 +44,12 @@ import java.util.concurrent.LinkedBlockingQueue;
  * @author Luca Garulli
  */
 public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListener {
+
   private final Map<String, OAuditingClassConfig> classes =
       new HashMap<String, OAuditingClassConfig>(20);
   private final OAuditingLoggingThread auditingThread;
 
-  private Map<ODatabaseDocument, List<ODocument>> operations =
-      new ConcurrentHashMap<ODatabaseDocument, List<ODocument>>();
+  private Map<ODatabaseSession, List<ODocument>> operations = new ConcurrentHashMap<>();
   private volatile LinkedBlockingQueue<ODocument> auditingQueue;
   private Set<OAuditingCommandConfig> commands = new HashSet<OAuditingCommandConfig>();
   private boolean onGlobalCreate;
@@ -62,6 +61,7 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
   private ODocument iConfiguration;
 
   private static class OAuditingCommandConfig {
+
     public String regex;
     public String message;
 
@@ -72,6 +72,7 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
   }
 
   private static class OAuditingClassConfig {
+
     public boolean polymorphic = true;
     public boolean onCreateEnabled = false;
     public String onCreateMessage;
@@ -86,29 +87,50 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
     public OAuditingClassConfig() {}
 
     public OAuditingClassConfig(final ODocument cfg) {
-      if (cfg.containsField("polymorphic")) polymorphic = cfg.field("polymorphic");
+      if (cfg.containsField("polymorphic")) {
+        polymorphic = cfg.field("polymorphic");
+      }
 
       // CREATE
-      if (cfg.containsField("onCreateEnabled")) onCreateEnabled = cfg.field("onCreateEnabled");
-      if (cfg.containsField("onCreateMessage")) onCreateMessage = cfg.field("onCreateMessage");
+      if (cfg.containsField("onCreateEnabled")) {
+        onCreateEnabled = cfg.field("onCreateEnabled");
+      }
+      if (cfg.containsField("onCreateMessage")) {
+        onCreateMessage = cfg.field("onCreateMessage");
+      }
 
       // READ
-      if (cfg.containsField("onReadEnabled")) onReadEnabled = cfg.field("onReadEnabled");
-      if (cfg.containsField("onReadMessage")) onReadMessage = cfg.field("onReadMessage");
+      if (cfg.containsField("onReadEnabled")) {
+        onReadEnabled = cfg.field("onReadEnabled");
+      }
+      if (cfg.containsField("onReadMessage")) {
+        onReadMessage = cfg.field("onReadMessage");
+      }
 
       // UPDATE
-      if (cfg.containsField("onUpdateEnabled")) onUpdateEnabled = cfg.field("onUpdateEnabled");
-      if (cfg.containsField("onUpdateMessage")) onUpdateMessage = cfg.field("onUpdateMessage");
-      if (cfg.containsField("onUpdateChanges")) onUpdateChanges = cfg.field("onUpdateChanges");
+      if (cfg.containsField("onUpdateEnabled")) {
+        onUpdateEnabled = cfg.field("onUpdateEnabled");
+      }
+      if (cfg.containsField("onUpdateMessage")) {
+        onUpdateMessage = cfg.field("onUpdateMessage");
+      }
+      if (cfg.containsField("onUpdateChanges")) {
+        onUpdateChanges = cfg.field("onUpdateChanges");
+      }
 
       // DELETE
-      if (cfg.containsField("onDeleteEnabled")) onDeleteEnabled = cfg.field("onDeleteEnabled");
-      if (cfg.containsField("onDeleteMessage")) onDeleteMessage = cfg.field("onDeleteMessage");
+      if (cfg.containsField("onDeleteEnabled")) {
+        onDeleteEnabled = cfg.field("onDeleteEnabled");
+      }
+      if (cfg.containsField("onDeleteMessage")) {
+        onDeleteMessage = cfg.field("onDeleteMessage");
+      }
     }
   }
 
   // Handles the auditing-config "schema" configuration.
   private class OAuditingSchemaConfig extends OAuditingConfig {
+
     private boolean onCreateClassEnabled = false;
     private String onCreateClassMessage;
 
@@ -116,13 +138,15 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
     private String onDropClassMessage;
 
     public OAuditingSchemaConfig(final ODocument cfg) {
-      if (cfg.containsField("onCreateClassEnabled"))
+      if (cfg.containsField("onCreateClassEnabled")) {
         onCreateClassEnabled = cfg.field("onCreateClassEnabled");
+      }
 
       onCreateClassMessage = cfg.field("onCreateClassMessage");
 
-      if (cfg.containsField("onDropClassEnabled"))
+      if (cfg.containsField("onDropClassEnabled")) {
         onDropClassEnabled = cfg.field("onDropClassEnabled");
+      }
 
       onDropClassMessage = cfg.field("onDropClassMessage");
     }
@@ -150,7 +174,7 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
     }
   }
 
-  //// OAuditingHook
+  /// / OAuditingHook
   public OAuditingHook(final String iConfiguration) {
     this(new ODocument().fromJSON(iConfiguration, "noMap"), null);
   }
@@ -172,13 +196,24 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
     if (classesCfg != null) {
       for (String c : classesCfg.fieldNames()) {
         final OAuditingClassConfig cfg = new OAuditingClassConfig((ODocument) classesCfg.field(c));
-        if (c.equals("*")) defaultConfig = cfg;
-        else classes.put(c, cfg);
+        if (c.equals("*")) {
+          defaultConfig = cfg;
+        } else {
+          classes.put(c, cfg);
+        }
 
-        if (cfg.onCreateEnabled) onGlobalCreate = true;
-        if (cfg.onReadEnabled) onGlobalRead = true;
-        if (cfg.onUpdateEnabled) onGlobalUpdate = true;
-        if (cfg.onDeleteEnabled) onGlobalDelete = true;
+        if (cfg.onCreateEnabled) {
+          onGlobalCreate = true;
+        }
+        if (cfg.onReadEnabled) {
+          onGlobalRead = true;
+        }
+        if (cfg.onUpdateEnabled) {
+          onGlobalUpdate = true;
+        }
+        if (cfg.onDeleteEnabled) {
+          onGlobalDelete = true;
+        }
       }
     }
 
@@ -217,22 +252,22 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
   }
 
   @Override
-  public void onCreate(ODatabase iDatabase) {}
+  public void onCreate(ODatabaseSession iDatabase) {}
 
   @Override
-  public void onDelete(ODatabase iDatabase) {}
+  public void onDelete(ODatabaseSession iDatabase) {}
 
   @Override
-  public void onOpen(ODatabase iDatabase) {}
+  public void onOpen(ODatabaseSession iDatabase) {}
 
   @Override
-  public void onBeforeTxBegin(ODatabase iDatabase) {}
+  public void onBeforeTxBegin(ODatabaseSession iDatabase) {}
 
   @Override
-  public void onBeforeTxRollback(ODatabase iDatabase) {}
+  public void onBeforeTxRollback(ODatabaseSession iDatabase) {}
 
   @Override
-  public void onAfterTxRollback(ODatabase iDatabase) {
+  public void onAfterTxRollback(ODatabaseSession iDatabase) {
 
     synchronized (operations) {
       operations.remove(iDatabase);
@@ -240,10 +275,10 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
   }
 
   @Override
-  public void onBeforeTxCommit(ODatabase iDatabase) {}
+  public void onBeforeTxCommit(ODatabaseSession iDatabase) {}
 
   @Override
-  public void onAfterTxCommit(ODatabase iDatabase) {
+  public void onAfterTxCommit(ODatabaseSession iDatabase) {
 
     List<ODocument> oDocuments = null;
 
@@ -258,7 +293,7 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
   }
 
   @Override
-  public void onClose(ODatabase iDatabase) {}
+  public void onClose(ODatabaseSession iDatabase) {}
 
   @Override
   public void onBeforeCommand(OCommandRequestText iCommand, OCommandExecutor executor) {}
@@ -271,7 +306,7 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
 
   @Override
   public boolean onCorruptionRepairDatabase(
-      ODatabase iDatabase, String iReason, String iWhatWillbeFixed) {
+      ODatabaseSession iDatabase, String iReason, String iWhatWillbeFixed) {
     return false;
   }
 
@@ -281,14 +316,18 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
 
   @Override
   public void onRecordAfterCreate(final ORecord iRecord) {
-    if (!onGlobalCreate) return;
+    if (!onGlobalCreate) {
+      return;
+    }
 
     log(OAuditingOperation.CREATED, iRecord);
   }
 
   @Override
   public void onRecordAfterRead(final ORecord iRecord) {
-    if (!onGlobalRead) return;
+    if (!onGlobalRead) {
+      return;
+    }
 
     log(OAuditingOperation.LOADED, iRecord);
   }
@@ -307,14 +346,18 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
         log(OAuditingOperation.CHANGED_PWD, db.getName(), db.getUser(), message);
       }
     }
-    if (!onGlobalUpdate) return;
+    if (!onGlobalUpdate) {
+      return;
+    }
 
     log(OAuditingOperation.UPDATED, iRecord);
   }
 
   @Override
   public void onRecordAfterDelete(final ORecord iRecord) {
-    if (!onGlobalDelete) return;
+    if (!onGlobalDelete) {
+      return;
+    }
 
     log(OAuditingOperation.DELETED, iRecord);
   }
@@ -325,7 +368,9 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
   }
 
   protected void logCommand(final String command) {
-    if (auditingQueue == null) return;
+    if (auditingQueue == null) {
+      return;
+    }
 
     for (OAuditingCommandConfig cfg : commands) {
       if (command.matches(cfg.regex)) {
@@ -343,7 +388,9 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
   }
 
   private String formatCommandNote(final String command, String message) {
-    if (message == null || message.isEmpty()) return command;
+    if (message == null || message.isEmpty()) {
+      return command;
+    }
     return (String)
         OVariableParser.resolveVariables(
             message,
@@ -362,13 +409,17 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
 
   protected void log(final OAuditingOperation operation, final ORecord iRecord) {
     if (auditingQueue == null)
-      // LOGGING THREAD INACTIVE, SKIP THE LOG
+    // LOGGING THREAD INACTIVE, SKIP THE LOG
+    {
       return;
+    }
 
     final OAuditingClassConfig cfg = getAuditConfiguration(iRecord);
     if (cfg == null)
-      // SKIP
+    // SKIP
+    {
       return;
+    }
 
     ODocument changes = null;
     String note = null;
@@ -376,14 +427,18 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
     switch (operation) {
       case CREATED:
         if (!cfg.onCreateEnabled)
-          // SKIP
+        // SKIP
+        {
           return;
+        }
         note = cfg.onCreateMessage;
         break;
       case UPDATED:
         if (!cfg.onUpdateEnabled)
-          // SKIP
+        // SKIP
+        {
           return;
+        }
         note = cfg.onUpdateMessage;
 
         if (iRecord instanceof ODocument && cfg.onUpdateChanges) {
@@ -400,8 +455,10 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
         break;
       case DELETED:
         if (!cfg.onDeleteEnabled)
-          // SKIP
+        // SKIP
+        {
           return;
+        }
         note = cfg.onDeleteMessage;
         break;
     }
@@ -411,7 +468,9 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
     final ODocument doc =
         createLogDocument(operation, db.getName(), db.getUser(), formatNote(iRecord, note));
     doc.field("record", iRecord.getIdentity());
-    if (changes != null) doc.field("changes", changes, OType.EMBEDDED);
+    if (changes != null) {
+      doc.field("changes", changes, OType.EMBEDDED);
+    }
 
     if (db.getTransaction().isActive()) {
       synchronized (operations) {
@@ -428,7 +487,9 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
   }
 
   private String formatNote(final ORecord iRecord, final String iNote) {
-    if (iNote == null) return null;
+    if (iNote == null) {
+      return null;
+    }
 
     return (String)
         OVariableParser.resolveVariables(
@@ -457,8 +518,10 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
       if (cls != null) {
 
         if (cls.getName().equals(ODefaultAuditing.AUDITING_LOG_CLASSNAME))
-          // SKIP LOG CLASS
+        // SKIP LOG CLASS
+        {
           return null;
+        }
 
         cfg = classes.get(cls.getName());
 
@@ -478,8 +541,10 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
     }
 
     if (cfg == null)
-      // ASSIGN DEFAULT CFG (*)
+    // ASSIGN DEFAULT CFG (*)
+    {
       cfg = defaultConfig;
+    }
 
     return cfg;
   }
@@ -523,7 +588,9 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
     }
   */
   private String formatClassNote(final OClass cls, final String note) {
-    if (note == null || note.isEmpty()) return cls.getName();
+    if (note == null || note.isEmpty()) {
+      return cls.getName();
+    }
 
     return (String)
         OVariableParser.resolveVariables(
@@ -572,8 +639,9 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
       final String dbName,
       OSecurityUser user,
       final String message) {
-    if (auditingQueue != null)
+    if (auditingQueue != null) {
       auditingQueue.offer(createLogDocument(operation, dbName, user, message));
+    }
   }
 
   private ODocument createLogDocument(
@@ -592,9 +660,13 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
       doc.field("userType", user.getUserType());
     }
 
-    if (message != null) doc.field("note", message);
+    if (message != null) {
+      doc.field("note", message);
+    }
 
-    if (dbName != null) doc.field("database", dbName);
+    if (dbName != null) {
+      doc.field("database", dbName);
+    }
 
     return doc;
   }

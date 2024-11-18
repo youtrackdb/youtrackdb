@@ -4,7 +4,6 @@ import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.hook.ODocumentHookAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.server.config.OServerConfigurationManager;
@@ -100,7 +99,7 @@ public class HookInstallServerTest {
     OPartitionedDatabasePool pool =
         new OPartitionedDatabasePool("remote:localhost/test", "admin", "admin");
     for (int i = 0; i < 10; i++) {
-      ODatabaseDocument some = pool.acquire();
+      var some = pool.acquire();
       try {
         some.createClassIfNotExist("Test");
         some.begin();

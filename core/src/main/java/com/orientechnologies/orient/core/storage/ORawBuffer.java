@@ -19,21 +19,13 @@
  */
 package com.orientechnologies.orient.core.storage;
 
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.type.OBuffer;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
+import java.util.Arrays;
+import java.util.Objects;
 
-public class ORawBuffer extends OBuffer {
-  public int version;
-  public byte recordType;
-
-  /** Constructor used by serialization. */
-  public ORawBuffer() {
-    version = 0;
-  }
+public final class ORawBuffer {
+  public final int version;
+  public final byte recordType;
+  public final byte[] buffer;
 
   public ORawBuffer(final byte[] buffer, final int version, final byte recordType) {
     this.buffer = buffer;
@@ -41,44 +33,33 @@ public class ORawBuffer extends OBuffer {
     this.recordType = recordType;
   }
 
-  /** Creates a new object by the record received. */
-  public ORawBuffer(final ORecord iRecord) {
-    this.buffer = iRecord.toStream();
-    this.version = iRecord.getVersion();
-    this.recordType = ORecordInternal.getRecordType(iRecord);
-  }
-
   @Override
-  public void readExternal(final ObjectInput iInput) throws IOException, ClassNotFoundException {
-    super.readExternal(iInput);
-    version = iInput.readInt();
-    recordType = iInput.readByte();
-  }
-
-  @Override
-  public void writeExternal(final ObjectOutput iOutput) throws IOException {
-    super.writeExternal(iOutput);
-    iOutput.writeInt(version);
-    iOutput.writeByte(recordType);
-  }
-
-  @Override
-  public boolean equals(final Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    if (!super.equals(o)) return false;
+  public boolean equals(Object o) {
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     ORawBuffer that = (ORawBuffer) o;
 
-    if (recordType != that.recordType) return false;
-    return version == that.version;
+    return version == that.version
+        && recordType == that.recordType
+        && Objects.deepEquals(buffer, that.buffer);
   }
 
   @Override
   public int hashCode() {
-    int result = super.hashCode();
-    result = 31 * result + version;
-    result = 31 * result + (int) recordType;
-    return result;
+    return Objects.hash(version, recordType, Arrays.hashCode(buffer));
+  }
+
+  @Override
+  public String toString() {
+    return "ORawBuffer{"
+        + "version="
+        + version
+        + ", recordType="
+        + recordType
+        + ", buffer="
+        + Arrays.toString(buffer)
+        + '}';
   }
 }

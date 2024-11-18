@@ -20,7 +20,6 @@ public class ODropPropertyStatementExecutionTest extends BaseMemoryDatabase {
     OSchema schema = db.getMetadata().getSchema();
     schema.createClass(className).createProperty(propertyName, OType.STRING);
 
-    schema.reload();
     Assert.assertNotNull(schema.getClass(className).getProperty(propertyName));
     OResultSet result = db.command("drop property " + className + "." + propertyName);
     Assert.assertTrue(result.hasNext());
@@ -29,7 +28,6 @@ public class ODropPropertyStatementExecutionTest extends BaseMemoryDatabase {
     Assert.assertFalse(result.hasNext());
     result.close();
 
-    schema.reload();
     Assert.assertNull(schema.getClass(className).getProperty(propertyName));
   }
 
@@ -43,7 +41,6 @@ public class ODropPropertyStatementExecutionTest extends BaseMemoryDatabase {
         .createProperty(propertyName, OType.STRING)
         .createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
 
-    schema.reload();
     Assert.assertNotNull(schema.getClass(className).getProperty(propertyName));
     OResultSet result = db.command("drop property " + className + "." + propertyName + " force");
     for (int i = 0; i < 2; i++) {
@@ -55,7 +52,6 @@ public class ODropPropertyStatementExecutionTest extends BaseMemoryDatabase {
 
     result.close();
 
-    schema.reload();
     Assert.assertNull(schema.getClass(className).getProperty(propertyName));
   }
 
@@ -70,7 +66,6 @@ public class ODropPropertyStatementExecutionTest extends BaseMemoryDatabase {
         .createProperty(propertyName, OType.STRING)
         .createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
 
-    schema.reload();
     Assert.assertNotNull(schema.getClass(className).getProperty(propertyName));
     try {
       db.command("drop property " + className + "." + propertyName);

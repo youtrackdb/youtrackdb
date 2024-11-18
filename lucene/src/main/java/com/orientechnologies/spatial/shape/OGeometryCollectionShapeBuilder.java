@@ -15,7 +15,7 @@
  */
 package com.orientechnologies.spatial.shape;
 
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -69,7 +69,7 @@ public class OGeometryCollectionShapeBuilder extends OComplexShapeBuilder<ShapeC
   }
 
   @Override
-  public void initClazz(ODatabaseInternal db) {
+  public void initClazz(ODatabaseSessionInternal db) {
 
     OSchema schema = db.getMetadata().getSchema();
     OClass shape = superClass(db);

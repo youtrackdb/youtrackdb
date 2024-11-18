@@ -2,7 +2,6 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
@@ -252,8 +251,8 @@ public class OTraverseExecutionPlanner {
       OMetadataIdentifier metadata,
       OCommandContext ctx,
       boolean profilingEnabled) {
-    ODatabaseInternal db = (ODatabaseInternal) ctx.getDatabase();
-    String schemaRecordIdAsString = null;
+    var db = ctx.getDatabase();
+    String schemaRecordIdAsString;
     if (metadata.getName().equalsIgnoreCase(OCommandExecutorSQLAbstract.METADATA_SCHEMA)) {
       schemaRecordIdAsString = db.getStorageInfo().getConfiguration().getSchemaRecordId();
     } else if (metadata.getName().equalsIgnoreCase(OCommandExecutorSQLAbstract.METADATA_INDEXMGR)) {

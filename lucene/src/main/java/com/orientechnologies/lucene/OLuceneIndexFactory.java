@@ -23,7 +23,6 @@ import com.orientechnologies.lucene.engine.OLuceneFullTextIndexEngine;
 import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.config.IndexEngineData;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
@@ -108,22 +107,22 @@ public class OLuceneIndexFactory implements OIndexFactory, ODatabaseLifecycleLis
   }
 
   @Override
-  public void onCreate(ODatabaseInternal db) {
+  public void onCreate(ODatabaseSessionInternal db) {
     OLogManager.instance().debug(this, "onCreate");
   }
 
   @Override
-  public void onOpen(ODatabaseInternal db) {
+  public void onOpen(ODatabaseSessionInternal db) {
     OLogManager.instance().debug(this, "onOpen");
   }
 
   @Override
-  public void onClose(ODatabaseInternal db) {
+  public void onClose(ODatabaseSessionInternal db) {
     OLogManager.instance().debug(this, "onClose");
   }
 
   @Override
-  public void onDrop(final ODatabaseInternal db) {
+  public void onDrop(final ODatabaseSessionInternal db) {
     try {
       if (db.isClosed()) return;
 

@@ -21,7 +21,6 @@ package com.orientechnologies.orient.core.sql;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandRequest;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import java.util.Map;
 
@@ -44,7 +43,7 @@ public class OCommandExecutorSQLTransactional extends OCommandExecutorSQLDelegat
 
   @Override
   public Object execute(Map<Object, Object> iArgs) {
-    final ODatabaseDocument database = getDatabase();
+    var database = getDatabase();
     boolean txbegun = database.getTransaction() == null || !database.getTransaction().isActive();
 
     if (txbegun) database.begin();

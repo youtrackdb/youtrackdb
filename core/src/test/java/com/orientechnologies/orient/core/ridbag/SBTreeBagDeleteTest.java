@@ -2,18 +2,19 @@ package com.orientechnologies.orient.core.ridbag;
 
 import static com.orientechnologies.orient.core.config.OGlobalConfiguration.RID_BAG_SBTREEBONSAI_DELETE_DELAY;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 import com.orientechnologies.BaseMemoryInternalDatabase;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.storage.index.sbtreebonsai.local.OSBTreeBonsai;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
 import java.util.Collections;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -51,8 +52,12 @@ public class SBTreeBagDeleteTest extends BaseMemoryInternalDatabase {
     db.delete(doc);
     db.commit();
 
-    doc = db.load(id);
-    assertNull(doc);
+    try {
+      db.load(id);
+      Assert.fail();
+    } catch (ORecordNotFoundException e) {
+      // ignore
+    }
 
     Thread.sleep(100);
     OSBTreeBonsai<OIdentifiable, Integer> tree =

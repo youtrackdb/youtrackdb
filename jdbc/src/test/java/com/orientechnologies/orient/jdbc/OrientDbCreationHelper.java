@@ -17,7 +17,6 @@ package com.orientechnologies.orient.jdbc;
 
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OClass.INDEX_TYPE;
@@ -95,7 +94,7 @@ public class OrientDbCreationHelper {
     return doc;
   }
 
-  public static void createAuthorAndArticles(ODatabaseDocument db, int totAuthors, int totArticles)
+  public static void createAuthorAndArticles(ODatabaseSession db, int totAuthors, int totArticles)
       throws IOException {
     int articleSerial = 0;
     for (int a = 1; a <= totAuthors; ++a) {
@@ -147,7 +146,7 @@ public class OrientDbCreationHelper {
     return article;
   }
 
-  public static void createWriterAndPosts(ODatabaseDocument db, int totAuthors, int totArticles)
+  public static void createWriterAndPosts(ODatabaseSession db, int totAuthors, int totArticles)
       throws IOException {
     int articleSerial = 0;
     for (int a = 1; a <= totAuthors; ++a) {
@@ -190,7 +189,7 @@ public class OrientDbCreationHelper {
     db.newEdge(writer, post, "Writes");
   }
 
-  private static OBlob loadFile(ODatabaseDocument database, String filePath) throws IOException {
+  private static OBlob loadFile(ODatabaseSession database, String filePath) throws IOException {
     final File f = new File(filePath);
     if (f.exists()) {
       BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(f));
@@ -242,7 +241,7 @@ public class OrientDbCreationHelper {
     return binaryChuncks;
   }
 
-  public static void createSchemaDB(ODatabaseDocument db) {
+  public static void createSchemaDB(ODatabaseSession db) {
 
     OSchema schema = db.getMetadata().getSchema();
 
@@ -306,7 +305,5 @@ public class OrientDbCreationHelper {
     }
 
     schema.createClass("Writes", e);
-
-    schema.reload();
   }
 }

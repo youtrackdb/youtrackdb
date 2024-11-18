@@ -3,7 +3,6 @@ package com.orientechnologies.distribution.integration;
 import com.orientechnologies.orient.core.db.ODatabasePool;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import org.junit.After;
 import org.junit.Before;
 

@@ -19,10 +19,10 @@
  */
 package com.orientechnologies.orient.core.hook;
 
-import com.orientechnologies.orient.core.db.ODatabase.STATUS;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSession.STATUS;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -35,17 +35,18 @@ import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
  * @see ORecordHook
  */
 public abstract class ODocumentHookAbstract implements ORecordHook {
+
   private String[] includeClasses;
   private String[] excludeClasses;
 
-  protected ODatabaseDocument database;
+  protected ODatabaseSession database;
 
   @Deprecated
   public ODocumentHookAbstract() {
     this.database = ODatabaseRecordThreadLocal.instance().get();
   }
 
-  public ODocumentHookAbstract(ODatabaseDocument database) {
+  public ODocumentHookAbstract(ODatabaseSession database) {
     this.database = database;
   }
 
@@ -57,7 +58,7 @@ public abstract class ODocumentHookAbstract implements ORecordHook {
    *
    * @param iDocument The document to create
    * @return True if the document has been modified and a new marshalling is required, otherwise
-   *     false
+   * false
    */
   public RESULT onRecordBeforeCreate(final ODocument iDocument) {
     return RESULT.RECORD_NOT_CHANGED;
@@ -89,7 +90,7 @@ public abstract class ODocumentHookAbstract implements ORecordHook {
    *
    * @param iDocument The document to read
    * @return True if the document has been modified and a new marshalling is required, otherwise
-   *     false
+   * false
    */
   public RESULT onRecordBeforeRead(final ODocument iDocument) {
     return RESULT.RECORD_NOT_CHANGED;
@@ -121,7 +122,7 @@ public abstract class ODocumentHookAbstract implements ORecordHook {
    *
    * @param iDocument The document to update
    * @return True if the document has been modified and a new marshalling is required, otherwise
-   *     false
+   * false
    */
   public RESULT onRecordBeforeUpdate(final ODocument iDocument) {
     return RESULT.RECORD_NOT_CHANGED;
@@ -153,7 +154,7 @@ public abstract class ODocumentHookAbstract implements ORecordHook {
    *
    * @param iDocument The document to delete
    * @return True if the document has been modified and a new marshalling is required, otherwise
-   *     false
+   * false
    */
   public RESULT onRecordBeforeDelete(final ODocument iDocument) {
     return RESULT.RECORD_NOT_CHANGED;
@@ -187,13 +188,19 @@ public abstract class ODocumentHookAbstract implements ORecordHook {
   public void onRecordFinalizeDeletion(final ODocument document) {}
 
   public RESULT onTrigger(final TYPE iType, final ORecord iRecord) {
-    if (database.getStatus() != STATUS.OPEN) return RESULT.RECORD_NOT_CHANGED;
+    if (database.getStatus() != STATUS.OPEN) {
+      return RESULT.RECORD_NOT_CHANGED;
+    }
 
-    if (!(iRecord instanceof ODocument)) return RESULT.RECORD_NOT_CHANGED;
+    if (!(iRecord instanceof ODocument)) {
+      return RESULT.RECORD_NOT_CHANGED;
+    }
 
     final ODocument document = (ODocument) iRecord;
 
-    if (!filterBySchemaClass(document)) return RESULT.RECORD_NOT_CHANGED;
+    if (!filterBySchemaClass(document)) {
+      return RESULT.RECORD_NOT_CHANGED;
+    }
 
     switch (iType) {
       case BEFORE_CREATE:
@@ -280,8 +287,9 @@ public abstract class ODocumentHookAbstract implements ORecordHook {
   }
 
   public ODocumentHookAbstract setIncludeClasses(final String... includeClasses) {
-    if (excludeClasses != null)
+    if (excludeClasses != null) {
       throw new IllegalStateException("Cannot include classes if exclude classes has been set");
+    }
     this.includeClasses = includeClasses;
     return this;
   }
@@ -291,28 +299,41 @@ public abstract class ODocumentHookAbstract implements ORecordHook {
   }
 
   public ODocumentHookAbstract setExcludeClasses(final String... excludeClasses) {
-    if (includeClasses != null)
+    if (includeClasses != null) {
       throw new IllegalStateException("Cannot exclude classes if include classes has been set");
+    }
     this.excludeClasses = excludeClasses;
     return this;
   }
 
   protected boolean filterBySchemaClass(final ODocument iDocument) {
-    if (includeClasses == null && excludeClasses == null) return true;
+    if (includeClasses == null && excludeClasses == null) {
+      return true;
+    }
 
     final OClass clazz =
         ODocumentInternal.getImmutableSchemaClass((ODatabaseSessionInternal) database, iDocument);
-    if (clazz == null) return false;
+    if (clazz == null) {
+      return false;
+    }
 
     if (includeClasses != null) {
       // FILTER BY CLASSES
-      for (String cls : includeClasses) if (clazz.isSubClassOf(cls)) return true;
+      for (String cls : includeClasses) {
+        if (clazz.isSubClassOf(cls)) {
+          return true;
+        }
+      }
       return false;
     }
 
     if (excludeClasses != null) {
       // FILTER BY CLASSES
-      for (String cls : excludeClasses) if (clazz.isSubClassOf(cls)) return false;
+      for (String cls : excludeClasses) {
+        if (clazz.isSubClassOf(cls)) {
+          return false;
+        }
+      }
     }
 
     return true;

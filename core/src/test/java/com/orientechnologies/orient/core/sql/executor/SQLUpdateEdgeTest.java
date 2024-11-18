@@ -34,8 +34,6 @@ public class SQLUpdateEdgeTest extends BaseMemoryDatabase {
 
     db.command("create class E1 extends E").close();
 
-    db.getMetadata().getSchema().reload();
-
     // VERTEXES
     db.begin();
     OElement v1 = db.command("create vertex").next().getElement().get();

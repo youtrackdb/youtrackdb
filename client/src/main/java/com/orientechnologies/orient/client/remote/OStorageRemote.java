@@ -901,7 +901,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     return response.isRecordExists();
   }
 
-  public OStorageOperationResult<ORawBuffer> readRecord(
+  public ORawBuffer readRecord(
       final ORecordId iRid,
       final boolean iIgnoreCache,
       boolean prefetchRecords,
@@ -910,13 +910,13 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     if (getCurrentSession().commandExecuting)
     // PENDING NETWORK OPERATION, CAN'T EXECUTE IT NOW
     {
-      return new OStorageOperationResult<ORawBuffer>(null);
+      return null;
     }
 
     OReadRecordRequest request = new OReadRecordRequest(iIgnoreCache, iRid, null, false);
     OReadRecordResponse response = networkOperation(request, "Error on read record " + iRid);
 
-    return new OStorageOperationResult<ORawBuffer>(response.getResult());
+    return response.getResult();
   }
 
   public String incrementalBackup(final String backupDirectory, OCallable<Void, Void> started) {

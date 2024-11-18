@@ -7,7 +7,6 @@ import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
@@ -472,7 +471,7 @@ public class StorageBackupMTStateTest {
 
     @Override
     public void run() {
-      ODatabaseDocument db = pool.acquire();
+      var db = pool.acquire();
       try {
         flowLock.acquireWriteLock();
         try {

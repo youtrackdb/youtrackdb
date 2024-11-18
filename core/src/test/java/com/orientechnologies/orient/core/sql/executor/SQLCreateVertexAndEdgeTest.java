@@ -41,8 +41,6 @@ public class SQLCreateVertexAndEdgeTest extends BaseMemoryDatabase {
     db.command("create class E1 extends E").close();
     db.command("alter class E1 addcluster edefault").close();
 
-    db.getMetadata().getSchema().reload();
-
     // VERTEXES
     db.begin();
     OVertex v1 = db.command("create vertex").next().getVertex().get();

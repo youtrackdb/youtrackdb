@@ -4,7 +4,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ORecordBytes;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -80,7 +79,7 @@ public class OConsoleDatabaseAppTest {
     try {
       console.run();
 
-      ODatabaseDocument db = console.getCurrentDatabase();
+      var db = console.getCurrentDatabase();
       try {
         OResultSet result = db.query("select from foo where name = 'foo'");
         OResult doc = result.next();
@@ -112,7 +111,7 @@ public class OConsoleDatabaseAppTest {
     try {
       console.run();
 
-      ODatabaseDocument db = console.getCurrentDatabase();
+      var db = console.getCurrentDatabase();
       try {
         long size = db.query("select from foo where name = 'foo'").stream().count();
         Assert.assertEquals(1, size);
@@ -258,7 +257,7 @@ public class OConsoleDatabaseAppTest {
     try {
       console.run();
 
-      ODatabaseDocument db = console.getCurrentDatabase();
+      var db = console.getCurrentDatabase();
       OResultSet result = db.query("select from foo where name = 'foo'");
       OResult doc = result.next();
       Assert.assertEquals("bar", doc.getProperty("surname"));
@@ -325,7 +324,7 @@ public class OConsoleDatabaseAppTest {
     try {
       console.run();
 
-      ODatabaseDocument db = console.getCurrentDatabase();
+      var db = console.getCurrentDatabase();
       OResultSet result = db.query("select from foo where name = 'foo'");
       OResult doc = result.next();
       Assert.assertEquals("bar", doc.getProperty("surname"));

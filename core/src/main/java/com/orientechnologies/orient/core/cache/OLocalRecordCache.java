@@ -22,7 +22,7 @@ package com.orientechnologies.orient.core.cache;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.ORecordAbstract;
@@ -47,7 +47,7 @@ public class OLocalRecordCache extends OAbstractRecordCache {
 
   @Override
   public void startup() {
-    ODatabaseDocument db = ODatabaseRecordThreadLocal.instance().get();
+    ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
 
     profilerPrefix = "db." + db.getName() + ".cache.level1.";
     profilerMetadataPrefix = "db.*.cache.level1.";

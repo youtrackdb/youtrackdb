@@ -170,7 +170,7 @@ public class ODurablePage {
     return values;
   }
 
-  protected void setIntArray(final int pageOffset, int[] values, int offset) {
+  protected final void setIntArray(final int pageOffset, int[] values, int offset) {
     byte[] bytes = new byte[(values.length - offset) * OIntegerSerializer.INT_SIZE];
     for (int i = offset; i < values.length; i++) {
       OIntegerSerializer.INSTANCE.serializeNative(
@@ -179,7 +179,7 @@ public class ODurablePage {
     setBinaryValue(pageOffset, bytes);
   }
 
-  protected short getShortValue(final int pageOffset) {
+  protected final short getShortValue(final int pageOffset) {
     if (changes == null) {
       assert buffer != null;
 
@@ -215,7 +215,7 @@ public class ODurablePage {
     return changes.getBinaryValue(buffer, pageOffset, valLen);
   }
 
-  protected int getObjectSizeInDirectMemory(
+  protected final int getObjectSizeInDirectMemory(
       final OBinarySerializer<?> binarySerializer, final int offset) {
     if (changes == null) {
       assert buffer != null;
@@ -227,7 +227,7 @@ public class ODurablePage {
     return binarySerializer.getObjectSizeInByteBuffer(buffer, changes, offset);
   }
 
-  protected <T> T deserializeFromDirectMemory(
+  protected final <T> T deserializeFromDirectMemory(
       final OBinarySerializer<T> binarySerializer, final int offset) {
     if (changes == null) {
       assert buffer != null;
@@ -332,7 +332,7 @@ public class ODurablePage {
     }
   }
 
-  public OWALChanges getChanges() {
+  public final OWALChanges getChanges() {
     return changes;
   }
 
@@ -340,7 +340,7 @@ public class ODurablePage {
     return cacheEntry;
   }
 
-  public void restoreChanges(final OWALChanges changes) {
+  public final void restoreChanges(final OWALChanges changes) {
     final ByteBuffer buffer = cacheEntry.getCachePointer().getBuffer();
     assert buffer != null;
 
@@ -352,8 +352,7 @@ public class ODurablePage {
 
     assert buffer.order() == ByteOrder.nativeOrder();
 
-    buffer.putLong(WAL_SEGMENT_OFFSET, lsn.getSegment());
-    buffer.putInt(WAL_POSITION_OFFSET, lsn.getPosition());
+    setLogSequenceNumberForPage(buffer, lsn);
   }
 
   @Override

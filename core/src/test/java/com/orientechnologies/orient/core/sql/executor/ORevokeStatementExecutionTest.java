@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.metadata.security.ORole;
@@ -75,7 +75,7 @@ public class ORevokeStatementExecutionTest {
 
   @Test
   public void testRemovePolicy() {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
 
     db.createClass("Person");
 

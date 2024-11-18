@@ -30,7 +30,7 @@ import static org.junit.Assert.fail;
 import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.common.profiler.OProfiler;
 import com.orientechnologies.orient.core.Orient;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorClass;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
@@ -210,7 +210,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     db.commit();
   }
 
-  private static void initCollateOnLinked(ODatabaseDocument db) {
+  private static void initCollateOnLinked(ODatabaseSession db) {
     db.command("CREATE CLASS CollateOnLinked").close();
     db.command("CREATE CLASS CollateOnLinked2").close();
     db.command("CREATE PROPERTY CollateOnLinked.name String").close();
@@ -227,7 +227,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     db.commit();
   }
 
-  private static void initComplexFilterInSquareBrackets(ODatabaseDocument db) {
+  private static void initComplexFilterInSquareBrackets(ODatabaseSession db) {
     db.command("CREATE CLASS ComplexFilterInSquareBrackets1").close();
     db.command("CREATE CLASS ComplexFilterInSquareBrackets2").close();
 
@@ -246,7 +246,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     db.commit();
   }
 
-  private static void initFilterAndOrderByTest(ODatabaseDocument db) {
+  private static void initFilterAndOrderByTest(ODatabaseSession db) {
     db.command("CREATE CLASS FilterAndOrderByTest").close();
     db.command("CREATE PROPERTY FilterAndOrderByTest.dc DATETIME").close();
     db.command("CREATE PROPERTY FilterAndOrderByTest.active BOOLEAN").close();
@@ -273,7 +273,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     db.commit();
   }
 
-  private static void initMaxLongNumber(ODatabaseDocument db) {
+  private static void initMaxLongNumber(ODatabaseSession db) {
     db.command("CREATE class MaxLongNumberTest").close();
 
     db.begin();
@@ -284,7 +284,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     db.commit();
   }
 
-  private static void initLinkListSequence(ODatabaseDocument db) {
+  private static void initLinkListSequence(ODatabaseSession db) {
     db.command("CREATE class LinkListSequence").close();
 
     db.begin();
@@ -312,7 +312,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     db.commit();
   }
 
-  private static void initMatchesWithRegex(ODatabaseDocument db) {
+  private static void initMatchesWithRegex(ODatabaseSession db) {
     db.command("CREATE class matchesstuff").close();
 
     db.begin();
@@ -320,7 +320,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     db.commit();
   }
 
-  private static void initDistinctLimit(ODatabaseDocument db) {
+  private static void initDistinctLimit(ODatabaseSession db) {
     db.command("CREATE class DistinctLimit").close();
 
     db.begin();
@@ -331,7 +331,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     db.commit();
   }
 
-  private static void initDatesSet(ODatabaseDocument db) {
+  private static void initDatesSet(ODatabaseSession db) {
     db.command("create class OCommandExecutorSQLSelectTest_datesSet").close();
     db.command("create property OCommandExecutorSQLSelectTest_datesSet.foo embeddedlist date")
         .close();
@@ -341,7 +341,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     db.commit();
   }
 
-  private static void initMassiveOrderSkipLimit(ODatabaseDocument db) {
+  private static void initMassiveOrderSkipLimit(ODatabaseSession db) {
     db.getMetadata().getSchema().createClass("MassiveOrderSkipLimit", 1, null);
     String fieldValue =
         "laskdf lkajsd flaksjdf laksjd flakjsd flkasjd flkajsd flkajsd flkajsd flkajsd flkajsd"
@@ -362,7 +362,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     }
   }
 
-  private static void initExpandSkipLimit(ODatabaseDocument db) {
+  private static void initExpandSkipLimit(ODatabaseSession db) {
     db.command("create class ExpandSkipLimit clusters 1").close();
 
     for (int i = 0; i < 5; i++) {
@@ -1909,7 +1909,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     results.close();
   }
 
-  private long indexUsages(ODatabaseDocument db) {
+  private long indexUsages(ODatabaseSession db) {
     final long oldIndexUsage;
     try {
       oldIndexUsage = getProfilerInstance().getCounter("db." + db.getName() + ".query.indexUsed");

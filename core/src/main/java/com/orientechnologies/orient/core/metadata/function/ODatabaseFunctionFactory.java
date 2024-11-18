@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.metadata.function;
 
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunction;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionFactory;
@@ -32,21 +32,22 @@ import java.util.Set;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class ODatabaseFunctionFactory implements OSQLFunctionFactory {
+
   @Override
   public boolean hasFunction(final String iName) {
-    final ODatabaseDocument db = ODatabaseRecordThreadLocal.instance().get();
+    final ODatabaseSession db = ODatabaseRecordThreadLocal.instance().get();
     return db.getMetadata().getFunctionLibrary().getFunction(iName) != null;
   }
 
   @Override
   public Set<String> getFunctionNames() {
-    final ODatabaseDocument db = ODatabaseRecordThreadLocal.instance().get();
+    final ODatabaseSession db = ODatabaseRecordThreadLocal.instance().get();
     return db.getMetadata().getFunctionLibrary().getFunctionNames();
   }
 
   @Override
   public OSQLFunction createFunction(final String name) throws OCommandExecutionException {
-    final ODatabaseDocument db = ODatabaseRecordThreadLocal.instance().get();
+    final ODatabaseSession db = ODatabaseRecordThreadLocal.instance().get();
     final OFunction f = db.getMetadata().getFunctionLibrary().getFunction(name);
     return new ODatabaseFunction(f);
   }

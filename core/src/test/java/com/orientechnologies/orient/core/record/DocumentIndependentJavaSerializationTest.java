@@ -5,7 +5,6 @@ import static org.junit.Assert.assertEquals;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -27,7 +26,7 @@ public class DocumentIndependentJavaSerializationTest {
           "create database "
               + DocumentIndependentJavaSerializationTest.class.getSimpleName()
               + " memory users (admin identified by 'adminpwd' role admin)");
-      try (ODatabaseDocument db =
+      try (var db =
           ctx.open(
               DocumentIndependentJavaSerializationTest.class.getSimpleName(),
               "admin",
@@ -64,7 +63,7 @@ public class DocumentIndependentJavaSerializationTest {
           "create database "
               + DocumentIndependentJavaSerializationTest.class.getSimpleName()
               + " memory users (admin identified by 'adminpwd' role admin)");
-      try (ODatabaseDocument db =
+      try (var db =
           ctx.open(
               DocumentIndependentJavaSerializationTest.class.getSimpleName(),
               "admin",

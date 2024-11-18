@@ -2,8 +2,8 @@ package com.orientechnologies.orient.core.storage.index.hashindex.local.v3;
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -45,10 +45,11 @@ public class OLocalHashTableV3TestIT extends OLocalHashTableV3Base {
             ".tsc",
             ".obf",
             ".nbh",
-            (OAbstractPaginatedStorage) ((ODatabaseInternal) databaseDocumentTx).getStorage());
+            (OAbstractPaginatedStorage)
+                ((ODatabaseSessionInternal) databaseDocumentTx).getStorage());
 
     atomicOperationsManager =
-        ((OAbstractPaginatedStorage) ((ODatabaseInternal) databaseDocumentTx).getStorage())
+        ((OAbstractPaginatedStorage) ((ODatabaseSessionInternal) databaseDocumentTx).getStorage())
             .getAtomicOperationsManager();
     atomicOperationsManager.executeInsideAtomicOperation(
         null,

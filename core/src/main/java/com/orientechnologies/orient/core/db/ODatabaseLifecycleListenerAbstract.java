@@ -34,16 +34,16 @@ public abstract class ODatabaseLifecycleListenerAbstract implements ODatabaseLif
   }
 
   @Override
-  public void onCreate(ODatabaseInternal iDatabase) {}
+  public void onCreate(ODatabaseSessionInternal iDatabase) {}
 
   @Override
-  public void onOpen(ODatabaseInternal iDatabase) {}
+  public void onOpen(ODatabaseSessionInternal iDatabase) {}
 
   @Override
-  public void onClose(ODatabaseInternal iDatabase) {}
+  public void onClose(ODatabaseSessionInternal iDatabase) {}
 
   @Override
-  public void onDrop(ODatabaseInternal iDatabase) {}
+  public void onDrop(ODatabaseSessionInternal iDatabase) {}
 
   @Override
   public void onLocalNodeConfigurationRequest(ODocument iConfiguration) {}

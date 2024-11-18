@@ -229,8 +229,6 @@ public class SQLFindReferencesTest extends DocumentDBBaseTest {
 
   private void dropClass(String iClass) {
     database.command("drop class " + iClass).close();
-    database.getMetadata().getSchema().reload();
-    database.reload();
     while (database.getMetadata().getSchema().existsClass(iClass)) {
       database.getMetadata().getSchema().dropClass(iClass);
       database.reload();

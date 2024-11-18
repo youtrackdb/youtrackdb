@@ -17,6 +17,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 
 /**
@@ -25,9 +26,10 @@ import org.testng.annotations.Parameters;
  */
 @SuppressWarnings("deprecation")
 public class LinkSetIndexTest extends DocumentDBBaseTest {
+
   @Parameters(value = "remote")
-  public LinkSetIndexTest(boolean remote) {
-    super(remote);
+  public LinkSetIndexTest(@Optional Boolean remote) {
+    super(remote != null && remote);
   }
 
   @BeforeClass
@@ -50,7 +52,9 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
   public void afterMethod() {
     checkEmbeddedDB();
 
+    database.begin();
     database.command("DELETE FROM LinkSetIndexTestClass").close();
+    database.commit();
 
     OResultSet result = database.command("select from LinkSetIndexTestClass");
     Assert.assertEquals(result.stream().count(), 0);
@@ -115,8 +119,8 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
       database.begin();
       final ODocument document = new ODocument("LinkSetIndexTestClass");
       final Set<OIdentifiable> linkSet = new HashSet<>();
-      linkSet.add(docOne);
-      linkSet.add(docTwo);
+      linkSet.add(database.bindToSession(docOne));
+      linkSet.add(database.bindToSession(docTwo));
 
       document.field("linkSet", linkSet);
       document.save();
@@ -202,7 +206,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     final ODocument docThree = new ODocument();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument document = new ODocument("LinkSetIndexTestClass");
+    ODocument document = new ODocument("LinkSetIndexTestClass");
     final Set<OIdentifiable> linkSetOne = new HashSet<>();
     linkSetOne.add(docOne);
     linkSetOne.add(docTwo);
@@ -214,9 +218,10 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     try {
       database.begin();
 
+      document = database.bindToSession(document);
       final Set<OIdentifiable> linkSetTwo = new HashSet<>();
-      linkSetTwo.add(docOne);
-      linkSetTwo.add(docThree);
+      linkSetTwo.add(database.bindToSession(docOne));
+      linkSetTwo.add(database.bindToSession(docThree));
 
       document.field("linkSet", linkSetTwo);
       document.save();
@@ -260,16 +265,17 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     linkSetOne.add(docOne);
     linkSetOne.add(docTwo);
 
-    final ODocument document = new ODocument("LinkSetIndexTestClass");
+    ODocument document = new ODocument("LinkSetIndexTestClass");
     document.field("linkSet", linkSetOne);
     document.save();
     database.commit();
 
     database.begin();
 
+    document = database.bindToSession(document);
     final Set<OIdentifiable> linkSetTwo = new HashSet<>();
-    linkSetTwo.add(docOne);
-    linkSetTwo.add(docThree);
+    linkSetTwo.add(database.bindToSession(docOne));
+    linkSetTwo.add(database.bindToSession(docThree));
 
     document.field("linkSet", linkSetTwo);
     document.save();
@@ -367,7 +373,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     try {
       database.begin();
       ODocument loadedDocument = database.load(document.getIdentity());
-      loadedDocument.<Set<OIdentifiable>>field("linkSet").add(docThree);
+      loadedDocument.<Set<OIdentifiable>>field("linkSet").add(database.bindToSession(docThree));
       loadedDocument.save();
       database.commit();
     } catch (Exception e) {
@@ -417,7 +423,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
 
     database.begin();
     ODocument loadedDocument = database.load(document.getIdentity());
-    loadedDocument.<Set<OIdentifiable>>field("linkSet").add(docThree);
+    loadedDocument.<Set<OIdentifiable>>field("linkSet").add(database.bindToSession(docThree));
     loadedDocument.save();
     database.rollback();
 
@@ -586,7 +592,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    document.delete();
+    database.bindToSession(document).delete();
     database.commit();
 
     OIndex index = getIndex("linkSetIndex");
@@ -615,7 +621,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
 
     try {
       database.begin();
-      document.delete();
+      database.bindToSession(document).delete();
       database.commit();
     } catch (Exception e) {
       database.rollback();
@@ -647,7 +653,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    document.delete();
+    database.bindToSession(document).delete();
     database.rollback();
 
     OIndex index = getIndex("linkSetIndex");

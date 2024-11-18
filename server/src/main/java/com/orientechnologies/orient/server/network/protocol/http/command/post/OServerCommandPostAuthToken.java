@@ -3,7 +3,7 @@ package com.orientechnologies.orient.server.network.protocol.http.command.post;
 import com.orientechnologies.common.concur.lock.OLockException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.exception.OSecurityAccessException;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -71,12 +71,10 @@ public class OServerCommandPostAuthToken extends OServerCommandAbstract {
       } else if (tokenHandler != null) {
         // Generate and return a JWT access token
 
-        ODatabaseDocument db = null;
+        ODatabaseSession db = null;
         OSecurityUser user = null;
         try {
-          db =
-              (ODatabaseDocument)
-                  server.openDatabase(iRequest.getDatabaseName(), username, password);
+          db = server.openDatabase(iRequest.getDatabaseName(), username, password);
           user = db.getUser();
 
           if (user != null) {
@@ -118,10 +116,10 @@ public class OServerCommandPostAuthToken extends OServerCommandAbstract {
   // null is returned in all other cases and means authentication was unsuccessful.
   protected String authenticate(
       final String username, final String password, final String iDatabaseName) throws IOException {
-    ODatabaseDocument db = null;
+    ODatabaseSession db = null;
     String userRid = null;
     try {
-      db = (ODatabaseDocument) server.openDatabase(iDatabaseName, username, password);
+      db = server.openDatabase(iDatabaseName, username, password);
 
       userRid = (db.getUser() == null ? "<server user>" : db.getUser().getIdentity().toString());
     } catch (OSecurityAccessException e) {

@@ -10,6 +10,7 @@ import org.testng.Assert;
 import org.testng.SkipException;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -21,8 +22,8 @@ public class IndexTxAwareMultiValueGetTest extends DocumentDBBaseTest {
   private static final String INDEX_NAME = "idxTxAwareMultiValueGetTestIndex";
 
   @Parameters(value = "remote")
-  public IndexTxAwareMultiValueGetTest(boolean remote) {
-    super(remote);
+  public IndexTxAwareMultiValueGetTest(@Optional Boolean remote) {
+    super(remote != null && remote);
   }
 
   @BeforeClass
@@ -96,8 +97,8 @@ public class IndexTxAwareMultiValueGetTest extends DocumentDBBaseTest {
     final OIndex index =
         database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX_NAME);
 
-    final ODocument docOne = new ODocument(CLASS_NAME).field(FIELD_NAME, 1).save();
-    final ODocument docTwo = new ODocument(CLASS_NAME).field(FIELD_NAME, 1).save();
+    ODocument docOne = new ODocument(CLASS_NAME).field(FIELD_NAME, 1).save();
+    ODocument docTwo = new ODocument(CLASS_NAME).field(FIELD_NAME, 1).save();
 
     new ODocument(CLASS_NAME).field(FIELD_NAME, 2).save();
 
@@ -112,6 +113,9 @@ public class IndexTxAwareMultiValueGetTest extends DocumentDBBaseTest {
     }
 
     database.begin();
+
+    docOne = database.bindToSession(docOne);
+    docTwo = database.bindToSession(docTwo);
 
     docOne.delete();
     docTwo.delete();
@@ -145,9 +149,8 @@ public class IndexTxAwareMultiValueGetTest extends DocumentDBBaseTest {
     final OIndex index =
         database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX_NAME);
 
-    final ODocument document = new ODocument(CLASS_NAME).field(FIELD_NAME, 1).save();
+    ODocument document = new ODocument(CLASS_NAME).field(FIELD_NAME, 1).save();
     new ODocument(CLASS_NAME).field(FIELD_NAME, 1).save();
-
     new ODocument(CLASS_NAME).field(FIELD_NAME, 2).save();
 
     database.commit();
@@ -162,6 +165,7 @@ public class IndexTxAwareMultiValueGetTest extends DocumentDBBaseTest {
 
     database.begin();
 
+    document = database.bindToSession(document);
     document.delete();
 
     Assert.assertNotNull(database.getTransaction().getIndexChanges(INDEX_NAME));

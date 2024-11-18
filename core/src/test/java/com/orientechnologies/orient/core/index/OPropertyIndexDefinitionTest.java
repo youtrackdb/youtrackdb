@@ -1,6 +1,8 @@
 package com.orientechnologies.orient.core.index;
 
+import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.util.Arrays;
@@ -10,7 +12,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class OPropertyIndexDefinitionTest {
+public class OPropertyIndexDefinitionTest extends BaseMemoryDatabase {
+
   private OPropertyIndexDefinition propertyIndex;
 
   @Before
@@ -20,36 +23,36 @@ public class OPropertyIndexDefinitionTest {
 
   @Test
   public void testCreateValueSingleParameter() {
-    final Object result = propertyIndex.createValue(Collections.singletonList("12"));
+    final Object result = propertyIndex.createValue(db, Collections.singletonList("12"));
     Assert.assertEquals(result, 12);
   }
 
   @Test
   public void testCreateValueTwoParameters() {
-    final Object result = propertyIndex.createValue(Arrays.asList("12", "25"));
+    final Object result = propertyIndex.createValue(db, Arrays.asList("12", "25"));
     Assert.assertEquals(result, 12);
   }
 
-  @Test(expected = NumberFormatException.class)
+  @Test(expected = ODatabaseException.class)
   public void testCreateValueWrongParameter() {
-    propertyIndex.createValue(Collections.singletonList("tt"));
+    propertyIndex.createValue(db, Collections.singletonList("tt"));
   }
 
   @Test
   public void testCreateValueSingleParameterArrayParams() {
-    final Object result = propertyIndex.createValue("12");
+    final Object result = propertyIndex.createValue(db, "12");
     Assert.assertEquals(result, 12);
   }
 
   @Test
   public void testCreateValueTwoParametersArrayParams() {
-    final Object result = propertyIndex.createValue("12", "25");
+    final Object result = propertyIndex.createValue(db, "12", "25");
     Assert.assertEquals(result, 12);
   }
 
-  @Test(expected = NumberFormatException.class)
+  @Test(expected = ODatabaseException.class)
   public void testCreateValueWrongParameterArrayParams() {
-    propertyIndex.createValue("tt");
+    propertyIndex.createValue(db, "tt");
   }
 
   @Test
@@ -59,7 +62,7 @@ public class OPropertyIndexDefinitionTest {
     document.field("fOne", "15");
     document.field("fTwo", 10);
 
-    final Object result = propertyIndex.getDocumentValueToIndex(document);
+    final Object result = propertyIndex.getDocumentValueToIndex(db, document);
     Assert.assertEquals(result, 15);
   }
 

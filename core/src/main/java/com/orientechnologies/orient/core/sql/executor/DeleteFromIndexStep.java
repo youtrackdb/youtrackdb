@@ -3,6 +3,7 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -32,8 +33,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
-/** Created by luigidellaquila on 11/08/16. */
+/**
+ * Created by luigidellaquila on 11/08/16.
+ */
 public class DeleteFromIndexStep extends AbstractExecutionStep {
+
   protected final OIndexInternal index;
   private final OBinaryCondition additional;
   private final OBooleanExpression ridCondition;
@@ -187,14 +191,14 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     if (index.supportsOrderedIterations()) {
       stream =
           index.streamEntriesBetween(
-              toBetweenIndexKey(indexDef, secondValue),
+              toBetweenIndexKey(ctx.getDatabase(), indexDef, secondValue),
               fromKeyIncluded,
-              toBetweenIndexKey(indexDef, thirdValue),
+              toBetweenIndexKey(ctx.getDatabase(), indexDef, thirdValue),
               toKeyIncluded,
               orderAsc);
       storeAcquiredStream(stream, acquiredStreams);
     } else if (additional == null && allEqualities((OAndBlock) condition)) {
-      stream = index.streamEntries(toIndexKey(indexDef, secondValue), orderAsc);
+      stream = index.streamEntries(toIndexKey(ctx.getDatabase(), indexDef, secondValue), orderAsc);
       storeAcquiredStream(stream, acquiredStreams);
     } else {
       throw new UnsupportedOperationException(
@@ -232,9 +236,9 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     Object thirdValue = third.execute((OResult) null, ctx);
     Stream<ORawPair<Object, ORID>> stream =
         index.streamEntriesBetween(
-            toBetweenIndexKey(definition, secondValue),
+            toBetweenIndexKey(ctx.getDatabase(), definition, secondValue),
             true,
-            toBetweenIndexKey(definition, thirdValue),
+            toBetweenIndexKey(ctx.getDatabase(), definition, thirdValue),
             true,
             orderAsc);
     storeAcquiredStream(stream, acquiredStreams);
@@ -249,18 +253,20 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
           "search for index for " + condition + " is not supported yet");
     }
     Object rightValue = ((OBinaryCondition) condition).getRight().execute((OResult) null, ctx);
-    Stream<ORawPair<Object, ORID>> stream = createStream(operator, definition, rightValue);
+    Stream<ORawPair<Object, ORID>> stream =
+        createStream(ctx.getDatabase(), operator, definition, rightValue);
     storeAcquiredStream(stream, acquiredStreams);
   }
 
-  private static Collection<?> toIndexKey(OIndexDefinition definition, Object rightValue) {
+  private static Collection<?> toIndexKey(
+      ODatabaseSessionInternal session, OIndexDefinition definition, Object rightValue) {
     if (definition.getFields().size() == 1 && rightValue instanceof Collection) {
       rightValue = ((Collection<?>) rightValue).iterator().next();
     }
     if (rightValue instanceof List) {
-      rightValue = definition.createValue((List<?>) rightValue);
+      rightValue = definition.createValue(session, (List<?>) rightValue);
     } else {
-      rightValue = definition.createValue(rightValue);
+      rightValue = definition.createValue(session, rightValue);
     }
     if (!(rightValue instanceof Collection)) {
       rightValue = Collections.singleton(rightValue);
@@ -268,11 +274,12 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     return (Collection<?>) rightValue;
   }
 
-  private static Object toBetweenIndexKey(OIndexDefinition definition, Object rightValue) {
+  private static Object toBetweenIndexKey(
+      ODatabaseSessionInternal session, OIndexDefinition definition, Object rightValue) {
     if (definition.getFields().size() == 1 && rightValue instanceof Collection) {
       rightValue = ((Collection<?>) rightValue).iterator().next();
     }
-    rightValue = definition.createValue(rightValue);
+    rightValue = definition.createValue(session, rightValue);
 
     if (definition.getFields().size() > 1 && !(rightValue instanceof Collection)) {
       rightValue = Collections.singleton(rightValue);
@@ -281,10 +288,13 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
   }
 
   private Stream<ORawPair<Object, ORID>> createStream(
-      OBinaryCompareOperator operator, OIndexDefinition definition, Object value) {
+      ODatabaseSessionInternal session,
+      OBinaryCompareOperator operator,
+      OIndexDefinition definition,
+      Object value) {
     boolean orderAsc = this.orderAsc;
     if (operator instanceof OEqualsCompareOperator) {
-      return index.streamEntries(toIndexKey(definition, value), orderAsc);
+      return index.streamEntries(toIndexKey(session, definition, value), orderAsc);
     } else if (operator instanceof OGeOperator) {
       return index.streamEntriesMajor(value, true, orderAsc);
     } else if (operator instanceof OGtOperator) {
@@ -346,9 +356,10 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
           Optional.ofNullable(additional).map(OBinaryCondition::getOperator).orElse(null);
       if (isGreaterOperator(operator)) {
         return isIncludeOperator(operator);
-      } else
+      } else {
         return additionalOperator == null
             || (isIncludeOperator(additionalOperator) && isGreaterOperator(additionalOperator));
+      }
     } else {
       throw new UnsupportedOperationException("Cannot execute index query with " + exp);
     }
@@ -384,9 +395,10 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
           Optional.ofNullable(additional).map(OBinaryCondition::getOperator).orElse(null);
       if (isLessOperator(operator)) {
         return isIncludeOperator(operator);
-      } else
+      } else {
         return additionalOperator == null
             || (isIncludeOperator(additionalOperator) && isLessOperator(additionalOperator));
+      }
     } else {
       throw new UnsupportedOperationException("Cannot execute index query with " + exp);
     }

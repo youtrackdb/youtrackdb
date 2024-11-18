@@ -4,17 +4,19 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.client.remote.message.OLiveQueryPushRequest;
 import com.orientechnologies.orient.client.remote.message.live.OLiveQueryResult;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 
-/** Created by tglman on 28/05/17. */
+/**
+ * Created by tglman on 28/05/17.
+ */
 public class OLiveQueryClientListener {
 
-  private ODatabaseDocument database;
+  private ODatabaseSession database;
   private OLiveQueryResultListener listener;
 
-  public OLiveQueryClientListener(ODatabaseDocument database, OLiveQueryResultListener listener) {
+  public OLiveQueryClientListener(ODatabaseSession database, OLiveQueryResultListener listener) {
     this.database = database;
     this.listener = listener;
   }

@@ -24,35 +24,21 @@
   </test>
   <test name="Hook">
     <classes>
-      <class name="com.orientechnologies.orient.test.database.auto.HookTest"/>
       <class name="com.orientechnologies.orient.test.database.auto.HookTxTest"/>
     </classes>
   </test>
   <test name="Population">
     <classes>
-      <class name="com.orientechnologies.orient.test.database.auto.ObjectTreeTest"/>
-      <class name="com.orientechnologies.orient.test.database.auto.CRUDObjectPhysicalTest"/>
-      <class name="com.orientechnologies.orient.test.database.auto.CRUDObjectInheritanceTest"/>
+      <class name="com.orientechnologies.orient.test.database.auto.EntityTreeTest"/>
+      <class name="com.orientechnologies.orient.test.database.auto.CRUDTest"/>
+      <class name="com.orientechnologies.orient.test.database.auto.CRUDInheritanceTest"/>
       <class name="com.orientechnologies.orient.test.database.auto.CRUDDocumentPhysicalTest"/>
       <class name="com.orientechnologies.orient.test.database.auto.ComplexTypesTest"/>
       <class name="com.orientechnologies.orient.test.database.auto.CRUDDocumentValidationTest"/>
       <class name="com.orientechnologies.orient.test.database.auto.RecordMetadataTest"/>
-      <class name="com.orientechnologies.orient.test.database.auto.ObjectDetachingTest"/>
-      <class name="com.orientechnologies.orient.test.database.auto.ObjectEnhancingTest"/>
       <class name="com.orientechnologies.orient.test.database.auto.DocumentTrackingTest"/>
       <class
-        name="com.orientechnologies.orient.test.database.auto.EmbeddedObjectSerializationTest"/>
-    </classes>
-  </test>
-  <test name="PopulationObjectSchemaFull">
-    <classes>
-      <class
-        name="com.orientechnologies.orient.test.database.auto.CRUDObjectInheritanceTestSchemaFull"/>
-      <class
-        name="com.orientechnologies.orient.test.database.auto.CRUDObjectPhysicalTestSchemaFull"/>
-      <class name="com.orientechnologies.orient.test.database.auto.ObjectTreeTestSchemaFull"/>
-      <class name="com.orientechnologies.orient.test.database.auto.ObjectDetachingTestSchemaFull"/>
-      <class name="com.orientechnologies.orient.test.database.auto.ObjectEnhancingTestSchemaFull"/>
+        name="com.orientechnologies.orient.test.database.auto.EmbeddedEntitySerializationTest"/>
     </classes>
   </test>
   <test name="Tx">

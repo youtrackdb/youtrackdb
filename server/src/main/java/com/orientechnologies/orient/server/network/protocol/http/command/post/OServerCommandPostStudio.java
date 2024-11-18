@@ -20,8 +20,8 @@
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
 import com.orientechnologies.common.util.OPatternConst;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -43,6 +43,7 @@ import java.util.Map.Entry;
 
 @SuppressWarnings("unchecked")
 public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstract {
+
   private static final String[] NAMES = {"POST|studio/*"};
 
   public boolean execute(final OHttpRequest iRequest, OHttpResponse iResponse) throws Exception {
@@ -70,30 +71,38 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
         String[] pairs = p.split("=");
         value = pairs.length == 1 ? null : pairs[1];
 
-        if ("oper".equals(pairs[0])) operation = value;
-        else if ("0".equals(pairs[0])) rid = value;
-        else if ("1".equals(pairs[0])) className = value;
-        else if (pairs[0].startsWith(ODocumentHelper.ATTRIBUTE_CLASS)) className = value;
-        else if (pairs[0].startsWith("@") || pairs[0].equals("id")) continue;
-        else {
+        if ("oper".equals(pairs[0])) {
+          operation = value;
+        } else if ("0".equals(pairs[0])) {
+          rid = value;
+        } else if ("1".equals(pairs[0])) {
+          className = value;
+        } else if (pairs[0].startsWith(ODocumentHelper.ATTRIBUTE_CLASS)) {
+          className = value;
+        } else if (pairs[0].startsWith("@") || pairs[0].equals("id")) {
+          continue;
+        } else {
           fields.put(pairs[0], value);
         }
       }
 
       String context = urlParts[2];
-      if ("document".equals(context))
-        executeDocument(iRequest, iResponse, db, operation, rid, className, fields);
-      else if ("classes".equals(context))
+      if ("document".equals(context)) {
+        executeDocument(iRequest, iResponse, operation, rid, className, fields);
+      } else if ("classes".equals(context)) {
         executeClasses(iRequest, iResponse, db, operation, rid, className, fields);
-      else if ("clusters".equals(context))
+      } else if ("clusters".equals(context)) {
         executeClusters(iRequest, iResponse, db, operation, rid, className, fields);
-      else if ("classProperties".equals(context))
+      } else if ("classProperties".equals(context)) {
         executeClassProperties(iRequest, iResponse, db, operation, rid, className, fields);
-      else if ("classIndexes".equals(context))
+      } else if ("classIndexes".equals(context)) {
         executeClassIndexes(iRequest, iResponse, db, operation, rid, className, fields);
+      }
 
     } finally {
-      if (db != null) db.close();
+      if (db != null) {
+        db.close();
+      }
     }
     return false;
   }
@@ -101,7 +110,7 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
   private void executeClassProperties(
       final OHttpRequest iRequest,
       final OHttpResponse iResponse,
-      final ODatabaseDocument db,
+      final ODatabaseSession db,
       final String operation,
       final String rid,
       final String className,
@@ -129,23 +138,35 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
         if (type == OType.LINK
             || type == OType.LINKLIST
             || type == OType.LINKSET
-            || type == OType.LINKMAP)
+            || type == OType.LINKMAP) {
           prop =
               (OPropertyImpl)
                   cls.createProperty(
                       fields.get("name"),
                       type,
                       db.getMetadata().getSchema().getClass(fields.get("linkedClass")));
-        else prop = (OPropertyImpl) cls.createProperty(fields.get("name"), type);
+        } else {
+          prop = (OPropertyImpl) cls.createProperty(fields.get("name"), type);
+        }
 
-        if (fields.get("linkedType") != null)
+        if (fields.get("linkedType") != null) {
           prop.setLinkedType(OType.valueOf(fields.get("linkedType")));
-        if (fields.get("mandatory") != null)
+        }
+        if (fields.get("mandatory") != null) {
           prop.setMandatory("on".equals(fields.get("mandatory")));
-        if (fields.get("readonly") != null) prop.setReadonly("on".equals(fields.get("readonly")));
-        if (fields.get("notNull") != null) prop.setNotNull("on".equals(fields.get("notNull")));
-        if (fields.get("min") != null) prop.setMin(fields.get("min"));
-        if (fields.get("max") != null) prop.setMax(fields.get("max"));
+        }
+        if (fields.get("readonly") != null) {
+          prop.setReadonly("on".equals(fields.get("readonly")));
+        }
+        if (fields.get("notNull") != null) {
+          prop.setNotNull("on".equals(fields.get("notNull")));
+        }
+        if (fields.get("min") != null) {
+          prop.setMin(fields.get("min"));
+        }
+        if (fields.get("max") != null) {
+          prop.setMax(fields.get("max"));
+        }
 
         iResponse.send(
             OHttpUtils.STATUS_OK_CODE,
@@ -179,7 +200,7 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
   private void executeClasses(
       final OHttpRequest iRequest,
       final OHttpResponse iResponse,
-      final ODatabaseDocument db,
+      final ODatabaseSession db,
       final String operation,
       final String rid,
       final String className,
@@ -195,14 +216,18 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
       try {
         final String superClassName = fields.get("superClass");
         final OClass superClass;
-        if (superClassName != null)
+        if (superClassName != null) {
           superClass = db.getMetadata().getSchema().getClass(superClassName);
-        else superClass = null;
+        } else {
+          superClass = null;
+        }
 
         final OClass cls = db.getMetadata().getSchema().createClass(fields.get("name"), superClass);
 
         final String alias = fields.get("alias");
-        if (alias != null) cls.setShortName(alias);
+        if (alias != null) {
+          cls.setShortName(alias);
+        }
 
         iResponse.send(
             OHttpUtils.STATUS_OK_CODE,
@@ -274,7 +299,6 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
   private void executeDocument(
       final OHttpRequest iRequest,
       final OHttpResponse iResponse,
-      final ODatabaseDocument db,
       final String operation,
       final String rid,
       final String className,
@@ -283,7 +307,9 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
     if ("edit".equals(operation)) {
       iRequest.getData().commandInfo = "Studio edit document";
 
-      if (rid == null) throw new IllegalArgumentException("Record ID not found in request");
+      if (rid == null) {
+        throw new IllegalArgumentException("Record ID not found in request");
+      }
 
       ODocument doc = new ODocument(className, new ORecordId(rid));
       // BIND ALL CHANGED FIELDS
@@ -291,8 +317,9 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
         final Object oldValue = doc.rawField(f.getKey());
         String userValue = f.getValue();
 
-        if (userValue != null && userValue.equals("undefined")) doc.removeField(f.getKey());
-        else {
+        if (userValue != null && userValue.equals("undefined")) {
+          doc.removeField(f.getKey());
+        } else {
           Object newValue = ORecordSerializerStringAbstract.getTypeValue(userValue);
 
           if (newValue != null) {
@@ -307,8 +334,10 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
           }
 
           if (oldValue != null && oldValue.equals(userValue))
-            // NO CHANGES
+          // NO CHANGES
+          {
             continue;
+          }
 
           doc.field(f.getKey(), newValue);
         }
@@ -327,7 +356,9 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
       final ODocument doc = new ODocument(className);
 
       // BIND ALL CHANGED FIELDS
-      for (Entry<String, String> f : fields.entrySet()) doc.field(f.getKey(), f.getValue());
+      for (Entry<String, String> f : fields.entrySet()) {
+        doc.field(f.getKey(), f.getValue());
+      }
 
       doc.save();
       iResponse.send(
@@ -340,7 +371,9 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
     } else if ("del".equals(operation)) {
       iRequest.getData().commandInfo = "Studio delete document";
 
-      if (rid == null) throw new IllegalArgumentException("Record ID not found in request");
+      if (rid == null) {
+        throw new IllegalArgumentException("Record ID not found in request");
+      }
 
       final ODocument doc = new ORecordId(rid).getRecord();
       doc.delete();
@@ -351,8 +384,9 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
           "Record " + rid + " deleted successfully.",
           null);
 
-    } else
+    } else {
       iResponse.send(500, "Error", OHttpUtils.CONTENT_TEXT_PLAIN, "Operation not supported", null);
+    }
   }
 
   private void executeClassIndexes(
@@ -432,13 +466,14 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
             "Error on deletion index '" + className + "' for class " + rid + ": " + e,
             null);
       }
-    } else
+    } else {
       iResponse.send(
           OHttpUtils.STATUS_INTERNALERROR_CODE,
           "Error",
           OHttpUtils.CONTENT_TEXT_PLAIN,
           "Operation not supported",
           null);
+    }
   }
 
   public String[] getNames() {

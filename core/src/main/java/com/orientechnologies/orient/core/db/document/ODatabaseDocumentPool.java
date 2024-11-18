@@ -26,7 +26,7 @@ import com.orientechnologies.orient.core.db.ODatabasePoolBase;
  *     com.orientechnologies.orient.core.db.OPartitionedDatabasePoolFactory} instead.
  */
 @Deprecated
-public class ODatabaseDocumentPool extends ODatabasePoolBase<ODatabaseDocumentTx> {
+public class ODatabaseDocumentPool extends ODatabasePoolBase {
 
   private static ODatabaseDocumentPool globalInstance = new ODatabaseDocumentPool();
 

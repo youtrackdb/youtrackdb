@@ -78,17 +78,24 @@ public class OQueryOperatorContainsKey extends OQueryOperatorEqualityNotNulls {
 
     Stream<ORawPair<Object, ORID>> stream;
     final OIndexInternal internalIndex = index.getInternal();
-    if (!internalIndex.canBeUsedInEqualityOperators()) return null;
+    if (!internalIndex.canBeUsedInEqualityOperators()) {
+      return null;
+    }
 
     if (indexDefinition.getParamCount() == 1) {
       if (!((indexDefinition instanceof OPropertyMapIndexDefinition)
           && ((OPropertyMapIndexDefinition) indexDefinition).getIndexBy()
-              == OPropertyMapIndexDefinition.INDEX_BY.KEY)) return null;
+              == OPropertyMapIndexDefinition.INDEX_BY.KEY)) {
+        return null;
+      }
 
       final Object key =
-          ((OIndexDefinitionMultiValue) indexDefinition).createSingleValue(keyParams.get(0));
+          ((OIndexDefinitionMultiValue) indexDefinition)
+              .createSingleValue(iContext.getDatabase(), keyParams.get(0));
 
-      if (key == null) return null;
+      if (key == null) {
+        return null;
+      }
 
       stream = index.getInternal().getRids(key).map((rid) -> new ORawPair<>(key, rid));
     } else {
@@ -102,16 +109,20 @@ public class OQueryOperatorContainsKey extends OQueryOperatorEqualityNotNulls {
               instanceof OPropertyMapIndexDefinition)
           && ((OPropertyMapIndexDefinition) compositeIndexDefinition.getMultiValueDefinition())
                   .getIndexBy()
-              == OPropertyMapIndexDefinition.INDEX_BY.KEY)) return null;
+              == OPropertyMapIndexDefinition.INDEX_BY.KEY)) {
+        return null;
+      }
 
-      final Object keyOne = compositeIndexDefinition.createSingleValue(keyParams);
+      final Object keyOne =
+          compositeIndexDefinition.createSingleValue(iContext.getDatabase(), keyParams);
 
       if (keyOne == null) {
         return null;
       }
 
       if (internalIndex.hasRangeQuerySupport()) {
-        final Object keyTwo = compositeIndexDefinition.createSingleValue(keyParams);
+        final Object keyTwo =
+            compositeIndexDefinition.createSingleValue(iContext.getDatabase(), keyParams);
         stream = index.getInternal().streamEntriesBetween(keyOne, true, keyTwo, true, ascSortOrder);
       } else {
         if (indexDefinition.getParamCount() == keyParams.size()) {

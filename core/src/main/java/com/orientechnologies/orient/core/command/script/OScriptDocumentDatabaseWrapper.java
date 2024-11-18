@@ -20,12 +20,10 @@
 package com.orientechnologies.orient.core.command.script;
 
 import com.orientechnologies.common.util.OCommonConst;
-import com.orientechnologies.orient.core.db.ODatabase;
-import com.orientechnologies.orient.core.db.ODatabase.ATTRIBUTES;
-import com.orientechnologies.orient.core.db.ODatabase.STATUS;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSession.ATTRIBUTES;
+import com.orientechnologies.orient.core.db.ODatabaseSession.STATUS;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.dictionary.ODictionary;
 import com.orientechnologies.orient.core.id.ORID;
@@ -139,8 +137,8 @@ public class OScriptDocumentDatabaseWrapper {
     return database.browseClass(iClassName, iPolymorphic);
   }
 
-  public <THISDB extends ODatabase> THISDB setStatus(STATUS iStatus) {
-    return (THISDB) database.setStatus(iStatus);
+  public ODatabaseSession setStatus(STATUS iStatus) {
+    return database.setStatus(iStatus);
   }
 
   public void drop() {
@@ -163,8 +161,8 @@ public class OScriptDocumentDatabaseWrapper {
     return database.isClosed();
   }
 
-  public <THISDB extends ODatabase> THISDB open(String iUserName, String iUserPassword) {
-    return (THISDB) database.open(iUserName, iUserPassword);
+  public ODatabaseSession open(String iUserName, String iUserPassword) {
+    return database.open(iUserName, iUserPassword);
   }
 
   public ODocument save(final Map<String, Object> iObject) {
@@ -184,8 +182,8 @@ public class OScriptDocumentDatabaseWrapper {
     return database.dropCluster(iClusterName);
   }
 
-  public <THISDB extends ODatabase> THISDB create() {
-    return (THISDB) database.create();
+  public ODatabaseSession create() {
+    return database.create();
   }
 
   public boolean dropCluster(int iClusterId, final boolean iTruncate) {
@@ -224,8 +222,8 @@ public class OScriptDocumentDatabaseWrapper {
     return database.getClusterNameById(iClusterId);
   }
 
-  public <RET extends ODatabase<?>> RET setMVCC(boolean iValue) {
-    return (RET) database.setMVCC(iValue);
+  public ODatabaseSession setMVCC(boolean iValue) {
+    return database.setMVCC(iValue);
   }
 
   public long getClusterRecordSizeById(int iClusterId) {
@@ -240,8 +238,8 @@ public class OScriptDocumentDatabaseWrapper {
     return database.getClusterRecordSizeByName(iClusterName);
   }
 
-  public <RET extends ODatabaseDocument> RET setValidationEnabled(boolean iValue) {
-    return (RET) database.setValidationEnabled(iValue);
+  public ODatabaseSession setValidationEnabled(boolean iValue) {
+    return database.setValidationEnabled(iValue);
   }
 
   public OSecurityUser getUser() {
@@ -296,7 +294,7 @@ public class OScriptDocumentDatabaseWrapper {
     return (RET) database.load(iRecord, iFetchPlan, iIgnoreCache);
   }
 
-  public ODatabase<?> setDatabaseOwner(ODatabaseInternal<?> iOwner) {
+  public ODatabaseSession setDatabaseOwner(ODatabaseSessionInternal iOwner) {
     return database.setDatabaseOwner(iOwner);
   }
 
@@ -332,7 +330,7 @@ public class OScriptDocumentDatabaseWrapper {
     return database.isRetainRecords();
   }
 
-  public ODatabaseDocument setRetainRecords(boolean iValue) {
+  public ODatabaseSession setRetainRecords(boolean iValue) {
     return database.setRetainRecords(iValue);
   }
 

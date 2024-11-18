@@ -71,14 +71,17 @@ public class OTransactionOptimisticServer extends OTransactionOptimistic {
             byte type = operation.getRecordType();
             if (type == ODocumentSerializerDelta.DELTA_RECORD_TYPE) {
               int version = operation.getVersion();
-              var updated = (ORecordAbstract) database.load(rid);
-              if (updated == null) {
+              ODocument updated;
+              try {
+                updated = database.load(rid);
+              } catch (ORecordNotFoundException rnf) {
                 updated = new ODocument();
               }
-              ((ODocument) updated).deserializeFields();
-              ODocumentInternal.clearTransactionTrackData((ODocument) updated);
+
+              updated.deserializeFields();
+              ODocumentInternal.clearTransactionTrackData(updated);
               ODocumentSerializerDelta delta = ODocumentSerializerDelta.instance();
-              delta.deserializeDelta(operation.getRecord(), (ODocument) updated);
+              delta.deserializeDelta(operation.getRecord(), updated);
               entry = new ORecordOperation(updated, ORecordOperation.UPDATED);
               ORecordInternal.setIdentity(updated, rid);
               ORecordInternal.setVersion(updated, version);

@@ -1,13 +1,14 @@
 package com.orientechnologies.orient.core.sql.select;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ORecordBytes;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -15,7 +16,6 @@ import org.junit.Test;
  * Created by tglman on 15/04/16.
  */
 public class TestBinaryRecordsQuery extends BaseMemoryDatabase {
-
   @Before
   public void beforeTest() {
     super.beforeTest();
@@ -54,8 +54,12 @@ public class TestBinaryRecordsQuery extends BaseMemoryDatabase {
     db.commit();
 
     assertEquals(1, (long) res.next().getProperty("count"));
-    rec = db.load(rec.getIdentity());
-    assertNull(rec);
+    try {
+      db.load(rec.getIdentity());
+      Assert.fail();
+    } catch (ORecordNotFoundException e) {
+      // ignore
+    }
   }
 
   @Test
@@ -78,8 +82,12 @@ public class TestBinaryRecordsQuery extends BaseMemoryDatabase {
     db.commit();
 
     assertEquals(1, (long) res.next().getProperty("count"));
-    rec = db.load(rec.getIdentity());
-    assertNull(rec);
+    try {
+      db.load(rec.getIdentity());
+      Assert.fail();
+    } catch (ORecordNotFoundException e) {
+      // ignore
+    }
   }
 
   @Test
@@ -108,9 +116,18 @@ public class TestBinaryRecordsQuery extends BaseMemoryDatabase {
     assertEquals(2, (long) res.next().getProperty("count"));
     db.commit();
 
-    rec = db.load(rec.getIdentity());
-    assertNull(rec);
-    rec = db.load(rec1.getIdentity());
-    assertNull(rec);
+    try {
+      db.load(rec.getIdentity());
+      Assert.fail();
+    } catch (ORecordNotFoundException e) {
+      // ignore
+    }
+
+    try {
+      db.load(rec1.getIdentity());
+      Assert.fail();
+    } catch (ORecordNotFoundException e) {
+      // ignore
+    }
   }
 }

@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.testng.Assert;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -33,8 +34,8 @@ import org.testng.annotations.Test;
 public class DateTest extends DocumentDBBaseTest {
 
   @Parameters(value = "remote")
-  public DateTest(boolean remote) {
-    super(remote);
+  public DateTest(@Optional Boolean remote) {
+    super(remote != null && remote);
   }
 
   @Test
@@ -55,6 +56,7 @@ public class DateTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
+    doc2 = database.bindToSession(doc2);
     Assert.assertTrue(doc2.field("date", OType.DATE) instanceof Date);
     Assert.assertTrue(doc2.field("date", Date.class) instanceof Date);
 

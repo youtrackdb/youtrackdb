@@ -54,7 +54,7 @@ public class ODocumentWrapper implements Serializable {
   }
 
   public ODocument toStream() {
-    return document;
+    return getDocument();
   }
 
   public <RET extends ODocumentWrapper> RET load(

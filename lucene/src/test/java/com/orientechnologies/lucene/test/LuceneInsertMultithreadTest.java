@@ -22,7 +22,6 @@ import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.engine.local.OEngineLocalPaginated;
 import com.orientechnologies.orient.core.engine.memory.OEngineMemory;
 import com.orientechnologies.orient.core.id.ORID;
@@ -81,7 +80,7 @@ public class LuceneInsertMultithreadTest {
         "create database ? " + databaseType + " users(admin identified by 'admin' role admin)",
         dbName);
     OSchema schema;
-    try (ODatabaseDocument databaseDocumentTx = orientDB.open(dbName, "admin", "admin")) {
+    try (ODatabaseSession databaseDocumentTx = orientDB.open(dbName, "admin", "admin")) {
       schema = databaseDocumentTx.getMetadata().getSchema();
 
       if (schema.getClass("City") == null) {
@@ -153,7 +152,7 @@ public class LuceneInsertMultithreadTest {
     @Override
     public void run() {
       OSchema schema;
-      try (ODatabaseDocument databaseDocumentTx = orientDB.open(dbName, "admin", "admin")) {
+      try (ODatabaseSession databaseDocumentTx = orientDB.open(dbName, "admin", "admin")) {
         schema = databaseDocumentTx.getMetadata().getSchema();
 
         OIndex idx = schema.getClass("City").getClassIndex("City.name");

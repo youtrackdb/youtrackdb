@@ -35,9 +35,8 @@ import com.orientechnologies.orient.core.command.script.formatter.OScriptFormatt
 import com.orientechnologies.orient.core.command.script.js.OJSScriptEngineFactory;
 import com.orientechnologies.orient.core.command.script.transformer.OScriptTransformerImpl;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabase;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.function.OFunctionUtilWrapper;
@@ -177,7 +176,7 @@ public class OScriptManager {
    * @param iLanguage Language as filter
    * @return String containing all the functions
    */
-  public String getLibrary(final ODatabase<?> db, final String iLanguage) {
+  public String getLibrary(final ODatabaseSession db, final String iLanguage) {
     if (db == null)
       // NO DB = NO LIBRARY
       return null;
@@ -314,7 +313,7 @@ public class OScriptManager {
     return binding;
   }
 
-  private void bindInjectors(ScriptEngine engine, Bindings binding, ODatabaseDocument database) {
+  private void bindInjectors(ScriptEngine engine, Bindings binding, ODatabaseSession database) {
     for (OScriptInjection i : injections) i.bind(engine, binding, database);
   }
 
@@ -516,7 +515,7 @@ public class OScriptManager {
       Object result,
       ScriptEngine engine,
       Bindings binding,
-      ODatabaseDocument database) {
+      ODatabaseSession database) {
     OScriptResultHandler handler = handlers.get(language);
     if (handler != null) {
       return handler.handle(result, engine, binding, database);

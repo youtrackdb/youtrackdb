@@ -15,7 +15,7 @@ public interface OEdgeInternal extends OEdge, OElementInternal {
 
   @Override
   default Set<String> getPropertyNames() {
-    return filterPropertyNames(getPropertyNamesWithoutFiltration());
+    return filterPropertyNames(getPropertyNamesInternal());
   }
 
   static Set<String> filterPropertyNames(Set<String> propertyNames) {
@@ -42,7 +42,7 @@ public interface OEdgeInternal extends OEdge, OElementInternal {
   default <RET> RET getProperty(String name) {
     checkPropertyName(name);
 
-    return getPropertyWithoutValidation(name);
+    return getPropertyInternal(name);
   }
 
   static void checkPropertyName(String name) {
@@ -75,7 +75,7 @@ public interface OEdgeInternal extends OEdge, OElementInternal {
   default void setProperty(String name, Object value) {
     checkPropertyName(name);
 
-    setPropertyWithoutValidation(name, value);
+    setPropertyInternal(name, value);
   }
 
   @Override
@@ -92,14 +92,14 @@ public interface OEdgeInternal extends OEdge, OElementInternal {
   @Override
   default void setProperty(String name, Object value, OType... fieldType) {
     checkPropertyName(name);
-    setPropertyWithoutValidation(name, value, fieldType);
+    setPropertyInternal(name, value, fieldType);
   }
 
   @Override
   default <RET> RET removeProperty(String name) {
     checkPropertyName(name);
 
-    return removePropertyWithoutValidation(name);
+    return removePropertyInternal(name);
   }
 
   @Nullable
@@ -116,31 +116,31 @@ public interface OEdgeInternal extends OEdge, OElementInternal {
   }
 
   @Override
-  default Set<String> getPropertyNamesWithoutFiltration() {
+  default Set<String> getPropertyNamesInternal() {
     var baseDocument = getBaseDocument();
     if (baseDocument == null) {
       return Collections.emptySet();
     }
-    return baseDocument.getPropertyNamesWithoutFiltration();
+    return baseDocument.getPropertyNamesInternal();
   }
 
-  default <RET> RET getPropertyWithoutValidation(String name) {
+  default <RET> RET getPropertyInternal(String name) {
     var baseDocument = getBaseDocument();
     if (baseDocument == null) {
       return null;
     }
 
-    return baseDocument.getPropertyWithoutValidation(name);
+    return baseDocument.getPropertyInternal(name);
   }
 
   @Override
-  default <RET> RET getPropertyWithoutValidation(String name, boolean lazyLoading) {
+  default <RET> RET getPropertyInternal(String name, boolean lazyLoading) {
     var baseDocument = getBaseDocument();
     if (baseDocument == null) {
       return null;
     }
 
-    return baseDocument.getPropertyWithoutValidation(name, lazyLoading);
+    return baseDocument.getPropertyInternal(name, lazyLoading);
   }
 
   @Override
@@ -155,17 +155,17 @@ public interface OEdgeInternal extends OEdge, OElementInternal {
 
   @Nullable
   @Override
-  default OIdentifiable getLinkPropertyWithoutValidation(String name) {
+  default OIdentifiable getLinkPropertyInternal(String name) {
     var baseDocument = getBaseDocument();
     if (baseDocument == null) {
       return null;
     }
 
-    return baseDocument.getLinkPropertyWithoutValidation(name);
+    return baseDocument.getLinkPropertyInternal(name);
   }
 
   @Override
-  default void setPropertyWithoutValidation(String name, Object value) {
+  default void setPropertyInternal(String name, Object value) {
     var baseDocument = getBaseDocument();
     if (baseDocument == null) {
       promoteToRegularEdge();
@@ -176,11 +176,11 @@ public interface OEdgeInternal extends OEdge, OElementInternal {
       }
     }
 
-    baseDocument.setPropertyWithoutValidation(name, value);
+    baseDocument.setPropertyInternal(name, value);
   }
 
   @Override
-  default void setPropertyWithoutValidation(String name, Object value, OType... type) {
+  default void setPropertyInternal(String name, Object value, OType... type) {
     var baseDocument = getBaseDocument();
     if (baseDocument == null) {
       promoteToRegularEdge();
@@ -191,17 +191,17 @@ public interface OEdgeInternal extends OEdge, OElementInternal {
       }
     }
 
-    baseDocument.setPropertyWithoutValidation(name, value, type);
+    baseDocument.setPropertyInternal(name, value, type);
   }
 
   @Override
-  default <RET> RET removePropertyWithoutValidation(String name) {
+  default <RET> RET removePropertyInternal(String name) {
     var baseDocument = getBaseDocument();
     if (baseDocument == null) {
       throw new UnsupportedOperationException("This edge is not backed by a document.");
     }
 
-    return baseDocument.removePropertyWithoutValidation(name);
+    return baseDocument.removePropertyInternal(name);
   }
 
   void promoteToRegularEdge();

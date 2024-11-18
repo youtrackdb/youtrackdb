@@ -25,7 +25,6 @@ import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.OrientDBConfigBuilder;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
 import com.orientechnologies.orient.core.db.tool.ODatabaseExport;
 import com.orientechnologies.orient.core.db.tool.ODatabaseImport;
@@ -45,15 +44,15 @@ import org.testng.Assert;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-@Test(groups = {"db", "import-export"})
+@Test
 public class DbImportExportTest extends DocumentDBBaseTest implements OCommandOutputListener {
 
-  public static final String EXPORT_FILE_PATH = "target/db.export.gz";
-  public static final String NEW_DB_PATH = "target/test-import";
-  public static final String NEW_DB_URL = "target/test-import";
+  public static final String EXPORT_FILE_PATH = "target/export/db.export.gz";
+  public static final String IMPORT_DB_NAME = "test-import";
+  public static final String IMPORT_DB_PATH = "target/import";
 
-  private String testPath;
-  private String exportFilePath;
+  private final String testPath;
+  private final String exportFilePath;
   private boolean dumpMode = false;
 
   @Parameters(value = {"remote", "testPath"})
@@ -65,8 +64,6 @@ public class DbImportExportTest extends DocumentDBBaseTest implements OCommandOu
 
   @Test
   public void testDbExport() throws IOException {
-    final ODatabaseSessionInternal database = acquireSession();
-
     // ADD A CUSTOM TO THE CLASS
     database.command("alter class V custom onBeforeCreate=onBeforeCreateItem").close();
 
@@ -74,12 +71,11 @@ public class DbImportExportTest extends DocumentDBBaseTest implements OCommandOu
         new ODatabaseExport(database, testPath + "/" + exportFilePath, this);
     export.exportDatabase();
     export.close();
-    database.close();
   }
 
   @Test(dependsOnMethods = "testDbExport")
   public void testDbImport() throws IOException {
-    final File importDir = new File(testPath + "/" + NEW_DB_PATH);
+    final File importDir = new File(testPath + "/" + IMPORT_DB_PATH);
     if (importDir.exists()) {
       for (final File f : importDir.listFiles()) {
         f.delete();
@@ -88,21 +84,24 @@ public class DbImportExportTest extends DocumentDBBaseTest implements OCommandOu
       importDir.mkdir();
     }
 
-    final ODatabaseSessionInternal database =
-        new ODatabaseDocumentTx(getStorageType() + ":" + testPath + "/" + NEW_DB_URL);
-    database.create();
-
-    final ODatabaseImport dbImport =
-        new ODatabaseImport(database, testPath + "/" + exportFilePath, this);
-    // UNREGISTER ALL THE HOOKS
-    for (final ORecordHook hook : new ArrayList<>(database.getHooks().keySet())) {
-      database.unregisterHook(hook);
+    try (OrientDB orientDBImport =
+        OrientDB.embedded(
+            testPath + File.separator + IMPORT_DB_PATH, OrientDBConfig.defaultConfig())) {
+      orientDBImport.createIfNotExists(
+          IMPORT_DB_NAME, ODatabaseType.PLOCAL, "admin", "admin", "admin");
+      try (var importDB = orientDBImport.open(IMPORT_DB_NAME, "admin", "admin")) {
+        final ODatabaseImport dbImport =
+            new ODatabaseImport(
+                (ODatabaseSessionInternal) importDB, testPath + "/" + exportFilePath, this);
+        // UNREGISTER ALL THE HOOKS
+        for (final ORecordHook hook : new ArrayList<>(database.getHooks().keySet())) {
+          database.unregisterHook(hook);
+        }
+        dbImport.setDeleteRIDMapping(false);
+        dbImport.importDatabase();
+        dbImport.close();
+      }
     }
-    dbImport.setDeleteRIDMapping(false);
-    dbImport.importDatabase();
-    dbImport.close();
-
-    database.close();
   }
 
   @Test(dependsOnMethods = "testDbImport")
@@ -114,16 +113,17 @@ public class DbImportExportTest extends DocumentDBBaseTest implements OCommandOu
       }
       // EXECUTES ONLY IF NOT REMOTE ON CI/RELEASE TEST ENV
     }
-    ODatabaseSessionInternal first = acquireSession();
-    ODatabaseSessionInternal second =
-        new ODatabaseDocumentTx(getStorageType() + ":" + testPath + "/" + NEW_DB_URL);
-    second.open("admin", "admin");
-
-    final ODatabaseCompare databaseCompare = new ODatabaseCompare(first, second, this);
-    databaseCompare.setCompareEntriesForAutomaticIndexes(true);
-    databaseCompare.setCompareIndexMetadata(true);
-
-    Assert.assertTrue(databaseCompare.compare());
+    try (OrientDB orientDBImport =
+        OrientDB.embedded(
+            testPath + File.separator + IMPORT_DB_PATH, OrientDBConfig.defaultConfig())) {
+      try (var importDB = orientDBImport.open(IMPORT_DB_NAME, "admin", "admin")) {
+        final ODatabaseCompare databaseCompare =
+            new ODatabaseCompare(database, (ODatabaseSessionInternal) importDB, this);
+        databaseCompare.setCompareEntriesForAutomaticIndexes(true);
+        databaseCompare.setCompareIndexMetadata(true);
+        Assert.assertTrue(databaseCompare.compare());
+      }
+    }
   }
 
   @Test

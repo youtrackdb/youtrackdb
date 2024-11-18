@@ -98,7 +98,7 @@ public class OSystemDatabase {
     final ODatabaseSessionInternal currentDB = ODatabaseRecordThreadLocal.instance().getIfDefined();
     try {
       // BYPASS SECURITY
-      final ODatabase<?> db = openSystemDatabase();
+      final ODatabaseSession db = openSystemDatabase();
       try (OResultSet result = db.command(sql, args)) {
 
         if (callback != null) {
@@ -163,7 +163,7 @@ public class OSystemDatabase {
           type = ODatabaseType.MEMORY;
         }
         context.create(SYSTEM_DB_NAME, null, null, type, config);
-        try (ODatabaseSession session = context.openNoAuthorization(SYSTEM_DB_NAME)) {
+        try (var session = context.openNoAuthorization(SYSTEM_DB_NAME)) {
           ((OrientDBEmbedded) context).getSecuritySystem().createSystemRoles(session);
         }
       }

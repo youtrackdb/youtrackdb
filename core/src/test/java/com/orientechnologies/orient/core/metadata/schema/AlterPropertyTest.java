@@ -32,7 +32,6 @@ public class AlterPropertyTest extends BaseMemoryDatabase {
     assertEquals(property, classA.getProperty("propertyOld"));
     assertNull(classA.getProperty("propertyNew"));
     property.setName("propertyNew");
-    schema.reload();
     classA = schema.getClass("TestPropertyRenaming");
     assertNull(classA.getProperty("propertyOld"));
     assertEquals(property, classA.getProperty("propertyNew"));
@@ -112,10 +111,8 @@ public class AlterPropertyTest extends BaseMemoryDatabase {
     OSchema schema = db.getMetadata().getSchema();
     db.command("create class testAlterPropertyWithDot").close();
     db.command("create property testAlterPropertyWithDot.`a.b` STRING").close();
-    schema.reload();
     Assert.assertNotNull(schema.getClass("testAlterPropertyWithDot").getProperty("a.b"));
     db.command("alter property testAlterPropertyWithDot.`a.b` name c").close();
-    schema.reload();
     Assert.assertNull(schema.getClass("testAlterPropertyWithDot").getProperty("a.b"));
     Assert.assertNotNull(schema.getClass("testAlterPropertyWithDot").getProperty("c"));
   }

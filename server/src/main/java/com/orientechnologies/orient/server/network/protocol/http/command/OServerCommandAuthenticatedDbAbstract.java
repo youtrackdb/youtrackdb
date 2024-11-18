@@ -23,8 +23,8 @@ import com.orientechnologies.common.concur.lock.OLockException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.exception.OSecurityAccessException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -207,12 +207,11 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
       final List<String> iAuthenticationParts,
       final String iDatabaseName)
       throws IOException {
-    ODatabaseDocument db = null;
+    ODatabaseSession db = null;
     try {
       db =
-          (ODatabaseDocument)
-              server.openDatabase(
-                  iDatabaseName, iAuthenticationParts.get(0), iAuthenticationParts.get(1));
+          server.openDatabase(
+              iDatabaseName, iAuthenticationParts.get(0), iAuthenticationParts.get(1));
       // if (db.getUser() == null)
       // // MAYBE A PREVIOUS ROOT REALM? UN AUTHORIZE
       // return false;
@@ -309,11 +308,10 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
     iRequest.getData().lastDatabase = localDatabase.getName();
     iRequest.getData().lastUser =
         localDatabase.getUser() != null ? localDatabase.getUser().getName() : null;
-    return (ODatabaseSessionInternal) localDatabase.getDatabaseOwner();
+    return localDatabase.getDatabaseOwner();
   }
 
-  protected ODatabaseSessionInternal getProfiledDatabaseInstanceBasic(final OHttpRequest iRequest)
-      throws InterruptedException {
+  protected ODatabaseSessionInternal getProfiledDatabaseInstanceBasic(final OHttpRequest iRequest) {
     final OHttpSession session = server.getHttpSessionManager().getSession(iRequest.getSessionId());
 
     if (session == null) {
@@ -346,7 +344,7 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
     iRequest.getData().lastUser =
         localDatabase.getUser() != null ? localDatabase.getUser().getName() : null;
     iRequest.getExecutor().setDatabase(localDatabase);
-    return (ODatabaseSessionInternal) localDatabase.getDatabaseOwner();
+    return localDatabase.getDatabaseOwner();
   }
 
   private void init() {

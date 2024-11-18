@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.junit.Test;
 
@@ -81,7 +80,7 @@ public class ODatabasePoolTest {
 
     final ODatabasePool pool =
         new ODatabasePool(orientDb, "test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
-    ODatabaseDocument db = pool.acquire();
+    var db = pool.acquire();
     db.close();
     pool.close();
     orientDb.close();

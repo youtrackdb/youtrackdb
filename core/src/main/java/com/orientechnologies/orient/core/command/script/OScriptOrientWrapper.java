@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.command.script;
 
-import com.orientechnologies.orient.core.db.ODatabase;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 
@@ -30,13 +30,13 @@ import com.orientechnologies.orient.core.exception.OConfigurationException;
  */
 @Deprecated
 public class OScriptOrientWrapper {
-  protected final ODatabase db;
+  protected final ODatabaseSession db;
 
   public OScriptOrientWrapper() {
     this.db = null;
   }
 
-  public OScriptOrientWrapper(final ODatabase db) {
+  public OScriptOrientWrapper(final ODatabaseSession db) {
     this.db = db;
   }
 

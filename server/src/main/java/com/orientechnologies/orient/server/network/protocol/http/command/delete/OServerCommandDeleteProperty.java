@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.delete;
 
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -38,7 +38,7 @@ public class OServerCommandDeleteProperty extends OServerCommandAuthenticatedDbA
     iRequest.getData().commandInfo = "Delete property";
     iRequest.getData().commandDetail = urlParts[2] + "." + urlParts[3];
 
-    ODatabaseDocument db = null;
+    ODatabaseSession db = null;
 
     try {
       db = getProfiledDatabaseInstance(iRequest);

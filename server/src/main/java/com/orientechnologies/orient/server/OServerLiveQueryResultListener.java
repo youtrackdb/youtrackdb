@@ -4,9 +4,9 @@ import com.orientechnologies.common.exception.OErrorCode;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.client.remote.message.OLiveQueryPushRequest;
 import com.orientechnologies.orient.client.remote.message.live.OLiveQueryResult;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OLiveQueryBatchResultListener;
 import com.orientechnologies.orient.core.db.OSharedContext;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.exception.OCoreException;
 import com.orientechnologies.orient.core.exception.OLiveQueryInterruptedException;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -16,8 +16,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/** Created by tglman on 19/06/17. */
+/**
+ * Created by tglman on 19/06/17.
+ */
 class OServerLiveQueryResultListener implements OLiveQueryBatchResultListener {
+
   private final ONetworkProtocolBinary protocol;
   private final OSharedContext sharedContext;
   private int monitorId;
@@ -39,22 +42,22 @@ class OServerLiveQueryResultListener implements OLiveQueryBatchResultListener {
   }
 
   @Override
-  public void onCreate(ODatabaseDocument database, OResult data) {
+  public void onCreate(ODatabaseSession database, OResult data) {
     addEvent(new OLiveQueryResult(OLiveQueryResult.CREATE_EVENT, data, null));
   }
 
   @Override
-  public void onUpdate(ODatabaseDocument database, OResult before, OResult after) {
+  public void onUpdate(ODatabaseSession database, OResult before, OResult after) {
     addEvent(new OLiveQueryResult(OLiveQueryResult.UPDATE_EVENT, after, before));
   }
 
   @Override
-  public void onDelete(ODatabaseDocument database, OResult data) {
+  public void onDelete(ODatabaseSession database, OResult data) {
     addEvent(new OLiveQueryResult(OLiveQueryResult.DELETE_EVENT, data, null));
   }
 
   @Override
-  public void onError(ODatabaseDocument database, OException exception) {
+  public void onError(ODatabaseSession database, OException exception) {
     try {
       // TODO: resolve error identifier
       int errorIdentifier = 0;
@@ -71,7 +74,7 @@ class OServerLiveQueryResultListener implements OLiveQueryBatchResultListener {
   }
 
   @Override
-  public void onEnd(ODatabaseDocument database) {
+  public void onEnd(ODatabaseSession database) {
     try {
       protocol.push(
           new OLiveQueryPushRequest(monitorId, OLiveQueryPushRequest.END, Collections.emptyList()));
@@ -82,11 +85,11 @@ class OServerLiveQueryResultListener implements OLiveQueryBatchResultListener {
   }
 
   @Override
-  public void onBatchEnd(ODatabaseDocument database) {
+  public void onBatchEnd(ODatabaseSession database) {
     sendEvents(database);
   }
 
-  private synchronized void sendEvents(ODatabaseDocument database) {
+  private synchronized void sendEvents(ODatabaseSession database) {
     if (toSend.isEmpty()) {
       return;
     }

@@ -61,10 +61,6 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
           int retries = 0;
           while (true) {
             retries++;
-            if (retries % 10 == 0) {
-              System.out.println(retries + " retries for thread " + threadName);
-            }
-
             try {
               db.begin();
 
@@ -89,8 +85,7 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
         }
 
       } catch (Throwable e) {
-        e.printStackTrace();
-        Assert.assertTrue(false);
+        throw new IllegalStateException(e);
       }
     }
   }

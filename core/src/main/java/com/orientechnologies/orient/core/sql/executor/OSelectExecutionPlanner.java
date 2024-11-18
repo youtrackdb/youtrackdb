@@ -4,7 +4,6 @@ import com.orientechnologies.common.util.OPairIntegerObject;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
@@ -442,7 +441,7 @@ public class OSelectExecutionPlanner {
       }
       return result;
     } else if (item.getInputParams() != null && item.getInputParams().size() > 0) {
-      if (((ODatabaseInternal) ctx.getDatabase()).isSharded()) {
+      if ((ctx.getDatabase()).isSharded()) {
         throw new UnsupportedOperationException(
             "Sharded query with input parameter as a target is not supported yet");
       }
@@ -1701,7 +1700,7 @@ public class OSelectExecutionPlanner {
       OMetadataIdentifier metadata,
       OCommandContext ctx,
       boolean profilingEnabled) {
-    ODatabaseInternal db = (ODatabaseInternal) ctx.getDatabase();
+    var db = ctx.getDatabase();
     String schemaRecordIdAsString = null;
     if (metadata.getName().equalsIgnoreCase(OCommandExecutorSQLAbstract.METADATA_SCHEMA)) {
       schemaRecordIdAsString = db.getStorageInfo().getConfiguration().getSchemaRecordId();

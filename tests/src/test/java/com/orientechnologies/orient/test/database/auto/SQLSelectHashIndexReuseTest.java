@@ -14,6 +14,7 @@ import java.util.Set;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -21,12 +22,12 @@ import org.testng.annotations.Test;
  * @author LomakiA <a href="mailto:Andrey.Lomakin@exigenservices.com">Andrey Lomakin</a>
  * @since 16.07.13
  */
-@Test(groups = {"index"})
+@Test
 public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
 
   @Parameters(value = "remote")
-  public SQLSelectHashIndexReuseTest(boolean remote) {
-    super(remote);
+  public SQLSelectHashIndexReuseTest(@Optional Boolean remote) {
+    super(remote != null && remote);
   }
 
   @BeforeClass
@@ -2626,7 +2627,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
         profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
 
     database.begin();
-    doc.delete();
+    database.bindToSession(doc).delete();
     database.commit();
   }
 
@@ -2665,7 +2666,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
         profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
 
     database.begin();
-    doc.delete();
+    database.bindToSession(doc).delete();
     database.commit();
   }
 

@@ -16,18 +16,16 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.hook.ORecordHookAbstract;
+import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
-import com.orientechnologies.orient.test.domain.whiz.Profile;
-import java.io.IOException;
-import java.util.List;
 import org.testng.Assert;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-@Test(groups = "hook")
-public class HookTxTest extends ObjectDBBaseTest {
+@Test
+public class HookTxTest extends DocumentDBBaseTest {
 
   public static final int RECORD_BEFORE_CREATE = 3;
   public static final int RECORD_AFTER_CREATE = 5;
@@ -39,7 +37,7 @@ public class HookTxTest extends ObjectDBBaseTest {
   public static final int RECORD_AFTER_DELETE = 23;
 
   private int callbackCount = 0;
-  private Profile p;
+  private OElement profile;
   private int expectedHookState;
 
   private final class RecordHook extends ORecordHookAbstract {
@@ -135,35 +133,28 @@ public class HookTxTest extends ObjectDBBaseTest {
   }
 
   @Parameters(value = "remote")
-  public HookTxTest(boolean remote) {
-    super(remote);
+  public HookTxTest(@Optional Boolean remote) {
+    super(remote != null ? remote : false);
   }
 
   @Test
-  public void testRegisterHook() throws IOException {
+  public void testRegisterHook() {
     database.registerHook(new RecordHook());
-    database
-        .getEntityManager()
-        .registerEntityClasses("com.orientechnologies.orient.test.domain.business");
-    database
-        .getEntityManager()
-        .registerEntityClasses("com.orientechnologies.orient.test.domain.whiz");
-    database
-        .getEntityManager()
-        .registerEntityClasses("com.orientechnologies.orient.test.domain.base");
   }
 
   @Test(dependsOnMethods = "testRegisterHook")
   public void testHookCallsCreate() {
     database.registerHook(new RecordHook());
-    p = new Profile("HookTxTest");
+    profile = database.newInstance("Profile");
+    profile.setProperty("nick", "HookTxTest");
+    profile.setProperty("value", 0);
 
     expectedHookState = 0;
 
     // TEST HOOKS ON CREATE
     Assert.assertEquals(callbackCount, 0);
     database.begin();
-    database.save(p);
+    database.save(profile);
     database.commit();
 
     expectedHookState += RECORD_BEFORE_CREATE + RECORD_AFTER_CREATE;
@@ -175,18 +166,11 @@ public class HookTxTest extends ObjectDBBaseTest {
     database.registerHook(new RecordHook());
     // TEST HOOKS ON READ
     database.begin();
-    List<Profile> result =
-        database.query(
-            new OSQLSynchQuery<Profile>("select * from Profile where nick = 'HookTxTest'"));
+
     expectedHookState += RECORD_BEFORE_READ + RECORD_AFTER_READ;
 
-    Assert.assertFalse(result.isEmpty());
-
-    for (Profile profile : result) {
-      Assert.assertEquals(callbackCount, expectedHookState);
-
-      p = profile;
-    }
+    this.profile = database.load(profile.getIdentity());
+    Assert.assertEquals(callbackCount, expectedHookState);
 
     Assert.assertEquals(callbackCount, expectedHookState);
     database.commit();
@@ -196,9 +180,10 @@ public class HookTxTest extends ObjectDBBaseTest {
   public void testHookCallsUpdate() {
     database.registerHook(new RecordHook());
     database.begin();
+    profile = database.load(profile.getIdentity());
     // TEST HOOKS ON UPDATE
-    p.setValue(p.getValue() + 1000);
-    database.save(p);
+    profile.setProperty("value", profile.<Integer>getProperty("value") + 1000);
+    database.save(profile);
 
     database.commit();
 
@@ -208,11 +193,11 @@ public class HookTxTest extends ObjectDBBaseTest {
   }
 
   @Test(dependsOnMethods = "testHookCallsUpdate")
-  public void testHookCallsDelete() throws IOException {
+  public void testHookCallsDelete() {
     database.registerHook(new RecordHook());
     // TEST HOOKS ON DELETE
     database.begin();
-    database.delete(p);
+    database.delete(database.bindToSession(profile));
     database.commit();
 
     expectedHookState +=

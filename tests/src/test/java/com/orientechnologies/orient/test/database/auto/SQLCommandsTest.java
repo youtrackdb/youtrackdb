@@ -29,15 +29,16 @@ import java.io.File;
 import java.util.Collection;
 import java.util.Locale;
 import org.testng.Assert;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-@Test(groups = "sql-delete")
+@Test
 public class SQLCommandsTest extends DocumentDBBaseTest {
 
   @Parameters(value = "remote")
-  public SQLCommandsTest(boolean remote) {
-    super(remote);
+  public SQLCommandsTest(@Optional Boolean remote) {
+    super(remote != null && remote);
   }
 
   public void createProperty() {
@@ -107,7 +108,8 @@ public class SQLCommandsTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(result instanceof OIdentifiable);
     Assert.assertTrue(((OIdentifiable) result).getRecord() instanceof ODocument);
-    Assert.assertTrue((Boolean) ((ODocument) ((OIdentifiable) result).getRecord()).field("script"));
+    Assert.assertTrue(
+        database.bindToSession((ODocument) ((OIdentifiable) result).getRecord()).field("script"));
   }
 
   public void testClusterRename() {

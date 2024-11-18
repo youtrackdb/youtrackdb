@@ -2,8 +2,8 @@ package com.orientechnologies.orient.core.metadata.security;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.record.OElement;
@@ -58,7 +58,7 @@ public class OSecurityEngineTest {
 
   @Test
   public void testAllClasses() {
-    OSecurityInternal security = ((ODatabaseInternal<?>) db).getSharedContext().getSecurity();
+    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
     db.createClass("Person");
 
     db.begin();
@@ -78,7 +78,7 @@ public class OSecurityEngineTest {
 
   @Test
   public void testSingleClass() {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
 
     db.createClass("Person");
 
@@ -99,7 +99,7 @@ public class OSecurityEngineTest {
 
   @Test
   public void testSuperclass() {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
 
     db.createClass("Person");
     db.createClass("Employee", "Person");
@@ -121,7 +121,7 @@ public class OSecurityEngineTest {
 
   @Test
   public void testSuperclass2() {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
 
     db.createClass("Person");
     db.createClass("Employee", "Person");
@@ -150,7 +150,7 @@ public class OSecurityEngineTest {
 
   @Test
   public void testSuperclass3() {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
 
     db.createClass("Person");
     db.createClass("Employee", "Person");
@@ -178,7 +178,7 @@ public class OSecurityEngineTest {
 
   @Test
   public void testTwoSuperclasses() {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
 
     db.createClass("Person");
     db.createClass("Foo");
@@ -218,7 +218,7 @@ public class OSecurityEngineTest {
     db.close();
     db = orient.open(DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
 
     db.createClass("Person");
 
@@ -247,7 +247,7 @@ public class OSecurityEngineTest {
 
   @Test
   public void testRecordFiltering() {
-    OSecurityInternal security = ((ODatabaseInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
 
     db.createClass("Person");
     var rec1 =

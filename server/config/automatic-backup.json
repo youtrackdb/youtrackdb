@@ -1,6 +1,6 @@
 {
   "enabled": true,
-  "mode": "FULL_BACKUP",
+  "mode": "INCREMENTAL_BACKUP",
   "exportOptions": "",
   "delay": "4h",
   "firstTime": "23:00:00",

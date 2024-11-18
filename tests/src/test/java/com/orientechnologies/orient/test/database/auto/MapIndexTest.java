@@ -4,8 +4,8 @@ import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
-import com.orientechnologies.orient.test.domain.whiz.Mapper;
+import com.orientechnologies.orient.core.record.OElement;
+import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -15,6 +15,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -22,21 +23,21 @@ import org.testng.annotations.Test;
  * @author LomakiA <a href="mailto:a.lomakin@orientechnologies.com">Andrey Lomakin</a>
  * @since 21.12.11
  */
-@Test(groups = {"index"})
-public class MapIndexTest extends ObjectDBBaseTest {
+@Test
+public class MapIndexTest extends DocumentDBBaseTest {
 
   @Parameters(value = "remote")
-  public MapIndexTest(boolean remote) {
-    super(remote);
+  public MapIndexTest(@Optional Boolean remote) {
+    super(remote != null && remote);
   }
 
   @BeforeClass
   public void setupSchema() {
-    database
-        .getEntityManager()
-        .registerEntityClasses("com.orientechnologies.orient.test.domain.whiz");
+    if (database.getMetadata().getSchema().existsClass("Mapper")) {
+      database.getMetadata().getSchema().dropClass("Mapper");
+    }
 
-    final OClass mapper = database.getMetadata().getSchema().getClass("Mapper");
+    final OClass mapper = database.getMetadata().getSchema().createClass("Mapper");
     mapper.createProperty("id", OType.STRING);
     mapper.createProperty("intMap", OType.EMBEDDEDMAP, OType.INTEGER);
 
@@ -60,20 +61,23 @@ public class MapIndexTest extends ObjectDBBaseTest {
 
   @AfterMethod
   public void afterMethod() throws Exception {
+    database.begin();
     database.command("delete from Mapper").close();
     database.command("delete from MapIndexTestMovie").close();
+    database.commit();
+
     super.afterMethod();
   }
 
   public void testIndexMap() {
     checkEmbeddedDB();
 
-    final Mapper mapper = new Mapper();
+    final OElement mapper = database.newElement("Mapper");
     final Map<String, Integer> map = new HashMap<>();
     map.put("key1", 10);
     map.put("key2", 20);
 
-    mapper.setIntMap(map);
+    mapper.setProperty("intMap", map);
     database.begin();
     database.save(mapper);
     database.commit();
@@ -108,13 +112,13 @@ public class MapIndexTest extends ObjectDBBaseTest {
 
     try {
       database.begin();
-      final Mapper mapper = new Mapper();
+      final OElement mapper = database.newElement("Mapper");
       Map<String, Integer> map = new HashMap<>();
 
       map.put("key1", 10);
       map.put("key2", 20);
 
-      mapper.setIntMap(map);
+      mapper.setProperty("intMap", map);
       database.save(mapper);
       database.commit();
     } catch (Exception e) {
@@ -156,25 +160,27 @@ public class MapIndexTest extends ObjectDBBaseTest {
   public void testIndexMapUpdateOne() {
     checkEmbeddedDB();
 
-    Mapper mapper = new Mapper();
+    OElement mapper = database.newElement("Mapper");
     Map<String, Integer> mapOne = new HashMap<>();
 
     mapOne.put("key1", 10);
     mapOne.put("key2", 20);
 
-    mapper.setIntMap(mapOne);
+    mapper.setProperty("intMap", mapOne);
     database.begin();
     mapper = database.save(mapper);
     database.commit();
 
+    database.begin();
+
+    mapper = database.bindToSession(mapper);
     final Map<String, Integer> mapTwo = new HashMap<>();
 
     mapTwo.put("key3", 30);
     mapTwo.put("key2", 20);
 
-    mapper.setIntMap(mapTwo);
+    mapper.setProperty("intMap", mapTwo);
 
-    database.begin();
     database.save(mapper);
     database.commit();
 
@@ -213,13 +219,13 @@ public class MapIndexTest extends ObjectDBBaseTest {
   public void testIndexMapUpdateOneTx() {
     checkEmbeddedDB();
 
-    Mapper mapper = new Mapper();
+    OElement mapper = database.newElement("Mapper");
     Map<String, Integer> mapOne = new HashMap<>();
 
     mapOne.put("key1", 10);
     mapOne.put("key2", 20);
 
-    mapper.setIntMap(mapOne);
+    mapper.setProperty("intMap", mapOne);
     database.begin();
     mapper = database.save(mapper);
     database.commit();
@@ -231,7 +237,8 @@ public class MapIndexTest extends ObjectDBBaseTest {
       mapTwo.put("key3", 30);
       mapTwo.put("key2", 20);
 
-      mapper.setIntMap(mapTwo);
+      mapper = database.bindToSession(mapper);
+      mapper.setProperty("intMap", mapTwo);
       database.save(mapper);
       database.commit();
     } catch (Exception e) {
@@ -274,13 +281,13 @@ public class MapIndexTest extends ObjectDBBaseTest {
   public void testIndexMapUpdateOneTxRollback() {
     checkEmbeddedDB();
 
-    Mapper mapper = new Mapper();
+    OElement mapper = database.newElement("Mapper");
     Map<String, Integer> mapOne = new HashMap<>();
 
     mapOne.put("key1", 10);
     mapOne.put("key2", 20);
 
-    mapper.setIntMap(mapOne);
+    mapper.setProperty("intMap", mapOne);
     database.begin();
     mapper = database.save(mapper);
     database.commit();
@@ -291,7 +298,8 @@ public class MapIndexTest extends ObjectDBBaseTest {
     mapTwo.put("key3", 30);
     mapTwo.put("key2", 20);
 
-    mapper.setIntMap(mapTwo);
+    mapper = database.bindToSession(mapper);
+    mapper.setProperty("intMap", mapTwo);
     database.save(mapper);
     database.rollback();
 
@@ -329,19 +337,20 @@ public class MapIndexTest extends ObjectDBBaseTest {
   public void testIndexMapAddItem() {
     checkEmbeddedDB();
 
-    Mapper mapper = new Mapper();
+    database.begin();
+    OElement mapper = database.newElement("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
     map.put("key2", 20);
 
-    mapper.setIntMap(map);
-    database.begin();
+    mapper.setProperty("intMap", map);
+
     mapper = database.save(mapper);
     database.commit();
 
     database.begin();
-    database.command("UPDATE " + mapper.getId() + " set intMap['key3'] = 30").close();
+    database.command("UPDATE " + mapper.getIdentity() + " set intMap['key3'] = 30").close();
     database.commit();
 
     OIndex keyIndex = getIndex("mapIndexTestKey");
@@ -378,21 +387,21 @@ public class MapIndexTest extends ObjectDBBaseTest {
   public void testIndexMapAddItemTx() {
     checkEmbeddedDB();
 
-    Mapper mapper = new Mapper();
+    OElement mapper = database.newElement("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
     map.put("key2", 20);
 
-    mapper.setIntMap(map);
+    mapper.setProperty("intMap", map);
     database.begin();
     mapper = database.save(mapper);
     database.commit();
 
     try {
       database.begin();
-      Mapper loadedMapper = database.load(new ORecordId(mapper.getId()));
-      loadedMapper.getIntMap().put("key3", 30);
+      OElement loadedMapper = database.load(mapper.getIdentity());
+      loadedMapper.<Map<String, Integer>>getProperty("intMap").put("key3", 30);
       database.save(loadedMapper);
 
       database.commit();
@@ -435,20 +444,20 @@ public class MapIndexTest extends ObjectDBBaseTest {
   public void testIndexMapAddItemTxRollback() {
     checkEmbeddedDB();
 
-    Mapper mapper = new Mapper();
+    OElement mapper = database.newElement("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
     map.put("key2", 20);
 
-    mapper.setIntMap(map);
+    mapper.setProperty("intMap", map);
     database.begin();
     mapper = database.save(mapper);
     database.commit();
 
     database.begin();
-    Mapper loadedMapper = database.load(new ORecordId(mapper.getId()));
-    loadedMapper.getIntMap().put("key3", 30);
+    OElement loadedMapper = database.load(mapper.getIdentity());
+    loadedMapper.<Map<String, Integer>>getProperty("intMap").put("key3", 30);
     database.save(loadedMapper);
     database.rollback();
 
@@ -487,19 +496,19 @@ public class MapIndexTest extends ObjectDBBaseTest {
   public void testIndexMapUpdateItem() {
     checkEmbeddedDB();
 
-    Mapper mapper = new Mapper();
+    OElement mapper = database.newElement("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
     map.put("key2", 20);
 
-    mapper.setIntMap(map);
+    mapper.setProperty("intMap", map);
     database.begin();
     mapper = database.save(mapper);
     database.commit();
 
     database.begin();
-    database.command("UPDATE " + mapper.getId() + " set intMap['key2'] = 40").close();
+    database.command("UPDATE " + mapper.getIdentity() + " set intMap['key2'] = 40").close();
     database.commit();
 
     OIndex keyIndex = getIndex("mapIndexTestKey");
@@ -537,21 +546,21 @@ public class MapIndexTest extends ObjectDBBaseTest {
   public void testIndexMapUpdateItemInTx() {
     checkEmbeddedDB();
 
-    Mapper mapper = new Mapper();
+    OElement mapper = database.newElement("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
     map.put("key2", 20);
 
-    mapper.setIntMap(map);
+    mapper.setProperty("intMap", map);
     database.begin();
     mapper = database.save(mapper);
     database.commit();
 
     try {
       database.begin();
-      Mapper loadedMapper = database.load(new ORecordId(mapper.getId()));
-      loadedMapper.getIntMap().put("key2", 40);
+      OElement loadedMapper = database.load(mapper.getIdentity());
+      loadedMapper.<Map<String, Integer>>getProperty("intMap").put("key2", 40);
       database.save(loadedMapper);
       database.commit();
     } catch (Exception e) {
@@ -593,21 +602,21 @@ public class MapIndexTest extends ObjectDBBaseTest {
   public void testIndexMapUpdateItemInTxRollback() {
     checkEmbeddedDB();
 
-    Mapper mapper = new Mapper();
+    OElement mapper = database.newElement("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
     map.put("key2", 20);
 
-    mapper.setIntMap(map);
+    mapper.setProperty("intMap", map);
 
     database.begin();
     mapper = database.save(mapper);
     database.commit();
 
     database.begin();
-    Mapper loadedMapper = database.load(new ORecordId(mapper.getId()));
-    loadedMapper.getIntMap().put("key2", 40);
+    OElement loadedMapper = database.load(new ORecordId(mapper.getIdentity()));
+    loadedMapper.<Map<String, Integer>>getProperty("intMap").put("key2", 40);
     database.save(loadedMapper);
     database.rollback();
 
@@ -645,21 +654,21 @@ public class MapIndexTest extends ObjectDBBaseTest {
   public void testIndexMapRemoveItem() {
     checkEmbeddedDB();
 
-    Mapper mapper = new Mapper();
+    OElement mapper = database.newElement("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
     map.put("key2", 20);
     map.put("key3", 30);
 
-    mapper.setIntMap(map);
+    mapper.setProperty("intMap", map);
 
     database.begin();
     mapper = database.save(mapper);
     database.commit();
 
     database.begin();
-    database.command("UPDATE " + mapper.getId() + " remove intMap = 'key2'").close();
+    database.command("UPDATE " + mapper.getIdentity() + " remove intMap = 'key2'").close();
     database.commit();
 
     OIndex keyIndex = getIndex("mapIndexTestKey");
@@ -696,22 +705,22 @@ public class MapIndexTest extends ObjectDBBaseTest {
   public void testIndexMapRemoveItemInTx() {
     checkEmbeddedDB();
 
-    Mapper mapper = new Mapper();
+    OElement mapper = database.newElement("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
     map.put("key2", 20);
     map.put("key3", 30);
 
-    mapper.setIntMap(map);
+    mapper.setProperty("intMap", map);
     database.begin();
     mapper = database.save(mapper);
     database.commit();
 
     try {
       database.begin();
-      Mapper loadedMapper = database.load(new ORecordId(mapper.getId()));
-      loadedMapper.getIntMap().remove("key2");
+      OElement loadedMapper = database.load(mapper.getIdentity());
+      loadedMapper.<Map<String, Integer>>getProperty("intMap").remove("key2");
       database.save(loadedMapper);
       database.commit();
     } catch (Exception e) {
@@ -753,22 +762,22 @@ public class MapIndexTest extends ObjectDBBaseTest {
   public void testIndexMapRemoveItemInTxRollback() {
     checkEmbeddedDB();
 
-    Mapper mapper = new Mapper();
+    OElement mapper = database.newElement("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
     map.put("key2", 20);
     map.put("key3", 30);
 
-    mapper.setIntMap(map);
+    mapper.setProperty("intMap", map);
 
     database.begin();
     mapper = database.save(mapper);
     database.commit();
 
     database.begin();
-    Mapper loadedMapper = database.load(new ORecordId(mapper.getId()));
-    loadedMapper.getIntMap().remove("key2");
+    OElement loadedMapper = database.load(mapper.getIdentity());
+    loadedMapper.<Map<String, Integer>>getProperty("intMap").remove("key2");
     database.save(loadedMapper);
     database.rollback();
 
@@ -806,19 +815,19 @@ public class MapIndexTest extends ObjectDBBaseTest {
   public void testIndexMapRemove() {
     checkEmbeddedDB();
 
-    Mapper mapper = new Mapper();
+    OElement mapper = database.newElement("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
     map.put("key2", 20);
 
-    mapper.setIntMap(map);
+    mapper.setProperty("intMap", map);
     database.begin();
     mapper = database.save(mapper);
     database.commit();
 
     database.begin();
-    database.delete(mapper);
+    database.delete(database.bindToSession(mapper));
     database.commit();
 
     OIndex keyIndex = getIndex("mapIndexTestKey");
@@ -832,13 +841,13 @@ public class MapIndexTest extends ObjectDBBaseTest {
   public void testIndexMapRemoveInTx() {
     checkEmbeddedDB();
 
-    Mapper mapper = new Mapper();
+    OElement mapper = database.newElement("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
     map.put("key2", 20);
 
-    mapper.setIntMap(map);
+    mapper.setProperty("intMap", map);
 
     database.begin();
     mapper = database.save(mapper);
@@ -846,7 +855,7 @@ public class MapIndexTest extends ObjectDBBaseTest {
 
     try {
       database.begin();
-      database.delete(mapper);
+      database.delete(database.bindToSession(mapper));
       database.commit();
     } catch (Exception e) {
       database.rollback();
@@ -863,20 +872,20 @@ public class MapIndexTest extends ObjectDBBaseTest {
   public void testIndexMapRemoveInTxRollback() {
     checkEmbeddedDB();
 
-    Mapper mapper = new Mapper();
+    OElement mapper = database.newElement("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
     map.put("key2", 20);
 
-    mapper.setIntMap(map);
+    mapper.setProperty("intMap", map);
 
     database.begin();
     mapper = database.save(mapper);
     database.commit();
 
     database.begin();
-    database.delete(mapper);
+    database.delete(database.bindToSession(mapper));
     database.rollback();
 
     OIndex keyIndex = getIndex("mapIndexTestKey");
@@ -911,32 +920,30 @@ public class MapIndexTest extends ObjectDBBaseTest {
   }
 
   public void testIndexMapSQL() {
-    Mapper mapper = new Mapper();
+    OElement mapper = database.newElement("Mapper");
     Map<String, Integer> map = new HashMap<>();
 
     map.put("key1", 10);
     map.put("key2", 20);
 
-    mapper.setIntMap(map);
+    mapper.setProperty("intMap", map);
 
     database.begin();
     database.save(mapper);
     database.commit();
 
-    final List<Mapper> resultByKey =
-        database.query(
-            new OSQLSynchQuery<Mapper>("select * from Mapper where intMap containskey ?"), "key1");
+    final List<ODocument> resultByKey =
+        executeQuery("select * from Mapper where intMap containskey ?", "key1");
     Assert.assertNotNull(resultByKey);
     Assert.assertEquals(resultByKey.size(), 1);
 
-    Assert.assertEquals(map, resultByKey.get(0).getIntMap());
+    Assert.assertEquals(map, resultByKey.get(0).<Map<String, Integer>>getProperty("intMap"));
 
-    final List<Mapper> resultByValue =
-        database.query(
-            new OSQLSynchQuery<Mapper>("select * from Mapper where intMap containsvalue ?"), 10);
+    final List<ODocument> resultByValue =
+        executeQuery("select * from Mapper where intMap containsvalue ?", 10);
     Assert.assertNotNull(resultByValue);
     Assert.assertEquals(resultByValue.size(), 1);
 
-    Assert.assertEquals(map, resultByValue.get(0).getIntMap());
+    Assert.assertEquals(map, resultByValue.get(0).<Map<String, Integer>>getProperty("intMap"));
   }
 }

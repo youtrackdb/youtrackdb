@@ -15,6 +15,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -24,8 +25,9 @@ import org.testng.annotations.Test;
 @Test
 public class LinkListIndexTest extends DocumentDBBaseTest {
   @Parameters(value = "remote")
-  public LinkListIndexTest(boolean remote) {
-    super(remote);
+  public LinkListIndexTest(@Optional Boolean remote) {
+    // super(remote != null && remote);
+    super(true);
   }
 
   @BeforeClass
@@ -47,7 +49,9 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
 
   @AfterMethod
   public void afterMethod() throws Exception {
+    database.begin();
     database.command("DELETE FROM LinkListIndexTestClass").close();
+    database.commit();
 
     OResultSet result = database.query("select from LinkListIndexTestClass");
     Assert.assertEquals(result.stream().count(), 0);
@@ -192,7 +196,7 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     final ODocument docThree = new ODocument();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument document = new ODocument("LinkListIndexTestClass");
+    ODocument document = new ODocument("LinkListIndexTestClass");
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
@@ -202,6 +206,7 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
 
     try {
       database.begin();
+      document = database.bindToSession(document);
       document.field(
           "linkCollection",
           new ArrayList<>(Arrays.asList(docOne.getIdentity(), docThree.getIdentity())));
@@ -243,7 +248,7 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     final ODocument docThree = new ODocument();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument document = new ODocument("LinkListIndexTestClass");
+    ODocument document = new ODocument("LinkListIndexTestClass");
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
@@ -252,6 +257,7 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
+    document = database.bindToSession(document);
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docThree.getIdentity())));
@@ -548,7 +554,7 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     final ODocument docTwo = new ODocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument document = new ODocument("LinkListIndexTestClass");
+    ODocument document = new ODocument("LinkListIndexTestClass");
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
@@ -556,6 +562,7 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
+    document = database.bindToSession(document);
     document.delete();
     database.commit();
 
@@ -574,7 +581,7 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     final ODocument docTwo = new ODocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument document = new ODocument("LinkListIndexTestClass");
+    ODocument document = new ODocument("LinkListIndexTestClass");
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
@@ -583,6 +590,7 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
 
     try {
       database.begin();
+      document = database.bindToSession(document);
       document.delete();
       database.commit();
     } catch (Exception e) {
@@ -612,7 +620,7 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    document.delete();
+    database.bindToSession(document).delete();
     database.rollback();
 
     OIndex index = getIndex("linkCollectionIndex");

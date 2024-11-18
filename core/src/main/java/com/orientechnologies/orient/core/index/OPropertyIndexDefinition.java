@@ -20,6 +20,7 @@
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.orient.core.collate.ODefaultCollate;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -29,8 +30,11 @@ import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nonnull;
 
-/** Index implementation bound to one schema class property. */
+/**
+ * Index implementation bound to one schema class property.
+ */
 public class OPropertyIndexDefinition extends OAbstractIndexDefinition {
+
   protected String className;
   protected String field;
   protected OType keyType;
@@ -42,7 +46,9 @@ public class OPropertyIndexDefinition extends OAbstractIndexDefinition {
     keyType = iType;
   }
 
-  /** Constructor used for index unmarshalling. */
+  /**
+   * Constructor used for index unmarshalling.
+   */
   public OPropertyIndexDefinition() {}
 
   public String getClassName() {
@@ -54,32 +60,47 @@ public class OPropertyIndexDefinition extends OAbstractIndexDefinition {
   }
 
   public List<String> getFieldsToIndex() {
-    if (collate == null || collate.getName().equals(ODefaultCollate.NAME))
+    if (collate == null || collate.getName().equals(ODefaultCollate.NAME)) {
       return Collections.singletonList(field);
+    }
 
     return Collections.singletonList(field + " collate " + collate.getName());
   }
 
-  public Object getDocumentValueToIndex(final ODocument iDocument) {
+  public Object getDocumentValueToIndex(
+      ODatabaseSessionInternal session, final ODocument iDocument) {
     if (OType.LINK.equals(keyType)) {
       final OIdentifiable identifiable = iDocument.field(field);
-      if (identifiable != null) return createValue(identifiable.getIdentity());
-      else return null;
+      if (identifiable != null) {
+        return createValue(session, identifiable.getIdentity());
+      } else {
+        return null;
+      }
     }
-    return createValue(iDocument.<Object>field(field));
+    return createValue(session, iDocument.<Object>field(field));
   }
 
   @Override
   public boolean equals(final Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
-    if (!super.equals(o)) return false;
+    if (!super.equals(o)) {
+      return false;
+    }
 
     final OPropertyIndexDefinition that = (OPropertyIndexDefinition) o;
 
-    if (!className.equals(that.className)) return false;
-    if (!field.equals(that.field)) return false;
+    if (!className.equals(that.className)) {
+      return false;
+    }
+    if (!field.equals(that.field)) {
+      return false;
+    }
     return keyType == that.keyType;
   }
 
@@ -110,13 +131,15 @@ public class OPropertyIndexDefinition extends OAbstractIndexDefinition {
         + '}';
   }
 
-  public Object createValue(final List<?> params) {
+  public Object createValue(ODatabaseSessionInternal session, final List<?> params) {
     return OType.convert(params.get(0), keyType.getDefaultJavaType());
   }
 
-  /** {@inheritDoc} */
-  public Object createValue(final Object... params) {
-    return OType.convert(params[0], keyType.getDefaultJavaType());
+  /**
+   * {@inheritDoc}
+   */
+  public Object createValue(ODatabaseSessionInternal session, final Object... params) {
+    return OType.convert(refreshRid(session, params[0]), keyType.getDefaultJavaType());
   }
 
   public int getParamCount() {
@@ -140,11 +163,11 @@ public class OPropertyIndexDefinition extends OAbstractIndexDefinition {
   protected void serializeToStream(ODocument document) {
     super.serializeToStream(document);
 
-    document.setPropertyWithoutValidation("className", className);
-    document.setPropertyWithoutValidation("field", field);
-    document.setPropertyWithoutValidation("keyType", keyType.toString());
-    document.setPropertyWithoutValidation("collate", collate.getName());
-    document.setPropertyWithoutValidation("nullValuesIgnored", isNullValuesIgnored());
+    document.setPropertyInternal("className", className);
+    document.setPropertyInternal("field", field);
+    document.setPropertyInternal("keyType", keyType.toString());
+    document.setPropertyInternal("collate", collate.getName());
+    document.setPropertyInternal("nullValuesIgnored", isNullValuesIgnored());
   }
 
   protected void serializeFromStream(ODocument document) {
@@ -185,14 +208,16 @@ public class OPropertyIndexDefinition extends OAbstractIndexDefinition {
     ddl.append(indexName).append("` on `");
     ddl.append(className).append("` ( `").append(field).append("`");
 
-    if (!collate.getName().equals(ODefaultCollate.NAME))
+    if (!collate.getName().equals(ODefaultCollate.NAME)) {
       ddl.append(" collate ").append(collate.getName());
+    }
 
     ddl.append(" ) ");
     ddl.append(indexType);
 
-    if (engine != null)
+    if (engine != null) {
       ddl.append(' ').append(OCommandExecutorSQLCreateIndex.KEYWORD_ENGINE + " ").append(engine);
+    }
     return ddl;
   }
 
@@ -200,7 +225,9 @@ public class OPropertyIndexDefinition extends OAbstractIndexDefinition {
       final Object value,
       final Object2IntMap<Object> keysToAdd,
       final Object2IntMap<Object> keysToRemove) {
-    if (value == null) return;
+    if (value == null) {
+      return;
+    }
 
     final int removeCount = keysToRemove.getInt(value);
     if (removeCount > 0) {
@@ -224,7 +251,9 @@ public class OPropertyIndexDefinition extends OAbstractIndexDefinition {
       final Object value,
       final Object2IntMap<Object> keysToAdd,
       final Object2IntMap<Object> keysToRemove) {
-    if (value == null) return;
+    if (value == null) {
+      return;
+    }
 
     final int addCount = keysToAdd.getInt(value);
     if (addCount > 0) {

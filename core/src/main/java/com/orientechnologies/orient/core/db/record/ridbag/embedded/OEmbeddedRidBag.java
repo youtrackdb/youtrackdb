@@ -32,6 +32,7 @@ import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeTimeLine;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBagDelegate;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.ORecord;
@@ -78,6 +79,7 @@ public class OEmbeddedRidBag implements ORidBagDelegate {
   }
 
   private final class EntriesIterator implements Iterator<OIdentifiable>, OResettable, OSizeable {
+
     private int currentIndex = -1;
     private int nextIndex = -1;
     private boolean currentRemoved;
@@ -133,6 +135,7 @@ public class OEmbeddedRidBag implements ORidBagDelegate {
 
       nextIndex = nextIndex();
 
+      assert nextValue != null;
       return (OIdentifiable) nextValue;
     }
 
@@ -156,7 +159,7 @@ public class OEmbeddedRidBag implements ORidBagDelegate {
       removeEvent(nextValue);
     }
 
-    protected void swapValueOnCurrent(OIdentifiable newValue) {
+    private void swapValueOnCurrent(OIdentifiable newValue) {
       if (currentRemoved) {
         throw new IllegalStateException("Current element has already been removed");
       }
@@ -331,15 +334,16 @@ public class OEmbeddedRidBag implements ORidBagDelegate {
     for (int i = 0; i < entriesLength; i++) {
       final Object entry = entries[i];
 
-      if (entry instanceof OIdentifiable) {
-        final OIdentifiable identifiable = (OIdentifiable) entry;
-        ORecord record = identifiable.getRecord();
-        if (record != null) {
+      if (entry instanceof OIdentifiable identifiable) {
+        try {
+          ORecord record = identifiable.getRecord();
           if (this.owner != null) {
             ORecordInternal.unTrack(this.owner, identifiable);
             ORecordInternal.track(this.owner, record);
           }
           entries[i] = record;
+        } catch (ORecordNotFoundException rne) {
+          // ignore
         }
       }
     }
@@ -350,11 +354,8 @@ public class OEmbeddedRidBag implements ORidBagDelegate {
     for (int i = 0; i < entriesLength; i++) {
       final Object entry = entries[i];
 
-      if (entry instanceof OIdentifiable) {
-        final OIdentifiable identifiable = (OIdentifiable) entry;
-        if (identifiable instanceof ORecord) {
-          final ORecord record = (ORecord) identifiable;
-
+      if (entry instanceof OIdentifiable identifiable) {
+        if (identifiable instanceof ORecord record) {
           entries[i] = record.getIdentity();
         }
       }

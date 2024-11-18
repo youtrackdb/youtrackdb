@@ -38,7 +38,6 @@ import com.orientechnologies.orient.core.storage.ORawBuffer;
 import com.orientechnologies.orient.core.storage.ORecordCallback;
 import com.orientechnologies.orient.core.storage.ORecordMetadata;
 import com.orientechnologies.orient.core.storage.OStorage;
-import com.orientechnologies.orient.core.storage.OStorageOperationResult;
 import com.orientechnologies.orient.core.storage.cluster.OPaginatedCluster;
 import com.orientechnologies.orient.core.storage.config.OClusterBasedStorageConfiguration;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
@@ -291,7 +290,7 @@ public class PostponedEngineStartTest {
         }
 
         @Override
-        public OStorageOperationResult<ORawBuffer> readRecord(
+        public ORawBuffer readRecord(
             ORecordId iRid,
             boolean iIgnoreCache,
             boolean prefetchRecords,
@@ -646,6 +645,7 @@ public class PostponedEngineStartTest {
   }
 
   private static class FaultyEngine extends OEngineAbstract {
+
     @Override
     public String getName() {
       return FaultyEngine.class.getSimpleName();

@@ -69,16 +69,21 @@ public class OQueryOperatorIn extends OQueryOperatorEqualityNotNulls {
 
     final OIndexInternal internalIndex = index.getInternal();
     Stream<ORawPair<Object, ORID>> stream;
-    if (!internalIndex.canBeUsedInEqualityOperators()) return null;
+    if (!internalIndex.canBeUsedInEqualityOperators()) {
+      return null;
+    }
 
     if (indexDefinition.getParamCount() == 1) {
       final Object inKeyValue = keyParams.get(0);
       Collection<Object> inParams;
-      if (inKeyValue instanceof List<?>) inParams = (Collection<Object>) inKeyValue;
-      else if (inKeyValue instanceof OSQLFilterItem)
+      if (inKeyValue instanceof List<?>) {
+        inParams = (Collection<Object>) inKeyValue;
+      } else if (inKeyValue instanceof OSQLFilterItem) {
         inParams =
             (Collection<Object>) ((OSQLFilterItem) inKeyValue).getValue(null, null, iContext);
-      else inParams = Collections.singleton(inKeyValue);
+      } else {
+        inParams = Collections.singleton(inKeyValue);
+      }
 
       if (inParams instanceof OLegacyResultSet) { // manage IN (subquery)
         Set newInParams = new HashSet();
@@ -102,47 +107,14 @@ public class OQueryOperatorIn extends OQueryOperatorEqualityNotNulls {
       boolean containsNotCompatibleKey = false;
       for (final Object keyValue : inParams) {
         final Object key;
-        if (indexDefinition instanceof OIndexDefinitionMultiValue)
+        if (indexDefinition instanceof OIndexDefinitionMultiValue) {
           key =
               ((OIndexDefinitionMultiValue) indexDefinition)
-                  .createSingleValue(OSQLHelper.getValue(keyValue));
-        else key = indexDefinition.createValue(OSQLHelper.getValue(keyValue));
-
-        if (key == null) {
-          containsNotCompatibleKey = true;
-          break;
+                  .createSingleValue(iContext.getDatabase(), OSQLHelper.getValue(keyValue));
+        } else {
+          key = indexDefinition.createValue(iContext.getDatabase(), OSQLHelper.getValue(keyValue));
         }
 
-        inKeys.add(key);
-      }
-      if (containsNotCompatibleKey) return null;
-
-      stream = index.getInternal().streamEntries(inKeys, ascSortOrder);
-    } else {
-      final List<Object> partialKey = new ArrayList<Object>();
-      partialKey.addAll(keyParams);
-      partialKey.remove(keyParams.size() - 1);
-
-      final Object inKeyValue = keyParams.get(keyParams.size() - 1);
-
-      final Collection<Object> inParams;
-      if (inKeyValue instanceof List<?>) inParams = (Collection<Object>) inKeyValue;
-      else if (inKeyValue instanceof OSQLFilterItem)
-        inParams =
-            (Collection<Object>) ((OSQLFilterItem) inKeyValue).getValue(null, null, iContext);
-      else throw new IllegalArgumentException("Key '" + inKeyValue + "' is not valid");
-
-      final List<Object> inKeys = new ArrayList<Object>();
-
-      final OCompositeIndexDefinition compositeIndexDefinition =
-          (OCompositeIndexDefinition) indexDefinition;
-
-      boolean containsNotCompatibleKey = false;
-      for (final Object keyValue : inParams) {
-        List<Object> fullKey = new ArrayList<Object>();
-        fullKey.addAll(partialKey);
-        fullKey.add(keyValue);
-        final Object key = compositeIndexDefinition.createSingleValue(fullKey);
         if (key == null) {
           containsNotCompatibleKey = true;
           break;
@@ -154,7 +126,50 @@ public class OQueryOperatorIn extends OQueryOperatorEqualityNotNulls {
         return null;
       }
 
-      if (inKeys == null) return null;
+      stream = index.getInternal().streamEntries(inKeys, ascSortOrder);
+    } else {
+      final List<Object> partialKey = new ArrayList<Object>();
+      partialKey.addAll(keyParams);
+      partialKey.remove(keyParams.size() - 1);
+
+      final Object inKeyValue = keyParams.get(keyParams.size() - 1);
+
+      final Collection<Object> inParams;
+      if (inKeyValue instanceof List<?>) {
+        inParams = (Collection<Object>) inKeyValue;
+      } else if (inKeyValue instanceof OSQLFilterItem) {
+        inParams =
+            (Collection<Object>) ((OSQLFilterItem) inKeyValue).getValue(null, null, iContext);
+      } else {
+        throw new IllegalArgumentException("Key '" + inKeyValue + "' is not valid");
+      }
+
+      final List<Object> inKeys = new ArrayList<Object>();
+
+      final OCompositeIndexDefinition compositeIndexDefinition =
+          (OCompositeIndexDefinition) indexDefinition;
+
+      boolean containsNotCompatibleKey = false;
+      for (final Object keyValue : inParams) {
+        List<Object> fullKey = new ArrayList<Object>();
+        fullKey.addAll(partialKey);
+        fullKey.add(keyValue);
+        final Object key =
+            compositeIndexDefinition.createSingleValue(iContext.getDatabase(), fullKey);
+        if (key == null) {
+          containsNotCompatibleKey = true;
+          break;
+        }
+
+        inKeys.add(key);
+      }
+      if (containsNotCompatibleKey) {
+        return null;
+      }
+
+      if (inKeys == null) {
+        return null;
+      }
 
       if (indexDefinition.getParamCount() == keyParams.size()) {
         stream = index.getInternal().streamEntries(inKeys, ascSortOrder);
@@ -173,18 +188,22 @@ public class OQueryOperatorIn extends OQueryOperatorEqualityNotNulls {
     final int ridSize;
     if (iRight instanceof OSQLFilterItemField
         && ODocumentHelper.ATTRIBUTE_RID.equals(((OSQLFilterItemField) iRight).getRoot())) {
-      if (iLeft instanceof OSQLFilterItem)
+      if (iLeft instanceof OSQLFilterItem) {
         iLeft = ((OSQLFilterItem) iLeft).getValue(null, null, null);
+      }
 
       ridCollection = OMultiValue.getMultiValueIterable(iLeft);
       ridSize = OMultiValue.getSize(iLeft);
     } else if (iLeft instanceof OSQLFilterItemField
         && ODocumentHelper.ATTRIBUTE_RID.equals(((OSQLFilterItemField) iLeft).getRoot())) {
-      if (iRight instanceof OSQLFilterItem)
+      if (iRight instanceof OSQLFilterItem) {
         iRight = ((OSQLFilterItem) iRight).getValue(null, null, null);
+      }
       ridCollection = OMultiValue.getMultiValueIterable(iRight);
       ridSize = OMultiValue.getSize(iRight);
-    } else return null;
+    } else {
+      return null;
+    }
 
     final List<ORID> rids = addRangeResults(ridCollection, ridSize);
 
@@ -197,19 +216,23 @@ public class OQueryOperatorIn extends OQueryOperatorEqualityNotNulls {
     final int ridSize;
     if (iRight instanceof OSQLFilterItemField
         && ODocumentHelper.ATTRIBUTE_RID.equals(((OSQLFilterItemField) iRight).getRoot())) {
-      if (iLeft instanceof OSQLFilterItem)
+      if (iLeft instanceof OSQLFilterItem) {
         iLeft = ((OSQLFilterItem) iLeft).getValue(null, null, null);
+      }
 
       ridCollection = OMultiValue.getMultiValueIterable(iLeft);
       ridSize = OMultiValue.getSize(iLeft);
     } else if (iLeft instanceof OSQLFilterItemField
         && ODocumentHelper.ATTRIBUTE_RID.equals(((OSQLFilterItemField) iLeft).getRoot())) {
-      if (iRight instanceof OSQLFilterItem)
+      if (iRight instanceof OSQLFilterItem) {
         iRight = ((OSQLFilterItem) iRight).getValue(null, null, null);
+      }
 
       ridCollection = OMultiValue.getMultiValueIterable(iRight);
       ridSize = OMultiValue.getSize(iRight);
-    } else return null;
+    } else {
+      return null;
+    }
 
     final List<ORID> rids = addRangeResults(ridCollection, ridSize);
 
@@ -241,28 +264,40 @@ public class OQueryOperatorIn extends OQueryOperatorEqualityNotNulls {
         return found;
       } else {
         // AGAINST SINGLE ITEM
-        if (iLeft instanceof Set<?>) return ((Set) iLeft).contains(iRight);
+        if (iLeft instanceof Set<?>) {
+          return ((Set) iLeft).contains(iRight);
+        }
 
         for (final Object o : OMultiValue.getMultiValueIterable(iLeft)) {
-          if (OQueryOperatorEquals.equals(iRight, o)) return true;
+          if (OQueryOperatorEquals.equals(iRight, o)) {
+            return true;
+          }
         }
       }
     } else if (OMultiValue.isMultiValue(iRight)) {
 
-      if (iRight instanceof Set<?>) return ((Set) iRight).contains(iLeft);
+      if (iRight instanceof Set<?>) {
+        return ((Set) iRight).contains(iLeft);
+      }
 
       for (final Object o : OMultiValue.getMultiValueIterable(iRight)) {
-        if (OQueryOperatorEquals.equals(iLeft, o)) return true;
+        if (OQueryOperatorEquals.equals(iLeft, o)) {
+          return true;
+        }
       }
     } else if (iLeft.getClass().isArray()) {
 
       for (final Object o : (Object[]) iLeft) {
-        if (OQueryOperatorEquals.equals(iRight, o)) return true;
+        if (OQueryOperatorEquals.equals(iRight, o)) {
+          return true;
+        }
       }
     } else if (iRight.getClass().isArray()) {
 
       for (final Object o : (Object[]) iRight) {
-        if (OQueryOperatorEquals.equals(iLeft, o)) return true;
+        if (OQueryOperatorEquals.equals(iLeft, o)) {
+          return true;
+        }
       }
     }
 
@@ -270,19 +305,24 @@ public class OQueryOperatorIn extends OQueryOperatorEqualityNotNulls {
   }
 
   protected List<ORID> addRangeResults(final Iterable<?> ridCollection, final int ridSize) {
-    if (ridCollection == null) return null;
+    if (ridCollection == null) {
+      return null;
+    }
 
     List<ORID> rids = null;
     for (Object rid : ridCollection) {
-      if (rid instanceof OSQLFilterItemParameter)
+      if (rid instanceof OSQLFilterItemParameter) {
         rid = ((OSQLFilterItemParameter) rid).getValue(null, null, null);
+      }
 
       if (rid instanceof OIdentifiable) {
         final ORID r = ((OIdentifiable) rid).getIdentity();
         if (r.isPersistent()) {
           if (rids == null)
-            // LAZY CREATE IT
+          // LAZY CREATE IT
+          {
             rids = new ArrayList<ORID>(ridSize);
+          }
           rids.add(r);
         }
       }

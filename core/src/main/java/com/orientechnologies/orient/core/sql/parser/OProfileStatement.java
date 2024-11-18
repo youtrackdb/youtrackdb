@@ -4,7 +4,6 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseStats;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
@@ -42,7 +41,7 @@ public class OProfileStatement extends OStatement {
   @Override
   public OResultSet execute(
       ODatabaseSessionInternal db, Object[] args, OCommandContext parentCtx, boolean usePlanCache) {
-    ((ODatabaseInternal) db).resetRecordLoadStats();
+    db.resetRecordLoadStats();
     OBasicCommandContext ctx = new OBasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
@@ -50,7 +49,9 @@ public class OProfileStatement extends OStatement {
     ctx.setDatabase(db);
     Map<Object, Object> params = new HashMap<>();
     if (args != null) {
-      for (int i = 0; i < args.length; i++) params.put(i, args[i]);
+      for (int i = 0; i < args.length; i++) {
+        params.put(i, args[i]);
+      }
     }
     ctx.setInputParameters(params);
 
@@ -70,7 +71,7 @@ public class OProfileStatement extends OStatement {
     while (rs.hasNext()) {
       rs.next();
     }
-    ODatabaseStats dbStats = ((ODatabaseInternal) db).getStats();
+    ODatabaseStats dbStats = db.getStats();
     OExplainResultSet result =
         new OExplainResultSet(
             rs.getExecutionPlan()
@@ -84,7 +85,7 @@ public class OProfileStatement extends OStatement {
   @Override
   public OResultSet execute(
       ODatabaseSessionInternal db, Map args, OCommandContext parentCtx, boolean usePlanCache) {
-    ((ODatabaseInternal) db).resetRecordLoadStats();
+    db.resetRecordLoadStats();
     OBasicCommandContext ctx = new OBasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
@@ -104,7 +105,7 @@ public class OProfileStatement extends OStatement {
     while (rs.hasNext()) {
       rs.next();
     }
-    ODatabaseStats dbStats = ((ODatabaseInternal) db).getStats();
+    ODatabaseStats dbStats = db.getStats();
     OExplainResultSet result =
         new OExplainResultSet(
             rs.getExecutionPlan()
@@ -129,13 +130,18 @@ public class OProfileStatement extends OStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OProfileStatement that = (OProfileStatement) o;
 
-    if (statement != null ? !statement.equals(that.statement) : that.statement != null)
+    if (statement != null ? !statement.equals(that.statement) : that.statement != null) {
       return false;
+    }
 
     return true;
   }

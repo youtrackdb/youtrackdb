@@ -17,7 +17,6 @@ package com.orientechnologies.security.auditing;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.Orient;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
@@ -117,7 +116,7 @@ public class ODefaultAuditing
   }
 
   @Override
-  public void onCreate(final ODatabaseInternal iDatabase) {
+  public void onCreate(final ODatabaseSessionInternal iDatabase) {
     // Don't audit system database events.
     if (iDatabase.getName().equalsIgnoreCase(OSystemDatabase.SYSTEM_DB_NAME)) return;
 
@@ -127,7 +126,7 @@ public class ODefaultAuditing
     iDatabase.registerListener(hook);
   }
 
-  private OAuditingHook defaultHook(final ODatabaseInternal iDatabase) {
+  private OAuditingHook defaultHook(final ODatabaseSessionInternal iDatabase) {
     final File auditingFileConfig = getConfigFile(iDatabase.getName());
     String content = null;
     if (auditingFileConfig != null && auditingFileConfig.exists()) {
@@ -209,7 +208,7 @@ public class ODefaultAuditing
   }
 
   @Override
-  public void onOpen(ODatabaseInternal iDatabase) {
+  public void onOpen(ODatabaseSessionInternal iDatabase) {
     // Don't audit system database events.
     if (iDatabase.getName().equalsIgnoreCase(OSystemDatabase.SYSTEM_DB_NAME)) return;
 
@@ -226,7 +225,7 @@ public class ODefaultAuditing
   }
 
   @Override
-  public void onClose(ODatabaseInternal iDatabase) {
+  public void onClose(ODatabaseSessionInternal iDatabase) {
     final OAuditingHook oAuditingHook = hooks.get(iDatabase.getName());
     if (oAuditingHook != null) {
       iDatabase.unregisterHook(oAuditingHook);
@@ -235,7 +234,7 @@ public class ODefaultAuditing
   }
 
   @Override
-  public void onDrop(ODatabaseInternal iDatabase) {
+  public void onDrop(ODatabaseSessionInternal iDatabase) {
     onClose(iDatabase);
 
     final OAuditingHook oAuditingHook = hooks.get(iDatabase.getName());
@@ -261,7 +260,7 @@ public class ODefaultAuditing
   }
 
   @Override
-  public void onCreateClass(ODatabaseInternal iDatabase, OClass iClass) {
+  public void onCreateClass(ODatabaseSessionInternal iDatabase, OClass iClass) {
     final OAuditingHook oAuditingHook = hooks.get(iDatabase.getName());
 
     if (oAuditingHook != null) {
@@ -270,7 +269,7 @@ public class ODefaultAuditing
   }
 
   @Override
-  public void onDropClass(ODatabaseInternal iDatabase, OClass iClass) {
+  public void onDropClass(ODatabaseSessionInternal iDatabase, OClass iClass) {
     final OAuditingHook oAuditingHook = hooks.get(iDatabase.getName());
 
     if (oAuditingHook != null) {

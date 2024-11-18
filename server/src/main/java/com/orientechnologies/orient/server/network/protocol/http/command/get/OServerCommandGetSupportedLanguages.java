@@ -18,8 +18,8 @@
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
 import com.orientechnologies.orient.core.command.script.OScriptManager;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OrientDBInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -37,7 +37,7 @@ public class OServerCommandGetSupportedLanguages extends OServerCommandAuthentic
 
     iRequest.getData().commandInfo = "Returns the supported languages";
 
-    ODatabaseDocument db = null;
+    ODatabaseSession db = null;
 
     try {
       db = getProfiledDatabaseInstance(iRequest);

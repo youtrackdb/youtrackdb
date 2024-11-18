@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -16,7 +16,7 @@ import org.junit.rules.TestName;
 public class OMoveVertexStatementExecutionTest {
   @Rule public TestName name = new TestName();
 
-  private ODatabaseDocument db;
+  private ODatabaseSession db;
 
   private String className;
   private OrientDB orientDB;

@@ -21,7 +21,6 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.config.IndexEngineData;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
@@ -128,23 +127,23 @@ public class OLuceneSpatialIndexFactory implements OIndexFactory, ODatabaseLifec
   }
 
   @Override
-  public void onCreate(ODatabaseInternal iDatabase) {
+  public void onCreate(ODatabaseSessionInternal iDatabase) {
     spatialManager.init(iDatabase);
   }
 
   @Override
-  public void onOpen(ODatabaseInternal iDatabase) {}
+  public void onOpen(ODatabaseSessionInternal iDatabase) {}
 
   @Override
-  public void onClose(ODatabaseInternal iDatabase) {}
+  public void onClose(ODatabaseSessionInternal iDatabase) {}
 
   @Override
-  public void onDrop(final ODatabaseInternal db) {
+  public void onDrop(final ODatabaseSessionInternal db) {
     try {
       if (db.isClosed()) return;
 
       OLogManager.instance().debug(this, "Dropping spatial indexes...");
-      final ODatabaseSessionInternal internalDb = (ODatabaseSessionInternal) db;
+      final ODatabaseSessionInternal internalDb = db;
       for (OIndex idx : internalDb.getMetadata().getIndexManagerInternal().getIndexes(internalDb)) {
 
         if (idx.getInternal() instanceof OLuceneSpatialIndex) {
@@ -158,10 +157,10 @@ public class OLuceneSpatialIndexFactory implements OIndexFactory, ODatabaseLifec
   }
 
   @Override
-  public void onCreateClass(ODatabaseInternal iDatabase, OClass iClass) {}
+  public void onCreateClass(ODatabaseSessionInternal iDatabase, OClass iClass) {}
 
   @Override
-  public void onDropClass(ODatabaseInternal iDatabase, OClass iClass) {}
+  public void onDropClass(ODatabaseSessionInternal iDatabase, OClass iClass) {}
 
   @Override
   public void onLocalNodeConfigurationRequest(ODocument iConfiguration) {}

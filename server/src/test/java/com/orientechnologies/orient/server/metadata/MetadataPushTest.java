@@ -7,11 +7,10 @@ import static org.junit.Assert.assertNotNull;
 import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.Orient;
-import com.orientechnologies.orient.core.db.ODatabase;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
 import java.util.Locale;
@@ -27,7 +26,7 @@ public class MetadataPushTest {
   private static final String SERVER_DIRECTORY = "./target/metadata-push";
   private OServer server;
   private OrientDB orientDB;
-  private ODatabaseDocument database;
+  private ODatabaseSession database;
 
   private OrientDB secondOrientDB;
   private ODatabaseSessionInternal secondDatabase;
@@ -77,7 +76,7 @@ public class MetadataPushTest {
         () -> {
           secondDatabase.activateOnCurrentThread();
           assertEquals(
-              secondDatabase.get(ODatabase.ATTRIBUTES.LOCALELANGUAGE),
+              secondDatabase.get(ODatabaseSession.ATTRIBUTES.LOCALELANGUAGE),
               Locale.GERMANY.getLanguage());
         });
   }

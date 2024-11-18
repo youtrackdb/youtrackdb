@@ -1727,14 +1727,18 @@ public class ODocumentHelper {
     }
 
     if (ridMapper != null
-        && myValue instanceof ORID
-        && otherValue instanceof ORID
-        && ((ORID) myValue).isPersistent()) {
-      ORID convertedValue = ridMapper.map((ORID) myValue);
-      if (convertedValue != null) {
-        myValue = convertedValue;
+        && myValue instanceof OIdentifiable myIdentifiableValue
+        && otherValue instanceof OIdentifiable otherIdentifiableValue) {
+      myValue = myIdentifiableValue.getIdentity();
+      otherValue = otherIdentifiableValue.getIdentity();
+      if (((ORID) myValue).isPersistent()) {
+        ORID convertedValue = ridMapper.map((ORID) myValue);
+        if (convertedValue != null) {
+          myValue = convertedValue;
+        }
       }
     }
+
     if (myValue instanceof Date && otherValue instanceof Date) {
       return ((Date) myValue).getTime() / 1000 == ((Date) otherValue).getTime() / 1000;
     }

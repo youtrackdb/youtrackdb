@@ -24,6 +24,7 @@ import com.orientechnologies.orient.core.command.script.OScriptManager;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.hook.ORecordHook;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -48,6 +49,7 @@ import javax.script.ScriptException;
  * beforeDelete - afterDelete
  */
 public class OClassTrigger {
+
   public static final String CLASSNAME = "OTriggered";
   public static final String METHOD_SEPARATOR = ".";
 
@@ -74,10 +76,11 @@ public class OClassTrigger {
       final ODocument iDocument, ODatabaseSessionInternal database) {
     Object func = checkClzAttribute(iDocument, ONBEFORE_CREATED, database);
     if (func != null) {
-      if (func instanceof OFunction)
+      if (func instanceof OFunction) {
         return OClassTrigger.executeFunction(iDocument, (OFunction) func, database);
-      else if (func instanceof Object[])
+      } else if (func instanceof Object[]) {
         return OClassTrigger.executeMethod(iDocument, (Object[]) func);
+      }
     }
     return ORecordHook.RESULT.RECORD_NOT_CHANGED;
   }
@@ -86,9 +89,11 @@ public class OClassTrigger {
       final ODocument iDocument, ODatabaseSessionInternal database) {
     Object func = checkClzAttribute(iDocument, ONAFTER_CREATED, database);
     if (func != null) {
-      if (func instanceof OFunction)
+      if (func instanceof OFunction) {
         OClassTrigger.executeFunction(iDocument, (OFunction) func, database);
-      else if (func instanceof Object[]) OClassTrigger.executeMethod(iDocument, (Object[]) func);
+      } else if (func instanceof Object[]) {
+        OClassTrigger.executeMethod(iDocument, (Object[]) func);
+      }
     }
   }
 
@@ -96,10 +101,11 @@ public class OClassTrigger {
       final ODocument iDocument, ODatabaseSessionInternal database) {
     Object func = checkClzAttribute(iDocument, ONBEFORE_READ, database);
     if (func != null) {
-      if (func instanceof OFunction)
+      if (func instanceof OFunction) {
         return OClassTrigger.executeFunction(iDocument, (OFunction) func, database);
-      else if (func instanceof Object[])
+      } else if (func instanceof Object[]) {
         return OClassTrigger.executeMethod(iDocument, (Object[]) func);
+      }
     }
     return ORecordHook.RESULT.RECORD_NOT_CHANGED;
   }
@@ -108,9 +114,11 @@ public class OClassTrigger {
       final ODocument iDocument, ODatabaseSessionInternal database) {
     Object func = checkClzAttribute(iDocument, ONAFTER_READ, database);
     if (func != null) {
-      if (func instanceof OFunction)
+      if (func instanceof OFunction) {
         OClassTrigger.executeFunction(iDocument, (OFunction) func, database);
-      else if (func instanceof Object[]) OClassTrigger.executeMethod(iDocument, (Object[]) func);
+      } else if (func instanceof Object[]) {
+        OClassTrigger.executeMethod(iDocument, (Object[]) func);
+      }
     }
   }
 
@@ -118,10 +126,11 @@ public class OClassTrigger {
       final ODocument iDocument, ODatabaseSessionInternal database) {
     Object func = checkClzAttribute(iDocument, ONBEFORE_UPDATED, database);
     if (func != null) {
-      if (func instanceof OFunction)
+      if (func instanceof OFunction) {
         return OClassTrigger.executeFunction(iDocument, (OFunction) func, database);
-      else if (func instanceof Object[])
+      } else if (func instanceof Object[]) {
         return OClassTrigger.executeMethod(iDocument, (Object[]) func);
+      }
     }
     return ORecordHook.RESULT.RECORD_NOT_CHANGED;
   }
@@ -130,9 +139,11 @@ public class OClassTrigger {
       final ODocument iDocument, ODatabaseSessionInternal database) {
     Object func = checkClzAttribute(iDocument, ONAFTER_UPDATED, database);
     if (func != null) {
-      if (func instanceof OFunction)
+      if (func instanceof OFunction) {
         OClassTrigger.executeFunction(iDocument, (OFunction) func, database);
-      else if (func instanceof Object[]) OClassTrigger.executeMethod(iDocument, (Object[]) func);
+      } else if (func instanceof Object[]) {
+        OClassTrigger.executeMethod(iDocument, (Object[]) func);
+      }
     }
   }
 
@@ -140,10 +151,11 @@ public class OClassTrigger {
       final ODocument iDocument, ODatabaseSessionInternal database) {
     Object func = checkClzAttribute(iDocument, ONBEFORE_DELETE, database);
     if (func != null) {
-      if (func instanceof OFunction)
+      if (func instanceof OFunction) {
         return OClassTrigger.executeFunction(iDocument, (OFunction) func, database);
-      else if (func instanceof Object[])
+      } else if (func instanceof Object[]) {
         return OClassTrigger.executeMethod(iDocument, (Object[]) func);
+      }
     }
     return ORecordHook.RESULT.RECORD_NOT_CHANGED;
   }
@@ -152,9 +164,11 @@ public class OClassTrigger {
       final ODocument iDocument, ODatabaseSessionInternal database) {
     Object func = checkClzAttribute(iDocument, ONAFTER_DELETE, database);
     if (func != null) {
-      if (func instanceof OFunction)
+      if (func instanceof OFunction) {
         OClassTrigger.executeFunction(iDocument, (OFunction) func, database);
-      else if (func instanceof Object[]) OClassTrigger.executeMethod(iDocument, (Object[]) func);
+      } else if (func instanceof Object[]) {
+        OClassTrigger.executeMethod(iDocument, (Object[]) func);
+      }
     }
   }
 
@@ -166,25 +180,31 @@ public class OClassTrigger {
       String fieldName = clz.getCustom(attr);
       OClass superClz = clz.getSuperClass();
       while (fieldName == null || fieldName.length() == 0) {
-        if (superClz == null || superClz.getName().equals(CLASSNAME)) break;
+        if (superClz == null || superClz.getName().equals(CLASSNAME)) {
+          break;
+        }
         fieldName = superClz.getCustom(attr);
         superClz = superClz.getSuperClass();
       }
       if (fieldName != null && fieldName.length() > 0) {
         // check if it is reflection or not
         final Object[] clzMethod = OClassTrigger.checkMethod(fieldName);
-        if (clzMethod != null) return clzMethod;
+        if (clzMethod != null) {
+          return clzMethod;
+        }
         func = database.getMetadata().getFunctionLibrary().getFunction(fieldName);
         if (func == null) { // check if it is rid
           if (OStringSerializerHelper.contains(fieldName, ORID.SEPARATOR)) {
             try {
-              ODocument funcDoc = database.load(new ORecordId(fieldName));
-              if (funcDoc != null) {
+              try {
+                ODocument funcDoc = database.load(new ORecordId(fieldName));
                 func =
                     database
                         .getMetadata()
                         .getFunctionLibrary()
                         .getFunction((String) funcDoc.field("name"));
+              } catch (ORecordNotFoundException rnf) {
+                // ignore
               }
             } catch (Exception ex) {
               OLogManager.instance().error(OClassTrigger.class, "illegal record id : ", ex);
@@ -215,7 +235,9 @@ public class OClassTrigger {
       clzName = fieldName.substring(0, fieldName.lastIndexOf(METHOD_SEPARATOR));
       methodName = fieldName.substring(fieldName.lastIndexOf(METHOD_SEPARATOR) + 1);
     }
-    if (clzName == null || methodName == null) return null;
+    if (clzName == null || methodName == null) {
+      return null;
+    }
     try {
       Class clz = ClassLoader.getSystemClassLoader().loadClass(clzName);
       Method method = clz.getMethod(methodName, ODocument.class);
@@ -250,7 +272,9 @@ public class OClassTrigger {
 
   private static ORecordHook.RESULT executeFunction(
       final ODocument iDocument, final OFunction func, ODatabaseSessionInternal database) {
-    if (func == null) return ORecordHook.RESULT.RECORD_NOT_CHANGED;
+    if (func == null) {
+      return ORecordHook.RESULT.RECORD_NOT_CHANGED;
+    }
 
     final OScriptManager scriptManager =
         database.getSharedContext().getOrientDB().getScriptManager();
@@ -265,9 +289,10 @@ public class OClassTrigger {
 
       String result = null;
       try {
-        if (func.getLanguage() == null)
+        if (func.getLanguage() == null) {
           throw new OConfigurationException(
               "Database function '" + func.getName() + "' has no language");
+        }
         final String funcStr = scriptManager.getFunctionDefinition(func);
         if (funcStr != null) {
           try {

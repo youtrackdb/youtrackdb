@@ -13,6 +13,7 @@ import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.OMetadataInternal;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.functions.OIndexableSQLFunction;
@@ -237,7 +238,7 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
 
   private void addLikeQueries(List<ORecord> others, MoreLikeThis mlt, Builder queryBuilder) {
     others.stream()
-        .map(or -> or.getDatabase().<OElement>load(or.getIdentity()))
+        .map(or -> ((ORecordAbstract) or).getDatabase().<OElement>load(or.getIdentity()))
         .forEach(
             element ->
                 Arrays.stream(mlt.getFieldNames())

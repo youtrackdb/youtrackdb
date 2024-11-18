@@ -24,11 +24,9 @@ import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.parser.OStringParser;
 import com.orientechnologies.common.types.OBinary;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.metadata.OMetadataInternal;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.ORecord;
@@ -1259,12 +1257,9 @@ public abstract class OStringSerializerHelper {
             iValue, OStringSerializerHelper.CLASS_SEPARATOR.charAt(0), 0, -1);
     if (classSeparatorPos > -1) {
       final String className = iValue.substring(0, classSeparatorPos);
-      final ODatabaseDocument database = ODatabaseRecordThreadLocal.instance().get();
+      var database = ODatabaseRecordThreadLocal.instance().get();
       if (className != null && database != null)
-        iLinkedClass =
-            ((OMetadataInternal) database.getMetadata())
-                .getImmutableSchemaSnapshot()
-                .getClass(className);
+        iLinkedClass = database.getMetadata().getImmutableSchemaSnapshot().getClass(className);
     }
     return iLinkedClass;
   }

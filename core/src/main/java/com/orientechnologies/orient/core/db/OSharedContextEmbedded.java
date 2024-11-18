@@ -2,6 +2,7 @@ package com.orientechnologies.orient.core.db;
 
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.viewmanager.ViewManager;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.index.OIndexException;
@@ -187,7 +188,7 @@ public class OSharedContextEmbedded extends OSharedContext {
     this.load(database);
   }
 
-  public synchronized ODocument loadConfig(ODatabaseSession session, String name) {
+  public synchronized ODocument loadConfig(ODatabaseSessionInternal session, String name) {
     return (ODocument)
         OScenarioThreadLocal.executeAsDistributed(
             () -> {
@@ -208,7 +209,8 @@ public class OSharedContextEmbedded extends OSharedContext {
   /**
    * Store a configuration with a key, without checking eventual update version.
    */
-  public synchronized void saveConfig(ODatabaseSession session, String name, ODocument value) {
+  public synchronized void saveConfig(
+      ODatabaseSessionInternal session, String name, ODocument value) {
     OScenarioThreadLocal.executeAsDistributed(
         () -> {
           assert !session.getTransaction().isActive();
@@ -216,8 +218,10 @@ public class OSharedContextEmbedded extends OSharedContext {
           String id = storage.getConfiguration().getProperty(propertyName);
           if (id != null) {
             ORecordId recordId = new ORecordId(id);
-            ORecordAbstract record = session.load(recordId);
-            if (record == null) {
+            ORecordAbstract record;
+            try {
+              record = session.load(recordId);
+            } catch (ORecordNotFoundException rnfe) {
               record = new ODocument();
               ORecordInternal.unsetDirty(record);
             }
@@ -250,11 +254,12 @@ public class OSharedContextEmbedded extends OSharedContext {
         });
   }
 
-  public ODocument loadDistributedConfig(ODatabaseSession session) {
+  public ODocument loadDistributedConfig(ODatabaseSessionInternal session) {
     return loadConfig(session, "ditributedConfig");
   }
 
-  public void saveDistributedConfig(ODatabaseSession session, String name, ODocument value) {
+  public void saveDistributedConfig(
+      ODatabaseSessionInternal session, String name, ODocument value) {
     this.saveConfig(session, "ditributedConfig", value);
   }
 }

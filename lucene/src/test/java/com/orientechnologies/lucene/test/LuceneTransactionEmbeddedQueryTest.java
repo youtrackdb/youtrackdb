@@ -18,8 +18,8 @@
 
 package com.orientechnologies.lucene.test;
 
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -71,7 +71,7 @@ public class LuceneTransactionEmbeddedQueryTest {
     }
   }
 
-  private static void createSchema(ODatabaseDocument db) {
+  private static void createSchema(ODatabaseSession db) {
     final OClass c1 = db.createVertexClass("C1");
     c1.createProperty("p1", OType.EMBEDDEDLIST, OType.STRING);
     c1.createIndex("C1.p1", "FULLTEXT", null, null, "LUCENE", new String[] {"p1"});

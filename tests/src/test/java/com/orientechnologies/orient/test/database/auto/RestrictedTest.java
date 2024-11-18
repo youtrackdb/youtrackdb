@@ -35,6 +35,7 @@ import java.util.Collection;
 import java.util.Set;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -47,8 +48,8 @@ public class RestrictedTest extends DocumentDBBaseTest {
   private ORole readerRole = null;
 
   @Parameters(value = "remote")
-  public RestrictedTest(boolean remote) {
-    super(remote);
+  public RestrictedTest(@Optional Boolean remote) {
+    super(remote != null && remote);
   }
 
   @Override
@@ -129,7 +130,13 @@ public class RestrictedTest extends DocumentDBBaseTest {
   public void testFilteredDirectReadAsWriter() throws IOException {
     database = createSessionInstance("writer", "writer");
     database.begin();
-    Assert.assertNull(database.load(adminRecordId.getIdentity()));
+    try {
+      database.load(adminRecordId.getIdentity());
+      Assert.fail();
+    } catch (ORecordNotFoundException e) {
+      // ignore
+    }
+
     database.commit();
   }
 
@@ -138,8 +145,8 @@ public class RestrictedTest extends DocumentDBBaseTest {
     database = createSessionInstance("writer", "writer");
     database.begin();
     try {
-      var adminRecord = new ODocument(this.adminRecordId);
-      adminRecord.field("user", "writer-hacker");
+      var adminRecord = database.loadElement(this.adminRecordId);
+      adminRecord.setProperty("user", "writer-hacker");
       adminRecord.save();
       database.commit();
     } catch (OSecurityException | ORecordNotFoundException e) {
@@ -179,7 +186,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
     try {
       database.begin();
       // FORCE LOADING
-      ODocument adminRecord = new ODocument(this.adminRecordId);
+      ODocument adminRecord = database.load(this.adminRecordId);
       Set<OIdentifiable> allows = adminRecord.field(OSecurityShared.ALLOW_ALL_FIELD);
       allows.add(
           database.getMetadata().getSecurity().getUser(database.getUser().getName()).getIdentity());
@@ -236,7 +243,12 @@ public class RestrictedTest extends DocumentDBBaseTest {
   public void testReaderCannotSeeWriterDocument() throws IOException {
     database = createSessionInstance("reader", "reader");
     database.begin();
-    Assert.assertNull(database.load(writerRecordId.getIdentity()));
+    try {
+      database.load(writerRecordId.getIdentity());
+      Assert.fail();
+    } catch (ORecordNotFoundException e) {
+      // ignore
+    }
     database.commit();
   }
 
@@ -281,7 +293,12 @@ public class RestrictedTest extends DocumentDBBaseTest {
   public void testReaderCannotSeeWriterDocumentAgain() throws IOException {
     database = createSessionInstance("reader", "reader");
     database.begin();
-    Assert.assertNull(database.load(writerRecordId.getIdentity()));
+    try {
+      database.load(writerRecordId.getIdentity());
+      Assert.fail();
+    } catch (ORecordNotFoundException e) {
+      // ignore
+    }
     database.commit();
   }
 
@@ -321,8 +338,8 @@ public class RestrictedTest extends DocumentDBBaseTest {
   @Test(dependsOnMethods = "testReaderRoleCanSeeInheritedDocument")
   public void testReaderRoleDesntInheritsFromWriterRole() throws IOException {
     database = createSessionInstance();
-    ORole reader = database.getMetadata().getSecurity().getRole("reader");
     database.begin();
+    ORole reader = database.getMetadata().getSecurity().getRole("reader");
     reader.setParentRole(null);
     reader.save();
     database.commit();

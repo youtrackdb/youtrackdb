@@ -20,14 +20,15 @@
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.orient.core.collate.OCollate;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.util.List;
 import javax.annotation.Nonnull;
 
 /**
- * Presentation of index that is used information and contained in document {@link
- * com.orientechnologies.orient.core.metadata.schema.OClass} .
+ * Presentation of index that is used information and contained in document
+ * {@link com.orientechnologies.orient.core.metadata.schema.OClass} .
  *
  * <p>This object cannot be created directly, use {@link
  * com.orientechnologies.orient.core.metadata.schema.OClass} manipulation method instead.
@@ -35,16 +36,17 @@ import javax.annotation.Nonnull;
  * @author Andrey Lomakin (a.lomakin-at-orientdb.com), Artem Orobets
  */
 public interface OIndexDefinition extends OIndexCallback {
+
   /**
    * @return Names of fields which given index is used to calculate key value. Order of fields is
-   *     important.
+   * important.
    */
   List<String> getFields();
 
   /**
    * @return Names of fields and their index modifiers (like "by value" for fields that hold <code>
-   *     Map</code> values) which given index is used to calculate key value. Order of fields is
-   *     important.
+   * Map</code> values) which given index is used to calculate key value. Order of fields is
+   * important.
    */
   List<String> getFieldsToIndex();
 
@@ -53,13 +55,19 @@ public interface OIndexDefinition extends OIndexCallback {
    */
   String getClassName();
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   boolean equals(Object index);
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   int hashCode();
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   String toString();
 
   /**
@@ -68,10 +76,11 @@ public interface OIndexDefinition extends OIndexCallback {
    * <p>If it is impossible to calculate key value by given parameters <code>null</code> will be
    * returned.
    *
-   * @param params Parameters from which index key will be calculated.
+   * @param session Currently active database session.
+   * @param params  Parameters from which index key will be calculated.
    * @return Key value or null if calculation is impossible.
    */
-  Object createValue(List<?> params);
+  Object createValue(ODatabaseSessionInternal session, List<?> params);
 
   /**
    * Calculates key value by passed in parameters.
@@ -79,18 +88,19 @@ public interface OIndexDefinition extends OIndexCallback {
    * <p>If it is impossible to calculate key value by given parameters <code>null</code> will be
    * returned.
    *
-   * @param params Parameters from which index key will be calculated.
+   * @param session Currently active database session.
+   * @param params  Parameters from which index key will be calculated.
    * @return Key value or null if calculation is impossible.
    */
-  Object createValue(Object... params);
+  Object createValue(ODatabaseSessionInternal session, Object... params);
 
   /**
    * Returns amount of parameters that are used to calculate key value. It does not mean that all
    * parameters should be supplied. It only means that if you provide more parameters they will be
    * ignored and will not participate in index key calculation.
    *
-   * @return Amount of that are used to calculate key value. Call result should be equals to {@code
-   *     getTypes().length}.
+   * @return Amount of that are used to calculate key value. Call result should be equals to
+   * {@code getTypes().length}.
    */
   int getParamCount();
 

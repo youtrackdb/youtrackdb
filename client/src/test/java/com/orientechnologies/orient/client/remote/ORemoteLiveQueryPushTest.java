@@ -7,8 +7,8 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.client.remote.message.OLiveQueryPushRequest;
 import com.orientechnologies.orient.client.remote.message.live.OLiveQueryResult;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.io.IOException;
@@ -29,25 +29,25 @@ public class ORemoteLiveQueryPushTest {
     public boolean end;
 
     @Override
-    public void onCreate(ODatabaseDocument database, OResult data) {
+    public void onCreate(ODatabaseSession database, OResult data) {
       countCreate++;
     }
 
     @Override
-    public void onUpdate(ODatabaseDocument database, OResult before, OResult after) {
+    public void onUpdate(ODatabaseSession database, OResult before, OResult after) {
       countUpdate++;
     }
 
     @Override
-    public void onDelete(ODatabaseDocument database, OResult data) {
+    public void onDelete(ODatabaseSession database, OResult data) {
       countDelete++;
     }
 
     @Override
-    public void onError(ODatabaseDocument database, OException exception) {}
+    public void onError(ODatabaseSession database, OException exception) {}
 
     @Override
-    public void onEnd(ODatabaseDocument database) {
+    public void onEnd(ODatabaseSession database) {
       assertFalse(end);
       end = true;
     }
@@ -57,7 +57,7 @@ public class ORemoteLiveQueryPushTest {
 
   @Mock private ORemoteConnectionManager connectionManager;
 
-  @Mock private ODatabaseDocument database;
+  @Mock private ODatabaseSession database;
 
   @Before
   public void before() throws IOException {

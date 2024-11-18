@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -36,7 +36,7 @@ public class OServerCommandPostClass extends OServerCommandAuthenticatedDbAbstra
     iRequest.getData().commandInfo = "Create class";
     iRequest.getData().commandDetail = urlParts[2];
 
-    ODatabaseDocument db = null;
+    ODatabaseSession db = null;
 
     try {
       db = getProfiledDatabaseInstance(iRequest);

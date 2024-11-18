@@ -26,8 +26,8 @@ import com.orientechnologies.orient.core.command.OCommandExecutorAbstract;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestAbstract;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.OMetadataInternal;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -109,9 +109,13 @@ public abstract class OCommandExecutorSQLAbstract extends OCommandExecutorAbstra
         new OCommandSQLParsingException(iText, parserText, parserGetPreviousPosition()), e);
   }
 
-  /** Parses the timeout keyword if found. */
+  /**
+   * Parses the timeout keyword if found.
+   */
   protected boolean parseTimeout(final String w) throws OCommandSQLParsingException {
-    if (!w.equals(KEYWORD_TIMEOUT)) return false;
+    if (!w.equals(KEYWORD_TIMEOUT)) {
+      return false;
+    }
 
     String word = parserNextWord(true);
 
@@ -128,22 +132,26 @@ public abstract class OCommandExecutorSQLAbstract extends OCommandExecutorAbstra
               + " 3000");
     }
 
-    if (timeoutMs < 0)
+    if (timeoutMs < 0) {
       throwParsingException(
           "Invalid "
               + KEYWORD_TIMEOUT
               + ": value set minor than ZERO. Example: "
               + KEYWORD_TIMEOUT
               + " 10000");
+    }
 
     word = parserNextWord(true);
 
-    if (word != null)
-      if (word.equals(TIMEOUT_STRATEGY.EXCEPTION.toString()))
+    if (word != null) {
+      if (word.equals(TIMEOUT_STRATEGY.EXCEPTION.toString())) {
         timeoutStrategy = TIMEOUT_STRATEGY.EXCEPTION;
-      else if (word.equals(TIMEOUT_STRATEGY.RETURN.toString()))
+      } else if (word.equals(TIMEOUT_STRATEGY.RETURN.toString())) {
         timeoutStrategy = TIMEOUT_STRATEGY.RETURN;
-      else parserGoBack();
+      } else {
+        parserGoBack();
+      }
+    }
 
     return true;
   }
@@ -156,26 +164,30 @@ public abstract class OCommandExecutorSQLAbstract extends OCommandExecutorAbstra
     for (String clazz : iClassNames) {
       final OClass cls =
           ((OMetadataInternal) db.getMetadata()).getImmutableSchemaSnapshot().getClass(clazz);
-      if (cls != null)
+      if (cls != null) {
         for (int clId : cls.getPolymorphicClusterIds()) {
           // FILTER THE CLUSTER WHERE THE USER HAS THE RIGHT ACCESS
-          if (clId > -1 && checkClusterAccess(db, db.getClusterNameById(clId)))
+          if (clId > -1 && checkClusterAccess(db, db.getClusterNameById(clId))) {
             clusters.add(db.getClusterNameById(clId).toLowerCase(Locale.ENGLISH));
+          }
         }
+      }
     }
 
     return clusters;
   }
 
   protected Set<String> getInvolvedClustersOfClusters(final Collection<String> iClusterNames) {
-    final ODatabaseDocument db = getDatabase();
+    var db = getDatabase();
 
     final Set<String> clusters = new HashSet<String>();
 
     for (String cluster : iClusterNames) {
       final String c = cluster.toLowerCase(Locale.ENGLISH);
       // FILTER THE CLUSTER WHERE THE USER HAS THE RIGHT ACCESS
-      if (checkClusterAccess(db, c)) clusters.add(c);
+      if (checkClusterAccess(db, c)) {
+        clusters.add(c);
+      }
     }
 
     return clusters;
@@ -193,18 +205,21 @@ public abstract class OCommandExecutorSQLAbstract extends OCommandExecutorAbstra
 
       if (clazz != null) {
         final OClass cls = metadata.getImmutableSchemaSnapshot().getClass(clazz);
-        if (cls != null)
+        if (cls != null) {
           for (int clId : cls.getClusterIds()) {
             final String clName = db.getClusterNameById(clId);
-            if (clName != null) clusters.add(clName.toLowerCase(Locale.ENGLISH));
+            if (clName != null) {
+              clusters.add(clName.toLowerCase(Locale.ENGLISH));
+            }
           }
+        }
       }
     }
 
     return clusters;
   }
 
-  protected boolean checkClusterAccess(final ODatabaseDocument db, final String iClusterName) {
+  protected boolean checkClusterAccess(final ODatabaseSession db, final String iClusterName) {
     return db.getUser() == null
         || db.getUser()
                 .checkIfAllowed(

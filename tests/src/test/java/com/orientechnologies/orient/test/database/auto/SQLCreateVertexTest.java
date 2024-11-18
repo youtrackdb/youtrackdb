@@ -4,7 +4,6 @@ import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.sql.executor.OResult;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,8 +24,6 @@ public class SQLCreateVertexTest extends DocumentDBBaseTest {
   }
 
   public void testCreateVertexByContent() {
-    System.out.println(System.getProperty("file.encoding"));
-    System.out.println(Charset.defaultCharset());
     database.close();
 
     database = createSessionInstance();

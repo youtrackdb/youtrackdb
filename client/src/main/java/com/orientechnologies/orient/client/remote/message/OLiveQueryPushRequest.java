@@ -12,7 +12,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Created by tglman on 17/05/17. */
+/**
+ * Created by tglman on 17/05/17.
+ */
 public class OLiveQueryPushRequest implements OBinaryPushRequest {
 
   public static final byte HAS_MORE = 1;

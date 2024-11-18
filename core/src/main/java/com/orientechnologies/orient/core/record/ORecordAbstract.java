@@ -90,6 +90,7 @@ public abstract class ORecordAbstract implements ORecord {
     return null;
   }
 
+  @Nonnull
   public ORecordAbstract getRecord() {
     return this;
   }
@@ -299,13 +300,7 @@ public abstract class ORecordAbstract implements ORecord {
           getIdentity(), "The record has no id, probably it's new or transient yet ");
     }
 
-    final ORecord result = getDatabase().load(recordId);
-
-    if (result == null) {
-      throw new ORecordNotFoundException(getIdentity());
-    }
-
-    return result;
+    return getDatabase().load(recordId);
   }
 
   public ODatabaseSessionInternal getDatabase() {
@@ -326,11 +321,10 @@ public abstract class ORecordAbstract implements ORecord {
     return this;
   }
 
-  public ORecordAbstract delete() {
+  public void delete() {
     checkForBinding();
     //noinspection resource
     getDatabase().delete(this);
-    return this;
   }
 
   public int getSize() {

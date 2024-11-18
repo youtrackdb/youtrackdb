@@ -16,6 +16,7 @@ import org.testng.Assert;
 import org.testng.SkipException;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -26,8 +27,8 @@ public class IndexTxAwareMultiValueGetValuesTest extends DocumentDBBaseTest {
   private static final String INDEX = "idxTxAwareMultiValueGetValuesTestIndex";
 
   @Parameters(value = "remote")
-  public IndexTxAwareMultiValueGetValuesTest(boolean remote) {
-    super(remote);
+  public IndexTxAwareMultiValueGetValuesTest(@Optional Boolean remote) {
+    super(remote != null && remote);
   }
 
   @BeforeClass
@@ -112,6 +113,9 @@ public class IndexTxAwareMultiValueGetValuesTest extends DocumentDBBaseTest {
 
     database.begin();
 
+    documentOne = database.bindToSession(documentOne);
+    documentTwo = database.bindToSession(documentTwo);
+
     documentOne.delete();
     documentTwo.delete();
 
@@ -153,6 +157,7 @@ public class IndexTxAwareMultiValueGetValuesTest extends DocumentDBBaseTest {
 
     database.begin();
 
+    documentOne = database.bindToSession(documentOne);
     documentOne.delete();
 
     Assert.assertNotNull(database.getTransaction().getIndexChanges(INDEX));

@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Set;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -26,8 +27,8 @@ import org.testng.annotations.Test;
 public class DocumentTrackingTest extends DocumentDBBaseTest {
 
   @Parameters(value = "remote")
-  public DocumentTrackingTest(boolean remote) {
-    super(remote);
+  public DocumentTrackingTest(@Optional Boolean remote) {
+    super(remote != null && remote);
   }
 
   @BeforeClass
@@ -47,7 +48,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   }
 
   public void testDocumentEmbeddedListTrackingAfterSave() {
-    final ODocument document = new ODocument();
+    ODocument document = new ODocument();
 
     final List<String> list = new ArrayList<String>();
     list.add("value1");
@@ -59,6 +60,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     document.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
+    document = database.bindToSession(document);
     Assert.assertEquals(document.getDirtyFields(), new String[] {});
     Assert.assertFalse(document.isDirty());
 
@@ -82,7 +84,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   }
 
   public void testDocumentEmbeddedMapTrackingAfterSave() {
-    final ODocument document = new ODocument();
+    ODocument document = new ODocument();
 
     final Map<String, String> map = new HashMap<String, String>();
     map.put("key1", "value1");
@@ -94,6 +96,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     document.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
+    document = database.bindToSession(document);
     Assert.assertEquals(document.getDirtyFields(), new String[] {});
     Assert.assertFalse(document.isDirty());
 
@@ -117,7 +120,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   }
 
   public void testDocumentEmbeddedSetTrackingAfterSave() {
-    final ODocument document = new ODocument();
+    ODocument document = new ODocument();
 
     final Set<String> set = new HashSet<String>();
     set.add("value1");
@@ -129,6 +132,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     document.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
+    document = database.bindToSession(document);
     Assert.assertFalse(document.isDirty());
     Assert.assertEquals(document.getDirtyFields(), new String[] {});
 
@@ -159,7 +163,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     final ODocument docTwo = new ODocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument document = new ODocument();
+    ODocument document = new ODocument();
 
     final Set<ORID> set = new HashSet<ORID>();
     set.add(docOne.getIdentity());
@@ -169,6 +173,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     document.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
+    document = database.bindToSession(document);
     Assert.assertFalse(document.isDirty());
     Assert.assertEquals(document.getDirtyFields(), new String[] {});
 
@@ -191,7 +196,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     final ODocument docTwo = new ODocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument document = new ODocument();
+    ODocument document = new ODocument();
 
     final List<ORID> list = new ArrayList<ORID>();
     list.add(docOne.getIdentity());
@@ -200,6 +205,8 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     document.field("val", 1);
     document.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
+
+    document = database.bindToSession(document);
 
     Assert.assertFalse(document.isDirty());
     Assert.assertEquals(document.getDirtyFields(), new String[] {});
@@ -223,7 +230,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     final ODocument docTwo = new ODocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument document = new ODocument();
+    ODocument document = new ODocument();
 
     final Map<String, ORID> map = new HashMap<String, ORID>();
     map.put("key1", docOne.getIdentity());
@@ -232,6 +239,8 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     document.field("val", 1);
     document.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
+
+    document = database.bindToSession(document);
 
     Assert.assertFalse(document.isDirty());
     Assert.assertEquals(document.getDirtyFields(), new String[] {});
@@ -247,7 +256,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
   public void testDocumentEmbeddedListTrackingAfterSaveCacheDisabled() {
     database.begin();
-    final ODocument document = new ODocument();
+    ODocument document = new ODocument();
 
     final List<String> list = new ArrayList<String>();
     list.add("value1");
@@ -257,6 +266,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     document.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
+    document = database.bindToSession(document);
     Assert.assertEquals(document.getDirtyFields(), new String[] {});
     Assert.assertFalse(document.isDirty());
 
@@ -281,7 +291,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
   public void testDocumentEmbeddedMapTrackingAfterSaveCacheDisabled() {
     database.begin();
-    final ODocument document = new ODocument();
+    ODocument document = new ODocument();
 
     final Map<String, String> map = new HashMap<String, String>();
     map.put("key1", "value1");
@@ -291,6 +301,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     document.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
+    document = database.bindToSession(document);
     Assert.assertEquals(document.getDirtyFields(), new String[] {});
     Assert.assertFalse(document.isDirty());
 
@@ -315,7 +326,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
   public void testDocumentEmbeddedSetTrackingAfterSaveCacheDisabled() {
     database.begin();
-    final ODocument document = new ODocument();
+    ODocument document = new ODocument();
 
     final Set<String> set = new HashSet<String>();
     set.add("value1");
@@ -325,6 +336,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     document.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
+    document = database.bindToSession(document);
     Assert.assertFalse(document.isDirty());
     Assert.assertEquals(document.getDirtyFields(), new String[] {});
 
@@ -355,7 +367,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     final ODocument docTwo = new ODocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument document = new ODocument();
+    ODocument document = new ODocument();
 
     final Set<ORID> set = new HashSet<ORID>();
     set.add(docOne.getIdentity());
@@ -365,6 +377,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     document.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
+    document = database.bindToSession(document);
     Assert.assertFalse(document.isDirty());
     Assert.assertEquals(document.getDirtyFields(), new String[] {});
 
@@ -387,7 +400,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     final ODocument docTwo = new ODocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument document = new ODocument();
+    ODocument document = new ODocument();
 
     final List<ORID> list = new ArrayList<ORID>();
     list.add(docOne.getIdentity());
@@ -397,6 +410,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     document.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
+    document = database.bindToSession(document);
     Assert.assertFalse(document.isDirty());
     Assert.assertEquals(document.getDirtyFields(), new String[] {});
 
@@ -419,7 +433,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     final ODocument docTwo = new ODocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument document = new ODocument();
+    ODocument document = new ODocument();
 
     final Map<String, ORID> map = new HashMap<String, ORID>();
     map.put("key1", docOne.getIdentity());
@@ -429,6 +443,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     document.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
+    document = database.bindToSession(document);
     Assert.assertFalse(document.isDirty());
     Assert.assertEquals(document.getDirtyFields(), new String[] {});
 
@@ -442,7 +457,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   }
 
   public void testDocumentEmbeddedListTrackingAfterSaveWitClass() {
-    final ODocument document = new ODocument("DocumentTrackingTestClass");
+    ODocument document = new ODocument("DocumentTrackingTestClass");
 
     database.begin();
     final List<String> list = new ArrayList<String>();
@@ -453,6 +468,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     document.save();
     database.commit();
 
+    document = database.bindToSession(document);
     Assert.assertEquals(document.getDirtyFields(), new String[] {});
     Assert.assertFalse(document.isDirty());
 
@@ -477,7 +493,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   }
 
   public void testDocumentEmbeddedMapTrackingAfterSaveWithClass() {
-    final ODocument document = new ODocument("DocumentTrackingTestClass");
+    ODocument document = new ODocument("DocumentTrackingTestClass");
 
     final Map<String, String> map = new HashMap<String, String>();
     map.put("key1", "value1");
@@ -488,6 +504,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     document.save();
     database.commit();
 
+    document = database.bindToSession(document);
     Assert.assertEquals(document.getDirtyFields(), new String[] {});
     Assert.assertFalse(document.isDirty());
 
@@ -511,7 +528,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   }
 
   public void testDocumentEmbeddedSetTrackingAfterSaveWithClass() {
-    final ODocument document = new ODocument("DocumentTrackingTestClass");
+    ODocument document = new ODocument("DocumentTrackingTestClass");
 
     final Set<String> set = new HashSet<String>();
     set.add("value1");
@@ -522,6 +539,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     document.save();
     database.commit();
 
+    document = database.bindToSession(document);
     Assert.assertFalse(document.isDirty());
     Assert.assertEquals(document.getDirtyFields(), new String[] {});
 
@@ -552,7 +570,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     final ODocument docTwo = new ODocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument document = new ODocument("DocumentTrackingTestClass");
+    ODocument document = new ODocument("DocumentTrackingTestClass");
 
     final Set<ORID> set = new HashSet<ORID>();
     set.add(docOne.getIdentity());
@@ -562,6 +580,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     document.save();
     database.commit();
 
+    document = database.bindToSession(document);
     Assert.assertFalse(document.isDirty());
     Assert.assertEquals(document.getDirtyFields(), new String[] {});
 
@@ -582,7 +601,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     final ODocument docTwo = new ODocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument document = new ODocument("DocumentTrackingTestClass");
+    ODocument document = new ODocument("DocumentTrackingTestClass");
 
     final List<ORID> list = new ArrayList<ORID>();
     list.add(docOne.getIdentity());
@@ -592,6 +611,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     document.save();
     database.commit();
 
+    document = database.bindToSession(document);
     Assert.assertFalse(document.isDirty());
     Assert.assertEquals(document.getDirtyFields(), new String[] {});
 
@@ -614,7 +634,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     final ODocument docTwo = new ODocument();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ODocument document = new ODocument("DocumentTrackingTestClass");
+    ODocument document = new ODocument("DocumentTrackingTestClass");
 
     final Map<String, ORID> map = new HashMap<String, ORID>();
     map.put("key1", docOne.getIdentity());
@@ -624,6 +644,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     document.save();
     database.commit();
 
+    document = database.bindToSession(document);
     Assert.assertFalse(document.isDirty());
     Assert.assertEquals(document.getDirtyFields(), new String[] {});
 
@@ -639,7 +660,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testDocumentEmbeddedListTrackingAfterConversion() {
     database.begin();
-    final ODocument document = new ODocument();
+    ODocument document = new ODocument();
 
     final Set<String> set = new HashSet<String>();
     set.add("value1");
@@ -649,6 +670,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     document.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
+    document = database.bindToSession(document);
     Assert.assertEquals(document.getDirtyFields(), new String[] {});
     Assert.assertFalse(document.isDirty());
 
@@ -659,7 +681,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testDocumentEmbeddedSetTrackingFailAfterConversion() {
     database.begin();
-    final ODocument document = new ODocument();
+    ODocument document = new ODocument();
 
     final List<String> list = new ArrayList<String>();
     list.add("value1");
@@ -669,6 +691,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     document.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
+    document = database.bindToSession(document);
     Assert.assertFalse(document.isDirty());
     Assert.assertEquals(document.getDirtyFields(), new String[] {});
 
@@ -677,7 +700,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   }
 
   public void testDocumentEmbeddedListTrackingFailAfterReplace() {
-    final ODocument document = new ODocument("DocumentTrackingTestClass");
+    ODocument document = new ODocument("DocumentTrackingTestClass");
 
     final List<String> list = new ArrayList<String>();
     list.add("value1");
@@ -688,6 +711,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     document.save();
     database.commit();
 
+    document = database.bindToSession(document);
     Assert.assertEquals(document.getDirtyFields(), new String[] {});
     Assert.assertFalse(document.isDirty());
 
@@ -707,7 +731,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   }
 
   public void testDocumentEmbeddedMapTrackingAfterReplace() {
-    final ODocument document = new ODocument("DocumentTrackingTestClass");
+    ODocument document = new ODocument("DocumentTrackingTestClass");
 
     final Map<String, String> map = new HashMap<String, String>();
     map.put("key1", "value1");
@@ -718,6 +742,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     document.save();
     database.commit();
 
+    document = database.bindToSession(document);
     Assert.assertEquals(document.getDirtyFields(), new String[] {});
     Assert.assertFalse(document.isDirty());
 
@@ -737,7 +762,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   }
 
   public void testDocumentEmbeddedSetTrackingAfterReplace() {
-    final ODocument document = new ODocument("DocumentTrackingTestClass");
+    ODocument document = new ODocument("DocumentTrackingTestClass");
 
     final Set<String> set = new HashSet<String>();
     set.add("value1");
@@ -748,6 +773,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     document.save();
     database.commit();
 
+    document = database.bindToSession(document);
     Assert.assertFalse(document.isDirty());
     Assert.assertEquals(document.getDirtyFields(), new String[] {});
 
@@ -767,7 +793,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   }
 
   public void testRemoveField() {
-    final ODocument document = new ODocument("DocumentTrackingTestClass");
+    ODocument document = new ODocument("DocumentTrackingTestClass");
 
     final List<String> list = new ArrayList<String>();
     list.add("value1");
@@ -778,6 +804,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     document.save();
     database.commit();
 
+    document = database.bindToSession(document);
     Assert.assertEquals(document.getDirtyFields(), new String[] {});
     Assert.assertFalse(document.isDirty());
 
@@ -792,7 +819,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   }
 
   public void testTrackingChangesSwitchedOff() {
-    final ODocument document = new ODocument("DocumentTrackingTestClass");
+    ODocument document = new ODocument("DocumentTrackingTestClass");
 
     final List<String> list = new ArrayList<String>();
     list.add("value1");
@@ -803,6 +830,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     document.save();
     database.commit();
 
+    document = database.bindToSession(document);
     Assert.assertEquals(document.getDirtyFields(), new String[] {});
     Assert.assertFalse(document.isDirty());
 
@@ -817,7 +845,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   }
 
   public void testTrackingChangesSwitchedOn() {
-    final ODocument document = new ODocument("DocumentTrackingTestClass");
+    ODocument document = new ODocument("DocumentTrackingTestClass");
 
     final List<String> list = new ArrayList<String>();
     list.add("value1");
@@ -828,6 +856,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     document.save();
     database.commit();
 
+    document = database.bindToSession(document);
     Assert.assertEquals(document.getDirtyFields(), new String[] {});
     Assert.assertFalse(document.isDirty());
 
@@ -864,6 +893,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     document.save();
     database.commit();
 
+    document = database.bindToSession(document);
     Assert.assertEquals(document.getDirtyFields(), new String[] {});
     Assert.assertFalse(document.isDirty());
 
@@ -878,7 +908,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   }
 
   public void testClear() {
-    final ODocument document = new ODocument("DocumentTrackingTestClass");
+    ODocument document = new ODocument("DocumentTrackingTestClass");
 
     final List<String> list = new ArrayList<String>();
     list.add("value1");
@@ -889,6 +919,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     document.save();
     database.commit();
 
+    document = database.bindToSession(document);
     Assert.assertEquals(document.getDirtyFields(), new String[] {});
     Assert.assertFalse(document.isDirty());
 
@@ -903,7 +934,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   }
 
   public void testUnload() {
-    final ODocument document = new ODocument("DocumentTrackingTestClass");
+    ODocument document = new ODocument("DocumentTrackingTestClass");
 
     final List<String> list = new ArrayList<String>();
     list.add("value1");
@@ -914,6 +945,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     document.save();
     database.commit();
 
+    document = database.bindToSession(document);
     Assert.assertEquals(document.getDirtyFields(), new String[] {});
     Assert.assertFalse(document.isDirty());
 
@@ -923,13 +955,11 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     ORecordInternal.unsetDirty(document);
     document.unload();
 
-    Assert.assertEquals(document.getDirtyFields(), new String[] {});
     Assert.assertFalse(document.isDirty());
-    Assert.assertNull(document.getCollectionTimeLine("embeddedlist"));
   }
 
   public void testUnsetDirty() {
-    final ODocument document = new ODocument("DocumentTrackingTestClass");
+    ODocument document = new ODocument("DocumentTrackingTestClass");
 
     final List<String> list = new ArrayList<String>();
     list.add("value1");
@@ -940,6 +970,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     document.save();
     database.commit();
 
+    document = database.bindToSession(document);
     Assert.assertEquals(document.getDirtyFields(), new String[] {});
     Assert.assertFalse(document.isDirty());
 
@@ -952,7 +983,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   }
 
   public void testRemoveFieldUsingIterator() {
-    final ODocument document = new ODocument("DocumentTrackingTestClass");
+    ODocument document = new ODocument("DocumentTrackingTestClass");
 
     final List<String> list = new ArrayList<String>();
     list.add("value1");
@@ -962,6 +993,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     document.save();
     database.commit();
 
+    document = database.bindToSession(document);
     Assert.assertEquals(document.getDirtyFields(), new String[] {});
     Assert.assertFalse(document.isDirty());
 

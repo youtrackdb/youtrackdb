@@ -3,7 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -25,7 +25,7 @@ public class ODropClusterStatement extends ODDLStatement {
 
   @Override
   public OExecutionStream executeDDL(OCommandContext ctx) {
-    ODatabaseInternal database = (ODatabaseInternal) ctx.getDatabase();
+    var database = (ODatabaseSessionInternal) ctx.getDatabase();
     // CHECK IF ANY CLASS IS USING IT
     final int clusterId;
     if (id != null) {

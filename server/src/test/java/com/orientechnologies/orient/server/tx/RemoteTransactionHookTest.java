@@ -4,9 +4,9 @@ import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.hook.ODocumentHookAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -24,7 +24,7 @@ public class RemoteTransactionHookTest {
   private static final String SERVER_DIRECTORY = "./target/hook-transaction";
   private OServer server;
   private OrientDB orientDB;
-  private ODatabaseDocument db;
+  private ODatabaseSession db;
 
   @Before
   public void before() throws Exception {
@@ -84,7 +84,7 @@ public class RemoteTransactionHookTest {
   public void testCalledInClientTx() {
     OrientDB orientDB = new OrientDB("embedded:", OrientDBConfig.defaultConfig());
     orientDB.execute("create database test memory users (admin identified by 'admin' role admin)");
-    ODatabaseDocument database = orientDB.open("test", "admin", "admin");
+    var database = orientDB.open("test", "admin", "admin");
     CountCallHook calls = new CountCallHook(database);
     database.registerHook(calls);
     database.createClassIfNotExist("SomeTx");
@@ -133,7 +133,7 @@ public class RemoteTransactionHookTest {
   }
 
   public static class CountCallHookServer extends CountCallHook {
-    public CountCallHookServer(ODatabaseDocument database) {
+    public CountCallHookServer(ODatabaseSession database) {
       super(database);
       instance = this;
     }
@@ -149,7 +149,7 @@ public class RemoteTransactionHookTest {
     private int afterCreate = 0;
     private int afterDelete = 0;
 
-    public CountCallHook(ODatabaseDocument database) {
+    public CountCallHook(ODatabaseSession database) {
       super(database);
     }
 

@@ -22,6 +22,7 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.List;
 import org.testng.Assert;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -29,11 +30,14 @@ import org.testng.annotations.Test;
 public class SQLBatchTest extends DocumentDBBaseTest {
 
   @Parameters(value = "remote")
-  public SQLBatchTest(boolean remote) {
-    super(remote);
+  public SQLBatchTest(@Optional Boolean remote) {
+    // super(remote != null && remote);
+    super(true);
   }
 
-  /** Issue #4349 (https://github.com/orientechnologies/orientdb/issues/4349) */
+  /**
+   * Issue #4349 (https://github.com/orientechnologies/orientdb/issues/4349)
+   */
   public void createEdgeFailIfNoSourceOrTargetVertices() {
     try {
       executeBatch(

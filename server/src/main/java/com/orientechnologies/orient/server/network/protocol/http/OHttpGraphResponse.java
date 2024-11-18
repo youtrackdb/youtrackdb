@@ -160,8 +160,8 @@ public class OHttpGraphResponse extends OHttpResponseAbstract {
         json.writeAttribute("@class", vertex.getSchemaType().get().getName());
 
         // ADD ALL THE PROPERTIES
-        for (String field : ((OVertexInternal) vertex).getPropertyNamesWithoutFiltration()) {
-          final Object v = ((OVertexInternal) vertex).getPropertyWithoutValidation(field);
+        for (String field : ((OVertexInternal) vertex).getPropertyNamesInternal()) {
+          final Object v = ((OVertexInternal) vertex).getPropertyInternal(field);
           if (v != null) {
             json.writeAttribute(field, v);
           }

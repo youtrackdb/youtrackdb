@@ -16,7 +16,6 @@
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
 import com.orientechnologies.common.util.OPatternConst;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -59,7 +58,7 @@ public class OServerCommandGetFileDownload extends OServerCommandAuthenticatedDb
     iRequest.getData().commandDetail = rid;
 
     final ORecordAbstract response;
-    ODatabaseDocument db = getProfiledDatabaseInstance(iRequest);
+    var db = getProfiledDatabaseInstance(iRequest);
     try {
 
       response = db.load(new ORecordId(rid));

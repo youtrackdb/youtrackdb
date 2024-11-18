@@ -16,17 +16,18 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 /** @since 22.03.12 */
 @SuppressWarnings("deprecation")
-@Test(groups = {"index"})
+@Test
 public class LinkMapIndexTest extends DocumentDBBaseTest {
 
   @Parameters(value = "remote")
-  public LinkMapIndexTest(boolean remote) {
-    super(remote);
+  public LinkMapIndexTest(@Optional Boolean remote) {
+    super(remote != null && remote);
   }
 
   @BeforeClass
@@ -49,7 +50,9 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
 
   @AfterMethod
   public void afterMethod() throws Exception {
+    database.begin();
     database.command("delete from LinkMapIndexTestClass").close();
+    database.commit();
 
     super.afterMethod();
   }
@@ -306,12 +309,13 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     mapOne.put("key1", docOne.getIdentity());
     mapOne.put("key2", docTwo.getIdentity());
 
-    final ODocument document = new ODocument("LinkMapIndexTestClass");
+    ODocument document = new ODocument("LinkMapIndexTestClass");
     document.field("linkMap", mapOne);
     document.save();
     database.commit();
 
     database.begin();
+    document = database.bindToSession(document);
     final Map<String, ORID> mapTwo = new HashMap<>();
 
     mapTwo.put("key3", docTwo.getIdentity());
@@ -949,7 +953,7 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    document.delete();
+    database.bindToSession(document).delete();
     database.commit();
 
     final OIndex keyIndexMap = getIndex("mapIndexTestKey");
@@ -981,7 +985,7 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
 
     try {
       database.begin();
-      document.delete();
+      database.bindToSession(document).delete();
       database.commit();
     } catch (Exception e) {
       database.rollback();
@@ -1016,7 +1020,7 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    document.delete();
+    database.bindToSession(document).delete();
     database.rollback();
 
     final OIndex keyIndexMap = getIndex("mapIndexTestKey");
@@ -1065,7 +1069,7 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    final ODocument document = new ODocument("LinkMapIndexTestClass");
+    ODocument document = new ODocument("LinkMapIndexTestClass");
     document.field("linkMap", map);
     document.save();
     database.commit();
@@ -1078,6 +1082,7 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     Assert.assertNotNull(resultByKey);
     Assert.assertEquals(resultByKey.size(), 1);
 
+    document = database.bindToSession(document);
     Assert.assertEquals(map, document.field("linkMap"));
 
     final List<ODocument> resultByValue =

@@ -24,6 +24,7 @@ import com.orientechnologies.common.profiler.OProfiler;
 import com.orientechnologies.common.profiler.OProfilerStub;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -36,6 +37,7 @@ import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterItemField;
+import com.orientechnologies.orient.core.sql.filter.OSQLFilterItemField.FieldChain;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChangesPerKey;
 import java.util.ArrayList;
@@ -66,12 +68,15 @@ import java.util.stream.Stream;
  */
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class OChainedIndexProxy<T> implements OIndexInternal {
+
   private final OIndex firstIndex;
 
   private final List<OIndex> indexChain;
   private final OIndex lastIndex;
+  private final ODatabaseSessionInternal session;
 
-  private OChainedIndexProxy(List<OIndex> indexChain) {
+  private OChainedIndexProxy(ODatabaseSessionInternal session, List<OIndex> indexChain) {
+    this.session = session;
     this.firstIndex = indexChain.get(0);
     this.indexChain = Collections.unmodifiableList(indexChain);
     lastIndex = indexChain.get(indexChain.size() - 1);
@@ -79,19 +84,20 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
 
   /**
    * Create proxies that support maximum number of different operations. In case when several
-   * different indexes which support different operations (e.g. indexes of {@code UNIQUE} and {@code
-   * FULLTEXT} types) are possible, the creates the only one index of each type.
+   * different indexes which support different operations (e.g. indexes of {@code UNIQUE} and
+   * {@code FULLTEXT} types) are possible, the creates the only one index of each type.
    *
+   * @param session
    * @param longChain - property chain from the query, which should be evaluated
    * @return proxies needed to process query.
    */
   public static <T> Collection<OChainedIndexProxy<T>> createProxies(
-      OClass iSchemaClass, OSQLFilterItemField.FieldChain longChain) {
+      ODatabaseSessionInternal session, OClass iSchemaClass, FieldChain longChain) {
     List<OChainedIndexProxy<T>> proxies = new ArrayList<>();
 
     for (List<OIndex> indexChain : getIndexesForChain(iSchemaClass, longChain)) {
       //noinspection ObjectAllocationInLoop
-      proxies.add(new OChainedIndexProxy<>(indexChain));
+      proxies.add(new OChainedIndexProxy<>(session, indexChain));
     }
 
     return proxies;
@@ -105,7 +111,9 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
       OClass iSchemaClass, OSQLFilterItemField.FieldChain fieldChain) {
     List<OIndex> baseIndexes = prepareBaseIndexes(iSchemaClass, fieldChain);
 
-    if (baseIndexes == null) return Collections.emptyList();
+    if (baseIndexes == null) {
+      return Collections.emptyList();
+    }
 
     Collection<OIndex> lastIndexes = prepareLastIndexVariants(iSchemaClass, fieldChain);
 
@@ -160,7 +168,9 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
       final Set<OIndex> involvedIndexes = oClass.getInvolvedIndexes(fieldChain.getItemName(i));
       final OIndex bestIndex = findBestIndex(involvedIndexes);
 
-      if (bestIndex == null) return null;
+      if (bestIndex == null) {
+        return null;
+      }
 
       result.add(bestIndex);
       oClass = oClass.getProperty(fieldChain.getItemName(i)).getLinkedClass();
@@ -187,13 +197,17 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
   protected static OIndex findBestIndex(Iterable<OIndex> indexes) {
     OIndex bestIndex = null;
     for (OIndex index : indexes) {
-      if (priorityOfUsage(index) > priorityOfUsage(bestIndex)) bestIndex = index;
+      if (priorityOfUsage(index) > priorityOfUsage(bestIndex)) {
+        bestIndex = index;
+      }
     }
     return bestIndex;
   }
 
   private static int priorityOfUsage(OIndex index) {
-    if (index == null) return -1;
+    if (index == null) {
+      return -1;
+    }
 
     final OClass.INDEX_TYPE indexType = OClass.INDEX_TYPE.valueOf(index.getType());
     final boolean isComposite = isComposite(index);
@@ -202,7 +216,9 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
     int priority = 1;
 
     if (isComposite) {
-      if (!supportNullValues) return -1;
+      if (!supportNullValues) {
+        return -1;
+      }
     } else {
       priority += 10;
     }
@@ -210,8 +226,11 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
     switch (indexType) {
       case UNIQUE_HASH_INDEX:
       case NOTUNIQUE_HASH_INDEX:
-        if (isComposite) return -1;
-        else priority += 10;
+        if (isComposite) {
+          return -1;
+        } else {
+          priority += 10;
+        }
         break;
       case UNIQUE:
       case NOTUNIQUE:
@@ -249,7 +268,9 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
 
   private static boolean supportNullValues(OIndex index) {
     final ODocument metadata = index.getMetadata();
-    if (metadata == null) return false;
+    if (metadata == null) {
+      return false;
+    }
 
     final Boolean ignoreNullValues = metadata.field("ignoreNullValues");
     return Boolean.FALSE.equals(ignoreNullValues);
@@ -275,7 +296,9 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
 
     for (int i = 0; i < indexNames.size(); i++) {
       String indexName = indexNames.get(i);
-      if (i > 0) res.append(", ");
+      if (i > 0) {
+        res.append(", ");
+      }
       res.append(indexName);
     }
 
@@ -284,7 +307,9 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
     return res.toString();
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   @Deprecated
   public T get(Object key) {
@@ -293,7 +318,7 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
       lastIndexResult = stream.collect(Collectors.toList());
     }
 
-    final Set<OIdentifiable> result = new HashSet<>(applyTailIndexes(lastIndexResult));
+    final Set<OIdentifiable> result = new HashSet<>(applyTailIndexes(session, lastIndexResult));
     return (T) result;
   }
 
@@ -304,7 +329,7 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
       lastIndexResult = stream.collect(Collectors.toList());
     }
 
-    final Set<OIdentifiable> result = new HashSet<>(applyTailIndexes(lastIndexResult));
+    final Set<OIdentifiable> result = new HashSet<>(applyTailIndexes(session, lastIndexResult));
     return result.stream().map(OIdentifiable::getIdentity);
   }
 
@@ -315,7 +340,7 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
       lastIndexResult = stream.collect(Collectors.toList());
     }
 
-    final Set<OIdentifiable> result = new HashSet<>(applyTailIndexes(lastIndexResult));
+    final Set<OIdentifiable> result = new HashSet<>(applyTailIndexes(session, lastIndexResult));
     return result.stream().map(OIdentifiable::getIdentity);
   }
 
@@ -327,14 +352,17 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
     return this;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   public OIndexDefinition getDefinition() {
     return lastIndex.getDefinition();
   }
 
-  private List<ORID> applyTailIndexes(final Object lastIndexResult) {
+  private List<ORID> applyTailIndexes(
+      ODatabaseSessionInternal session, final Object lastIndexResult) {
     final OIndex beforeTheLastIndex = indexChain.get(indexChain.size() - 2);
-    Set<Comparable> currentKeys = prepareKeys(beforeTheLastIndex, lastIndexResult);
+    Set<Comparable> currentKeys = prepareKeys(session, beforeTheLastIndex, lastIndexResult);
 
     for (int j = indexChain.size() - 2; j > 0; j--) {
       final OIndex currentIndex = indexChain.get(j);
@@ -346,7 +374,7 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
         newKeys = new TreeSet<>();
         for (Comparable currentKey : currentKeys) {
           final List<ORID> currentResult = getFromCompositeIndex(currentKey, currentIndex);
-          newKeys.addAll(prepareKeys(nextIndex, currentResult));
+          newKeys.addAll(prepareKeys(session, nextIndex, currentResult));
         }
       } else {
         final List<OIdentifiable> keys;
@@ -354,7 +382,7 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
             currentIndex.getInternal().streamEntries(currentKeys, true)) {
           keys = stream.map((pair) -> pair.second).collect(Collectors.toList());
         }
-        newKeys = prepareKeys(nextIndex, keys);
+        newKeys = prepareKeys(session, nextIndex, keys);
       }
 
       updateStatistic(currentIndex);
@@ -394,20 +422,22 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
   /**
    * Make type conversion of keys for specific index.
    *
-   * @param index - index for which keys prepared for.
-   * @param keys - which should be prepared.
+   * @param session
+   * @param index   - index for which keys prepared for.
+   * @param keys    - which should be prepared.
    * @return keys converted to necessary type.
    */
-  private static Set<Comparable> prepareKeys(OIndex index, Object keys) {
+  private static Set<Comparable> prepareKeys(
+      ODatabaseSessionInternal session, OIndex index, Object keys) {
     final OIndexDefinition indexDefinition = index.getDefinition();
     if (keys instanceof Collection) {
       final Set<Comparable> newKeys = new TreeSet<>();
       for (Object o : ((Collection) keys)) {
-        newKeys.add((Comparable) indexDefinition.createValue(o));
+        newKeys.add((Comparable) indexDefinition.createValue(session, o));
       }
       return newKeys;
     } else {
-      return Collections.singleton((Comparable) indexDefinition.createValue(keys));
+      return Collections.singleton((Comparable) indexDefinition.createValue(session, keys));
     }
   }
 
@@ -555,7 +585,7 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
   }
 
   @Override
-  public OIndex removeCluster(String iClusterName) {
+  public void removeCluster(String iClusterName) {
     throw new UnsupportedOperationException();
   }
 
@@ -744,7 +774,9 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
       Stream<ORawPair<Object, ORID>> indexStream) {
     //noinspection resource
     return indexStream.flatMap(
-        (entry) -> applyTailIndexes(entry.second).stream().map((rid) -> new ORawPair<>(null, rid)));
+        (entry) ->
+            applyTailIndexes(session, entry.second).stream()
+                .map((rid) -> new ORawPair<>(null, rid)));
   }
 
   @Override

@@ -355,7 +355,7 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
         String[] fields = ((ODocument) rec).fieldNames();
         for (String field : fields) {
           if (field.startsWith("out_") || field.startsWith("in_")) {
-            Object edges = doc.getPropertyWithoutValidation(field);
+            Object edges = doc.getPropertyInternal(field);
             if (edges instanceof OIdentifiable) {
               ODocument edgeRec = ((OIdentifiable) edges).getRecord();
               OClass clazz = ODocumentInternal.getImmutableSchemaClass(edgeRec);

@@ -21,9 +21,9 @@ package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseStats;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -198,7 +198,7 @@ public class OServerCommandPostCommand extends OServerCommandAuthenticatedDbAbst
     return null;
   }
 
-  public static OStatement parseStatement(String language, String text, ODatabaseDocument db) {
+  public static OStatement parseStatement(String language, String text, ODatabaseSession db) {
     try {
       if (language != null && language.equalsIgnoreCase("sql")) {
         return OSQLEngine.parse(text, (ODatabaseSessionInternal) db);
@@ -228,7 +228,7 @@ public class OServerCommandPostCommand extends OServerCommandAuthenticatedDbAbst
   }
 
   protected OResultSet executeStatement(
-      String language, String text, Object params, ODatabaseDocument db) {
+      String language, String text, Object params, ODatabaseSession db) {
     OResultSet result;
     if ("sql".equalsIgnoreCase(language)) {
       if (params instanceof Map) {

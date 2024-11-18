@@ -19,6 +19,7 @@
  */
 package com.orientechnologies.orient.core.index;
 
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -30,14 +31,17 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Index implementation bound to one schema class property that presents {@link com.orientechnologies.orient.core.metadata.schema.OType#EMBEDDEDMAP
- * or
+ * Index implementation bound to one schema class property that presents
+ * {@link com.orientechnologies.orient.core.metadata.schema.OType#EMBEDDEDMAP or
+ *
  * @link com.orientechnologies.orient.core.metadata.schema.OType#LINKMAP} property.
  */
 public class OPropertyMapIndexDefinition extends OPropertyIndexDefinition
     implements OIndexDefinitionMultiValue {
 
-  /** Indicates whether Map will be indexed using its keys or values. */
+  /**
+   * Indicates whether Map will be indexed using its keys or values.
+   */
   public enum INDEX_BY {
     KEY,
     VALUE
@@ -51,40 +55,45 @@ public class OPropertyMapIndexDefinition extends OPropertyIndexDefinition
       final String iClassName, final String iField, final OType iType, final INDEX_BY indexBy) {
     super(iClassName, iField, iType);
 
-    if (indexBy == null)
+    if (indexBy == null) {
       throw new NullPointerException(
           "You have to provide way by which map entries should be mapped");
+    }
 
     this.indexBy = indexBy;
   }
 
   @Override
-  public Object getDocumentValueToIndex(ODocument iDocument) {
-    return createValue(iDocument.<Object>field(field));
+  public Object getDocumentValueToIndex(ODatabaseSessionInternal session, ODocument iDocument) {
+    return createValue(session, iDocument.<Object>field(field));
   }
 
   @Override
-  public Object createValue(List<?> params) {
-    if (!(params.get(0) instanceof Map)) return null;
+  public Object createValue(ODatabaseSessionInternal session, List<?> params) {
+    if (!(params.get(0) instanceof Map)) {
+      return null;
+    }
 
     final Collection<?> mapParams = extractMapParams((Map<?, ?>) params.get(0));
     final List<Object> result = new ArrayList<>(mapParams.size());
     for (final Object mapParam : mapParams) {
-      result.add(createSingleValue(mapParam));
+      result.add(createSingleValue(session, mapParam));
     }
 
     return result;
   }
 
   @Override
-  public Object createValue(Object... params) {
-    if (!(params[0] instanceof Map)) return null;
+  public Object createValue(ODatabaseSessionInternal session, Object... params) {
+    if (!(params[0] instanceof Map)) {
+      return null;
+    }
 
     final Collection<?> mapParams = extractMapParams((Map<?, ?>) params[0]);
 
     final List<Object> result = new ArrayList<>(mapParams.size());
     for (final Object mapParam : mapParams) {
-      Object val = createSingleValue(mapParam);
+      Object val = createSingleValue(session, mapParam);
       result.add(val);
     }
     if (getFieldsToIndex().size() == 1 && result.size() == 1) {
@@ -100,7 +109,7 @@ public class OPropertyMapIndexDefinition extends OPropertyIndexDefinition
   @Override
   protected void serializeToStream(ODocument document) {
     super.serializeToStream(document);
-    document.setPropertyWithoutValidation("mapIndexBy", indexBy.toString());
+    document.setPropertyInternal("mapIndexBy", indexBy.toString());
   }
 
   @Override
@@ -110,49 +119,62 @@ public class OPropertyMapIndexDefinition extends OPropertyIndexDefinition
   }
 
   private Collection<?> extractMapParams(Map<?, ?> map) {
-    if (indexBy == INDEX_BY.KEY) return map.keySet();
+    if (indexBy == INDEX_BY.KEY) {
+      return map.keySet();
+    }
     return map.values();
   }
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    if (!super.equals(o)) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    if (!super.equals(o)) {
+      return false;
+    }
 
     OPropertyMapIndexDefinition that = (OPropertyMapIndexDefinition) o;
 
     return indexBy == that.indexBy;
   }
 
-  public Object createSingleValue(final Object... param) {
-    return OType.convert(param[0], keyType.getDefaultJavaType());
+  public Object createSingleValue(ODatabaseSessionInternal session, final Object... param) {
+    return OType.convert(refreshRid(session, param[0]), keyType.getDefaultJavaType());
   }
 
   public void processChangeEvent(
+      ODatabaseSessionInternal session,
       final OMultiValueChangeEvent<?, ?> changeEvent,
       final Object2IntMap<Object> keysToAdd,
       final Object2IntMap<Object> keysToRemove) {
     final boolean result;
-    if (indexBy.equals(INDEX_BY.KEY))
-      result = processKeyChangeEvent(changeEvent, keysToAdd, keysToRemove);
-    else result = processValueChangeEvent(changeEvent, keysToAdd, keysToRemove);
+    if (indexBy.equals(INDEX_BY.KEY)) {
+      result = processKeyChangeEvent(session, changeEvent, keysToAdd, keysToRemove);
+    } else {
+      result = processValueChangeEvent(session, changeEvent, keysToAdd, keysToRemove);
+    }
 
-    if (!result)
+    if (!result) {
       throw new IllegalArgumentException("Invalid change type :" + changeEvent.getChangeType());
+    }
   }
 
   private boolean processKeyChangeEvent(
+      ODatabaseSessionInternal session,
       final OMultiValueChangeEvent<?, ?> changeEvent,
       final Object2IntMap<Object> keysToAdd,
       final Object2IntMap<Object> keysToRemove) {
     return switch (changeEvent.getChangeType()) {
       case ADD -> {
-        processAdd(createSingleValue(changeEvent.getKey()), keysToAdd, keysToRemove);
+        processAdd(createSingleValue(session, changeEvent.getKey()), keysToAdd, keysToRemove);
         yield true;
       }
       case REMOVE -> {
-        processRemoval(createSingleValue(changeEvent.getKey()), keysToAdd, keysToRemove);
+        processRemoval(createSingleValue(session, changeEvent.getKey()), keysToAdd, keysToRemove);
         yield true;
       }
       case UPDATE -> true;
@@ -161,19 +183,22 @@ public class OPropertyMapIndexDefinition extends OPropertyIndexDefinition
   }
 
   private boolean processValueChangeEvent(
+      ODatabaseSessionInternal session,
       final OMultiValueChangeEvent<?, ?> changeEvent,
       final Object2IntMap<Object> keysToAdd,
       final Object2IntMap<Object> keysToRemove) {
     switch (changeEvent.getChangeType()) {
       case ADD:
-        processAdd(createSingleValue(changeEvent.getValue()), keysToAdd, keysToRemove);
+        processAdd(createSingleValue(session, changeEvent.getValue()), keysToAdd, keysToRemove);
         return true;
       case REMOVE:
-        processRemoval(createSingleValue(changeEvent.getOldValue()), keysToAdd, keysToRemove);
+        processRemoval(
+            createSingleValue(session, changeEvent.getOldValue()), keysToAdd, keysToRemove);
         return true;
       case UPDATE:
-        processRemoval(createSingleValue(changeEvent.getOldValue()), keysToAdd, keysToRemove);
-        processAdd(createSingleValue(changeEvent.getValue()), keysToAdd, keysToRemove);
+        processRemoval(
+            createSingleValue(session, changeEvent.getOldValue()), keysToAdd, keysToRemove);
+        processAdd(createSingleValue(session, changeEvent.getValue()), keysToAdd, keysToRemove);
         return true;
     }
     return false;
@@ -181,7 +206,9 @@ public class OPropertyMapIndexDefinition extends OPropertyIndexDefinition
 
   @Override
   public List<String> getFieldsToIndex() {
-    if (indexBy == INDEX_BY.KEY) return Collections.singletonList(field + " by key");
+    if (indexBy == INDEX_BY.KEY) {
+      return Collections.singletonList(field + " by key");
+    }
     return Collections.singletonList(field + " by value");
   }
 
@@ -204,8 +231,11 @@ public class OPropertyMapIndexDefinition extends OPropertyIndexDefinition
     ddl.append(indexName).append("` on `");
     ddl.append(className).append("` ( `").append(field).append("`");
 
-    if (indexBy == INDEX_BY.KEY) ddl.append(" by key");
-    else ddl.append(" by value");
+    if (indexBy == INDEX_BY.KEY) {
+      ddl.append(" by key");
+    } else {
+      ddl.append(" by value");
+    }
 
     ddl.append(" ) ");
     ddl.append(indexType);

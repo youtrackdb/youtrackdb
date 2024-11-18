@@ -19,7 +19,6 @@
  */
 package com.orientechnologies.orient.core.record;
 
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.id.ORID;
@@ -31,7 +30,6 @@ import java.io.Serializable;
  * Generic record representation.
  */
 public interface ORecord extends ORecordElement, OIdentifiable, Serializable, OSerializableStream {
-
   /**
    * Removes all the dependencies with other records. All the relationships remain in form of
    * RecordID. If some links contain dirty records, the detach cannot be complete and this method
@@ -92,11 +90,6 @@ public interface ORecord extends ORecordElement, OIdentifiable, Serializable, OS
   int getVersion();
 
   /**
-   * Returns the database where the record belongs.
-   */
-  ODatabaseDocument getDatabase();
-
-  /**
    * Checks if the record is dirty, namely if it was changed in memory.
    *
    * @return True if dirty, otherwise false
@@ -137,11 +130,8 @@ public interface ORecord extends ORecordElement, OIdentifiable, Serializable, OS
    * will continue to see the record as deleted, while others not. If a Pessimistic transaction is
    * running, then an exclusive lock is acquired against the record. Current transaction will
    * continue to see the record as deleted, while others cannot access to it since it's locked.
-   *
-   * @return The Object instance itself giving a "fluent interface". Useful to call multiple methods
-   * in chain.
    */
-  ORecord delete();
+  void delete();
 
   /**
    * Fills the record parsing the content in JSON format.
@@ -200,7 +190,7 @@ public interface ORecord extends ORecordElement, OIdentifiable, Serializable, OS
 
   /**
    * Checks if the record exists in the database. It adheres the same rules
-   * {@link ODatabaseDocument#exists(ORID)}.
+   * {@link com.orientechnologies.orient.core.db.ODatabaseSession#exists(ORID)}.
    *
    * @return true if the record exists, otherwise false
    */

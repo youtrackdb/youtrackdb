@@ -20,6 +20,7 @@
 
 package com.orientechnologies.orient.core.index;
 
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
@@ -45,23 +46,25 @@ public class OPropertyRidBagIndexDefinition extends OPropertyIndexDefinition
   }
 
   @Override
-  public Object createSingleValue(Object... param) {
-    return OType.convert(param[0], keyType.getDefaultJavaType());
+  public Object createSingleValue(ODatabaseSessionInternal session, Object... param) {
+    return OType.convert(refreshRid(session, param[0]), keyType.getDefaultJavaType());
   }
 
   public void processChangeEvent(
+      ODatabaseSessionInternal session,
       final OMultiValueChangeEvent<?, ?> changeEvent,
       final Object2IntMap<Object> keysToAdd,
       final Object2IntMap<Object> keysToRemove) {
     switch (changeEvent.getChangeType()) {
       case ADD:
         {
-          processAdd(createSingleValue(changeEvent.getValue()), keysToAdd, keysToRemove);
+          processAdd(createSingleValue(session, changeEvent.getValue()), keysToAdd, keysToRemove);
           break;
         }
       case REMOVE:
         {
-          processRemoval(createSingleValue(changeEvent.getOldValue()), keysToAdd, keysToRemove);
+          processRemoval(
+              createSingleValue(session, changeEvent.getOldValue()), keysToAdd, keysToRemove);
           break;
         }
       default:
@@ -70,27 +73,31 @@ public class OPropertyRidBagIndexDefinition extends OPropertyIndexDefinition
   }
 
   @Override
-  public Object getDocumentValueToIndex(ODocument iDocument) {
-    return createValue(iDocument.<Object>field(field));
+  public Object getDocumentValueToIndex(ODatabaseSessionInternal session, ODocument iDocument) {
+    return createValue(session, iDocument.<Object>field(field));
   }
 
   @Override
-  public Object createValue(final List<?> params) {
-    if (!(params.get(0) instanceof ORidBag ridBag)) return null;
+  public Object createValue(ODatabaseSessionInternal session, final List<?> params) {
+    if (!(params.get(0) instanceof ORidBag ridBag)) {
+      return null;
+    }
     final List<Object> values = new ArrayList<>();
     for (final OIdentifiable item : ridBag) {
-      values.add(createSingleValue(item.getIdentity()));
+      values.add(createSingleValue(session, item.getIdentity()));
     }
 
     return values;
   }
 
   @Override
-  public Object createValue(final Object... params) {
-    if (!(params[0] instanceof ORidBag ridBag)) return null;
+  public Object createValue(ODatabaseSessionInternal session, final Object... params) {
+    if (!(params[0] instanceof ORidBag ridBag)) {
+      return null;
+    }
     final List<Object> values = new ArrayList<>();
     for (final OIdentifiable item : ridBag) {
-      values.add(createSingleValue(item.getIdentity()));
+      values.add(createSingleValue(session, item.getIdentity()));
     }
 
     return values;

@@ -5,7 +5,6 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
 import com.orientechnologies.orient.core.config.OStorageEntryConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.executor.resultset.OProduceExecutionStream;
@@ -38,8 +37,8 @@ public class FetchFromStorageMetadataStep extends AbstractExecutionStep {
   private OResult produce(OCommandContext ctx) {
     OResultInternal result = new OResultInternal();
 
-    if (ctx.getDatabase() instanceof ODatabaseInternal) {
-      ODatabaseSessionInternal db = (ODatabaseSessionInternal) ctx.getDatabase();
+    if (ctx.getDatabase() != null) {
+      ODatabaseSessionInternal db = ctx.getDatabase();
       OStorage storage = db.getStorage();
       result.setProperty("clusters", toResult(storage.getClusterInstances()));
       result.setProperty("defaultClusterId", storage.getDefaultClusterId());

@@ -4,11 +4,11 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -42,7 +42,7 @@ public class OLiveQueryRemoteTest {
 
   private OServer server;
   private OrientDB orientDB;
-  private ODatabaseDocument db;
+  private ODatabaseSession db;
 
   @Before
   public void before() throws Exception {
@@ -84,28 +84,28 @@ public class OLiveQueryRemoteTest {
     public List<OResult> ops = new ArrayList<OResult>();
 
     @Override
-    public void onCreate(ODatabaseDocument database, OResult data) {
+    public void onCreate(ODatabaseSession database, OResult data) {
       ops.add(data);
       latch.countDown();
     }
 
     @Override
-    public void onUpdate(ODatabaseDocument database, OResult before, OResult after) {
+    public void onUpdate(ODatabaseSession database, OResult before, OResult after) {
       ops.add(after);
       latch.countDown();
     }
 
     @Override
-    public void onDelete(ODatabaseDocument database, OResult data) {
+    public void onDelete(ODatabaseSession database, OResult data) {
       ops.add(data);
       latch.countDown();
     }
 
     @Override
-    public void onError(ODatabaseDocument database, OException exception) {}
+    public void onError(ODatabaseSession database, OException exception) {}
 
     @Override
-    public void onEnd(ODatabaseDocument database) {
+    public void onEnd(ODatabaseSession database) {
       ended.countDown();
     }
   }
@@ -186,7 +186,7 @@ public class OLiveQueryRemoteTest {
             new Callable<Integer>() {
               @Override
               public Integer call() throws Exception {
-                ODatabaseDocument db =
+                ODatabaseSession db =
                     orientDB.open(OLiveQueryRemoteTest.class.getSimpleName(), "reader", "reader");
 
                 final AtomicInteger integer = new AtomicInteger(0);
@@ -195,29 +195,29 @@ public class OLiveQueryRemoteTest {
                     new OLiveQueryResultListener() {
 
                       @Override
-                      public void onCreate(ODatabaseDocument database, OResult data) {
+                      public void onCreate(ODatabaseSession database, OResult data) {
                         integer.incrementAndGet();
                         dataArrived.countDown();
                       }
 
                       @Override
                       public void onUpdate(
-                          ODatabaseDocument database, OResult before, OResult after) {
+                          ODatabaseSession database, OResult before, OResult after) {
                         integer.incrementAndGet();
                         dataArrived.countDown();
                       }
 
                       @Override
-                      public void onDelete(ODatabaseDocument database, OResult data) {
+                      public void onDelete(ODatabaseSession database, OResult data) {
                         integer.incrementAndGet();
                         dataArrived.countDown();
                       }
 
                       @Override
-                      public void onError(ODatabaseDocument database, OException exception) {}
+                      public void onError(ODatabaseSession database, OException exception) {}
 
                       @Override
-                      public void onEnd(ODatabaseDocument database) {}
+                      public void onEnd(ODatabaseSession database) {}
                     });
 
                 latch.countDown();

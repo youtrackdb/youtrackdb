@@ -5,7 +5,6 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordLazyList;
 import com.orientechnologies.orient.core.db.record.ORecordLazySet;
@@ -71,7 +70,7 @@ public class OCreateLinkStatement extends OSimpleExecStatement {
     }
 
     final ODatabaseSessionInternal database = getDatabase();
-    if (!(database.getDatabaseOwner() instanceof ODatabaseDocument)) {
+    if (database.getDatabaseOwner() == null) {
       throw new OCommandSQLParsingException(
           "This command supports only the database type ODatabaseDocumentTx and type '"
               + database.getClass()

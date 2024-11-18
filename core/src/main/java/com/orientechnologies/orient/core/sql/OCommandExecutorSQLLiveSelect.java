@@ -23,7 +23,6 @@ import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.command.OCommandResultListener;
-import com.orientechnologies.orient.core.db.ODatabaseInternal;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
@@ -97,7 +96,7 @@ public class OCommandExecutorSQLLiveSelect extends OCommandExecutorSQLSelect
     }
   }
 
-  private void subscribeToLiveQuery(Integer token, ODatabaseInternal db) {
+  private void subscribeToLiveQuery(Integer token, ODatabaseSessionInternal db) {
     OLiveQueryHook.subscribe(token, this, db);
   }
 

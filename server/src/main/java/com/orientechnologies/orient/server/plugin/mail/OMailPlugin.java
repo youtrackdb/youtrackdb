@@ -21,8 +21,8 @@ package com.orientechnologies.orient.server.plugin.mail;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.script.OScriptInjection;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OrientDBInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
@@ -69,7 +69,7 @@ public class OMailPlugin extends OServerPluginAbstract
   }
 
   @Override
-  public void bind(ScriptEngine engine, Bindings binding, ODatabaseDocument database) {
+  public void bind(ScriptEngine engine, Bindings binding, ODatabaseSession database) {
     binding.put("mail", this);
   }
 

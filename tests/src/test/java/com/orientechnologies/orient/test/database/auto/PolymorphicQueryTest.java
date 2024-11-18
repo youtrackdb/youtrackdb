@@ -21,7 +21,6 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.common.profiler.OProfiler;
 import com.orientechnologies.orient.core.Orient;
-import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -98,9 +97,6 @@ public class PolymorphicQueryTest extends DocumentDBBaseTest {
   @BeforeMethod
   public void beforeMethod() throws Exception {
     super.beforeMethod();
-
-    final OSchema schema = database.getMetadata().getSchema();
-    schema.reload();
 
     database.command("delete from IndexInSubclassesTestBase").close();
     database.command("delete from IndexInSubclassesTestChild1").close();

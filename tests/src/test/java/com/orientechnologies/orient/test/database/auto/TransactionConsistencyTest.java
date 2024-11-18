@@ -17,24 +17,23 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.ORecordInternal;
+import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTxInternal;
-import com.orientechnologies.orient.test.domain.business.Account;
-import com.orientechnologies.orient.test.domain.business.Address;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.Vector;
+import org.apache.commons.lang.ArrayUtils;
 import org.testng.Assert;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -47,12 +46,12 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
   public static final String NAME = "name";
 
   @Parameters(value = "remote")
-  public TransactionConsistencyTest(boolean remote) {
-    super(remote);
+  public TransactionConsistencyTest(@Optional Boolean remote) {
+    super(remote != null && remote);
   }
 
   @Test
-  public void test1RollbackOnConcurrentException() throws IOException {
+  public void test1RollbackOnConcurrentException() {
     database1 = acquireSession();
 
     database1.begin();
@@ -89,12 +88,18 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
       database1.activateOnCurrentThread();
       database1.begin();
       try {
+        vDocA_db1 = database1.bindToSession(vDocA_db1);
+
         vDocA_db1.field(NAME, "docA_v3");
         database1.save(vDocA_db1);
+
         database1.commit();
       } catch (OConcurrentModificationException e) {
         Assert.fail("Should not failed here...");
       }
+      vDocA_db1 = database1.bindToSession(vDocA_db1);
+      vDocB_db1 = database1.bindToSession(vDocB_db1);
+
       Assert.assertEquals(vDocA_db1.field(NAME), "docA_v3");
       // Keep the last versions.
       // Following updates should failed and reverted.
@@ -134,7 +139,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
   }
 
   @Test
-  public void test4RollbackWithPin() throws IOException {
+  public void test4RollbackWithPin() {
     database1 = acquireSession();
 
     // Create docA.
@@ -158,12 +163,14 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
       database1.activateOnCurrentThread();
       database1.begin();
       try {
+        vDocA_db1 = database1.bindToSession(vDocA_db1);
         vDocA_db1.field(NAME, "docA_v3");
         database1.save(vDocA_db1);
         database1.commit();
       } catch (OConcurrentModificationException e) {
         Assert.fail("Should not failed here...");
       }
+      vDocA_db1 = database1.bindToSession(vDocA_db1);
       Assert.assertEquals(vDocA_db1.field(NAME), "docA_v3");
 
       // Will throw OConcurrentModificationException
@@ -194,7 +201,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
   }
 
   @Test
-  public void test3RollbackWithCopyCacheStrategy() throws IOException {
+  public void test3RollbackWithCopyCacheStrategy() {
     database1 = acquireSession();
 
     // Create docA.
@@ -218,12 +225,15 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
       database1.activateOnCurrentThread();
       database1.begin();
       try {
+        vDocA_db1 = database1.bindToSession(vDocA_db1);
         vDocA_db1.field(NAME, "docA_v3");
         database1.save(vDocA_db1);
         database1.commit();
       } catch (OConcurrentModificationException e) {
         Assert.fail("Should not failed here...");
       }
+
+      vDocA_db1 = database1.bindToSession(vDocA_db1);
       Assert.assertEquals(vDocA_db1.field(NAME), "docA_v3");
 
       // Will throw OConcurrentModificationException
@@ -315,19 +325,20 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
 
     int jackLastVersion = loadedJack.getVersion();
     database.begin();
+    loadedJack = database.bindToSession(loadedJack);
     loadedJack.field("occupation", "agent");
     loadedJack.save();
     database.commit();
-    Assert.assertTrue(jackLastVersion != loadedJack.getVersion());
+    Assert.assertTrue(jackLastVersion != database.bindToSession(loadedJack).getVersion());
 
     loadedJack = database.load(jack.getIdentity());
-    Assert.assertTrue(jackLastVersion != loadedJack.getVersion());
+    Assert.assertTrue(jackLastVersion != database.bindToSession(loadedJack).getVersion());
 
     database.close();
 
     database = acquireSession();
     loadedJack = database.load(jack.getIdentity());
-    Assert.assertTrue(jackLastVersion != loadedJack.getVersion());
+    Assert.assertTrue(jackLastVersion != database.bindToSession(loadedJack).getVersion());
     database.close();
   }
 
@@ -336,8 +347,8 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
   public void createLinkInTx() {
     database = createSessionInstance();
 
-    OClass profile = database.getMetadata().getSchema().createClass("MyProfile", 1, null);
-    OClass edge = database.getMetadata().getSchema().createClass("MyEdge", 1, null);
+    OClass profile = database.getMetadata().getSchema().createClass("MyProfile", 1);
+    OClass edge = database.getMetadata().getSchema().createClass("MyEdge", 1);
     profile
         .createProperty("name", OType.STRING)
         .setMin("3")
@@ -363,23 +374,16 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     jack.save();
     kim.save();
     teri.save();
-
     database.commit();
 
-    database.close();
-
-    database = createSessionInstance();
     OResultSet result = database.command("select from MyProfile ");
 
-    Assert.assertTrue(result.stream().count() != 0);
-
-    database.close();
+    Assert.assertTrue(result.stream().findAny().isPresent());
   }
 
   @SuppressWarnings("unchecked")
   @Test
   public void loadRecordTest() {
-    database = createSessionInstance();
     database.begin();
 
     ODocument kim = new ODocument("Profile").field("name", "Kim").field("surname", "Bauer");
@@ -399,7 +403,9 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     ((HashSet<ODocument>) chloe.field("following")).add(teri);
     ((HashSet<ODocument>) chloe.field("following")).add(kim);
 
-    int profileClusterId = database.getClusterIdByName("Profile");
+    var schema = database.getSchema();
+    var profileClusterIds =
+        Arrays.asList(ArrayUtils.toObject(schema.getClass("Profile").getClusterIds()));
 
     jack.save();
     kim.save();
@@ -408,22 +414,20 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
 
     database.commit();
 
-    Assert.assertEquals(jack.getIdentity().getClusterId(), profileClusterId);
-    Assert.assertEquals(kim.getIdentity().getClusterId(), profileClusterId);
-    Assert.assertEquals(teri.getIdentity().getClusterId(), profileClusterId);
-    Assert.assertEquals(chloe.getIdentity().getClusterId(), profileClusterId);
-
-    database.close();
-    database = createSessionInstance();
+    Assert.assertListContainsObject(
+        profileClusterIds, jack.getIdentity().getClusterId(), "Cluster id not found");
+    Assert.assertListContainsObject(
+        profileClusterIds, kim.getIdentity().getClusterId(), "Cluster id not found");
+    Assert.assertListContainsObject(
+        profileClusterIds, teri.getIdentity().getClusterId(), "Cluster id not found");
+    Assert.assertListContainsObject(
+        profileClusterIds, chloe.getIdentity().getClusterId(), "Cluster id not found");
 
     database.load(chloe.getIdentity());
-    database.close();
   }
 
   @Test
   public void testTransactionPopulateDelete() {
-    database = createSessionInstance();
-
     if (!database.getMetadata().getSchema().existsClass("MyFruit")) {
       OClass fruitClass = database.getMetadata().getSchema().createClass("MyFruit");
       fruitClass.createProperty("name", OType.STRING);
@@ -449,9 +453,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
           .getProperty("flavor")
           .createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
     }
-    database.close();
 
-    database = createSessionInstance();
     int chunkSize = 10;
     for (int initialValue = 0; initialValue < 10; initialValue++) {
       Assert.assertEquals(database.countClusterElements("MyFruit"), 0);
@@ -464,7 +466,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
               + ")");
 
       // do insert
-      Vector<ODocument> v = new Vector<ODocument>();
+      List<ODocument> v = new ArrayList<>();
       database.begin();
       for (int i = initialValue * chunkSize; i < (initialValue * chunkSize) + chunkSize; i++) {
         ODocument d =
@@ -473,7 +475,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
                 .field("color", "FOO")
                 .field("flavor", "BAR" + i);
         d.save();
-        v.addElement(d);
+        v.add(d);
       }
 
       System.out.println(
@@ -490,8 +492,8 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
 
       // do delete
       database.begin();
-      for (int i = 0; i < v.size(); i++) {
-        database.delete(v.elementAt(i));
+      for (ODocument entries : v) {
+        database.delete(database.bindToSession(entries));
       }
       database.commit();
 
@@ -505,108 +507,97 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
 
   @Test
   public void testConsistencyOnDelete() {
-    database = createSessionInstance();
-    try {
-      if (database.getMetadata().getSchema().getClass("Foo") == null) {
-        database.createVertexClass("Foo");
-      }
-
-      database.begin();
-      // Step 1
-      // Create several foo's
-      var v = database.newVertex("Foo");
-      v.setProperty("address", "test1");
-      v.save();
-
-      v = database.newVertex("Foo");
-      v.setProperty("address", "test2");
-      v.save();
-
-      v = database.newVertex("Foo");
-      v.setProperty("address", "test3");
-      v.save();
-      database.commit();
-
-      // remove those foos in a transaction
-      // Step 3a
-      var result =
-          database.query("select * from Foo where address = 'test1'").elementStream().toList();
-      Assert.assertEquals(result.size(), 1);
-      // Step 4a
-      database.begin();
-      database.delete(result.get(0));
-      database.commit();
-
-      // Step 3b
-      result = database.query("select * from Foo where address = 'test2'").elementStream().toList();
-      Assert.assertEquals(result.size(), 1);
-      // Step 4b
-      database.begin();
-      database.delete(result.get(0));
-      database.commit();
-
-      // Step 3c
-      result = database.query("select * from Foo where address = 'test3'").elementStream().toList();
-      Assert.assertEquals(result.size(), 1);
-      // Step 4c
-      database.begin();
-      database.delete(result.get(0));
-      database.commit();
-    } finally {
-      database.close();
+    if (database.getMetadata().getSchema().getClass("Foo") == null) {
+      database.createVertexClass("Foo");
     }
+
+    database.begin();
+    // Step 1
+    // Create several foo's
+    var v = database.newVertex("Foo");
+    v.setProperty("address", "test1");
+    v.save();
+
+    v = database.newVertex("Foo");
+    v.setProperty("address", "test2");
+    v.save();
+
+    v = database.newVertex("Foo");
+    v.setProperty("address", "test3");
+    v.save();
+    database.commit();
+
+    // remove those foos in a transaction
+    // Step 3a
+    var result =
+        database.query("select * from Foo where address = 'test1'").elementStream().toList();
+    Assert.assertEquals(result.size(), 1);
+    // Step 4a
+    database.begin();
+    database.delete(database.bindToSession(result.get(0)));
+    database.commit();
+
+    // Step 3b
+    result = database.query("select * from Foo where address = 'test2'").elementStream().toList();
+    Assert.assertEquals(result.size(), 1);
+    // Step 4b
+    database.begin();
+    database.delete(database.bindToSession(result.get(0)));
+    database.commit();
+
+    // Step 3c
+    result = database.query("select * from Foo where address = 'test3'").elementStream().toList();
+    Assert.assertEquals(result.size(), 1);
+    // Step 4c
+    database.begin();
+    database.delete(database.bindToSession(result.get(0)));
+    database.commit();
   }
 
   @Test
-  public void deletesWithinTransactionArentWorking() throws IOException {
-    database = createSessionInstance();
-    try {
-      if (database.getClass("Foo") == null) {
-        database.createVertexClass("Foo");
-      }
-      if (database.getClass("Bar") == null) {
-        database.createVertexClass("Bar");
-      }
-      if (database.getClass("Sees") == null) {
-        database.createEdgeClass("Sees");
-      }
-
-      // Commenting out the transaction will result in the test succeeding.
-      var foo = database.newVertex("Foo");
-      foo.setProperty("prop", "test1");
-      database.begin();
-      foo.save();
-      database.commit();
-
-      // Comment out these two lines and the test will succeed. The issue appears to be related to
-      // an edge
-      // connecting a deleted vertex during a transaction
-      var bar = database.newVertex("Bar");
-      bar.setProperty("prop", "test1");
-      database.begin();
-      bar.save();
-      database.commit();
-
-      database.begin();
-      var sees = database.newEdge(foo, bar, "Sees");
-      sees.save();
-      database.commit();
-
-      var foos = database.query("select * from Foo").stream().toList();
-      Assert.assertEquals(foos.size(), 1);
-
-      database.begin();
-      database.delete(foos.get(0).toElement());
-      database.commit();
-    } finally {
-      database.close();
+  public void deletesWithinTransactionArentWorking() {
+    if (database.getClass("Foo") == null) {
+      database.createVertexClass("Foo");
     }
+    if (database.getClass("Bar") == null) {
+      database.createVertexClass("Bar");
+    }
+    if (database.getClass("Sees") == null) {
+      database.createEdgeClass("Sees");
+    }
+
+    // Commenting out the transaction will result in the test succeeding.
+    var foo = database.newVertex("Foo");
+    foo.setProperty("prop", "test1");
+    database.begin();
+    foo.save();
+    database.commit();
+
+    // Comment out these two lines and the test will succeed. The issue appears to be related to
+    // an edge
+    // connecting a deleted vertex during a transaction
+    var bar = database.newVertex("Bar");
+    bar.setProperty("prop", "test1");
+    database.begin();
+    bar.save();
+    database.commit();
+
+    database.begin();
+    foo = database.bindToSession(foo);
+    bar = database.bindToSession(bar);
+    var sees = database.newEdge(foo, bar, "Sees");
+    sees.save();
+    database.commit();
+
+    var foos = database.query("select * from Foo").stream().toList();
+    Assert.assertEquals(foos.size(), 1);
+
+    database.begin();
+    database.delete(database.bindToSession(foos.get(0).toElement()));
+    database.commit();
   }
 
-  public void TransactionRollbackConstistencyTest() {
-    // System.out.println("**************************TransactionRollbackConsistencyTest***************************************");
-
-    database = createSessionInstance();
+  public void transactionRollbackConstistencyTest() {
     OClass vertexClass = database.getMetadata().getSchema().createClass("TRVertex");
     OClass edgeClass = database.getMetadata().getSchema().createClass("TREdge");
     vertexClass.createProperty("in", OType.LINKSET, edgeClass);
@@ -625,7 +616,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
 
     database = createSessionInstance();
     database.begin();
-    Vector inserted = new Vector();
+    List<OElement> inserted = new ArrayList<>();
 
     for (int i = 0; i < cnt; i++) {
       ODocument person = new ODocument("TRPerson");
@@ -638,9 +629,9 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
       if (i >= 1) {
         ODocument edge = new ODocument("TREdge");
         edge.field("in", person.getIdentity());
-        edge.field("out", inserted.elementAt(i - 1));
-        ((Set<ODocument>) person.field("out")).add(edge);
-        ((Set<ODocument>) ((ODocument) inserted.elementAt(i - 1)).field("in")).add(edge);
+        edge.field("out", inserted.get(i - 1));
+        (person.<Set<ODocument>>getProperty("out")).add(edge);
+        (database.bindToSession(inserted.get(i - 1)).<Set<ODocument>>getProperty("in")).add(edge);
         edge.save();
       }
       inserted.add(person);
@@ -650,89 +641,79 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
 
     final OResultSet result1 = database.command("select from TRPerson");
     Assert.assertEquals(result1.stream().count(), cnt);
-    // System.out.println("Before transaction commit");
-    // for (ODocument d : result1)
-    // System.out.println(d);
 
     try {
-      database.begin();
-      Vector inserted2 = new Vector();
+      database.executeInTx(
+          () -> {
+            List<OElement> inserted2 = new ArrayList<>();
 
-      for (int i = 0; i < cnt; i++) {
-        ODocument person = new ODocument("TRPerson");
-        person.field("name", Character.toString((char) ('a' + i)));
-        person.field("surname", Character.toString((char) ('a' + (i % 3))));
-        person.field("myversion", 0);
-        person.field("in", new HashSet<ODocument>());
-        person.field("out", new HashSet<ODocument>());
+            for (int i = 0; i < cnt; i++) {
+              ODocument person = new ODocument("TRPerson");
+              person.field("name", Character.toString((char) ('a' + i)));
+              person.field("surname", Character.toString((char) ('a' + (i % 3))));
+              person.field("myversion", 0);
+              person.field("in", new HashSet<ODocument>());
+              person.field("out", new HashSet<ODocument>());
 
-        if (i >= 1) {
-          ODocument edge = new ODocument("TREdge");
-          edge.field("in", person.getIdentity());
-          edge.field("out", inserted2.elementAt(i - 1));
-          ((Set<ODocument>) person.field("out")).add(edge);
-          ((Set<ODocument>) ((ODocument) inserted2.elementAt(i - 1)).field("in")).add(edge);
-          edge.save();
-        }
-        inserted2.add(person);
-        person.save();
-      }
+              if (i >= 1) {
+                ODocument edge = new ODocument("TREdge");
+                edge.field("in", person.getIdentity());
+                edge.field("out", inserted2.get(i - 1));
+                (person.<Set<ODocument>>getProperty("out")).add(edge);
+                ((inserted2.get(i - 1)).<Set<ODocument>>getProperty("in")).add(edge);
+                edge.save();
+              }
 
-      for (int i = 0; i < cnt; i++) {
-        if (i != cnt - 1) {
-          ((ODocument) inserted.elementAt(i)).field("myversion", 2);
-          ((ODocument) inserted.elementAt(i)).save();
-        }
-      }
+              inserted2.add(person);
+              person.save();
+            }
 
-      ((ODocument) inserted.elementAt(cnt - 1)).delete();
-      ORecordInternal.setVersion(((ODocument) inserted.elementAt(cnt - 2)), 0);
-      ((ODocument) inserted.elementAt(cnt - 2)).save();
-      database.commit();
-      Assert.assertTrue(false);
-    } catch (OConcurrentModificationException e) {
+            for (int i = 0; i < cnt; i++) {
+              if (i != cnt - 1) {
+                var doc = database.bindToSession((ODocument) inserted.get(i));
+                doc.setProperty("myversion", 2);
+                doc.save();
+              }
+            }
+
+            var doc = ((ODocument) inserted.get(cnt - 1));
+            database.bindToSession(doc).delete();
+
+            throw new IllegalStateException();
+          });
+      Assert.fail();
+    } catch (IllegalStateException e) {
       Assert.assertTrue(true);
-      database.rollback();
     }
 
     final OResultSet result2 = database.command("select from TRPerson");
     Assert.assertNotNull(result2);
-    // System.out.println("After transaction commit failure/rollback");
-    // for (ODocument d : result2)
-    // System.out.println(d);
     Assert.assertEquals(result2.stream().count(), cnt);
-
-    // System.out.println("**************************TransactionRollbackConstistencyTest***************************************");
   }
 
   @Test
   public void testQueryIsolation() {
-    database = createSessionInstance();
-    try {
-      database.begin();
-      var v = database.newVertex();
+    database.begin();
+    var v = database.newVertex();
 
-      v.setProperty("purpose", "testQueryIsolation");
-      v.save();
+    v.setProperty("purpose", "testQueryIsolation");
+    v.save();
 
-      var result =
-          database
-              .query("select from V where purpose = 'testQueryIsolation'")
-              .elementStream()
-              .toList();
-      Assert.assertEquals(result.size(), 1);
+    var result =
+        database
+            .query("select from V where purpose = 'testQueryIsolation'")
+            .elementStream()
+            .toList();
+    Assert.assertEquals(result.size(), 1);
 
-      database.commit();
+    database.commit();
 
-      result =
-          database
-              .query("select from V where purpose = 'testQueryIsolation'")
-              .elementStream()
-              .toList();
-      Assert.assertEquals(result.size(), 1);
-    } finally {
-      database.close();
-    }
+    result =
+        database
+            .query("select from V where purpose = 'testQueryIsolation'")
+            .elementStream()
+            .toList();
+    Assert.assertEquals(result.size(), 1);
   }
 
   /**
@@ -744,94 +725,88 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
   @SuppressWarnings("unused")
   @Test
   public void testRollbackWithRemove() {
-    // check if the database exists and clean before running tests
-    OObjectDatabaseTxInternal database = new OObjectDatabaseTxInternal(acquireSession());
-    try {
-      Account account = new Account();
-      account.setName("John Grisham");
-      database.begin();
-      account = database.save(account);
-      database.commit();
+    var account = database.newElement("Account");
+    account.setProperty("name", "John Grisham");
+    database.begin();
+    account = database.save(account);
+    database.commit();
 
-      Address address1 = new Address();
-      address1.setStreet("Mulholland drive");
+    database.begin();
+    account = database.bindToSession(account);
+    var address1 = database.newElement("Address");
+    address1.setProperty("street", "Mulholland drive");
+    address1.save();
 
-      Address address2 = new Address();
-      address2.setStreet("Via Veneto");
+    var address2 = database.newElement("Address");
+    address2.setProperty("street", "Via Veneto");
 
-      List<Address> addresses = new ArrayList<Address>();
-      addresses.add(address1);
-      addresses.add(address2);
-      account.setAddresses(addresses);
+    List<OElement> addresses = new ArrayList<>();
+    addresses.add(address1);
+    addresses.add(address2);
 
-      database.begin();
-      account = database.save(account);
-      database.commit();
+    account.setProperty("addresses", addresses);
 
-      String originalName = account.getName();
+    account = database.save(account);
+    database.commit();
 
-      database.begin();
+    database.begin();
+    account = database.bindToSession(account);
+    String originalName = account.getProperty("name");
+    Assert.assertEquals(account.<List<OIdentifiable>>getProperty("addresses").size(), 2);
+    account
+        .<List<OIdentifiable>>getProperty("addresses")
+        .remove(1); // delete one of the objects in the Books collection to see how rollback behaves
+    Assert.assertEquals(account.<List<OIdentifiable>>getProperty("addresses").size(), 1);
+    account.setProperty(
+        "name", "New Name"); // change an attribute to see if the change is rolled back
+    account = database.save(account);
 
-      Assert.assertEquals(account.getAddresses().size(), 2);
-      account
-          .getAddresses()
-          .remove(
-              1); // delete one of the objects in the Books collection to see how rollback behaves
-      Assert.assertEquals(account.getAddresses().size(), 1);
-      account.setName("New Name"); // change an attribute to see if the change is rolled back
-      account = database.save(account);
+    Assert.assertEquals(
+        account.<List<OIdentifiable>>getProperty("addresses").size(),
+        1); // before rollback this is fine because one of the books was removed
 
-      Assert.assertEquals(
-          account.getAddresses().size(),
-          1); // before rollback this is fine because one of the books was removed
+    database.rollback(); // rollback the transaction
 
-      database.rollback(); // rollback the transaction
+    account = database.bindToSession(account);
+    Assert.assertEquals(
+        account.<List<OIdentifiable>>getProperty("addresses").size(),
+        2); // this is fine, author still linked to 2 books
+    Assert.assertEquals(account.getProperty("name"), originalName); // name is restored
 
-      Assert.assertEquals(
-          account.getAddresses().size(), 2); // this is fine, author still linked to 2 books
-      Assert.assertEquals(account.getName(), originalName); // name is restored
-
-      int bookCount = 0;
-      for (Address b : database.browseClass(Address.class)) {
-        if (b.getStreet().equals("Mulholland drive") || b.getStreet().equals("Via Veneto")) {
-          bookCount++;
-        }
+    int bookCount = 0;
+    for (var b : database.browseClass("Address")) {
+      var street = b.getProperty("street");
+      if ("Mulholland drive".equals(street) || "Via Veneto".equals(street)) {
+        bookCount++;
       }
-      Assert.assertEquals(bookCount, 2); // this fails, only 1 entry in the datastore :(
-    } finally {
-      database.close();
     }
+
+    Assert.assertEquals(bookCount, 2); // this fails, only 1 entry in the datastore :(
   }
 
-  public void testTransactionsCache() throws Exception {
-    OObjectDatabaseTxInternal database = new OObjectDatabaseTxInternal(acquireSession());
-    try {
-      Assert.assertFalse(database.getTransaction().isActive());
-      OSchema schema = database.getMetadata().getSchema();
-      OClass classA = schema.createClass("TransA");
-      classA.createProperty("name", OType.STRING);
-      ODocument doc = new ODocument(classA);
-      doc.field("name", "test1");
+  public void testTransactionsCache() {
+    Assert.assertFalse(database.getTransaction().isActive());
+    OSchema schema = database.getMetadata().getSchema();
+    OClass classA = schema.createClass("TransA");
+    classA.createProperty("name", OType.STRING);
+    ODocument doc = new ODocument(classA);
+    doc.field("name", "test1");
 
-      database.begin();
-      doc.save();
-      database.commit();
-      ORID orid = doc.getIdentity();
-      database.begin();
-      Assert.assertTrue(database.getTransaction().isActive());
-      doc = orid.getRecord();
-      Assert.assertEquals("test1", doc.field("name"));
-      doc.field("name", "test2");
-      doc = orid.getRecord();
-      Assert.assertEquals("test2", doc.field("name"));
-      // There is NO SAVE!
-      database.commit();
+    database.begin();
+    doc.save();
+    database.commit();
+    ORID orid = doc.getIdentity();
+    database.begin();
+    Assert.assertTrue(database.getTransaction().isActive());
+    doc = orid.getRecord();
+    Assert.assertEquals("test1", doc.field("name"));
+    doc.field("name", "test2");
+    doc = orid.getRecord();
+    Assert.assertEquals("test2", doc.field("name"));
+    // There is NO SAVE!
+    database.commit();
 
-      doc = orid.getRecord();
-      Assert.assertEquals("test1", doc.field("name"));
-
-    } finally {
-      database.close();
-    }
+    doc = orid.getRecord();
+    Assert.assertEquals("test1", doc.field("name"));
   }
 }

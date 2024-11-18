@@ -5,9 +5,9 @@ import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
 import org.junit.After;
@@ -19,7 +19,7 @@ public class RemoteSimpleSchemaTest {
   private static final String SERVER_DIRECTORY = "./target/metadata-push";
   private OServer server;
   private OrientDB orientDB;
-  private ODatabaseDocument database;
+  private ODatabaseSession database;
 
   @Before
   public void before() throws Exception {

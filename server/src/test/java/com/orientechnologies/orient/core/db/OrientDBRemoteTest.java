@@ -9,7 +9,6 @@ import static org.junit.Assert.assertTrue;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.exception.OStorageException;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -166,7 +165,7 @@ public class OrientDBRemoteTest {
     // do a query and assert on other thread
     Runnable acquirer =
         () -> {
-          ODatabaseDocument db = pool.acquire();
+          var db = pool.acquire();
 
           try {
             assertThat(db.isActiveOnCurrentThread()).isTrue();
@@ -231,7 +230,7 @@ public class OrientDBRemoteTest {
   @Test
   public void testCopyOpenedDatabase() {
     factory.execute("create database test memory users (admin identified by 'admin' role admin)");
-    ODatabaseDocument db1;
+    ODatabaseSession db1;
     try (ODatabaseSessionInternal db =
         (ODatabaseSessionInternal) factory.open("test", "admin", "admin")) {
       db1 = db.copy();
