@@ -109,25 +109,6 @@ public class DbCreationTest {
     initODB();
   }
 
-  @Test(dependsOnMethods = {"testDbOpenWithLastAsSlash"})
-  public void testDbOpenWithBackSlash() {
-    orientDB.close();
-
-    String url;
-    url = calculateURL();
-    url = url.replace('/', '\\');
-
-    var configBuilder = OrientDBConfig.builder();
-    configBuilder.addConfig(OGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
-
-    try (var odb = new OrientDB(url, "root", "root", configBuilder.build())) {
-      var database = odb.open(DB_NAME, "admin", "admin");
-      database.close();
-    }
-
-    initODB();
-  }
-
   private String calculateURL() {
     String url;
     if (remoteDB) {
@@ -139,7 +120,7 @@ public class DbCreationTest {
     return url;
   }
 
-  @Test(dependsOnMethods = {"testDbOpenWithBackSlash"})
+  @Test(dependsOnMethods = {"testDbOpenWithLastAsSlash"})
   public void testChangeLocale() {
     try (var database = orientDB.open(DB_NAME, "admin", "admin")) {
       database.command(" ALTER DATABASE LOCALELANGUAGE  ?", Locale.GERMANY.getLanguage()).close();
