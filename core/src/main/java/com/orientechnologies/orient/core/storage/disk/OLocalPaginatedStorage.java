@@ -907,7 +907,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
   public static boolean exists(final Path path) {
     try {
       final boolean[] exists = new boolean[1];
-      if (Files.exists(path)) {
+      if (Files.exists(path.normalize().toAbsolutePath())) {
         try (final DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
           stream.forEach(
               (p) -> {

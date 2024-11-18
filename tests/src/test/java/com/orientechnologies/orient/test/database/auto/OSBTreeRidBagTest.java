@@ -322,6 +322,7 @@ public class OSBTreeRidBagTest extends ORidBagTest {
     ODocument testDocument = new ODocument();
     ORidBag highLevelRidBag = new ORidBag();
     testDocument.field("ridBag", highLevelRidBag);
+    realDoc = database.bindToSession(realDoc);
     testDocument.field("realDoc", realDoc);
 
     database.begin();
