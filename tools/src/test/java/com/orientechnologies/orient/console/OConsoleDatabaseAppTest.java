@@ -31,8 +31,8 @@ public class OConsoleDatabaseAppTest {
     OConsoleDatabaseApp app =
         new OConsoleDatabaseApp(new String[] {}) {
           @Override
-          public void message(String iMessage, Object... iArgs) {
-            builder.append(String.format(iMessage, iArgs)).append("\n");
+          public void message(String iMessage) {
+            builder.append(iMessage).append("\n");
           }
         };
     try {

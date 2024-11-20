@@ -79,7 +79,7 @@ public class OTableFormatter {
 
   public interface OTableOutput {
 
-    void onMessage(String text, Object... args);
+    void onMessage(String text);
   }
 
   public OTableFormatter(final OTableOutput iConsole) {
@@ -105,31 +105,28 @@ public class OTableFormatter {
     final Map<String, Integer> columns = parseColumns(resultSet, limit);
 
     if (columnSorting != null) {
-      Collections.sort(
-          resultSet,
-          new Comparator<Object>() {
-            @Override
-            public int compare(final Object o1, final Object o2) {
-              final ODocument doc1 = ((OIdentifiable) o1).getRecord();
-              final ODocument doc2 = ((OIdentifiable) o2).getRecord();
-              final Object value1 = doc1.field(columnSorting.getKey());
-              final Object value2 = doc2.field(columnSorting.getKey());
-              final boolean ascending = columnSorting.getValue();
+      resultSet.sort(
+          (Comparator<Object>)
+              (o1, o2) -> {
+                final ODocument doc1 = ((OIdentifiable) o1).getRecord();
+                final ODocument doc2 = ((OIdentifiable) o2).getRecord();
+                final Object value1 = doc1.field(columnSorting.getKey());
+                final Object value2 = doc2.field(columnSorting.getKey());
+                final boolean ascending = columnSorting.getValue();
 
-              final int result;
-              if (value2 == null) {
-                result = 1;
-              } else if (value1 == null) {
-                result = 0;
-              } else if (value1 instanceof Comparable) {
-                result = ((Comparable) value1).compareTo(value2);
-              } else {
-                result = value1.toString().compareTo(value2.toString());
-              }
+                final int result;
+                if (value2 == null) {
+                  result = 1;
+                } else if (value1 == null) {
+                  result = 0;
+                } else if (value1 instanceof Comparable) {
+                  result = ((Comparable) value1).compareTo(value2);
+                } else {
+                  result = value1.toString().compareTo(value2.toString());
+                }
 
-              return ascending ? result : result * -1;
-            }
-          });
+                return ascending ? result : result * -1;
+              });
     }
 
     int fetched = 0;
@@ -239,11 +236,13 @@ public class OTableFormatter {
         format.append('|');
       }
 
-      out.onMessage("\n" + format, vargs.toArray());
+      out.onMessage(String.format("\n" + format, vargs.toArray()));
 
     } catch (Exception t) {
       out.onMessage(
-          "%3d|%9s|%s\n", iIndex, iRecord.getIdentity(), "Error on loading record due to: " + t);
+          String.format(
+              "%3d|%9s|%s\n",
+              iIndex, iRecord.getIdentity(), "Error on loading record due to: " + t));
     }
   }
 
@@ -507,9 +506,7 @@ public class OTableFormatter {
           buffer.append("+");
         }
 
-        for (int k = 0; k < column.getValue(); ++k) {
-          buffer.append("-");
-        }
+        buffer.append("-".repeat(Math.max(0, column.getValue())));
       }
 
       if (rightBorder) {

@@ -162,25 +162,17 @@ public class OConsoleApplication {
     return result;
   }
 
-  public void message(final String iMessage, final Object... iArgs) {
+  protected void message(final String iMessage) {
     final int verboseLevel = getVerboseLevel();
     if (verboseLevel > 1) {
-      if (iArgs != null && iArgs.length > 0) {
-        out.printf("%s", String.format("%s", iMessage, iArgs));
-      } else {
-        out.printf("%s", iMessage);
-      }
+      out.print(iMessage);
     }
   }
 
-  public void error(final String iMessage, final Object... iArgs) {
+  public void error(final String iMessage) {
     final int verboseLevel = getVerboseLevel();
     if (verboseLevel > 0) {
-      if (iArgs != null && iArgs.length > 0) {
-        out.printf(iMessage, iArgs);
-      } else {
-        out.print(iMessage);
-      }
+      out.print(iMessage);
     }
   }
 
@@ -516,7 +508,7 @@ public class OConsoleApplication {
       syntaxError(lastCommandInvoked.toString(), lastMethodInvoked);
     }
 
-    error("\n!Unrecognized command: '%s'", iCommand);
+    error(String.format("\n!Unrecognized command: '%s'", iCommand));
     return RESULT.ERROR;
   }
 
@@ -616,18 +608,19 @@ public class OConsoleApplication {
       }
     }
 
-    error("\n!Unrecognized command: '%s'", iCommand);
+    error(String.format("\n!Unrecognized command: '%s'", iCommand));
     return null;
   }
 
   protected void syntaxError(String iCommand, Method m) {
     error(
-        "\n"
-            + "!Wrong syntax. If you're running in batch mode make sure all commands are delimited"
-            + " by semicolon (;) or a linefeed (\\n"
-            + "). Expected: \n\r\n\r"
-            + "%s",
-        formatCommandSpecs(iCommand, m));
+        String.format(
+            "\n"
+                + "!Wrong syntax. If you're running in batch mode make sure all commands are"
+                + " delimited by semicolon (;) or a linefeed (\\n"
+                + "). Expected: \n\r\n\r"
+                + "%s",
+            formatCommandSpecs(iCommand, m)));
   }
 
   protected String formatCommandSpecs(final String iCommand, final Method m) {
@@ -777,9 +770,9 @@ public class OConsoleApplication {
           continue;
         }
 
-        message("* %-85s%s\n", getCorrectMethodName(m), annotation.description());
+        message(String.format("* %-85s%s\n", getCorrectMethodName(m), annotation.description()));
       }
-      message("* %-85s%s\n", getClearName("exit"), "Close the console");
+      message(String.format("* %-85s%s\n", getClearName("exit"), "Close the console"));
       return;
     }
 
