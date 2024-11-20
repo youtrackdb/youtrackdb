@@ -855,7 +855,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
                 .getBytes(StandardCharsets.UTF_8)));
     final ORidBag bag = documentSource.field("in_EHasGoodStudents");
     Assert.assertEquals(bag.size(), 1);
-    final OIdentifiable rid = bag.rawIterator().next();
+    final OIdentifiable rid = bag.iterator().next();
     Assert.assertTrue(rid.getIdentity().getClusterId() == 57);
     Assert.assertTrue(rid.getIdentity().getClusterPosition() == 0);
   }

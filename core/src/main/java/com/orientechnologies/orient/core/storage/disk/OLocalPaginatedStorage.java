@@ -110,6 +110,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
+import javax.annotation.Nonnull;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -1984,7 +1985,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
   }
 
   @Override
-  public ORawBuffer readRecord(
+  public @Nonnull ORawBuffer readRecord(
       ORecordId iRid,
       boolean iIgnoreCache,
       boolean prefetchRecords,

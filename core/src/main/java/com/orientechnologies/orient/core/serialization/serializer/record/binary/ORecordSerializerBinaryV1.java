@@ -30,9 +30,9 @@ import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.OList;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
-import com.orientechnologies.orient.core.db.record.ORecordLazyList;
-import com.orientechnologies.orient.core.db.record.ORecordLazySet;
+import com.orientechnologies.orient.core.db.record.OSet;
 import com.orientechnologies.orient.core.db.record.OTrackedList;
 import com.orientechnologies.orient.core.db.record.OTrackedMap;
 import com.orientechnologies.orient.core.db.record.OTrackedSet;
@@ -838,16 +838,16 @@ public class ORecordSerializerBinaryV1 implements ODocumentSerializer {
         }
         break;
       case LINKSET:
-        ORecordLazySet collectionSet = null;
+        OSet collectionSet = null;
         if (!justRunThrough) {
-          collectionSet = new ORecordLazySet(owner);
+          collectionSet = new OSet(owner);
         }
         value = readLinkCollection(bytes, collectionSet, justRunThrough);
         break;
       case LINKLIST:
-        ORecordLazyList collectionList = null;
+        OList collectionList = null;
         if (!justRunThrough) {
-          collectionList = new ORecordLazyList(owner);
+          collectionList = new OList(owner);
         }
         value = readLinkCollection(bytes, collectionList, justRunThrough);
         break;

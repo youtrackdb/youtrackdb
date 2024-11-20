@@ -68,7 +68,7 @@ public class OFunction extends ODocumentWrapper {
    * @param iRid RID of the function to load
    */
   public OFunction(final ORecordId iRid) {
-    super(iRid);
+    super(iRid.getRecord());
   }
 
   public String getName() {

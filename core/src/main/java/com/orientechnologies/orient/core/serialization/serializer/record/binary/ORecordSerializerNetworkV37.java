@@ -29,10 +29,10 @@ import com.orientechnologies.common.serialization.types.OLongSerializer;
 import com.orientechnologies.common.serialization.types.OUUIDSerializer;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.OList;
+import com.orientechnologies.orient.core.db.record.OMap;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
-import com.orientechnologies.orient.core.db.record.ORecordLazyList;
-import com.orientechnologies.orient.core.db.record.ORecordLazyMap;
-import com.orientechnologies.orient.core.db.record.ORecordLazySet;
+import com.orientechnologies.orient.core.db.record.OSet;
 import com.orientechnologies.orient.core.db.record.OTrackedList;
 import com.orientechnologies.orient.core.db.record.OTrackedMap;
 import com.orientechnologies.orient.core.db.record.OTrackedSet;
@@ -72,7 +72,6 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -374,9 +373,7 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
       int pos = bytes.alloc(1);
       bytes.bytes[pos] = 1;
       OVarIntSerializer.write(bytes, bag.size());
-      Iterator<OIdentifiable> iterator = bag.rawIterator();
-      while (iterator.hasNext()) {
-        OIdentifiable itemValue = iterator.next();
+      for (OIdentifiable itemValue : bag) {
         if (itemValue == null) {
           writeNullLink(bytes);
         } else {
@@ -469,7 +466,7 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
   private Map<Object, OIdentifiable> readLinkMap(
       final BytesContainer bytes, final ORecordElement owner) {
     int size = OVarIntSerializer.readAsInteger(bytes);
-    ORecordLazyMap result = new ORecordLazyMap(owner);
+    OMap result = new OMap(owner);
     while ((size--) > 0) {
       OType keyType = readOType(bytes);
       Object key = deserializeValue(bytes, keyType, result);
@@ -498,8 +495,9 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
     return result;
   }
 
-  private Collection<OIdentifiable> readLinkList(BytesContainer bytes, ORecordElement owner) {
-    ORecordLazyList found = new ORecordLazyList(owner);
+  private static Collection<OIdentifiable> readLinkList(
+      BytesContainer bytes, ORecordElement owner) {
+    OList found = new OList(owner);
     final int items = OVarIntSerializer.readAsInteger(bytes);
     for (int i = 0; i < items; i++) {
       OIdentifiable id = readOptimizedLink(bytes);
@@ -512,8 +510,8 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
     return found;
   }
 
-  private Collection<OIdentifiable> readLinkSet(BytesContainer bytes, ORecordElement owner) {
-    ORecordLazySet found = new ORecordLazySet(owner);
+  private static Collection<OIdentifiable> readLinkSet(BytesContainer bytes, ORecordElement owner) {
+    OSet found = new OSet(owner);
     final int items = OVarIntSerializer.readAsInteger(bytes);
     for (int i = 0; i < items; i++) {
       OIdentifiable id = readOptimizedLink(bytes);
@@ -526,7 +524,7 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
     return found;
   }
 
-  protected OIdentifiable readOptimizedLink(final BytesContainer bytes) {
+  protected static OIdentifiable readOptimizedLink(final BytesContainer bytes) {
     ORecordId id =
         new ORecordId(OVarIntSerializer.readAsInteger(bytes), OVarIntSerializer.readAsLong(bytes));
     if (id.isTemporary()) {
@@ -744,20 +742,19 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
     return pos;
   }
 
-  protected int writeOptimizedLink(final BytesContainer bytes, OIdentifiable link) {
+  protected void writeOptimizedLink(final BytesContainer bytes, OIdentifiable link) {
     if (!link.getIdentity().isPersistent()) {
       try {
         link = link.getRecord();
       } catch (ORecordNotFoundException rnfe) {
-        // ignore it
+        //
       }
     }
-    final int pos = OVarIntSerializer.write(bytes, link.getIdentity().getClusterId());
+    OVarIntSerializer.write(bytes, link.getIdentity().getClusterId());
     OVarIntSerializer.write(bytes, link.getIdentity().getClusterPosition());
-    return pos;
   }
 
-  private int writeLinkCollection(
+  private void writeLinkCollection(
       final BytesContainer bytes, final Collection<OIdentifiable> value) {
     final int pos = OVarIntSerializer.write(bytes, value.size());
 
@@ -769,8 +766,6 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
         writeOptimizedLink(bytes, itemValue);
       }
     }
-
-    return pos;
   }
 
   private int writeEmbeddedCollection(

@@ -40,6 +40,7 @@ import java.util.Map;
 @SuppressWarnings("serial")
 public class OTrackedMap<T> extends LinkedHashMap<Object, T>
     implements ORecordElement, OTrackedMultiValue<Object, T>, Serializable {
+
   protected final ORecordElement sourceRecord;
   protected Class<?> genericClass;
   private final boolean embeddedCollection;
@@ -52,7 +53,9 @@ public class OTrackedMap<T> extends LinkedHashMap<Object, T>
       final ORecordElement iRecord, final Map<Object, T> iOrigin, final Class<?> cls) {
     this(iRecord);
     genericClass = cls;
-    if (iOrigin != null && !iOrigin.isEmpty()) putAll(iOrigin);
+    if (iOrigin != null && !iOrigin.isEmpty()) {
+      putAll(iOrigin);
+    }
   }
 
   public OTrackedMap(final ORecordElement iSourceRecord) {
@@ -71,14 +74,20 @@ public class OTrackedMap<T> extends LinkedHashMap<Object, T>
   }
 
   public T putInternal(final Object key, final T value) {
-    if (key == null) throw new IllegalArgumentException("null key not supported by embedded map");
+    if (key == null) {
+      throw new IllegalArgumentException("null key not supported by embedded map");
+    }
     boolean containsKey = containsKey(key);
 
     T oldValue = super.put(key, value);
 
-    if (containsKey && oldValue == value) return oldValue;
+    if (containsKey && oldValue == value) {
+      return oldValue;
+    }
 
-    if (oldValue instanceof ODocument) ODocumentInternal.removeOwner((ODocument) oldValue, this);
+    if (oldValue instanceof ODocument) {
+      ODocumentInternal.removeOwner((ODocument) oldValue, this);
+    }
 
     addOwnerToEmbeddedDoc(value);
 
@@ -87,12 +96,16 @@ public class OTrackedMap<T> extends LinkedHashMap<Object, T>
 
   @Override
   public T put(final Object key, final T value) {
-    if (key == null) throw new IllegalArgumentException("null key not supported by embedded map");
+    if (key == null) {
+      throw new IllegalArgumentException("null key not supported by embedded map");
+    }
     boolean containsKey = containsKey(key);
 
     T oldValue = super.put(key, value);
 
-    if (containsKey && oldValue == value) return oldValue;
+    if (containsKey && oldValue == value) {
+      return oldValue;
+    }
     if (containsKey) {
       updateEvent(key, oldValue, value);
     } else {
@@ -102,9 +115,12 @@ public class OTrackedMap<T> extends LinkedHashMap<Object, T>
   }
 
   private void addOwnerToEmbeddedDoc(T e) {
-    if (embeddedCollection && e instanceof ODocument && !((ODocument) e).getIdentity().isValid())
+    if (embeddedCollection && e instanceof ODocument && !((ODocument) e).getIdentity().isValid()) {
       ODocumentInternal.addOwner((ODocument) e, this);
-    if (e instanceof ODocument) ORecordInternal.track(sourceRecord, (ODocument) e);
+    }
+    if (e instanceof ODocument) {
+      ORecordInternal.track(sourceRecord, (ODocument) e);
+    }
   }
 
   @Override
@@ -149,7 +165,9 @@ public class OTrackedMap<T> extends LinkedHashMap<Object, T>
 
   @Override
   public void setDirtyNoChanged() {
-    if (sourceRecord != null) sourceRecord.setDirtyNoChanged();
+    if (sourceRecord != null) {
+      sourceRecord.setDirtyNoChanged();
+    }
   }
 
   public Map<Object, T> returnOriginalState(
@@ -203,7 +221,9 @@ public class OTrackedMap<T> extends LinkedHashMap<Object, T>
   }
 
   private void updateEvent(Object key, T oldValue, T newValue) {
-    if (oldValue instanceof ODocument) ODocumentInternal.removeOwner((ODocument) oldValue, this);
+    if (oldValue instanceof ODocument) {
+      ODocumentInternal.removeOwner((ODocument) oldValue, this);
+    }
 
     addOwnerToEmbeddedDoc(newValue);
 
@@ -228,22 +248,14 @@ public class OTrackedMap<T> extends LinkedHashMap<Object, T>
   public void enableTracking(ORecordElement parent) {
     if (!tracker.isEnabled()) {
       tracker.enable();
-      if (this instanceof ORecordLazyMultiValue) {
-        OTrackedMultiValue.nestedEnabled(((ORecordLazyMultiValue) this).rawIterator(), this);
-      } else {
-        OTrackedMultiValue.nestedEnabled(this.values().iterator(), this);
-      }
+      OTrackedMultiValue.nestedEnabled(this.values().iterator(), this);
     }
   }
 
   public void disableTracking(ORecordElement document) {
     if (tracker.isEnabled()) {
       this.tracker.disable();
-      if (this instanceof ORecordLazyMultiValue) {
-        OTrackedMultiValue.nestedDisable(((ORecordLazyMultiValue) this).rawIterator(), this);
-      } else {
-        OTrackedMultiValue.nestedDisable(this.values().iterator(), this);
-      }
+      OTrackedMultiValue.nestedDisable(this.values().iterator(), this);
     }
     this.dirty = false;
   }
@@ -251,11 +263,7 @@ public class OTrackedMap<T> extends LinkedHashMap<Object, T>
   @Override
   public void transactionClear() {
     tracker.transactionClear();
-    if (this instanceof ORecordLazyMultiValue) {
-      OTrackedMultiValue.nestedTransactionClear(((ORecordLazyMultiValue) this).rawIterator());
-    } else {
-      OTrackedMultiValue.nestedTransactionClear(this.values().iterator());
-    }
+    OTrackedMultiValue.nestedTransactionClear(this.values().iterator());
     this.transactionDirty = false;
   }
 

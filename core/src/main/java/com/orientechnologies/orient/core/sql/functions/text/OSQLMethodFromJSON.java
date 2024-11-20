@@ -18,6 +18,7 @@ package com.orientechnologies.orient.core.sql.functions.text;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.sql.method.misc.OAbstractSQLMethod;
@@ -50,11 +51,16 @@ public class OSQLMethodFromJSON extends OAbstractSQLMethod {
       Object[] iParams) {
     if (iThis instanceof String) {
       if (iParams.length > 0) {
-        final ODocument doc = new ODocument().fromJSON(iThis.toString(), iParams[0].toString());
-        if (iParams[0].toString().contains("embedded"))
-          ODocumentInternal.addOwner(doc, iCurrentRecord.getRecord());
+        try {
+          final ODocument doc = new ODocument().fromJSON(iThis.toString(), iParams[0].toString());
+          if (iParams[0].toString().contains("embedded")) {
+            ODocumentInternal.addOwner(doc, iCurrentRecord.getRecord());
+          }
 
-        return doc;
+          return doc;
+        } catch (ORecordNotFoundException e) {
+          return null;
+        }
       }
 
       return new ODocument().fromJSON(iThis.toString().toString());

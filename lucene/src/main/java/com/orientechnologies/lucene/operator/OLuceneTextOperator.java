@@ -25,6 +25,7 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -229,34 +230,38 @@ public class OLuceneTextOperator extends OQueryTargetOperator {
       Object iLeft,
       Object iRight) {
 
-    ODocument doc = iRecord.getRecord();
-    if (doc.getClassName() != null) {
-      OClass cls = getDatabase().getMetadata().getSchema().getClass(doc.getClassName());
+    try {
+      ODocument doc = iRecord.getRecord();
+      if (doc.getClassName() != null) {
+        OClass cls = getDatabase().getMetadata().getSchema().getClass(doc.getClassName());
 
-      if (isChained(iCondition.getLeft())) {
+        if (isChained(iCondition.getLeft())) {
 
-        OSQLFilterItemField chained = (OSQLFilterItemField) iCondition.getLeft();
+          OSQLFilterItemField chained = (OSQLFilterItemField) iCondition.getLeft();
 
-        OSQLFilterItemField.FieldChain fieldChain = chained.getFieldChain();
-        OClass oClass = cls;
-        for (int i = 0; i < fieldChain.getItemCount() - 1; i++) {
-          oClass = oClass.getProperty(fieldChain.getItemName(i)).getLinkedClass();
+          OSQLFilterItemField.FieldChain fieldChain = chained.getFieldChain();
+          OClass oClass = cls;
+          for (int i = 0; i < fieldChain.getItemCount() - 1; i++) {
+            oClass = oClass.getProperty(fieldChain.getItemName(i)).getLinkedClass();
+          }
+          if (oClass != null) {
+            cls = oClass;
+          }
         }
-        if (oClass != null) {
-          cls = oClass;
+        Set<OIndex> classInvolvedIndexes = cls.getInvolvedIndexes(fields(iCondition));
+        OLuceneFullTextIndex idx = null;
+        for (OIndex classInvolvedIndex : classInvolvedIndexes) {
+
+          if (classInvolvedIndex.getInternal() instanceof OLuceneFullTextIndex) {
+            idx = (OLuceneFullTextIndex) classInvolvedIndex.getInternal();
+            break;
+          }
         }
+        return idx;
+      } else {
+        return null;
       }
-      Set<OIndex> classInvolvedIndexes = cls.getInvolvedIndexes(fields(iCondition));
-      OLuceneFullTextIndex idx = null;
-      for (OIndex classInvolvedIndex : classInvolvedIndexes) {
-
-        if (classInvolvedIndex.getInternal() instanceof OLuceneFullTextIndex) {
-          idx = (OLuceneFullTextIndex) classInvolvedIndex.getInternal();
-          break;
-        }
-      }
-      return idx;
-    } else {
+    } catch (ORecordNotFoundException rnf) {
       return null;
     }
   }

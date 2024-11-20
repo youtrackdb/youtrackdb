@@ -21,7 +21,6 @@ package com.orientechnologies.orient.core.type;
 
 import com.orientechnologies.orient.core.annotation.ODocumentInstance;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.io.Serializable;
 
@@ -36,10 +35,6 @@ public class ODocumentWrapper implements Serializable {
   @ODocumentInstance private ODocument document;
 
   public ODocumentWrapper() {}
-
-  public ODocumentWrapper(final ORID iRID) {
-    this((ODocument) iRID.getRecord());
-  }
 
   public ODocumentWrapper(final String iClassName) {
     this(new ODocument(iClassName));

@@ -6,9 +6,9 @@ import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.db.record.ORecordLazyList;
-import com.orientechnologies.orient.core.db.record.ORecordLazyMap;
-import com.orientechnologies.orient.core.db.record.ORecordLazySet;
+import com.orientechnologies.orient.core.db.record.OList;
+import com.orientechnologies.orient.core.db.record.OMap;
+import com.orientechnologies.orient.core.db.record.OSet;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import org.junit.Test;
 
@@ -21,7 +21,7 @@ public class CollectionOfLinkInNestedDocumentTest extends BaseMemoryDatabase {
     ODocument doc2 = new ODocument();
     doc2.field("value", "item 2");
     ODocument nested = new ODocument();
-    ORecordLazySet set = new ORecordLazySet(nested);
+    OSet set = new OSet(nested);
     set.add(doc1);
     set.add(doc2);
 
@@ -47,7 +47,7 @@ public class CollectionOfLinkInNestedDocumentTest extends BaseMemoryDatabase {
     ODocument doc2 = new ODocument();
     doc2.field("value", "item 2");
     ODocument nested = new ODocument();
-    ORecordLazyList list = new ORecordLazyList(nested);
+    OList list = new OList(nested);
     list.add(doc1);
     list.add(doc2);
 
@@ -72,7 +72,7 @@ public class CollectionOfLinkInNestedDocumentTest extends BaseMemoryDatabase {
     ODocument doc2 = new ODocument();
     doc2.field("value", "item 2");
     ODocument nested = new ODocument();
-    ORecordLazyMap map = new ORecordLazyMap(nested);
+    OMap map = new OMap(nested);
     map.put("record1", doc1);
     map.put("record2", doc2);
 

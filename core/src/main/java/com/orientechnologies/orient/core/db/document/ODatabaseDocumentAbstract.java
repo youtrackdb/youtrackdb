@@ -578,8 +578,10 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     }
 
     try {
-      final ORecord rec = id.getRecord();
-      if (rec == null) {
+      final ORecord rec;
+      try {
+        rec = id.getRecord();
+      } catch (ORecordNotFoundException e) {
         return ORecordHook.RESULT.RECORD_NOT_CHANGED;
       }
 
@@ -892,9 +894,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     }
 
     var result = executeReadRecord((ORecordId) rid);
-    if (result == null) {
-      throw new ORecordNotFoundException(rid);
-    }
 
     assert !result.isUnloaded();
     return (T) result;
@@ -1238,14 +1237,16 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
           inVertex.getIdentity(), "The vertex " + inVertex.getIdentity() + " has been deleted");
     }
 
-    outDocument = currentVertex.getRecord();
-    if (outDocument == null) {
+    try {
+      outDocument = currentVertex.getRecord();
+    } catch (ORecordNotFoundException e) {
       throw new IllegalArgumentException(
           "source vertex is invalid (rid=" + currentVertex.getIdentity() + ")");
     }
 
-    inDocument = inVertex.getRecord();
-    if (inDocument == null) {
+    try {
+      inDocument = inVertex.getRecord();
+    } catch (ORecordNotFoundException e) {
       throw new IllegalArgumentException(
           "source vertex is invalid (rid=" + inVertex.getIdentity() + ")");
     }
@@ -1296,7 +1297,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
 
   private boolean checkDeletedInTx(OVertex currentVertex) {
     ORID id;
-    if (currentVertex.getRecord() != null) {
+    if (!currentVertex.getRecord().exists()) {
       id = currentVertex.getRecord().getIdentity();
     } else {
       return false;

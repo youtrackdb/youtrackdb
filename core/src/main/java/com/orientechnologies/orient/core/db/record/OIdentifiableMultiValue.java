@@ -20,20 +20,5 @@
 package com.orientechnologies.orient.core.db.record;
 
 import com.orientechnologies.common.util.OSizeable;
-import java.util.Iterator;
 
-public interface ORecordLazyMultiValue extends ODetachable, OSizeable {
-  Iterator<OIdentifiable> rawIterator();
-
-  /**
-   * Browse all the set to convert all the items into records.
-   */
-  void convertLinks2Records();
-
-  /**
-   * Browse all the set to convert all the items into links.
-   *
-   * @return
-   */
-  boolean convertRecords2Links();
-}
+public interface OIdentifiableMultiValue extends ODetachable, OSizeable {}

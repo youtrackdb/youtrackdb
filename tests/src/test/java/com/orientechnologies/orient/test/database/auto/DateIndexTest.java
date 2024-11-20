@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.stream.Stream;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -20,12 +21,12 @@ import org.testng.annotations.Test;
  * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 10/21/13
  */
-@Test(groups = {"index"})
+@Test
 public class DateIndexTest extends DocumentDBBaseTest {
 
   @Parameters(value = "remote")
-  public DateIndexTest(boolean remote) {
-    super(remote);
+  public DateIndexTest(@Optional Boolean remote) {
+    super(remote != null && remote);
   }
 
   @BeforeClass

@@ -28,6 +28,7 @@ import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.security.OPropertyEncryption;
@@ -60,6 +61,7 @@ public class OSQLFilterItemField extends OSQLFilterItemAbstract {
    * sequence of field names.
    */
   public class FieldChain {
+
     private FieldChain() {}
 
     public String getItemName(int fieldIndex) {
@@ -111,19 +113,22 @@ public class OSQLFilterItemField extends OSQLFilterItemAbstract {
 
   public Object getValue(
       final OIdentifiable iRecord, final Object iCurrentResult, final OCommandContext iContext) {
-    if (iRecord == null)
+    if (iRecord == null) {
       throw new OCommandExecutionException(
           "expression item '" + name + "' cannot be resolved because current record is NULL");
-
-    if (preLoadedFields != null && preLoadedFields.size() == 1) {
-      if ("@rid".equalsIgnoreCase(preLoadedFields.iterator().next())) return iRecord.getIdentity();
     }
 
-    final ODocument doc = (ODocument) iRecord.getRecord();
+    if (preLoadedFields != null && preLoadedFields.size() == 1) {
+      if ("@rid".equalsIgnoreCase(preLoadedFields.iterator().next())) {
+        return iRecord.getIdentity();
+      }
+    }
+
+    final ODocument doc = iRecord.getRecord();
 
     if (preLoadedFieldsArray == null
         && preLoadedFields != null
-        && preLoadedFields.size() > 0
+        && !preLoadedFields.isEmpty()
         && preLoadedFields.size() < 5) {
       // TRANSFORM THE SET IN ARRAY ONLY THE FIRST TIME AND IF FIELDS ARE MORE THAN ONE, OTHERWISE
       // GO WITH THE DEFAULT BEHAVIOR
@@ -132,11 +137,13 @@ public class OSQLFilterItemField extends OSQLFilterItemAbstract {
     }
 
     // UNMARSHALL THE SINGLE FIELD
-    if (preLoadedFieldsArray != null && !doc.deserializeFields(preLoadedFieldsArray)) return null;
+    if (preLoadedFieldsArray != null && !doc.deserializeFields(preLoadedFieldsArray)) {
+      return null;
+    }
 
     final Object v = stringValue == null ? doc.rawField(name) : stringValue;
 
-    if (!collatePreset && doc != null) {
+    if (!collatePreset) {
       OClass schemaClass = ODocumentInternal.getImmutableSchemaClass(doc);
       if (schemaClass != null) {
         collate = getCollateForField(schemaClass, name);
@@ -147,13 +154,16 @@ public class OSQLFilterItemField extends OSQLFilterItemAbstract {
   }
 
   public OBinaryField getBinaryField(final OIdentifiable iRecord) {
-    if (iRecord == null)
+    if (iRecord == null) {
       throw new OCommandExecutionException(
           "expression item '" + name + "' cannot be resolved because current record is NULL");
+    }
 
     if (operationsChain != null && operationsChain.size() > 0)
-      // CANNOT USE BINARY FIELDS
+    // CANNOT USE BINARY FIELDS
+    {
       return null;
+    }
 
     final ODocument rec = iRecord.getRecord();
     OPropertyEncryption encryption = ODocumentInternal.getPropertyEncryption(rec);
@@ -165,9 +175,7 @@ public class OSQLFilterItemField extends OSQLFilterItemAbstract {
     // check for embedded objects, they have invalid ID and they are serialized with class name
     return serializer.deserializeField(
         serialized,
-        rec instanceof ODocument
-            ? ODocumentInternal.getImmutableSchemaClass(((ODocument) rec))
-            : null,
+        ODocumentInternal.getImmutableSchemaClass((ODocument) rec),
         name,
         rec.isEmbedded(),
         db.getMetadata().getImmutableSchemaSnapshot(),
@@ -186,7 +194,7 @@ public class OSQLFilterItemField extends OSQLFilterItemAbstract {
     this.name = OIOUtils.getStringContent(iRoot);
   }
 
-  private boolean isStringLiteral(String iRoot) {
+  private static boolean isStringLiteral(String iRoot) {
     if (iRoot.startsWith("'") && iRoot.endsWith("'")) {
       return true;
     }
@@ -255,28 +263,26 @@ public class OSQLFilterItemField extends OSQLFilterItemAbstract {
       return null;
     }
     FieldChain chain = getFieldChain();
-    ODocument lastDoc = ((OIdentifiable) doc).getRecord();
-    for (int i = 0; i < chain.getItemCount() - 1; i++) {
-      if (lastDoc == null) {
+    try {
+      ODocument lastDoc = ((OIdentifiable) doc).getRecord();
+      for (int i = 0; i < chain.getItemCount() - 1; i++) {
+        Object nextDoc = lastDoc.field(chain.getItemName(i));
+        if (!(nextDoc instanceof OIdentifiable)) {
+          return null;
+        }
+        lastDoc = ((OIdentifiable) nextDoc).getRecord();
+      }
+      OClass schemaClass = ODocumentInternal.getImmutableSchemaClass(lastDoc);
+      if (schemaClass == null) {
         return null;
       }
-      Object nextDoc = lastDoc.field(chain.getItemName(i));
-      if (nextDoc == null || !(nextDoc instanceof OIdentifiable)) {
+      OProperty property = schemaClass.getProperty(chain.getItemName(chain.getItemCount() - 1));
+      if (property == null) {
         return null;
       }
-      lastDoc = ((OIdentifiable) nextDoc).getRecord();
-    }
-    if (lastDoc == null) {
+      return property.getCollate();
+    } catch (ORecordNotFoundException rnf) {
       return null;
     }
-    OClass schemaClass = ODocumentInternal.getImmutableSchemaClass(lastDoc);
-    if (schemaClass == null) {
-      return null;
-    }
-    OProperty property = schemaClass.getProperty(chain.getItemName(chain.getItemCount() - 1));
-    if (property == null) {
-      return null;
-    }
-    return property.getCollate();
   }
 }

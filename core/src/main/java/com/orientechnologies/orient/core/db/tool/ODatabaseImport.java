@@ -1250,14 +1250,15 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
     }
     listener.onMessage("\nDone. Imported " + total + " clusters");
 
-    if (database.load(
-            new ORecordId(database.getStorageInfo().getConfiguration().getIndexMgrRecordId()))
-        == null) {
+    database.begin();
+    if (!database.exists(
+        new ORecordId(database.getStorageInfo().getConfiguration().getIndexMgrRecordId()))) {
       ODocument indexDocument = new ODocument();
       indexDocument.save(OMetadataDefault.CLUSTER_INTERNAL_NAME);
-
       database.getStorage().setIndexMgrRecordId(indexDocument.getIdentity().toString());
     }
+    database.commit();
+
     return total;
   }
 

@@ -118,6 +118,7 @@ public class OTransactionNoTx extends OTransactionAbstract {
 
   @Override
   public boolean exists(ORID rid) {
+    checkNonTXReads();
     if (rid.isNew()) {
       return false;
     }

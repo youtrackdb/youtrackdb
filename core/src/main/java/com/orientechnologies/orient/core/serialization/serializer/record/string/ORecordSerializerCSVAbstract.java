@@ -27,10 +27,10 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.OList;
+import com.orientechnologies.orient.core.db.record.OMap;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
-import com.orientechnologies.orient.core.db.record.ORecordLazyList;
-import com.orientechnologies.orient.core.db.record.ORecordLazyMap;
-import com.orientechnologies.orient.core.db.record.ORecordLazySet;
+import com.orientechnologies.orient.core.db.record.OSet;
 import com.orientechnologies.orient.core.db.record.OTrackedList;
 import com.orientechnologies.orient.core.db.record.OTrackedMap;
 import com.orientechnologies.orient.core.db.record.OTrackedSet;
@@ -172,7 +172,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
           String value = iValue.substring(1, iValue.length() - 1);
 
           @SuppressWarnings("rawtypes")
-          final Map map = new ORecordLazyMap((ODocument) iSourceRecord, ODocument.RECORD_TYPE);
+          final Map map = new OMap((ODocument) iSourceRecord, ODocument.RECORD_TYPE);
 
           if (value.length() == 0) {
             return map;
@@ -274,7 +274,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
     @SuppressWarnings("rawtypes")
     Map map;
     if (iLinkedType == OType.LINK || iLinkedType == OType.EMBEDDED) {
-      map = new ORecordLazyMap(iSourceDocument, ODocument.RECORD_TYPE);
+      map = new OMap(iSourceDocument, ODocument.RECORD_TYPE);
     } else {
       map = new OTrackedMap<Object>(iSourceDocument);
     }
@@ -309,8 +309,8 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
                         || iSourceDocument.fieldType(iName) != OType.EMBEDDEDMAP)
                     && isConvertToLinkedMap(map, linkedType)) {
                   // CONVERT IT TO A LAZY MAP
-                  map = new ORecordLazyMap(iSourceDocument, ODocument.RECORD_TYPE);
-                } else if (map instanceof ORecordLazyMap && linkedType != OType.LINK) {
+                  map = new OMap(iSourceDocument, ODocument.RECORD_TYPE);
+                } else if (map instanceof OMap && linkedType != OType.LINK) {
                   map = new OTrackedMap<Object>(iSourceDocument, map, null);
                 }
               } else {
@@ -413,7 +413,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
       case LINKLIST:
         {
           iOutput.append(OStringSerializerHelper.LIST_BEGIN);
-          final ORecordLazyList coll;
+          final OList coll;
           final Iterator<OIdentifiable> it;
           if (iValue instanceof OMultiCollectionIterator<?>) {
             final OMultiCollectionIterator<OIdentifiable> iterator =
@@ -421,9 +421,9 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
             iterator.reset();
             it = iterator;
             coll = null;
-          } else if (!(iValue instanceof ORecordLazyList)) {
+          } else if (!(iValue instanceof OList)) {
             // FIRST TIME: CONVERT THE ENTIRE COLLECTION
-            coll = new ORecordLazyList(iRecord);
+            coll = new OList(iRecord);
 
             if (iValue.getClass().isArray()) {
               Iterable<Object> iterab = OMultiValue.getMultiValueIterable(iValue);
@@ -439,7 +439,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
             it = coll.rawIterator();
           } else {
             // LAZY LIST
-            coll = (ORecordLazyList) iValue;
+            coll = (OList) iValue;
             it = coll.rawIterator();
           }
 
@@ -478,8 +478,8 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
           if (!(iValue instanceof OStringBuilderSerializable)) {
             final Collection<OIdentifiable> coll;
             // FIRST TIME: CONVERT THE ENTIRE COLLECTION
-            if (!(iValue instanceof ORecordLazySet)) {
-              final ORecordLazySet set = new ORecordLazySet(iRecord);
+            if (!(iValue instanceof OSet)) {
+              final OSet set = new OSet(iRecord);
               set.addAll((Collection<OIdentifiable>) iValue);
               iRecord.field(iName, set);
               coll = set;
@@ -527,7 +527,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
           }
 
           if (invalidMap) {
-            final ORecordLazyMap newMap = new ORecordLazyMap(iRecord, ODocument.RECORD_TYPE);
+            final OMap newMap = new OMap(iRecord, ODocument.RECORD_TYPE);
 
             // REPLACE ALL CHANGED ITEMS
             for (Map.Entry<Object, Object> entry : map.entrySet()) {
@@ -857,7 +857,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
       }
 
       if (linkedType == OType.EMBEDDED && o instanceof OIdentifiable) {
-        toString((ORecord) ((OIdentifiable) o).getRecord(), iOutput, null);
+        toString(((OIdentifiable) o).getRecord(), iOutput, null);
       } else if (linkedType != OType.LINK && (linkedClass != null || doc != null)) {
         toString(doc, iOutput, null, true);
       } else {
@@ -882,7 +882,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
   }
 
   protected boolean isConvertToLinkedMap(Map<?, ?> map, final OType linkedType) {
-    boolean convert = (linkedType == OType.LINK && !(map instanceof ORecordLazyMap));
+    boolean convert = (linkedType == OType.LINK && !(map instanceof OMap));
     if (convert) {
       for (Object value : map.values()) {
         if (!(value instanceof OIdentifiable)) {
@@ -906,8 +906,8 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
     iOutput.append(OStringSerializerHelper.SET_END);
   }
 
-  private ORecordLazyList unserializeList(final ODocument iSourceRecord, final String value) {
-    final ORecordLazyList coll = new ORecordLazyList(iSourceRecord);
+  private OList unserializeList(final ODocument iSourceRecord, final String value) {
+    final OList coll = new OList(iSourceRecord);
     final List<String> items =
         OStringSerializerHelper.smartSplit(value, OStringSerializerHelper.RECORD_SEPARATOR);
     for (String item : items) {
@@ -929,8 +929,8 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
     return coll;
   }
 
-  private ORecordLazySet unserializeSet(final ODocument iSourceRecord, final String value) {
-    final ORecordLazySet coll = new ORecordLazySet(iSourceRecord);
+  private OSet unserializeSet(final ODocument iSourceRecord, final String value) {
+    final OSet coll = new OSet(iSourceRecord);
     final List<String> items =
         OStringSerializerHelper.smartSplit(value, OStringSerializerHelper.RECORD_SEPARATOR);
     for (String item : items) {

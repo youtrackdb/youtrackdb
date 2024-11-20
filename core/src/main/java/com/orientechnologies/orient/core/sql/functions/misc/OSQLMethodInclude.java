@@ -22,6 +22,7 @@ package com.orientechnologies.orient.core.sql.functions.misc;
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.method.misc.OAbstractSQLMethod;
@@ -91,7 +92,11 @@ public class OSQLMethodInclude extends OAbstractSQLMethod {
 
     if (iParams[0] != null) {
       if (iThis instanceof OIdentifiable) {
-        iThis = ((OIdentifiable) iThis).getRecord();
+        try {
+          iThis = ((OIdentifiable) iThis).getRecord();
+        } catch (ORecordNotFoundException rnf) {
+          return null;
+        }
       } else if (iThis instanceof OResult result) {
         iThis = result.asElement();
       }
@@ -106,7 +111,12 @@ public class OSQLMethodInclude extends OAbstractSQLMethod {
         final List<Object> result = new ArrayList<Object>(OMultiValue.getSize(iThis));
         for (Object o : OMultiValue.getMultiValueIterable(iThis)) {
           if (o instanceof OIdentifiable) {
-            result.add(copy((ODocument) ((OIdentifiable) o).getRecord(), iParams));
+            try {
+              var record = ((OIdentifiable) o).getRecord();
+              result.add(copy((ODocument) record, iParams));
+            } catch (ORecordNotFoundException rnf) {
+              // IGNORE IT
+            }
           }
         }
         return result;
@@ -128,12 +138,18 @@ public class OSQLMethodInclude extends OAbstractSQLMethod {
           final String fieldPart = fieldName.substring(0, fieldName.length() - 1);
           final List<String> toInclude = new ArrayList<String>();
           for (String f : document.fieldNames()) {
-            if (f.startsWith(fieldPart)) toInclude.add(f);
+            if (f.startsWith(fieldPart)) {
+              toInclude.add(f);
+            }
           }
 
-          for (String f : toInclude) doc.field(fieldName, document.<Object>field(f));
+          for (String f : toInclude) {
+            doc.field(fieldName, document.<Object>field(f));
+          }
 
-        } else doc.field(fieldName, document.<Object>field(fieldName));
+        } else {
+          doc.field(fieldName, document.<Object>field(fieldName));
+        }
       }
     }
     return doc;
@@ -149,12 +165,18 @@ public class OSQLMethodInclude extends OAbstractSQLMethod {
           final String fieldPart = fieldName.substring(0, fieldName.length() - 1);
           final List<String> toInclude = new ArrayList<String>();
           for (Object f : map.keySet()) {
-            if (f.toString().startsWith(fieldPart)) toInclude.add(f.toString());
+            if (f.toString().startsWith(fieldPart)) {
+              toInclude.add(f.toString());
+            }
           }
 
-          for (String f : toInclude) doc.field(fieldName, map.get(f));
+          for (String f : toInclude) {
+            doc.field(fieldName, map.get(f));
+          }
 
-        } else doc.field(fieldName, map.get(fieldName));
+        } else {
+          doc.field(fieldName, map.get(fieldName));
+        }
       }
     }
     return doc;

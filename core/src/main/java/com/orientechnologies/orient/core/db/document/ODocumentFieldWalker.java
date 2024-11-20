@@ -19,9 +19,8 @@
  */
 package com.orientechnologies.orient.core.db.document;
 
-import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.ORecordLazyMultiValue;
+import com.orientechnologies.orient.core.db.record.OIdentifiableMultiValue;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -125,7 +124,7 @@ public class ODocumentFieldWalker {
               || OType.LINKBAG.equals(fieldType)
               || OType.LINKLIST.equals(fieldType)
               || OType.LINKSET.equals(fieldType)
-              || (fieldValue instanceof ORecordLazyMultiValue))) {
+              || (fieldValue instanceof OIdentifiableMultiValue))) {
         if (fieldWalker.goDeeper(fieldType, linkedType, fieldValue)) {
           if (fieldValue instanceof Map) {
             walkMap(session, (Map) fieldValue, fieldType, fieldWalker, walked);
@@ -138,10 +137,11 @@ public class ODocumentFieldWalker {
               }
               walkDocument(session, fdoc, fieldWalker);
             }
-          } else if (OMultiValue.isIterable(fieldValue)) {
+          } else if (com.orientechnologies.common.collection.OMultiValue.isIterable(fieldValue)) {
             walkIterable(
                 session,
-                OMultiValue.getMultiValueIterable(fieldValue),
+                com.orientechnologies.common.collection.OMultiValue.getMultiValueIterable(
+                    fieldValue),
                 fieldType,
                 fieldWalker,
                 walked);

@@ -16,7 +16,7 @@
 package com.orientechnologies.orient.jdbc;
 
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.db.record.ORecordLazyList;
+import com.orientechnologies.orient.core.db.record.OList;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.OBlob;
@@ -142,8 +142,8 @@ public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
         // Check if the type is a binary record or a collection of binary
         // records
         return Types.BINARY;
-      } else if (value instanceof ORecordLazyList) {
-        ORecordLazyList list = (ORecordLazyList) value;
+      } else if (value instanceof OList) {
+        OList list = (OList) value;
         // check if all the list items are instances of ORecordBytes
         ListIterator<OIdentifiable> iterator = list.listIterator();
         OIdentifiable listElement;
@@ -175,8 +175,8 @@ public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
           if (value == null) {
             return Types.NULL;
           }
-          if (value instanceof ORecordLazyList) {
-            ORecordLazyList list = (ORecordLazyList) value;
+          if (value instanceof OList) {
+            OList list = (OList) value;
             // check if all the list items are instances of ORecordBytes
             ListIterator<OIdentifiable> iterator = list.listIterator();
             OIdentifiable listElement;

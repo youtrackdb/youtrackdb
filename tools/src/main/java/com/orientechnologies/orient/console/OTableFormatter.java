@@ -50,6 +50,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 public class OTableFormatter {
+
   public enum ALIGNMENT {
     LEFT,
     CENTER,
@@ -77,6 +78,7 @@ public class OTableFormatter {
   private ODocument footer;
 
   public interface OTableOutput {
+
     void onMessage(String text, Object... args);
   }
 
@@ -115,11 +117,15 @@ public class OTableFormatter {
               final boolean ascending = columnSorting.getValue();
 
               final int result;
-              if (value2 == null) result = 1;
-              else if (value1 == null) result = 0;
-              else if (value1 instanceof Comparable)
+              if (value2 == null) {
+                result = 1;
+              } else if (value1 == null) {
+                result = 0;
+              } else if (value1 instanceof Comparable) {
                 result = ((Comparable) value1).compareTo(value2);
-              else result = value1.toString().compareTo(value2.toString());
+              } else {
+                result = value1.toString().compareTo(value2.toString());
+              }
 
               return ascending ? result : result * -1;
             }
@@ -129,7 +135,9 @@ public class OTableFormatter {
     int fetched = 0;
     for (OIdentifiable record : resultSet) {
       dumpRecordInTable(fetched++, record, columns);
-      if (iAfterDump != null) iAfterDump.call(record);
+      if (iAfterDump != null) {
+        iAfterDump.call(record);
+      }
 
       if (limit > -1 && fetched >= limit) {
         printHeaderLine(columns);
@@ -139,7 +147,9 @@ public class OTableFormatter {
       }
     }
 
-    if (fetched > 0) printHeaderLine(columns);
+    if (fetched > 0) {
+      printHeaderLine(columns);
+    }
 
     if (footer != null) {
       dumpRecordInTable(-1, footer, columns);
@@ -181,23 +191,31 @@ public class OTableFormatter {
 
   public void dumpRecordInTable(
       final int iIndex, final OIdentifiable iRecord, final Map<String, Integer> iColumns) {
-    if (iIndex == 0) printHeader(iColumns);
+    if (iIndex == 0) {
+      printHeader(iColumns);
+    }
 
     // FORMAT THE LINE DYNAMICALLY
     List<String> vargs = new ArrayList<String>();
     try {
-      if (iRecord instanceof ODocument) ((ODocument) iRecord).setLazyLoad(false);
+      if (iRecord instanceof ODocument) {
+        ((ODocument) iRecord).setLazyLoad(false);
+      }
 
       final StringBuilder format = new StringBuilder(maxWidthSize);
 
-      if (leftBorder) format.append('|');
+      if (leftBorder) {
+        format.append('|');
+      }
 
       int i = 0;
       for (Entry<String, Integer> col : iColumns.entrySet()) {
         final String columnName = col.getKey();
         final int columnWidth = col.getValue();
 
-        if (i++ > 0) format.append('|');
+        if (i++ > 0) {
+          format.append('|');
+        }
 
         format.append("%-" + columnWidth + "s");
 
@@ -217,7 +235,9 @@ public class OTableFormatter {
         vargs.add(valueAsString);
       }
 
-      if (rightBorder) format.append('|');
+      if (rightBorder) {
+        format.append('|');
+      }
 
       out.onMessage("\n" + format.toString(), vargs.toArray());
 
@@ -229,7 +249,9 @@ public class OTableFormatter {
 
   protected String formatCell(
       final String columnName, final int columnWidth, String valueAsString) {
-    if (valueAsString == null) valueAsString = nullValue;
+    if (valueAsString == null) {
+      valueAsString = nullValue;
+    }
 
     final ALIGNMENT alignment = columnAlignment.get(columnName);
     if (alignment != null) {
@@ -240,7 +262,9 @@ public class OTableFormatter {
           {
             final int room = columnWidth - valueAsString.length();
             if (room > 1) {
-              for (int k = 0; k < room / 2; ++k) valueAsString = " " + valueAsString;
+              for (int k = 0; k < room / 2; ++k) {
+                valueAsString = " " + valueAsString;
+              }
             }
             break;
           }
@@ -248,7 +272,9 @@ public class OTableFormatter {
           {
             final int room = columnWidth - valueAsString.length();
             if (room > 0) {
-              for (int k = 0; k < room; ++k) valueAsString = " " + valueAsString;
+              for (int k = 0; k < room; ++k) {
+                valueAsString = " " + valueAsString;
+              }
             }
             break;
           }
@@ -262,19 +288,24 @@ public class OTableFormatter {
     Object value = null;
 
     if (iColumnName.equals("#"))
-      // RECORD NUMBER
+    // RECORD NUMBER
+    {
       value = iIndex > -1 ? iIndex : "";
-    else if (iColumnName.equals("@RID"))
-      // RID
+    } else if (iColumnName.equals("@RID"))
+    // RID
+    {
       value = iRecord.getIdentity().toString();
-    else if (iRecord instanceof ODocument) value = ((ODocument) iRecord).getProperty(iColumnName);
-    else if (iRecord instanceof OBlob)
+    } else if (iRecord instanceof ODocument) {
+      value = ((ODocument) iRecord).getProperty(iColumnName);
+    } else if (iRecord instanceof OBlob) {
       value = "<binary> (size=" + ((OBlob) iRecord).toStream().length + " bytes)";
-    else if (iRecord instanceof OIdentifiable) {
+    } else if (iRecord instanceof OIdentifiable) {
       final ORecord rec = iRecord.getRecord();
-      if (rec instanceof ODocument) value = ((ODocument) rec).getProperty(iColumnName);
-      else if (rec instanceof OBlob)
-        value = "<binary> (size=" + ((OBlob) rec).toStream().length + " bytes)";
+      if (rec instanceof ODocument) {
+        value = ((ODocument) rec).getProperty(iColumnName);
+      } else if (rec instanceof OBlob) {
+        value = "<binary> (size=" + rec.toStream().length + " bytes)";
+      }
     }
 
     return getPrettyFieldValue(value, maxMultiValueEntries);
@@ -301,12 +332,16 @@ public class OTableFormatter {
           value.append("(size=");
           value.append(((OSizeable) iterator).size());
           value.append(")");
-        } else value.append("(more)");
+        } else {
+          value.append("(more)");
+        }
 
         break;
       }
 
-      if (i > 0) value.append(',');
+      if (i > 0) {
+        value.append(',');
+      }
 
       value.append(getPrettyFieldValue(iterator.next(), maxMultiValueEntries));
     }
@@ -321,17 +356,17 @@ public class OTableFormatter {
   }
 
   public static Object getPrettyFieldValue(Object value, final int multiValueMaxEntries) {
-    if (value instanceof OMultiCollectionIterator<?>)
+    if (value instanceof OMultiCollectionIterator<?>) {
       value =
           getPrettyFieldMultiValue(
               ((OMultiCollectionIterator<?>) value).iterator(), multiValueMaxEntries);
-    else if (value instanceof ORidBag)
-      value = getPrettyFieldMultiValue(((ORidBag) value).rawIterator(), multiValueMaxEntries);
-    else if (value instanceof Iterator)
+    } else if (value instanceof ORidBag) {
+      value = getPrettyFieldMultiValue(((ORidBag) value).iterator(), multiValueMaxEntries);
+    } else if (value instanceof Iterator) {
       value = getPrettyFieldMultiValue((Iterator<?>) value, multiValueMaxEntries);
-    else if (value instanceof Collection<?>)
+    } else if (value instanceof Collection<?>) {
       value = getPrettyFieldMultiValue(((Collection<?>) value).iterator(), multiValueMaxEntries);
-    else if (value instanceof ORecord) {
+    } else if (value instanceof ORecord) {
       if (((ORecord) value).getIdentity().equals(OImmutableRecordId.EMPTY_RECORD_ID)) {
         value = value.toString();
       } else {
@@ -339,11 +374,14 @@ public class OTableFormatter {
       }
     } else if (value instanceof Date) {
       final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
-      if (db != null) value = ODateHelper.getDateTimeFormatInstance(db).format((Date) value);
-      else {
+      if (db != null) {
+        value = ODateHelper.getDateTimeFormatInstance(db).format((Date) value);
+      } else {
         value = DEF_DATEFORMAT.format((Date) value);
       }
-    } else if (value instanceof byte[]) value = "byte[" + ((byte[]) value).length + "]";
+    } else if (value instanceof byte[]) {
+      value = "byte[" + ((byte[]) value).length + "]";
+    }
 
     return value;
   }
@@ -376,23 +414,31 @@ public class OTableFormatter {
     if (leftBorder) {
       columnRow.append('|');
       if (!metadataRows.isEmpty()) {
-        for (StringBuilder buffer : metadataRows.values()) buffer.append('|');
+        for (StringBuilder buffer : metadataRows.values()) {
+          buffer.append('|');
+        }
       }
     }
 
     for (Entry<String, Integer> column : iColumns.entrySet()) {
       String colName = column.getKey();
 
-      if (columnHidden.contains(colName)) continue;
+      if (columnHidden.contains(colName)) {
+        continue;
+      }
 
       if (i > 0) {
         columnRow.append('|');
         if (!metadataRows.isEmpty()) {
-          for (StringBuilder buffer : metadataRows.values()) buffer.append('|');
+          for (StringBuilder buffer : metadataRows.values()) {
+            buffer.append('|');
+          }
         }
       }
 
-      if (colName.length() > column.getValue()) colName = colName.substring(0, column.getValue());
+      if (colName.length() > column.getValue()) {
+        colName = colName.substring(0, column.getValue());
+      }
       columnRow.append(
           String.format(
               "%-" + column.getValue() + "s", formatCell(colName, column.getValue(), colName)));
@@ -403,10 +449,13 @@ public class OTableFormatter {
           final StringBuilder buffer = metadataRows.get(metadataName);
           final Map<String, String> metadataColumn = columnMetadata.get(column.getKey());
           String metadataValue = metadataColumn != null ? metadataColumn.get(metadataName) : null;
-          if (metadataValue == null) metadataValue = "";
+          if (metadataValue == null) {
+            metadataValue = "";
+          }
 
-          if (metadataValue.length() > column.getValue())
+          if (metadataValue.length() > column.getValue()) {
             metadataValue = metadataValue.substring(0, column.getValue());
+          }
           buffer.append(
               String.format(
                   "%-" + column.getValue() + "s",
@@ -420,13 +469,17 @@ public class OTableFormatter {
     if (rightBorder) {
       columnRow.append('|');
       if (!metadataRows.isEmpty()) {
-        for (StringBuilder buffer : metadataRows.values()) buffer.append('|');
+        for (StringBuilder buffer : metadataRows.values()) {
+          buffer.append('|');
+        }
       }
     }
 
     if (!metadataRows.isEmpty()) {
       // PRINT METADATA IF ANY
-      for (StringBuilder buffer : metadataRows.values()) out.onMessage(buffer.toString());
+      for (StringBuilder buffer : metadataRows.values()) {
+        out.onMessage(buffer.toString());
+      }
       printHeaderLine(iColumns);
     }
 
@@ -439,19 +492,29 @@ public class OTableFormatter {
     final StringBuilder buffer = new StringBuilder("\n");
 
     if (iColumns.size() > 0) {
-      if (leftBorder) buffer.append('+');
+      if (leftBorder) {
+        buffer.append('+');
+      }
 
       int i = 0;
       for (Entry<String, Integer> column : iColumns.entrySet()) {
         final String colName = column.getKey();
-        if (columnHidden.contains(colName)) continue;
+        if (columnHidden.contains(colName)) {
+          continue;
+        }
 
-        if (i++ > 0) buffer.append("+");
+        if (i++ > 0) {
+          buffer.append("+");
+        }
 
-        for (int k = 0; k < column.getValue(); ++k) buffer.append("-");
+        for (int k = 0; k < column.getValue(); ++k) {
+          buffer.append("-");
+        }
       }
 
-      if (rightBorder) buffer.append('+');
+      if (rightBorder) {
+        buffer.append('+');
+      }
     }
 
     out.onMessage(buffer.toString());
@@ -468,7 +531,9 @@ public class OTableFormatter {
       final Collection<? extends OIdentifiable> resultSet, final int limit) {
     final Map<String, Integer> columns = new LinkedHashMap<String, Integer>();
 
-    for (String c : prefixedColumns) columns.put(c, minColumnSize);
+    for (String c : prefixedColumns) {
+      columns.put(c, minColumnSize);
+    }
 
     boolean tempRids = false;
     boolean hasClass = false;
@@ -477,8 +542,9 @@ public class OTableFormatter {
     for (OIdentifiable id : resultSet) {
       ORecord rec = id.getRecord();
 
-      for (String c : prefixedColumns)
+      for (String c : prefixedColumns) {
         columns.put(c, getColumnSize(fetched, rec, c, columns.get(c)));
+      }
 
       if (rec instanceof ODocument) {
         ((ODocument) rec).setLazyLoad(false);
@@ -488,21 +554,31 @@ public class OTableFormatter {
           columns.put(fieldName, getColumnSize(fetched, doc, fieldName, columns.get(fieldName)));
         }
 
-        if (!hasClass && doc.getClassName() != null) hasClass = true;
+        if (!hasClass && doc.getClassName() != null) {
+          hasClass = true;
+        }
 
       } else if (rec instanceof OBlob) {
         // UNIQUE BINARY FIELD
         columns.put("value", maxWidthSize - 15);
       }
 
-      if (!tempRids && !rec.getIdentity().isPersistent()) tempRids = true;
+      if (!tempRids && !rec.getIdentity().isPersistent()) {
+        tempRids = true;
+      }
 
-      if (limit > -1 && fetched++ >= limit) break;
+      if (limit > -1 && fetched++ >= limit) {
+        break;
+      }
     }
 
-    if (tempRids) columns.remove("@RID");
+    if (tempRids) {
+      columns.remove("@RID");
+    }
 
-    if (!hasClass) columns.remove("@CLASS");
+    if (!hasClass) {
+      columns.remove("@CLASS");
+    }
 
     if (footer != null) {
       footer.setLazyLoad(false);
@@ -514,7 +590,9 @@ public class OTableFormatter {
 
     // COMPUTE MAXIMUM WIDTH
     int width = 0;
-    for (Entry<String, Integer> col : columns.entrySet()) width += col.getValue();
+    for (Entry<String, Integer> col : columns.entrySet()) {
+      width += col.getValue();
+    }
 
     if (width > maxWidthSize) {
       // SCALE COLUMNS AUTOMATICALLY
@@ -539,33 +617,49 @@ public class OTableFormatter {
           final int redux = entry.getValue() * 10 / 100;
 
           if (entry.getValue() - redux < minColumnSize)
-            // RESTART FROM THE LARGEST COLUMN
+          // RESTART FROM THE LARGEST COLUMN
+          {
             break;
+          }
 
           entry.setValue(entry.getValue() - redux);
 
           width -= redux;
-          if (width <= maxWidthSize) break;
+          if (width <= maxWidthSize) {
+            break;
+          }
         }
 
         if (width == oldWidth)
-          // REACHED THE MINIMUM
+        // REACHED THE MINIMUM
+        {
           break;
+        }
       }
 
       // POPULATE THE COLUMNS WITH THE REDUXED VALUES
       columns.clear();
-      for (String c : prefixedColumns) columns.put(c, minColumnSize);
+      for (String c : prefixedColumns) {
+        columns.put(c, minColumnSize);
+      }
       Collections.reverse(orderedColumns);
       for (Entry<String, Integer> col : orderedColumns)
-        // if (!col.getKey().equals("#") && !col.getKey().equals("@RID"))
+      // if (!col.getKey().equals("#") && !col.getKey().equals("@RID"))
+      {
         columns.put(col.getKey(), col.getValue());
+      }
     }
 
-    if (tempRids) columns.remove("@RID");
-    if (!hasClass) columns.remove("@CLASS");
+    if (tempRids) {
+      columns.remove("@RID");
+    }
+    if (!hasClass) {
+      columns.remove("@CLASS");
+    }
 
-    for (String c : columnHidden) columns.remove(c);
+    for (String c : columnHidden) {
+      columns.remove(c);
+    }
 
     return columns;
   }
@@ -574,16 +668,21 @@ public class OTableFormatter {
       final Integer iIndex, final ORecord iRecord, final String fieldName, final Integer origSize) {
     Integer newColumnSize;
     if (origSize == null)
-      // START FROM THE FIELD NAME SIZE
+    // START FROM THE FIELD NAME SIZE
+    {
       newColumnSize = fieldName.length();
-    else newColumnSize = Math.max(origSize, fieldName.length());
+    } else {
+      newColumnSize = Math.max(origSize, fieldName.length());
+    }
 
     final Map<String, String> metadata = columnMetadata.get(fieldName);
     if (metadata != null) {
       // UPDATE WIDTH WITH METADATA VALUES
       for (String v : metadata.values()) {
         if (v != null) {
-          if (v.length() > newColumnSize) newColumnSize = v.length();
+          if (v.length() > newColumnSize) {
+            newColumnSize = v.length();
+          }
         }
       }
     }
@@ -592,12 +691,16 @@ public class OTableFormatter {
 
     if (fieldValue != null) {
       final String fieldValueAsString = fieldValue.toString();
-      if (fieldValueAsString.length() > newColumnSize) newColumnSize = fieldValueAsString.length();
+      if (fieldValueAsString.length() > newColumnSize) {
+        newColumnSize = fieldValueAsString.length();
+      }
     }
 
     if (newColumnSize < minColumnSize)
-      // SET THE MINIMUM SIZE
+    // SET THE MINIMUM SIZE
+    {
       newColumnSize = minColumnSize;
+    }
 
     return newColumnSize;
   }

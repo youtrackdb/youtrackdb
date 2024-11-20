@@ -107,7 +107,7 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
                   recordId = recordId.copy();
                   return recordId;
                 })
-            .map(id -> id.<ORecord>getRecord())
+            .map(ORecordId::<ORecord>getRecord)
             .collect(Collectors.toList());
 
     MoreLikeThis mlt = buildMoreLikeThis(index, searcher, metadata);
@@ -126,7 +126,8 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
             .getInternal()
             .getRids(
                 new OLuceneKeyAndMetadata(
-                    new OLuceneCompositeKey(Arrays.asList(mltQuery.toString())).setContext(ctx),
+                    new OLuceneCompositeKey(Collections.singletonList(mltQuery.toString()))
+                        .setContext(ctx),
                     metadata))) {
       luceneResultSet = rids.collect(Collectors.toSet());
     }

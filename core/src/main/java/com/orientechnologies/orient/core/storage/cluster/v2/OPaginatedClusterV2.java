@@ -35,11 +35,9 @@ import com.orientechnologies.orient.core.storage.ORawBuffer;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
 import com.orientechnologies.orient.core.storage.cluster.OClusterPage;
-import com.orientechnologies.orient.core.storage.cluster.OClusterPageDebug;
 import com.orientechnologies.orient.core.storage.cluster.OClusterPositionMap;
 import com.orientechnologies.orient.core.storage.cluster.OClusterPositionMapBucket;
 import com.orientechnologies.orient.core.storage.cluster.OPaginatedCluster;
-import com.orientechnologies.orient.core.storage.cluster.OPaginatedClusterDebug;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.OClusterBrowseEntry;
 import com.orientechnologies.orient.core.storage.impl.local.OClusterBrowsePage;
@@ -616,11 +614,12 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
   }
 
   @Override
-  public ORawBuffer readRecord(final long clusterPosition, final boolean prefetchRecords)
+  public @Nonnull ORawBuffer readRecord(final long clusterPosition, final boolean prefetchRecords)
       throws IOException {
     return readRecord(clusterPosition);
   }
 
+  @Nonnull
   private ORawBuffer readRecord(final long clusterPosition) throws IOException {
     atomicOperationsManager.acquireReadLock(this);
     try {
@@ -631,7 +630,7 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
         final OClusterPositionMapBucket.PositionEntry positionEntry =
             clusterPositionMap.get(clusterPosition, atomicOperation);
         if (positionEntry == null) {
-          return null;
+          throw new ORecordNotFoundException(new ORecordId(id, clusterPosition));
         }
         return internalReadRecord(
             clusterPosition,
@@ -646,6 +645,7 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
     }
   }
 
+  @Nonnull
   private ORawBuffer internalReadRecord(
       final long clusterPosition,
       long pageIndex,
@@ -669,7 +669,7 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
 
         if (localPage.isDeleted(recordPosition)) {
           if (recordChunks.isEmpty()) {
-            return null;
+            throw new ORecordNotFoundException(new ORecordId(id, clusterPosition));
           } else {
             throw new OPaginatedClusterException(
                 "Content of record " + new ORecordId(id, clusterPosition) + " was broken", this);
@@ -684,7 +684,7 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
         if (firstEntry
             && content[content.length - OLongSerializer.LONG_SIZE - OByteSerializer.BYTE_SIZE]
                 == 0) {
-          return null;
+          throw new ORecordNotFoundException(new ORecordId(id, clusterPosition));
         }
 
         recordChunks.add(content);
@@ -703,7 +703,7 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
     byte[] fullContent = convertRecordChunksToSingleChunk(recordChunks, contentSize);
 
     if (fullContent == null) {
-      return null;
+      throw new ORecordNotFoundException(new ORecordId(id, clusterPosition));
     }
 
     int fullContentPosition = 0;
@@ -719,61 +719,6 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
         Arrays.copyOfRange(fullContent, fullContentPosition, fullContentPosition + readContentSize);
 
     return new ORawBuffer(recordContent, recordVersion, recordType);
-  }
-
-  @Override
-  public ORawBuffer readRecordIfVersionIsNotLatest(
-      final long clusterPosition, final int recordVersion)
-      throws IOException, ORecordNotFoundException {
-    atomicOperationsManager.acquireReadLock(this);
-    try {
-      acquireSharedLock();
-      try {
-        final OAtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
-        final OClusterPositionMapBucket.PositionEntry positionEntry =
-            clusterPositionMap.get(clusterPosition, atomicOperation);
-
-        if (positionEntry == null) {
-          throw new ORecordNotFoundException(
-              new ORecordId(id, clusterPosition),
-              "Record for cluster with id "
-                  + id
-                  + " and position "
-                  + clusterPosition
-                  + " is absent.");
-        }
-
-        final int recordPosition = positionEntry.getRecordPosition();
-        final long pageIndex = positionEntry.getPageIndex();
-
-        int loadedRecordVersion;
-
-        try (final OCacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
-          final OClusterPage localPage = new OClusterPage(cacheEntry);
-          if (localPage.isDeleted(recordPosition)) {
-            throw new ORecordNotFoundException(
-                new ORecordId(id, clusterPosition),
-                "Record for cluster with id "
-                    + id
-                    + " and position "
-                    + clusterPosition
-                    + " is absent.");
-          }
-
-          loadedRecordVersion = localPage.getRecordVersion(recordPosition);
-        }
-
-        if (loadedRecordVersion > recordVersion) {
-          return readRecord(clusterPosition, false);
-        }
-
-        return null;
-      } finally {
-        releaseSharedLock();
-      }
-    } finally {
-      atomicOperationsManager.releaseReadLock(this);
-    }
   }
 
   @Override
@@ -1429,73 +1374,6 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
       positions[i] = physicalPosition;
     }
     return positions;
-  }
-
-  public OPaginatedClusterDebug readDebug(final long clusterPosition) throws IOException {
-    final OPaginatedClusterDebug debug = new OPaginatedClusterDebug();
-    debug.clusterPosition = clusterPosition;
-    debug.fileId = fileId;
-    final OAtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
-
-    final OClusterPositionMapBucket.PositionEntry positionEntry =
-        clusterPositionMap.get(clusterPosition, atomicOperation);
-    if (positionEntry == null) {
-      debug.empty = true;
-      return debug;
-    }
-
-    long pageIndex = positionEntry.getPageIndex();
-    int recordPosition = positionEntry.getRecordPosition();
-
-    debug.pages = new ArrayList<>(2);
-    int contentSize = 0;
-
-    long nextPagePointer;
-    boolean firstEntry = true;
-    do {
-      final OClusterPageDebug debugPage = new OClusterPageDebug();
-      debugPage.pageIndex = pageIndex;
-
-      try (final OCacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
-        final OClusterPage localPage = new OClusterPage(cacheEntry);
-
-        if (localPage.isDeleted(recordPosition)) {
-          if (debug.pages.isEmpty()) {
-            debug.empty = true;
-            return debug;
-          } else {
-            throw new OPaginatedClusterException(
-                "Content of record " + new ORecordId(id, clusterPosition) + " was broken", this);
-          }
-        }
-        debugPage.inPagePosition = recordPosition;
-        debugPage.inPageSize = localPage.getRecordSize(recordPosition);
-        final byte[] content =
-            localPage.getRecordBinaryValue(recordPosition, 0, debugPage.inPageSize);
-        assert content != null;
-
-        debugPage.content = content;
-        if (firstEntry
-            && content[content.length - OLongSerializer.LONG_SIZE - OByteSerializer.BYTE_SIZE]
-                == 0) {
-          debug.empty = true;
-          return debug;
-        }
-
-        debug.pages.add(debugPage);
-        nextPagePointer =
-            OLongSerializer.INSTANCE.deserializeNative(
-                content, content.length - OLongSerializer.LONG_SIZE);
-        contentSize += content.length - OLongSerializer.LONG_SIZE - OByteSerializer.BYTE_SIZE;
-
-        firstEntry = false;
-      }
-
-      pageIndex = getPageIndex(nextPagePointer);
-      recordPosition = getRecordPosition(nextPagePointer);
-    } while (nextPagePointer >= 0);
-    debug.contentSize = contentSize;
-    return debug;
   }
 
   public RECORD_STATUS getRecordStatus(final long clusterPosition) throws IOException {

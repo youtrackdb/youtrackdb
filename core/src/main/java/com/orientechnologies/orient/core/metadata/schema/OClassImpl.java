@@ -27,6 +27,7 @@ import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OSchemaException;
 import com.orientechnologies.orient.core.exception.OSecurityAccessException;
 import com.orientechnologies.orient.core.id.ORID;
@@ -1537,7 +1538,11 @@ public abstract class OClassImpl implements OClass {
       x = ((OResult) x).toElement();
     }
     if (x instanceof ORID) {
-      x = ((ORID) x).getRecord();
+      try {
+        x = ((ORID) x).getRecord();
+      } catch (ORecordNotFoundException e) {
+        return true;
+      }
     }
     if (x == null) {
       return true;
@@ -1545,11 +1550,8 @@ public abstract class OClassImpl implements OClass {
     if (!(x instanceof OElement)) {
       return false;
     }
-    if (x instanceof ODocument
-        && !linkedClass.getName().equalsIgnoreCase(((ODocument) x).getClassName())) {
-      return false;
-    }
-    return true;
+    return !(x instanceof ODocument)
+        || linkedClass.getName().equalsIgnoreCase(((ODocument) x).getClassName());
   }
 
   protected String getEscapedName(final String iName, final boolean iStrictSQL) {

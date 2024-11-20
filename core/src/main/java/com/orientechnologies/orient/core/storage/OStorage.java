@@ -39,6 +39,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
+import javax.annotation.Nonnull;
 
 /**
  * This is the gateway interface between the Database side and the storage. Provided implementations
@@ -77,6 +78,7 @@ public interface OStorage extends OBackupable, OStorageInfo {
   boolean isClosed();
 
   // CRUD OPERATIONS
+  @Nonnull
   ORawBuffer readRecord(
       ORecordId iRid,
       boolean iIgnoreCache,

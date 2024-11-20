@@ -246,22 +246,14 @@ public class OTrackedSet<T> extends LinkedHashSet<T>
   public void enableTracking(ORecordElement parent) {
     if (!tracker.isEnabled()) {
       this.tracker.enable();
-      if (this instanceof ORecordLazyMultiValue) {
-        OTrackedMultiValue.nestedEnabled(((ORecordLazyMultiValue) this).rawIterator(), this);
-      } else {
-        OTrackedMultiValue.nestedEnabled(this.iterator(), this);
-      }
+      OTrackedMultiValue.nestedEnabled(this.iterator(), this);
     }
   }
 
   public void disableTracking(ORecordElement document) {
     if (tracker.isEnabled()) {
       this.tracker.disable();
-      if (this instanceof ORecordLazyMultiValue) {
-        OTrackedMultiValue.nestedDisable(((ORecordLazyMultiValue) this).rawIterator(), this);
-      } else {
-        OTrackedMultiValue.nestedDisable(this.iterator(), this);
-      }
+      OTrackedMultiValue.nestedDisable(this.iterator(), this);
     }
     this.dirty = false;
   }
@@ -269,11 +261,7 @@ public class OTrackedSet<T> extends LinkedHashSet<T>
   @Override
   public void transactionClear() {
     tracker.transactionClear();
-    if (this instanceof ORecordLazyMultiValue) {
-      OTrackedMultiValue.nestedTransactionClear(((ORecordLazyMultiValue) this).rawIterator());
-    } else {
-      OTrackedMultiValue.nestedTransactionClear(this.iterator());
-    }
+    OTrackedMultiValue.nestedTransactionClear(this.iterator());
     this.transactionDirty = false;
   }
 

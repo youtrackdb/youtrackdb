@@ -925,7 +925,7 @@ public class ODocumentSerializerDeltaTest {
       ODocument originalDoc = doc.copy();
 
       @SuppressWarnings("unchecked")
-      ODocument testDoc = ((List<ODocument>) doc.field(fieldName)).get(1);
+      ODocument testDoc = ((List<OIdentifiable>) doc.field(fieldName)).get(1).getRecord();
       testDoc.removeProperty(variableField);
       // test serialization/deserialization
       ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
@@ -933,8 +933,8 @@ public class ODocumentSerializerDeltaTest {
       byte[] bytes = serializerDelta.serializeDelta(doc);
       serializerDelta.deserializeDelta(bytes, originalDoc);
 
-      List<ODocument> checkList = originalDoc.field(fieldName);
-      ODocument checkDoc = checkList.get(1);
+      List<OIdentifiable> checkList = originalDoc.field(fieldName);
+      ODocument checkDoc = checkList.get(1).getRecord();
       assertEquals(checkDoc.field(constantField), constValue);
       assertFalse(checkDoc.hasProperty(variableField));
     } finally {

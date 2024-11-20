@@ -389,7 +389,7 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
     }
   }
 
-  private void executeClassIndexes(
+  private static void executeClassIndexes(
       final OHttpRequest iRequest,
       final OHttpResponse iResponse,
       final ODatabaseSessionInternal db,

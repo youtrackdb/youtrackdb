@@ -29,15 +29,15 @@ import com.orientechnologies.orient.core.config.OStorageConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.db.record.ORecordLazyList;
-import com.orientechnologies.orient.core.db.record.ORecordLazyMap;
-import com.orientechnologies.orient.core.db.record.ORecordLazyMultiValue;
-import com.orientechnologies.orient.core.db.record.ORecordLazySet;
+import com.orientechnologies.orient.core.db.record.OList;
+import com.orientechnologies.orient.core.db.record.OMap;
+import com.orientechnologies.orient.core.db.record.OSet;
 import com.orientechnologies.orient.core.db.record.OTrackedList;
 import com.orientechnologies.orient.core.db.record.OTrackedMap;
 import com.orientechnologies.orient.core.db.record.OTrackedSet;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.OQueryParsingException;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -168,7 +168,7 @@ public class ODocumentHelper {
         final Collection<?> newValue;
 
         if (type.isLink()) {
-          newValue = new ORecordLazySet(iDocument);
+          newValue = new OSet(iDocument);
         } else {
           newValue = new OTrackedSet<Object>(iDocument);
         }
@@ -192,9 +192,6 @@ public class ODocumentHelper {
             ((Collection<Object>) newValue).add(s);
           }
         }
-        if (type.isLink()) {
-          ((ORecordLazyMultiValue) newValue).convertLinks2Records();
-        }
         return (RET) newValue;
       } else {
         return (RET) iValue;
@@ -205,7 +202,7 @@ public class ODocumentHelper {
         final Collection<?> newValue;
 
         if (type.isLink()) {
-          newValue = new ORecordLazyList(iDocument);
+          newValue = new OList(iDocument);
         } else {
           newValue = new OTrackedList<Object>(iDocument);
         }
@@ -228,9 +225,6 @@ public class ODocumentHelper {
           for (Object s : OMultiValue.getMultiValueIterable(iValue)) {
             ((Collection<Object>) newValue).add(s);
           }
-        }
-        if (type.isLink()) {
-          ((ORecordLazyMultiValue) newValue).convertLinks2Records();
         }
         return (RET) newValue;
       } else {
@@ -376,9 +370,7 @@ public class ODocumentHelper {
 
         if (value instanceof OIdentifiable) {
           final ORecord record =
-              currentRecord != null && currentRecord instanceof OIdentifiable
-                  ? ((OIdentifiable) currentRecord).getRecord()
-                  : null;
+              currentRecord instanceof OIdentifiable ? currentRecord.getRecord() : null;
 
           final Object index = getIndexPart(iContext, indexPart);
           final String indexAsString = index != null ? index.toString() : null;
@@ -796,7 +788,13 @@ public class ODocumentHelper {
   protected static Object filterItem(
       final String iConditionFieldName, final Object iConditionFieldValue, final Object iValue) {
     if (iValue instanceof OIdentifiable) {
-      final ORecord rec = ((OIdentifiable) iValue).getRecord();
+      final ORecord rec;
+      try {
+        rec = ((OIdentifiable) iValue).getRecord();
+      } catch (ORecordNotFoundException rnf) {
+        return null;
+      }
+
       if (rec instanceof ODocument) {
         final ODocument doc = (ODocument) rec;
 
@@ -903,11 +901,12 @@ public class ODocumentHelper {
       return null;
     }
 
-    final ODocument doc = ((ODocument) iCurrent.getRecord());
-    if (doc == null) { // broken link
+    try {
+      final ODocument doc = iCurrent.getRecord();
+      return doc.accessProperty(iFieldName);
+    } catch (ORecordNotFoundException rnf) {
       return null;
     }
-    return doc.accessProperty(iFieldName);
   }
 
   public static Object evaluateFunction(
@@ -1060,8 +1059,8 @@ public class ODocumentHelper {
         newBag.setOwner(iCloned);
         return newBag;
 
-      } else if (fieldValue instanceof ORecordLazyList) {
-        return ((ORecordLazyList) fieldValue).copy(iCloned);
+      } else if (fieldValue instanceof OList) {
+        return ((OList) fieldValue).copy(iCloned);
 
       } else if (fieldValue instanceof OTrackedList<?>) {
         final OTrackedList<Object> newList = new OTrackedList<Object>(iCloned);
@@ -1072,9 +1071,9 @@ public class ODocumentHelper {
         return new ArrayList<Object>((List<Object>) fieldValue);
 
         // SETS
-      } else if (fieldValue instanceof ORecordLazySet) {
-        final ORecordLazySet newList = new ORecordLazySet(iCloned);
-        newList.addAll((ORecordLazySet) fieldValue);
+      } else if (fieldValue instanceof OSet) {
+        final OSet newList = new OSet(iCloned);
+        newList.addAll((OSet) fieldValue);
         return newList;
 
       } else if (fieldValue instanceof OTrackedSet<?>) {
@@ -1085,10 +1084,9 @@ public class ODocumentHelper {
       } else if (fieldValue instanceof Set<?>) {
         return new HashSet<Object>((Set<Object>) fieldValue);
         // MAPS
-      } else if (fieldValue instanceof ORecordLazyMap) {
-        final ORecordLazyMap newMap =
-            new ORecordLazyMap(iCloned, ((ORecordLazyMap) fieldValue).getRecordType());
-        newMap.putAll((ORecordLazyMap) fieldValue);
+      } else if (fieldValue instanceof OMap) {
+        final OMap newMap = new OMap(iCloned, ((OMap) fieldValue).getRecordType());
+        newMap.putAll((OMap) fieldValue);
         return newMap;
 
       } else if (fieldValue instanceof OTrackedMap) {
@@ -1132,23 +1130,18 @@ public class ODocumentHelper {
             id = current.getIdentity();
           }
 
-          if (!id.equals(iOther)) {
-            return false;
-          }
+          return id.equals(iOther);
         } else {
           final ODocument otherDoc = iOtherDb.load((ORID) iOther);
-          if (!ODocumentHelper.hasSameContentOf(current, iMyDb, otherDoc, iOtherDb, ridMapper)) {
-            return false;
-          }
+          return ODocumentHelper.hasSameContentOf(current, iMyDb, otherDoc, iOtherDb, ridMapper);
         }
-      } else if (!ODocumentHelper.hasSameContentOf(
-          current, iMyDb, (ODocument) iOther, iOtherDb, ridMapper)) {
-        return false;
+      } else {
+        return ODocumentHelper.hasSameContentOf(
+            current, iMyDb, (ODocument) iOther, iOtherDb, ridMapper);
       }
-    } else if (!compareScalarValues(iCurrent, iMyDb, iOther, iOtherDb, ridMapper)) {
-      return false;
+    } else {
+      return compareScalarValues(iCurrent, iMyDb, iOther, iOtherDb, ridMapper);
     }
-    return true;
   }
 
   /**

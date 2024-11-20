@@ -16,6 +16,7 @@
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
 import com.orientechnologies.common.util.OPatternConst;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -30,7 +31,9 @@ import com.orientechnologies.orient.server.network.protocol.http.command.OServer
 import java.io.IOException;
 import java.util.Date;
 
-/** @author Luca Molino (molino.luca--at--gmail.com) */
+/**
+ * @author Luca Molino (molino.luca--at--gmail.com)
+ */
 public class OServerCommandGetFileDownload extends OServerCommandAuthenticatedDbAbstract {
 
   private static final String[] NAMES = {"GET|fileDownload/*"};
@@ -60,12 +63,10 @@ public class OServerCommandGetFileDownload extends OServerCommandAuthenticatedDb
     final ORecordAbstract response;
     var db = getProfiledDatabaseInstance(iRequest);
     try {
-
-      response = db.load(new ORecordId(rid));
-      if (response != null) {
+      try {
+        response = db.load(new ORecordId(rid));
         if (response instanceof OBlob) {
           sendORecordBinaryFileContent(
-              iRequest,
               iResponse,
               OHttpUtils.STATUS_OK_CODE,
               OHttpUtils.STATUS_OK_DESCRIPTION,
@@ -75,7 +76,7 @@ public class OServerCommandGetFileDownload extends OServerCommandAuthenticatedDb
         } else if (response instanceof ODocument) {
           for (OProperty prop :
               ODocumentInternal.getImmutableSchemaClass(((ODocument) response)).properties()) {
-            if (prop.getType().equals(OType.BINARY))
+            if (prop.getType().equals(OType.BINARY)) {
               sendBinaryFieldFileContent(
                   iRequest,
                   iResponse,
@@ -84,21 +85,15 @@ public class OServerCommandGetFileDownload extends OServerCommandAuthenticatedDb
                   fileType,
                   (byte[]) ((ODocument) response).field(prop.getName()),
                   fileName);
+            }
           }
-        } else {
-          iResponse.send(
-              OHttpUtils.STATUS_INVALIDMETHOD_CODE,
-              "Record requested is not a file nor has a readable schema",
-              OHttpUtils.CONTENT_TEXT_PLAIN,
-              "Record requested is not a file nor has a readable schema",
-              null);
         }
-      } else {
+      } catch (ORecordNotFoundException rnf) {
         iResponse.send(
             OHttpUtils.STATUS_INVALIDMETHOD_CODE,
-            "Record requested not exists",
+            "Record requested is not a file nor has a readable schema",
             OHttpUtils.CONTENT_TEXT_PLAIN,
-            "Record requestes not exists",
+            "Record requested is not a file nor has a readable schema",
             null);
       }
     } catch (Exception e) {
@@ -109,14 +104,15 @@ public class OServerCommandGetFileDownload extends OServerCommandAuthenticatedDb
           e.getMessage(),
           null);
     } finally {
-      if (db != null) db.close();
+      if (db != null) {
+        db.close();
+      }
     }
 
     return false;
   }
 
-  protected void sendORecordBinaryFileContent(
-      final OHttpRequest iRequest,
+  protected static void sendORecordBinaryFileContent(
       final OHttpResponse iResponse,
       final int iCode,
       final String iReason,
@@ -162,7 +158,7 @@ public class OServerCommandGetFileDownload extends OServerCommandAuthenticatedDb
     return NAMES;
   }
 
-  private String encodeResponseText(String iText) {
+  private static String encodeResponseText(String iText) {
     iText = OPatternConst.PATTERN_SINGLE_SPACE.matcher(iText).replaceAll("%20");
     iText = OPatternConst.PATTERN_AMP.matcher(iText).replaceAll("%26");
     return iText;

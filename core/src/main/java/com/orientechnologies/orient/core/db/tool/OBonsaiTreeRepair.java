@@ -51,26 +51,25 @@ public class OBonsaiTreeRepair {
             continue;
           }
 
-          OIdentifiable inId = edge.<OIdentifiable>field("in");
+          OIdentifiable inId = edge.field("in");
           OIdentifiable outId = edge.<OIdentifiable>field("out");
           if (inId == null || outId == null) {
             db.delete(edge);
             continue;
           }
-          final ODocument inVertex = inId.getRecord();
-          final ODocument outVertex = outId.getRecord();
-
           final String inVertexName =
               OVertexInternal.getEdgeLinkFieldName(ODirection.IN, label, true);
           final String outVertexName =
               OVertexInternal.getEdgeLinkFieldName(ODirection.OUT, label, true);
+
+          final ODocument inVertex = inId.getRecord();
+          final ODocument outVertex = outId.getRecord();
 
           Set<ORID> inVertexes = processedVertexes.get(inVertexName);
           if (inVertexes == null) {
             inVertexes = new HashSet<>();
             processedVertexes.put(inVertexName, inVertexes);
           }
-
           Set<ORID> outVertexes = processedVertexes.get(outVertexName);
           if (outVertexes == null) {
             outVertexes = new HashSet<>();

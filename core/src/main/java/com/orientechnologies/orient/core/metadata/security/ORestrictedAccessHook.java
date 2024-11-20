@@ -22,6 +22,7 @@ package com.orientechnologies.orient.core.metadata.security;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.metadata.schema.OImmutableClass;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
@@ -110,14 +111,14 @@ public class ORestrictedAccessHook {
       if (iReadOriginal)
       // RELOAD TO AVOID HACKING OF "_ALLOW" FIELDS
       {
-        doc = database.load(iDocument.getIdentity());
+        try {
+          doc = database.load(iDocument.getIdentity());
+        } catch (ORecordNotFoundException e) {
+          return false;
+        }
+
       } else {
         doc = iDocument;
-      }
-
-      // we even not allowed to read it.
-      if (doc == null) {
-        return false;
       }
 
       return database

@@ -109,8 +109,6 @@ import com.orientechnologies.orient.client.remote.message.OSubscribeSequencesReq
 import com.orientechnologies.orient.client.remote.message.OSubscribeStorageConfigurationRequest;
 import com.orientechnologies.orient.client.remote.message.OUnsubscribeLiveQueryRequest;
 import com.orientechnologies.orient.client.remote.message.OUnsubscribeRequest;
-import com.orientechnologies.orient.client.remote.message.OUpdateRecordRequest;
-import com.orientechnologies.orient.client.remote.message.OUpdateRecordResponse;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.command.OCommandRequestAsynch;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
@@ -181,6 +179,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import javax.annotation.Nonnull;
 
 /**
  * This object is bound to each remote ODatabase instances.
@@ -886,7 +885,6 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   }
 
   public ORecordMetadata getRecordMetadata(final ORID rid) {
-
     OGetRecordMetadataRequest request = new OGetRecordMetadataRequest(rid);
     OGetRecordMetadataResponse response =
         networkOperation(request, "Error on record metadata read " + rid);
@@ -896,12 +894,21 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
 
   @Override
   public boolean recordExists(ORID rid) {
+    if (getCurrentSession().commandExecuting)
+    // PENDING NETWORK OPERATION, CAN'T EXECUTE IT NOW
+    {
+      throw new IllegalStateException(
+          "Cannot execute the request because an asynchronous operation is in progress. Please use"
+              + " a different connection");
+    }
+
     var request = new ORecordExistsRequest(rid);
     var response = networkOperation(request, "Error on record existence check " + rid);
+
     return response.isRecordExists();
   }
 
-  public ORawBuffer readRecord(
+  public @Nonnull ORawBuffer readRecord(
       final ORecordId iRid,
       final boolean iIgnoreCache,
       boolean prefetchRecords,
@@ -910,7 +917,9 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     if (getCurrentSession().commandExecuting)
     // PENDING NETWORK OPERATION, CAN'T EXECUTE IT NOW
     {
-      return null;
+      throw new IllegalStateException(
+          "Cannot execute the request because an asynchronous operation is in progress. Please use"
+              + " a different connection");
     }
 
     OReadRecordRequest request = new OReadRecordRequest(iIgnoreCache, iRid, null, false);
@@ -946,42 +955,6 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
       throws UnsupportedOperationException {
     throw new UnsupportedOperationException(
         "This operations is part of internal API and is not supported in remote storage");
-  }
-
-  public OStorageOperationResult<Integer> updateRecord(
-      final ORecordId iRid,
-      final boolean updateContent,
-      final byte[] iContent,
-      final int iVersion,
-      final byte iRecordType,
-      final int iMode,
-      final ORecordCallback<Integer> iCallback) {
-
-    final OSBTreeCollectionManager collectionManager =
-        ODatabaseRecordThreadLocal.instance().get().getSbTreeCollectionManager();
-
-    ORecordCallback<OUpdateRecordResponse> realCallback = null;
-    if (iCallback != null) {
-      realCallback =
-          (iRID, response) -> {
-            iCallback.call(iRID, response.getVersion());
-            updateCollectionsFromChanges(collectionManager, response.getChanges());
-          };
-    }
-
-    OUpdateRecordRequest request =
-        new OUpdateRecordRequest(iRid, iContent, iVersion, updateContent, iRecordType);
-    OUpdateRecordResponse response =
-        asyncNetworkOperationNoRetry(
-            request, iMode, iRid, realCallback, "Error on update record " + iRid);
-
-    Integer resVersion = null;
-    if (response != null) {
-      // Returning given version in case of no answer from server
-      resVersion = response.getVersion();
-      updateCollectionsFromChanges(collectionManager, response.getChanges());
-    }
-    return new OStorageOperationResult<Integer>(resVersion);
   }
 
   public boolean cleanOutRecord(

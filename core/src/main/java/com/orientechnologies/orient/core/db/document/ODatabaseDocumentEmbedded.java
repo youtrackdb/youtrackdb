@@ -1341,6 +1341,11 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
       if (!rid.isPersistent()) {
         return false;
       }
+
+      if (localCache.findRecord(rid) != null) {
+        return true;
+      }
+
       return storage.recordExists(rid);
     } catch (Exception t) {
       throw OException.wrapException(

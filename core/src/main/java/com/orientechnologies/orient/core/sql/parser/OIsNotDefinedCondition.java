@@ -4,6 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import java.util.Collections;
@@ -25,9 +26,13 @@ public class OIsNotDefinedCondition extends OBooleanExpression {
 
   @Override
   public boolean evaluate(OIdentifiable currentRecord, OCommandContext ctx) {
-    Object elem = currentRecord.getRecord();
-    if (elem instanceof OElement) {
-      return !expression.isDefinedFor((OElement) elem);
+    try {
+      Object elem = currentRecord.getRecord();
+      if (elem instanceof OElement) {
+        return !expression.isDefinedFor((OElement) elem);
+      }
+    } catch (ORecordNotFoundException rnf) {
+      return true;
     }
     return true;
   }
@@ -92,13 +97,18 @@ public class OIsNotDefinedCondition extends OBooleanExpression {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OIsNotDefinedCondition that = (OIsNotDefinedCondition) o;
 
-    if (expression != null ? !expression.equals(that.expression) : that.expression != null)
+    if (expression != null ? !expression.equals(that.expression) : that.expression != null) {
       return false;
+    }
 
     return true;
   }

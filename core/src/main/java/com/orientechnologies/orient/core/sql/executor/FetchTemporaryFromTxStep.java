@@ -76,7 +76,7 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
     return records.iterator();
   }
 
-  private boolean hasCluster(ORecord record) {
+  private static boolean hasCluster(ORecord record) {
     ORID rid = record.getIdentity();
     if (rid == null) {
       return false;
@@ -84,7 +84,7 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
     return rid.getClusterId() >= 0;
   }
 
-  private boolean matchesClass(ORecord record, String className) {
+  private static boolean matchesClass(ORecord record, String className) {
     ORecord doc = record.getRecord();
     if (!(doc instanceof ODocument)) {
       return false;

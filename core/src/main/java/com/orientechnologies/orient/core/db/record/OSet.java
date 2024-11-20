@@ -54,11 +54,11 @@ import java.util.Set;
  *
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
-public class ORecordLazySet extends AbstractCollection<OIdentifiable>
+public class OSet extends AbstractCollection<OIdentifiable>
     implements Set<OIdentifiable>,
         OTrackedMultiValue<OIdentifiable, OIdentifiable>,
         ORecordElement,
-        ORecordLazyMultiValue,
+        OIdentifiableMultiValue,
         OIdentityChangeListener {
 
   protected final ORecordElement sourceRecord;
@@ -70,11 +70,11 @@ public class ORecordLazySet extends AbstractCollection<OIdentifiable>
   private final OSimpleMultiValueTracker<OIdentifiable, OIdentifiable> tracker =
       new OSimpleMultiValueTracker<>(this);
 
-  public ORecordLazySet(final ORecordElement iSourceRecord) {
+  public OSet(final ORecordElement iSourceRecord) {
     this.sourceRecord = iSourceRecord;
   }
 
-  public ORecordLazySet(ORecordElement iSourceRecord, Collection<OIdentifiable> iOrigin) {
+  public OSet(ORecordElement iSourceRecord, Collection<OIdentifiable> iOrigin) {
     this(iSourceRecord);
     if (iOrigin != null && !iOrigin.isEmpty()) {
       addAll(iOrigin);
@@ -129,7 +129,7 @@ public class ORecordLazySet extends AbstractCollection<OIdentifiable>
   }
 
   public boolean addAll(final Collection<? extends OIdentifiable> c) {
-    if (c == null || c.size() == 0) {
+    if (c == null || c.isEmpty()) {
       return false;
     }
     for (OIdentifiable o : c) {
@@ -139,7 +139,7 @@ public class ORecordLazySet extends AbstractCollection<OIdentifiable>
   }
 
   public boolean retainAll(final Collection<?> c) {
-    if (c == null || c.size() == 0) {
+    if (c == null || c.isEmpty()) {
       return false;
     }
 
@@ -155,7 +155,7 @@ public class ORecordLazySet extends AbstractCollection<OIdentifiable>
   }
 
   @SuppressWarnings("unchecked")
-  public ORecordLazySet setDirty() {
+  public OSet setDirty() {
     if (sourceRecord != null) {
       sourceRecord.setDirty();
     }
@@ -249,22 +249,14 @@ public class ORecordLazySet extends AbstractCollection<OIdentifiable>
   public void enableTracking(ORecordElement parent) {
     if (!tracker.isEnabled()) {
       tracker.enable();
-      if (this instanceof ORecordLazyMultiValue) {
-        OTrackedMultiValue.nestedEnabled(((ORecordLazyMultiValue) this).rawIterator(), this);
-      } else {
-        OTrackedMultiValue.nestedEnabled(this.iterator(), this);
-      }
+      OTrackedMultiValue.nestedEnabled(this.iterator(), this);
     }
   }
 
   public void disableTracking(ORecordElement document) {
     if (tracker.isEnabled()) {
       tracker.disable();
-      if (this instanceof ORecordLazyMultiValue) {
-        OTrackedMultiValue.nestedDisable(((ORecordLazyMultiValue) this).rawIterator(), this);
-      } else {
-        OTrackedMultiValue.nestedDisable(this.iterator(), this);
-      }
+      OTrackedMultiValue.nestedDisable(this.iterator(), this);
     }
     this.dirty = false;
   }
@@ -272,11 +264,7 @@ public class ORecordLazySet extends AbstractCollection<OIdentifiable>
   @Override
   public void transactionClear() {
     tracker.transactionClear();
-    if (this instanceof ORecordLazyMultiValue) {
-      OTrackedMultiValue.nestedTransactionClear(((ORecordLazyMultiValue) this).rawIterator());
-    } else {
-      OTrackedMultiValue.nestedTransactionClear(this.iterator());
-    }
+    OTrackedMultiValue.nestedTransactionClear(this.iterator());
     this.transactionDirty = false;
   }
 
@@ -297,14 +285,14 @@ public class ORecordLazySet extends AbstractCollection<OIdentifiable>
 
   @Override
   public boolean detach() {
-    return convertRecords2Links();
+    return true;
   }
 
   @Override
   public Iterator<OIdentifiable> iterator() {
     return new OLazyIterator<>() {
       {
-        iter = ORecordLazySet.this.map.entrySet().iterator();
+        iter = OSet.this.map.entrySet().iterator();
       }
 
       private Iterator<Entry<OIdentifiable, Object>> iter;
@@ -330,8 +318,7 @@ public class ORecordLazySet extends AbstractCollection<OIdentifiable>
       public void remove() {
         iter.remove();
         if (last.getKey() instanceof ORecord) {
-          ORecordInternal.removeIdentityChangeListener(
-              (ORecord) last.getKey(), ORecordLazySet.this);
+          ORecordInternal.removeIdentityChangeListener((ORecord) last.getKey(), OSet.this);
         }
       }
 
@@ -343,11 +330,6 @@ public class ORecordLazySet extends AbstractCollection<OIdentifiable>
         return iValue;
       }
     };
-  }
-
-  @Override
-  public Iterator<OIdentifiable> rawIterator() {
-    return new ORecordTrackedIterator(sourceRecord, map.keySet().iterator());
   }
 
   @Override
@@ -370,25 +352,6 @@ public class ORecordLazySet extends AbstractCollection<OIdentifiable>
     return true;
   }
 
-  public void convertLinks2Records() {
-    final Iterator<Entry<OIdentifiable, Object>> all = map.entrySet().iterator();
-    while (all.hasNext()) {
-      Entry<OIdentifiable, Object> entry = all.next();
-      if (!(entry.getValue() instanceof ORecord)) {
-        try {
-          ORecord record = entry.getKey().getRecord();
-          if (record != null) {
-            ORecordInternal.unTrack(sourceRecord, entry.getKey());
-            ORecordInternal.track(sourceRecord, record);
-          }
-          entry.setValue(record);
-        } catch (ORecordNotFoundException ignore) {
-          // IGNORE THIS
-        }
-      }
-    }
-  }
-
   @Override
   public void onAfterIdentityChange(ORecord record) {
     map.put(record, record);
@@ -397,11 +360,6 @@ public class ORecordLazySet extends AbstractCollection<OIdentifiable>
   @Override
   public void onBeforeIdentityChange(ORecord record) {
     map.remove(record);
-  }
-
-  @Override
-  public boolean convertRecords2Links() {
-    return true;
   }
 
   public boolean clearDeletedRecords() {

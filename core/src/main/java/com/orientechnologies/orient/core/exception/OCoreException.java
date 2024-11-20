@@ -10,10 +10,11 @@ import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
  * @since 9/28/2015
  */
 public abstract class OCoreException extends OException {
+
   private OErrorCode errorCode;
 
-  private final String dbName;
-  private final String componentName;
+  private String dbName;
+  private String componentName;
 
   public OCoreException(final OCoreException exception) {
     this(exception, null);
@@ -39,22 +40,12 @@ public abstract class OCoreException extends OException {
     super(message);
 
     this.errorCode = errorCode;
-
-    if (componentName != null) {
-      this.componentName = componentName;
-    } else {
-      this.componentName = null;
-    }
-
+    this.componentName = componentName;
     final ODatabaseRecordThreadLocal instance = ODatabaseRecordThreadLocal.instance();
 
-    if (instance != null) {
-      final ODatabaseSessionInternal database = instance.getIfDefined();
-      if (database != null) {
-        dbName = database.getName();
-      } else {
-        dbName = null;
-      }
+    final ODatabaseSessionInternal database = instance.getIfDefined();
+    if (database != null) {
+      dbName = database.getName();
     } else {
       dbName = null;
     }
@@ -72,9 +63,18 @@ public abstract class OCoreException extends OException {
     return componentName;
   }
 
+  public void setDbName(String dbName) {
+    this.dbName = dbName;
+  }
+
+  public void setComponentName(String componentName) {
+    this.componentName = componentName;
+  }
+
   @Override
   public final String getMessage() {
-    final StringBuilder builder = new StringBuilder("" + super.getMessage());
+    final StringBuilder builder = new StringBuilder(super.getMessage());
+
     if (dbName != null) {
       builder.append("\r\n\t").append("DB name=\"").append(dbName).append("\"");
     }

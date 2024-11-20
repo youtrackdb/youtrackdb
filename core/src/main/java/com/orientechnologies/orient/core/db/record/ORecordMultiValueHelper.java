@@ -19,7 +19,6 @@
  */
 package com.orientechnologies.orient.core.db.record;
 
-import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.ORecord;
 
@@ -56,7 +55,7 @@ public class ORecordMultiValueHelper {
     return iPreviousStatus;
   }
 
-  public static String toString(final ORecordLazyMultiValue iMultivalue) {
-    return OMultiValue.toString(iMultivalue);
+  public static String toString(final OIdentifiableMultiValue iMultivalue) {
+    return com.orientechnologies.common.collection.OMultiValue.toString(iMultivalue);
   }
 }

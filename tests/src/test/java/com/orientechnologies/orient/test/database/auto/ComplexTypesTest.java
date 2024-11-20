@@ -122,12 +122,12 @@ public class ComplexTypesTest extends DocumentDBBaseTest {
     Assert.assertTrue(loadedDoc.containsField("linkedList"));
     Assert.assertTrue(loadedDoc.field("linkedList") instanceof List<?>);
     Assert.assertTrue(
-        ((List<ODocument>) loadedDoc.field("linkedList")).get(0) instanceof ODocument);
+        ((List<OIdentifiable>) loadedDoc.field("linkedList")).get(0) instanceof OIdentifiable);
 
-    ODocument d = ((List<ODocument>) loadedDoc.field("linkedList")).get(0);
+    ODocument d = ((List<OIdentifiable>) loadedDoc.field("linkedList")).get(0).getRecord();
     Assert.assertTrue(d.getIdentity().isValid());
     Assert.assertEquals(d.field("name"), "Luca");
-    d = ((List<ODocument>) loadedDoc.field("linkedList")).get(1);
+    d = ((List<OIdentifiable>) loadedDoc.field("linkedList")).get(1).getRecord();
     Assert.assertEquals(d.getClassName(), "Account");
     Assert.assertEquals(d.field("name"), "Marcus");
   }
@@ -307,16 +307,17 @@ public class ComplexTypesTest extends DocumentDBBaseTest {
     Assert.assertNotNull(loadedDoc.field("linkedMap", OType.LINKMAP));
     Assert.assertTrue(loadedDoc.field("linkedMap") instanceof Map<?, ?>);
     Assert.assertTrue(
-        ((Map<String, ODocument>) loadedDoc.field("linkedMap")).values().iterator().next()
-            instanceof ODocument);
+        ((Map<String, OIdentifiable>) loadedDoc.field("linkedMap")).values().iterator().next()
+            instanceof OIdentifiable);
 
-    ODocument d = ((Map<String, ODocument>) loadedDoc.field("linkedMap")).get("Luca");
+    ODocument d =
+        ((Map<String, OIdentifiable>) loadedDoc.field("linkedMap")).get("Luca").getRecord();
     Assert.assertEquals(d.field("name"), "Luca");
 
-    d = ((Map<String, ODocument>) loadedDoc.field("linkedMap")).get("Marcus");
+    d = ((Map<String, OIdentifiable>) loadedDoc.field("linkedMap")).get("Marcus").getRecord();
     Assert.assertEquals(d.field("name"), "Marcus");
 
-    d = ((Map<String, ODocument>) loadedDoc.field("linkedMap")).get("Cesare");
+    d = ((Map<String, OIdentifiable>) loadedDoc.field("linkedMap")).get("Cesare").getRecord();
     Assert.assertEquals(d.field("name"), "Cesare");
     Assert.assertEquals(d.getClassName(), "Account");
   }

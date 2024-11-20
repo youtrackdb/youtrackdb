@@ -21,10 +21,10 @@ package com.orientechnologies.orient.core.storage;
 
 import com.orientechnologies.orient.core.config.OStorageClusterConfiguration;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.storage.impl.local.OClusterBrowsePage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import java.io.IOException;
+import javax.annotation.Nonnull;
 
 public interface OCluster {
 
@@ -95,10 +95,8 @@ public interface OCluster {
       byte recordType,
       OAtomicOperation atomicOperation);
 
+  @Nonnull
   ORawBuffer readRecord(long clusterPosition, boolean prefetchRecords) throws IOException;
-
-  ORawBuffer readRecordIfVersionIsNotLatest(long clusterPosition, int recordVersion)
-      throws IOException, ORecordNotFoundException;
 
   boolean exists();
 

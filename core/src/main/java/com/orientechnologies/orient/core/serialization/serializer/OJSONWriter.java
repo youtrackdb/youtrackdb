@@ -24,7 +24,7 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.db.record.ORecordLazyMultiValue;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.ORecord;
@@ -101,14 +101,14 @@ public class OJSONWriter {
         if (iFormat != null && iFormat.contains("shallow")) {
           buffer.append("{}");
         } else {
-          final ORecord rec = linked.getRecord();
-          if (rec != null) {
+          try {
+            final ORecord rec = linked.getRecord();
             final String embeddedFormat =
                 iFormat != null && iFormat.isEmpty()
                     ? "indent:" + iIndentLevel
                     : iFormat + ",indent:" + iIndentLevel;
             buffer.append(rec.toJSON(embeddedFormat));
-          } else {
+          } catch (ORecordNotFoundException e) {
             buffer.append("null");
           }
         }
@@ -168,8 +168,6 @@ public class OJSONWriter {
       }
     } else if (iValue instanceof BigDecimal) {
       buffer.append(((BigDecimal) iValue).toPlainString());
-    } else if (iValue instanceof ORecordLazyMultiValue) {
-      iteratorToJSON(((ORecordLazyMultiValue) iValue).rawIterator(), iFormat, buffer);
     } else if (iValue instanceof Iterable<?>) {
       iteratorToJSON(((Iterable<?>) iValue).iterator(), iFormat, buffer);
     } else {

@@ -319,7 +319,7 @@ public interface OIndexInternal extends OIndex {
                       return null;
                     }
                   }) // force record load, that triggers security checks
-              .filter(x -> x != null)
+              .filter(Objects::nonNull)
               .map(x -> ((ORecord) x).getIdentity())
               .collect(Collectors.toList());
     }

@@ -26,7 +26,7 @@ public class CastToVertexStep extends AbstractExecutionStep {
     }
     if (result.isVertex()) {
       if (result instanceof OResultInternal) {
-        ((OResultInternal) result).setElement(result.toElement().toVertex());
+        ((OResultInternal) result).setIdentifiable(result.toElement().toVertex());
       } else {
         result = new OResultInternal(result.toElement().toVertex());
       }

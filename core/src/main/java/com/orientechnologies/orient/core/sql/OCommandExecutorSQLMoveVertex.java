@@ -27,6 +27,7 @@ import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -46,6 +47,7 @@ import java.util.Set;
  */
 public class OCommandExecutorSQLMoveVertex extends OCommandExecutorSQLSetAware
     implements OCommandDistributedReplicateRequest {
+
   public static final String NAME = "MOVE VERTEX";
   private static final String KEYWORD_MERGE = "MERGE";
   private static final String KEYWORD_BATCH = "BATCH";
@@ -67,7 +69,9 @@ public class OCommandExecutorSQLMoveVertex extends OCommandExecutorSQLSetAware
     parserRequiredKeyword("VERTEX");
 
     source = parserRequiredWord(false, "Syntax error", " =><,\r\n");
-    if (source == null) throw new OCommandSQLParsingException("Cannot find source");
+    if (source == null) {
+      throw new OCommandSQLParsingException("Cannot find source");
+    }
 
     parserRequiredKeyword("TO");
 
@@ -75,25 +79,29 @@ public class OCommandExecutorSQLMoveVertex extends OCommandExecutorSQLSetAware
 
     while (temp != null) {
       if (temp.startsWith("CLUSTER:")) {
-        if (className != null)
+        if (className != null) {
           throw new OCommandSQLParsingException(
               "Cannot define multiple sources. Found both cluster and class.");
+        }
 
         clusterName = temp.substring("CLUSTER:".length());
-        if (database.getClusterIdByName(clusterName) == -1)
+        if (database.getClusterIdByName(clusterName) == -1) {
           throw new OCommandSQLParsingException("Cluster '" + clusterName + "' was not found");
+        }
 
       } else if (temp.startsWith("CLASS:")) {
-        if (clusterName != null)
+        if (clusterName != null) {
           throw new OCommandSQLParsingException(
               "Cannot define multiple sources. Found both cluster and class.");
+        }
 
         className = temp.substring("CLASS:".length());
 
         clazz = database.getMetadata().getSchema().getClass(className);
 
-        if (clazz == null)
+        if (clazz == null) {
           throw new OCommandSQLParsingException("Class '" + className + "' was not found");
+        }
 
       } else if (temp.equals(KEYWORD_SET)) {
         fields = new ArrayList<OPair<String, Object>>();
@@ -104,26 +112,33 @@ public class OCommandExecutorSQLMoveVertex extends OCommandExecutorSQLSetAware
 
       } else if (temp.equals(KEYWORD_BATCH)) {
         temp = parserNextWord(true);
-        if (temp != null) batch = Integer.parseInt(temp);
+        if (temp != null) {
+          batch = Integer.parseInt(temp);
+        }
       }
 
       temp = parserOptionalWord(true);
-      if (parserIsEnded()) break;
+      if (parserIsEnded()) {
+        break;
+      }
     }
 
     return this;
   }
 
-  /** Executes the command and return the ODocument object created. */
+  /**
+   * Executes the command and return the ODocument object created.
+   */
   public Object execute(final Map<Object, Object> iArgs) {
 
     ODatabaseSessionInternal db = getDatabase();
 
     db.begin();
 
-    if (className == null && clusterName == null)
+    if (className == null && clusterName == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
+    }
 
     OModifiableBoolean shutdownGraph = new OModifiableBoolean();
     final boolean txAlreadyBegun = getDatabase().getTransaction().isActive();
@@ -137,7 +152,9 @@ public class OCommandExecutorSQLMoveVertex extends OCommandExecutorSQLSetAware
 
       for (OIdentifiable from : sourceRIDs) {
         final OVertex fromVertex = toVertex(from);
-        if (fromVertex == null) continue;
+        if (fromVertex == null) {
+          continue;
+        }
 
         final ORID oldVertex = fromVertex.getIdentity().copy();
         final ORID newVertex = fromVertex.moveTo(className, clusterName);
@@ -147,16 +164,19 @@ public class OCommandExecutorSQLMoveVertex extends OCommandExecutorSQLSetAware
         if (fields != null) {
           // EVALUATE FIELDS
           for (final OPair<String, Object> f : fields) {
-            if (f.getValue() instanceof OSQLFunctionRuntime)
+            if (f.getValue() instanceof OSQLFunctionRuntime) {
               f.setValue(
                   ((OSQLFunctionRuntime) f.getValue())
                       .getValue(newVertex.getRecord(), null, context));
+            }
           }
 
           OSQLHelper.bindParameters(newVertexDoc, fields, new OCommandParameters(iArgs), context);
         }
 
-        if (merge != null) newVertexDoc.merge(merge, true, false);
+        if (merge != null) {
+          newVertexDoc.merge(merge, true, false);
+        }
 
         // SAVE CHANGES
         newVertexDoc.save();
@@ -195,12 +215,16 @@ public class OCommandExecutorSQLMoveVertex extends OCommandExecutorSQLSetAware
         + " [BATCH <batch-size>]";
   }
 
-  private OVertex toVertex(OIdentifiable item) {
-    if (item != null && item instanceof OElement) {
+  private static OVertex toVertex(OIdentifiable item) {
+    if (item instanceof OElement) {
       return ((OElement) item).asVertex().orElse(null);
     } else {
-      item = getDatabase().load(item.getIdentity());
-      if (item != null && item instanceof OElement) {
+      try {
+        item = getDatabase().load(item.getIdentity());
+      } catch (ORecordNotFoundException rnf) {
+        return null;
+      }
+      if (item instanceof OElement) {
         return ((OElement) item).asVertex().orElse(null);
       }
     }

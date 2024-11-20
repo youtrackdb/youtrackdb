@@ -24,8 +24,8 @@ import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.ORecordLazyMap;
-import com.orientechnologies.orient.core.db.record.ORecordLazySet;
+import com.orientechnologies.orient.core.db.record.OMap;
+import com.orientechnologies.orient.core.db.record.OSet;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.core.id.ORID;
@@ -503,7 +503,7 @@ public class ORecordSerializerSchemaAware2CSV extends ORecordSerializerCSVAbstra
                     }
 
                     if (type == null) {
-                      if (fieldValue instanceof ORecordLazySet) {
+                      if (fieldValue instanceof OSet) {
                         type = OType.LINKSET;
                       } else if (fieldValue instanceof Set<?>) {
                         type = OType.EMBEDDEDSET;
@@ -521,12 +521,12 @@ public class ORecordSerializerSchemaAware2CSV extends ORecordSerializerCSVAbstra
             final int size = OMultiValue.getSize(fieldValue);
 
             Boolean autoConvertLinks = null;
-            if (fieldValue instanceof ORecordLazyMap) {
-              autoConvertLinks = ((ORecordLazyMap) fieldValue).isAutoConvertToRecord();
+            if (fieldValue instanceof OMap) {
+              autoConvertLinks = ((OMap) fieldValue).isAutoConvertToRecord();
               if (autoConvertLinks)
               // DISABLE AUTO CONVERT
               {
-                ((ORecordLazyMap) fieldValue).setAutoConvertToRecord(false);
+                ((OMap) fieldValue).setAutoConvertToRecord(false);
               }
             }
 
@@ -551,10 +551,10 @@ public class ORecordSerializerSchemaAware2CSV extends ORecordSerializerCSVAbstra
               type = OType.EMBEDDEDMAP;
             }
 
-            if (fieldValue instanceof ORecordLazyMap && autoConvertLinks)
+            if (fieldValue instanceof OMap && autoConvertLinks)
             // REPLACE PREVIOUS SETTINGS
             {
-              ((ORecordLazyMap) fieldValue).setAutoConvertToRecord(true);
+              ((OMap) fieldValue).setAutoConvertToRecord(true);
             }
           }
         }

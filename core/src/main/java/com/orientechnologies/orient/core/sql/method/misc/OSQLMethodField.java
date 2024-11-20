@@ -20,6 +20,7 @@ import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
@@ -49,7 +50,9 @@ public class OSQLMethodField extends OAbstractSQLMethod {
       final OCommandContext iContext,
       Object ioResult,
       final Object[] iParams) {
-    if (iParams[0] == null) return null;
+    if (iParams[0] == null) {
+      return null;
+    }
 
     final String paramAsString = iParams[0].toString();
 
@@ -68,7 +71,13 @@ public class OSQLMethodField extends OAbstractSQLMethod {
           ioResult = null;
         }
       } else if (ioResult instanceof OIdentifiable) {
-        ioResult = ((OIdentifiable) ioResult).getRecord();
+        try {
+          ioResult = ((OIdentifiable) ioResult).getRecord();
+        } catch (ORecordNotFoundException rnf) {
+          OLogManager.instance()
+              .error(this, "Error on reading rid with value '%s'", null, ioResult);
+          ioResult = null;
+        }
       } else if (ioResult instanceof Collection<?>
           || ioResult instanceof Iterator<?>
           || ioResult.getClass().isArray()) {
@@ -78,10 +87,11 @@ public class OSQLMethodField extends OAbstractSQLMethod {
           if (OMultiValue.isMultiValue(newlyAdded)) {
             if (newlyAdded instanceof Map || newlyAdded instanceof OIdentifiable) {
               result.add(newlyAdded);
-            } else
+            } else {
               for (Object item : OMultiValue.getMultiValueIterable(newlyAdded)) {
                 result.add(item);
               }
+            }
           } else {
             result.add(newlyAdded);
           }

@@ -428,7 +428,7 @@ public class OGraphRepair {
                                 .getValueAsInteger()) {
                       vertex.setDirty();
                     }
-                    for (Iterator<?> it = ridbag.rawIterator(); it.hasNext(); ) {
+                    for (Iterator<?> it = ridbag.iterator(); it.hasNext(); ) {
                       final Object o = it.next();
                       if (isEdgeBroken(
                           vertex, fieldName, connection.getKey(), (OIdentifiable) o, stats, true)) {

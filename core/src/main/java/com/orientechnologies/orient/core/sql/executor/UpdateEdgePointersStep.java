@@ -4,6 +4,7 @@ import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
@@ -78,7 +79,7 @@ public class UpdateEdgePointersStep extends AbstractExecutionStep {
         currentOutIdentifiable);
   }
 
-  private void validateOutInForEdge(Object currentOut, Object currentIn) {
+  private static void validateOutInForEdge(Object currentOut, Object currentIn) {
     if (recordIsNotInstanceOfVertex(currentOut)) {
       throw new OCommandExecutionException(
           "Error updating edge: 'out' is not a vertex - " + currentOut);
@@ -94,18 +95,19 @@ public class UpdateEdgePointersStep extends AbstractExecutionStep {
    *
    * @param iRecord The record object
    */
-  private boolean recordIsNotInstanceOfVertex(Object iRecord) {
+  private static boolean recordIsNotInstanceOfVertex(Object iRecord) {
     if (iRecord == null) {
       return true;
     }
     if (!(iRecord instanceof OIdentifiable)) {
       return true;
     }
-    ODocument record = ((OIdentifiable) iRecord).getRecord();
-    if (record == null) {
+    try {
+      ODocument record = ((OIdentifiable) iRecord).getRecord();
+      return (!ODocumentInternal.getImmutableSchemaClass(record)
+          .isSubClassOf(OClass.VERTEX_CLASS_NAME));
+    } catch (ORecordNotFoundException rnf) {
       return true;
     }
-    return (!ODocumentInternal.getImmutableSchemaClass(record)
-        .isSubClassOf(OClass.VERTEX_CLASS_NAME));
   }
 }

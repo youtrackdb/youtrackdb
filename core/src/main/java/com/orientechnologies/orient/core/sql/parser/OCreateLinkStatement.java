@@ -6,8 +6,8 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.db.record.ORecordLazyList;
-import com.orientechnologies.orient.core.db.record.ORecordLazySet;
+import com.orientechnologies.orient.core.db.record.OList;
+import com.orientechnologies.orient.core.db.record.OSet;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -199,11 +199,11 @@ public class OCreateLinkStatement extends OSimpleExecStatement {
               } else {
                 if (txLinkType != null) {
                   if (txLinkType == OType.LINKSET) {
-                    value = new ORecordLazySet(target);
+                    value = new OSet(target);
                     ((Set<OIdentifiable>) value).add(doc);
                   } else if (txLinkType == OType.LINKLIST) {
-                    value = new ORecordLazyList(target);
-                    ((ORecordLazyList) value).add(doc);
+                    value = new OList(target);
+                    ((OList) value).add(doc);
                   } else
                   // IGNORE THE TYPE, SET IT AS LINK
                   {

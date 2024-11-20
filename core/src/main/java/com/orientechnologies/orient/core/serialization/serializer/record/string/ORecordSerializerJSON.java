@@ -29,11 +29,12 @@ import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.db.record.ORecordLazyList;
-import com.orientechnologies.orient.core.db.record.ORecordLazySet;
+import com.orientechnologies.orient.core.db.record.OList;
+import com.orientechnologies.orient.core.db.record.OSet;
 import com.orientechnologies.orient.core.db.record.OTrackedList;
 import com.orientechnologies.orient.core.db.record.OTrackedSet;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.core.fetch.OFetchHelper;
 import com.orientechnologies.orient.core.fetch.OFetchPlan;
@@ -302,12 +303,14 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
                 && fieldName.equals(ODocumentHelper.ATTRIBUTE_RID)
                 && record instanceof ODocument) {
               if (fieldValue != null && !fieldValue.isEmpty()) {
-                ORecord localRecord =
-                    ODatabaseRecordThreadLocal.instance()
-                        .get()
-                        .load(new ORecordId(fieldValueAsString));
-                if (localRecord != null) {
-                  record = localRecord;
+                try {
+                  record =
+                      ODatabaseRecordThreadLocal.instance()
+                          .get()
+                          .load(new ORecordId(fieldValueAsString));
+
+                } catch (ORecordNotFoundException e) {
+                  // ignore
                 }
               }
             } else {
@@ -918,7 +921,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
     } else {
       if (iType == OType.LINKSET) {
         return getValueAsLinkedCollectionV0(
-            new ORecordLazySet(iRecord),
+            new OSet(iRecord),
             iRecord,
             iFieldValue,
             iType,
@@ -929,7 +932,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
       } else {
         if (iType == OType.LINKLIST) {
           return getValueAsLinkedCollectionV0(
-              new ORecordLazyList(iRecord),
+              new OList(iRecord),
               iRecord,
               iFieldValue,
               iType,

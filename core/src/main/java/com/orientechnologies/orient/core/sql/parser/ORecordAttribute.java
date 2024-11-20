@@ -3,6 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.OElement;
@@ -43,12 +44,18 @@ public class ORecordAttribute extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     ORecordAttribute that = (ORecordAttribute) o;
 
-    if (name != null ? !name.equals(that.name) : that.name != null) return false;
+    if (name != null ? !name.equals(that.name) : that.name != null) {
+      return false;
+    }
 
     return true;
   }
@@ -124,13 +131,14 @@ public class ORecordAttribute extends SimpleNode {
     if (name.equalsIgnoreCase("@rid")) {
       return iCurrentRecord.getIdentity();
     } else if (name.equalsIgnoreCase("@class")) {
-      return iCurrentRecord.getSchemaType().map(clazz -> clazz.getName()).orElse(null);
+      return iCurrentRecord.getSchemaType().map(OClass::getName).orElse(null);
     } else if (name.equalsIgnoreCase("@version")) {
-      ORecord record = iCurrentRecord.getRecord();
-      if (record == null) {
+      try {
+        ORecord record = iCurrentRecord.getRecord();
+        return record.getVersion();
+      } catch (ORecordNotFoundException e) {
         return null;
       }
-      return record.getVersion();
     }
     return null;
   }

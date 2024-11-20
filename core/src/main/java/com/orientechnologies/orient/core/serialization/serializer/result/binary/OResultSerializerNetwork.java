@@ -26,13 +26,13 @@ import com.orientechnologies.common.serialization.types.ODecimalSerializer;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.core.exception.OValidationException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.serialization.OSerializableStream;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.BytesContainer;
@@ -533,9 +533,10 @@ public class OResultSerializerNetwork {
 
   private int writeOptimizedLink(final BytesContainer bytes, OIdentifiable link) {
     if (!link.getIdentity().isPersistent()) {
-      final ORecord real = link.getRecord();
-      if (real != null) {
-        link = real;
+      try {
+        link = link.getRecord();
+      } catch (ORecordNotFoundException rnf) {
+        // IGNORE THIS
       }
     }
     final int pos = OVarIntSerializer.write(bytes, link.getIdentity().getClusterId());
@@ -543,19 +544,16 @@ public class OResultSerializerNetwork {
     return pos;
   }
 
-  private int writeLinkCollection(
+  private void writeLinkCollection(
       final BytesContainer bytes, final Collection<OIdentifiable> value) {
     final int pos = OVarIntSerializer.write(bytes, value.size());
     for (OIdentifiable itemValue : value) {
-      // TODO: handle the null links
       if (itemValue == null) {
         writeNullLink(bytes);
       } else {
         writeOptimizedLink(bytes, itemValue);
       }
     }
-
-    return pos;
   }
 
   private void writeEmbeddedCollection(final BytesContainer bytes, final Collection<?> value) {

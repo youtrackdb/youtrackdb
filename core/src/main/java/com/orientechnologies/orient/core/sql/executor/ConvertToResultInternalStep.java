@@ -2,8 +2,6 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 
 /**
@@ -31,8 +29,8 @@ public class ConvertToResultInternalStep extends AbstractExecutionStep {
 
   private OResult filterMap(OResult result, OCommandContext ctx) {
     if (result instanceof OUpdatableResult) {
-      ORecord element = result.toElement().getRecord();
-      if (element instanceof ODocument) {
+      var element = result.toElement();
+      if (element != null) {
         return new OResultInternal(element);
       }
       return result;

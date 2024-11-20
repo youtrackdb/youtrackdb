@@ -63,7 +63,6 @@ import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListMap;
 
@@ -453,31 +452,6 @@ public class OSBTreeRidBag implements ORidBagDelegate {
         collectionPointer != null ? new SBTreeMapEntryIterator(1000) : null);
   }
 
-  @Override
-  public Iterator<OIdentifiable> rawIterator() {
-    return new RIDBagIterator(
-        new IdentityHashMap<>(newEntries),
-        changes,
-        collectionPointer != null ? new SBTreeMapEntryIterator(1000) : null);
-  }
-
-  @Override
-  public void convertLinks2Records() {
-    TreeMap<OIdentifiable, Change> newChanges = new TreeMap<>();
-    for (Map.Entry<OIdentifiable, Change> entry : changes.entrySet()) {
-      final OIdentifiable key = entry.getKey().getRecord();
-      if (key != null && this.owner != null) {
-        ORecordInternal.unTrack(this.owner, entry.getKey());
-        ORecordInternal.track(this.owner, key);
-      }
-      newChanges.put((key == null) ? entry.getKey() : key, entry.getValue());
-    }
-
-    changes.clear();
-    changes.putAll(newChanges);
-  }
-
-  @Override
   public boolean convertRecords2Links() {
     final Map<OIdentifiable, Change> newChangedValues = new HashMap<>();
     for (Map.Entry<OIdentifiable, Change> entry : changes.entrySet()) {

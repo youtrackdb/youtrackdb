@@ -26,7 +26,6 @@ public class ORidBagBasicTest extends BaseMemoryDatabase {
     OEmbeddedRidBag bag = new OEmbeddedRidBag();
 
     bag.add(new ORecordId(3, 1000));
-    bag.convertLinks2Records();
     bag.convertRecords2Links();
     byte[] bytes = new byte[1024];
     UUID id = UUID.randomUUID();

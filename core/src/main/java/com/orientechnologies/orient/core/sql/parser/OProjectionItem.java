@@ -139,7 +139,7 @@ public class OProjectionItem extends SimpleNode {
   public static Object convert(Object value, OCommandContext context) {
     if (value instanceof ORidBag) {
       List result = new ArrayList();
-      ((ORidBag) value).rawIterator().forEachRemaining(x -> result.add(x));
+      ((ORidBag) value).iterator().forEachRemaining(result::add);
       return result;
     }
     if (value instanceof OEdgeToVertexIterable) {

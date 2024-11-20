@@ -204,14 +204,14 @@ public class OSQLFunctionAstar extends OSQLFunctionHeuristicPathFinderAbstract {
     return getPath();
   }
 
-  private OVertex getNeighbor(OVertex current, OEdge neighborEdge, ODatabaseSession graph) {
+  private static OVertex getNeighbor(OVertex current, OEdge neighborEdge, ODatabaseSession graph) {
     if (neighborEdge.getFrom().equals(current)) {
       return toVertex(neighborEdge.getTo());
     }
     return toVertex(neighborEdge.getFrom());
   }
 
-  private OVertex toVertex(OIdentifiable outVertex) {
+  private static OVertex toVertex(OIdentifiable outVertex) {
     if (outVertex == null) {
       return null;
     }

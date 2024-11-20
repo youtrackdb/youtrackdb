@@ -20,6 +20,7 @@
 package com.orientechnologies.orient.server.network.protocol.http.command.put;
 
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.OEmptyRecordId;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.ORecordInternal;
@@ -82,9 +83,10 @@ public class OServerCommandPutDocument extends OServerCommandDocumentAbstract {
                   throw new IllegalArgumentException("Invalid Record ID in request: " + txRecordId);
                 }
 
-                final ODocument currentDocument = db.load(txRecordId);
-
-                if (currentDocument == null) {
+                final ODocument currentDocument;
+                try {
+                  currentDocument = db.load(txRecordId);
+                } catch (ORecordNotFoundException rnf) {
                   return null;
                 }
 

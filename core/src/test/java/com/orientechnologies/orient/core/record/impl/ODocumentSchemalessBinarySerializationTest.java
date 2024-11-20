@@ -79,11 +79,12 @@ public class ODocumentSchemalessBinarySerializationTest {
   @Before
   public void createSerializer() {
     // we want new instance before method only for network serializers
-    if (serializerVersion == ORecordSerializerBinary.INSTANCE.getNumberOfSupportedVersions())
+    if (serializerVersion == ORecordSerializerBinary.INSTANCE.getNumberOfSupportedVersions()) {
       serializer = new ORecordSerializerNetwork();
-    else if (serializerVersion
-        == ORecordSerializerBinary.INSTANCE.getNumberOfSupportedVersions() + 1)
+    } else if (serializerVersion
+        == ORecordSerializerBinary.INSTANCE.getNumberOfSupportedVersions() + 1) {
       serializer = new ORecordSerializerNetworkV37();
+    }
   }
 
   @Test
@@ -345,95 +346,101 @@ public class ODocumentSchemalessBinarySerializationTest {
   @SuppressWarnings({"rawtypes", "unchecked"})
   @Test
   public void testSimpleLiteralSet() throws InterruptedException {
-    ODatabaseRecordThreadLocal.instance().remove();
-    ODocument document = new ODocument();
-    Set<String> strings = new HashSet<String>();
-    strings.add("a");
-    strings.add("b");
-    strings.add("c");
-    document.field("listStrings", strings);
+    try (OrientDB ctx = new OrientDB("embedded:", OrientDBConfig.defaultConfig())) {
+      ctx.execute(
+          "create database testSimpleLiteralSet memory users(admin identified by 'adminpwd' role"
+              + " admin)");
+      try (var db = ctx.open("testSimpleLiteralSet", "admin", "adminpwd")) {
+        ODocument document = new ODocument();
+        Set<String> strings = new HashSet<String>();
+        strings.add("a");
+        strings.add("b");
+        strings.add("c");
+        document.field("listStrings", strings);
 
-    Set<Short> shorts = new HashSet<Short>();
-    shorts.add((short) 1);
-    shorts.add((short) 2);
-    shorts.add((short) 3);
-    document.field("shorts", shorts);
+        Set<Short> shorts = new HashSet<Short>();
+        shorts.add((short) 1);
+        shorts.add((short) 2);
+        shorts.add((short) 3);
+        document.field("shorts", shorts);
 
-    Set<Long> longs = new HashSet<Long>();
-    longs.add((long) 1);
-    longs.add((long) 2);
-    longs.add((long) 3);
-    document.field("longs", longs);
+        Set<Long> longs = new HashSet<Long>();
+        longs.add((long) 1);
+        longs.add((long) 2);
+        longs.add((long) 3);
+        document.field("longs", longs);
 
-    Set<Integer> ints = new HashSet<Integer>();
-    ints.add(1);
-    ints.add(2);
-    ints.add(3);
-    document.field("integers", ints);
+        Set<Integer> ints = new HashSet<Integer>();
+        ints.add(1);
+        ints.add(2);
+        ints.add(3);
+        document.field("integers", ints);
 
-    Set<Float> floats = new HashSet<Float>();
-    floats.add(1.1f);
-    floats.add(2.2f);
-    floats.add(3.3f);
-    document.field("floats", floats);
+        Set<Float> floats = new HashSet<Float>();
+        floats.add(1.1f);
+        floats.add(2.2f);
+        floats.add(3.3f);
+        document.field("floats", floats);
 
-    Set<Double> doubles = new HashSet<Double>();
-    doubles.add(1.1);
-    doubles.add(2.2);
-    doubles.add(3.3);
-    document.field("doubles", doubles);
+        Set<Double> doubles = new HashSet<Double>();
+        doubles.add(1.1);
+        doubles.add(2.2);
+        doubles.add(3.3);
+        document.field("doubles", doubles);
 
-    Set<Date> dates = new HashSet<Date>();
-    dates.add(new Date());
-    Thread.sleep(1);
-    dates.add(new Date());
-    Thread.sleep(1);
-    dates.add(new Date());
-    document.field("dates", dates);
+        Set<Date> dates = new HashSet<Date>();
+        dates.add(new Date());
+        Thread.sleep(1);
+        dates.add(new Date());
+        Thread.sleep(1);
+        dates.add(new Date());
+        document.field("dates", dates);
 
-    Set<Byte> bytes = new HashSet<Byte>();
-    bytes.add((byte) 0);
-    bytes.add((byte) 1);
-    bytes.add((byte) 3);
-    document.field("bytes", bytes);
+        Set<Byte> bytes = new HashSet<Byte>();
+        bytes.add((byte) 0);
+        bytes.add((byte) 1);
+        bytes.add((byte) 3);
+        document.field("bytes", bytes);
 
-    // TODO: char not currently supported in orient.
-    Set<Character> chars = new HashSet<Character>();
-    chars.add('A');
-    chars.add('B');
-    chars.add('C');
-    // document.field("chars", chars);
+        // TODO: char not currently supported in orient.
+        Set<Character> chars = new HashSet<Character>();
+        chars.add('A');
+        chars.add('B');
+        chars.add('C');
+        // document.field("chars", chars);
 
-    Set<Boolean> booleans = new HashSet<Boolean>();
-    booleans.add(true);
-    booleans.add(false);
-    booleans.add(false);
-    document.field("booleans", booleans);
+        Set<Boolean> booleans = new HashSet<Boolean>();
+        booleans.add(true);
+        booleans.add(false);
+        booleans.add(false);
+        document.field("booleans", booleans);
 
-    Set listMixed = new HashSet();
-    listMixed.add(true);
-    listMixed.add(1);
-    listMixed.add((long) 5);
-    listMixed.add((short) 2);
-    listMixed.add(4.0f);
-    listMixed.add(7.0D);
-    listMixed.add("hello");
-    listMixed.add(new Date());
-    listMixed.add((byte) 10);
-    listMixed.add(new ORecordId(10, 20));
-    document.field("listMixed", listMixed);
+        Set listMixed = new HashSet();
+        listMixed.add(true);
+        listMixed.add(1);
+        listMixed.add((long) 5);
+        listMixed.add((short) 2);
+        listMixed.add(4.0f);
+        listMixed.add(7.0D);
+        listMixed.add("hello");
+        listMixed.add(new Date());
+        listMixed.add((byte) 10);
+        listMixed.add(new ORecordId(10, 20));
+        document.field("listMixed", listMixed);
 
-    byte[] res = serializer.toStream(document);
-    ODocument extr = (ODocument) serializer.fromStream(res, new ODocument(), new String[] {});
+        byte[] res = serializer.toStream(document);
+        ODocument extr = (ODocument) serializer.fromStream(res, new ODocument(), new String[] {});
 
-    assertEquals(extr.fields(), document.fields());
-    assertEquals(extr.<Object>field("listStrings"), document.field("listStrings"));
-    assertEquals(extr.<Object>field("integers"), document.field("integers"));
-    assertEquals(extr.<Object>field("doubles"), document.field("doubles"));
-    assertEquals(extr.<Object>field("dates"), document.field("dates"));
-    assertEquals(extr.<Object>field("bytes"), document.field("bytes"));
-    assertEquals(extr.<Object>field("booleans"), document.field("booleans"));
-    assertEquals(extr.<Object>field("listMixed"), document.field("listMixed"));
+        assertEquals(extr.fields(), document.fields());
+        assertEquals(extr.<Object>field("listStrings"), document.field("listStrings"));
+        assertEquals(extr.<Object>field("integers"), document.field("integers"));
+        assertEquals(extr.<Object>field("doubles"), document.field("doubles"));
+        assertEquals(extr.<Object>field("dates"), document.field("dates"));
+        assertEquals(extr.<Object>field("bytes"), document.field("bytes"));
+        assertEquals(extr.<Object>field("booleans"), document.field("booleans"));
+        assertEquals(extr.<Object>field("listMixed"), document.field("listMixed"));
+      }
+    }
   }
 
   @Test
@@ -844,7 +851,9 @@ public class ODocumentSchemalessBinarySerializationTest {
     for (ODocument inSet : setEmb) {
       assertNotNull(inSet);
       if (embeddedInSet.field("name").equals(inSet.field("name"))
-          && embeddedInSet.field("surname").equals(inSet.field("surname"))) ok = true;
+          && embeddedInSet.field("surname").equals(inSet.field("surname"))) {
+        ok = true;
+      }
     }
     assertTrue("not found record in the set after serilize", ok);
   }
@@ -1000,6 +1009,7 @@ public class ODocumentSchemalessBinarySerializationTest {
   }
 
   public static class Custom implements OSerializableStream {
+
     byte[] bytes = new byte[10];
 
     @Override
@@ -1023,6 +1033,7 @@ public class ODocumentSchemalessBinarySerializationTest {
   }
 
   public static class CustomDocument implements ODocumentSerializable {
+
     private ODocument document;
 
     @Override

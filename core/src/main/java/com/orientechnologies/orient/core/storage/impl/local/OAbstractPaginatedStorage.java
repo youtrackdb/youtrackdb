@@ -1932,7 +1932,7 @@ public abstract class OAbstractPaginatedStorage
   }
 
   @Override
-  public ORawBuffer readRecord(
+  public @Nonnull ORawBuffer readRecord(
       final ORecordId rid,
       final boolean iIgnoreCache,
       final boolean prefetchRecords,
@@ -2012,7 +2012,7 @@ public abstract class OAbstractPaginatedStorage
     return idGen;
   }
 
-  private final OStorageOperationResult<Boolean> deleteRecord(
+  private OStorageOperationResult<Boolean> deleteRecord(
       final ORecordId rid,
       final int version,
       final int mode,
@@ -4534,38 +4534,7 @@ public abstract class OAbstractPaginatedStorage
     return null;
   }
 
-  private ORawBuffer readRecordIfNotLatest(final ORecordId rid, final int recordVersion)
-      throws ORecordNotFoundException {
-    checkOpennessAndMigration();
-
-    if (!rid.isPersistent()) {
-      throw new ORecordNotFoundException(
-          rid,
-          "Cannot read record "
-              + rid
-              + " since the position is invalid in database '"
-              + name
-              + '\'');
-    }
-
-    if (transaction.get() != null) {
-      final OCluster cluster = doGetAndCheckCluster(rid.getClusterId());
-      return doReadRecordIfNotLatest(cluster, rid, recordVersion);
-    }
-
-    stateLock.readLock().lock();
-    try {
-      final ORawBuffer buff;
-      checkOpennessAndMigration();
-
-      final OCluster cluster = doGetAndCheckCluster(rid.getClusterId());
-      buff = doReadRecordIfNotLatest(cluster, rid, recordVersion);
-      return buff;
-    } finally {
-      stateLock.readLock().unlock();
-    }
-  }
-
+  @Nonnull
   private ORawBuffer readRecord(final ORecordId rid, final boolean prefetchRecords) {
 
     if (!rid.isPersistent()) {
@@ -4584,7 +4553,7 @@ public abstract class OAbstractPaginatedStorage
       try {
         cluster = doGetAndCheckCluster(rid.getClusterId());
       } catch (IllegalArgumentException e) {
-        return null;
+        throw OException.wrapException(new ORecordNotFoundException(rid), e);
       }
       // Disabled this assert have no meaning anymore
       // assert iLockingStrategy.equals(LOCKING_STRATEGY.DEFAULT);
@@ -4598,7 +4567,7 @@ public abstract class OAbstractPaginatedStorage
       try {
         cluster = doGetAndCheckCluster(rid.getClusterId());
       } catch (IllegalArgumentException e) {
-        return null;
+        throw OException.wrapException(new ORecordNotFoundException(rid), e);
       }
       return doReadRecord(cluster, rid, prefetchRecords);
     } finally {
@@ -4911,13 +4880,14 @@ public abstract class OAbstractPaginatedStorage
     }
   }
 
+  @Nonnull
   private ORawBuffer doReadRecord(
       final OCluster clusterSegment, final ORecordId rid, final boolean prefetchRecords) {
     try {
 
       final ORawBuffer buff = clusterSegment.readRecord(rid.getClusterPosition(), prefetchRecords);
 
-      if (buff != null && OLogManager.instance().isDebugEnabled()) {
+      if (OLogManager.instance().isDebugEnabled()) {
         OLogManager.instance()
             .debug(
                 this,
@@ -4939,17 +4909,6 @@ public abstract class OAbstractPaginatedStorage
   private static boolean doRecordExists(final OCluster clusterSegment, final ORID rid) {
     try {
       return clusterSegment.exists(rid.getClusterPosition());
-    } catch (final IOException e) {
-      throw OException.wrapException(
-          new OStorageException("Error during read of record with rid = " + rid), e);
-    }
-  }
-
-  private static ORawBuffer doReadRecordIfNotLatest(
-      final OCluster cluster, final ORecordId rid, final int recordVersion)
-      throws ORecordNotFoundException {
-    try {
-      return cluster.readRecordIfVersionIsNotLatest(rid.getClusterPosition(), recordVersion);
     } catch (final IOException e) {
       throw OException.wrapException(
           new OStorageException("Error during read of record with rid = " + rid), e);

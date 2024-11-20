@@ -4,7 +4,7 @@ import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.db.record.ORecordLazySet;
+import com.orientechnologies.orient.core.db.record.OSet;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.ORecordInternal;
@@ -318,7 +318,7 @@ public class ODirtyManagerTest {
   public void testLinkSetNoConvert() {
     ODocument doc = new ODocument();
     doc.field("test", "ddd");
-    Set<OIdentifiable> set = new ORecordLazySet(doc);
+    Set<OIdentifiable> set = new OSet(doc);
     ODocument link = new ODocument();
     set.add(link);
     doc.field("set", set, OType.LINKSET);
@@ -331,7 +331,7 @@ public class ODirtyManagerTest {
   public void testLinkSetNoConvertRemove() {
     ODocument doc = new ODocument();
     doc.field("test", "ddd");
-    Set<OIdentifiable> set = new ORecordLazySet(doc);
+    Set<OIdentifiable> set = new OSet(doc);
     ODocument link = new ODocument();
     set.add(link);
     doc.field("set", set, OType.LINKSET);

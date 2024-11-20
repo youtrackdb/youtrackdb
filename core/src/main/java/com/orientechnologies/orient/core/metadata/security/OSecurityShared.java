@@ -19,6 +19,7 @@
  */
 package com.orientechnologies.orient.core.metadata.security;
 
+import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
@@ -26,7 +27,7 @@ import com.orientechnologies.orient.core.db.OScenarioThreadLocal;
 import com.orientechnologies.orient.core.db.OSystemDatabase;
 import com.orientechnologies.orient.core.db.record.OClassTrigger;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.db.record.ORecordLazySet;
+import com.orientechnologies.orient.core.db.record.OSet;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OSecurityAccessException;
@@ -60,7 +61,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -189,7 +189,7 @@ public class OSecurityShared implements OSecurityInternal {
         () -> {
           Set<OIdentifiable> field = iDocument.field(iAllowFieldName);
           if (field == null) {
-            field = new ORecordLazySet(iDocument);
+            field = new OSet(iDocument);
             iDocument.field(iAllowFieldName, field);
           }
           field.add(iId);
@@ -434,12 +434,15 @@ public class OSecurityShared implements OSecurityInternal {
   }
 
   public ORole getRole(final ODatabaseSession session, final OIdentifiable iRole) {
-    final ODocument doc = iRole.getRecord();
-    if (doc != null) {
+    try {
+      final ODocument doc = iRole.getRecord();
       OImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(doc);
+
       if (clazz != null && clazz.isOrole()) {
         return new ORole(doc);
       }
+    } catch (ORecordNotFoundException rnf) {
+      return null;
     }
 
     return null;
@@ -547,9 +550,6 @@ public class OSecurityShared implements OSecurityInternal {
       ODatabaseSession session, OSecurityRole role, String resource, OSecurityPolicyImpl policy) {
     var currentResource = normalizeSecurityResource(session, resource);
     OElement roleDoc = session.load(role.getIdentity().getIdentity());
-    if (roleDoc == null) {
-      return;
-    }
     validatePolicyWithIndexes(session, currentResource);
     Map<String, OIdentifiable> policies = roleDoc.getProperty("policies");
     if (policies == null) {
@@ -638,9 +638,6 @@ public class OSecurityShared implements OSecurityInternal {
   public void removeSecurityPolicy(ODatabaseSession session, ORole role, String resource) {
     String calculatedResource = normalizeSecurityResource(session, resource);
     final OElement roleDoc = session.load(role.getIdentity().getIdentity());
-    if (roleDoc == null) {
-      return;
-    }
     Map<String, OIdentifiable> policies = roleDoc.getProperty("policies");
     if (policies == null) {
       return;
@@ -1679,7 +1676,7 @@ public class OSecurityShared implements OSecurityInternal {
   private static Object convert(Object originalValue) {
     if (originalValue instanceof ORidBag) {
       Set result = new LinkedHashSet<>();
-      ((ORidBag) originalValue).rawIterator().forEachRemaining(x -> result.add(x));
+      ((ORidBag) originalValue).iterator().forEachRemaining(result::add);
       return result;
     }
     return originalValue;
@@ -1689,9 +1686,8 @@ public class OSecurityShared implements OSecurityInternal {
     // TODO move it to some helper class
     if (value instanceof ORidBag) {
       List<OIdentifiable> result = new ArrayList<>(((ORidBag) value).size());
-      Iterator<OIdentifiable> iter = ((ORidBag) value).rawIterator();
-      while (iter.hasNext()) {
-        result.add(iter.next());
+      for (OIdentifiable identifiable : (ORidBag) value) {
+        result.add(identifiable);
       }
 
       return result;
@@ -1857,16 +1853,17 @@ public class OSecurityShared implements OSecurityInternal {
               OSecurityResource res = OSecurityResource.getInstance(policyEntry.getKey());
               if (res instanceof OSecurityResourceProperty) {
                 final OElement element = policyEntry.getValue().getRecord();
-                if (element != null) {
-                  final OSecurityPolicy policy =
-                      new OImmutableSecurityPolicy(new OSecurityPolicyImpl(element));
-                  final String readRule = policy.getReadRule();
-                  if (readRule != null && !readRule.trim().equalsIgnoreCase("true")) {
-                    result.add((OSecurityResourceProperty) res);
-                  }
+                final OSecurityPolicy policy =
+                    new OImmutableSecurityPolicy(new OSecurityPolicyImpl(element));
+                final String readRule = policy.getReadRule();
+                if (readRule != null && !readRule.trim().equalsIgnoreCase("true")) {
+                  result.add((OSecurityResourceProperty) res);
                 }
               }
+            } catch (ORecordNotFoundException e) {
+              // ignore
             } catch (Exception e) {
+              OLogManager.instance().error(this, "Error on loading security policy", e);
             }
           }
         }

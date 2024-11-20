@@ -4,6 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -34,10 +35,13 @@ public class OInstanceofCondition extends OBooleanExpression {
     if (currentRecord == null) {
       return false;
     }
-    ORecord record = currentRecord.getRecord();
-    if (record == null) {
+    ORecord record;
+    try {
+      record = currentRecord.getRecord();
+    } catch (ORecordNotFoundException rnf) {
       return false;
     }
+
     if (!(record instanceof ODocument)) {
       return false;
     }
@@ -62,10 +66,8 @@ public class OInstanceofCondition extends OBooleanExpression {
     if (!currentRecord.isElement()) {
       return false;
     }
+
     ORecord record = currentRecord.getElement().get().getRecord();
-    if (record == null) {
-      return false;
-    }
     if (!(record instanceof ODocument)) {
       return false;
     }
@@ -162,15 +164,24 @@ public class OInstanceofCondition extends OBooleanExpression {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OInstanceofCondition that = (OInstanceofCondition) o;
 
-    if (left != null ? !left.equals(that.left) : that.left != null) return false;
-    if (right != null ? !right.equals(that.right) : that.right != null) return false;
-    if (rightString != null ? !rightString.equals(that.rightString) : that.rightString != null)
+    if (left != null ? !left.equals(that.left) : that.left != null) {
       return false;
+    }
+    if (right != null ? !right.equals(that.right) : that.right != null) {
+      return false;
+    }
+    if (rightString != null ? !rightString.equals(that.rightString) : that.rightString != null) {
+      return false;
+    }
 
     return true;
   }

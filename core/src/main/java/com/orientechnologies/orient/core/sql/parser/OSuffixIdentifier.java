@@ -2,11 +2,13 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.orientechnologies.orient.core.sql.parser;
 
+import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.util.OResettable;
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.OContextualRecordId;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.ORecord;
@@ -83,30 +85,32 @@ public class OSuffixIdentifier extends SimpleNode {
             return meta.get(varName);
           }
         }
-        OElement rec = iCurrentRecord.getRecord();
-        if (rec == null) {
+        try {
+          OElement rec = iCurrentRecord.getRecord();
+          if (rec.isUnloaded()) {
+            rec = getDatabase().bindToSession(rec);
+          }
+
+          Object result = rec.getProperty(varName);
+          if (result == null && ctx != null) {
+            result = ctx.getVariable(varName);
+          }
+          return result;
+        } catch (OCommandExecutionException rnf) {
           return null;
         }
-
-        if (rec.isUnloaded()) {
-          rec = getDatabase().bindToSession(rec);
-        }
-
-        Object result = rec.getProperty(varName);
-        if (result == null && ctx != null) {
-          result = ctx.getVariable(varName);
-        }
-        return result;
       }
       return varName;
     }
     if (recordAttribute != null && iCurrentRecord != null) {
-      OElement rec =
-          iCurrentRecord instanceof OElement
-              ? (OElement) iCurrentRecord
-              : iCurrentRecord.getRecord();
-      if (rec != null) {
+      try {
+        OElement rec =
+            iCurrentRecord instanceof OElement
+                ? (OElement) iCurrentRecord
+                : iCurrentRecord.getRecord();
         return recordAttribute.evaluate(rec, ctx);
+      } catch (ORecordNotFoundException rnf) {
+        return null;
       }
     }
 
@@ -369,9 +373,16 @@ public class OSuffixIdentifier extends SimpleNode {
     if (target instanceof OElement) {
       doc = (OElement) target;
     } else {
-      ORecord rec = target.getRecord();
-      if (rec instanceof OElement) {
-        doc = (OElement) rec;
+      try {
+        ORecord rec = target.getRecord();
+        if (rec instanceof OElement) {
+          doc = (OElement) rec;
+        }
+      } catch (ORecordNotFoundException rnf) {
+        throw OException.wrapException(
+            new OCommandExecutionException(
+                "Cannot set record attribute " + recordAttribute + " on existing document"),
+            rnf);
       }
     }
     if (doc != null) {

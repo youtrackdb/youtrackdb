@@ -22,6 +22,7 @@ package com.orientechnologies.orient.core.sql.functions.misc;
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.OEmptyRecordId;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.ORecordInternal;
@@ -93,7 +94,11 @@ public class OSQLMethodExclude extends OAbstractSQLMethod {
       Object[] iParams) {
     if (iThis != null) {
       if (iThis instanceof ORecordId) {
-        iThis = ((ORecordId) iThis).getRecord();
+        try {
+          iThis = ((ORecordId) iThis).getRecord();
+        } catch (ORecordNotFoundException rnf) {
+          return null;
+        }
       } else {
         if (iThis instanceof OResult result) {
           iThis = result.asElement();
@@ -112,7 +117,12 @@ public class OSQLMethodExclude extends OAbstractSQLMethod {
             final List<Object> result = new ArrayList<Object>(OMultiValue.getSize(iThis));
             for (Object o : OMultiValue.getMultiValueIterable(iThis)) {
               if (o instanceof OIdentifiable) {
-                result.add(copy((ODocument) ((OIdentifiable) o).getRecord(), iParams));
+                try {
+                  var rec = ((OIdentifiable) o).getRecord();
+                  result.add(copy((ODocument) rec, iParams));
+                } catch (ORecordNotFoundException rnf) {
+                  // IGNORE IT
+                }
               }
             }
             return result;

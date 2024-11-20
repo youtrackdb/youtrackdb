@@ -4,7 +4,6 @@ import com.orientechnologies.orient.core.config.OStoragePaginatedClusterConfigur
 import com.orientechnologies.orient.core.storage.OCluster;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODurableComponent;
-import java.io.File;
 import java.io.IOException;
 
 public abstract class OPaginatedCluster extends ODurableComponent implements OCluster {
@@ -30,17 +29,7 @@ public abstract class OPaginatedCluster extends ODurableComponent implements OCl
     super(storage, name, extension, lockName);
   }
 
-  public void replaceFile(File file) {
-    throw new UnsupportedOperationException();
-  }
-
-  public void replaceClusterMapFile(File file) {
-    throw new UnsupportedOperationException();
-  }
-
   public abstract RECORD_STATUS getRecordStatus(final long clusterPosition) throws IOException;
-
-  public abstract OPaginatedClusterDebug readDebug(long clusterPosition) throws IOException;
 
   public abstract OStoragePaginatedClusterConfiguration generateClusterConfig();
 

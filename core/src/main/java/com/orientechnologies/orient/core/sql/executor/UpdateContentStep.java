@@ -80,8 +80,7 @@ public class UpdateContentStep extends AbstractExecutionStep {
     }
 
     OClass recordClass =
-        ODocumentInternal.getImmutableSchemaClass(
-            (ODatabaseSessionInternal) ctx.getDatabase(), record.getRecord());
+        ODocumentInternal.getImmutableSchemaClass(ctx.getDatabase(), record.getRecord());
     if (recordClass != null && recordClass.isSubClassOf("V")) {
       for (String fieldName : record.getPropertyNamesInternal()) {
         if (fieldName.startsWith("in_") || fieldName.startsWith("out_")) {

@@ -426,7 +426,7 @@ public class OSecurityEngine {
               (db -> {
                 OBasicCommandContext ctx = new OBasicCommandContext();
                 ctx.setDatabase(db);
-                ctx.setDynamicVariable("$currentUser", (inContext) -> user.getRecord());
+                ctx.setDynamicVariable("$currentUser", (inContext) -> user.getRecordSilently());
                 return predicate.evaluate(record, ctx);
               }))
           .get();
@@ -446,7 +446,7 @@ public class OSecurityEngine {
     try {
       // Create a new instance of ODocument with a user record id, this will lazy load the user data
       // at the first access with the same execution permission of the policy
-      final ODocument user = session.getUser().getIdentity().getRecord();
+      final ODocument user = session.getUser().getIdentity().getRecordSilently();
       return ((ODatabaseSessionInternal) session)
           .getSharedContext()
           .getOrientDB()

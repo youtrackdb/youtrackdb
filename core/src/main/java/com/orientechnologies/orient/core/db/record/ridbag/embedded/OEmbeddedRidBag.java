@@ -293,27 +293,6 @@ public class OEmbeddedRidBag implements ORidBagDelegate {
     }
   }
 
-  /**
-   * for internal use only
-   *
-   * @param index
-   * @param newValue
-   * @return
-   */
-  public boolean swap(int index, OIdentifiable newValue) {
-    EntriesIterator iter = (EntriesIterator) rawIterator();
-    int currIndex = 0;
-    while (iter.hasNext()) {
-      iter.next();
-      if (index == currIndex) {
-        iter.swapValueOnCurrent(newValue);
-        return true;
-      }
-      currIndex++;
-    }
-    return false;
-  }
-
   @Override
   public boolean isEmpty() {
     return size == 0;
@@ -324,32 +303,6 @@ public class OEmbeddedRidBag implements ORidBagDelegate {
     return new EntriesIterator();
   }
 
-  @Override
-  public Iterator<OIdentifiable> rawIterator() {
-    return new EntriesIterator();
-  }
-
-  @Override
-  public void convertLinks2Records() {
-    for (int i = 0; i < entriesLength; i++) {
-      final Object entry = entries[i];
-
-      if (entry instanceof OIdentifiable identifiable) {
-        try {
-          ORecord record = identifiable.getRecord();
-          if (this.owner != null) {
-            ORecordInternal.unTrack(this.owner, identifiable);
-            ORecordInternal.track(this.owner, record);
-          }
-          entries[i] = record;
-        } catch (ORecordNotFoundException rne) {
-          // ignore
-        }
-      }
-    }
-  }
-
-  @Override
   public boolean convertRecords2Links() {
     for (int i = 0; i < entriesLength; i++) {
       final Object entry = entries[i];
@@ -379,7 +332,7 @@ public class OEmbeddedRidBag implements ORidBagDelegate {
     if (size < 10) {
       final StringBuilder sb = new StringBuilder(256);
       sb.append('[');
-      for (final Iterator<OIdentifiable> it = this.rawIterator(); it.hasNext(); ) {
+      for (final Iterator<OIdentifiable> it = this.iterator(); it.hasNext(); ) {
         try {
           OIdentifiable e = it.next();
           if (e != null) {
@@ -479,21 +432,20 @@ public class OEmbeddedRidBag implements ORidBagDelegate {
       ORID rid = OLinkSerializer.INSTANCE.deserialize(stream, offset);
       offset += OLinkSerializer.RID_SIZE;
 
-      OIdentifiable identifiable = null;
+      OIdentifiable identifiable;
       if (rid.isTemporary()) {
-        identifiable = rid.getRecord();
-      }
-
-      if (identifiable == null) {
+        try {
+          identifiable = rid.getRecord();
+        } catch (ORecordNotFoundException rnf) {
+          OLogManager.instance()
+              .warn(this, "Found null reference during ridbag deserialization (rid=%s)", rid);
+          identifiable = rid;
+        }
+      } else {
         identifiable = rid;
       }
 
-      if (identifiable == null) {
-        OLogManager.instance()
-            .warn(this, "Found null reference during ridbag deserialization (rid=%s)", rid);
-      } else {
-        addInternal(identifiable);
-      }
+      addInternal(identifiable);
     }
 
     return offset;

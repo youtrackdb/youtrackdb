@@ -21,8 +21,8 @@
 package com.orientechnologies.orient.core.db.record.ridbag;
 
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.OIdentifiableMultiValue;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
-import com.orientechnologies.orient.core.db.record.ORecordLazyMultiValue;
 import com.orientechnologies.orient.core.db.record.OTrackedMultiValue;
 import com.orientechnologies.orient.core.record.impl.OSimpleMultiValueTracker;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.Change;
@@ -32,7 +32,7 @@ import java.util.UUID;
 
 public interface ORidBagDelegate
     extends Iterable<OIdentifiable>,
-        ORecordLazyMultiValue,
+        OIdentifiableMultiValue,
         OTrackedMultiValue<OIdentifiable, OIdentifiable>,
         ORecordElement {
   void addAll(Collection<OIdentifiable> values);

@@ -24,8 +24,8 @@ import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OSharedContext;
 import com.orientechnologies.orient.core.db.OStringCache;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.OMap;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
-import com.orientechnologies.orient.core.db.record.ORecordLazyMap;
 import com.orientechnologies.orient.core.db.record.OTrackedMultiValue;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBagDelegate;
@@ -39,7 +39,6 @@ import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OGlobalProperty;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
@@ -238,10 +237,7 @@ public class HelperClasses {
   public static int writeOptimizedLink(final BytesContainer bytes, OIdentifiable link) {
     if (!link.getIdentity().isPersistent()) {
       try {
-        final ORecord real = link.getRecord();
-        if (real != null) {
-          link = real;
-        }
+        link = link.getRecord();
       } catch (ORecordNotFoundException ignored) {
         // IGNORE IT WILL FAIL THE ASSERT IN CASE
       }
@@ -327,9 +323,9 @@ public class HelperClasses {
   public static Map<Object, OIdentifiable> readLinkMap(
       final BytesContainer bytes, final ORecordElement owner, boolean justRunThrough) {
     int size = OVarIntSerializer.readAsInteger(bytes);
-    ORecordLazyMap result = null;
+    OMap result = null;
     if (!justRunThrough) {
-      result = new ORecordLazyMap(owner);
+      result = new OMap(owner);
     }
     while ((size--) > 0) {
       final String key = readString(bytes);
@@ -544,7 +540,11 @@ public class HelperClasses {
         new ORecordId(OVarIntSerializer.readAsInteger(bytes), OVarIntSerializer.readAsLong(bytes));
     OIdentifiable identifiable = null;
     if (rid.isTemporary()) {
-      identifiable = rid.getRecord();
+      try {
+        identifiable = rid.getRecord();
+      } catch (ORecordNotFoundException rnf) {
+        identifiable = rid;
+      }
     }
 
     if (identifiable == null) {
@@ -557,9 +557,13 @@ public class HelperClasses {
   private static OIdentifiable readLinkOptimizedSBTree(final BytesContainer bytes) {
     ORID rid =
         new ORecordId(OVarIntSerializer.readAsInteger(bytes), OVarIntSerializer.readAsLong(bytes));
-    final OIdentifiable identifiable;
-    if (rid.isTemporary() && rid.getRecord() != null) {
-      identifiable = rid.getRecord();
+    OIdentifiable identifiable;
+    if (rid.isTemporary()) {
+      try {
+        identifiable = rid.getRecord();
+      } catch (ORecordNotFoundException rnf) {
+        identifiable = rid;
+      }
     } else {
       identifiable = rid;
     }

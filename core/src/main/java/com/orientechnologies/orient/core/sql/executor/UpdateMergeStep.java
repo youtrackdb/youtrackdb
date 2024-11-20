@@ -26,7 +26,7 @@ public class UpdateMergeStep extends AbstractExecutionStep {
   private OResult mapResult(OResult result, OCommandContext ctx) {
     if (result instanceof OResultInternal) {
       if (!(result.getElement().orElse(null) instanceof ODocument)) {
-        ((OResultInternal) result).setElement(result.toElement().getRecord());
+        ((OResultInternal) result).setIdentifiable(result.toElement().getRecord());
       }
       if (!(result.getElement().orElse(null) instanceof ODocument)) {
         return result;

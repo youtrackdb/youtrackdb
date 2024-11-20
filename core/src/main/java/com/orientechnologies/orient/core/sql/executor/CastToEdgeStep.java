@@ -26,7 +26,7 @@ public class CastToEdgeStep extends AbstractExecutionStep {
     }
     if (result.isEdge()) {
       if (result instanceof OResultInternal) {
-        ((OResultInternal) result).setElement(result.toElement().toEdge());
+        ((OResultInternal) result).setIdentifiable(result.toElement().toEdge());
       } else {
         result = new OResultInternal(result.toElement().toEdge());
       }

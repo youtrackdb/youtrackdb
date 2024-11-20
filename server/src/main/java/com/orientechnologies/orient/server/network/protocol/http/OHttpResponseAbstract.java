@@ -26,6 +26,7 @@ import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -339,17 +340,15 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
                     colNames.add(fieldName);
                   }
 
-                } else if (r != null && r instanceof OIdentifiable) {
-                  final ORecord rec = ((OIdentifiable) r).getRecord();
-                  if (rec != null) {
-                    if (rec instanceof ODocument) {
-                      final ODocument doc = (ODocument) rec;
+                } else if (r instanceof OIdentifiable) {
+                  try {
+                    final ORecord rec = ((OIdentifiable) r).getRecord();
+                    if (rec instanceof ODocument doc) {
                       records.add(doc);
-
-                      for (String fieldName : doc.fieldNames()) {
-                        colNames.add(fieldName);
-                      }
+                      Collections.addAll(colNames, doc.fieldNames());
                     }
+                  } catch (ORecordNotFoundException rnf) {
+                    // IGNORE IT
                   }
                 }
               }
@@ -501,21 +500,19 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
           if (entry instanceof OResult) {
             objectJson = ((OResult) entry).toJSON();
             buffer.append(objectJson);
-          } else if (entry instanceof OIdentifiable) {
-            ORecord rec = ((OIdentifiable) entry).getRecord();
-            if (rec != null) {
-              try {
-                if (rec.getIdentity().isValid() && rec.isUnloaded()) {
-                  rec = databaseDocumentInternal.bindToSession(rec);
-                }
-
-                objectJson = rec.toJSON(format);
-
-                buffer.append(objectJson);
-              } catch (Exception e) {
-                OLogManager.instance()
-                    .error(this, "Error transforming record " + rec.getIdentity() + " to JSON", e);
+          } else if (entry instanceof OIdentifiable identifiable) {
+            try {
+              ORecord rec = identifiable.getRecord();
+              if (rec.getIdentity().isValid() && rec.isUnloaded()) {
+                rec = databaseDocumentInternal.bindToSession(rec);
               }
+
+              objectJson = rec.toJSON(format);
+
+              buffer.append(objectJson);
+            } catch (Exception e) {
+              OLogManager.instance()
+                  .error(this, "Error transforming record " + identifiable + " to JSON", e);
             }
           } else if (OMultiValue.isMultiValue(entry)) {
             buffer.append("[");

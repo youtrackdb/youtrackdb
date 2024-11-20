@@ -18,6 +18,7 @@ package com.orientechnologies.orient.core.sql.functions.misc;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.OBlob;
@@ -35,7 +36,9 @@ public class OSQLFunctionEncode extends OSQLFunctionAbstract {
   public static final String NAME = "encode";
   public static final String FORMAT_BASE64 = "base64";
 
-  /** Get the date at construction to have the same date for all the iteration. */
+  /**
+   * Get the date at construction to have the same date for all the iteration.
+   */
   public OSQLFunctionEncode() {
     super(NAME, 2, 2);
   }
@@ -54,9 +57,13 @@ public class OSQLFunctionEncode extends OSQLFunctionAbstract {
     if (candidate instanceof byte[]) {
       data = (byte[]) candidate;
     } else if (candidate instanceof ORecordId) {
-      final ORecord rec = ((ORecordId) candidate).getRecord();
-      if (rec instanceof OBlob) {
-        data = ((OBlob) rec).toStream();
+      try {
+        final ORecord rec = ((ORecordId) candidate).getRecord();
+        if (rec instanceof OBlob) {
+          data = rec.toStream();
+        }
+      } catch (ORecordNotFoundException rnf) {
+        return null;
       }
     } else if (candidate instanceof OSerializableStream) {
       data = ((OSerializableStream) candidate).toStream();

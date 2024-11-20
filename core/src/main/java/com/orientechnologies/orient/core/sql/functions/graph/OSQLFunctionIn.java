@@ -58,7 +58,7 @@ public class OSQLFunctionIn extends OSQLFunctionMoveFiltered {
     return v2v(graph, iRecord, ODirection.IN, iLabels);
   }
 
-  private Object fetchFromIndex(
+  private static Object fetchFromIndex(
       ODatabaseSession graph,
       OIdentifiable iFrom,
       Iterable<OIdentifiable> to,
@@ -80,7 +80,7 @@ public class OSQLFunctionIn extends OSQLFunctionMoveFiltered {
       return null;
     }
     Set<OIndex> indexes = edgeClass.getInvolvedIndexes("in", "out");
-    if (indexes == null || indexes.size() == 0) {
+    if (indexes == null || indexes.isEmpty()) {
       return null;
     }
     OIndex index = indexes.iterator().next();

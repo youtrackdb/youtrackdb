@@ -26,6 +26,7 @@ import com.orientechnologies.common.function.TxConsumer;
 import com.orientechnologies.common.function.TxFunction;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.exception.OCoreException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.OStorageException;
 import com.orientechnologies.orient.core.storage.cache.OReadCache;
@@ -158,6 +159,11 @@ public class OAtomicOperationsManager {
     try {
       consumer.accept(atomicOperation);
     } catch (Exception e) {
+      if (e instanceof OCoreException coreException) {
+        coreException.setComponentName(lockName);
+        coreException.setDbName(storage.getName());
+      }
+
       throw OException.wrapException(
           new OStorageException(
               "Exception during execution of component operation inside component "

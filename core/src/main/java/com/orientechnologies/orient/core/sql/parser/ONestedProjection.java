@@ -140,7 +140,7 @@ public class ONestedProjection extends SimpleNode {
       }
     }
     OResultInternal result = new OResultInternal();
-    if (starItem != null || includeItems.size() == 0) {
+    if (starItem != null || includeItems.isEmpty()) {
       for (String property : elem.getPropertyNames()) {
         if (isExclude(property)) {
           continue;
@@ -150,6 +150,7 @@ public class ONestedProjection extends SimpleNode {
             convert(tryExpand(expression, property, elem.getProperty(property), ctx, recursion)));
       }
     }
+
     if (includeItems.size() > 0) {
       // TODO manage wildcards!
       for (ONestedProjectionItem item : includeItems) {

@@ -4,8 +4,7 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.db.record.ORecordLazyList;
-import com.orientechnologies.orient.core.db.record.ORecordLazyMultiValue;
+import com.orientechnologies.orient.core.db.record.OList;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
@@ -354,25 +353,13 @@ public interface OVertexInternal extends OVertex, OElementInternal {
           iterables.add(new OEdgeIterator(this, coll, coll.iterator(), connection, labels, 1));
         } else if (fieldValue instanceof Collection<?> coll) {
           // CREATE LAZY Iterable AGAINST COLLECTION FIELD
-          if (coll instanceof ORecordLazyMultiValue) {
-            iterables.add(
-                new OEdgeIterator(
-                    this,
-                    coll,
-                    ((ORecordLazyMultiValue) coll).rawIterator(),
-                    connection,
-                    labels,
-                    coll.size()));
-          } else {
-            iterables.add(new OEdgeIterator(this, coll, coll.iterator(), connection, labels, -1));
-          }
-
+          iterables.add(new OEdgeIterator(this, coll, coll.iterator(), connection, labels, -1));
         } else if (fieldValue instanceof ORidBag) {
           iterables.add(
               new OEdgeIterator(
                   this,
                   fieldValue,
-                  ((ORidBag) fieldValue).rawIterator(),
+                  ((ORidBag) fieldValue).iterator(),
                   connection,
                   labels,
                   ((ORidBag) fieldValue).size()));
@@ -539,7 +526,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
     } else if (fieldValue instanceof ORidBag bag) {
       // COLLECTION OF RECORDS: REMOVE THE ENTRY
       boolean found = false;
-      final Iterator<OIdentifiable> it = bag.rawIterator();
+      final Iterator<OIdentifiable> it = bag.iterator();
       while (it.hasNext()) {
         if (it.next().equals(iVertexToRemove)) {
           // REMOVE THE OLD ENTRY
@@ -593,11 +580,6 @@ public interface OVertexInternal extends OVertex, OElementInternal {
       final ORID oldIdentity = getIdentity().copy();
 
       final ORecord oldRecord = oldIdentity.getRecord();
-      if (oldRecord == null) {
-        throw new ORecordNotFoundException(
-            oldIdentity, "The vertex " + oldIdentity + " has been deleted");
-      }
-
       var doc = baseDoc.copy();
 
       // DELETE THE OLD RECORD FIRST TO AVOID ISSUES WITH UNIQUE CONSTRAINTS
@@ -744,9 +726,8 @@ public interface OVertexInternal extends OVertex, OElementInternal {
         if (val instanceof ORidBag bag) {
           if (!bag.isEmbedded()) {
             ORidBag newBag = new ORidBag();
-            Iterator<OIdentifiable> rawIter = bag.rawIterator();
-            while (rawIter.hasNext()) {
-              newBag.add(rawIter.next());
+            for (OIdentifiable identifiable : bag) {
+              newBag.add(identifiable);
             }
             newDoc.setPropertyInternal(field, newBag);
           }
@@ -836,7 +817,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
     }
   }
 
-  private String[] resolveAliases(OSchema schema, String[] labels) {
+  private static String[] resolveAliases(OSchema schema, String[] labels) {
     if (labels == null) {
       return null;
     }
@@ -896,8 +877,6 @@ public interface OVertexInternal extends OVertex, OElementInternal {
           .isEdgeType();
 
       var edge = edgeId.<OElement>getRecord().toEdge();
-      assert edge != null;
-
       // edge removal will cause detachments of links for vertices so we
       // should not do anything else it will be done automatically.
       edge.delete();
@@ -948,7 +927,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
       if (propType == OType.LINKLIST
           || (prop != null
               && "true".equalsIgnoreCase(prop.getCustom("ordered")))) { // TODO constant
-        var coll = new ORecordLazyList(fromVertex);
+        var coll = new OList(fromVertex);
         coll.add(to);
         out = coll;
         outType = OType.LINKLIST;
@@ -976,7 +955,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
       }
 
       if (prop != null && "true".equalsIgnoreCase(prop.getCustom("ordered"))) { // TODO constant
-        var coll = new ORecordLazyList(fromVertex);
+        var coll = new OList(fromVertex);
         coll.add(foundId);
         coll.add(to);
         out = coll;

@@ -33,12 +33,12 @@ import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentAbstract;
 import com.orientechnologies.orient.core.db.record.ODetachable;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.OList;
+import com.orientechnologies.orient.core.db.record.OMap;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeTimeLine;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
-import com.orientechnologies.orient.core.db.record.ORecordLazyList;
-import com.orientechnologies.orient.core.db.record.ORecordLazyMap;
-import com.orientechnologies.orient.core.db.record.ORecordLazySet;
+import com.orientechnologies.orient.core.db.record.OSet;
 import com.orientechnologies.orient.core.db.record.OTrackedList;
 import com.orientechnologies.orient.core.db.record.OTrackedMap;
 import com.orientechnologies.orient.core.db.record.OTrackedMultiValue;
@@ -494,7 +494,7 @@ public class ODocument extends ORecordAbstract
     if (!name.startsWith("@")
         && lazyLoad
         && value instanceof ORID rid
-        && (((ORID) value).isPersistent() || ((ORID) value).isNew())
+        && (rid.isPersistent() || rid.isNew())
         && ODatabaseRecordThreadLocal.instance().isDefined()) {
       // CREATE THE DOCUMENT OBJECT IN LAZY WAY
       var db = getDatabase();
@@ -504,7 +504,7 @@ public class ODocument extends ORecordAbstract
         unTrack(rid);
         track((OIdentifiable) newValue);
         value = newValue;
-        if (isTrackingChanges()) {
+        if (trackingChanges) {
           ORecordInternal.setDirtyManager((ORecord) value, this.getDirtyManager());
         }
         ODocumentEntry entry = fields.get(name);
@@ -537,7 +537,11 @@ public class ODocument extends ORecordAbstract
       }
       if (onLoadValue instanceof ORID orid) {
         if (isLazyLoad()) {
-          return getDatabase().load(orid);
+          try {
+            return getDatabase().load(orid);
+          } catch (ORecordNotFoundException e) {
+            return null;
+          }
         } else {
           return onLoadValue;
         }
@@ -891,12 +895,13 @@ public class ODocument extends ORecordAbstract
 
   private static void validateFieldsSecurity(ODatabaseSessionInternal internal, ODocument iRecord)
       throws OValidationException {
-    iRecord.checkForBinding();
-    iRecord = (ODocument) iRecord.getRecord();
-
     if (internal == null) {
       return;
     }
+
+    iRecord.checkForBinding();
+    iRecord = (ODocument) iRecord.getRecord();
+
     OSecurityInternal security = internal.getSharedContext().getSecurity();
     for (Entry<String, ODocumentEntry> mapEntry : iRecord.fields.entrySet()) {
       ODocumentEntry entry = mapEntry.getValue();
@@ -1732,7 +1737,7 @@ public class ODocument extends ORecordAbstract
         unTrack((ORID) value);
         track((OIdentifiable) newValue);
         value = newValue;
-        if (this.isTrackingChanges()) {
+        if (this.trackingChanges) {
           ORecordInternal.setDirtyManager((ORecord) value, this.getDirtyManager());
         }
         if (!iFieldName.contains(".")) {
@@ -2466,14 +2471,11 @@ public class ODocument extends ORecordAbstract
    * Returns true if the record has some owner.
    */
   public boolean hasOwners() {
-    checkForBinding();
-
     return owner != null && owner.get() != null;
   }
 
   @Override
   public ORecordElement getOwner() {
-    checkForBinding();
     if (owner == null) {
       return null;
     }
@@ -3311,8 +3313,9 @@ public class ODocument extends ORecordAbstract
     checkForFields();
     source = null;
 
-    for (String f : iOther.keySet()) {
-      ODocumentEntry docEntry = iOther.get(f);
+    for (Entry<String, ODocumentEntry> entry : iOther.entrySet()) {
+      String f = entry.getKey();
+      ODocumentEntry docEntry = entry.getValue();
       if (!docEntry.exists()) {
         continue;
       }
@@ -3548,7 +3551,7 @@ public class ODocument extends ORecordAbstract
           if (type == OType.LINKMAP) {
             if (entry.value instanceof Map) {
               Map<String, Object> map = (Map<String, Object>) entry.value;
-              var newMap = new ORecordLazyMap(this);
+              var newMap = new OMap(this);
               boolean changed = false;
               for (Entry<String, Object> stringObjectEntry : map.entrySet()) {
                 Object val = stringObjectEntry.getValue();
@@ -3767,17 +3770,17 @@ public class ODocument extends ORecordAbstract
           break;
         case LINKLIST:
           if (fieldValue instanceof List<?>) {
-            newValue = new ORecordLazyList(this, (Collection<OIdentifiable>) fieldValue);
+            newValue = new OList(this, (Collection<OIdentifiable>) fieldValue);
           }
           break;
         case LINKSET:
           if (fieldValue instanceof Set<?>) {
-            newValue = new ORecordLazySet(this, (Collection<OIdentifiable>) fieldValue);
+            newValue = new OSet(this, (Collection<OIdentifiable>) fieldValue);
           }
           break;
         case LINKMAP:
           if (fieldValue instanceof Map<?, ?>) {
-            newValue = new ORecordLazyMap(this, (Map<Object, OIdentifiable>) fieldValue);
+            newValue = new OMap(this, (Map<Object, OIdentifiable>) fieldValue);
           }
           break;
         case LINKBAG:
@@ -4187,14 +4190,14 @@ public class ODocument extends ORecordAbstract
 
   @Override
   protected void track(OIdentifiable id) {
-    if (isTrackingChanges() && id.getIdentity().getClusterId() != -2) {
+    if (trackingChanges && id.getIdentity().getClusterId() != -2) {
       super.track(id);
     }
   }
 
   @Override
   protected void unTrack(OIdentifiable id) {
-    if (isTrackingChanges() && id.getIdentity().getClusterId() != -2) {
+    if (trackingChanges && id.getIdentity().getClusterId() != -2) {
       super.unTrack(id);
     }
   }

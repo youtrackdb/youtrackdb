@@ -1000,7 +1000,7 @@ public class JSONTest extends DocumentDBBaseTest {
 
     ORidBag bag = documentSource.field("in_EHasGoodStudents");
     Assert.assertEquals(bag.size(), 1);
-    OIdentifiable rid = bag.rawIterator().next();
+    OIdentifiable rid = bag.iterator().next();
     Assert.assertTrue(rid.getIdentity().getClusterId() == 57);
     Assert.assertTrue(rid.getIdentity().getClusterPosition() == 0);
   }

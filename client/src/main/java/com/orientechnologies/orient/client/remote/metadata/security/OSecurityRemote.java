@@ -3,7 +3,7 @@ package com.orientechnologies.orient.client.remote.metadata.security;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.db.record.ORecordLazySet;
+import com.orientechnologies.orient.core.db.record.OSet;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.schema.OImmutableClass;
@@ -99,7 +99,7 @@ public class OSecurityRemote implements OSecurityInternal {
       ODatabaseSession session, ODocument iDocument, String iAllowFieldName, OIdentifiable iId) {
     Set<OIdentifiable> field = iDocument.field(iAllowFieldName);
     if (field == null) {
-      field = new ORecordLazySet(iDocument);
+      field = new OSet(iDocument);
       iDocument.field(iAllowFieldName, field);
     }
     field.add(iId);

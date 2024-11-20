@@ -24,6 +24,7 @@ import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.record.impl.OSimpleMultiValueTracker;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,9 +37,9 @@ import java.util.ListIterator;
  *
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
-@SuppressWarnings({"serial"})
 public class OTrackedList<T> extends ArrayList<T>
     implements ORecordElement, OTrackedMultiValue<Integer, T>, Serializable {
+
   protected final ORecordElement sourceRecord;
   protected Class<?> genericClass;
   private final boolean embeddedCollection;
@@ -52,7 +53,10 @@ public class OTrackedList<T> extends ArrayList<T>
       final Class<?> iGenericClass) {
     this(iRecord);
     genericClass = iGenericClass;
-    if (iOrigin != null && !iOrigin.isEmpty()) addAll(iOrigin);
+
+    if (iOrigin != null && !iOrigin.isEmpty()) {
+      addAll(iOrigin);
+    }
   }
 
   public OTrackedList(final ORecordElement iSourceRecord) {
@@ -100,15 +104,16 @@ public class OTrackedList<T> extends ArrayList<T>
     addEvent(index, element);
   }
 
-  public T setInternal(int index, T element) {
+  public void setInternal(int index, T element) {
     final T oldValue = super.set(index, element);
 
     if (oldValue != null && !oldValue.equals(element)) {
-      if (oldValue instanceof ODocument) ODocumentInternal.removeOwner((ODocument) oldValue, this);
+      if (oldValue instanceof ODocument) {
+        ODocumentInternal.removeOwner((ODocument) oldValue, this);
+      }
 
       addOwnerToEmbeddedDoc(element);
     }
-    return oldValue;
   }
 
   @Override
@@ -126,7 +131,9 @@ public class OTrackedList<T> extends ArrayList<T>
     if (embeddedCollection && e instanceof ODocument && !((ODocument) e).getIdentity().isValid()) {
       ODocumentInternal.addOwner((ODocument) e, this);
     }
-    if (e instanceof ODocument) ORecordInternal.track(sourceRecord, (ODocument) e);
+    if (e instanceof ODocument) {
+      ORecordInternal.track(sourceRecord, (ODocument) e);
+    }
   }
 
   @Override
@@ -147,7 +154,9 @@ public class OTrackedList<T> extends ArrayList<T>
   }
 
   private void updateEvent(int index, T oldValue, T newValue) {
-    if (oldValue instanceof ODocument) ODocumentInternal.removeOwner((ODocument) oldValue, this);
+    if (oldValue instanceof ODocument) {
+      ODocumentInternal.removeOwner((ODocument) oldValue, this);
+    }
 
     addOwnerToEmbeddedDoc(newValue);
 
@@ -182,7 +191,9 @@ public class OTrackedList<T> extends ArrayList<T>
   @Override
   public boolean removeAll(Collection<?> c) {
     boolean removed = false;
-    for (Object o : c) removed = removed | remove(o);
+    for (Object o : c) {
+      removed = removed | remove(o);
+    }
 
     return removed;
   }
@@ -215,7 +226,9 @@ public class OTrackedList<T> extends ArrayList<T>
 
   @Override
   public void setDirtyNoChanged() {
-    if (sourceRecord != null) sourceRecord.setDirtyNoChanged();
+    if (sourceRecord != null) {
+      sourceRecord.setDirtyNoChanged();
+    }
   }
 
   public List<T> returnOriginalState(
@@ -249,8 +262,9 @@ public class OTrackedList<T> extends ArrayList<T>
     return genericClass;
   }
 
+  @Serial
   private Object writeReplace() {
-    return new ArrayList<T>(this);
+    return new ArrayList<>(this);
   }
 
   @Override
@@ -261,22 +275,14 @@ public class OTrackedList<T> extends ArrayList<T>
   public void enableTracking(ORecordElement parent) {
     if (!tracker.isEnabled()) {
       tracker.enable();
-      if (this instanceof ORecordLazyMultiValue) {
-        OTrackedMultiValue.nestedEnabled(((ORecordLazyMultiValue) this).rawIterator(), this);
-      } else {
-        OTrackedMultiValue.nestedEnabled(this.iterator(), this);
-      }
+      OTrackedMultiValue.nestedEnabled(this.iterator(), this);
     }
   }
 
   public void disableTracking(ORecordElement parent) {
     if (tracker.isEnabled()) {
       tracker.disable();
-      if (this instanceof ORecordLazyMultiValue) {
-        OTrackedMultiValue.nestedDisable(((ORecordLazyMultiValue) this).rawIterator(), this);
-      } else {
-        OTrackedMultiValue.nestedDisable(this.iterator(), this);
-      }
+      OTrackedMultiValue.nestedDisable(this.iterator(), this);
     }
     this.dirty = false;
   }
@@ -284,11 +290,7 @@ public class OTrackedList<T> extends ArrayList<T>
   @Override
   public void transactionClear() {
     tracker.transactionClear();
-    if (this instanceof ORecordLazyMultiValue) {
-      OTrackedMultiValue.nestedTransactionClear(((ORecordLazyMultiValue) this).rawIterator());
-    } else {
-      OTrackedMultiValue.nestedTransactionClear(this.iterator());
-    }
+    OTrackedMultiValue.nestedTransactionClear(this.iterator());
     this.transactionDirty = false;
   }
 

@@ -3,9 +3,9 @@ package com.orientechnologies.orient.core.metadata.schema;
 import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.db.record.ORecordLazyList;
-import com.orientechnologies.orient.core.db.record.ORecordLazyMap;
-import com.orientechnologies.orient.core.db.record.ORecordLazySet;
+import com.orientechnologies.orient.core.db.record.OList;
+import com.orientechnologies.orient.core.db.record.OMap;
+import com.orientechnologies.orient.core.db.record.OSet;
 import com.orientechnologies.orient.core.db.record.OTrackedList;
 import com.orientechnologies.orient.core.db.record.OTrackedMap;
 import com.orientechnologies.orient.core.db.record.OTrackedSet;
@@ -105,11 +105,11 @@ public class TestOTypeDetection {
 
     assertEquals(OType.EMBEDDEDMAP, OType.getTypeByClass(OTrackedMap.class));
 
-    assertEquals(OType.LINKSET, OType.getTypeByClass(ORecordLazySet.class));
+    assertEquals(OType.LINKSET, OType.getTypeByClass(OSet.class));
 
-    assertEquals(OType.LINKLIST, OType.getTypeByClass(ORecordLazyList.class));
+    assertEquals(OType.LINKLIST, OType.getTypeByClass(OList.class));
 
-    assertEquals(OType.LINKMAP, OType.getTypeByClass(ORecordLazyMap.class));
+    assertEquals(OType.LINKMAP, OType.getTypeByClass(OMap.class));
 
     assertEquals(OType.LINKBAG, OType.getTypeByClass(ORidBag.class));
 
@@ -170,11 +170,11 @@ public class TestOTypeDetection {
 
     assertEquals(OType.EMBEDDEDMAP, OType.getTypeByValue(new HashMap<Object, Object>()));
 
-    assertEquals(OType.LINKSET, OType.getTypeByValue(new ORecordLazySet(new ODocument())));
+    assertEquals(OType.LINKSET, OType.getTypeByValue(new OSet(new ODocument())));
 
-    assertEquals(OType.LINKLIST, OType.getTypeByValue(new ORecordLazyList(new ODocument())));
+    assertEquals(OType.LINKLIST, OType.getTypeByValue(new OList(new ODocument())));
 
-    assertEquals(OType.LINKMAP, OType.getTypeByValue(new ORecordLazyMap(new ODocument())));
+    assertEquals(OType.LINKMAP, OType.getTypeByValue(new OMap(new ODocument())));
 
     assertEquals(OType.LINKBAG, OType.getTypeByValue(new ORidBag()));
 

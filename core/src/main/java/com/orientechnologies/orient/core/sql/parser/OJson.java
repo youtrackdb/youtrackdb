@@ -139,7 +139,7 @@ public class OJson extends SimpleNode {
   public Object toObjectDetermineType(OIdentifiable source, OCommandContext ctx) {
     String className = getClassNameForDocument(ctx);
     String type = getTypeForDocument(ctx);
-    if (className != null || (type != null && "d".equalsIgnoreCase(type))) {
+    if (className != null || ("d".equalsIgnoreCase(type))) {
       OUpdatableResult element = null;
       if (source != null) {
         var identity = source.getIdentity();

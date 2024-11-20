@@ -24,6 +24,7 @@ import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.iterator.OLazyWrapperIterator;
 import com.orientechnologies.orient.core.metadata.schema.OImmutableClass;
 import com.orientechnologies.orient.core.record.ODirection;
@@ -81,14 +82,16 @@ public class OEdgeIterator extends OLazyWrapperIterator<OEdge> {
       return null;
     }
 
-    final ORecord record = rec.getRecord();
-    if (record == null) {
+    final ORecord record;
+    try {
+      record = rec.getRecord();
+    } catch (ORecordNotFoundException rnf) {
       // SKIP IT
       OLogManager.instance().warn(this, "Record (%s) is null", rec);
       return null;
     }
 
-    if (!(record instanceof OElement)) {
+    if (!(record instanceof OElement value)) {
       // SKIP IT
       OLogManager.instance()
           .warn(
@@ -101,8 +104,6 @@ public class OEdgeIterator extends OLazyWrapperIterator<OEdge> {
               ((ORecordAbstract) record).getDatabase().getURL());
       return null;
     }
-
-    final OElement value = (OElement) record;
 
     final OEdge edge;
     if (value.isVertex()) {

@@ -4,6 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -15,6 +16,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class OMatchPathItem extends SimpleNode {
+
   protected OMethodCall method;
   protected OMatchFilter filter;
 
@@ -158,12 +160,13 @@ public class OMatchPathItem extends SimpleNode {
     if (identifiable == null) {
       return false;
     }
-    ORecord record = identifiable.getRecord();
-    if (record == null) {
+    try {
+      ORecord record = identifiable.getRecord();
+      if (record instanceof ODocument) {
+        return ODocumentInternal.getImmutableSchemaClass(((ODocument) record)).isSubClassOf(oClass);
+      }
+    } catch (ORecordNotFoundException rnf) {
       return false;
-    }
-    if (record instanceof ODocument) {
-      return ODocumentInternal.getImmutableSchemaClass(((ODocument) record)).isSubClassOf(oClass);
     }
     return false;
   }
@@ -195,13 +198,21 @@ public class OMatchPathItem extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OMatchPathItem that = (OMatchPathItem) o;
 
-    if (method != null ? !method.equals(that.method) : that.method != null) return false;
-    if (filter != null ? !filter.equals(that.filter) : that.filter != null) return false;
+    if (method != null ? !method.equals(that.method) : that.method != null) {
+      return false;
+    }
+    if (filter != null ? !filter.equals(that.filter) : that.filter != null) {
+      return false;
+    }
 
     return true;
   }

@@ -24,12 +24,12 @@ import com.orientechnologies.common.serialization.types.OUUIDSerializer;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.OList;
+import com.orientechnologies.orient.core.db.record.OMap;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeTimeLine;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
-import com.orientechnologies.orient.core.db.record.ORecordLazyList;
-import com.orientechnologies.orient.core.db.record.ORecordLazyMap;
-import com.orientechnologies.orient.core.db.record.ORecordLazySet;
+import com.orientechnologies.orient.core.db.record.OSet;
 import com.orientechnologies.orient.core.db.record.OTrackedList;
 import com.orientechnologies.orient.core.db.record.OTrackedMap;
 import com.orientechnologies.orient.core.db.record.OTrackedMultiValue;
@@ -230,16 +230,16 @@ public class ODocumentSerializerDelta {
         deserializeDeltaEmbeddedMap(bytes, (OTrackedMap) toUpdate);
         break;
       case EMBEDDED:
-        deserializeDelta(bytes, (ODocument) ((ORecord) toUpdate).getRecord());
+        deserializeDelta(bytes, ((ORecord) toUpdate).getRecord());
         break;
       case LINKLIST:
-        deserializeDeltaLinkList(bytes, (ORecordLazyList) toUpdate);
+        deserializeDeltaLinkList(bytes, (OList) toUpdate);
         break;
       case LINKSET:
-        deserializeDeltaLinkSet(bytes, (ORecordLazySet) toUpdate);
+        deserializeDeltaLinkSet(bytes, (OSet) toUpdate);
         break;
       case LINKMAP:
-        deserializeDeltaLinkMap(bytes, (ORecordLazyMap) toUpdate);
+        deserializeDeltaLinkMap(bytes, (OMap) toUpdate);
         break;
       case LINKBAG:
         deserializeDeltaLinkBag(bytes, (ORidBag) toUpdate);
@@ -249,7 +249,7 @@ public class ODocumentSerializerDelta {
     }
   }
 
-  private void deserializeDeltaLinkMap(BytesContainer bytes, ORecordLazyMap toUpdate) {
+  private void deserializeDeltaLinkMap(BytesContainer bytes, OMap toUpdate) {
     long rootChanges = OVarIntSerializer.readAsLong(bytes);
     while (rootChanges-- > 0) {
       byte change = deserializeByte(bytes);
@@ -318,7 +318,7 @@ public class ODocumentSerializerDelta {
     }
   }
 
-  private void deserializeDeltaLinkList(BytesContainer bytes, ORecordLazyList toUpdate) {
+  private void deserializeDeltaLinkList(BytesContainer bytes, OList toUpdate) {
     long rootChanges = OVarIntSerializer.readAsLong(bytes);
     while (rootChanges-- > 0) {
       byte change = deserializeByte(bytes);
@@ -352,7 +352,7 @@ public class ODocumentSerializerDelta {
     }
   }
 
-  private void deserializeDeltaLinkSet(BytesContainer bytes, ORecordLazySet toUpdate) {
+  private void deserializeDeltaLinkSet(BytesContainer bytes, OSet toUpdate) {
     long rootChanges = OVarIntSerializer.readAsLong(bytes);
     while (rootChanges-- > 0) {
       byte change = deserializeByte(bytes);
@@ -635,16 +635,16 @@ public class ODocumentSerializerDelta {
         serializeDeltaEmbeddedMap(bytes, (OTrackedMap) value);
         break;
       case EMBEDDED:
-        serializeDelta(bytes, (ODocument) ((ORecord) value).getRecord());
+        serializeDelta(bytes, ((ORecord) value).getRecord());
         break;
       case LINKLIST:
-        serializeDeltaLinkList(bytes, (ORecordLazyList) value);
+        serializeDeltaLinkList(bytes, (OList) value);
         break;
       case LINKSET:
-        serializeDeltaLinkSet(bytes, (ORecordLazySet) value);
+        serializeDeltaLinkSet(bytes, (OSet) value);
         break;
       case LINKMAP:
-        serializeDeltaLinkMap(bytes, (ORecordLazyMap) value);
+        serializeDeltaLinkMap(bytes, (OMap) value);
         break;
       case LINKBAG:
         serializeDeltaLinkBag(bytes, (ORidBag) value);
@@ -716,7 +716,7 @@ public class ODocumentSerializerDelta {
     }
   }
 
-  private void serializeDeltaLinkList(BytesContainer bytes, ORecordLazyList value) {
+  private void serializeDeltaLinkList(BytesContainer bytes, OList value) {
     OMultiValueChangeTimeLine<Integer, OIdentifiable> timeline = value.getTransactionTimeLine();
     assert timeline != null : "Collection timeline required for link* types serialization";
     OVarIntSerializer.write(bytes, timeline.getMultiValueChangeEvents().size());
@@ -740,7 +740,7 @@ public class ODocumentSerializerDelta {
     }
   }
 
-  private void serializeDeltaLinkMap(BytesContainer bytes, ORecordLazyMap value) {
+  private void serializeDeltaLinkMap(BytesContainer bytes, OMap value) {
     OMultiValueChangeTimeLine<Object, OIdentifiable> timeline = value.getTransactionTimeLine();
     assert timeline != null : "Collection timeline required for link* types serialization";
     OVarIntSerializer.write(bytes, timeline.getMultiValueChangeEvents().size());
@@ -1365,7 +1365,7 @@ public class ODocumentSerializerDelta {
   }
 
   private Collection<OIdentifiable> readLinkList(BytesContainer bytes, ORecordElement owner) {
-    ORecordLazyList found = new ORecordLazyList(owner);
+    OList found = new OList(owner);
     final int items = OVarIntSerializer.readAsInteger(bytes);
     for (int i = 0; i < items; i++) {
       OIdentifiable id = readOptimizedLink(bytes);
@@ -1379,7 +1379,7 @@ public class ODocumentSerializerDelta {
   }
 
   private Collection<OIdentifiable> readLinkSet(BytesContainer bytes, ORecordElement owner) {
-    ORecordLazySet found = new ORecordLazySet(owner);
+    OSet found = new OSet(owner);
     final int items = OVarIntSerializer.readAsInteger(bytes);
     for (int i = 0; i < items; i++) {
       OIdentifiable id = readOptimizedLink(bytes);
@@ -1395,7 +1395,7 @@ public class ODocumentSerializerDelta {
   private Map<Object, OIdentifiable> readLinkMap(
       final BytesContainer bytes, final ORecordElement owner) {
     int size = OVarIntSerializer.readAsInteger(bytes);
-    ORecordLazyMap result = new ORecordLazyMap(owner);
+    OMap result = new OMap(owner);
     while ((size--) > 0) {
       OType keyType = readOType(bytes, false);
       Object key = deserializeValue(bytes, keyType, result);
@@ -1486,7 +1486,7 @@ public class ODocumentSerializerDelta {
       int pos = bytes.alloc(1);
       bytes.bytes[pos] = 1;
       OVarIntSerializer.write(bytes, bag.size());
-      Iterator<OIdentifiable> iterator = bag.rawIterator();
+      Iterator<OIdentifiable> iterator = bag.iterator();
       while (iterator.hasNext()) {
         OIdentifiable itemValue = iterator.next();
         if (itemValue == null) {
@@ -1573,10 +1573,7 @@ public class ODocumentSerializerDelta {
     } else {
       if (!link.getIdentity().isPersistent()) {
         try {
-          final ORecord real = link.getRecord();
-          if (real != null) {
-            link = real;
-          }
+          link = link.getRecord();
         } catch (ORecordNotFoundException ignored) {
           // IGNORE IT WILL FAIL THE ASSERT IN CASE
         }

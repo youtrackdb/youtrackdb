@@ -8,7 +8,7 @@ import org.junit.Test;
 /**
  * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
-public class OMultiValueTest {
+public class OIdentifiableMultiValueTest {
 
   @Test
   public void testListSize() {

@@ -297,7 +297,7 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
       localDatabase = server.openDatabase(iRequest.getDatabaseName(), iRequest.getBearerToken());
     } else {
       ORID currentUserId = iRequest.getBearerToken().getToken().getUserId();
-      if (currentUserId != null && localDatabase != null && localDatabase.getUser() != null) {
+      if (currentUserId != null && localDatabase.getUser() != null) {
         if (!currentUserId.equals(localDatabase.getUser().getIdentity().getIdentity())) {
           ODocument userDoc = localDatabase.load(currentUserId);
           localDatabase.setUser(new OUser(userDoc));
@@ -329,10 +329,7 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
     } else {
 
       String currentUserId = iRequest.getData().currentUserId;
-      if (currentUserId != null
-          && currentUserId.length() > 0
-          && localDatabase != null
-          && localDatabase.getUser() != null) {
+      if (currentUserId != null && !currentUserId.isEmpty() && localDatabase.getUser() != null) {
         if (!currentUserId.equals(localDatabase.getUser().getIdentity().toString())) {
           ODocument userDoc = localDatabase.load(new ORecordId(currentUserId));
           localDatabase.setUser(new OUser(userDoc));

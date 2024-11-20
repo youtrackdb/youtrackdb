@@ -199,10 +199,7 @@ public class OClassTrigger {
               try {
                 ODocument funcDoc = database.load(new ORecordId(fieldName));
                 func =
-                    database
-                        .getMetadata()
-                        .getFunctionLibrary()
-                        .getFunction((String) funcDoc.field("name"));
+                    database.getMetadata().getFunctionLibrary().getFunction(funcDoc.field("name"));
               } catch (ORecordNotFoundException rnf) {
                 // ignore
               }

@@ -2,10 +2,8 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.impl.OBlob;
+import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.record.impl.ORecordBytes;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 
 /**
@@ -28,26 +26,21 @@ public class CopyDocumentStep extends AbstractExecutionStep {
     assert prev != null;
 
     OExecutionStream upstream = prev.start(ctx);
-    return upstream.map(this::mapResult);
+    return upstream.map(CopyDocumentStep::mapResult);
   }
 
-  private OResult mapResult(OResult result, OCommandContext ctx) {
-    ORecord resultDoc = null;
+  private static OResult mapResult(OResult result, OCommandContext ctx) {
+    OElement resultDoc;
     if (result.isElement()) {
-      ORecord docToCopy = result.toElement().getRecord();
-      if (docToCopy instanceof ODocument) {
-        resultDoc = ((ODocument) docToCopy).copy();
-        resultDoc.getIdentity().reset();
-        ((ODocument) resultDoc).setClassName(null);
-        resultDoc.setDirty();
-      } else if (docToCopy instanceof OBlob) {
-        ORecordBytes newBlob = (ORecordBytes) docToCopy.copy();
-        return new OResultInternal(newBlob);
-      }
+      var docToCopy = result.toElement();
+      resultDoc = docToCopy.copy();
+      resultDoc.getIdentity().reset();
+      ((ODocument) resultDoc).setClassName(null);
+      resultDoc.setDirty();
     } else {
-      resultDoc = result.toElement().getRecord();
+      resultDoc = result.toElement();
     }
-    return new OUpdatableResult((ODocument) resultDoc);
+    return new OUpdatableResult(resultDoc);
   }
 
   @Override

@@ -23,7 +23,6 @@ import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.common.util.OResettable;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.db.record.ORecordLazyMultiValue;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -275,21 +274,13 @@ public class ORuntimeResult {
   }
 
   private static boolean entriesPersistent(Collection<OIdentifiable> projectionValue) {
-    if (projectionValue instanceof ORecordLazyMultiValue) {
-      Iterator<OIdentifiable> it = ((ORecordLazyMultiValue) projectionValue).rawIterator();
-      while (it.hasNext()) {
-        OIdentifiable rec = it.next();
-        if (rec != null && !rec.getIdentity().isPersistent()) {
-          return false;
-        }
-      }
-    } else {
-      for (OIdentifiable rec : projectionValue) {
-        if (rec != null && !rec.getIdentity().isPersistent()) {
-          return false;
-        }
+
+    for (OIdentifiable rec : projectionValue) {
+      if (rec != null && !rec.getIdentity().isPersistent()) {
+        return false;
       }
     }
+
     return true;
   }
 

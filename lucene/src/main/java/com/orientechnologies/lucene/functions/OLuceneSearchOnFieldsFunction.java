@@ -8,6 +8,7 @@ import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
 import com.orientechnologies.lucene.query.OLuceneKeyAndMetadata;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.OMetadataInternal;
 import com.orientechnologies.orient.core.record.OElement;
@@ -53,7 +54,11 @@ public class OLuceneSearchOnFieldsFunction extends OLuceneSearchFunctionTemplate
       OCommandContext ctx) {
 
     if (iThis instanceof ORID) {
-      iThis = ((ORID) iThis).getRecord();
+      try {
+        iThis = ((ORID) iThis).getRecord();
+      } catch (ORecordNotFoundException rnf) {
+        return false;
+      }
     }
     if (iThis instanceof OIdentifiable) {
       iThis = new OResultInternal((OIdentifiable) iThis);

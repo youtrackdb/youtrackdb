@@ -96,7 +96,7 @@ public class ORecordInternal {
     if (record instanceof ORecordAbstract) {
       return ((ORecordAbstract) record).getRecordType();
     }
-    final ORecordAbstract rec = (ORecordAbstract) record.getRecord();
+    final ORecordAbstract rec = record.getRecord();
     return rec.getRecordType();
   }
 

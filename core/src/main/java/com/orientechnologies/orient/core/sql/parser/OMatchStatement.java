@@ -14,6 +14,7 @@ import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -113,6 +114,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
   }
 
   public class MatchContext {
+
     int currentEdgeNumber = 0;
 
     Map<String, Iterable> candidates = new LinkedHashMap<String, Iterable>();
@@ -141,6 +143,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
   }
 
   public static class EdgeTraversal {
+
     private boolean out = true;
     private PatternEdge edge;
 
@@ -151,6 +154,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
   }
 
   public static class MatchExecutionPlan {
+
     public List<EdgeTraversal> sortedEdges;
     public Map<String, Long> preFetchedAliases = new HashMap<String, Long>();
     public String rootAlias;
@@ -421,14 +425,14 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
    * Start a depth-first traversal from the starting node, adding all viable unscheduled edges and
    * vertices.
    *
-   * @param startNode the node from which to start the depth-first traversal
-   * @param visitedNodes set of nodes that are already visited (mutated in this function)
-   * @param visitedEdges set of edges that are already visited and therefore don't need to be
-   *     scheduled (mutated in this function)
+   * @param startNode             the node from which to start the depth-first traversal
+   * @param visitedNodes          set of nodes that are already visited (mutated in this function)
+   * @param visitedEdges          set of edges that are already visited and therefore don't need to
+   *                              be scheduled (mutated in this function)
    * @param remainingDependencies dependency map including only the dependencies that haven't yet
-   *     been satisfied (mutated in this function)
-   * @param resultingSchedule the schedule being computed i.e. appended to (mutated in this
-   *     function)
+   *                              been satisfied (mutated in this function)
+   * @param resultingSchedule     the schedule being computed i.e. appended to (mutated in this
+   *                              function)
    */
   private void updateScheduleStartingAt(
       PatternNode startNode,
@@ -564,7 +568,9 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
     return result;
   }
 
-  /** sort edges in the order they will be matched */
+  /**
+   * sort edges in the order they will be matched
+   */
   private List<EdgeTraversal> getTopologicalSortedSchedule(
       Map<String, Long> estimatedRootEntries, Pattern pattern) {
     List<EdgeTraversal> resultingSchedule = new ArrayList<EdgeTraversal>();
@@ -635,7 +641,9 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
   }
 
   protected Object getResult(OSQLAsynchQuery<ODocument> request) {
-    if (request instanceof OSQLSynchQuery) return ((OSQLSynchQuery<ODocument>) request).getResult();
+    if (request instanceof OSQLSynchQuery) {
+      return ((OSQLSynchQuery<ODocument>) request).getResult();
+    }
 
     return null;
   }
@@ -1034,18 +1042,19 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
     if (identifiable == null) {
       return false;
     }
-    ORecord record = identifiable.getRecord();
-    if (record == null) {
+    try {
+      ORecord record = identifiable.getRecord();
+      if (record instanceof ODocument) {
+        OClass schemaClass = ODocumentInternal.getImmutableSchemaClass(((ODocument) record));
+        if (schemaClass == null) {
+          return false;
+        }
+        return schemaClass.isSubClassOf(oClass);
+      }
+      return false;
+    } catch (ORecordNotFoundException rnf) {
       return false;
     }
-    if (record instanceof ODocument) {
-      OClass schemaClass = ODocumentInternal.getImmutableSchemaClass(((ODocument) record));
-      if (schemaClass == null) {
-        return false;
-      }
-      return schemaClass.isSubClassOf(oClass);
-    }
-    return false;
   }
 
   private boolean contains(Object rightValues, OIdentifiable oIdentifiable) {
@@ -1155,18 +1164,30 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
     if (returnsElements()) {
       for (Map.Entry<String, OIdentifiable> entry : matchContext.matched.entrySet()) {
         if (isExplicitAlias(entry.getKey()) && entry.getValue() != null) {
-          ORecord record = entry.getValue().getRecord();
-          if (request.getResultListener() != null && record != null) {
-            if (!addSingleResult(request, (OBasicCommandContext) ctx, record)) return false;
+          try {
+            ORecord record = entry.getValue().getRecord();
+            if (request.getResultListener() != null) {
+              if (!addSingleResult(request, (OBasicCommandContext) ctx, record)) {
+                return false;
+              }
+            }
+          } catch (ORecordNotFoundException rnf) {
+            return false;
           }
         }
       }
     } else if (returnsPathElements()) {
       for (Map.Entry<String, OIdentifiable> entry : matchContext.matched.entrySet()) {
         if (entry.getValue() != null) {
-          ORecord record = entry.getValue().getRecord();
-          if (request.getResultListener() != null && record != null) {
-            if (!addSingleResult(request, (OBasicCommandContext) ctx, record)) return false;
+          try {
+            ORecord record = entry.getValue().getRecord();
+            if (request.getResultListener() != null) {
+              if (!addSingleResult(request, (OBasicCommandContext) ctx, record)) {
+                return false;
+              }
+            }
+          } catch (ORecordNotFoundException rnf) {
+            return false;
           }
         }
       }
@@ -1216,7 +1237,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
     }
 
     if (request.getResultListener() != null && doc != null) {
-      if (!addSingleResult(request, (OBasicCommandContext) ctx, doc)) return false;
+      return addSingleResult(request, (OBasicCommandContext) ctx, doc);
     }
 
     return true;
@@ -1770,32 +1791,57 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OMatchStatement that = (OMatchStatement) o;
 
     if (matchExpressions != null
         ? !matchExpressions.equals(that.matchExpressions)
-        : that.matchExpressions != null) return false;
+        : that.matchExpressions != null) {
+      return false;
+    }
     if (notMatchExpressions != null
         ? !notMatchExpressions.equals(that.notMatchExpressions)
-        : that.notMatchExpressions != null) return false;
-    if (returnItems != null ? !returnItems.equals(that.returnItems) : that.returnItems != null)
+        : that.notMatchExpressions != null) {
       return false;
+    }
+    if (returnItems != null ? !returnItems.equals(that.returnItems) : that.returnItems != null) {
+      return false;
+    }
     if (returnAliases != null
         ? !returnAliases.equals(that.returnAliases)
-        : that.returnAliases != null) return false;
+        : that.returnAliases != null) {
+      return false;
+    }
     if (returnNestedProjections != null
         ? !returnNestedProjections.equals(that.returnNestedProjections)
-        : that.returnNestedProjections != null) return false;
-    if (groupBy != null ? !groupBy.equals(that.groupBy) : that.groupBy != null) return false;
-    if (orderBy != null ? !orderBy.equals(that.orderBy) : that.orderBy != null) return false;
-    if (unwind != null ? !unwind.equals(that.unwind) : that.unwind != null) return false;
-    if (skip != null ? !skip.equals(that.skip) : that.skip != null) return false;
-    if (limit != null ? !limit.equals(that.limit) : that.limit != null) return false;
+        : that.returnNestedProjections != null) {
+      return false;
+    }
+    if (groupBy != null ? !groupBy.equals(that.groupBy) : that.groupBy != null) {
+      return false;
+    }
+    if (orderBy != null ? !orderBy.equals(that.orderBy) : that.orderBy != null) {
+      return false;
+    }
+    if (unwind != null ? !unwind.equals(that.unwind) : that.unwind != null) {
+      return false;
+    }
+    if (skip != null ? !skip.equals(that.skip) : that.skip != null) {
+      return false;
+    }
+    if (limit != null ? !limit.equals(that.limit) : that.limit != null) {
+      return false;
+    }
 
-    if (returnDistinct != that.returnDistinct) return false;
+    if (returnDistinct != that.returnDistinct) {
+      return false;
+    }
 
     return true;
   }

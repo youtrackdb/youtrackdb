@@ -19,7 +19,7 @@ package com.orientechnologies.orient.core.fetch.json;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.db.record.ORecordLazySet;
+import com.orientechnologies.orient.core.db.record.OSet;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.OFetchException;
 import com.orientechnologies.orient.core.fetch.OFetchContext;
@@ -292,7 +292,7 @@ public class OJSONFetchContext implements OFetchContext {
       else if (fieldValue instanceof Byte || fieldValue instanceof byte[])
         appendType(typesStack.peek(), fieldName, 'b');
       else if (fieldValue instanceof BigDecimal) appendType(typesStack.peek(), fieldName, 'c');
-      else if (fieldValue instanceof ORecordLazySet) appendType(typesStack.peek(), fieldName, 'n');
+      else if (fieldValue instanceof OSet) appendType(typesStack.peek(), fieldName, 'n');
       else if (fieldValue instanceof Set<?>) appendType(typesStack.peek(), fieldName, 'e');
       else if (fieldValue instanceof ORidBag) appendType(typesStack.peek(), fieldName, 'g');
       else {

@@ -610,8 +610,8 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
 
       if (id instanceof OContextualRecordId && ((OContextualRecordId) id).getContext() != null) {
         Map<String, Object> ridContext = ((OContextualRecordId) id).getContext();
-        for (String key : ridContext.keySet()) {
-          context.setVariable(key, ridContext.get(key));
+        for (Entry<String, Object> entry : ridContext.entrySet()) {
+          context.setVariable(entry.getKey(), entry.getValue());
         }
       }
     } else {
