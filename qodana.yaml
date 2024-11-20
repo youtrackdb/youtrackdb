@@ -1,6 +1,6 @@
 version: "1.0"
 projectJDK: 17
 profile:
-  path: .idea/inspectionProfiles/oxygen.xml
+  path: .idea/inspectionProfiles/oxygendb.xml
 include:
   - name: IncorrectFormatting
