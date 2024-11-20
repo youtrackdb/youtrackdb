@@ -34,6 +34,7 @@ import java.util.List;
  * @author Michael MacFadden
  */
 public class OSQLFunctionAbsoluteValue extends OSQLFunctionMathAbstract {
+
   public static final String NAME = "abs";
   private Object result;
 

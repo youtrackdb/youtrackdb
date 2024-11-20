@@ -25,6 +25,7 @@ package com.orientechnologies.orient.enterprise.channel.binary;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OChannelBinaryProtocol {
+
   // OUTGOING
   public static final byte REQUEST_SHUTDOWN = 1;
   public static final byte REQUEST_CONNECT = 2;

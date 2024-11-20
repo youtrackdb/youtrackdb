@@ -21,8 +21,12 @@ package com.cloudbees.syslog;
  * @author <a href="mailto:cleclerc@cloudbees.com">Cyrille Le Clerc</a>
  */
 public enum MessageFormat {
-  /** <a href="http://tools.ietf.org/html/rfc3164">RFC 3614 - BSD syslog Protocol</a> */
+  /**
+   * <a href="http://tools.ietf.org/html/rfc3164">RFC 3614 - BSD syslog Protocol</a>
+   */
   RFC_3164,
-  /** <a href="https://tools.ietf.org/html/rfc5424">RFC 5424 - The Syslog Protocol</a> */
+  /**
+   * <a href="https://tools.ietf.org/html/rfc5424">RFC 5424 - The Syslog Protocol</a>
+   */
   RFC_5424
 }

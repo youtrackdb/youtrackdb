@@ -4,6 +4,7 @@ import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.index.OPropertyMapIndexDefinition.INDEX_BY;
 
 public class OIndexConfigProperty {
+
   protected final String name;
   protected final OType type;
   protected final OType linkedType;

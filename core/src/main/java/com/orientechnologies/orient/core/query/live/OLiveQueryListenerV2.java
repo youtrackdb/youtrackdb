@@ -21,7 +21,9 @@ package com.orientechnologies.orient.core.query.live;
 
 import java.util.List;
 
-/** Created by luigidellaquila on 16/03/15. */
+/**
+ * Created by luigidellaquila on 16/03/15.
+ */
 public interface OLiveQueryListenerV2 {
 
   void onLiveResults(List<OLiveQueryHookV2.OLiveQueryOp> iRecords);

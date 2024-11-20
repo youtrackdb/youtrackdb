@@ -26,6 +26,7 @@ package com.orientechnologies.common.types;
  */
 @SuppressWarnings("serial")
 public class OModifiableInteger extends Number implements Comparable<OModifiableInteger> {
+
   public int value;
 
   public OModifiableInteger() {

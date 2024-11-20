@@ -29,7 +29,9 @@ import java.io.OutputStream;
 import java.io.StringWriter;
 import java.util.Map;
 
-/** @author Luca Molino (molino.luca--at--gmail.com) */
+/**
+ * @author Luca Molino (molino.luca--at--gmail.com)
+ */
 public class OHttpMultipartFileToDiskContentParser
     implements OHttpMultipartContentParser<InputStream> {
 
@@ -38,7 +40,9 @@ public class OHttpMultipartFileToDiskContentParser
 
   public OHttpMultipartFileToDiskContentParser(String iPath) {
     path = iPath;
-    if (!path.endsWith("/")) path += "/";
+    if (!path.endsWith("/")) {
+      path += "/";
+    }
     new File(path).mkdirs();
   }
 
@@ -55,18 +59,22 @@ public class OHttpMultipartFileToDiskContentParser
     String fileName = headers.get(OHttpUtils.MULTIPART_CONTENT_FILENAME);
     int fileSize = 0;
 
-    if (fileName.charAt(0) == '"') fileName = fileName.substring(1);
+    if (fileName.charAt(0) == '"') {
+      fileName = fileName.substring(1);
+    }
 
-    if (fileName.charAt(fileName.length() - 1) == '"')
+    if (fileName.charAt(fileName.length() - 1) == '"') {
       fileName = fileName.substring(0, fileName.length() - 1);
+    }
 
     fileName = path + fileName;
 
     if (!overwrite)
-      // CHANGE THE FILE NAME TO AVOID OVERWRITING
+    // CHANGE THE FILE NAME TO AVOID OVERWRITING
+    {
       if (new File(fileName).exists()) {
-        final String fileExt = fileName.substring(fileName.lastIndexOf("."));
-        final String fileNoExt = fileName.substring(0, fileName.lastIndexOf("."));
+        final String fileExt = fileName.substring(fileName.lastIndexOf('.'));
+        final String fileNoExt = fileName.substring(0, fileName.lastIndexOf('.'));
 
         for (int i = 1; ; ++i) {
           if (!new File(fileNoExt + "_" + i + fileExt).exists()) {
@@ -75,9 +83,10 @@ public class OHttpMultipartFileToDiskContentParser
           }
         }
       }
+    }
 
     // WRITE THE FILE
-    final OutputStream out = new BufferedOutputStream(new FileOutputStream(fileName.toString()));
+    final OutputStream out = new BufferedOutputStream(new FileOutputStream(fileName));
     try {
       int b;
       while ((b = in.read()) > -1) {

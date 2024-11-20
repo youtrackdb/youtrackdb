@@ -10,6 +10,7 @@ import java.util.Random;
 import org.junit.Test;
 
 public class OCompositeIndexGrowShrinkIT extends BaseMemoryDatabase {
+
   private Random random = new Random();
 
   public String randomText() {

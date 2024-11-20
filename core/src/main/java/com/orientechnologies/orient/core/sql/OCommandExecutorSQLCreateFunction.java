@@ -37,6 +37,7 @@ import java.util.Map;
  * @author Claudio Tesoriero
  */
 public class OCommandExecutorSQLCreateFunction extends OCommandExecutorSQLAbstract {
+
   public static final String NAME = "CREATE FUNCTION";
   private String name;
   private String code;
@@ -74,13 +75,16 @@ public class OCommandExecutorSQLCreateFunction extends OCommandExecutorSQLAbstra
           parserNextWord(false);
           parameters = new ArrayList<String>();
           OStringSerializerHelper.getCollection(parserGetLastWord(), 0, parameters);
-          if (parameters.size() == 0)
+          if (parameters.size() == 0) {
             throw new OCommandExecutionException(
                 "Syntax Error. Missing function parameter(s): " + getSyntax());
+          }
         }
 
         temp = parserOptionalWord(true);
-        if (parserIsEnded()) break;
+        if (parserIsEnded()) {
+          break;
+        }
       }
     } finally {
       textRequest.setText(originalQuery);
@@ -96,24 +100,33 @@ public class OCommandExecutorSQLCreateFunction extends OCommandExecutorSQLAbstra
         .getValueAsLong(OGlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT);
   }
 
-  /** Execute the command and return the ODocument object created. */
+  /**
+   * Execute the command and return the ODocument object created.
+   */
   public Object execute(final Map<Object, Object> iArgs) {
-    if (name == null)
+    if (name == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
-    if (name.isEmpty())
+    }
+    if (name.isEmpty()) {
       throw new OCommandExecutionException(
           "Syntax Error. You must specify a function name: " + getSyntax());
-    if (code == null || code.isEmpty())
+    }
+    if (code == null || code.isEmpty()) {
       throw new OCommandExecutionException(
           "Syntax Error. You must specify the function code: " + getSyntax());
+    }
 
     var database = getDatabase();
     final OFunction f = database.getMetadata().getFunctionLibrary().createFunction(name);
     f.setCode(code);
     f.setIdempotent(idempotent);
-    if (parameters != null) f.setParameters(parameters);
-    if (language != null) f.setLanguage(language);
+    if (parameters != null) {
+      f.setParameters(parameters);
+    }
+    if (language != null) {
+      f.setLanguage(language);
+    }
     f.save();
     return f.getId();
   }

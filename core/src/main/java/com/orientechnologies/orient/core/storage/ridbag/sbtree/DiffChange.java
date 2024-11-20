@@ -4,6 +4,7 @@ import com.orientechnologies.common.serialization.types.OByteSerializer;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 
 public class DiffChange implements Change {
+
   public static final byte TYPE = 0;
   private int delta;
 
@@ -24,10 +25,15 @@ public class DiffChange implements Change {
   @Override
   public int applyTo(Integer value) {
     int result;
-    if (value == null) result = delta;
-    else result = value + delta;
+    if (value == null) {
+      result = delta;
+    } else {
+      result = value + delta;
+    }
 
-    if (result < 0) result = 0;
+    if (result < 0) {
+      result = 0;
+    }
 
     return result;
   }

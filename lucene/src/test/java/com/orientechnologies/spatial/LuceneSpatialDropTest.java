@@ -67,7 +67,7 @@ public class LuceneSpatialDropTest {
 
     db.drop();
     File dbFolder = new File(dbName);
-    Assert.assertEquals(false, dbFolder.exists());
+    Assert.assertFalse(dbFolder.exists());
   }
 
   private void fillDb(ODatabaseSession db, int count) {

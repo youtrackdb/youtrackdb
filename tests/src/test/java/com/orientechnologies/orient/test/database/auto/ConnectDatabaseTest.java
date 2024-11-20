@@ -33,20 +33,29 @@ import org.testng.annotations.Test;
 
 @Test(enabled = false)
 public class ConnectDatabaseTest {
+
   private final String url;
   private final String databaseName;
 
   @Parameters(value = "url")
   public ConnectDatabaseTest(@Optional String iURL) {
-    if (iURL == null) url = "remote:xxx/GratefulDeadConcerts";
-    else url = iURL;
+    if (iURL == null) {
+      url = "remote:xxx/GratefulDeadConcerts";
+    } else {
+      url = iURL;
+    }
 
-    if (url.contains("/")) databaseName = url.substring(url.lastIndexOf("/") + 1);
-    else databaseName = url.substring(url.lastIndexOf(":") + 1);
+    if (url.contains("/")) {
+      databaseName = url.substring(url.lastIndexOf('/') + 1);
+    } else {
+      databaseName = url.substring(url.lastIndexOf(':') + 1);
+    }
   }
 
   public void connectWithDNS() throws IOException {
-    if (!url.startsWith("remote:") || !isInternetAvailable()) return;
+    if (!url.startsWith("remote:") || !isInternetAvailable()) {
+      return;
+    }
 
     OGlobalConfiguration.NETWORK_BINARY_DNS_LOADBALANCING_ENABLED.setValue(true);
     try {

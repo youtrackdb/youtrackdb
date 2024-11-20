@@ -3,6 +3,7 @@ package com.orientechnologies.orient.core.storage.index.nkbtree.normalizers.benc
 import java.util.List;
 
 public class LineResultData {
+
   private String seriesName;
   private List<Double> xData;
   private List<Double> yData;

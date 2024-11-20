@@ -20,7 +20,8 @@ public class ONewSQLCommandTask extends OAbstractRemoteTask {
 
   private String query;
 
-  public ONewSQLCommandTask() {}
+  public ONewSQLCommandTask() {
+  }
 
   public ONewSQLCommandTask(String query) {
     this.query = query;
@@ -46,7 +47,7 @@ public class ONewSQLCommandTask extends OAbstractRemoteTask {
     OScenarioThreadLocal.executeAsDistributed(
         () -> {
           ((ODistributedDatabaseImpl)
-                  ((ODatabaseDocumentDistributed) database).getDistributedShared())
+              ((ODatabaseDocumentDistributed) database).getDistributedShared())
               .resetLastValidBackup();
           database.command(query);
           return null;

@@ -20,7 +20,9 @@ import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
-/** Created by luigidellaquila on 15/06/17. */
+/**
+ * Created by luigidellaquila on 15/06/17.
+ */
 public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
 
   public static final String BEFORE_METADATA_KEY = "$$before$$";

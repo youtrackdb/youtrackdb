@@ -46,32 +46,27 @@ public class OLiveQueryShotdownTest {
     db.open("admin", "admin");
     db.getMetadata().getSchema().createClass("Test");
     final CountDownLatch error = new CountDownLatch(1);
-    try {
-      db.command(
-              new OLiveQuery(
-                  "live select from Test",
-                  new OLiveResultListener() {
+    db.command(
+            new OLiveQuery(
+                "live select from Test",
+                new OLiveResultListener() {
 
-                    @Override
-                    public void onUnsubscribe(int iLiveToken) {}
+                  @Override
+                  public void onUnsubscribe(int iLiveToken) {}
 
-                    @Override
-                    public void onLiveResult(int iLiveToken, ORecordOperation iOp)
-                        throws OException {}
+                  @Override
+                  public void onLiveResult(int iLiveToken, ORecordOperation iOp)
+                      throws OException {}
 
-                    @Override
-                    public void onError(int iLiveToken) {
-                      error.countDown();
-                    }
-                  }))
-          .execute();
+                  @Override
+                  public void onError(int iLiveToken) {
+                    error.countDown();
+                  }
+                }))
+        .execute();
 
-      shutdownServer();
+    shutdownServer();
 
-      assertTrue("onError method never called on shutdow", error.await(2, TimeUnit.SECONDS));
-
-    } finally {
-      //      db.close();
-    }
+    assertTrue("onError method never called on shutdow", error.await(2, TimeUnit.SECONDS));
   }
 }

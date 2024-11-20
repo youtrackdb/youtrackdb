@@ -12,7 +12,7 @@ import com.orientechnologies.orient.core.db.OSharedContext;
  */
 public class ODatabaseDocumentRemotePooled extends ODatabaseDocumentRemote {
 
-  private ODatabasePoolInternal pool;
+  private final ODatabasePoolInternal pool;
 
   public ODatabaseDocumentRemotePooled(
       ODatabasePoolInternal pool, OStorageRemote storage, OSharedContext sharedContext) {

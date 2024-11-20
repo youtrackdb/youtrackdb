@@ -5,7 +5,9 @@ import java.util.HashMap;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
-/** Created by frank on 11/04/2017. */
+/**
+ * Created by frank on 11/04/2017.
+ */
 public class OrientJdbcIssuesTest extends OrientJdbcDbPerMethodTemplateTest {
 
   @Test

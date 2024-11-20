@@ -18,6 +18,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 public class OLiveIndexRebuildTest {
+
   private final OPartitionedDatabasePool pool =
       new OPartitionedDatabasePool("memory:liveIndexRebuild", "admin", "admin");
 
@@ -66,9 +67,13 @@ public class OLiveIndexRebuildTest {
       Object result = future.get();
       if (result instanceof long[]) {
         long[] results = (long[]) result;
-        if (results[0] < minInterval) minInterval = results[0];
+        if (results[0] < minInterval) {
+          minInterval = results[0];
+        }
 
-        if (results[1] > maxInterval) maxInterval = results[1];
+        if (results[1] > maxInterval) {
+          maxInterval = results[1];
+        }
       }
     }
 
@@ -100,7 +105,9 @@ public class OLiveIndexRebuildTest {
               database.close();
             }
 
-            if (stop.get()) break;
+            if (stop.get()) {
+              break;
+            }
           }
 
           Thread.sleep(5 * 60 * 1000);
@@ -117,6 +124,7 @@ public class OLiveIndexRebuildTest {
   }
 
   private final class Reader implements Callable<long[]> {
+
     @Override
     public long[] call() throws Exception {
       long minInterval = Long.MAX_VALUE;
@@ -142,9 +150,13 @@ public class OLiveIndexRebuildTest {
             long end = System.nanoTime();
             long interval = end - start;
 
-            if (interval > maxInterval) maxInterval = interval;
+            if (interval > maxInterval) {
+              maxInterval = interval;
+            }
 
-            if (interval < minInterval) minInterval = interval;
+            if (interval < minInterval) {
+              minInterval = interval;
+            }
 
             Assert.assertEquals(result.stream().count(), 100);
           } finally {

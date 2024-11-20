@@ -25,5 +25,6 @@ package com.orientechnologies.common.util;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OCallableNoParamNoReturn {
+
   void call();
 }

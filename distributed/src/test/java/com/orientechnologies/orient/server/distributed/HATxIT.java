@@ -23,6 +23,7 @@ import org.junit.Test;
  * node.
  */
 public class HATxIT extends AbstractHARemoveNode {
+
   static final int SERVERS = 3;
 
   @Test
@@ -49,12 +50,13 @@ public class HATxIT extends AbstractHARemoveNode {
     serverInstance
         .get(SERVERS - 1)
         .startServer(getDistributedServerConfiguration(serverInstance.get(SERVERS - 1)));
-    if (serverInstance.get(SERVERS - 1).getServerInstance().getDistributedManager() != null)
+    if (serverInstance.get(SERVERS - 1).getServerInstance().getDistributedManager() != null) {
       serverInstance
           .get(SERVERS - 1)
           .getServerInstance()
           .getDistributedManager()
           .waitUntilNodeOnline();
+    }
 
     lastNodeIsUp.set(true);
 

@@ -8,8 +8,11 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by frank on 24/04/2016. */
+/**
+ * Created by frank on 24/04/2016.
+ */
 public abstract class OLocalHashTableV3Base {
+
   protected static final int KEYS_COUNT = 500000;
   protected OLocalHashTableV3<Integer, String> localHashTable;
   protected OAtomicOperationsManager atomicOperationsManager;
@@ -46,7 +49,9 @@ public abstract class OLocalHashTableV3Base {
       Assert.assertEquals(localHashTable.get(key), String.valueOf(key));
     }
 
-    for (int key : keys) Assert.assertEquals(localHashTable.get(key), String.valueOf(key));
+    for (int key : keys) {
+      Assert.assertEquals(localHashTable.get(key), String.valueOf(key));
+    }
   }
 
   @Test
@@ -63,7 +68,9 @@ public abstract class OLocalHashTableV3Base {
       Assert.assertEquals(localHashTable.get(key), String.valueOf(key));
     }
 
-    for (int key : keys) Assert.assertEquals(localHashTable.get(key), String.valueOf(key));
+    for (int key : keys) {
+      Assert.assertEquals(localHashTable.get(key), String.valueOf(key));
+    }
   }
 
   @Test
@@ -83,9 +90,10 @@ public abstract class OLocalHashTableV3Base {
     }
 
     for (int key : keys) {
-      if (key % 3 == 0)
+      if (key % 3 == 0) {
         atomicOperationsManager.executeInsideAtomicOperation(
             null, atomicOperation -> localHashTable.remove(atomicOperation, key));
+      }
     }
 
     for (int key : keys) {
@@ -117,8 +125,11 @@ public abstract class OLocalHashTableV3Base {
     }
 
     for (int i = 0; i < KEYS_COUNT; i++) {
-      if (i % 3 == 0) Assert.assertNull(localHashTable.get(i));
-      else Assert.assertEquals(localHashTable.get(i), i + "");
+      if (i % 3 == 0) {
+        Assert.assertNull(localHashTable.get(i));
+      } else {
+        Assert.assertEquals(localHashTable.get(i), i + "");
+      }
     }
   }
 
@@ -151,11 +162,15 @@ public abstract class OLocalHashTableV3Base {
     }
 
     for (int i = 0; i < KEYS_COUNT; i++) {
-      if (i % 3 == 0) Assert.assertNull(localHashTable.get(i));
-      else Assert.assertEquals(localHashTable.get(i), String.valueOf(i));
+      if (i % 3 == 0) {
+        Assert.assertNull(localHashTable.get(i));
+      } else {
+        Assert.assertEquals(localHashTable.get(i), String.valueOf(i));
+      }
 
-      if (i % 2 == 0)
+      if (i % 2 == 0) {
         Assert.assertEquals(localHashTable.get(KEYS_COUNT + i), String.valueOf(KEYS_COUNT + i));
+      }
     }
   }
 
@@ -170,7 +185,9 @@ public abstract class OLocalHashTableV3Base {
     atomicOperationsManager.executeInsideAtomicOperation(
         null, atomicOperation -> localHashTable.put(atomicOperation, null, "null"));
 
-    for (int i = 0; i < 10; i++) Assert.assertEquals(localHashTable.get(i), String.valueOf(i));
+    for (int i = 0; i < 10; i++) {
+      Assert.assertEquals(localHashTable.get(i), String.valueOf(i));
+    }
 
     Assert.assertEquals(localHashTable.get(null), "null");
 
@@ -197,11 +214,15 @@ public abstract class OLocalHashTableV3Base {
     atomicOperationsManager.executeInsideAtomicOperation(
         null, atomicOperation -> Assert.assertNull(localHashTable.remove(atomicOperation, null)));
 
-    for (int i = 0; i < 5; i++) Assert.assertNull(localHashTable.get(i));
+    for (int i = 0; i < 5; i++) {
+      Assert.assertNull(localHashTable.get(i));
+    }
 
     Assert.assertNull(localHashTable.get(null));
 
-    for (int i = 5; i < 10; i++) Assert.assertEquals(localHashTable.get(i), i + "");
+    for (int i = 5; i < 10; i++) {
+      Assert.assertEquals(localHashTable.get(i), i + "");
+    }
   }
 
   @Test

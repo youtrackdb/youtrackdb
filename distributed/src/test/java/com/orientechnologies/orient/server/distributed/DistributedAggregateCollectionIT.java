@@ -8,6 +8,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class DistributedAggregateCollectionIT extends AbstractServerClusterTest {
+
   private static final int SERVERS = 1;
 
   @Override

@@ -11,7 +11,9 @@ import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import org.junit.Test;
 
-/** Created by tglman on 25/01/16. */
+/**
+ * Created by tglman on 25/01/16.
+ */
 public class OJsonWithCustom {
 
   @Test

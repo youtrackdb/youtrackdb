@@ -27,6 +27,7 @@ import java.util.ArrayDeque;
  * @author Artem Orobets (enisher-at-gmail.com)
  */
 public class OTraversePath {
+
   private static final OTraversePath EMPTY_PATH = new OTraversePath(new FirstPathItem());
 
   private final PathItem lastPathItem;
@@ -77,6 +78,7 @@ public class OTraversePath {
   }
 
   private abstract static class PathItem {
+
     protected final PathItem parentItem;
     protected final int depth;
 
@@ -87,6 +89,7 @@ public class OTraversePath {
   }
 
   private static class RecordPathItem extends PathItem {
+
     private final OIdentifiable record;
 
     private RecordPathItem(OIdentifiable record, PathItem parentItem) {
@@ -101,6 +104,7 @@ public class OTraversePath {
   }
 
   private static class FieldPathItem extends PathItem {
+
     private final String name;
 
     private FieldPathItem(String name, PathItem parentItem) {
@@ -115,6 +119,7 @@ public class OTraversePath {
   }
 
   private static class CollectionPathItem extends PathItem {
+
     private final int index;
 
     private CollectionPathItem(int index, PathItem parentItem) {
@@ -129,6 +134,7 @@ public class OTraversePath {
   }
 
   private static class FirstPathItem extends PathItem {
+
     private FirstPathItem() {
       super(null, -1);
     }

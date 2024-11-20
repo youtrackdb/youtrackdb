@@ -29,6 +29,7 @@ import com.orientechnologies.orient.server.network.protocol.http.command.OServer
 import java.io.StringWriter;
 
 public class OServerCommandGetClass extends OServerCommandAuthenticatedDbAbstract {
+
   private static final String[] NAMES = {"GET|class/*"};
 
   @Override
@@ -55,10 +56,14 @@ public class OServerCommandGetClass extends OServerCommandAuthenticatedDbAbstrac
             OHttpUtils.CONTENT_JSON,
             buffer.toString(),
             null);
-      } else iResponse.send(OHttpUtils.STATUS_NOTFOUND_CODE, null, null, null, null);
+      } else {
+        iResponse.send(OHttpUtils.STATUS_NOTFOUND_CODE, null, null, null, null);
+      }
 
     } finally {
-      if (db != null) db.close();
+      if (db != null) {
+        db.close();
+      }
     }
     return false;
   }

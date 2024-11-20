@@ -32,11 +32,12 @@ import java.util.NoSuchElementException;
 /**
  * ResultSet implementation that allows concurrent population.
  *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  * @param <T>
+ * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  * @see OSQLAsynchQuery
  */
 public class OConcurrentLegacyResultSet<T> implements OLegacyResultSet<T> {
+
   protected final transient Object waitForNextItem = new Object();
   protected final transient Object waitForCompletion = new Object();
   protected final transient OBasicLegacyResultSet<T> wrapped;
@@ -188,7 +189,9 @@ public class OConcurrentLegacyResultSet<T> implements OLegacyResultSet<T> {
           size = wrapped.size();
         }
         while (!completed) {
-          if (index < size) return true;
+          if (index < size) {
+            return true;
+          }
 
           waitForNewItemOrCompleted();
 
@@ -208,7 +211,9 @@ public class OConcurrentLegacyResultSet<T> implements OLegacyResultSet<T> {
         }
 
         while (!completed) {
-          if (index < size) break;
+          if (index < size) {
+            break;
+          }
 
           waitForNewItemOrCompleted();
 
@@ -217,13 +222,14 @@ public class OConcurrentLegacyResultSet<T> implements OLegacyResultSet<T> {
           }
         }
 
-        if (index > size || size == 0)
+        if (index > size || size == 0) {
           throw new NoSuchElementException(
               "Error on browsing at element "
                   + index
                   + " while the resultset contains only "
                   + size
                   + " items");
+        }
 
         synchronized (wrapped) {
           return wrapped.get(index++);
@@ -354,23 +360,25 @@ public class OConcurrentLegacyResultSet<T> implements OLegacyResultSet<T> {
 
   protected void waitForCompletion() {
     synchronized (waitForCompletion) {
-      if (!completed)
+      if (!completed) {
         try {
           waitForCompletion.wait();
         } catch (InterruptedException e) {
           OLogManager.instance().error(this, "Thread was interrupted", e);
         }
+      }
     }
   }
 
   protected void waitForNewItemOrCompleted() {
     synchronized (waitForNextItem) {
-      if (!completed)
+      if (!completed) {
         try {
           waitForNextItem.wait();
         } catch (InterruptedException e) {
           OLogManager.instance().error(this, "Thread was interrupted", e);
         }
+      }
     }
   }
 

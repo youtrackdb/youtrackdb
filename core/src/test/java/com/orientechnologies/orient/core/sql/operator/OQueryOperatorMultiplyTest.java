@@ -25,8 +25,11 @@ import java.math.BigDecimal;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by luigidellaquila on 29/03/16. */
+/**
+ * Created by luigidellaquila on 29/03/16.
+ */
 public class OQueryOperatorMultiplyTest {
+
   @Test
   public void test() {
     OQueryOperatorMultiply operator = new OQueryOperatorMultiply();

@@ -2,7 +2,9 @@ package com.orientechnologies.orient.client.remote.message.tx;
 
 import com.orientechnologies.orient.core.tx.OTransactionIndexChanges;
 
-/** Created by tglman on 30/12/16. */
+/**
+ * Created by tglman on 30/12/16.
+ */
 public class IndexChange {
 
   public IndexChange(String name, OTransactionIndexChanges keyChanges) {
@@ -10,8 +12,8 @@ public class IndexChange {
     this.keyChanges = keyChanges;
   }
 
-  private String name;
-  private OTransactionIndexChanges keyChanges;
+  private final String name;
+  private final OTransactionIndexChanges keyChanges;
 
   public String getName() {
     return name;

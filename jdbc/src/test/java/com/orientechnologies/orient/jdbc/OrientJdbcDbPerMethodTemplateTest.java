@@ -62,8 +62,9 @@ public abstract class OrientJdbcDbPerMethodTemplateTest {
 
     createSchemaDB(db);
 
-    if (!new File("./src/test/resources/file.pdf").exists())
+    if (!new File("./src/test/resources/file.pdf").exists()) {
       OLogManager.instance().warn(this, "attachment will be not loaded!");
+    }
 
     loadDB(db, 20);
 
@@ -72,7 +73,9 @@ public abstract class OrientJdbcDbPerMethodTemplateTest {
 
   @After
   public void closeConnection() throws Exception {
-    if (conn != null && !conn.isClosed()) conn.close();
+    if (conn != null && !conn.isClosed()) {
+      conn.close();
+    }
     orientDB.close();
   }
 }

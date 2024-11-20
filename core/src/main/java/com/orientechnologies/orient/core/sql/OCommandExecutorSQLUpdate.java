@@ -33,7 +33,6 @@ import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.metadata.OMetadataInternal;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -72,12 +71,13 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
   private static final String KEYWORD_UPSERT = "UPSERT";
   private static final String KEYWORD_EDGE = "EDGE";
   private static final Object EMPTY_VALUE = new Object();
-  private List<OPair<String, Object>> setEntries = new ArrayList<OPair<String, Object>>();
-  private List<OPair<String, Object>> addEntries = new ArrayList<OPair<String, Object>>();
-  private List<OTriple<String, String, Object>> putEntries =
+  private final List<OPair<String, Object>> setEntries = new ArrayList<OPair<String, Object>>();
+  private final List<OPair<String, Object>> addEntries = new ArrayList<OPair<String, Object>>();
+  private final List<OTriple<String, String, Object>> putEntries =
       new ArrayList<OTriple<String, String, Object>>();
-  private List<OPair<String, Object>> removeEntries = new ArrayList<OPair<String, Object>>();
-  private List<OPair<String, Object>> incrementEntries = new ArrayList<OPair<String, Object>>();
+  private final List<OPair<String, Object>> removeEntries = new ArrayList<OPair<String, Object>>();
+  private final List<OPair<String, Object>> incrementEntries =
+      new ArrayList<OPair<String, Object>>();
   private ODocument merge = null;
   private OReturnHandler returnHandler = new ORecordCountHandler();
   private OQuery<?> query;
@@ -100,7 +100,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
     String originalQuery = queryText;
     try {
       queryText = preParse(queryText, iRequest);
-      if (isUpdateEdge()) {
+      if (updateEdge) {
         queryText =
             queryText.replaceFirst(
                 "EDGE ", ""); // work-around to use UPDATE syntax without having to
@@ -260,9 +260,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
         }
 
         isUpsertAllowed =
-            (((OMetadataInternal) getDatabase().getMetadata())
-                    .getImmutableSchemaSnapshot()
-                    .getClass(subjectName)
+            (getDatabase().getMetadata().getImmutableSchemaSnapshot().getClass(subjectName)
                 != null);
       } else if (!additionalStatement.isEmpty()) {
         throwSyntaxErrorException("Invalid keyword " + additionalStatement);
@@ -367,7 +365,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
   public boolean result(final Object iRecord) {
     final ODocument record = ((OIdentifiable) iRecord).getRecord();
 
-    if (isUpdateEdge() && !isRecordInstanceOf(iRecord, "E")) {
+    if (updateEdge && !isRecordInstanceOf(iRecord, "E")) {
       throw new OCommandExecutionException(
           "Using UPDATE EDGE on a record that is not an instance of E");
     }
@@ -459,14 +457,14 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
         edgeClassName = "";
       }
       String vertexFieldName = direction + "_" + edgeClassName;
-      ODocument prevOutDoc = ((OIdentifiable) prevVertex).getRecord();
+      ODocument prevOutDoc = prevVertex.getRecord();
       ORidBag prevBag = prevOutDoc.field(vertexFieldName);
       if (prevBag != null) {
         prevBag.remove(edge);
         prevOutDoc.save();
       }
 
-      ODocument currentVertexDoc = ((OIdentifiable) currentVertex).getRecord();
+      ODocument currentVertexDoc = currentVertex.getRecord();
       ORidBag currentBag = currentVertexDoc.field(vertexFieldName);
       if (currentBag == null) {
         currentBag = new ORidBag();
@@ -479,11 +477,11 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
   private void validateOutInForEdge(ODocument record, Object currentOut, Object currentIn) {
     if (!isRecordInstanceOf(currentOut, "V")) {
       throw new OCommandExecutionException(
-          "Error updating edge: 'out' is not a vertex - " + currentOut + "");
+          "Error updating edge: 'out' is not a vertex - " + currentOut);
     }
     if (!isRecordInstanceOf(currentIn, "V")) {
       throw new OCommandExecutionException(
-          "Error updating edge: 'in' is not a vertex - " + currentIn + "");
+          "Error updating edge: 'in' is not a vertex - " + currentIn);
     }
   }
 

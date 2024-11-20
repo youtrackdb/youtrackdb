@@ -36,6 +36,7 @@ import sun.misc.Unsafe;
  */
 @SuppressWarnings("restriction")
 public class OUnsafeByteArrayComparator implements Comparator<byte[]> {
+
   public static final OUnsafeByteArrayComparator INSTANCE = new OUnsafeByteArrayComparator();
 
   private static final Unsafe unsafe;
@@ -65,7 +66,9 @@ public class OUnsafeByteArrayComparator implements Comparator<byte[]> {
 
     final int byteArrayScale = unsafe.arrayIndexScale(byte[].class);
 
-    if (byteArrayScale != 1) throw new Error();
+    if (byteArrayScale != 1) {
+      throw new Error();
+    }
   }
 
   public int compare(byte[] arrayOne, byte[] arrayTwo) {
@@ -78,17 +81,22 @@ public class OUnsafeByteArrayComparator implements Comparator<byte[]> {
       final long wOne = unsafe.getLong(arrayOne, index);
       final long wTwo = unsafe.getLong(arrayTwo, index);
 
-      if (wOne == wTwo) continue;
+      if (wOne == wTwo) {
+        continue;
+      }
 
-      if (littleEndian)
+      if (littleEndian) {
         return lessThanUnsigned(Long.reverseBytes(wOne), Long.reverseBytes(wTwo)) ? -1 : 1;
+      }
 
       return lessThanUnsigned(wOne, wTwo) ? -1 : 1;
     }
 
     for (int i = WORDS * LONG_SIZE; i < commonLen; i++) {
       int diff = compareUnsignedByte(arrayOne[i], arrayTwo[i]);
-      if (diff != 0) return diff;
+      if (diff != 0) {
+        return diff;
+      }
     }
 
     return Integer.compare(arrayOne.length, arrayTwo.length);

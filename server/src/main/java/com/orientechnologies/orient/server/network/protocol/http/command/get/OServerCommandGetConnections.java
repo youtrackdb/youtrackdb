@@ -28,6 +28,7 @@ import com.orientechnologies.orient.server.network.protocol.http.command.OServer
 import java.io.StringWriter;
 
 public class OServerCommandGetConnections extends OServerCommandAuthenticatedServerAbstract {
+
   private static final String[] NAMES = {"GET|connections/*"};
 
   public OServerCommandGetConnections() {

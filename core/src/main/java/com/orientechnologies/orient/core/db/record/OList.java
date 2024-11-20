@@ -70,7 +70,7 @@ public class OList extends OTrackedList<OIdentifiable> implements OIdentifiableM
   @SuppressWarnings("unchecked")
   @Override
   public boolean addAll(Collection<? extends OIdentifiable> c) {
-    final Iterator it = (Iterator) c.iterator();
+    final Iterator it = c.iterator();
 
     while (it.hasNext()) {
       Object o = it.next();

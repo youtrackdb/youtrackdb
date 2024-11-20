@@ -20,7 +20,9 @@ package com.orientechnologies.orient.server.plugin;
 
 import com.orientechnologies.orient.core.record.impl.ODocument;
 
-/** Created by Enrico Risa on 18/11/15. */
+/**
+ * Created by Enrico Risa on 18/11/15.
+ */
 public interface OServerPluginConfigurable {
 
   public ODocument getConfig();

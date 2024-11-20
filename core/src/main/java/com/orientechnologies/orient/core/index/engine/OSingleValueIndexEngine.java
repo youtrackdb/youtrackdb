@@ -5,6 +5,7 @@ import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoper
 import java.io.IOException;
 
 public interface OSingleValueIndexEngine extends OV1IndexEngine {
+
   boolean validatedPut(
       OAtomicOperation atomicOperation,
       Object key,

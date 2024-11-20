@@ -23,8 +23,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-/** Created by frank on 03/03/2016. */
+/**
+ * Created by frank on 03/03/2016.
+ */
 public class OLuceneDirectoryFactoryTest extends BaseLuceneTest {
+
   private OLuceneDirectoryFactory fc;
   private ODocument meta;
   private OIndexDefinition indexDef;
@@ -33,7 +36,7 @@ public class OLuceneDirectoryFactoryTest extends BaseLuceneTest {
   public void setUp() throws Exception {
     meta = new ODocument();
     indexDef = Mockito.mock(OIndexDefinition.class);
-    when(indexDef.getFields()).thenReturn(Collections.<String>emptyList());
+    when(indexDef.getFields()).thenReturn(Collections.emptyList());
     when(indexDef.getClassName()).thenReturn("Song");
     fc = new OLuceneDirectoryFactory();
   }

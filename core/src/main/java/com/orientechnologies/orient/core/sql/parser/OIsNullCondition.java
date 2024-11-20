@@ -126,13 +126,18 @@ public class OIsNullCondition extends OBooleanExpression {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OIsNullCondition that = (OIsNullCondition) o;
 
-    if (expression != null ? !expression.equals(that.expression) : that.expression != null)
+    if (expression != null ? !expression.equals(that.expression) : that.expression != null) {
       return false;
+    }
 
     return true;
   }

@@ -27,6 +27,7 @@ import com.orientechnologies.common.listener.OProgressListener;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class ONullOutputListener implements OProgressListener {
+
   public static final ONullOutputListener INSTANCE = new ONullOutputListener();
 
   @Override

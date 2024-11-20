@@ -143,10 +143,7 @@ public class OSet extends AbstractCollection<OIdentifiable>
       return false;
     }
 
-    if (super.retainAll(c)) {
-      return true;
-    }
-    return false;
+    return super.retainAll(c);
   }
 
   @Override
@@ -295,7 +292,7 @@ public class OSet extends AbstractCollection<OIdentifiable>
         iter = OSet.this.map.entrySet().iterator();
       }
 
-      private Iterator<Entry<OIdentifiable, Object>> iter;
+      private final Iterator<Entry<OIdentifiable, Object>> iter;
       private Entry<OIdentifiable, Object> last;
 
       @Override

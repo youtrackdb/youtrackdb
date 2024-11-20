@@ -27,6 +27,7 @@ import com.orientechnologies.orient.core.config.OGlobalConfiguration;
  * @since 26.07.12
  */
 public class OBinaryConverterFactory {
+
   private static final boolean unsafeWasDetected;
 
   static {
@@ -45,7 +46,9 @@ public class OBinaryConverterFactory {
   public static OBinaryConverter getConverter() {
     boolean useUnsafe = OGlobalConfiguration.MEMORY_USE_UNSAFE.getValueAsBoolean();
 
-    if (useUnsafe && unsafeWasDetected) return OUnsafeBinaryConverter.INSTANCE;
+    if (useUnsafe && unsafeWasDetected) {
+      return OUnsafeBinaryConverter.INSTANCE;
+    }
 
     return OSafeBinaryConverter.INSTANCE;
   }

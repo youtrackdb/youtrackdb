@@ -20,9 +20,9 @@ import java.util.concurrent.locks.ReentrantLock;
  * <p>Elements may be added in this container only in open state,as result after addition of some
  * elements other rarely used elements will be closed.
  *
- * <p>When you want to use elements from container you should acquire them {@link #acquire(Object)}.
- * So element still will be inside of container but in acquired state. As result it will not be
- * automatically closed when container will try to close rarely used items.
+ * <p>When you want to use elements from container you should acquire them
+ * {@link #acquire(Object)}. So element still will be inside of container but in acquired state. As
+ * result it will not be automatically closed when container will try to close rarely used items.
  *
  * <p>Container uses LRU eviction policy to choose item to be closed.
  *
@@ -90,31 +90,49 @@ public class OClosableLinkedContainer<K, V extends OClosableItem> {
    * which has been noticed that read buffer should be drained calls tryLock but not lock operation.
    */
 
-  /** The number of CPUs */
+  /**
+   * The number of CPUs
+   */
   private static final int NCPU = Runtime.getRuntime().availableProcessors();
 
-  /** The number of read buffers to use. */
+  /**
+   * The number of read buffers to use.
+   */
   private static final int NUMBER_OF_READ_BUFFERS = closestPowerOfTwo(NCPU);
 
-  /** Mask value for indexing into the read buffers. */
+  /**
+   * Mask value for indexing into the read buffers.
+   */
   private static final int READ_BUFFERS_MASK = NUMBER_OF_READ_BUFFERS - 1;
 
-  /** The number of pending read operations before attempting to drain. */
+  /**
+   * The number of pending read operations before attempting to drain.
+   */
   private static final int READ_BUFFER_THRESHOLD = 32;
 
-  /** The maximum number of read operations to perform per amortized drain. */
+  /**
+   * The maximum number of read operations to perform per amortized drain.
+   */
   private static final int READ_BUFFER_DRAIN_THRESHOLD = 2 * READ_BUFFER_THRESHOLD;
 
-  /** The maximum number of write operations to perform per amortized drain. */
+  /**
+   * The maximum number of write operations to perform per amortized drain.
+   */
   private static final int WRITE_BUFFER_DRAIN_THRESHOLD = 32;
 
-  /** The maximum number of pending reads per buffer. */
+  /**
+   * The maximum number of pending reads per buffer.
+   */
   private static final int READ_BUFFER_SIZE = 2 * READ_BUFFER_DRAIN_THRESHOLD;
 
-  /** Mask value for indexing into the read buffer. */
+  /**
+   * Mask value for indexing into the read buffer.
+   */
   private static final int READ_BUFFER_INDEX_MASK = READ_BUFFER_SIZE - 1;
 
-  /** Last indexes of buffers on which buffer flush procedure was stopped */
+  /**
+   * Last indexes of buffers on which buffer flush procedure was stopped
+   */
   private final long[] readBufferReadCount = new long[NUMBER_OF_READ_BUFFERS];
 
   /**
@@ -123,7 +141,9 @@ public class OClosableLinkedContainer<K, V extends OClosableItem> {
    */
   private final AtomicLong[] readBufferWriteCount;
 
-  /** Values of {@link #readBufferWriteCount} on which buffers were flushed. */
+  /**
+   * Values of {@link #readBufferWriteCount} on which buffers were flushed.
+   */
   private final AtomicLong[] readBufferDrainAtWriteCount;
 
   /**
@@ -134,12 +154,14 @@ public class OClosableLinkedContainer<K, V extends OClosableItem> {
   private final AtomicReference<OClosableEntry<K, V>>[][] readBuffers;
 
   /**
-   * Lock which wraps all buffer flush operations and as result protects changes of {@link
-   * #lruList}.
+   * Lock which wraps all buffer flush operations and as result protects changes of
+   * {@link #lruList}.
    */
   private final Lock lruLock = new ReentrantLock();
 
-  /** LRU list to updated statistic of recency of contained items. */
+  /**
+   * LRU list to updated statistic of recency of contained items.
+   */
   private final OClosableLRUList<K, V> lruList = new OClosableLRUList<K, V>();
 
   /**
@@ -155,17 +177,25 @@ public class OClosableLinkedContainer<K, V extends OClosableItem> {
    */
   private final ConcurrentLinkedQueue<Runnable> stateBuffer = new ConcurrentLinkedQueue<Runnable>();
 
-  /** Maximum amount of open items inside of container. */
+  /**
+   * Maximum amount of open items inside of container.
+   */
   private final int openLimit;
 
-  /** Status which indicates whether flush of buffers should be performed or may be delayed. */
+  /**
+   * Status which indicates whether flush of buffers should be performed or may be delayed.
+   */
   private final AtomicReference<DrainStatus> drainStatus =
       new AtomicReference<DrainStatus>(DrainStatus.IDLE);
 
-  /** Latch which prevents addition or open of new files if limit of open files is reached */
+  /**
+   * Latch which prevents addition or open of new files if limit of open files is reached
+   */
   private final AtomicReference<CountDownLatch> openLatch = new AtomicReference<CountDownLatch>();
 
-  /** Amount of simultaneously open files in container */
+  /**
+   * Amount of simultaneously open files in container
+   */
   private final AtomicInteger openFiles = new AtomicInteger();
 
   /**
@@ -198,12 +228,13 @@ public class OClosableLinkedContainer<K, V extends OClosableItem> {
   /**
    * Adds item to the container. Item should be in open state.
    *
-   * @param key Key associated with given item.
+   * @param key  Key associated with given item.
    * @param item Item associated with passed in key.
    */
   public void add(K key, V item) throws InterruptedException {
-    if (!item.isOpen())
+    if (!item.isOpen()) {
       throw new IllegalArgumentException("All passed in items should be in open state");
+    }
 
     checkOpenFilesLimit();
 
@@ -246,7 +277,7 @@ public class OClosableLinkedContainer<K, V extends OClosableItem> {
    *
    * @param key Key associated with item
    * @return Acquired item if key exists into container or <code>null</code> if there is no item
-   *     associated with given container
+   * associated with given container
    */
   public OClosableEntry<K, V> acquire(K key) throws InterruptedException {
     checkOpenFilesLimit();
@@ -257,7 +288,9 @@ public class OClosableLinkedContainer<K, V extends OClosableItem> {
   private OClosableEntry<K, V> doAcquireEntry(K key) {
     final OClosableEntry<K, V> entry = data.get(key);
 
-    if (entry == null) return null;
+    if (entry == null) {
+      return null;
+    }
 
     boolean logOpen = false;
     entry.acquireStateLock();
@@ -303,7 +336,9 @@ public class OClosableLinkedContainer<K, V extends OClosableItem> {
    */
   private void checkOpenFilesLimit() throws InterruptedException {
     CountDownLatch ol = openLatch.get();
-    if (ol != null) ol.await();
+    if (ol != null) {
+      ol.await();
+    }
 
     while (openFiles.get() > openLimit) {
       final CountDownLatch latch = new CountDownLatch(1);
@@ -319,14 +354,18 @@ public class OClosableLinkedContainer<K, V extends OClosableItem> {
       } else {
         ol = openLatch.get();
 
-        if (ol != null) ol.await();
+        if (ol != null) {
+          ol.await();
+        }
       }
     }
   }
 
   private boolean tryCheckOpenFilesLimit() throws InterruptedException {
     CountDownLatch ol = openLatch.get();
-    if (ol != null) ol.await();
+    if (ol != null) {
+      ol.await();
+    }
 
     while (openFiles.get() > openLimit) {
       final CountDownLatch latch = new CountDownLatch(1);
@@ -343,7 +382,9 @@ public class OClosableLinkedContainer<K, V extends OClosableItem> {
       } else {
         ol = openLatch.get();
 
-        if (ol != null) ol.await();
+        if (ol != null) {
+          ol.await();
+        }
       }
     }
 
@@ -370,12 +411,16 @@ public class OClosableLinkedContainer<K, V extends OClosableItem> {
    */
   public V get(K key) {
     final OClosableEntry<K, V> entry = data.get(key);
-    if (entry != null) return entry.get();
+    if (entry != null) {
+      return entry.get();
+    }
 
     return null;
   }
 
-  /** Clears all content. */
+  /**
+   * Clears all content.
+   */
   public void clear() {
     lruLock.lock();
     try {
@@ -412,7 +457,9 @@ public class OClosableLinkedContainer<K, V extends OClosableItem> {
     emptyBuffers();
 
     final OClosableEntry<K, V> entry = data.get(key);
-    if (entry == null) return true;
+    if (entry == null) {
+      return true;
+    }
 
     if (entry.makeClosed()) {
       countClosedFiles();
@@ -431,7 +478,9 @@ public class OClosableLinkedContainer<K, V extends OClosableItem> {
 
       for (OClosableEntry<K, V> entry : lruList) {
         boolean result = data.containsValue(entry);
-        if (!result) return false;
+        if (!result) {
+          return false;
+        }
       }
 
     } finally {
@@ -458,15 +507,20 @@ public class OClosableLinkedContainer<K, V extends OClosableItem> {
       for (OClosableEntry<K, V> entry : data.values()) {
         boolean contains = false;
 
-        if (!entry.get().isOpen()) continue;
+        if (!entry.get().isOpen()) {
+          continue;
+        }
 
         for (OClosableEntry<K, V> lruEntry : lruList) {
           if (lruEntry == entry) {
             contains = true;
+            break;
           }
         }
 
-        if (!contains) return false;
+        if (!contains) {
+          return false;
+        }
       }
     } finally {
       lruLock.unlock();
@@ -484,15 +538,20 @@ public class OClosableLinkedContainer<K, V extends OClosableItem> {
       for (OClosableEntry<K, V> entry : data.values()) {
         boolean contains = false;
 
-        if (entry.get().isOpen()) continue;
+        if (entry.get().isOpen()) {
+          continue;
+        }
 
         for (OClosableEntry<K, V> lruEntry : lruList) {
           if (lruEntry == entry) {
             contains = true;
+            break;
           }
         }
 
-        if (contains) return false;
+        if (contains) {
+          return false;
+        }
       }
     } finally {
       lruLock.unlock();
@@ -529,7 +588,9 @@ public class OClosableLinkedContainer<K, V extends OClosableItem> {
         final AtomicReference<OClosableEntry<K, V>> eref = buffer[bufferIndex];
         final OClosableEntry<K, V> entry = eref.get();
 
-        if (entry == null) break;
+        if (entry == null) {
+          break;
+        }
 
         applyRead(entry);
         counter++;
@@ -622,7 +683,7 @@ public class OClosableLinkedContainer<K, V extends OClosableItem> {
    * Adds entry to the read buffer with selected index and returns amount of writes to this buffer
    * since creation of this container.
    *
-   * @param entry LRU entry to add.
+   * @param entry       LRU entry to add.
    * @param bufferIndex Index of buffer
    * @return Amount of writes to the buffer since creation of this container.
    */
@@ -645,7 +706,7 @@ public class OClosableLinkedContainer<K, V extends OClosableItem> {
 
   /**
    * @param bufferIndex Read buffer index
-   * @param writeCount Amount of writes performed for given buffer
+   * @param writeCount  Amount of writes performed for given buffer
    */
   private void drainReadBuffersIfNeeded(int bufferIndex, long writeCount) {
     // amount of writes to the buffer at the last time when buffer was flushed
@@ -696,7 +757,9 @@ public class OClosableLinkedContainer<K, V extends OClosableItem> {
       final int entryIndex = (int) (bufferCounter & READ_BUFFER_INDEX_MASK);
       final AtomicReference<OClosableEntry<K, V>> bufferEntry = buffer[entryIndex];
       final OClosableEntry<K, V> entry = bufferEntry.get();
-      if (entry == null) break;
+      if (entry == null) {
+        break;
+      }
 
       bufferCounter++;
       applyRead(entry);
@@ -719,7 +782,9 @@ public class OClosableLinkedContainer<K, V extends OClosableItem> {
   private void drainWriteBuffer() {
     for (int i = 0; i < WRITE_BUFFER_DRAIN_THRESHOLD; i++) {
       Runnable task = stateBuffer.poll();
-      if (task == null) break;
+      if (task == null) {
+        break;
+      }
 
       task.run();
     }
@@ -782,7 +847,9 @@ public class OClosableLinkedContainer<K, V extends OClosableItem> {
       }
 
       // there are no items in open state stop eviction
-      if (!entryClosed) break;
+      if (!entryClosed) {
+        break;
+      }
     }
 
     if (closedFiles > 0) {
@@ -807,6 +874,7 @@ public class OClosableLinkedContainer<K, V extends OClosableItem> {
   }
 
   private class LogAdd implements Runnable {
+
     private final OClosableEntry<K, V> entry;
 
     private LogAdd(OClosableEntry<K, V> entry) {
@@ -826,6 +894,7 @@ public class OClosableLinkedContainer<K, V extends OClosableItem> {
   }
 
   private class LogRemoved implements Runnable {
+
     private final OClosableEntry<K, V> entry;
 
     private LogRemoved(OClosableEntry<K, V> entry) {
@@ -842,6 +911,7 @@ public class OClosableLinkedContainer<K, V extends OClosableItem> {
   }
 
   private class LogOpen implements Runnable {
+
     private final OClosableEntry<K, V> entry;
 
     private LogOpen(OClosableEntry<K, V> entry) {

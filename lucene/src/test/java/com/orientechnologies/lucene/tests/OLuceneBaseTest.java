@@ -32,7 +32,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
 
-/** Created by enricorisa on 19/09/14. */
+/**
+ * Created by enricorisa on 19/09/14.
+ */
 public abstract class OLuceneBaseTest {
 
   @Rule public TestName name = new TestName();
@@ -57,7 +59,9 @@ public abstract class OLuceneBaseTest {
 
     if ("ci".equals(config) || "release".equals(config)) {
       orient = new OrientDB("embedded:./target/databases/", cfg);
-      if (orient.exists(name.getMethodName())) orient.drop(name.getMethodName());
+      if (orient.exists(name.getMethodName())) {
+        orient.drop(name.getMethodName());
+      }
 
       orient.execute(
           "create database ? plocal users(admin identified by 'admin' role admin) ",
@@ -65,7 +69,9 @@ public abstract class OLuceneBaseTest {
 
     } else {
       orient = new OrientDB("embedded:", cfg);
-      if (orient.exists(name.getMethodName())) orient.drop(name.getMethodName());
+      if (orient.exists(name.getMethodName())) {
+        orient.drop(name.getMethodName());
+      }
 
       orient.execute(
           "create database ? memory users(admin identified by 'admin' role admin) ",

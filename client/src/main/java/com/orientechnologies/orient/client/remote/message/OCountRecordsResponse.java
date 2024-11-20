@@ -27,6 +27,7 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 public class OCountRecordsResponse implements OBinaryResponse {
+
   private long countRecords;
 
   public OCountRecordsResponse(long countRecords) {

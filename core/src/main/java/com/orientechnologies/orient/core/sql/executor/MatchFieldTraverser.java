@@ -7,6 +7,7 @@ import com.orientechnologies.orient.core.sql.parser.OFieldMatchPathItem;
 import com.orientechnologies.orient.core.sql.parser.OMatchPathItem;
 
 public class MatchFieldTraverser extends MatchEdgeTraverser {
+
   public MatchFieldTraverser(OResult lastUpstreamRecord, EdgeTraversal edge) {
     super(lastUpstreamRecord, edge);
   }

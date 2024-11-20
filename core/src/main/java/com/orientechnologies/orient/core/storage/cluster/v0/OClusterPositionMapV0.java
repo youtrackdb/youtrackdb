@@ -36,6 +36,7 @@ import java.util.Arrays;
  * @since 10/7/13
  */
 public class OClusterPositionMapV0 extends OClusterPositionMap {
+
   private long fileId;
 
   OClusterPositionMapV0(
@@ -442,7 +443,9 @@ public class OClusterPositionMapV0 extends OClusterPositionMap {
     return ORID.CLUSTER_POS_INVALID;
   }
 
-  /** Returns the next position available. */
+  /**
+   * Returns the next position available.
+   */
   long getNextPosition(final OAtomicOperation atomicOperation) throws IOException {
     final long filledUpTo = getFilledUpTo(atomicOperation, fileId);
 
@@ -460,6 +463,7 @@ public class OClusterPositionMapV0 extends OClusterPositionMap {
   }
 
   public static class OClusterPositionEntry {
+
     private final long position;
     private final long page;
     private final int offset;

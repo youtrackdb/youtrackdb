@@ -33,6 +33,7 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
 public class OJMXPlugin extends OServerPluginAbstract {
+
   private ObjectName onProfiler;
   private boolean profilerManaged;
 
@@ -43,10 +44,13 @@ public class OJMXPlugin extends OServerPluginAbstract {
     for (OServerParameterConfiguration param : iParams) {
       if (param.name.equalsIgnoreCase("enabled")) {
         if (!Boolean.parseBoolean(param.value))
-          // DISABLE IT
+        // DISABLE IT
+        {
           return;
-      } else if (param.name.equalsIgnoreCase("profilerManaged"))
+        }
+      } else if (param.name.equalsIgnoreCase("profilerManaged")) {
         profilerManaged = Boolean.parseBoolean(param.value);
+      }
     }
 
     OLogManager.instance()
@@ -58,7 +62,9 @@ public class OJMXPlugin extends OServerPluginAbstract {
       if (profilerManaged) {
         // REGISTER THE PROFILER
         onProfiler = new ObjectName("com.orientechnologies.common.profiler:type=OProfilerMXBean");
-        if (mBeanServer.isRegistered(onProfiler)) mBeanServer.unregisterMBean(onProfiler);
+        if (mBeanServer.isRegistered(onProfiler)) {
+          mBeanServer.unregisterMBean(onProfiler);
+        }
         mBeanServer.registerMBean(Orient.instance().getProfiler(), onProfiler);
       }
 
@@ -77,8 +83,11 @@ public class OJMXPlugin extends OServerPluginAbstract {
   public void shutdown() {
     try {
       MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
-      if (onProfiler != null)
-        if (mBeanServer.isRegistered(onProfiler)) mBeanServer.unregisterMBean(onProfiler);
+      if (onProfiler != null) {
+        if (mBeanServer.isRegistered(onProfiler)) {
+          mBeanServer.unregisterMBean(onProfiler);
+        }
+      }
 
     } catch (Exception e) {
       OLogManager.instance()

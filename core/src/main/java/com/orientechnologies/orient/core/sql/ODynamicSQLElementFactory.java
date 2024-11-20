@@ -84,7 +84,9 @@ public class ODynamicSQLElementFactory
       throws OCommandExecutionException {
     final Class<? extends OCommandExecutorSQLAbstract> clazz = COMMANDS.get(name);
 
-    if (clazz == null) throw new OCommandExecutionException("Unknown command name :" + name);
+    if (clazz == null) {
+      throw new OCommandExecutionException("Unknown command name :" + name);
+    }
 
     try {
       return clazz.newInstance();

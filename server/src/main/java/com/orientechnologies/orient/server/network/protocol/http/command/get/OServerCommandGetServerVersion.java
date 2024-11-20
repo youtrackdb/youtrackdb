@@ -25,6 +25,7 @@ import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
 
 public class OServerCommandGetServerVersion extends OServerCommandGetConnections {
+
   private static final String[] NAMES = {"GET|server/version"};
 
   public OServerCommandGetServerVersion() {

@@ -8,7 +8,9 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
-/** Tests for issue #7661 */
+/**
+ * Tests for issue #7661
+ */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ODemoDbGroupByTestIT extends OIntegrationTestTemplate {
 

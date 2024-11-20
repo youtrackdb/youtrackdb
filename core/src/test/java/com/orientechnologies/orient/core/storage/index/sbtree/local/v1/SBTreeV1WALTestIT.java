@@ -35,6 +35,7 @@ import org.junit.*;
  */
 @Ignore
 public class SBTreeV1WALTestIT extends SBTreeV1TestIT {
+
   static {
     OGlobalConfiguration.FILE_LOCK.setValue(false);
   }

@@ -27,6 +27,7 @@ import com.orientechnologies.common.exception.OSystemException;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OTimeoutException extends OSystemException {
+
   private static final long serialVersionUID = 1L;
 
   public OTimeoutException(OTimeoutException exception) {

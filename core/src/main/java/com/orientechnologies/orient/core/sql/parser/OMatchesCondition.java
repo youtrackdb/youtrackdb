@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class OMatchesCondition extends OBooleanExpression {
+
   protected OExpression expression;
 
   protected String right;
@@ -191,17 +192,26 @@ public class OMatchesCondition extends OBooleanExpression {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OMatchesCondition that = (OMatchesCondition) o;
 
-    if (expression != null ? !expression.equals(that.expression) : that.expression != null)
+    if (expression != null ? !expression.equals(that.expression) : that.expression != null) {
       return false;
-    if (right != null ? !right.equals(that.right) : that.right != null) return false;
+    }
+    if (right != null ? !right.equals(that.right) : that.right != null) {
+      return false;
+    }
     if (rightExpression != null
         ? !rightExpression.equals(that.rightExpression)
-        : that.rightExpression != null) return false;
+        : that.rightExpression != null) {
+      return false;
+    }
     return rightParam != null ? rightParam.equals(that.rightParam) : that.rightParam == null;
   }
 

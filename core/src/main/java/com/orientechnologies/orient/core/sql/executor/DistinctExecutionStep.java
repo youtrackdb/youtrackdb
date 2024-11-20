@@ -10,7 +10,9 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
 import java.util.HashSet;
 import java.util.Set;
 
-/** Created by luigidellaquila on 08/07/16. */
+/**
+ * Created by luigidellaquila on 08/07/16.
+ */
 public class DistinctExecutionStep extends AbstractExecutionStep {
 
   private final long maxElementsAllowed;

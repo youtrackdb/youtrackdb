@@ -4,6 +4,7 @@ import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OLogSe
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OWALRecord;
 
 public final class StartWALRecord implements OWALRecord {
+
   private volatile OLogSequenceNumber logSequenceNumber;
 
   @Override

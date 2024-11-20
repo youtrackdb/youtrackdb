@@ -27,6 +27,7 @@ import com.orientechnologies.orient.core.id.ORecordId;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface ODistributedStorageEventListener {
+
   void onAfterRecordLock(ORecordId rid);
 
   void onAfterRecordUnlock(ORecordId rid);

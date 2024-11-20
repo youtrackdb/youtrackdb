@@ -48,35 +48,44 @@ public class ORemoteURLs {
     remove(url);
     OLogManager.instance().debug(this, "Updated server list: %s...", serverURLs);
 
-    if (!serverURLs.isEmpty()) return serverURLs.get(0);
-    else return null;
+    if (!serverURLs.isEmpty()) {
+      return serverURLs.get(0);
+    } else {
+      return null;
+    }
   }
 
   public synchronized void addAll(List<String> toAdd, OContextConfiguration clientConfiguration) {
     if (toAdd.size() > 0) {
       serverURLs.clear();
       this.nextServerToConnect = 0;
-      for (String host : toAdd) addHost(host, clientConfiguration);
+      for (String host : toAdd) {
+        addHost(host, clientConfiguration);
+      }
     }
   }
 
-  /** Registers the remote server with port. */
+  /**
+   * Registers the remote server with port.
+   */
   protected String addHost(String host, OContextConfiguration clientConfiguration) {
 
-    if (host.contains("/")) host = host.substring(0, host.indexOf("/"));
+    if (host.contains("/")) {
+      host = host.substring(0, host.indexOf('/'));
+    }
 
     // REGISTER THE REMOTE SERVER+PORT
     if (!host.contains(":")) {
       if (clientConfiguration.getValueAsBoolean(OGlobalConfiguration.CLIENT_USE_SSL)) {
-        host += ":" + getDefaultSSLPort();
+        host += ":" + DEFAULT_SSL_PORT;
       } else {
-        host += ":" + getDefaultPort();
+        host += ":" + DEFAULT_PORT;
       }
     } else if (host.split(":").length < 2 || host.split(":")[1].trim().length() == 0) {
       if (clientConfiguration.getValueAsBoolean(OGlobalConfiguration.CLIENT_USE_SSL)) {
-        host += getDefaultSSLPort();
+        host += DEFAULT_SSL_PORT;
       } else {
-        host += getDefaultPort();
+        host += DEFAULT_PORT;
       }
     }
 
@@ -103,9 +112,8 @@ public class ORemoteURLs {
       // SHORT FORM
       addresses.add(url);
     } else {
-      for (String host : url.substring(0, dbPos).split(OStorageRemote.ADDRESS_SEPARATOR)) {
-        addresses.add(host);
-      }
+      Collections.addAll(
+          addresses, url.substring(0, dbPos).split(OStorageRemote.ADDRESS_SEPARATOR));
     }
     return addresses;
   }
@@ -118,7 +126,7 @@ public class ORemoteURLs {
       // SHORT FORM
       name = url;
     } else {
-      name = url.substring(url.lastIndexOf("/") + 1);
+      name = url.substring(url.lastIndexOf('/') + 1);
     }
     String lastHost = null;
     List<String> hosts = parseAddressesFromUrl(url);
@@ -165,14 +173,15 @@ public class ORemoteURLs {
       final String hostName =
           !primaryServer.contains(":")
               ? primaryServer
-              : primaryServer.substring(0, primaryServer.indexOf(":"));
+              : primaryServer.substring(0, primaryServer.indexOf(':'));
       final Attributes attrs = ictx.getAttributes(hostName, new String[] {"TXT"});
       final Attribute attr = attrs.get("TXT");
       if (attr != null) {
         for (int i = 0; i < attr.size(); ++i) {
           String configuration = (String) attr.get(i);
-          if (configuration.startsWith("\""))
+          if (configuration.startsWith("\"")) {
             configuration = configuration.substring(1, configuration.length() - 1);
+          }
           if (configuration != null) {
             final String[] parts = configuration.split(" ");
             for (String part : parts) {
@@ -192,15 +201,18 @@ public class ORemoteURLs {
       OStorageRemoteSession session, OContextConfiguration contextConfiguration) {
     if (serverURLs.isEmpty()) {
       reloadOriginalURLs();
-      if (serverURLs.isEmpty())
+      if (serverURLs.isEmpty()) {
         throw new OStorageException(
             "Cannot create a connection to remote server because url list is empty");
+      }
     }
 
     this.nextServerToConnect++;
     if (this.nextServerToConnect >= serverURLs.size())
-      // RESET INDEX
+    // RESET INDEX
+    {
       this.nextServerToConnect = 0;
+    }
 
     final String serverURL = serverURLs.get(this.nextServerToConnect);
     if (session != null) {
@@ -220,21 +232,29 @@ public class ORemoteURLs {
     }
     if (serverURLs.isEmpty()) {
       reloadOriginalURLs();
-      if (serverURLs.isEmpty())
+      if (serverURLs.isEmpty()) {
         throw new OStorageException(
             "Cannot create a connection to remote server because url list is empty");
+      }
     }
 
     // GET CURRENT THREAD INDEX
     int serverURLIndex;
-    if (session != null) serverURLIndex = session.serverURLIndex;
-    else serverURLIndex = 0;
+    if (session != null) {
+      serverURLIndex = session.serverURLIndex;
+    } else {
+      serverURLIndex = 0;
+    }
 
-    if (iNextAvailable) serverURLIndex++;
+    if (iNextAvailable) {
+      serverURLIndex++;
+    }
 
     if (serverURLIndex < 0 || serverURLIndex >= serverURLs.size())
-      // RESET INDEX
+    // RESET INDEX
+    {
       serverURLIndex = 0;
+    }
 
     final String serverURL = serverURLs.get(serverURLIndex);
 
@@ -258,7 +278,9 @@ public class ORemoteURLs {
     switch (strategy) {
       case STICKY:
         url = session.getServerUrl();
-        if (url == null) url = getServerURFromList(false, session, contextConfiguration);
+        if (url == null) {
+          url = getServerURFromList(false, session, contextConfiguration);
+        }
         break;
 
       case ROUND_ROBIN_CONNECT:

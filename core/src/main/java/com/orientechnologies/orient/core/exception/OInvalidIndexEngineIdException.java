@@ -21,6 +21,7 @@ package com.orientechnologies.orient.core.exception;
  * data should be reloaded
  */
 public class OInvalidIndexEngineIdException extends Exception {
+
   public OInvalidIndexEngineIdException(String message) {
     super(message);
   }

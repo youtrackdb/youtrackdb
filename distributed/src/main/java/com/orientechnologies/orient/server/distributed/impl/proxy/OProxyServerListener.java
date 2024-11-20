@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class OProxyServerListener extends Thread {
+
   private final OProxyServer server;
   private final int localPort;
   private final int remotePort;
@@ -74,7 +75,7 @@ public class OProxyServerListener extends Thread {
               remotePort);
     }
 
-    while (running && !localSocket.isClosed())
+    while (running && !localSocket.isClosed()) {
       try {
         final Socket sourceSocket = localSocket.accept();
 
@@ -107,6 +108,7 @@ public class OProxyServerListener extends Thread {
                 remotePort);
         break;
       }
+    }
 
     shutdown();
   }
@@ -131,12 +133,13 @@ public class OProxyServerListener extends Thread {
   public void shutdown() {
     running = false;
 
-    if (localSocket != null)
+    if (localSocket != null) {
       try {
         localSocket.close();
       } catch (IOException e) {
         // IGNORE IT
       }
+    }
 
     for (OProxyChannel t : channels) {
       t.sendShutdown();

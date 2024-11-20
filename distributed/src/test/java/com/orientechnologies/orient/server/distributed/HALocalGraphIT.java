@@ -93,7 +93,7 @@ public class HALocalGraphIT extends AbstractServerClusterTxTest {
                           && !serverRestarted.get()
                           && !server2.isActive()
                           && operations.get()
-                              >= TOTAL_CYCLES_PER_THREAD * CONCURRENCY_LEVEL * 2 / 4) {
+                          >= TOTAL_CYCLES_PER_THREAD * CONCURRENCY_LEVEL * 2 / 4) {
                         serverRestarting.set(true);
 
                         // RESTART LAST SERVER AT 2/3 OF PROGRESS
@@ -106,15 +106,16 @@ public class HALocalGraphIT extends AbstractServerClusterTxTest {
                                       serverInstance.get(SERVERS - 1)));
 
                           if (serverInstance
-                                  .get(SERVERS - 1)
-                                  .getServerInstance()
-                                  .getDistributedManager()
-                              != null)
+                              .get(SERVERS - 1)
+                              .getServerInstance()
+                              .getDistributedManager()
+                              != null) {
                             serverInstance
                                 .get(SERVERS - 1)
                                 .getServerInstance()
                                 .getDistributedManager()
                                 .waitUntilNodeOnline();
+                          }
 
                           sleep = 0;
 
@@ -127,7 +128,7 @@ public class HALocalGraphIT extends AbstractServerClusterTxTest {
                       } else if (!serverDown.get()
                           && server2.isActive()
                           && operations.get()
-                              >= TOTAL_CYCLES_PER_THREAD * CONCURRENCY_LEVEL * 1 / 4) {
+                          >= TOTAL_CYCLES_PER_THREAD * CONCURRENCY_LEVEL * 1 / 4) {
 
                         // SLOW DOWN A LITTLE BIT
                         sleep = 5;
@@ -159,7 +160,9 @@ public class HALocalGraphIT extends AbstractServerClusterTxTest {
 
     waitForEndOfTest();
 
-    if (task != null) task.cancel();
+    if (task != null) {
+      task.cancel();
+    }
 
     Assert.assertEquals(serverDown.get(), true);
 
@@ -229,7 +232,9 @@ public class HALocalGraphIT extends AbstractServerClusterTxTest {
                   st = System.currentTimeMillis();
                 }
 
-                if (sleep > 0) Thread.sleep(sleep);
+                if (sleep > 0) {
+                  Thread.sleep(sleep);
+                }
 
                 ODatabaseDocument graph = graphFactory.acquire();
                 graph.begin();
@@ -297,13 +302,14 @@ public class HALocalGraphIT extends AbstractServerClusterTxTest {
                     boolean retry = true;
 
                     OResultSet vtxs = null;
-                    for (int k = 0; k < 100 && retry; k++)
+                    for (int k = 0; k < 100 && retry; k++) {
                       try {
                         vtxs = graph.query(query);
                         break;
                       } catch (ONeedRetryException e) {
                         // RETRY
                       }
+                    }
 
                     while (vtxs != null && vtxs.hasNext()) {
                       OResult vtx = vtxs.next();
@@ -331,7 +337,7 @@ public class HALocalGraphIT extends AbstractServerClusterTxTest {
                             vtx1.reload();
                           } catch (ONeedRetryException ex) {
                             if (ex instanceof ODistributedRecordLockedException) {
-                              if (k > 20)
+                              if (k > 20) {
                                 log(
                                     "*$$$$$$$$$$$$$$ ["
                                         + id
@@ -343,6 +349,7 @@ public class HALocalGraphIT extends AbstractServerClusterTxTest {
                                         + (ex.getCause() != null ? ex.getCause() : "--")
                                         + "] for vertex "
                                         + vtx1);
+                              }
                               vtx1.reload();
                             } else if (ex instanceof ONeedRetryException
                                 || ex.getCause() instanceof ONeedRetryException) {

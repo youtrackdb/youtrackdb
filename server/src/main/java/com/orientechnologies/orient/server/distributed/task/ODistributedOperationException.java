@@ -42,7 +42,9 @@ public class ODistributedOperationException extends ONeedRetryException
 
   @Override
   public boolean equals(final Object obj) {
-    if (obj == null || !obj.getClass().equals(getClass())) return false;
+    if (obj == null || !obj.getClass().equals(getClass())) {
+      return false;
+    }
 
     final String message = ((ODistributedOperationException) obj).getMessage();
     return getMessage() != null && getMessage().equals(message);

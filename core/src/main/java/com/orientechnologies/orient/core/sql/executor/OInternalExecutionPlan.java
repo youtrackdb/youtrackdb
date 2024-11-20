@@ -3,7 +3,9 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 
-/** Created by luigidellaquila on 06/07/16. */
+/**
+ * Created by luigidellaquila on 06/07/16.
+ */
 public interface OInternalExecutionPlan extends OExecutionPlan {
 
   public static final String JAVA_TYPE = "javaType";

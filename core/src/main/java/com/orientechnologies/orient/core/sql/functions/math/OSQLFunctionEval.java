@@ -33,6 +33,7 @@ import java.util.List;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFunctionEval extends OSQLFunctionMathAbstract {
+
   public static final String NAME = "eval";
 
   private OSQLPredicate predicate;
@@ -50,7 +51,9 @@ public class OSQLFunctionEval extends OSQLFunctionMathAbstract {
     if (iParams.length < 1) {
       throw new OCommandExecutionException("invalid ");
     }
-    if (predicate == null) predicate = new OSQLPredicate(String.valueOf(iParams[0]));
+    if (predicate == null) {
+      predicate = new OSQLPredicate(String.valueOf(iParams[0]));
+    }
 
     final ODocument currentResult =
         iCurrentResult instanceof ODocument ? (ODocument) iCurrentResult : null;

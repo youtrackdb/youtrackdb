@@ -35,6 +35,7 @@ import com.orientechnologies.orient.core.record.ORecord;
  */
 public abstract class OAbstractCommandResultListener
     implements SimpleValueFetchPlanCommandListener {
+
   protected final OCommandResultListener wrappedResultListener;
 
   private OFetchPlan fetchPlan;
@@ -47,7 +48,9 @@ public abstract class OAbstractCommandResultListener
 
   @Override
   public void end() {
-    if (wrappedResultListener != null) wrappedResultListener.end();
+    if (wrappedResultListener != null) {
+      wrappedResultListener.end();
+    }
   }
 
   public void setFetchPlan(final String iText) {
@@ -57,8 +60,7 @@ public abstract class OAbstractCommandResultListener
   protected void fetchRecord(final Object iRecord, final OFetchListener iFetchListener) {
     if (fetchPlan != null
         && fetchPlan != OFetchHelper.DEFAULT_FETCHPLAN
-        && iRecord instanceof ORecord) {
-      final ORecord record = (ORecord) iRecord;
+        && iRecord instanceof ORecord record) {
       final OFetchContext context = new ORemoteFetchContext();
       OFetchHelper.fetch(record, record, fetchPlan, iFetchListener, context, "");
     }
@@ -66,7 +68,9 @@ public abstract class OAbstractCommandResultListener
 
   @Override
   public Object getResult() {
-    if (wrappedResultListener != null) return wrappedResultListener.getResult();
+    if (wrappedResultListener != null) {
+      return wrappedResultListener.getResult();
+    }
 
     return null;
   }

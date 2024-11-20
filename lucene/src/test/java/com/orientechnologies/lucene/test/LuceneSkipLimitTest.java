@@ -26,7 +26,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by enricorisa on 08/10/14. */
+/**
+ * Created by enricorisa on 08/10/14.
+ */
 public class LuceneSkipLimitTest extends BaseLuceneTest {
 
   @Test
@@ -49,7 +51,7 @@ public class LuceneSkipLimitTest extends BaseLuceneTest {
 
     Assert.assertEquals(docs.size(), 4);
 
-    Assert.assertEquals(docs.contains(doc), false);
+    Assert.assertFalse(docs.contains(doc));
 
     docs =
         db

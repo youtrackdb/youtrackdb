@@ -7,6 +7,7 @@ import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class OCommandTimeoutChecker {
+
   private final boolean active;
   private final long maxMills;
   private final ConcurrentHashMap<Thread, Long> running = new ConcurrentHashMap<>();

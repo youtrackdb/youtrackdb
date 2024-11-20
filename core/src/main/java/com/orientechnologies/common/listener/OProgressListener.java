@@ -25,6 +25,7 @@ package com.orientechnologies.common.listener;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OProgressListener {
+
   void onBegin(Object iTask, long iTotal, Object iMetadata);
 
   boolean onProgress(Object iTask, long iCounter, float iPercent);

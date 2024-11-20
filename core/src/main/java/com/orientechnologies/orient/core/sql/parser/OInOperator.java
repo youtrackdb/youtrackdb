@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class OInOperator extends SimpleNode implements OBinaryCompareOperator {
+
   public OInOperator(int id) {
     super(id);
   }
@@ -28,8 +29,7 @@ public class OInOperator extends SimpleNode implements OBinaryCompareOperator {
       if (left instanceof Iterable) {
         left = ((Iterable) left).iterator();
       }
-      if (left instanceof Iterator) {
-        Iterator iterator = (Iterator) left;
+      if (left instanceof Iterator iterator) {
         while (iterator.hasNext()) {
           Object next = iterator.next();
           if (!((Collection) right).contains(next)) {
@@ -42,12 +42,11 @@ public class OInOperator extends SimpleNode implements OBinaryCompareOperator {
     if (right instanceof Iterable) {
       right = ((Iterable) right).iterator();
     }
-    if (right instanceof Iterator) {
+    if (right instanceof Iterator rightIterator) {
       if (left instanceof Iterable) {
         left = ((Iterable) left).iterator();
       }
       Iterator leftIterator = (Iterator) left;
-      Iterator rightIterator = (Iterator) right;
       while (leftIterator.hasNext()) {
         Object leftItem = leftIterator.next();
         boolean found = false;

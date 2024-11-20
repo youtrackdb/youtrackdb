@@ -34,6 +34,7 @@ import com.orientechnologies.orient.server.network.protocol.http.command.OServer
 import java.io.IOException;
 
 public abstract class OServerCommandAbstractLogic extends OServerCommandAuthenticatedDbAbstract {
+
   @Override
   public boolean execute(final OHttpRequest iRequest, final OHttpResponse iResponse)
       throws Exception {
@@ -44,8 +45,9 @@ public abstract class OServerCommandAbstractLogic extends OServerCommandAuthenti
       db = getProfiledDatabaseInstance(iRequest);
 
       final OFunction f = db.getMetadata().getFunctionLibrary().getFunction(parts[2]);
-      if (f == null)
+      if (f == null) {
         throw new IllegalArgumentException("Function '" + parts[2] + "' is not configured");
+      }
 
       if (iRequest.getHttpMethod().equalsIgnoreCase("GET") && !f.isIdempotent()) {
         iResponse.send(
@@ -60,7 +62,7 @@ public abstract class OServerCommandAbstractLogic extends OServerCommandAuthenti
       }
 
       Object[] args = new String[parts.length - 3];
-      for (int i = 3; i < parts.length; ++i) args[i - 3] = parts[i];
+      System.arraycopy(parts, 3, args, 0, parts.length - 3);
 
       // BIND CONTEXT VARIABLES
       final OBasicCommandContext context = new OBasicCommandContext();
@@ -79,7 +81,9 @@ public abstract class OServerCommandAbstractLogic extends OServerCommandAuthenti
           throw OException.wrapException(
               new OCommandScriptException("Error on parsing parameters from request body"), e);
         }
-      } else functionResult = f.executeInContext(context, args);
+      } else {
+        functionResult = f.executeInContext(context, args);
+      }
 
       handleResult(iRequest, iResponse, functionResult, db);
 
@@ -89,7 +93,9 @@ public abstract class OServerCommandAbstractLogic extends OServerCommandAuthenti
       for (Exception currentException = e;
           currentException != null;
           currentException = (Exception) currentException.getCause()) {
-        if (msg.length() > 0) msg.append("\n");
+        if (msg.length() > 0) {
+          msg.append("\n");
+        }
         msg.append(currentException.getMessage());
       }
 
@@ -111,7 +117,9 @@ public abstract class OServerCommandAbstractLogic extends OServerCommandAuthenti
       }
 
     } finally {
-      if (db != null) db.close();
+      if (db != null) {
+        db.close();
+      }
     }
 
     return false;

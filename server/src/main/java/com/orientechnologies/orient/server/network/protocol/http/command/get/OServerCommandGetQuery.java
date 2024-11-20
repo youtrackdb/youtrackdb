@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 public class OServerCommandGetQuery extends OServerCommandAuthenticatedDbAbstract {
+
   private static final String[] NAMES = {"GET|query/*"};
 
   @Override
@@ -58,7 +59,7 @@ public class OServerCommandGetQuery extends OServerCommandAuthenticatedDbAbstrac
       db = getProfiledDatabaseInstance(iRequest);
 
       OStatement stm = OServerCommandPostCommand.parseStatement("SQL", text, db);
-      OResultSet result = db.query(text, new Object[] {});
+      OResultSet result = db.query(text);
       limit = OServerCommandPostCommand.getLimitFromStatement(stm, limit);
       String localFetchPlan = OServerCommandPostCommand.getFetchPlanFromStatement(stm);
       if (localFetchPlan != null) {
@@ -90,7 +91,9 @@ public class OServerCommandGetQuery extends OServerCommandAuthenticatedDbAbstrac
       iResponse.writeRecords(response, fetchPlan, null, accept, additionalContent, db);
 
     } finally {
-      if (db != null) db.close();
+      if (db != null) {
+        db.close();
+      }
     }
 
     return false;

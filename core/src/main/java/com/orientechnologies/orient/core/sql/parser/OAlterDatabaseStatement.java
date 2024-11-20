@@ -15,6 +15,7 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 public class OAlterDatabaseStatement extends ODDLStatement {
 
@@ -44,7 +45,7 @@ public class OAlterDatabaseStatement extends ODDLStatement {
 
   private OResult executeCustomAlter(
       OIdentifier customPropertyName, OExpression customPropertyValue, OCommandContext ctx) {
-    ODatabaseSessionInternal db = (ODatabaseSessionInternal) ctx.getDatabase();
+    ODatabaseSessionInternal db = ctx.getDatabase();
     db.checkSecurity(ORule.ResourceGeneric.DATABASE, ORole.PERMISSION_UPDATE);
     List<OStorageEntryConfiguration> oldValues =
         (List<OStorageEntryConfiguration>) db.get(ODatabaseSession.ATTRIBUTES.CUSTOM);
@@ -73,7 +74,7 @@ public class OAlterDatabaseStatement extends ODDLStatement {
     ODatabaseSession.ATTRIBUTES attribute =
         ODatabaseSession.ATTRIBUTES.valueOf(
             settingName.getStringValue().toUpperCase(Locale.ENGLISH));
-    ODatabaseSessionInternal db = (ODatabaseSessionInternal) ctx.getDatabase();
+    ODatabaseSessionInternal db = ctx.getDatabase();
     db.checkSecurity(ORule.ResourceGeneric.DATABASE, ORole.PERMISSION_UPDATE);
     Object oldValue = db.get(attribute);
     Object finalValue = settingValue.execute((OIdentifiable) null, ctx);
@@ -131,23 +132,25 @@ public class OAlterDatabaseStatement extends ODDLStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OAlterDatabaseStatement that = (OAlterDatabaseStatement) o;
 
-    if (customPropertyName != null
-        ? !customPropertyName.equals(that.customPropertyName)
-        : that.customPropertyName != null) return false;
-    if (customPropertyValue != null
-        ? !customPropertyValue.equals(that.customPropertyValue)
-        : that.customPropertyValue != null) return false;
-    if (settingName != null ? !settingName.equals(that.settingName) : that.settingName != null)
+    if (!Objects.equals(customPropertyName, that.customPropertyName)) {
       return false;
-    if (settingValue != null ? !settingValue.equals(that.settingValue) : that.settingValue != null)
+    }
+    if (!Objects.equals(customPropertyValue, that.customPropertyValue)) {
       return false;
-
-    return true;
+    }
+    if (!Objects.equals(settingName, that.settingName)) {
+      return false;
+    }
+    return Objects.equals(settingValue, that.settingValue);
   }
 
   @Override

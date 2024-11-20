@@ -16,6 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class OBrowseClusterTest {
+
   private ODatabaseSession db;
   private OrientDB orientDb;
 

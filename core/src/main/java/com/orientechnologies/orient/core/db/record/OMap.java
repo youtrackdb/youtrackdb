@@ -177,16 +177,13 @@ public class OMap extends OTrackedMap<OIdentifiable> implements OIdentifiableMul
 
     final Object value = super.get(iKey);
     if (value != null) {
+      // ALREADY CONVERTED
       if (value instanceof ORecord && !((ORecord) value).getIdentity().isNew()) {
         // OVERWRITE
         super.putInternal(iKey, ((ORecord) value).getIdentity());
         // CONVERTED
         return true;
-      } else if (value instanceof ORID)
-      // ALREADY CONVERTED
-      {
-        return true;
-      }
+      } else return value instanceof ORID;
     }
 
     return false;
@@ -210,8 +207,7 @@ public class OMap extends OTrackedMap<OIdentifiable> implements OIdentifiableMul
       value = super.get(iKey);
     }
 
-    if (value != null && value instanceof ORID) {
-      final ORID rid = (ORID) value;
+    if (value != null && value instanceof ORID rid) {
       try {
         // OVERWRITE IT
         ORecord record = rid.getRecord();

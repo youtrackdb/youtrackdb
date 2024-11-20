@@ -289,14 +289,21 @@ public class OMethodCall extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OMethodCall that = (OMethodCall) o;
 
-    if (methodName != null ? !methodName.equals(that.methodName) : that.methodName != null)
+    if (methodName != null ? !methodName.equals(that.methodName) : that.methodName != null) {
       return false;
-    if (params != null ? !params.equals(that.params) : that.params != null) return false;
+    }
+    if (params != null ? !params.equals(that.params) : that.params != null) {
+      return false;
+    }
 
     return true;
   }

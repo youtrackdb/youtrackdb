@@ -50,22 +50,32 @@ public class OQueryOperatorMinus extends OQueryOperator {
       Object iRight,
       OCommandContext iContext,
       final ODocumentSerializer serializer) {
-    if (iRight == null) return iLeft;
+    if (iRight == null) {
+      return iLeft;
+    }
 
-    if (iLeft instanceof Date) iLeft = ((Date) iLeft).getTime();
-    if (iRight instanceof Date) iRight = ((Date) iRight).getTime();
+    if (iLeft instanceof Date) {
+      iLeft = ((Date) iLeft).getTime();
+    }
+    if (iRight instanceof Date) {
+      iRight = ((Date) iRight).getTime();
+    }
 
     if (iLeft instanceof Number && iRight instanceof Number) {
       final Number l = (Number) iLeft;
       final Number r = (Number) iRight;
       Class maxPrecisionClass = OQueryOperatorMultiply.getMaxPrecisionClass(l, r);
-      if (Integer.class.equals(maxPrecisionClass))
+      if (Integer.class.equals(maxPrecisionClass)) {
         return OQueryOperatorMultiply.tryDownscaleToInt(l.longValue() - r.longValue());
-      else if (Long.class.equals(maxPrecisionClass)) return l.longValue() - r.longValue();
-      else if (Short.class.equals(maxPrecisionClass)) return l.shortValue() - r.shortValue();
-      else if (Float.class.equals(maxPrecisionClass)) return l.floatValue() - r.floatValue();
-      else if (Double.class.equals(maxPrecisionClass)) return l.doubleValue() - r.doubleValue();
-      else if (BigDecimal.class.equals(maxPrecisionClass)) {
+      } else if (Long.class.equals(maxPrecisionClass)) {
+        return l.longValue() - r.longValue();
+      } else if (Short.class.equals(maxPrecisionClass)) {
+        return l.shortValue() - r.shortValue();
+      } else if (Float.class.equals(maxPrecisionClass)) {
+        return l.floatValue() - r.floatValue();
+      } else if (Double.class.equals(maxPrecisionClass)) {
+        return l.doubleValue() - r.doubleValue();
+      } else if (BigDecimal.class.equals(maxPrecisionClass)) {
         return (OQueryOperatorMultiply.toBigDecimal(l))
             .subtract(OQueryOperatorMultiply.toBigDecimal(r));
       }

@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class KeyNormalizer {
+
   private final Map<OType, KeyNormalizers> normalizers = new HashMap<>();
 
   public KeyNormalizer() {

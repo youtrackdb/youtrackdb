@@ -103,7 +103,9 @@ public class OSQLFunctionMode extends OSQLFunctionAbstract {
       return dMaxElems;
     }
 
-    if (!resultsToMerge.isEmpty()) return resultsToMerge.get(0);
+    if (!resultsToMerge.isEmpty()) {
+      return resultsToMerge.get(0);
+    }
 
     return null;
   }

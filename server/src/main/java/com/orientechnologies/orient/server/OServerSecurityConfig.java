@@ -42,7 +42,9 @@ public class OServerSecurityConfig implements OSecurityConfig {
         server
             .getContextConfiguration()
             .getValueAsString(OGlobalConfiguration.SERVER_SECURITY_FILE);
-    if (ssf != null) configFile = ssf;
+    if (ssf != null) {
+      configFile = ssf;
+    }
     return configFile;
   }
 }

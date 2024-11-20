@@ -6,6 +6,7 @@ import com.orientechnologies.orient.core.id.ORID;
 import java.util.Comparator;
 
 public class AscComparator implements Comparator<ORawPair<Object, ORID>> {
+
   public static final AscComparator INSTANCE = new AscComparator();
 
   @Override

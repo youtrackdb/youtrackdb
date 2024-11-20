@@ -29,6 +29,7 @@ import com.orientechnologies.orient.core.exception.OCoreException;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public abstract class ONeedRetryException extends OCoreException {
+
   private static final long serialVersionUID = 1L;
 
   protected ONeedRetryException(final ONeedRetryException exception) {

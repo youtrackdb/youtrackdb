@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class OOrderBy extends SimpleNode {
+
   protected List<OOrderByItem> items;
 
   public OOrderBy() {
@@ -80,12 +81,18 @@ public class OOrderBy extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OOrderBy oOrderBy = (OOrderBy) o;
 
-    if (items != null ? !items.equals(oOrderBy.items) : oOrderBy.items != null) return false;
+    if (items != null ? !items.equals(oOrderBy.items) : oOrderBy.items != null) {
+      return false;
+    }
 
     return true;
   }

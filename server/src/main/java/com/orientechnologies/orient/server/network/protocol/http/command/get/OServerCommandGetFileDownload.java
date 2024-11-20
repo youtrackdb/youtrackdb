@@ -83,7 +83,7 @@ public class OServerCommandGetFileDownload extends OServerCommandAuthenticatedDb
                   OHttpUtils.STATUS_OK_CODE,
                   OHttpUtils.STATUS_OK_DESCRIPTION,
                   fileType,
-                  (byte[]) ((ODocument) response).field(prop.getName()),
+                  ((ODocument) response).field(prop.getName()),
                   fileName);
             }
           }

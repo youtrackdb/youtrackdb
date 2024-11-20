@@ -4,6 +4,7 @@ import com.orientechnologies.orient.core.OConstants;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import org.apache.hc.core5.http.HttpResponse;
 import org.junit.After;
@@ -17,6 +18,7 @@ import org.junit.Test;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com) (l.garulli--at-orientdb.com)
  */
 public class HttpDatabaseTest extends BaseHttpTest {
+
   @Test
   public void testCreateDatabaseNoType() throws Exception {
     Assert.assertEquals(
@@ -87,7 +89,7 @@ public class HttpDatabaseTest extends BaseHttpTest {
                 "query/"
                     + getDatabaseName()
                     + "/sql/"
-                    + URLEncoder.encode("select from OUSer", "UTF8")
+                    + URLEncoder.encode("select from OUSer", StandardCharsets.UTF_8)
                     + "/10")
             .getResponse()
             .getCode(),

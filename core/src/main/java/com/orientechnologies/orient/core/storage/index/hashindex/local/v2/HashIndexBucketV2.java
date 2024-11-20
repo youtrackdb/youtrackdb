@@ -38,6 +38,7 @@ import java.util.NoSuchElementException;
  * @since 2/17/13
  */
 public final class HashIndexBucketV2<K, V> extends ODurablePage {
+
   private static final int FREE_POINTER_OFFSET = NEXT_FREE_POSITION;
   private static final int DEPTH_OFFSET = FREE_POINTER_OFFSET + OIntegerSerializer.INT_SIZE;
   private static final int SIZE_OFFSET = DEPTH_OFFSET + OByteSerializer.BYTE_SIZE;
@@ -70,7 +71,9 @@ public final class HashIndexBucketV2<K, V> extends ODurablePage {
       final OBinarySerializer<K> keySerializer,
       final OBinarySerializer<V> valueSerializer) {
     final int index = binarySearch(key, hashCode, encryption, keySerializer);
-    if (index < 0) return null;
+    if (index < 0) {
+      return null;
+    }
 
     return getEntry(index, encryption, keySerializer, valueSerializer);
   }
@@ -85,17 +88,23 @@ public final class HashIndexBucketV2<K, V> extends ODurablePage {
 
       final long midHashCode = getHashCode(mid);
       final int cmp;
-      if (lessThanUnsigned(midHashCode, hashCode)) cmp = -1;
-      else if (greaterThanUnsigned(midHashCode, hashCode)) cmp = 1;
-      else {
+      if (lessThanUnsigned(midHashCode, hashCode)) {
+        cmp = -1;
+      } else if (greaterThanUnsigned(midHashCode, hashCode)) {
+        cmp = 1;
+      } else {
         final K midVal = getKey(mid, encryption, keySerializer);
         //noinspection unchecked
         cmp = keyComparator.compare(midVal, key);
       }
 
-      if (cmp < 0) low = mid + 1;
-      else if (cmp > 0) high = mid - 1;
-      else return mid; // key found
+      if (cmp < 0) {
+        low = mid + 1;
+      } else if (cmp > 0) {
+        high = mid - 1;
+      } else {
+        return mid; // key found
+      }
     }
     return -(low + 1); // key not found.
   }
@@ -300,8 +309,9 @@ public final class HashIndexBucketV2<K, V> extends ODurablePage {
     int currentPositionOffset = POSITIONS_ARRAY_OFFSET;
     for (int i = 0; i < size - 1; i++) {
       int currentEntryPosition = getIntValue(currentPositionOffset);
-      if (currentEntryPosition < entryPosition)
+      if (currentEntryPosition < entryPosition) {
         setIntValue(currentPositionOffset, currentEntryPosition + entrySize);
+      }
       currentPositionOffset += OIntegerSerializer.INT_SIZE;
     }
 
@@ -366,6 +376,7 @@ public final class HashIndexBucketV2<K, V> extends ODurablePage {
   }
 
   private final class EntryIterator implements Iterator<OHashTable.Entry<K, V>> {
+
     private int currentIndex;
     private final OBinarySerializer<K> keySerializer;
     private final OBinarySerializer<V> valueSerializer;
@@ -389,8 +400,9 @@ public final class HashIndexBucketV2<K, V> extends ODurablePage {
 
     @Override
     public OHashTable.Entry<K, V> next() {
-      if (currentIndex >= size())
+      if (currentIndex >= size()) {
         throw new NoSuchElementException("Iterator was reached last element");
+      }
 
       final OHashTable.Entry<K, V> entry =
           getEntry(currentIndex, encryption, keySerializer, valueSerializer);
@@ -405,6 +417,7 @@ public final class HashIndexBucketV2<K, V> extends ODurablePage {
   }
 
   private final class RawEntryIterator implements Iterator<OHashTable.RawEntry> {
+
     private int currentIndex;
     private final OBinarySerializer<K> keySerializer;
     private final OBinarySerializer<V> valueSerializer;
@@ -428,8 +441,9 @@ public final class HashIndexBucketV2<K, V> extends ODurablePage {
 
     @Override
     public OHashTable.RawEntry next() {
-      if (currentIndex >= size())
+      if (currentIndex >= size()) {
         throw new NoSuchElementException("Iterator was reached last element");
+      }
 
       final OHashTable.RawEntry entry =
           getRawEntry(currentIndex, encryption, keySerializer, valueSerializer);

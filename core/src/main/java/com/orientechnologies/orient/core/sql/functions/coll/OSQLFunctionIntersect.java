@@ -41,6 +41,7 @@ import java.util.Set;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFunctionIntersect extends OSQLFunctionMultiValueAbstract<Object> {
+
   public static final String NAME = "intersect";
 
   public OSQLFunctionIntersect() {
@@ -55,10 +56,13 @@ public class OSQLFunctionIntersect extends OSQLFunctionMultiValueAbstract<Object
       OCommandContext iContext) {
     Object value = iParams[0];
 
-    if (value instanceof OSQLFilterItemVariable)
+    if (value instanceof OSQLFilterItemVariable) {
       value = ((OSQLFilterItemVariable) value).getValue(iCurrentRecord, iCurrentResult, iContext);
+    }
 
-    if (value == null) return Collections.emptySet();
+    if (value == null) {
+      return Collections.emptySet();
+    }
 
     if (iParams.length == 1) {
       // AGGREGATION MODE (STATEFUL)
@@ -91,8 +95,9 @@ public class OSQLFunctionIntersect extends OSQLFunctionMultiValueAbstract<Object
     for (int i = 1; i < iParams.length; ++i) {
       value = iParams[i];
 
-      if (value instanceof OSQLFilterItemVariable)
+      if (value instanceof OSQLFilterItemVariable) {
         value = ((OSQLFilterItemVariable) value).getValue(iCurrentRecord, iCurrentResult, iContext);
+      }
 
       if (value != null) {
         value = intersectWith(iterator, value);
@@ -119,17 +124,24 @@ public class OSQLFunctionIntersect extends OSQLFunctionMultiValueAbstract<Object
 
     if (!(value instanceof Set)
         && (!(value instanceof OSupportsContains)
-            || !((OSupportsContains) value).supportsFastContains()))
+            || !((OSupportsContains) value).supportsFastContains())) {
       value = OMultiValue.toSet(value);
+    }
 
     for (Iterator it = current; it.hasNext(); ) {
       final Object curr = it.next();
       if (value instanceof ORidBag) {
-        if (((ORidBag) value).contains((OIdentifiable) curr)) tempSet.add(curr);
+        if (((ORidBag) value).contains((OIdentifiable) curr)) {
+          tempSet.add(curr);
+        }
       } else if (value instanceof Collection) {
-        if (((Collection) value).contains(curr)) tempSet.add(curr);
+        if (((Collection) value).contains(curr)) {
+          tempSet.add(curr);
+        }
       } else if (value instanceof OSupportsContains) {
-        if (((OSupportsContains) value).contains(curr)) tempSet.add(curr);
+        if (((OSupportsContains) value).contains(curr)) {
+          tempSet.add(curr);
+        }
       }
     }
 

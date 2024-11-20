@@ -11,6 +11,7 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 public class OCloseRequest implements OBinaryRequest<OBinaryResponse> {
+
   @Override
   public void write(OChannelDataOutput network, OStorageRemoteSession session) throws IOException {}
 

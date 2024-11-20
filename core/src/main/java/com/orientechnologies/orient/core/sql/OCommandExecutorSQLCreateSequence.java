@@ -19,6 +19,7 @@ import java.util.Map;
  */
 public class OCommandExecutorSQLCreateSequence extends OCommandExecutorSQLAbstract
     implements OCommandDistributedReplicateRequest {
+
   public static final String KEYWORD_CREATE = "CREATE";
   public static final String KEYWORD_SEQUENCE = "SEQUENCE";
   public static final String KEYWORD_TYPE = "TYPE";

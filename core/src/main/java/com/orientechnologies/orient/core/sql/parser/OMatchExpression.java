@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class OMatchExpression extends SimpleNode {
+
   protected OMatchFilter origin;
   protected List<OMatchPathItem> items = new ArrayList<OMatchPathItem>();
 
@@ -44,13 +45,21 @@ public class OMatchExpression extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OMatchExpression that = (OMatchExpression) o;
 
-    if (origin != null ? !origin.equals(that.origin) : that.origin != null) return false;
-    if (items != null ? !items.equals(that.items) : that.items != null) return false;
+    if (origin != null ? !origin.equals(that.origin) : that.origin != null) {
+      return false;
+    }
+    if (items != null ? !items.equals(that.items) : that.items != null) {
+      return false;
+    }
 
     return true;
   }

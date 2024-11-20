@@ -35,6 +35,7 @@ import javax.annotation.Nonnull;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OIndexMetadata {
+
   @Nonnull private final String name;
   private final OIndexDefinition indexDefinition;
   private final Set<String> clustersToIndex;
@@ -97,19 +98,32 @@ public class OIndexMetadata {
 
   @Override
   public boolean equals(final Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     final OIndexMetadata that = (OIndexMetadata) o;
 
-    if (algorithm != null ? !algorithm.equals(that.algorithm) : that.algorithm != null)
+    if (algorithm != null ? !algorithm.equals(that.algorithm) : that.algorithm != null) {
       return false;
-    if (!clustersToIndex.equals(that.clustersToIndex)) return false;
+    }
+    if (!clustersToIndex.equals(that.clustersToIndex)) {
+      return false;
+    }
     if (indexDefinition != null
         ? !indexDefinition.equals(that.indexDefinition)
-        : that.indexDefinition != null) return false;
-    if (!name.equals(that.name)) return false;
-    if (!type.equals(that.type)) return false;
+        : that.indexDefinition != null) {
+      return false;
+    }
+    if (!name.equals(that.name)) {
+      return false;
+    }
+    if (!type.equals(that.type)) {
+      return false;
+    }
 
     return true;
   }

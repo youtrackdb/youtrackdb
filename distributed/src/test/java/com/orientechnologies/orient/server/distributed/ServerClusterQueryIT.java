@@ -30,8 +30,11 @@ import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.junit.Test;
 
-/** Start 2 servers and execute query across the cluster */
+/**
+ * Start 2 servers and execute query across the cluster
+ */
 public class ServerClusterQueryIT extends AbstractServerClusterTest {
+
   static final int SERVERS = 2;
   private OVertex v1;
   private OVertex v2;

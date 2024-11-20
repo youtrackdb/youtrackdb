@@ -11,8 +11,10 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class OReturnStatement extends OSimpleExecStatement {
+
   protected OExpression expression;
 
   public OReturnStatement(int id) {
@@ -84,15 +86,16 @@ public class OReturnStatement extends OSimpleExecStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OReturnStatement that = (OReturnStatement) o;
 
-    if (expression != null ? !expression.equals(that.expression) : that.expression != null)
-      return false;
-
-    return true;
+    return Objects.equals(expression, that.expression);
   }
 
   @Override

@@ -2,6 +2,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 public interface OrientSqlTreeConstants {
+
   public int JJTRID = 0;
   public int JJTPARSE = 1;
   public int JJTPARSESCRIPT = 2;

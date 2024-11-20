@@ -10,6 +10,7 @@ import java.util.Set;
  * @since 03/11/14
  */
 public interface OSecurityRole extends Serializable {
+
   @Deprecated
   public enum ALLOW_MODES {
     @Deprecated

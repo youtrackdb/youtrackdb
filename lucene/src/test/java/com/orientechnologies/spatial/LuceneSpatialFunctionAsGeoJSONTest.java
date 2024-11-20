@@ -26,7 +26,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by Enrico Risa on 14/08/15. */
+/**
+ * Created by Enrico Risa on 14/08/15.
+ */
 public class LuceneSpatialFunctionAsGeoJSONTest {
 
   ODatabaseSession db;
@@ -80,8 +82,8 @@ public class LuceneSpatialFunctionAsGeoJSONTest {
 
     Assert.assertNotNull(geom.getProperty("coordinates"));
 
-    Assert.assertEquals((String) source.getProperty("@class"), (String) geom.getProperty("@class"));
+    Assert.assertEquals(source.getProperty("@class"), (String) geom.getProperty("@class"));
     Assert.assertEquals(
-        (Object) geom.getProperty("coordinates"), (Object) source.getProperty("coordinates"));
+        geom.getProperty("coordinates"), (Object) source.getProperty("coordinates"));
   }
 }

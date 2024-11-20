@@ -30,6 +30,7 @@ import java.util.Set;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OProfilerEntry {
+
   public String name = null;
   public long entries = 0;
   public long last = 0;
@@ -69,7 +70,9 @@ public class OProfilerEntry {
     doc.field("lastExecution", lastExecution);
     doc.field("lastReset", lastReset);
     doc.field("lastResetEntries", lastResetEntries);
-    if (payLoad != null) doc.field("payload", payLoad);
+    if (payLoad != null) {
+      doc.field("payload", payLoad);
+    }
     return doc;
   }
 
@@ -92,8 +95,9 @@ public class OProfilerEntry {
     buffer.append(String.format(Locale.ENGLISH, "\"%s\":%d,", "lastReset", lastReset));
     buffer.append(
         String.format(Locale.ENGLISH, "\"%s\":%d,", "lastResetEntries,", lastResetEntries));
-    if (payLoad != null)
+    if (payLoad != null) {
       buffer.append(String.format(Locale.ENGLISH, "\"%s\":\"%s\"", "payload,", payLoad));
+    }
     buffer.append(String.format(Locale.ENGLISH, "\"%s\": [", "users"));
 
     String usersList = "";
@@ -104,7 +108,7 @@ public class OProfilerEntry {
     }
     buffer.append(String.format(Locale.ENGLISH, "%s", usersList));
 
-    buffer.append(String.format(Locale.ENGLISH, "]"));
+    buffer.append("]");
     buffer.append('}');
   }
 

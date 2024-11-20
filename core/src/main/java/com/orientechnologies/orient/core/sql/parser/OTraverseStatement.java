@@ -229,19 +229,33 @@ public class OTraverseStatement extends OStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OTraverseStatement that = (OTraverseStatement) o;
 
-    if (projections != null ? !projections.equals(that.projections) : that.projections != null)
+    if (projections != null ? !projections.equals(that.projections) : that.projections != null) {
       return false;
-    if (target != null ? !target.equals(that.target) : that.target != null) return false;
-    if (whileClause != null ? !whileClause.equals(that.whileClause) : that.whileClause != null)
+    }
+    if (target != null ? !target.equals(that.target) : that.target != null) {
       return false;
-    if (limit != null ? !limit.equals(that.limit) : that.limit != null) return false;
-    if (strategy != that.strategy) return false;
-    if (maxDepth != null ? !maxDepth.equals(that.maxDepth) : that.maxDepth != null) return false;
+    }
+    if (whileClause != null ? !whileClause.equals(that.whileClause) : that.whileClause != null) {
+      return false;
+    }
+    if (limit != null ? !limit.equals(that.limit) : that.limit != null) {
+      return false;
+    }
+    if (strategy != that.strategy) {
+      return false;
+    }
+    if (maxDepth != null ? !maxDepth.equals(that.maxDepth) : that.maxDepth != null) {
+      return false;
+    }
 
     return true;
   }

@@ -41,19 +41,19 @@ import java.util.Map;
  * <p>
  *
  * <ul>
- *   <p>
+ * <p>
  *   <li>Cook, John D. <a href="http://www.johndcook.com/standard_deviation.html">Accurately
  *       computing running variance</a>.
- *       <p>
+ * <p>
  *   <li>Knuth, Donald E. (1998) <i>The Art of Computer Programming, Volume 2: Seminumerical
  *       Algorithms, 3rd Edition.</i>
- *       <p>
+ * <p>
  *   <li>Welford, B. P. (1962) Note on a method for calculating corrected sums of squares and
  *       products. <i>Technometrics</i>
- *       <p>
+ * <p>
  *   <li>Chan, Tony F.; Golub, Gene H.; LeVeque, Randall J. (1979), <a
  *       href="http://cpsc.yale.edu/sites/default/files/files/tr222.pdf">Parallel Algorithm</a>.
- *       <p>
+ * <p>
  * </ul>
  *
  * @author Fabrizio Fortino
@@ -140,7 +140,9 @@ public class OSQLFunctionVariance extends OSQLFunctionAbstract {
       return var;
     }
 
-    if (!resultsToMerge.isEmpty()) return resultsToMerge.get(0);
+    if (!resultsToMerge.isEmpty()) {
+      return resultsToMerge.get(0);
+    }
 
     return null;
   }

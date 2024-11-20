@@ -24,7 +24,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/** Created by tglman on 25/01/17. */
+/**
+ * Created by tglman on 25/01/17.
+ */
 public class OSqlScriptExecutor extends OAbstractScriptExecutor {
 
   public OSqlScriptExecutor() {

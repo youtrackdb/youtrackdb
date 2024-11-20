@@ -10,6 +10,7 @@ import org.junit.Test;
  * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
 public class OCommitStatementExecutionTest extends BaseMemoryDatabase {
+
   @Test
   public void testBegin() {
     Assert.assertTrue(db.getTransaction() == null || !db.getTransaction().isActive());

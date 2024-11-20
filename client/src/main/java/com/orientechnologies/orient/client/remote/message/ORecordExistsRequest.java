@@ -12,6 +12,7 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 public class ORecordExistsRequest implements OBinaryRequest<ORecordExistsResponse> {
+
   private ORID recordId;
 
   public ORecordExistsRequest() {}

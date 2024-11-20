@@ -37,14 +37,17 @@ import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.highlight.TextFragment;
 
-/** Created by Enrico Risa on 08/01/15. */
+/**
+ * Created by Enrico Risa on 08/01/15.
+ */
 public class OLuceneQueryContext {
+
   private final OCommandContext context;
   private final IndexSearcher searcher;
   private final Query query;
   private final Sort sort;
   private Optional<OLuceneTxChanges> changes;
-  private HashMap<String, TextFragment[]> fragments;
+  private final HashMap<String, TextFragment[]> fragments;
 
   public OLuceneQueryContext(
       final OCommandContext context, final IndexSearcher searcher, final Query query) {
@@ -114,7 +117,7 @@ public class OLuceneQueryContext {
   }
 
   public long deletedDocs(final Query query) {
-    return changes.map(c -> c.deletedDocs(query)).orElse(0l);
+    return changes.map(c -> c.deletedDocs(query)).orElse(0L);
   }
 
   public boolean isUpdated(final Document doc, final Object key, final OIdentifiable value) {

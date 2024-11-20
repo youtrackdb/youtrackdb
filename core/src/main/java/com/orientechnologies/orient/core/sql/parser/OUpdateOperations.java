@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class OUpdateOperations extends SimpleNode {
+
   public static final int TYPE_SET = 0;
   public static final int TYPE_PUT = 1;
   public static final int TYPE_MERGE = 2;
@@ -190,24 +191,39 @@ public class OUpdateOperations extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OUpdateOperations that = (OUpdateOperations) o;
 
-    if (type != that.type) return false;
-    if (updateItems != null ? !updateItems.equals(that.updateItems) : that.updateItems != null)
+    if (type != that.type) {
       return false;
+    }
+    if (updateItems != null ? !updateItems.equals(that.updateItems) : that.updateItems != null) {
+      return false;
+    }
     if (updatePutItems != null
         ? !updatePutItems.equals(that.updatePutItems)
-        : that.updatePutItems != null) return false;
-    if (json != null ? !json.equals(that.json) : that.json != null) return false;
+        : that.updatePutItems != null) {
+      return false;
+    }
+    if (json != null ? !json.equals(that.json) : that.json != null) {
+      return false;
+    }
     if (updateIncrementItems != null
         ? !updateIncrementItems.equals(that.updateIncrementItems)
-        : that.updateIncrementItems != null) return false;
+        : that.updateIncrementItems != null) {
+      return false;
+    }
     if (updateRemoveItems != null
         ? !updateRemoveItems.equals(that.updateRemoveItems)
-        : that.updateRemoveItems != null) return false;
+        : that.updateRemoveItems != null) {
+      return false;
+    }
 
     return true;
   }

@@ -63,7 +63,9 @@ public class ODistributedMessageServiceImpl implements ODistributedMessageServic
     this.responsesByRequestIds = new ConcurrentHashMap<Long, ODistributedResponseManager>();
 
     // RESET ALL THE METRICS
-    for (int i = 0; i < responseTimeMetrics.length; ++i) responseTimeMetrics[i] = -1;
+    for (int i = 0; i < responseTimeMetrics.length; ++i) {
+      responseTimeMetrics[i] = -1;
+    }
 
     // CREATE TASK THAT CHECK ASYNCHRONOUS MESSAGE RECEIVED
     asynchMessageManager =
@@ -89,7 +91,9 @@ public class ODistributedMessageServiceImpl implements ODistributedMessageServic
     asynchMessageManager.cancel();
 
     // CANCEL ALL THE PENDING REQUESTS
-    for (ODistributedResponseManager req : responsesByRequestIds.values()) req.cancel();
+    for (ODistributedResponseManager req : responsesByRequestIds.values()) {
+      req.cancel();
+    }
 
     responsesByRequestIds.clear();
 
@@ -108,8 +112,9 @@ public class ODistributedMessageServiceImpl implements ODistributedMessageServic
 
   public void handleUnreachableNode(final String nodeName) {
     // WAKE UP ALL THE WAITING RESPONSES
-    for (ODistributedResponseManager r : responsesByRequestIds.values())
+    for (ODistributedResponseManager r : responsesByRequestIds.values()) {
       r.removeServerBecauseUnreachable(nodeName);
+    }
   }
 
   public long getAverageResponseTime() {
@@ -129,7 +134,9 @@ public class ODistributedMessageServiceImpl implements ODistributedMessageServic
     return ((OrientDBDistributed) manager.getServerInstance().getDatabases()).getActiveDatabases();
   }
 
-  /** Not synchronized, it's called when a message arrives */
+  /**
+   * Not synchronized, it's called when a message arrives
+   */
   public void dispatchResponseToThread(final ODistributedResponse response) {
     try {
       final long msgId = response.getRequestId().getMessageId();
@@ -160,10 +167,14 @@ public class ODistributedMessageServiceImpl implements ODistributedMessageServic
     }
   }
 
-  /** Removes a response manager because in timeout. */
+  /**
+   * Removes a response manager because in timeout.
+   */
   public void timeoutRequest(final long msgId) {
     final ODistributedResponseManager asynchMgr = responsesByRequestIds.remove(msgId);
-    if (asynchMgr != null) asynchMgr.timeout();
+    if (asynchMgr != null) {
+      asynchMgr.timeout();
+    }
   }
 
   @Override
@@ -171,8 +182,9 @@ public class ODistributedMessageServiceImpl implements ODistributedMessageServic
     final ODocument doc = new ODocument();
 
     synchronized (latencies) {
-      for (Entry<String, OProfilerEntry> entry : latencies.entrySet())
+      for (Entry<String, OProfilerEntry> entry : latencies.entrySet()) {
         doc.field(entry.getKey(), entry.getValue().toDocument(), OType.EMBEDDED);
+      }
     }
 
     return doc;
@@ -182,7 +194,9 @@ public class ODistributedMessageServiceImpl implements ODistributedMessageServic
   public long getCurrentLatency(final String server) {
     synchronized (latencies) {
       final OProfilerEntry l = latencies.get(server);
-      if (l != null) return (long) (l.average / 1000000);
+      if (l != null) {
+        return (long) (l.average / 1000000);
+      }
     }
     // NOT FOUND
     return 0;
@@ -196,7 +210,9 @@ public class ODistributedMessageServiceImpl implements ODistributedMessageServic
       if (latency == null) {
         latency = new OProfilerEntry();
         latencies.put(server, latency);
-      } else latency.updateLastExecution();
+      } else {
+        latency.updateLastExecution();
+      }
 
       latency.entries++;
 
@@ -215,8 +231,12 @@ public class ODistributedMessageServiceImpl implements ODistributedMessageServic
       latency.last = System.nanoTime() - sentOn;
       latency.total += latency.last;
       latency.average = latency.total / latency.lastResetEntries;
-      if (latency.last < latency.min) latency.min = latency.last;
-      if (latency.last > latency.max) latency.max = latency.last;
+      if (latency.last < latency.min) {
+        latency.min = latency.last;
+      }
+      if (latency.last > latency.max) {
+        latency.max = latency.last;
+      }
     }
   }
 
@@ -226,7 +246,7 @@ public class ODistributedMessageServiceImpl implements ODistributedMessageServic
     final long timeout = OGlobalConfiguration.DISTRIBUTED_ASYNCH_RESPONSES_TIMEOUT.getValueAsLong();
 
     for (Iterator<Entry<Long, ODistributedResponseManager>> it =
-            responsesByRequestIds.entrySet().iterator();
+        responsesByRequestIds.entrySet().iterator();
         it.hasNext(); ) {
       final Entry<Long, ODistributedResponseManager> item = it.next();
 
@@ -279,8 +299,9 @@ public class ODistributedMessageServiceImpl implements ODistributedMessageServic
     final ODocument doc = new ODocument();
 
     synchronized (messagesStats) {
-      for (Map.Entry<String, AtomicLong> entry : messagesStats.entrySet())
+      for (Map.Entry<String, AtomicLong> entry : messagesStats.entrySet()) {
         doc.field(entry.getKey(), entry.getValue().longValue());
+      }
     }
 
     return doc;

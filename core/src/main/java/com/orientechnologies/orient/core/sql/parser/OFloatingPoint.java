@@ -85,14 +85,21 @@ public class OFloatingPoint extends ONumber {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OFloatingPoint that = (OFloatingPoint) o;
 
-    if (sign != that.sign) return false;
-    if (stringValue != null ? !stringValue.equals(that.stringValue) : that.stringValue != null)
+    if (sign != that.sign) {
       return false;
+    }
+    if (stringValue != null ? !stringValue.equals(that.stringValue) : that.stringValue != null) {
+      return false;
+    }
 
     return true;
   }

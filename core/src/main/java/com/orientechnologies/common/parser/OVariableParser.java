@@ -28,6 +28,7 @@ import com.orientechnologies.common.log.OLogManager;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com) (luca.garulli--at--assetdata.it)
  */
 public class OVariableParser {
+
   public static Object resolveVariables(
       final String iText,
       final String iBegin,
@@ -42,14 +43,19 @@ public class OVariableParser {
       final String iEnd,
       final OVariableParserListener iListener,
       final Object iDefaultValue) {
-    if (iListener == null)
+    if (iListener == null) {
       throw new IllegalArgumentException("Missed VariableParserListener listener");
+    }
 
     int beginPos = iText.lastIndexOf(iBegin);
-    if (beginPos == -1) return iText;
+    if (beginPos == -1) {
+      return iText;
+    }
 
     int endPos = iText.indexOf(iEnd, beginPos + 1);
-    if (endPos == -1) return iText;
+    if (endPos == -1) {
+      return iText;
+    }
 
     String pre = iText.substring(0, beginPos);
     String var = iText.substring(beginPos + iBegin.length(), endPos);
@@ -58,13 +64,15 @@ public class OVariableParser {
     Object resolved = iListener.resolve(var);
 
     if (resolved == null) {
-      if (iDefaultValue == null)
+      if (iDefaultValue == null) {
         OLogManager.instance()
             .info(
                 OVariableParser.class,
                 "[OVariableParser.resolveVariables] Property not found: %s",
                 var);
-      else resolved = iDefaultValue;
+      } else {
+        resolved = iDefaultValue;
+      }
     }
 
     if (pre.length() > 0 || post.length() > 0) {

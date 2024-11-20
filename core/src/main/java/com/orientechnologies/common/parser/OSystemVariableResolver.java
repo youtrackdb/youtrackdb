@@ -25,6 +25,7 @@ package com.orientechnologies.common.parser;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com) (luca.garulli--at--assetdata.it)
  */
 public class OSystemVariableResolver implements OVariableParserListener {
+
   public static final String VAR_BEGIN = "${";
   public static final String VAR_END = "}";
 
@@ -35,7 +36,9 @@ public class OSystemVariableResolver implements OVariableParserListener {
   }
 
   public static String resolveSystemVariables(final String iPath, final String iDefault) {
-    if (iPath == null) return iDefault;
+    if (iPath == null) {
+      return iDefault;
+    }
 
     return (String) OVariableParser.resolveVariables(iPath, VAR_BEGIN, VAR_END, instance, iDefault);
   }
@@ -45,13 +48,17 @@ public class OSystemVariableResolver implements OVariableParserListener {
   }
 
   public static String resolveVariable(final String variable, final String iDefault) {
-    if (variable == null) return null;
+    if (variable == null) {
+      return null;
+    }
 
     String resolved = System.getProperty(variable);
 
     if (resolved == null)
-      // TRY TO FIND THE VARIABLE BETWEEN SYSTEM'S ENVIRONMENT PROPERTIES
+    // TRY TO FIND THE VARIABLE BETWEEN SYSTEM'S ENVIRONMENT PROPERTIES
+    {
       resolved = System.getenv(variable);
+    }
 
     return resolved != null ? resolved : iDefault;
   }

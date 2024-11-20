@@ -30,6 +30,7 @@ import org.junit.Test;
  * realigned once the frozen node is released.
  */
 public class OneNodeFrozenIT extends AbstractServerClusterTxTest {
+
   static final int SERVERS = 3;
   volatile boolean inserting = true;
   volatile int serverStarted = 0;
@@ -70,7 +71,8 @@ public class OneNodeFrozenIT extends AbstractServerClusterTxTest {
                 }
 
                 @Override
-                public void onNodeJoined(String iNode) {}
+                public void onNodeJoined(String iNode) {
+                }
 
                 @Override
                 public void onNodeLeft(String iNode) {
@@ -80,67 +82,68 @@ public class OneNodeFrozenIT extends AbstractServerClusterTxTest {
                 public void onDatabaseChangeStatus(
                     String iNode,
                     String iDatabaseName,
-                    ODistributedServerManager.DB_STATUS iNewStatus) {}
+                    ODistributedServerManager.DB_STATUS iNewStatus) {
+                }
               });
     }
 
     if (serverStarted++ == (SERVERS - 1)) {
       // BACKUP LAST SERVER, RUN ASYNCHRONOUSLY
       new Thread(
-              new Runnable() {
-                @Override
-                public void run() {
-                  try {
-                    // CRASH LAST SERVER
-                    executeWhen(
-                        new Callable<Boolean>() {
-                          // CONDITION
-                          @Override
-                          public Boolean call() throws Exception {
-                            final ODatabaseDocument database = getDatabase(0);
-                            try {
-                              return database.countClass("Person") > (count * SERVERS) * 1 / 3;
-                            } finally {
-                              database.close();
-                            }
+          new Runnable() {
+            @Override
+            public void run() {
+              try {
+                // CRASH LAST SERVER
+                executeWhen(
+                    new Callable<Boolean>() {
+                      // CONDITION
+                      @Override
+                      public Boolean call() throws Exception {
+                        final ODatabaseDocument database = getDatabase(0);
+                        try {
+                          return database.countClass("Person") > (count * SERVERS) * 1 / 3;
+                        } finally {
+                          database.close();
+                        }
+                      }
+                    }, // ACTION
+                    new Callable() {
+                      @Override
+                      public Object call() throws Exception {
+                        Assert.assertTrue("Insert was too fast", inserting);
+
+                        banner("FREEZING SERVER " + (SERVERS - 1));
+
+                        freezeInProgress = true;
+                        try {
+
+                          final OServerAdmin admin =
+                              new OServerAdmin(getDatabaseURL(server)).connect("root", "test");
+
+                          admin.freezeDatabase("plocal");
+                          try {
+                            Thread.sleep(10000);
+                          } finally {
+                            admin.releaseDatabase("plocal");
                           }
-                        }, // ACTION
-                        new Callable() {
-                          @Override
-                          public Object call() throws Exception {
-                            Assert.assertTrue("Insert was too fast", inserting);
 
-                            banner("FREEZING SERVER " + (SERVERS - 1));
+                        } catch (IOException e) {
+                          e.printStackTrace();
+                        } finally {
+                          banner("RELEASING SERVER " + (SERVERS - 1));
+                          freezeInProgress = false;
+                        }
+                        return null;
+                      }
+                    });
 
-                            freezeInProgress = true;
-                            try {
-
-                              final OServerAdmin admin =
-                                  new OServerAdmin(getDatabaseURL(server)).connect("root", "test");
-
-                              admin.freezeDatabase("plocal");
-                              try {
-                                Thread.sleep(10000);
-                              } finally {
-                                admin.releaseDatabase("plocal");
-                              }
-
-                            } catch (IOException e) {
-                              e.printStackTrace();
-                            } finally {
-                              banner("RELEASING SERVER " + (SERVERS - 1));
-                              freezeInProgress = false;
-                            }
-                            return null;
-                          }
-                        });
-
-                  } catch (Exception e) {
-                    e.printStackTrace();
-                    Assert.fail("Error on execution flow");
-                  }
-                }
-              })
+              } catch (Exception e) {
+                e.printStackTrace();
+                Assert.fail("Error on execution flow");
+              }
+            }
+          })
           .start();
     }
   }

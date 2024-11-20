@@ -31,7 +31,9 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by enricorisa on 19/09/14. */
+/**
+ * Created by enricorisa on 19/09/14.
+ */
 public class OLuceneMultiFieldTest extends OLuceneBaseTest {
 
   @Before

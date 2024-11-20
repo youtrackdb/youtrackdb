@@ -21,6 +21,7 @@ import org.testng.annotations.Test;
 
 @Test(enabled = false)
 public abstract class OrientMultiThreadTest extends SpeedTestMultiThreads {
+
   public OrientMultiThreadTest(
       int iCycles, int iThreads, Class<? extends SpeedTestThread> iThreadClass) {
     super(iCycles, iThreads, iThreadClass);

@@ -173,7 +173,9 @@ public class OHazelcastClusterMetadataManager
       }
     }
 
-    for (String n : node2Remove) configurationMap.removeNode(n);
+    for (String n : node2Remove) {
+      configurationMap.removeNode(n);
+    }
 
     nodeCfg.field("id", nodeId);
     nodeCfg.field("uuid", nodeUuid);
@@ -202,7 +204,7 @@ public class OHazelcastClusterMetadataManager
           break;
         }
 
-        if (!found)
+        if (!found) {
           ODistributedServerLog.warn(
               this,
               localNodeName,
@@ -211,6 +213,7 @@ public class OHazelcastClusterMetadataManager
               "Cannot find configuration for member: %s, uuid",
               m,
               m.getUuid());
+        }
       }
     }
 
@@ -302,8 +305,10 @@ public class OHazelcastClusterMetadataManager
           registeredNodeByName.put(nodeName, nodeId);
 
         } else
-          // NO CONFIG_REGISTEREDNODES, BUT MORE THAN ONE NODE PRESENT: REPAIR THE CONFIGURATION
+        // NO CONFIG_REGISTEREDNODES, BUT MORE THAN ONE NODE PRESENT: REPAIR THE CONFIGURATION
+        {
           repairActiveServers();
+        }
       }
 
       ODistributedServerLog.info(
@@ -324,9 +329,10 @@ public class OHazelcastClusterMetadataManager
           "orientdb." + CONFIG_REGISTEREDNODES, getLocalNodeName());
     }
 
-    if (nodeId == -1)
+    if (nodeId == -1) {
       throw new OConfigurationException(
           "Cannot join the cluster (nodeId=-1). Please restart the server.");
+    }
   }
 
   private void repairActiveServers() {
@@ -377,7 +383,9 @@ public class OHazelcastClusterMetadataManager
             registeredNodeById.add(null);
           }
           registeredNodeById.add(mName);
-        } else registeredNodeById.set(mId, mName);
+        } else {
+          registeredNodeById.set(mId, mName);
+        }
 
         registeredNodeByName.put(mName, mId);
       }
@@ -399,7 +407,9 @@ public class OHazelcastClusterMetadataManager
     final ODistributedConfiguration cfg = ctx.getDistributedConfiguration(databaseName);
     if (cfg != null) {
       final int availableServers = getAvailableNodes(databaseName);
-      if (availableServers == 0) return false;
+      if (availableServers == 0) {
+        return false;
+      }
 
       final int quorum = cfg.getWriteQuorum(null, cfg.getMasterServers().size(), nodeName);
       return availableServers >= quorum;
@@ -426,7 +436,9 @@ public class OHazelcastClusterMetadataManager
   }
 
   public boolean isNodeAvailable(final String iNodeName) {
-    if (iNodeName == null) return false;
+    if (iNodeName == null) {
+      return false;
+    }
     Member member = activeNodes.get(iNodeName);
     return member != null && hazelcastInstance.getCluster().getMembers().contains(member);
   }
@@ -454,7 +466,9 @@ public class OHazelcastClusterMetadataManager
   }
 
   public long getClusterTime() {
-    if (hazelcastInstance == null) throw new HazelcastInstanceNotActiveException();
+    if (hazelcastInstance == null) {
+      throw new HazelcastInstanceNotActiveException();
+    }
 
     try {
       return hazelcastInstance.getCluster().getClusterTime();
@@ -475,7 +489,7 @@ public class OHazelcastClusterMetadataManager
     try {
       final Set<String> databases = new HashSet<String>();
 
-      if (hazelcastInstance != null && hazelcastInstance.getLifecycleService().isRunning())
+      if (hazelcastInstance != null && hazelcastInstance.getLifecycleService().isRunning()) {
         for (Map.Entry<String, Object> entry : configurationMap.entrySet()) {
           if (OHazelcastDistributedMap.isDatabaseStatus(entry.getKey())) {
 
@@ -489,6 +503,7 @@ public class OHazelcastClusterMetadataManager
             }
           }
         }
+      }
 
       // PUT DATABASES AS NOT_AVAILABLE
       for (String k : databases) {
@@ -500,7 +515,9 @@ public class OHazelcastClusterMetadataManager
       // HZ IS ALREADY DOWN, IGNORE IT
     }
 
-    if (publishLocalNodeConfigurationTask != null) publishLocalNodeConfigurationTask.cancel();
+    if (publishLocalNodeConfigurationTask != null) {
+      publishLocalNodeConfigurationTask.cancel();
+    }
   }
 
   public void hazelcastPluginShutdown() {
@@ -519,7 +536,7 @@ public class OHazelcastClusterMetadataManager
       }
     }
 
-    if (hazelcastInstance != null)
+    if (hazelcastInstance != null) {
       try {
         hazelcastInstance.shutdown();
       } catch (Exception e) {
@@ -527,6 +544,7 @@ public class OHazelcastClusterMetadataManager
       } finally {
         hazelcastInstance = null;
       }
+    }
 
     OCallableUtils.executeIgnoringAnyExceptions(
         new OCallableNoParamNoReturn() {
@@ -563,7 +581,9 @@ public class OHazelcastClusterMetadataManager
         }
       }
 
-      if (member == null) throw new ODistributedException("Cannot find node '" + rNodeName + "'");
+      if (member == null) {
+        throw new ODistributedException("Cannot find node '" + rNodeName + "'");
+      }
     }
     return member;
   }
@@ -572,7 +592,9 @@ public class OHazelcastClusterMetadataManager
     for (int retry = 1;
         hazelcastInstance == null && !Thread.currentThread().isInterrupted();
         ++retry) {
-      if (retry > 25) throw new ODistributedException("Hazelcast instance is not available");
+      if (retry > 25) {
+        throw new ODistributedException("Hazelcast instance is not available");
+      }
 
       // WAIT UNTIL THE INSTANCE IS READY, FOR MAXIMUM 5 SECS (25 x 200ms)
       try {
@@ -609,7 +631,8 @@ public class OHazelcastClusterMetadataManager
   }
 
   @Override
-  public void memberAttributeChanged(final MemberAttributeEvent memberAttributeEvent) {}
+  public void memberAttributeChanged(final MemberAttributeEvent memberAttributeEvent) {
+  }
 
   public boolean updateCachedDatabaseConfiguration(
       final String databaseName, final OModifiableDistributedConfiguration cfg) {
@@ -619,8 +642,10 @@ public class OHazelcastClusterMetadataManager
     boolean updated = context.tryUpdatingDatabaseConfigurationLocally(databaseName, cfg);
 
     if (!updated && !getConfigurationMap().existsDatabaseConfiguration(databaseName))
-      // FIRST TIME, FORCE PUBLISHING
+    // FIRST TIME, FORCE PUBLISHING
+    {
       updated = true;
+    }
 
     if (updated) {
       publishDistributedConfiguration(databaseName, cfg);
@@ -655,17 +680,23 @@ public class OHazelcastClusterMetadataManager
 
   @Override
   public void entryAdded(final EntryEvent<String, Object> iEvent) {
-    if (hazelcastInstance == null || !hazelcastInstance.getLifecycleService().isRunning()) return;
+    if (hazelcastInstance == null || !hazelcastInstance.getLifecycleService().isRunning()) {
+      return;
+    }
 
     try {
       if (iEvent.getMember() == null)
-        // IGNORE IT
+      // IGNORE IT
+      {
         return;
+      }
 
       final String eventNodeName = getNodeName(iEvent.getMember(), true);
       if ("?".equals(eventNodeName))
-        // MOM ALWAYS SAYS: DON'T ACCEPT CHANGES FROM STRANGERS NODES
+      // MOM ALWAYS SAYS: DON'T ACCEPT CHANGES FROM STRANGERS NODES
+      {
         return;
+      }
 
       final String key = iEvent.getKey();
       if (OHazelcastDistributedMap.isNodeConfigKey(key)) {
@@ -729,22 +760,28 @@ public class OHazelcastClusterMetadataManager
 
   @Override
   public void entryUpdated(final EntryEvent<String, Object> iEvent) {
-    if (hazelcastInstance == null || !hazelcastInstance.getLifecycleService().isRunning()) return;
+    if (hazelcastInstance == null || !hazelcastInstance.getLifecycleService().isRunning()) {
+      return;
+    }
 
     try {
       final String key = iEvent.getKey();
 
       final String eventNodeName = getNodeName(iEvent.getMember(), true);
       if ("?".equals(eventNodeName))
-        // MOM ALWAYS SAYS: DON'T ACCEPT CHANGES FROM STRANGERS NODES
+      // MOM ALWAYS SAYS: DON'T ACCEPT CHANGES FROM STRANGERS NODES
+      {
         return;
+      }
 
       if (OHazelcastDistributedMap.isNodeConfigKey(key)) {
 
         final ODocument cfg = (ODocument) iEvent.getValue();
 
         String name = cfg.field("name");
-        if (!activeNodes.containsKey(name)) updateLastClusterChange();
+        if (!activeNodes.containsKey(name)) {
+          updateLastClusterChange();
+        }
 
         activeNodes.put(name, iEvent.getMember());
         if (iEvent.getMember().getUuid() != null) {
@@ -795,15 +832,19 @@ public class OHazelcastClusterMetadataManager
 
   @Override
   public void entryRemoved(final EntryEvent<String, Object> iEvent) {
-    if (hazelcastInstance == null || !hazelcastInstance.getLifecycleService().isRunning()) return;
+    if (hazelcastInstance == null || !hazelcastInstance.getLifecycleService().isRunning()) {
+      return;
+    }
 
     try {
       final String key = iEvent.getKey();
 
       final String eventNodeName = getNodeName(iEvent.getMember(), true);
       if ("?".equals(eventNodeName))
-        // MOM ALWAYS SAYS: DON'T ACCEPT CHANGES FROM STRANGERS NODES
+      // MOM ALWAYS SAYS: DON'T ACCEPT CHANGES FROM STRANGERS NODES
+      {
         return;
+      }
 
       if (OHazelcastDistributedMap.isNodeConfigKey(key)) {
         if (eventNodeName != null) {
@@ -835,29 +876,39 @@ public class OHazelcastClusterMetadataManager
   }
 
   @Override
-  public void entryEvicted(final EntryEvent<String, Object> iEvent) {}
+  public void entryEvicted(final EntryEvent<String, Object> iEvent) {
+  }
 
   @Override
-  public void mapEvicted(final MapEvent iEvent) {}
+  public void mapEvicted(final MapEvent iEvent) {
+  }
 
   @Override
-  public void mapCleared(final MapEvent event) {}
+  public void mapCleared(final MapEvent event) {
+  }
 
-  /** Removes the node map entry. */
+  /**
+   * Removes the node map entry.
+   */
   @Override
   public void memberRemoved(final MembershipEvent iEvent) {
     OrientDBInternal ctx = serverInstance.getDatabases();
     ctx.execute(
         () -> {
-          if (hazelcastInstance == null || !hazelcastInstance.getLifecycleService().isRunning())
+          if (hazelcastInstance == null || !hazelcastInstance.getLifecycleService().isRunning()) {
             return;
+          }
 
           updateLastClusterChange();
 
-          if (iEvent.getMember() == null) return;
+          if (iEvent.getMember() == null) {
+            return;
+          }
 
           final String nodeLeftName = getNodeName(iEvent.getMember(), true);
-          if (nodeLeftName == null) return;
+          if (nodeLeftName == null) {
+            return;
+          }
 
           distributedPlugin.removeServer(nodeLeftName, true);
         });
@@ -868,8 +919,9 @@ public class OHazelcastClusterMetadataManager
     OrientDBInternal ctx = serverInstance.getDatabases();
     ctx.execute(
         () -> {
-          if (hazelcastInstance == null || !hazelcastInstance.getLifecycleService().isRunning())
+          if (hazelcastInstance == null || !hazelcastInstance.getLifecycleService().isRunning()) {
             return;
+          }
 
           updateLastClusterChange();
           final String addedNodeName = getNodeName(iEvent.getMember(), true);
@@ -892,9 +944,9 @@ public class OHazelcastClusterMetadataManager
   @Override
   public void stateChanged(final LifecycleEvent event) {
     final LifecycleEvent.LifecycleState state = event.getState();
-    if (state == LifecycleEvent.LifecycleState.MERGING)
+    if (state == LifecycleEvent.LifecycleState.MERGING) {
       setNodeStatus(ODistributedServerManager.NODE_STATUS.MERGING);
-    else if (state == LifecycleEvent.LifecycleState.MERGED) {
+    } else if (state == LifecycleEvent.LifecycleState.MERGED) {
       ODistributedServerLog.info(
           this,
           nodeName,
@@ -1010,8 +1062,10 @@ public class OHazelcastClusterMetadataManager
 
   public ODocument getNodeConfigurationByUuid(final String iNodeId, final boolean useCache) {
     if (configurationMap == null)
-      // NOT YET STARTED
+    // NOT YET STARTED
+    {
       return null;
+    }
 
     final ODocument doc;
     if (useCache) {
@@ -1072,8 +1126,9 @@ public class OHazelcastClusterMetadataManager
       registeredNodeById.addAll(registeredNodesFromCluster.field("ids", OType.EMBEDDEDLIST));
       registeredNodeByName.clear();
       registeredNodeByName.putAll(registeredNodesFromCluster.field("names", OType.EMBEDDEDMAP));
-    } else
+    } else {
       throw new ODistributedException("Cannot find distributed 'registeredNodes' configuration");
+    }
   }
 
   private List<String> getRegisteredNodes() {
@@ -1153,33 +1208,42 @@ public class OHazelcastClusterMetadataManager
 
     final ODistributedServerManager.DB_STATUS nodeLeftStatus =
         getDatabaseStatus(nodeLeftName, databaseName);
-    if (statusOffline && nodeLeftStatus != ODistributedServerManager.DB_STATUS.OFFLINE)
+    if (statusOffline && nodeLeftStatus != ODistributedServerManager.DB_STATUS.OFFLINE) {
       setDatabaseStatus(nodeLeftName, databaseName, ODistributedServerManager.DB_STATUS.OFFLINE);
-    else if (!statusOffline && nodeLeftStatus != ODistributedServerManager.DB_STATUS.NOT_AVAILABLE)
+    } else if (!statusOffline
+        && nodeLeftStatus != ODistributedServerManager.DB_STATUS.NOT_AVAILABLE) {
       setDatabaseStatus(
           nodeLeftName, databaseName, ODistributedServerManager.DB_STATUS.NOT_AVAILABLE);
+    }
 
     return found;
   }
 
   public Member removeFromLocalActiveServerList(String nodeLeftName) {
     final Member member = activeNodes.remove(nodeLeftName);
-    if (member == null) return null;
-    if (member.getUuid() != null) activeNodesNamesByUuid.remove(member.getUuid());
+    if (member == null) {
+      return null;
+    }
+    if (member.getUuid() != null) {
+      activeNodesNamesByUuid.remove(member.getUuid());
+    }
     activeNodesUuidByName.remove(nodeLeftName);
     return member;
   }
 
   public void removeServerFromCluster(
       final Member member, final String nodeLeftName, final boolean removeOnlyDynamicServers) {
-    if (hazelcastInstance == null || !hazelcastInstance.getLifecycleService().isRunning()) return;
+    if (hazelcastInstance == null || !hazelcastInstance.getLifecycleService().isRunning()) {
+      return;
+    }
 
     final long autoRemoveOffLineServer =
         OGlobalConfiguration.DISTRIBUTED_AUTO_REMOVE_OFFLINE_SERVERS.getValueAsLong();
     if (autoRemoveOffLineServer == 0)
-      // REMOVE THE NODE RIGHT NOW
+    // REMOVE THE NODE RIGHT NOW
+    {
       removeNodeFromConfiguration(nodeLeftName, removeOnlyDynamicServers);
-    else if (autoRemoveOffLineServer > 0) {
+    } else if (autoRemoveOffLineServer > 0) {
       // SCHEDULE AUTO REMOVAL IN A WHILE
       autoRemovalOfServers.put(nodeLeftName, System.currentTimeMillis());
       TimerTask task =
@@ -1194,8 +1258,10 @@ public class OHazelcastClusterMetadataManager
                         try {
                           final Long lastTimeNodeLeft = autoRemovalOfServers.get(nodeLeftName);
                           if (lastTimeNodeLeft == null)
-                            // NODE WAS BACK ONLINE
+                          // NODE WAS BACK ONLINE
+                          {
                             return;
+                          }
 
                           if (System.currentTimeMillis() - lastTimeNodeLeft
                               >= autoRemoveOffLineServer) {
@@ -1214,9 +1280,10 @@ public class OHazelcastClusterMetadataManager
       final ODistributedServerManager.DB_STATUS nodeLeftStatus =
           getDatabaseStatus(nodeLeftName, databaseName);
       if (nodeLeftStatus != ODistributedServerManager.DB_STATUS.OFFLINE
-          && nodeLeftStatus != ODistributedServerManager.DB_STATUS.NOT_AVAILABLE)
+          && nodeLeftStatus != ODistributedServerManager.DB_STATUS.NOT_AVAILABLE) {
         configurationMap.setDatabaseStatus(
             nodeLeftName, databaseName, ODistributedServerManager.DB_STATUS.NOT_AVAILABLE);
+      }
     }
 
     ODistributedServerLog.warn(
@@ -1250,12 +1317,16 @@ public class OHazelcastClusterMetadataManager
 
   protected void registerNode(final Member member, final String joinedNodeName) {
     if (activeNodes.containsKey(joinedNodeName))
-      // ALREADY REGISTERED: SKIP IT
+    // ALREADY REGISTERED: SKIP IT
+    {
       return;
+    }
 
     if (joinedNodeName.startsWith("ext:"))
-      // NODE HAS NOT IS YET
+    // NODE HAS NOT IS YET
+    {
       return;
+    }
 
     if (activeNodes.putIfAbsent(joinedNodeName, member) == null) {
       if (!distributedPlugin.onNodeJoining(joinedNodeName)) {
@@ -1281,17 +1352,25 @@ public class OHazelcastClusterMetadataManager
   }
 
   public String getNodeName(final Member iMember, final boolean useCache) {
-    if (iMember == null || iMember.getUuid() == null) return "?";
+    if (iMember == null || iMember.getUuid() == null) {
+      return "?";
+    }
 
     if (nodeUuid.equals(iMember.getUuid()))
-      // LOCAL NODE (NOT YET NAMED)
+    // LOCAL NODE (NOT YET NAMED)
+    {
       return nodeName;
+    }
 
     final String name = activeNodesNamesByUuid.get(iMember.getUuid());
-    if (name != null) return name;
+    if (name != null) {
+      return name;
+    }
 
     final ODocument cfg = getNodeConfigurationByUuid(iMember.getUuid(), useCache);
-    if (cfg != null) return cfg.field("name");
+    if (cfg != null) {
+      return cfg.field("name");
+    }
 
     return "ext:" + iMember.getUuid();
   }
@@ -1329,23 +1408,30 @@ public class OHazelcastClusterMetadataManager
   }
 
   public String tryGetNodeNameById(final int id) {
-    if (id < 0) throw new IllegalArgumentException("Node id " + id + " is invalid");
+    if (id < 0) {
+      throw new IllegalArgumentException("Node id " + id + " is invalid");
+    }
 
     synchronized (registeredNodeById) {
-      if (id < registeredNodeById.size()) return registeredNodeById.get(id);
+      if (id < registeredNodeById.size()) {
+        return registeredNodeById.get(id);
+      }
     }
     return null;
   }
 
   public int tryGetNodeIdByName(final String name) {
     final Integer val = registeredNodeByName.get(name);
-    if (val == null) return -1;
+    if (val == null) {
+      return -1;
+    }
     return val.intValue();
   }
 
   public String getNodeUuidByName(final String name) {
-    if (name == null || name.isEmpty())
+    if (name == null || name.isEmpty()) {
       throw new IllegalArgumentException("Node name " + name + " is invalid");
+    }
 
     return activeNodesUuidByName.get(name);
   }
@@ -1353,7 +1439,9 @@ public class OHazelcastClusterMetadataManager
   public int getAvailableNodes(final String iDatabaseName) {
     int availableNodes = 0;
     for (Map.Entry<String, Member> entry : activeNodes.entrySet()) {
-      if (isNodeAvailable(entry.getKey(), iDatabaseName)) availableNodes++;
+      if (isNodeAvailable(entry.getKey(), iDatabaseName)) {
+        availableNodes++;
+      }
     }
     return availableNodes;
   }
@@ -1361,7 +1449,9 @@ public class OHazelcastClusterMetadataManager
   public List<String> getOnlineNodes(final String iDatabaseName) {
     final List<String> onlineNodes = new ArrayList<String>(activeNodes.size());
     for (Map.Entry<String, Member> entry : activeNodes.entrySet()) {
-      if (isNodeOnline(entry.getKey(), iDatabaseName)) onlineNodes.add(entry.getKey());
+      if (isNodeOnline(entry.getKey(), iDatabaseName)) {
+        onlineNodes.add(entry.getKey());
+      }
     }
     return onlineNodes;
   }
@@ -1370,7 +1460,9 @@ public class OHazelcastClusterMetadataManager
     final Set<String> nodes = new HashSet<String>();
 
     for (Map.Entry<String, Member> entry : activeNodes.entrySet()) {
-      if (isNodeAvailable(entry.getKey(), iDatabaseName)) nodes.add(entry.getKey());
+      if (isNodeAvailable(entry.getKey(), iDatabaseName)) {
+        nodes.add(entry.getKey());
+      }
     }
     return nodes;
   }
@@ -1383,7 +1475,9 @@ public class OHazelcastClusterMetadataManager
     for (Iterator<String> it = iNodes.iterator(); it.hasNext(); ) {
       final String node = it.next();
 
-      if (!isNodeAvailable(node, databaseName)) it.remove();
+      if (!isNodeAvailable(node, databaseName)) {
+        it.remove();
+      }
     }
     return iNodes.size();
   }
@@ -1391,9 +1485,9 @@ public class OHazelcastClusterMetadataManager
   /**
    * Executes an operation protected by a distributed lock (one per database).
    *
-   * @param <T> Return type
+   * @param <T>          Return type
    * @param databaseName Database name
-   * @param iCallback Operation @return The operation's result of type T
+   * @param iCallback    Operation @return The operation's result of type T
    */
   public <T> T executeInDistributedDatabaseLock(
       final String databaseName,
@@ -1442,9 +1536,9 @@ public class OHazelcastClusterMetadataManager
   /**
    * Executes an operation protected by a distributed lock (one per database).
    *
-   * @param <T> Return type
+   * @param <T>          Return type
    * @param databaseName Database name
-   * @param iCallback Operation @return The operation's result of type T
+   * @param iCallback    Operation @return The operation's result of type T
    */
   public <T> T executeInDistributedDatabaseLock(
       final String databaseName, final long timeoutLocking, final Callable<T> iCallback) {
@@ -1487,8 +1581,10 @@ public class OHazelcastClusterMetadataManager
 
   public void setNodeStatus(final ODistributedServerManager.NODE_STATUS iStatus) {
     if (status.equals(iStatus))
-      // NO CHANGE
+    // NO CHANGE
+    {
       return;
+    }
 
     status = iStatus;
 

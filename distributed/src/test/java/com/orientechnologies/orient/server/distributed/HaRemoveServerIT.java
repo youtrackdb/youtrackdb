@@ -33,8 +33,11 @@ import org.junit.Test;
  *
  */
 
-/** @author Enrico Risa */
+/**
+ * @author Enrico Risa
+ */
 public class HaRemoveServerIT extends AbstractServerClusterTest {
+
   private static final int SERVERS = 2;
 
   ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -76,10 +79,12 @@ public class HaRemoveServerIT extends AbstractServerClusterTest {
             }
 
             @Override
-            public void onNodeJoined(String iNode) {}
+            public void onNodeJoined(String iNode) {
+            }
 
             @Override
-            public void onNodeLeft(String iNode) {}
+            public void onNodeLeft(String iNode) {
+            }
 
             @Override
             public void onDatabaseChangeStatus(

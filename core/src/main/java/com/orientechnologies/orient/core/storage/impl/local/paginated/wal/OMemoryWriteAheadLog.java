@@ -34,6 +34,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @since 6/25/14
  */
 public class OMemoryWriteAheadLog extends OAbstractWriteAheadLog {
+
   private final AtomicInteger nextPosition = new AtomicInteger();
   private final AtomicInteger nextOperationId = new AtomicInteger();
 

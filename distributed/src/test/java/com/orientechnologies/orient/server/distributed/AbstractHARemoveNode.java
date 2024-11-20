@@ -19,8 +19,11 @@ import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/** Abstract class to test when a node is down. */
+/**
+ * Abstract class to test when a node is down.
+ */
 public abstract class AbstractHARemoveNode extends AbstractServerClusterTxTest {
+
   protected AtomicBoolean lastNodeIsUp = new AtomicBoolean(true);
 
   @Override
@@ -32,15 +35,16 @@ public abstract class AbstractHARemoveNode extends AbstractServerClusterTxTest {
           @Override
           public Boolean call(ODatabaseDocument db) {
             final boolean ok = db.countClass("Person") >= expected;
-            if (!ok)
+            if (!ok) {
               System.out.println(
                   "Server 0: FOUND "
                       + db.countClass("Person")
                       + " people instead of expected "
                       + expected);
-            else
+            } else {
               System.out.println(
                   "Server 0: FOUND " + db.countClass("Person") + ", expected " + expected);
+            }
             return ok;
           }
         },
@@ -57,15 +61,16 @@ public abstract class AbstractHARemoveNode extends AbstractServerClusterTxTest {
                     : expected - (count * writerCount * (serverInstance.size() - 1));
 
             final boolean ok = db.countClass("Person") >= node2Expected;
-            if (!ok)
+            if (!ok) {
               System.out.println(
                   "Server 2: FOUND "
                       + db.countClass("Person")
                       + " people instead of expected "
                       + node2Expected);
-            else
+            } else {
               System.out.println(
                   "Server 2: FOUND " + db.countClass("Person") + ", expected " + expected);
+            }
             return ok;
           }
         },

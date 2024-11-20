@@ -14,6 +14,7 @@ import java.util.Map;
  */
 public class OCommandExecutorSQLDropUser extends OCommandExecutorSQLAbstract
     implements OCommandDistributedReplicateRequest {
+
   public static final String KEYWORD_DROP = "DROP";
   public static final String KEYWORD_USER = "USER";
 
@@ -45,17 +46,11 @@ public class OCommandExecutorSQLDropUser extends OCommandExecutorSQLAbstract
     // DELETE FROM OUser WHERE name='<name>'
 
     //
-    StringBuilder sb = new StringBuilder();
-    sb.append("DELETE FROM ");
-    sb.append(USER_CLASS);
-    sb.append(" WHERE ");
-    sb.append(USER_FIELD_NAME);
-    sb.append("='");
-    sb.append(this.userName);
-    sb.append("'");
+    String sb =
+        "DELETE FROM " + USER_CLASS + " WHERE " + USER_FIELD_NAME + "='" + this.userName + "'";
 
     //
-    return getDatabase().command(new OCommandSQL(sb.toString())).execute();
+    return getDatabase().command(new OCommandSQL(sb)).execute();
   }
 
   @Override

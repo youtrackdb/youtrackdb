@@ -5,6 +5,7 @@ import com.orientechnologies.orient.core.index.engine.IndexEngineValuesTransform
 import java.util.Collection;
 
 public final class MultiValuesTransformer implements IndexEngineValuesTransformer {
+
   public static final MultiValuesTransformer INSTANCE = new MultiValuesTransformer();
 
   @Override

@@ -98,8 +98,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-/** Created by tglman on 08/04/16. */
+/**
+ * Created by tglman on 08/04/16.
+ */
 public class OrientDBRemote implements OrientDBInternal {
+
   protected final Map<String, OSharedContext> sharedContexts = new HashMap<>();
   private final Map<String, OStorageRemote> storages = new HashMap<>();
   private final Set<ODatabasePoolInternal> pools = new HashSet<>();
@@ -403,13 +406,17 @@ public class OrientDBRemote implements OrientDBInternal {
 
   @Override
   public void close() {
-    if (!open) return;
+    if (!open) {
+      return;
+    }
     removeShutdownHook();
     internalClose();
   }
 
   public void internalClose() {
-    if (!open) return;
+    if (!open) {
+      return;
+    }
 
     if (timer != null) {
       timer.cancel();
@@ -454,7 +461,9 @@ public class OrientDBRemote implements OrientDBInternal {
   }
 
   private void checkOpen() {
-    if (!open) throw new ODatabaseException("OrientDB Instance is closed");
+    if (!open) {
+      throw new ODatabaseException("OrientDB Instance is closed");
+    }
   }
 
   @Override
@@ -496,7 +505,9 @@ public class OrientDBRemote implements OrientDBInternal {
   @Override
   public synchronized void forceDatabaseClose(String databaseName) {
     OStorageRemote remote = storages.get(databaseName);
-    if (remote != null) closeStorage(remote);
+    if (remote != null) {
+      closeStorage(remote);
+    }
   }
 
   @Override
@@ -676,7 +687,9 @@ public class OrientDBRemote implements OrientDBInternal {
           network = OStorageRemote.getNetwork(serverUrl, connectionManager, config);
         } catch (OException e) {
           serverUrl = urls.removeAndGet(serverUrl);
-          if (serverUrl == null) throw e;
+          if (serverUrl == null) {
+            throw e;
+          }
         }
       } while (network == null);
 
@@ -684,13 +697,16 @@ public class OrientDBRemote implements OrientDBInternal {
       connectionManager.release(network);
       return res;
     } catch (Exception e) {
-      if (network != null) connectionManager.release(network);
+      if (network != null) {
+        connectionManager.release(network);
+      }
       session.closeAllSessions(connectionManager, config);
       throw OException.wrapException(new OStorageException(errorMessage), e);
     }
   }
 
   private interface SessionOperation<T> {
+
     T execute(OStorageRemoteSession session) throws IOException;
   }
 
@@ -742,11 +758,12 @@ public class OrientDBRemote implements OrientDBInternal {
         return result;
       } catch (IOException | OTokenSecurityException e) {
         retry--;
-        if (retry == 0)
+        if (retry == 0) {
           throw OException.wrapException(
               new ODatabaseException(
                   "Reached maximum retry limit on admin operations, the server may be offline"),
               e);
+        }
       } finally {
         newSession.closeAllSessions(connectionManager, configurations.getConfigurations());
       }

@@ -37,7 +37,7 @@ public interface OResourcePoolListener<K, V> {
    * Reuses the pooled resource.
    *
    * @return true if can be reused, otherwise false. In this case the resource will be removed from
-   *     the pool
+   * the pool
    */
   boolean reuseResource(K iKey, Object[] iAdditionalArgs, V iValue);
 }

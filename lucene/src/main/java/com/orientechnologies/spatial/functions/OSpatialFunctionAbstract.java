@@ -19,7 +19,9 @@ import com.orientechnologies.orient.core.sql.functions.OSQLFunctionAbstract;
 import com.orientechnologies.spatial.shape.OShapeFactory;
 import org.locationtech.spatial4j.shape.Shape;
 
-/** Created by Enrico Risa on 22/07/16. */
+/**
+ * Created by Enrico Risa on 22/07/16.
+ */
 public abstract class OSpatialFunctionAbstract extends OSQLFunctionAbstract {
 
   protected OShapeFactory factory = OShapeFactory.INSTANCE;
@@ -30,7 +32,9 @@ public abstract class OSpatialFunctionAbstract extends OSQLFunctionAbstract {
 
   boolean containsNull(Object[] params) {
     for (Object param : params) {
-      if (param == null) return true;
+      if (param == null) {
+        return true;
+      }
     }
 
     return false;

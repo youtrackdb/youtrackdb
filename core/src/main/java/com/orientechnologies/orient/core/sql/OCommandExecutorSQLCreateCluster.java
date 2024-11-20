@@ -35,6 +35,7 @@ import java.util.Map;
 @SuppressWarnings("unchecked")
 public class OCommandExecutorSQLCreateCluster extends OCommandExecutorSQLAbstract
     implements OCommandDistributedReplicateRequest {
+
   public static final String KEYWORD_CREATE = "CREATE";
   public static final String KEYWORD_BLOB = "BLOB";
   public static final String KEYWORD_CLUSTER = "CLUSTER";
@@ -68,8 +69,9 @@ public class OCommandExecutorSQLCreateCluster extends OCommandExecutorSQLAbstrac
 
       clusterName = parserRequiredWord(false);
       clusterName = decodeClassName(clusterName);
-      if (!clusterName.isEmpty() && Character.isDigit(clusterName.charAt(0)))
+      if (!clusterName.isEmpty() && Character.isDigit(clusterName.charAt(0))) {
         throw new IllegalArgumentException("Cluster name cannot begin with a digit");
+      }
 
       String temp = parseOptionalWord(true);
 
@@ -79,7 +81,9 @@ public class OCommandExecutorSQLCreateCluster extends OCommandExecutorSQLAbstrac
         }
 
         temp = parseOptionalWord(true);
-        if (parserIsEnded()) break;
+        if (parserIsEnded()) {
+          break;
+        }
       }
 
     } finally {
@@ -101,17 +105,21 @@ public class OCommandExecutorSQLCreateCluster extends OCommandExecutorSQLAbstrac
     return QUORUM_TYPE.ALL;
   }
 
-  /** Execute the CREATE CLUSTER. */
+  /**
+   * Execute the CREATE CLUSTER.
+   */
   public Object execute(final Map<Object, Object> iArgs) {
-    if (clusterName == null)
+    if (clusterName == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
+    }
 
     final var database = getDatabase();
 
     final int clusterId = database.getClusterIdByName(clusterName);
-    if (clusterId > -1)
+    if (clusterId > -1) {
       throw new OCommandSQLParsingException("Cluster '" + clusterName + "' already exists");
+    }
 
     if (blob) {
       if (requestedId == -1) {

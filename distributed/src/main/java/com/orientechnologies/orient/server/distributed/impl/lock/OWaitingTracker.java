@@ -3,6 +3,7 @@ package com.orientechnologies.orient.server.distributed.impl.lock;
 import java.util.List;
 
 class OWaitingTracker {
+
   private int waitingCount = 0;
   private final OnLocksAcquired toExecute;
   private List<OLockGuard> guards;

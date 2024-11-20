@@ -111,17 +111,27 @@ public class OArraySelector extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OArraySelector that = (OArraySelector) o;
 
-    if (rid != null ? !rid.equals(that.rid) : that.rid != null) return false;
-    if (inputParam != null ? !inputParam.equals(that.inputParam) : that.inputParam != null)
+    if (rid != null ? !rid.equals(that.rid) : that.rid != null) {
       return false;
-    if (expression != null ? !expression.equals(that.expression) : that.expression != null)
+    }
+    if (inputParam != null ? !inputParam.equals(that.inputParam) : that.inputParam != null) {
       return false;
-    if (integer != null ? !integer.equals(that.integer) : that.integer != null) return false;
+    }
+    if (expression != null ? !expression.equals(that.expression) : that.expression != null) {
+      return false;
+    }
+    if (integer != null ? !integer.equals(that.integer) : that.integer != null) {
+      return false;
+    }
 
     return true;
   }

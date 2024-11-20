@@ -51,6 +51,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
     implements OReadCache, OWriteCache {
+
   private final Lock metadataLock = new ReentrantLock();
 
   private final Object2IntOpenHashMap<String> fileNameIdMap = new Object2IntOpenHashMap<>();
@@ -69,7 +70,9 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
     fileNameIdMap.defaultReturnValue(-1);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Path getRootDirectory() {
     return null;
@@ -387,7 +390,9 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
     delete();
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public final void closeStorage(final OWriteCache writeCache) {
     //noinspection ResultOfMethodCallIgnored
@@ -470,11 +475,15 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
     return true;
   }
 
-  /** Not implemented because has no sense */
+  /**
+   * Not implemented because has no sense
+   */
   @Override
   public void addPageIsBrokenListener(final OPageIsBrokenListener listener) {}
 
-  /** Not implemented because has no sense */
+  /**
+   * Not implemented because has no sense
+   */
   @Override
   public void removePageIsBrokenListener(final OPageIsBrokenListener listener) {}
 

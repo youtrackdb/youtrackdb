@@ -8,6 +8,7 @@ import com.orientechnologies.orient.server.network.protocol.http.ONetworkProtoco
 import java.util.*;
 
 public class LocalTestSetup implements TestSetup {
+
   private final Map<String, ServerRun> servers = new HashMap<>();
   private final Map<String, String> httpRemotes = new HashMap<>();
   private final Map<String, String> binaryRemotes = new HashMap<>();

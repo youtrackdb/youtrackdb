@@ -24,10 +24,10 @@ public class CheckClassTypeStep extends AbstractExecutionStep {
   private final String parentClass;
 
   /**
-   * @param targetClass a class to be checked
-   * @param parentClass a class that is supposed to be the same or a parent class of the target
-   *     class
-   * @param ctx execuiton context
+   * @param targetClass      a class to be checked
+   * @param parentClass      a class that is supposed to be the same or a parent class of the target
+   *                         class
+   * @param ctx              execuiton context
    * @param profilingEnabled true to collect execution stats
    */
   public CheckClassTypeStep(

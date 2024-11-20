@@ -12,7 +12,9 @@ import org.apache.lucene.store.MMapDirectory;
 import org.apache.lucene.store.NIOFSDirectory;
 import org.apache.lucene.store.RAMDirectory;
 
-/** Created by frank on 03/03/2016. */
+/**
+ * Created by frank on 03/03/2016.
+ */
 public class OLuceneDirectoryFactory {
 
   public static final String OLUCENE_BASE_DIR = "luceneIndexes";
@@ -28,9 +30,7 @@ public class OLuceneDirectoryFactory {
   public OLuceneDirectory createDirectory(
       final OStorage storage, final String indexName, final ODocument metadata) {
     final String luceneType =
-        metadata.containsField(DIRECTORY_TYPE)
-            ? metadata.<String>field(DIRECTORY_TYPE)
-            : DIRECTORY_MMAP;
+        metadata.containsField(DIRECTORY_TYPE) ? metadata.field(DIRECTORY_TYPE) : DIRECTORY_MMAP;
     if (storage.getType().equals(ODatabaseType.MEMORY.name().toLowerCase())
         || DIRECTORY_RAM.equals(luceneType)) {
       final Directory dir = new RAMDirectory();
@@ -46,7 +46,7 @@ public class OLuceneDirectoryFactory {
       final String luceneType) {
     final String luceneBasePath;
     if (metadata.containsField(DIRECTORY_PATH)) {
-      luceneBasePath = metadata.<String>field(DIRECTORY_PATH);
+      luceneBasePath = metadata.field(DIRECTORY_PATH);
     } else {
       luceneBasePath = OLUCENE_BASE_DIR;
     }

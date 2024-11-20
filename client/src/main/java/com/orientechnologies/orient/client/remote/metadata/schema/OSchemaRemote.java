@@ -23,9 +23,12 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/** Created by tglman on 13/06/17. */
+/**
+ * Created by tglman on 13/06/17.
+ */
 public class OSchemaRemote extends OSchemaShared {
-  private AtomicBoolean skipPush = new AtomicBoolean(false);
+
+  private final AtomicBoolean skipPush = new AtomicBoolean(false);
 
   public OSchemaRemote() {
     super();
@@ -34,12 +37,16 @@ public class OSchemaRemote extends OSchemaShared {
   @Override
   public OClass getOrCreateClass(
       ODatabaseSessionInternal database, String iClassName, OClass... superClasses) {
-    if (iClassName == null) return null;
+    if (iClassName == null) {
+      return null;
+    }
 
     acquireSchemaReadLock();
     try {
       OClass cls = classes.get(iClassName.toLowerCase(Locale.ENGLISH));
-      if (cls != null) return cls;
+      if (cls != null) {
+        return cls;
+      }
     } finally {
       releaseSchemaReadLock();
     }
@@ -51,7 +58,9 @@ public class OSchemaRemote extends OSchemaShared {
     acquireSchemaWriteLock(database);
     try {
       cls = classes.get(iClassName.toLowerCase(Locale.ENGLISH));
-      if (cls != null) return cls;
+      if (cls != null) {
+        return cls;
+      }
 
       cls = createClass(database, iClassName, clusterIds, superClasses);
 
@@ -77,24 +86,28 @@ public class OSchemaRemote extends OSchemaShared {
       int[] clusterIds,
       OClass... superClasses) {
     final Character wrongCharacter = OSchemaShared.checkClassNameIfValid(className);
-    if (wrongCharacter != null)
+    if (wrongCharacter != null) {
       throw new OSchemaException(
           "Invalid class name found. Character '"
               + wrongCharacter
               + "' cannot be used in class name '"
               + className
               + "'");
+    }
     OClass result;
 
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_CREATE);
-    if (superClasses != null) OClassImpl.checkParametersConflict(Arrays.asList(superClasses));
+    if (superClasses != null) {
+      OClassImpl.checkParametersConflict(Arrays.asList(superClasses));
+    }
 
     acquireSchemaWriteLock(database);
     try {
 
       final String key = className.toLowerCase(Locale.ENGLISH);
-      if (classes.containsKey(key))
+      if (classes.containsKey(key)) {
         throw new OSchemaException("Class '" + className + "' already exists in current database");
+      }
 
       checkClustersAreAbsent(clusterIds);
 
@@ -109,8 +122,11 @@ public class OSchemaRemote extends OSchemaShared {
         for (OClass superClass : superClasses) {
           // Filtering for null
           if (superClass != null) {
-            if (first) cmd.append(" extends ");
-            else cmd.append(", ");
+            if (first) {
+              cmd.append(" extends ");
+            } else {
+              cmd.append(", ");
+            }
             cmd.append('`').append(superClass.getName()).append('`');
             first = false;
             superClassesList.add(superClass);
@@ -119,12 +135,16 @@ public class OSchemaRemote extends OSchemaShared {
       }
 
       if (clusterIds != null) {
-        if (clusterIds.length == 1 && clusterIds[0] == -1) cmd.append(" abstract");
-        else {
+        if (clusterIds.length == 1 && clusterIds[0] == -1) {
+          cmd.append(" abstract");
+        } else {
           cmd.append(" cluster ");
           for (int i = 0; i < clusterIds.length; ++i) {
-            if (i > 0) cmd.append(',');
-            else cmd.append(' ');
+            if (i > 0) {
+              cmd.append(',');
+            } else {
+              cmd.append(' ');
+            }
 
             cmd.append(clusterIds[i]);
           }
@@ -138,10 +158,13 @@ public class OSchemaRemote extends OSchemaShared {
 
       // WAKE UP DB LIFECYCLE LISTENER
       for (Iterator<ODatabaseLifecycleListener> it = Orient.instance().getDbLifecycleListeners();
-          it.hasNext(); ) it.next().onCreateClass(database, result);
-
-      for (Iterator<ODatabaseListener> it = database.getListeners().iterator(); it.hasNext(); )
+          it.hasNext(); ) {
         it.next().onCreateClass(database, result);
+      }
+
+      for (Iterator<ODatabaseListener> it = database.getListeners().iterator(); it.hasNext(); ) {
+        it.next().onCreateClass(database, result);
+      }
 
     } finally {
       releaseSchemaWriteLock(database);
@@ -156,24 +179,28 @@ public class OSchemaRemote extends OSchemaShared {
       int clusters,
       OClass... superClasses) {
     final Character wrongCharacter = OSchemaShared.checkClassNameIfValid(className);
-    if (wrongCharacter != null)
+    if (wrongCharacter != null) {
       throw new OSchemaException(
           "Invalid class name found. Character '"
               + wrongCharacter
               + "' cannot be used in class name '"
               + className
               + "'");
+    }
 
     OClass result;
 
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_CREATE);
-    if (superClasses != null) OClassImpl.checkParametersConflict(Arrays.asList(superClasses));
+    if (superClasses != null) {
+      OClassImpl.checkParametersConflict(Arrays.asList(superClasses));
+    }
     acquireSchemaWriteLock(database);
     try {
 
       final String key = className.toLowerCase(Locale.ENGLISH);
-      if (classes.containsKey(key))
+      if (classes.containsKey(key)) {
         throw new OSchemaException("Class '" + className + "' already exists in current database");
+      }
 
       StringBuilder cmd = new StringBuilder("create class ");
       cmd.append('`');
@@ -186,8 +213,11 @@ public class OSchemaRemote extends OSchemaShared {
         for (OClass superClass : superClasses) {
           // Filtering for null
           if (superClass != null) {
-            if (first) cmd.append(" extends ");
-            else cmd.append(", ");
+            if (first) {
+              cmd.append(" extends ");
+            } else {
+              cmd.append(", ");
+            }
             cmd.append(superClass.getName());
             first = false;
             superClassesList.add(superClass);
@@ -195,8 +225,9 @@ public class OSchemaRemote extends OSchemaShared {
         }
       }
 
-      if (clusters == 0) cmd.append(" abstract");
-      else {
+      if (clusters == 0) {
+        cmd.append(" abstract");
+      } else {
         cmd.append(" clusters ");
         cmd.append(clusters);
       }
@@ -207,10 +238,13 @@ public class OSchemaRemote extends OSchemaShared {
 
       // WAKE UP DB LIFECYCLE LISTENER
       for (Iterator<ODatabaseLifecycleListener> it = Orient.instance().getDbLifecycleListeners();
-          it.hasNext(); ) it.next().onCreateClass(database, result);
-
-      for (Iterator<ODatabaseListener> it = database.getListeners().iterator(); it.hasNext(); )
+          it.hasNext(); ) {
         it.next().onCreateClass(database, result);
+      }
+
+      for (Iterator<ODatabaseListener> it = database.getListeners().iterator(); it.hasNext(); ) {
+        it.next().onCreateClass(database, result);
+      }
 
     } finally {
       releaseSchemaWriteLock(database);
@@ -228,13 +262,14 @@ public class OSchemaRemote extends OSchemaShared {
   @Override
   public OView createView(ODatabaseSessionInternal database, OViewConfig cfg) {
     final Character wrongCharacter = OSchemaShared.checkClassNameIfValid(cfg.getName());
-    if (wrongCharacter != null)
+    if (wrongCharacter != null) {
       throw new OSchemaException(
           "Invalid view name found. Character '"
               + wrongCharacter
               + "' cannot be used in view name '"
               + cfg.getName()
               + "'");
+    }
 
     OView result;
 
@@ -243,9 +278,10 @@ public class OSchemaRemote extends OSchemaShared {
     try {
 
       final String key = cfg.getName().toLowerCase(Locale.ENGLISH);
-      if (views.containsKey(key))
+      if (views.containsKey(key)) {
         throw new OSchemaException(
             "View '" + cfg.getName() + "' already exists in current database");
+      }
 
       StringBuilder cmd = new StringBuilder("create view ");
       cmd.append('`');
@@ -263,10 +299,13 @@ public class OSchemaRemote extends OSchemaShared {
 
       // WAKE UP DB LIFECYCLE LISTENER
       for (Iterator<ODatabaseLifecycleListener> it = Orient.instance().getDbLifecycleListeners();
-          it.hasNext(); ) it.next().onCreateView(database, result);
-
-      for (Iterator<ODatabaseListener> it = database.getListeners().iterator(); it.hasNext(); )
+          it.hasNext(); ) {
         it.next().onCreateView(database, result);
+      }
+
+      for (Iterator<ODatabaseListener> it = database.getListeners().iterator(); it.hasNext(); ) {
+        it.next().onCreateView(database, result);
+      }
 
     } finally {
       releaseSchemaWriteLock(database);
@@ -282,13 +321,14 @@ public class OSchemaRemote extends OSchemaShared {
       String statement,
       Map<String, Object> metadata) {
     final Character wrongCharacter = OSchemaShared.checkClassNameIfValid(name);
-    if (wrongCharacter != null)
+    if (wrongCharacter != null) {
       throw new OSchemaException(
           "Invalid class name found. Character '"
               + wrongCharacter
               + "' cannot be used in view name '"
               + name
               + "'");
+    }
 
     OView result;
 
@@ -297,28 +337,28 @@ public class OSchemaRemote extends OSchemaShared {
     try {
 
       final String key = name.toLowerCase(Locale.ENGLISH);
-      if (views.containsKey(key))
+      if (views.containsKey(key)) {
         throw new OSchemaException("View '" + name + "' already exists in current database");
+      }
 
-      StringBuilder cmd = new StringBuilder("create view ");
-      cmd.append('`');
-      cmd.append(name);
-      cmd.append('`');
-      cmd.append(" FROM (" + statement + ") ");
+      String cmd = "create view " + '`' + name + '`' + " FROM (" + statement + ") ";
       //      if (metadata!=null) {//TODO
       //        cmd.append(" METADATA");
       //      }
 
-      database.command(cmd.toString()).close();
+      database.command(cmd).close();
       reload(database);
       result = views.get(name.toLowerCase(Locale.ENGLISH));
 
       // WAKE UP DB LIFECYCLE LISTENER
       for (Iterator<ODatabaseLifecycleListener> it = Orient.instance().getDbLifecycleListeners();
-          it.hasNext(); ) it.next().onCreateView(database, result);
-
-      for (Iterator<ODatabaseListener> it = database.getListeners().iterator(); it.hasNext(); )
+          it.hasNext(); ) {
         it.next().onCreateView(database, result);
+      }
+
+      for (Iterator<ODatabaseListener> it = database.getListeners().iterator(); it.hasNext(); ) {
+        it.next().onCreateView(database, result);
+      }
 
     } finally {
       releaseSchemaWriteLock(database);
@@ -328,17 +368,22 @@ public class OSchemaRemote extends OSchemaShared {
   }
 
   private void checkClustersAreAbsent(final int[] iClusterIds) {
-    if (iClusterIds == null) return;
+    if (iClusterIds == null) {
+      return;
+    }
 
     for (int clusterId : iClusterIds) {
-      if (clusterId < 0) continue;
+      if (clusterId < 0) {
+        continue;
+      }
 
-      if (clustersToClasses.containsKey(clusterId))
+      if (clustersToClasses.containsKey(clusterId)) {
         throw new OSchemaException(
             "Cluster with id "
                 + clusterId
                 + " already belongs to class "
                 + clustersToClasses.get(clusterId));
+      }
     }
   }
 
@@ -346,10 +391,13 @@ public class OSchemaRemote extends OSchemaShared {
 
     acquireSchemaWriteLock(database);
     try {
-      if (database.getTransaction().isActive())
+      if (database.getTransaction().isActive()) {
         throw new IllegalStateException("Cannot drop a class inside a transaction");
+      }
 
-      if (className == null) throw new IllegalArgumentException("Class name is null");
+      if (className == null) {
+        throw new IllegalArgumentException("Class name is null");
+      }
 
       database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_DELETE);
 
@@ -357,21 +405,21 @@ public class OSchemaRemote extends OSchemaShared {
 
       OClass cls = classes.get(key);
 
-      if (cls == null)
+      if (cls == null) {
         throw new OSchemaException("Class '" + className + "' was not found in current database");
+      }
 
-      if (!cls.getSubclasses().isEmpty())
+      if (!cls.getSubclasses().isEmpty()) {
         throw new OSchemaException(
             "Class '"
                 + className
                 + "' cannot be dropped because it has sub classes "
                 + cls.getSubclasses()
                 + ". Remove the dependencies before trying to drop it again");
+      }
 
-      final StringBuilder cmd = new StringBuilder("drop class `");
-      cmd.append(className);
-      cmd.append("` unsafe");
-      database.command(cmd.toString()).close();
+      String cmd = "drop class `" + className + "` unsafe";
+      database.command(cmd).close();
       reload(database);
 
       // FREE THE RECORD CACHE
@@ -386,10 +434,13 @@ public class OSchemaRemote extends OSchemaShared {
 
     acquireSchemaWriteLock(database);
     try {
-      if (database.getTransaction().isActive())
+      if (database.getTransaction().isActive()) {
         throw new IllegalStateException("Cannot drop a class inside a transaction");
+      }
 
-      if (name == null) throw new IllegalArgumentException("View name is null");
+      if (name == null) {
+        throw new IllegalArgumentException("View name is null");
+      }
 
       database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_DELETE);
 
@@ -397,21 +448,21 @@ public class OSchemaRemote extends OSchemaShared {
 
       OClass cls = views.get(key);
 
-      if (cls == null)
+      if (cls == null) {
         throw new OSchemaException("View '" + name + "' was not found in current database");
+      }
 
-      if (!cls.getSubclasses().isEmpty())
+      if (!cls.getSubclasses().isEmpty()) {
         throw new OSchemaException(
             "View '"
                 + name
                 + "' cannot be dropped because it has sub classes "
                 + cls.getSubclasses()
                 + ". Remove the dependencies before trying to drop it again");
+      }
 
-      final StringBuilder cmd = new StringBuilder("drop view ");
-      cmd.append(name);
-      cmd.append(" unsafe");
-      database.command(cmd.toString()).close();
+      String cmd = "drop view " + name + " unsafe";
+      database.command(cmd).close();
       reload(database);
 
       // FREE THE RECORD CACHE

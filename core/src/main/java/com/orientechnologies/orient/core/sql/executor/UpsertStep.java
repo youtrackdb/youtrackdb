@@ -18,6 +18,7 @@ import java.util.List;
  * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
 public class UpsertStep extends AbstractExecutionStep {
+
   private final OFromClause commandTarget;
   private final OWhereClause initialFilter;
 

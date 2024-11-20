@@ -26,6 +26,7 @@ import com.orientechnologies.orient.core.metadata.schema.OType;
  * are also called properties.
  */
 public interface ORecordSchemaAware extends OElement {
+
   /**
    * Returns the value of a field.
    *
@@ -40,7 +41,7 @@ public interface ORecordSchemaAware extends OElement {
    * types.
    *
    * @param iFieldName Field name
-   * @param iType Type between the values defined in the {@link OType} enum
+   * @param iType      Type between the values defined in the {@link OType} enum
    * @return Field value if exists, otherwise null
    */
   <RET> RET field(String iFieldName, OType iType);
@@ -48,10 +49,10 @@ public interface ORecordSchemaAware extends OElement {
   /**
    * Sets the value for a field.
    *
-   * @param iFieldName Field name
+   * @param iFieldName  Field name
    * @param iFieldValue Field value to set
    * @return The Record instance itself giving a "fluent interface". Useful to call multiple methods
-   *     in chain.
+   * in chain.
    */
   ORecordSchemaAware field(String iFieldName, Object iFieldValue);
 
@@ -59,10 +60,10 @@ public interface ORecordSchemaAware extends OElement {
    * Sets the value for a field forcing the type.This is useful when you want avoid automatic
    * conversions (for example record id to record) or need expressly a conversion between types.
    *
-   * @param iFieldName Field name
+   * @param iFieldName  Field name
    * @param iFieldValue Field value to set
-   * @param iType Type between the values defined in the {@link
-   *     com.orientechnologies.orient.core.metadata.schema.OType} enum
+   * @param iType       Type between the values defined in the
+   *                    {@link com.orientechnologies.orient.core.metadata.schema.OType} enum
    */
   ORecordSchemaAware field(String iFieldName, Object iFieldValue, OType... iType);
 

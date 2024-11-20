@@ -39,8 +39,12 @@ public class OSecurityResourceProperty extends OSecurityResource {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     OSecurityResourceProperty that = (OSecurityResourceProperty) o;
     return allClasses == that.allClasses
         && Objects.equals(className, that.className)

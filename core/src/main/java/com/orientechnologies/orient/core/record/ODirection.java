@@ -28,8 +28,12 @@ public enum ODirection {
   BOTH;
 
   public ODirection opposite() {
-    if (this.equals(OUT)) return IN;
-    else if (this.equals(IN)) return OUT;
-    else return BOTH;
+    if (this.equals(OUT)) {
+      return IN;
+    } else if (this.equals(IN)) {
+      return OUT;
+    } else {
+      return BOTH;
+    }
   }
 }

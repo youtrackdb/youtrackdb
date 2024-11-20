@@ -8,6 +8,7 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
 import java.util.Map;
 
 public class OBeginStatement extends OSimpleExecStatement {
+
   public OBeginStatement(int id) {
     super(id);
   }
@@ -41,7 +42,9 @@ public class OBeginStatement extends OSimpleExecStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
+    if (this == o) {
+      return true;
+    }
     return o != null && getClass() == o.getClass();
   }
 

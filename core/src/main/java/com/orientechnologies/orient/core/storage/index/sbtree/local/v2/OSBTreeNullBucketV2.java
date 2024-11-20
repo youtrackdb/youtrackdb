@@ -38,6 +38,7 @@ import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODura
  * @since 4/15/14
  */
 public final class OSBTreeNullBucketV2<V> extends ODurablePage {
+
   public OSBTreeNullBucketV2(OCacheEntry cacheEntry) {
     super(cacheEntry);
   }
@@ -54,17 +55,23 @@ public final class OSBTreeNullBucketV2<V> extends ODurablePage {
   }
 
   public OSBTreeValue<V> getValue(final OBinarySerializer<V> valueSerializer) {
-    if (getByteValue(NEXT_FREE_POSITION) == 0) return null;
+    if (getByteValue(NEXT_FREE_POSITION) == 0) {
+      return null;
+    }
 
     final boolean isLink = getByteValue(NEXT_FREE_POSITION + 1) == 0;
-    if (isLink) return new OSBTreeValue<>(true, getLongValue(NEXT_FREE_POSITION + 2), null);
+    if (isLink) {
+      return new OSBTreeValue<>(true, getLongValue(NEXT_FREE_POSITION + 2), null);
+    }
 
     return new OSBTreeValue<>(
         false, -1, deserializeFromDirectMemory(valueSerializer, NEXT_FREE_POSITION + 2));
   }
 
   public byte[] getRawValue(final OBinarySerializer<V> valueSerializer) {
-    if (getByteValue(NEXT_FREE_POSITION) == 0) return null;
+    if (getByteValue(NEXT_FREE_POSITION) == 0) {
+      return null;
+    }
 
     final boolean isLink = getByteValue(NEXT_FREE_POSITION + 1) == 0;
     assert !isLink;

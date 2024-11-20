@@ -29,6 +29,7 @@ import org.junit.Test;
  * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
 public class ONeqOperatorTest {
+
   @Test
   public void test() {
     ONeqOperator op = new ONeqOperator(-1);

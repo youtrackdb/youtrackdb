@@ -33,7 +33,7 @@ public class RemoteGraphLiveQueryTest extends BaseServerMemoryDatabase {
         db.command("create edge TestEdge  from (select from FirstV) to (select from SecondV)")) {
       OResult result = resultSet.stream().iterator().next();
 
-      Assert.assertEquals(true, result.isEdge());
+      Assert.assertTrue(result.isEdge());
     }
     db.commit();
 

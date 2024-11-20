@@ -42,7 +42,9 @@ public class OStorageOperationResult<RET> implements Externalizable {
   private byte[] modifiedRecordContent;
   private boolean isMoved;
 
-  /** OStorageOperationResult void constructor as required for Exernalizable */
+  /**
+   * OStorageOperationResult void constructor as required for Exernalizable
+   */
   public OStorageOperationResult() {}
 
   public OStorageOperationResult(final RET result) {
@@ -79,7 +81,9 @@ public class OStorageOperationResult<RET> implements Externalizable {
     if (modifiedRecordContent != null) {
       out.writeInt(modifiedRecordContent.length);
       out.write(modifiedRecordContent);
-    } else out.writeInt(-1);
+    } else {
+      out.writeInt(-1);
+    }
   }
 
   @SuppressWarnings("unchecked")
@@ -95,7 +99,9 @@ public class OStorageOperationResult<RET> implements Externalizable {
       while (bytesRead < modifiedRecordContentLength) {
         int rb = in.read(modifiedRecordContent, bytesRead, modifiedRecordContentLength - bytesRead);
 
-        if (rb < 0) break;
+        if (rb < 0) {
+          break;
+        }
 
         bytesRead += rb;
       }

@@ -234,8 +234,7 @@ public class OSharedContextEmbedded extends OSharedContext {
             record.setDirty();
 
             var recordToSave = record;
-            session.executeInTx(
-                () -> ((ODatabaseSessionInternal) session).save(recordToSave, "internal"));
+            session.executeInTx(() -> session.save(recordToSave, "internal"));
           } else {
             var record = new ODocument();
             ORecordInternal.unsetDirty(record);
@@ -243,11 +242,7 @@ public class OSharedContextEmbedded extends OSharedContext {
             record.setDirty();
 
             ORID recordId =
-                session.computeInTx(
-                    () ->
-                        ((ODatabaseSessionInternal) session)
-                            .save(record, "internal")
-                            .getIdentity());
+                session.computeInTx(() -> session.save(record, "internal").getIdentity());
             ((OStorage) storage).setProperty(propertyName, recordId.toString());
           }
           return null;

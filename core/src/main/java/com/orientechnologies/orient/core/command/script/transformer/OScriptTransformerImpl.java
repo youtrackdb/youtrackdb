@@ -13,7 +13,9 @@ import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.*;
 import org.graalvm.polyglot.Value;
 
-/** Created by Enrico Risa on 27/01/17. */
+/**
+ * Created by Enrico Risa on 27/01/17.
+ */
 public class OScriptTransformerImpl implements OScriptTransformer {
 
   protected Map<Class, OResultSetTransformer> resultSetTransformers = new HashMap<>();
@@ -34,8 +36,9 @@ public class OScriptTransformerImpl implements OScriptTransformer {
                 final List res = new ArrayList();
                 internal.setProperty("value", res);
 
-                for (Object v : ((Map) value).values())
+                for (Object v : ((Map) value).values()) {
                   res.add(new OResultInternal((OIdentifiable) v));
+                }
 
                 return internal;
               }
@@ -51,16 +54,23 @@ public class OScriptTransformerImpl implements OScriptTransformer {
   public OResultSet toResultSet(Object value) {
     if (value instanceof Value) {
       final Value v = (Value) value;
-      if (v.isNull()) return null;
-      else if (v.hasArrayElements()) {
+      if (v.isNull()) {
+        return null;
+      } else if (v.hasArrayElements()) {
         final List<Object> array = new ArrayList<>((int) v.getArraySize());
-        for (int i = 0; i < v.getArraySize(); ++i)
+        for (int i = 0; i < v.getArraySize(); ++i) {
           array.add(new OResultInternal(v.getArrayElement(i).asHostObject()));
+        }
         value = array;
-      } else if (v.isHostObject()) value = v.asHostObject();
-      else if (v.isString()) value = v.asString();
-      else if (v.isNumber()) value = v.asDouble();
-      else value = v;
+      } else if (v.isHostObject()) {
+        value = v.asHostObject();
+      } else if (v.isString()) {
+        value = v.asString();
+      } else if (v.isNumber()) {
+        value = v.asDouble();
+      } else {
+        value = v;
+      }
     }
 
     if (value == null) {
@@ -95,10 +105,13 @@ public class OScriptTransformerImpl implements OScriptTransformer {
   }
 
   public OResultTransformer getTransformer(final Class clazz) {
-    if (clazz != null)
+    if (clazz != null) {
       for (Map.Entry<Class, OResultTransformer> entry : transformers.entrySet()) {
-        if (entry.getKey().isAssignableFrom(clazz)) return entry.getValue();
+        if (entry.getKey().isAssignableFrom(clazz)) {
+          return entry.getValue();
+        }
       }
+    }
     return null;
   }
 

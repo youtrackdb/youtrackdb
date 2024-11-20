@@ -47,6 +47,7 @@ import org.slf4j.event.Level;
  * @see OSL4JLogManager
  */
 public class OLogManager extends OSL4JLogManager {
+
   private static final String ENV_INSTALL_CUSTOM_FORMATTER = "orientdb.installCustomFormatter";
   private static final OLogManager instance = new OLogManager();
 
@@ -60,7 +61,9 @@ public class OLogManager extends OSL4JLogManager {
     return instance;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void log(
       @Nonnull Object requester,
@@ -81,7 +84,9 @@ public class OLogManager extends OSL4JLogManager {
             OSystemVariableResolver.resolveSystemVariables(
                 "${" + ENV_INSTALL_CUSTOM_FORMATTER + "}", "true"));
 
-    if (!installCustomFormatter) return;
+    if (!installCustomFormatter) {
+      return;
+    }
 
     try {
       // ASSURE TO HAVE THE ORIENT LOG FORMATTER TO THE CONSOLE EVEN IF NO CONFIGURATION FILE IS
@@ -98,8 +103,9 @@ public class OLogManager extends OSL4JLogManager {
       } else {
         for (Handler h : log.getHandlers()) {
           if (h instanceof ConsoleHandler
-              && !h.getFormatter().getClass().equals(OAnsiLogFormatter.class))
+              && !h.getFormatter().getClass().equals(OAnsiLogFormatter.class)) {
             h.setFormatter(new OAnsiLogFormatter());
+          }
         }
       }
     } catch (Exception e) {
@@ -111,10 +117,15 @@ public class OLogManager extends OSL4JLogManager {
   public boolean isLevelEnabled(final java.util.logging.Level level) {
     if (level.equals(java.util.logging.Level.FINER)
         || level.equals(java.util.logging.Level.FINE)
-        || level.equals(java.util.logging.Level.FINEST)) return debug;
-    else if (level.equals(java.util.logging.Level.INFO)) return info;
-    else if (level.equals(java.util.logging.Level.WARNING)) return warn;
-    else if (level.equals(java.util.logging.Level.SEVERE)) return error;
+        || level.equals(java.util.logging.Level.FINEST)) {
+      return debug;
+    } else if (level.equals(java.util.logging.Level.INFO)) {
+      return info;
+    } else if (level.equals(java.util.logging.Level.WARNING)) {
+      return warn;
+    } else if (level.equals(java.util.logging.Level.SEVERE)) {
+      return error;
+    }
     return false;
   }
 
@@ -154,12 +165,15 @@ public class OLogManager extends OSL4JLogManager {
   }
 
   protected void setLevelInternal(final java.util.logging.Level level) {
-    if (level == null) return;
+    if (level == null) {
+      return;
+    }
 
     if (level.equals(java.util.logging.Level.FINER)
         || level.equals(java.util.logging.Level.FINE)
-        || level.equals(java.util.logging.Level.FINEST)) debug = info = warn = error = true;
-    else if (level.equals(java.util.logging.Level.INFO)) {
+        || level.equals(java.util.logging.Level.FINEST)) {
+      debug = info = warn = error = true;
+    } else if (level.equals(java.util.logging.Level.INFO)) {
       info = warn = error = true;
       debug = false;
     } else if (level.equals(java.util.logging.Level.WARNING)) {
@@ -172,15 +186,20 @@ public class OLogManager extends OSL4JLogManager {
   }
 
   public void flush() {
-    for (Handler h : Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).getHandlers()) h.flush();
+    for (Handler h : Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).getHandlers()) {
+      h.flush();
+    }
   }
 
-  /** Shutdowns this log manager. */
+  /**
+   * Shutdowns this log manager.
+   */
   public void shutdown() {
     if (shutdownFlag.compareAndSet(false, true)) {
       try {
-        if (LogManager.getLogManager() instanceof ShutdownLogManager)
+        if (LogManager.getLogManager() instanceof ShutdownLogManager) {
           ((ShutdownLogManager) LogManager.getLogManager()).shutdown();
+        }
       } catch (NoClassDefFoundError ignore) {
         // Om nom nom. Some custom class loaders, like Tomcat's one, cannot load classes while in
         // shutdown hooks, since their
@@ -193,7 +212,7 @@ public class OLogManager extends OSL4JLogManager {
 
   /**
    * @return <code>true</code> if log manager is shutdown by {@link #shutdown()} method and no
-   *     logging is possible.
+   * logging is possible.
    */
   public boolean isShutdown() {
     return shutdownFlag.get();

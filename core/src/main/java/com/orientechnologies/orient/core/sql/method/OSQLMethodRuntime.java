@@ -124,7 +124,7 @@ public class OSQLMethodRuntime extends OSQLFilterItemAbstract
               final OSQLPredicate pred = new OSQLPredicate(text);
               runtimeParameters[i] =
                   pred.evaluate(
-                      iCurrentRecord instanceof ORecord ? (ORecord) iCurrentRecord : null,
+                      iCurrentRecord instanceof ORecord ? iCurrentRecord : null,
                       (ODocument) iCurrentResult,
                       iContext);
               // REPLACE ORIGINAL PARAM
@@ -221,8 +221,7 @@ public class OSQLMethodRuntime extends OSQLFilterItemAbstract
           if (iParameters[i] instanceof String && !iParameters[i].toString().startsWith("[")) {
             final Object v = OSQLHelper.parseValue(null, null, iParameters[i].toString(), null);
             if (v == OSQLHelper.VALUE_NOT_PARSED
-                || (v != null
-                    && OMultiValue.isMultiValue(v)
+                || (OMultiValue.isMultiValue(v)
                     && OMultiValue.getFirstValue(v) == OSQLHelper.VALUE_NOT_PARSED)) {
               continue;
             }
@@ -261,6 +260,6 @@ public class OSQLMethodRuntime extends OSQLFilterItemAbstract
 
   @Override
   public int compareTo(final OSQLMethodRuntime o) {
-    return method.compareTo(o.getMethod());
+    return method.compareTo(o.method);
   }
 }

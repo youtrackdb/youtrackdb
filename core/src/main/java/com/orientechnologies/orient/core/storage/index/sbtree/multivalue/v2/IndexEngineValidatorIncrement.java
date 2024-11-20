@@ -4,6 +4,7 @@ import com.orientechnologies.orient.core.index.engine.IndexEngineValidator;
 
 public class IndexEngineValidatorIncrement<K>
     implements IndexEngineValidator<MultiValueEntry, Byte> {
+
   private final CellBTreeMultiValueV2Bucket<K> bucket;
   private final int index;
 

@@ -35,16 +35,16 @@ import java.util.Map;
  * The tree that have similar structure to {@link OSBTreeV1} and designed to store small entries.
  * <br>
  * <br>
- * The tree algorithm is the same as in {@link OSBTreeV1}, but it have tiny buckets.<br>
- * The {@link OReadCache} could contain several buckets. That's why there is no huge resource
- * consuming when you have lots of OSBTreeBonsai that contain only few records.<br>
+ * The tree algorithm is the same as in {@link OSBTreeV1}, but it have tiny buckets.<br> The
+ * {@link OReadCache} could contain several buckets. That's why there is no huge resource consuming
+ * when you have lots of OSBTreeBonsai that contain only few records.<br>
  * <br>
  * <code>
  * +--------------------------------------------------------------------------------------------+<br>
- * | DISK CACHE PAGE                                                                            |<br>
- * |+---------------+ +---------------+ +---------------+ +---------------+ +---------------+   |<br>
- * || Bonsai Bucket | | Bonsai Bucket | | Bonsai Bucket | | Bonsai Bucket | | Bonsai Bucket |...|<br>
- * |+---------------+ +---------------+ +---------------+ +---------------+ +---------------+   |<br>
+ * | DISK CACHE PAGE |<br> |+---------------+ +---------------+ +---------------+ +---------------+
+ * +---------------+ |<br> || Bonsai Bucket | | Bonsai Bucket | | Bonsai Bucket | | Bonsai Bucket |
+ * | Bonsai Bucket |...|<br> |+---------------+ +---------------+ +---------------+
+ * +---------------+ +---------------+   |<br>
  * +--------------------------------------------------------------------------------------------+<br>
  * </code>
  *
@@ -52,6 +52,7 @@ import java.util.Map;
  * @since 1.7rc1
  */
 public interface OSBTreeBonsai<K, V> extends OTreeInternal<K, V> {
+
   /**
    * Gets id of file where this bonsai tree is stored.
    *

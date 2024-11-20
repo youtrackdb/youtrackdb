@@ -27,6 +27,7 @@ import com.orientechnologies.orient.core.serialization.serializer.record.ORecord
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OCommandRequestText extends OCommandRequestInternal {
+
   String getText();
 
   OCommandRequestText setText(String iText);

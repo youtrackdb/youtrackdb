@@ -13,8 +13,8 @@ import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
  */
 public class OLiveQueryClientListener {
 
-  private ODatabaseSession database;
-  private OLiveQueryResultListener listener;
+  private final ODatabaseSession database;
+  private final OLiveQueryResultListener listener;
 
   public OLiveQueryClientListener(ODatabaseSession database, OLiveQueryResultListener listener) {
     this.database = database;

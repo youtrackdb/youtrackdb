@@ -31,9 +31,12 @@ import java.util.UUID;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFunctionUUID extends OSQLFunctionAbstract {
+
   public static final String NAME = "uuid";
 
-  /** Get the date at construction to have the same date for all the iteration. */
+  /**
+   * Get the date at construction to have the same date for all the iteration.
+   */
   public OSQLFunctionUUID() {
     super(NAME, 0, 0);
   }

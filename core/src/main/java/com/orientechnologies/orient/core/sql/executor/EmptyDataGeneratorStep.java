@@ -5,7 +5,9 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.executor.resultset.OProduceExecutionStream;
 
-/** Created by luigidellaquila on 08/07/16. */
+/**
+ * Created by luigidellaquila on 08/07/16.
+ */
 public class EmptyDataGeneratorStep extends AbstractExecutionStep {
 
   private final int size;

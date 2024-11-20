@@ -23,6 +23,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class OServerConfigurationManagerTest {
+
   @Test
   public void testManagerUsers() {
     final OServerConfigurationManager cfgManager =

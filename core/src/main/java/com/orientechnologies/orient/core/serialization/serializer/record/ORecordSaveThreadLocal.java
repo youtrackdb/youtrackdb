@@ -31,6 +31,7 @@ import com.orientechnologies.orient.core.record.ORecord;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class ORecordSaveThreadLocal extends ThreadLocal<ORecord> {
+
   public static ORecordSaveThreadLocal INSTANCE = new ORecordSaveThreadLocal();
 
   static {
@@ -39,7 +40,9 @@ public class ORecordSaveThreadLocal extends ThreadLocal<ORecord> {
             new OOrientListenerAbstract() {
               @Override
               public void onStartup() {
-                if (INSTANCE == null) INSTANCE = new ORecordSaveThreadLocal();
+                if (INSTANCE == null) {
+                  INSTANCE = new ORecordSaveThreadLocal();
+                }
               }
 
               @Override

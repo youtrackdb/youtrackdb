@@ -37,31 +37,37 @@ import java.util.Set;
  */
 public class OCommandExecutorSQLDelegate extends OCommandExecutorSQLAbstract
     implements OCommandDistributedReplicateRequest {
+
   protected OCommandExecutor delegate;
 
   @SuppressWarnings("unchecked")
   public OCommandExecutorSQLDelegate parse(final OCommandRequest iCommand) {
-    if (iCommand instanceof OCommandRequestText) {
-      final OCommandRequestText textRequest = (OCommandRequestText) iCommand;
+    if (iCommand instanceof OCommandRequestText textRequest) {
       final String text = textRequest.getText();
-      if (text == null) throw new IllegalArgumentException("Command text is null");
+      if (text == null) {
+        throw new IllegalArgumentException("Command text is null");
+      }
 
       final String textUpperCase = OSQLPredicate.upperCase(text);
 
       delegate = OSQLEngine.getInstance().getCommand(textUpperCase);
-      if (delegate == null)
+      if (delegate == null) {
         throw new OCommandExecutorNotFoundException(
             "Cannot find a command executor for the command request: " + iCommand);
+      }
 
       delegate.setContext(context);
       delegate.setLimit(iCommand.getLimit());
       delegate.parse(iCommand);
       delegate.setProgressListener(progressListener);
-      if (delegate.getFetchPlan() != null) textRequest.setFetchPlan(delegate.getFetchPlan());
+      if (delegate.getFetchPlan() != null) {
+        textRequest.setFetchPlan(delegate.getFetchPlan());
+      }
 
-    } else
+    } else {
       throw new OCommandExecutionException(
           "Cannot find a command executor for the command request: " + iCommand);
+    }
     return this;
   }
 
@@ -109,8 +115,9 @@ public class OCommandExecutorSQLDelegate extends OCommandExecutorSQLAbstract
 
   @Override
   public QUORUM_TYPE getQuorumType() {
-    if (delegate instanceof OCommandDistributedReplicateRequest)
+    if (delegate instanceof OCommandDistributedReplicateRequest) {
       return ((OCommandDistributedReplicateRequest) delegate).getQuorumType();
+    }
     return QUORUM_TYPE.ALL;
   }
 

@@ -46,7 +46,7 @@ import org.apache.commons.lang.ArrayUtils;
  * }
  * </code>
  * </pre>
- *
+ * <p>
  * Embedded example:
  *
  * <pre>
@@ -64,7 +64,7 @@ import org.apache.commons.lang.ArrayUtils;
  * }
  * </code>
  * </pre>
- *
+ * <p>
  * Database Manipulation Example:
  *
  * <pre>
@@ -115,7 +115,7 @@ public class OrientDB implements AutoCloseable {
    * memory database use any directory name, for example "mydb"
    *
    * @param directoryPath the directory where the database are stored
-   * @param config custom configuration for current environment
+   * @param config        custom configuration for current environment
    */
   public static OrientDB embedded(String directoryPath, OrientDBConfig config) {
     return new OrientDB(OrientDBInternal.embedded(directoryPath, config));
@@ -124,8 +124,9 @@ public class OrientDB implements AutoCloseable {
   /**
    * Create a new OrientDb instance for a remote deployment with default configuration.
    *
-   * @param url the url for the database server for example "localhost" or "localhost:2424"
-   * @param serverUser the server user allowed to manipulate databases.
+   * @param url            the url for the database server for example "localhost" or
+   *                       "localhost:2424"
+   * @param serverUser     the server user allowed to manipulate databases.
    * @param serverPassword relative to the server user.
    * @return a new OrientDB instance
    */
@@ -136,10 +137,11 @@ public class OrientDB implements AutoCloseable {
   /**
    * Create a new OrientDb instance for a remote deployment with custom configuration.
    *
-   * @param url the url for the database server for example "localhost" or "localhost:2424"
-   * @param serverUser the server user allowed to manipulate databases.
+   * @param url            the url for the database server for example "localhost" or
+   *                       "localhost:2424"
+   * @param serverUser     the server user allowed to manipulate databases.
    * @param serverPassword relative to the server user.
-   * @param config custom configuration for current environment
+   * @param config         custom configuration for current environment
    * @return a new OrientDB instance
    */
   public static OrientDB remote(
@@ -184,9 +186,9 @@ public class OrientDB implements AutoCloseable {
    * </code>
    * </pre>
    *
-   * @param url the url for the specific environment.
-   * @param configuration configuration for the specific environment for the list of option {@see
-   *     OGlobalConfiguration}.
+   * @param url           the url for the specific environment.
+   * @param configuration configuration for the specific environment for the list of option
+   *                      {@see OGlobalConfiguration}.
    * @see #embedded(String, OrientDBConfig)
    * @see #remote(String, String, String, OrientDBConfig)
    * @see #remote(String, String, String)
@@ -228,11 +230,11 @@ public class OrientDB implements AutoCloseable {
    * </code>
    * </pre>
    *
-   * @param url the url for the specific environment.
-   * @param serverUser the server user allowed to manipulate databases.
+   * @param url            the url for the specific environment.
+   * @param serverUser     the server user allowed to manipulate databases.
    * @param serverPassword relative to the server user.
-   * @param configuration configuration for the specific environment for the list of option {@see
-   *     OGlobalConfiguration}.
+   * @param configuration  configuration for the specific environment for the list of option
+   *                       {@see OGlobalConfiguration}.
    * @see #embedded(String, OrientDBConfig)
    * @see #remote(String, String, String, OrientDBConfig)
    * @see #remote(String, String, String)
@@ -247,12 +249,14 @@ public class OrientDB implements AutoCloseable {
     } else {
       what = url;
     }
-    if ("embedded".equals(what) || "memory".equals(what) || "plocal".equals(what))
+    if ("embedded".equals(what) || "memory".equals(what) || "plocal".equals(what)) {
       internal = OrientDBInternal.embedded(url.substring(url.indexOf(':') + 1), configuration);
-    else if ("remote".equals(what))
+    } else if ("remote".equals(what)) {
       internal =
           OrientDBInternal.remote(url.substring(url.indexOf(':') + 1).split("[,;]"), configuration);
-    else throw new IllegalArgumentException("Wrong url:`" + url + "`");
+    } else {
+      throw new IllegalArgumentException("Wrong url:`" + url + "`");
+    }
 
     this.serverUser = serverUser;
     this.serverPassword = serverPassword;
@@ -268,7 +272,7 @@ public class OrientDB implements AutoCloseable {
    * Open a database
    *
    * @param database the database to open
-   * @param user username of a database user or a server user allowed to open the database
+   * @param user     username of a database user or a server user allowed to open the database
    * @param password related to the specified username
    * @return the opened database
    */
@@ -280,9 +284,9 @@ public class OrientDB implements AutoCloseable {
    * Open a database
    *
    * @param database the database to open
-   * @param user username of a database user or a server user allowed to open the database
+   * @param user     username of a database user or a server user allowed to open the database
    * @param password related to the specified username
-   * @param config custom configuration for current database
+   * @param config   custom configuration for current database
    * @return the opened database
    */
   public ODatabaseSession open(
@@ -295,7 +299,7 @@ public class OrientDB implements AutoCloseable {
    * use {@link #create(String, ODatabaseType, String...)}
    *
    * @param database database name
-   * @param type can be plocal or memory
+   * @param type     can be plocal or memory
    * @see #create(String, ODatabaseType, String...)
    */
   public void create(String database, ODatabaseType type) {
@@ -310,8 +314,8 @@ public class OrientDB implements AutoCloseable {
    *
    * <p>For example:
    *
-   * <p>{@code orientDB.create("test", ODatabaseType.PLOCAL, "user1", "password1", "admin", "user2",
-   * "password2", "reader"); }
+   * <p>{@code orientDB.create("test", ODatabaseType.PLOCAL, "user1", "password1", "admin",
+   * "user2", "password2", "reader"); }
    *
    * <p>The predefined roles are:
    *
@@ -321,9 +325,10 @@ public class OrientDB implements AutoCloseable {
    *   <li>writer: can read and modify the data but cannot create or delete classes
    * </ul>
    *
-   * @param database database name
-   * @param type can be plocal or memory
-   * @param userCredentials user names, passwords and roles provided as a sequence of triple strings
+   * @param database        database name
+   * @param type            can be plocal or memory
+   * @param userCredentials user names, passwords and roles provided as a sequence of triple
+   *                        strings
    */
   public void create(String database, ODatabaseType type, String... userCredentials) {
     StringBuilder queryString = new StringBuilder("create database ? " + type.name());
@@ -336,20 +341,19 @@ public class OrientDB implements AutoCloseable {
    * please use {@link #create(String, ODatabaseType, String...)}
    *
    * @param database database name
-   * @param type can be plocal or memory
-   * @param config custom configuration for current database
+   * @param type     can be plocal or memory
+   * @param config   custom configuration for current database
    */
   public void create(String database, ODatabaseType type, OrientDBConfig config) {
     this.internal.create(database, serverUser, serverPassword, type, config);
   }
 
   /**
-   * Create a new database without users if it does not exist.
-   * In case if you want to create users during creation please use
-   * {@link #createIfNotExists(String, ODatabaseType, String...)}
+   * Create a new database without users if it does not exist. In case if you want to create users
+   * during creation please use {@link #createIfNotExists(String, ODatabaseType, String...)}
    *
    * @param database database name
-   * @param type can be plocal or memory
+   * @param type     can be plocal or memory
    * @return true if the database has been created, false if already exists
    */
   public boolean createIfNotExists(String database, ODatabaseType type) {
@@ -376,9 +380,10 @@ public class OrientDB implements AutoCloseable {
    * <p>{@code orientDB.createIfNotExists("test", ODatabaseType.PLOCAL, "user1", "password1",
    * "admin", "user2", "password2", "reader"); }
    *
-   * @param database database name
-   * @param type can be plocal or memory
-   * @param userCredentials user names, passwords and roles provided as a sequence of triple strings
+   * @param database        database name
+   * @param type            can be plocal or memory
+   * @param userCredentials user names, passwords and roles provided as a sequence of triple
+   *                        strings
    */
   public void createIfNotExists(String database, ODatabaseType type, String... userCredentials) {
     StringBuilder queryString =
@@ -421,8 +426,8 @@ public class OrientDB implements AutoCloseable {
    * creation please use {@link #createIfNotExists(String, ODatabaseType, String...)}
    *
    * @param database database name
-   * @param type can be plocal or memory
-   * @param config custom configuration for current database
+   * @param type     can be plocal or memory
+   * @param config   custom configuration for current database
    * @return true if the database has been created, false if already exists
    */
   public boolean createIfNotExists(String database, ODatabaseType type, OrientDBConfig config) {
@@ -461,7 +466,9 @@ public class OrientDB implements AutoCloseable {
     return new ArrayList<>(this.internal.listDatabases(serverUser, serverPassword));
   }
 
-  /** Close the current OrientDB context with all related databases and pools. */
+  /**
+   * Close the current OrientDB context with all related databases and pools.
+   */
   @Override
   public void close() {
     this.cachedPools.clear();
@@ -490,9 +497,10 @@ public class OrientDB implements AutoCloseable {
    * Retrieve cached database pool with given username and password
    *
    * @param database database name
-   * @param user user name
+   * @param user     user name
    * @param password user password
-   * @param config OrientDB config for pool if need create it (in case if there is no cached pool)
+   * @param config   OrientDB config for pool if need create it (in case if there is no cached
+   *                 pool)
    * @return cached {@link ODatabasePool}
    */
   public ODatabasePool cachedPool(

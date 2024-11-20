@@ -41,7 +41,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/** Created by luigidellaquila on 20/09/16. */
+/**
+ * Created by luigidellaquila on 20/09/16.
+ */
 public class OMatchExecutionPlanner {
 
   static final String DEFAULT_ALIAS_PREFIX = "$ORIENT_DEFAULT_ALIAS_";
@@ -333,7 +335,9 @@ public class OMatchExecutionPlanner {
     return plan;
   }
 
-  /** sort edges in the order they will be matched */
+  /**
+   * sort edges in the order they will be matched
+   */
   private List<EdgeTraversal> getTopologicalSortedSchedule(
       Map<String, Long> estimatedRootEntries, Pattern pattern) {
     List<EdgeTraversal> resultingSchedule = new ArrayList<>();
@@ -408,14 +412,14 @@ public class OMatchExecutionPlanner {
    * Start a depth-first traversal from the starting node, adding all viable unscheduled edges and
    * vertices.
    *
-   * @param startNode the node from which to start the depth-first traversal
-   * @param visitedNodes set of nodes that are already visited (mutated in this function)
-   * @param visitedEdges set of edges that are already visited and therefore don't need to be
-   *     scheduled (mutated in this function)
+   * @param startNode             the node from which to start the depth-first traversal
+   * @param visitedNodes          set of nodes that are already visited (mutated in this function)
+   * @param visitedEdges          set of edges that are already visited and therefore don't need to
+   *                              be scheduled (mutated in this function)
    * @param remainingDependencies dependency map including only the dependencies that haven't yet
-   *     been satisfied (mutated in this function)
-   * @param resultingSchedule the schedule being computed i.e. appended to (mutated in this
-   *     function)
+   *                              been satisfied (mutated in this function)
+   * @param resultingSchedule     the schedule being computed i.e. appended to (mutated in this
+   *                              function)
    */
   private void updateScheduleStartingAt(
       PatternNode startNode,

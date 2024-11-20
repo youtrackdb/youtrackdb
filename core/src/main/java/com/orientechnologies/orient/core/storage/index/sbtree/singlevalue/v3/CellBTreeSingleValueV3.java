@@ -62,7 +62,7 @@ import javax.annotation.Nonnull;
  *   <li>All non-leaf buckets have links to neighbor buckets which contain keys which are less/more
  *       than keys contained in current bucket
  * </ol>
- *
+ * <p>
  * There is support of null values for keys, but values itself cannot be null. Null keys support is
  * switched off by default if null keys are supported value which is related to null key will be
  * stored in separate file which has only one page. Buckets/pages for usual (non-null) key-value

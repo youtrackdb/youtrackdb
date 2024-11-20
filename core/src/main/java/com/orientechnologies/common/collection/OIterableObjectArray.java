@@ -32,7 +32,7 @@ import java.util.NoSuchElementException;
 public class OIterableObjectArray<T> implements Iterable<T> {
 
   private final Object object;
-  private int length;
+  private final int length;
 
   public OIterableObjectArray(Object o) {
     object = o;
@@ -49,6 +49,7 @@ public class OIterableObjectArray<T> implements Iterable<T> {
   }
 
   private class ObjIterator implements Iterator<T> {
+
     private int p = 0;
 
     /**
@@ -83,10 +84,11 @@ public class OIterableObjectArray<T> implements Iterable<T> {
      * progress in any way other than by calling this method.
      *
      * @throws UnsupportedOperationException if the <tt>remove</tt> operation is not supported by
-     *     this Iterator.
-     * @throws IllegalStateException if the <tt>next</tt> method has not yet been called, or the
-     *     <tt>remove</tt> method has already been called after the last call to the <tt>next</tt>
-     *     method.
+     *                                       this Iterator.
+     * @throws IllegalStateException         if the <tt>next</tt> method has not yet been called, or
+     *                                       the
+     *                                       <tt>remove</tt> method has already been called after
+     *                                       the last call to the <tt>next</tt> method.
      */
     public void remove() {
       throw new UnsupportedOperationException();

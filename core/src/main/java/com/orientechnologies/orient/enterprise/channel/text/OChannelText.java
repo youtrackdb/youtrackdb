@@ -32,9 +32,9 @@ public class OChannelText extends OChannel {
   }
 
   /**
-   * @param iBuffer byte[] to fill
+   * @param iBuffer           byte[] to fill
    * @param iStartingPosition Offset to start to fill the buffer
-   * @param iContentLength Length of expected content to read
+   * @param iContentLength    Length of expected content to read
    * @return total of bytes read
    * @throws IOException
    */

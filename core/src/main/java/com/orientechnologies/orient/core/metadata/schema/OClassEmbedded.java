@@ -20,8 +20,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Callable;
 
-/** Created by tglman on 14/06/17. */
+/**
+ * Created by tglman on 14/06/17.
+ */
 public class OClassEmbedded extends OClassImpl {
+
   protected OClassEmbedded(OSchemaShared iOwner, String iName) {
     super(iOwner, iName);
   }
@@ -36,10 +39,13 @@ public class OClassEmbedded extends OClassImpl {
       final OType linkedType,
       final OClass linkedClass,
       final boolean unsafe) {
-    if (type == null) throw new OSchemaException("Property type not defined.");
+    if (type == null) {
+      throw new OSchemaException("Property type not defined.");
+    }
 
-    if (propertyName == null || propertyName.length() == 0)
+    if (propertyName == null || propertyName.length() == 0) {
       throw new OSchemaException("Property name is null or empty");
+    }
 
     final ODatabaseSessionInternal database = getDatabase();
     validatePropertyName(propertyName);
@@ -50,9 +56,13 @@ public class OClassEmbedded extends OClassImpl {
 
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    if (linkedType != null) OPropertyImpl.checkLinkTypeSupport(type);
+    if (linkedType != null) {
+      OPropertyImpl.checkLinkTypeSupport(type);
+    }
 
-    if (linkedClass != null) OPropertyImpl.checkSupportLinkedClass(type);
+    if (linkedClass != null) {
+      OPropertyImpl.checkSupportLinkedClass(type);
+    }
 
     acquireSchemaWriteLock();
     try {
@@ -107,8 +117,10 @@ public class OClassEmbedded extends OClassImpl {
   public void setClusterSelectionInternal(final String clusterSelection) {
     // AVOID TO CHECK THIS IN LOCK TO AVOID RE-GENERATION OF IMMUTABLE SCHEMAS
     if (this.clusterSelection.getName().equals(clusterSelection))
-      // NO CHANGES
+    // NO CHANGES
+    {
       return;
+    }
 
     acquireSchemaWriteLock();
     try {
@@ -180,9 +192,13 @@ public class OClassEmbedded extends OClassImpl {
     try {
       checkEmbedded();
 
-      if (subclasses == null) return this;
+      if (subclasses == null) {
+        return this;
+      }
 
-      if (subclasses.remove(baseClass)) removePolymorphicClusterIds((OClassImpl) baseClass);
+      if (subclasses.remove(baseClass)) {
+        removePolymorphicClusterIds((OClassImpl) baseClass);
+      }
 
       return this;
     } finally {
@@ -209,16 +225,19 @@ public class OClassEmbedded extends OClassImpl {
     try {
       final OClassImpl cls;
 
-      if (superClass instanceof OClassAbstractDelegate)
+      if (superClass instanceof OClassAbstractDelegate) {
         cls = (OClassImpl) ((OClassAbstractDelegate) superClass).delegate;
-      else cls = (OClassImpl) superClass;
+      } else {
+        cls = (OClassImpl) superClass;
+      }
 
       if (cls != null) {
 
         // CHECK THE USER HAS UPDATE PRIVILEGE AGAINST EXTENDING CLASS
         final OSecurityUser user = database.getUser();
-        if (user != null)
+        if (user != null) {
           user.allow(ORule.ResourceGeneric.CLASS, cls.getName(), ORole.PERMISSION_UPDATE);
+        }
 
         if (superClasses.contains(superClass)) {
           throw new OSchemaException(
@@ -256,12 +275,16 @@ public class OClassEmbedded extends OClassImpl {
     try {
       final OClassImpl cls;
 
-      if (superClass instanceof OClassAbstractDelegate)
+      if (superClass instanceof OClassAbstractDelegate) {
         cls = (OClassImpl) ((OClassAbstractDelegate) superClass).delegate;
-      else cls = (OClassImpl) superClass;
+      } else {
+        cls = (OClassImpl) superClass;
+      }
 
       if (superClasses.contains(cls)) {
-        if (cls != null) cls.removeBaseClassInternal(this);
+        if (cls != null) {
+          cls.removeBaseClassInternal(this);
+        }
 
         superClasses.remove(superClass);
       }
@@ -274,9 +297,11 @@ public class OClassEmbedded extends OClassImpl {
     List<OClassImpl> newSuperClasses = new ArrayList<OClassImpl>();
     OClassImpl cls;
     for (OClass superClass : classes) {
-      if (superClass instanceof OClassAbstractDelegate)
+      if (superClass instanceof OClassAbstractDelegate) {
         cls = (OClassImpl) ((OClassAbstractDelegate) superClass).delegate;
-      else cls = (OClassImpl) superClass;
+      } else {
+        cls = (OClassImpl) superClass;
+      }
 
       if (newSuperClasses.contains(cls)) {
         throw new OSchemaException("Duplicated superclass '" + cls.getName() + "'");
@@ -301,7 +326,9 @@ public class OClassEmbedded extends OClassImpl {
   }
 
   public OClass setName(final String name) {
-    if (getName().equals(name)) return this;
+    if (getName().equals(name)) {
+      return this;
+    }
     final ODatabaseSessionInternal database = getDatabase();
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
     final Character wrongCharacter = OSchemaShared.checkClassNameIfValid(name);
@@ -312,13 +339,14 @@ public class OClassEmbedded extends OClassImpl {
               "Cannot rename class %s to %s. A Class with name %s exists", this.name, name, name);
       throw new OSchemaException(error);
     }
-    if (wrongCharacter != null)
+    if (wrongCharacter != null) {
       throw new OSchemaException(
           "Invalid class name found. Character '"
               + wrongCharacter
               + "' cannot be used in class name '"
               + name
               + "'");
+    }
     acquireSchemaWriteLock();
     try {
       setNameInternal(database, name);
@@ -356,7 +384,9 @@ public class OClassEmbedded extends OClassImpl {
   public OClass setShortName(String shortName) {
     if (shortName != null) {
       shortName = shortName.trim();
-      if (shortName.isEmpty()) shortName = null;
+      if (shortName.isEmpty()) {
+        shortName = null;
+      }
     }
     final ODatabaseSessionInternal database = getDatabase();
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
@@ -380,7 +410,9 @@ public class OClassEmbedded extends OClassImpl {
 
       String oldName = null;
 
-      if (this.shortName != null) oldName = this.shortName;
+      if (this.shortName != null) {
+        oldName = this.shortName;
+      }
 
       owner.changeClassName(database, oldName, iShortName, this);
 
@@ -400,23 +432,32 @@ public class OClassEmbedded extends OClassImpl {
       final OType linkedType,
       final OClass linkedClass,
       final boolean unsafe) {
-    if (name == null || name.length() == 0) throw new OSchemaException("Found property name null");
+    if (name == null || name.length() == 0) {
+      throw new OSchemaException("Found property name null");
+    }
 
-    if (!unsafe) checkPersistentPropertyType(getDatabase(), name, type, linkedClass);
+    if (!unsafe) {
+      checkPersistentPropertyType(getDatabase(), name, type, linkedClass);
+    }
 
     final OPropertyEmbedded prop;
 
     // This check are doubled because used by sql commands
-    if (linkedType != null) OPropertyImpl.checkLinkTypeSupport(type);
+    if (linkedType != null) {
+      OPropertyImpl.checkLinkTypeSupport(type);
+    }
 
-    if (linkedClass != null) OPropertyImpl.checkSupportLinkedClass(type);
+    if (linkedClass != null) {
+      OPropertyImpl.checkSupportLinkedClass(type);
+    }
 
     acquireSchemaWriteLock();
     try {
       checkEmbedded();
 
-      if (properties.containsKey(name))
+      if (properties.containsKey(name)) {
         throw new OSchemaException("Class '" + this.name + "' already has property '" + name + "'");
+      }
 
       OGlobalProperty global = owner.findOrCreateGlobalProperty(name, type);
 
@@ -424,13 +465,18 @@ public class OClassEmbedded extends OClassImpl {
 
       properties.put(name, prop);
 
-      if (linkedType != null) prop.setLinkedTypeInternal(linkedType);
-      else if (linkedClass != null) prop.setLinkedClassInternal(linkedClass);
+      if (linkedType != null) {
+        prop.setLinkedTypeInternal(linkedType);
+      } else if (linkedClass != null) {
+        prop.setLinkedClassInternal(linkedClass);
+      }
     } finally {
       releaseSchemaWriteLock();
     }
 
-    if (prop != null && !unsafe) fireDatabaseMigration(getDatabase(), name, type);
+    if (prop != null && !unsafe) {
+      fireDatabaseMigration(getDatabase(), name, type);
+    }
 
     return prop;
   }
@@ -439,7 +485,9 @@ public class OClassEmbedded extends OClassImpl {
     return new OPropertyEmbedded(this, global);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public OClass truncateCluster(String clusterName) {
     getDatabase().checkSecurity(ORule.ResourceGeneric.CLASS, ORole.PERMISSION_DELETE, name);
@@ -479,7 +527,9 @@ public class OClassEmbedded extends OClassImpl {
   public OClass setDescription(String iDescription) {
     if (iDescription != null) {
       iDescription = iDescription.trim();
-      if (iDescription.isEmpty()) iDescription = null;
+      if (iDescription.isEmpty()) {
+        iDescription = null;
+      }
     }
     final ODatabaseSessionInternal database = getDatabase();
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
@@ -529,11 +579,12 @@ public class OClassEmbedded extends OClassImpl {
     final ODatabaseSessionInternal database = getDatabase();
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    if (!force && clusterIds.length == 1 && clusterId == clusterIds[0])
+    if (!force && clusterIds.length == 1 && clusterId == clusterIds[0]) {
       throw new ODatabaseException(
           " Impossible to remove the last cluster of class '"
               + getName()
               + "' drop the class instead");
+    }
 
     acquireSchemaWriteLock();
     try {
@@ -564,8 +615,10 @@ public class OClassEmbedded extends OClassImpl {
         final int[] newClusterIds = new int[clusterIds.length - 1];
         for (int i = 0, k = 0; i < clusterIds.length; ++i) {
           if (clusterIds[i] == clusterToRemove)
-            // JUMP IT
+          // JUMP IT
+          {
             continue;
+          }
 
           newClusterIds[k] = clusterIds[i];
           k++;
@@ -576,8 +629,11 @@ public class OClassEmbedded extends OClassImpl {
       }
 
       if (defaultClusterId == clusterToRemove) {
-        if (clusterIds.length >= 1) defaultClusterId = clusterIds[0];
-        else defaultClusterId = NOT_EXISTENT_CLUSTER_ID;
+        if (clusterIds.length >= 1) {
+          defaultClusterId = clusterIds[0];
+        } else {
+          defaultClusterId = NOT_EXISTENT_CLUSTER_ID;
+        }
       }
 
       ((OSchemaEmbedded) owner).removeClusterForClass(database, clusterToRemove, this);
@@ -590,16 +646,18 @@ public class OClassEmbedded extends OClassImpl {
 
   public void dropProperty(final String propertyName) {
     final ODatabaseSessionInternal database = getDatabase();
-    if (database.getTransaction().isActive())
+    if (database.getTransaction().isActive()) {
       throw new IllegalStateException("Cannot drop a property inside a transaction");
+    }
 
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_DELETE);
 
     acquireSchemaWriteLock();
     try {
-      if (!properties.containsKey(propertyName))
+      if (!properties.containsKey(propertyName)) {
         throw new OSchemaException(
             "Property '" + propertyName + "' not found in class " + name + "'");
+      }
 
       OScenarioThreadLocal.executeAsDistributed(
           (Callable<OProperty>)
@@ -615,8 +673,9 @@ public class OClassEmbedded extends OClassImpl {
 
   protected void dropPropertyInternal(
       ODatabaseSessionInternal database, final String iPropertyName) {
-    if (database.getTransaction().isActive())
+    if (database.getTransaction().isActive()) {
       throw new IllegalStateException("Cannot drop a property inside a transaction");
+    }
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_DELETE);
 
     acquireSchemaWriteLock();
@@ -625,9 +684,10 @@ public class OClassEmbedded extends OClassImpl {
 
       final OProperty prop = properties.remove(iPropertyName);
 
-      if (prop == null)
+      if (prop == null) {
         throw new OSchemaException(
             "Property '" + iPropertyName + "' not found in class " + name + "'");
+      }
     } finally {
       releaseSchemaWriteLock();
     }
@@ -697,9 +757,14 @@ public class OClassEmbedded extends OClassImpl {
     try {
       checkEmbedded();
 
-      if (customFields == null) customFields = new HashMap<String, String>();
-      if (value == null || "null".equalsIgnoreCase(value)) customFields.remove(name);
-      else customFields.put(name, value);
+      if (customFields == null) {
+        customFields = new HashMap<String, String>();
+      }
+      if (value == null || "null".equalsIgnoreCase(value)) {
+        customFields.remove(name);
+      } else {
+        customFields.put(name, value);
+      }
     } finally {
       releaseSchemaWriteLock();
     }
@@ -731,10 +796,14 @@ public class OClassEmbedded extends OClassImpl {
           defaultClusterId = NOT_EXISTENT_CLUSTER_ID;
         }
       } else {
-        if (!abstractClass) return;
+        if (!abstractClass) {
+          return;
+        }
 
         int clusterId = database.getClusterIdByName(name);
-        if (clusterId == -1) clusterId = database.addCluster(name);
+        if (clusterId == -1) {
+          clusterId = database.addCluster(name);
+        }
 
         this.defaultClusterId = clusterId;
         this.clusterIds[0] = this.defaultClusterId;
@@ -771,10 +840,13 @@ public class OClassEmbedded extends OClassImpl {
 
       owner.checkClusterCanBeAdded(clusterId, this);
 
-      for (int currId : clusterIds)
+      for (int currId : clusterIds) {
         if (currId == clusterId)
-          // ALREADY ADDED
+        // ALREADY ADDED
+        {
           return this;
+        }
+      }
 
       clusterIds = OArrays.copyOf(clusterIds, clusterIds.length + 1);
       clusterIds[clusterIds.length - 1] = clusterId;
@@ -782,7 +854,9 @@ public class OClassEmbedded extends OClassImpl {
 
       addPolymorphicClusterId(clusterId);
 
-      if (defaultClusterId == NOT_EXISTENT_CLUSTER_ID) defaultClusterId = clusterId;
+      if (defaultClusterId == NOT_EXISTENT_CLUSTER_ID) {
+        defaultClusterId = clusterId;
+      }
 
       ((OSchemaEmbedded) owner).addClusterForClass(database, clusterId, this);
       return this;
@@ -792,7 +866,9 @@ public class OClassEmbedded extends OClassImpl {
   }
 
   protected void addPolymorphicClusterId(int clusterId) {
-    if (Arrays.binarySearch(polymorphicClusterIds, clusterId) >= 0) return;
+    if (Arrays.binarySearch(polymorphicClusterIds, clusterId) >= 0) {
+      return;
+    }
 
     polymorphicClusterIds = OArrays.copyOf(polymorphicClusterIds, polymorphicClusterIds.length + 1);
     polymorphicClusterIds[polymorphicClusterIds.length - 1] = clusterId;
@@ -809,10 +885,14 @@ public class OClassEmbedded extends OClassImpl {
     final String clusterName = getDatabase().getClusterNameById(iId);
     final List<String> indexesToAdd = new ArrayList<String>();
 
-    for (OIndex index : getIndexes()) indexesToAdd.add(index.getName());
+    for (OIndex index : getIndexes()) {
+      indexesToAdd.add(index.getName());
+    }
 
     final OIndexManagerAbstract indexManager =
         getDatabase().getMetadata().getIndexManagerInternal();
-    for (String indexName : indexesToAdd) indexManager.addClusterToIndex(clusterName, indexName);
+    for (String indexName : indexesToAdd) {
+      indexManager.addClusterToIndex(clusterName, indexName);
+    }
   }
 }

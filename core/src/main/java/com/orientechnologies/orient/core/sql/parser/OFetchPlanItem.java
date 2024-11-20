@@ -91,19 +91,30 @@ public class OFetchPlanItem extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OFetchPlanItem that = (OFetchPlanItem) o;
 
-    if (leftStar != that.leftStar) return false;
-    if (star != null ? !star.equals(that.star) : that.star != null) return false;
-    if (leftDepth != null ? !leftDepth.equals(that.leftDepth) : that.leftDepth != null)
+    if (leftStar != that.leftStar) {
       return false;
-    if (rightDepth != null ? !rightDepth.equals(that.rightDepth) : that.rightDepth != null)
+    }
+    if (star != null ? !star.equals(that.star) : that.star != null) {
       return false;
-    if (fieldChain != null ? !fieldChain.equals(that.fieldChain) : that.fieldChain != null)
+    }
+    if (leftDepth != null ? !leftDepth.equals(that.leftDepth) : that.leftDepth != null) {
       return false;
+    }
+    if (rightDepth != null ? !rightDepth.equals(that.rightDepth) : that.rightDepth != null) {
+      return false;
+    }
+    if (fieldChain != null ? !fieldChain.equals(that.fieldChain) : that.fieldChain != null) {
+      return false;
+    }
 
     return true;
   }

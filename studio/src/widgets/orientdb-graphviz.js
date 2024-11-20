@@ -1069,7 +1069,7 @@ let OrientGraph = (function () {
         });
         selection.on('mouseup', function (v) {
           if (dist(down, d3.mouse(document.body)) > tolerance) {
-            return;
+
           } else {
 
             if (wait) {
@@ -1086,7 +1086,7 @@ let OrientGraph = (function () {
             }
           }
         });
-      };
+      }
       return d3.rebind(cc, event, 'on');
     }
 

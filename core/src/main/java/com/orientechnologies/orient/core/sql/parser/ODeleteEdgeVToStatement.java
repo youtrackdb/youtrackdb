@@ -3,6 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 public class ODeleteEdgeVToStatement extends ODeleteEdgeStatement {
+
   public ODeleteEdgeVToStatement(int id) {
     super(id);
   }

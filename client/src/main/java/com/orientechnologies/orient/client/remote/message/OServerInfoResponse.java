@@ -8,6 +8,7 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 public class OServerInfoResponse implements OBinaryResponse {
+
   private String result;
 
   public OServerInfoResponse(String result) {

@@ -66,7 +66,7 @@ public interface OTransactionInternal extends OTransaction {
    * and used for remapping links.
    *
    * @param oldRID the id old value.
-   * @param rid the id new value.
+   * @param rid    the id new value.
    */
   void updateIdentityAfterCommit(ORID oldRID, ORID rid);
 

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class OImportResponse implements OBinaryResponse {
+
   private List<String> messages = new ArrayList<>();
 
   public OImportResponse(List<String> messages) {

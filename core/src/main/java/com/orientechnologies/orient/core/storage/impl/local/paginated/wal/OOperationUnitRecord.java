@@ -24,6 +24,7 @@ import java.nio.ByteOrder;
  * @since 30.05.13
  */
 public abstract class OOperationUnitRecord extends OAbstractWALRecord {
+
   private long operationUnitId;
 
   protected OOperationUnitRecord() {}
@@ -84,8 +85,12 @@ public abstract class OOperationUnitRecord extends OAbstractWALRecord {
 
   @Override
   public boolean equals(final Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     final OOperationUnitRecord that = (OOperationUnitRecord) o;
 

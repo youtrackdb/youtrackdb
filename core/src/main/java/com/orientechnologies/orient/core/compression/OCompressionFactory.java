@@ -38,13 +38,16 @@ import java.util.Set;
  * @since 05.06.13
  */
 public class OCompressionFactory {
+
   public static final OCompressionFactory INSTANCE = new OCompressionFactory();
 
   private final Map<String, OCompression> compressions = new HashMap<String, OCompression>();
   private final Map<String, Class<? extends OCompression>> compressionClasses =
       new HashMap<String, Class<? extends OCompression>>();
 
-  /** Install default compression algorithms. */
+  /**
+   * Install default compression algorithms.
+   */
   public OCompressionFactory() {
     register(new OHighZIPCompression());
     register(new OLowZIPCompression());
@@ -53,14 +56,19 @@ public class OCompressionFactory {
   }
 
   public OCompression getCompression(final String name, final String iOptions) {
-    if (name == null || name.length() == 0) return ONothingCompression.INSTANCE;
+    if (name == null || name.length() == 0) {
+      return ONothingCompression.INSTANCE;
+    }
 
     OCompression compression = compressions.get(name);
     if (compression == null) {
 
       final Class<? extends OCompression> compressionClass;
-      if (name == null) compressionClass = ONothingCompression.class;
-      else compressionClass = compressionClasses.get(name);
+      if (name == null) {
+        compressionClass = ONothingCompression.class;
+      } else {
+        compressionClass = compressionClasses.get(name);
+      }
 
       if (compressionClass != null) {
         try {
@@ -71,7 +79,9 @@ public class OCompressionFactory {
           throw OException.wrapException(
               new OSecurityException("Cannot instantiate compression algorithm '" + name + "'"), e);
         }
-      } else throw new OSecurityException("Compression with name '" + name + "' is absent");
+      } else {
+        throw new OSecurityException("Compression with name '" + name + "' is absent");
+      }
     }
     return compression;
   }
@@ -85,13 +95,15 @@ public class OCompressionFactory {
     try {
       final String name = compression.name();
 
-      if (compressions.containsKey(name))
+      if (compressions.containsKey(name)) {
         throw new IllegalArgumentException(
             "Compression with name '" + name + "' was already registered");
+      }
 
-      if (compressionClasses.containsKey(name))
+      if (compressionClasses.containsKey(name)) {
         throw new IllegalArgumentException(
             "Compression with name '" + name + "' was already registered");
+      }
 
       compressions.put(name, compression);
     } catch (Exception e) {
@@ -111,13 +123,15 @@ public class OCompressionFactory {
 
       final String name = tempInstance.name();
 
-      if (compressions.containsKey(name))
+      if (compressions.containsKey(name)) {
         throw new IllegalArgumentException(
             "Compression with name '" + name + "' was already registered");
+      }
 
-      if (compressionClasses.containsKey(tempInstance.name()))
+      if (compressionClasses.containsKey(tempInstance.name())) {
         throw new IllegalArgumentException(
             "Compression with name '" + name + "' was already registered");
+      }
 
       compressionClasses.put(name, compression);
     } catch (Exception e) {

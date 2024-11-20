@@ -25,9 +25,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 /**
- * Distributed TX test against "plocal" protocol. <br>
- * This test is ignored because TX are not parallel on distributed yet (exclusive lock on
- * dstorage.commit()).
+ * Distributed TX test against "plocal" protocol. <br> This test is ignored because TX are not
+ * parallel on distributed yet (exclusive lock on dstorage.commit()).
  */
 public class LocalConcurrentTxNoAutoRetryIT extends AbstractDistributedConcurrentTxTest {
 

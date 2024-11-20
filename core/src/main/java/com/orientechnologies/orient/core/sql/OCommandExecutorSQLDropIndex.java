@@ -36,6 +36,7 @@ import java.util.Map;
 @SuppressWarnings("unchecked")
 public class OCommandExecutorSQLDropIndex extends OCommandExecutorSQLAbstract
     implements OCommandDistributedReplicateRequest {
+
   public static final String KEYWORD_DROP = "DROP";
   public static final String KEYWORD_INDEX = "INDEX";
 
@@ -56,21 +57,24 @@ public class OCommandExecutorSQLDropIndex extends OCommandExecutorSQLAbstract
 
       int oldPos = 0;
       int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
-      if (pos == -1 || !word.toString().equals(KEYWORD_DROP))
+      if (pos == -1 || !word.toString().equals(KEYWORD_DROP)) {
         throw new OCommandSQLParsingException(
             "Keyword " + KEYWORD_DROP + " not found. Use " + getSyntax(), parserText, oldPos);
+      }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, pos, word, true);
-      if (pos == -1 || !word.toString().equals(KEYWORD_INDEX))
+      if (pos == -1 || !word.toString().equals(KEYWORD_INDEX)) {
         throw new OCommandSQLParsingException(
             "Keyword " + KEYWORD_INDEX + " not found. Use " + getSyntax(), parserText, oldPos);
+      }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false);
-      if (pos == -1)
+      if (pos == -1) {
         throw new OCommandSQLParsingException(
             "Expected index name. Use " + getSyntax(), parserText, oldPos);
+      }
 
       name = word.toString();
     } finally {
@@ -80,11 +84,14 @@ public class OCommandExecutorSQLDropIndex extends OCommandExecutorSQLAbstract
     return this;
   }
 
-  /** Execute the REMOVE INDEX. */
+  /**
+   * Execute the REMOVE INDEX.
+   */
   public Object execute(final Map<Object, Object> iArgs) {
-    if (name == null)
+    if (name == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
+    }
 
     final ODatabaseSessionInternal database = getDatabase();
     if (name.equals("*")) {
@@ -96,7 +103,9 @@ public class OCommandExecutorSQLDropIndex extends OCommandExecutorSQLAbstract
 
       return totalIndexed;
 
-    } else database.getMetadata().getIndexManagerInternal().dropIndex(database, name);
+    } else {
+      database.getMetadata().getIndexManagerInternal().dropIndex(database, name);
+    }
 
     return 1;
   }

@@ -30,6 +30,7 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 public class OSBTCreateTreeRequest implements OBinaryRequest<OSBTCreateTreeResponse> {
+
   private int clusterId;
 
   public OSBTCreateTreeRequest(int clusterId) {

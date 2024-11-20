@@ -31,7 +31,9 @@ import com.orientechnologies.orient.core.replication.OAsyncReplicationOk;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OExecutionThreadLocal extends ThreadLocal<OExecutionThreadLocal.OExecutionThreadData> {
+
   public class OExecutionThreadData {
+
     public volatile OAsyncReplicationOk onAsyncReplicationOk;
     public volatile OAsyncReplicationError onAsyncReplicationError;
   }
@@ -45,17 +47,23 @@ public class OExecutionThreadLocal extends ThreadLocal<OExecutionThreadLocal.OEx
 
   public static boolean isInterruptCurrentOperation() {
     final Thread t = Thread.currentThread();
-    if (t instanceof OSoftThread) return ((OSoftThread) t).isShutdownFlag();
+    if (t instanceof OSoftThread) {
+      return ((OSoftThread) t).isShutdownFlag();
+    }
     return false;
   }
 
   public void setInterruptCurrentOperation(final Thread t) {
-    if (t instanceof OSoftThread) ((OSoftThread) t).softShutdown();
+    if (t instanceof OSoftThread) {
+      ((OSoftThread) t).softShutdown();
+    }
   }
 
   public static void setInterruptCurrentOperation() {
     final Thread t = Thread.currentThread();
-    if (t instanceof OSoftThread) ((OSoftThread) t).softShutdown();
+    if (t instanceof OSoftThread) {
+      ((OSoftThread) t).softShutdown();
+    }
   }
 
   static {
@@ -64,7 +72,9 @@ public class OExecutionThreadLocal extends ThreadLocal<OExecutionThreadLocal.OEx
         new OOrientListenerAbstract() {
           @Override
           public void onStartup() {
-            if (INSTANCE == null) INSTANCE = new OExecutionThreadLocal();
+            if (INSTANCE == null) {
+              INSTANCE = new OExecutionThreadLocal();
+            }
           }
 
           @Override

@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.stream.Stream;
 
 public class OServerCommandGetIndex extends OServerCommandDocumentAbstract {
+
   private static final String[] NAMES = {"GET|index/*"};
 
   @SuppressWarnings("unchecked")
@@ -46,20 +47,21 @@ public class OServerCommandGetIndex extends OServerCommandDocumentAbstract {
       db = getProfiledDatabaseInstance(iRequest);
 
       final OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, urlParts[2]);
-      if (index == null)
+      if (index == null) {
         throw new IllegalArgumentException("Index name '" + urlParts[2] + "' not found");
+      }
 
       try (final Stream<ORID> stream = index.getInternal().getRids(urlParts[3])) {
         final Iterator<ORID> iterator = stream.iterator();
 
-        if (!iterator.hasNext())
+        if (!iterator.hasNext()) {
           iResponse.send(
               OHttpUtils.STATUS_NOTFOUND_CODE,
               OHttpUtils.STATUS_NOTFOUND_DESCRIPTION,
               OHttpUtils.CONTENT_TEXT_PLAIN,
               null,
               null);
-        else {
+        } else {
           final StringBuilder buffer = new StringBuilder(128);
           buffer.append('[');
 
@@ -93,7 +95,9 @@ public class OServerCommandGetIndex extends OServerCommandDocumentAbstract {
         }
       }
     } finally {
-      if (db != null) db.close();
+      if (db != null) {
+        db.close();
+      }
     }
     return false;
   }

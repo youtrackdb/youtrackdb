@@ -12,6 +12,7 @@ import org.junit.Test;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com) (l.garulli--at-orientdb.com)
  */
 public class HttpCommandTest extends BaseHttpDatabaseTest {
+
   @Test
   public void commandRootCredentials() throws IOException {
     Assert.assertEquals(

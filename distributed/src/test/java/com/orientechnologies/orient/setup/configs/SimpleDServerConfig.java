@@ -6,6 +6,7 @@ import com.orientechnologies.orient.setup.TestSetupUtil;
 import java.util.*;
 
 public class SimpleDServerConfig implements SetupConfig {
+
   public static final String SERVER0 = "server0";
   public static final String SERVER1 = "server1";
   public static final String SERVER2 = "server2";

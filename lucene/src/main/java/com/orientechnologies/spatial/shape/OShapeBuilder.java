@@ -158,11 +158,11 @@ public abstract class OShapeBuilder<T extends Shape> {
   }
 
   public T fromText(String wkt) throws ParseException, org.locationtech.jts.io.ParseException {
-    Object entity = (T) SPATIAL_CONTEXT.getWktShapeParser().parse(wkt);
+    Object entity = SPATIAL_CONTEXT.getWktShapeParser().parse(wkt);
 
     if (entity instanceof Rectangle) {
       Geometry geometryFrom = SHAPE_FACTORY.getGeometryFrom((Shape) entity);
-      entity = (T) SHAPE_FACTORY.makeShape(geometryFrom);
+      entity = SHAPE_FACTORY.makeShape(geometryFrom);
     }
     return (T) entity;
   }

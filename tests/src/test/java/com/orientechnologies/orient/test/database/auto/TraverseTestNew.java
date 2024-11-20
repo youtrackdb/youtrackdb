@@ -34,6 +34,7 @@ import org.testng.annotations.Test;
 // TODO re-enable when the new executor is implemented in remote
 @Test(enabled = false)
 public class TraverseTestNew extends DocumentDBBaseTest {
+
   private int totalElements = 0;
   private OVertex tomCruise;
   private OVertex megRyan;
@@ -419,8 +420,8 @@ public class TraverseTestNew extends DocumentDBBaseTest {
 
     try {
 
-      String q = "traverse in('married')  from " + nicoleKidman.getIdentity() + "";
-      ODatabaseSessionInternal db = (ODatabaseSessionInternal) database.copy();
+      String q = "traverse in('married')  from " + nicoleKidman.getIdentity();
+      ODatabaseSessionInternal db = database.copy();
       ODatabaseRecordThreadLocal.instance().set(db);
       OResultSet result1 = db.query(q);
       Assert.assertTrue(result1.hasNext());

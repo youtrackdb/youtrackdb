@@ -27,7 +27,6 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.OMap;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.metadata.OMetadataInternal;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -99,7 +98,7 @@ public class OFindReferenceHelper {
         try {
           for (String fieldName : ((ODocument) record).fieldNames()) {
             Object value = ((ODocument) record).field(fieldName);
-            checkObject(iSourceRIDs, map, value, (ODocument) record);
+            checkObject(iSourceRIDs, map, value, record);
           }
         } catch (Exception e) {
           OLogManager.instance()
@@ -114,8 +113,7 @@ public class OFindReferenceHelper {
       Set<ORID> iSourceRIDs,
       final Map<ORID, Set<ORID>> map,
       final String iClassName) {
-    final OClass clazz =
-        ((OMetadataInternal) db.getMetadata()).getImmutableSchemaSnapshot().getClass(iClassName);
+    final OClass clazz = db.getMetadata().getImmutableSchemaSnapshot().getClass(iClassName);
 
     if (clazz == null) {
       throw new OCommandExecutionException("Class '" + iClassName + "' was not found");

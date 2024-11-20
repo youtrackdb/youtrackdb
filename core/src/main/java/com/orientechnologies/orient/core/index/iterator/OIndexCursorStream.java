@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 public class OIndexCursorStream extends OIndexAbstractCursor {
+
   private final Iterator<ORawPair<Object, ORID>> iterator;
 
   public OIndexCursorStream(final Stream<ORawPair<Object, ORID>> stream) {

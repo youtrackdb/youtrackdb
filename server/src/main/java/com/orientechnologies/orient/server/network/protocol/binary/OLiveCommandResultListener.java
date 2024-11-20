@@ -57,11 +57,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class OLiveCommandResultListener extends OAbstractCommandResultListener
     implements OLiveResultListener {
 
-  private OClientConnection connection;
+  private final OClientConnection connection;
   private final AtomicBoolean empty = new AtomicBoolean(true);
   private final int sessionId;
   private final Set<ORID> alreadySent = new HashSet<ORID>();
-  private OClientSessions session;
+  private final OClientSessions session;
 
   public OLiveCommandResultListener(
       OServer server,
@@ -76,7 +76,7 @@ public class OLiveCommandResultListener extends OAbstractCommandResultListener
   @Override
   public boolean result(final Object iRecord) {
     final ONetworkProtocolBinary protocol = ((ONetworkProtocolBinary) connection.getProtocol());
-    if (empty.compareAndSet(true, false))
+    if (empty.compareAndSet(true, false)) {
       try {
         protocol.channel.writeByte(OChannelBinaryProtocol.RESPONSE_STATUS_OK);
         protocol.channel.writeInt(protocol.clientTxId);
@@ -93,6 +93,7 @@ public class OLiveCommandResultListener extends OAbstractCommandResultListener
         }
       } catch (IOException ignored) {
       }
+    }
     try {
       fetchRecord(
           iRecord,
@@ -103,7 +104,7 @@ public class OLiveCommandResultListener extends OAbstractCommandResultListener
                 alreadySent.add(iLinked.getIdentity());
                 try {
                   protocol.channel.writeByte((byte) 2); // CACHE IT ON THE CLIENT
-                  protocol.writeIdentifiable(protocol.channel, connection, iLinked);
+                  ONetworkProtocolBinary.writeIdentifiable(protocol.channel, connection, iLinked);
                 } catch (IOException e) {
                   OLogManager.instance().error(this, "Cannot write against channel", e);
                 }
@@ -112,7 +113,7 @@ public class OLiveCommandResultListener extends OAbstractCommandResultListener
           });
       alreadySent.add(((OIdentifiable) iRecord).getIdentity());
       protocol.channel.writeByte((byte) 1); // ONE MORE RECORD
-      protocol.writeIdentifiable(
+      ONetworkProtocolBinary.writeIdentifiable(
           protocol.channel, connection, ((OIdentifiable) iRecord).getRecord());
       protocol.channel.flush();
     } catch (IOException e) {
@@ -158,7 +159,7 @@ public class OLiveCommandResultListener extends OAbstractCommandResultListener
           out.writeByte(ORecordInternal.getRecordType(iOp.getRecord()));
           writeVersion(out, iOp.getRecord().getVersion());
           writeRID(out, (ORecordId) iOp.getRecord().getIdentity());
-          writeBytes(out, protocol.getRecordBytes(connection, iOp.getRecord()));
+          writeBytes(out, ONetworkProtocolBinary.getRecordBytes(connection, iOp.getRecord()));
           channel.writeByte(OChannelBinaryProtocol.PUSH_DATA);
           channel.writeInt(Integer.MIN_VALUE);
           channel.writeByte(OChannelBinaryProtocol.REQUEST_PUSH_LIVE_QUERY);

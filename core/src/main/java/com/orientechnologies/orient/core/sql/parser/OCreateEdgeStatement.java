@@ -210,26 +210,45 @@ public class OCreateEdgeStatement extends OStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OCreateEdgeStatement that = (OCreateEdgeStatement) o;
 
-    if (upsert != that.upsert) return false;
-    if (targetClass != null ? !targetClass.equals(that.targetClass) : that.targetClass != null)
+    if (upsert != that.upsert) {
       return false;
+    }
+    if (targetClass != null ? !targetClass.equals(that.targetClass) : that.targetClass != null) {
+      return false;
+    }
     if (targetClusterName != null
         ? !targetClusterName.equals(that.targetClusterName)
-        : that.targetClusterName != null) return false;
+        : that.targetClusterName != null) {
+      return false;
+    }
     if (leftExpression != null
         ? !leftExpression.equals(that.leftExpression)
-        : that.leftExpression != null) return false;
+        : that.leftExpression != null) {
+      return false;
+    }
     if (rightExpression != null
         ? !rightExpression.equals(that.rightExpression)
-        : that.rightExpression != null) return false;
-    if (body != null ? !body.equals(that.body) : that.body != null) return false;
-    if (retry != null ? !retry.equals(that.retry) : that.retry != null) return false;
-    if (wait != null ? !wait.equals(that.wait) : that.wait != null) return false;
+        : that.rightExpression != null) {
+      return false;
+    }
+    if (body != null ? !body.equals(that.body) : that.body != null) {
+      return false;
+    }
+    if (retry != null ? !retry.equals(that.retry) : that.retry != null) {
+      return false;
+    }
+    if (wait != null ? !wait.equals(that.wait) : that.wait != null) {
+      return false;
+    }
     return batch != null ? batch.equals(that.batch) : that.batch == null;
   }
 

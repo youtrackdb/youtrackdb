@@ -23,6 +23,7 @@ package com.orientechnologies.common.console;
 import java.io.IOException;
 
 public interface OConsoleReader {
+
   int FALLBACK_CONSOLE_WIDTH = 150;
 
   String readLine() throws IOException;

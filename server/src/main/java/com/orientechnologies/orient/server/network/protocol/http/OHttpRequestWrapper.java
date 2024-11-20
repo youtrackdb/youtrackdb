@@ -28,6 +28,7 @@ import java.util.Map;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OHttpRequestWrapper {
+
   private final OHttpRequest request;
   private final String[] args;
 
@@ -157,8 +158,11 @@ public class OHttpRequestWrapper {
   public int hasParameters(final String... iNames) {
     int found = 0;
 
-    if (iNames != null && request.getParameters() != null)
-      for (String name : iNames) found += request.getParameters().containsKey(name) ? 1 : 0;
+    if (iNames != null && request.getParameters() != null) {
+      for (String name : iNames) {
+        found += request.getParameters().containsKey(name) ? 1 : 0;
+      }
+    }
 
     return found;
   }

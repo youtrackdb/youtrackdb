@@ -19,10 +19,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 public class OLDAPServer {
-  private String scheme;
-  private String host;
-  private int port;
-  private boolean isAlias;
+
+  private final String scheme;
+  private final String host;
+  private final int port;
+  private final boolean isAlias;
 
   public String getHostname() {
     return host;
@@ -57,7 +58,9 @@ public class OLDAPServer {
       String scheme = uri.getScheme();
       String host = uri.getHost();
       int port = uri.getPort();
-      if (port == -1) port = 389; // Default to standard LDAP port.
+      if (port == -1) {
+        port = 389; // Default to standard LDAP port.
+      }
 
       server = new OLDAPServer(scheme, host, port, isAlias);
     } catch (URISyntaxException se) {

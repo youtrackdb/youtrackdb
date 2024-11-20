@@ -65,6 +65,7 @@ import java.util.Map;
 @SuppressWarnings("unchecked")
 public class OCommandExecutorSQLHASyncCluster extends OCommandExecutorSQLAbstract
     implements OCommandDistributedReplicateRequest {
+
   public static final String NAME = "HA SYNC CLUSTER";
 
   private OHaSyncClusterStatement parsedStatement;
@@ -83,7 +84,9 @@ public class OCommandExecutorSQLHASyncCluster extends OCommandExecutorSQLAbstrac
     return this;
   }
 
-  /** Execute the SYNC CLUSTER. */
+  /**
+   * Execute the SYNC CLUSTER.
+   */
   public Object execute(final Map<Object, Object> iArgs) {
     final ODatabaseDocumentInternal database = getDatabase();
     database.checkSecurity(ORule.ResourceGeneric.CLUSTER, "sync", ORole.PERMISSION_UPDATE);
@@ -94,8 +97,9 @@ public class OCommandExecutorSQLHASyncCluster extends OCommandExecutorSQLAbstrac
 
     final ODistributedPlugin dManager =
         (ODistributedPlugin) ((ODatabaseDocumentDistributed) database).getDistributedManager();
-    if (dManager == null || !dManager.isEnabled())
+    if (dManager == null || !dManager.isEnabled()) {
       throw new OCommandExecutionException("OrientDB is not started in distributed mode");
+    }
 
     final String databaseName = database.getName();
 
@@ -144,11 +148,12 @@ public class OCommandExecutorSQLHASyncCluster extends OCommandExecutorSQLAbstrac
     final List<String> nodesWhereClusterIsCfg = cfg.getServers(clusterName, null);
     nodesWhereClusterIsCfg.remove(nodeName);
 
-    if (nodesWhereClusterIsCfg.isEmpty())
+    if (nodesWhereClusterIsCfg.isEmpty()) {
       throw new OCommandExecutionException(
           "Cannot synchronize cluster '"
               + clusterName
               + "' because is not configured on any running nodes");
+    }
 
     final OSyncClusterTask task = new OSyncClusterTask(clusterName);
     final ODistributedResponse response =
@@ -174,8 +179,11 @@ public class OCommandExecutorSQLHASyncCluster extends OCommandExecutorSQLAbstrac
                   + "_"
                   + clusterName
                   + "_toInstall.zip");
-      if (tempFile.exists()) tempFile.delete();
-      else tempFile.getParentFile().mkdirs();
+      if (tempFile.exists()) {
+        tempFile.delete();
+      } else {
+        tempFile.getParentFile().mkdirs();
+      }
       tempFile.createNewFile();
 
       long fileSize = 0;
@@ -200,7 +208,9 @@ public class OCommandExecutorSQLHASyncCluster extends OCommandExecutorSQLAbstrac
 
           // DELETE ANY PREVIOUS .COMPLETED FILE
           final File completedFile = new File(tempFile.getAbsolutePath() + ".completed");
-          if (completedFile.exists()) completedFile.delete();
+          if (completedFile.exists()) {
+            completedFile.delete();
+          }
 
           fileSize = writeDatabaseChunk(nodeName, 1, chunk, out);
           for (int chunkNum = 2; !chunk.last; chunkNum++) {
@@ -252,7 +262,9 @@ public class OCommandExecutorSQLHASyncCluster extends OCommandExecutorSQLAbstrac
 
       ODatabaseDocumentInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
       final boolean openDatabaseHere = db == null;
-      if (db == null) db = serverInstance.openDatabase(databaseName);
+      if (db == null) {
+        db = serverInstance.openDatabase(databaseName);
+      }
 
       try {
 
@@ -264,7 +276,9 @@ public class OCommandExecutorSQLHASyncCluster extends OCommandExecutorSQLAbstrac
         }
 
       } finally {
-        if (openDatabaseHere) db.close();
+        if (openDatabaseHere) {
+          db.close();
+        }
       }
 
       return String.format("Cluster correctly replaced, transferred %d bytes", fileSize);

@@ -21,6 +21,7 @@ import java.util.stream.Stream;
 import org.junit.*;
 
 public class CASDiskWriteAheadLogIT {
+
   private static Path testDirectory;
 
   @BeforeClass
@@ -4816,6 +4817,7 @@ public class CASDiskWriteAheadLogIT {
   }
 
   public static final class TestRecord extends OAbstractWALRecord {
+
     private byte[] data;
 
     @SuppressWarnings("unused")

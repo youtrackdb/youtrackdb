@@ -31,8 +31,11 @@ import com.orientechnologies.orient.setup.ServerRun;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Distributed TX test against "plocal" protocol. */
+/**
+ * Distributed TX test against "plocal" protocol.
+ */
 public class DistributedSuperNodeIT extends AbstractServerClusterGraphTest {
+
   @Test
   public void test() throws Exception {
     final long timeout = OGlobalConfiguration.DISTRIBUTED_ATOMIC_LOCK_TIMEOUT.getValueAsLong();

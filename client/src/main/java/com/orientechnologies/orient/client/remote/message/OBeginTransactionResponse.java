@@ -10,7 +10,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-/** Created by tglman on 28/12/16. */
+/**
+ * Created by tglman on 28/12/16.
+ */
 public class OBeginTransactionResponse implements OBinaryResponse {
 
   private int txId;

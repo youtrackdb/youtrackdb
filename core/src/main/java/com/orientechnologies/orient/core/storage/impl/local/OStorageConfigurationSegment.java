@@ -40,8 +40,11 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.zip.CRC32;
 
-/** Handles the database configuration in one big record. */
+/**
+ * Handles the database configuration in one big record.
+ */
 public class OStorageConfigurationSegment extends OStorageConfigurationImpl {
+
   private static final int VERSION_OFFSET = 48;
 
   // This class uses "double write" pattern.
@@ -54,7 +57,9 @@ public class OStorageConfigurationSegment extends OStorageConfigurationImpl {
   // chosen to keep binary compatibility
   // between versions.
 
-  /** Name of primary file */
+  /**
+   * Name of primary file
+   */
   private static final String NAME = "database.ocf";
 
   /**

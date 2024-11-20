@@ -39,7 +39,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by Enrico Risa on 07/07/15. */
+/**
+ * Created by Enrico Risa on 07/07/15.
+ */
 public class LuceneExportImportTest extends BaseLuceneTest {
 
   @Before
@@ -72,7 +74,7 @@ public class LuceneExportImportTest extends BaseLuceneTest {
 
       // export
       new ODatabaseExport(
-              (ODatabaseSessionInternal) db,
+              db,
               file,
               new OCommandOutputListener() {
                 @Override
@@ -88,7 +90,7 @@ public class LuceneExportImportTest extends BaseLuceneTest {
 
       GZIPInputStream stream = new GZIPInputStream(new FileInputStream(file + ".gz"));
       new ODatabaseImport(
-              (ODatabaseSessionInternal) db,
+              db,
               stream,
               new OCommandOutputListener() {
                 @Override

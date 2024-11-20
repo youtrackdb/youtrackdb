@@ -1,6 +1,7 @@
 package com.orientechnologies.orient.core.storage.index.sbtree.singlevalue.v3;
 
 final class PagePathItemUnit {
+
   private final long pageIndex;
   private final int itemIndex;
 

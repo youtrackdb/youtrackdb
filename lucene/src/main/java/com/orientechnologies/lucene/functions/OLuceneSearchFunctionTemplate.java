@@ -12,7 +12,9 @@ import com.orientechnologies.orient.core.sql.parser.OExpression;
 import com.orientechnologies.orient.core.sql.parser.OFromClause;
 import java.util.Map;
 
-/** Created by frank on 25/05/2017. */
+/**
+ * Created by frank on 25/05/2017.
+ */
 public abstract class OLuceneSearchFunctionTemplate extends OSQLFunctionAbstract
     implements OIndexableSQLFunction {
 

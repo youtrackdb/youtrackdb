@@ -3,7 +3,7 @@ package com.orientechnologies.lucene.engine;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.apache.lucene.search.SortField;
 import org.junit.Test;
@@ -16,7 +16,7 @@ public class OLuceneIndexEngineUtilsTest {
         new ODocument()
             .field(
                 "sort",
-                Arrays.asList(
+                Collections.singletonList(
                     new ODocument()
                         .field("field", "score")
                         .field("reverse", false)

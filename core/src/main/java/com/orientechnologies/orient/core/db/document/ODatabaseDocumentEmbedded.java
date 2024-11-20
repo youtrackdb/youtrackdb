@@ -401,7 +401,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     }
 
     final String stringValue = OIOUtils.getStringContent(iValue != null ? iValue.toString() : null);
-    final OStorage storage = getStorage();
+    final OStorage storage = this.storage;
     switch (iAttribute) {
       case STATUS:
         if (stringValue == null) {
@@ -526,7 +526,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
   }
 
   private void clearCustomInternal() {
-    getStorage().clearProperties();
+    storage.clearProperties();
   }
 
   private void removeCustomInternal(final String iName) {
@@ -534,7 +534,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
   }
 
   private void setCustomInternal(final String iName, final String iValue) {
-    final OStorage storage = getStorage();
+    final OStorage storage = this.storage;
     if (iValue == null || "null".equalsIgnoreCase(iValue))
     // REMOVE
     {
@@ -614,7 +614,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
 
   @Override
   public boolean isClosed() {
-    return status == STATUS.CLOSED || getStorage().isClosed();
+    return status == STATUS.CLOSED || storage.isClosed();
   }
 
   public void rebuildIndexes() {
@@ -1298,7 +1298,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
         clusterId = schemaClass.getClusterForNewInstance((ODocument) record);
         return getClusterNameById(clusterId);
       } else {
-        return getClusterNameById(getStorage().getDefaultClusterId());
+        return getClusterNameById(storage.getDefaultClusterId());
       }
 
     } else {
@@ -1353,7 +1353,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
               "Error on retrieving record "
                   + rid
                   + " (cluster: "
-                  + getStorage().getPhysicalClusterNameById(rid.getClusterId())
+                  + storage.getPhysicalClusterNameById(rid.getClusterId())
                   + ")"),
           t);
     }
@@ -1463,13 +1463,13 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
   @Override
   public int addCluster(final String iClusterName, final Object... iParameters) {
     checkIfActive();
-    return getStorage().addCluster(iClusterName, iParameters);
+    return storage.addCluster(iClusterName, iParameters);
   }
 
   @Override
   public int addCluster(final String iClusterName, final int iRequestedId) {
     checkIfActive();
-    return getStorage().addCluster(iClusterName, iRequestedId);
+    return storage.addCluster(iClusterName, iRequestedId);
   }
 
   public ORecordConflictStrategy getConflictStrategy() {
@@ -1479,15 +1479,14 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
 
   public ODatabaseDocumentEmbedded setConflictStrategy(final String iStrategyName) {
     checkIfActive();
-    getStorage()
-        .setConflictStrategy(
-            Orient.instance().getRecordConflictStrategy().getStrategy(iStrategyName));
+    storage.setConflictStrategy(
+        Orient.instance().getRecordConflictStrategy().getStrategy(iStrategyName));
     return this;
   }
 
   public ODatabaseDocumentEmbedded setConflictStrategy(final ORecordConflictStrategy iResolver) {
     checkIfActive();
-    getStorage().setConflictStrategy(iResolver);
+    storage.setConflictStrategy(iResolver);
     return this;
   }
 
@@ -1495,7 +1494,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
   public long getClusterRecordSizeByName(final String clusterName) {
     checkIfActive();
     try {
-      return getStorage().getClusterRecordsSizeByName(clusterName);
+      return storage.getClusterRecordsSizeByName(clusterName);
     } catch (Exception e) {
       throw OException.wrapException(
           new ODatabaseException("Error on reading records size for cluster '" + clusterName + "'"),
@@ -1507,7 +1506,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
   public long getClusterRecordSizeById(final int clusterId) {
     checkIfActive();
     try {
-      return getStorage().getClusterRecordsSizeById(clusterId);
+      return storage.getClusterRecordsSizeById(clusterId);
     } catch (Exception e) {
       throw OException.wrapException(
           new ODatabaseException(
@@ -1527,7 +1526,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     }
     checkSecurity(ORule.ResourceGeneric.CLUSTER, ORole.PERMISSION_READ, name);
     checkIfActive();
-    return getStorage().count(iClusterId, countTombstones);
+    return storage.count(iClusterId, countTombstones);
   }
 
   /**
@@ -1541,7 +1540,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
       name = getClusterNameById(iClusterId);
       checkSecurity(ORule.ResourceGeneric.CLUSTER, ORole.PERMISSION_READ, name);
     }
-    return getStorage().count(iClusterIds, countTombstones);
+    return storage.count(iClusterIds, countTombstones);
   }
 
   /**
@@ -1556,7 +1555,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     if (clusterId < 0) {
       throw new IllegalArgumentException("Cluster '" + iClusterName + "' was not found");
     }
-    return getStorage().count(clusterId);
+    return storage.count(clusterId);
   }
 
   @Override
@@ -1577,7 +1576,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
   }
 
   protected boolean dropClusterInternal(final String iClusterName) {
-    return getStorage().dropCluster(iClusterName);
+    return storage.dropCluster(iClusterName);
   }
 
   @Override
@@ -1621,13 +1620,13 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
   }
 
   public boolean dropClusterInternal(int clusterId) {
-    return getStorage().dropCluster(clusterId);
+    return storage.dropCluster(clusterId);
   }
 
   @Override
   public long getSize() {
     checkIfActive();
-    return getStorage().getSize();
+    return storage.getSize();
   }
 
   public ODatabaseStats getStats() {
@@ -1674,13 +1673,13 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
     checkIfActive();
     checkSecurity(ORule.ResourceGeneric.DATABASE, "backup", ORole.PERMISSION_EXECUTE);
 
-    return getStorage().incrementalBackup(path, null);
+    return storage.incrementalBackup(path, null);
   }
 
   @Override
   public ORecordMetadata getRecordMetadata(final ORID rid) {
     checkIfActive();
-    return getStorage().getRecordMetadata(rid);
+    return storage.getRecordMetadata(rid);
   }
 
   /**
@@ -1689,7 +1688,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
   @Override
   public void freeze(final boolean throwException) {
     checkOpenness();
-    if (!(getStorage() instanceof OFreezableStorageComponent)) {
+    if (!(storage instanceof OFreezableStorageComponent)) {
       OLogManager.instance()
           .error(
               this,
@@ -1727,7 +1726,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
   @Override
   public void release() {
     checkOpenness();
-    if (!(getStorage() instanceof OFreezableStorageComponent)) {
+    if (!(storage instanceof OFreezableStorageComponent)) {
       OLogManager.instance()
           .error(
               this,
@@ -1754,7 +1753,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
   }
 
   private OFreezableStorageComponent getFreezableStorage() {
-    OStorage s = getStorage();
+    OStorage s = storage;
     if (s instanceof OFreezableStorageComponent) {
       return (OFreezableStorageComponent) s;
     } else {
@@ -1769,7 +1768,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
    * {@inheritDoc}
    */
   public OSBTreeCollectionManager getSbTreeCollectionManager() {
-    return getStorage().getSBtreeCollectionManager();
+    return storage.getSBtreeCollectionManager();
   }
 
   @Override
@@ -1780,12 +1779,12 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
       throw new ODatabaseException("Cannot reload a closed db");
     }
     metadata.reload();
-    getStorage().reload();
+    storage.reload();
   }
 
   @Override
   public void internalCommit(OTransactionOptimistic transaction) {
-    this.getStorage().commit(transaction);
+    this.storage.commit(transaction);
   }
 
   public void internalClose(boolean recycle) {
@@ -1816,8 +1815,8 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
       if (!recycle) {
         sharedContext = null;
 
-        if (getStorage() != null) {
-          getStorage().close();
+        if (storage != null) {
+          storage.close();
         }
       }
 
@@ -1829,17 +1828,17 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
 
   @Override
   public long[] getClusterDataRange(int currentClusterId) {
-    return getStorage().getClusterDataRange(currentClusterId);
+    return storage.getClusterDataRange(currentClusterId);
   }
 
   @Override
   public void setDefaultClusterId(int addCluster) {
-    getStorage().setDefaultClusterId(addCluster);
+    storage.setDefaultClusterId(addCluster);
   }
 
   @Override
   public long getLastClusterPosition(int clusterId) {
-    return getStorage().getLastClusterPosition(clusterId);
+    return storage.getLastClusterPosition(clusterId);
   }
 
   @Override
@@ -1850,7 +1849,7 @@ public class ODatabaseDocumentEmbedded extends ODatabaseDocumentAbstract
   @Override
   public int[] getClustersIds(Set<String> filterClusters) {
     checkIfActive();
-    return getStorage().getClustersIds(filterClusters);
+    return storage.getClustersIds(filterClusters);
   }
 
   public void startExclusiveMetadataChange() {

@@ -4,5 +4,6 @@ import com.orientechnologies.orient.core.id.ORID;
 import java.util.Collection;
 
 public interface IndexEngineValuesTransformer {
+
   Collection<ORID> transformFromValue(Object value);
 }

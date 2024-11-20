@@ -60,6 +60,7 @@ import java.util.stream.Stream;
  */
 public final class OSBTreeCollectionManagerShared
     implements OSBTreeCollectionManager, OOrientStartupListener, OOrientShutdownListener {
+
   public static final String FILE_EXTENSION = ".grb";
   public static final String FILE_NAME_PREFIX = "global_collection_";
 
@@ -322,7 +323,9 @@ public final class OSBTreeCollectionManagerShared
     return pointer;
   }
 
-  /** Change UUID to null to prevent its serialization to disk. */
+  /**
+   * Change UUID to null to prevent its serialization to disk.
+   */
   @Override
   public UUID listenForChanges(ORidBag collection) {
     UUID ownerUUID = collection.getTemporaryId();

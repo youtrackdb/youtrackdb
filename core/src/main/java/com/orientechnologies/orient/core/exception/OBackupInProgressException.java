@@ -8,6 +8,7 @@ import com.orientechnologies.common.exception.OHighLevelException;
  * @since 10/5/2015
  */
 public class OBackupInProgressException extends OCoreException implements OHighLevelException {
+
   public OBackupInProgressException(OBackupInProgressException exception) {
     super(exception);
   }

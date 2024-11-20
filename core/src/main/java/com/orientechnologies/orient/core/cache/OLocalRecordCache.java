@@ -35,6 +35,7 @@ import com.orientechnologies.orient.core.record.ORecordVersionHelper;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OLocalRecordCache extends OAbstractRecordCache {
+
   private String cacheHit;
   private String cacheMiss;
 
@@ -95,12 +96,12 @@ public class OLocalRecordCache extends OAbstractRecordCache {
     ORecordAbstract record;
     record = underlying.get(rid);
 
-    if (record != null)
+    if (record != null) {
       Orient.instance()
           .getProfiler()
           .updateCounter(
               cacheHit, "Record found in Level1 Cache", 1L, "db.*.cache.level1.cache.found");
-    else
+    } else {
       Orient.instance()
           .getProfiler()
           .updateCounter(
@@ -108,6 +109,7 @@ public class OLocalRecordCache extends OAbstractRecordCache {
               "Record not found in Level1 Cache",
               1L,
               "db.*.cache.level1.cache.notFound");
+    }
 
     return record;
   }
@@ -130,7 +132,9 @@ public class OLocalRecordCache extends OAbstractRecordCache {
     super.clear();
   }
 
-  /** Invalidates the cache emptying all the records. */
+  /**
+   * Invalidates the cache emptying all the records.
+   */
   public void invalidate() {
     underlying.clear();
   }

@@ -6,7 +6,9 @@ import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.server.AbstractRemoteTest;
 import org.junit.Test;
 
-/** Created by Enrico Risa on 19/05/2017. */
+/**
+ * Created by Enrico Risa on 19/05/2017.
+ */
 public class OSequenceRemoteTest extends AbstractRemoteTest {
 
   ODatabaseSessionInternal db;

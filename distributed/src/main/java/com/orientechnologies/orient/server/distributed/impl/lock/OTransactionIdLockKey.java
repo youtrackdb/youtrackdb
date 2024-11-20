@@ -4,6 +4,7 @@ import com.orientechnologies.orient.core.tx.OTransactionId;
 import java.util.Objects;
 
 public class OTransactionIdLockKey implements OLockKey {
+
   private OTransactionId transactionId;
 
   public OTransactionIdLockKey(OTransactionId transactionId) {

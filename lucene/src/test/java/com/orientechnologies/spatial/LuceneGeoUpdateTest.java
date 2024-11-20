@@ -19,7 +19,9 @@ import com.orientechnologies.orient.core.index.OIndex;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by Enrico Risa on 26/09/15. */
+/**
+ * Created by Enrico Risa on 26/09/15.
+ */
 public class LuceneGeoUpdateTest extends BaseSpatialLuceneTest {
 
   @Test

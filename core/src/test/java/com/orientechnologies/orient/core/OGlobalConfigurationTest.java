@@ -7,7 +7,9 @@ import java.io.PrintStream;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by tglman on 21/02/17. */
+/**
+ * Created by tglman on 21/02/17.
+ */
 public class OGlobalConfigurationTest {
 
   @Test
@@ -21,7 +23,9 @@ public class OGlobalConfigurationTest {
         OGlobalConfiguration.getEnvKey(OGlobalConfiguration.DISTRIBUTED_NODE_NAME));
   }
 
-  /** OGlobalConfiguration.DISTRIBUTED has no explicit "section" */
+  /**
+   * OGlobalConfiguration.DISTRIBUTED has no explicit "section"
+   */
   @Test
   public void testDumpConfiguraiton() {
     final OutputStream os = new ByteArrayOutputStream();

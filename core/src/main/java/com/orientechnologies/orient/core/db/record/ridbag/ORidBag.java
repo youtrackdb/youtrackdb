@@ -222,10 +222,7 @@ public class ORidBag
     if (getOwner() instanceof ORecord && !((ORecord) getOwner()).getIdentity().isPersistent()) {
       return true;
     }
-    if (bottomThreshold >= size()) {
-      return true;
-    }
-    return false;
+    return bottomThreshold >= size();
   }
 
   public int toStream(BytesContainer bytesContainer) throws OSerializationException {
@@ -419,7 +416,7 @@ public class ORidBag
     if (newPointer.isValid()) {
       if (isEmbedded()) {
         replaceWithSBTree(newPointer);
-      } else if (getDelegate() instanceof OSBTreeRidBag) {
+      } else if (delegate instanceof OSBTreeRidBag) {
         ((OSBTreeRidBag) delegate).setCollectionPointer(newPointer);
         ((OSBTreeRidBag) delegate).clearChanges();
       }
@@ -546,11 +543,10 @@ public class ORidBag
 
   @Override
   public boolean equals(Object other) {
-    if (!(other instanceof ORidBag)) {
+    if (!(other instanceof ORidBag otherRidbag)) {
       return false;
     }
 
-    ORidBag otherRidbag = (ORidBag) other;
     if (!delegate.getClass().equals(otherRidbag.delegate.getClass())) {
       return false;
     }
@@ -568,11 +564,7 @@ public class ORidBag
         return false;
       }
     }
-    if (secondIter.hasNext()) {
-      return false;
-    }
-
-    return true;
+    return !secondIter.hasNext();
   }
 
   @Override
@@ -625,8 +617,8 @@ public class ORidBag
   }
 
   public void setRecordAndField(ORecordId id, String fieldName) {
-    if (this.getDelegate() instanceof ORemoteTreeRidBag) {
-      ((ORemoteTreeRidBag) this.getDelegate()).setRecordAndField(id, fieldName);
+    if (this.delegate instanceof ORemoteTreeRidBag) {
+      ((ORemoteTreeRidBag) this.delegate).setRecordAndField(id, fieldName);
     }
     this.ownerRecord = id;
     this.fieldName = fieldName;

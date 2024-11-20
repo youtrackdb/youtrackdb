@@ -61,7 +61,9 @@ public class OBinaryTokenSerializer implements OTokenMetaInfo {
 
   public Map<String, Byte> createMap(String[] entries) {
     Map<String, Byte> newMap = new HashMap<String, Byte>();
-    for (int i = 0; i < entries.length; i++) newMap.put(entries[i], (byte) i);
+    for (int i = 0; i < entries.length; i++) {
+      newMap.put(entries[i], (byte) i);
+    }
     return newMap;
   }
 
@@ -106,8 +108,9 @@ public class OBinaryTokenSerializer implements OTokenMetaInfo {
 
   public static void writeString(DataOutputStream output, String toWrite)
       throws UnsupportedEncodingException, IOException {
-    if (toWrite == null) output.writeShort(-1);
-    else {
+    if (toWrite == null) {
+      output.writeShort(-1);
+    } else {
       byte[] str = toWrite.getBytes("UTF-8");
       output.writeShort(str.length);
       output.write(str);

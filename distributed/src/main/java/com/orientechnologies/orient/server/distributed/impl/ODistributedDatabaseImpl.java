@@ -84,6 +84,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author Luca Garulli (l.garulli--at--orientechnologies.com)
  */
 public class ODistributedDatabaseImpl implements ODistributedDatabase {
+
   public static final String DISTRIBUTED_SYNC_JSON_FILENAME = "distributed-sync.json";
   protected final ODistributedPlugin manager;
   protected final String databaseName;
@@ -181,8 +182,10 @@ public class ODistributedDatabaseImpl implements ODistributedDatabase {
       Object responsePayload) {
 
     if (iRequestId.getMessageId() < 0)
-      // INTERNAL MSG
+    // INTERNAL MSG
+    {
       return true;
+    }
 
     final String local = manager.getLocalNodeName();
 
@@ -381,7 +384,9 @@ public class ODistributedDatabaseImpl implements ODistributedDatabase {
   }
 
   public void waitIsReady(ORemoteTask task) {
-    if (task.isNodeOnlineRequired()) waitDistributedIsReady();
+    if (task.isNodeOnlineRequired()) {
+      waitDistributedIsReady();
+    }
   }
 
   public void waitDistributedIsReady() {
@@ -561,7 +566,9 @@ public class ODistributedDatabaseImpl implements ODistributedDatabase {
     running = false;
 
     try {
-      if (txTimeoutTask != null) txTimeoutTask.cancel();
+      if (txTimeoutTask != null) {
+        txTimeoutTask.cancel();
+      }
       requestExecutor.shutdown();
       if (wait) {
         try {
@@ -612,18 +619,22 @@ public class ODistributedDatabaseImpl implements ODistributedDatabase {
   private void initExecutor() {
     // START ALL THE WORKER THREADS (CONFIGURABLE)
     int totalWorkers = OGlobalConfiguration.DISTRIBUTED_DB_WORKERTHREADS.getValueAsInteger();
-    if (totalWorkers < 0)
+    if (totalWorkers < 0) {
       throw new ODistributedException(
           "Cannot create configured distributed workers (" + totalWorkers + ")");
-    else if (totalWorkers == 0) {
+    } else if (totalWorkers == 0) {
       // AUTOMATIC
       final int totalDatabases = context.getActiveDatabases().size() + 1;
 
       final int cpus = Runtime.getRuntime().availableProcessors();
 
-      if (cpus > 1) totalWorkers = cpus / totalDatabases;
+      if (cpus > 1) {
+        totalWorkers = cpus / totalDatabases;
+      }
 
-      if (totalWorkers == 0) totalWorkers = 1;
+      if (totalWorkers == 0) {
+        totalWorkers = 1;
+      }
     }
 
     synchronized (this) {
@@ -661,7 +672,9 @@ public class ODistributedDatabaseImpl implements ODistributedDatabase {
 
       for (final Iterator<ODistributedTxContext> it = activeTxContexts.values().iterator();
           it.hasNext(); ) {
-        if (!isRunning()) break;
+        if (!isRunning()) {
+          break;
+        }
 
         final ODistributedTxContext ctx = it.next();
         if (ctx != null) {
@@ -671,17 +684,23 @@ public class ODistributedDatabaseImpl implements ODistributedDatabase {
             // TRANSACTION EXPIRED, ROLLBACK IT
 
             if (database == null)
-              // GET THE DATABASE THE FIRST TIME
+            // GET THE DATABASE THE FIRST TIME
+            {
               database = getDatabaseInstance();
+            }
 
-            if (database != null) database.activateOnCurrentThread();
+            if (database != null) {
+              database.activateOnCurrentThread();
+            }
 
             try {
               ctx.cancel(manager, database);
 
               if (ctx.getReqId().getNodeId() == manager.getLocalNodeId())
-                // REQUEST WAS ORIGINATED FROM CURRENT SERVER
+              // REQUEST WAS ORIGINATED FROM CURRENT SERVER
+              {
                 manager.getMessageService().timeoutRequest(ctx.getReqId().getMessageId());
+              }
 
             } catch (Exception t) {
               ODistributedServerLog.info(
@@ -867,8 +886,10 @@ public class ODistributedDatabaseImpl implements ODistributedDatabase {
     final String localNode = manager.getLocalNodeName();
     freezePrevStatus = manager.getDatabaseStatus(localNode, databaseName);
     if (freezePrevStatus == DB_STATUS.ONLINE)
-      // SET STATUS = BACKUP
+    // SET STATUS = BACKUP
+    {
       manager.setDatabaseStatus(localNode, databaseName, DB_STATUS.BACKUP);
+    }
   }
 
   public synchronized void releaseStatus() {

@@ -8,7 +8,9 @@ import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by santo-it on 2017-08-28. */
+/**
+ * Created by santo-it on 2017-08-28.
+ */
 public class ODemoDbFromDocumentationAttractionsIT extends OIntegrationTestTemplate {
 
   @Test

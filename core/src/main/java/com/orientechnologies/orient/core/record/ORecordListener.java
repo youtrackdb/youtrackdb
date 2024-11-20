@@ -27,6 +27,7 @@ package com.orientechnologies.orient.core.record;
  */
 @Deprecated
 public interface ORecordListener {
+
   enum EVENT {
     CLEAR,
     RESET,

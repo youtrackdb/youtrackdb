@@ -12,7 +12,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by tglman on 03/01/17. */
+/**
+ * Created by tglman on 03/01/17.
+ */
 public class CountRealationshipsTest {
 
   private static final String SERVER_DIRECTORY = "./target/cluster";

@@ -1,4 +1,6 @@
-/** Created by luigidellaquila on 08/08/16. */
+/**
+ * Created by luigidellaquila on 08/08/16.
+ */
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.command.OCommandContext;

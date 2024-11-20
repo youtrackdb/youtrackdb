@@ -20,7 +20,9 @@ import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by Enrico Risa on 06/08/15. */
+/**
+ * Created by Enrico Risa on 06/08/15.
+ */
 public class LuceneSpatialClassCreateTest extends BaseLuceneTest {
 
   @Test

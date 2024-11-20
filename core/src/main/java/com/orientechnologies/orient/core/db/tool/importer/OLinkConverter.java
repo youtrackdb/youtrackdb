@@ -6,9 +6,12 @@ import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 
-/** Created by tglman on 28/07/17. */
+/**
+ * Created by tglman on 28/07/17.
+ */
 public final class OLinkConverter implements OValuesConverter<OIdentifiable> {
-  private OConverterData converterData;
+
+  private final OConverterData converterData;
 
   public OLinkConverter(OConverterData importer) {
     this.converterData = importer;
@@ -17,9 +20,13 @@ public final class OLinkConverter implements OValuesConverter<OIdentifiable> {
   @Override
   public OIdentifiable convert(OIdentifiable value) {
     final ORID rid = value.getIdentity();
-    if (!rid.isPersistent()) return value;
+    if (!rid.isPersistent()) {
+      return value;
+    }
 
-    if (converterData.brokenRids.contains(rid)) return OImportConvertersFactory.BROKEN_LINK;
+    if (converterData.brokenRids.contains(rid)) {
+      return OImportConvertersFactory.BROKEN_LINK;
+    }
 
     try (final OResultSet resultSet =
         converterData.session.query(

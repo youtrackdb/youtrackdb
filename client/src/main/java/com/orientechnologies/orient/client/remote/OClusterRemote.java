@@ -36,6 +36,7 @@ import javax.annotation.Nonnull;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OClusterRemote implements OCluster {
+
   private String name;
   private int id;
 

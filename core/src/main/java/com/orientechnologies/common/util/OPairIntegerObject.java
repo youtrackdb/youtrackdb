@@ -3,6 +3,7 @@ package com.orientechnologies.common.util;
 import it.unimi.dsi.fastutil.HashCommon;
 
 public final class OPairIntegerObject<V> implements Comparable<OPairIntegerObject<V>> {
+
   public final int key;
   public final V value;
 
@@ -36,9 +37,15 @@ public final class OPairIntegerObject<V> implements Comparable<OPairIntegerObjec
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (obj == null) return false;
-    if (getClass() != obj.getClass()) return false;
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
     OPairIntegerObject<?> other = (OPairIntegerObject<?>) obj;
     return key == other.key;
   }

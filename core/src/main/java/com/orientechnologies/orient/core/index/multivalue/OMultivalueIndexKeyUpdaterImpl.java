@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 public final class OMultivalueIndexKeyUpdaterImpl implements OIndexKeyUpdater<Object> {
+
   private final ORID identity;
   private final String indexName;
   private final boolean mixedContainer;

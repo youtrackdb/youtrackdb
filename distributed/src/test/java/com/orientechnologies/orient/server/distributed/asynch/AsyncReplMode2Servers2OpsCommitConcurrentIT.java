@@ -96,7 +96,9 @@ public class AsyncReplMode2Servers2OpsCommitConcurrentIT extends BareBoneBase2Se
       Assert.assertEquals(TOTAL, i);
 
     } catch (Throwable e) {
-      if (exceptionInThread == null) exceptionInThread = e;
+      if (exceptionInThread == null) {
+        exceptionInThread = e;
+      }
 
     } finally {
       System.out.println("Shutting down");

@@ -9,7 +9,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Created by tglman on 11/01/17. */
+/**
+ * Created by tglman on 11/01/17.
+ */
 public class OPushDistributedConfigurationRequest
     implements OBinaryPushRequest<OBinaryPushResponse> {
 

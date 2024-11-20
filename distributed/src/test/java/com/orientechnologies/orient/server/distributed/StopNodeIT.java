@@ -38,6 +38,7 @@ import org.junit.Test;
  * </ul>
  */
 public class StopNodeIT extends AbstractServerClusterTxTest {
+
   static final int SERVERS = 3;
   volatile boolean inserting = true;
   volatile int serverStarted = 0;
@@ -95,7 +96,8 @@ public class StopNodeIT extends AbstractServerClusterTxTest {
                 public void onDatabaseChangeStatus(
                     String iNode,
                     String iDatabaseName,
-                    ODistributedServerManager.DB_STATUS iNewStatus) {}
+                    ODistributedServerManager.DB_STATUS iNewStatus) {
+                }
               });
     }
 
@@ -103,54 +105,54 @@ public class StopNodeIT extends AbstractServerClusterTxTest {
 
       // STOP LAST SERVER, RUN ASYNCHRONOUSLY
       new Thread(
-              new Runnable() {
+          new Runnable() {
 
-                @Override
-                public void run() {
-                  try {
-                    // CRASH LAST SERVER try {
-                    executeWhen(
-                        new Callable<Boolean>() {
-                          // CONDITION
-                          @Override
-                          public Boolean call() throws Exception {
-                            final ODatabaseDocument database = getDatabase(0);
-                            try {
-                              return database.countClass("Person")
-                                  > (count * writerCount * SERVERS) * 1 / 3;
-                            } finally {
-                              database.close();
-                            }
-                          }
-                        }, // ACTION
-                        new Callable() {
-                          @Override
-                          public Object call() throws Exception {
-                            Assert.assertTrue("Insert was too fast", inserting);
+            @Override
+            public void run() {
+              try {
+                // CRASH LAST SERVER try {
+                executeWhen(
+                    new Callable<Boolean>() {
+                      // CONDITION
+                      @Override
+                      public Boolean call() throws Exception {
+                        final ODatabaseDocument database = getDatabase(0);
+                        try {
+                          return database.countClass("Person")
+                              > (count * writerCount * SERVERS) * 1 / 3;
+                        } finally {
+                          database.close();
+                        }
+                      }
+                    }, // ACTION
+                    new Callable() {
+                      @Override
+                      public Object call() throws Exception {
+                        Assert.assertTrue("Insert was too fast", inserting);
 
-                            banner("STOPPING SERVER " + (SERVERS - 1));
+                        banner("STOPPING SERVER " + (SERVERS - 1));
 
-                            ((ODistributedPlugin)
-                                    serverInstance
-                                        .get(0)
-                                        .getServerInstance()
-                                        .getDistributedManager())
-                                .stopNode(
-                                    server
-                                        .getServerInstance()
-                                        .getDistributedManager()
-                                        .getLocalNodeName());
+                        ((ODistributedPlugin)
+                            serverInstance
+                                .get(0)
+                                .getServerInstance()
+                                .getDistributedManager())
+                            .stopNode(
+                                server
+                                    .getServerInstance()
+                                    .getDistributedManager()
+                                    .getLocalNodeName());
 
-                            return null;
-                          }
-                        });
+                        return null;
+                      }
+                    });
 
-                  } catch (Exception e) {
-                    e.printStackTrace();
-                    Assert.fail("Error on execution flow");
-                  }
-                }
-              })
+              } catch (Exception e) {
+                e.printStackTrace();
+                Assert.fail("Error on execution flow");
+              }
+            }
+          })
           .start();
     }
   }

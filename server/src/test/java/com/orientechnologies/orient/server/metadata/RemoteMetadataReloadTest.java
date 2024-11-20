@@ -18,6 +18,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class RemoteMetadataReloadTest {
+
   private static final String SERVER_DIRECTORY = "./target/metadata-reload";
   private OServer server;
   private OrientDB orientDB;

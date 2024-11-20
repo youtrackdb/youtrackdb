@@ -56,7 +56,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-/** Created by tglman on 08/08/17. */
+/**
+ * Created by tglman on 08/08/17.
+ */
 public class OrientDBDistributed extends OrientDBEmbedded implements OServerAware {
 
   private volatile OServer server;
@@ -102,7 +104,9 @@ public class OrientDBDistributed extends OrientDBEmbedded implements OServerAwar
 
   public synchronized ODistributedPlugin getPlugin() {
     if (plugin == null) {
-      if (server != null && server.isActive()) plugin = server.getPlugin("cluster");
+      if (server != null && server.isActive()) {
+        plugin = server.getPlugin("cluster");
+      }
     }
     return plugin;
   }
@@ -310,7 +314,9 @@ public class OrientDBDistributed extends OrientDBEmbedded implements OServerAwar
     if (getPlugin() == null || !getPlugin().isEnabled()) {
       return true;
     }
-    if (OSystemDatabase.SYSTEM_DB_NAME.equals(name)) return true;
+    if (OSystemDatabase.SYSTEM_DB_NAME.equals(name)) {
+      return true;
+    }
     DB_STATUS dbStatus = plugin.getDatabaseStatus(plugin.getLocalNodeName(), name);
     return dbStatus == DB_STATUS.ONLINE || dbStatus == DB_STATUS.BACKUP;
   }
@@ -359,7 +365,9 @@ public class OrientDBDistributed extends OrientDBEmbedded implements OServerAwar
     try {
       if (dCfg.exists()) {
         for (int i = 0; i < 10; ++i) {
-          if (dCfg.delete()) break;
+          if (dCfg.delete()) {
+            break;
+          }
           Thread.sleep(100);
         }
       }
@@ -371,7 +379,9 @@ public class OrientDBDistributed extends OrientDBEmbedded implements OServerAwar
                   + ODistributedDatabaseImpl.DISTRIBUTED_SYNC_JSON_FILENAME);
       if (dCfg2.exists()) {
         for (int i = 0; i < 10; ++i) {
-          if (dCfg2.delete()) break;
+          if (dCfg2.delete()) {
+            break;
+          }
           Thread.sleep(100);
         }
       }
@@ -395,7 +405,9 @@ public class OrientDBDistributed extends OrientDBEmbedded implements OServerAwar
   private void offlineOnShutdown() {
     // SET ALL DATABASES TO NOT_AVAILABLE
     for (Entry<String, ODistributedDatabaseImpl> m : databases.entrySet()) {
-      if (OSystemDatabase.SYSTEM_DB_NAME.equals(m.getKey())) continue;
+      if (OSystemDatabase.SYSTEM_DB_NAME.equals(m.getKey())) {
+        continue;
+      }
 
       try {
         plugin.setDatabaseStatus(plugin.getLocalNodeName(), m.getKey(), DB_STATUS.NOT_AVAILABLE);
@@ -499,6 +511,7 @@ public class OrientDBDistributed extends OrientDBEmbedded implements OServerAwar
   }
 
   private interface ConfigOp<T> {
+
     T op(ODistributedConfigurationManager cm, ODatabaseSession session);
   }
 
@@ -585,7 +598,9 @@ public class OrientDBDistributed extends OrientDBEmbedded implements OServerAwar
 
   @Override
   public void close() {
-    if (!isOpen()) return;
+    if (!isOpen()) {
+      return;
+    }
     offlineOnShutdown();
     super.close();
   }

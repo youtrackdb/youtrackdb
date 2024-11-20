@@ -39,16 +39,21 @@ import java.util.Collection;
  *     ...
  *   }
  * </pre>
- *
+ * <p>
  * As reference implementation used {@link ORecordCacheWeakRefs}
  *
  * @author Maxim Fedorov
  */
 public interface ORecordCache {
-  /** All operations running at cache initialization stage */
+
+  /**
+   * All operations running at cache initialization stage
+   */
   void startup();
 
-  /** All operations running at cache destruction stage */
+  /**
+   * All operations running at cache destruction stage
+   */
   void shutdown();
 
   /**
@@ -97,7 +102,9 @@ public interface ORecordCache {
    */
   ORecordAbstract remove(ORID id);
 
-  /** Remove all records from cache */
+  /**
+   * Remove all records from cache
+   */
   void clear();
 
   /**

@@ -14,6 +14,7 @@ import java.util.Set;
  * @since 03/11/14
  */
 public class OImmutableRole implements OSecurityRole {
+
   private static final long serialVersionUID = 1L;
   private final ALLOW_MODES mode;
   private final OSecurityRole parentRole;
@@ -25,14 +26,19 @@ public class OImmutableRole implements OSecurityRole {
   private final Map<String, OSecurityPolicy> policies;
 
   public OImmutableRole(OSecurityRole role) {
-    if (role.getParentRole() == null) this.parentRole = null;
-    else this.parentRole = new OImmutableRole(role.getParentRole());
+    if (role.getParentRole() == null) {
+      this.parentRole = null;
+    } else {
+      this.parentRole = new OImmutableRole(role.getParentRole());
+    }
 
     this.mode = role.getMode();
     this.name = role.getName();
     this.rid = role.getIdentity().getIdentity();
 
-    for (ORule rule : role.getRuleSet()) rules.put(rule.getResourceGeneric(), rule);
+    for (ORule rule : role.getRuleSet()) {
+      rules.put(rule.getResourceGeneric(), rule);
+    }
     Map<String, OSecurityPolicy> policies = role.getPolicies();
     if (policies != null) {
       Map<String, OSecurityPolicy> result = new HashMap<String, OSecurityPolicy>();
@@ -71,12 +77,16 @@ public class OImmutableRole implements OSecurityRole {
 
     if (rule != null) {
       final Boolean allowed = rule.isAllowed(resourceSpecific, iCRUDOperation);
-      if (allowed != null) return allowed;
+      if (allowed != null) {
+        return allowed;
+      }
     }
 
     if (parentRole != null)
-      // DELEGATE TO THE PARENT ROLE IF ANY
+    // DELEGATE TO THE PARENT ROLE IF ANY
+    {
       return parentRole.allow(resourceGeneric, resourceSpecific, iCRUDOperation);
+    }
 
     return false;
   }
@@ -84,9 +94,13 @@ public class OImmutableRole implements OSecurityRole {
   public boolean hasRule(final ORule.ResourceGeneric resourceGeneric, String resourceSpecific) {
     ORule rule = rules.get(resourceGeneric);
 
-    if (rule == null) return false;
+    if (rule == null) {
+      return false;
+    }
 
-    if (resourceSpecific != null && !rule.containsSpecificResource(resourceSpecific)) return false;
+    if (resourceSpecific != null && !rule.containsSpecificResource(resourceSpecific)) {
+      return false;
+    }
 
     return true;
   }
@@ -113,8 +127,9 @@ public class OImmutableRole implements OSecurityRole {
     final ORule.ResourceGeneric resourceGeneric =
         ORule.mapLegacyResourceToGenericResource(iResource);
 
-    if (specificResource == null || specificResource.equals("*"))
+    if (specificResource == null || specificResource.equals("*")) {
       return allow(resourceGeneric, null, iCRUDOperation);
+    }
 
     return allow(resourceGeneric, specificResource, iCRUDOperation);
   }
@@ -126,8 +141,9 @@ public class OImmutableRole implements OSecurityRole {
     final ORule.ResourceGeneric resourceGeneric =
         ORule.mapLegacyResourceToGenericResource(iResource);
 
-    if (specificResource == null || specificResource.equals("*"))
+    if (specificResource == null || specificResource.equals("*")) {
       return hasRule(resourceGeneric, null);
+    }
 
     return hasRule(resourceGeneric, specificResource);
   }

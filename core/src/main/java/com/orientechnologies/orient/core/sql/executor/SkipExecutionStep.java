@@ -5,8 +5,11 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OSkip;
 
-/** Created by luigidellaquila on 08/07/16. */
+/**
+ * Created by luigidellaquila on 08/07/16.
+ */
 public class SkipExecutionStep extends AbstractExecutionStep {
+
   private final OSkip skip;
 
   public SkipExecutionStep(OSkip skip, OCommandContext ctx, boolean profilingEnabled) {

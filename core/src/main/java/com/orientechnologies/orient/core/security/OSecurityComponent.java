@@ -27,6 +27,7 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
  * @author S. Colin Leister
  */
 public interface OSecurityComponent {
+
   // Called once the Server is running.
   void active();
 

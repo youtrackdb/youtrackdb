@@ -56,12 +56,18 @@ public class OSleepStatement extends OSimpleExecStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OSleepStatement that = (OSleepStatement) o;
 
-    if (millis != null ? !millis.equals(that.millis) : that.millis != null) return false;
+    if (millis != null ? !millis.equals(that.millis) : that.millis != null) {
+      return false;
+    }
 
     return true;
   }

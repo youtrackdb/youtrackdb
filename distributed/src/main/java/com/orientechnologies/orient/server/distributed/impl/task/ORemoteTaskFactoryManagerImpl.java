@@ -34,6 +34,7 @@ import java.util.Collection;
  * @author Luca Garulli
  */
 public class ORemoteTaskFactoryManagerImpl implements ORemoteTaskFactoryManager {
+
   private final ODistributedServerManager dManager;
   private ORemoteTaskFactory[] factories = new ORemoteTaskFactory[1];
 
@@ -45,7 +46,9 @@ public class ORemoteTaskFactoryManagerImpl implements ORemoteTaskFactoryManager 
   @Override
   public ORemoteTaskFactory getFactoryByServerId(final int serverId) {
     final String remoteNodeName = dManager.getNodeNameById(serverId);
-    if (remoteNodeName == null) throw new IllegalArgumentException("Invalid serverId " + serverId);
+    if (remoteNodeName == null) {
+      throw new IllegalArgumentException("Invalid serverId " + serverId);
+    }
 
     return getFactoryByServerName(remoteNodeName);
   }
@@ -72,9 +75,10 @@ public class ORemoteTaskFactoryManagerImpl implements ORemoteTaskFactoryManager 
       final ORemoteServerController remoteServer = dManager.getRemoteServer(serverName);
 
       final ORemoteTaskFactory factory = getFactoryByVersion(remoteServer.getProtocolVersion());
-      if (factory == null)
+      if (factory == null) {
         throw new IllegalArgumentException(
             "Cannot find a factory for remote task for server " + serverName);
+      }
 
       return factory;
 
@@ -99,8 +103,9 @@ public class ORemoteTaskFactoryManagerImpl implements ORemoteTaskFactoryManager 
   @Override
   public ORemoteTaskFactory getFactoryByVersion(final int version) {
     int minSupported = ORemoteServerController.MIN_SUPPORTED_PROTOCOL_VERSION;
-    if (version < 0 || version >= (factories.length + minSupported))
+    if (version < 0 || version >= (factories.length + minSupported)) {
       throw new IllegalArgumentException("Invalid remote task factory version " + version);
+    }
 
     return factories[version - minSupported];
   }

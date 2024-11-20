@@ -4,6 +4,7 @@ import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 
 public class ODatabaseStats {
+
   public long loadedRecords;
   public long averageLoadRecordTimeMs;
   public long minLoadRecordTimeMs;

@@ -9,7 +9,9 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by olena.kolesnyk on 28/07/2017. */
+/**
+ * Created by olena.kolesnyk on 28/07/2017.
+ */
 public class CountStepTest {
 
   private static final String PROPERTY_NAME = "testPropertyName";

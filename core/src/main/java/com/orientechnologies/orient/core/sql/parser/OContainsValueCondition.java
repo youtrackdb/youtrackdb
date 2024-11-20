@@ -17,6 +17,7 @@ import java.util.Optional;
 import java.util.Set;
 
 public class OContainsValueCondition extends OBooleanExpression {
+
   protected OExpression left;
   protected OContainsValueOperator operator;
   protected OOrBlock condition;
@@ -228,17 +229,27 @@ public class OContainsValueCondition extends OBooleanExpression {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OContainsValueCondition that = (OContainsValueCondition) o;
 
-    if (left != null ? !left.equals(that.left) : that.left != null) return false;
-    if (operator != null ? !operator.equals(that.operator) : that.operator != null) return false;
-    if (condition != null ? !condition.equals(that.condition) : that.condition != null)
+    if (left != null ? !left.equals(that.left) : that.left != null) {
       return false;
-    if (expression != null ? !expression.equals(that.expression) : that.expression != null)
+    }
+    if (operator != null ? !operator.equals(that.operator) : that.operator != null) {
       return false;
+    }
+    if (condition != null ? !condition.equals(that.condition) : that.condition != null) {
+      return false;
+    }
+    if (expression != null ? !expression.equals(that.expression) : that.expression != null) {
+      return false;
+    }
 
     return true;
   }

@@ -30,13 +30,14 @@ import java.util.Map.Entry;
 /**
  * Keeps a pair of values as Key/Value.
  *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  * @param <K> Key
  * @param <V> Value
+ * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  * @see OTriple
  */
 public class OPair<K extends Comparable, V>
     implements Entry<K, V>, Comparable<OPair<K, V>>, Serializable {
+
   public K key;
   public V value;
 
@@ -77,8 +78,11 @@ public class OPair<K extends Comparable, V>
     buffer.append(key);
     buffer.append(':');
 
-    if (value == null || !value.getClass().isArray()) buffer.append(value);
-    else buffer.append(Arrays.toString((Object[]) value));
+    if (value == null || !value.getClass().isArray()) {
+      buffer.append(value);
+    } else {
+      buffer.append(Arrays.toString((Object[]) value));
+    }
 
     return buffer.toString();
   }
@@ -93,13 +97,23 @@ public class OPair<K extends Comparable, V>
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (obj == null) return false;
-    if (getClass() != obj.getClass()) return false;
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
     OPair<?, ?> other = (OPair<?, ?>) obj;
     if (key == null) {
-      if (other.key != null) return false;
-    } else if (!key.equals(other.key)) return false;
+      if (other.key != null) {
+        return false;
+      }
+    } else if (!key.equals(other.key)) {
+      return false;
+    }
     return true;
   }
 
@@ -110,7 +124,9 @@ public class OPair<K extends Comparable, V>
   public static <K extends Comparable<K>, V> Map<K, V> convertToMap(
       final List<OPair<K, V>> iValues) {
     final HashMap<K, V> result = new HashMap<K, V>(iValues.size());
-    for (OPair<K, V> p : iValues) result.put(p.getKey(), p.getValue());
+    for (OPair<K, V> p : iValues) {
+      result.put(p.getKey(), p.getValue());
+    }
 
     return result;
   }
@@ -118,7 +134,9 @@ public class OPair<K extends Comparable, V>
   public static <K extends Comparable<K>, V> List<OPair<K, V>> convertFromMap(
       final Map<K, V> iValues) {
     final List<OPair<K, V>> result = new ArrayList<OPair<K, V>>(iValues.size());
-    for (Entry<K, V> p : iValues.entrySet()) result.add(new OPair<K, V>(p.getKey(), p.getValue()));
+    for (Entry<K, V> p : iValues.entrySet()) {
+      result.add(new OPair<K, V>(p.getKey(), p.getValue()));
+    }
 
     return result;
   }

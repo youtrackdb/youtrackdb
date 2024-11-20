@@ -6,6 +6,7 @@ import com.orientechnologies.orient.core.sql.executor.metadata.OIndexFinder.Oper
 import java.util.Map;
 
 public class OLuceneOperator extends SimpleNode implements OBinaryCompareOperator {
+
   public OLuceneOperator(int id) {
     super(id);
   }

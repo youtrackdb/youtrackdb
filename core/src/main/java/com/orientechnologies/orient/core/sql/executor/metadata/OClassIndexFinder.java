@@ -20,6 +20,7 @@ public class OClassIndexFinder implements OIndexFinder {
   private String clazz;
 
   private static class PrePath {
+
     OClass cl;
     Optional<OIndexCandidate> chain;
     boolean valid;

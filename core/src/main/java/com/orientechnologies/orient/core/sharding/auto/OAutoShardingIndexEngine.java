@@ -63,6 +63,7 @@ import java.util.stream.StreamSupport;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public final class OAutoShardingIndexEngine implements OIndexEngine {
+
   public static final int VERSION = 1;
   private static final String SUBINDEX_METADATA_FILE_EXTENSION = ".asm";
   private static final String SUBINDEX_TREE_FILE_EXTENSION = ".ast";
@@ -163,11 +164,12 @@ public final class OAutoShardingIndexEngine implements OIndexEngine {
 
     if (storage != null) {
       final String partitionsAsString = engineProperties.get("partitions");
-      if (partitionsAsString == null || partitionsAsString.isEmpty())
+      if (partitionsAsString == null || partitionsAsString.isEmpty()) {
         throw new OIndexException(
             "Cannot load autosharding index '"
                 + data.getName()
                 + "' because there is no metadata about the number of partitions");
+      }
 
       partitionSize = Integer.parseInt(partitionsAsString);
       init();
@@ -185,7 +187,8 @@ public final class OAutoShardingIndexEngine implements OIndexEngine {
       }
 
       for (OHashTable<Object, Object> p : partitions)
-        //noinspection unchecked
+      //noinspection unchecked
+      {
         p.load(
             data.getName() + "_" + (i++),
             data.getKeyTypes(),
@@ -194,12 +197,17 @@ public final class OAutoShardingIndexEngine implements OIndexEngine {
             hashFunction,
             keySerializer,
             valueSerializer);
+      }
     }
   }
 
   @Override
   public void flush() {
-    if (partitions != null) for (OHashTable<Object, Object> p : partitions) p.flush();
+    if (partitions != null) {
+      for (OHashTable<Object, Object> p : partitions) {
+        p.flush();
+      }
+    }
   }
 
   @Override
@@ -244,7 +252,9 @@ public final class OAutoShardingIndexEngine implements OIndexEngine {
   public void init(OIndexMetadata metadata) {}
 
   private void init() {
-    if (partitions != null) return;
+    if (partitions != null) {
+      return;
+    }
 
     partitions = new ArrayList<>(partitionSize);
     for (int i = 0; i < partitionSize; ++i) {
@@ -285,7 +295,11 @@ public final class OAutoShardingIndexEngine implements OIndexEngine {
 
   @Override
   public void close() {
-    if (partitions != null) for (OHashTable<Object, Object> p : partitions) p.close();
+    if (partitions != null) {
+      for (OHashTable<Object, Object> p : partitions) {
+        p.close();
+      }
+    }
   }
 
   @Override
@@ -310,8 +324,9 @@ public final class OAutoShardingIndexEngine implements OIndexEngine {
       OAtomicOperation atomicOperation, Object key, OIndexKeyUpdater<Object> updater) {
     Object value = get(key);
     OIndexUpdateAction<Object> updated = updater.update(value, bonsayFileId);
-    if (updated.isChange()) put(atomicOperation, key, updated.getValue());
-    else if (updated.isRemove()) {
+    if (updated.isChange()) {
+      put(atomicOperation, key, updated.getValue());
+    } else if (updated.isRemove()) {
       remove(atomicOperation, key);
     } else //noinspection StatementWithEmptyBody
     if (updated.isNothing()) {
@@ -341,23 +356,28 @@ public final class OAutoShardingIndexEngine implements OIndexEngine {
   public long size(final IndexEngineValuesTransformer transformer) {
     long counter = 0;
 
-    if (partitions != null)
+    if (partitions != null) {
       for (OHashTable<Object, Object> p : partitions) {
-        if (transformer == null) counter += p.size();
-        else {
+        if (transformer == null) {
+          counter += p.size();
+        } else {
           final OHashTable.Entry<Object, Object> firstEntry = p.firstEntry();
-          if (firstEntry == null) continue;
+          if (firstEntry == null) {
+            continue;
+          }
 
           OHashTable.Entry<Object, Object>[] entries = p.ceilingEntries(firstEntry.key);
 
           while (entries.length > 0) {
-            for (OHashTable.Entry<Object, Object> entry : entries)
+            for (OHashTable.Entry<Object, Object> entry : entries) {
               counter += transformer.transformFromValue(entry.value).size();
+            }
 
             entries = p.higherEntries(entries[entries.length - 1].key);
           }
         }
       }
+    }
     return counter;
   }
 
@@ -394,15 +414,19 @@ public final class OAutoShardingIndexEngine implements OIndexEngine {
 
           {
             if (partitions == null || partitions.isEmpty())
-              //noinspection unchecked
+            //noinspection unchecked
+            {
               entries = OCommonConst.EMPTY_BUCKET_ENTRY_ARRAY;
-            else {
+            } else {
               hashTable = partitions.get(0);
               OHashTable.Entry<Object, Object> firstEntry = hashTable.firstEntry();
               if (firstEntry == null)
-                //noinspection unchecked
+              //noinspection unchecked
+              {
                 entries = OCommonConst.EMPTY_BUCKET_ENTRY_ARRAY;
-              else entries = hashTable.ceilingEntries(firstEntry.key);
+              } else {
+                entries = hashTable.ceilingEntries(firstEntry.key);
+              }
             }
           }
 
@@ -423,9 +447,12 @@ public final class OAutoShardingIndexEngine implements OIndexEngine {
                 hashTable = partitions.get(nextPartition++);
                 OHashTable.Entry<Object, Object> firstEntry = hashTable.firstEntry();
                 if (firstEntry == null)
-                  //noinspection unchecked
+                //noinspection unchecked
+                {
                   entries = OCommonConst.EMPTY_BUCKET_ENTRY_ARRAY;
-                else entries = hashTable.ceilingEntries(firstEntry.key);
+                } else {
+                  entries = hashTable.ceilingEntries(firstEntry.key);
+                }
               }
             }
 
@@ -510,6 +537,7 @@ public final class OAutoShardingIndexEngine implements OIndexEngine {
   }
 
   private static final class HashTableSpliterator implements Spliterator<ORawPair<Object, ORID>> {
+
     private int nextEntriesIndex;
     private OHashTable.Entry<Object, Object>[] entries;
     private final IndexEngineValuesTransformer valuesTransformer;

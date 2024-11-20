@@ -12,6 +12,7 @@ import org.junit.Before;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com) (l.garulli--at-orientdb.com)
  */
 public abstract class BaseHttpDatabaseTest extends BaseHttpTest {
+
   @Before
   public void createDatabase() throws Exception {
     serverDirectory =

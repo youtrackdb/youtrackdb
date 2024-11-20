@@ -24,6 +24,7 @@ import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.command.OServerCommandAuthenticatedDbAbstract;
 
 public class OServerCommandGetStorageAllocation extends OServerCommandAuthenticatedDbAbstract {
+
   private static final String[] NAMES = {"GET|allocation/*"};
 
   @Override

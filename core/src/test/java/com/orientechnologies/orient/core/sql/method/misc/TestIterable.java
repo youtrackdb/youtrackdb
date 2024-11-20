@@ -10,6 +10,7 @@ import java.util.List;
  * @author Michael MacFadden
  */
 class TestIterable<T> implements Iterable<T> {
+
   private List<T> values;
 
   TestIterable(List<T> values) {

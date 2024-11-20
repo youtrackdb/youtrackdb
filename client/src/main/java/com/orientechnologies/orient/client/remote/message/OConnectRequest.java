@@ -14,6 +14,7 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 public class OConnectRequest implements OBinaryRequest<OConnectResponse> {
+
   private String username;
   private String password;
   private String driverName = OStorageRemote.DRIVER_NAME;
@@ -58,9 +59,11 @@ public class OConnectRequest implements OBinaryRequest<OConnectResponse> {
     clientId = channel.readString();
     recordFormat = channel.readString();
 
-    if (this.protocolVersion > OChannelBinaryProtocol.PROTOCOL_VERSION_26)
+    if (this.protocolVersion > OChannelBinaryProtocol.PROTOCOL_VERSION_26) {
       tokenBased = channel.readBoolean();
-    else tokenBased = false;
+    } else {
+      tokenBased = false;
+    }
 
     if (this.protocolVersion > OChannelBinaryProtocol.PROTOCOL_VERSION_33) {
       supportPush = channel.readBoolean();

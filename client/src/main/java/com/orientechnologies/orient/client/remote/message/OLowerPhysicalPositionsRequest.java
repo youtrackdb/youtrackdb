@@ -32,6 +32,7 @@ import java.io.IOException;
 
 public class OLowerPhysicalPositionsRequest
     implements OBinaryRequest<OLowerPhysicalPositionsResponse> {
+
   private OPhysicalPosition physicalPosition;
   private int iClusterId;
 

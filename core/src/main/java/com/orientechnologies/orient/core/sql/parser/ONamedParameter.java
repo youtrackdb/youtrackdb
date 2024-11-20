@@ -77,14 +77,21 @@ public class ONamedParameter extends OInputParameter {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     ONamedParameter that = (ONamedParameter) o;
 
-    if (paramNumber != that.paramNumber) return false;
-    if (paramName != null ? !paramName.equals(that.paramName) : that.paramName != null)
+    if (paramNumber != that.paramNumber) {
       return false;
+    }
+    if (paramName != null ? !paramName.equals(that.paramName) : that.paramName != null) {
+      return false;
+    }
 
     return true;
   }

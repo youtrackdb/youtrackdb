@@ -49,6 +49,7 @@ import java.util.Map;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLTarget extends OBaseParser {
+
   protected final boolean empty;
   protected final OCommandContext context;
   protected String targetVariable;
@@ -73,11 +74,13 @@ public class OSQLTarget extends OBaseParser {
 
     } catch (OQueryParsingException e) {
       if (e.getText() == null)
-        // QUERY EXCEPTION BUT WITHOUT TEXT: NEST IT
+      // QUERY EXCEPTION BUT WITHOUT TEXT: NEST IT
+      {
         throw OException.wrapException(
             new OQueryParsingException(
                 "Error on parsing query", parserText, parserGetCurrentPosition()),
             e);
+      }
 
       throw e;
     } catch (OCommandExecutionException ex) {
@@ -120,11 +123,20 @@ public class OSQLTarget extends OBaseParser {
 
   @Override
   public String toString() {
-    if (targetClasses != null) return "class " + targetClasses.keySet();
-    else if (targetClusters != null) return "cluster " + targetClusters.keySet();
-    if (targetIndex != null) return "index " + targetIndex;
-    if (targetRecords != null) return "records from " + targetRecords.getClass().getSimpleName();
-    if (targetVariable != null) return "variable " + targetVariable;
+    if (targetClasses != null) {
+      return "class " + targetClasses.keySet();
+    } else if (targetClusters != null) {
+      return "cluster " + targetClusters.keySet();
+    }
+    if (targetIndex != null) {
+      return "index " + targetIndex;
+    }
+    if (targetRecords != null) {
+      return "records from " + targetRecords.getClass().getSimpleName();
+    }
+    if (targetVariable != null) {
+      return "variable " + targetVariable;
+    }
     return "?";
   }
 
@@ -146,7 +158,9 @@ public class OSQLTarget extends OBaseParser {
   private boolean extractTargets() {
     parserSkipWhiteSpaces();
 
-    if (parserIsEnded()) throw new OQueryParsingException("No query target found", parserText, 0);
+    if (parserIsEnded()) {
+      throw new OQueryParsingException("No query target found", parserText, 0);
+    }
 
     final char c = parserGetCurrentChar();
 
@@ -182,10 +196,11 @@ public class OSQLTarget extends OBaseParser {
         childContext.setParent(context);
       }
 
-      if (!(executor instanceof Iterable<?>))
+      if (!(executor instanceof Iterable<?>)) {
         throw new OCommandSQLParsingException(
             "Sub-query cannot be iterated because doesn't implement the Iterable interface: "
                 + subCommand);
+      }
 
       targetQuery = subText.toString();
       targetRecords = executor;
@@ -197,7 +212,9 @@ public class OSQLTarget extends OBaseParser {
           OStringSerializerHelper.getCollection(parserText, parserGetCurrentPosition(), rids));
 
       targetRecords = new ArrayList<OIdentifiable>();
-      for (String rid : rids) ((List<OIdentifiable>) targetRecords).add(new ORecordId(rid));
+      for (String rid : rids) {
+        ((List<OIdentifiable>) targetRecords).add(new ORecordId(rid));
+      }
 
       parserMoveCurrentPosition(1);
     } else {
@@ -212,13 +229,18 @@ public class OSQLTarget extends OBaseParser {
         String subjectName = originalSubjectName.toUpperCase(Locale.ENGLISH);
 
         final String alias;
-        if (subjectName.equals("AS")) alias = parserRequiredWord(true, "Alias not found");
-        else alias = subjectName;
+        if (subjectName.equals("AS")) {
+          alias = parserRequiredWord(true, "Alias not found");
+        } else {
+          alias = subjectName;
+        }
 
         final String subjectToMatch = subjectName;
         if (subjectToMatch.startsWith(OCommandExecutorSQLAbstract.CLUSTER_PREFIX)) {
           // REGISTER AS CLUSTER
-          if (targetClusters == null) targetClusters = new HashMap<String, String>();
+          if (targetClusters == null) {
+            targetClusters = new HashMap<String, String>();
+          }
           final String clusterNames =
               subjectName.substring(OCommandExecutorSQLAbstract.CLUSTER_PREFIX.length());
           if (clusterNames.startsWith("[") && clusterNames.endsWith("]")) {
@@ -227,7 +249,9 @@ public class OSQLTarget extends OBaseParser {
             for (String cl : clusters) {
               targetClusters.put(cl, cl);
             }
-          } else targetClusters.put(clusterNames, alias);
+          } else {
+            targetClusters.put(clusterNames, alias);
+          }
 
         } else if (subjectToMatch.startsWith(OCommandExecutorSQLAbstract.INDEX_PREFIX)) {
           // REGISTER AS INDEX
@@ -257,8 +281,9 @@ public class OSQLTarget extends OBaseParser {
                             .getStorageInfo()
                             .getConfiguration()
                             .getIndexMgrRecordId()));
-          } else
+          } else {
             throw new OQueryParsingException("Metadata element not supported: " + metadataTarget);
+          }
 
         } else if (subjectToMatch.startsWith(OCommandExecutorSQLAbstract.DICTIONARY_PREFIX)) {
           // DICTIONARY
@@ -268,7 +293,9 @@ public class OSQLTarget extends OBaseParser {
 
           final OIdentifiable value =
               ODatabaseRecordThreadLocal.instance().get().getDictionary().get(key);
-          if (value != null) ((List<OIdentifiable>) targetRecords).add(value);
+          if (value != null) {
+            ((List<OIdentifiable>) targetRecords).add(value);
+          }
 
         } else if (subjectToMatch.startsWith(OCommandExecutorSQLAbstract.INDEX_VALUES_PREFIX)) {
           targetIndexValues =
@@ -288,11 +315,15 @@ public class OSQLTarget extends OBaseParser {
           targetIndexValuesAsc = false;
         } else {
           if (subjectToMatch.startsWith(OCommandExecutorSQLAbstract.CLASS_PREFIX))
-            // REGISTER AS CLASS
+          // REGISTER AS CLASS
+          {
             subjectName = subjectName.substring(OCommandExecutorSQLAbstract.CLASS_PREFIX.length());
+          }
 
           // REGISTER AS CLASS
-          if (targetClasses == null) targetClasses = new HashMap<String, String>();
+          if (targetClasses == null) {
+            targetClasses = new HashMap<String, String>();
+          }
 
           final OClass cls =
               ODatabaseRecordThreadLocal.instance()
@@ -300,13 +331,14 @@ public class OSQLTarget extends OBaseParser {
                   .getMetadata()
                   .getImmutableSchemaSnapshot()
                   .getClass(subjectName);
-          if (cls == null)
+          if (cls == null) {
             throw new OCommandExecutionException(
                 "Class '"
                     + subjectName
                     + "' was not found in database '"
                     + ODatabaseRecordThreadLocal.instance().get().getName()
                     + "'");
+          }
 
           targetClasses.put(cls.getName(), alias);
         }

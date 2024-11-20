@@ -71,7 +71,7 @@ public class OExecutionPlanCache implements OMetadataUpdateListener {
    *
    * @param statement the SQL statement
    * @param ctx
-   * @param db the current DB instance
+   * @param db        the current DB instance
    * @return a statement executor from the cache
    */
   public static OExecutionPlan get(

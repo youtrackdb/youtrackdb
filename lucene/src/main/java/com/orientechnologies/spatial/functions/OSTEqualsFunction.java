@@ -21,11 +21,13 @@ import com.orientechnologies.orient.core.sql.functions.OSQLFunctionAbstract;
 import com.orientechnologies.spatial.shape.OShapeFactory;
 import org.locationtech.spatial4j.shape.Shape;
 
-/** Created by Enrico Risa on 25/09/15. */
+/**
+ * Created by Enrico Risa on 25/09/15.
+ */
 public class OSTEqualsFunction extends OSQLFunctionAbstract {
 
   public static final String NAME = "st_equals";
-  private OShapeFactory factory = OShapeFactory.INSTANCE;
+  private final OShapeFactory factory = OShapeFactory.INSTANCE;
 
   public OSTEqualsFunction() {
     super(NAME, 2, 2);

@@ -27,6 +27,7 @@ import com.orientechnologies.orient.core.id.ORID;
  * @since 18.12.12
  */
 public final class ORecordMetadata {
+
   private final ORID recordId;
   private final int recordVersion;
 

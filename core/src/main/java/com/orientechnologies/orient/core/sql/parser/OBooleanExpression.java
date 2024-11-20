@@ -17,7 +17,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-/** Created by luigidellaquila on 07/11/14. */
+/**
+ * Created by luigidellaquila on 07/11/14.
+ */
 public abstract class OBooleanExpression extends SimpleNode {
 
   public static final OBooleanExpression TRUE =
@@ -195,13 +197,13 @@ public abstract class OBooleanExpression extends SimpleNode {
 
   /**
    * @return true if this expression can be calculated in plain Java, false otherwise (eg. LUCENE
-   *     operator)
+   * operator)
    */
   protected abstract boolean supportsBasicCalculation();
 
   /**
    * @return the number of sub-expressions that have to be calculated using an external engine (eg.
-   *     LUCENE)
+   * LUCENE)
    */
   protected abstract int getNumberOfExternalCalculations();
 
@@ -249,7 +251,7 @@ public abstract class OBooleanExpression extends SimpleNode {
    * condition in an assignment. This is used mainly for UPSERT operations.
    *
    * @return the equivalent of current condition as an UPDATE expression with the same syntax, if
-   *     possible.
+   * possible.
    */
   public Optional<OUpdateItem> transformToUpdateItem() {
     return Optional.empty();

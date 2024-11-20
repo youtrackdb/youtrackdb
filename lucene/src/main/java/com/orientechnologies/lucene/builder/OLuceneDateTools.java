@@ -17,6 +17,7 @@ import java.util.Locale;
  * @author frank
  */
 public class OLuceneDateTools {
+
   // indexed by format length
   private static final Resolution[] RESOLUTIONS;
 
@@ -62,21 +63,37 @@ public class OLuceneDateTools {
     }
   }
 
-  /** Specifies the time granularity. */
+  /**
+   * Specifies the time granularity.
+   */
   public enum Resolution {
-    /** Limit a date's resolution to year granularity. */
+    /**
+     * Limit a date's resolution to year granularity.
+     */
     YEAR(4),
-    /** Limit a date's resolution to month granularity. */
+    /**
+     * Limit a date's resolution to month granularity.
+     */
     MONTH(6),
-    /** Limit a date's resolution to day granularity. */
+    /**
+     * Limit a date's resolution to day granularity.
+     */
     DAY(8),
-    /** Limit a date's resolution to hour granularity. */
+    /**
+     * Limit a date's resolution to hour granularity.
+     */
     HOUR(10),
-    /** Limit a date's resolution to minute granularity. */
+    /**
+     * Limit a date's resolution to minute granularity.
+     */
     MINUTE(12),
-    /** Limit a date's resolution to second granularity. */
+    /**
+     * Limit a date's resolution to second granularity.
+     */
     SECOND(14),
-    /** Limit a date's resolution to millisecond granularity. */
+    /**
+     * Limit a date's resolution to millisecond granularity.
+     */
     MILLISECOND(17);
 
     private final int formatLen;
@@ -96,7 +113,9 @@ public class OLuceneDateTools {
       return format;
     }
 
-    /** this method returns the name of the resolution in lowercase (for backwards compatibility) */
+    /**
+     * this method returns the name of the resolution in lowercase (for backwards compatibility)
+     */
     @Override
     public String toString() {
       return super.toString().toLowerCase(Locale.ROOT);

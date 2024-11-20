@@ -8,6 +8,7 @@ import org.junit.Test;
  * @since 3/2/2015
  */
 public class ServerClusterLocalSequenceIT extends AbstractServerClusterSequenceTest {
+
   @Test
   public void test() throws Exception {
     init(2);

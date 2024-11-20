@@ -6,7 +6,9 @@ import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 
-/** Created by luigidellaquila on 20/02/17. */
+/**
+ * Created by luigidellaquila on 20/02/17.
+ */
 public class CastToEdgeStep extends AbstractExecutionStep {
 
   public CastToEdgeStep(OCommandContext ctx, boolean profilingEnabled) {

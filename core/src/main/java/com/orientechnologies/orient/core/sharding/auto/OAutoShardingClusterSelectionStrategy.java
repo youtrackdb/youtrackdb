@@ -36,6 +36,7 @@ import java.util.List;
  * @since 3.0
  */
 public class OAutoShardingClusterSelectionStrategy implements OClusterSelectionStrategy {
+
   public static final String NAME = "auto-sharding";
   private final OIndex index;
   private final OIndexEngine indexEngine;
@@ -44,23 +45,26 @@ public class OAutoShardingClusterSelectionStrategy implements OClusterSelectionS
 
   public OAutoShardingClusterSelectionStrategy(final OClass clazz, final OIndex autoShardingIndex) {
     index = autoShardingIndex;
-    if (index == null)
+    if (index == null) {
       throw new OConfigurationException(
           "Cannot use auto-sharding cluster strategy because class '"
               + clazz
               + "' has no auto-sharding index defined");
+    }
 
     indexedFields = index.getDefinition().getFields();
-    if (indexedFields.size() != 1)
+    if (indexedFields.size() != 1) {
       throw new OConfigurationException(
           "Cannot use auto-sharding cluster strategy because class '"
               + clazz
               + "' has an auto-sharding index defined with multiple fields");
+    }
 
     final OStorage stg = ODatabaseRecordThreadLocal.instance().get().getStorage();
-    if (!(stg instanceof OAbstractPaginatedStorage))
+    if (!(stg instanceof OAbstractPaginatedStorage)) {
       throw new OConfigurationException(
           "Cannot use auto-sharding cluster strategy because storage is not embedded");
+    }
 
     try {
       indexEngine =
@@ -75,9 +79,10 @@ public class OAutoShardingClusterSelectionStrategy implements OClusterSelectionS
           e);
     }
 
-    if (indexEngine == null)
+    if (indexEngine == null) {
       throw new OConfigurationException(
           "Cannot use auto-sharding cluster strategy because the underlying index has not found");
+    }
 
     clusters = clazz.getClusterIds();
   }

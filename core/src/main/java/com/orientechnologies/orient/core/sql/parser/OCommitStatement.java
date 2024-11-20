@@ -129,15 +129,23 @@ public class OCommitStatement extends OSimpleExecStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OCommitStatement that = (OCommitStatement) o;
 
-    if (retry != null ? !retry.equals(that.retry) : that.retry != null) return false;
+    if (retry != null ? !retry.equals(that.retry) : that.retry != null) {
+      return false;
+    }
     if (elseStatements != null
         ? !elseStatements.equals(that.elseStatements)
-        : that.elseStatements != null) return false;
+        : that.elseStatements != null) {
+      return false;
+    }
     return elseFail != null ? elseFail.equals(that.elseFail) : that.elseFail == null;
   }
 

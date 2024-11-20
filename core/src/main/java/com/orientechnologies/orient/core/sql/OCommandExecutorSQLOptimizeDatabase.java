@@ -39,6 +39,7 @@ import java.util.Map;
 @SuppressWarnings("unchecked")
 public class OCommandExecutorSQLOptimizeDatabase extends OCommandExecutorSQLAbstract
     implements OCommandDistributedReplicateRequest {
+
   public static final String KEYWORD_OPTIMIZE = "OPTIMIZE";
   public static final String KEYWORD_DATABASE = "DATABASE";
   public static final String KEYWORD_EDGE = "-LWEDGES";
@@ -46,7 +47,7 @@ public class OCommandExecutorSQLOptimizeDatabase extends OCommandExecutorSQLAbst
 
   private boolean optimizeEdges = false;
   private boolean verbose = true;
-  private int batch = 1000;
+  private final int batch = 1000;
 
   public OCommandExecutorSQLOptimizeDatabase parse(final OCommandRequest iRequest) {
     final OCommandRequestText textRequest = (OCommandRequestText) iRequest;
@@ -62,21 +63,26 @@ public class OCommandExecutorSQLOptimizeDatabase extends OCommandExecutorSQLAbst
 
       int oldPos = 0;
       int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
-      if (pos == -1 || !word.toString().equals(KEYWORD_OPTIMIZE))
+      if (pos == -1 || !word.toString().equals(KEYWORD_OPTIMIZE)) {
         throw new OCommandSQLParsingException(
             "Keyword " + KEYWORD_OPTIMIZE + " not found. Use " + getSyntax(), parserText, oldPos);
+      }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
-      if (pos == -1 || !word.toString().equals(KEYWORD_DATABASE))
+      if (pos == -1 || !word.toString().equals(KEYWORD_DATABASE)) {
         throw new OCommandSQLParsingException(
             "Keyword " + KEYWORD_DATABASE + " not found. Use " + getSyntax(), parserText, oldPos);
+      }
 
       while (!parserIsEnded() && word.length() > 0) {
         oldPos = pos;
         pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
-        if (word.toString().equals(KEYWORD_EDGE)) optimizeEdges = true;
-        else if (word.toString().equals(KEYWORD_NOVERBOSE)) verbose = false;
+        if (word.toString().equals(KEYWORD_EDGE)) {
+          optimizeEdges = true;
+        } else if (word.toString().equals(KEYWORD_NOVERBOSE)) {
+          verbose = false;
+        }
       }
     } finally {
       textRequest.setText(originalQuery);
@@ -85,11 +91,15 @@ public class OCommandExecutorSQLOptimizeDatabase extends OCommandExecutorSQLAbst
     return this;
   }
 
-  /** Execute the ALTER DATABASE. */
+  /**
+   * Execute the ALTER DATABASE.
+   */
   public Object execute(final Map<Object, Object> iArgs) {
     final StringBuilder result = new StringBuilder();
 
-    if (optimizeEdges) result.append(optimizeEdges());
+    if (optimizeEdges) {
+      result.append(optimizeEdges());
+    }
 
     return result.toString();
   }
@@ -98,7 +108,9 @@ public class OCommandExecutorSQLOptimizeDatabase extends OCommandExecutorSQLAbst
     final ODatabaseSessionInternal db = getDatabase();
 
     long transformed = 0;
-    if (db.getTransaction().isActive()) db.commit();
+    if (db.getTransaction().isActive()) {
+      db.commit();
+    }
 
     db.begin();
 
@@ -110,7 +122,9 @@ public class OCommandExecutorSQLOptimizeDatabase extends OCommandExecutorSQLAbst
       long lastLapTime = System.currentTimeMillis();
 
       for (ODocument doc : db.browseClass("E")) {
-        if (Thread.currentThread().isInterrupted()) break;
+        if (Thread.currentThread().isInterrupted()) {
+          break;
+        }
 
         browsedEdges++;
 
@@ -187,7 +201,9 @@ public class OCommandExecutorSQLOptimizeDatabase extends OCommandExecutorSQLAbst
       db.commit();
 
     } finally {
-      if (db.getTransaction().isActive()) db.rollback();
+      if (db.getTransaction().isActive()) {
+        db.rollback();
+      }
     }
     return "Transformed " + transformed + " regular edges in lightweight edges";
   }

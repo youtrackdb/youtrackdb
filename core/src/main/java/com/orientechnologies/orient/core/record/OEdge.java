@@ -32,7 +32,9 @@ import javax.annotation.Nullable;
  */
 public interface OEdge extends OElement {
 
-  /** The name of the class of the edge record */
+  /**
+   * The name of the class of the edge record
+   */
   String CLASS_NAME = OClass.EDGE_CLASS_NAME;
 
   /**
@@ -49,8 +51,8 @@ public interface OEdge extends OElement {
    * The name of the property that represents link to the vertex to which the edge is going in. This
    * property is used in the internal representation of the edge and can not be updated directly.
    *
-   * <p>You can apply composite unique index to this and {@link #DIRECTION_OUT} properties to ensure
-   * one-to-one relationship between vertices.
+   * <p>You can apply composite unique index to this and {@link #DIRECTION_OUT} properties to
+   * ensure one-to-one relationship between vertices.
    */
   String DIRECTION_IN = "in";
 
@@ -94,7 +96,7 @@ public interface OEdge extends OElement {
    *
    * @param dir the direction of the edge (IN or OUT)
    * @return the vertex connected to this edge in the specified direction, or null if no vertex is
-   *     connected
+   * connected
    */
   default OVertex getVertex(ODirection dir) {
     if (dir == ODirection.IN) {
@@ -111,7 +113,7 @@ public interface OEdge extends OElement {
    *
    * @param dir the direction of the edge (IN or OUT)
    * @return the identifiable object of the vertex connected to this edge in the specified
-   *     direction, or null if no vertex is connected
+   * direction, or null if no vertex is connected
    */
   default OIdentifiable getVertexLink(ODirection dir) {
     if (dir == ODirection.IN) {
@@ -163,9 +165,9 @@ public interface OEdge extends OElement {
   Set<String> getPropertyNames();
 
   /**
-   * Gets a property given its name. if the property name equals to {@link #DIRECTION_IN} or {@link
-   * #DIRECTION_OUT} method throws {@link IllegalArgumentException}. Those names are used to manage
-   * edges.
+   * Gets a property given its name. if the property name equals to {@link #DIRECTION_IN} or
+   * {@link #DIRECTION_OUT} method throws {@link IllegalArgumentException}. Those names are used to
+   * manage edges.
    *
    * @param name the property name
    * @return Returns the property value
@@ -175,14 +177,14 @@ public interface OEdge extends OElement {
 
   /**
    * This method similar to {@link #getProperty(String)} bun unlike before mentioned method it does
-   * not load link automatically. if the property name equals to {@link #DIRECTION_IN} or {@link
-   * #DIRECTION_OUT} method throws {@link IllegalArgumentException}. Those names are used to manage
-   * edges.
+   * not load link automatically. if the property name equals to {@link #DIRECTION_IN} or
+   * {@link #DIRECTION_OUT} method throws {@link IllegalArgumentException}. Those names are used to
+   * manage edges.
    *
    * @param name the name of the link property
    * @return the link property value, or null if the property does not exist
    * @throws IllegalArgumentException if booked property name is used or requested property is not a
-   *     link.
+   *                                  link.
    * @see #getProperty(String)
    */
   @Nullable
@@ -201,29 +203,31 @@ public interface OEdge extends OElement {
   boolean hasProperty(final String propertyName);
 
   /**
-   * Sets a property value, if the property name equals to {@link #DIRECTION_IN} or {@link
-   * #DIRECTION_OUT} update of such property is aborted. Those names are used to
+   * Sets a property value, if the property name equals to {@link #DIRECTION_IN} or
+   * {@link #DIRECTION_OUT} update of such property is aborted. Those names are used to
    *
-   * @param name the property name
+   * @param name  the property name
    * @param value the property value
    * @throws IllegalArgumentException if booked property name is used.
    */
   void setProperty(String name, Object value);
 
   /**
-   * Sets a property value, if the property name equals to {@link #DIRECTION_IN} or {@link
-   * #DIRECTION_OUT} update of such property is aborted. Those names are used to manage edges.
+   * Sets a property value, if the property name equals to {@link #DIRECTION_IN} or
+   * {@link #DIRECTION_OUT} update of such property is aborted. Those names are used to manage
+   * edges.
    *
-   * @param name the property name
-   * @param value the property value
+   * @param name      the property name
+   * @param value     the property value
    * @param fieldType Forced type (not auto-determined)
    * @throws IllegalArgumentException if booked property name is used.
    */
   void setProperty(String name, Object value, OType... fieldType);
 
   /**
-   * Remove a property, if the property name equals to {@link #DIRECTION_IN} or {@link
-   * #DIRECTION_OUT} removal of such property is aborted. Those names are used to manage edges.
+   * Remove a property, if the property name equals to {@link #DIRECTION_IN} or
+   * {@link #DIRECTION_OUT} removal of such property is aborted. Those names are used to manage
+   * edges.
    *
    * @param name the property name
    * @throws IllegalArgumentException if booked property name is used.

@@ -36,6 +36,7 @@ import java.util.logging.Level;
  * @author <a href="mailto:cleclerc@cloudbees.com">Cyrille Le Clerc</a>
  */
 public class UdpSyslogMessageSender extends AbstractSyslogMessageSender {
+
   /**
    * {@link java.net.InetAddress InetAddress} of the remote Syslog Server.
    *

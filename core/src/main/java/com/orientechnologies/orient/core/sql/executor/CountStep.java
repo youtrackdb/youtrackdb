@@ -13,7 +13,7 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
 public class CountStep extends AbstractExecutionStep {
 
   /**
-   * @param ctx the query context
+   * @param ctx              the query context
    * @param profilingEnabled true to enable the profiling of the execution (for SQL PROFILE)
    */
   public CountStep(OCommandContext ctx, boolean profilingEnabled) {

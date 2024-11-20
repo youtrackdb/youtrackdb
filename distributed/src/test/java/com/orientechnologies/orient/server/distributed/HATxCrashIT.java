@@ -28,6 +28,7 @@ import org.junit.Test;
  * last server. The test checks all the clients can auto-reconnect to the next available server.
  */
 public class HATxCrashIT extends AbstractHARemoveNode {
+
   private static final int SERVERS = 3;
   private volatile boolean inserting = true;
   private volatile int serverStarted = 0;
@@ -54,90 +55,90 @@ public class HATxCrashIT extends AbstractHARemoveNode {
 
       // RUN ASYNCHRONOUSLY
       new Thread(
-              new Runnable() {
-                @Override
-                public void run() {
-                  try {
-                    // CRASH LAST SERVER try {
-                    executeWhen(
-                        new Callable<Boolean>() {
-                          // CONDITION
-                          @Override
-                          public Boolean call() throws Exception {
-                            // Why did this in the poolFactory version always use
-                            // serverInstance.get(0)...?
-                            // Does it affect the test to use a specific server?
-                            final ODatabaseDocument database = getDatabase(server);
-                            try {
-                              return database.countClass("Person") > (count * SERVERS) * 1 / 3;
-                            } finally {
-                              database.close();
-                            }
-                          }
-                        }, // ACTION
-                        new Callable() {
-                          @Override
-                          public Object call() throws Exception {
-                            Assert.assertTrue("Insert was too fast", inserting);
-                            banner("SIMULATE FAILURE ON SERVER " + (SERVERS - 1));
-                            delayWriter = 100;
-                            serverInstance.get(SERVERS - 1).crashServer();
-                            //                    poolFactory.reset();
-                            lastServerOn = false;
+          new Runnable() {
+            @Override
+            public void run() {
+              try {
+                // CRASH LAST SERVER try {
+                executeWhen(
+                    new Callable<Boolean>() {
+                      // CONDITION
+                      @Override
+                      public Boolean call() throws Exception {
+                        // Why did this in the poolFactory version always use
+                        // serverInstance.get(0)...?
+                        // Does it affect the test to use a specific server?
+                        final ODatabaseDocument database = getDatabase(server);
+                        try {
+                          return database.countClass("Person") > (count * SERVERS) * 1 / 3;
+                        } finally {
+                          database.close();
+                        }
+                      }
+                    }, // ACTION
+                    new Callable() {
+                      @Override
+                      public Object call() throws Exception {
+                        Assert.assertTrue("Insert was too fast", inserting);
+                        banner("SIMULATE FAILURE ON SERVER " + (SERVERS - 1));
+                        delayWriter = 100;
+                        serverInstance.get(SERVERS - 1).crashServer();
+                        //                    poolFactory.reset();
+                        lastServerOn = false;
 
-                            executeWhen(
-                                new Callable<Boolean>() {
-                                  @Override
-                                  public Boolean call() throws Exception {
-                                    // Why did this in the poolFactory version always use
-                                    // serverInstance.get(0)...?
-                                    // Does it affect the test to use a specific server?
-                                    ServerRun runningServer = null;
-                                    for (ServerRun run : serverInstance) {
-                                      if (run.getServerInstance().getDatabases().isOpen()) {
-                                        runningServer = run;
-                                        break;
-                                      }
-                                    }
-                                    final ODatabaseDocument database = getDatabase(runningServer);
-
-                                    try {
-                                      return database.countClass("Person")
-                                          > (count * SERVERS) * 2 / 3;
-                                    } finally {
-                                      database.close();
-                                    }
+                        executeWhen(
+                            new Callable<Boolean>() {
+                              @Override
+                              public Boolean call() throws Exception {
+                                // Why did this in the poolFactory version always use
+                                // serverInstance.get(0)...?
+                                // Does it affect the test to use a specific server?
+                                ServerRun runningServer = null;
+                                for (ServerRun run : serverInstance) {
+                                  if (run.getServerInstance().getDatabases().isOpen()) {
+                                    runningServer = run;
+                                    break;
                                   }
-                                },
-                                new Callable() {
-                                  @Override
-                                  public Object call() throws Exception {
-                                    Assert.assertTrue("Insert was too fast", inserting);
+                                }
+                                final ODatabaseDocument database = getDatabase(runningServer);
 
-                                    banner("RESTARTING SERVER " + (SERVERS - 1) + "...");
-                                    try {
-                                      serverInstance
-                                          .get(SERVERS - 1)
-                                          .startServer(
-                                              getDistributedServerConfiguration(
-                                                  serverInstance.get(SERVERS - 1)));
-                                      lastServerOn = true;
-                                    } catch (Exception e) {
-                                      e.printStackTrace();
-                                    }
-                                    return null;
-                                  }
-                                });
-                            return null;
-                          }
-                        });
+                                try {
+                                  return database.countClass("Person")
+                                      > (count * SERVERS) * 2 / 3;
+                                } finally {
+                                  database.close();
+                                }
+                              }
+                            },
+                            new Callable() {
+                              @Override
+                              public Object call() throws Exception {
+                                Assert.assertTrue("Insert was too fast", inserting);
 
-                  } catch (Exception e) {
-                    e.printStackTrace();
-                    Assert.fail("Error on execution flow");
-                  }
-                }
-              })
+                                banner("RESTARTING SERVER " + (SERVERS - 1) + "...");
+                                try {
+                                  serverInstance
+                                      .get(SERVERS - 1)
+                                      .startServer(
+                                          getDistributedServerConfiguration(
+                                              serverInstance.get(SERVERS - 1)));
+                                  lastServerOn = true;
+                                } catch (Exception e) {
+                                  e.printStackTrace();
+                                }
+                                return null;
+                              }
+                            });
+                        return null;
+                      }
+                    });
+
+              } catch (Exception e) {
+                e.printStackTrace();
+                Assert.fail("Error on execution flow");
+              }
+            }
+          })
           .start();
     }
   }
@@ -162,7 +163,9 @@ public class HATxCrashIT extends AbstractHARemoveNode {
   protected String getDatabaseURL(final ServerRun server) {
     final String address = server.getBinaryProtocolAddress();
 
-    if (address == null) return null;
+    if (address == null) {
+      return null;
+    }
 
     return "remote:" + address + "/" + getDatabaseName();
   }

@@ -5,6 +5,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import java.util.Map;
 
 public class OStatementInternal extends SimpleNode {
+
   public OStatementInternal(int id) {
     super(id);
   }

@@ -26,8 +26,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by Enrico Risa on 14/08/15. */
+/**
+ * Created by Enrico Risa on 14/08/15.
+ */
 public class LuceneIndexCreateDropTest extends BaseLuceneTest {
+
   @Before
   public void init() {
     final OClass type = db.createVertexClass("City");

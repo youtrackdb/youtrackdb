@@ -57,9 +57,10 @@ public class OQueryOperatorInstanceof extends OQueryOperatorEqualityNotNulls {
 
     final String baseClassName = iRight.toString();
     final OClass baseClass = schema.getClass(baseClassName);
-    if (baseClass == null)
+    if (baseClass == null) {
       throw new OCommandExecutionException(
           "Class '" + baseClassName + "' is not defined in database schema");
+    }
 
     OClass cls = null;
     if (iLeft instanceof OIdentifiable) {
@@ -69,8 +70,10 @@ public class OQueryOperatorInstanceof extends OQueryOperatorEqualityNotNulls {
         cls = ODocumentInternal.getImmutableSchemaClass(((ODocument) record));
       }
     } else if (iLeft instanceof String)
-      // GET THE CLASS BY NAME
+    // GET THE CLASS BY NAME
+    {
       cls = schema.getClass((String) iLeft);
+    }
 
     return cls != null && cls.isSubClassOf(baseClass);
   }

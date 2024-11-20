@@ -30,8 +30,12 @@ public class OClientSessions {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (!(obj instanceof OClientSessions)) return false;
+    if (this == obj) {
+      return true;
+    }
+    if (!(obj instanceof OClientSessions)) {
+      return false;
+    }
     return Arrays.equals(this.binaryToken, ((OClientSessions) obj).binaryToken);
   }
 

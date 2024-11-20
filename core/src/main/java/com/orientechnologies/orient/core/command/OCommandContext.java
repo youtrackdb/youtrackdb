@@ -55,7 +55,7 @@ public interface OCommandContext {
   /**
    * Updates a counter. Used to record metrics.
    *
-   * @param iName Metric's name
+   * @param iName  Metric's name
    * @param iValue delta to add or subtract
    * @return
    */
@@ -79,7 +79,9 @@ public interface OCommandContext {
 
   public void setInputParameters(Map<Object, Object> inputParameters);
 
-  /** Creates a copy of execution context. */
+  /**
+   * Creates a copy of execution context.
+   */
   OCommandContext copy();
 
   /**

@@ -23,10 +23,12 @@ import com.orientechnologies.orient.server.config.OServerCommandConfiguration;
 
 public abstract class OServerCommandPatternAbstract extends OServerCommandAbstract {
 
-  private String[] pattern;
+  private final String[] pattern;
 
   public OServerCommandPatternAbstract(final OServerCommandConfiguration iConfig) {
-    if (iConfig.pattern == null) throw new IllegalArgumentException("Command pattern missed");
+    if (iConfig.pattern == null) {
+      throw new IllegalArgumentException("Command pattern missed");
+    }
 
     pattern = iConfig.pattern.split(" ");
   }

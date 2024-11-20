@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TestNetworkSerializerIndipendency {
+
   private OServer server;
 
   @Before
@@ -55,7 +56,7 @@ public class TestNetworkSerializerIndipendency {
     } finally {
       if (dbTx != null && !dbTx.isClosed()) {
         dbTx.close();
-        ((ODatabaseSessionInternal) dbTx).getStorage().close();
+        dbTx.getStorage().close();
       }
 
       dropDatabase();
@@ -124,10 +125,14 @@ public class TestNetworkSerializerIndipendency {
   }
 
   private void deleteDirectory(File iDirectory) {
-    if (iDirectory.isDirectory())
+    if (iDirectory.isDirectory()) {
       for (File f : iDirectory.listFiles()) {
-        if (f.isDirectory()) deleteDirectory(f);
-        else if (!f.delete()) throw new OConfigurationException("Cannot delete the file: " + f);
+        if (f.isDirectory()) {
+          deleteDirectory(f);
+        } else if (!f.delete()) {
+          throw new OConfigurationException("Cannot delete the file: " + f);
+        }
       }
+    }
   }
 }

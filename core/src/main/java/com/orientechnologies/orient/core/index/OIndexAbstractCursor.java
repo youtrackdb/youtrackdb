@@ -31,6 +31,7 @@ import java.util.Set;
  * @since 4/24/14
  */
 public abstract class OIndexAbstractCursor implements OIndexCursor {
+
   protected int prefetchSize = -1;
   private Map.Entry<Object, OIdentifiable> nextEntry;
   private boolean firstTime = true;
@@ -89,7 +90,9 @@ public abstract class OIndexAbstractCursor implements OIndexCursor {
 
   @Override
   public OIdentifiable next() {
-    if (!hasNext()) throw new NoSuchElementException();
+    if (!hasNext()) {
+      throw new NoSuchElementException();
+    }
 
     final Map.Entry<Object, OIdentifiable> result = nextEntry;
     nextEntry = nextEntry();

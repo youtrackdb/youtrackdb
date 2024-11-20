@@ -11,7 +11,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.Test;
 
-/** Created by frank on 15/03/2017. */
+/**
+ * Created by frank on 15/03/2017.
+ */
 public class ODemoDbMetadataConsistencyIT extends OIntegrationTestTemplate {
 
   private int vCount = 7275;

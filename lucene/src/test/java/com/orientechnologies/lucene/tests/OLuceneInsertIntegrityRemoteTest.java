@@ -32,7 +32,9 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-/** Created by enricorisa on 28/06/14. */
+/**
+ * Created by enricorisa on 28/06/14.
+ */
 // Renable when solved killing issue
 public class OLuceneInsertIntegrityRemoteTest extends OLuceneBaseTest {
 

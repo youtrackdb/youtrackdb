@@ -7,6 +7,7 @@ import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODura
 import java.io.IOException;
 
 public abstract class OPaginatedCluster extends ODurableComponent implements OCluster {
+
   public enum RECORD_STATUS {
     NOT_EXISTENT,
     PRESENT,

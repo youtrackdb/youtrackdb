@@ -7,6 +7,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 
 public interface OElementInternal extends OElement {
+
   Set<String> getPropertyNamesInternal();
 
   void setPropertyInternal(String name, Object value);

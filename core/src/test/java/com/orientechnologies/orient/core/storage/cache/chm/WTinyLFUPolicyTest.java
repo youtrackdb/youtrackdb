@@ -19,6 +19,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 public class WTinyLFUPolicyTest {
+
   @Test
   public void testEden() {
     ODirectMemoryAllocator memoryAllocator = new ODirectMemoryAllocator();

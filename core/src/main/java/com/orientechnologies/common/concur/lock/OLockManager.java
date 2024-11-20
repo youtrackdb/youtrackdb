@@ -29,6 +29,7 @@ import java.util.concurrent.locks.Lock;
  * @since 2.2.0
  */
 public interface OLockManager<T> {
+
   Lock acquireSharedLock(T key);
 
   void releaseSharedLock(T key);

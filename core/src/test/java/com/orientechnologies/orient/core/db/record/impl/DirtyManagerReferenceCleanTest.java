@@ -7,7 +7,9 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by tglman on 01/10/15. */
+/**
+ * Created by tglman on 01/10/15.
+ */
 public class DirtyManagerReferenceCleanTest extends BaseMemoryDatabase {
 
   public void beforeTest() {

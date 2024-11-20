@@ -9,7 +9,9 @@ import java.util.*;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by luigidellaquila on 14/12/16. */
+/**
+ * Created by luigidellaquila on 14/12/16.
+ */
 public class OServerQueryResponseTest {
 
   @Test

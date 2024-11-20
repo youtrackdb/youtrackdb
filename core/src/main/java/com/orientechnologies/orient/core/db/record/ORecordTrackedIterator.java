@@ -28,6 +28,7 @@ import java.util.Iterator;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class ORecordTrackedIterator implements Iterator<OIdentifiable> {
+
   private final ORecordElement sourceRecord;
   private final Iterator<?> underlying;
 
@@ -46,6 +47,8 @@ public class ORecordTrackedIterator implements Iterator<OIdentifiable> {
 
   public void remove() {
     underlying.remove();
-    if (sourceRecord != null) sourceRecord.setDirty();
+    if (sourceRecord != null) {
+      sourceRecord.setDirty();
+    }
   }
 }

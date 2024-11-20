@@ -62,9 +62,12 @@ public class ORecordSerializerNetwork implements ORecordSerializer {
 
   @Override
   public ORecord fromStream(final byte[] iSource, ORecord iRecord, final String[] iFields) {
-    if (iSource == null || iSource.length == 0) return iRecord;
-    if (iRecord == null) iRecord = new ODocument();
-    else if (iRecord instanceof OBlob) {
+    if (iSource == null || iSource.length == 0) {
+      return iRecord;
+    }
+    if (iRecord == null) {
+      iRecord = new ODocument();
+    } else if (iRecord instanceof OBlob) {
       iRecord.fromStream(iSource);
       return iRecord;
     } else if (iRecord instanceof ORecordFlat) {
@@ -76,9 +79,11 @@ public class ORecordSerializerNetwork implements ORecordSerializer {
     container.skip(1);
 
     try {
-      if (iFields != null && iFields.length > 0)
+      if (iFields != null && iFields.length > 0) {
         serializerByVersion[iSource[0]].deserializePartial((ODocument) iRecord, container, iFields);
-      else serializerByVersion[iSource[0]].deserialize((ODocument) iRecord, container);
+      } else {
+        serializerByVersion[iSource[0]].deserialize((ODocument) iRecord, container);
+      }
     } catch (RuntimeException e) {
       OLogManager.instance()
           .warn(
@@ -113,7 +118,9 @@ public class ORecordSerializerNetwork implements ORecordSerializer {
   public byte[] serializeValue(Object value, OType type) {
     ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
     OImmutableSchema schema = null;
-    if (db != null) schema = db.getMetadata().getImmutableSchemaSnapshot();
+    if (db != null) {
+      schema = db.getMetadata().getImmutableSchemaSnapshot();
+    }
     BytesContainer bytes = new BytesContainer();
     serializerByVersion[0].serializeValue(bytes, value, type, null, schema, null);
     return bytes.fitBytes();
@@ -136,7 +143,9 @@ public class ORecordSerializerNetwork implements ORecordSerializer {
 
   @Override
   public String[] getFieldNames(ODocument reference, byte[] iSource) {
-    if (iSource == null || iSource.length == 0) return new String[0];
+    if (iSource == null || iSource.length == 0) {
+      return new String[0];
+    }
 
     final BytesContainer container = new BytesContainer(iSource).skip(1);
 

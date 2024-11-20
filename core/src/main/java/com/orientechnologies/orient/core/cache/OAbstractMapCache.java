@@ -29,6 +29,7 @@ import java.util.Map;
  * @author Artem Orobets (enisher-at-gmail.com)
  */
 public abstract class OAbstractMapCache<T extends Map<ORID, ?>> implements ORecordCache {
+
   protected T cache;
 
   private boolean enabled = true;

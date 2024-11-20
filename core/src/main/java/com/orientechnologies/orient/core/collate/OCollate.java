@@ -28,6 +28,7 @@ import java.io.Serializable;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OCollate extends Serializable {
+
   String getName();
 
   Object transform(Object obj);

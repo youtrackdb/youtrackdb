@@ -4,7 +4,9 @@ import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.index.OIndexException;
 import org.junit.Test;
 
-/** Created by tglman on 02/02/16. */
+/**
+ * Created by tglman on 02/02/16.
+ */
 public class CreateIndexCommandTest extends BaseMemoryDatabase {
 
   @Test(expected = OIndexException.class)

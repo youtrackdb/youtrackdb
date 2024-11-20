@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ODropUserStatement extends OSimpleExecStatement {
+
   public ODropUserStatement(int id) {
     super(id);
   }
@@ -56,8 +57,12 @@ public class ODropUserStatement extends OSimpleExecStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     ODropUserStatement that = (ODropUserStatement) o;
 

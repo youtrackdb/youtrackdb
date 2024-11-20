@@ -7,7 +7,9 @@ import com.orientechnologies.orient.core.exception.OSchemaException;
 import java.util.Arrays;
 import org.junit.Test;
 
-/** Created by tglman on 01/12/15. */
+/**
+ * Created by tglman on 01/12/15.
+ */
 public class AlterSuperclassTest extends BaseMemoryDatabase {
 
   @Test

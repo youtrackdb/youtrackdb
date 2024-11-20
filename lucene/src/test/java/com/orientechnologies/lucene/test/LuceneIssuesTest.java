@@ -9,8 +9,11 @@ import org.assertj.core.api.Assertions;
 import org.junit.Ignore;
 import org.junit.Test;
 
-/** Created by frank on 27/04/2017. */
+/**
+ * Created by frank on 27/04/2017.
+ */
 public class LuceneIssuesTest extends BaseLuceneTest {
+
   @Test
   public void testGh_7382() throws Exception {
 

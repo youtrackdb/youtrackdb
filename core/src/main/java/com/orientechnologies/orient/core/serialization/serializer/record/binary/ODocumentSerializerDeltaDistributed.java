@@ -7,6 +7,7 @@ import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.id.ORecordId;
 
 public class ODocumentSerializerDeltaDistributed extends ODocumentSerializerDelta {
+
   private static ODocumentSerializerDeltaDistributed INSTANCE =
       new ODocumentSerializerDeltaDistributed();
 

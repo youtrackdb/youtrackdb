@@ -30,6 +30,7 @@ import com.orientechnologies.orient.core.storage.OStorage;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OEngineRemote extends OEngineAbstract {
+
   public static final String NAME = "remote";
   public static final String PREFIX = NAME + ":";
 

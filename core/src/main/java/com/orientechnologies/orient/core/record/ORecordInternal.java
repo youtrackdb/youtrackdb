@@ -30,7 +30,9 @@ import com.orientechnologies.orient.core.serialization.serializer.record.ORecord
 
 public class ORecordInternal {
 
-  /** Internal only. Fills in one shot the record. */
+  /**
+   * Internal only. Fills in one shot the record.
+   */
   public static ORecordAbstract fill(
       final ORecord record,
       final ORID iRid,
@@ -64,7 +66,9 @@ public class ORecordInternal {
     rec.fromStream(iBuffer, db);
   }
 
-  /** Internal only. Changes the identity of the record. */
+  /**
+   * Internal only. Changes the identity of the record.
+   */
   public static ORecordAbstract setIdentity(
       final ORecord record, final int iClusterId, final long iClusterPosition) {
     final ORecordAbstract rec = (ORecordAbstract) record;
@@ -72,26 +76,34 @@ public class ORecordInternal {
     return rec;
   }
 
-  /** Internal only. Changes the identity of the record. */
+  /**
+   * Internal only. Changes the identity of the record.
+   */
   public static ORecordAbstract setIdentity(final ORecord record, final ORecordId iIdentity) {
     final ORecordAbstract rec = (ORecordAbstract) record;
     rec.setIdentity(iIdentity);
     return rec;
   }
 
-  /** Internal only. Unsets the dirty status of the record. */
+  /**
+   * Internal only. Unsets the dirty status of the record.
+   */
   public static void unsetDirty(final ORecord record) {
     final ORecordAbstract rec = (ORecordAbstract) record;
     rec.unsetDirty();
   }
 
-  /** Internal only. Sets the version. */
+  /**
+   * Internal only. Sets the version.
+   */
   public static void setVersion(final ORecord record, final int iVersion) {
     final ORecordAbstract rec = (ORecordAbstract) record;
     rec.setVersion(iVersion);
   }
 
-  /** Internal only. Return the record type. */
+  /**
+   * Internal only. Return the record type.
+   */
   public static byte getRecordType(final ORecord record) {
     if (record instanceof ORecordAbstract) {
       return ((ORecordAbstract) record).getRecordType();

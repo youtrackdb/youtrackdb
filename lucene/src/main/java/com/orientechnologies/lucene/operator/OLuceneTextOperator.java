@@ -39,7 +39,6 @@ import com.orientechnologies.orient.core.sql.operator.OQueryTargetOperator;
 import com.orientechnologies.orient.core.sql.parser.ParseException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -267,8 +266,7 @@ public class OLuceneTextOperator extends OQueryTargetOperator {
   }
 
   private boolean isChained(Object left) {
-    if (left instanceof OSQLFilterItemField) {
-      OSQLFilterItemField field = (OSQLFilterItemField) left;
+    if (left instanceof OSQLFilterItemField field) {
       return field.isFieldChain();
     }
     return false;
@@ -279,9 +277,8 @@ public class OLuceneTextOperator extends OQueryTargetOperator {
 
     Object left = iCondition.getLeft();
 
-    if (left instanceof String) {
-      String fName = (String) left;
-      return Arrays.asList(fName);
+    if (left instanceof String fName) {
+      return List.of(fName);
     }
     if (left instanceof Collection) {
       Collection<OSQLFilterItemField> f = (Collection<OSQLFilterItemField>) left;
@@ -292,14 +289,13 @@ public class OLuceneTextOperator extends OQueryTargetOperator {
       }
       return fields;
     }
-    if (left instanceof OSQLFilterItemField) {
+    if (left instanceof OSQLFilterItemField fName) {
 
-      OSQLFilterItemField fName = (OSQLFilterItemField) left;
       if (fName.isFieldChain()) {
         int itemCount = fName.getFieldChain().getItemCount();
-        return Arrays.asList(fName.getFieldChain().getItemName(itemCount - 1));
+        return Collections.singletonList(fName.getFieldChain().getItemName(itemCount - 1));
       } else {
-        return Arrays.asList(fName.toString());
+        return Collections.singletonList(fName.toString());
       }
     }
     return Collections.emptyList();

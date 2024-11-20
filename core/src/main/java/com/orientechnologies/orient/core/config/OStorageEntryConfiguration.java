@@ -23,6 +23,7 @@ import java.io.Serializable;
 
 @SuppressWarnings("serial")
 public class OStorageEntryConfiguration implements Serializable {
+
   public final String name;
   public String value;
 

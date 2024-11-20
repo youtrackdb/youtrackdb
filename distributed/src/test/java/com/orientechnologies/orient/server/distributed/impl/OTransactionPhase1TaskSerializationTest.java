@@ -19,6 +19,7 @@ import java.util.TreeSet;
 import org.junit.Test;
 
 public class OTransactionPhase1TaskSerializationTest {
+
   @Test
   public void testUniqueIndexKeysSerialization() throws IOException {
     OTransactionId txId = new OTransactionId(Optional.empty(), 0, 1);

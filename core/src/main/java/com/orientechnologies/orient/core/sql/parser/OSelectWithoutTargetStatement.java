@@ -3,6 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 public class OSelectWithoutTargetStatement extends OSelectStatement {
+
   public OSelectWithoutTargetStatement(int id) {
     super(id);
   }

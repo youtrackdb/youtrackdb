@@ -28,6 +28,7 @@ import com.orientechnologies.common.exception.OHighLevelException;
  */
 @SuppressWarnings("serial")
 public class OSecurityException extends OCoreException implements OHighLevelException {
+
   public OSecurityException(OSecurityException exception) {
     super(exception);
   }

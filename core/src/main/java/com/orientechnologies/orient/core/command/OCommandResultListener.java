@@ -25,6 +25,7 @@ package com.orientechnologies.orient.core.command;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OCommandResultListener {
+
   /**
    * This method is called for each result.
    *
@@ -33,7 +34,9 @@ public interface OCommandResultListener {
    */
   boolean result(Object iRecord);
 
-  /** Called at the end of processing. This is useful to clean-up local attributes. */
+  /**
+   * Called at the end of processing. This is useful to clean-up local attributes.
+   */
   void end();
 
   Object getResult();

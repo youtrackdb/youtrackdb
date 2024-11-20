@@ -355,7 +355,7 @@ public abstract class ODatabasePoolAbstract extends OAdaptiveLock
       Set<String> poolToClose = null;
 
       for (Entry<String, OReentrantResourcePool<String, ODatabaseSession>> e : pools.entrySet()) {
-        final int pos = e.getKey().indexOf("@");
+        final int pos = e.getKey().indexOf('@');
         final String dbName = e.getKey().substring(pos + 1);
         if (storageURL.equals(dbName)) {
           if (poolToClose == null) {

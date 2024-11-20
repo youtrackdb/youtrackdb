@@ -27,8 +27,7 @@ public class OStringCacheKey {
 
   @Override
   public boolean equals(Object obj) {
-    if (obj instanceof OStringCacheKey) {
-      OStringCacheKey sobj = (OStringCacheKey) obj;
+    if (obj instanceof OStringCacheKey sobj) {
       if (sobj.len != this.len) {
         return false;
       }

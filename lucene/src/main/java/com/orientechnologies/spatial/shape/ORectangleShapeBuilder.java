@@ -44,7 +44,7 @@ public class ORectangleShapeBuilder extends OShapeBuilder<Rectangle> {
   public void initClazz(ODatabaseSessionInternal db) {
 
     OSchema schema = db.getMetadata().getSchema();
-    OClass rectangle = schema.createAbstractClass(getName(), superClass(db));
+    OClass rectangle = schema.createAbstractClass(NAME, superClass(db));
     OProperty coordinates = rectangle.createProperty(COORDINATES, OType.EMBEDDEDLIST, OType.DOUBLE);
     coordinates.setMin("4");
     coordinates.setMin("4");
@@ -68,7 +68,7 @@ public class ORectangleShapeBuilder extends OShapeBuilder<Rectangle> {
   @Override
   public ODocument toDoc(final Rectangle shape) {
 
-    ODocument doc = new ODocument(getName());
+    ODocument doc = new ODocument(NAME);
 
     doc.field(
         COORDINATES,

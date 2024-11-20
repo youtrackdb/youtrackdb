@@ -3,6 +3,7 @@ package com.orientechnologies.orient.core.storage.index.sbtree.singlevalue.v3;
 import java.util.List;
 
 final class RemoveSearchResult {
+
   private final long leafPageIndex;
   private final int leafEntryPageIndex;
   private final List<RemovalPathItem> path;

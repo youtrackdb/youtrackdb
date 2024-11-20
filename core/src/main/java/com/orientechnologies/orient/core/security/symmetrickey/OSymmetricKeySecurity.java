@@ -54,6 +54,7 @@ import java.util.Set;
  * @author S. Colin Leister
  */
 public class OSymmetricKeySecurity implements OSecurityInternal {
+
   private OSecurityInternal delegate;
 
   public OSymmetricKeySecurity(final OSecurityInternal iDelegate) {
@@ -68,27 +69,31 @@ public class OSymmetricKeySecurity implements OSecurityInternal {
 
   public OUser authenticate(
       ODatabaseSession session, final String username, final String password) {
-    if (delegate == null)
+    if (delegate == null) {
       throw new OSecurityAccessException(
           "OSymmetricKeySecurity.authenticate() Delegate is null for username: " + username);
+    }
 
-    if (session == null)
+    if (session == null) {
       throw new OSecurityAccessException(
           "OSymmetricKeySecurity.authenticate() Database is null for username: " + username);
+    }
 
     final String dbName = session.getName();
 
     OUser user = delegate.getUser(session, username);
 
-    if (user == null)
+    if (user == null) {
       throw new OSecurityAccessException(
           dbName,
           "OSymmetricKeySecurity.authenticate() Username or Key is invalid for username: "
               + username);
+    }
 
-    if (user.getAccountStatus() != OSecurityUser.STATUSES.ACTIVE)
+    if (user.getAccountStatus() != OSecurityUser.STATUSES.ACTIVE) {
       throw new OSecurityAccessException(
           dbName, "OSymmetricKeySecurity.authenticate() User '" + username + "' is not active");
+    }
 
     try {
       OUserSymmetricKeyConfig userConfig = new OUserSymmetricKeyConfig(user.getDocument());
@@ -97,7 +102,9 @@ public class OSymmetricKeySecurity implements OSecurityInternal {
 
       String decryptedUsername = sk.decryptAsString(password);
 
-      if (OSecurityManager.checkPassword(username, decryptedUsername)) return user;
+      if (OSecurityManager.checkPassword(username, decryptedUsername)) {
+        return user;
+      }
     } catch (Exception ex) {
       throw OException.wrapException(
           new OSecurityAccessException(

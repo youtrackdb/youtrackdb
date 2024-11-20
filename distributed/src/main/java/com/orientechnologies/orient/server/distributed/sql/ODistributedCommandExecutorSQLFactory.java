@@ -47,12 +47,16 @@ public class ODistributedCommandExecutorSQLFactory implements OCommandExecutorSQ
     COMMANDS = Collections.unmodifiableMap(commands);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   public Set<String> getCommandNames() {
     return COMMANDS.keySet();
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   public OCommandExecutorSQLAbstract createCommand(final String name)
       throws OCommandExecutionException {
     final Class<? extends OCommandExecutorSQLAbstract> clazz = COMMANDS.get(name);

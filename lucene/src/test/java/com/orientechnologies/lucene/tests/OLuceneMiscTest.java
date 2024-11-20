@@ -31,7 +31,9 @@ import java.util.Map;
 import org.junit.Ignore;
 import org.junit.Test;
 
-/** Created by Enrico Risa on 18/09/15. */
+/**
+ * Created by Enrico Risa on 18/09/15.
+ */
 public class OLuceneMiscTest extends OLuceneBaseTest {
 
   @Test

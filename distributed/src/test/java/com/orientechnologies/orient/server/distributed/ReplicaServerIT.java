@@ -28,8 +28,11 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Start 3 servers with only "europe" as master and the others as REPLICA */
+/**
+ * Start 3 servers with only "europe" as master and the others as REPLICA
+ */
 public class ReplicaServerIT extends AbstractServerClusterTest {
+
   static final int SERVERS = 3;
 
   public String getDatabaseName() {

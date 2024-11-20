@@ -50,7 +50,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by luigidellaquila on 13/04/15. */
+/**
+ * Created by luigidellaquila on 13/04/15.
+ */
 public class OLiveQueryTest {
 
   private OrientDB odb;

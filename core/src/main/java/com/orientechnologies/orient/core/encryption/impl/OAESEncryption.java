@@ -16,9 +16,10 @@ import javax.crypto.spec.SecretKeySpec;
  *
  * @author giastfader
  * @author Luca Garulli (l.garulli--(at)--orientdb.com) This implementation uses AES in ECB mode and
- *     is thus not secure. See https://github.com/orientechnologies/orientdb/issues/8207.
+ * is thus not secure. See https://github.com/orientechnologies/orientdb/issues/8207.
  */
 public class OAESEncryption extends OAbstractEncryption {
+
   // @see
   // https://docs.oracle.com/javase/7/docs/technotes/guides/security/SunProviders.html#SunJCEProvider
   private static final String TRANSFORMATION =
@@ -41,12 +42,13 @@ public class OAESEncryption extends OAbstractEncryption {
   public OEncryption configure(final String iOptions) {
     initialized = false;
 
-    if (iOptions == null)
+    if (iOptions == null) {
       throw new OSecurityException(
           "AES encryption has been selected, but no key was found. Please configure it by passing"
               + " the key as property at database create/open. The property key is: '"
               + OGlobalConfiguration.STORAGE_ENCRYPTION_KEY.getKey()
               + "'");
+    }
 
     try {
       final byte[] key = Base64.getDecoder().decode(iOptions);
@@ -68,7 +70,9 @@ public class OAESEncryption extends OAbstractEncryption {
 
   public byte[] encryptOrDecrypt(
       final int mode, final byte[] input, final int offset, final int length) throws Exception {
-    if (!initialized) throw new OSecurityException("AES encryption algorithm is not available");
+    if (!initialized) {
+      throw new OSecurityException("AES encryption algorithm is not available");
+    }
     Cipher cipher = Cipher.getInstance(TRANSFORMATION);
     cipher.init(mode, theKey);
 

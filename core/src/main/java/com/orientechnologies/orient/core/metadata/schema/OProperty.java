@@ -51,7 +51,9 @@ public interface OProperty extends Comparable<OProperty> {
 
   public String getName();
 
-  /** Returns the full name as <class>.<property> */
+  /**
+   * Returns the full name as <class>.<property>
+   */
   public String getFullName();
 
   public OProperty setName(String iName);
@@ -111,9 +113,9 @@ public interface OProperty extends Comparable<OProperty> {
   public String getMin();
 
   /**
-   * @see OProperty#getMin()
    * @param min can be null
    * @return this property
+   * @see OProperty#getMin()
    */
   public OProperty setMin(String min);
 
@@ -136,9 +138,9 @@ public interface OProperty extends Comparable<OProperty> {
   public String getMax();
 
   /**
-   * @see OProperty#getMax()
    * @param max can be null
    * @return this property
+   * @see OProperty#getMax()
    */
   public OProperty setMax(String max);
 
@@ -150,9 +152,9 @@ public interface OProperty extends Comparable<OProperty> {
   public String getDefaultValue();
 
   /**
-   * @see OProperty#getDefaultValue()
    * @param defaultValue can be null
    * @return this property
+   * @see OProperty#getDefaultValue()
    */
   public OProperty setDefaultValue(String defaultValue);
 
@@ -162,12 +164,11 @@ public interface OProperty extends Comparable<OProperty> {
    * recreate it.
    *
    * @param iType One of types supported.
-   *     <ul>
-   *       <li>UNIQUE: Doesn't allow duplicates
-   *       <li>NOTUNIQUE: Allow duplicates
-   *       <li>FULLTEXT: Indexes single word for full text search
-   *     </ul>
-   *
+   *              <ul>
+   *                <li>UNIQUE: Doesn't allow duplicates
+   *                <li>NOTUNIQUE: Allow duplicates
+   *                <li>FULLTEXT: Indexes single word for full text search
+   *              </ul>
    * @return see {@link OClass#createIndex(String, OClass.INDEX_TYPE, String...)}.
    */
   public OIndex createIndex(final OClass.INDEX_TYPE iType);
@@ -187,13 +188,12 @@ public interface OProperty extends Comparable<OProperty> {
    * operations. For massive inserts we suggest to remove the index, make the massive insert and
    * recreate it.
    *
-   * @param iType One of types supported.
-   *     <ul>
-   *       <li>UNIQUE: Doesn't allow duplicates
-   *       <li>NOTUNIQUE: Allow duplicates
-   *       <li>FULLTEXT: Indexes single word for full text search
-   *     </ul>
-   *
+   * @param iType    One of types supported.
+   *                 <ul>
+   *                   <li>UNIQUE: Doesn't allow duplicates
+   *                   <li>NOTUNIQUE: Allow duplicates
+   *                   <li>FULLTEXT: Indexes single word for full text search
+   *                 </ul>
    * @param metadata the index metadata
    * @return see {@link OClass#createIndex(String, OClass.INDEX_TYPE, String...)}.
    */
@@ -204,13 +204,12 @@ public interface OProperty extends Comparable<OProperty> {
    * operations. For massive inserts we suggest to remove the index, make the massive insert and
    * recreate it.
    *
-   * @param iType One of types supported.
-   *     <ul>
-   *       <li>UNIQUE: Doesn't allow duplicates
-   *       <li>NOTUNIQUE: Allow duplicates
-   *       <li>FULLTEXT: Indexes single word for full text search
-   *     </ul>
-   *
+   * @param iType    One of types supported.
+   *                 <ul>
+   *                   <li>UNIQUE: Doesn't allow duplicates
+   *                   <li>NOTUNIQUE: Allow duplicates
+   *                   <li>FULLTEXT: Indexes single word for full text search
+   *                 </ul>
    * @param metadata the index metadata
    * @return see {@link OClass#createIndex(String, OClass.INDEX_TYPE, String...)}.
    */
@@ -250,7 +249,7 @@ public interface OProperty extends Comparable<OProperty> {
    * instead.
    *
    * @return <code>true</code> if and only if this property is contained in indexes as its first key
-   *     item.
+   * item.
    * @deprecated Use {@link OClass#areIndexed(String...)} instead.
    */
   @Deprecated

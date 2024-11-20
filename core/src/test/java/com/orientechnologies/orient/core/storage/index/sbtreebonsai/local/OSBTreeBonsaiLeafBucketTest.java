@@ -23,6 +23,7 @@ import org.junit.Test;
  * @since 09.08.13
  */
 public class OSBTreeBonsaiLeafBucketTest {
+
   @Test
   public void testInitialization() throws Exception {
     OByteBufferPool bufferPool = OByteBufferPool.instance(null);
@@ -88,7 +89,9 @@ public class OSBTreeBonsaiLeafBucketTest {
               OBonsaiBucketPointer.NULL,
               key,
               new ORecordId(index, index)),
-          true)) break;
+          true)) {
+        break;
+      }
       keyIndexMap.put(key, index);
       index++;
     }
@@ -140,7 +143,9 @@ public class OSBTreeBonsaiLeafBucketTest {
               OBonsaiBucketPointer.NULL,
               key,
               new ORecordId(index, index)),
-          true)) break;
+          true)) {
+        break;
+      }
 
       keyIndexMap.put(key, index);
       index++;
@@ -148,8 +153,9 @@ public class OSBTreeBonsaiLeafBucketTest {
 
     Assert.assertEquals(keyIndexMap.size(), treeBucket.size());
 
-    for (int i = 0; i < treeBucket.size(); i++)
+    for (int i = 0; i < treeBucket.size(); i++) {
       treeBucket.updateValue(i, new ORecordId(i + 5, i + 5));
+    }
 
     for (Map.Entry<Long, Integer> keyIndexEntry : keyIndexMap.entrySet()) {
       OSBTreeBonsaiBucket.SBTreeEntry<Long, OIdentifiable> entry =
@@ -204,7 +210,9 @@ public class OSBTreeBonsaiLeafBucketTest {
               OBonsaiBucketPointer.NULL,
               key,
               new ORecordId(index, index)),
-          true)) break;
+          true)) {
+        break;
+      }
 
       index++;
     }
@@ -241,7 +249,9 @@ public class OSBTreeBonsaiLeafBucketTest {
               OBonsaiBucketPointer.NULL,
               key,
               new ORecordId(index, index)),
-          true)) break;
+          true)) {
+        break;
+      }
 
       keyIndexMap.put(key, index);
       index++;
@@ -303,7 +313,9 @@ public class OSBTreeBonsaiLeafBucketTest {
               OBonsaiBucketPointer.NULL,
               key,
               new ORecordId(index, index)),
-          true)) break;
+          true)) {
+        break;
+      }
 
       index++;
     }
@@ -344,7 +356,9 @@ public class OSBTreeBonsaiLeafBucketTest {
               OBonsaiBucketPointer.NULL,
               key,
               new ORecordId(index, index)),
-          true)) break;
+          true)) {
+        break;
+      }
 
       keyIndexMap.put(key, index);
       index++;

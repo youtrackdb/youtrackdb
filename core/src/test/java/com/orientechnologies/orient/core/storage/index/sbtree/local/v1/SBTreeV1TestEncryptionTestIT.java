@@ -12,6 +12,7 @@ import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedSt
 import java.io.File;
 
 public class SBTreeV1TestEncryptionTestIT extends SBTreeV1TestIT {
+
   @Override
   public void before() throws Exception {
     buildDirectory = System.getProperty("buildDirectory", ".");

@@ -291,20 +291,20 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
 
   private String normalizeName(String name) {
     if (OStringSerializerHelper.contains(name, '/')) {
-      name = name.substring(name.lastIndexOf("/") + 1);
+      name = name.substring(name.lastIndexOf('/') + 1);
 
       if (OStringSerializerHelper.contains(name, '\\')) {
-        return name.substring(name.lastIndexOf("\\") + 1);
+        return name.substring(name.lastIndexOf('\\') + 1);
       } else {
         return name;
       }
 
     } else {
       if (OStringSerializerHelper.contains(name, '\\')) {
-        name = name.substring(name.lastIndexOf("\\") + 1);
+        name = name.substring(name.lastIndexOf('\\') + 1);
 
         if (OStringSerializerHelper.contains(name, '/')) {
-          return name.substring(name.lastIndexOf("/") + 1);
+          return name.substring(name.lastIndexOf('/') + 1);
         } else {
           return name;
         }
@@ -728,9 +728,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
         }
       }
       sessions.remove(session);
-      if (!checkForClose(iForce)) {
-        return;
-      }
+      if (!checkForClose(iForce)) {}
     }
   }
 
@@ -773,7 +771,6 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
 
     } finally {
       stateLock.writeLock().unlock();
-      ;
     }
   }
 
@@ -802,9 +799,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   public int removeUser() {
     if (users.get() < 1) {
       throw new IllegalStateException(
-          "Cannot remove user of the remote storage '"
-              + toString()
-              + "' because no user is using it");
+          "Cannot remove user of the remote storage '" + this + "' because no user is using it");
     }
 
     return users.decrementAndGet();
@@ -824,7 +819,6 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
 
     } finally {
       stateLock.readLock().unlock();
-      ;
     }
   }
 
@@ -1486,7 +1480,6 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
       return cluster.getId();
     } finally {
       stateLock.readLock().unlock();
-      ;
     }
   }
 
@@ -2012,7 +2005,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
    * Parse the URLs. Multiple URLs must be separated by semicolon (;)
    */
   protected void parseServerURLs() {
-    this.name = serverURLs.parseServerUrls(this.url, getClientConfiguration());
+    this.name = serverURLs.parseServerUrls(this.url, clientConfiguration);
   }
 
   /**
@@ -2096,14 +2089,13 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
         .warn(
             this,
             "DB is frozen will wait for "
-                + getClientConfiguration()
-                    .getValue(OGlobalConfiguration.CLIENT_DB_RELEASE_WAIT_TIMEOUT)
+                + clientConfiguration.getValue(OGlobalConfiguration.CLIENT_DB_RELEASE_WAIT_TIMEOUT)
                 + " ms. and then retry.");
     retry = true;
     try {
       Thread.sleep(
-          getClientConfiguration()
-              .getValueAsInteger(OGlobalConfiguration.CLIENT_DB_RELEASE_WAIT_TIMEOUT));
+          clientConfiguration.getValueAsInteger(
+              OGlobalConfiguration.CLIENT_DB_RELEASE_WAIT_TIMEOUT));
     } catch (InterruptedException ie) {
       retry = false;
 
@@ -2162,10 +2154,9 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
       db = ODatabaseRecordThreadLocal.instance().getIfDefined();
     }
     ODatabaseSessionInternal internal = ODatabaseDocumentTxInternal.getInternal(db);
-    if (internal == null || !(internal instanceof ODatabaseDocumentRemote)) {
+    if (internal == null || !(internal instanceof ODatabaseDocumentRemote remote)) {
       return null;
     }
-    ODatabaseDocumentRemote remote = (ODatabaseDocumentRemote) internal;
     OStorageRemoteSession session = remote.getSessionMetadata();
     if (session == null) {
       session = new OStorageRemoteSession(sessionSerialId.decrementAndGet());
@@ -2227,8 +2218,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
             request,
             "Error sending import request",
             0,
-            getClientConfiguration()
-                .getValueAsInteger(OGlobalConfiguration.NETWORK_REQUEST_TIMEOUT));
+            clientConfiguration.getValueAsInteger(OGlobalConfiguration.NETWORK_REQUEST_TIMEOUT));
 
     for (String message : response.getMessages()) {
       listener.onMessage(message);
@@ -2341,15 +2331,14 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
 
   public OBinaryPushResponse executeUpdateSchema(OPushSchemaRequest request) {
     ODocument schema = request.getSchema();
-    ORecordInternal.setIdentity(schema, new ORecordId(getConfiguration().getSchemaRecordId()));
+    ORecordInternal.setIdentity(schema, new ORecordId(configuration.getSchemaRecordId()));
     ODatabaseDocumentRemote.updateSchema(this, schema);
     return null;
   }
 
   public OBinaryPushResponse executeUpdateIndexManager(OPushIndexManagerRequest request) {
     ODocument indexManager = request.getIndexManager();
-    ORecordInternal.setIdentity(
-        indexManager, new ORecordId(getConfiguration().getIndexMgrRecordId()));
+    ORecordInternal.setIdentity(indexManager, new ORecordId(configuration.getIndexMgrRecordId()));
     ODatabaseDocumentRemote.updateIndexManager(this, indexManager);
     return null;
   }

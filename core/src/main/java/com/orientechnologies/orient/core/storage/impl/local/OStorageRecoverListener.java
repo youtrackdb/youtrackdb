@@ -6,5 +6,6 @@ package com.orientechnologies.orient.core.storage.impl.local;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OStorageRecoverListener {
+
   void onStorageRecover();
 }

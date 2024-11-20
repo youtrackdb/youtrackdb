@@ -38,6 +38,7 @@ import java.util.Map;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFunctionDijkstra extends OSQLFunctionPathFinder {
+
   public static final String NAME = "dijkstra";
 
   private String paramWeightFieldName;

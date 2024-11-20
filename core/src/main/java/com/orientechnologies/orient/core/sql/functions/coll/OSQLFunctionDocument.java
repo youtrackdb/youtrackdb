@@ -32,6 +32,7 @@ import java.util.Map;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFunctionDocument extends OSQLFunctionMultiValueAbstract<ODocument> {
+
   public static final String NAME = "document";
 
   public OSQLFunctionDocument() {
@@ -47,35 +48,43 @@ public class OSQLFunctionDocument extends OSQLFunctionMultiValueAbstract<ODocume
       OCommandContext iContext) {
 
     if (iParams.length > 2)
-      // IN LINE MODE
+    // IN LINE MODE
+    {
       context = new ODocument();
+    }
 
     if (iParams.length == 1) {
       if (iParams[0] instanceof ODocument)
-        // INSERT EVERY DOCUMENT FIELD
+      // INSERT EVERY DOCUMENT FIELD
+      {
         context.merge((ODocument) iParams[0], true, false);
-      else if (iParams[0] instanceof Map<?, ?>)
-        // INSERT EVERY SINGLE COLLECTION ITEM
+      } else if (iParams[0] instanceof Map<?, ?>)
+      // INSERT EVERY SINGLE COLLECTION ITEM
+      {
         context.fields((Map<String, Object>) iParams[0]);
-      else
+      } else {
         throw new IllegalArgumentException(
             "Map function: expected a map or pairs of parameters as key, value");
-    } else if (iParams.length % 2 != 0)
+      }
+    } else if (iParams.length % 2 != 0) {
       throw new IllegalArgumentException(
           "Map function: expected a map or pairs of parameters as key, value");
-    else
+    } else {
       for (int i = 0; i < iParams.length; i += 2) {
         final String key = iParams[i].toString();
         final Object value = iParams[i + 1];
 
         if (value != null) {
           if (iParams.length <= 2 && context == null)
-            // AGGREGATION MODE (STATEFULL)
+          // AGGREGATION MODE (STATEFULL)
+          {
             context = new ODocument();
+          }
 
           context.field(key, value);
         }
       }
+    }
 
     return prepareResult(context);
   }
@@ -123,7 +132,9 @@ public class OSQLFunctionDocument extends OSQLFunctionMultiValueAbstract<ODocume
       return result;
     }
 
-    if (!resultsToMerge.isEmpty()) return resultsToMerge.get(0);
+    if (!resultsToMerge.isEmpty()) {
+      return resultsToMerge.get(0);
+    }
 
     return null;
   }

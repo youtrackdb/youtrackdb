@@ -190,16 +190,24 @@ public class OParenthesisExpression extends OMathExpression {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    if (!super.equals(o)) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    if (!super.equals(o)) {
+      return false;
+    }
 
     OParenthesisExpression that = (OParenthesisExpression) o;
 
-    if (expression != null ? !expression.equals(that.expression) : that.expression != null)
+    if (expression != null ? !expression.equals(that.expression) : that.expression != null) {
       return false;
-    if (statement != null ? !statement.equals(that.statement) : that.statement != null)
+    }
+    if (statement != null ? !statement.equals(that.statement) : that.statement != null) {
       return false;
+    }
 
     return true;
   }

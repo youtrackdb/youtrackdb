@@ -3,8 +3,11 @@ package com.orientechnologies.orient.core.db.tool.importer;
 import java.util.HashSet;
 import java.util.Set;
 
-/** Created by tglman on 28/07/17. */
+/**
+ * Created by tglman on 28/07/17.
+ */
 public final class OSetConverter extends OAbstractCollectionConverter<Set> {
+
   public OSetConverter(OConverterData converterData) {
     super(converterData);
   }
@@ -24,9 +27,13 @@ public final class OSetConverter extends OAbstractCollectionConverter<Set> {
           }
         };
 
-    for (Object item : value) updated = convertSingleValue(item, callback, updated);
+    for (Object item : value) {
+      updated = convertSingleValue(item, callback, updated);
+    }
 
-    if (updated) return result;
+    if (updated) {
+      return result;
+    }
 
     return value;
   }

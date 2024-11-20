@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class OServerCommandGetCluster extends OServerCommandAuthenticatedDbAbstract {
+
   private static final String[] NAMES = {"GET|cluster/*"};
 
   @Override
@@ -54,16 +55,22 @@ public class OServerCommandGetCluster extends OServerCommandAuthenticatedDbAbstr
 
         final List<OIdentifiable> response = new ArrayList<OIdentifiable>();
         for (ORecord rec : db.browseCluster(urlParts[2])) {
-          if (limit > 0 && response.size() >= limit) break;
+          if (limit > 0 && response.size() >= limit) {
+            break;
+          }
 
           response.add(rec);
         }
 
         iResponse.writeRecords(response, db);
-      } else iResponse.send(OHttpUtils.STATUS_NOTFOUND_CODE, null, null, null, null);
+      } else {
+        iResponse.send(OHttpUtils.STATUS_NOTFOUND_CODE, null, null, null, null);
+      }
 
     } finally {
-      if (db != null) db.close();
+      if (db != null) {
+        db.close();
+      }
     }
     return false;
   }

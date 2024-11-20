@@ -14,6 +14,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class TestSchemaImportExport extends BaseMemoryDatabase {
+
   @Test
   public void testExportImportCustomData() throws IOException {
     context.createIfNotExists(

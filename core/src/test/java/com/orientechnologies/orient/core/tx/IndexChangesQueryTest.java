@@ -17,8 +17,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by tglman on 28/05/17. */
+/**
+ * Created by tglman on 28/05/17.
+ */
 public class IndexChangesQueryTest {
+
   public static final String CLASS_NAME = "idxTxAwareMultiValueGetEntriesTest";
   private static final String FIELD_NAME = "value";
   private static final String INDEX_NAME = "idxTxAwareMultiValueGetEntriesTestIndex";

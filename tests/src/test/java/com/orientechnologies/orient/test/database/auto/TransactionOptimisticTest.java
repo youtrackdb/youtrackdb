@@ -340,7 +340,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
 
     database.commit();
 
-    Assert.assertTrue(!database.getTransaction().isActive());
+    Assert.assertFalse(database.getTransaction().isActive());
     Assert.assertEquals(database.countClass("NestedTxClass"), 3);
   }
 
@@ -426,7 +426,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
       database.rollback();
     }
 
-    Assert.assertTrue(!database.getTransaction().isActive());
+    Assert.assertFalse(database.getTransaction().isActive());
     Assert.assertEquals(database.countClass("NestedTxRollbackOne"), 1);
   }
 
@@ -456,7 +456,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
       database.rollback();
     }
 
-    Assert.assertTrue(!database.getTransaction().isActive());
+    Assert.assertFalse(database.getTransaction().isActive());
     Assert.assertEquals(database.countClass("NestedTxRollbackTwo"), 0);
   }
 }

@@ -24,12 +24,14 @@ import com.orientechnologies.spatial.shape.OShapeFactory;
 import com.orientechnologies.spatial.strategy.SpatialQueryBuilderContains;
 import org.locationtech.spatial4j.shape.Shape;
 
-/** Created by Enrico Risa on 12/08/15. */
+/**
+ * Created by Enrico Risa on 12/08/15.
+ */
 public class OSTContainsFunction extends OSpatialFunctionAbstractIndexable {
 
   public static final String NAME = "st_contains";
 
-  private OShapeFactory factory = OShapeFactory.INSTANCE;
+  private final OShapeFactory factory = OShapeFactory.INSTANCE;
 
   public OSTContainsFunction() {
     super(NAME, 2, 2);

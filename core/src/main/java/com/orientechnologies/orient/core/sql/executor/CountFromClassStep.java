@@ -17,13 +17,14 @@ import com.orientechnologies.orient.core.sql.parser.OIdentifier;
  * @author Luigi Dell'Aquila (luigi.dellaquila - at - gmail.com)
  */
 public class CountFromClassStep extends AbstractExecutionStep {
+
   private final OIdentifier target;
   private final String alias;
 
   /**
-   * @param targetClass An identifier containing the name of the class to count
-   * @param alias the name of the property returned in the result-set
-   * @param ctx the query context
+   * @param targetClass      An identifier containing the name of the class to count
+   * @param alias            the name of the property returned in the result-set
+   * @param ctx              the query context
    * @param profilingEnabled true to enable the profiling of the execution (for SQL PROFILE)
    */
   public CountFromClassStep(

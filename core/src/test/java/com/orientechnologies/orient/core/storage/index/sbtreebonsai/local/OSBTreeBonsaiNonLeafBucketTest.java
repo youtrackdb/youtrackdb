@@ -87,7 +87,9 @@ public class OSBTreeBonsaiNonLeafBucketTest {
               new OBonsaiBucketPointer(random.nextInt(Integer.MAX_VALUE), 8192 * 2),
               key,
               null),
-          true)) break;
+          true)) {
+        break;
+      }
 
       keyIndexMap.put(key, index);
       index++;
@@ -104,7 +106,9 @@ public class OSBTreeBonsaiNonLeafBucketTest {
     for (int i = 0; i < treeBucket.size(); i++) {
       OSBTreeBonsaiBucket.SBTreeEntry<Long, OIdentifiable> entry = treeBucket.getEntry(i);
 
-      if (prevRight.getPageIndex() > 0) Assert.assertEquals(entry.leftChild, prevRight);
+      if (prevRight.getPageIndex() > 0) {
+        Assert.assertEquals(entry.leftChild, prevRight);
+      }
 
       prevRight = entry.rightChild;
     }
@@ -113,7 +117,9 @@ public class OSBTreeBonsaiNonLeafBucketTest {
     for (int i = treeBucket.size() - 1; i >= 0; i--) {
       OSBTreeBonsaiBucket.SBTreeEntry<Long, OIdentifiable> entry = treeBucket.getEntry(i);
 
-      if (prevLeft.getPageIndex() > 0) Assert.assertEquals(entry.rightChild, prevLeft);
+      if (prevLeft.getPageIndex() > 0) {
+        Assert.assertEquals(entry.rightChild, prevLeft);
+      }
 
       prevLeft = entry.leftChild;
     }
@@ -156,7 +162,9 @@ public class OSBTreeBonsaiNonLeafBucketTest {
               new OBonsaiBucketPointer(index + 1, 8192 * 2),
               key,
               null),
-          true)) break;
+          true)) {
+        break;
+      }
 
       index++;
     }
@@ -206,7 +214,9 @@ public class OSBTreeBonsaiNonLeafBucketTest {
               new OBonsaiBucketPointer(index + 1, 8192 * 2),
               key,
               null),
-          true)) break;
+          true)) {
+        break;
+      }
 
       keyIndexMap.put(key, index);
       index++;

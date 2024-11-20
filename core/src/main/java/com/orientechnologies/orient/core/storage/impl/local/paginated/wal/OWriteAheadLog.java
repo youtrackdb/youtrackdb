@@ -33,6 +33,7 @@ import java.util.Map;
  * @since 6/25/14
  */
 public interface OWriteAheadLog extends AutoCloseable {
+
   String MASTER_RECORD_EXTENSION = ".wmr";
   String WAL_SEGMENT_EXTENSION = ".wal";
 
@@ -73,12 +74,13 @@ public interface OWriteAheadLog extends AutoCloseable {
 
   /**
    * Cut WAL content till passed in value of LSN at maximum in many cases smaller portion of WAL may
-   * be cut. If value of LSN is bigger than values provided in {@link
-   * #addCutTillLimit(OLogSequenceNumber)} then "protected" part of WAL will be preserved for sure.
+   * be cut. If value of LSN is bigger than values provided in
+   * {@link #addCutTillLimit(OLogSequenceNumber)} then "protected" part of WAL will be preserved for
+   * sure.
    *
    * @param lsn Maximum value of LSN till WAL will be cut.
    * @return <code>true</code> if some portion of WAL will be cut and <code>false</code> if WAL left
-   *     untouched.
+   * untouched.
    */
   boolean cutTill(OLogSequenceNumber lsn) throws IOException;
 
@@ -130,7 +132,7 @@ public interface OWriteAheadLog extends AutoCloseable {
    * the event's LSN. In other words, the event invocation may be postponed, exact timings depend on
    * implementation details of this write ahead log.
    *
-   * @param lsn the LSN to fire at.
+   * @param lsn   the LSN to fire at.
    * @param event the event to fire.
    */
   void addEventAt(OLogSequenceNumber lsn, Runnable event);
@@ -143,7 +145,7 @@ public interface OWriteAheadLog extends AutoCloseable {
    *   <li>WAL is empty
    *   <li>There last segment in WAL is empty.
    * </ol>
-   *
+   * <p>
    * Despite of the fact that WAL segment will not be appended, method call still will reach its
    * main target, all subsequent log records will have segment number higher than previously logged
    * records. But to inform user that segment is not added result of success of failure of this

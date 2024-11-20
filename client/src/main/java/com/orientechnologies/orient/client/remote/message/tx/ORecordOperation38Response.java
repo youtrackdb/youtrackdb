@@ -3,6 +3,7 @@ package com.orientechnologies.orient.client.remote.message.tx;
 import com.orientechnologies.orient.core.id.ORID;
 
 public class ORecordOperation38Response {
+
   private byte type;
   private byte recordType;
   private ORID id;

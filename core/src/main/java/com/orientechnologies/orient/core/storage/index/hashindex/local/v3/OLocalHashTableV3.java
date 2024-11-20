@@ -45,7 +45,7 @@ import java.util.List;
  *       values of undefined size.
  *   <li>Entities itself
  * </ol>
- *
+ * <p>
  * So if 1-st and 2-nd fields are clear. We should discuss the last ones. Entities in bucket are
  * sorted by key's hash code so each entity has following storage format in bucket: key's hash code
  * (8 bytes), key, value. Because entities are stored in sorted order it means that every time when
@@ -56,7 +56,7 @@ import java.util.List;
  *   <li>The more amount of memory is affected in operation the less speed we will have. In worst
  *       case 60 kb of memory should be moved.
  * </ol>
- *
+ * <p>
  * To avoid disadvantages listed above entries ara appended to the end of bucket, but their offsets
  * are stored at the beginning of bucket. Offsets are stored in sorted order (ordered by hash code
  * of entity's key) so we need to move only small amount of memory to store entities in sorted
@@ -79,6 +79,7 @@ import java.util.List;
  * @since 12.03.13
  */
 public class OLocalHashTableV3<K, V> extends ODurableComponent implements OHashTable<K, V> {
+
   private static final int MAX_KEY_SIZE =
       OGlobalConfiguration.SBTREE_MAX_KEY_SIZE.getValueAsInteger();
 

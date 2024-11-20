@@ -47,7 +47,6 @@ public class PolymorphicQueryTest extends DocumentDBBaseTest {
     super.beforeClass();
 
     database.command("create class IndexInSubclassesTestBase").close();
-    ;
     database.command("create property IndexInSubclassesTestBase.name string").close();
 
     database
@@ -216,7 +215,7 @@ public class PolymorphicQueryTest extends DocumentDBBaseTest {
             new OSQLSynchQuery<ODocument>(
                 "select from IndexInSubclassesTestBase where name > 'name9995' and name <"
                     + " 'name9999' order by name ASC"));
-    Assert.assertTrue(result.size() == 9);
+    Assert.assertEquals(result.size(), 9);
     String lastName = result.get(0).field("name");
     for (int i = 1; i < result.size(); i++) {
       ODocument current = result.get(i);
@@ -235,7 +234,7 @@ public class PolymorphicQueryTest extends DocumentDBBaseTest {
             new OSQLSynchQuery<ODocument>(
                 "select from IndexInSubclassesTestBase where name > 'name9995' and name <"
                     + " 'name9999' order by name DESC"));
-    Assert.assertTrue(result.size() == 9);
+    Assert.assertEquals(result.size(), 9);
     lastName = result.get(0).field("name");
     for (int i = 1; i < result.size(); i++) {
       ODocument current = result.get(i);
@@ -283,7 +282,7 @@ public class PolymorphicQueryTest extends DocumentDBBaseTest {
         database.query(
             "select from IndexInSubclassesTestBaseFail where name > 'name9995' and name <"
                 + " 'name9999' order by name ASC");
-    Assert.assertTrue(result.stream().count() == 6);
+    Assert.assertEquals(result.stream().count(), 6);
 
     long lastIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
     long lastIndexUsageReverted = profiler.getCounter("db.demo.query.indexUseAttemptedAndReverted");

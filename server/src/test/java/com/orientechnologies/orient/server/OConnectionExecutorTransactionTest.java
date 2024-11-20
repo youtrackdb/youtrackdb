@@ -64,7 +64,7 @@ public class OConnectionExecutorTransactionTest {
         FileSystems.getDefault()
             .getPath("./target/" + OConnectionExecutorTransactionTest.class.getSimpleName());
     Files.createDirectories(path);
-    orientDb = new OrientDB("embedded:" + path.toString(), OrientDBConfig.defaultConfig());
+    orientDb = new OrientDB("embedded:" + path, OrientDBConfig.defaultConfig());
     orientDb.execute(
         "create database ? memory users (admin identified by 'admin' role admin)",
         OConnectionExecutorTransactionTest.class.getSimpleName());

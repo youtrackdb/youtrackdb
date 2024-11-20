@@ -10,7 +10,9 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
 import java.io.IOException;
 
-/** Created by tglman on 19/06/17. */
+/**
+ * Created by tglman on 19/06/17.
+ */
 public class OUnsubscribeLiveQueryRequest implements OBinaryRequest<OUnsubscribLiveQueryResponse> {
 
   private int monitorId;

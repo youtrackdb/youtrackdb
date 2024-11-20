@@ -36,8 +36,11 @@ import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.memory.MemoryIndex;
 import org.apache.lucene.search.Query;
 
-/** Created by Enrico Risa on 15/09/15. */
+/**
+ * Created by Enrico Risa on 15/09/15.
+ */
 public class OLuceneTxChangesMultiRid extends OLuceneTxChangesAbstract {
+
   private final Map<String, List<String>> deleted = new HashMap<String, List<String>>();
   private final Set<Document> deletedDocs = new HashSet<Document>();
 

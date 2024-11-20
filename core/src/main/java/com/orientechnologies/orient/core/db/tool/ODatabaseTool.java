@@ -32,6 +32,7 @@ import java.util.List;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public abstract class ODatabaseTool implements Runnable {
+
   protected OCommandOutputListener output;
   protected ODatabaseSessionInternal database;
   protected boolean verbose = false;
@@ -39,7 +40,9 @@ public abstract class ODatabaseTool implements Runnable {
   protected abstract void parseSetting(final String option, final List<String> items);
 
   protected void message(final String iMessage, final Object... iArgs) {
-    if (output != null) output.onMessage(String.format(iMessage, iArgs));
+    if (output != null) {
+      output.onMessage(String.format(iMessage, iArgs));
+    }
   }
 
   public ODatabaseTool setOptions(final String iOptions) {

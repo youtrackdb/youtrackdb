@@ -23,6 +23,7 @@ import java.util.Optional;
 import java.util.Set;
 
 public class OBinaryCondition extends OBooleanExpression {
+
   protected OExpression left;
   protected OBinaryCompareOperator operator;
   protected OExpression right;
@@ -166,10 +167,10 @@ public class OBinaryCondition extends OBooleanExpression {
    * tests if current expression involves an indexed funciton AND that function can also be executed
    * without using the index
    *
-   * @param target the query target
+   * @param target  the query target
    * @param context the execution context
    * @return true if current expression involves an indexed function AND that function can be used
-   *     on this target, false otherwise
+   * on this target, false otherwise
    */
   public boolean canExecuteIndexedFunctionWithoutIndex(
       OFromClause target, OCommandContext context) {
@@ -181,10 +182,10 @@ public class OBinaryCondition extends OBooleanExpression {
    * tests if current expression involves an indexed function AND that function can be used on this
    * target
    *
-   * @param target the query target
+   * @param target  the query target
    * @param context the execution context
    * @return true if current expression involves an indexed function AND that function can be used
-   *     on this target, false otherwise
+   * on this target, false otherwise
    */
   public boolean allowsIndexedFunctionExecutionOnTarget(
       OFromClause target, OCommandContext context) {
@@ -198,10 +199,10 @@ public class OBinaryCondition extends OBooleanExpression {
    * can be excluded from further evaluation. In other cases the result from the index is a superset
    * of the expected result, so the function has to be executed anyway for further filtering
    *
-   * @param target the query target
+   * @param target  the query target
    * @param context the execution context
    * @return true if current expression involves an indexed function AND the function has also to be
-   *     executed after the index search.
+   * executed after the index search.
    */
   public boolean executeIndexedFunctionAfterIndexSearch(
       OFromClause target, OCommandContext context) {
@@ -306,14 +307,24 @@ public class OBinaryCondition extends OBooleanExpression {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OBinaryCondition that = (OBinaryCondition) o;
 
-    if (left != null ? !left.equals(that.left) : that.left != null) return false;
-    if (operator != null ? !operator.equals(that.operator) : that.operator != null) return false;
-    if (right != null ? !right.equals(that.right) : that.right != null) return false;
+    if (left != null ? !left.equals(that.left) : that.left != null) {
+      return false;
+    }
+    if (operator != null ? !operator.equals(that.operator) : that.operator != null) {
+      return false;
+    }
+    if (right != null ? !right.equals(that.right) : that.right != null) {
+      return false;
+    }
 
     return true;
   }

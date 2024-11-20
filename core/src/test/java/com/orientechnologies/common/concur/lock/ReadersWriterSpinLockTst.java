@@ -20,6 +20,7 @@ import org.junit.Test;
  * @since 8/18/14
  */
 public class ReadersWriterSpinLockTst {
+
   private final CountDownLatch latch = new CountDownLatch(1);
 
   private final AtomicLong readers = new AtomicLong();
@@ -40,16 +41,22 @@ public class ReadersWriterSpinLockTst {
     List<Future> futures = new ArrayList<Future>();
     int threads = 8;
 
-    for (int i = 0; i < threads; i++) futures.add(executorService.submit(new Writer()));
+    for (int i = 0; i < threads; i++) {
+      futures.add(executorService.submit(new Writer()));
+    }
 
-    for (int i = 0; i < threads; i++) futures.add(executorService.submit(new Reader()));
+    for (int i = 0; i < threads; i++) {
+      futures.add(executorService.submit(new Reader()));
+    }
 
     latch.countDown();
     Thread.sleep(60 * 60 * 1000);
 
     stop = true;
 
-    for (Future future : futures) future.get();
+    for (Future future : futures) {
+      future.get();
+    }
 
     System.out.println("Writes : " + writers.get());
     System.out.println("Reads : " + readers.get());
@@ -61,16 +68,22 @@ public class ReadersWriterSpinLockTst {
     List<Future> futures = new ArrayList<Future>();
     int threads = 8;
 
-    for (int i = 0; i < threads; i++) futures.add(executorService.submit(new Writer()));
+    for (int i = 0; i < threads; i++) {
+      futures.add(executorService.submit(new Writer()));
+    }
 
-    for (int i = 0; i < threads; i++) futures.add(executorService.submit(new TryReader()));
+    for (int i = 0; i < threads; i++) {
+      futures.add(executorService.submit(new TryReader()));
+    }
 
     latch.countDown();
     Thread.sleep(60 * 60 * 1000);
 
     stop = true;
 
-    for (Future future : futures) future.get();
+    for (Future future : futures) {
+      future.get();
+    }
 
     System.out.println("Writes : " + writers.get());
     System.out.println("Reads : " + readers.get());
@@ -89,6 +102,7 @@ public class ReadersWriterSpinLockTst {
   }
 
   private final class Reader implements Callable<Void> {
+
     private ThreadLocalRandom random = ThreadLocalRandom.current();
 
     @Override
@@ -126,6 +140,7 @@ public class ReadersWriterSpinLockTst {
   }
 
   private final class TryReader implements Callable<Void> {
+
     private ThreadLocalRandom random = ThreadLocalRandom.current();
 
     @Override
@@ -139,7 +154,9 @@ public class ReadersWriterSpinLockTst {
             assertThat(System.nanoTime() - start).isGreaterThan(500);
             readRetryCounter.incrementAndGet();
 
-            if (stop) return null;
+            if (stop) {
+              return null;
+            }
             start = System.nanoTime();
           }
           try {
@@ -170,6 +187,7 @@ public class ReadersWriterSpinLockTst {
   }
 
   private final class Writer implements Callable<Void> {
+
     private ThreadLocalRandom random = ThreadLocalRandom.current();
 
     @Override

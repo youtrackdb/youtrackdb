@@ -32,6 +32,7 @@ import java.io.OutputStream;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface ORID extends OIdentifiable, OSerializableStream {
+
   char PREFIX = '#';
   char SEPARATOR = ':';
   int CLUSTER_MAX = 32767;
@@ -57,7 +58,9 @@ public interface ORID extends OIdentifiable, OSerializableStream {
 
   String next();
 
-  /** Deprecated since v2.2 */
+  /**
+   * Deprecated since v2.2
+   */
   @Deprecated
   ORID nextRid();
 

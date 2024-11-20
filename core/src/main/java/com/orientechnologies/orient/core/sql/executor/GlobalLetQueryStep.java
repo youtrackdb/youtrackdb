@@ -11,7 +11,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/** Created by luigidellaquila on 03/08/16. */
+/**
+ * Created by luigidellaquila on 03/08/16.
+ */
 public class GlobalLetQueryStep extends AbstractExecutionStep {
 
   private final OIdentifier varName;

@@ -31,6 +31,7 @@ import java.util.Set;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OIndexRemoteOneValue extends OIndexRemote {
+
   private static final String QUERY_GET = "select rid from index:`%s` where key = ?";
 
   public OIndexRemoteOneValue(
@@ -57,8 +58,9 @@ public class OIndexRemoteOneValue extends OIndexRemote {
   public OIdentifiable get(final Object key) {
     try (OResultSet result =
         getDatabase().indexQuery(getName(), String.format(QUERY_GET, name), key)) {
-      if (result != null && result.hasNext())
+      if (result != null && result.hasNext()) {
         return ((OIdentifiable) result.next().getProperty("rid"));
+      }
       return null;
     }
   }

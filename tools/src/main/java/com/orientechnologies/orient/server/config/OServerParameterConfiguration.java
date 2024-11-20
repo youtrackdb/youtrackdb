@@ -26,6 +26,7 @@ import jakarta.xml.bind.annotation.XmlType;
 @XmlRootElement(name = "parameter")
 @XmlType(propOrder = {"value", "name"})
 public class OServerParameterConfiguration {
+
   @XmlAttribute public String name;
 
   @XmlAttribute public String value;

@@ -170,9 +170,11 @@ public class OJSONFetchContext implements OFetchContext {
       final Object iUserObject) {
     try {
       final String fieldName;
-      if (!collectionStack.isEmpty() && collectionStack.peek().equals(iRootRecord))
+      if (!collectionStack.isEmpty() && collectionStack.peek().equals(iRootRecord)) {
         fieldName = null;
-      else fieldName = iFieldName;
+      } else {
+        fieldName = iFieldName;
+      }
       jsonWriter.beginObject(++settings.indentLevel, true, fieldName);
       writeSignature(jsonWriter, iDocument);
     } catch (IOException e) {
@@ -235,7 +237,9 @@ public class OJSONFetchContext implements OFetchContext {
           firstAttribute,
           ODocumentHelper.ATTRIBUTE_TYPE,
           "" + (char) ORecordInternal.getRecordType(record));
-      if (settings.attribSameRow) firstAttribute = false;
+      if (settings.attribSameRow) {
+        firstAttribute = false;
+      }
     }
     if (settings.includeId && record.getIdentity() != null && record.getIdentity().isValid()) {
       json.writeAttribute(
@@ -243,7 +247,9 @@ public class OJSONFetchContext implements OFetchContext {
           firstAttribute,
           ODocumentHelper.ATTRIBUTE_RID,
           record.getIdentity().toString());
-      if (settings.attribSameRow) firstAttribute = false;
+      if (settings.attribSameRow) {
+        firstAttribute = false;
+      }
     }
     if (settings.includeVer) {
       json.writeAttribute(
@@ -251,7 +257,9 @@ public class OJSONFetchContext implements OFetchContext {
           firstAttribute,
           ODocumentHelper.ATTRIBUTE_VERSION,
           record.getVersion());
-      if (settings.attribSameRow) firstAttribute = false;
+      if (settings.attribSameRow) {
+        firstAttribute = false;
+      }
     }
     if (settings.includeClazz
         && record instanceof ODocument
@@ -261,7 +269,9 @@ public class OJSONFetchContext implements OFetchContext {
           firstAttribute,
           ODocumentHelper.ATTRIBUTE_CLASS,
           ((ODocument) record).getClassName());
-      if (settings.attribSameRow) firstAttribute = false;
+      if (settings.attribSameRow) {
+        firstAttribute = false;
+      }
     }
   }
 
@@ -283,30 +293,48 @@ public class OJSONFetchContext implements OFetchContext {
               fieldType);
     }
     if (settings.keepTypes) {
-      if (fieldValue instanceof Long) appendType(typesStack.peek(), fieldName, 'l');
-      else if (fieldValue instanceof OIdentifiable) appendType(typesStack.peek(), fieldName, 'x');
-      else if (fieldValue instanceof Float) appendType(typesStack.peek(), fieldName, 'f');
-      else if (fieldValue instanceof Short) appendType(typesStack.peek(), fieldName, 's');
-      else if (fieldValue instanceof Double) appendType(typesStack.peek(), fieldName, 'd');
-      else if (fieldValue instanceof Date) appendType(typesStack.peek(), fieldName, 't');
-      else if (fieldValue instanceof Byte || fieldValue instanceof byte[])
+      if (fieldValue instanceof Long) {
+        appendType(typesStack.peek(), fieldName, 'l');
+      } else if (fieldValue instanceof OIdentifiable) {
+        appendType(typesStack.peek(), fieldName, 'x');
+      } else if (fieldValue instanceof Float) {
+        appendType(typesStack.peek(), fieldName, 'f');
+      } else if (fieldValue instanceof Short) {
+        appendType(typesStack.peek(), fieldName, 's');
+      } else if (fieldValue instanceof Double) {
+        appendType(typesStack.peek(), fieldName, 'd');
+      } else if (fieldValue instanceof Date) {
+        appendType(typesStack.peek(), fieldName, 't');
+      } else if (fieldValue instanceof Byte || fieldValue instanceof byte[]) {
         appendType(typesStack.peek(), fieldName, 'b');
-      else if (fieldValue instanceof BigDecimal) appendType(typesStack.peek(), fieldName, 'c');
-      else if (fieldValue instanceof OSet) appendType(typesStack.peek(), fieldName, 'n');
-      else if (fieldValue instanceof Set<?>) appendType(typesStack.peek(), fieldName, 'e');
-      else if (fieldValue instanceof ORidBag) appendType(typesStack.peek(), fieldName, 'g');
-      else {
+      } else if (fieldValue instanceof BigDecimal) {
+        appendType(typesStack.peek(), fieldName, 'c');
+      } else if (fieldValue instanceof OSet) {
+        appendType(typesStack.peek(), fieldName, 'n');
+      } else if (fieldValue instanceof Set<?>) {
+        appendType(typesStack.peek(), fieldName, 'e');
+      } else if (fieldValue instanceof ORidBag) {
+        appendType(typesStack.peek(), fieldName, 'g');
+      } else {
         OType t = fieldType;
-        if (t == null) t = OType.getTypeByValue(fieldValue);
-        if (t == OType.LINKLIST) appendType(typesStack.peek(), fieldName, 'z');
-        else if (t == OType.LINKMAP) appendType(typesStack.peek(), fieldName, 'm');
-        else if (t == OType.CUSTOM) appendType(typesStack.peek(), fieldName, 'u');
+        if (t == null) {
+          t = OType.getTypeByValue(fieldValue);
+        }
+        if (t == OType.LINKLIST) {
+          appendType(typesStack.peek(), fieldName, 'z');
+        } else if (t == OType.LINKMAP) {
+          appendType(typesStack.peek(), fieldName, 'm');
+        } else if (t == OType.CUSTOM) {
+          appendType(typesStack.peek(), fieldName, 'u');
+        }
       }
     }
   }
 
   private void appendType(final StringBuilder iBuffer, final String iFieldName, final char iType) {
-    if (iBuffer.length() > 0) iBuffer.append(',');
+    if (iBuffer.length() > 0) {
+      iBuffer.append(',');
+    }
     iBuffer.append(iFieldName);
     iBuffer.append('=');
     iBuffer.append(iType);

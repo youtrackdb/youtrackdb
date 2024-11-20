@@ -11,10 +11,12 @@ import com.orientechnologies.orient.core.sql.executor.metadata.OIndexCandidate;
 import com.orientechnologies.orient.core.sql.executor.metadata.OIndexFinder;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
 public class ONotBlock extends OBooleanExpression {
+
   protected OBooleanExpression sub;
 
   protected boolean negate = false;
@@ -140,15 +142,19 @@ public class ONotBlock extends OBooleanExpression {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     ONotBlock oNotBlock = (ONotBlock) o;
 
-    if (negate != oNotBlock.negate) return false;
-    if (sub != null ? !sub.equals(oNotBlock.sub) : oNotBlock.sub != null) return false;
-
-    return true;
+    if (negate != oNotBlock.negate) {
+      return false;
+    }
+    return Objects.equals(sub, oNotBlock.sub);
   }
 
   @Override

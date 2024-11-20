@@ -34,6 +34,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OVersionRecordConflictStrategy implements ORecordConflictStrategy {
+
   public static final String NAME = "version";
 
   @Override
@@ -55,10 +56,11 @@ public class OVersionRecordConflictStrategy implements ORecordConflictStrategy {
 
   protected void checkVersions(
       final ORecordId rid, final int iRecordVersion, final int iDatabaseVersion) {
-    if (OFastConcurrentModificationException.enabled())
+    if (OFastConcurrentModificationException.enabled()) {
       throw OFastConcurrentModificationException.instance();
-    else
+    } else {
       throw new OConcurrentModificationException(
           rid, iDatabaseVersion, iRecordVersion, ORecordOperation.UPDATED);
+    }
   }
 }

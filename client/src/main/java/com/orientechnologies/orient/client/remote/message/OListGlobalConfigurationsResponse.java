@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 public class OListGlobalConfigurationsResponse implements OBinaryResponse {
+
   private Map<String, String> configs;
 
   public OListGlobalConfigurationsResponse() {}
@@ -34,7 +35,9 @@ public class OListGlobalConfigurationsResponse implements OBinaryResponse {
   public void read(OChannelDataInput network, OStorageRemoteSession session) throws IOException {
     configs = new HashMap<String, String>();
     final int num = network.readShort();
-    for (int i = 0; i < num; ++i) configs.put(network.readString(), network.readString());
+    for (int i = 0; i < num; ++i) {
+      configs.put(network.readString(), network.readString());
+    }
   }
 
   public Map<String, String> getConfigs() {

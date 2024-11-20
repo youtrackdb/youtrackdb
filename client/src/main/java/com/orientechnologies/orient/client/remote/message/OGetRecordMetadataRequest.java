@@ -31,6 +31,7 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 public class OGetRecordMetadataRequest implements OBinaryRequest<OGetRecordMetadataResponse> {
+
   private ORID rid;
 
   public OGetRecordMetadataRequest(ORID rid) {

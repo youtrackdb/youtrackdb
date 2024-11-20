@@ -24,6 +24,7 @@ package com.orientechnologies.orient.server.distributed;
  * @author Luca Garulli (l.garulli--at--orientdb.com)
  */
 public class OWriteOperationNotPermittedException extends ODistributedException {
+
   public OWriteOperationNotPermittedException(OWriteOperationNotPermittedException exception) {
     super(exception);
   }

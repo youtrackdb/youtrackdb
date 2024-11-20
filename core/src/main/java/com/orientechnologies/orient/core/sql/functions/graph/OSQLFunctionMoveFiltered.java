@@ -9,7 +9,9 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionFiltered;
 
-/** Created by luigidellaquila on 03/01/17. */
+/**
+ * Created by luigidellaquila on 03/01/17.
+ */
 public abstract class OSQLFunctionMoveFiltered extends OSQLFunctionMove
     implements OSQLFunctionFiltered {
 
@@ -32,7 +34,7 @@ public abstract class OSQLFunctionMoveFiltered extends OSQLFunctionMove
       final Iterable<OIdentifiable> iPossibleResults,
       final OCommandContext iContext) {
     final String[] labels;
-    if (iParameters != null && iParameters.length > 0 && iParameters[0] != null)
+    if (iParameters != null && iParameters.length > 0 && iParameters[0] != null) {
       labels =
           OMultiValue.array(
               iParameters,
@@ -44,7 +46,9 @@ public abstract class OSQLFunctionMoveFiltered extends OSQLFunctionMove
                   return OIOUtils.getStringContent(iArgument);
                 }
               });
-    else labels = null;
+    } else {
+      labels = null;
+    }
 
     return OSQLEngine.foreachRecord(
         new OCallable<Object, OIdentifiable>() {

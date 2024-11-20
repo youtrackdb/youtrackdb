@@ -16,6 +16,7 @@ import java.security.NoSuchAlgorithmException;
  * @author Emrul Islam <emrul@emrul.com> Copyright 2014 Emrul Islam
  */
 public interface OTokenHandler {
+
   @Deprecated public static final String TOKEN_HANDLER_NAME = "OTokenHandler";
 
   // Return null if token is unparseable or fails verification.

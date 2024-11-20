@@ -37,6 +37,7 @@ import com.orientechnologies.orient.server.distributed.task.OAbstractRemoteTask;
  * @author Luca Garulli (l.garulli--at--orientdb.com)
  */
 public class OUnreachableServerLocalTask extends OAbstractRemoteTask {
+
   public static final int FACTORYID = 28;
 
   private String unreachableServer;

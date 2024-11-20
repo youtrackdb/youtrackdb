@@ -33,13 +33,14 @@ import java.util.Map;
 /**
  * SQL synchronous query. When executed the caller wait for the result.
  *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  * @param <T>
+ * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  * @see OSQLAsynchQuery
  */
 @SuppressWarnings({"unchecked", "serial"})
 public class OSQLSynchQuery<T extends Object> extends OSQLAsynchQuery<T>
     implements OCommandResultListener, Iterable<T> {
+
   private final OLegacyResultSet<T> result = new OConcurrentLegacyResultSet<T>();
   private ORID nextPageRID;
   private Map<Object, Object> previousQueryParams = new HashMap<Object, Object>();
@@ -64,7 +65,9 @@ public class OSQLSynchQuery<T extends Object> extends OSQLAsynchQuery<T>
   }
 
   public boolean result(final Object iRecord) {
-    if (iRecord != null) result.add((T) iRecord);
+    if (iRecord != null) {
+      result.add((T) iRecord);
+    }
     return true;
   }
 
@@ -149,22 +152,31 @@ public class OSQLSynchQuery<T extends Object> extends OSQLAsynchQuery<T>
     super.queryFromStream(buffer, serializer);
 
     final String rid = buffer.getAsString();
-    if ("".equals(rid)) nextPageRID = null;
-    else nextPageRID = new ORecordId(rid);
+    if ("".equals(rid)) {
+      nextPageRID = null;
+    } else {
+      nextPageRID = new ORecordId(rid);
+    }
 
     final byte[] serializedPrevParams = buffer.getAsByteArray();
     previousQueryParams = deserializeQueryParameters(serializedPrevParams, serializer);
   }
 
   private void resetNextRIDIfParametersWereChanged(final Map<Object, Object> queryParams) {
-    if (!queryParams.equals(previousQueryParams)) nextPageRID = null;
+    if (!queryParams.equals(previousQueryParams)) {
+      nextPageRID = null;
+    }
   }
 
   private Map<Object, Object> fetchQueryParams(final Object... iArgs) {
-    if (iArgs != null && iArgs.length > 0) return convertToParameters(iArgs);
+    if (iArgs != null && iArgs.length > 0) {
+      return convertToParameters(iArgs);
+    }
 
     Map<Object, Object> queryParams = getParameters();
-    if (queryParams == null) queryParams = new HashMap<Object, Object>();
+    if (queryParams == null) {
+      queryParams = new HashMap<Object, Object>();
+    }
     return queryParams;
   }
 }

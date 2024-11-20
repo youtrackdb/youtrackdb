@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 public class OTransactionSequenceStatus {
+
   private final long[] status;
 
   public OTransactionSequenceStatus(long[] status) {
@@ -59,8 +60,12 @@ public class OTransactionSequenceStatus {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     OTransactionSequenceStatus that = (OTransactionSequenceStatus) o;
     return Arrays.equals(status, that.status);
   }

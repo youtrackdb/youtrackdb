@@ -37,7 +37,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-/** @author Artem Orobets (enisher-at-gmail.com) */
+/**
+ * @author Artem Orobets (enisher-at-gmail.com)
+ */
 public class OSBTreeCollectionManagerRemote
     implements OCloseable,
         OSBTreeCollectionManager,
@@ -60,7 +62,9 @@ public class OSBTreeCollectionManagerRemote
 
   @Override
   public void onStartup() {
-    if (pendingCollections == null) pendingCollections = new PendingCollectionsThreadLocal();
+    if (pendingCollections == null) {
+      pendingCollections = new PendingCollectionsThreadLocal();
+    }
   }
 
   protected OSBTreeBonsai<OIdentifiable, Integer> createEdgeTree(
@@ -77,7 +81,9 @@ public class OSBTreeCollectionManagerRemote
   @Override
   public UUID listenForChanges(ORidBag collection) {
     UUID id = collection.getTemporaryId();
-    if (id == null) id = UUID.randomUUID();
+    if (id == null) {
+      id = UUID.randomUUID();
+    }
 
     pendingCollections.get().put(id, new WeakReference<ORidBag>(collection));
 
@@ -117,6 +123,7 @@ public class OSBTreeCollectionManagerRemote
 
   private static class PendingCollectionsThreadLocal
       extends ThreadLocal<Map<UUID, WeakReference<ORidBag>>> {
+
     @Override
     protected Map<UUID, WeakReference<ORidBag>> initialValue() {
       return new HashMap<UUID, WeakReference<ORidBag>>();

@@ -11,6 +11,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 public interface OExecutionStream {
+
   boolean hasNext(OCommandContext ctx);
 
   OResult next(OCommandContext ctx);
@@ -62,6 +63,7 @@ public interface OExecutionStream {
   }
 
   public interface OnClose {
+
     void close(OCommandContext ctx);
   }
 

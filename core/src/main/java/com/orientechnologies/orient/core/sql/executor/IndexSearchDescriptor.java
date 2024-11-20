@@ -14,8 +14,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/** Created by luigidellaquila on 26/07/16. */
+/**
+ * Created by luigidellaquila on 26/07/16.
+ */
 public class IndexSearchDescriptor {
+
   private OIndex index;
   private OBooleanExpression keyCondition;
   private OBinaryCondition additionalRangeCondition;
@@ -132,7 +135,9 @@ public class IndexSearchDescriptor {
     List<OBooleanExpression> conditions = getSubBlocks();
     OIndex idx = getIndex();
 
-    if (!idx.supportsOrderedIterations()) return false;
+    if (!idx.supportsOrderedIterations()) {
+      return false;
+    }
     List<String> conditionItems = new ArrayList<>();
 
     for (int i = 0; i < conditions.size(); i++) {

@@ -34,6 +34,7 @@ import java.util.Set;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OIndexManagerAbstract extends OCloseable {
+
   public static final String CONFIG_INDEXES = "indexes";
   public static final String DICTIONARY_NAME = "dictionary";
 

@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class OContainsCondition extends OBooleanExpression {
@@ -53,16 +54,12 @@ public class OContainsCondition extends OBooleanExpression {
           }
         }
 
-        if (OMultiValue.contains(left, right)) {
-          return true;
-        }
-        return false;
+        return OMultiValue.contains(left, right);
       }
       if (right instanceof Iterable) {
         right = ((Iterable) right).iterator();
       }
-      if (right instanceof Iterator) {
-        Iterator iterator = (Iterator) right;
+      if (right instanceof Iterator iterator) {
         while (iterator.hasNext()) {
           Object next = iterator.next();
           if (!((Collection) left).contains(next)) {
@@ -308,11 +305,7 @@ public class OContainsCondition extends OBooleanExpression {
     if (!right.supportsBasicCalculation()) {
       return false;
     }
-    if (!condition.supportsBasicCalculation()) {
-      return false;
-    }
-
-    return true;
+    return condition.supportsBasicCalculation();
   }
 
   @Override
@@ -354,10 +347,7 @@ public class OContainsCondition extends OBooleanExpression {
     if (right != null && right.needsAliases(aliases)) {
       return true;
     }
-    if (condition != null && condition.needsAliases(aliases)) {
-      return true;
-    }
-    return false;
+    return condition != null && condition.needsAliases(aliases);
   }
 
   @Override
@@ -390,25 +380,27 @@ public class OContainsCondition extends OBooleanExpression {
     if (right != null && right.refersToParent()) {
       return true;
     }
-    if (condition != null && condition.refersToParent()) {
-      return true;
-    }
-    return false;
+    return condition != null && condition.refersToParent();
   }
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OContainsCondition that = (OContainsCondition) o;
 
-    if (left != null ? !left.equals(that.left) : that.left != null) return false;
-    if (right != null ? !right.equals(that.right) : that.right != null) return false;
-    if (condition != null ? !condition.equals(that.condition) : that.condition != null)
+    if (!Objects.equals(left, that.left)) {
       return false;
-
-    return true;
+    }
+    if (!Objects.equals(right, that.right)) {
+      return false;
+    }
+    return Objects.equals(condition, that.condition);
   }
 
   @Override
@@ -447,10 +439,7 @@ public class OContainsCondition extends OBooleanExpression {
     if (right != null && !right.isCacheable()) {
       return false;
     }
-    if (condition != null && !condition.isCacheable()) {
-      return false;
-    }
-    return true;
+    return condition == null || condition.isCacheable();
   }
 }
 /* JavaCC - OriginalChecksum=bad1118296ea74860e88d66bfe9fa222 (do not edit this line) */

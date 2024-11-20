@@ -27,5 +27,6 @@ import com.orientechnologies.orient.core.id.ORecordId;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface ORecordCallback<T> {
+
   void call(ORecordId iRID, T iParameter);
 }

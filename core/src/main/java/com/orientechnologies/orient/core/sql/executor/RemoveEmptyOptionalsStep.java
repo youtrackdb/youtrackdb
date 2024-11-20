@@ -8,6 +8,7 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
  * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
 public class RemoveEmptyOptionalsStep extends AbstractExecutionStep {
+
   public RemoveEmptyOptionalsStep(OCommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
   }

@@ -25,7 +25,9 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 
-/** Created by Enrico Risa on 15/09/15. */
+/**
+ * Created by Enrico Risa on 15/09/15.
+ */
 public interface OLuceneTxChanges {
 
   void put(Object key, OIdentifiable value, Document doc);

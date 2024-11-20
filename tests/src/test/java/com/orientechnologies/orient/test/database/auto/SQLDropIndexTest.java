@@ -16,7 +16,6 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.OMetadataDefault;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -28,6 +27,7 @@ import org.testng.annotations.Test;
 
 @Test(groups = {"index"})
 public class SQLDropIndexTest extends DocumentDBBaseTest {
+
   private static final OType EXPECTED_PROP1_TYPE = OType.DOUBLE;
   private static final OType EXPECTED_PROP2_TYPE = OType.INTEGER;
 
@@ -73,7 +73,7 @@ public class SQLDropIndexTest extends DocumentDBBaseTest {
     Assert.assertNotNull(index);
 
     database.command("DROP INDEX SQLDropIndexTestClass.prop1").close();
-    ((OMetadataDefault) database.getMetadata()).getIndexManagerInternal().reload();
+    database.getMetadata().getIndexManagerInternal().reload();
 
     index =
         database
@@ -91,7 +91,7 @@ public class SQLDropIndexTest extends DocumentDBBaseTest {
             "CREATE INDEX SQLDropIndexCompositeIndex ON SQLDropIndexTestClass (prop1, prop2)"
                 + " UNIQUE")
         .close();
-    ((OMetadataDefault) database.getMetadata()).getIndexManagerInternal().reload();
+    database.getMetadata().getIndexManagerInternal().reload();
 
     OIndex index =
         database
@@ -102,7 +102,7 @@ public class SQLDropIndexTest extends DocumentDBBaseTest {
     Assert.assertNotNull(index);
 
     database.command("DROP INDEX SQLDropIndexCompositeIndex").close();
-    ((OMetadataDefault) database.getMetadata()).getIndexManagerInternal().reload();
+    database.getMetadata().getIndexManagerInternal().reload();
 
     index =
         database

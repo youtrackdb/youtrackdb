@@ -26,8 +26,11 @@ import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.junit.Test;
 
-/** Tests the behavior of security in distributed configuration. */
+/**
+ * Tests the behavior of security in distributed configuration.
+ */
 public class DistributedSecurityIT extends AbstractServerClusterTest {
+
   private static final int SERVERS = 1;
 
   public String getDatabaseName() {

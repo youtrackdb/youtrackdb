@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 public class OSBTFetchEntriesMajorResponse<K, V> implements OBinaryResponse {
+
   private final OBinarySerializer<K> keySerializer;
   private final OBinarySerializer<V> valueSerializer;
   private List<Map.Entry<K, V>> list;

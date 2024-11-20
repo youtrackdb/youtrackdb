@@ -458,7 +458,9 @@ public class OSchemaEmbedded extends OSchemaShared {
 
   public OClass getOrCreateClass(
       ODatabaseSessionInternal database, final String iClassName, final OClass... superClasses) {
-    if (iClassName == null) return null;
+    if (iClassName == null) {
+      return null;
+    }
 
     acquireSchemaReadLock();
     try {

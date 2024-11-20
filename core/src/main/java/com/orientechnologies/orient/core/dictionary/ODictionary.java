@@ -29,6 +29,7 @@ import java.util.stream.Stream;
 @SuppressWarnings({"unchecked", "DeprecatedIsStillUsed"})
 @Deprecated
 public class ODictionary<T> {
+
   private final OIndex index;
 
   public ODictionary(final OIndex iIndex) {

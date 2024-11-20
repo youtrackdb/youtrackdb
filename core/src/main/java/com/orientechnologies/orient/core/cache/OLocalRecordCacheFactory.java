@@ -26,5 +26,6 @@ package com.orientechnologies.orient.core.cache;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OLocalRecordCacheFactory {
+
   ORecordCache newInstance(final String iName);
 }

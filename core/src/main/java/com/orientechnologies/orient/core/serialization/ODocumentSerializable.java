@@ -31,9 +31,9 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
  * field contains value of class of original object.
  *
  * <p>During deserialization of embedded object if embedded document contains {@link #CLASS_NAME}
- * field we try to find class with given name and only if this class implements {@link
- * ODocumentSerializable} interface it will be converted to the object. So it is pretty safe to use
- * field with {@link #CLASS_NAME} in ordinary documents if it is needed.
+ * field we try to find class with given name and only if this class implements
+ * {@link ODocumentSerializable} interface it will be converted to the object. So it is pretty safe
+ * to use field with {@link #CLASS_NAME} in ordinary documents if it is needed.
  *
  * <p>Class which implements this interface should have public no-arguments constructor.
  *
@@ -41,6 +41,7 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
  * @since 3/27/14
  */
 public interface ODocumentSerializable {
+
   String CLASS_NAME = "__orientdb_serilized_class__ ";
 
   ODocument toDocument();

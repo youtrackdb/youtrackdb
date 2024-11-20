@@ -82,36 +82,56 @@ abstract class StripedBuffer implements Buffer {
    * again; and for short-lived ones, it does not matter.
    */
 
-  /** The increment for generating probe values */
+  /**
+   * The increment for generating probe values
+   */
   private static final int PROBE_INCREMENT = 0x9e3779b9;
 
-  /** Generates per-thread initialization/probe field */
+  /**
+   * Generates per-thread initialization/probe field
+   */
   private static final AtomicInteger probeGenerator = new AtomicInteger();
 
-  /** Thread local probe */
+  /**
+   * Thread local probe
+   */
   private final ThreadLocal<AtomicInteger> probe = ThreadLocal.withInitial(AtomicInteger::new);
 
-  /** Spinlock (locked via CAS) used when resizing and/or creating Buffers. */
+  /**
+   * Spinlock (locked via CAS) used when resizing and/or creating Buffers.
+   */
   private final AtomicBoolean tableBusy = new AtomicBoolean();
 
-  /** Number of CPUS. */
+  /**
+   * Number of CPUS.
+   */
   private static final int NCPU = Runtime.getRuntime().availableProcessors();
 
-  /** The bound on the table size. */
+  /**
+   * The bound on the table size.
+   */
   private static final int MAXIMUM_TABLE_SIZE = 4 * ceilingNextPowerOfTwo();
 
-  /** The maximum number of attempts when trying to expand the table. */
+  /**
+   * The maximum number of attempts when trying to expand the table.
+   */
   private static final int ATTEMPTS = 3;
 
-  /** Table of buffers. When non-null, size is a power of 2. */
+  /**
+   * Table of buffers. When non-null, size is a power of 2.
+   */
   private transient volatile Buffer[] table;
 
-  /** Returns the probe value for the current thread. */
+  /**
+   * Returns the probe value for the current thread.
+   */
   private int getProbe() {
     return probe.get().get();
   }
 
-  /** Pseudo-randomly advances and records the given probe value for the given thread. */
+  /**
+   * Pseudo-randomly advances and records the given probe value for the given thread.
+   */
   private int advanceProbe(int probe) {
     probe ^= probe << 13; // xorshift
     probe ^= probe >>> 17;
@@ -121,7 +141,9 @@ abstract class StripedBuffer implements Buffer {
     return probe;
   }
 
-  /** Returns the closest power-of-two at or higher than the given value. */
+  /**
+   * Returns the closest power-of-two at or higher than the given value.
+   */
   private static int ceilingNextPowerOfTwo() {
     // From Hacker's Delight, Chapter 3, Harry S. Warren Jr.
     return 1 << (Integer.SIZE - Integer.numberOfLeadingZeros(StripedBuffer.NCPU - 1));
@@ -200,7 +222,7 @@ abstract class StripedBuffer implements Buffer {
    * contention. See above for explanation. This method suffers the usual non-modularity problems of
    * optimistic retry code, relying on rechecked sets of reads.
    *
-   * @param e the element to add
+   * @param e              the element to add
    * @param wasUncontended false if CAS failed before call
    */
   @SuppressWarnings("PMD.ConfusingTernary")

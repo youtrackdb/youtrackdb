@@ -29,6 +29,7 @@ import com.orientechnologies.orient.core.storage.cache.chm.WTinyLFUPolicy;
  * @author ben.manes@gmail.com (Ben Manes)
  */
 public interface Buffer {
+
   int FULL = 1;
   int SUCCESS = 0;
   int FAILED = -1;

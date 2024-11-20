@@ -12,7 +12,9 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-/** Created by luigidellaquila on 21/07/16. */
+/**
+ * Created by luigidellaquila on 21/07/16.
+ */
 public class FetchFromClustersExecutionStep extends AbstractExecutionStep {
 
   private final List<OExecutionStep> subSteps;
@@ -23,8 +25,8 @@ public class FetchFromClustersExecutionStep extends AbstractExecutionStep {
    * iterates over a class and its subclasses
    *
    * @param clusterIds the clusters
-   * @param ctx the query context
-   * @param ridOrder true to sort by RID asc, false to sort by RID desc, null for no sort.
+   * @param ctx        the query context
+   * @param ridOrder   true to sort by RID asc, false to sort by RID desc, null for no sort.
    */
   public FetchFromClustersExecutionStep(
       int[] clusterIds, OCommandContext ctx, Boolean ridOrder, boolean profilingEnabled) {

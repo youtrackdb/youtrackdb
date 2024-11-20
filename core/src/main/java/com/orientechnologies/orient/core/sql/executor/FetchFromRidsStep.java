@@ -10,8 +10,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/** Created by luigidellaquila on 22/07/16. */
+/**
+ * Created by luigidellaquila on 22/07/16.
+ */
 public class FetchFromRidsStep extends AbstractExecutionStep {
+
   private Collection<ORecordId> rids;
 
   public FetchFromRidsStep(

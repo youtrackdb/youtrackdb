@@ -4,6 +4,7 @@ import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedSt
 import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODurableComponent;
 
 public abstract class OClusterPositionMap extends ODurableComponent {
+
   public static final String DEF_EXTENSION = ".cpm";
 
   public OClusterPositionMap(

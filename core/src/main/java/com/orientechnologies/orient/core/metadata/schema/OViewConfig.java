@@ -5,7 +5,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class OViewConfig {
-  /** default */
+
+  /**
+   * default
+   */
   public static String UPDATE_STRATEGY_BATCH = "batch";
 
   public static String UPDATE_STRATEGY_LIVE = "live";

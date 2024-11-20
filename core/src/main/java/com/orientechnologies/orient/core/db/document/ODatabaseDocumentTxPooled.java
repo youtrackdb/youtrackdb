@@ -39,7 +39,7 @@ import com.orientechnologies.orient.core.metadata.security.OToken;
 public class ODatabaseDocumentTxPooled extends ODatabaseDocumentTx implements ODatabasePooled {
 
   private ODatabaseDocumentPool ownerPool;
-  private String userName;
+  private final String userName;
 
   public ODatabaseDocumentTxPooled(
       final ODatabaseDocumentPool iOwnerPool,

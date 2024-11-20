@@ -22,6 +22,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class HAClusterStrategyIT extends AbstractHARemoveNode {
+
   private static final int SERVERS = 2;
 
   @Test

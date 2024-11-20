@@ -6,7 +6,9 @@ import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by luigidellaquila on 02/07/16. */
+/**
+ * Created by luigidellaquila on 02/07/16.
+ */
 public class OElementTest extends BaseMemoryDatabase {
 
   @Test

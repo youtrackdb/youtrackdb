@@ -1,6 +1,7 @@
 package com.orientechnologies.common.jnr;
 
 public class LastErrorException extends RuntimeException {
+
   private long errorCode;
 
   public LastErrorException(long errorCode) {

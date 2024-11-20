@@ -22,8 +22,11 @@ package com.orientechnologies.orient.client.binary;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import java.io.IOException;
 
-/** Synchronous implementation of binary channel. */
+/**
+ * Synchronous implementation of binary channel.
+ */
 public class OChannelBinarySynchClient extends OChannelBinaryClientAbstract {
+
   public OChannelBinarySynchClient(
       final String remoteHost,
       final int remotePort,
@@ -46,8 +49,11 @@ public class OChannelBinarySynchClient extends OChannelBinaryClientAbstract {
     currentSessionId = readInt();
 
     byte[] tokenBytes;
-    if (token) tokenBytes = this.readBytes();
-    else tokenBytes = null;
+    if (token) {
+      tokenBytes = this.readBytes();
+    } else {
+      tokenBytes = null;
+    }
     int opCode = readByte();
     handleStatus(currentStatus, currentSessionId);
     return tokenBytes;

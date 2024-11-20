@@ -45,6 +45,7 @@ import org.ietf.jgss.Oid;
  * @author S. Colin Leister
  */
 public class OKerberosCredentialInterceptor implements OCredentialInterceptor {
+
   private String principal;
   private String serviceTicket;
 
@@ -61,8 +62,9 @@ public class OKerberosCredentialInterceptor implements OCredentialInterceptor {
     // While the principal can be determined from the ticket cache, if a client keytab is used
     // instead,
     // it may contain multiple principals.
-    if (principal == null || principal.isEmpty())
+    if (principal == null || principal.isEmpty()) {
       throw new OSecurityException("OKerberosCredentialInterceptor Principal cannot be null!");
+    }
 
     this.principal = principal;
 
@@ -72,24 +74,27 @@ public class OKerberosCredentialInterceptor implements OCredentialInterceptor {
     if (spn == null || spn.isEmpty()) {
       // If spn is null or an empty string, the SPN will be generated from the URL like this:
       //		OrientDB/host
-      if (url == null || url.isEmpty())
+      if (url == null || url.isEmpty()) {
         throw new OSecurityException(
             "OKerberosCredentialInterceptor URL and SPN cannot both be null!");
+      }
 
       try {
         String tempURL = url;
 
         // Without the // URI can't parse URLs correctly, so we add //.
-        if (tempURL.startsWith("remote:") && !tempURL.startsWith("remote://"))
+        if (tempURL.startsWith("remote:") && !tempURL.startsWith("remote://")) {
           tempURL = tempURL.replace("remote:", "remote://");
+        }
 
         URI remoteURI = new URI(tempURL);
 
         String host = remoteURI.getHost();
 
-        if (host == null)
+        if (host == null) {
           throw new OSecurityException(
               "OKerberosCredentialInterceptor Could not create SPN from URL: " + url);
+        }
 
         actualSPN = "OrientDB/" + host;
       } catch (URISyntaxException ex) {
@@ -103,23 +108,31 @@ public class OKerberosCredentialInterceptor implements OCredentialInterceptor {
     // Defaults to the environment variable.
     String config = System.getenv("KRB5_CONFIG");
     String ckc = OGlobalConfiguration.CLIENT_KRB5_CONFIG.getValueAsString();
-    if (ckc != null) config = ckc;
+    if (ckc != null) {
+      config = ckc;
+    }
 
     // Defaults to the environment variable.
     String ccname = System.getenv("KRB5CCNAME");
     String ccn = OGlobalConfiguration.CLIENT_KRB5_CCNAME.getValueAsString();
-    if (ccn != null) ccname = ccn;
+    if (ccn != null) {
+      ccname = ccn;
+    }
 
     // Defaults to the environment variable.
     String ktname = System.getenv("KRB5_CLIENT_KTNAME");
     String ckn = OGlobalConfiguration.CLIENT_KRB5_KTNAME.getValueAsString();
-    if (ckn != null) ktname = ckn;
+    if (ckn != null) {
+      ktname = ckn;
+    }
 
-    if (config == null)
+    if (config == null) {
       throw new OSecurityException("OKerberosCredentialInterceptor KRB5 Config cannot be null!");
-    if (ccname == null && ktname == null)
+    }
+    if (ccname == null && ktname == null) {
       throw new OSecurityException(
           "OKerberosCredentialInterceptor KRB5 Credential Cache and KeyTab cannot both be null!");
+    }
 
     LoginContext lc = null;
 
@@ -155,9 +168,10 @@ public class OKerberosCredentialInterceptor implements OCredentialInterceptor {
       OLogManager.instance().debug(this, "intercept() LogoutException", loe);
     }
 
-    if (this.serviceTicket == null)
+    if (this.serviceTicket == null) {
       throw new OSecurityException(
           "OKerberosCredentialInterceptor Cannot obtain the service ticket!");
+    }
   }
 
   private String getFirstPrincipal(Subject subject) {
@@ -232,7 +246,9 @@ public class OKerberosCredentialInterceptor implements OCredentialInterceptor {
                   }
                 });
 
-        if (serviceTicket != null) return Base64.getEncoder().encodeToString(serviceTicket);
+        if (serviceTicket != null) {
+          return Base64.getEncoder().encodeToString(serviceTicket);
+        }
 
         context.dispose();
       } else {

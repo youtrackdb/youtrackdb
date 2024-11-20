@@ -38,7 +38,9 @@ public class OIndexManagerProxy extends OProxedResource<OIndexManagerAbstract>
 
   public void load() {}
 
-  /** Force reloading of indexes. */
+  /**
+   * Force reloading of indexes.
+   */
   public OIndexManagerProxy reload() {
     delegate.load(database);
     return this;

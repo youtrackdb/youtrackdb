@@ -28,6 +28,7 @@ package com.orientechnologies.orient.core.sql.functions;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public abstract class OSQLFunctionConfigurableAbstract extends OSQLFunctionAbstract {
+
   protected Object[] configuredParameters;
 
   protected OSQLFunctionConfigurableAbstract(
@@ -46,7 +47,9 @@ public abstract class OSQLFunctionConfigurableAbstract extends OSQLFunctionAbstr
     buffer.append('(');
     if (configuredParameters != null) {
       for (int i = 0; i < configuredParameters.length; ++i) {
-        if (i > 0) buffer.append(',');
+        if (i > 0) {
+          buffer.append(',');
+        }
         buffer.append(configuredParameters[i]);
       }
     }

@@ -9,7 +9,9 @@ import java.util.Date;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by Enrico Risa on 27/10/16. */
+/**
+ * Created by Enrico Risa on 27/10/16.
+ */
 public class LuceneReuseTest extends BaseLuceneTest {
 
   @Test

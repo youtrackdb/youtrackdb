@@ -68,11 +68,9 @@ public class OPlaceholder implements OIdentifiable, OStreamable {
 
   @Override
   public boolean equals(final Object obj) {
-    if (!(obj instanceof OPlaceholder)) {
+    if (!(obj instanceof OPlaceholder other)) {
       return false;
     }
-
-    final OPlaceholder other = (OPlaceholder) obj;
 
     return rid.equals(other.rid) && recordVersion == other.recordVersion;
   }

@@ -32,6 +32,7 @@ import java.util.zip.GZIPOutputStream;
  * @since 05.06.13
  */
 public class OGZIPCompression extends OAbstractCompression {
+
   public static final String NAME = "gzip";
 
   public static final OGZIPCompression INSTANCE = new OGZIPCompression();
@@ -74,7 +75,9 @@ public class OGZIPCompression extends OAbstractCompression {
         while ((bytesRead = gzipInputStream.read(buffer, 0, buffer.length)) > -1) {
           if (len + bytesRead > result.length) {
             int newSize = 2 * result.length;
-            if (newSize < len + bytesRead) newSize = Integer.MAX_VALUE;
+            if (newSize < len + bytesRead) {
+              newSize = Integer.MAX_VALUE;
+            }
 
             final byte[] oldResult = result;
             result = new byte[newSize];

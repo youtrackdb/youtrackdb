@@ -30,6 +30,7 @@ import java.util.Comparator;
  * @since 03.07.12
  */
 public class OComparatorFactory {
+
   public static final OComparatorFactory INSTANCE = new OComparatorFactory();
 
   private static final boolean unsafeWasDetected;
@@ -51,7 +52,7 @@ public class OComparatorFactory {
    * Returns {@link Comparator} instance if applicable one exist or <code>null</code> otherwise.
    *
    * @param clazz Class of object that is going to be compared.
-   * @param <T> Class of object that is going to be compared.
+   * @param <T>   Class of object that is going to be compared.
    * @return {@link Comparator} instance if applicable one exist or <code>null</code> otherwise.
    */
   @SuppressWarnings("unchecked")
@@ -59,8 +60,9 @@ public class OComparatorFactory {
     boolean useUnsafe = OGlobalConfiguration.MEMORY_USE_UNSAFE.getValueAsBoolean();
 
     if (clazz.equals(byte[].class)) {
-      if (useUnsafe && unsafeWasDetected)
+      if (useUnsafe && unsafeWasDetected) {
         return (Comparator<T>) OUnsafeByteArrayComparator.INSTANCE;
+      }
 
       return (Comparator<T>) OByteArrayComparator.INSTANCE;
     }

@@ -21,14 +21,16 @@
 package com.orientechnologies.orient.core.storage;
 
 /**
- * Defines per-page checksum modes supported by {@link
- * com.orientechnologies.orient.core.storage.cache.OWriteCache write caches}.
+ * Defines per-page checksum modes supported by
+ * {@link com.orientechnologies.orient.core.storage.cache.OWriteCache write caches}.
  *
  * @author Sergey Sitnikov
  */
 public enum OChecksumMode {
 
-  /** Checksums are completely off. */
+  /**
+   * Checksums are completely off.
+   */
   Off,
 
   /**

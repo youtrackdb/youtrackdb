@@ -143,65 +143,59 @@ public class OCommandExecutorSQLMoveVertex extends OCommandExecutorSQLSetAware
     OModifiableBoolean shutdownGraph = new OModifiableBoolean();
     final boolean txAlreadyBegun = getDatabase().getTransaction().isActive();
 
-    try {
-      final Set<OIdentifiable> sourceRIDs =
-          OSQLEngine.getInstance().parseRIDTarget(db, source, context, iArgs);
+    final Set<OIdentifiable> sourceRIDs =
+        OSQLEngine.getInstance().parseRIDTarget(db, source, context, iArgs);
 
-      // CREATE EDGES
-      final List<ODocument> result = new ArrayList<ODocument>(sourceRIDs.size());
+    // CREATE EDGES
+    final List<ODocument> result = new ArrayList<ODocument>(sourceRIDs.size());
 
-      for (OIdentifiable from : sourceRIDs) {
-        final OVertex fromVertex = toVertex(from);
-        if (fromVertex == null) {
-          continue;
-        }
-
-        final ORID oldVertex = fromVertex.getIdentity().copy();
-        final ORID newVertex = fromVertex.moveTo(className, clusterName);
-
-        final ODocument newVertexDoc = newVertex.getRecord();
-
-        if (fields != null) {
-          // EVALUATE FIELDS
-          for (final OPair<String, Object> f : fields) {
-            if (f.getValue() instanceof OSQLFunctionRuntime) {
-              f.setValue(
-                  ((OSQLFunctionRuntime) f.getValue())
-                      .getValue(newVertex.getRecord(), null, context));
-            }
-          }
-
-          OSQLHelper.bindParameters(newVertexDoc, fields, new OCommandParameters(iArgs), context);
-        }
-
-        if (merge != null) {
-          newVertexDoc.merge(merge, true, false);
-        }
-
-        // SAVE CHANGES
-        newVertexDoc.save();
-
-        // PUT THE MOVE INTO THE RESULT
-        result.add(
-            new ODocument()
-                .setTrackingChanges(false)
-                .field("old", oldVertex, OType.LINK)
-                .field("new", newVertex, OType.LINK));
-
-        if (batch > 0 && result.size() % batch == 0) {
-          db.commit();
-          db.begin();
-        }
+    for (OIdentifiable from : sourceRIDs) {
+      final OVertex fromVertex = toVertex(from);
+      if (fromVertex == null) {
+        continue;
       }
 
-      db.commit();
+      final ORID oldVertex = fromVertex.getIdentity().copy();
+      final ORID newVertex = fromVertex.moveTo(className, clusterName);
 
-      return result;
-    } finally {
-      //      if (!txAlreadyBegun)
-      //        db.commit();
+      final ODocument newVertexDoc = newVertex.getRecord();
 
+      if (fields != null) {
+        // EVALUATE FIELDS
+        for (final OPair<String, Object> f : fields) {
+          if (f.getValue() instanceof OSQLFunctionRuntime) {
+            f.setValue(
+                ((OSQLFunctionRuntime) f.getValue())
+                    .getValue(newVertex.getRecord(), null, context));
+          }
+        }
+
+        OSQLHelper.bindParameters(newVertexDoc, fields, new OCommandParameters(iArgs), context);
+      }
+
+      if (merge != null) {
+        newVertexDoc.merge(merge, true, false);
+      }
+
+      // SAVE CHANGES
+      newVertexDoc.save();
+
+      // PUT THE MOVE INTO THE RESULT
+      result.add(
+          new ODocument()
+              .setTrackingChanges(false)
+              .field("old", oldVertex, OType.LINK)
+              .field("new", newVertex, OType.LINK));
+
+      if (batch > 0 && result.size() % batch == 0) {
+        db.commit();
+        db.begin();
+      }
     }
+
+    db.commit();
+
+    return result;
   }
 
   @Override

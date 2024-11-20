@@ -16,7 +16,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by frank on 21/01/2016. */
+/**
+ * Created by frank on 21/01/2016.
+ */
 public class OServerTest {
 
   private String prevPassword;
@@ -43,13 +45,19 @@ public class OServerTest {
 
   @After
   public void tearDown() throws Exception {
-    if (server.isActive()) server.shutdown();
+    if (server.isActive()) {
+      server.shutdown();
+    }
 
     Orient.instance().shutdown();
     OFileUtils.deleteRecursively(new File("./target/testhome"));
 
-    if (prevOrientHome != null) System.setProperty("ORIENTDB_HOME", prevOrientHome);
-    if (prevPassword != null) System.setProperty("ORIENTDB_ROOT_PASSWORD", prevPassword);
+    if (prevOrientHome != null) {
+      System.setProperty("ORIENTDB_HOME", prevOrientHome);
+    }
+    if (prevPassword != null) {
+      System.setProperty("ORIENTDB_ROOT_PASSWORD", prevPassword);
+    }
 
     Orient.instance().startup();
   }

@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class OLuceneFailTest {
+
   private OrientDB odb;
 
   @Before

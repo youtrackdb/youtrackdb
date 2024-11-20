@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 import okhttp3.OkHttpClient;
 
 public class KubernetesTestSetup implements TestSetup {
+
   // Used for listing OrientDB stateful sets.
   private static final String statefulSetLabelSelector =
       String.format("app=%s", TestSetupUtil.getOrientDBKubernetesLabel());
@@ -149,7 +150,8 @@ public class KubernetesTestSetup implements TestSetup {
                 timeoutSecond,
                 true,
                 null),
-            new TypeToken<Watch.Response<V1StatefulSet>>() {}.getType());
+            new TypeToken<Watch.Response<V1StatefulSet>>() {
+            }.getType());
     final long started = System.currentTimeMillis();
     try {
       for (Watch.Response<V1StatefulSet> item : watch) {
@@ -445,7 +447,9 @@ public class KubernetesTestSetup implements TestSetup {
 
   private void stopPortForward(String serverId) {
     List<PortForwarder> pfs = portforwarders.get(serverId);
-    if (pfs == null) return;
+    if (pfs == null) {
+      return;
+    }
     for (PortForwarder pf : pfs) {
       pf.stop();
     }

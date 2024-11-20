@@ -112,15 +112,23 @@ public class OForEachBlock extends OStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OForEachBlock that = (OForEachBlock) o;
 
-    if (loopVariable != null ? !loopVariable.equals(that.loopVariable) : that.loopVariable != null)
+    if (loopVariable != null
+        ? !loopVariable.equals(that.loopVariable)
+        : that.loopVariable != null) {
       return false;
-    if (loopValues != null ? !loopValues.equals(that.loopValues) : that.loopValues != null)
+    }
+    if (loopValues != null ? !loopValues.equals(that.loopValues) : that.loopValues != null) {
       return false;
+    }
     return statements != null ? statements.equals(that.statements) : that.statements == null;
   }
 

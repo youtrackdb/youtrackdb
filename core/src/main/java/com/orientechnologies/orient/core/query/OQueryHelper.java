@@ -22,6 +22,7 @@ package com.orientechnologies.orient.core.query;
 import java.util.Locale;
 
 public class OQueryHelper {
+
   protected static final String WILDCARD_ANYCHAR = "?";
   protected static final String WILDCARD_ANY = "%";
 
@@ -30,8 +31,10 @@ public class OQueryHelper {
         || currentValue.length() == 0
         || iValue == null
         || iValue.length() == 0)
-      // EMPTY/NULL PARAMETERS
+    // EMPTY/NULL PARAMETERS
+    {
       return false;
+    }
 
     iValue = iValue.toLowerCase(Locale.ENGLISH);
     currentValue = currentValue.toLowerCase(Locale.ENGLISH);

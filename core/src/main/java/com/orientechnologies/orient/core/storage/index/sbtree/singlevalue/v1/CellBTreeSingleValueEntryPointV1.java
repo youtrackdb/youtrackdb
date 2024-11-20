@@ -7,6 +7,7 @@ import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODurablePage;
 
 public final class CellBTreeSingleValueEntryPointV1 extends ODurablePage {
+
   private static final int KEY_SERIALIZER_OFFSET = NEXT_FREE_POSITION;
   private static final int KEY_SIZE_OFFSET = KEY_SERIALIZER_OFFSET + OByteSerializer.BYTE_SIZE;
   private static final int TREE_SIZE_OFFSET = KEY_SIZE_OFFSET + OIntegerSerializer.INT_SIZE;

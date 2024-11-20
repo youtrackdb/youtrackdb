@@ -108,7 +108,7 @@ public class GEOTest extends DocumentDBBaseTest {
         database.command(new OSQLSynchQuery<ODocument>("select from MapPoint limit 1")).execute();
     try {
       result.get(0).field("x", "--wrong--");
-      Assert.assertTrue(false);
+      Assert.fail();
     } catch (ODatabaseException e) {
       Assert.assertTrue(true);
     }

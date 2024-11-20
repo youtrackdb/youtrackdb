@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
 public class OCacheEntryImpl implements OCacheEntry {
+
   private static final AtomicIntegerFieldUpdater<OCacheEntryImpl> USAGES_COUNT_UPDATER;
   private static final AtomicIntegerFieldUpdater<OCacheEntryImpl> STATE_UPDATER;
 
@@ -29,7 +30,9 @@ public class OCacheEntryImpl implements OCacheEntry {
 
   private volatile LRUList container;
 
-  /** Protected by page lock inside disk cache */
+  /**
+   * Protected by page lock inside disk cache
+   */
   private boolean allocatedPage;
 
   private final boolean insideCache;

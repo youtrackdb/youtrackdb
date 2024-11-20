@@ -367,8 +367,10 @@ public class BinaryComparatorCompareTest extends AbstractComparatorTest {
 
     for (OType t : numberTypes) {
       if (sourceType == OType.DATETIME && t == OType.BYTE)
-        // SKIP TEST
+      // SKIP TEST
+      {
         continue;
+      }
 
       testCompare(sourceType, t);
     }

@@ -11,6 +11,7 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 public class OCreateDatabaseRequest implements OBinaryRequest<OCreateDatabaseResponse> {
+
   private String databaseName;
   private String databaseType;
   private String storageMode;
@@ -40,7 +41,9 @@ public class OCreateDatabaseRequest implements OBinaryRequest<OCreateDatabaseRes
     this.databaseName = channel.readString();
     this.databaseType = channel.readString();
     this.storageMode = channel.readString();
-    if (protocolVersion > 35) this.backupPath = channel.readString();
+    if (protocolVersion > 35) {
+      this.backupPath = channel.readString();
+    }
   }
 
   @Override

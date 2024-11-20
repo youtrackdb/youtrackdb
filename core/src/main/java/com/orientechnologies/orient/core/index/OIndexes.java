@@ -141,11 +141,11 @@ public final class OIndexes {
   }
 
   /**
-   * @param storage TODO
+   * @param storage   TODO
    * @param indexType index type
    * @return OIndexInternal
    * @throws OConfigurationException if index creation failed
-   * @throws OIndexException if index type does not exist
+   * @throws OIndexException         if index type does not exist
    */
   public static OIndexInternal createIndex(OStorage storage, OIndexMetadata metadata)
       throws OConfigurationException, OIndexException {
@@ -212,13 +212,17 @@ public final class OIndexes {
     FACTORIES = null;
   }
 
-  /** Register at runtime custom factories */
+  /**
+   * Register at runtime custom factories
+   */
   public static void registerFactory(OIndexFactory factory) {
     DYNAMIC_FACTORIES.add(factory);
     scanForPlugins();
   }
 
-  /** Unregister custom factories */
+  /**
+   * Unregister custom factories
+   */
   public static void unregisterFactory(OIndexFactory factory) {
     DYNAMIC_FACTORIES.remove(factory);
     scanForPlugins();

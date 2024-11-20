@@ -22,12 +22,14 @@ import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionAbstract;
 import com.orientechnologies.spatial.shape.OShapeFactory;
 
-/** Created by Enrico Risa on 13/08/15. */
+/**
+ * Created by Enrico Risa on 13/08/15.
+ */
 public class OSTGeomFromTextFunction extends OSQLFunctionAbstract {
 
   public static final String NAME = "ST_GeomFromText";
 
-  private OShapeFactory factory = OShapeFactory.INSTANCE;
+  private final OShapeFactory factory = OShapeFactory.INSTANCE;
 
   public OSTGeomFromTextFunction() {
     super(NAME, 1, 1);

@@ -36,6 +36,7 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
 public class OSecurityManager {
+
   public static final String HASH_ALGORITHM = "SHA-256";
   public static final String HASH_ALGORITHM_PREFIX = "{" + HASH_ALGORITHM + "}";
 
@@ -64,7 +65,9 @@ public class OSecurityManager {
 
   public static String createHash(final String iInput, String iAlgorithm)
       throws NoSuchAlgorithmException, UnsupportedEncodingException {
-    if (iAlgorithm == null) iAlgorithm = HASH_ALGORITHM;
+    if (iAlgorithm == null) {
+      iAlgorithm = HASH_ALGORITHM;
+    }
 
     final MessageDigest msgDigest = MessageDigest.getInstance(iAlgorithm);
 
@@ -78,8 +81,8 @@ public class OSecurityManager {
   /**
    * Checks if an hash string matches a password, based on the algorithm found on hash string.
    *
-   * @param iHash Hash string. Can contain the algorithm as prefix in the format <code>
-   *     {ALGORITHM}-HASH</code>.
+   * @param iHash     Hash string. Can contain the algorithm as prefix in the format <code>
+   *                  {ALGORITHM}-HASH</code>.
    * @param iPassword
    * @return
    */
@@ -110,15 +113,19 @@ public class OSecurityManager {
   /**
    * Hashes the input string.
    *
-   * @param iInput String to hash
+   * @param iInput            String to hash
    * @param iIncludeAlgorithm Include the algorithm used or not
    * @return
    */
   public static String createHash(
       final String iInput, final String iAlgorithm, final boolean iIncludeAlgorithm) {
-    if (iInput == null) throw new IllegalArgumentException("Input string is null");
+    if (iInput == null) {
+      throw new IllegalArgumentException("Input string is null");
+    }
 
-    if (iAlgorithm == null) throw new IllegalArgumentException("Algorithm is null");
+    if (iAlgorithm == null) {
+      throw new IllegalArgumentException("Algorithm is null");
+    }
 
     final StringBuilder buffer = new StringBuilder(128);
 
@@ -145,7 +152,9 @@ public class OSecurityManager {
               iInput,
               OGlobalConfiguration.SECURITY_USER_PASSWORD_SALT_ITERATIONS.getValueAsInteger(),
               algorithm);
-    } else throw new IllegalArgumentException("Algorithm '" + algorithm + "' is not supported");
+    } else {
+      throw new IllegalArgumentException("Algorithm '" + algorithm + "' is not supported");
+    }
 
     buffer.append(transformed);
 
@@ -153,7 +162,9 @@ public class OSecurityManager {
   }
 
   public static synchronized byte[] digestSHA256(final String iInput) {
-    if (iInput == null) return null;
+    if (iInput == null) {
+      return null;
+    }
 
     try {
       MessageDigest md = MessageDigest.getInstance(HASH_ALGORITHM);
@@ -209,9 +220,10 @@ public class OSecurityManager {
 
     // SPLIT PARTS
     final String[] params = iHash.split(":");
-    if (params.length != 3)
+    if (params.length != 3) {
       throw new IllegalArgumentException(
           "Hash does not contain the requested parts: <hash>:<salt>:<iterations>");
+    }
 
     final byte[] hash = hexToByteArray(params[0]);
     final byte[] salt = hexToByteArray(params[1]);
@@ -235,7 +247,9 @@ public class OSecurityManager {
       // SEARCH IN CACHE FIRST
       cacheKey = hashedPassword + "|" + Arrays.toString(salt) + "|" + iterations + "|" + bytes;
       final byte[] encoded = SALT_CACHE.get(cacheKey);
-      if (encoded != null) return encoded;
+      if (encoded != null) {
+        return encoded;
+      }
     }
 
     final PBEKeySpec spec = new PBEKeySpec(iPassword.toCharArray(), salt, iterations, bytes * 8);
@@ -256,7 +270,9 @@ public class OSecurityManager {
     }
   }
 
-  /** Returns true if the algorithm is supported by the current version of Java */
+  /**
+   * Returns true if the algorithm is supported by the current version of Java
+   */
   private static boolean isAlgorithmSupported(final String algorithm) {
     // Java 7 specific checks.
     if (Runtime.class.getPackage() != null
@@ -291,7 +307,9 @@ public class OSecurityManager {
   }
 
   public static String byteArrayToHexStr(final byte[] data) {
-    if (data == null) return null;
+    if (data == null) {
+      return null;
+    }
 
     final char[] chars = new char[data.length * 2];
     for (int i = 0; i < data.length; i++) {
@@ -306,8 +324,9 @@ public class OSecurityManager {
 
   private static byte[] hexToByteArray(final String data) {
     final byte[] hex = new byte[data.length() / 2];
-    for (int i = 0; i < hex.length; i++)
+    for (int i = 0; i < hex.length; i++) {
       hex[i] = (byte) Integer.parseInt(data.substring(2 * i, 2 * i + 2), 16);
+    }
 
     return hex;
   }

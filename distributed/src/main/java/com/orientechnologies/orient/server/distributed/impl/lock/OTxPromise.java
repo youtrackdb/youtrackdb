@@ -3,8 +3,11 @@ package com.orientechnologies.orient.server.distributed.impl.lock;
 import com.orientechnologies.orient.core.tx.OTransactionId;
 import java.util.Objects;
 
-/** A promise records a resource and its version required for a transaction. */
+/**
+ * A promise records a resource and its version required for a transaction.
+ */
 public class OTxPromise<T> {
+
   private final T key;
   private final int version;
   private final OTransactionId txId;
@@ -29,8 +32,12 @@ public class OTxPromise<T> {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     OTxPromise<?> that = (OTxPromise<?>) o;
     return version == that.version
         && Objects.equals(key, that.key)

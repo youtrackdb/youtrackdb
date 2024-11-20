@@ -8,7 +8,9 @@ import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by luigidellaquila on 14/09/17. */
+/**
+ * Created by luigidellaquila on 14/09/17.
+ */
 public class OCheckIndexToolTest extends BaseMemoryInternalDatabase {
 
   @Test

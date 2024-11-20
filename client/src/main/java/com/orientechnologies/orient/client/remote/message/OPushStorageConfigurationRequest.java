@@ -11,7 +11,7 @@ import java.io.IOException;
 
 public class OPushStorageConfigurationRequest implements OBinaryPushRequest<OBinaryPushResponse> {
 
-  private OStorageConfigurationPayload payload;
+  private final OStorageConfigurationPayload payload;
 
   public OPushStorageConfigurationRequest() {
     payload = new OStorageConfigurationPayload();

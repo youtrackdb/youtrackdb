@@ -1,6 +1,7 @@
 package com.orientechnologies.common.console;
 
 public class OConsoleProperties {
+
   public static final String VERBOSE = "verbose";
   public static final String WIDTH = "width";
   public static final String ECHO = "echo";

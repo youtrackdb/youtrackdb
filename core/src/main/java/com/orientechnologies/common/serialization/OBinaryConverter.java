@@ -26,6 +26,7 @@ import java.nio.ByteOrder;
  * @since 26.07.12
  */
 public interface OBinaryConverter {
+
   void putInt(byte[] buffer, int index, int value, ByteOrder byteOrder);
 
   int getInt(byte[] buffer, int index, ByteOrder byteOrder);

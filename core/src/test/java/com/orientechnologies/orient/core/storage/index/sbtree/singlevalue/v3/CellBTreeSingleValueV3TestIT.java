@@ -28,6 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class CellBTreeSingleValueV3TestIT {
+
   private OAtomicOperationsManager atomicOperationsManager;
   private CellBTreeSingleValueV3<String> singleValueTree;
   private OrientDB orientDB;
@@ -996,6 +997,7 @@ public class CellBTreeSingleValueV3TestIT {
   }
 
   static final class RollbackException extends OException implements OHighLevelException {
+
     @SuppressWarnings("WeakerAccess")
     public RollbackException() {
       this("");

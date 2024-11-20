@@ -162,8 +162,7 @@ public abstract class OCommandExecutorSQLAbstract extends OCommandExecutorAbstra
     final Set<String> clusters = new HashSet<String>();
 
     for (String clazz : iClassNames) {
-      final OClass cls =
-          ((OMetadataInternal) db.getMetadata()).getImmutableSchemaSnapshot().getClass(clazz);
+      final OClass cls = db.getMetadata().getImmutableSchemaSnapshot().getClass(clazz);
       if (cls != null) {
         for (int clId : cls.getPolymorphicClusterIds()) {
           // FILTER THE CLUSTER WHERE THE USER HAS THE RIGHT ACCESS
@@ -198,7 +197,7 @@ public abstract class OCommandExecutorSQLAbstract extends OCommandExecutorAbstra
 
     final Set<String> clusters = new HashSet<String>();
 
-    final OMetadataInternal metadata = (OMetadataInternal) db.getMetadata();
+    final OMetadataInternal metadata = db.getMetadata();
     final OIndex idx = metadata.getIndexManagerInternal().getIndex(db, iIndexName);
     if (idx != null && idx.getDefinition() != null) {
       final String clazz = idx.getDefinition().getClassName();

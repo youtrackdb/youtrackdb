@@ -417,7 +417,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
    */
   public ODatabaseSession setStatus(final STATUS status) {
     checkIfActive();
-    setStatusInternal(status);
+    this.status = status;
     return this;
   }
 
@@ -918,7 +918,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
         throw new ORecordNotFoundException(rid);
       }
 
-      var cachedRecord = getLocalCache().findRecord(rid);
+      var cachedRecord = localCache.findRecord(rid);
       if (record == null) {
         record = cachedRecord;
       }
@@ -933,7 +933,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
           ODocumentInternal.checkClass((ODocument) record, this);
         }
 
-        getLocalCache().updateRecord(record);
+        localCache.updateRecord(record);
 
         assert !record.isUnloaded();
         return (RET) record;
@@ -971,7 +971,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
         throw new ODatabaseException("Record type is different from the one in the database");
       }
 
-      ORecordInternal.setRecordSerializer(record, getSerializer());
+      ORecordInternal.setRecordSerializer(record, serializer);
       ORecordInternal.fill(record, rid, recordBuffer.version, recordBuffer.buffer, false, this);
 
       if (record instanceof ODocument) {
@@ -985,7 +985,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       ORecordInternal.fromStream(record, recordBuffer.buffer, this);
       afterReadOperations(record);
 
-      getLocalCache().updateRecord(record);
+      localCache.updateRecord(record);
       assert !record.isUnloaded();
 
       return (RET) record;
@@ -1619,7 +1619,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
 
       try {
         // ROLLBACK TX AT DB LEVEL
-        ((OTransactionAbstract) currentTx).internalRollback();
+        currentTx.internalRollback();
       } catch (Exception re) {
         OLogManager.instance()
             .error(
@@ -1898,7 +1898,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     if (currentDatabase != this) {
       throw new IllegalStateException(
           "The current database instance ("
-              + toString()
+              + this
               + ") is not active on the current thread ("
               + Thread.currentThread()
               + "). Current active database is: "

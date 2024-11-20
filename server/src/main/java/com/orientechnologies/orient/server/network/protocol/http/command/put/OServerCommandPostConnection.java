@@ -25,6 +25,7 @@ import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
 import com.orientechnologies.orient.server.network.protocol.http.command.OServerCommandAuthenticatedServerAbstract;
 
 public class OServerCommandPostConnection extends OServerCommandAuthenticatedServerAbstract {
+
   private static final String[] NAMES = {"POST|connection/*"};
 
   public OServerCommandPostConnection() {
@@ -39,13 +40,14 @@ public class OServerCommandPostConnection extends OServerCommandAuthenticatedSer
     iRequest.getData().commandInfo = "Interrupt command";
     iRequest.getData().commandDetail = urlParts[1];
 
-    if ("KILL".equalsIgnoreCase(urlParts[1]))
+    if ("KILL".equalsIgnoreCase(urlParts[1])) {
       server.getClientConnectionManager().kill(Integer.parseInt(urlParts[2]));
-    else if ("INTERRUPT".equalsIgnoreCase(urlParts[1]))
+    } else if ("INTERRUPT".equalsIgnoreCase(urlParts[1])) {
       server.getClientConnectionManager().interrupt(Integer.parseInt(urlParts[2]));
-    else
+    } else {
       throw new IllegalArgumentException(
           "Connection command '" + urlParts[1] + "' is unknown. Supported are: kill, interrupt");
+    }
 
     iResponse.send(
         OHttpUtils.STATUS_OK_NOCONTENT_CODE,

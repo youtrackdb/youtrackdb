@@ -37,9 +37,9 @@ public abstract class BaseHttpTest {
 
   private String serverCfg =
       "/com/orientechnologies/orient/server/network/orientdb-server-config-httponly.xml";
-  private String protocol = "http";
-  private String host = "localhost";
-  private int port = 2499;
+  private final String protocol = "http";
+  private final String host = "localhost";
+  private final int port = 2499;
   private String realm = "OrientDB-";
   private String userName = "admin";
   private String userPassword = "admin";
@@ -100,17 +100,17 @@ public abstract class BaseHttpTest {
   }
 
   protected BaseHttpTest exec() throws IOException {
-    final HttpHost targetHost = new HttpHost(getProtocol(), getHost(), getPort());
+    final HttpHost targetHost = new HttpHost(protocol, host, port);
 
     var credsProvider = new BasicCredentialsProvider();
     credsProvider.setCredentials(
         new AuthScope(targetHost),
-        new UsernamePasswordCredentials(getUserName(), getUserPassword().toCharArray()));
+        new UsernamePasswordCredentials(userName, userPassword.toCharArray()));
 
     final BasicCredentialsProvider provider = new BasicCredentialsProvider();
     AuthScope authScope = new AuthScope(targetHost);
     provider.setCredentials(
-        authScope, new UsernamePasswordCredentials(getUserName(), getUserPassword().toCharArray()));
+        authScope, new UsernamePasswordCredentials(userName, userPassword.toCharArray()));
 
     if (keepAlive != null) {
       request.addHeader("Connection", keepAlive ? "Keep-Alive" : "Close");
@@ -180,7 +180,7 @@ public abstract class BaseHttpTest {
   }
 
   protected String getBaseURL() {
-    return getProtocol() + "://" + getHost() + ":" + getPort();
+    return protocol + "://" + host + ":" + port;
   }
 
   public String getUserName() {

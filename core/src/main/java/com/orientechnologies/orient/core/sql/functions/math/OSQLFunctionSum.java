@@ -32,6 +32,7 @@ import java.util.List;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFunctionSum extends OSQLFunctionMathAbstract {
+
   public static final String NAME = "sum";
 
   private Number sum;
@@ -47,12 +48,18 @@ public class OSQLFunctionSum extends OSQLFunctionMathAbstract {
       final Object[] iParams,
       OCommandContext iContext) {
     if (iParams.length == 1) {
-      if (iParams[0] instanceof Number) sum((Number) iParams[0]);
-      else if (OMultiValue.isMultiValue(iParams[0]))
-        for (Object n : OMultiValue.getMultiValueIterable(iParams[0])) sum((Number) n);
+      if (iParams[0] instanceof Number) {
+        sum((Number) iParams[0]);
+      } else if (OMultiValue.isMultiValue(iParams[0])) {
+        for (Object n : OMultiValue.getMultiValueIterable(iParams[0])) {
+          sum((Number) n);
+        }
+      }
     } else {
       sum = null;
-      for (int i = 0; i < iParams.length; ++i) sum((Number) iParams[i]);
+      for (int i = 0; i < iParams.length; ++i) {
+        sum((Number) iParams[i]);
+      }
     }
     return sum;
   }
@@ -60,9 +67,12 @@ public class OSQLFunctionSum extends OSQLFunctionMathAbstract {
   protected void sum(final Number value) {
     if (value != null) {
       if (sum == null)
-        // FIRST TIME
+      // FIRST TIME
+      {
         sum = value;
-      else sum = OType.increment(sum, value);
+      } else {
+        sum = OType.increment(sum, value);
+      }
     }
   }
 
@@ -88,9 +98,12 @@ public class OSQLFunctionSum extends OSQLFunctionMathAbstract {
 
       if (value != null) {
         if (sum == null)
-          // FIRST TIME
+        // FIRST TIME
+        {
           sum = value;
-        else sum = OType.increment(sum, value);
+        } else {
+          sum = OType.increment(sum, value);
+        }
       }
     }
     return sum;

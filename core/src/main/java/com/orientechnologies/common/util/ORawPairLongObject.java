@@ -3,6 +3,7 @@ package com.orientechnologies.common.util;
 import it.unimi.dsi.fastutil.HashCommon;
 
 public final class ORawPairLongObject<V> {
+
   public final long first;
   public final V second;
 

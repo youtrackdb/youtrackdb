@@ -24,7 +24,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by Enrico Risa on 02/09/15. */
+/**
+ * Created by Enrico Risa on 02/09/15.
+ */
 public class LuceneMixIndexTest extends BaseLuceneTest {
 
   @Before

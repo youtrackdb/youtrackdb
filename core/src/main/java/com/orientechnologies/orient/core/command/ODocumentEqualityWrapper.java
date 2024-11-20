@@ -5,8 +5,11 @@ import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
 
-/** This class is designed to compare documents based on deep equality (to be used in Sets) */
+/**
+ * This class is designed to compare documents based on deep equality (to be used in Sets)
+ */
 public class ODocumentEqualityWrapper {
+
   private final ODocument internal;
 
   ODocumentEqualityWrapper(ODocument internal) {

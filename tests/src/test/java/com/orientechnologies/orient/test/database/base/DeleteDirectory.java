@@ -22,19 +22,27 @@ import org.testng.annotations.Test;
 
 @Test
 public class DeleteDirectory {
+
   @Parameters(value = "path")
   public DeleteDirectory(String iPath) {
     final File f = new File(iPath);
 
-    if (f.exists()) deleteDirectory(f);
-    else System.err.println("Directory: " + f.getAbsolutePath() + " not found");
+    if (f.exists()) {
+      deleteDirectory(f);
+    } else {
+      System.err.println("Directory: " + f.getAbsolutePath() + " not found");
+    }
   }
 
   private void deleteDirectory(File iDirectory) {
-    if (iDirectory.isDirectory())
+    if (iDirectory.isDirectory()) {
       for (File f : iDirectory.listFiles()) {
-        if (f.isDirectory()) deleteDirectory(f);
-        else if (!f.delete()) throw new OConfigurationException("Cannot delete the file: " + f);
+        if (f.isDirectory()) {
+          deleteDirectory(f);
+        } else if (!f.delete()) {
+          throw new OConfigurationException("Cannot delete the file: " + f);
+        }
       }
+    }
   }
 }

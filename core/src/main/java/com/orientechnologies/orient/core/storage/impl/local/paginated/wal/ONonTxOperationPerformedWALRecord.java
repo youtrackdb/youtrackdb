@@ -4,10 +4,11 @@ import java.nio.ByteBuffer;
 
 /**
  * @author Andrey Lomakin (a.lomakin-at-orientdb.com) <a
- *     href="mailto:lomakin.andrey@gmail.com">Andrey Lomakin</a>
+ * href="mailto:lomakin.andrey@gmail.com">Andrey Lomakin</a>
  * @since 12/12/14
  */
 public class ONonTxOperationPerformedWALRecord extends OAbstractWALRecord {
+
   @Override
   public int toStream(byte[] content, int offset) {
     return offset;

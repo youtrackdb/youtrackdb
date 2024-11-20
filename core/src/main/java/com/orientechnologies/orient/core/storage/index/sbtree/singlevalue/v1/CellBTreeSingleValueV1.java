@@ -92,6 +92,7 @@ import java.util.stream.StreamSupport;
  */
 public final class CellBTreeSingleValueV1<K> extends ODurableComponent
     implements OCellBTreeSingleValue<K> {
+
   private static final int MAX_KEY_SIZE =
       OGlobalConfiguration.SBTREE_MAX_KEY_SIZE.getValueAsInteger();
   private static final OAlwaysLessKey ALWAYS_LESS_KEY = new OAlwaysLessKey();
@@ -1449,16 +1450,23 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
    * internal keys are used, whether lowest or highest partially matched key should be used.
    */
   private enum PartialSearchMode {
-    /** Any partially matched key will be used as search result. */
+    /**
+     * Any partially matched key will be used as search result.
+     */
     NONE,
-    /** The biggest partially matched key will be used as search result. */
+    /**
+     * The biggest partially matched key will be used as search result.
+     */
     HIGHEST_BOUNDARY,
 
-    /** The smallest partially matched key will be used as search result. */
+    /**
+     * The smallest partially matched key will be used as search result.
+     */
     LOWEST_BOUNDARY
   }
 
   private static final class BucketSearchResult {
+
     private final int itemIndex;
     private final long pageIndex;
 
@@ -1469,6 +1477,7 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
   }
 
   private static final class UpdateBucketSearchResult {
+
     private final IntList insertionIndexes;
     private final LongArrayList path;
     private final int itemIndex;
@@ -1486,6 +1495,7 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
   }
 
   private static final class PagePathItemUnit {
+
     private final long pageIndex;
     private final int itemIndex;
 
@@ -1496,6 +1506,7 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
   }
 
   private final class CellBTreeSpliteratorForward implements Spliterator<ORawPair<K, ORID>> {
+
     private K fromKey;
     private final K toKey;
     private boolean fromKeyInclusive;
@@ -1667,6 +1678,7 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
   }
 
   private final class CellBTreeSpliteratorBackward implements Spliterator<ORawPair<K, ORID>> {
+
     private final K fromKey;
     private K toKey;
     private final boolean fromKeyInclusive;

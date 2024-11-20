@@ -29,6 +29,7 @@ import java.io.InputStream;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OImmutableRecordId extends ORecordId {
+
   public static final ORID EMPTY_RECORD_ID = new OImmutableRecordId();
   private static final long serialVersionUID = 1L;
 

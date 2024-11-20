@@ -12,6 +12,7 @@ import org.junit.Test;
  * @since 11.07.12
  */
 public class DefaultComparatorTest {
+
   private ODefaultComparator comparator = ODefaultComparator.INSTANCE;
 
   @Test

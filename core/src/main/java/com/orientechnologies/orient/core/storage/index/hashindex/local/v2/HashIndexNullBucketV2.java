@@ -29,6 +29,7 @@ import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODura
  * @since 4/25/14
  */
 public final class HashIndexNullBucketV2<V> extends ODurablePage {
+
   public HashIndexNullBucketV2(OCacheEntry cacheEntry) {
     super(cacheEntry);
   }

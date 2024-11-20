@@ -34,6 +34,7 @@ import java.io.IOException;
 
 public class OSBTFetchEntriesMajorRequest<K, V>
     implements OBinaryRequest<OSBTFetchEntriesMajorResponse<K, V>> {
+
   private boolean inclusive;
   private byte[] keyStream;
   private OBonsaiCollectionPointer pointer;
@@ -69,8 +70,11 @@ public class OSBTFetchEntriesMajorRequest<K, V>
     this.pointer = OCollectionNetworkSerializer.INSTANCE.readCollectionPointer(channel);
     this.keyStream = channel.readBytes();
     this.inclusive = channel.readBoolean();
-    if (protocolVersion >= 21) this.pageSize = channel.readInt();
-    else this.pageSize = 128;
+    if (protocolVersion >= 21) {
+      this.pageSize = channel.readInt();
+    } else {
+      this.pageSize = 128;
+    }
   }
 
   @Override

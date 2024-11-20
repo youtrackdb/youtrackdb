@@ -162,25 +162,41 @@ public class OAlterPropertyStatement extends ODDLStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OAlterPropertyStatement that = (OAlterPropertyStatement) o;
 
-    if (className != null ? !className.equals(that.className) : that.className != null)
+    if (className != null ? !className.equals(that.className) : that.className != null) {
       return false;
-    if (propertyName != null ? !propertyName.equals(that.propertyName) : that.propertyName != null)
+    }
+    if (propertyName != null
+        ? !propertyName.equals(that.propertyName)
+        : that.propertyName != null) {
       return false;
+    }
     if (customPropertyName != null
         ? !customPropertyName.equals(that.customPropertyName)
-        : that.customPropertyName != null) return false;
+        : that.customPropertyName != null) {
+      return false;
+    }
     if (customPropertyValue != null
         ? !customPropertyValue.equals(that.customPropertyValue)
-        : that.customPropertyValue != null) return false;
-    if (settingName != null ? !settingName.equals(that.settingName) : that.settingName != null)
+        : that.customPropertyValue != null) {
       return false;
-    if (settingValue != null ? !settingValue.equals(that.settingValue) : that.settingValue != null)
+    }
+    if (settingName != null ? !settingName.equals(that.settingName) : that.settingName != null) {
       return false;
+    }
+    if (settingValue != null
+        ? !settingValue.equals(that.settingValue)
+        : that.settingValue != null) {
+      return false;
+    }
 
     return true;
   }

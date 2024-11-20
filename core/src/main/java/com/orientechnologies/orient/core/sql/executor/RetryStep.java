@@ -10,8 +10,11 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
 import com.orientechnologies.orient.core.sql.parser.OStatement;
 import java.util.List;
 
-/** Created by luigidellaquila on 19/09/16. */
+/**
+ * Created by luigidellaquila on 19/09/16.
+ */
 public class RetryStep extends AbstractExecutionStep {
+
   public List<OStatement> body;
   public List<OStatement> elseBody;
   public boolean elseFail;

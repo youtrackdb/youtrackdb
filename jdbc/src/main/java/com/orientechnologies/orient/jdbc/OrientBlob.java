@@ -83,14 +83,16 @@ public class OrientBlob implements Blob {
    * @see java.sql.Blob#getBytes(long, int)
    */
   public byte[] getBytes(long pos, int length) throws SQLException {
-    if (pos < 1)
+    if (pos < 1) {
       throw new SQLException(
           "The position of the first byte in the BLOB value to be "
               + "extracted cannot be less than 1");
-    if (length < 0)
+    }
+    if (length < 0) {
       throw new SQLException(
           "The number of the consecutive bytes in the BLOB value to "
               + "be extracted cannot be a negative number");
+    }
 
     int relativeIndex = this.getRelativeIndex(pos);
 
@@ -106,8 +108,10 @@ public class OrientBlob implements Blob {
           relativeIndex = 0;
           currentChunk = binaryDataChunks.get(currentChunkIndex);
         } else
-          // exit from the loop: there are no more bytes to be read
+        // exit from the loop: there are no more bytes to be read
+        {
           break;
+        }
       }
       buffer.put(currentChunk[relativeIndex]);
       relativeIndex++;
@@ -128,8 +132,9 @@ public class OrientBlob implements Blob {
     currentChunkIndex = 0;
 
     // loop until we find the chuks holding the given position
-    while (pos >= (currentSize += binaryDataChunks.get(currentChunkIndex).length))
+    while (pos >= (currentSize += binaryDataChunks.get(currentChunkIndex).length)) {
       currentChunkIndex++;
+    }
 
     currentChunk = binaryDataChunks.get(currentChunkIndex);
     currentSize -= currentChunk.length;
@@ -199,8 +204,12 @@ public class OrientBlob implements Blob {
    * @see java.sql.Blob#truncate(long)
    */
   public void truncate(long len) throws SQLException {
-    if (len < 0) throw new SQLException("The length of a BLOB cannot be a negtive number.");
-    if (len < this.length) this.length = len;
+    if (len < 0) {
+      throw new SQLException("The length of a BLOB cannot be a negtive number.");
+    }
+    if (len < this.length) {
+      this.length = len;
+    }
   }
 
   /*

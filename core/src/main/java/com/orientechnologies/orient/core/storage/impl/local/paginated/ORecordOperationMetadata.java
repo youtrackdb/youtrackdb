@@ -30,6 +30,7 @@ import java.util.Set;
  * which were changed during active atomic operation.
  */
 public class ORecordOperationMetadata implements OAtomicOperationMetadata<Set<ORID>> {
+
   public static final String RID_METADATA_KEY = "cluster.record.rid";
 
   private final Set<ORID> rids = new HashSet<>();

@@ -38,6 +38,7 @@ import java.util.Set;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 
 public class OLuceneIndexFactory implements OIndexFactory, ODatabaseLifecycleListener {
+
   public static final String LUCENE_ALGORITHM = "LUCENE";
 
   private static final Set<String> TYPES;
@@ -60,7 +61,9 @@ public class OLuceneIndexFactory implements OIndexFactory, ODatabaseLifecycleLis
   }
 
   public OLuceneIndexFactory(boolean manual) {
-    if (!manual) Orient.instance().addDbLifecycleListener(this);
+    if (!manual) {
+      Orient.instance().addDbLifecycleListener(this);
+    }
   }
 
   @Override
@@ -124,7 +127,9 @@ public class OLuceneIndexFactory implements OIndexFactory, ODatabaseLifecycleLis
   @Override
   public void onDrop(final ODatabaseSessionInternal db) {
     try {
-      if (db.isClosed()) return;
+      if (db.isClosed()) {
+        return;
+      }
 
       OLogManager.instance().debug(this, "Dropping Lucene indexes...");
 

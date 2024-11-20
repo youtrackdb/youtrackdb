@@ -376,28 +376,54 @@ public class OSelectStatement extends OStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OSelectStatement that = (OSelectStatement) o;
 
-    if (target != null ? !target.equals(that.target) : that.target != null) return false;
-    if (projection != null ? !projection.equals(that.projection) : that.projection != null)
+    if (target != null ? !target.equals(that.target) : that.target != null) {
       return false;
-    if (whereClause != null ? !whereClause.equals(that.whereClause) : that.whereClause != null)
+    }
+    if (projection != null ? !projection.equals(that.projection) : that.projection != null) {
       return false;
-    if (groupBy != null ? !groupBy.equals(that.groupBy) : that.groupBy != null) return false;
-    if (orderBy != null ? !orderBy.equals(that.orderBy) : that.orderBy != null) return false;
-    if (unwind != null ? !unwind.equals(that.unwind) : that.unwind != null) return false;
-    if (skip != null ? !skip.equals(that.skip) : that.skip != null) return false;
-    if (limit != null ? !limit.equals(that.limit) : that.limit != null) return false;
-    if (fetchPlan != null ? !fetchPlan.equals(that.fetchPlan) : that.fetchPlan != null)
+    }
+    if (whereClause != null ? !whereClause.equals(that.whereClause) : that.whereClause != null) {
       return false;
-    if (letClause != null ? !letClause.equals(that.letClause) : that.letClause != null)
+    }
+    if (groupBy != null ? !groupBy.equals(that.groupBy) : that.groupBy != null) {
       return false;
-    if (timeout != null ? !timeout.equals(that.timeout) : that.timeout != null) return false;
-    if (parallel != null ? !parallel.equals(that.parallel) : that.parallel != null) return false;
-    if (noCache != null ? !noCache.equals(that.noCache) : that.noCache != null) return false;
+    }
+    if (orderBy != null ? !orderBy.equals(that.orderBy) : that.orderBy != null) {
+      return false;
+    }
+    if (unwind != null ? !unwind.equals(that.unwind) : that.unwind != null) {
+      return false;
+    }
+    if (skip != null ? !skip.equals(that.skip) : that.skip != null) {
+      return false;
+    }
+    if (limit != null ? !limit.equals(that.limit) : that.limit != null) {
+      return false;
+    }
+    if (fetchPlan != null ? !fetchPlan.equals(that.fetchPlan) : that.fetchPlan != null) {
+      return false;
+    }
+    if (letClause != null ? !letClause.equals(that.letClause) : that.letClause != null) {
+      return false;
+    }
+    if (timeout != null ? !timeout.equals(that.timeout) : that.timeout != null) {
+      return false;
+    }
+    if (parallel != null ? !parallel.equals(that.parallel) : that.parallel != null) {
+      return false;
+    }
+    if (noCache != null ? !noCache.equals(that.noCache) : that.noCache != null) {
+      return false;
+    }
 
     return true;
   }

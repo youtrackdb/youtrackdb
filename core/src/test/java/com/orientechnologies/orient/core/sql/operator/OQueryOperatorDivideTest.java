@@ -25,8 +25,11 @@ import java.math.BigDecimal;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by luigidellaquila on 29/03/16. */
+/**
+ * Created by luigidellaquila on 29/03/16.
+ */
 public class OQueryOperatorDivideTest {
+
   @Test
   public void test() {
     OQueryOperator operator = new OQueryOperatorDivide();

@@ -34,7 +34,9 @@ public abstract class OAbstractRemoteTask implements ORemoteTask {
 
   protected transient String nodeSource;
 
-  /** Constructor used from unmarshalling. */
+  /**
+   * Constructor used from unmarshalling.
+   */
   public OAbstractRemoteTask() {}
 
   @Override
@@ -44,14 +46,18 @@ public abstract class OAbstractRemoteTask implements ORemoteTask {
 
   @Override
   public long getSynchronousTimeout(final int iSynchNodes) {
-    if (iSynchNodes <= 0) return getDistributedTimeout();
+    if (iSynchNodes <= 0) {
+      return getDistributedTimeout();
+    }
 
     return getDistributedTimeout() * iSynchNodes;
   }
 
   @Override
   public long getTotalTimeout(final int iTotalNodes) {
-    if (iTotalNodes <= 0) return getDistributedTimeout();
+    if (iTotalNodes <= 0) {
+      return getDistributedTimeout();
+    }
 
     return getDistributedTimeout() * iTotalNodes;
   }

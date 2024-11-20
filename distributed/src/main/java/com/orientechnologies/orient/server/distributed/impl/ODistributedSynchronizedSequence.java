@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 
 public class ODistributedSynchronizedSequence {
+
   private final OTransactionSequenceManager sequenceManager;
   private CountDownLatch request;
 

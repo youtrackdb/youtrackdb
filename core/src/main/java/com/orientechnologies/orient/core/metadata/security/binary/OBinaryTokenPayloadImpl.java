@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 public class OBinaryTokenPayloadImpl implements OBinaryTokenPayload {
+
   private String userName;
   private String database;
   private long expiry;
@@ -114,8 +115,11 @@ public class OBinaryTokenPayloadImpl implements OBinaryTokenPayload {
       throws UnsupportedEncodingException, IOException {
     String toWrite = this.getDatabase();
     OBinaryTokenSerializer.writeString(output, toWrite);
-    if (this.getDatabaseType() == null) output.writeByte(-1);
-    else output.writeByte(serializer.getDbTypeID(this.getDatabaseType()));
+    if (this.getDatabaseType() == null) {
+      output.writeByte(-1);
+    } else {
+      output.writeByte(serializer.getDbTypeID(this.getDatabaseType()));
+    }
     ORID id = this.getUserRid();
     if (id == null) {
       output.writeShort(-1);

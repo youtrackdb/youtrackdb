@@ -97,7 +97,9 @@ public class OSQLFunctionPercentile extends OSQLFunctionAbstract {
       return this.evaluate(dValues);
     }
 
-    if (!resultsToMerge.isEmpty()) return resultsToMerge.get(0);
+    if (!resultsToMerge.isEmpty()) {
+      return resultsToMerge.get(0);
+    }
 
     return null;
   }

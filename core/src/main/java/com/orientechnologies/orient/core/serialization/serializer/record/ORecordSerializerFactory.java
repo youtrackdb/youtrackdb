@@ -37,6 +37,7 @@ import java.util.Map;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class ORecordSerializerFactory {
+
   private static final ORecordSerializerFactory instance = new ORecordSerializerFactory();
   private Map<String, ORecordSerializer> implementations = new HashMap<String, ORecordSerializer>();
 
@@ -53,16 +54,17 @@ public class ORecordSerializerFactory {
 
     defaultRecordSerializer =
         getFormat(OGlobalConfiguration.DB_DOCUMENT_SERIALIZER.getValueAsString());
-    if (defaultRecordSerializer == null)
+    if (defaultRecordSerializer == null) {
       throw new ODatabaseException(
           "Impossible to find serializer with name "
               + OGlobalConfiguration.DB_DOCUMENT_SERIALIZER.getValueAsString());
+    }
   }
 
   /**
    * Registers record serializer implementation.
    *
-   * @param iName Name to register, use JSON to overwrite default JSON serializer
+   * @param iName     Name to register, use JSON to overwrite default JSON serializer
    * @param iInstance Serializer implementation
    */
   public void register(final String iName, final ORecordSerializer iInstance) {
@@ -74,7 +76,9 @@ public class ORecordSerializerFactory {
   }
 
   public ORecordSerializer getFormat(final String iFormatName) {
-    if (iFormatName == null) return null;
+    if (iFormatName == null) {
+      return null;
+    }
 
     return implementations.get(iFormatName);
   }

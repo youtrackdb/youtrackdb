@@ -70,14 +70,21 @@ public class OSkip extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OSkip oSkip = (OSkip) o;
 
-    if (num != null ? !num.equals(oSkip.num) : oSkip.num != null) return false;
-    if (inputParam != null ? !inputParam.equals(oSkip.inputParam) : oSkip.inputParam != null)
+    if (num != null ? !num.equals(oSkip.num) : oSkip.num != null) {
       return false;
+    }
+    if (inputParam != null ? !inputParam.equals(oSkip.inputParam) : oSkip.inputParam != null) {
+      return false;
+    }
 
     return true;
   }

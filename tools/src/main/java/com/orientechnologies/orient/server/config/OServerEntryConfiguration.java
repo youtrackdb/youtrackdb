@@ -26,6 +26,7 @@ import jakarta.xml.bind.annotation.XmlType;
 @XmlRootElement(name = "entry")
 @XmlType(propOrder = {"value", "name"})
 public class OServerEntryConfiguration {
+
   @XmlAttribute public String name;
 
   @XmlAttribute public String value;

@@ -53,6 +53,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.net.ssl.SSLSocket;
 
 public class OClientConnectionManager {
+
   private static final long TIMEOUT_PUSH = 3000;
 
   protected final ConcurrentMap<Integer, OClientConnection> connections =
@@ -103,8 +104,11 @@ public class OClientConnectionManager {
 
           final Socket socket;
           if (entry.getValue().getProtocol() == null
-              || entry.getValue().getProtocol().getChannel() == null) socket = null;
-          else socket = entry.getValue().getProtocol().getChannel().socket;
+              || entry.getValue().getProtocol().getChannel() == null) {
+            socket = null;
+          } else {
+            socket = entry.getValue().getProtocol().getChannel().socket;
+          }
 
           if (socket == null || socket.isClosed() || socket.isInputShutdown()) {
             OLogManager.instance()
@@ -234,7 +238,9 @@ public class OClientConnectionManager {
   public OClientConnection getConnection(final int iChannelId, ONetworkProtocol protocol) {
     // SEARCH THE CONNECTION BY ID
     OClientConnection connection = connections.get(iChannelId);
-    if (connection != null) connection.setProtocol(protocol);
+    if (connection != null) {
+      connection.setProtocol(protocol);
+    }
 
     return connection;
   }
@@ -247,7 +253,9 @@ public class OClientConnectionManager {
    */
   public OClientConnection getConnection(final String iAddress) {
     for (OClientConnection conn : connections.values()) {
-      if (iAddress.equals(conn.getRemoteAddress())) return conn;
+      if (iAddress.equals(conn.getRemoteAddress())) {
+        return conn;
+      }
     }
     return null;
   }
@@ -298,8 +306,10 @@ public class OClientConnectionManager {
     if (connection != null) {
       final ONetworkProtocol protocol = connection.getProtocol();
       if (protocol != null)
-        // INTERRUPT THE NEWTORK MANAGER
+      // INTERRUPT THE NEWTORK MANAGER
+      {
         protocol.softShutdown();
+      }
     }
   }
 
@@ -387,19 +397,27 @@ public class OClientConnectionManager {
     return connections.size();
   }
 
-  /** Pushes the distributed configuration to all the connected clients. */
+  /**
+   * Pushes the distributed configuration to all the connected clients.
+   */
   public void pushDistribCfg2Clients(final ODocument iConfig) {
-    if (iConfig == null) return;
+    if (iConfig == null) {
+      return;
+    }
 
     final Set<String> pushed = new HashSet<String>();
     for (OClientConnection c : connections.values()) {
-      if (!c.getData().supportsLegacyPushMessages) continue;
+      if (!c.getData().supportsLegacyPushMessages) {
+        continue;
+      }
 
       try {
         final String remoteAddress = c.getRemoteAddress();
         if (pushed.contains(remoteAddress))
-          // ALREADY SENT: JUMP IT
+        // ALREADY SENT: JUMP IT
+        {
           continue;
+        }
 
       } catch (Exception e) {
         // SOCKET EXCEPTION SKIP IT
@@ -408,14 +426,18 @@ public class OClientConnectionManager {
 
       if (!(c.getProtocol() instanceof ONetworkProtocolBinary)
           || c.getData().getSerializationImpl() == null)
-        // INVOLVE ONLY BINARY PROTOCOLS
+      // INVOLVE ONLY BINARY PROTOCOLS
+      {
         continue;
+      }
 
       final ONetworkProtocolBinary p = (ONetworkProtocolBinary) c.getProtocol();
       final OChannelBinary channel = p.getChannel();
       final ORecordSerializer ser =
           ORecordSerializerFactory.instance().getFormat(c.getData().getSerializationImpl());
-      if (ser == null) return;
+      if (ser == null) {
+        return;
+      }
 
       final byte[] content = ser.toStream(iConfig);
 
@@ -468,7 +490,9 @@ public class OClientConnectionManager {
 
       final ONetworkProtocol protocol = entry.getValue().getProtocol();
 
-      if (protocol != null) protocol.sendShutdown();
+      if (protocol != null) {
+        protocol.sendShutdown();
+      }
 
       OLogManager.instance().debug(this, "Sending shutdown to thread %s", protocol);
 
@@ -483,15 +507,20 @@ public class OClientConnectionManager {
         }
 
         final Socket socket;
-        if (protocol == null || protocol.getChannel() == null) socket = null;
-        else socket = protocol.getChannel().socket;
+        if (protocol == null || protocol.getChannel() == null) {
+          socket = null;
+        } else {
+          socket = protocol.getChannel().socket;
+        }
 
         if (socket != null && !socket.isClosed() && !socket.isInputShutdown()) {
           try {
             OLogManager.instance().debug(this, "Closing input socket of thread %s", protocol);
             if (!(socket
                 instanceof SSLSocket)) // An SSLSocket will throw an UnsupportedOperationException.
-            socket.shutdownInput();
+            {
+              socket.shutdownInput();
+            }
           } catch (IOException e) {
             OLogManager.instance()
                 .debug(
@@ -542,13 +571,18 @@ public class OClientConnectionManager {
         protocol.getChannel().close();
 
         final Socket socket;
-        if (protocol == null || protocol.getChannel() == null) socket = null;
-        else socket = protocol.getChannel().socket;
+        if (protocol == null || protocol.getChannel() == null) {
+          socket = null;
+        } else {
+          socket = protocol.getChannel().socket;
+        }
 
         if (socket != null && !socket.isClosed() && !socket.isInputShutdown()) {
           if (!(socket
               instanceof SSLSocket)) // An SSLSocket will throw an UnsupportedOperationException.
-          socket.shutdownInput();
+          {
+            socket.shutdownInput();
+          }
         }
 
       } catch (Exception e) {

@@ -28,6 +28,7 @@ import org.junit.Test;
  * server.
  */
 public class HACrashIT extends AbstractServerClusterTxTest {
+
   private static final int SERVERS = 3;
   private volatile boolean inserting = true;
   private volatile int serverStarted = 0;
@@ -53,70 +54,70 @@ public class HACrashIT extends AbstractServerClusterTxTest {
     if (serverStarted++ == (SERVERS - 1)) {
       // RUN ASYNCHRONOUSLY
       new Thread(
-              new Runnable() {
-                @Override
-                public void run() {
-                  try {
-                    // CRASH LAST SERVER try {
-                    executeWhen(
-                        0,
-                        new OCallable<Boolean, ODatabaseDocument>() {
-                          // CONDITION
-                          @Override
-                          public Boolean call(ODatabaseDocument db) {
-                            return db.countClass("Person")
-                                > (count * SERVERS * writerCount + baseCount) * 1 / 3;
-                          }
-                        }, // ACTION
-                        new OCallable<Boolean, ODatabaseDocument>() {
-                          @Override
-                          public Boolean call(ODatabaseDocument db) {
-                            Assert.assertTrue("Insert was too fast", inserting);
-                            banner("SIMULATE FAILURE ON SERVER " + (SERVERS - 1));
+          new Runnable() {
+            @Override
+            public void run() {
+              try {
+                // CRASH LAST SERVER try {
+                executeWhen(
+                    0,
+                    new OCallable<Boolean, ODatabaseDocument>() {
+                      // CONDITION
+                      @Override
+                      public Boolean call(ODatabaseDocument db) {
+                        return db.countClass("Person")
+                            > (count * SERVERS * writerCount + baseCount) * 1 / 3;
+                      }
+                    }, // ACTION
+                    new OCallable<Boolean, ODatabaseDocument>() {
+                      @Override
+                      public Boolean call(ODatabaseDocument db) {
+                        Assert.assertTrue("Insert was too fast", inserting);
+                        banner("SIMULATE FAILURE ON SERVER " + (SERVERS - 1));
 
-                            delayWriter = 50;
-                            serverInstance.get(SERVERS - 1).crashServer();
+                        delayWriter = 50;
+                        serverInstance.get(SERVERS - 1).crashServer();
 
-                            executeWhen(
-                                db,
-                                new OCallable<Boolean, ODatabaseDocument>() {
-                                  @Override
-                                  public Boolean call(ODatabaseDocument db) {
-                                    return db.countClass("Person")
-                                        > (count * writerCount * SERVERS) * 2 / 4;
-                                  }
-                                },
-                                new OCallable<Boolean, ODatabaseDocument>() {
-                                  @Override
-                                  public Boolean call(ODatabaseDocument db) {
-                                    Assert.assertTrue("Insert was too fast", inserting);
+                        executeWhen(
+                            db,
+                            new OCallable<Boolean, ODatabaseDocument>() {
+                              @Override
+                              public Boolean call(ODatabaseDocument db) {
+                                return db.countClass("Person")
+                                    > (count * writerCount * SERVERS) * 2 / 4;
+                              }
+                            },
+                            new OCallable<Boolean, ODatabaseDocument>() {
+                              @Override
+                              public Boolean call(ODatabaseDocument db) {
+                                Assert.assertTrue("Insert was too fast", inserting);
 
-                                    banner("RESTARTING SERVER " + (SERVERS - 1) + "...");
-                                    try {
-                                      serverInstance
-                                          .get(SERVERS - 1)
-                                          .startServer(
-                                              getDistributedServerConfiguration(
-                                                  serverInstance.get(SERVERS - 1)));
-                                      serverRestarted = true;
-                                      delayWriter = 0;
+                                banner("RESTARTING SERVER " + (SERVERS - 1) + "...");
+                                try {
+                                  serverInstance
+                                      .get(SERVERS - 1)
+                                      .startServer(
+                                          getDistributedServerConfiguration(
+                                              serverInstance.get(SERVERS - 1)));
+                                  serverRestarted = true;
+                                  delayWriter = 0;
 
-                                    } catch (Exception e) {
-                                      e.printStackTrace();
-                                    }
-                                    return null;
-                                  }
-                                });
-                            return null;
-                          }
-                        });
+                                } catch (Exception e) {
+                                  e.printStackTrace();
+                                }
+                                return null;
+                              }
+                            });
+                        return null;
+                      }
+                    });
 
-                  } catch (Exception e) {
-                    e.printStackTrace();
-                    Assert.fail("Error on execution flow");
-                  }
-                }
-              })
+              } catch (Exception e) {
+                e.printStackTrace();
+                Assert.fail("Error on execution flow");
+              }
+            }
+          })
           .start();
     }
   }
@@ -130,13 +131,14 @@ public class HACrashIT extends AbstractServerClusterTxTest {
           @Override
           public Boolean call(ODatabaseDocument db) {
             final boolean ok = db.countClass("Person") >= count * writerCount * SERVERS + baseCount;
-            if (!ok)
+            if (!ok) {
               System.out.println(
                   "FOUND "
                       + db.countClass("Person")
                       + " people instead of expected "
                       + (count * writerCount * SERVERS)
                       + baseCount);
+            }
             return ok;
           }
         },
@@ -164,7 +166,9 @@ public class HACrashIT extends AbstractServerClusterTxTest {
   protected String getDatabaseURL(final ServerRun server) {
     final String address = server.getBinaryProtocolAddress();
 
-    if (address == null) return null;
+    if (address == null) {
+      return null;
+    }
 
     return "remote:" + address + "/" + getDatabaseName();
   }

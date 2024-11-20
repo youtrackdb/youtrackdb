@@ -45,7 +45,9 @@ import org.locationtech.spatial4j.context.jts.JtsSpatialContext;
 import org.locationtech.spatial4j.shape.Shape;
 import org.locationtech.spatial4j.shape.SpatialRelation;
 
-/** Created by Enrico Risa on 01/10/15. */
+/**
+ * Created by Enrico Risa on 01/10/15.
+ */
 public class LuceneGeoTest {
 
   @Test

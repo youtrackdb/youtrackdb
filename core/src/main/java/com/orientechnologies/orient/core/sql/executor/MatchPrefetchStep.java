@@ -6,7 +6,9 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
 import java.util.ArrayList;
 import java.util.List;
 
-/** Created by luigidellaquila on 20/09/16. */
+/**
+ * Created by luigidellaquila on 20/09/16.
+ */
 public class MatchPrefetchStep extends AbstractExecutionStep {
 
   public static final String PREFETCHED_MATCH_ALIAS_PREFIX = "$$OrientDB_Prefetched_Alias_Prefix__";

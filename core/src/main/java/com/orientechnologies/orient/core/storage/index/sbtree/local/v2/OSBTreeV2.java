@@ -88,6 +88,7 @@ import java.util.stream.StreamSupport;
  * @since 8/7/13
  */
 public class OSBTreeV2<K, V> extends ODurableComponent implements OSBTree<K, V> {
+
   private static final int SPLITERATOR_CACHE_SIZE =
       OGlobalConfiguration.INDEX_CURSOR_PREFETCH_SIZE.getValueAsInteger();
   private static final int MAX_KEY_SIZE =
@@ -1385,16 +1386,23 @@ public class OSBTreeV2<K, V> extends ODurableComponent implements OSBTree<K, V> 
    * internal keys are used, whether lowest or highest partially matched key should be used.
    */
   private enum PartialSearchMode {
-    /** Any partially matched key will be used as search result. */
+    /**
+     * Any partially matched key will be used as search result.
+     */
     NONE,
-    /** The biggest partially matched key will be used as search result. */
+    /**
+     * The biggest partially matched key will be used as search result.
+     */
     HIGHEST_BOUNDARY,
 
-    /** The smallest partially matched key will be used as search result. */
+    /**
+     * The smallest partially matched key will be used as search result.
+     */
     LOWEST_BOUNDARY
   }
 
   private static class BucketSearchResult {
+
     private final int itemIndex;
     private final LongArrayList path;
 
@@ -1409,6 +1417,7 @@ public class OSBTreeV2<K, V> extends ODurableComponent implements OSBTree<K, V> 
   }
 
   private static final class PagePathItemUnit {
+
     private final long pageIndex;
     private final int itemIndex;
 
@@ -1419,6 +1428,7 @@ public class OSBTreeV2<K, V> extends ODurableComponent implements OSBTree<K, V> 
   }
 
   private final class SpliteratorForward implements Spliterator<ORawPair<K, V>> {
+
     private final K fromKey;
     private final K toKey;
     private final boolean fromKeyInclusive;
@@ -1624,6 +1634,7 @@ public class OSBTreeV2<K, V> extends ODurableComponent implements OSBTree<K, V> 
   }
 
   private final class SpliteratorBackward implements Spliterator<ORawPair<K, V>> {
+
     private final K fromKey;
     private final K toKey;
     private final boolean fromKeyInclusive;

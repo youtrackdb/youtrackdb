@@ -48,7 +48,9 @@ public class AsyncReplMode2ServersOverflowIT extends BareBoneBase2ServerTest {
       }
 
     } catch (Throwable e) {
-      if (exceptionInThread == null) exceptionInThread = e;
+      if (exceptionInThread == null) {
+        exceptionInThread = e;
+      }
 
     } finally {
       System.out.println("Shutting down");

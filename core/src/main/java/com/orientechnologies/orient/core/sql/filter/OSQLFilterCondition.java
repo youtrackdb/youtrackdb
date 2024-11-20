@@ -257,8 +257,8 @@ public class OSQLFilterCondition {
   }
 
   public List<String> getInvolvedFields(final List<String> list) {
-    extractInvolvedFields(getLeft(), list);
-    extractInvolvedFields(getRight(), list);
+    extractInvolvedFields(left, list);
+    extractInvolvedFields(right, list);
 
     return list;
   }
@@ -456,9 +456,8 @@ public class OSQLFilterCondition {
       return ((OSQLFilterCondition) iValue).evaluate(iCurrentRecord, iCurrentResult, iContext);
     }
 
-    if (iValue instanceof OSQLFunctionRuntime) {
+    if (iValue instanceof OSQLFunctionRuntime f) {
       // STATELESS FUNCTION: EXECUTE IT
-      final OSQLFunctionRuntime f = (OSQLFunctionRuntime) iValue;
       return f.execute(iCurrentRecord, iCurrentRecord, iCurrentResult, iContext);
     }
 

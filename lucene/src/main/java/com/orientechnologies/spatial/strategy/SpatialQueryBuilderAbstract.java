@@ -24,7 +24,9 @@ import org.apache.lucene.spatial.SpatialStrategy;
 import org.apache.lucene.spatial.bbox.BBoxStrategy;
 import org.locationtech.spatial4j.shape.Shape;
 
-/** Created by Enrico Risa on 11/08/15. */
+/**
+ * Created by Enrico Risa on 11/08/15.
+ */
 public abstract class SpatialQueryBuilderAbstract {
 
   public static final String GEO_FILTER = "geo_filter";

@@ -11,6 +11,7 @@ import org.junit.Test;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com) (l.garulli--at-orientdb.com)
  */
 public class HttpErrorsTest extends BaseHttpTest {
+
   @Test
   public void testCommandNotFound() throws Exception {
     Assert.assertEquals(

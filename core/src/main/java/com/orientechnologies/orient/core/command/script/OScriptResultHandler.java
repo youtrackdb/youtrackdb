@@ -29,5 +29,6 @@ import javax.script.ScriptEngine;
  * @author Enrico Risa (e.risa--(at)--orientdb.com)
  */
 public interface OScriptResultHandler {
+
   Object handle(Object result, ScriptEngine engine, Bindings binding, ODatabaseSession database);
 }

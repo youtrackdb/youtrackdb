@@ -39,6 +39,7 @@ import com.orientechnologies.orient.server.network.protocol.http.OHttpSession;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -75,7 +76,7 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
             "Syntax error in URL. Expected is: <command>/<database>[/...]");
       }
 
-      iRequest.setDatabaseName(URLDecoder.decode(urlParts[1], "UTF-8"));
+      iRequest.setDatabaseName(URLDecoder.decode(urlParts[1], StandardCharsets.UTF_8));
       if (iRequest.getBearerTokenRaw() != null) {
         // Bearer authentication
         try {
@@ -87,7 +88,7 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
         }
 
         if (iRequest.getBearerToken() == null
-            || iRequest.getBearerToken().getToken().getIsVerified() == false) {
+            || !iRequest.getBearerToken().getToken().getIsVerified()) {
           // Token parsing or verification failed - for now fail silently.
           sendAuthorizationRequest(iRequest, iResponse, iRequest.getDatabaseName());
           return false;
@@ -95,7 +96,7 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
 
         // CHECK THE REQUEST VALIDITY
         tokenHandler.validateToken(iRequest.getBearerToken(), urlParts[0], urlParts[1]);
-        if (iRequest.getBearerToken().getToken().getIsValid() == false) {
+        if (!iRequest.getBearerToken().getToken().getIsValid()) {
 
           // SECURITY PROBLEM: CROSS DATABASE REQUEST!
           OLogManager.instance()

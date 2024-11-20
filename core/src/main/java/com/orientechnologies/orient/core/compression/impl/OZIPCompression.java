@@ -32,6 +32,7 @@ import java.util.zip.ZipOutputStream;
  * @author Luca Garulli
  */
 public abstract class OZIPCompression extends OAbstractCompression {
+
   @Override
   public byte[] compress(final byte[] content, final int offset, final int length) {
     try {
@@ -80,7 +81,9 @@ public abstract class OZIPCompression extends OAbstractCompression {
         while ((bytesRead = gzipInputStream.read(buffer, 0, buffer.length)) > -1) {
           if (len + bytesRead > result.length) {
             int newSize = 2 * result.length;
-            if (newSize < len + bytesRead) newSize = Integer.MAX_VALUE;
+            if (newSize < len + bytesRead) {
+              newSize = Integer.MAX_VALUE;
+            }
 
             final byte[] oldResult = result;
             result = new byte[newSize];

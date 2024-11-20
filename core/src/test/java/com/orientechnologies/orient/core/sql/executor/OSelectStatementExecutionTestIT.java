@@ -7,7 +7,9 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by tglman on 09/06/17. */
+/**
+ * Created by tglman on 09/06/17.
+ */
 public class OSelectStatementExecutionTestIT extends BaseMemoryDatabase {
 
   @Test

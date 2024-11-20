@@ -27,6 +27,7 @@ import com.orientechnologies.orient.server.network.protocol.http.command.OServer
 import java.io.IOException;
 
 public class OServerCommandGetDisconnect extends OServerCommandAbstract {
+
   private static final String[] NAMES = {"GET|disconnect"};
 
   @Override

@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.LongAdder;
 import java.util.concurrent.locks.LockSupport;
 
 public final class OperationsFreezer {
+
   private final LongAdder operationsCount = new LongAdder();
   private final AtomicInteger freezeRequests = new AtomicInteger();
 
@@ -156,6 +157,7 @@ public final class OperationsFreezer {
   }
 
   private static final class FreezeParameters {
+
     private final String message;
     private final Class<? extends OException> exceptionClass;
 

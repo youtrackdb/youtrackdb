@@ -1,6 +1,7 @@
 package com.orientechnologies.orient.setup;
 
 public class TestSetupException extends RuntimeException {
+
   public TestSetupException(String msg) {
     super(msg);
   }

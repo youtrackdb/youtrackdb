@@ -11,7 +11,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
-/** Created by tglman on 19/07/16. */
+/**
+ * Created by tglman on 19/07/16.
+ */
 public class ODatabaseImportRemote extends ODatabaseImpExpAbstract {
 
   private String options;
@@ -37,8 +39,7 @@ public class ODatabaseImportRemote extends ODatabaseImpExpAbstract {
   }
 
   public void importDatabase() throws ODatabaseImportException {
-    OStorageRemote storage =
-        (OStorageRemote) ((ODatabaseSessionInternal) getDatabase()).getStorage();
+    OStorageRemote storage = (OStorageRemote) getDatabase().getStorage();
     File file = new File(getFileName());
     try {
       storage.importDatabase(options, new FileInputStream(file), file.getName(), getListener());

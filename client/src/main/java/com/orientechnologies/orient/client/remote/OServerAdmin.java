@@ -29,9 +29,12 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
 
-/** Remote administration class of OrientDB Server instances. */
+/**
+ * Remote administration class of OrientDB Server instances.
+ */
 @Deprecated
 public class OServerAdmin {
+
   protected OStorageRemoteSession session = new OStorageRemoteSession(-1);
   protected String clientType = OStorageRemote.DRIVER_NAME;
   protected boolean collectStats = true;
@@ -39,7 +42,7 @@ public class OServerAdmin {
   private final OrientDBRemote remote;
   private String user;
   private String password;
-  private Optional<String> database;
+  private final Optional<String> database;
 
   /**
    * Creates the object passing a remote URL to connect. sessionToken
@@ -50,9 +53,13 @@ public class OServerAdmin {
   @Deprecated
   public OServerAdmin(String iURL) throws IOException {
     String url = iURL;
-    if (url.startsWith(OEngineRemote.NAME)) url = url.substring(OEngineRemote.NAME.length() + 1);
+    if (url.startsWith(OEngineRemote.NAME)) {
+      url = url.substring(OEngineRemote.NAME.length() + 1);
+    }
 
-    if (!url.contains("/")) url += "/";
+    if (!url.contains("/")) {
+      url += "/";
+    }
 
     remote = (OrientDBRemote) ODatabaseDocumentTxInternal.getOrCreateRemoteFactory(url);
     urls = new ORemoteURLs(new String[] {}, remote.getContextConfiguration());
@@ -91,7 +98,7 @@ public class OServerAdmin {
   /**
    * Connects to a remote server.
    *
-   * @param iUserName Server's user name
+   * @param iUserName     Server's user name
    * @param iUserPassword Server's password for the user name used
    * @return The instance itself. Useful to execute method in chain
    * @throws IOException
@@ -138,7 +145,9 @@ public class OServerAdmin {
     return session.getSessionId();
   }
 
-  /** Deprecated. Use the {@link #createDatabase(String, String)} instead. */
+  /**
+   * Deprecated. Use the {@link #createDatabase(String, String)} instead.
+   */
   @Deprecated
   public synchronized OServerAdmin createDatabase(final String iStorageMode) throws IOException {
     return createDatabase("document", iStorageMode);
@@ -148,7 +157,7 @@ public class OServerAdmin {
    * Creates a database in a remote server.
    *
    * @param iDatabaseType 'document' or 'graph'
-   * @param iStorageMode local or memory
+   * @param iStorageMode  local or memory
    * @return The instance itself. Useful to execute method in chain
    * @throws IOException
    */
@@ -173,8 +182,9 @@ public class OServerAdmin {
    *
    * @param iDatabaseName The database name
    * @param iDatabaseType 'document' or 'graph'
-   * @param iStorageMode local or memory
-   * @param backupPath path to incremental backup which will be used to create database (optional)
+   * @param iStorageMode  local or memory
+   * @param backupPath    path to incremental backup which will be used to create database
+   *                      (optional)
    * @return The instance itself. Useful to execute method in chain
    * @throws IOException
    */
@@ -186,8 +196,11 @@ public class OServerAdmin {
       throws IOException {
     checkConnected();
     ODatabaseType storageMode;
-    if (iStorageMode == null) storageMode = ODatabaseType.PLOCAL;
-    else storageMode = ODatabaseType.valueOf(iStorageMode.toUpperCase());
+    if (iStorageMode == null) {
+      storageMode = ODatabaseType.PLOCAL;
+    } else {
+      storageMode = ODatabaseType.valueOf(iStorageMode.toUpperCase());
+    }
     OrientDBConfig config =
         OrientDBConfig.builder().addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, true).build();
     if (backupPath != null) {
@@ -212,7 +225,7 @@ public class OServerAdmin {
    * Checks if a database exists in the remote server.
    *
    * @param iDatabaseName The database name
-   * @param storageType Storage type between "plocal" or "memory".
+   * @param storageType   Storage type between "plocal" or "memory".
    * @return true if exists, otherwise false
    * @throws IOException
    */
@@ -251,7 +264,7 @@ public class OServerAdmin {
    * Drops a database from a remote server instance.
    *
    * @param iDatabaseName The database name
-   * @param storageType Storage type between "plocal" or "memory".
+   * @param storageType   Storage type between "plocal" or "memory".
    * @return The instance itself. Useful to execute method in chain
    * @throws IOException
    */
@@ -329,7 +342,9 @@ public class OServerAdmin {
     return this;
   }
 
-  /** Close the connection if open. */
+  /**
+   * Close the connection if open.
+   */
   public synchronized void close() {}
 
   public synchronized void close(boolean iForce) {}

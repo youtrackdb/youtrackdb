@@ -278,8 +278,7 @@ public class OMultiCollectionIterator<T>
               if (arraySize == 1) {
                 partialIterator = new OIterableObject<T>((T) Array.get(next, 0));
               } else {
-                partialIterator =
-                    (Iterator<T>) (Iterator<Object>) OMultiValue.getMultiValueIterator(next);
+                partialIterator = (Iterator<T>) OMultiValue.getMultiValueIterator(next);
               }
               return true;
             }

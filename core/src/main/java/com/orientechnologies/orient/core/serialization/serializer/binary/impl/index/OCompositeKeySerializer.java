@@ -56,8 +56,11 @@ public class OCompositeKeySerializer implements OBinarySerializer<OCompositeKey>
 
       if (key != null) {
         final OType type;
-        if (types.length > i) type = types[i];
-        else type = OType.getTypeByClass(key.getClass());
+        if (types.length > i) {
+          type = types[i];
+        } else {
+          type = OType.getTypeByClass(key.getClass());
+        }
 
         size +=
             OBinarySerializerFactory.TYPE_IDENTIFIER_SIZE
@@ -95,11 +98,16 @@ public class OCompositeKeySerializer implements OBinarySerializer<OCompositeKey>
       OBinarySerializer<Object> binarySerializer;
       if (key != null) {
         final OType type;
-        if (types.length > i) type = types[i];
-        else type = OType.getTypeByClass(key.getClass());
+        if (types.length > i) {
+          type = types[i];
+        } else {
+          type = OType.getTypeByClass(key.getClass());
+        }
 
         binarySerializer = factory.getObjectSerializer(type);
-      } else binarySerializer = ONullSerializer.INSTANCE;
+      } else {
+        binarySerializer = ONullSerializer.INSTANCE;
+      }
 
       stream[startPosition] = binarySerializer.getId();
       startPosition += OBinarySerializerFactory.TYPE_IDENTIFIER_SIZE;
@@ -171,11 +179,16 @@ public class OCompositeKeySerializer implements OBinarySerializer<OCompositeKey>
       OBinarySerializer<Object> binarySerializer;
       if (key != null) {
         final OType type;
-        if (types.length > i) type = types[i];
-        else type = OType.getTypeByClass(key.getClass());
+        if (types.length > i) {
+          type = types[i];
+        } else {
+          type = OType.getTypeByClass(key.getClass());
+        }
 
         binarySerializer = factory.getObjectSerializer(type);
-      } else binarySerializer = ONullSerializer.INSTANCE;
+      } else {
+        binarySerializer = ONullSerializer.INSTANCE;
+      }
 
       stream[startPosition] = binarySerializer.getId();
       startPosition += OBinarySerializerFactory.TYPE_IDENTIFIER_SIZE;
@@ -216,8 +229,11 @@ public class OCompositeKeySerializer implements OBinarySerializer<OCompositeKey>
   private OType[] getKeyTypes(Object[] hints) {
     final OType[] types;
 
-    if (hints != null && hints.length > 0) types = (OType[]) hints;
-    else types = OCommonConst.EMPTY_TYPES_ARRAY;
+    if (hints != null && hints.length > 0) {
+      types = (OType[]) hints;
+    } else {
+      types = OCommonConst.EMPTY_TYPES_ARRAY;
+    }
     return types;
   }
 
@@ -246,8 +262,9 @@ public class OCompositeKeySerializer implements OBinarySerializer<OCompositeKey>
 
       if (key != null) {
         final OType type;
-        if (types.length > i) type = types[i];
-        else {
+        if (types.length > i) {
+          type = types[i];
+        } else {
           type = OType.getTypeByClass(key.getClass());
         }
 
@@ -272,7 +289,9 @@ public class OCompositeKeySerializer implements OBinarySerializer<OCompositeKey>
     return compositeKey;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void serializeInByteBufferObject(
       OCompositeKey object, ByteBuffer buffer, Object... hints) {
@@ -293,11 +312,16 @@ public class OCompositeKeySerializer implements OBinarySerializer<OCompositeKey>
       OBinarySerializer<Object> binarySerializer;
       if (key != null) {
         final OType type;
-        if (types.length > i) type = types[i];
-        else type = OType.getTypeByClass(key.getClass());
+        if (types.length > i) {
+          type = types[i];
+        } else {
+          type = OType.getTypeByClass(key.getClass());
+        }
 
         binarySerializer = factory.getObjectSerializer(type);
-      } else binarySerializer = ONullSerializer.INSTANCE;
+      } else {
+        binarySerializer = ONullSerializer.INSTANCE;
+      }
 
       buffer.put(binarySerializer.getId());
       binarySerializer.serializeInByteBufferObject(key, buffer);
@@ -312,7 +336,9 @@ public class OCompositeKeySerializer implements OBinarySerializer<OCompositeKey>
     buffer.position(finalPosition);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public OCompositeKey deserializeFromByteBufferObject(ByteBuffer buffer) {
     final OCompositeKey compositeKey = new OCompositeKey();
@@ -333,7 +359,9 @@ public class OCompositeKeySerializer implements OBinarySerializer<OCompositeKey>
     return compositeKey;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public OCompositeKey deserializeFromByteBufferObject(int offset, ByteBuffer buffer) {
     final OCompositeKey compositeKey = new OCompositeKey();
@@ -360,7 +388,9 @@ public class OCompositeKeySerializer implements OBinarySerializer<OCompositeKey>
     return compositeKey;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getObjectSizeInByteBuffer(ByteBuffer buffer) {
     return buffer.getInt();
@@ -371,7 +401,9 @@ public class OCompositeKeySerializer implements OBinarySerializer<OCompositeKey>
     return buffer.getInt(offset);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public OCompositeKey deserializeFromByteBufferObject(
       ByteBuffer buffer, OWALChanges walChanges, int offset) {
@@ -400,7 +432,9 @@ public class OCompositeKeySerializer implements OBinarySerializer<OCompositeKey>
     return compositeKey;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getObjectSizeInByteBuffer(ByteBuffer buffer, OWALChanges walChanges, int offset) {
     return walChanges.getIntValue(buffer, offset);

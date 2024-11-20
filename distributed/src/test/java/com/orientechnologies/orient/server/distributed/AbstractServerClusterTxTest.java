@@ -29,8 +29,11 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
-/** Test distributed TX */
+/**
+ * Test distributed TX
+ */
 public abstract class AbstractServerClusterTxTest extends AbstractServerClusterInsertTest {
+
   protected int printBlocksOf = 100;
 
   protected AbstractServerClusterTxTest() {
@@ -38,6 +41,7 @@ public abstract class AbstractServerClusterTxTest extends AbstractServerClusterI
   }
 
   class TxWriter extends BaseWriter {
+
     public TxWriter(final int iServerId, final int iThreadId, final ServerRun serverRun) {
       super(iServerId, iThreadId, serverRun);
     }
@@ -58,7 +62,7 @@ public abstract class AbstractServerClusterTxTest extends AbstractServerClusterI
           int retry;
           for (retry = 0; retry < maxRetries; retry++) {
             database.activateOnCurrentThread();
-            if ((i + 1) % printBlocksOf == 0)
+            if ((i + 1) % printBlocksOf == 0) {
               System.out.println(
                   "\nWriter "
                       + database.getURL()
@@ -69,8 +73,11 @@ public abstract class AbstractServerClusterTxTest extends AbstractServerClusterI
                       + "/"
                       + count
                       + " records so far");
+            }
 
-            if (useTransactions) database.begin();
+            if (useTransactions) {
+              database.begin();
+            }
 
             try {
               ODocument person = createRecord(database, id, uid);
@@ -82,14 +89,20 @@ public abstract class AbstractServerClusterTxTest extends AbstractServerClusterI
               updateRecord(database, person);
               checkRecord(database, person);
 
-              if (useTransactions) database.commit();
+              if (useTransactions) {
+                database.commit();
+              }
 
-              if (delayWriter > 0) Thread.sleep(delayWriter);
+              if (delayWriter > 0) {
+                Thread.sleep(delayWriter);
+              }
               clusters.add(person.getIdentity().getClusterId());
 
               String clusterName = database.getClusterNameById(person.getIdentity().getClusterId());
               Long counter = clusterNames.get(clusterName);
-              if (counter == null) counter = 0L;
+              if (counter == null) {
+                counter = 0L;
+              }
 
               clusterNames.put(clusterName, counter + 1);
 
@@ -121,13 +134,17 @@ public abstract class AbstractServerClusterTxTest extends AbstractServerClusterI
               if (e.getCause() instanceof ORecordDuplicatedException)
                 // IGNORE IT AND RETRY
                 ;
-              else throw e;
+              else {
+                throw e;
+              }
             } catch (ONeedRetryException e) {
               // System.out.println("ONeedRetryException Exception caught on writer thread " +
               // threadId + " (db=" +
               // database.getURL());
 
-              if (retry >= maxRetries) e.printStackTrace();
+              if (retry >= maxRetries) {
+                e.printStackTrace();
+              }
 
             } catch (ODistributedException e) {
               System.out.println(

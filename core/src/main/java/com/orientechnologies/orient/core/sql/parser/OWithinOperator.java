@@ -6,6 +6,7 @@ import com.orientechnologies.orient.core.sql.executor.metadata.OIndexFinder.Oper
 import java.util.Map;
 
 public class OWithinOperator extends SimpleNode implements OBinaryCompareOperator {
+
   public OWithinOperator(int id) {
     super(id);
   }

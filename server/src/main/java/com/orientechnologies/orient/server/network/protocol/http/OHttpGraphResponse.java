@@ -50,7 +50,7 @@ import java.util.Set;
  */
 public class OHttpGraphResponse extends OHttpResponseAbstract {
 
-  private OHttpResponse iWrapped;
+  private final OHttpResponse iWrapped;
 
   public OHttpGraphResponse(final OHttpResponse iWrapped) {
     super(
@@ -126,8 +126,7 @@ public class OHttpGraphResponse extends OHttpResponseAbstract {
         }
         entry = ((OIdentifiable) entry).getRecord();
 
-        if (entry instanceof OElement) {
-          OElement element = (OElement) entry;
+        if (entry instanceof OElement element) {
           if (element.isVertex()) {
             vertices.add(element.asVertex().get());
           } else if (element.isEdge()) {
@@ -182,7 +181,7 @@ public class OHttpGraphResponse extends OHttpResponseAbstract {
       if (edgeRids.isEmpty()) {
         for (OVertex vertex : vertices) {
           for (OEdge e : vertex.getEdges(ODirection.OUT)) {
-            OEdge edge = (OEdge) e;
+            OEdge edge = e;
             if (edgeRids.contains(e.getIdentity())
                 && e.getIdentity() != null /* only for non-lighweight */) {
               continue;

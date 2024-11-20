@@ -12,7 +12,9 @@ import com.orientechnologies.orient.server.distributed.impl.ODatabaseDocumentDis
 import java.util.List;
 import java.util.stream.Collectors;
 
-/** Created by tglman on 22/06/17. */
+/**
+ * Created by tglman on 22/06/17.
+ */
 public class OSchemaDistributed extends OSchemaEmbedded {
 
   public OSchemaDistributed(OSharedContext sharedContext) {
@@ -57,7 +59,9 @@ public class OSchemaDistributed extends OSchemaEmbedded {
       cmd.append(" unsafe");
 
       sendCommand(database, cmd.toString());
-    } else dropClassInternal(database, className);
+    } else {
+      dropClassInternal(database, className);
+    }
   }
 
   protected void doDropView(ODatabaseDocumentInternal database, final String name) {
@@ -173,19 +177,26 @@ public class OSchemaDistributed extends OSchemaEmbedded {
       boolean first = true;
       for (OClass superClass : superClassesList) {
         // Filtering for null
-        if (first) cmd.append(" extends ");
-        else cmd.append(", ");
+        if (first) {
+          cmd.append(" extends ");
+        } else {
+          cmd.append(", ");
+        }
         cmd.append(superClass.getName());
         first = false;
       }
 
       if (clusterIds != null) {
-        if (clusterIds.length == 1 && clusterIds[0] == -1) cmd.append(" abstract");
-        else {
+        if (clusterIds.length == 1 && clusterIds[0] == -1) {
+          cmd.append(" abstract");
+        } else {
           cmd.append(" cluster ");
           for (int i = 0; i < clusterIds.length; ++i) {
-            if (i > 0) cmd.append(',');
-            else cmd.append(' ');
+            if (i > 0) {
+              cmd.append(',');
+            } else {
+              cmd.append(' ');
+            }
             cmd.append(clusterIds[i]);
           }
         }

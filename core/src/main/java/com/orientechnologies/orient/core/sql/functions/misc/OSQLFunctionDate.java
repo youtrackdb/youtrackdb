@@ -40,12 +40,15 @@ import java.util.TimeZone;
  * @see OSQLFunctionSysdate
  */
 public class OSQLFunctionDate extends OSQLFunctionAbstract {
+
   public static final String NAME = "date";
 
   private Date date;
   private DateFormat format;
 
-  /** Get the date at construction to have the same date for all the iteration. */
+  /**
+   * Get the date at construction to have the same date for all the iteration.
+   */
   public OSQLFunctionDate() {
     super(NAME, 0, 3);
     date = new Date();
@@ -57,20 +60,29 @@ public class OSQLFunctionDate extends OSQLFunctionAbstract {
       final Object iCurrentResult,
       final Object[] iParams,
       OCommandContext iContext) {
-    if (iParams.length == 0) return date;
+    if (iParams.length == 0) {
+      return date;
+    }
 
-    if (iParams[0] == null) return null;
+    if (iParams[0] == null) {
+      return null;
+    }
 
-    if (iParams[0] instanceof Number) return new Date(((Number) iParams[0]).longValue());
+    if (iParams[0] instanceof Number) {
+      return new Date(((Number) iParams[0]).longValue());
+    }
 
     if (format == null) {
       if (iParams.length > 1) {
         format = new SimpleDateFormat((String) iParams[1]);
         format.setTimeZone(ODateHelper.getDatabaseTimeZone());
-      } else
+      } else {
         format = ODateHelper.getDateTimeFormatInstance(ODatabaseRecordThreadLocal.instance().get());
+      }
 
-      if (iParams.length == 3) format.setTimeZone(TimeZone.getTimeZone(iParams[2].toString()));
+      if (iParams.length == 3) {
+        format.setTimeZone(TimeZone.getTimeZone(iParams[2].toString()));
+      }
     }
 
     try {

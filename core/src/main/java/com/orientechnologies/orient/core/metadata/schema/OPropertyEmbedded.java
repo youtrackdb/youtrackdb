@@ -17,8 +17,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-/** Created by tglman on 14/06/17. */
+/**
+ * Created by tglman on 14/06/17.
+ */
 public class OPropertyEmbedded extends OPropertyImpl {
+
   protected OPropertyEmbedded(OClassImpl owner) {
     super(owner);
   }
@@ -53,12 +56,15 @@ public class OPropertyEmbedded extends OPropertyImpl {
     acquireSchemaWriteLock();
     try {
       if (iType == globalRef.getType())
-        // NO CHANGES
+      // NO CHANGES
+      {
         return;
+      }
 
-      if (!iType.getCastable().contains(globalRef.getType()))
+      if (!iType.getCastable().contains(globalRef.getType())) {
         throw new IllegalArgumentException(
             "Cannot change property type from " + globalRef.getType() + " to " + iType);
+      }
 
       this.globalRef = owner.owner.findOrCreateGlobalProperty(this.globalRef.getName(), iType);
     } finally {
@@ -122,7 +128,9 @@ public class OPropertyEmbedded extends OPropertyImpl {
   }
 
   public OProperty setCollate(String collate) {
-    if (collate == null) collate = ODefaultCollate.NAME;
+    if (collate == null) {
+      collate = ODefaultCollate.NAME;
+    }
 
     getDatabase().checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
@@ -143,7 +151,9 @@ public class OPropertyEmbedded extends OPropertyImpl {
 
       final OCollate oldCollate = this.collate;
 
-      if (iCollate == null) iCollate = ODefaultCollate.NAME;
+      if (iCollate == null) {
+        iCollate = ODefaultCollate.NAME;
+      }
 
       collate = OSQLEngine.getCollate(iCollate);
 
@@ -156,7 +166,9 @@ public class OPropertyEmbedded extends OPropertyImpl {
           OIndexDefinition definition = index.getDefinition();
 
           final List<String> fields = definition.getFields();
-          if (fields.contains(getName())) indexesToRecreate.add(index);
+          if (fields.contains(getName())) {
+            indexesToRecreate.add(index);
+          }
         }
 
         if (!indexesToRecreate.isEmpty()) {
@@ -235,9 +247,14 @@ public class OPropertyEmbedded extends OPropertyImpl {
     try {
       checkEmbedded();
 
-      if (customFields == null) customFields = new HashMap<String, String>();
-      if (iValue == null || "null".equalsIgnoreCase(iValue)) customFields.remove(iName);
-      else customFields.put(iName, iValue);
+      if (customFields == null) {
+        customFields = new HashMap<String, String>();
+      }
+      if (iValue == null || "null".equalsIgnoreCase(iValue)) {
+        customFields.remove(iName);
+      } else {
+        customFields.put(iName, iValue);
+      }
     } finally {
       releaseSchemaWriteLock();
     }

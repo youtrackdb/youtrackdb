@@ -9,7 +9,9 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-/** Created by luigidellaquila on 14/12/16. */
+/**
+ * Created by luigidellaquila on 14/12/16.
+ */
 public class MockChannel extends OChannelBinary {
 
   private final ByteArrayOutputStream byteOut;

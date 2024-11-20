@@ -434,14 +434,18 @@ public final class CompositeKeySerializer implements OBinarySerializer<OComposit
     return compositeKey;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void serializeInByteBufferObject(
       OCompositeKey object, ByteBuffer buffer, Object... hints) {
     serialize(object, buffer, (OType[]) hints);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public OCompositeKey deserializeFromByteBufferObject(ByteBuffer buffer) {
     return deserialize(buffer);
@@ -452,7 +456,9 @@ public final class CompositeKeySerializer implements OBinarySerializer<OComposit
     return deserialize(offset, buffer);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getObjectSizeInByteBuffer(ByteBuffer buffer) {
     return buffer.getInt();
@@ -463,7 +469,9 @@ public final class CompositeKeySerializer implements OBinarySerializer<OComposit
     return buffer.getInt(offset);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public OCompositeKey deserializeFromByteBufferObject(
       ByteBuffer buffer, OWALChanges walChanges, int offset) {
@@ -491,7 +499,9 @@ public final class CompositeKeySerializer implements OBinarySerializer<OComposit
     return new OCompositeKey(keys);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getObjectSizeInByteBuffer(ByteBuffer buffer, OWALChanges walChanges, int offset) {
     return walChanges.getIntValue(buffer, offset);

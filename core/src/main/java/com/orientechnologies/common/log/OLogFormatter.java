@@ -39,7 +39,9 @@ public class OLogFormatter extends Formatter {
   protected static final DateTimeFormatter dateFormatter =
       DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss:SSS");
 
-  /** The end-of-line character for this platform. */
+  /**
+   * The end-of-line character for this platform.
+   */
   protected static final String EOL = System.getProperty("line.separator");
 
   @Override
@@ -74,8 +76,11 @@ public class OLogFormatter extends Formatter {
 
     // FORMAT THE MESSAGE
     try {
-      if (additionalArgs != null) buffer.append(String.format(message, additionalArgs));
-      else buffer.append(message);
+      if (additionalArgs != null) {
+        buffer.append(String.format(message, additionalArgs));
+      } else {
+        buffer.append(message);
+      }
     } catch (IllegalFormatException ignore) {
       buffer.append(message);
     }
@@ -90,7 +95,9 @@ public class OLogFormatter extends Formatter {
   }
 
   protected String getSourceClassSimpleName(final String iSourceClassName) {
-    if (iSourceClassName == null) return null;
+    if (iSourceClassName == null) {
+      return null;
+    }
     return iSourceClassName.substring(iSourceClassName.lastIndexOf(".") + 1);
   }
 }

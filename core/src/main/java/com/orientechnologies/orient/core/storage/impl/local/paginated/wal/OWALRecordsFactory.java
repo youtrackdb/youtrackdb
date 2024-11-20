@@ -40,6 +40,7 @@ import net.jpountz.lz4.LZ4FastDecompressor;
  * @since 25.04.13
  */
 public final class OWALRecordsFactory {
+
   private static final int RECORD_ID_OFFSET = 0;
   private static final int RECORD_ID_SIZE = 2;
 
@@ -584,7 +585,7 @@ public final class OWALRecordsFactory {
         throw new IllegalStateException(
             "Cannot deserialize passed in wal record not exists anymore.");
       default:
-        if (idToTypeMap.containsKey(recordId))
+        if (idToTypeMap.containsKey(recordId)) {
           try {
             walRecord =
                 (WriteableWALRecord)
@@ -595,7 +596,9 @@ public final class OWALRecordsFactory {
               | IllegalAccessException e) {
             throw new IllegalStateException("Cannot deserialize passed in record", e);
           }
-        else throw new IllegalStateException("Cannot deserialize passed in wal record.");
+        } else {
+          throw new IllegalStateException("Cannot deserialize passed in wal record.");
+        }
     }
     return walRecord;
   }

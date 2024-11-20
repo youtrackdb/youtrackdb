@@ -32,7 +32,9 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 
-/** Created by Enrico Risa on 04/09/15. */
+/**
+ * Created by Enrico Risa on 04/09/15.
+ */
 public interface OLuceneIndexEngine extends OIndexEngine, OFreezableStorageComponent {
 
   String indexName();

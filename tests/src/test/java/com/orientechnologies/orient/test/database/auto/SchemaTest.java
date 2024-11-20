@@ -113,9 +113,7 @@ public class SchemaTest extends DocumentDBBaseTest {
   public void checkClusters() {
 
     for (OClass cls : database.getMetadata().getSchema().getClasses()) {
-      if (!cls.isAbstract()) {
-        assert database.getClusterNameById(cls.getDefaultClusterId()) != null;
-      }
+      assert cls.isAbstract() || database.getClusterNameById(cls.getDefaultClusterId()) != null;
     }
   }
 
@@ -257,14 +255,13 @@ public class SchemaTest extends DocumentDBBaseTest {
         .getClass("Profile")
         .getProperty("nick")
         .setCustom("stereotype", null);
-    Assert.assertEquals(
+    Assert.assertNull(
         database
             .getMetadata()
             .getSchema()
             .getClass("Profile")
             .getProperty("nick")
-            .getCustom("stereotype"),
-        null);
+            .getCustom("stereotype"));
 
     // TEST CUSTOM PROPERTY UPDATE
     database
@@ -337,7 +334,7 @@ public class SchemaTest extends DocumentDBBaseTest {
         break;
       }
     }
-    Assert.assertEquals(found, true);
+    Assert.assertTrue(found);
 
     company.setSuperClass(null);
     Assert.assertNull(company.getSuperClass());
@@ -360,7 +357,7 @@ public class SchemaTest extends DocumentDBBaseTest {
         break;
       }
     }
-    Assert.assertEquals(found, true);
+    Assert.assertTrue(found);
   }
 
   @Test

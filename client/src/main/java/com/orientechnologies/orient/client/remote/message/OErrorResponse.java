@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 public class OErrorResponse implements OBinaryResponse {
+
   private Map<String, String> messages;
   private byte[] result;
 

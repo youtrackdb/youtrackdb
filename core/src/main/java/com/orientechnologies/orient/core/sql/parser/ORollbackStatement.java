@@ -8,6 +8,7 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
 import java.util.Map;
 
 public class ORollbackStatement extends OSimpleExecStatement {
+
   public ORollbackStatement(int id) {
     super(id);
   }
@@ -42,8 +43,12 @@ public class ORollbackStatement extends OSimpleExecStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     return true;
   }

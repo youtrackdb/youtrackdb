@@ -47,6 +47,7 @@ import java.util.zip.ZipOutputStream;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OZIPCompressionUtil {
+
   public static List<String> compressDirectory(
       final String sourceFolderName,
       final ZipOutputStream zos,
@@ -59,7 +60,9 @@ public class OZIPCompressionUtil {
     return compressedFiles;
   }
 
-  /** * Extract zipfile to outdir with complete directory structure */
+  /**
+   * Extract zipfile to outdir with complete directory structure
+   */
   public static void uncompressDirectory(
       final InputStream in, final String out, final OCommandOutputListener iListener)
       throws IOException {
@@ -74,13 +77,14 @@ public class OZIPCompressionUtil {
         name = entry.getName();
 
         final File file = new File(outdir, name);
-        if (!file.getCanonicalPath().startsWith(targetDirPath))
+        if (!file.getCanonicalPath().startsWith(targetDirPath)) {
           throw new IOException(
               "Expanding '"
                   + entry.getName()
                   + "' would create file outside of directory '"
                   + outdir
                   + "'");
+        }
 
         if (entry.isDirectory()) {
           mkdirs(outdir, name);
@@ -91,7 +95,9 @@ public class OZIPCompressionUtil {
          * this part is necessary because file entry can come before directory entry where is file located i.e.: /foo/foo.txt /foo/
          */
         dir = getDirectoryPart(name);
-        if (dir != null) mkdirs(outdir, dir);
+        if (dir != null) {
+          mkdirs(outdir, dir);
+        }
 
         extractFile(zin, outdir, name, iListener);
       }
@@ -104,7 +110,9 @@ public class OZIPCompressionUtil {
       final String name,
       final OCommandOutputListener iListener)
       throws IOException {
-    if (iListener != null) iListener.onMessage("\n- Uncompressing file " + name + "...");
+    if (iListener != null) {
+      iListener.onMessage("\n- Uncompressing file " + name + "...");
+    }
 
     try (BufferedOutputStream out =
         new BufferedOutputStream(new FileOutputStream(new File(outdir, name)))) {
@@ -114,13 +122,17 @@ public class OZIPCompressionUtil {
 
   private static void mkdirs(final File outdir, final String path) {
     final File d = new File(outdir, path);
-    if (!d.exists()) d.mkdirs();
+    if (!d.exists()) {
+      d.mkdirs();
+    }
   }
 
   private static String getDirectoryPart(final String name) {
     Path path = Paths.get(name);
     Path parent = path.getParent();
-    if (parent != null) return parent.toString();
+    if (parent != null) {
+      return parent.toString();
+    }
 
     return null;
   }
@@ -162,11 +174,13 @@ public class OZIPCompressionUtil {
         // extract the relative name for entry purpose
         String entryName = path.substring(baseFolderName.length() + 1);
 
-        if (iSkipFileExtensions != null)
-          for (String skip : iSkipFileExtensions)
+        if (iSkipFileExtensions != null) {
+          for (String skip : iSkipFileExtensions) {
             if (entryName.endsWith(skip)) {
               return;
             }
+          }
+        }
 
         iCompressedFiles.add(path);
 
@@ -181,11 +195,11 @@ public class OZIPCompressionUtil {
   /**
    * Compresses the given files stored at the given base directory into a zip archive.
    *
-   * @param baseDirectory the base directory where files are stored.
-   * @param fileNames the file names map, keys are the file names stored on disk, values are the
-   *     file names to be stored in a zip archive.
-   * @param output the output stream.
-   * @param listener the command listener.
+   * @param baseDirectory    the base directory where files are stored.
+   * @param fileNames        the file names map, keys are the file names stored on disk, values are
+   *                         the file names to be stored in a zip archive.
+   * @param output           the output stream.
+   * @param listener         the command listener.
    * @param compressionLevel the desired compression level.
    */
   public static void compressFiles(
@@ -199,8 +213,9 @@ public class OZIPCompressionUtil {
     zipOutputStream.setComment("OrientDB Backup executed on " + new Date());
     try {
       zipOutputStream.setLevel(compressionLevel);
-      for (Map.Entry<String, String> entry : fileNames.entrySet())
+      for (Map.Entry<String, String> entry : fileNames.entrySet()) {
         addFile(zipOutputStream, baseDirectory + "/" + entry.getKey(), entry.getValue(), listener);
+      }
     } finally {
       zipOutputStream.close();
     }
@@ -214,7 +229,9 @@ public class OZIPCompressionUtil {
       throws IOException {
     final long begin = System.currentTimeMillis();
 
-    if (iOutput != null) iOutput.onMessage("\n- Compressing file " + entryName + "...");
+    if (iOutput != null) {
+      iOutput.onMessage("\n- Compressing file " + entryName + "...");
+    }
 
     final ZipEntry ze = new ZipEntry(entryName);
     zos.putNextEntry(ze);
@@ -226,7 +243,9 @@ public class OZIPCompressionUtil {
         in.close();
       }
     } catch (IOException e) {
-      if (iOutput != null) iOutput.onMessage("error: " + e);
+      if (iOutput != null) {
+        iOutput.onMessage("error: " + e);
+      }
 
       OLogManager.instance()
           .error(OZIPCompressionUtil.class, "Cannot compress file: %s", e, folderName);

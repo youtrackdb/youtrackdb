@@ -27,6 +27,7 @@ import java.util.List;
 class OrientJdbcParameterMetadata implements ParameterMetaData {
 
   static class ParameterDefinition {
+
     public int nullable = parameterNullableUnknown;
     public boolean signed = true;
     public int precision = 0;

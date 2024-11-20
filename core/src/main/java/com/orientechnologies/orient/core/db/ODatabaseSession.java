@@ -608,8 +608,8 @@ public interface ODatabaseSession extends AutoCloseable {
   <RET extends ORecord> RET load(ORID recordId);
 
   /**
-   * Loads the entity by the Record ID, unlike {@link  #load(ORID)} method does not throw
-   * exception if record not found but returns <code>null</code> instead.
+   * Loads the entity by the Record ID, unlike {@link  #load(ORID)} method does not throw exception
+   * if record not found but returns <code>null</code> instead.
    *
    * @param recordId The unique record id of the entity to load.
    * @return The loaded entity or <code>null</code> if entity does not exist.

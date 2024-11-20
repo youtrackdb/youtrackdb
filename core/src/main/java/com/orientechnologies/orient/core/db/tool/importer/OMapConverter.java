@@ -3,8 +3,11 @@ package com.orientechnologies.orient.core.db.tool.importer;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/** Created by tglman on 28/07/17. */
+/**
+ * Created by tglman on 28/07/17.
+ */
 public final class OMapConverter extends OAbstractCollectionConverter<Map> {
+
   public OMapConverter(OConverterData converterData) {
     super(converterData);
   }
@@ -14,6 +17,7 @@ public final class OMapConverter extends OAbstractCollectionConverter<Map> {
     final Map result = new LinkedHashMap();
     boolean updated = false;
     final class MapResultCallback implements ResultCallback {
+
       private Object key;
 
       @Override
@@ -31,7 +35,9 @@ public final class OMapConverter extends OAbstractCollectionConverter<Map> {
       callback.setKey(entry.getKey());
       updated = convertSingleValue(entry.getValue(), callback, updated) || updated;
     }
-    if (updated) return result;
+    if (updated) {
+      return result;
+    }
 
     return value;
   }

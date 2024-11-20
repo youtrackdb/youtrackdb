@@ -30,6 +30,7 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 public class OIncrementalBackupRequest implements OBinaryRequest<OIncrementalBackupResponse> {
+
   private String backupDirectory;
 
   public OIncrementalBackupRequest(String backupDirectory) {

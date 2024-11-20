@@ -28,13 +28,14 @@ import java.io.Serializable;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OSerializableStream extends Serializable {
+
   /**
    * Marshalls the object. Transforms the current object in byte[] form to being stored or
    * transferred over the network.
    *
    * @return The byte array representation of the object
-   * @see #fromStream(byte[])
    * @throws OSerializationException if the marshalling does not succeed
+   * @see #fromStream(byte[])
    */
   byte[] toStream() throws OSerializationException;
 
@@ -44,7 +45,7 @@ public interface OSerializableStream extends Serializable {
    *
    * @param iStream byte array representation of the object
    * @return The Object instance itself giving a "fluent interface". Useful to call multiple methods
-   *     in chain.
+   * in chain.
    * @throws OSerializationException if the unmarshalling does not succeed
    */
   OSerializableStream fromStream(byte[] iStream) throws OSerializationException;

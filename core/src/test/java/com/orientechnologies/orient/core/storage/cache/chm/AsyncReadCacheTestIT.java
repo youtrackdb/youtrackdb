@@ -30,6 +30,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class AsyncReadCacheTestIT {
+
   @Test
   public void testEvenDistribution() throws Exception {
     final int pageSize = 4 * 1024;
@@ -188,6 +189,7 @@ public class AsyncReadCacheTestIT {
   }
 
   private static final class PageWriter implements Callable<Void> {
+
     private final int fileLimit;
     private final int pageLimit;
     private final OWriteCache writeCache;
@@ -228,6 +230,7 @@ public class AsyncReadCacheTestIT {
   }
 
   private static final class PageReader implements Callable<Void> {
+
     private final int fileLimit;
     private final int pageLimit;
     private final OWriteCache writeCache;
@@ -267,6 +270,7 @@ public class AsyncReadCacheTestIT {
   }
 
   private static final class ZiphianPageWriter implements Callable<Void> {
+
     private final int pageLimit;
     private final OWriteCache writeCache;
     private final int pageCount;
@@ -302,6 +306,7 @@ public class AsyncReadCacheTestIT {
   }
 
   private static final class ZiphianPageReader implements Callable<Void> {
+
     private final int pageLimit;
     private final OWriteCache writeCache;
     private final int pageCount;
@@ -337,6 +342,7 @@ public class AsyncReadCacheTestIT {
   }
 
   private static final class MockedWriteCache implements OWriteCache {
+
     private final OByteBufferPool byteBufferPool;
 
     MockedWriteCache(final OByteBufferPool byteBufferPool) {
@@ -545,6 +551,7 @@ public class AsyncReadCacheTestIT {
   }
 
   private static final class ScrambledZipfianGenerator {
+
     static final long FNV_offset_basis_64 = 0xCBF29CE484222325L;
     static final long FNV_prime_64 = 1099511628211L;
 
@@ -600,6 +607,7 @@ public class AsyncReadCacheTestIT {
   }
 
   private static final class ZipfianGenerator {
+
     static final double ZIPFIAN_CONSTANT = 0.99;
 
     long items;

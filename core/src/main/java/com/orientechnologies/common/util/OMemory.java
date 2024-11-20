@@ -29,10 +29,11 @@ import com.orientechnologies.orient.core.config.OGlobalConfiguration;
  * @author Sergey Sitnikov
  */
 public class OMemory {
+
   /**
    * @param unlimitedCap the upper limit on reported memory, if JVM reports unlimited memory.
    * @return same as {@link Runtime#maxMemory()} except that {@code unlimitedCap} limit is applied
-   *     if JVM reports {@link Long#MAX_VALUE unlimited memory}.
+   * if JVM reports {@link Long#MAX_VALUE unlimited memory}.
    */
   public static long getCappedRuntimeMaxMemory(long unlimitedCap) {
     final long jvmMaxMemory = Runtime.getRuntime().maxMemory();
@@ -49,7 +50,8 @@ public class OMemory {
   }
 
   /**
-   * Checks the OrientDB cache memory configuration and emits a warning if configuration is invalid.
+   * Checks the OrientDB cache memory configuration and emits a warning if configuration is
+   * invalid.
    */
   public static void checkCacheMemoryConfiguration() {
     final long maxHeapSize = Runtime.getRuntime().maxMemory();
@@ -58,7 +60,7 @@ public class OMemory {
 
     if (maxHeapSize != Long.MAX_VALUE
         && physicalMemory != null
-        && maxHeapSize + maxCacheSize > physicalMemory.memoryLimit)
+        && maxHeapSize + maxCacheSize > physicalMemory.memoryLimit) {
       OLogManager.instance()
           .warn(
               OMemory.class,
@@ -74,6 +76,7 @@ public class OMemory {
                   + " up. Use the -Xmx JVM option to lower the JVM maximum heap memory size or"
                   + " storage.diskCache.bufferSize OrientDB option to lower memory requirements of"
                   + " the cache.");
+    }
   }
 
   /**

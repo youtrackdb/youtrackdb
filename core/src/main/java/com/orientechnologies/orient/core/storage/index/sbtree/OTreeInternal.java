@@ -30,6 +30,7 @@ import java.util.Map;
  * @author Artem Orobets (enisher-at-gmail.com)
  */
 public interface OTreeInternal<K, V> {
+
   boolean isEmpty();
 
   void loadEntriesMajor(
@@ -43,6 +44,7 @@ public interface OTreeInternal<K, V> {
    * @author Artem Orobets (enisher-at-gmail.com)
    */
   interface RangeResultListener<K, V> {
+
     /**
      * Callback method for result entries.
      *
@@ -53,6 +55,7 @@ public interface OTreeInternal<K, V> {
   }
 
   public class AccumulativeListener<K, V> implements RangeResultListener<K, V> {
+
     private final int limit;
     private List<Map.Entry<K, V>> entries;
 

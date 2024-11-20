@@ -210,14 +210,24 @@ public class OBetweenCondition extends OBooleanExpression {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OBetweenCondition that = (OBetweenCondition) o;
 
-    if (first != null ? !first.equals(that.first) : that.first != null) return false;
-    if (second != null ? !second.equals(that.second) : that.second != null) return false;
-    if (third != null ? !third.equals(that.third) : that.third != null) return false;
+    if (first != null ? !first.equals(that.first) : that.first != null) {
+      return false;
+    }
+    if (second != null ? !second.equals(that.second) : that.second != null) {
+      return false;
+    }
+    if (third != null ? !third.equals(that.third) : that.third != null) {
+      return false;
+    }
 
     return true;
   }

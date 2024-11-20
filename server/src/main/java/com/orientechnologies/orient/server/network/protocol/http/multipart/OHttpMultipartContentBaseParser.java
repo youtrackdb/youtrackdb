@@ -20,7 +20,9 @@ import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import java.io.IOException;
 import java.util.Map;
 
-/** @author Luca Molino (molino.luca--at--gmail.com) */
+/**
+ * @author Luca Molino (molino.luca--at--gmail.com)
+ */
 public class OHttpMultipartContentBaseParser implements OHttpMultipartContentParser<String> {
 
   @Override
@@ -32,7 +34,9 @@ public class OHttpMultipartContentBaseParser implements OHttpMultipartContentPar
       throws IOException {
     StringBuilder builder = new StringBuilder();
     int b;
-    while ((b = in.read()) > 0) builder.append((char) b);
+    while ((b = in.read()) > 0) {
+      builder.append((char) b);
+    }
 
     return builder.toString();
   }

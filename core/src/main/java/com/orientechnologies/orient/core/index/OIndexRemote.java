@@ -47,6 +47,7 @@ import java.util.stream.Collectors;
  */
 @SuppressWarnings("unchecked")
 public abstract class OIndexRemote implements OIndex {
+
   public static final String QUERY_GET_VALUES_BEETWEN_SELECT = "select from index:`%s` where ";
   public static final String QUERY_GET_VALUES_BEETWEN_INCLUSIVE_FROM_CONDITION = "key >= ?";
   public static final String QUERY_GET_VALUES_BEETWEN_EXCLUSIVE_FROM_CONDITION = "key > ?";
@@ -154,15 +155,23 @@ public abstract class OIndexRemote implements OIndex {
       final int maxValuesToFetch) {
     final StringBuilder query = new StringBuilder(QUERY_COUNT_RANGE);
 
-    if (iFromInclusive) query.append(QUERY_GET_VALUES_BEETWEN_INCLUSIVE_FROM_CONDITION);
-    else query.append(QUERY_GET_VALUES_BEETWEN_EXCLUSIVE_FROM_CONDITION);
+    if (iFromInclusive) {
+      query.append(QUERY_GET_VALUES_BEETWEN_INCLUSIVE_FROM_CONDITION);
+    } else {
+      query.append(QUERY_GET_VALUES_BEETWEN_EXCLUSIVE_FROM_CONDITION);
+    }
 
     query.append(QUERY_GET_VALUES_AND_OPERATOR);
 
-    if (iToInclusive) query.append(QUERY_GET_VALUES_BEETWEN_INCLUSIVE_TO_CONDITION);
-    else query.append(QUERY_GET_VALUES_BEETWEN_EXCLUSIVE_TO_CONDITION);
+    if (iToInclusive) {
+      query.append(QUERY_GET_VALUES_BEETWEN_INCLUSIVE_TO_CONDITION);
+    } else {
+      query.append(QUERY_GET_VALUES_BEETWEN_EXCLUSIVE_TO_CONDITION);
+    }
 
-    if (maxValuesToFetch > 0) query.append(QUERY_GET_VALUES_LIMIT).append(maxValuesToFetch);
+    if (maxValuesToFetch > 0) {
+      query.append(QUERY_GET_VALUES_LIMIT).append(maxValuesToFetch);
+    }
 
     try (OResultSet rs =
         getDatabase().indexQuery(getName(), query.toString(), iRangeFrom, iRangeTo)) {
@@ -223,10 +232,14 @@ public abstract class OIndexRemote implements OIndex {
 
   @Override
   public int getVersion() {
-    if (configuration == null) return -1;
+    if (configuration == null) {
+      return -1;
+    }
 
     final Integer version = configuration.field(OIndexInternal.INDEX_VERSION);
-    if (version != null) return version;
+    if (version != null) {
+      return version;
+    }
 
     return -1;
   }
@@ -249,7 +262,9 @@ public abstract class OIndexRemote implements OIndex {
   public long getSize() {
     try (OResultSet result =
         getDatabase().indexQuery(getName(), String.format(QUERY_SIZE, name)); ) {
-      if (result.hasNext()) return (Long) result.next().getProperty("size");
+      if (result.hasNext()) {
+        return (Long) result.next().getProperty("size");
+      }
     }
     return 0;
   }
@@ -257,7 +272,9 @@ public abstract class OIndexRemote implements OIndex {
   public long getKeySize() {
     try (OResultSet result =
         getDatabase().indexQuery(getName(), String.format(QUERY_KEY_SIZE, name))) {
-      if (result.hasNext()) return (Long) result.next().getProperty("size");
+      if (result.hasNext()) {
+        return (Long) result.next().getProperty("size");
+      }
     }
     return 0;
   }
@@ -308,7 +325,9 @@ public abstract class OIndexRemote implements OIndex {
   }
 
   public OType[] getKeyTypes() {
-    if (indexDefinition != null) return indexDefinition.getTypes();
+    if (indexDefinition != null) {
+      return indexDefinition.getTypes();
+    }
     return new OType[0];
   }
 
@@ -337,8 +356,12 @@ public abstract class OIndexRemote implements OIndex {
 
   @Override
   public boolean equals(final Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     final OIndexRemote that = (OIndexRemote) o;
 
@@ -412,7 +435,9 @@ public abstract class OIndexRemote implements OIndex {
 
       @Override
       public Map.Entry<Object, OIdentifiable> nextEntry() {
-        if (!copy.hasNext()) return null;
+        if (!copy.hasNext()) {
+          return null;
+        }
         final OResult next = copy.next();
         return new Map.Entry<Object, OIdentifiable>() {
           @Override
@@ -446,7 +471,9 @@ public abstract class OIndexRemote implements OIndex {
 
       @Override
       public Map.Entry<Object, OIdentifiable> nextEntry() {
-        if (!copy.hasNext()) return null;
+        if (!copy.hasNext()) {
+          return null;
+        }
 
         final OResult value = copy.next();
 
@@ -482,7 +509,9 @@ public abstract class OIndexRemote implements OIndex {
 
       @Override
       public Map.Entry<Object, OIdentifiable> nextEntry() {
-        if (!copy.hasNext()) return null;
+        if (!copy.hasNext()) {
+          return null;
+        }
 
         final OResult value = copy.next();
 
@@ -517,7 +546,9 @@ public abstract class OIndexRemote implements OIndex {
 
       @Override
       public Object next(int prefetchSize) {
-        if (!copy.hasNext()) return null;
+        if (!copy.hasNext()) {
+          return null;
+        }
 
         final OResult value = copy.next();
 

@@ -20,5 +20,6 @@
 package com.orientechnologies.orient.core.storage;
 
 public interface OIdentifiableStorage extends OStorage {
+
   int getId();
 }

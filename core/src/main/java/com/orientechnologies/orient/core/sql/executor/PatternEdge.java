@@ -5,8 +5,11 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.sql.parser.OMatchPathItem;
 import com.orientechnologies.orient.core.sql.parser.OMatchStatement;
 
-/** Created by luigidellaquila on 28/07/15. */
+/**
+ * Created by luigidellaquila on 28/07/15.
+ */
 public class PatternEdge {
+
   public PatternNode in;
   public PatternNode out;
   public OMatchPathItem item;

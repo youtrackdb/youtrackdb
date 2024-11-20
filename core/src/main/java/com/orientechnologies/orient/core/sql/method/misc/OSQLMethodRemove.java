@@ -24,8 +24,8 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
 /**
  * Remove the first occurrence of elements from a collection.
  *
- * @see OSQLMethodRemoveAll
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
+ * @see OSQLMethodRemoveAll
  */
 public class OSQLMethodRemove extends OAbstractSQLMethod {
 

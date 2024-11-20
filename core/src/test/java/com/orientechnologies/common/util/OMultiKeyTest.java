@@ -12,6 +12,7 @@ import java.util.Map;
 import org.junit.Test;
 
 public class OMultiKeyTest {
+
   @Test
   public void testEqualsDifferentSize() {
     final OMultiKey multiKey = new OMultiKey(Collections.singletonList("a"));

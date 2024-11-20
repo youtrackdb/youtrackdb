@@ -29,7 +29,9 @@ import com.orientechnologies.orient.core.record.ORecord;
  */
 public abstract class ORecordHookAbstract implements ORecordHook {
 
-  /** Called on unregistration. */
+  /**
+   * Called on unregistration.
+   */
   public void onUnregister() {}
 
   /**
@@ -37,7 +39,7 @@ public abstract class ORecordHookAbstract implements ORecordHook {
    *
    * @param iRecord The iRecord to create
    * @return True if the iRecord has been modified and a new marshalling is required, otherwise
-   *     false
+   * false
    */
   public RESULT onRecordBeforeCreate(final ORecord iRecord) {
     return RESULT.RECORD_NOT_CHANGED;
@@ -80,7 +82,7 @@ public abstract class ORecordHookAbstract implements ORecordHook {
    *
    * @param iRecord The iRecord to update
    * @return True if the iRecord has been modified and a new marshalling is required, otherwise
-   *     false
+   * false
    */
   public RESULT onRecordBeforeUpdate(final ORecord iRecord) {
     return RESULT.RECORD_NOT_CHANGED;
@@ -102,7 +104,7 @@ public abstract class ORecordHookAbstract implements ORecordHook {
    *
    * @param iRecord The iRecord to delete
    * @return True if the iRecord has been modified and a new marshalling is required, otherwise
-   *     false
+   * false
    */
   public RESULT onRecordBeforeDelete(final ORecord iRecord) {
     return RESULT.RECORD_NOT_CHANGED;

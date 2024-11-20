@@ -10,8 +10,11 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 
-/** Created by luigidellaquila on 07/07/16. */
+/**
+ * Created by luigidellaquila on 07/07/16.
+ */
 public class OIteratorResultSet implements OResultSet {
+
   protected final Iterator iterator;
 
   public OIteratorResultSet(Iterator iter) {

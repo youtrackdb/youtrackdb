@@ -1,6 +1,7 @@
 package com.orientechnologies.common.test;
 
 public abstract class SpeedTestThread extends Thread implements SpeedTest {
+
   protected final int threadId;
   protected final SpeedTestData data;
   protected final SpeedTestMultiThreads owner;

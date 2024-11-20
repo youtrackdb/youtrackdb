@@ -30,6 +30,7 @@ import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODura
  * @since 5/14/14
  */
 public class DirectoryPageV2 extends ODurablePage {
+
   private static final int ITEMS_OFFSET = NEXT_FREE_POSITION;
 
   static final int NODES_PER_PAGE =

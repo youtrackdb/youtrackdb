@@ -68,14 +68,21 @@ public class OBatch extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OBatch oBatch = (OBatch) o;
 
-    if (num != null ? !num.equals(oBatch.num) : oBatch.num != null) return false;
-    if (inputParam != null ? !inputParam.equals(oBatch.inputParam) : oBatch.inputParam != null)
+    if (num != null ? !num.equals(oBatch.num) : oBatch.num != null) {
       return false;
+    }
+    if (inputParam != null ? !inputParam.equals(oBatch.inputParam) : oBatch.inputParam != null) {
+      return false;
+    }
 
     return true;
   }

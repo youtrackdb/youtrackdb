@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.junit.Test;
 
 public class OTxPromiseManagerTest {
+
   @Test
   public void testReaquirePromise() {
     OTxPromiseManager<String> mgr = new OTxPromiseManager<>();

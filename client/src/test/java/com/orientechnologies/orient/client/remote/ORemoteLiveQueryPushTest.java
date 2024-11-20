@@ -19,10 +19,13 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-/** Created by tglman on 17/05/17. */
+/**
+ * Created by tglman on 17/05/17.
+ */
 public class ORemoteLiveQueryPushTest {
 
   private static class MockLiveListener implements OLiveQueryResultListener {
+
     public int countCreate = 0;
     public int countUpdate = 0;
     public int countDelete = 0;

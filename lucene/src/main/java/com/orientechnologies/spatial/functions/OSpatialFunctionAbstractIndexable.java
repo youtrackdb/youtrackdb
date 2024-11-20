@@ -37,8 +37,8 @@ import com.orientechnologies.orient.core.sql.parser.OLeOperator;
 import com.orientechnologies.orient.core.sql.parser.OLtOperator;
 import com.orientechnologies.spatial.index.OLuceneSpatialIndex;
 import com.orientechnologies.spatial.strategy.SpatialQueryBuilderAbstract;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -46,7 +46,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/** Created by Enrico Risa on 31/08/15. */
+/**
+ * Created by Enrico Risa on 31/08/15.
+ */
 public abstract class OSpatialFunctionAbstractIndexable extends OSpatialFunctionAbstract
     implements OIndexableSQLFunction {
 
@@ -66,7 +68,10 @@ public abstract class OSpatialFunctionAbstractIndexable extends OSpatialFunction
         dbMetadata.getImmutableSchemaSnapshot().getClass(className).getIndexes().stream()
             .filter(idx -> idx instanceof OLuceneSpatialIndex)
             .map(idx -> (OLuceneSpatialIndex) idx)
-            .filter(idx -> intersect(idx.getDefinition().getFields(), Arrays.asList(fieldName)))
+            .filter(
+                idx ->
+                    intersect(
+                        idx.getDefinition().getFields(), Collections.singletonList(fieldName)))
             .collect(Collectors.toList());
 
     if (indices.size() > 1) {
@@ -92,8 +97,7 @@ public abstract class OSpatialFunctionAbstractIndexable extends OSpatialFunction
     Map<String, Object> queryParams = new HashMap<>();
     queryParams.put(SpatialQueryBuilderAbstract.GEO_FILTER, operator());
     Object shape;
-    if (args[1].getValue() instanceof OJson) {
-      OJson json = (OJson) args[1].getValue();
+    if (args[1].getValue() instanceof OJson json) {
       ODocument doc = new ODocument().fromJSON(json.toString());
       shape = doc.toMap();
     } else {
@@ -110,8 +114,7 @@ public abstract class OSpatialFunctionAbstractIndexable extends OSpatialFunction
 
         Object next = ((Collection) shape).iterator().next();
 
-        if (next instanceof OResult) {
-          OResult inner = (OResult) next;
+        if (next instanceof OResult inner) {
           var propertyNames = inner.getPropertyNames();
           if (propertyNames.size() == 1) {
             Object property = inner.getProperty(propertyNames.iterator().next());

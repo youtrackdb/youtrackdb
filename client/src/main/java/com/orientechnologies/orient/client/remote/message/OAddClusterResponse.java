@@ -25,6 +25,7 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 public final class OAddClusterResponse implements OBinaryResponse {
+
   private int clusterId;
 
   public OAddClusterResponse() {}

@@ -31,6 +31,7 @@ import com.orientechnologies.orient.core.replication.OAsyncReplicationOk;
  */
 @SuppressWarnings("serial")
 public class OCommandSQL extends OCommandRequestTextAbstract {
+
   public OCommandSQL() {}
 
   public OCommandSQL(final String iText) {
@@ -46,13 +47,17 @@ public class OCommandSQL extends OCommandRequestTextAbstract {
     return "sql." + text; // OIOUtils.getStringMaxLength(text, 50, "...");
   }
 
-  /** Defines a callback to call in case of the asynchronous replication succeed. */
+  /**
+   * Defines a callback to call in case of the asynchronous replication succeed.
+   */
   @Override
   public OCommandSQL onAsyncReplicationOk(final OAsyncReplicationOk iCallback) {
     return (OCommandSQL) super.onAsyncReplicationOk(iCallback);
   }
 
-  /** Defines a callback to call in case of error during the asynchronous replication. */
+  /**
+   * Defines a callback to call in case of error during the asynchronous replication.
+   */
   @Override
   public OCommandSQL onAsyncReplicationError(final OAsyncReplicationError iCallback) {
     return (OCommandSQL) super.onAsyncReplicationError(iCallback);

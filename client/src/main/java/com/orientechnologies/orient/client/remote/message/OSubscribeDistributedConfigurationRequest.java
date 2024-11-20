@@ -10,9 +10,12 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
 import java.io.IOException;
 
-/** Created by tglman on 11/01/17. */
+/**
+ * Created by tglman on 11/01/17.
+ */
 public class OSubscribeDistributedConfigurationRequest
     implements OBinaryRequest<OSubscribeDistributedConfigurationResponse> {
+
   @Override
   public void write(OChannelDataOutput network, OStorageRemoteSession session) throws IOException {}
 

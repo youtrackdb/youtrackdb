@@ -46,7 +46,9 @@ import org.apache.lucene.store.Directory;
 import org.locationtech.spatial4j.context.SpatialContext;
 import org.locationtech.spatial4j.shape.Shape;
 
-/** Created by Enrico Risa on 26/09/15. */
+/**
+ * Created by Enrico Risa on 26/09/15.
+ */
 public abstract class OLuceneSpatialIndexEngineAbstract extends OLuceneIndexEngineAbstract
     implements OLuceneSpatialIndexContainer {
 

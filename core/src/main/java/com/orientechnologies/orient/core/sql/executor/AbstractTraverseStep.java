@@ -13,8 +13,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/** Created by luigidellaquila on 26/10/16. */
+/**
+ * Created by luigidellaquila on 26/10/16.
+ */
 public abstract class AbstractTraverseStep extends AbstractExecutionStep {
+
   protected final OWhereClause whileClause;
   protected final List<OTraverseProjectionItem> projections;
   protected final OInteger maxDepth;

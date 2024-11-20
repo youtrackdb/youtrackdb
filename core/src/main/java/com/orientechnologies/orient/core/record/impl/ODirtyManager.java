@@ -39,12 +39,14 @@ public class ODirtyManager {
   public void setDirty(ORecordAbstract record) {
     ODirtyManager real = getReal();
     if (record.getIdentity().isNew() && !record.getIdentity().isTemporary()) {
-      if (real.newRecords == null)
+      if (real.newRecords == null) {
         real.newRecords = Collections.newSetFromMap(new IdentityHashMap<>());
+      }
       real.newRecords.add(record);
     } else {
-      if (real.updateRecords == null)
+      if (real.updateRecords == null) {
         real.updateRecords = Collections.newSetFromMap(new IdentityHashMap<>());
+      }
       real.updateRecords.add(record);
     }
   }
@@ -54,7 +56,9 @@ public class ODirtyManager {
     while (real.overrider != null) {
       real = real.overrider;
     }
-    if (this.overrider != null && this.overrider != real) this.overrider = real;
+    if (this.overrider != null && this.overrider != real) {
+      this.overrider = real;
+    }
     return real;
   }
 
@@ -71,7 +75,9 @@ public class ODirtyManager {
   }
 
   public void merge(ODirtyManager toMerge) {
-    if (isSame(toMerge)) return;
+    if (isSame(toMerge)) {
+      return;
+    }
     this.newRecords = mergeSet(this.newRecords, toMerge.getNewRecords());
     this.updateRecords = mergeSet(this.updateRecords, toMerge.getUpdateRecords());
     toMerge.override(this);
@@ -122,7 +128,9 @@ public class ODirtyManager {
   private void override(ODirtyManager oDirtyManager) {
     ODirtyManager real = getReal();
     oDirtyManager = oDirtyManager.getReal();
-    if (real == oDirtyManager) return;
+    if (real == oDirtyManager) {
+      return;
+    }
     real.overrider = oDirtyManager;
     real.newRecords = null;
     real.updateRecords = null;
@@ -136,7 +144,9 @@ public class ODirtyManager {
 
   public void removeNew(ORecord record) {
     ODirtyManager real = getReal();
-    if (real.newRecords != null) real.newRecords.remove(record);
+    if (real.newRecords != null) {
+      real.newRecords.remove(record);
+    }
   }
 
   public void clear() {

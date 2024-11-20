@@ -31,7 +31,9 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by Enrico Risa on 18/09/15. */
+/**
+ * Created by Enrico Risa on 18/09/15.
+ */
 public class LuceneMiscTest extends BaseLuceneTest {
 
   @Test
@@ -94,7 +96,6 @@ public class LuceneMiscTest extends BaseLuceneTest {
   public void testNamedParams() {
 
     db.command("create class Test extends V").close();
-    ;
 
     db.command("create property Test.attr1 string").close();
 

@@ -78,6 +78,7 @@ public class SimpleLiveQueryDistributedIT {
   }
 
   private static class EventListener implements OLiveQueryResultListener {
+
     public int create = 0;
     public int update = 0;
     public int delete = 0;
@@ -99,7 +100,8 @@ public class SimpleLiveQueryDistributedIT {
     }
 
     @Override
-    public void onError(ODatabaseDocument database, OException exception) {}
+    public void onError(ODatabaseDocument database, OException exception) {
+    }
 
     @Override
     public void onEnd(ODatabaseDocument database) {

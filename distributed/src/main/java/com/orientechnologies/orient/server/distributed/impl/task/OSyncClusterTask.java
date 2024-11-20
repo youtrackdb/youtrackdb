@@ -57,6 +57,7 @@ import java.util.UUID;
  * @author Luca Garulli (l.garulli--at--orientdb.com)
  */
 public class OSyncClusterTask extends OAbstractRemoteTask {
+
   public static final int CHUNK_MAX_SIZE = 4194304; // 4MB
   public static final String DEPLOYCLUSTER = "deploycluster.";
   public static final int FACTORYID = 12;
@@ -70,7 +71,8 @@ public class OSyncClusterTask extends OAbstractRemoteTask {
   protected long random;
   protected String clusterName;
 
-  public OSyncClusterTask() {}
+  public OSyncClusterTask() {
+  }
 
   public OSyncClusterTask(final String iClusterName) {
     random = UUID.randomUUID().getLeastSignificantBits();
@@ -86,7 +88,9 @@ public class OSyncClusterTask extends OAbstractRemoteTask {
       throws Exception {
 
     if (getNodeSource() == null || !getNodeSource().equals(iManager.getLocalNodeName())) {
-      if (database == null) throw new ODistributedException("Database instance is null");
+      if (database == null) {
+        throw new ODistributedException("Database instance is null");
+      }
 
       final String databaseName = database.getName();
 
@@ -102,8 +106,11 @@ public class OSyncClusterTask extends OAbstractRemoteTask {
 
         final File backupFile =
             new File(Orient.getTempPath() + "/backup_" + databaseName + "_" + clusterName + ".zip");
-        if (backupFile.exists()) backupFile.delete();
-        else backupFile.getParentFile().mkdirs();
+        if (backupFile.exists()) {
+          backupFile.delete();
+        } else {
+          backupFile.getParentFile().mkdirs();
+        }
         backupFile.createNewFile();
 
         ODistributedServerLog.info(
@@ -123,7 +130,9 @@ public class OSyncClusterTask extends OAbstractRemoteTask {
             final FileOutputStream fileOutputStream = new FileOutputStream(backupFile);
 
             final File completedFile = new File(backupFile.getAbsolutePath() + ".completed");
-            if (completedFile.exists()) completedFile.delete();
+            if (completedFile.exists()) {
+              completedFile.delete();
+            }
 
             Thread t =
                 new Thread(
@@ -294,12 +303,14 @@ public class OSyncClusterTask extends OAbstractRemoteTask {
   private static void addFileById(
       Map<String, String> entries, long fileId, OWriteCache writeCache) {
     final String nativeFileName = writeCache.nativeFileNameById(fileId);
-    if (nativeFileName == null)
+    if (nativeFileName == null) {
       throw new IllegalStateException("unable to resolve native file name of `" + fileId + "`");
+    }
 
     final String fileName = writeCache.fileNameById(fileId);
-    if (fileName == null)
+    if (fileName == null) {
       throw new IllegalStateException("unable to resolve file name of `" + fileId + "`");
+    }
 
     entries.put(nativeFileName, fileName);
   }
@@ -307,12 +318,14 @@ public class OSyncClusterTask extends OAbstractRemoteTask {
   private static void addFileByName(
       Map<String, String> entries, String fileName, OWriteCache writeCache) {
     final long fileId = writeCache.fileIdByName(fileName);
-    if (fileId == -1)
+    if (fileId == -1) {
       throw new IllegalStateException("unable to resolve file id of `" + fileName + "`");
+    }
 
     final String nativeFileName = writeCache.nativeFileNameById(fileId);
-    if (nativeFileName == null)
+    if (nativeFileName == null) {
       throw new IllegalStateException("unable to resolve native file name of `" + fileName + "`");
+    }
 
     entries.put(nativeFileName, fileName);
   }

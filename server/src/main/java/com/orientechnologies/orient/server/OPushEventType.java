@@ -10,6 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class OPushEventType {
+
   private final ConcurrentMap<String, OBinaryPushRequest<?>> databases = new ConcurrentHashMap<>();
   protected final ConcurrentMap<String, Set<WeakReference<ONetworkProtocolBinary>>> listeners =
       new ConcurrentHashMap<>();

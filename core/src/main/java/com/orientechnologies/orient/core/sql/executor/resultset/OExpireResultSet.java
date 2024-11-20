@@ -5,12 +5,14 @@ import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 
 public final class OExpireResultSet implements OExecutionStream {
+
   private final TimedOut timedout;
   private final OExecutionStream internal;
   protected boolean timedOut = false;
   private long expiryTime;
 
   public interface TimedOut {
+
     void timeout();
   }
 

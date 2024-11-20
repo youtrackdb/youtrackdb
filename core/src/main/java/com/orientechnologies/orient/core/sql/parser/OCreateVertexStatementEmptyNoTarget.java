@@ -3,6 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 public class OCreateVertexStatementEmptyNoTarget extends OCreateVertexStatement {
+
   public OCreateVertexStatementEmptyNoTarget(int id) {
     super(id);
   }

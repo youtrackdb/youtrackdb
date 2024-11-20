@@ -25,6 +25,7 @@ package com.orientechnologies.orient.core.db.record;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface ODetachable {
+
   /**
    * Detaches the object.
    *

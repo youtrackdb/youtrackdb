@@ -18,8 +18,11 @@ import com.orientechnologies.orient.core.sql.parser.OJson;
 import java.util.HashMap;
 import java.util.Map;
 
-/** Created by luigidellaquila on 09/08/16. */
+/**
+ * Created by luigidellaquila on 09/08/16.
+ */
 public class UpdateContentStep extends AbstractExecutionStep {
+
   private OJson json;
   private OInputParameter inputParameter;
 

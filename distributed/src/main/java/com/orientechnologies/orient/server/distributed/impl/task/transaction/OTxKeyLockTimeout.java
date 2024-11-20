@@ -1,6 +1,7 @@
 package com.orientechnologies.orient.server.distributed.impl.task.transaction;
 
 public class OTxKeyLockTimeout implements OTransactionResultPayload {
+
   public static final int ID = 7;
   private String node;
   private String key;

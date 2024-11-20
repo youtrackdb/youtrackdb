@@ -28,6 +28,7 @@ import org.junit.Test;
  * request for local debugging.
  */
 public class ExternalServerClusterRunIT extends AbstractServerClusterTest {
+
   public String getDatabaseName() {
     return getClass().getSimpleName();
   }

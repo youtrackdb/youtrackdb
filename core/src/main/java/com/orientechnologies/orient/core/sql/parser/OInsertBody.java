@@ -191,21 +191,33 @@ public class OInsertBody extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OInsertBody that = (OInsertBody) o;
 
     if (identifierList != null
         ? !identifierList.equals(that.identifierList)
-        : that.identifierList != null) return false;
+        : that.identifierList != null) {
+      return false;
+    }
     if (valueExpressions != null
         ? !valueExpressions.equals(that.valueExpressions)
-        : that.valueExpressions != null) return false;
+        : that.valueExpressions != null) {
+      return false;
+    }
     if (setExpressions != null
         ? !setExpressions.equals(that.setExpressions)
-        : that.setExpressions != null) return false;
-    if (content != null ? !content.equals(that.content) : that.content != null) return false;
+        : that.setExpressions != null) {
+      return false;
+    }
+    if (content != null ? !content.equals(that.content) : that.content != null) {
+      return false;
+    }
     return contentInputParam != null
         ? contentInputParam.equals(that.contentInputParam)
         : that.contentInputParam == null;

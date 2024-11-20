@@ -339,7 +339,9 @@ public class OrientJdbcConnection implements Connection {
     return OGlobalConfiguration.NETWORK_SOCKET_TIMEOUT.getValueAsInteger();
   }
 
-  /** No schema is supported. */
+  /**
+   * No schema is supported.
+   */
   public String getSchema() throws SQLException {
     return null;
   }

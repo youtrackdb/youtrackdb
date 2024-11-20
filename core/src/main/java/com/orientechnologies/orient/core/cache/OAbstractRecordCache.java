@@ -33,6 +33,7 @@ import java.util.Set;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public abstract class OAbstractRecordCache {
+
   protected ORecordCache underlying;
   protected String profilerPrefix = "noname";
   protected String profilerMetadataPrefix = "noname";
@@ -62,8 +63,11 @@ public abstract class OAbstractRecordCache {
    * @param enable pass {@code true} to enable, otherwise - {@code false}
    */
   public void setEnable(final boolean enable) {
-    if (enable) underlying.enable();
-    else underlying.disable();
+    if (enable) {
+      underlying.enable();
+    } else {
+      underlying.disable();
+    }
   }
 
   /**
@@ -75,9 +79,15 @@ public abstract class OAbstractRecordCache {
     final Set<ORID> toRemove = new HashSet<ORID>(underlying.size() / 2);
 
     final Set<ORID> keys = new HashSet<ORID>(underlying.keys());
-    for (final ORID id : keys) if (id.getClusterId() == cid) toRemove.add(id);
+    for (final ORID id : keys) {
+      if (id.getClusterId() == cid) {
+        toRemove.add(id);
+      }
+    }
 
-    for (final ORID ridToRemove : toRemove) underlying.remove(ridToRemove);
+    for (final ORID ridToRemove : toRemove) {
+      underlying.remove(ridToRemove);
+    }
   }
 
   /**
@@ -89,7 +99,9 @@ public abstract class OAbstractRecordCache {
     underlying.remove(rid);
   }
 
-  /** Clear the entire cache by removing all the entries */
+  /**
+   * Clear the entire cache by removing all the entries
+   */
   public void clear() {
     underlying.clear();
   }
@@ -114,7 +126,9 @@ public abstract class OAbstractRecordCache {
     return underlying.size();
   }
 
-  /** All operations running at cache initialization stage */
+  /**
+   * All operations running at cache initialization stage
+   */
   public void startup() {
     underlying.startup();
 
@@ -132,7 +146,9 @@ public abstract class OAbstractRecordCache {
             profilerMetadataPrefix + "current");
   }
 
-  /** All operations running at cache destruction stage */
+  /**
+   * All operations running at cache destruction stage
+   */
   public void shutdown() {
     underlying.shutdown();
 

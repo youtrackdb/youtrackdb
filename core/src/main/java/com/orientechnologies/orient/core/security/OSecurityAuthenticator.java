@@ -32,6 +32,7 @@ import javax.security.auth.Subject;
  * @author S. Colin Leister
  */
 public interface OSecurityAuthenticator extends OSecurityComponent {
+
   // Returns the actual username if successful, null otherwise.
   // Some token-based authentication (e.g., SPNEGO tokens have the user's name embedded in the
   // service ticket).

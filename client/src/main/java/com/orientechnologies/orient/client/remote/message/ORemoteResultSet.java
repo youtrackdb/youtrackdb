@@ -11,7 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-/** Created by luigidellaquila on 05/12/16. */
+/**
+ * Created by luigidellaquila on 05/12/16.
+ */
 public class ORemoteResultSet implements OResultSet {
 
   private final ODatabaseDocumentRemote db;

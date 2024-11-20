@@ -5,6 +5,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import java.util.Map;
 
 public class OQueryStatement extends SimpleNode {
+
   public OQueryStatement(int id) {
     super(id);
   }

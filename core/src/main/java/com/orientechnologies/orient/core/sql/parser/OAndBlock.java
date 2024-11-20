@@ -17,6 +17,7 @@ import java.util.Optional;
 import java.util.Set;
 
 public class OAndBlock extends OBooleanExpression {
+
   List<OBooleanExpression> subBlocks = new ArrayList<OBooleanExpression>();
 
   public OAndBlock(int id) {
@@ -195,13 +196,18 @@ public class OAndBlock extends OBooleanExpression {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OAndBlock andBlock = (OAndBlock) o;
 
-    if (subBlocks != null ? !subBlocks.equals(andBlock.subBlocks) : andBlock.subBlocks != null)
+    if (subBlocks != null ? !subBlocks.equals(andBlock.subBlocks) : andBlock.subBlocks != null) {
       return false;
+    }
 
     return true;
   }

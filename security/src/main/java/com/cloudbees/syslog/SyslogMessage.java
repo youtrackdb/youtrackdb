@@ -38,6 +38,7 @@ import java.util.concurrent.TimeUnit;
  * @author <a href="mailto:cleclerc@cloudbees.com">Cyrille Le Clerc</a>
  */
 public class SyslogMessage {
+
   public static final char SP = ' ';
   public static final char NILVALUE = '-';
 
@@ -239,7 +240,7 @@ public class SyslogMessage {
    * href="http://tools.ietf.org/html/rfc3164">RFC-3164</a> format.
    *
    * @param messageFormat message format
-   * @param out output {@linkplain Writer}
+   * @param out           output {@linkplain Writer}
    */
   public void toSyslogMessage(MessageFormat messageFormat, Writer out) throws IOException {
     switch (messageFormat) {
@@ -254,7 +255,9 @@ public class SyslogMessage {
     }
   }
 
-  /** Generates an <a href="http://tools.ietf.org/html/rfc5424">RFC-5424</a> message. */
+  /**
+   * Generates an <a href="http://tools.ietf.org/html/rfc5424">RFC-5424</a> message.
+   */
   public String toRfc5424SyslogMessage() {
 
     StringWriter sw = new StringWriter(msg == null ? 32 : msg.size() + 32);
@@ -266,7 +269,9 @@ public class SyslogMessage {
     return sw.toString();
   }
 
-  /** Generates an <a href="http://tools.ietf.org/html/rfc5424">RFC-5424</a> message. */
+  /**
+   * Generates an <a href="http://tools.ietf.org/html/rfc5424">RFC-5424</a> message.
+   */
   public void toRfc5424SyslogMessage(Writer out) throws IOException {
 
     int pri = facility.numericalCode() + severity.numericalCode();
@@ -310,7 +315,9 @@ public class SyslogMessage {
     return sw.toString();
   }
 
-  /** Generates an <a href="http://tools.ietf.org/html/rfc3164">RFC-3164</a> message. */
+  /**
+   * Generates an <a href="http://tools.ietf.org/html/rfc3164">RFC-3164</a> message.
+   */
   public void toRfc3164SyslogMessage(Writer out) throws IOException {
 
     int pri = facility.numericalCode() + severity.numericalCode();

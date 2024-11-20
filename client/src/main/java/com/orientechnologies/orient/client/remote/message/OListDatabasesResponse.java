@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.Map;
 
 public class OListDatabasesResponse implements OBinaryResponse {
+
   private Map<String, String> databases;
 
   public OListDatabasesResponse(Map<String, String> databases) {

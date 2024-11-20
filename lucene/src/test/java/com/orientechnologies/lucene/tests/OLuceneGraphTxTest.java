@@ -27,7 +27,9 @@ import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by enricorisa on 28/06/14. */
+/**
+ * Created by enricorisa on 28/06/14.
+ */
 public class OLuceneGraphTxTest extends OLuceneBaseTest {
 
   @Before

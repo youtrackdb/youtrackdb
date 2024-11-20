@@ -25,6 +25,7 @@ import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
 import com.orientechnologies.orient.server.network.protocol.http.command.OServerCommandAuthenticatedServerAbstract;
 
 public class OServerCommandDeleteDatabase extends OServerCommandAuthenticatedServerAbstract {
+
   private static final String[] NAMES = {"DELETE|database/*"};
 
   public OServerCommandDeleteDatabase() {

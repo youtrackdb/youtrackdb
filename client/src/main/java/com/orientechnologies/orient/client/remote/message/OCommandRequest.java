@@ -33,6 +33,7 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 public final class OCommandRequest implements OBinaryRequest<OCommandResponse> {
+
   private ODatabaseSessionInternal database;
   private boolean asynch;
   private OCommandRequestText query;
@@ -65,8 +66,12 @@ public final class OCommandRequest implements OBinaryRequest<OCommandResponse> {
       throws IOException {
 
     byte type = channel.readByte();
-    if (type == (byte) 'l') live = true;
-    if (type == (byte) 'a') asynch = true;
+    if (type == (byte) 'l') {
+      live = true;
+    }
+    if (type == (byte) 'a') {
+      asynch = true;
+    }
     query = OStreamSerializerAnyStreamable.INSTANCE.fromStream(channel.readBytes(), serializer);
   }
 

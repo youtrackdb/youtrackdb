@@ -10,7 +10,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-/** Created by tglman on 25/05/17. */
+/**
+ * Created by tglman on 25/05/17.
+ */
 public class OError37Response implements OBinaryResponse {
 
   private OErrorCode code;

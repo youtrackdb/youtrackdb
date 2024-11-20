@@ -33,6 +33,7 @@ import java.util.Map;
 @SuppressWarnings("unchecked")
 public abstract class OCommandExecutorSQLEarlyResultsetAbstract
     extends OCommandExecutorSQLResultsetAbstract {
+
   private Iterator<OIdentifiable> iterator;
 
   public Iterator<OIdentifiable> iterator() {
@@ -42,7 +43,9 @@ public abstract class OCommandExecutorSQLEarlyResultsetAbstract
   @Override
   public Iterator<OIdentifiable> iterator(Map<Object, Object> iArgs) {
     if (iterator == null) {
-      if (tempResult == null) tempResult = (List<OIdentifiable>) execute(iArgs);
+      if (tempResult == null) {
+        tempResult = (List<OIdentifiable>) execute(iArgs);
+      }
       iterator = tempResult.iterator();
     }
     return iterator;

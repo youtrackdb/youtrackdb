@@ -41,7 +41,9 @@ public class ParseException extends Exception {
     super();
   }
 
-  /** Constructor with message. */
+  /**
+   * Constructor with message.
+   */
   public ParseException(String message) {
     super(message);
   }
@@ -89,7 +91,9 @@ public class ParseException extends Exception {
     String retval = "Encountered \"";
     Token tok = currentToken.next;
     for (int i = 0; i < maxSize; i++) {
-      if (i != 0) retval += " ";
+      if (i != 0) {
+        retval += " ";
+      }
       if (tok.kind == 0) {
         retval += tokenImage[0];
         break;
@@ -112,7 +116,9 @@ public class ParseException extends Exception {
     return retval;
   }
 
-  /** The end of line string for this machine. */
+  /**
+   * The end of line string for this machine.
+   */
   protected String eol = System.getProperty("line.separator", "\n");
 
   /**

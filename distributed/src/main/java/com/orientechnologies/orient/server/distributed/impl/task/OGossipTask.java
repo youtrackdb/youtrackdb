@@ -36,13 +36,13 @@ import java.text.SimpleDateFormat;
 /**
  * Task to manage the end of distributed transaction when no fix is needed (OFixTxTask) and all the
  * locks must be released. Locks are necessary to prevent concurrent modification of records before
- * the transaction is finished. <br>
- * This task uses the same partition keys used by TxTask to avoid synchronizing all the worker
- * threads (and queues).
+ * the transaction is finished. <br> This task uses the same partition keys used by TxTask to avoid
+ * synchronizing all the worker threads (and queues).
  *
  * @author Luca Garulli (l.garulli--at--orientdb.com)
  */
 public class OGossipTask extends OAbstractRemoteTask {
+
   public static final int FACTORYID = 16;
 
   private long timestamp = System.currentTimeMillis();

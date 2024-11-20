@@ -14,12 +14,13 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 public class OLuceneQueryBuilderTest {
+
   private OIndexDefinition indexDef;
 
   @Before
   public void setUp() throws Exception {
     indexDef = Mockito.mock(OIndexDefinition.class);
-    when(indexDef.getFields()).thenReturn(Collections.<String>emptyList());
+    when(indexDef.getFields()).thenReturn(Collections.emptyList());
     when(indexDef.isAutomatic()).thenReturn(true);
     when(indexDef.getClassName()).thenReturn("Song");
   }

@@ -31,17 +31,20 @@ import com.orientechnologies.orient.server.network.protocol.http.command.OServer
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OServerCommandForward extends OServerCommandAbstract {
+
   private final String[] pattern;
   private final String prefix;
   private String forwardTo;
 
   public OServerCommandForward(final OServerCommandConfiguration iConfiguration) {
     pattern = new String[] {iConfiguration.pattern};
-    prefix = iConfiguration.pattern.substring(iConfiguration.pattern.indexOf("|") + 1);
+    prefix = iConfiguration.pattern.substring(iConfiguration.pattern.indexOf('|') + 1);
 
     // LOAD HTTP CACHE CONFIGURATION
     for (OServerEntryConfiguration par : iConfiguration.parameters) {
-      if (par.name.equals("to")) forwardTo = par.value;
+      if (par.name.equals("to")) {
+        forwardTo = par.value;
+      }
     }
   }
 
@@ -54,7 +57,9 @@ public class OServerCommandForward extends OServerCommandAbstract {
     if (prefix.endsWith("*")) {
       final int prefixLength = prefix.length() - 1;
       final int postfix = iRequest.getUrl().indexOf(prefix.substring(0, prefixLength));
-      if (postfix > -1) forwardURL.append(iRequest.getUrl().substring(postfix + prefixLength));
+      if (postfix > -1) {
+        forwardURL.append(iRequest.getUrl().substring(postfix + prefixLength));
+      }
     }
 
     iRequest.setUrl(forwardURL.toString());

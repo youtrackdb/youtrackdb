@@ -6,6 +6,7 @@ import com.orientechnologies.orient.core.sql.executor.OResult;
 import java.util.Map;
 
 public class OBothPathItem extends OMatchPathItem {
+
   public OBothPathItem(int id) {
     super(id);
   }

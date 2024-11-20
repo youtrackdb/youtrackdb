@@ -43,10 +43,11 @@ public interface OSQLFunction {
    * @param iThis
    * @param iCurrentRecord : current record
    * @param iCurrentResult TODO
-   * @param iParams : function parameters, number is ensured to be within minParams and maxParams.
-   * @param iContext : object calling this function
+   * @param iParams        : function parameters, number is ensured to be within minParams and
+   *                       maxParams.
+   * @param iContext       : object calling this function
    * @return function result, can be null. Special cases : can be null if function aggregate
-   *     results, can be null if function filter results : this mean result is excluded
+   * results, can be null if function filter results : this mean result is excluded
    */
   public Object execute(
       Object iThis,
@@ -139,7 +140,7 @@ public interface OSQLFunction {
    * This method correspond to distributed query execution
    *
    * @return {@code true} if results that comes from different nodes need to be merged to obtain
-   *     valid one, {@code false} otherwise
+   * valid one, {@code false} otherwise
    */
   public boolean shouldMergeDistributedResult();
 

@@ -6,6 +6,7 @@ import com.orientechnologies.orient.core.sql.executor.OResult;
 import java.util.Map;
 
 public class OOutPathItem extends OMatchPathItem {
+
   public OOutPathItem(int id) {
     super(id);
   }

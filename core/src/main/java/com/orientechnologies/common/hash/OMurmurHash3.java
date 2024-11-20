@@ -24,7 +24,9 @@ package com.orientechnologies.common.hash;
  * @since 13.08.12
  */
 public class OMurmurHash3 {
+
   private static class State {
+
     private long h1;
     private long h2;
 

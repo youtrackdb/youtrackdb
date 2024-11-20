@@ -5,6 +5,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import java.util.Map;
 
 public class OIfNotExists extends SimpleNode {
+
   public OIfNotExists(int id) {
     super(id);
   }

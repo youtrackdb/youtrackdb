@@ -234,9 +234,9 @@ public interface OVertex extends OElement {
   OEdge addEdge(OVertex to);
 
   /**
-   * Adds a lightweight edge (one that does not require associated record)
-   * between the current vertex and the specified vertex. Edge will be created without
-   * any specific label. It is recommended to use labeled edges instead.
+   * Adds a lightweight edge (one that does not require associated record) between the current
+   * vertex and the specified vertex. Edge will be created without any specific label. It is
+   * recommended to use labeled edges instead.
    *
    * @param to the vertex to which the edge is connected
    * @return the created edge
@@ -253,8 +253,8 @@ public interface OVertex extends OElement {
   OEdge addEdge(OVertex to, String label);
 
   /**
-   * Adds a lightweight edge (one that does not require associated record)
-   * between the current vertex and the specified vertex.
+   * Adds a lightweight edge (one that does not require associated record) between the current
+   * vertex and the specified vertex.
    *
    * @param to    the vertex to which the edge is connected
    * @param label the label of the edge (optional)
@@ -272,8 +272,8 @@ public interface OVertex extends OElement {
   OEdge addEdge(OVertex to, OClass label);
 
   /**
-   * Adds a lightweight edge (one that does not require associated record)
-   * between the current vertex and the specified vertex with the given label.
+   * Adds a lightweight edge (one that does not require associated record) between the current
+   * vertex and the specified vertex with the given label.
    *
    * @param to    the vertex to which the edge is connected
    * @param label the label of the edge

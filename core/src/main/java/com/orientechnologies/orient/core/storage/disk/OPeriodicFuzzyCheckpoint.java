@@ -3,7 +3,10 @@ package com.orientechnologies.orient.core.storage.disk;
 import com.orientechnologies.common.log.OLogManager;
 
 public class OPeriodicFuzzyCheckpoint implements Runnable {
-  /** */
+
+  /**
+   *
+   */
   private final OLocalPaginatedStorage storage;
 
   /**

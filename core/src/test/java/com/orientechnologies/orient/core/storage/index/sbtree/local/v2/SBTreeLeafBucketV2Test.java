@@ -23,6 +23,7 @@ import org.junit.Test;
  * @since 09.08.13
  */
 public class SBTreeLeafBucketV2Test {
+
   @Test
   public void testInitialization() {
     OByteBufferPool bufferPool = OByteBufferPool.instance(null);

@@ -46,7 +46,7 @@ public class OValueExpression extends OExpression {
   }
 
   public void toString(Map<Object, Object> params, StringBuilder builder) {
-    builder.append(String.valueOf(value));
+    builder.append(value);
   }
 
   public boolean supportsBasicCalculation() {
@@ -93,7 +93,7 @@ public class OValueExpression extends OExpression {
   }
 
   public AggregationContext getAggregationContext(OCommandContext ctx) {
-    throw new OCommandExecutionException("Cannot aggregate on " + toString());
+    throw new OCommandExecutionException("Cannot aggregate on " + this);
   }
 
   public OValueExpression copy() {
@@ -105,8 +105,12 @@ public class OValueExpression extends OExpression {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OValueExpression that = (OValueExpression) o;
     return that.value == this.value;
@@ -131,7 +135,7 @@ public class OValueExpression extends OExpression {
   }
 
   public void applyRemove(OResultInternal result, OCommandContext ctx) {
-    throw new OCommandExecutionException("Cannot apply REMOVE " + toString());
+    throw new OCommandExecutionException("Cannot apply REMOVE " + this);
   }
 
   public boolean isCount() {

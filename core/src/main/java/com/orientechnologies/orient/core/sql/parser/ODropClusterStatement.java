@@ -3,14 +3,15 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Map;
+import java.util.Objects;
 
 public class ODropClusterStatement extends ODDLStatement {
+
   protected OIdentifier name;
   protected OInteger id;
   protected boolean ifExists = false;
@@ -25,7 +26,7 @@ public class ODropClusterStatement extends ODDLStatement {
 
   @Override
   public OExecutionStream executeDDL(OCommandContext ctx) {
-    var database = (ODatabaseSessionInternal) ctx.getDatabase();
+    var database = ctx.getDatabase();
     // CHECK IF ANY CLASS IS USING IT
     final int clusterId;
     if (id != null) {
@@ -109,14 +110,22 @@ public class ODropClusterStatement extends ODDLStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     ODropClusterStatement that = (ODropClusterStatement) o;
 
-    if (ifExists != that.ifExists) return false;
-    if (name != null ? !name.equals(that.name) : that.name != null) return false;
-    return id != null ? id.equals(that.id) : that.id == null;
+    if (ifExists != that.ifExists) {
+      return false;
+    }
+    if (!Objects.equals(name, that.name)) {
+      return false;
+    }
+    return Objects.equals(id, that.id);
   }
 
   @Override

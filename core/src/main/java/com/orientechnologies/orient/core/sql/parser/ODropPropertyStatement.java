@@ -37,8 +37,9 @@ public class ODropPropertyStatement extends ODDLStatement {
     final ODatabaseSessionInternal database = (ODatabaseSessionInternal) ctx.getDatabase();
     final OClassImpl sourceClass =
         (OClassImpl) database.getMetadata().getSchema().getClass(className.getStringValue());
-    if (sourceClass == null)
+    if (sourceClass == null) {
       throw new OCommandExecutionException("Source class '" + className + "' not found");
+    }
 
     if (sourceClass.getProperty(propertyName.getStringValue()) == null) {
       if (ifExists) {
@@ -147,19 +148,29 @@ public class ODropPropertyStatement extends ODDLStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     ODropPropertyStatement that = (ODropPropertyStatement) o;
 
-    if (force != that.force) return false;
+    if (force != that.force) {
+      return false;
+    }
     if (ifExists != that.ifExists) {
       return false;
     }
-    if (className != null ? !className.equals(that.className) : that.className != null)
+    if (className != null ? !className.equals(that.className) : that.className != null) {
       return false;
-    if (propertyName != null ? !propertyName.equals(that.propertyName) : that.propertyName != null)
+    }
+    if (propertyName != null
+        ? !propertyName.equals(that.propertyName)
+        : that.propertyName != null) {
       return false;
+    }
 
     return true;
   }

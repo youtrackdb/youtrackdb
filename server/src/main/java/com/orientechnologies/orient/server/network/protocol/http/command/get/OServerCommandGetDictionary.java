@@ -27,6 +27,7 @@ import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.command.OServerCommandAuthenticatedDbAbstract;
 
 public class OServerCommandGetDictionary extends OServerCommandAuthenticatedDbAbstract {
+
   private static final String[] NAMES = {"GET|dictionary/*"};
 
   @Override
@@ -42,14 +43,17 @@ public class OServerCommandGetDictionary extends OServerCommandAuthenticatedDbAb
       db = getProfiledDatabaseInstance(iRequest);
 
       final ORecord record = db.getDictionary().get(urlParts[2]);
-      if (record == null)
+      if (record == null) {
         throw new ORecordNotFoundException(
             null, "Key '" + urlParts[2] + "' was not found in the database dictionary");
+      }
 
       iResponse.writeRecord(record);
 
     } finally {
-      if (db != null) db.close();
+      if (db != null) {
+        db.close();
+      }
     }
     return false;
   }

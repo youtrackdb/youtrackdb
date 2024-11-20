@@ -31,7 +31,7 @@ public class RemoteTokenExpireTest {
   private ODatabaseSession session;
   private int oldPageSize;
 
-  private long expireTimeout = 500;
+  private final long expireTimeout = 500;
 
   @Before
   public void before() throws Exception {

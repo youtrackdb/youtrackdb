@@ -7,6 +7,7 @@ import com.orientechnologies.orient.core.storage.cluster.OClusterPositionMap;
  * @since 10/2/2015
  */
 public class OClusterPositionMapException extends ODurableComponentException {
+
   @SuppressWarnings("unused")
   public OClusterPositionMapException(OClusterPositionMapException exception) {
     super(exception);

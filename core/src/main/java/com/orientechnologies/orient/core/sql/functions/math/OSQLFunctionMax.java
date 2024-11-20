@@ -32,6 +32,7 @@ import java.util.List;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFunctionMax extends OSQLFunctionMathAbstract {
+
   public static final String NAME = "max";
 
   private Object context;
@@ -54,8 +55,9 @@ public class OSQLFunctionMax extends OSQLFunctionMathAbstract {
     for (Object item : iParams) {
       if (item instanceof Collection<?>) {
         for (Object subitem : ((Collection<?>) item)) {
-          if (max == null || subitem != null && ((Comparable) subitem).compareTo(max) > 0)
+          if (max == null || subitem != null && ((Comparable) subitem).compareTo(max) > 0) {
             max = subitem;
+          }
         }
       } else {
         if ((item instanceof Number) && (max instanceof Number)) {
@@ -63,7 +65,9 @@ public class OSQLFunctionMax extends OSQLFunctionMathAbstract {
           item = converted[0];
           max = converted[1];
         }
-        if (max == null || item != null && ((Comparable) item).compareTo(max) > 0) max = item;
+        if (max == null || item != null && ((Comparable) item).compareTo(max) > 0) {
+          max = item;
+        }
       }
     }
 
@@ -71,17 +75,20 @@ public class OSQLFunctionMax extends OSQLFunctionMathAbstract {
     // for an unique result aggregated from all output records
     if (aggregateResults() && max != null) {
       if (context == null)
-        // FIRST TIME
+      // FIRST TIME
+      {
         context = (Comparable) max;
-      else {
+      } else {
         if (context instanceof Number && max instanceof Number) {
           final Number[] casted = OType.castComparableNumber((Number) context, (Number) max);
           context = casted[0];
           max = casted[1];
         }
         if (((Comparable<Object>) context).compareTo((Comparable) max) < 0)
-          // BIGGER
+        // BIGGER
+        {
           context = (Comparable) max;
+        }
       }
 
       return null;
@@ -114,11 +121,14 @@ public class OSQLFunctionMax extends OSQLFunctionMathAbstract {
       final Comparable<Object> value = (Comparable<Object>) iParameter;
 
       if (context == null)
-        // FIRST TIME
+      // FIRST TIME
+      {
         context = value;
-      else if (context.compareTo(value) < 0)
-        // BIGGER
+      } else if (context.compareTo(value) < 0)
+      // BIGGER
+      {
         context = value;
+      }
     }
     return context;
   }

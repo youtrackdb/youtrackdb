@@ -29,6 +29,7 @@ import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
  * @author S. Colin Leister
  */
 public class OServerConfigAuthenticator extends OSecurityAuthenticatorAbstract {
+
   // OSecurityComponent
   // Called once the Server is running.
   public void active() {

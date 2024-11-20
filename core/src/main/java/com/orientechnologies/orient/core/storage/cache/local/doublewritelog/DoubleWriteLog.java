@@ -27,6 +27,7 @@ import java.util.ArrayList;
  * truncate page log.
  */
 public interface DoubleWriteLog {
+
   boolean write(ArrayList<ByteBuffer> buffers, IntArrayList fileId, IntArrayList pageIndex)
       throws IOException;
 

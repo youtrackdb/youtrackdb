@@ -30,6 +30,7 @@ import com.orientechnologies.orient.core.exception.OConfigurationException;
  */
 @Deprecated
 public class OScriptOrientWrapper {
+
   protected final ODatabaseSession db;
 
   public OScriptOrientWrapper() {
@@ -41,10 +42,13 @@ public class OScriptOrientWrapper {
   }
 
   public OScriptDocumentDatabaseWrapper getDatabase() {
-    if (db == null) throw new OConfigurationException("No database instance found in context");
+    if (db == null) {
+      throw new OConfigurationException("No database instance found in context");
+    }
 
-    if (db instanceof ODatabaseSessionInternal)
+    if (db instanceof ODatabaseSessionInternal) {
       return new OScriptDocumentDatabaseWrapper((ODatabaseSessionInternal) db);
+    }
 
     throw new OConfigurationException(
         "No valid database instance found in context: " + db + ", class: " + db.getClass());

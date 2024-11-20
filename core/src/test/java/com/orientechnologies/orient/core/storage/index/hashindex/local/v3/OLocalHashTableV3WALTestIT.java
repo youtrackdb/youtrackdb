@@ -39,6 +39,7 @@ import org.junit.Before;
  * @since 5/19/14
  */
 public class OLocalHashTableV3WALTestIT extends OLocalHashTableV3Base {
+
   private static final String ACTUAL_DB_NAME =
       OLocalHashTableV3WALTestIT.class.getSimpleName() + "Actual";
   private static final String EXPECTED_DB_NAME =

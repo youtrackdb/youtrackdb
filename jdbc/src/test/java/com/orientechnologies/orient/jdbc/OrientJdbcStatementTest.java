@@ -38,7 +38,6 @@ public class OrientJdbcStatementTest extends OrientJdbcDbPerClassTemplateTest {
 
     assertThat(stmt.execute("")).isFalse();
     assertThat(stmt.getResultSet()).isNull();
-    ;
     assertThat(stmt.getMoreResults()).isFalse();
   }
 

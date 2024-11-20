@@ -32,6 +32,7 @@ import java.util.List;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFunctionMin extends OSQLFunctionMathAbstract {
+
   public static final String NAME = "min";
 
   private Object context;
@@ -54,8 +55,9 @@ public class OSQLFunctionMin extends OSQLFunctionMathAbstract {
     for (Object item : iParams) {
       if (item instanceof Collection<?>) {
         for (Object subitem : ((Collection<?>) item)) {
-          if (min == null || subitem != null && ((Comparable) subitem).compareTo(min) < 0)
+          if (min == null || subitem != null && ((Comparable) subitem).compareTo(min) < 0) {
             min = subitem;
+          }
         }
       } else {
         if ((item instanceof Number) && (min instanceof Number)) {
@@ -63,7 +65,9 @@ public class OSQLFunctionMin extends OSQLFunctionMathAbstract {
           item = converted[0];
           min = converted[1];
         }
-        if (min == null || item != null && ((Comparable) item).compareTo(min) < 0) min = item;
+        if (min == null || item != null && ((Comparable) item).compareTo(min) < 0) {
+          min = item;
+        }
       }
     }
 
@@ -71,9 +75,10 @@ public class OSQLFunctionMin extends OSQLFunctionMathAbstract {
     // for an unique result aggregated from all output records
     if (aggregateResults() && min != null) {
       if (context == null)
-        // FIRST TIME
+      // FIRST TIME
+      {
         context = (Comparable) min;
-      else {
+      } else {
         if (context instanceof Number && min instanceof Number) {
           final Number[] casted = OType.castComparableNumber((Number) context, (Number) min);
           context = casted[0];
@@ -81,8 +86,10 @@ public class OSQLFunctionMin extends OSQLFunctionMathAbstract {
         }
 
         if (((Comparable<Object>) context).compareTo((Comparable) min) > 0)
-          // MINOR
+        // MINOR
+        {
           context = (Comparable) min;
+        }
       }
 
       return null;
@@ -115,11 +122,14 @@ public class OSQLFunctionMin extends OSQLFunctionMathAbstract {
       final Comparable<Object> value = (Comparable<Object>) iParameter;
 
       if (context == null)
-        // FIRST TIME
+      // FIRST TIME
+      {
         context = value;
-      else if (context.compareTo(value) > 0)
-        // BIGGER
+      } else if (context.compareTo(value) > 0)
+      // BIGGER
+      {
         context = value;
+      }
     }
     return context;
   }

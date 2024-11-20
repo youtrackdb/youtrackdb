@@ -277,10 +277,7 @@ public class OCommandExecutorSQLCreateLink extends OCommandExecutorSQLAbstract {
               }
             }
 
-            result =
-                database
-                    .<OCommandRequest>command(new OSQLSynchQuery<ODocument>(cmd + value))
-                    .execute();
+            result = database.command(new OSQLSynchQuery<ODocument>(cmd + value)).execute();
 
             if (result == null || result.size() == 0) {
               value = null;

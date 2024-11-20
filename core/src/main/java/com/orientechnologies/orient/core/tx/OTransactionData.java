@@ -23,8 +23,8 @@ import java.util.List;
 
 public class OTransactionData {
 
-  private OTransactionId transactionId;
-  private List<OTransactionDataChange> changes = new ArrayList<>();
+  private final OTransactionId transactionId;
+  private final List<OTransactionDataChange> changes = new ArrayList<>();
 
   public OTransactionData(OTransactionId transactionId) {
     this.transactionId = transactionId;

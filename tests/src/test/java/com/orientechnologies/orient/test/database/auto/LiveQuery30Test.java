@@ -32,12 +32,14 @@ import org.testng.Assert;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-/** only for remote usage (it requires registered LiveQuery plugin) */
+/**
+ * only for remote usage (it requires registered LiveQuery plugin)
+ */
 @Test(groups = "Query")
 public class LiveQuery30Test extends DocumentDBBaseTest implements OCommandOutputListener {
 
   private final CountDownLatch latch = new CountDownLatch(2);
-  private CountDownLatch unLatch = new CountDownLatch(1);
+  private final CountDownLatch unLatch = new CountDownLatch(1);
 
   class MyLiveQueryListener implements OLiveQueryResultListener {
 

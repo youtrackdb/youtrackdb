@@ -59,7 +59,9 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class OBinarySerializerFactory {
 
-  /** Size of the type identifier block size */
+  /**
+   * Size of the type identifier block size
+   */
   public static final int TYPE_IDENTIFIER_SIZE = 1;
 
   private final ConcurrentMap<Byte, OBinarySerializer<?>> serializerIdMap =
@@ -111,24 +113,31 @@ public class OBinarySerializerFactory {
 
   public static OBinarySerializerFactory getInstance() {
     final ODatabaseSessionInternal database = ODatabaseRecordThreadLocal.instance().getIfDefined();
-    if (database != null) return database.getSerializerFactory();
-    else return OBinarySerializerFactory.create(Integer.MAX_VALUE);
+    if (database != null) {
+      return database.getSerializerFactory();
+    } else {
+      return OBinarySerializerFactory.create(Integer.MAX_VALUE);
+    }
   }
 
   public void registerSerializer(final OBinarySerializer<?> iInstance, final OType iType) {
-    if (serializerIdMap.containsKey(iInstance.getId()))
+    if (serializerIdMap.containsKey(iInstance.getId())) {
       throw new IllegalArgumentException(
           "Binary serializer with id " + iInstance.getId() + " has been already registered.");
+    }
 
     serializerIdMap.put(iInstance.getId(), iInstance);
-    if (iType != null) serializerTypeMap.put(iType, iInstance);
+    if (iType != null) {
+      serializerTypeMap.put(iType, iInstance);
+    }
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
   public void registerSerializer(final byte iId, final Class<? extends OBinarySerializer> iClass) {
-    if (serializerClassesIdMap.containsKey(iId))
+    if (serializerClassesIdMap.containsKey(iId)) {
       throw new IllegalStateException(
           "Serializer with id " + iId + " has been already registered.");
+    }
 
     serializerClassesIdMap.put(iId, iClass);
   }
@@ -143,7 +152,7 @@ public class OBinarySerializerFactory {
     OBinarySerializer<?> impl = serializerIdMap.get(identifier);
     if (impl == null) {
       final Class<? extends OBinarySerializer> cls = serializerClassesIdMap.get(identifier);
-      if (cls != null)
+      if (cls != null) {
         try {
           impl = cls.newInstance();
         } catch (Exception e) {
@@ -154,6 +163,7 @@ public class OBinarySerializerFactory {
                   e,
                   cls);
         }
+      }
     }
     return impl;
   }

@@ -45,6 +45,7 @@ import org.junit.Test;
  * @since 18.06.13
  */
 public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
+
   private static File buildDir;
   private ODatabaseSessionInternal testDocumentTx;
   private ODatabaseSessionInternal baseDocumentTx;
@@ -59,7 +60,9 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
     buildDirectory += "/localPaginatedStorageRestoreFromWALAndAddAdditionalRecords";
 
     buildDir = new File(buildDirectory);
-    if (buildDir.exists()) buildDir.delete();
+    if (buildDir.exists()) {
+      buildDir.delete();
+    }
 
     buildDir.mkdir();
   }
@@ -111,9 +114,13 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
       System.out.println("Seed [" + i + "] = " + seeds[i]);
     }
 
-    for (long seed : seeds) futures.add(executorService.submit(new DataPropagationTask(seed)));
+    for (long seed : seeds) {
+      futures.add(executorService.submit(new DataPropagationTask(seed)));
+    }
 
-    for (Future<Void> future : futures) future.get();
+    for (Future<Void> future : futures) {
+      future.get();
+    }
 
     futures.clear();
 
@@ -133,10 +140,13 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
 
     long dataAddSeed = random.nextLong();
     System.out.println("Data add seed = " + dataAddSeed);
-    for (int i = 0; i < 1; i++)
+    for (int i = 0; i < 1; i++) {
       futures.add(executorService.submit(new DataPropagationTask(dataAddSeed)));
+    }
 
-    for (Future<Void> future : futures) future.get();
+    for (Future<Void> future : futures) {
+      future.get();
+    }
 
     ODatabaseCompare databaseCompare =
         new ODatabaseCompare(
@@ -170,77 +180,80 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
               throws IOException {
             Path fileToCopy = copyTo.resolve(testStoragePath.relativize(file));
             if (fileToCopy.endsWith(
-                "baseLocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords.wmr"))
+                "baseLocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords.wmr")) {
               fileToCopy =
                   fileToCopy
                       .getParent()
                       .resolve(
                           "testLocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords.wmr");
-            else if (fileToCopy.endsWith(
-                "baseLocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords.0.wal"))
+            } else if (fileToCopy.endsWith(
+                "baseLocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords.0.wal")) {
               fileToCopy =
                   fileToCopy
                       .getParent()
                       .resolve(
                           "testLocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords.0.wal");
-            else if (fileToCopy.endsWith(
-                "baseLocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords.1.wal"))
+            } else if (fileToCopy.endsWith(
+                "baseLocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords.1.wal")) {
               fileToCopy =
                   fileToCopy
                       .getParent()
                       .resolve(
                           "testLocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords.1.wal");
-            else if (fileToCopy.endsWith(
-                "baseLocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords.2.wal"))
+            } else if (fileToCopy.endsWith(
+                "baseLocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords.2.wal")) {
               fileToCopy =
                   fileToCopy
                       .getParent()
                       .resolve(
                           "testLocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords.2.wal");
-            else if (fileToCopy.endsWith(
-                "baseLocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords.3.wal"))
+            } else if (fileToCopy.endsWith(
+                "baseLocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords.3.wal")) {
               fileToCopy =
                   fileToCopy
                       .getParent()
                       .resolve(
                           "testLocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords.3.wal");
-            else if (fileToCopy.endsWith(
-                "baseLocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords.4.wal"))
+            } else if (fileToCopy.endsWith(
+                "baseLocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords.4.wal")) {
               fileToCopy =
                   fileToCopy
                       .getParent()
                       .resolve(
                           "testLocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords.4.wal");
-            else if (fileToCopy.endsWith(
-                "baseLocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords.5.wal"))
+            } else if (fileToCopy.endsWith(
+                "baseLocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords.5.wal")) {
               fileToCopy =
                   fileToCopy
                       .getParent()
                       .resolve(
                           "testLocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords.5.wal");
-            else if (fileToCopy.endsWith(
-                "baseLocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords.6.wal"))
+            } else if (fileToCopy.endsWith(
+                "baseLocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords.6.wal")) {
               fileToCopy =
                   fileToCopy
                       .getParent()
                       .resolve(
                           "testLocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords.6.wal");
-            else if (fileToCopy.endsWith(
-                "baseLocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords.7.wal"))
+            } else if (fileToCopy.endsWith(
+                "baseLocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords.7.wal")) {
               fileToCopy =
                   fileToCopy
                       .getParent()
                       .resolve(
                           "testLocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords.7.wal");
-            else if (fileToCopy.endsWith(
-                "baseLocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords.8.wal"))
+            } else if (fileToCopy.endsWith(
+                "baseLocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords.8.wal")) {
               fileToCopy =
                   fileToCopy
                       .getParent()
                       .resolve(
                           "testLocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords.8.wal");
+            }
 
-            if (fileToCopy.endsWith("dirty.fl")) return FileVisitResult.CONTINUE;
+            if (fileToCopy.endsWith("dirty.fl")) {
+              return FileVisitResult.CONTINUE;
+            }
 
             Files.copy(file, fileToCopy);
 
@@ -266,6 +279,7 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
   }
 
   public class DataPropagationTask implements Callable<Void> {
+
     private ODatabaseSessionInternal baseDB;
     private ODatabaseSessionInternal testDB;
     private long seed;
@@ -355,7 +369,9 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
         }
       } finally {
         baseDB.close();
-        if (testDB != null) testDB.close();
+        if (testDB != null) {
+          testDB.close();
+        }
       }
 
       return null;

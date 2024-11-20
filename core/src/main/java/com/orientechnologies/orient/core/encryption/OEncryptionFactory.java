@@ -37,13 +37,16 @@ import java.util.Set;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OEncryptionFactory {
+
   public static final OEncryptionFactory INSTANCE = new OEncryptionFactory();
 
   private final Map<String, OEncryption> instances = new HashMap<String, OEncryption>();
   private final Map<String, Class<? extends OEncryption>> classes =
       new HashMap<String, Class<? extends OEncryption>>();
 
-  /** Install default encryption algorithms. */
+  /**
+   * Install default encryption algorithms.
+   */
   public OEncryptionFactory() {
     register(ONothingEncryption.class);
     register(ODESEncryption.class);
@@ -57,8 +60,11 @@ public class OEncryptionFactory {
 
       final Class<? extends OEncryption> encryptionClass;
 
-      if (name == null) encryptionClass = ONothingEncryption.class;
-      else encryptionClass = classes.get(name);
+      if (name == null) {
+        encryptionClass = ONothingEncryption.class;
+      } else {
+        encryptionClass = classes.get(name);
+      }
 
       if (encryptionClass != null) {
         try {
@@ -69,7 +75,9 @@ public class OEncryptionFactory {
           throw OException.wrapException(
               new OSecurityException("Cannot instantiate encryption algorithm '" + name + "'"), e);
         }
-      } else throw new OSecurityException("Encryption with name '" + name + "' is absent");
+      } else {
+        throw new OSecurityException("Encryption with name '" + name + "' is absent");
+      }
     }
     return encryption;
   }
@@ -83,13 +91,15 @@ public class OEncryptionFactory {
     try {
       final String name = iEncryption.name();
 
-      if (instances.containsKey(name))
+      if (instances.containsKey(name)) {
         throw new IllegalArgumentException(
             "Encryption with name '" + name + "' was already registered");
+      }
 
-      if (classes.containsKey(name))
+      if (classes.containsKey(name)) {
         throw new IllegalArgumentException(
             "Encryption with name '" + name + "' was already registered");
+      }
 
       instances.put(name, iEncryption);
     } catch (Exception e) {
@@ -109,13 +119,15 @@ public class OEncryptionFactory {
 
       final String name = tempInstance.name();
 
-      if (instances.containsKey(name))
+      if (instances.containsKey(name)) {
         throw new IllegalArgumentException(
             "Encryption with name '" + name + "' was already registered");
+      }
 
-      if (classes.containsKey(tempInstance.name()))
+      if (classes.containsKey(tempInstance.name())) {
         throw new IllegalArgumentException(
             "Encryption with name '" + name + "' was already registered");
+      }
 
       classes.put(name, iEncryption);
     } catch (Exception e) {

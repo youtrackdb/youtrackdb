@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class CASObjectArrayTest {
+
   @Test
   public void testAddSingleItem() {
     final CASObjectArray<Integer> array = new CASObjectArray<>();

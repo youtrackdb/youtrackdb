@@ -132,7 +132,9 @@ public class MultipleDBAlignmentOnNodesJoiningIT extends AbstractScenarioTest {
     }
 
     // copying db-B on server2
-    if (iCopyDatabaseToNodes) master.copyDatabase(dbB, serverInstance.get(1).getDatabasePath(dbB));
+    if (iCopyDatabaseToNodes) {
+      master.copyDatabase(dbB, serverInstance.get(1).getDatabasePath(dbB));
+    }
 
     // creating db-C on server2
     master = serverInstance.get(1);
@@ -335,10 +337,11 @@ public class MultipleDBAlignmentOnNodesJoiningIT extends AbstractScenarioTest {
         database.query(
             new OSQLSynchQuery<ODocument>(
                 "select from Person where name = 'Billy" + uniqueId + "'"));
-    if (result.size() == 0)
+    if (result.size() == 0) {
       assertTrue("No record found with name = 'Billy" + uniqueId + "'!", false);
-    else if (result.size() > 1)
+    } else if (result.size() > 1) {
       assertTrue(result.size() + " records found with name = 'Billy" + uniqueId + "'!", false);
+    }
     return result.get(0);
   }
 
@@ -347,6 +350,7 @@ public class MultipleDBAlignmentOnNodesJoiningIT extends AbstractScenarioTest {
   }
 
   class DBStartupWriter implements Callable<Void> {
+
     private final ODatabaseDocument db;
 
     public DBStartupWriter(final ODatabaseDocument db) {
@@ -360,7 +364,7 @@ public class MultipleDBAlignmentOnNodesJoiningIT extends AbstractScenarioTest {
 
       for (int i = 0; i < count; i++) {
         try {
-          if ((i + 1) % 100 == 0)
+          if ((i + 1) % 100 == 0) {
             System.out.println(
                 "\nDBStartupWriter '"
                     + db.getName()
@@ -371,13 +375,16 @@ public class MultipleDBAlignmentOnNodesJoiningIT extends AbstractScenarioTest {
                     + "/"
                     + count
                     + " records so far");
+          }
 
           final ODocument person = createRecord(db, i);
           updateRecord(db, i);
           checkRecord(db, i);
           checkIndex(db, (String) person.field("name"), person.getIdentity());
 
-          if (delayWriter > 0) Thread.sleep(delayWriter);
+          if (delayWriter > 0) {
+            Thread.sleep(delayWriter);
+          }
 
         } catch (InterruptedException e) {
           System.out.println("DBStartupWriter received interrupt (db=" + db.getURL());
@@ -447,10 +454,11 @@ public class MultipleDBAlignmentOnNodesJoiningIT extends AbstractScenarioTest {
           database.query(
               new OSQLSynchQuery<ODocument>(
                   "select from Person where name = 'Billy" + uniqueId + "'"));
-      if (result.size() == 0)
+      if (result.size() == 0) {
         assertTrue("No record found with name = 'Billy" + uniqueId + "'!", false);
-      else if (result.size() > 1)
+      } else if (result.size() > 1) {
         assertTrue(result.size() + " records found with name = 'Billy" + uniqueId + "'!", false);
+      }
 
       return result.get(0);
     }

@@ -7,6 +7,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class OClosableLRUListTest {
+
   @Test
   public void tesMoveToTail() {
     OClosableLRUList<Long, CIItem> lruList = new OClosableLRUList<Long, CIItem>();
@@ -221,6 +222,7 @@ public class OClosableLRUListTest {
   }
 
   public class CIItem implements OClosableItem {
+
     private volatile boolean open = true;
 
     @Override

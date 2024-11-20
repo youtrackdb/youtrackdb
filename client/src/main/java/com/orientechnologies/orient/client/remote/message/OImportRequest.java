@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class OImportRequest implements OBinaryRequest<OImportResponse> {
+
   private InputStream inputStream;
   private String options;
   private String name;

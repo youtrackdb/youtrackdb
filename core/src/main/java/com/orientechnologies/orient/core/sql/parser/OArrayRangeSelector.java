@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class OArrayRangeSelector extends SimpleNode {
+
   protected Integer from;
   protected Integer to;
   protected boolean newRange = false;
@@ -181,19 +182,35 @@ public class OArrayRangeSelector extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OArrayRangeSelector that = (OArrayRangeSelector) o;
 
-    if (newRange != that.newRange) return false;
-    if (included != that.included) return false;
-    if (from != null ? !from.equals(that.from) : that.from != null) return false;
-    if (to != null ? !to.equals(that.to) : that.to != null) return false;
-    if (fromSelector != null ? !fromSelector.equals(that.fromSelector) : that.fromSelector != null)
+    if (newRange != that.newRange) {
       return false;
-    if (toSelector != null ? !toSelector.equals(that.toSelector) : that.toSelector != null)
+    }
+    if (included != that.included) {
       return false;
+    }
+    if (from != null ? !from.equals(that.from) : that.from != null) {
+      return false;
+    }
+    if (to != null ? !to.equals(that.to) : that.to != null) {
+      return false;
+    }
+    if (fromSelector != null
+        ? !fromSelector.equals(that.fromSelector)
+        : that.fromSelector != null) {
+      return false;
+    }
+    if (toSelector != null ? !toSelector.equals(that.toSelector) : that.toSelector != null) {
+      return false;
+    }
 
     return true;
   }

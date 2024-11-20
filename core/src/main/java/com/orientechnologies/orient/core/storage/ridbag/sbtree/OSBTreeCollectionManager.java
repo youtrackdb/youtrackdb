@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public interface OSBTreeCollectionManager {
+
   OSBTreeBonsai<OIdentifiable, Integer> createAndLoadTree(
       OAtomicOperation atomicOperation, int clusterId) throws IOException;
 

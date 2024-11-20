@@ -9,6 +9,7 @@ import org.knowm.xchart.internal.chartpart.Chart;
 import org.knowm.xchart.style.Styler;
 
 public class Plotter {
+
   public CategoryChart getCategoryChart(
       final String chartName,
       final String xAxisTitle,

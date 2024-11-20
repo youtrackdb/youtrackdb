@@ -26,10 +26,11 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
  * @author Matan Shukry (matanshukry@gmail.com)
  * @see OSequenceCached
  * @since 2/28/2015
- *     <p>A sequence with sequential guarantees. Even when a transaction is rolled back, there will
- *     still be no holes. However, as a result, it is slower.
+ * <p>A sequence with sequential guarantees. Even when a transaction is rolled back, there will
+ * still be no holes. However, as a result, it is slower.
  */
 public class OSequenceOrdered extends OSequence {
+
   public OSequenceOrdered(final ODocument document) {
     super(document);
   }

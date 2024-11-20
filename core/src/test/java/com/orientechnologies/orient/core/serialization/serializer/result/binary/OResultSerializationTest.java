@@ -21,7 +21,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by luigidellaquila on 09/12/16. */
+/**
+ * Created by luigidellaquila on 09/12/16.
+ */
 public class OResultSerializationTest {
 
   protected OResultSerializerNetwork serializer;

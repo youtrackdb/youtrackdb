@@ -35,6 +35,7 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 @Warmup(iterations = 1, batchSize = 1)
 @Fork(1)
 public class KeyNormalizerBenchmark {
+
   private KeyNormalizer keyNormalizer;
 
   private OCompositeKey binaryCompositeKey;

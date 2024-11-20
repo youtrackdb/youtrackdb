@@ -36,6 +36,7 @@ import java.util.Map;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFunctionList extends OSQLFunctionMultiValueAbstract<List<Object>> {
+
   public static final String NAME = "list";
 
   public OSQLFunctionList() {
@@ -49,17 +50,24 @@ public class OSQLFunctionList extends OSQLFunctionMultiValueAbstract<List<Object
       final Object[] iParams,
       OCommandContext iContext) {
     if (iParams.length > 1)
-      // IN LINE MODE
+    // IN LINE MODE
+    {
       context = new ArrayList<Object>();
+    }
 
     for (Object value : iParams) {
       if (value != null) {
         if (iParams.length == 1 && context == null)
-          // AGGREGATION MODE (STATEFULL)
+        // AGGREGATION MODE (STATEFULL)
+        {
           context = new ArrayList<Object>();
+        }
 
-        if (value instanceof Map) context.add(value);
-        else OMultiValue.add(context, value);
+        if (value instanceof Map) {
+          context.add(value);
+        } else {
+          OMultiValue.add(context, value);
+        }
       }
     }
     return prepareResult(context);
@@ -93,7 +101,9 @@ public class OSQLFunctionList extends OSQLFunctionMultiValueAbstract<List<Object
       return result;
     }
 
-    if (!resultsToMerge.isEmpty()) return resultsToMerge.get(0);
+    if (!resultsToMerge.isEmpty()) {
+      return resultsToMerge.get(0);
+    }
 
     return null;
   }

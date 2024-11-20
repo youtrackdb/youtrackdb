@@ -29,8 +29,11 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TopDocs;
 
-/** Created by Enrico Risa on 28/09/15. */
+/**
+ * Created by Enrico Risa on 28/09/15.
+ */
 public abstract class OLuceneTxChangesAbstract implements OLuceneTxChanges {
+
   public static final String TMP = "_tmp_rid";
 
   protected final OLuceneIndexEngine engine;

@@ -1,6 +1,7 @@
 package com.orientechnologies.orient.core.index;
 
 public abstract class OIndexUpdateAction<V> {
+
   private static OIndexUpdateAction nothing =
       new OIndexUpdateAction() {
         @Override

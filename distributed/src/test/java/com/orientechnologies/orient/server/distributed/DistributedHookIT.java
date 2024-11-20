@@ -35,8 +35,11 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.util.concurrent.atomic.AtomicLong;
 import org.junit.Test;
 
-/** Tests the behavior of hooks in distributed configuration. */
+/**
+ * Tests the behavior of hooks in distributed configuration.
+ */
 public class DistributedHookIT extends AbstractServerClusterTest {
+
   private static final int SERVERS = 2;
 
   private final AtomicLong beforeCreate = new AtomicLong();

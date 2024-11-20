@@ -64,7 +64,7 @@ public class IndexConcurrentCommitTest extends DocumentDBBaseTest {
 
       System.out.println("Success!");
     } catch (OIndexException e) {
-      System.out.println("Exception: " + e.toString());
+      System.out.println("Exception: " + e);
       database.rollback();
     }
 

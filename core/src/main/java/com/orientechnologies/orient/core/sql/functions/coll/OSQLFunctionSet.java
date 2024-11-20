@@ -38,6 +38,7 @@ import java.util.Set;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFunctionSet extends OSQLFunctionMultiValueAbstract<Set<Object>> {
+
   public static final String NAME = "set";
 
   public OSQLFunctionSet() {
@@ -51,17 +52,24 @@ public class OSQLFunctionSet extends OSQLFunctionMultiValueAbstract<Set<Object>>
       final Object[] iParams,
       OCommandContext iContext) {
     if (iParams.length > 1)
-      // IN LINE MODE
+    // IN LINE MODE
+    {
       context = new HashSet<Object>();
+    }
 
     for (Object value : iParams) {
       if (value != null) {
         if (iParams.length == 1 && context == null)
-          // AGGREGATION MODE (STATEFULL)
+        // AGGREGATION MODE (STATEFULL)
+        {
           context = new HashSet<Object>();
+        }
 
-        if (value instanceof ODocument) context.add(value);
-        else OMultiValue.add(context, value);
+        if (value instanceof ODocument) {
+          context.add(value);
+        } else {
+          OMultiValue.add(context, value);
+        }
       }
     }
 
@@ -96,7 +104,9 @@ public class OSQLFunctionSet extends OSQLFunctionMultiValueAbstract<Set<Object>>
       return result;
     }
 
-    if (!resultsToMerge.isEmpty()) return resultsToMerge.get(0);
+    if (!resultsToMerge.isEmpty()) {
+      return resultsToMerge.get(0);
+    }
 
     return null;
   }

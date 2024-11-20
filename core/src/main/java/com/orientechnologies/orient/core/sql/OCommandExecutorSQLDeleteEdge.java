@@ -68,7 +68,7 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
   //  private AtomicReference<OrientBaseGraph> currentGraph  = new
   // AtomicReference<OrientBaseGraph>();
   private String label;
-  private OModifiableBoolean shutdownFlag = new OModifiableBoolean();
+  private final OModifiableBoolean shutdownFlag = new OModifiableBoolean();
   private boolean txAlreadyBegun;
   private int batch = 100;
 
@@ -281,7 +281,7 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
               final OVertex v = toVertex(fromId);
               if (v != null) {
                 for (OEdge e : v.getEdges(ODirection.OUT, label)) {
-                  final OIdentifiable inV = ((OEdge) e).getTo();
+                  final OIdentifiable inV = e.getTo();
                   if (inV != null && toIds.contains(inV.getIdentity())) {
                     edges.add(e);
                   }
@@ -401,8 +401,7 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
       final OIdentifiable a = item;
       return ((OElement) item)
           .asEdge()
-          .orElseThrow(
-              () -> new OCommandExecutionException("" + (a.getIdentity()) + " is not an edge"));
+          .orElseThrow(() -> new OCommandExecutionException((a.getIdentity()) + " is not an edge"));
     } else {
       try {
         item = getDatabase().load(item.getIdentity());
@@ -415,7 +414,7 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
         return ((OElement) item)
             .asEdge()
             .orElseThrow(
-                () -> new OCommandExecutionException("" + (a.getIdentity()) + " is not an edge"));
+                () -> new OCommandExecutionException((a.getIdentity()) + " is not an edge"));
       }
     }
     return null;

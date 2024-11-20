@@ -20,6 +20,7 @@
 package com.orientechnologies.orient.core.storage.cache;
 
 public class OAbstractWriteCache {
+
   public static long composeFileId(int storageId, int fileId) {
     return (((long) storageId) << 32) | fileId;
   }

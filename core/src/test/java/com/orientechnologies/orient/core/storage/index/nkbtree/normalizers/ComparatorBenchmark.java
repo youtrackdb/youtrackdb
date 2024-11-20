@@ -31,6 +31,7 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 @Warmup(iterations = 1, batchSize = 1)
 @Fork(1)
 public class ComparatorBenchmark {
+
   KeyNormalizer keyNormalizer;
 
   public static void main(String[] args) throws RunnerException {

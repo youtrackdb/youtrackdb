@@ -28,6 +28,7 @@ import org.locationtech.jts.geom.MultiPoint;
 import org.locationtech.spatial4j.shape.jts.JtsGeometry;
 
 public class OMultiPointShapeBuilder extends OComplexShapeBuilder<JtsGeometry> {
+
   @Override
   public String getName() {
     return "OMultiPoint";

@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class OCommitRequest implements OBinaryRequest<OCommitResponse> {
+
   private int txId;
   private boolean usingLong;
   private List<ORecordOperationRequest> operations;

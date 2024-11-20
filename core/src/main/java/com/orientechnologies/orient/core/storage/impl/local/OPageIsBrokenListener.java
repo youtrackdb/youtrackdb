@@ -27,10 +27,11 @@ package com.orientechnologies.orient.core.storage.impl.local;
  * operations which will consume very small amount of time.
  */
 public interface OPageIsBrokenListener {
+
   /**
    * Method is called by write cache when it is detected that data page in file is broken.
    *
-   * @param fileName Name of broken file.
+   * @param fileName  Name of broken file.
    * @param pageIndex Index of page which is broken in file.
    */
   void pageIsBroken(String fileName, long pageIndex);

@@ -25,6 +25,7 @@ import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.impl.ORecordBytes;
 
 public abstract class OTransactionAbstract implements OTransaction {
+
   protected ODatabaseSessionInternal database;
   protected TXSTATUS status = TXSTATUS.INVALID;
 

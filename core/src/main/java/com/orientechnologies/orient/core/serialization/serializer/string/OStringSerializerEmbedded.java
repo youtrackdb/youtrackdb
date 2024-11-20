@@ -30,6 +30,7 @@ import com.orientechnologies.orient.core.serialization.serializer.record.string.
 import java.io.UnsupportedEncodingException;
 
 public class OStringSerializerEmbedded implements OStringSerializer {
+
   public static final OStringSerializerEmbedded INSTANCE = new OStringSerializerEmbedded();
   public static final String NAME = "em";
   public static final String SEPARATOR = "|";
@@ -41,8 +42,10 @@ public class OStringSerializerEmbedded implements OStringSerializer {
    */
   public Object fromStream(final String iStream) {
     if (iStream == null || iStream.length() == 0)
-      // NULL VALUE
+    // NULL VALUE
+    {
       return null;
+    }
 
     final ODocument instance = new ODocumentEmbedded();
     try {
@@ -53,7 +56,9 @@ public class OStringSerializerEmbedded implements OStringSerializer {
     }
 
     final String className = instance.field(ODocumentSerializable.CLASS_NAME);
-    if (className == null) return instance;
+    if (className == null) {
+      return instance;
+    }
 
     Class<?> clazz = null;
     try {
@@ -66,7 +71,9 @@ public class OStringSerializerEmbedded implements OStringSerializer {
               e);
     }
 
-    if (clazz == null) return instance;
+    if (clazz == null) {
+      return instance;
+    }
 
     if (ODocumentSerializable.class.isAssignableFrom(clazz)) {
       try {
@@ -90,16 +97,20 @@ public class OStringSerializerEmbedded implements OStringSerializer {
     return instance;
   }
 
-  /** Serialize the class name size + class name + object content */
+  /**
+   * Serialize the class name size + class name + object content
+   */
   public StringBuilder toStream(final StringBuilder iOutput, Object iValue) {
     if (iValue != null) {
-      if (iValue instanceof ODocumentSerializable)
+      if (iValue instanceof ODocumentSerializable) {
         iValue = ((ODocumentSerializable) iValue).toDocument();
+      }
 
-      if (!(iValue instanceof OSerializableStream))
+      if (!(iValue instanceof OSerializableStream)) {
         throw new OSerializationException(
             "Cannot serialize the object since it's not implements the OSerializableStream"
                 + " interface");
+      }
 
       OSerializableStream stream = (OSerializableStream) iValue;
       iOutput.append(iValue.getClass().getName());

@@ -20,6 +20,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class ReinstallDatabaseTestIT {
+
   public static final String DATABASE_NAME = "ReinstallDatabaseTestIT";
   // Relies on direct access to OServer to install DB and can run only on local setup.
   private LocalTestSetup setup;
@@ -73,16 +74,16 @@ public class ReinstallDatabaseTestIT {
     }
     OServer server2Instance = setup.getServer(server2).getServerInstance();
     new Thread(
-            () -> {
-              server2Instance
-                  .getDistributedManager()
-                  .installDatabase(false, DATABASE_NAME, true, true);
-              try {
-                Thread.sleep(2000);
-              } catch (InterruptedException e) {
-              }
-              latch.countDown();
-            })
+        () -> {
+          server2Instance
+              .getDistributedManager()
+              .installDatabase(false, DATABASE_NAME, true, true);
+          try {
+            Thread.sleep(2000);
+          } catch (InterruptedException e) {
+          }
+          latch.countDown();
+        })
         .start();
     int second = 1000;
     for (int i = 0; i < second; i++) {

@@ -113,13 +113,21 @@ public class OTraverseProjectionItem extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OTraverseProjectionItem that = (OTraverseProjectionItem) o;
 
-    if (base != null ? !base.equals(that.base) : that.base != null) return false;
-    if (modifier != null ? !modifier.equals(that.modifier) : that.modifier != null) return false;
+    if (base != null ? !base.equals(that.base) : that.base != null) {
+      return false;
+    }
+    if (modifier != null ? !modifier.equals(that.modifier) : that.modifier != null) {
+      return false;
+    }
 
     return true;
   }

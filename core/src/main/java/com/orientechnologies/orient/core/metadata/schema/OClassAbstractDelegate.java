@@ -37,7 +37,9 @@ public abstract class OClassAbstractDelegate implements OClass {
   protected final OClass delegate;
 
   public OClassAbstractDelegate(final OClass delegate) {
-    if (delegate == null) throw new IllegalArgumentException("Class is null");
+    if (delegate == null) {
+      throw new IllegalArgumentException("Class is null");
+    }
 
     this.delegate = delegate;
   }
@@ -249,7 +251,9 @@ public abstract class OClassAbstractDelegate implements OClass {
     return this;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public OClass truncateCluster(String clusterName) {
     delegate.truncateCluster(clusterName);

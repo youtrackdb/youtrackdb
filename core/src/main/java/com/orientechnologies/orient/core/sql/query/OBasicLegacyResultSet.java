@@ -34,11 +34,12 @@ import java.util.NoSuchElementException;
 /**
  * ResultSet class that implements List interface for retro compatibility.
  *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  * @param <T>
+ * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  * @see OSQLAsynchQuery
  */
 public class OBasicLegacyResultSet<T> implements OLegacyResultSet<T> {
+
   protected List<T> underlying;
   protected transient int limit = -1;
   // Reference to temporary record for avoid garbace collection
@@ -96,13 +97,14 @@ public class OBasicLegacyResultSet<T> implements OLegacyResultSet<T> {
 
       @Override
       public T next() {
-        if (index > size() || size() == 0)
+        if (index > size() || size() == 0) {
           throw new NoSuchElementException(
               "Error on browsing at element "
                   + index
                   + " while the resultset contains only "
                   + size()
                   + " items");
+        }
 
         return underlying.get(index++);
       }
@@ -125,7 +127,9 @@ public class OBasicLegacyResultSet<T> implements OLegacyResultSet<T> {
   }
 
   public boolean add(final T t) {
-    if (limit > -1 && underlying.size() >= limit) return false;
+    if (limit > -1 && underlying.size() >= limit) {
+      return false;
+    }
 
     final boolean result = underlying.add(t);
     return result;

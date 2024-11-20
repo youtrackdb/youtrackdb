@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 public class OStreamSerializerAnyStreamable {
+
   private static final String SCRIPT_COMMAND_CLASS = "s";
   private static final byte[] SCRIPT_COMMAND_CLASS_ASBYTES = SCRIPT_COMMAND_CLASS.getBytes();
   private static final String SQL_COMMAND_CLASS = "c";
@@ -52,8 +53,10 @@ public class OStreamSerializerAnyStreamable {
   public OCommandRequestText fromStream(final byte[] iStream, ORecordSerializer serializer)
       throws IOException {
     if (iStream == null || iStream.length == 0)
-      // NULL VALUE
+    // NULL VALUE
+    {
       return null;
+    }
 
     final int classNameSize = OBinaryProtocol.bytes2int(iStream);
 
@@ -71,17 +74,22 @@ public class OStreamSerializerAnyStreamable {
       final OCommandRequestText stream;
       // CHECK FOR ALIASES
       if (className.equalsIgnoreCase("q"))
-        // QUERY
+      // QUERY
+      {
         stream = new OSQLSynchQuery<Object>();
-      else if (className.equalsIgnoreCase("c"))
-        // SQL COMMAND
+      } else if (className.equalsIgnoreCase("c"))
+      // SQL COMMAND
+      {
         stream = new OCommandSQL();
-      else if (className.equalsIgnoreCase("s"))
-        // SCRIPT COMMAND
+      } else if (className.equalsIgnoreCase("s"))
+      // SCRIPT COMMAND
+      {
         stream = new OCommandScript();
-      else
-        // CREATE THE OBJECT BY INVOKING THE EMPTY CONSTRUCTOR
+      } else
+      // CREATE THE OBJECT BY INVOKING THE EMPTY CONSTRUCTOR
+      {
         stream = (OCommandRequestText) Class.forName(className).newInstance();
+      }
 
       return stream.fromStream(
           OArrays.copyOfRange(iStream, 4 + classNameSize, iStream.length), serializer);
@@ -93,20 +101,30 @@ public class OStreamSerializerAnyStreamable {
     }
   }
 
-  /** Serialize the class name size + class name + object content */
+  /**
+   * Serialize the class name size + class name + object content
+   */
   public byte[] toStream(final OCommandRequestText iObject) throws IOException {
-    if (iObject == null) return null;
+    if (iObject == null) {
+      return null;
+    }
 
     // SERIALIZE THE CLASS NAME
     final byte[] className;
-    if (iObject instanceof OLiveQuery<?>)
+    if (iObject instanceof OLiveQuery<?>) {
       className = iObject.getClass().getName().getBytes("UTF-8");
-    else if (iObject instanceof OSQLSynchQuery<?>) className = QUERY_COMMAND_CLASS_ASBYTES;
-    else if (iObject instanceof OCommandSQL) className = SQL_COMMAND_CLASS_ASBYTES;
-    else if (iObject instanceof OCommandScript) className = SCRIPT_COMMAND_CLASS_ASBYTES;
-    else {
-      if (iObject == null) className = null;
-      else className = iObject.getClass().getName().getBytes("UTF-8");
+    } else if (iObject instanceof OSQLSynchQuery<?>) {
+      className = QUERY_COMMAND_CLASS_ASBYTES;
+    } else if (iObject instanceof OCommandSQL) {
+      className = SQL_COMMAND_CLASS_ASBYTES;
+    } else if (iObject instanceof OCommandScript) {
+      className = SCRIPT_COMMAND_CLASS_ASBYTES;
+    } else {
+      if (iObject == null) {
+        className = null;
+      } else {
+        className = iObject.getClass().getName().getBytes("UTF-8");
+      }
     }
     // SERIALIZE THE OBJECT CONTENT
     byte[] objectContent = iObject.toStream();

@@ -29,11 +29,14 @@ import java.util.Map;
  * @since v2.2
  */
 public class OScheduledEventBuilder extends ODocumentWrapper {
+
   public OScheduledEventBuilder() {
     super(new ODocument(OScheduledEvent.CLASS_NAME));
   }
 
-  /** Creates a scheduled event object from a configuration. */
+  /**
+   * Creates a scheduled event object from a configuration.
+   */
   public OScheduledEventBuilder(final ODocument doc) {
     super(doc);
   }

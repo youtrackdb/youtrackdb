@@ -59,6 +59,7 @@ import java.util.stream.StreamSupport;
  * @since 15.07.13
  */
 public final class OHashTableIndexEngine implements OIndexEngine {
+
   public static final int VERSION = 3;
 
   public static final String METADATA_FILE_EXTENSION = ".him";

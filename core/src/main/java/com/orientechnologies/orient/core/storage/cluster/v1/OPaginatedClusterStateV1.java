@@ -29,6 +29,7 @@ import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODura
  * @since 20.08.13
  */
 public final class OPaginatedClusterStateV1 extends ODurablePage {
+
   private static final int RECORDS_SIZE_OFFSET = NEXT_FREE_POSITION;
   private static final int SIZE_OFFSET = RECORDS_SIZE_OFFSET + OIntegerSerializer.INT_SIZE;
   private static final int FILE_SIZE_OFFSET = SIZE_OFFSET + OIntegerSerializer.INT_SIZE;

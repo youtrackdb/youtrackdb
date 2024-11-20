@@ -26,8 +26,11 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-/** @author Luca Garulli (l.garulli--(at)--orientdb.com) */
+/**
+ * @author Luca Garulli (l.garulli--(at)--orientdb.com)
+ */
 public class ODistributedRequest {
+
   public enum EXECUTION_MODE {
     RESPONSE,
     NO_RESPONSE
@@ -82,7 +85,9 @@ public class ODistributedRequest {
     if (userRID != null) {
       out.writeBoolean(true);
       userRID.toStream(out);
-    } else out.writeBoolean(false);
+    } else {
+      out.writeBoolean(false);
+    }
   }
 
   public void fromStream(final DataInput in) throws IOException {
@@ -90,7 +95,9 @@ public class ODistributedRequest {
     id.fromStream(in);
     senderThreadId = in.readLong();
     databaseName = in.readUTF();
-    if (databaseName.isEmpty()) databaseName = null;
+    if (databaseName.isEmpty()) {
+      databaseName = null;
+    }
 
     final ORemoteTaskFactory taskFactory =
         manager.getTaskFactoryManager().getFactoryByServerId(id.getNodeId());
@@ -111,7 +118,7 @@ public class ODistributedRequest {
     buffer.append(id);
     if (task != null) {
       buffer.append(" task=");
-      buffer.append(task.toString());
+      buffer.append(task);
     }
     if (userRID != null) {
       buffer.append(" user=");

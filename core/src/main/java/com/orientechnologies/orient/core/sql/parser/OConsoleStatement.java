@@ -9,8 +9,10 @@ import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Map;
+import java.util.Objects;
 
 public class OConsoleStatement extends OSimpleExecStatement {
+
   protected OIdentifier logLevel;
   protected OExpression message;
 
@@ -74,15 +76,19 @@ public class OConsoleStatement extends OSimpleExecStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OConsoleStatement that = (OConsoleStatement) o;
 
-    if (logLevel != null ? !logLevel.equals(that.logLevel) : that.logLevel != null) return false;
-    if (message != null ? !message.equals(that.message) : that.message != null) return false;
-
-    return true;
+    if (!Objects.equals(logLevel, that.logLevel)) {
+      return false;
+    }
+    return Objects.equals(message, that.message);
   }
 
   @Override

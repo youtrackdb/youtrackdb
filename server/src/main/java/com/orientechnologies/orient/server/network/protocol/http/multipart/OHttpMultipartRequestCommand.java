@@ -24,13 +24,15 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
-/** @author Luca Molino (molino.luca--at--gmail.com) */
+/**
+ * @author Luca Molino (molino.luca--at--gmail.com)
+ */
 public abstract class OHttpMultipartRequestCommand<B, F>
     extends OServerCommandAuthenticatedDbAbstract {
 
   private STATUS parseStatus = STATUS.STATUS_EXPECTED_BOUNDARY;
 
-  protected static enum STATUS {
+  protected enum STATUS {
     STATUS_EXPECTED_BOUNDARY,
     STATUS_EXPECTED_BOUNDARY_CRLF,
     STATUS_EXPECTED_PART_HEADERS,

@@ -4,6 +4,7 @@ import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import java.nio.ByteBuffer;
 
 public final class MetaDataRecord extends OAbstractWALRecord {
+
   private byte[] metadata;
 
   public MetaDataRecord() {}

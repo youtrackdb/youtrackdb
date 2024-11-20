@@ -29,6 +29,7 @@ import java.util.List;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OQueryRuntimeValueMulti {
+
   protected final OSQLFilterItemFieldMultiAbstract definition;
   protected final List<OCollate> collates;
   protected final Object[] values;
@@ -44,13 +45,17 @@ public class OQueryRuntimeValueMulti {
 
   @Override
   public String toString() {
-    if (getValues() == null) return "";
+    if (getValues() == null) {
+      return "";
+    }
 
     StringBuilder buffer = new StringBuilder(128);
     buffer.append("[");
     int i = 0;
     for (Object v : getValues()) {
-      if (i++ > 0) buffer.append(",");
+      if (i++ > 0) {
+        buffer.append(",");
+      }
       buffer.append(v);
     }
     buffer.append("]");

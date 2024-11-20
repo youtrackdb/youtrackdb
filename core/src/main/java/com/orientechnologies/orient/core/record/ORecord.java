@@ -30,6 +30,7 @@ import java.io.Serializable;
  * Generic record representation.
  */
 public interface ORecord extends ORecordElement, OIdentifiable, Serializable, OSerializableStream {
+
   /**
    * Removes all the dependencies with other records. All the relationships remain in form of
    * RecordID. If some links contain dirty records, the detach cannot be complete and this method

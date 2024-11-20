@@ -40,7 +40,9 @@ public class OQueryOperatorNotEquals extends OQueryOperatorEqualityNotNulls {
   public OQueryOperatorNotEquals() {
     super("<>", 5, false);
     ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
-    if (db != null) binaryEvaluate = db.getSerializer().getSupportBinaryEvaluate();
+    if (db != null) {
+      binaryEvaluate = db.getSerializer().getSupportBinaryEvaluate();
+    }
   }
 
   @Override

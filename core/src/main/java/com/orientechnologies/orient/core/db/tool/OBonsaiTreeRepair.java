@@ -52,7 +52,7 @@ public class OBonsaiTreeRepair {
           }
 
           OIdentifiable inId = edge.field("in");
-          OIdentifiable outId = edge.<OIdentifiable>field("out");
+          OIdentifiable outId = edge.field("out");
           if (inId == null || outId == null) {
             db.delete(edge);
             continue;

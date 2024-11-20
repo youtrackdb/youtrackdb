@@ -27,6 +27,7 @@ import com.orientechnologies.common.comparator.ODefaultComparator;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class ODefaultCollate extends ODefaultComparator implements OCollate {
+
   public static final String NAME = "default";
 
   public String getName() {
@@ -44,7 +45,9 @@ public class ODefaultCollate extends ODefaultComparator implements OCollate {
 
   @Override
   public boolean equals(Object obj) {
-    if (obj == null || obj.getClass() != this.getClass()) return false;
+    if (obj == null || obj.getClass() != this.getClass()) {
+      return false;
+    }
 
     final ODefaultCollate that = (ODefaultCollate) obj;
 

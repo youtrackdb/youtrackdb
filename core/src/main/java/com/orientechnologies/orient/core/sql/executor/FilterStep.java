@@ -8,8 +8,11 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
 import com.orientechnologies.orient.core.sql.executor.resultset.OExpireResultSet;
 import com.orientechnologies.orient.core.sql.parser.OWhereClause;
 
-/** Created by luigidellaquila on 12/07/16. */
+/**
+ * Created by luigidellaquila on 12/07/16.
+ */
 public class FilterStep extends AbstractExecutionStep {
+
   private final long timeoutMillis;
   private OWhereClause whereClause;
 

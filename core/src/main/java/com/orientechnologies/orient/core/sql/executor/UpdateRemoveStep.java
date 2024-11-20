@@ -6,8 +6,11 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
 import com.orientechnologies.orient.core.sql.parser.OUpdateRemoveItem;
 import java.util.List;
 
-/** Created by luigidellaquila on 09/08/16. */
+/**
+ * Created by luigidellaquila on 09/08/16.
+ */
 public class UpdateRemoveStep extends AbstractExecutionStep {
+
   private final List<OUpdateRemoveItem> items;
 
   public UpdateRemoveStep(

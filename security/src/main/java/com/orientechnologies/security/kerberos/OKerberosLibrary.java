@@ -103,7 +103,9 @@ public class OKerberosLibrary {
 
         int usage = GSSCredential.INITIATE_ONLY;
 
-        if (!initiate) usage = GSSCredential.ACCEPT_ONLY;
+        if (!initiate) {
+          usage = GSSCredential.ACCEPT_ONLY;
+        }
 
         GSSManager manager = GSSManager.getInstance();
 
@@ -191,7 +193,7 @@ public class OKerberosLibrary {
                           + serverCreds.getName().toString());
 
               // Default acceptor.
-              GSSContext context = manager.createContext((GSSCredential) serverCreds);
+              GSSContext context = manager.createContext(serverCreds);
 
               if (context != null) {
                 if (!context.isEstablished()) {
@@ -258,7 +260,7 @@ public class OKerberosLibrary {
                           + serverCreds.getName().toString());
 
               // Default acceptor.
-              GSSContext context = manager.createContext((GSSCredential) serverCreds);
+              GSSContext context = manager.createContext(serverCreds);
 
               if (context != null) {
                 if (!context.isEstablished()) {
@@ -291,14 +293,18 @@ public class OKerberosLibrary {
   private static final byte[] SPENGO_OID = {0x06, 0x06, 0x2b, 0x06, 0x01, 0x05, 0x05, 0x02};
 
   public static boolean isSPNegoTicket(final byte[] ticket) {
-    if (ticket == null || ticket.length < 2) return false;
+    if (ticket == null || ticket.length < 2) {
+      return false;
+    }
 
     return isNegTokenInit(ticket) || isNegTokenArg(ticket);
   }
 
   private static boolean isNegTokenInit(final byte[] ticket) {
     // Application Constructed Object
-    if (ticket[0] != 0x60) return false;
+    if (ticket[0] != 0x60) {
+      return false;
+    }
 
     // Token Length
     int len = 1;
@@ -306,11 +312,15 @@ public class OKerberosLibrary {
       len = 1 + (ticket[1] & 0x7f);
     }
 
-    if (ticket.length < SPENGO_OID.length + 1 + len) return false;
+    if (ticket.length < SPENGO_OID.length + 1 + len) {
+      return false;
+    }
 
     // Look for SPNEGO OID
     for (int i = 0; i < SPENGO_OID.length; i++) {
-      if (SPENGO_OID[i] != ticket[i + 1 + len]) return false;
+      if (SPENGO_OID[i] != ticket[i + 1 + len]) {
+        return false;
+      }
     }
 
     return true;
@@ -318,7 +328,9 @@ public class OKerberosLibrary {
 
   private static boolean isNegTokenArg(final byte[] ticket) {
     // NegTokenArg: 0xa1
-    if ((ticket[0] & 0xff) != 0xa1) return false;
+    if ((ticket[0] & 0xff) != 0xa1) {
+      return false;
+    }
 
     int lenBytes;
     int len;

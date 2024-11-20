@@ -187,8 +187,7 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
         if ("clear".equalsIgnoreCase(stringValue)) {
           String query = "alter database CUSTOM 'clear'";
           // Bypass the database command for avoid transaction management
-          ORemoteQueryResult result =
-              getStorageRemote().command(this, query, new Object[] {iValue});
+          ORemoteQueryResult result = storage.command(this, query, new Object[] {iValue});
           result.getResult().close();
         } else {
           throw new IllegalArgumentException(
@@ -202,9 +201,9 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
     } else {
       String query = "alter database " + iAttribute.name() + " ? ";
       // Bypass the database command for avoid transaction management
-      ORemoteQueryResult result = getStorageRemote().command(this, query, new Object[] {iValue});
+      ORemoteQueryResult result = storage.command(this, query, new Object[] {iValue});
       result.getResult().close();
-      getStorageRemote().reload();
+      storage.reload();
     }
   }
 
@@ -213,14 +212,14 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
     if ("clear".equals(name) && iValue == null) {
       String query = "alter database CUSTOM 'clear'";
       // Bypass the database command for avoid transaction management
-      ORemoteQueryResult result = getStorageRemote().command(this, query, new Object[] {});
+      ORemoteQueryResult result = storage.command(this, query, new Object[] {});
       result.getResult().close();
     } else {
       String query = "alter database CUSTOM  " + name + " = ?";
       // Bypass the database command for avoid transaction management
-      ORemoteQueryResult result = getStorageRemote().command(this, query, new Object[] {iValue});
+      ORemoteQueryResult result = storage.command(this, query, new Object[] {iValue});
       result.getResult().close();
-      getStorageRemote().reload();
+      storage.reload();
     }
     return this;
   }
@@ -287,7 +286,7 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
     ORecordSerializerFactory serializerFactory = ORecordSerializerFactory.instance();
     serializer = serializerFactory.getFormat(ORecordSerializerNetworkV37Client.NAME);
     localCache.startup();
-    componentsFactory = getStorageRemote().getComponentsFactory();
+    componentsFactory = storage.getComponentsFactory();
     user = null;
 
     loadMetadata();
@@ -592,8 +591,7 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
 
   public void afterUpdateOperations(final OIdentifiable id) {
     callbackHooks(ORecordHook.TYPE.AFTER_UPDATE, id);
-    if (id instanceof ODocument) {
-      ODocument doc = (ODocument) id;
+    if (id instanceof ODocument doc) {
       OImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(this, doc);
       if (clazz != null && getTransaction().isActive()) {
         OClassIndexManager.processIndexOnUpdate(this, doc);
@@ -603,8 +601,7 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
 
   public void afterCreateOperations(final OIdentifiable id) {
     callbackHooks(ORecordHook.TYPE.AFTER_CREATE, id);
-    if (id instanceof ODocument) {
-      ODocument doc = (ODocument) id;
+    if (id instanceof ODocument doc) {
       OImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(this, doc);
       if (clazz != null && getTransaction().isActive()) {
         OClassIndexManager.processIndexOnCreate(this, doc);
@@ -614,8 +611,7 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
 
   public void afterDeleteOperations(final OIdentifiable id) {
     callbackHooks(ORecordHook.TYPE.AFTER_DELETE, id);
-    if (id instanceof ODocument) {
-      ODocument doc = (ODocument) id;
+    if (id instanceof ODocument doc) {
       OImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(this, doc);
       if (clazz != null && getTransaction().isActive()) {
         OClassIndexManager.processIndexOnDelete(this, doc);
@@ -717,13 +713,13 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
   @Override
   public int addCluster(final String iClusterName, final Object... iParameters) {
     checkIfActive();
-    return getStorageRemote().addCluster(iClusterName, iParameters);
+    return storage.addCluster(iClusterName, iParameters);
   }
 
   @Override
   public int addCluster(final String iClusterName, final int iRequestedId) {
     checkIfActive();
-    return getStorageRemote().addCluster(iClusterName, iRequestedId);
+    return storage.addCluster(iClusterName, iRequestedId);
   }
 
   public ORecordConflictStrategy getConflictStrategy() {
@@ -733,15 +729,14 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
 
   public ODatabaseDocumentAbstract setConflictStrategy(final String iStrategyName) {
     checkIfActive();
-    getStorageRemote()
-        .setConflictStrategy(
-            Orient.instance().getRecordConflictStrategy().getStrategy(iStrategyName));
+    storage.setConflictStrategy(
+        Orient.instance().getRecordConflictStrategy().getStrategy(iStrategyName));
     return this;
   }
 
   public ODatabaseDocumentAbstract setConflictStrategy(final ORecordConflictStrategy iResolver) {
     checkIfActive();
-    getStorageRemote().setConflictStrategy(iResolver);
+    storage.setConflictStrategy(iResolver);
     return this;
   }
 
@@ -751,7 +746,7 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
   @Override
   public long countClusterElements(int iClusterId, boolean countTombstones) {
     checkIfActive();
-    return getStorageRemote().count(iClusterId, countTombstones);
+    return storage.count(iClusterId, countTombstones);
   }
 
   /**
@@ -760,7 +755,7 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
   @Override
   public long countClusterElements(int[] iClusterIds, boolean countTombstones) {
     checkIfActive();
-    return getStorageRemote().count(iClusterIds, countTombstones);
+    return storage.count(iClusterIds, countTombstones);
   }
 
   /**
@@ -774,14 +769,14 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
     if (clusterId < 0) {
       throw new IllegalArgumentException("Cluster '" + iClusterName + "' was not found");
     }
-    return getStorageRemote().count(clusterId);
+    return storage.count(clusterId);
   }
 
   @Override
   public long getClusterRecordSizeByName(final String clusterName) {
     checkIfActive();
     try {
-      return getStorageRemote().getClusterRecordsSizeByName(clusterName);
+      return storage.getClusterRecordsSizeByName(clusterName);
     } catch (Exception e) {
       throw OException.wrapException(
           new ODatabaseException("Error on reading records size for cluster '" + clusterName + "'"),
@@ -803,7 +798,7 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
     }
     getLocalCache().freeCluster(clusterId);
     checkForClusterPermissions(iClusterName);
-    return getStorageRemote().dropCluster(iClusterName);
+    return storage.dropCluster(iClusterName);
   }
 
   @Override
@@ -837,18 +832,18 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
       document.delete();
     }
 
-    return getStorageRemote().dropCluster(clusterId);
+    return storage.dropCluster(clusterId);
   }
 
   public boolean dropClusterInternal(int clusterId) {
-    return getStorageRemote().dropCluster(clusterId);
+    return storage.dropCluster(clusterId);
   }
 
   @Override
   public long getClusterRecordSizeById(final int clusterId) {
     checkIfActive();
     try {
-      return getStorageRemote().getClusterRecordsSizeById(clusterId);
+      return storage.getClusterRecordsSizeById(clusterId);
     } catch (Exception e) {
       throw OException.wrapException(
           new ODatabaseException(
@@ -860,7 +855,7 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
   @Override
   public long getSize() {
     checkIfActive();
-    return getStorageRemote().getSize();
+    return storage.getSize();
   }
 
   @Override
@@ -896,13 +891,13 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
     checkIfActive();
     checkSecurity(ORule.ResourceGeneric.DATABASE, "backup", ORole.PERMISSION_EXECUTE);
 
-    return getStorageRemote().incrementalBackup(path, null);
+    return storage.incrementalBackup(path, null);
   }
 
   @Override
   public ORecordMetadata getRecordMetadata(final ORID rid) {
     checkIfActive();
-    return getStorageRemote().getRecordMetadata(rid);
+    return storage.getRecordMetadata(rid);
   }
 
   /**
@@ -917,8 +912,6 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
             "Only local paginated storage supports freeze. If you are using remote client please"
                 + " use OrientDB instance instead",
             null);
-
-    return;
   }
 
   /**
@@ -941,14 +934,13 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
             "Only local paginated storage supports release. If you are using remote client please"
                 + " use OrientDB instance instead",
             null);
-    return;
   }
 
   /**
    * {@inheritDoc}
    */
   public OSBTreeCollectionManager getSbTreeCollectionManager() {
-    return getStorageRemote().getSBtreeCollectionManager();
+    return storage.getSBtreeCollectionManager();
   }
 
   @Override
@@ -959,17 +951,17 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
       throw new ODatabaseException("Cannot reload a closed db");
     }
     metadata.reload();
-    getStorageRemote().reload();
+    storage.reload();
   }
 
   @Override
   public void internalCommit(OTransactionOptimistic transaction) {
-    this.getStorageRemote().commit(transaction);
+    this.storage.commit(transaction);
   }
 
   @Override
   public boolean isClosed() {
-    return status == STATUS.CLOSED || getStorageRemote().isClosed();
+    return status == STATUS.CLOSED || storage.isClosed();
   }
 
   public void internalClose(boolean recycle) {
@@ -1000,8 +992,8 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
       if (!recycle) {
         sharedContext = null;
 
-        if (getStorageRemote() != null) {
-          getStorageRemote().close();
+        if (storage != null) {
+          storage.close();
         }
       }
 
@@ -1013,12 +1005,12 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
 
   @Override
   public long[] getClusterDataRange(int currentClusterId) {
-    return getStorageRemote().getClusterDataRange(currentClusterId);
+    return storage.getClusterDataRange(currentClusterId);
   }
 
   @Override
   public void setDefaultClusterId(int addCluster) {
-    getStorageRemote().setDefaultClusterId(addCluster);
+    storage.setDefaultClusterId(addCluster);
   }
 
   @Override

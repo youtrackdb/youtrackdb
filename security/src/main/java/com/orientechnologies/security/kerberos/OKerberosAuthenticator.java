@@ -27,6 +27,7 @@ import com.orientechnologies.orient.core.security.authenticator.OSecurityAuthent
 import com.orientechnologies.orient.core.security.kerberos.OKrb5ClientLoginModuleConfig;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
 import com.orientechnologies.orient.server.security.OSecurityAuthenticatorException;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
 import java.util.Timer;
@@ -45,6 +46,7 @@ import javax.security.auth.login.LoginContext;
  * @author S. Colin Leister
  */
 public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
+
   private final String kerberosPluginVersion = "0.15";
   private final long ticketRelayExpiration = 600000L; // 10 minutes, do not change
   private final ConcurrentHashMap<String, TicketItem> ticketRelayMap =
@@ -60,7 +62,7 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
   private String servicePrincipal;
   private String spnegoKTName = System.getenv("KRB5_KTNAME");
   private String spnegoPrincipal;
-  private Object authenticateSync = new Object();
+  private final Object authenticateSync = new Object();
   private Subject clientSubject; // Used in dbImport() for communicating with LDAP.
   private Subject
       serviceSubject; // Used in authenticate() for decrypting service tickets from binary clients.
@@ -68,7 +70,9 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
       spnegoSubject; // Used in authenticate() for decrypting service tickets from REST clients.
   private Timer expirationTimer;
 
-  /** * OSecurityAuthenticator Interface * */
+  /**
+   * OSecurityAuthenticator Interface *
+   */
   // Called once the Server is running.
   public void active() {
     ExpirationTask task = new ExpirationTask();
@@ -80,8 +84,8 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
     renewalTimer = new Timer(true);
     renewalTimer.scheduleAtFixedRate(
         renewalTask,
-        clientPeriod * 1000 * 60,
-        clientPeriod * 1000 * 60); // Wait 30 seconds before starting
+        (long) clientPeriod * 1000 * 60,
+        (long) clientPeriod * 1000 * 60); // Wait 30 seconds before starting
 
     OLogManager.instance()
         .debug(this, "OrientDB Kerberos Authenticator Is Active Version: " + kerberosPluginVersion);
@@ -99,9 +103,9 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
       if (isDebug()) {
         OLogManager.instance().info(this, "** Authenticating username: %s", username);
 
-        if (OKerberosLibrary.isServiceTicket(password))
+        if (OKerberosLibrary.isServiceTicket(password)) {
           OLogManager.instance().info(this, "** Authenticating password: SERVICE TICKET");
-        else {
+        } else {
           OLogManager.instance().info(this, "** Authenticating password: %s", password);
         }
       }
@@ -122,22 +126,24 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
           TicketItem ti = getTicket(Integer.toString(password.hashCode()));
 
           if (ti != null && ti.getHashCode() == password.hashCode()) {
-            if (isDebug())
+            if (isDebug()) {
               OLogManager.instance()
                   .info(
                       this,
                       "OKerberosAuthenticator.authenticate() TicketHash and password Hash are"
                           + " equal, return principal: "
                           + ti.getPrincipal());
-            if (isDebug())
+            }
+            if (isDebug()) {
               OLogManager.instance()
                   .info(
                       this,
                       "OKerberosAuthenticator.authenticate() principal: " + ti.getPrincipal());
+            }
 
             principal = ti.getPrincipal();
           } else {
-            byte[] ticket = Base64.getDecoder().decode(password.getBytes("UTF8"));
+            byte[] ticket = Base64.getDecoder().decode(password.getBytes(StandardCharsets.UTF_8));
 
             // Temporary, for Java 7 support.
             //						byte[] ticket = new BASE64Decoder().decodeBuffer(password);
@@ -162,13 +168,14 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
                   .error(this, "OKerberosAuthenticator.authenticate() Exception: ", e);
             }
 
-            if (isDebug())
+            if (isDebug()) {
               OLogManager.instance()
                   .info(
                       this,
                       "OKerberosAuthenticator.authenticate() OKerberosLibrary.authenticate()"
                           + " returned "
                           + principal);
+            }
 
             //							OLogManager.instance().info(this, "OKerberosAuthenticator.authenticate()
             // addTicket hashCode: " + password.hashCode());
@@ -191,8 +198,7 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
     super.config(kerbConfig, security);
 
     if (kerbConfig.containsField("krb5_config")) {
-      krb5Config =
-          OSystemVariableResolver.resolveSystemVariables((String) kerbConfig.field("krb5_config"));
+      krb5Config = OSystemVariableResolver.resolveSystemVariables(kerbConfig.field("krb5_config"));
 
       OLogManager.instance().info(this, "Krb5Config = " + krb5Config);
     }
@@ -202,8 +208,7 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
       ODocument serviceDoc = kerbConfig.field("service");
 
       if (serviceDoc.containsField("ktname")) {
-        serviceKTName =
-            OSystemVariableResolver.resolveSystemVariables((String) serviceDoc.field("ktname"));
+        serviceKTName = OSystemVariableResolver.resolveSystemVariables(serviceDoc.field("ktname"));
 
         OLogManager.instance().info(this, "Svc ktname = " + serviceKTName);
       }
@@ -220,8 +225,7 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
       ODocument spnegoDoc = kerbConfig.field("spnego");
 
       if (spnegoDoc.containsField("ktname")) {
-        spnegoKTName =
-            OSystemVariableResolver.resolveSystemVariables((String) spnegoDoc.field("ktname"));
+        spnegoKTName = OSystemVariableResolver.resolveSystemVariables(spnegoDoc.field("ktname"));
 
         OLogManager.instance().info(this, "SPNEGO ktname = " + spnegoKTName);
       }
@@ -238,7 +242,7 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
       ODocument clientDoc = kerbConfig.field("client");
 
       if (clientDoc.containsField("useTicketCache")) {
-        clientUseTicketCache = (Boolean) clientDoc.field("useTicketCache", OType.BOOLEAN);
+        clientUseTicketCache = clientDoc.field("useTicketCache", OType.BOOLEAN);
 
         OLogManager.instance().info(this, "Client useTicketCache = " + clientUseTicketCache);
       }
@@ -250,15 +254,13 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
       }
 
       if (clientDoc.containsField("ccname")) {
-        clientCCName =
-            OSystemVariableResolver.resolveSystemVariables((String) clientDoc.field("ccname"));
+        clientCCName = OSystemVariableResolver.resolveSystemVariables(clientDoc.field("ccname"));
 
         OLogManager.instance().info(this, "Client ccname = " + clientCCName);
       }
 
       if (clientDoc.containsField("ktname")) {
-        clientKTName =
-            OSystemVariableResolver.resolveSystemVariables((String) clientDoc.field("ktname"));
+        clientKTName = OSystemVariableResolver.resolveSystemVariables(clientDoc.field("ktname"));
 
         OLogManager.instance().info(this, "Client ktname = " + clientKTName);
       }
@@ -326,11 +328,14 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
     return true;
   }
 
-  /** * Kerberos * */
+  /**
+   * Kerberos *
+   */
   private void initializeKerberos() {
-    if (krb5Config == null)
+    if (krb5Config == null) {
       throw new OSecurityAuthenticatorException(
           "OKerberosAuthenticator KRB5 Config cannot be null");
+    }
 
     System.setProperty("sun.security.krb5.debug", Boolean.toString(isDebug()));
     System.setProperty("sun.security.spnego.debug", Boolean.toString(isDebug()));
@@ -341,12 +346,14 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
   }
 
   private void createServiceSubject() {
-    if (servicePrincipal == null)
+    if (servicePrincipal == null) {
       throw new OSecurityAuthenticatorException(
           "OKerberosAuthenticator.createServiceSubject() Service Principal cannot be null");
-    if (serviceKTName == null)
+    }
+    if (serviceKTName == null) {
       throw new OSecurityAuthenticatorException(
           "OKerberosAuthenticator.createServiceSubject() Service KeyTab cannot be null");
+    }
 
     try {
       Configuration cfg = new OKrb5LoginModuleConfig(servicePrincipal, serviceKTName);
@@ -368,18 +375,21 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
       OLogManager.instance().error(this, "createServiceSubject() Exception: ", ex);
     }
 
-    if (serviceSubject == null)
+    if (serviceSubject == null) {
       throw new OSecurityAuthenticatorException(
           "OKerberosAuthenticator could not create service Subject");
+    }
   }
 
   private void createSpnegoSubject() {
-    if (spnegoPrincipal == null)
+    if (spnegoPrincipal == null) {
       throw new OSecurityAuthenticatorException(
           "OKerberosAuthenticator.createSpnegoSubject() SPNEGO Principal cannot be null");
-    if (spnegoKTName == null)
+    }
+    if (spnegoKTName == null) {
       throw new OSecurityAuthenticatorException(
           "OKerberosAuthenticator.createSpnegoSubject() SPNEGO KeyTab cannot be null");
+    }
 
     try {
       Configuration cfg = new OKrb5LoginModuleConfig(spnegoPrincipal, spnegoKTName);
@@ -401,23 +411,27 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
       OLogManager.instance().error(this, "createSpnegoSubject() Exception: ", ex);
     }
 
-    if (spnegoSubject == null)
+    if (spnegoSubject == null) {
       throw new OSecurityAuthenticatorException(
           "OKerberosAuthenticator could not create SPNEGO Subject");
+    }
   }
 
   private void createClientSubject() {
-    if (clientPrincipal == null)
+    if (clientPrincipal == null) {
       throw new OSecurityAuthenticatorException(
           "OKerberosAuthenticator.createClientSubject() Client Principal cannot be null");
-    if (clientUseTicketCache && clientCCName == null)
+    }
+    if (clientUseTicketCache && clientCCName == null) {
       throw new OSecurityAuthenticatorException(
           "OKerberosAuthenticator.createClientSubject() Client UseTicketCache cannot be true while"
               + " Credential Cache is null");
-    if (clientCCName == null && clientKTName == null)
+    }
+    if (clientCCName == null && clientKTName == null) {
       throw new OSecurityAuthenticatorException(
           "OKerberosAuthenticator.createClientSubject() Client Credential Cache and Client KeyTab"
               + " cannot both be null");
+    }
 
     try {
       Configuration cfg =
@@ -441,9 +455,10 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
       OLogManager.instance().error(this, "createClientSubject() Exception: ", ex);
     }
 
-    if (clientSubject == null)
+    if (clientSubject == null) {
       throw new OSecurityAuthenticatorException(
           "OKerberosAuthenticator could not create client Subject");
+    }
   }
 
   // If the TicketItem already exists for id it is replaced.
@@ -465,9 +480,7 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
 
   private void removeTicket(String id) {
     synchronized (ticketRelayMap) {
-      if (ticketRelayMap.containsKey(id)) {
-        ticketRelayMap.remove(id);
-      }
+      ticketRelayMap.remove(id);
     }
   }
 
@@ -486,11 +499,14 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
     }
   }
 
-  /** * Ticket Cache * */
+  /**
+   * Ticket Cache *
+   */
   private class TicketItem {
-    private int hashCode;
-    private String principal;
-    private long time;
+
+    private final int hashCode;
+    private final String principal;
+    private final long time;
 
     public TicketItem(int hashCode, String principal) {
       this.hashCode = hashCode;
@@ -512,6 +528,7 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
   }
 
   private class ExpirationTask extends TimerTask {
+
     @Override
     public void run() {
       checkTicketExpirations();
@@ -519,6 +536,7 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
   }
 
   private class RenewalTask extends TimerTask {
+
     @Override
     public void run() {
       createClientSubject();

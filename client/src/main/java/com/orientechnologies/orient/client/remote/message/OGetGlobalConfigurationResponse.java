@@ -8,6 +8,7 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 public class OGetGlobalConfigurationResponse implements OBinaryResponse {
+
   private String value;
 
   public OGetGlobalConfigurationResponse(String value) {

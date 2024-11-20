@@ -55,8 +55,8 @@ public class OStatementCache {
    * one (parsing and then putting it into the cache) if it doesn't
    *
    * @param statement the SQL statement
-   * @param db the current DB instance. If null, cache is ignored and a new executor is created
-   *     through statement parsing
+   * @param db        the current DB instance. If null, cache is ignored and a new executor is
+   *                  created through statement parsing
    * @return a statement executor from the cache
    */
   public static OStatement get(String statement, ODatabaseSessionInternal db) {
@@ -73,8 +73,8 @@ public class OStatementCache {
    * creating a new one (parsing and then putting it into the cache) if it doesn't
    *
    * @param statement the SQL statement
-   * @param db the current OrientDB instance. If null, cache is ignored and a new executor is
-   *     created through statement parsing
+   * @param db        the current OrientDB instance. If null, cache is ignored and a new executor is
+   *                  created through statement parsing
    * @return a statement executor from the cache
    */
   public static OServerStatement getServerStatement(String statement, OrientDBInternal db) {

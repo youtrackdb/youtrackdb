@@ -1,6 +1,7 @@
 package com.orientechnologies.orient.server.distributed.tx;
 
 public class TxStat {
+
   public final long beginTimestamp;
   public final long commitTimestamp; // -1 means never committed.
   public final int retries;

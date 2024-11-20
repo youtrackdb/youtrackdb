@@ -19,8 +19,11 @@ import com.orientechnologies.orient.setup.ServerRun;
 import org.junit.Ignore;
 import org.junit.Test;
 
-/** Distributed TX test against "plocal" protocol + shutdown and restart of a node. */
+/**
+ * Distributed TX test against "plocal" protocol + shutdown and restart of a node.
+ */
 public class HAIT extends AbstractHARemoveNode {
+
   static final int SERVERS = 3;
 
   @Test
@@ -49,12 +52,13 @@ public class HAIT extends AbstractHARemoveNode {
     serverInstance
         .get(SERVERS - 1)
         .startServer(getDistributedServerConfiguration(serverInstance.get(SERVERS - 1)));
-    if (serverInstance.get(SERVERS - 1).getServerInstance().getDistributedManager() != null)
+    if (serverInstance.get(SERVERS - 1).getServerInstance().getDistributedManager() != null) {
       serverInstance
           .get(SERVERS - 1)
           .getServerInstance()
           .getDistributedManager()
           .waitUntilNodeOnline();
+    }
 
     banner("RESTARTING TESTS WITH SERVER " + (SERVERS - 1) + " UP...");
 

@@ -273,6 +273,7 @@ public class OLuceneIndexCrashRestoreIT {
   }
 
   public static final class RemoteDBRunner {
+
     public static void main(String[] args) throws Exception {
       //      System.out.println("prepare server");
       OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(3);
@@ -354,7 +355,9 @@ public class OLuceneIndexCrashRestoreIT {
       } catch (Exception e) {
         throw e;
       } finally {
-        if (testDB != null && !testDB.isClosed()) testDB.close();
+        if (testDB != null && !testDB.isClosed()) {
+          testDB.close();
+        }
       }
 
       return null;

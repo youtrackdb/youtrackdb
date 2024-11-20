@@ -33,7 +33,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/** Created by luigidellaquila on 23/06/17. */
+/**
+ * Created by luigidellaquila on 23/06/17.
+ */
 public class ORunQueryExecutionPlanTask extends OAbstractRemoteTask {
 
   public static final int FACTORYID = 40;
@@ -49,7 +51,8 @@ public class ORunQueryExecutionPlanTask extends OAbstractRemoteTask {
     this.nodeName = nodeName;
   }
 
-  public ORunQueryExecutionPlanTask() {}
+  public ORunQueryExecutionPlanTask() {
+  }
 
   @Override
   public String getName() {

@@ -25,6 +25,7 @@ package com.orientechnologies.common.util;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OService {
+
   String getName();
 
   void startup();

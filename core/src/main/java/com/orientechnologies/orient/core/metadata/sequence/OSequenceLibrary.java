@@ -28,6 +28,7 @@ import java.util.Set;
  * @since 3/2/2015
  */
 public interface OSequenceLibrary {
+
   Set<String> getSequenceNames();
 
   int getSequenceCount();

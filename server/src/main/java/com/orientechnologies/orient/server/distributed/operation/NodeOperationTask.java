@@ -21,13 +21,14 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 public class NodeOperationTask implements ORemoteTask {
+
   public static final int FACTORYID = 55;
   private NodeOperation task;
   private String nodeSource;
 
   private Integer messageId;
 
-  private static Map<Integer, NodeOperationFactory> MESSAGES = new HashMap<>();
+  private static final Map<Integer, NodeOperationFactory> MESSAGES = new HashMap<>();
 
   static {
     MESSAGES.put(0, new NodeOperationFactory(null, () -> new NodeOperationResponseFailed()));
@@ -166,8 +167,8 @@ public class NodeOperationTask implements ORemoteTask {
 
   private static class NodeOperationFactory {
 
-    private Callable<NodeOperation> request;
-    private Callable<NodeOperationResponse> response;
+    private final Callable<NodeOperation> request;
+    private final Callable<NodeOperationResponse> response;
 
     public NodeOperationFactory(
         Callable<NodeOperation> request, Callable<NodeOperationResponse> response) {

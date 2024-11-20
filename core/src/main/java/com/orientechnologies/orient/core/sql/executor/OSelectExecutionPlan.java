@@ -8,7 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/** Created by luigidellaquila on 06/07/16. */
+/**
+ * Created by luigidellaquila on 06/07/16.
+ */
 public class OSelectExecutionPlan implements OInternalExecutionPlan {
 
   private String location;

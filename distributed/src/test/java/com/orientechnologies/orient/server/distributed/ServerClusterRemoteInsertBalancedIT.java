@@ -25,8 +25,11 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Tests load balancing at client side. */
+/**
+ * Tests load balancing at client side.
+ */
 public class ServerClusterRemoteInsertBalancedIT extends AbstractServerClusterTest {
+
   private static final int ITERATIONS = 10;
 
   @Test
@@ -65,8 +68,11 @@ public class ServerClusterRemoteInsertBalancedIT extends AbstractServerClusterTe
         final OVertex v = graph.newVertex("Client").save();
 
         Integer value = clusterIds.get(v.getIdentity().getClusterId());
-        if (value == null) value = 1;
-        else value++;
+        if (value == null) {
+          value = 1;
+        } else {
+          value++;
+        }
 
         clusterIds.put(v.getIdentity().getClusterId(), value);
 
@@ -97,8 +103,11 @@ public class ServerClusterRemoteInsertBalancedIT extends AbstractServerClusterTe
         final OVertex v = graph.newVertex("Client").save();
 
         Integer value = clusterIds.get(v.getIdentity().getClusterId());
-        if (value == null) value = 1;
-        else value++;
+        if (value == null) {
+          value = 1;
+        } else {
+          value++;
+        }
 
         clusterIds.put(v.getIdentity().getClusterId(), value);
       }

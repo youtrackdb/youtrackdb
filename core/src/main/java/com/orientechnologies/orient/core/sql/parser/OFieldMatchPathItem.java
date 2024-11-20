@@ -23,7 +23,9 @@ public class OFieldMatchPathItem extends OMatchPathItem {
     super(p, id);
   }
 
-  /** Accept the visitor. */
+  /**
+   * Accept the visitor.
+   */
   public boolean isBidirectional() {
     return false;
   }
@@ -75,9 +77,15 @@ public class OFieldMatchPathItem extends OMatchPathItem {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    if (!super.equals(o)) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    if (!super.equals(o)) {
+      return false;
+    }
     OFieldMatchPathItem that = (OFieldMatchPathItem) o;
     return Objects.equals(field, that.field) && Objects.equals(exp, that.exp);
   }

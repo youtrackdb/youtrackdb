@@ -25,5 +25,6 @@ package com.orientechnologies.orient.core;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OOrientStartupListener {
-  public void onStartup();
+
+  void onStartup();
 }

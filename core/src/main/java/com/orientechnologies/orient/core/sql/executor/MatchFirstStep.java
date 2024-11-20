@@ -9,6 +9,7 @@ import java.util.List;
  * Created by luigidellaquila on 20/09/16.
  */
 public class MatchFirstStep extends AbstractExecutionStep {
+
   private final PatternNode node;
   private final OInternalExecutionPlan executionPlan;
 

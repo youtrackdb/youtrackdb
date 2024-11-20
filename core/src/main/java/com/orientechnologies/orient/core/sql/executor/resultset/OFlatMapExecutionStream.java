@@ -4,6 +4,7 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 
 public final class OFlatMapExecutionStream implements OExecutionStream {
+
   private final OExecutionStream base;
   private final OMapExecutionStream map;
   private OExecutionStream currentResultSet;

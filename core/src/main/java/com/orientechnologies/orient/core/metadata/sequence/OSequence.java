@@ -49,6 +49,7 @@ import javax.annotation.Nonnull;
  * @since 3/2/2015
  */
 public abstract class OSequence {
+
   private static final ExecutorService sequenceExecutor =
       new OThreadPoolExecutorWithLogging(
           0,

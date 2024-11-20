@@ -24,7 +24,9 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by tglman on 03/01/17. */
+/**
+ * Created by tglman on 03/01/17.
+ */
 public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
 
   private int oldPageSize;

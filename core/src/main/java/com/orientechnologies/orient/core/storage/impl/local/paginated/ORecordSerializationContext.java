@@ -42,8 +42,9 @@ public class ORecordSerializationContext {
             new OOrientListenerAbstract() {
               @Override
               public void onStartup() {
-                if (SERIALIZATION_CONTEXT_STACK == null)
+                if (SERIALIZATION_CONTEXT_STACK == null) {
                   SERIALIZATION_CONTEXT_STACK = new SerializationContextThreadLocal();
+                }
               }
 
               @Override
@@ -69,15 +70,18 @@ public class ORecordSerializationContext {
 
   public static ORecordSerializationContext getContext() {
     final Deque<ORecordSerializationContext> stack = SERIALIZATION_CONTEXT_STACK.get();
-    if (stack.isEmpty()) return null;
+    if (stack.isEmpty()) {
+      return null;
+    }
 
     return stack.peek();
   }
 
   public static ORecordSerializationContext pullContext() {
     final Deque<ORecordSerializationContext> stack = SERIALIZATION_CONTEXT_STACK.get();
-    if (stack.isEmpty())
+    if (stack.isEmpty()) {
       throw new IllegalStateException("Cannot find current serialization context");
+    }
 
     return stack.poll();
   }
@@ -95,6 +99,7 @@ public class ORecordSerializationContext {
 
   private static class SerializationContextThreadLocal
       extends ThreadLocal<Deque<ORecordSerializationContext>> {
+
     @Override
     protected Deque<ORecordSerializationContext> initialValue() {
       return new ArrayDeque<>();

@@ -120,7 +120,7 @@ public class ODurablePage {
    * <p>Copies content of page into passed in byte array.
    *
    * @param buffer Buffer from which data will be copied
-   * @param data Byte array to which data will be copied
+   * @param data   Byte array to which data will be copied
    * @param offset Offset of data inside page
    * @param length Length of data to be copied
    */
@@ -136,7 +136,7 @@ public class ODurablePage {
    * <p>Get value of LSN from the passed in offset in byte array.
    *
    * @param offset Offset inside of byte array from which LSN value will be read.
-   * @param data Byte array from which LSN value will be read.
+   * @param data   Byte array from which LSN value will be read.
    */
   @SuppressWarnings("unused")
   public static OLogSequenceNumber getLogSequenceNumber(final int offset, final byte[] data) {

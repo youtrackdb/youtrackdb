@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class OHazelcastLockManager implements ODistributedLockManager {
+
   private HazelcastInstance hazelcast;
   private Set<String> lockedResurces = new HashSet<>();
 
@@ -60,8 +61,10 @@ public class OHazelcastLockManager implements ODistributedLockManager {
   public void releaseExclusiveLock(String resource, String nodeSource) {
     OModifiableInteger counter = ACQUIRED_REENTRANT.get().get(resource);
     if (counter == null)
-      // DO NOTHING BECAUSE THE ACQUIRE DIDN'T HAPPEN IN DISTRIBUTED
+    // DO NOTHING BECAUSE THE ACQUIRE DIDN'T HAPPEN IN DISTRIBUTED
+    {
       return;
+    }
 
     if (counter.getValue() > 0) {
       counter.decrement();
@@ -76,8 +79,10 @@ public class OHazelcastLockManager implements ODistributedLockManager {
   }
 
   @Override
-  public void handleUnreachableServer(String nodeLeftName) {}
+  public void handleUnreachableServer(String nodeLeftName) {
+  }
 
   @Override
-  public void shutdown() {}
+  public void shutdown() {
+  }
 }

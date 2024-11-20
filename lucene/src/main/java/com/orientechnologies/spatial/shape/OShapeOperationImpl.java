@@ -20,7 +20,9 @@ import org.locationtech.spatial4j.shape.Shape;
 import org.locationtech.spatial4j.shape.ShapeCollection;
 import org.locationtech.spatial4j.shape.SpatialRelation;
 
-/** Created by Enrico Risa on 29/09/15. */
+/**
+ * Created by Enrico Risa on 29/09/15.
+ */
 public class OShapeOperationImpl implements OShapeOperation {
 
   private final OShapeFactory factory;

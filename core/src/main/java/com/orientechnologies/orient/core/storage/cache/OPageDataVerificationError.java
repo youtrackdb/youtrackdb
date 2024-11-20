@@ -25,6 +25,7 @@ package com.orientechnologies.orient.core.storage.cache;
  * @since 25.04.13
  */
 public class OPageDataVerificationError {
+
   private final boolean incorrectMagicNumber;
   private final boolean incorrectCheckSum;
   private final long pageIndex;
@@ -40,15 +41,27 @@ public class OPageDataVerificationError {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OPageDataVerificationError that = (OPageDataVerificationError) o;
 
-    if (incorrectCheckSum != that.incorrectCheckSum) return false;
-    if (incorrectMagicNumber != that.incorrectMagicNumber) return false;
-    if (pageIndex != that.pageIndex) return false;
-    if (!fileName.equals(that.fileName)) return false;
+    if (incorrectCheckSum != that.incorrectCheckSum) {
+      return false;
+    }
+    if (incorrectMagicNumber != that.incorrectMagicNumber) {
+      return false;
+    }
+    if (pageIndex != that.pageIndex) {
+      return false;
+    }
+    if (!fileName.equals(that.fileName)) {
+      return false;
+    }
 
     return true;
   }

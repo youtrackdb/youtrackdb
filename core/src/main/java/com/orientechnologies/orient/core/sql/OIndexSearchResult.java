@@ -47,6 +47,7 @@ import java.util.Map;
  * last position.
  */
 public class OIndexSearchResult {
+
   public final Map<String, Object> fieldValuePairs = new HashMap<String, Object>(8);
   public final OQueryOperator lastOperator;
   public final OSQLFilterItemField.FieldChain lastField;
@@ -72,9 +73,9 @@ public class OIndexSearchResult {
   }
 
   /**
-   * Combines two queries subset into one. This operation will be valid only if {@link
-   * #canBeMerged(OIndexSearchResult)} method will return <code>true</code> for the same passed in
-   * parameter.
+   * Combines two queries subset into one. This operation will be valid only if
+   * {@link #canBeMerged(OIndexSearchResult)} method will return <code>true</code> for the same
+   * passed in parameter.
    *
    * @param searchResult Query subset to merge.
    * @return New instance that presents merged query.
@@ -157,11 +158,7 @@ public class OIndexSearchResult {
     if (!lastOperator.equals(that.lastOperator)) {
       return false;
     }
-    if (!lastValue.equals(that.lastValue)) {
-      return false;
-    }
-
-    return true;
+    return lastValue.equals(that.lastValue);
   }
 
   @Override

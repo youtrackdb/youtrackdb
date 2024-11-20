@@ -15,7 +15,9 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
 
-/** Created by tglman on 11/01/17. */
+/**
+ * Created by tglman on 11/01/17.
+ */
 public class OStorageRemotePushThread extends Thread {
 
   private final ORemotePushHandler pushHandler;
@@ -122,7 +124,9 @@ public class OStorageRemotePushThread extends Thread {
         network.flush();
       }
       Object poll = blockingQueue.poll(requestTimeout, TimeUnit.MILLISECONDS);
-      if (poll == null) return null;
+      if (poll == null) {
+        return null;
+      }
       if (poll instanceof OSubscribeResponse) {
         return (T) ((OSubscribeResponse) poll).getResponse();
       } else if (poll instanceof RuntimeException) {

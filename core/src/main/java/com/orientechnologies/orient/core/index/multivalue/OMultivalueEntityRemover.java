@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class OMultivalueEntityRemover implements OIndexKeyUpdater<Object> {
+
   private final OIdentifiable value;
   private final OModifiableBoolean removed;
 

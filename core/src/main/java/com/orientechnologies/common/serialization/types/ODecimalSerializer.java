@@ -106,7 +106,9 @@ public class ODecimalSerializer implements OBinarySerializer<BigDecimal> {
     return value;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void serializeInByteBufferObject(BigDecimal object, ByteBuffer buffer, Object... hints) {
     buffer.putInt(object.scale());
@@ -114,7 +116,9 @@ public class ODecimalSerializer implements OBinarySerializer<BigDecimal> {
         object.unscaledValue().toByteArray(), buffer);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public BigDecimal deserializeFromByteBufferObject(ByteBuffer buffer) {
     final int scale = buffer.getInt();
@@ -135,7 +139,9 @@ public class ODecimalSerializer implements OBinarySerializer<BigDecimal> {
     return new BigDecimal(new BigInteger(unscaledValue), scale);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getObjectSizeInByteBuffer(ByteBuffer buffer) {
     buffer.position(buffer.position() + OIntegerSerializer.INT_SIZE);
@@ -149,7 +155,9 @@ public class ODecimalSerializer implements OBinarySerializer<BigDecimal> {
         + OBinaryTypeSerializer.INSTANCE.getObjectSizeInByteBuffer(offset + Integer.BYTES, buffer);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public BigDecimal deserializeFromByteBufferObject(
       ByteBuffer buffer, OWALChanges walChanges, int offset) {
@@ -162,7 +170,9 @@ public class ODecimalSerializer implements OBinarySerializer<BigDecimal> {
     return new BigDecimal(new BigInteger(unscaledValue), scale);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getObjectSizeInByteBuffer(ByteBuffer buffer, OWALChanges walChanges, int offset) {
     return OIntegerSerializer.INT_SIZE

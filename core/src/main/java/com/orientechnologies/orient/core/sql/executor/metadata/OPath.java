@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class OPath {
+
   private List<String> path = new ArrayList<>();
 
   public OPath(String value) {

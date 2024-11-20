@@ -39,7 +39,10 @@ import java.util.concurrent.atomic.AtomicReference;
  * @see ODirectMemoryAllocator
  */
 public final class OByteBufferPool implements OByteBufferPoolMXBean {
-  /** Whether we should track memory leaks during application execution */
+
+  /**
+   * Whether we should track memory leaks during application execution
+   */
   private static final boolean TRACK =
       OGlobalConfiguration.DIRECT_MEMORY_TRACK_MODE.getValueAsBoolean();
 
@@ -49,7 +52,9 @@ public final class OByteBufferPool implements OByteBufferPoolMXBean {
    */
   private static final AtomicReference<OByteBufferPool> INSTANCE_HOLDER = new AtomicReference<>();
 
-  /** Limit of direct memory pointers are hold inside of the pool */
+  /**
+   * Limit of direct memory pointers are hold inside of the pool
+   */
   private final int poolSize;
 
   /**
@@ -77,7 +82,9 @@ public final class OByteBufferPool implements OByteBufferPoolMXBean {
     return INSTANCE_HOLDER.get();
   }
 
-  /** Size of single page in bytes. */
+  /**
+   * Size of single page in bytes.
+   */
   private final int pageSize;
 
   /**
@@ -87,7 +94,9 @@ public final class OByteBufferPool implements OByteBufferPoolMXBean {
   private final ConcurrentHashMap<OPointer, PointerTracker> pointerMapping =
       new ConcurrentHashMap<>();
 
-  /** Pool of already allocated pages. */
+  /**
+   * Pool of already allocated pages.
+   */
   private final ConcurrentLinkedQueue<OPointer> pointersPool = new ConcurrentLinkedQueue<>();
 
   /**
@@ -96,12 +105,14 @@ public final class OByteBufferPool implements OByteBufferPoolMXBean {
    */
   private final AtomicInteger pointersPoolSize = new AtomicInteger();
 
-  /** Direct memory allocator. */
+  /**
+   * Direct memory allocator.
+   */
   private final ODirectMemoryAllocator allocator;
 
   /**
    * @param pageSize Size of single page (instance of <code>DirectByteBuffer</code>) returned by
-   *     pool.
+   *                 pool.
    */
   public OByteBufferPool(int pageSize) {
     this.pageSize = pageSize;
@@ -111,9 +122,9 @@ public final class OByteBufferPool implements OByteBufferPoolMXBean {
 
   /**
    * @param allocator Direct memory allocator to use.
-   * @param pageSize Size of single page (instance of <code>DirectByteBuffer</code>) returned by
-   *     pool.
-   * @param poolSize Size of the page pool
+   * @param pageSize  Size of single page (instance of <code>DirectByteBuffer</code>) returned by
+   *                  pool.
+   * @param poolSize  Size of the page pool
    */
   public OByteBufferPool(int pageSize, ODirectMemoryAllocator allocator, int poolSize) {
     this.pageSize = pageSize;
@@ -125,11 +136,11 @@ public final class OByteBufferPool implements OByteBufferPoolMXBean {
    * Acquires direct memory buffer with native byte order. If there is free (already released)
    * direct memory page we reuse it, otherwise new memory chunk is allocated from direct memory.
    *
-   * @param clear Whether returned buffer should be filled with zeros before return.
+   * @param clear     Whether returned buffer should be filled with zeros before return.
    * @param intention Why this memory is allocated. This parameter is used for memory profiling.
    * @return Direct memory buffer instance.
    */
-  public final OPointer acquireDirect(boolean clear, Intention intention) {
+  public OPointer acquireDirect(boolean clear, Intention intention) {
     OPointer pointer;
 
     pointer = pointersPool.poll();
@@ -159,7 +170,7 @@ public final class OByteBufferPool implements OByteBufferPoolMXBean {
    * @param pointer Not used instance of buffer.
    * @see OGlobalConfiguration#DIRECT_MEMORY_POOL_LIMIT
    */
-  public final void release(OPointer pointer) {
+  public void release(OPointer pointer) {
     if (TRACK) {
       pointerMapping.remove(pointer);
     }
@@ -177,11 +188,13 @@ public final class OByteBufferPool implements OByteBufferPoolMXBean {
    * @inheritDoc
    */
   @Override
-  public final int getPoolSize() {
+  public int getPoolSize() {
     return pointersPoolSize.get();
   }
 
-  /** Checks whether there are not released buffers in the pool */
+  /**
+   * Checks whether there are not released buffers in the pool
+   */
   public void checkMemoryLeaks() {
     boolean detected = false;
     if (TRACK) {
@@ -200,7 +213,9 @@ public final class OByteBufferPool implements OByteBufferPoolMXBean {
     assert !detected;
   }
 
-  /** Clears pool and dealocates memory. */
+  /**
+   * Clears pool and dealocates memory.
+   */
   public void clear() {
     for (OPointer pointer : pointersPool) {
       allocator.deallocate(pointer);
@@ -216,8 +231,11 @@ public final class OByteBufferPool implements OByteBufferPoolMXBean {
     pointerMapping.clear();
   }
 
-  /** Holder which contains if memory tracking is enabled stack trace for the first allocation. */
+  /**
+   * Holder which contains if memory tracking is enabled stack trace for the first allocation.
+   */
   private static final class PointerTracker {
+
     private final Exception allocation;
 
     PointerTracker(Exception allocation) {

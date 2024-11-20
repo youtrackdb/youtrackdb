@@ -37,6 +37,7 @@ import java.io.IOException;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface ORemoteTask {
+
   boolean hasResponse();
 
   default void received(ODistributedRequest request, ODistributedDatabase distributedDatabase) {}

@@ -35,8 +35,8 @@ public interface OCommandExecutor {
    * execute() method.
    *
    * @param iRequest Command request implementation.
-   * @see #execute(Map<Object, Object>...)
    * @return
+   * @see #execute(Map<Object, Object>...)
    */
   <RET extends OCommandExecutor> RET parse(OCommandRequest iRequest);
 
@@ -44,8 +44,8 @@ public interface OCommandExecutor {
    * Execute the requested command parsed previously.
    *
    * @param iArgs Optional variable arguments to pass to the command.
-   * @see #parse(OCommandRequest)
    * @return
+   * @see #parse(OCommandRequest)
    */
   Object execute(final Map<Object, Object> iArgs);
 
@@ -67,17 +67,21 @@ public interface OCommandExecutor {
 
   void setContext(OCommandContext context);
 
-  /** Returns true if the command doesn't change the database, otherwise false. */
+  /**
+   * Returns true if the command doesn't change the database, otherwise false.
+   */
   boolean isIdempotent();
 
-  /** Returns the involved clusters. */
+  /**
+   * Returns the involved clusters.
+   */
   Set<String> getInvolvedClusters();
 
   /**
    * Returns the security operation type use to check about security.
    *
-   * @see com.orientechnologies.orient.core.metadata.security.ORole PERMISSION_*
    * @return
+   * @see com.orientechnologies.orient.core.metadata.security.ORole PERMISSION_*
    */
   int getSecurityOperationType();
 
@@ -85,10 +89,14 @@ public interface OCommandExecutor {
 
   String getSyntax();
 
-  /** Returns true if the command must be executed on local node on distributed configuration. */
+  /**
+   * Returns true if the command must be executed on local node on distributed configuration.
+   */
   boolean isLocalExecution();
 
-  /** Returns true if the command results can be cached. */
+  /**
+   * Returns true if the command results can be cached.
+   */
   boolean isCacheable();
 
   long getDistributedTimeout();

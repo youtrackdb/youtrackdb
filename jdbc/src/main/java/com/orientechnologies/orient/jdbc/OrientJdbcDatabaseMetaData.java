@@ -47,6 +47,7 @@ import java.util.Set;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com) (OrientDB - l.garulli--at--orientdb.com)
  */
 public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
+
   protected static final List<String> TABLE_TYPES = Arrays.asList("TABLE", "SYSTEM TABLE");
   private final OrientJdbcConnection connection;
   private final ODatabaseSessionInternal database;
@@ -719,9 +720,11 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
       final String className = cls.getName();
       final String type;
 
-      if (OMetadataInternal.SYSTEM_CLUSTER.contains(cls.getName().toLowerCase(Locale.ENGLISH)))
+      if (OMetadataInternal.SYSTEM_CLUSTER.contains(cls.getName().toLowerCase(Locale.ENGLISH))) {
         type = "SYSTEM TABLE";
-      else type = "TABLE";
+      } else {
+        type = "TABLE";
+      }
 
       if (tableTypes.contains(type)
           && (tableNamePattern == null
@@ -874,7 +877,9 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
     final Set<OIndex> uniqueIndexes = new HashSet<>();
 
     for (OIndex oIndex : classIndexes) {
-      if (oIndex.getType().equals(INDEX_TYPE.UNIQUE.name())) uniqueIndexes.add(oIndex);
+      if (oIndex.getType().equals(INDEX_TYPE.UNIQUE.name())) {
+        uniqueIndexes.add(oIndex);
+      }
     }
 
     final OInternalResultSet resultSet = new OInternalResultSet();
@@ -1097,7 +1102,9 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
     final Set<OIndex> indexes = new HashSet<>();
 
     for (OIndex oIndex : classIndexes) {
-      if (!unique || oIndex.getType().equals(INDEX_TYPE.UNIQUE.name())) indexes.add(oIndex);
+      if (!unique || oIndex.getType().equals(INDEX_TYPE.UNIQUE.name())) {
+        indexes.add(oIndex);
+      }
     }
 
     final OInternalResultSet resultSet = new OInternalResultSet();

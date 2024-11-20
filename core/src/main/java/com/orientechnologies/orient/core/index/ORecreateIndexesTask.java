@@ -12,7 +12,10 @@ import java.util.Collections;
 import java.util.Set;
 
 public class ORecreateIndexesTask implements Runnable {
-  /** */
+
+  /**
+   *
+   */
   private final OIndexManagerShared indexManager;
 
   private final OSharedContext ctx;
@@ -43,8 +46,9 @@ public class ORecreateIndexesTask implements Runnable {
           indexesToRebuild = Collections.emptyList();
         } else {
           indexesToRebuild = new ArrayList<>();
-          for (ODocument index : knownIndexes)
+          for (ODocument index : knownIndexes) {
             indexesToRebuild.add(index.copy()); // make copies to safely iterate them later
+          }
         }
       } finally {
         indexManager.releaseExclusiveLock();

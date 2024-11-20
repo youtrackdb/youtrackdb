@@ -108,7 +108,9 @@ public class ODateSerializer implements OBinarySerializer<Date> {
     return calendar.getTime();
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void serializeInByteBufferObject(Date object, ByteBuffer buffer, Object... hints) {
     final Calendar calendar = Calendar.getInstance();
@@ -121,7 +123,9 @@ public class ODateSerializer implements OBinarySerializer<Date> {
     dateTimeSerializer.serializeInByteBufferObject(calendar.getTime(), buffer);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Date deserializeFromByteBufferObject(ByteBuffer buffer) {
     final ODateTimeSerializer dateTimeSerializer = ODateTimeSerializer.INSTANCE;
@@ -134,7 +138,9 @@ public class ODateSerializer implements OBinarySerializer<Date> {
     return dateTimeSerializer.deserializeFromByteBufferObject(offset, buffer);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getObjectSizeInByteBuffer(ByteBuffer buffer) {
     return OLongSerializer.LONG_SIZE;
@@ -145,7 +151,9 @@ public class ODateSerializer implements OBinarySerializer<Date> {
     return OLongSerializer.LONG_SIZE;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Date deserializeFromByteBufferObject(
       ByteBuffer buffer, OWALChanges walChanges, int offset) {
@@ -153,7 +161,9 @@ public class ODateSerializer implements OBinarySerializer<Date> {
     return dateTimeSerializer.deserializeFromByteBufferObject(buffer, walChanges, offset);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getObjectSizeInByteBuffer(ByteBuffer buffer, OWALChanges walChanges, int offset) {
     return OLongSerializer.LONG_SIZE;

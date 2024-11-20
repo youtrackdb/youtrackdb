@@ -10,16 +10,25 @@ import java.util.concurrent.locks.ReentrantLock;
  * @param <V> Value type.
  */
 public class OClosableEntry<K, V extends OClosableItem> {
-  /** Constant for open state of entries state machine. */
+
+  /**
+   * Constant for open state of entries state machine.
+   */
   private static final long STATUS_OPEN = 1;
 
-  /** Constant for closed state of entries state machine. */
+  /**
+   * Constant for closed state of entries state machine.
+   */
   private static final long STATUS_CLOSED = 2;
 
-  /** Constant for retired state of entries state machine. */
+  /**
+   * Constant for retired state of entries state machine.
+   */
   private static final long STATUS_RETIRED = 4;
 
-  /** Constant for dead state of entry state machine. */
+  /**
+   * Constant for dead state of entry state machine.
+   */
   private static final long STATUS_DEAD = 5;
 
   /**
@@ -55,7 +64,9 @@ public class OClosableEntry<K, V extends OClosableItem> {
 
   private final V item;
 
-  /** Current state of state machine */
+  /**
+   * Current state of state machine
+   */
   private volatile long state = STATUS_OPEN;
 
   private final Lock stateLock = new ReentrantLock();
@@ -78,7 +89,9 @@ public class OClosableEntry<K, V extends OClosableItem> {
 
   void makeAcquiredFromClosed(OClosableItem item) {
     final long s = state;
-    if (s != STATUS_CLOSED) throw new IllegalStateException();
+    if (s != STATUS_CLOSED) {
+      throw new IllegalStateException();
+    }
 
     final long acquiredState = 1L << ACQUIRED_OFFSET;
     item.open();
@@ -87,7 +100,9 @@ public class OClosableEntry<K, V extends OClosableItem> {
   }
 
   void makeAcquiredFromOpen() {
-    if (state != STATUS_OPEN) throw new IllegalStateException();
+    if (state != STATUS_OPEN) {
+      throw new IllegalStateException();
+    }
 
     state = 1L << ACQUIRED_OFFSET;
   }
@@ -97,12 +112,17 @@ public class OClosableEntry<K, V extends OClosableItem> {
     try {
       long acquireCount = state >>> ACQUIRED_OFFSET;
 
-      if (acquireCount < 1) throw new IllegalStateException("Amount of acquires less than one");
+      if (acquireCount < 1) {
+        throw new IllegalStateException("Amount of acquires less than one");
+      }
 
       acquireCount--;
 
-      if (acquireCount < 1) state = STATUS_OPEN;
-      else state = acquireCount << ACQUIRED_OFFSET;
+      if (acquireCount < 1) {
+        state = STATUS_OPEN;
+      } else {
+        state = acquireCount << ACQUIRED_OFFSET;
+      }
     } finally {
       stateLock.unlock();
     }
@@ -111,7 +131,9 @@ public class OClosableEntry<K, V extends OClosableItem> {
   void incrementAcquired() {
     long acquireCount = state >>> ACQUIRED_OFFSET;
 
-    if (acquireCount < 1) throw new IllegalStateException();
+    if (acquireCount < 1) {
+      throw new IllegalStateException();
+    }
 
     acquireCount++;
     state = acquireCount << ACQUIRED_OFFSET;
@@ -142,9 +164,13 @@ public class OClosableEntry<K, V extends OClosableItem> {
   boolean makeClosed() {
     stateLock.lock();
     try {
-      if (state == STATUS_CLOSED) return true;
+      if (state == STATUS_CLOSED) {
+        return true;
+      }
 
-      if (state != STATUS_OPEN) return false;
+      if (state != STATUS_OPEN) {
+        return false;
+      }
 
       item.close();
       state = STATUS_CLOSED;

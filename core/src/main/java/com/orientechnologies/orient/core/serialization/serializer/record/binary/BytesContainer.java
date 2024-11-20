@@ -45,7 +45,9 @@ public class BytesContainer {
   public int alloc(final int toAlloc) {
     final int cur = offset;
     offset += toAlloc;
-    if (bytes.length < offset) resize();
+    if (bytes.length < offset) {
+      resize();
+    }
     return cur;
   }
 
@@ -76,7 +78,9 @@ public class BytesContainer {
 
   private void resize() {
     int newLength = bytes.length;
-    while (newLength < offset) newLength *= 2;
+    while (newLength < offset) {
+      newLength *= 2;
+    }
     final byte[] newBytes = new byte[newLength];
     System.arraycopy(bytes, 0, newBytes, 0, bytes.length);
     bytes = newBytes;

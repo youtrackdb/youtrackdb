@@ -22,6 +22,7 @@ package com.orientechnologies.orient.server.network.protocol.http.command.get;
 import com.orientechnologies.orient.server.network.protocol.http.command.OServerCommandAbstract;
 
 public abstract class OServerCommandConfigurableAbstract extends OServerCommandAbstract {
+
   private final String[] pattern;
 
   public OServerCommandConfigurableAbstract(final String iPattern) {

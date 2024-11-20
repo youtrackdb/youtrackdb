@@ -37,6 +37,7 @@ import java.util.Set;
  * @author Saeed Tabrizi (saeed a_t nowcando.com)
  */
 public abstract class OSQLFunctionHeuristicPathFinderAbstract extends OSQLFunctionMathAbstract {
+
   public static final String PARAM_DIRECTION = "direction";
   public static final String PARAM_EDGE_TYPE_NAMES = "edgeTypeNames";
   public static final String PARAM_VERTEX_AXIS_NAMES = "vertexAxisNames";
@@ -93,7 +94,9 @@ public abstract class OSQLFunctionHeuristicPathFinderAbstract extends OSQLFuncti
     if (node != null) {
       for (OVertex v : node.getVertices(paramDirection, paramEdgeTypeNames)) {
         final OVertex ov = (OVertex) v;
-        if (ov != null) neighbors.add(ov);
+        if (ov != null) {
+          neighbors.add(ov);
+        }
       }
     }
     return neighbors;

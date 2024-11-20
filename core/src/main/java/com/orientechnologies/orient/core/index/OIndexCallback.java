@@ -23,5 +23,6 @@ import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 
 public interface OIndexCallback {
+
   Object getDocumentValueToIndex(ODatabaseSessionInternal session, ODocument iDocument);
 }

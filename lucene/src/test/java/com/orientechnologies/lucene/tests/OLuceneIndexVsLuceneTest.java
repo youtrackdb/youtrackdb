@@ -48,7 +48,9 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-/** Created by enricorisa on 08/10/14. */
+/**
+ * Created by enricorisa on 08/10/14.
+ */
 public class OLuceneIndexVsLuceneTest extends OLuceneBaseTest {
 
   private IndexWriter indexWriter;

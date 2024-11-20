@@ -6,6 +6,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 
 public abstract class AbstractIndexReuseTest extends DocumentDBBaseTest {
+
   protected OProfiler profiler;
 
   public AbstractIndexReuseTest(boolean remote) {

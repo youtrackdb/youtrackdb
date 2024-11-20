@@ -249,6 +249,7 @@ public class TestOTypeDetection {
   }
 
   public class ClassSerializable implements Serializable {
+
     private String aaa;
   }
 }

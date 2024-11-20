@@ -39,7 +39,7 @@ public class OTransactionDataTest {
   @Test
   public void testReadWriteTransactionData() throws IOException {
     OTransactionData data = new OTransactionData(new OTransactionId(Optional.of("one"), 1, 2));
-    byte[] recordData = new byte[] {1, 2, 3};
+    byte[] recordData = new byte[]{1, 2, 3};
     ORecordId recordId = new ORecordId(10, 10);
     OTransactionDataChange change =
         new OTransactionDataChange(
@@ -117,7 +117,8 @@ public class OTransactionDataTest {
         db.save(doc1);
         db.commit();
         ODatabaseExport export =
-            new ODatabaseExport((ODatabaseDocumentInternal) db, backup, iText -> {});
+            new ODatabaseExport((ODatabaseDocumentInternal) db, backup, iText -> {
+            });
         export.exportDatabase();
         export.close();
       }
@@ -135,7 +136,8 @@ public class OTransactionDataTest {
             new ODatabaseImport(
                 (ODatabaseDocumentInternal) db,
                 new ByteArrayInputStream(backup.toByteArray()),
-                iText -> {});
+                iText -> {
+                });
         imp.importDatabase();
         imp.close();
       }

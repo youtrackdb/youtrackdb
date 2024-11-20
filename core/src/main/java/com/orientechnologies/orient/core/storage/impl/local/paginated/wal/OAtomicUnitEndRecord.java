@@ -38,6 +38,7 @@ import java.util.Set;
  * @since 24.05.13
  */
 public class OAtomicUnitEndRecord extends OOperationUnitBodyRecord {
+
   private boolean rollback;
 
   private Map<String, OAtomicOperationMetadata<?>> atomicOperationMetadataMap =

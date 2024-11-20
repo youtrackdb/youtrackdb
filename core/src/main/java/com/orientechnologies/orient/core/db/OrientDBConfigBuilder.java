@@ -38,12 +38,12 @@ import java.util.Set;
 public class OrientDBConfigBuilder {
 
   private OContextConfiguration configurations = new OContextConfiguration();
-  private Map<ATTRIBUTES, Object> attributes = new HashMap<>();
-  private Set<ODatabaseListener> listeners = new HashSet<>();
+  private final Map<ATTRIBUTES, Object> attributes = new HashMap<>();
+  private final Set<ODatabaseListener> listeners = new HashSet<>();
   private ClassLoader classLoader;
-  private ONodeConfigurationBuilder nodeConfigurationBuilder = ONodeConfiguration.builder();
+  private final ONodeConfigurationBuilder nodeConfigurationBuilder = ONodeConfiguration.builder();
   private OSecurityConfig securityConfig;
-  private List<OGlobalUser> users = new ArrayList<OGlobalUser>();
+  private final List<OGlobalUser> users = new ArrayList<OGlobalUser>();
 
   public OrientDBConfigBuilder fromGlobalMap(Map<OGlobalConfiguration, Object> values) {
     for (Map.Entry<OGlobalConfiguration, Object> entry : values.entrySet()) {

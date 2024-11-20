@@ -24,8 +24,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Distributed TX test against "plocal" protocol + shutdown and restart of a node. */
+/**
+ * Distributed TX test against "plocal" protocol + shutdown and restart of a node.
+ */
 public class HARemoveNodeFromCfgIT extends AbstractServerClusterTxTest {
+
   static final int SERVERS = 3;
   private AtomicBoolean lastNodeIsUp = new AtomicBoolean(true);
 
@@ -106,12 +109,13 @@ public class HARemoveNodeFromCfgIT extends AbstractServerClusterTxTest {
     serverInstance
         .get(SERVERS - 1)
         .startServer(getDistributedServerConfiguration(serverInstance.get(SERVERS - 1)));
-    if (serverInstance.get(SERVERS - 1).getServerInstance().getDistributedManager() != null)
+    if (serverInstance.get(SERVERS - 1).getServerInstance().getDistributedManager() != null) {
       serverInstance
           .get(SERVERS - 1)
           .getServerInstance()
           .getDistributedManager()
           .waitUntilNodeOnline();
+    }
 
     lastNodeIsUp.set(true);
 
@@ -131,9 +135,10 @@ public class HARemoveNodeFromCfgIT extends AbstractServerClusterTxTest {
           @Override
           public Boolean call(ODatabaseDocument db) {
             final boolean ok = db.countClass("Person") >= expected;
-            if (!ok)
+            if (!ok) {
               System.out.println(
                   "FOUND " + db.countClass("Person") + " people instead of expected " + expected);
+            }
             return ok;
           }
         },
@@ -148,12 +153,13 @@ public class HARemoveNodeFromCfgIT extends AbstractServerClusterTxTest {
                 lastNodeIsUp.get() ? expected : expected - (count * writerCount * (SERVERS - 1));
 
             final boolean ok = db.countClass("Person") >= node2Expected;
-            if (!ok)
+            if (!ok) {
               System.out.println(
                   "FOUND "
                       + db.countClass("Person")
                       + " people instead of expected "
                       + node2Expected);
+            }
             return ok;
           }
         },

@@ -39,6 +39,7 @@ import java.util.stream.Collectors;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFunctionTraversedElement extends OSQLFunctionConfigurableAbstract {
+
   public static final String NAME = "traversedElement";
 
   public OSQLFunctionTraversedElement() {
@@ -88,9 +89,10 @@ public class OSQLFunctionTraversedElement extends OSQLFunctionConfigurableAbstra
     if (stack == null && iThis instanceof OResult) {
       stack = (Collection) ((OResult) iThis).getMetadata("$stack");
     }
-    if (stack == null)
+    if (stack == null) {
       throw new OCommandExecutionException(
           "Cannot invoke " + getName() + "() against non traverse command");
+    }
 
     final List<OIdentifiable> result = items > 1 ? new ArrayList<OIdentifiable>(items) : null;
 
@@ -105,10 +107,13 @@ public class OSQLFunctionTraversedElement extends OSQLFunctionConfigurableAbstra
               || ODocumentInternal.getImmutableSchemaClass((ODocument) record.getRecord())
                   .isSubClassOf(iClassName)) {
             if (i <= beginIndex) {
-              if (items == 1) return record;
-              else {
+              if (items == 1) {
+                return record;
+              } else {
                 result.add(record);
-                if (result.size() >= items) break;
+                if (result.size() >= items) {
+                  break;
+                }
               }
             }
             i--;
@@ -120,10 +125,13 @@ public class OSQLFunctionTraversedElement extends OSQLFunctionConfigurableAbstra
               || ODocumentInternal.getImmutableSchemaClass((ODocument) record.getRecord())
                   .isSubClassOf(iClassName)) {
             if (i <= beginIndex) {
-              if (items == 1) return record;
-              else {
+              if (items == 1) {
+                return record;
+              } else {
                 result.add(record);
-                if (result.size() >= items) break;
+                if (result.size() >= items) {
+                  break;
+                }
               }
             }
             i--;
@@ -142,10 +150,13 @@ public class OSQLFunctionTraversedElement extends OSQLFunctionConfigurableAbstra
               || ODocumentInternal.getImmutableSchemaClass((ODocument) record.getRecord())
                   .isSubClassOf(iClassName)) {
             if (i >= beginIndex) {
-              if (items == 1) return record;
-              else {
+              if (items == 1) {
+                return record;
+              } else {
                 result.add(record);
-                if (result.size() >= items) break;
+                if (result.size() >= items) {
+                  break;
+                }
               }
             }
             i++;
@@ -157,10 +168,13 @@ public class OSQLFunctionTraversedElement extends OSQLFunctionConfigurableAbstra
               || ODocumentInternal.getImmutableSchemaClass((ODocument) record.getRecord())
                   .isSubClassOf(iClassName)) {
             if (i >= beginIndex) {
-              if (items == 1) return record;
-              else {
+              if (items == 1) {
+                return record;
+              } else {
                 result.add(record);
-                if (result.size() >= items) break;
+                if (result.size() >= items) {
+                  break;
+                }
               }
             }
             i++;
@@ -169,7 +183,9 @@ public class OSQLFunctionTraversedElement extends OSQLFunctionConfigurableAbstra
       }
     }
 
-    if (items > 0 && result != null && !result.isEmpty()) return result;
+    if (items > 0 && result != null && !result.isEmpty()) {
+      return result;
+    }
     return null;
   }
 

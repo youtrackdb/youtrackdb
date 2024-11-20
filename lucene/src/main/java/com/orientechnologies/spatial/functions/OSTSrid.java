@@ -21,12 +21,14 @@ import com.orientechnologies.orient.core.sql.functions.OSQLFunctionAbstract;
 import com.orientechnologies.spatial.shape.OShapeFactory;
 import org.locationtech.spatial4j.shape.Shape;
 
-/** Created by Enrico Risa on 26/09/15. */
+/**
+ * Created by Enrico Risa on 26/09/15.
+ */
 public class OSTSrid extends OSQLFunctionAbstract {
 
   public static final String NAME = "st_srid";
 
-  private OShapeFactory factory = OShapeFactory.INSTANCE;
+  private final OShapeFactory factory = OShapeFactory.INSTANCE;
 
   public OSTSrid() {
     super(NAME, 1, 1);

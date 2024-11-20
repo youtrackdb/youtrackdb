@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class OUpdateStatement extends OStatement {
@@ -225,28 +226,22 @@ public class OUpdateStatement extends OStatement {
     if (returnAfter != that.returnAfter) {
       return false;
     }
-    if (target != null ? !target.equals(that.target) : that.target != null) {
+    if (!Objects.equals(target, that.target)) {
       return false;
     }
-    if (operations != null ? !operations.equals(that.operations) : that.operations != null) {
+    if (!Objects.equals(operations, that.operations)) {
       return false;
     }
-    if (returnProjection != null
-        ? !returnProjection.equals(that.returnProjection)
-        : that.returnProjection != null) {
+    if (!Objects.equals(returnProjection, that.returnProjection)) {
       return false;
     }
-    if (whereClause != null ? !whereClause.equals(that.whereClause) : that.whereClause != null) {
+    if (!Objects.equals(whereClause, that.whereClause)) {
       return false;
     }
-    if (limit != null ? !limit.equals(that.limit) : that.limit != null) {
+    if (!Objects.equals(limit, that.limit)) {
       return false;
     }
-    if (timeout != null ? !timeout.equals(that.timeout) : that.timeout != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(timeout, that.timeout);
   }
 
   @Override

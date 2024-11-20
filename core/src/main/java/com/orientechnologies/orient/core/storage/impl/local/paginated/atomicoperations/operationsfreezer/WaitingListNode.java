@@ -5,7 +5,10 @@ import com.orientechnologies.common.exception.OException;
 import java.util.concurrent.CountDownLatch;
 
 final class WaitingListNode {
-  /** Latch which indicates that all links are created between add and existing list elements. */
+
+  /**
+   * Latch which indicates that all links are created between add and existing list elements.
+   */
   protected final CountDownLatch linkLatch = new CountDownLatch(1);
 
   protected final Thread item;

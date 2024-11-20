@@ -18,6 +18,7 @@ package com.orientechnologies.lucene.functions;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionFactoryTemplate;
 
 public class OLuceneFunctionsFactory extends OSQLFunctionFactoryTemplate {
+
   public OLuceneFunctionsFactory() {
     register(new OLuceneSearchOnIndexFunction());
     register(new OLuceneSearchOnFieldsFunction());

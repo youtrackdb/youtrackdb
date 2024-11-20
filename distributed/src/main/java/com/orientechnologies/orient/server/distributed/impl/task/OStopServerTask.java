@@ -34,10 +34,12 @@ import com.orientechnologies.orient.server.distributed.task.OAbstractRemoteTask;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OStopServerTask extends OAbstractRemoteTask {
+
   private static final long serialVersionUID = 1L;
   public static final int FACTORYID = 9;
 
-  public OStopServerTask() {}
+  public OStopServerTask() {
+  }
 
   @Override
   public Object execute(

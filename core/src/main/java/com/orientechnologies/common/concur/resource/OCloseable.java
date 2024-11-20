@@ -20,6 +20,7 @@
 package com.orientechnologies.common.concur.resource;
 
 public interface OCloseable {
+
   /**
    * Closes resources inside of call of OStorage#close(). So do not use locks when you call this
    * method or you may have deadlock during storage close. This method is completely house keeping

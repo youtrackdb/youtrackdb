@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit;
  * @author <a href="mailto:cleclerc@cloudbees.com">Cyrille Le Clerc</a>
  */
 public interface SyslogMessageSender {
+
   public static final long DEFAULT_INET_ADDRESS_TTL_IN_MILLIS =
       TimeUnit.MILLISECONDS.convert(30, TimeUnit.SECONDS);
   public static final long DEFAULT_INET_ADDRESS_TTL_IN_NANOS =
@@ -39,8 +40,8 @@ public interface SyslogMessageSender {
 
   /**
    * Send the given message ; the Syslog fields (appName, severity, priority, hostname ...) are the
-   * default values of the {@linkplain com.cloudbees.syslog.sender.SyslogMessageSender
-   * MessageSender}.
+   * default values of the
+   * {@linkplain com.cloudbees.syslog.sender.SyslogMessageSender MessageSender}.
    *
    * @param message the message to send
    * @throws IOException
@@ -49,8 +50,8 @@ public interface SyslogMessageSender {
 
   /**
    * Send the given message ; the Syslog fields (appName, severity, priority, hostname ...) are the
-   * default values of the {@linkplain com.cloudbees.syslog.sender.SyslogMessageSender
-   * MessageSender}.
+   * default values of the
+   * {@linkplain com.cloudbees.syslog.sender.SyslogMessageSender MessageSender}.
    *
    * @param message the message to send
    * @throws IOException

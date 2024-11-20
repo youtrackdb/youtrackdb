@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public abstract class LocalPaginatedClusterAbstract {
+
   protected static String buildDirectory;
   protected static OPaginatedCluster paginatedCluster;
   protected static ODatabaseSessionInternal databaseDocumentTx;
@@ -1709,8 +1710,9 @@ public abstract class LocalPaginatedClusterAbstract {
 
       physicalPosition = paginatedCluster.getPhysicalPosition(physicalPosition);
 
-      if (removedPositions.contains(position)) Assert.assertNull(physicalPosition);
-      else {
+      if (removedPositions.contains(position)) {
+        Assert.assertNull(physicalPosition);
+      } else {
         Assert.assertEquals(physicalPosition.clusterPosition, position.clusterPosition);
         Assert.assertEquals(physicalPosition.recordType, position.recordType);
 
@@ -1721,6 +1723,7 @@ public abstract class LocalPaginatedClusterAbstract {
 }
 
 final class RollbackException extends OException implements OHighLevelException {
+
   public RollbackException() {
     super("");
   }

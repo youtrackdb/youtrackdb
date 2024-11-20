@@ -11,7 +11,9 @@ import org.apache.lucene.index.LiveIndexWriterConfig;
 import org.apache.lucene.store.RAMDirectory;
 import org.junit.Test;
 
-/** Created by frank on 05/01/2016. */
+/**
+ * Created by frank on 05/01/2016.
+ */
 public class OLuceneIndexWriterFactoryTest {
 
   @Test

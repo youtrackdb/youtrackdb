@@ -17,7 +17,9 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-/** Created by frank on 13/12/2016. */
+/**
+ * Created by frank on 13/12/2016.
+ */
 public class LuceneRangeTest extends BaseLuceneTest {
 
   @Before

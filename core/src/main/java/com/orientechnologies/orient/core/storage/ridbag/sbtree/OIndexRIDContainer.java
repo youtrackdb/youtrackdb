@@ -41,6 +41,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author Artem Orobets (enisher-at-gmail.com)
  */
 public class OIndexRIDContainer implements Set<OIdentifiable> {
+
   public static final String INDEX_FILE_EXTENSION = ".irs";
 
   private final long fileId;
@@ -52,7 +53,9 @@ public class OIndexRIDContainer implements Set<OIdentifiable> {
       OGlobalConfiguration.INDEX_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.getValueAsInteger();
   private final boolean durableNonTxMode;
 
-  /** Should be called inside of lock to ensure uniqueness of entity on disk !!! */
+  /**
+   * Should be called inside of lock to ensure uniqueness of entity on disk !!!
+   */
   public OIndexRIDContainer(String name, boolean durableNonTxMode, AtomicLong bonsayFileId) {
     long gotFileId = bonsayFileId.get();
     if (gotFileId == 0) {

@@ -20,7 +20,9 @@ public abstract class OSingleOrientDBServerWithDatabasePerTestMethodBaseIT
 
     orientDB = new OrientDB(serverUrl, "root", "root", OrientDBConfig.defaultConfig());
 
-    if (orientDB.exists(dbName)) orientDB.drop(dbName);
+    if (orientDB.exists(dbName)) {
+      orientDB.drop(dbName);
+    }
     orientDB.createIfNotExists(dbName, ODatabaseType.PLOCAL);
 
     pool = new ODatabasePool(orientDB, dbName, "admin", "admin");

@@ -25,6 +25,7 @@ package com.orientechnologies.orient.core.security;
  * @author S. Colin Leister
  */
 public interface OSyslog {
+
   void log(final String operation, final String message);
 
   void log(final String operation, final String username, final String message);

@@ -45,17 +45,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class OServerNetworkListener extends Thread {
-  private OServerSocketFactory socketFactory;
+
+  private final OServerSocketFactory socketFactory;
   private ServerSocket serverSocket;
   private InetSocketAddress inboundAddr;
-  private Class<? extends ONetworkProtocol> protocolType;
+  private final Class<? extends ONetworkProtocol> protocolType;
   private volatile boolean active = true;
-  private List<OServerCommandConfiguration> statefulCommands =
+  private final List<OServerCommandConfiguration> statefulCommands =
       new ArrayList<OServerCommandConfiguration>();
-  private List<OServerCommand> statelessCommands = new ArrayList<OServerCommand>();
+  private final List<OServerCommand> statelessCommands = new ArrayList<OServerCommand>();
   private int socketBufferSize;
   private OContextConfiguration configuration;
-  private OServer server;
+  private final OServer server;
   private int protocolVersion = -1;
 
   public OServerNetworkListener(
@@ -93,11 +94,14 @@ public class OServerNetworkListener extends Thread {
     if (iCommands != null) {
       for (int i = 0; i < iCommands.length; ++i) {
         if (iCommands[i].stateful)
-          // SAVE STATEFUL COMMAND CFG
+        // SAVE STATEFUL COMMAND CFG
+        {
           registerStatefulCommand(iCommands[i]);
-        else
-          // EARLY CREATE STATELESS COMMAND
+        } else
+        // EARLY CREATE STATELESS COMMAND
+        {
           registerStatelessCommand(OServerNetworkListener.createCommand(server, iCommands[i]));
+        }
       }
     }
 
@@ -111,7 +115,9 @@ public class OServerNetworkListener extends Thread {
       // MULTIPLE ENUMERATED PORTS
       String[] portValues = iHostPortRange.split(",");
       ports = new int[portValues.length];
-      for (int i = 0; i < portValues.length; ++i) ports[i] = Integer.parseInt(portValues[i]);
+      for (int i = 0; i < portValues.length; ++i) {
+        ports[i] = Integer.parseInt(portValues[i]);
+      }
 
     } else if (OStringSerializerHelper.contains(iHostPortRange, '-')) {
       // MULTIPLE RANGE PORTS
@@ -119,11 +125,15 @@ public class OServerNetworkListener extends Thread {
       int lowerLimit = Integer.parseInt(limits[0]);
       int upperLimit = Integer.parseInt(limits[1]);
       ports = new int[upperLimit - lowerLimit + 1];
-      for (int i = 0; i < upperLimit - lowerLimit + 1; ++i) ports[i] = lowerLimit + i;
+      for (int i = 0; i < upperLimit - lowerLimit + 1; ++i) {
+        ports[i] = lowerLimit + i;
+      }
 
     } else
-      // SINGLE PORT SPECIFIED
+    // SINGLE PORT SPECIFIED
+    {
       ports = new int[] {Integer.parseInt(iHostPortRange)};
+    }
     return ports;
   }
 
@@ -135,7 +145,7 @@ public class OServerNetworkListener extends Thread {
           (Constructor<OServerCommand>)
               Class.forName(iCommand.implementation)
                   .getConstructor(OServerCommandConfiguration.class);
-      final OServerCommand cmd = c.newInstance(new Object[] {iCommand});
+      final OServerCommand cmd = c.newInstance(iCommand);
       cmd.configure(server);
       return cmd;
     } catch (Exception e) {
@@ -188,11 +198,12 @@ public class OServerNetworkListener extends Thread {
   public void shutdown() {
     this.active = false;
 
-    if (serverSocket != null)
+    if (serverSocket != null) {
       try {
         serverSocket.close();
       } catch (IOException e) {
       }
+    }
   }
 
   public boolean isActive() {
@@ -249,7 +260,9 @@ public class OServerNetworkListener extends Thread {
           protocol.config(this, server, socket, configuration);
 
         } catch (Exception e) {
-          if (active) OLogManager.instance().error(this, "Error on client connection", e);
+          if (active) {
+            OLogManager.instance().error(this, "Error on client connection", e);
+          }
         }
       }
     } catch (NoSuchMethodException e) {
@@ -257,7 +270,9 @@ public class OServerNetworkListener extends Thread {
           .error(this, "error finding the protocol constructor with the server as parameter", e);
     } finally {
       try {
-        if (serverSocket != null && !serverSocket.isClosed()) serverSocket.close();
+        if (serverSocket != null && !serverSocket.isClosed()) {
+          serverSocket.close();
+        }
       } catch (IOException ioe) {
       }
     }
@@ -316,24 +331,24 @@ public class OServerNetworkListener extends Thread {
 
   @Override
   public String toString() {
-    StringBuilder builder = new StringBuilder(64);
-    builder
-        .append(protocolType.getSimpleName())
-        .append(" ")
-        .append(serverSocket.getLocalSocketAddress())
-        .append(":");
-    return builder.toString();
+    String builder =
+        protocolType.getSimpleName() + " " + serverSocket.getLocalSocketAddress() + ":";
+    return builder;
   }
 
   public Object getCommand(final Class<?> iCommandClass) {
     // SEARCH IN STATELESS COMMANDS
     for (OServerCommand cmd : statelessCommands) {
-      if (cmd.getClass().equals(iCommandClass)) return cmd;
+      if (cmd.getClass().equals(iCommandClass)) {
+        return cmd;
+      }
     }
 
     // SEARCH IN STATEFUL COMMANDS
     for (OServerCommandConfiguration cmd : statefulCommands) {
-      if (cmd.implementation.equals(iCommandClass.getName())) return cmd;
+      if (cmd.implementation.equals(iCommandClass.getName())) {
+        return cmd;
+      }
     }
 
     return null;
@@ -412,10 +427,11 @@ public class OServerNetworkListener extends Thread {
     configuration = new OContextConfiguration(iServerConfig);
 
     // SET PARAMETERS
-    if (iParameters != null && iParameters.length > 0) {
+    if (iParameters != null) {
       // CONVERT PARAMETERS IN MAP TO INTIALIZE THE CONTEXT-CONFIGURATION
-      for (OServerParameterConfiguration param : iParameters)
+      for (OServerParameterConfiguration param : iParameters) {
         configuration.setValue(param.name, param.value);
+      }
     }
 
     socketBufferSize =

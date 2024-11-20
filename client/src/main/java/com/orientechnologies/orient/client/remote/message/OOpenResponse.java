@@ -10,6 +10,7 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 public class OOpenResponse implements OBinaryResponse {
+
   private int sessionId;
   private byte[] sessionToken;
   private int[] clusterIds;
@@ -39,8 +40,9 @@ public class OOpenResponse implements OBinaryResponse {
   public void write(OChannelDataOutput channel, int protocolVersion, ORecordSerializer serializer)
       throws IOException {
     channel.writeInt(sessionId);
-    if (protocolVersion > OChannelBinaryProtocol.PROTOCOL_VERSION_26)
+    if (protocolVersion > OChannelBinaryProtocol.PROTOCOL_VERSION_26) {
       channel.writeBytes(sessionToken);
+    }
 
     OMessageHelper.writeClustersArray(
         channel, new ORawPair<>(clusterNames, clusterIds), protocolVersion);

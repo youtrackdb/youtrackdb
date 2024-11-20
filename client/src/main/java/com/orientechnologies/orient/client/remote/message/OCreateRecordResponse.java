@@ -50,7 +50,9 @@ public class OCreateRecordResponse implements OBinaryResponse {
     channel.writeShort((short) this.identity.getClusterId());
     channel.writeLong(this.identity.getClusterPosition());
     channel.writeInt(version);
-    if (protocolVersion >= 20) OMessageHelper.writeCollectionChanges(channel, changedIds);
+    if (protocolVersion >= 20) {
+      OMessageHelper.writeCollectionChanges(channel, changedIds);
+    }
   }
 
   @Override

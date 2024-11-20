@@ -26,6 +26,7 @@ import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import java.io.IOException;
 
 public class OServerCommandFunction extends OServerCommandAbstractLogic {
+
   private static final String[] NAMES = {"GET|function/*", "POST|function/*"};
 
   public OServerCommandFunction() {}

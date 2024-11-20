@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.TimeZone;
 
 public interface OStorageConfiguration {
+
   String DEFAULT_CHARSET = "UTF-8";
   String DEFAULT_DATE_FORMAT = "yyyy-MM-dd";
   String DEFAULT_DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";

@@ -8,6 +8,7 @@ import com.orientechnologies.orient.core.sql.executor.metadata.OIndexFinder.Oper
 import java.util.Map;
 
 public class OLtOperator extends SimpleNode implements OBinaryCompareOperator {
+
   public OLtOperator(int id) {
     super(id);
   }
@@ -37,7 +38,9 @@ public class OLtOperator extends SimpleNode implements OBinaryCompareOperator {
             .warn(this, "Issue converting value to target type, ignoring value", e);
       }
     }
-    if (iRight == null) return false;
+    if (iRight == null) {
+      return false;
+    }
     return ((Comparable<Object>) iLeft).compareTo(iRight) < 0;
   }
 

@@ -9,7 +9,9 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
 import com.orientechnologies.orient.core.sql.parser.OIdentifier;
 import java.util.Optional;
 
-/** Created by luigidellaquila on 01/03/17. */
+/**
+ * Created by luigidellaquila on 01/03/17.
+ */
 public class FilterByClassStep extends AbstractExecutionStep {
 
   private OIdentifier identifier;

@@ -149,24 +149,36 @@ public class OCreateVertexStatement extends OStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OCreateVertexStatement that = (OCreateVertexStatement) o;
 
-    if (targetClass != null ? !targetClass.equals(that.targetClass) : that.targetClass != null)
+    if (targetClass != null ? !targetClass.equals(that.targetClass) : that.targetClass != null) {
       return false;
+    }
     if (targetClusterName != null
         ? !targetClusterName.equals(that.targetClusterName)
-        : that.targetClusterName != null) return false;
+        : that.targetClusterName != null) {
+      return false;
+    }
     if (targetCluster != null
         ? !targetCluster.equals(that.targetCluster)
-        : that.targetCluster != null) return false;
+        : that.targetCluster != null) {
+      return false;
+    }
     if (returnStatement != null
         ? !returnStatement.equals(that.returnStatement)
-        : that.returnStatement != null) return false;
-    if (insertBody != null ? !insertBody.equals(that.insertBody) : that.insertBody != null)
+        : that.returnStatement != null) {
       return false;
+    }
+    if (insertBody != null ? !insertBody.equals(that.insertBody) : that.insertBody != null) {
+      return false;
+    }
 
     return true;
   }

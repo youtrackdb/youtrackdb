@@ -21,7 +21,9 @@ package com.orientechnologies.orient.core.query.live;
 
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 
-/** Created by luigidellaquila on 16/03/15. */
+/**
+ * Created by luigidellaquila on 16/03/15.
+ */
 public interface OLiveQueryListener {
 
   void onLiveResult(ORecordOperation iRecord);

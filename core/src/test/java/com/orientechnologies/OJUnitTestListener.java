@@ -27,8 +27,6 @@ import org.junit.runner.Result;
 import org.junit.runner.notification.RunListener;
 
 /**
- *
- *
  * <ol>
  *   <li>Listens for JUnit test run started and prohibits logging of exceptions on storage level.
  *   <li>Listens for the JUnit test run finishing and runs the direct memory leaks detector, if no
@@ -41,6 +39,7 @@ import org.junit.runner.notification.RunListener;
  * @author Sergey Sitnikov
  */
 public class OJUnitTestListener extends RunListener {
+
   @Override
   public void testRunFinished(Result result) throws Exception {
     super.testRunFinished(result);

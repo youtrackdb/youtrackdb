@@ -7,8 +7,11 @@ import com.orientechnologies.orient.core.record.OVertex;
 import java.util.Collection;
 import java.util.Iterator;
 
-/** Created by luigidellaquila on 02/07/16. */
+/**
+ * Created by luigidellaquila on 02/07/16.
+ */
 public class OEdgeToVertexIterable implements Iterable<OVertex>, OSizeable {
+
   private final Iterable<OEdge> edges;
   private final ODirection direction;
 

@@ -40,6 +40,7 @@ import org.junit.Test;
  * @since 12.08.13
  */
 public class SBTreeV2TestIT {
+
   private int keysCount = 1_000_000;
   OSBTreeV2<Integer, OIdentifiable> sbTree;
   protected ODatabaseSession databaseDocumentTx;
@@ -948,13 +949,19 @@ public class SBTreeV2TestIT {
     for (int i = 0; i < 100; i++) {
       int upperBorder = keyValues.lastKey() + 5000;
       int fromKey;
-      if (upperBorder > 0) fromKey = random.nextInt(upperBorder);
-      else fromKey = random.nextInt(Integer.MAX_VALUE);
+      if (upperBorder > 0) {
+        fromKey = random.nextInt(upperBorder);
+      } else {
+        fromKey = random.nextInt(Integer.MAX_VALUE);
+      }
 
       if (random.nextBoolean()) {
         Integer includedKey = keyValues.ceilingKey(fromKey);
-        if (includedKey != null) fromKey = includedKey;
-        else fromKey = keyValues.floorKey(fromKey);
+        if (includedKey != null) {
+          fromKey = includedKey;
+        } else {
+          fromKey = keyValues.floorKey(fromKey);
+        }
       }
 
       final Iterator<ORawPair<Integer, OIdentifiable>> indexIterator;
@@ -963,14 +970,16 @@ public class SBTreeV2TestIT {
         indexIterator = stream.iterator();
 
         Iterator<Map.Entry<Integer, ORID>> iterator;
-        if (ascSortOrder) iterator = keyValues.tailMap(fromKey, keyInclusive).entrySet().iterator();
-        else
+        if (ascSortOrder) {
+          iterator = keyValues.tailMap(fromKey, keyInclusive).entrySet().iterator();
+        } else {
           iterator =
               keyValues
                   .descendingMap()
                   .subMap(keyValues.lastKey(), true, fromKey, keyInclusive)
                   .entrySet()
                   .iterator();
+        }
 
         while (iterator.hasNext()) {
           final ORawPair<Integer, OIdentifiable> indexEntry = indexIterator.next();
@@ -993,13 +1002,19 @@ public class SBTreeV2TestIT {
     for (int i = 0; i < 100; i++) {
       int upperBorder = keyValues.lastKey() + 5000;
       int toKey;
-      if (upperBorder > 0) toKey = random.nextInt(upperBorder) - 5000;
-      else toKey = random.nextInt(Integer.MAX_VALUE) - 5000;
+      if (upperBorder > 0) {
+        toKey = random.nextInt(upperBorder) - 5000;
+      } else {
+        toKey = random.nextInt(Integer.MAX_VALUE) - 5000;
+      }
 
       if (random.nextBoolean()) {
         Integer includedKey = keyValues.ceilingKey(toKey);
-        if (includedKey != null) toKey = includedKey;
-        else toKey = keyValues.floorKey(toKey);
+        if (includedKey != null) {
+          toKey = includedKey;
+        } else {
+          toKey = keyValues.floorKey(toKey);
+        }
       }
 
       final Iterator<ORawPair<Integer, OIdentifiable>> indexIterator;
@@ -1008,9 +1023,11 @@ public class SBTreeV2TestIT {
         indexIterator = stream.iterator();
 
         Iterator<Map.Entry<Integer, ORID>> iterator;
-        if (ascSortOrder) iterator = keyValues.headMap(toKey, keyInclusive).entrySet().iterator();
-        else
+        if (ascSortOrder) {
+          iterator = keyValues.headMap(toKey, keyInclusive).entrySet().iterator();
+        } else {
           iterator = keyValues.headMap(toKey, keyInclusive).descendingMap().entrySet().iterator();
+        }
 
         while (iterator.hasNext()) {
           ORawPair<Integer, OIdentifiable> indexEntry = indexIterator.next();
@@ -1037,25 +1054,38 @@ public class SBTreeV2TestIT {
     for (int i = 0; i < 100; i++) {
       int upperBorder = keyValues.lastKey() + 5000;
       int fromKey;
-      if (upperBorder > 0) fromKey = random.nextInt(upperBorder);
-      else fromKey = random.nextInt(Integer.MAX_VALUE - 1);
+      if (upperBorder > 0) {
+        fromKey = random.nextInt(upperBorder);
+      } else {
+        fromKey = random.nextInt(Integer.MAX_VALUE - 1);
+      }
 
       if (random.nextBoolean()) {
         Integer includedKey = keyValues.ceilingKey(fromKey);
-        if (includedKey != null) fromKey = includedKey;
-        else fromKey = keyValues.floorKey(fromKey);
+        if (includedKey != null) {
+          fromKey = includedKey;
+        } else {
+          fromKey = keyValues.floorKey(fromKey);
+        }
       }
 
       int toKey = random.nextInt() + fromKey + 1;
-      if (toKey < 0) toKey = Integer.MAX_VALUE;
+      if (toKey < 0) {
+        toKey = Integer.MAX_VALUE;
+      }
 
       if (random.nextBoolean()) {
         Integer includedKey = keyValues.ceilingKey(toKey);
-        if (includedKey != null) toKey = includedKey;
-        else toKey = keyValues.floorKey(toKey);
+        if (includedKey != null) {
+          toKey = includedKey;
+        } else {
+          toKey = keyValues.floorKey(toKey);
+        }
       }
 
-      if (fromKey > toKey) toKey = fromKey;
+      if (fromKey > toKey) {
+        toKey = fromKey;
+      }
 
       final Iterator<ORawPair<Integer, OIdentifiable>> indexIterator;
       try (Stream<ORawPair<Integer, OIdentifiable>> stream =
@@ -1063,16 +1093,17 @@ public class SBTreeV2TestIT {
         indexIterator = stream.iterator();
 
         Iterator<Map.Entry<Integer, ORID>> iterator;
-        if (ascSortOrder)
+        if (ascSortOrder) {
           iterator =
               keyValues.subMap(fromKey, fromInclusive, toKey, toInclusive).entrySet().iterator();
-        else
+        } else {
           iterator =
               keyValues
                   .descendingMap()
                   .subMap(toKey, toInclusive, fromKey, fromInclusive)
                   .entrySet()
                   .iterator();
+        }
 
         long startTime = System.currentTimeMillis();
         int iteration = 0;
@@ -1097,11 +1128,13 @@ public class SBTreeV2TestIT {
       }
     }
 
-    if (totalTime != 0)
+    if (totalTime != 0) {
       System.out.println("Iterations per second : " + (totalIterations * 1000) / totalTime);
+    }
   }
 
   private static final class RollbackException extends OException implements OHighLevelException {
+
     public RollbackException() {
       this("");
     }

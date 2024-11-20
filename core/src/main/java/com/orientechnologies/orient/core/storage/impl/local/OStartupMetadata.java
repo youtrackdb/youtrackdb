@@ -1,6 +1,7 @@
 package com.orientechnologies.orient.core.storage.impl.local;
 
 public final class OStartupMetadata {
+
   final long lastTxId;
   final byte[] txMetadata;
 

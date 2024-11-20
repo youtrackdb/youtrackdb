@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.Iterator;
 
 public class OResourcePoolFactory<K, T> extends OOrientListenerAbstract {
+
   private volatile int maxPartitions = Runtime.getRuntime().availableProcessors() << 3;
   private volatile int maxPoolSize = 64;
   private boolean closed = false;
@@ -56,7 +57,9 @@ public class OResourcePoolFactory<K, T> extends OOrientListenerAbstract {
     checkForClose();
 
     OResourcePool<K, T> pool = poolStore.get(key);
-    if (pool != null) return pool;
+    if (pool != null) {
+      return pool;
+    }
 
     pool = new OResourcePool<K, T>(maxPoolSize, objectFactoryFactory.create(key));
 
@@ -84,7 +87,9 @@ public class OResourcePoolFactory<K, T> extends OOrientListenerAbstract {
   }
 
   public void close() {
-    if (closed) return;
+    if (closed) {
+      return;
+    }
 
     closed = true;
 
@@ -104,7 +109,9 @@ public class OResourcePoolFactory<K, T> extends OOrientListenerAbstract {
       }
     }
 
-    for (OResourcePool<K, T> pool : poolStore.values()) pool.close();
+    for (OResourcePool<K, T> pool : poolStore.values()) {
+      pool.close();
+    }
 
     poolStore.clear();
   }
@@ -115,10 +122,13 @@ public class OResourcePoolFactory<K, T> extends OOrientListenerAbstract {
   }
 
   private void checkForClose() {
-    if (closed) throw new IllegalStateException("Pool factory is closed");
+    if (closed) {
+      throw new IllegalStateException("Pool factory is closed");
+    }
   }
 
   public interface ObjectFactoryFactory<K, T> {
+
     OResourcePoolListener<K, T> create(K key);
   }
 }

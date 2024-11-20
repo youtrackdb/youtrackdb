@@ -20,8 +20,11 @@
 
 package com.orientechnologies.common.util;
 
-/** Interface that implement a contains() */
+/**
+ * Interface that implement a contains()
+ */
 public interface OSupportsContains<T> {
+
   boolean supportsFastContains();
 
   boolean contains(T value);

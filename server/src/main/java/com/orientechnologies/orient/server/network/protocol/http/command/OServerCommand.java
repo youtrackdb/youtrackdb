@@ -29,28 +29,29 @@ import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OServerCommand {
+
   /**
    * Called before to execute. Useful to make checks.
    *
    * @param iResponse TODO
    */
-  public boolean beforeExecute(OHttpRequest iRequest, OHttpResponse iResponse) throws Exception;
+  boolean beforeExecute(OHttpRequest iRequest, OHttpResponse iResponse) throws Exception;
 
   /**
    * Called after to execute. Useful to free resources.
    *
    * @param iResponse TODO
    */
-  public boolean afterExecute(OHttpRequest iRequest, OHttpResponse iResponse) throws Exception;
+  boolean afterExecute(OHttpRequest iRequest, OHttpResponse iResponse) throws Exception;
 
   /**
    * Executes the command requested.
    *
    * @return boolean value that indicates if this command is part of a chain
    */
-  public boolean execute(OHttpRequest iRequest, OHttpResponse iResponse) throws Exception;
+  boolean execute(OHttpRequest iRequest, OHttpResponse iResponse) throws Exception;
 
-  public String[] getNames();
+  String[] getNames();
 
-  public void configure(OServer server);
+  void configure(OServer server);
 }

@@ -186,12 +186,12 @@ public class OBaseExpression extends OMathExpression {
    * tests if current expression is an indexed funciton AND that function can also be executed
    * without using the index
    *
-   * @param target the query target
-   * @param context the execution context
+   * @param target   the query target
+   * @param context  the execution context
    * @param operator
    * @param right
    * @return true if current expression is an indexed funciton AND that function can also be
-   *     executed without using the index, false otherwise
+   * executed without using the index, false otherwise
    */
   public boolean canExecuteIndexedFunctionWithoutIndex(
       OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
@@ -202,14 +202,15 @@ public class OBaseExpression extends OMathExpression {
   }
 
   /**
-   * tests if current expression is an indexed function AND that function can be used on this target
+   * tests if current expression is an indexed function AND that function can be used on this
+   * target
    *
-   * @param target the query target
-   * @param context the execution context
+   * @param target   the query target
+   * @param context  the execution context
    * @param operator
    * @param right
    * @return true if current expression is an indexed function AND that function can be used on this
-   *     target, false otherwise
+   * target, false otherwise
    */
   public boolean allowsIndexedFunctionExecutionOnTarget(
       OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
@@ -225,10 +226,10 @@ public class OBaseExpression extends OMathExpression {
    * excluded from further evaluation. In other cases the result from the index is a superset of the
    * expected result, so the function has to be executed anyway for further filtering
    *
-   * @param target the query target
+   * @param target  the query target
    * @param context the execution context
    * @return true if current expression is an indexed function AND the function has also to be
-   *     executed after the index search.
+   * executed after the index search.
    */
   public boolean executeIndexedFunctionAfterIndexSearch(
       OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
@@ -362,18 +363,30 @@ public class OBaseExpression extends OMathExpression {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OBaseExpression that = (OBaseExpression) o;
 
-    if (number != null ? !number.equals(that.number) : that.number != null) return false;
-    if (identifier != null ? !identifier.equals(that.identifier) : that.identifier != null)
+    if (number != null ? !number.equals(that.number) : that.number != null) {
       return false;
-    if (inputParam != null ? !inputParam.equals(that.inputParam) : that.inputParam != null)
+    }
+    if (identifier != null ? !identifier.equals(that.identifier) : that.identifier != null) {
       return false;
-    if (string != null ? !string.equals(that.string) : that.string != null) return false;
-    if (modifier != null ? !modifier.equals(that.modifier) : that.modifier != null) return false;
+    }
+    if (inputParam != null ? !inputParam.equals(that.inputParam) : that.inputParam != null) {
+      return false;
+    }
+    if (string != null ? !string.equals(that.string) : that.string != null) {
+      return false;
+    }
+    if (modifier != null ? !modifier.equals(that.modifier) : that.modifier != null) {
+      return false;
+    }
 
     return true;
   }

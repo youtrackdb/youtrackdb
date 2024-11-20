@@ -30,6 +30,7 @@ import javax.security.auth.login.Configuration;
  * @author S. Colin Leister
  */
 public class OKrb5ClientLoginModuleConfig extends Configuration {
+
   private final String loginModule = "com.sun.security.auth.module.Krb5LoginModule";
 
   private final AppConfigurationEntry[] appConfigEntries = new AppConfigurationEntry[1];

@@ -47,13 +47,15 @@ import java.util.Set;
  * directed weighted graph with husrestic function.
  *
  * <p>The first parameter is source record. The second parameter is destination record. The third
- * parameter is a name of property that represents 'weight' and fourth represnts the map of options.
+ * parameter is a name of property that represents 'weight' and fourth represnts the map of
+ * options.
  *
  * <p>If property is not defined in edge or is null, distance between vertexes are 0 .
  *
  * @author Saeed Tabrizi (saeed a_t nowcando.com)
  */
 public class OSQLFunctionAstar extends OSQLFunctionHeuristicPathFinderAbstract {
+
   public static final String NAME = "astar";
 
   private String paramWeightFieldName = "weight";
@@ -90,8 +92,9 @@ public class OSQLFunctionAstar extends OSQLFunctionHeuristicPathFinderAbstract {
 
     Object source = iParams[0];
     if (OMultiValue.isMultiValue(source)) {
-      if (OMultiValue.getSize(source) > 1)
+      if (OMultiValue.getSize(source) > 1) {
         throw new IllegalArgumentException("Only one sourceVertex is allowed");
+      }
       source = OMultiValue.getFirstValue(source);
       if (source instanceof OResult && ((OResult) source).isElement()) {
         source = ((OResult) source).getElement().get();
@@ -110,8 +113,9 @@ public class OSQLFunctionAstar extends OSQLFunctionHeuristicPathFinderAbstract {
 
     Object dest = iParams[1];
     if (OMultiValue.isMultiValue(dest)) {
-      if (OMultiValue.getSize(dest) > 1)
+      if (OMultiValue.getSize(dest) > 1) {
         throw new IllegalArgumentException("Only one destinationVertex is allowed");
+      }
       dest = OMultiValue.getFirstValue(dest);
       if (dest instanceof OResult && ((OResult) dest).isElement()) {
         dest = ((OResult) dest).getElement().get();
@@ -228,7 +232,9 @@ public class OSQLFunctionAstar extends OSQLFunctionHeuristicPathFinderAbstract {
     if (node != null) {
       for (OEdge v : node.getEdges(paramDirection, paramEdgeTypeNames)) {
         final OEdge ov = v;
-        if (ov != null) neighbors.add(ov);
+        if (ov != null) {
+          neighbors.add(ov);
+        }
       }
     }
     return neighbors;
@@ -313,9 +319,13 @@ public class OSQLFunctionAstar extends OSQLFunctionHeuristicPathFinderAbstract {
     }
     if (e != null) {
       final Object fieldValue = e.getProperty(paramWeightFieldName);
-      if (fieldValue != null)
-        if (fieldValue instanceof Float) return (Float) fieldValue;
-        else if (fieldValue instanceof Number) return ((Number) fieldValue).doubleValue();
+      if (fieldValue != null) {
+        if (fieldValue instanceof Float) {
+          return (Float) fieldValue;
+        } else if (fieldValue instanceof Number) {
+          return ((Number) fieldValue).doubleValue();
+        }
+      }
     }
 
     return MIN;
@@ -324,9 +334,13 @@ public class OSQLFunctionAstar extends OSQLFunctionHeuristicPathFinderAbstract {
   protected double getDistance(final OEdge edge) {
     if (edge != null) {
       final Object fieldValue = edge.getProperty(paramWeightFieldName);
-      if (fieldValue != null)
-        if (fieldValue instanceof Float) return (Float) fieldValue;
-        else if (fieldValue instanceof Number) return ((Number) fieldValue).doubleValue();
+      if (fieldValue != null) {
+        if (fieldValue instanceof Float) {
+          return (Float) fieldValue;
+        } else if (fieldValue instanceof Number) {
+          return ((Number) fieldValue).doubleValue();
+        }
+      }
     }
 
     return MIN;
@@ -349,7 +363,9 @@ public class OSQLFunctionAstar extends OSQLFunctionHeuristicPathFinderAbstract {
       double g = doubleOrDefault(target.getProperty(paramVertexAxisNames[0]), 0.0);
       hresult = getSimpleHeuristicCost(n, g, paramDFactor);
     } else if (paramVertexAxisNames.length == 2) {
-      if (parent == null) parent = node;
+      if (parent == null) {
+        parent = node;
+      }
       double sx = doubleOrDefault(paramSourceVertex.getProperty(paramVertexAxisNames[0]), 0);
       double sy = doubleOrDefault(paramSourceVertex.getProperty(paramVertexAxisNames[1]), 0);
       double nx = doubleOrDefault(node.getProperty(paramVertexAxisNames[0]), 0);
@@ -404,10 +420,18 @@ public class OSQLFunctionAstar extends OSQLFunctionHeuristicPathFinderAbstract {
         Double c = doubleOrDefault(node.getProperty(paramVertexAxisNames[i]), 0);
         Double g = doubleOrDefault(target.getProperty(paramVertexAxisNames[i]), 0);
         Double p = doubleOrDefault(parent.getProperty(paramVertexAxisNames[i]), 0);
-        if (s != null) sList.put(paramVertexAxisNames[i], s);
-        if (c != null) cList.put(paramVertexAxisNames[i], s);
-        if (g != null) gList.put(paramVertexAxisNames[i], g);
-        if (p != null) pList.put(paramVertexAxisNames[i], p);
+        if (s != null) {
+          sList.put(paramVertexAxisNames[i], s);
+        }
+        if (c != null) {
+          cList.put(paramVertexAxisNames[i], s);
+        }
+        if (g != null) {
+          gList.put(paramVertexAxisNames[i], g);
+        }
+        if (p != null) {
+          pList.put(paramVertexAxisNames[i], p);
+        }
       }
       switch (paramHeuristicFormula) {
         case MANHATAN:

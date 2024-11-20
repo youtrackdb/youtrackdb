@@ -16,7 +16,9 @@ import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
 import java.util.List;
 
-/** Created by tglman on 14/06/17. */
+/**
+ * Created by tglman on 14/06/17.
+ */
 public class OViewRemote extends OViewImpl {
 
   protected OViewRemote(OSchemaShared iOwner, String iName) {
@@ -29,10 +31,13 @@ public class OViewRemote extends OViewImpl {
       final OType linkedType,
       final OClass linkedClass,
       final boolean unsafe) {
-    if (type == null) throw new OSchemaException("Property type not defined.");
+    if (type == null) {
+      throw new OSchemaException("Property type not defined.");
+    }
 
-    if (propertyName == null || propertyName.length() == 0)
+    if (propertyName == null || propertyName.length() == 0) {
       throw new OSchemaException("Property name is null or empty");
+    }
 
     final ODatabaseSessionInternal database = getDatabase();
     validatePropertyName(propertyName);
@@ -43,9 +48,13 @@ public class OViewRemote extends OViewImpl {
 
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    if (linkedType != null) OPropertyImpl.checkLinkTypeSupport(type);
+    if (linkedType != null) {
+      OPropertyImpl.checkLinkTypeSupport(type);
+    }
 
-    if (linkedClass != null) OPropertyImpl.checkSupportLinkedClass(type);
+    if (linkedClass != null) {
+      OPropertyImpl.checkSupportLinkedClass(type);
+    }
 
     acquireSchemaWriteLock();
     try {
@@ -76,7 +85,9 @@ public class OViewRemote extends OViewImpl {
         cmd.append('`');
       }
 
-      if (unsafe) cmd.append(" unsafe ");
+      if (unsafe) {
+        cmd.append(" unsafe ");
+      }
 
       database.command(cmd.toString()).close();
 
@@ -148,7 +159,9 @@ public class OViewRemote extends OViewImpl {
   }
 
   public OView setName(final String name) {
-    if (getName().equals(name)) return this;
+    if (getName().equals(name)) {
+      return this;
+    }
     final ODatabaseSessionInternal database = getDatabase();
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
     final Character wrongCharacter = OSchemaShared.checkClassNameIfValid(name);
@@ -159,13 +172,14 @@ public class OViewRemote extends OViewImpl {
               "Cannot rename view %s to %s. A Class with name %s exists", this.name, name, name);
       throw new OSchemaException(error);
     }
-    if (wrongCharacter != null)
+    if (wrongCharacter != null) {
       throw new OSchemaException(
           "Invalid class name found. Character '"
               + wrongCharacter
               + "' cannot be used in view name '"
               + name
               + "'");
+    }
     acquireSchemaWriteLock();
     try {
 
@@ -182,7 +196,9 @@ public class OViewRemote extends OViewImpl {
   public OView setShortName(String shortName) {
     if (shortName != null) {
       shortName = shortName.trim();
-      if (shortName.isEmpty()) shortName = null;
+      if (shortName.isEmpty()) {
+        shortName = null;
+      }
     }
     final ODatabaseSessionInternal database = getDatabase();
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
@@ -202,7 +218,9 @@ public class OViewRemote extends OViewImpl {
     return new OPropertyRemote(this);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public OView truncateCluster(String clusterName) {
     final ODatabaseSessionInternal database = getDatabase();
@@ -236,7 +254,9 @@ public class OViewRemote extends OViewImpl {
   public OView setDescription(String iDescription) {
     if (iDescription != null) {
       iDescription = iDescription.trim();
-      if (iDescription.isEmpty()) iDescription = null;
+      if (iDescription.isEmpty()) {
+        iDescription = null;
+      }
     }
     final ODatabaseSessionInternal database = getDatabase();
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
@@ -262,16 +282,18 @@ public class OViewRemote extends OViewImpl {
 
   public void dropProperty(final String propertyName) {
     final ODatabaseSessionInternal database = getDatabase();
-    if (database.getTransaction().isActive())
+    if (database.getTransaction().isActive()) {
       throw new IllegalStateException("Cannot drop a property inside a transaction");
+    }
 
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_DELETE);
 
     acquireSchemaWriteLock();
     try {
-      if (!properties.containsKey(propertyName))
+      if (!properties.containsKey(propertyName)) {
         throw new OSchemaException(
             "Property '" + propertyName + "' not found in class " + name + "'");
+      }
 
       database.command("drop property " + name + '.' + propertyName).close();
 
@@ -291,8 +313,7 @@ public class OViewRemote extends OViewImpl {
     acquireSchemaWriteLock();
     try {
       // FORMAT FLOAT LOCALE AGNOSTIC
-      final String cmd =
-          String.format("alter view `%s` oversize %s", name, new Float(overSize).toString());
+      final String cmd = Float.toString(overSize);
       database.command(cmd).close();
     } finally {
       releaseSchemaWriteLock();

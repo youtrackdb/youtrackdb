@@ -61,7 +61,9 @@ public class AsyncReplModeIT extends BareBoneBase2ClientTest {
         for (int i = 0; i < NUM_OF_LOOP_ITERATIONS; i++) {
           pause();
 
-          if (exceptionInThread != null) break;
+          if (exceptionInThread != null) {
+            break;
+          }
           //          sleep(500);
           OVertex vertex = graph.newVertex("vertextype3");
           vertex.save();
@@ -166,7 +168,9 @@ public class AsyncReplModeIT extends BareBoneBase2ClientTest {
         for (int i = 0; i < NUM_OF_LOOP_ITERATIONS; i++) {
           pause();
 
-          if (exceptionInThread != null) break;
+          if (exceptionInThread != null) {
+            break;
+          }
           // Let's give it some time for asynchronous replication.
           //          sleep(500);
           countPropValue++;

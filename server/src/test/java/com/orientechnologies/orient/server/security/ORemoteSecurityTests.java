@@ -18,7 +18,7 @@ import org.junit.Test;
 
 public class ORemoteSecurityTests {
 
-  private static String DB_NAME = ORemoteSecurityTests.class.getSimpleName();
+  private static final String DB_NAME = ORemoteSecurityTests.class.getSimpleName();
   private OrientDB orient;
   private OServer server;
   private ODatabaseSession db;

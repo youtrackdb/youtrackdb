@@ -30,6 +30,7 @@ import org.testng.annotations.Test;
 
 @Test
 public class PreparedStatementTest extends DocumentDBBaseTest {
+
   @Parameters(value = "remote")
   public PreparedStatementTest(boolean remote) {
     super(remote);

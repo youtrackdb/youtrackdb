@@ -37,9 +37,10 @@ import java.util.Random;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OHttpSessionManager extends OSharedResourceAbstract {
-  private Map<String, OHttpSession> sessions = new HashMap<String, OHttpSession>();
+
+  private final Map<String, OHttpSession> sessions = new HashMap<String, OHttpSession>();
   private int expirationTime;
-  private Random random = new SecureRandom();
+  private final Random random = new SecureRandom();
 
   public OHttpSessionManager(OServer server) {
     expirationTime =
@@ -54,8 +55,9 @@ public class OHttpSessionManager extends OSharedResourceAbstract {
               @Override
               public void run() {
                 final int expired = checkSessionsValidity();
-                if (expired > 0)
+                if (expired > 0) {
                   OLogManager.instance().debug(this, "Removed %d session because expired", expired);
+                }
               }
             },
             expirationTime,
@@ -104,7 +106,9 @@ public class OHttpSessionManager extends OSharedResourceAbstract {
     try {
 
       final OHttpSession sess = sessions.get(iId);
-      if (sess != null) sess.updateLastUpdatedOn();
+      if (sess != null) {
+        sess.updateLastUpdatedOn();
+      }
       return sess;
 
     } finally {

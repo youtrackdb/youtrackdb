@@ -39,7 +39,9 @@ public class OSQLMethodSplit extends OAbstractSQLMethod {
       OCommandContext iContext,
       Object ioResult,
       Object[] iParams) {
-    if (iThis == null || iParams[0] == null) return iThis;
+    if (iThis == null || iParams[0] == null) {
+      return iThis;
+    }
 
     return iThis.toString().split(iParams[0].toString());
   }

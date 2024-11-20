@@ -40,6 +40,7 @@ import java.util.Locale;
 import java.util.Map;
 
 public class OCommandManager {
+
   private Map<String, Class<? extends OCommandRequest>> commandRequesters =
       new HashMap<String, Class<? extends OCommandRequest>>();
   private Map<Class<? extends OCommandRequest>, OCallable<Void, OCommandRequest>> configCallbacks =
@@ -79,9 +80,10 @@ public class OCommandManager {
     if (scriptExecutor == null) {
       scriptExecutor = this.scriptExecutors.get(language.toLowerCase(Locale.ENGLISH));
     }
-    if (scriptExecutor == null)
+    if (scriptExecutor == null) {
       throw new IllegalArgumentException(
           "Cannot find a script executor requester for language: " + language);
+    }
 
     return scriptExecutor;
   }
@@ -89,8 +91,9 @@ public class OCommandManager {
   public OCommandRequest getRequester(final String iType) {
     final Class<? extends OCommandRequest> reqClass = commandRequesters.get(iType);
 
-    if (reqClass == null)
+    if (reqClass == null) {
       throw new IllegalArgumentException("Cannot find a command requester for type: " + iType);
+    }
 
     try {
       return reqClass.newInstance();
@@ -134,15 +137,18 @@ public class OCommandManager {
     final Class<? extends OCommandExecutor> executorClass =
         commandReqExecMap.get(iCommand.getClass());
 
-    if (executorClass == null)
+    if (executorClass == null) {
       throw new OCommandExecutorNotFoundException(
           "Cannot find a command executor for the command request: " + iCommand);
+    }
 
     try {
       final OCommandExecutor exec = executorClass.newInstance();
 
       final OCallable<Void, OCommandRequest> callback = configCallbacks.get(iCommand.getClass());
-      if (callback != null) callback.call(iCommand);
+      if (callback != null) {
+        callback.call(iCommand);
+      }
 
       return exec;
 

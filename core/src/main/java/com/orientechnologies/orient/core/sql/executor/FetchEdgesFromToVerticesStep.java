@@ -18,8 +18,11 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.StreamSupport;
 
-/** Created by luigidellaquila on 21/02/17. */
+/**
+ * Created by luigidellaquila on 21/02/17.
+ */
 public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
+
   private final OIdentifier targetClass;
   private final OIdentifier targetCluster;
   private final String fromAlias;

@@ -7,8 +7,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-/** Created by luigidellaquila on 07/07/16. */
+/**
+ * Created by luigidellaquila on 07/07/16.
+ */
 public class OInternalResultSet implements OResultSet, OResettable {
+
   private List<OResult> content = new ArrayList<>();
   private int next = 0;
   protected OExecutionPlan plan;

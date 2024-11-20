@@ -33,6 +33,7 @@ import java.util.Locale;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFilter extends OSQLPredicate implements OCommandPredicate {
+
   public OSQLFilter(
       final String iText, final OCommandContext iContext, final String iFilterKeyword) {
     super();
@@ -85,8 +86,7 @@ public class OSQLFilter extends OSQLPredicate implements OCommandPredicate {
       iCondition.left = resetOperatorPrecedence((OSQLFilterCondition) iCondition.left);
     }
 
-    if (iCondition.right != null && iCondition.right instanceof OSQLFilterCondition) {
-      OSQLFilterCondition right = (OSQLFilterCondition) iCondition.right;
+    if (iCondition.right != null && iCondition.right instanceof OSQLFilterCondition right) {
       iCondition.right = resetOperatorPrecedence(right);
       if (iCondition.operator != null) {
         if (!right.inBraces
@@ -120,7 +120,7 @@ public class OSQLFilter extends OSQLPredicate implements OCommandPredicate {
   @Override
   public String toString() {
     if (rootCondition != null) {
-      return "Parsed: " + rootCondition.toString();
+      return "Parsed: " + rootCondition;
     }
     return "Unparsed: " + parserText;
   }

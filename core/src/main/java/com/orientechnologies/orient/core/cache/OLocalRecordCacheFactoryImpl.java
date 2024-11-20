@@ -29,6 +29,7 @@ import com.orientechnologies.common.factory.OConfigurableStatefulFactory;
  */
 public class OLocalRecordCacheFactoryImpl extends OConfigurableStatefulFactory<String, ORecordCache>
     implements OLocalRecordCacheFactory {
+
   public OLocalRecordCacheFactoryImpl() {
     register(ORecordCacheWeakRefs.class.getName(), ORecordCacheWeakRefs.class);
   }

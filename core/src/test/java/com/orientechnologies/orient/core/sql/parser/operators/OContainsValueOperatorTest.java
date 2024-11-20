@@ -29,6 +29,7 @@ import org.junit.Test;
  * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
 public class OContainsValueOperatorTest {
+
   @Test
   public void test() {
     OContainsValueOperator op = new OContainsValueOperator(-1);

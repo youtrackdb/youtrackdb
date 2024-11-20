@@ -47,17 +47,21 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class OrientdbEdgeIT {
+
   private static OServer server;
 
   static {
     System.setProperty("ORIENTDB_ROOT_PASSWORD", "root");
   }
 
-  public OrientdbEdgeIT() {}
+  public OrientdbEdgeIT() {
+  }
 
   @AfterClass
   public static void tearDownClass() {
-    if (server != null) server.shutdown();
+    if (server != null) {
+      server.shutdown();
+    }
 
     ODatabaseDocumentTx.closeAll();
 
@@ -65,7 +69,9 @@ public class OrientdbEdgeIT {
     Orient.instance().startup();
 
     File file = new File("./target/databases/");
-    if (file.exists()) OFileUtils.deleteRecursively(file);
+    if (file.exists()) {
+      OFileUtils.deleteRecursively(file);
+    }
   }
 
   protected static ODatabasePool getGraphFactory() throws Exception {
@@ -116,7 +122,9 @@ public class OrientdbEdgeIT {
   @BeforeClass
   public static void setup() throws Exception {
     File file = new File("./target/databases/");
-    if (file.exists()) OFileUtils.deleteRecursively(file);
+    if (file.exists()) {
+      OFileUtils.deleteRecursively(file);
+    }
     file.mkdirs();
 
     server = new OServer(false);
@@ -189,14 +197,18 @@ public class OrientdbEdgeIT {
       try {
         g.createEdgeClass("some-label");
       } catch (OSchemaException ex) {
-        if (!ex.getMessage().contains("exists")) throw (ex);
+        if (!ex.getMessage().contains("exists")) {
+          throw (ex);
+        }
         g.command("delete edge `some-label`").close();
       }
 
       try {
         g.createVertexClass("some-v-label");
       } catch (OSchemaException ex) {
-        if (!ex.getMessage().contains("exists")) throw (ex);
+        if (!ex.getMessage().contains("exists")) {
+          throw (ex);
+        }
         g.command("delete vertex `some-v-label`").close();
       }
     } finally {

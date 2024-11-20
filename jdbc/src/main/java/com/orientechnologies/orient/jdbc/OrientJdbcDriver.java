@@ -51,7 +51,9 @@ public class OrientJdbcDriver implements java.sql.Driver {
 
   @Override
   public Connection connect(String url, Properties info) throws SQLException {
-    if (!acceptsURL(url)) return null;
+    if (!acceptsURL(url)) {
+      return null;
+    }
 
     return new OrientJdbcConnection(url, info);
   }

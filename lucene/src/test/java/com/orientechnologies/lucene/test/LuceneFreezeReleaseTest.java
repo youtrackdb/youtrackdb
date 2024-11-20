@@ -13,7 +13,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by Enrico Risa on 23/09/16. */
+/**
+ * Created by Enrico Risa on 23/09/16.
+ */
 public class LuceneFreezeReleaseTest {
 
   @Before
@@ -23,7 +25,9 @@ public class LuceneFreezeReleaseTest {
 
   @Test
   public void freezeReleaseTest() {
-    if (isWindows()) return;
+    if (isWindows()) {
+      return;
+    }
 
     ODatabaseSessionInternal db = new ODatabaseDocumentTx("plocal:target/freezeRelease");
 
@@ -66,7 +70,9 @@ public class LuceneFreezeReleaseTest {
   // With double calling freeze/release
   @Test
   public void freezeReleaseMisUsageTest() {
-    if (isWindows()) return;
+    if (isWindows()) {
+      return;
+    }
 
     ODatabaseSessionInternal db = new ODatabaseDocumentTx("plocal:target/freezeRelease");
 

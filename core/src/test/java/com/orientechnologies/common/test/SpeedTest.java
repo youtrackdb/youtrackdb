@@ -1,6 +1,7 @@
 package com.orientechnologies.common.test;
 
 public interface SpeedTest {
+
   public void cycle() throws Exception;
 
   public void init() throws Exception;

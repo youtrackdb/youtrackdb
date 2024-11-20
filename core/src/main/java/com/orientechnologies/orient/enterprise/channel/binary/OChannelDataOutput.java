@@ -4,7 +4,9 @@ import com.orientechnologies.orient.core.id.ORID;
 import java.io.IOException;
 import java.io.OutputStream;
 
-/** Created by luigidellaquila on 12/12/16. */
+/**
+ * Created by luigidellaquila on 12/12/16.
+ */
 public interface OChannelDataOutput {
 
   OChannelDataOutput writeByte(final byte iContent) throws IOException;

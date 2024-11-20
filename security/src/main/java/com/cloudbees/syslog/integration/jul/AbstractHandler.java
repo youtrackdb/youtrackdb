@@ -18,11 +18,13 @@ package com.cloudbees.syslog.integration.jul;
 import com.cloudbees.syslog.integration.jul.util.LogManagerHelper;
 import java.util.logging.*;
 
-/** @author <a href="mailto:cleclerc@cloudbees.com">Cyrille Le Clerc</a> */
+/**
+ * @author <a href="mailto:cleclerc@cloudbees.com">Cyrille Le Clerc</a>
+ */
 public abstract class AbstractHandler extends Handler {
 
   private Level logLevel = Level.ALL;
-  private Filter filter;
+  private final Filter filter;
   private Formatter formatter;
 
   public AbstractHandler() {
@@ -50,7 +52,9 @@ public abstract class AbstractHandler extends Handler {
     return new SimpleFormatter();
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   public boolean isLoggable(LogRecord record) {
     if (record == null) {
       return false;
@@ -58,24 +62,32 @@ public abstract class AbstractHandler extends Handler {
     return super.isLoggable(record);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Level getLevel() {
     return this.logLevel;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   public Filter getFilter() {
     return filter;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Formatter getFormatter() {
     return formatter;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void setFormatter(Formatter formatter) throws SecurityException {
     this.formatter = formatter;

@@ -48,13 +48,21 @@ import java.util.stream.Stream;
 public abstract class OQueryOperator {
 
   public static enum ORDER {
-    /** Used when order compared to other operator cannot be evaluated or has no consequences. */
+    /**
+     * Used when order compared to other operator cannot be evaluated or has no consequences.
+     */
     UNKNOWNED,
-    /** Used when this operator must be before the other one */
+    /**
+     * Used when this operator must be before the other one
+     */
     BEFORE,
-    /** Used when this operator must be after the other one */
+    /**
+     * Used when this operator must be after the other one
+     */
     AFTER,
-    /** Used when this operator is equal the other one */
+    /**
+     * Used when this operator is equal the other one
+     */
     EQUAL
   }
 
@@ -138,7 +146,7 @@ public abstract class OQueryOperator {
   /**
    * Returns hint how index can be used to calculate result of operator execution.
    *
-   * @param iLeft Value of left query parameter.
+   * @param iLeft  Value of left query parameter.
    * @param iRight Value of right query parameter.
    * @return Hint how index can be used to calculate result of operator execution.
    */
@@ -157,8 +165,8 @@ public abstract class OQueryOperator {
    * Performs index query and returns index stream which presents subset of index data which
    * corresponds to result of execution of given operator.
    *
-   * <p>Query that should be executed can be presented like: [[property0 = keyParam0] and [property1
-   * = keyParam1] and] propertyN operator keyParamN.
+   * <p>Query that should be executed can be presented like: [[property0 = keyParam0] and
+   * [property1 = keyParam1] and] propertyN operator keyParamN.
    *
    * <p>It is supped that index which passed in as parameter is used to index properties listed
    * above and responsibility of given method execute query using given parameters.
@@ -166,11 +174,13 @@ public abstract class OQueryOperator {
    * <p>Multiple parameters are passed in to implement composite indexes support.
    *
    * @param iContext
-   * @param index Instance of index that will be used to calculate result of operator execution.
-   * @param keyParams Parameters of query is used to calculate query result.
-   * @param ascSortOrder Data returned by cursors should be sorted in ascending or descending order.
+   * @param index        Instance of index that will be used to calculate result of operator
+   *                     execution.
+   * @param keyParams    Parameters of query is used to calculate query result.
+   * @param ascSortOrder Data returned by cursors should be sorted in ascending or descending
+   *                     order.
    * @return Cursor instance if index can be used to evaluate result of execution of given operator
-   *     and <code>null</code> otherwise.
+   * and <code>null</code> otherwise.
    */
   public Stream<ORawPair<Object, ORID>> executeIndexQuery(
       OCommandContext iContext, OIndex index, final List<Object> keyParams, boolean ascSortOrder) {
@@ -246,7 +256,9 @@ public abstract class OQueryOperator {
       final OIndex index,
       final List<Object> keyParams,
       final OIndexDefinition indexDefinition) {
-    if (iContext.isRecordingMetrics()) iContext.updateMetric("compositeIndexUsed", +1);
+    if (iContext.isRecordingMetrics()) {
+      iContext.updateMetric("compositeIndexUsed", +1);
+    }
 
     final OProfiler profiler = Orient.instance().getProfiler();
     if (profiler.isRecording()) {

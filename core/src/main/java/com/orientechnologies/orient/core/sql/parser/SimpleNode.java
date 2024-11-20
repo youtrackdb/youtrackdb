@@ -7,6 +7,7 @@ import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import java.util.Map;
 
 public abstract class SimpleNode implements Node {
+
   public static final String PARAMETER_PLACEHOLDER = "?";
   protected Node parent;
   protected Node[] children;

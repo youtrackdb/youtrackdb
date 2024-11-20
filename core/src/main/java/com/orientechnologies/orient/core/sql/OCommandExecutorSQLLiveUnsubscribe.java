@@ -35,6 +35,7 @@ import java.util.Map;
  */
 public class OCommandExecutorSQLLiveUnsubscribe extends OCommandExecutorSQLAbstract
     implements OCommandDistributedReplicateRequest {
+
   public static final String KEYWORD_LIVE_UNSUBSCRIBE = "LIVE UNSUBSCRIBE";
 
   protected String unsubscribeToken;

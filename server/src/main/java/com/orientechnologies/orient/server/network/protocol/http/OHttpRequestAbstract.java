@@ -24,8 +24,8 @@ import com.orientechnologies.orient.core.security.OParsedToken;
 import com.orientechnologies.orient.server.network.protocol.ONetworkProtocolData;
 import com.orientechnologies.orient.server.network.protocol.http.multipart.OHttpMultipartBaseInputStream;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -36,6 +36,7 @@ import java.util.Map;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public abstract class OHttpRequestAbstract implements OHttpRequest {
+
   private final OContextConfiguration configuration;
   private final InputStream in;
   private final ONetworkProtocolData data;
@@ -59,24 +60,24 @@ public abstract class OHttpRequestAbstract implements OHttpRequest {
 
   @Override
   public String getUser() {
-    return getAuthorization() != null
-        ? getAuthorization().substring(0, getAuthorization().indexOf(":"))
-        : null;
+    return authorization != null ? authorization.substring(0, authorization.indexOf(':')) : null;
   }
 
   @Override
   public InputStream getInputStream() {
-    return getIn();
+    return in;
   }
 
   @Override
   public String getParameter(final String iName) {
-    return getParameters() != null ? getParameters().get(iName) : null;
+    return parameters != null ? parameters.get(iName) : null;
   }
 
   @Override
   public void addHeader(final String h) {
-    if (getHeaders() == null) setHeaders(new HashMap<String, String>());
+    if (getHeaders() == null) {
+      setHeaders(new HashMap<String, String>());
+    }
 
     final int pos = h.indexOf(':');
     if (pos > -1) {
@@ -87,24 +88,20 @@ public abstract class OHttpRequestAbstract implements OHttpRequest {
 
   @Override
   public Map<String, String> getUrlEncodedContent() {
-    if (getContent() == null || getContent().length() < 1) {
+    if (content == null || content.length() < 1) {
       return null;
     }
     HashMap<String, String> retMap = new HashMap<String, String>();
     String key;
     String value;
-    try {
-      String[] pairs = getContent().split("\\&");
-      for (int i = 0; i < pairs.length; i++) {
-        String[] fields = pairs[i].split("=");
-        if (fields.length == 2) {
-          key = URLDecoder.decode(fields[0], "UTF-8");
-          value = URLDecoder.decode(fields[1], "UTF-8");
-          retMap.put(key, value);
-        }
+    String[] pairs = getContent().split("\\&");
+    for (int i = 0; i < pairs.length; i++) {
+      String[] fields = pairs[i].split("=");
+      if (fields.length == 2) {
+        key = URLDecoder.decode(fields[0], StandardCharsets.UTF_8);
+        value = URLDecoder.decode(fields[1], StandardCharsets.UTF_8);
+        retMap.put(key, value);
       }
-    } catch (UnsupportedEncodingException usEx) {
-      // noop
     }
     return retMap;
   }
@@ -129,8 +126,10 @@ public abstract class OHttpRequestAbstract implements OHttpRequest {
 
   @Override
   public String getRemoteAddress() {
-    if (getData().caller != null) return getData().caller;
-    return getExecutor().getRemoteAddress();
+    if (data.caller != null) {
+      return data.caller;
+    }
+    return executor.getRemoteAddress();
   }
 
   @Override

@@ -33,8 +33,11 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
-/** Tests the behavior of the schedule rin case of distributed execution. */
+/**
+ * Tests the behavior of the schedule rin case of distributed execution.
+ */
 public class DistributedSchedulerIT extends AbstractServerClusterTest {
+
   private static final int SERVERS = 2;
 
   @Test
@@ -155,8 +158,9 @@ public class DistributedSchedulerIT extends AbstractServerClusterTest {
   }
 
   private OFunction createFunction(final ODatabaseDocument db) {
-    if (!db.getMetadata().getSchema().existsClass("scheduler_log"))
+    if (!db.getMetadata().getSchema().existsClass("scheduler_log")) {
       db.getMetadata().getSchema().createClass("scheduler_log");
+    }
 
     OFunction func = db.getMetadata().getFunctionLibrary().getFunction("logEvent");
     if (func == null) {

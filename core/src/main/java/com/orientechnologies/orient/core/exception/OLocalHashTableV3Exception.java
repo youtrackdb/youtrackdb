@@ -7,6 +7,7 @@ import com.orientechnologies.orient.core.storage.index.hashindex.local.v3.OLocal
  * @since 10/2/2015
  */
 public class OLocalHashTableV3Exception extends ODurableComponentException {
+
   public OLocalHashTableV3Exception(OLocalHashTableV3Exception exception) {
     super(exception);
   }

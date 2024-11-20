@@ -14,6 +14,7 @@ import java.util.List;
  * Created by luigidellaquila on 11/07/16.
  **/
 public class OrderByStep extends AbstractExecutionStep {
+
   private final OOrderBy orderBy;
   private final long timeoutMillis;
   private Integer maxResults;

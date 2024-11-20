@@ -4,6 +4,7 @@ import com.orientechnologies.common.serialization.types.OByteSerializer;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 
 public interface Change {
+
   int SIZE = OByteSerializer.BYTE_SIZE + OIntegerSerializer.INT_SIZE;
 
   void increment();

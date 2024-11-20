@@ -6,6 +6,7 @@ import java.util.ArrayDeque;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class AtomicOperationsTable {
+
   private static final OperationInformation ATOMIC_OPERATION_STATUS_PLACE_HOLDER =
       new OperationInformation(AtomicOperationStatus.NOT_STARTED, -1, -1);
 
@@ -259,6 +260,7 @@ public class AtomicOperationsTable {
   }
 
   private static final class OperationInformation {
+
     private final AtomicOperationStatus status;
     private final long segment;
     private final long operationId;

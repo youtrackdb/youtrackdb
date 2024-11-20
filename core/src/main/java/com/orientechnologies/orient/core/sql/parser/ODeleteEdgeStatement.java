@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ODeleteEdgeStatement extends OStatement {
+
   private static final Object unset = new Object();
 
   protected OIdentifier className;
@@ -226,28 +227,48 @@ public class ODeleteEdgeStatement extends OStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     ODeleteEdgeStatement that = (ODeleteEdgeStatement) o;
 
-    if (className != null ? !className.equals(that.className) : that.className != null)
+    if (className != null ? !className.equals(that.className) : that.className != null) {
       return false;
+    }
     if (targetClusterName != null
         ? !targetClusterName.equals(that.targetClusterName)
-        : that.targetClusterName != null) return false;
-    if (rid != null ? !rid.equals(that.rid) : that.rid != null) return false;
-    if (rids != null ? !rids.equals(that.rids) : that.rids != null) return false;
+        : that.targetClusterName != null) {
+      return false;
+    }
+    if (rid != null ? !rid.equals(that.rid) : that.rid != null) {
+      return false;
+    }
+    if (rids != null ? !rids.equals(that.rids) : that.rids != null) {
+      return false;
+    }
     if (leftExpression != null
         ? !leftExpression.equals(that.leftExpression)
-        : that.leftExpression != null) return false;
+        : that.leftExpression != null) {
+      return false;
+    }
     if (rightExpression != null
         ? !rightExpression.equals(that.rightExpression)
-        : that.rightExpression != null) return false;
-    if (whereClause != null ? !whereClause.equals(that.whereClause) : that.whereClause != null)
+        : that.rightExpression != null) {
       return false;
-    if (limit != null ? !limit.equals(that.limit) : that.limit != null) return false;
-    if (batch != null ? !batch.equals(that.batch) : that.batch != null) return false;
+    }
+    if (whereClause != null ? !whereClause.equals(that.whereClause) : that.whereClause != null) {
+      return false;
+    }
+    if (limit != null ? !limit.equals(that.limit) : that.limit != null) {
+      return false;
+    }
+    if (batch != null ? !batch.equals(that.batch) : that.batch != null) {
+      return false;
+    }
 
     return true;
   }

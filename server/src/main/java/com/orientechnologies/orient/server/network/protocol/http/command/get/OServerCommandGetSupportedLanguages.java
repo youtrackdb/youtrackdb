@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class OServerCommandGetSupportedLanguages extends OServerCommandAuthenticatedDbAbstract {
+
   private static final String[] NAMES = {"GET|supportedLanguages/*"};
 
   @Override
@@ -57,7 +58,9 @@ public class OServerCommandGetSupportedLanguages extends OServerCommandAuthentic
       result.field("languages", languages);
       iResponse.writeRecord(result);
     } finally {
-      if (db != null) db.close();
+      if (db != null) {
+        db.close();
+      }
     }
     return false;
   }

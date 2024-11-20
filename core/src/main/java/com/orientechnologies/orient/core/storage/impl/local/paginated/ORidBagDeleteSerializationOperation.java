@@ -25,6 +25,7 @@ import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoper
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeRidBag;
 
 public class ORidBagDeleteSerializationOperation implements ORecordSerializationOperation {
+
   private final OSBTreeRidBag ridBag;
 
   public ORidBagDeleteSerializationOperation(OSBTreeRidBag ridBag) {

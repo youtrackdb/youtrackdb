@@ -7,8 +7,11 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
 import java.io.IOException;
 
-/** Created by tglman on 11/01/17. */
+/**
+ * Created by tglman on 11/01/17.
+ */
 public class OSubscribeFunctionsResponse implements OBinaryResponse {
+
   @Override
   public void write(OChannelDataOutput channel, int protocolVersion, ORecordSerializer serializer)
       throws IOException {}

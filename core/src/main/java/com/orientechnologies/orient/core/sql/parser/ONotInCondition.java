@@ -203,25 +203,42 @@ public class ONotInCondition extends OBooleanExpression {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     ONotInCondition that = (ONotInCondition) o;
 
-    if (left != null ? !left.equals(that.left) : that.left != null) return false;
-    if (operator != null ? !operator.equals(that.operator) : that.operator != null) return false;
+    if (left != null ? !left.equals(that.left) : that.left != null) {
+      return false;
+    }
+    if (operator != null ? !operator.equals(that.operator) : that.operator != null) {
+      return false;
+    }
     if (rightStatement != null
         ? !rightStatement.equals(that.rightStatement)
-        : that.rightStatement != null) return false;
-    if (right != null ? !right.equals(that.right) : that.right != null) return false;
-    if (rightParam != null ? !rightParam.equals(that.rightParam) : that.rightParam != null)
+        : that.rightStatement != null) {
       return false;
+    }
+    if (right != null ? !right.equals(that.right) : that.right != null) {
+      return false;
+    }
+    if (rightParam != null ? !rightParam.equals(that.rightParam) : that.rightParam != null) {
+      return false;
+    }
     if (rightMathExpression != null
         ? !rightMathExpression.equals(that.rightMathExpression)
-        : that.rightMathExpression != null) return false;
+        : that.rightMathExpression != null) {
+      return false;
+    }
     if (inputFinalValue != null
         ? !inputFinalValue.equals(that.inputFinalValue)
-        : that.inputFinalValue != null) return false;
+        : that.inputFinalValue != null) {
+      return false;
+    }
 
     return true;
   }

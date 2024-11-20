@@ -20,8 +20,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 
-/** Created by Enrico Risa on 27/01/17. */
+/**
+ * Created by Enrico Risa on 27/01/17.
+ */
 public class JSScriptTest {
+
   @Rule public TestName name = new TestName();
 
   @Test

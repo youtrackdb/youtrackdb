@@ -4,8 +4,11 @@ import com.orientechnologies.orient.core.sql.parser.OMatchPathItem;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-/** Created by luigidellaquila on 28/07/15. */
+/**
+ * Created by luigidellaquila on 28/07/15.
+ */
 public class PatternNode {
+
   public String alias;
   public Set<PatternEdge> out = new LinkedHashSet<PatternEdge>();
   public Set<PatternEdge> in = new LinkedHashSet<PatternEdge>();

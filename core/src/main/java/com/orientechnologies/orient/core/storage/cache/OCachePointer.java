@@ -32,6 +32,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @since 05.08.13
  */
 public final class OCachePointer {
+
   private static final AtomicIntegerFieldUpdater<OCachePointer> REFERRERS_COUNT_UPDATER;
   private static final AtomicLongFieldUpdater<OCachePointer> READERS_WRITERS_REFERRER_UPDATER;
 
@@ -269,8 +270,12 @@ public final class OCachePointer {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OCachePointer that = (OCachePointer) o;
 
@@ -312,6 +317,7 @@ public final class OCachePointer {
   }
 
   public interface WritersListener {
+
     void addOnlyWriters(long fileId, long pageIndex);
 
     void removeOnlyWriters(long fileId, long pageIndex);

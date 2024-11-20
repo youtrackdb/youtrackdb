@@ -43,6 +43,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OResourcePool<K, V> {
+
   protected final Semaphore sem;
   protected final Queue<V> resources = new ConcurrentLinkedQueue<V>();
   protected final Queue<V> resourcesOut = new ConcurrentLinkedQueue<V>();
@@ -57,7 +58,9 @@ public class OResourcePool<K, V> {
 
   public OResourcePool(int min, int max, OResourcePoolListener<K, V> listener) {
     maxResources = max;
-    if (maxResources < 1) throw new IllegalArgumentException("iMaxResource must be major than 0");
+    if (maxResources < 1) {
+      throw new IllegalArgumentException("iMaxResource must be major than 0");
+    }
 
     this.listener = listener;
     sem = new Semaphore(maxResources, true);
@@ -73,12 +76,13 @@ public class OResourcePool<K, V> {
       throws OAcquireTimeoutException {
     // First, get permission to take or create a resource
     try {
-      if (!sem.tryAcquire(maxWaitMillis, TimeUnit.MILLISECONDS))
+      if (!sem.tryAcquire(maxWaitMillis, TimeUnit.MILLISECONDS)) {
         throw new OAcquireTimeoutException(
             "No more resources available in pool (max="
                 + maxResources
                 + "). Requested resource: "
                 + key);
+      }
 
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
@@ -95,7 +99,9 @@ public class OResourcePool<K, V> {
         if (listener.reuseResource(key, additionalArgs, res)) {
           // OK: REUSE IT
           break;
-        } else res = null;
+        } else {
+          res = null;
+        }
 
         // UNABLE TO REUSE IT: THE RESOURE WILL BE DISCARDED AND TRY WITH THE NEXT ONE, IF ANY
       }
@@ -106,7 +112,7 @@ public class OResourcePool<K, V> {
       if (res == null) {
         res = listener.createNewResource(key, additionalArgs);
         created.incrementAndGet();
-        if (OLogManager.instance().isDebugEnabled())
+        if (OLogManager.instance().isDebugEnabled()) {
           OLogManager.instance()
               .debug(
                   this,
@@ -114,9 +120,10 @@ public class OResourcePool<K, V> {
                   this,
                   res,
                   created.get());
+        }
       }
       resourcesOut.add(res);
-      if (OLogManager.instance().isDebugEnabled())
+      if (OLogManager.instance().isDebugEnabled()) {
         OLogManager.instance()
             .debug(
                 this,
@@ -125,6 +132,7 @@ public class OResourcePool<K, V> {
                 res,
                 sem.availablePermits(),
                 resourcesOut.size());
+      }
       return res;
     } catch (RuntimeException e) {
       sem.release();
@@ -154,7 +162,7 @@ public class OResourcePool<K, V> {
     if (resourcesOut.remove(res)) {
       resources.add(res);
       sem.release();
-      if (OLogManager.instance().isDebugEnabled())
+      if (OLogManager.instance().isDebugEnabled()) {
         OLogManager.instance()
             .debug(
                 this,
@@ -163,6 +171,7 @@ public class OResourcePool<K, V> {
                 res,
                 sem.availablePermits(),
                 resourcesOut.size());
+      }
     }
     return true;
   }
@@ -185,7 +194,7 @@ public class OResourcePool<K, V> {
     if (resourcesOut.remove(res)) {
       this.resources.remove(res);
       sem.release();
-      if (OLogManager.instance().isDebugEnabled())
+      if (OLogManager.instance().isDebugEnabled()) {
         OLogManager.instance()
             .debug(
                 this,
@@ -194,6 +203,7 @@ public class OResourcePool<K, V> {
                 res,
                 sem.availablePermits(),
                 resourcesOut.size());
+      }
     }
   }
 

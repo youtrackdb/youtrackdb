@@ -10,6 +10,7 @@ import java.util.NoSuchElementException;
  * @param <V> Value type
  */
 class OClosableLRUList<K, V extends OClosableItem> implements Iterable<OClosableEntry<K, V>> {
+
   private int size;
 
   private OClosableEntry<K, V> head;
@@ -19,15 +20,13 @@ class OClosableLRUList<K, V extends OClosableItem> implements Iterable<OClosable
     final OClosableEntry<K, V> next = entry.getNext();
     final OClosableEntry<K, V> prev = entry.getPrev();
 
-    if (!(next != null || prev != null || entry == head)) return;
-
-    if (prev != null) {
-      assert prev.getNext() == entry;
+    if (!(next != null || prev != null || entry == head)) {
+      return;
     }
 
-    if (next != null) {
-      assert next.getPrev() == entry;
-    }
+    assert prev == null || prev.getNext() == entry;
+
+    assert next == null || next.getPrev() == entry;
 
     if (next != null) {
       next.setPrev(prev);
@@ -68,13 +67,9 @@ class OClosableLRUList<K, V extends OClosableItem> implements Iterable<OClosable
 
     boolean newEntry = !(next != null || prev != null || entry == head);
 
-    if (prev != null) {
-      assert prev.getNext() == entry;
-    }
+    assert prev == null || prev.getNext() == entry;
 
-    if (next != null) {
-      assert next.getPrev() == entry;
-    }
+    assert next == null || next.getPrev() == entry;
 
     if (prev != null) {
       prev.setNext(next);
@@ -99,7 +94,9 @@ class OClosableLRUList<K, V extends OClosableItem> implements Iterable<OClosable
       tail = head = entry;
     }
 
-    if (newEntry) size++;
+    if (newEntry) {
+      size++;
+    }
   }
 
   int size() {
@@ -107,7 +104,9 @@ class OClosableLRUList<K, V extends OClosableItem> implements Iterable<OClosable
   }
 
   OClosableEntry<K, V> poll() {
-    if (head == null) return null;
+    if (head == null) {
+      return null;
+    }
 
     final OClosableEntry<K, V> entry = head;
 
@@ -121,7 +120,9 @@ class OClosableLRUList<K, V extends OClosableItem> implements Iterable<OClosable
 
     assert head == null || head.getPrev() == null;
 
-    if (head == null) tail = null;
+    if (head == null) {
+      tail = null;
+    }
 
     entry.setNext(null);
     assert entry.getPrev() == null;
@@ -168,7 +169,9 @@ class OClosableLRUList<K, V extends OClosableItem> implements Iterable<OClosable
   }
 
   boolean assertForwardStructure() {
-    if (head == null) return tail == null;
+    if (head == null) {
+      return tail == null;
+    }
 
     OClosableEntry<K, V> current = head;
 
@@ -176,13 +179,9 @@ class OClosableLRUList<K, V extends OClosableItem> implements Iterable<OClosable
       OClosableEntry<K, V> prev = current.getPrev();
       OClosableEntry<K, V> next = current.getNext();
 
-      if (prev != null) {
-        assert prev.getNext() == current;
-      }
+      assert prev == null || prev.getNext() == current;
 
-      if (next != null) {
-        assert next.getPrev() == current;
-      }
+      assert next == null || next.getPrev() == current;
 
       current = current.getNext();
     }
@@ -191,7 +190,9 @@ class OClosableLRUList<K, V extends OClosableItem> implements Iterable<OClosable
   }
 
   boolean assertBackwardStructure() {
-    if (tail == null) return head == null;
+    if (tail == null) {
+      return head == null;
+    }
 
     OClosableEntry<K, V> current = tail;
 
@@ -199,13 +200,9 @@ class OClosableLRUList<K, V extends OClosableItem> implements Iterable<OClosable
       OClosableEntry<K, V> prev = current.getPrev();
       OClosableEntry<K, V> next = current.getNext();
 
-      if (prev != null) {
-        assert prev.getNext() == current;
-      }
+      assert prev == null || prev.getNext() == current;
 
-      if (next != null) {
-        assert next.getPrev() == current;
-      }
+      assert next == null || next.getPrev() == current;
 
       current = current.getPrev();
     }

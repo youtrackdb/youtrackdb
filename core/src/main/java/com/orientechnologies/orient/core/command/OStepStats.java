@@ -1,6 +1,7 @@
 package com.orientechnologies.orient.core.command;
 
 public class OStepStats {
+
   long begin = -1;
   long totalCost = -1;
   long count = 0;

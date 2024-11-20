@@ -10,6 +10,7 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 
 public class OProxyChannel extends Thread {
+
   private final OProxyServerListener listener;
   private final Socket sourceSocket;
   private final int localPort;
@@ -55,16 +56,18 @@ public class OProxyChannel extends Thread {
   public void run() {
     try {
       try {
-        if (listener.getServer().readTimeout > 0)
+        if (listener.getServer().readTimeout > 0) {
           sourceSocket.setSoTimeout(listener.getServer().readTimeout);
+        }
 
         sourceInput = sourceSocket.getInputStream();
         sourceOutput = sourceSocket.getOutputStream();
 
         targetSocket = listener.connectTargetServer();
 
-        if (listener.getServer().readTimeout > 0)
+        if (listener.getServer().readTimeout > 0) {
           targetSocket.setSoTimeout(listener.getServer().readTimeout);
+        }
 
         targetInput = targetSocket.getInputStream();
         targetOutput = targetSocket.getOutputStream();
@@ -91,7 +94,9 @@ public class OProxyChannel extends Thread {
           } catch (SocketTimeoutException e) {
           }
 
-          if (bytesRead < 1) continue;
+          if (bytesRead < 1) {
+            continue;
+          }
 
           requestCount++;
 
@@ -100,7 +105,7 @@ public class OProxyChannel extends Thread {
           targetOutput.write(request, 0, bytesRead);
           targetOutput.flush();
 
-          if (!listener.getServer().tracing.equalsIgnoreCase("none"))
+          if (!listener.getServer().tracing.equalsIgnoreCase("none")) {
             OLogManager.instance()
                 .info(
                     this,
@@ -113,6 +118,7 @@ public class OProxyChannel extends Thread {
                     remotePort,
                     bytesRead,
                     formatBytes(request, bytesRead));
+          }
         }
       } catch (IOException e) {
         OLogManager.instance()
@@ -127,47 +133,54 @@ public class OProxyChannel extends Thread {
   public void shutdown() {
     running = false;
 
-    if (localSocket != null)
+    if (localSocket != null) {
       try {
         localSocket.close();
       } catch (IOException e) {
         // IGNORE IT
       }
-    if (sourceInput != null)
+    }
+    if (sourceInput != null) {
       try {
         sourceInput.close();
       } catch (IOException e) {
         // IGNORE IT
       }
-    if (sourceOutput != null)
+    }
+    if (sourceOutput != null) {
       try {
         sourceOutput.close();
       } catch (IOException e) {
         // IGNORE IT
       }
-    if (sourceSocket != null)
+    }
+    if (sourceSocket != null) {
       try {
         sourceSocket.close();
       } catch (IOException e) {
         // IGNORE IT
       }
-    if (targetSocket != null)
+    }
+    if (targetSocket != null) {
       try {
         targetSocket.close();
       } catch (IOException e) {
         // IGNORE IT
       }
-    if (targetOutput != null)
+    }
+    if (targetOutput != null) {
       try {
         targetOutput.close();
       } catch (IOException e) {
       }
-    if (responseThread != null)
+    }
+    if (responseThread != null) {
       try {
         responseThread.join();
       } catch (InterruptedException e) {
         // IGNORE IT
       }
+    }
   }
 
   public void sendShutdown() {
@@ -196,7 +209,9 @@ public class OProxyChannel extends Thread {
                 } catch (SocketTimeoutException e) {
                 }
 
-                if (bytesRead < 1) continue;
+                if (bytesRead < 1) {
+                  continue;
+                }
 
                 responseCount++;
 
@@ -205,7 +220,7 @@ public class OProxyChannel extends Thread {
                 sourceOutput.write(response, 0, bytesRead);
                 sourceOutput.flush();
 
-                if (!listener.getServer().tracing.equalsIgnoreCase("none"))
+                if (!listener.getServer().tracing.equalsIgnoreCase("none")) {
                   OLogManager.instance()
                       .info(
                           this,
@@ -218,6 +233,7 @@ public class OProxyChannel extends Thread {
                           sourceAddress.getPort(),
                           bytesRead,
                           formatBytes(response, bytesRead));
+                }
               }
             } catch (IOException e) {
               OLogManager.instance()
@@ -235,15 +251,21 @@ public class OProxyChannel extends Thread {
   }
 
   private String formatBytes(final byte[] request, final int total) {
-    if ("none".equalsIgnoreCase(listener.getServer().tracing)) return "";
+    if ("none".equalsIgnoreCase(listener.getServer().tracing)) {
+      return "";
+    }
 
     final StringBuilder buffer = new StringBuilder();
     for (int i = 0; i < total; ++i) {
-      if (i > 0) buffer.append(',');
+      if (i > 0) {
+        buffer.append(',');
+      }
 
-      if ("byte".equalsIgnoreCase(listener.getServer().tracing)) buffer.append(request[i]);
-      else if ("hex".equalsIgnoreCase(listener.getServer().tracing))
+      if ("byte".equalsIgnoreCase(listener.getServer().tracing)) {
+        buffer.append(request[i]);
+      } else if ("hex".equalsIgnoreCase(listener.getServer().tracing)) {
         buffer.append(String.format("0x%x", request[i]));
+      }
     }
     return buffer.toString();
   }

@@ -19,7 +19,6 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command;
 
-import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.server.OServer;
@@ -29,8 +28,8 @@ import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponseAbstract;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +37,9 @@ public abstract class OServerCommandAbstract implements OServerCommand {
 
   protected OServer server;
 
-  /** Default constructor. Disable cache of content at HTTP level */
+  /**
+   * Default constructor. Disable cache of content at HTTP level
+   */
   public OServerCommandAbstract() {}
 
   @Override
@@ -59,15 +60,12 @@ public abstract class OServerCommandAbstract implements OServerCommand {
     final List<String> parts =
         OStringSerializerHelper.smartSplit(
             iURL, OHttpResponseAbstract.URL_SEPARATOR, 1, -1, true, true, false, false);
-    try {
-      for (int i = 0; i < parts.size(); i++) {
-        parts.set(i, URLDecoder.decode(parts.get(i), "UTF-8"));
-      }
-    } catch (UnsupportedEncodingException e) {
-      throw OException.wrapException(
-          new OHttpRequestException("URL is encoded using format different from UTF-8"), e);
+    for (int i = 0; i < parts.size(); i++) {
+      parts.set(i, URLDecoder.decode(parts.get(i), StandardCharsets.UTF_8));
     }
-    if (parts.size() < iArgumentCount) throw new OHttpRequestException(iSyntax);
+    if (parts.size() < iArgumentCount) {
+      throw new OHttpRequestException(iSyntax);
+    }
 
     return parts.toArray(new String[parts.size()]);
   }

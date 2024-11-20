@@ -24,7 +24,8 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionAbstract;
 
 /**
- * Returns the passed <code>field/value</code> (or optional parameter <code>return_value_if_not_null
+ * Returns the passed <code>field/value</code> (or optional parameter
+ * <code>return_value_if_not_null
  * </code>) if <code>field/value</code> is <b>not</b> null; otherwise it returns <code>
  * return_value_if_null</code>.
  *

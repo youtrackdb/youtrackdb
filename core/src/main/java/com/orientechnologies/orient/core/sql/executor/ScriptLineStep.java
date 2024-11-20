@@ -8,9 +8,10 @@ import com.orientechnologies.orient.core.sql.parser.OReturnStatement;
 
 /**
  * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
- *     <p>This step represents the execution plan of an instruciton instide a batch script
+ * <p>This step represents the execution plan of an instruciton instide a batch script
  */
 public class ScriptLineStep extends AbstractExecutionStep {
+
   protected final OInternalExecutionPlan plan;
 
   public ScriptLineStep(

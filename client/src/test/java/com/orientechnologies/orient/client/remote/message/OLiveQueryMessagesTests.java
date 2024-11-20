@@ -13,7 +13,9 @@ import java.util.List;
 import java.util.Map;
 import org.junit.Test;
 
-/** Created by tglman on 17/05/17. */
+/**
+ * Created by tglman on 17/05/17.
+ */
 public class OLiveQueryMessagesTests {
 
   @Test

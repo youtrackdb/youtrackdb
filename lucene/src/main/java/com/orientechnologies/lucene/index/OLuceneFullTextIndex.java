@@ -32,7 +32,7 @@ public class OLuceneFullTextIndex extends OLuceneIndexNotUnique {
 
   public Document buildDocument(final Object key) {
 
-    while (true)
+    while (true) {
       try {
         return storage.callIndexEngine(
             false,
@@ -44,10 +44,11 @@ public class OLuceneFullTextIndex extends OLuceneIndexNotUnique {
       } catch (OInvalidIndexEngineIdException e) {
         doReloadIndexEngine();
       }
+    }
   }
 
   public Query buildQuery(final Object query) {
-    while (true)
+    while (true) {
       try {
         return storage.callIndexEngine(
             false,
@@ -59,10 +60,11 @@ public class OLuceneFullTextIndex extends OLuceneIndexNotUnique {
       } catch (OInvalidIndexEngineIdException e) {
         doReloadIndexEngine();
       }
+    }
   }
 
   public Analyzer queryAnalyzer() {
-    while (true)
+    while (true) {
       try {
         return storage.callIndexEngine(
             false,
@@ -74,6 +76,7 @@ public class OLuceneFullTextIndex extends OLuceneIndexNotUnique {
       } catch (final OInvalidIndexEngineIdException e) {
         doReloadIndexEngine();
       }
+    }
   }
 
   public boolean isCollectionIndex() {

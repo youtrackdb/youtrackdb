@@ -12,6 +12,7 @@ import java.io.IOException;
 
 public class OSetGlobalConfigurationRequest
     implements OBinaryRequest<OSetGlobalConfigurationResponse> {
+
   private String key;
   private String value;
 

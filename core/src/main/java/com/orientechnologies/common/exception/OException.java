@@ -25,7 +25,9 @@ public abstract class OException extends RuntimeException {
   private static final long serialVersionUID = 3882447822497861424L;
 
   public static OException wrapException(final OException exception, final Throwable cause) {
-    if (cause instanceof OHighLevelException) return (OException) cause;
+    if (cause instanceof OHighLevelException) {
+      return (OException) cause;
+    }
 
     exception.initCause(cause);
     return exception;

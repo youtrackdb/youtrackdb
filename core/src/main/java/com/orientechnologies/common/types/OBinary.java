@@ -24,10 +24,11 @@ package com.orientechnologies.common.types;
  * for indexes.
  *
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
- *     <p>Deprecated sice v2.2
+ * <p>Deprecated sice v2.2
  */
 @Deprecated
 public class OBinary implements Comparable<OBinary> {
+
   private final byte[] value;
 
   public OBinary(final byte[] buffer) {
@@ -38,8 +39,11 @@ public class OBinary implements Comparable<OBinary> {
     final int size = value.length;
 
     for (int i = 0; i < size; ++i) {
-      if (value[i] > o.value[i]) return 1;
-      else if (value[i] < o.value[i]) return -1;
+      if (value[i] > o.value[i]) {
+        return 1;
+      } else if (value[i] < o.value[i]) {
+        return -1;
+      }
     }
     return 0;
   }

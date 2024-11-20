@@ -3,6 +3,7 @@ package com.orientechnologies.orient.core.metadata.schema;
 import java.util.List;
 
 public class OViewRemovedMetadata {
+
   int[] clusters;
   List<String> indexes;
 

@@ -65,12 +65,13 @@ public abstract class OServerCommandAuthenticatedServerAbstract extends OServerC
       return true;
     }
 
-    if (iAskForAuthentication)
+    if (iAskForAuthentication) {
       if (iRequest.getAuthorization() == null || SESSIONID_LOGOUT.equals(iRequest.getSessionId())) {
         // NO AUTHENTICATION AT ALL
         sendAuthorizationRequest(iRequest, iResponse);
         return false;
       }
+    }
 
     if (iRequest.getAuthorization() != null) {
       // GET CREDENTIALS
@@ -84,8 +85,10 @@ public abstract class OServerCommandAuthenticatedServerAbstract extends OServerC
       serverUser = authParts[0];
       serverPassword = authParts[1];
       if (authParts.length == 2 && server.authenticate(serverUser, serverPassword, resource))
-        // AUTHORIZED
+      // AUTHORIZED
+      {
         return true;
+      }
     }
 
     // NON AUTHORIZED FOR RESOURCE

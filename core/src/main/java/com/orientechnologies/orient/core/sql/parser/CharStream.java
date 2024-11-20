@@ -71,7 +71,8 @@ public interface CharStream {
 
   /**
    * Returns the next character that marks the beginning of the next token. All characters must
-   * remain in the buffer between two successive calls to this method to implement backup correctly.
+   * remain in the buffer between two successive calls to this method to implement backup
+   * correctly.
    */
   char BeginToken() throws java.io.IOException;
 

@@ -28,6 +28,7 @@ import java.util.List;
 
 @XmlRootElement(name = "network")
 public class OServerNetworkConfiguration {
+
   @XmlElementWrapper
   @XmlAnyElement
   @XmlElementRef(type = OServerSocketFactoryConfiguration.class)

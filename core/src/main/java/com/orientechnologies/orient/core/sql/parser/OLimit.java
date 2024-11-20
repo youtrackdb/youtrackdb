@@ -7,6 +7,7 @@ import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.util.Map;
+import java.util.Objects;
 
 public class OLimit extends SimpleNode {
 
@@ -70,16 +71,19 @@ public class OLimit extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OLimit oLimit = (OLimit) o;
 
-    if (num != null ? !num.equals(oLimit.num) : oLimit.num != null) return false;
-    if (inputParam != null ? !inputParam.equals(oLimit.inputParam) : oLimit.inputParam != null)
+    if (!Objects.equals(num, oLimit.num)) {
       return false;
-
-    return true;
+    }
+    return Objects.equals(inputParam, oLimit.inputParam);
   }
 
   @Override

@@ -21,12 +21,14 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionAbstract;
 import com.orientechnologies.spatial.shape.OShapeFactory;
 
-/** Created by Enrico Risa on 06/08/15. */
+/**
+ * Created by Enrico Risa on 06/08/15.
+ */
 public class OSTAsGeoJSONFunction extends OSQLFunctionAbstract {
 
   public static final String NAME = "ST_AsGeoJSON";
 
-  private OShapeFactory factory = OShapeFactory.INSTANCE;
+  private final OShapeFactory factory = OShapeFactory.INSTANCE;
 
   public OSTAsGeoJSONFunction() {
     super(NAME, 1, 1);

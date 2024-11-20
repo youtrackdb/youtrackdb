@@ -17,7 +17,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/** Created by luigidellaquila on 08/07/16. */
+/**
+ * Created by luigidellaquila on 08/07/16.
+ */
 public class FetchFromClassExecutionStep extends AbstractExecutionStep {
 
   protected String className;
@@ -42,9 +44,9 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
    * iterates over a class and its subclasses
    *
    * @param className the class name
-   * @param clusters if present (it can be null), filter by only these clusters
-   * @param ctx the query context
-   * @param ridOrder true to sort by RID asc, false to sort by RID desc, null for no sort.
+   * @param clusters  if present (it can be null), filter by only these clusters
+   * @param ctx       the query context
+   * @param ridOrder  true to sort by RID asc, false to sort by RID desc, null for no sort.
    */
   public FetchFromClassExecutionStep(
       String className,

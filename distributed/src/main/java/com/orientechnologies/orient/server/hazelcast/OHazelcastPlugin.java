@@ -21,5 +21,9 @@ package com.orientechnologies.orient.server.hazelcast;
 
 import com.orientechnologies.orient.server.distributed.impl.ODistributedPlugin;
 
-/** We keep this since it is the easiest way not to break configuration files! */
-public class OHazelcastPlugin extends ODistributedPlugin {}
+/**
+ * We keep this since it is the easiest way not to break configuration files!
+ */
+public class OHazelcastPlugin extends ODistributedPlugin {
+
+}

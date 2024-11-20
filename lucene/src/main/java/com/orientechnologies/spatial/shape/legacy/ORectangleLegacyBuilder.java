@@ -23,7 +23,9 @@ import org.locationtech.spatial4j.context.SpatialContext;
 import org.locationtech.spatial4j.shape.Point;
 import org.locationtech.spatial4j.shape.Rectangle;
 
-/** Created by Enrico Risa on 23/10/15. */
+/**
+ * Created by Enrico Risa on 23/10/15.
+ */
 public class ORectangleLegacyBuilder implements OShapeBuilderLegacy<Rectangle> {
 
   @Override

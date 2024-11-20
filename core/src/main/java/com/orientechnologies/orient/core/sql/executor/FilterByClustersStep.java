@@ -9,8 +9,11 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import java.util.Set;
 
-/** Created by luigidellaquila on 01/03/17. */
+/**
+ * Created by luigidellaquila on 01/03/17.
+ */
 public class FilterByClustersStep extends AbstractExecutionStep {
+
   private Set<String> clusters;
 
   public FilterByClustersStep(

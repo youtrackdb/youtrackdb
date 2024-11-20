@@ -25,6 +25,7 @@ import com.orientechnologies.security.ldap.OLDAPImporter;
 import com.orientechnologies.security.password.ODefaultPasswordValidator;
 
 public class OSecurityPlugin extends OServerPluginAbstract {
+
   private OServer server;
 
   @Override

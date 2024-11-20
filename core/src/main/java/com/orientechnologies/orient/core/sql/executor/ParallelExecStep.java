@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
  * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
 public class ParallelExecStep extends AbstractExecutionStep {
+
   private final List<OInternalExecutionPlan> subExecutionPlans;
 
   public ParallelExecStep(
@@ -129,7 +130,9 @@ public class ParallelExecStep extends AbstractExecutionStep {
   private boolean isVerticalRow(int col, int subRow, int block, int blockSize) {
     if (col == block * 3 + 1) {
       return subRow > blockSize / 2;
-    } else return col < block * 3 + 1 && col % 3 == 1;
+    } else {
+      return col < block * 3 + 1 && col % 3 == 1;
+    }
   }
 
   private String head(int depth, int indent) {

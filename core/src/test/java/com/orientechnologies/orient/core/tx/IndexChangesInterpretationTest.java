@@ -137,7 +137,9 @@ public class IndexChangesInterpretationTest {
       Pattern.compile("\\s*([pr]\\d+|d|r)\\s*", Pattern.CASE_INSENSITIVE);
 
   private static String entryToString(OTransactionIndexEntry entry) {
-    if (entry == null) return "r";
+    if (entry == null) {
+      return "r";
+    }
 
     return entry.getOperation() == OPERATION.PUT
         ? "p" + entry.getValue().getIdentity().getClusterPosition()
@@ -147,11 +149,17 @@ public class IndexChangesInterpretationTest {
   }
 
   private static boolean entryEquals(OTransactionIndexEntry a, OTransactionIndexEntry b) {
-    if (a == b) return true;
+    if (a == b) {
+      return true;
+    }
 
-    if (a == null) return b.getOperation() == OPERATION.REMOVE;
+    if (a == null) {
+      return b.getOperation() == OPERATION.REMOVE;
+    }
 
-    if (b == null) return a.getOperation() == OPERATION.REMOVE;
+    if (b == null) {
+      return a.getOperation() == OPERATION.REMOVE;
+    }
 
     return a.getOperation() == b.getOperation() && a.equals(b);
   }
@@ -205,7 +213,9 @@ public class IndexChangesInterpretationTest {
   private void parseOutputItems(String text, Collection<OTransactionIndexEntry> result) {
     result.clear();
     final Matcher matcher = OUTPUT_ITEMS_GRAMMAR.matcher(text);
-    while (matcher.find()) result.add(parseChange(matcher.group(1)));
+    while (matcher.find()) {
+      result.add(parseChange(matcher.group(1)));
+    }
   }
 
   private void parseOutput(String text, Collection<OutputCollection> result) {
@@ -271,15 +281,16 @@ public class IndexChangesInterpretationTest {
     final Iterator<OTransactionIndexEntry> actualIterator = actual.iterator();
 
     boolean match = true;
-    for (OutputCollection collection : expected)
+    for (OutputCollection collection : expected) {
       if (!collection.matches(actualIterator)) {
         match = false;
         break;
       }
+    }
 
     match &= !actualIterator.hasNext();
 
-    if (!match)
+    if (!match) {
       Assert.fail(
           "Expected '"
               + outputToString(expected)
@@ -290,34 +301,49 @@ public class IndexChangesInterpretationTest {
               + " '"
               + sequenceToString(input)
               + "'.");
+    }
   }
 
   private String sequenceToString(Iterable<OTransactionIndexEntry> sequence) {
     final StringBuilder builder = new StringBuilder();
-    for (OTransactionIndexEntry entry : sequence) builder.append(entryToString(entry)).append(' ');
-    if (builder.length() > 0) builder.setLength(builder.length() - 1);
+    for (OTransactionIndexEntry entry : sequence) {
+      builder.append(entryToString(entry)).append(' ');
+    }
+    if (builder.length() > 0) {
+      builder.setLength(builder.length() - 1);
+    }
     return builder.toString();
   }
 
   private String outputToString(Iterable<OutputCollection> output) {
     final StringBuilder builder = new StringBuilder();
-    for (OutputCollection collection : output) builder.append(collection.toString()).append(' ');
-    if (builder.length() > 0) builder.setLength(builder.length() - 1);
+    for (OutputCollection collection : output) {
+      builder.append(collection.toString()).append(' ');
+    }
+    if (builder.length() > 0) {
+      builder.setLength(builder.length() - 1);
+    }
     return builder.toString();
   }
 
   private interface OutputCollection extends Collection<OTransactionIndexEntry> {
+
     boolean matches(Iterator<OTransactionIndexEntry> actualIterator);
   }
 
   private static class OutputList extends ArrayList<OTransactionIndexEntry>
       implements OutputCollection {
+
     @Override
     public boolean matches(Iterator<OTransactionIndexEntry> actualIterator) {
       for (OTransactionIndexEntry expected : this) {
-        if (!actualIterator.hasNext()) return false;
+        if (!actualIterator.hasNext()) {
+          return false;
+        }
         final OTransactionIndexEntry actual = actualIterator.next();
-        if (!entryEquals(expected, actual)) return false;
+        if (!entryEquals(expected, actual)) {
+          return false;
+        }
       }
 
       return true;
@@ -326,14 +352,19 @@ public class IndexChangesInterpretationTest {
     @Override
     public String toString() {
       final StringBuilder builder = new StringBuilder();
-      for (OTransactionIndexEntry entry : this) builder.append(entryToString(entry)).append(' ');
-      if (builder.length() > 0) builder.setLength(builder.length() - 1);
+      for (OTransactionIndexEntry entry : this) {
+        builder.append(entryToString(entry)).append(' ');
+      }
+      if (builder.length() > 0) {
+        builder.setLength(builder.length() - 1);
+      }
       return builder.toString();
     }
   }
 
   private static class OutputSet extends ArrayList<OTransactionIndexEntry>
       implements OutputCollection {
+
     private final int requiredMatches;
 
     public OutputSet() {
@@ -350,12 +381,18 @@ public class IndexChangesInterpretationTest {
       final ArrayList<OTransactionIndexEntry> unmatched =
           new ArrayList<OTransactionIndexEntry>(this);
       for (int i = 0; i < requiredMatches; ++i) {
-        if (!actualIterator.hasNext()) return false;
+        if (!actualIterator.hasNext()) {
+          return false;
+        }
         final OTransactionIndexEntry actual = actualIterator.next();
         final int expectedIndex = unmatched.indexOf(actual);
-        if (expectedIndex == -1) return false;
+        if (expectedIndex == -1) {
+          return false;
+        }
         final OTransactionIndexEntry expected = unmatched.get(expectedIndex);
-        if (!entryEquals(expected, actual)) return false;
+        if (!entryEquals(expected, actual)) {
+          return false;
+        }
         unmatched.remove(expectedIndex);
       }
 
@@ -366,9 +403,15 @@ public class IndexChangesInterpretationTest {
     public String toString() {
       final StringBuilder builder = new StringBuilder();
       builder.append('{');
-      if (requiredMatches != -1) builder.append(requiredMatches).append(' ');
-      for (OTransactionIndexEntry entry : this) builder.append(entryToString(entry)).append(' ');
-      if (builder.length() > 1) builder.setLength(builder.length() - 1);
+      if (requiredMatches != -1) {
+        builder.append(requiredMatches).append(' ');
+      }
+      for (OTransactionIndexEntry entry : this) {
+        builder.append(entryToString(entry)).append(' ');
+      }
+      if (builder.length() > 1) {
+        builder.setLength(builder.length() - 1);
+      }
       builder.append('}');
       return builder.toString();
     }

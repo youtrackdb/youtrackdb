@@ -6,8 +6,11 @@ import com.orientechnologies.orient.core.metadata.security.binary.OBinaryTokenSe
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
-/** Created by tglman on 12/04/16. */
+/**
+ * Created by tglman on 12/04/16.
+ */
 public class OStorageRemoteNodeSession {
+
   private final String serverURL;
   private Integer sessionId = -1;
   private byte[] token = null;

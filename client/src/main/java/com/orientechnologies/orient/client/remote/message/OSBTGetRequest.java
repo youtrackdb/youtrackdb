@@ -32,6 +32,7 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 public class OSBTGetRequest implements OBinaryRequest<OSBTGetResponse> {
+
   private OBonsaiCollectionPointer collectionPointer;
   private byte[] keyStream;
 

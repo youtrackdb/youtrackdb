@@ -211,7 +211,9 @@ public class OIOUtils {
     }
   }
 
-  /** Returns the Unix file name format converting backslashes (\) to slasles (/) */
+  /**
+   * Returns the Unix file name format converting backslashes (\) to slasles (/)
+   */
   public static String getUnixFileName(final String iFileName) {
     return iFileName != null ? iFileName.replace('\\', '/') : null;
   }

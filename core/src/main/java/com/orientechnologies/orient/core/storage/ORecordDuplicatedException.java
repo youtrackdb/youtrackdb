@@ -29,6 +29,7 @@ import com.orientechnologies.orient.core.id.ORID;
  * @since 9/5/12
  */
 public class ORecordDuplicatedException extends OCoreException implements OHighLevelException {
+
   private final ORID rid;
   private final String indexName;
   private final Object key;
@@ -62,9 +63,13 @@ public class ORecordDuplicatedException extends OCoreException implements OHighL
 
   @Override
   public boolean equals(final Object obj) {
-    if (obj == null || !obj.getClass().equals(getClass())) return false;
+    if (obj == null || !obj.getClass().equals(getClass())) {
+      return false;
+    }
 
-    if (!indexName.equals(((ORecordDuplicatedException) obj).indexName)) return false;
+    if (!indexName.equals(((ORecordDuplicatedException) obj).indexName)) {
+      return false;
+    }
 
     return rid.equals(((ORecordDuplicatedException) obj).rid);
   }

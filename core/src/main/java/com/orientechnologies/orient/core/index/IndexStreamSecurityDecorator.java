@@ -9,6 +9,7 @@ import com.orientechnologies.orient.core.metadata.security.OSecurityShared;
 import java.util.stream.Stream;
 
 public class IndexStreamSecurityDecorator {
+
   public static Stream<ORawPair<Object, ORID>> decorateStream(
       OIndex originalIndex, Stream<ORawPair<Object, ORID>> stream) {
     ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();

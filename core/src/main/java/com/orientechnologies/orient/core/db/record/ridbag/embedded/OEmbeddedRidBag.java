@@ -70,7 +70,7 @@ public class OEmbeddedRidBag implements ORidBagDelegate {
     this.size = size;
   }
 
-  private static enum Tombstone {
+  private enum Tombstone {
     TOMBSTONE
   }
 
@@ -400,8 +400,7 @@ public class OEmbeddedRidBag implements ORidBagDelegate {
     final int totEntries = entries.length;
     for (int i = 0; i < totEntries; ++i) {
       final Object entry = entries[i];
-      if (entry instanceof OIdentifiable) {
-        OIdentifiable link = (OIdentifiable) entry;
+      if (entry instanceof OIdentifiable link) {
         final ORID rid = link.getIdentity();
         if (db != null && !db.isClosed() && db.getTransaction().isActive()) {
           if (!link.getIdentity().isPersistent()) {

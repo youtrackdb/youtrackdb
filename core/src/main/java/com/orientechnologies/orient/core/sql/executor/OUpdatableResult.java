@@ -8,6 +8,7 @@ import com.orientechnologies.orient.core.record.impl.OElementInternal;
  * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
 public class OUpdatableResult extends OResultInternal {
+
   protected OResultInternal previousValue = null;
 
   public OUpdatableResult(OElement element) {

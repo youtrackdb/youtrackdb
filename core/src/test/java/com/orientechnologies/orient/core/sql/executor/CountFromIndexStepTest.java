@@ -13,7 +13,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-/** Created by olena.kolesnyk on 28/07/2017. */
+/**
+ * Created by olena.kolesnyk on 28/07/2017.
+ */
 @RunWith(Parameterized.class)
 public class CountFromIndexStepTest extends TestUtilsFixture {
 

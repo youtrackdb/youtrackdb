@@ -22,8 +22,11 @@ package com.orientechnologies.orient.core.iterator;
 import com.orientechnologies.orient.core.id.ORID;
 import java.util.Iterator;
 
-/** Empty iterator against Object. */
+/**
+ * Empty iterator against Object.
+ */
 public class OEmptyIterator<T> implements Iterator<T> {
+
   public static final OEmptyIterator<Object> ANY_INSTANCE = new OEmptyIterator<>();
   public static final OEmptyIterator<ORID> IDENTIFIABLE_INSTANCE = new OEmptyIterator<>();
 

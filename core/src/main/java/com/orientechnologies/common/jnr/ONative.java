@@ -44,6 +44,7 @@ import jnr.posix.POSIXFactory;
 import jnr.posix.RLimit;
 
 public class ONative {
+
   private static final String DEFAULT_MEMORY_CGROUP_PATH = "/sys/fs/cgroup/memory";
 
   private static volatile ONative instance = null;
@@ -52,11 +53,15 @@ public class ONative {
   private static volatile POSIX posix;
 
   public static ONative instance() {
-    if (instance != null) return instance;
+    if (instance != null) {
+      return instance;
+    }
 
     initLock.lock();
     try {
-      if (instance != null) return instance;
+      if (instance != null) {
+        return instance;
+      }
 
       if (OIOUtils.isOsLinux()) {
         posix = POSIXFactory.getPOSIX();
@@ -70,19 +75,23 @@ public class ONative {
     return instance;
   }
 
-  /** Address space limit. */
+  /**
+   * Address space limit.
+   */
   public static final int RLIMIT_AS = 9;
 
   public static final int RLIMIT_NOFILE = 7;
 
-  /** Prevent initialization outside singleton */
+  /**
+   * Prevent initialization outside singleton
+   */
   private ONative() {}
 
   /**
    * Detects limit of limit of open files.
    *
    * @param recommended recommended value of limit of open files.
-   * @param defLimit default value for limit of open files.
+   * @param defLimit    default value for limit of open files.
    * @return limit of open files, available for the system.
    */
   public int getOpenFilesLimit(boolean verbose, int recommended, int defLimit) {
@@ -139,10 +148,10 @@ public class ONative {
 
   /**
    * @param printSteps Print all steps of discovering of memory limit in the log with {@code INFO}
-   *     level.
+   *                   level.
    * @return Amount of memory which are allowed to be consumed by application, and detects whether
-   *     OrientDB instance is running inside container. If <code>null</code> is returned then it was
-   *     impossible to detect amount of memory on machine.
+   * OrientDB instance is running inside container. If <code>null</code> is returned then it was
+   * impossible to detect amount of memory on machine.
    */
   public MemoryLimitResult getMemoryLimit(final boolean printSteps) {
     // Perform several steps here:
@@ -235,7 +244,7 @@ public class ONative {
     }
 
     if (printSteps) {
-      if (memoryLimit > 0)
+      if (memoryLimit > 0) {
         OLogManager.instance()
             .info(
                 this,
@@ -243,7 +252,9 @@ public class ONative {
                 memoryLimit,
                 convertToMB(memoryLimit),
                 convertToGB(memoryLimit));
-      else OLogManager.instance().info(this, "Memory limit for current process is not set");
+      } else {
+        OLogManager.instance().info(this, "Memory limit for current process is not set");
+      }
     }
     if (memoryLimit <= 0) {
       return null;
@@ -283,7 +294,7 @@ public class ONative {
             try {
               final long cgroupMemoryLimitValue = Long.parseLong(cgroupMemoryLimitValueStr);
 
-              if (printSteps)
+              if (printSteps) {
                 OLogManager.instance()
                     .info(
                         this,
@@ -291,6 +302,7 @@ public class ONative {
                         cgroupMemoryLimitValue,
                         convertToMB(cgroupMemoryLimitValue),
                         convertToGB(cgroupMemoryLimitValue));
+              }
 
               return cgroupMemoryLimitValue;
             } catch (final NumberFormatException nfe) {
@@ -316,9 +328,10 @@ public class ONative {
             .error(this, "Can not read memory soft limit for cgroup '%s'", fnfe, memoryCGroup);
       }
     } else {
-      if (printSteps)
+      if (printSteps) {
         OLogManager.instance()
             .info(this, "Can not read memory soft limit for cgroup '%s'", memoryCGroup);
+      }
     }
 
     return -1;
@@ -337,7 +350,7 @@ public class ONative {
             try {
               final long cgroupMemoryLimitValue = Long.parseLong(cgroupMemoryLimitValueStr);
 
-              if (printSteps)
+              if (printSteps) {
                 OLogManager.instance()
                     .info(
                         this,
@@ -345,6 +358,7 @@ public class ONative {
                         cgroupMemoryLimitValue,
                         convertToMB(cgroupMemoryLimitValue),
                         convertToGB(cgroupMemoryLimitValue));
+              }
 
               return cgroupMemoryLimitValue;
             } catch (final NumberFormatException nfe) {
@@ -498,30 +512,33 @@ public class ONative {
           try {
             osMemory = Long.parseLong(attribute.toString());
           } catch (final NumberFormatException e) {
-            if (!OLogManager.instance().isDebugEnabled())
+            if (!OLogManager.instance().isDebugEnabled()) {
               OLogManager.instance()
                   .warn(OMemory.class, "Unable to determine the amount of installed RAM.");
-            else
+            } else {
               OLogManager.instance()
                   .debug(OMemory.class, "Unable to determine the amount of installed RAM.", e);
+            }
           }
         }
       } else {
-        if (!OLogManager.instance().isDebugEnabled())
+        if (!OLogManager.instance().isDebugEnabled()) {
           OLogManager.instance()
               .warn(OMemory.class, "Unable to determine the amount of installed RAM.");
+        }
       }
     } catch (MalformedObjectNameException
         | AttributeNotFoundException
         | InstanceNotFoundException
         | MBeanException
         | ReflectionException e) {
-      if (!OLogManager.instance().isDebugEnabled())
+      if (!OLogManager.instance().isDebugEnabled()) {
         OLogManager.instance()
             .warn(OMemory.class, "Unable to determine the amount of installed RAM.");
-      else
+      } else {
         OLogManager.instance()
             .debug(OMemory.class, "Unable to determine the amount of installed RAM.", e);
+      }
     } catch (final RuntimeException e) {
       OLogManager.instance()
           .warn(
@@ -532,18 +549,23 @@ public class ONative {
   }
 
   private static long convertToMB(final long bytes) {
-    if (bytes < 0) return bytes;
+    if (bytes < 0) {
+      return bytes;
+    }
 
     return bytes / (1024 * 1024);
   }
 
   private static long convertToGB(final long bytes) {
-    if (bytes < 0) return bytes;
+    if (bytes < 0) {
+      return bytes;
+    }
 
     return bytes / (1024 * 1024 * 1024);
   }
 
   public static final class MemoryLimitResult {
+
     public final long memoryLimit;
     public final boolean insideContainer;
 

@@ -28,7 +28,9 @@ public class OCommandScriptException extends OCoreException {
   private static final long serialVersionUID = -7430575036316163711L;
 
   private static String makeMessage(String message, int position, String text) {
-    if (text == null) return message;
+    if (text == null) {
+      return message;
+    }
 
     final StringBuilder buffer = new StringBuilder();
     buffer.append("Error on parsing script at position #");
@@ -37,7 +39,9 @@ public class OCommandScriptException extends OCoreException {
     buffer.append("\nScript: ");
     buffer.append(text);
     buffer.append("\n------");
-    for (int i = 0; i < position - 1; ++i) buffer.append("-");
+    for (int i = 0; i < position - 1; ++i) {
+      buffer.append("-");
+    }
 
     buffer.append("^");
     return buffer.toString();

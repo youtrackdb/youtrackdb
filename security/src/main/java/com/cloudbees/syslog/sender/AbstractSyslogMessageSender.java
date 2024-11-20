@@ -24,8 +24,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-/** @author <a href="mailto:cleclerc@cloudbees.com">Cyrille Le Clerc</a> */
+/**
+ * @author <a href="mailto:cleclerc@cloudbees.com">Cyrille Le Clerc</a>
+ */
 public abstract class AbstractSyslogMessageSender implements SyslogMessageSender {
+
   protected static final Charset UTF_8 = Charset.forName("UTF-8");
   protected final InternalLogger logger = InternalLogger.getLogger(getClass());
   // default values
@@ -36,9 +39,9 @@ public abstract class AbstractSyslogMessageSender implements SyslogMessageSender
 
   // remote syslog server config
   /**
-   * Format of messages accepted by the remote syslog server ({@link
-   * com.cloudbees.syslog.MessageFormat#RFC_3164 RFC_3164} or {@link
-   * com.cloudbees.syslog.MessageFormat#RFC_5424 RFC_5424})
+   * Format of messages accepted by the remote syslog server
+   * ({@link com.cloudbees.syslog.MessageFormat#RFC_3164 RFC_3164} or
+   * {@link com.cloudbees.syslog.MessageFormat#RFC_5424 RFC_5424})
    */
   protected MessageFormat messageFormat = DEFAULT_SYSLOG_MESSAGE_FORMAT;
 

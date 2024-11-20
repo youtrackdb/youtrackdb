@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.stream.Stream;
 
 public interface OCellBTreeSingleValue<K> {
+
   void create(
       OAtomicOperation atomicOperation,
       OBinarySerializer<K> keySerializer,

@@ -55,7 +55,9 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
     if (iterable != null) {
       for (ORecordOperation op : iterable) {
         ORecord record = op.getRecord();
-        if (matchesClass(record, className) && !hasCluster(record)) records.add(record);
+        if (matchesClass(record, className) && !hasCluster(record)) {
+          records.add(record);
+        }
       }
     }
     if (order == FetchFromClusterExecutionStep.ORDER_ASC) {
@@ -91,10 +93,13 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
     }
 
     OClass schema = ODocumentInternal.getImmutableSchemaClass(((ODocument) doc));
-    if (schema == null) return className == null;
-    else if (schema.getName().equals(className)) {
+    if (schema == null) {
+      return className == null;
+    } else if (schema.getName().equals(className)) {
       return true;
-    } else return schema.isSubClassOf(className);
+    } else {
+      return schema.isSubClassOf(className);
+    }
   }
 
   public void setOrder(Object order) {

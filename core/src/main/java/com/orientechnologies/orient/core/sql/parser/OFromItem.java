@@ -228,36 +228,58 @@ public class OFromItem extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OFromItem oFromItem = (OFromItem) o;
 
-    if (rids != null ? !rids.equals(oFromItem.rids) : oFromItem.rids != null) return false;
+    if (rids != null ? !rids.equals(oFromItem.rids) : oFromItem.rids != null) {
+      return false;
+    }
     if (inputParams != null
         ? !inputParams.equals(oFromItem.inputParams)
-        : oFromItem.inputParams != null) return false;
-    if (cluster != null ? !cluster.equals(oFromItem.cluster) : oFromItem.cluster != null)
+        : oFromItem.inputParams != null) {
       return false;
+    }
+    if (cluster != null ? !cluster.equals(oFromItem.cluster) : oFromItem.cluster != null) {
+      return false;
+    }
     if (clusterList != null
         ? !clusterList.equals(oFromItem.clusterList)
-        : oFromItem.clusterList != null) return false;
-    if (index != null ? !index.equals(oFromItem.index) : oFromItem.index != null) return false;
-    if (metadata != null ? !metadata.equals(oFromItem.metadata) : oFromItem.metadata != null)
+        : oFromItem.clusterList != null) {
       return false;
-    if (statement != null ? !statement.equals(oFromItem.statement) : oFromItem.statement != null)
+    }
+    if (index != null ? !index.equals(oFromItem.index) : oFromItem.index != null) {
       return false;
+    }
+    if (metadata != null ? !metadata.equals(oFromItem.metadata) : oFromItem.metadata != null) {
+      return false;
+    }
+    if (statement != null ? !statement.equals(oFromItem.statement) : oFromItem.statement != null) {
+      return false;
+    }
     if (inputParam != null
         ? !inputParam.equals(oFromItem.inputParam)
-        : oFromItem.inputParam != null) return false;
+        : oFromItem.inputParam != null) {
+      return false;
+    }
     if (identifier != null
         ? !identifier.equals(oFromItem.identifier)
-        : oFromItem.identifier != null) return false;
+        : oFromItem.identifier != null) {
+      return false;
+    }
     if (functionCall != null
         ? !functionCall.equals(oFromItem.functionCall)
-        : oFromItem.functionCall != null) return false;
-    if (modifier != null ? !modifier.equals(oFromItem.modifier) : oFromItem.modifier != null)
+        : oFromItem.functionCall != null) {
       return false;
+    }
+    if (modifier != null ? !modifier.equals(oFromItem.modifier) : oFromItem.modifier != null) {
+      return false;
+    }
 
     return true;
   }

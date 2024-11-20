@@ -28,6 +28,7 @@ import java.util.concurrent.LinkedBlockingDeque;
  * @author <a href="mailto:cleclerc@cloudbees.com">Cyrille Le Clerc</a>
  */
 public class ConcurrentDateFormat {
+
   private final BlockingQueue<SimpleDateFormat> dateFormats;
   private final String pattern;
   private final Locale locale;
@@ -37,11 +38,11 @@ public class ConcurrentDateFormat {
    * <b>Note:</b> This constructor may not support all locales. For full coverage, use the factory
    * methods in the {@link java.text.DateFormat} class.
    *
-   * @param pattern the pattern describing the date and time pattern
-   * @param locale the locale whose date pattern symbols should be used
-   * @param timeZone the timezone used by the underlying calendar
+   * @param pattern      the pattern describing the date and time pattern
+   * @param locale       the locale whose date pattern symbols should be used
+   * @param timeZone     the timezone used by the underlying calendar
    * @param maxCacheSize
-   * @throws NullPointerException if the given pattern or locale is null
+   * @throws NullPointerException     if the given pattern or locale is null
    * @throws IllegalArgumentException if the given pattern is invalid
    */
   public ConcurrentDateFormat(String pattern, Locale locale, TimeZone timeZone, int maxCacheSize) {

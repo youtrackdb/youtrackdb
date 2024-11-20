@@ -33,7 +33,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/** Created by tglman on 27/06/16. */
+/**
+ * Created by tglman on 27/06/16.
+ */
 public class OrientDBConfig {
 
   public static final String LOCK_TYPE_MODIFICATION = "modification";
@@ -45,8 +47,8 @@ public class OrientDBConfig {
   private Set<ODatabaseListener> listeners;
   private ClassLoader classLoader;
   private ONodeConfiguration nodeConfiguration;
-  private OSecurityConfig securityConfig;
-  private List<OGlobalUser> users;
+  private final OSecurityConfig securityConfig;
+  private final List<OGlobalUser> users;
 
   protected OrientDBConfig() {
     configurations = new OContextConfiguration();
@@ -69,11 +71,16 @@ public class OrientDBConfig {
     this.configurations = configurations;
     this.attributes = attributes;
     parent = null;
-    if (listeners != null) this.listeners = listeners;
-    else this.listeners = Collections.emptySet();
+    if (listeners != null) {
+      this.listeners = listeners;
+    } else {
+      this.listeners = Collections.emptySet();
+    }
     if (classLoader != null) {
       this.classLoader = classLoader;
-    } else this.classLoader = this.getClass().getClassLoader();
+    } else {
+      this.classLoader = this.getClass().getClassLoader();
+    }
     this.nodeConfiguration = nodeConfiguration;
     this.securityConfig = securityConfig;
     this.users = users;

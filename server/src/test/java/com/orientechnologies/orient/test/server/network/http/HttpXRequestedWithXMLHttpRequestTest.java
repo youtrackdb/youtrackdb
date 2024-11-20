@@ -22,7 +22,7 @@ public class HttpXRequestedWithXMLHttpRequestTest extends BaseHttpDatabaseTest {
     var response = get("class/" + getDatabaseName() + "/OUser", headers).getResponse();
 
     Assert.assertEquals(response.getReasonPhrase(), response.getCode(), 401);
-    Assert.assertEquals(response.containsHeader("WWW-Authenticate"), false);
+    Assert.assertFalse(response.containsHeader("WWW-Authenticate"));
   }
 
   @Test
@@ -30,7 +30,7 @@ public class HttpXRequestedWithXMLHttpRequestTest extends BaseHttpDatabaseTest {
     var response = get("class/" + getDatabaseName() + "/OUser").getResponse();
 
     Assert.assertEquals(response.getReasonPhrase(), response.getCode(), 401);
-    Assert.assertEquals(response.containsHeader("WWW-Authenticate"), true);
+    Assert.assertTrue(response.containsHeader("WWW-Authenticate"));
   }
 
   @Override

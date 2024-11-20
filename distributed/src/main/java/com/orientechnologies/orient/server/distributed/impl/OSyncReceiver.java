@@ -16,6 +16,7 @@ import java.io.PipedOutputStream;
 import java.util.concurrent.CountDownLatch;
 
 public class OSyncReceiver implements Runnable {
+
   private ODistributedPlugin distributed;
   private final String databaseName;
   private final ODistributedDatabaseChunk firstChunk;
@@ -94,8 +95,9 @@ public class OSyncReceiver implements Runnable {
             return;
           } else {
             final Object result = response.getPayload();
-            if (result instanceof Boolean) continue;
-            else if (result instanceof Exception) {
+            if (result instanceof Boolean) {
+              continue;
+            } else if (result instanceof Exception) {
               ODistributedServerLog.error(
                   this,
                   distributed.getLocalNodeName(),

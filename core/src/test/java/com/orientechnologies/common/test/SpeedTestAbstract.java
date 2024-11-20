@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import org.junit.Test;
 
 public abstract class SpeedTestAbstract implements SpeedTest {
+
   protected final SpeedTestData data;
 
   protected SpeedTestAbstract() {
@@ -53,8 +54,9 @@ public abstract class SpeedTestAbstract implements SpeedTest {
     for (data.cyclesDone = 0; data.cyclesDone < data.cycles; ++data.cyclesDone) {
       iMethod.invoke(this, iArgs);
 
-      if (data.cycles > 10 && data.cyclesDone % (data.cycles / 10) == 0)
+      if (data.cycles > 10 && data.cyclesDone % (data.cycles / 10) == 0) {
         System.out.print(++percent);
+      }
     }
 
     return data.takeTimer();

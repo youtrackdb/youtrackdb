@@ -36,6 +36,7 @@ import java.util.Arrays;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OServerShutdownMain {
+
   public String networkAddress;
   public int[] networkPort;
   public OChannelBinaryAsynchClient channel;
@@ -60,7 +61,7 @@ public class OServerShutdownMain {
 
   public void connect(final int iTimeout) throws IOException {
     // TRY TO CONNECT TO THE RIGHT PORT
-    for (int port : networkPort)
+    for (int port : networkPort) {
       try {
         channel =
             new OChannelBinaryAsynchClient(
@@ -72,13 +73,15 @@ public class OServerShutdownMain {
       } catch (Exception e) {
         OLogManager.instance().error(this, "Error on connecting to %s:%d", e, networkAddress, port);
       }
+    }
 
-    if (channel == null)
+    if (channel == null) {
       throw new ONetworkProtocolException(
           "Cannot connect to server host '"
               + networkAddress
               + "', ports: "
               + Arrays.toString(networkPort));
+    }
 
     OShutdownRequest request = new OShutdownRequest(rootUser, rootPassword);
     channel.writeByte(request.getCommand());
@@ -101,11 +104,21 @@ public class OServerShutdownMain {
 
     for (int i = 0; i < iArgs.length; i++) {
       String arg = iArgs[i];
-      if ("-P".equals(arg) || "--ports".equals(arg)) serverPorts = iArgs[i + 1];
-      if ("-h".equals(arg) || "--host".equals(arg)) serverHost = iArgs[i + 1];
-      if ("-p".equals(arg) || "--password".equals(arg)) rootPassword = iArgs[i + 1];
-      if ("-u".equals(arg) || "--user".equals(arg)) rootUser = iArgs[i + 1];
-      if ("-h".equals(arg) || "--help".equals(arg)) printUsage = true;
+      if ("-P".equals(arg) || "--ports".equals(arg)) {
+        serverPorts = iArgs[i + 1];
+      }
+      if ("-h".equals(arg) || "--host".equals(arg)) {
+        serverHost = iArgs[i + 1];
+      }
+      if ("-p".equals(arg) || "--password".equals(arg)) {
+        rootPassword = iArgs[i + 1];
+      }
+      if ("-u".equals(arg) || "--user".equals(arg)) {
+        rootUser = iArgs[i + 1];
+      }
+      if ("-h".equals(arg) || "--help".equals(arg)) {
+        printUsage = true;
+      }
     }
 
     if ("NOT_PRESENT".equals(rootPassword) || printUsage) {

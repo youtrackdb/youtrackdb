@@ -28,8 +28,11 @@ import com.orientechnologies.common.concur.resource.OResourcePoolListener;
 import com.orientechnologies.orient.core.exception.OAcquireTimeoutException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 
-/** Created by tglman on 07/07/16. */
+/**
+ * Created by tglman on 07/07/16.
+ */
 public class ODatabasePoolImpl implements ODatabasePoolInternal {
+
   private volatile OResourcePool<Void, ODatabaseSessionInternal> pool;
   private final OrientDBInternal factory;
   private final OrientDBConfig config;

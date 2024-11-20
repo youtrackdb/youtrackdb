@@ -23,7 +23,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-/** Created by tglman on 10/05/17. */
+/**
+ * Created by tglman on 10/05/17.
+ */
 public class PushMessageUnitTest {
 
   public class MockPushResponse implements OBinaryPushResponse {
@@ -38,6 +40,7 @@ public class PushMessageUnitTest {
   }
 
   public class MockPushRequest implements OBinaryPushRequest<OBinaryPushResponse> {
+
     @Override
     public void write(OChannelDataOutput channel) throws IOException {
       requestWritten.countDown();
@@ -64,6 +67,7 @@ public class PushMessageUnitTest {
   }
 
   public class MockPushRequestNoResponse implements OBinaryPushRequest<OBinaryPushResponse> {
+
     @Override
     public void write(OChannelDataOutput channel) throws IOException {
       requestWritten.countDown();

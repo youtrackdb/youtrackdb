@@ -38,6 +38,7 @@ import java.util.Map;
 @SuppressWarnings("unchecked")
 public class OCommandExecutorSQLDropClass extends OCommandExecutorSQLAbstract
     implements OCommandDistributedReplicateRequest {
+
   public static final String KEYWORD_DROP = "DROP";
   public static final String KEYWORD_CLASS = "CLASS";
   public static final String KEYWORD_UNSAFE = "UNSAFE";
@@ -109,18 +110,21 @@ public class OCommandExecutorSQLDropClass extends OCommandExecutorSQLAbstract
   @Override
   public long getDistributedTimeout() {
     final OClass cls = getDatabase().getMetadata().getSchema().getClass(className);
-    if (className != null && cls != null)
+    if (className != null && cls != null) {
       return getDatabase()
               .getConfiguration()
               .getValueAsLong(OGlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT)
           + (2 * cls.count());
+    }
 
     return getDatabase()
         .getConfiguration()
         .getValueAsLong(OGlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT);
   }
 
-  /** Execute the DROP CLASS. */
+  /**
+   * Execute the DROP CLASS.
+   */
   public Object execute(final Map<Object, Object> iArgs) {
     if (className == null) {
       throw new OCommandExecutionException(
@@ -163,7 +167,7 @@ public class OCommandExecutorSQLDropClass extends OCommandExecutorSQLAbstract
       // NOT EMPTY, CHECK IF CLASS IS OF VERTEX OR EDGES
       if (cls.isSubClassOf("V")) {
         // FOUND VERTICES
-        if (unsafe)
+        if (unsafe) {
           OLogManager.instance()
               .warn(
                   this,
@@ -171,6 +175,7 @@ public class OCommandExecutorSQLDropClass extends OCommandExecutorSQLAbstract
                       + " contain broken edges",
                   className,
                   records);
+        }
       } else if (cls.isSubClassOf("E")) {
         // FOUND EDGES
         OLogManager.instance()

@@ -9,6 +9,7 @@ import java.util.List;
 import org.joda.time.DateTime;
 
 public class TestSetupUtil {
+
   private static final K8sServerConfig templateConfigs;
   // Following properties are not server-specific
   private static final String orientDBKubernetesLabel;
@@ -88,7 +89,7 @@ public class TestSetupUtil {
       throws URISyntaxException, IOException {
     List<String> lines =
         Files.readAllLines(Paths.get(ManifestTemplate.class.getResource(resourceFileName).toURI()));
-    return StringUtil.join(lines.toArray(new String[] {}), "\r\n");
+    return StringUtil.join(lines.toArray(new String[]{}), "\r\n");
   }
 
   public static void log(String msg, Object... args) {

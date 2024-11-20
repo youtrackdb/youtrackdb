@@ -28,6 +28,7 @@ import java.util.zip.ZipOutputStream;
  * @author Luca Garulli
  */
 public class OLowZIPCompression extends OZIPCompression {
+
   public static final OLowZIPCompression INSTANCE = new OLowZIPCompression();
   public static final String NAME = "low-zip";
 

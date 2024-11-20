@@ -19,17 +19,25 @@ class IndexCondPair {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     IndexCondPair that = (IndexCondPair) o;
 
     if (mainCondition != null
         ? !mainCondition.equals(that.mainCondition)
-        : that.mainCondition != null) return false;
+        : that.mainCondition != null) {
+      return false;
+    }
     if (additionalRange != null
         ? !additionalRange.equals(that.additionalRange)
-        : that.additionalRange != null) return false;
+        : that.additionalRange != null) {
+      return false;
+    }
 
     return true;
   }

@@ -111,7 +111,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
         "fEmbeddedListTwo",
         "prop8");
 
-    final String fullTextIndexStrings[] = {
+    final String[] fullTextIndexStrings = {
       "Alice : What is the use of a book, without pictures or conversations?",
       "Rabbit : Oh my ears and whiskers, how late it's getting!",
       "Alice : If it had grown up, it would have made a dreadfully ugly child; but it makes rather"
@@ -371,7 +371,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     for (final ODocument docItem : docList) {
       boolean containsAllFields = true;
       for (final String fieldName : document.fieldNames()) {
-        if (!document.<Object>field(fieldName).equals(docItem.<Object>field(fieldName))) {
+        if (!document.field(fieldName).equals(docItem.field(fieldName))) {
           containsAllFields = false;
           break;
         }

@@ -18,6 +18,7 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
  * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
 public class CopyRecordContentBeforeUpdateStep extends AbstractExecutionStep {
+
   public CopyRecordContentBeforeUpdateStep(OCommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
   }

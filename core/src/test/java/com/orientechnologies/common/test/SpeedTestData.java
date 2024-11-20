@@ -6,6 +6,7 @@ import java.lang.management.MemoryUsage;
 import java.math.BigDecimal;
 
 public class SpeedTestData {
+
   protected static final int TIME_WAIT = 200;
   protected static final int DUMP_PERCENT = 10;
   protected long cycles = 1;
@@ -70,7 +71,9 @@ public class SpeedTestData {
     currentTestName = iTarget.getClass().getSimpleName();
 
     try {
-      if (SpeedTestData.executeInit(iTarget, configuration)) executeTest(iTarget, configuration);
+      if (SpeedTestData.executeInit(iTarget, configuration)) {
+        executeTest(iTarget, configuration);
+      }
     } finally {
       collectResults(takeTimer());
 

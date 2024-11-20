@@ -11,6 +11,7 @@ import org.junit.Before;
  */
 public class OPropertySBTreeRidBagIndexDefinitionTest
     extends OPropertyRidBagAbstractIndexDefinition {
+
   protected ODatabaseDocumentTx database;
   private int topThreshold;
   private int bottomThreshold;

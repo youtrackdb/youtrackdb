@@ -20,12 +20,14 @@ import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 
-/** @author <a href="mailto:cleclerc@cloudbees.com">Cyrille Le Clerc</a> */
+/**
+ * @author <a href="mailto:cleclerc@cloudbees.com">Cyrille Le Clerc</a>
+ */
 public class LogManagerHelper {
 
   /**
-   * Visible version of {@link java.util.logging.LogManager#getLevelProperty(String,
-   * java.util.logging.Level)}.
+   * Visible version of
+   * {@link java.util.logging.LogManager#getLevelProperty(String, java.util.logging.Level)}.
    *
    * <p>If the property is not defined or cannot be parsed we return the given default value.
    */
@@ -40,8 +42,8 @@ public class LogManagerHelper {
   }
 
   /**
-   * Visible version of {@link java.util.logging.LogManager#getFilterProperty(String,
-   * java.util.logging.Filter)}.
+   * Visible version of
+   * {@link java.util.logging.LogManager#getFilterProperty(String, java.util.logging.Filter)}.
    *
    * <p>We return an instance of the class named by the "name" property.
    *
@@ -64,8 +66,9 @@ public class LogManagerHelper {
   }
 
   /**
-   * Visible version of {@link java.util.logging.LogManager#getFormatterProperty(String,
-   * java.util.logging.Formatter)} .
+   * Visible version of
+   * {@link java.util.logging.LogManager#getFormatterProperty(String, java.util.logging.Formatter)}
+   * .
    *
    * <p>We return an instance of the class named by the "name" property.
    *

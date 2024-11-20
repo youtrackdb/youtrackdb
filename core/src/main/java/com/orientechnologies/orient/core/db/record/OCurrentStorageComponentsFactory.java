@@ -29,6 +29,7 @@ import com.orientechnologies.orient.core.serialization.serializer.binary.OBinary
  * @since 2/14/14
  */
 public class OCurrentStorageComponentsFactory {
+
   public final int binaryFormatVersion;
   public final OBinarySerializerFactory binarySerializerFactory;
 
@@ -40,7 +41,7 @@ public class OCurrentStorageComponentsFactory {
 
   /**
    * @return Whether class of is detected by cluster id or it is taken from documents serialized
-   *     content.
+   * content.
    * @since 1.7
    */
   public boolean classesAreDetectedByClusterId() {

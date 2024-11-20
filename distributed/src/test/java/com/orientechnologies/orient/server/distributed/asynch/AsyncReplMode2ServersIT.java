@@ -49,7 +49,9 @@ public class AsyncReplMode2ServersIT extends BareBoneBase2ServerTest {
         for (int i = 0; i < NUM_OF_LOOP_ITERATIONS; i++) {
           pause();
 
-          if (exceptionInThread != null) break;
+          if (exceptionInThread != null) {
+            break;
+          }
 
           for (int attempt = 0; attempt < NUM_OF_RETRIES; attempt++) {
             try {
@@ -113,7 +115,9 @@ public class AsyncReplMode2ServersIT extends BareBoneBase2ServerTest {
         for (int i = 0; i < NUM_OF_LOOP_ITERATIONS; i++) {
           pause();
 
-          if (exceptionInThread != null) break;
+          if (exceptionInThread != null) {
+            break;
+          }
           sleep(500);
 
           parentV1.reload();

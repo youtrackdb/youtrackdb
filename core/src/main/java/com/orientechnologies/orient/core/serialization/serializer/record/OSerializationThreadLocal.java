@@ -25,6 +25,7 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 
 public class OSerializationThreadLocal extends ThreadLocal<IntSet> {
+
   public static volatile OSerializationThreadLocal INSTANCE = new OSerializationThreadLocal();
 
   static {
@@ -33,7 +34,9 @@ public class OSerializationThreadLocal extends ThreadLocal<IntSet> {
             new OOrientListenerAbstract() {
               @Override
               public void onStartup() {
-                if (INSTANCE == null) INSTANCE = new OSerializationThreadLocal();
+                if (INSTANCE == null) {
+                  INSTANCE = new OSerializationThreadLocal();
+                }
               }
 
               @Override

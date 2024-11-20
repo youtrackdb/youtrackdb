@@ -39,6 +39,7 @@ import java.util.List;
  * @since 8/7/13
  */
 public final class CellBTreeSingleValueBucketV3<K> extends ODurablePage {
+
   private static final int RID_SIZE = OShortSerializer.SHORT_SIZE + OLongSerializer.LONG_SIZE;
 
   private static final int FREE_POINTER_OFFSET = NEXT_FREE_POSITION;
@@ -573,7 +574,9 @@ public final class CellBTreeSingleValueBucketV3<K> extends ODurablePage {
   private void updatePointers(int size, int basePosition, int shiftSize, int toIgnore) {
     int[] pointers = getIntArray(POSITIONS_ARRAY_OFFSET, size);
     for (int i = 0; i < size; i++) {
-      if (toIgnore == i) continue;
+      if (toIgnore == i) {
+        continue;
+      }
       if (pointers[i] < basePosition) {
         setPointer(i, pointers[i] + shiftSize);
       }

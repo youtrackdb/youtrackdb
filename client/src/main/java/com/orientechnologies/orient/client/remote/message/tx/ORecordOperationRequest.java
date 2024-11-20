@@ -8,6 +8,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 public class ORecordOperationRequest {
+
   private byte type;
   private byte recordType;
   private ORID id;

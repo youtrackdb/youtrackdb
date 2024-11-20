@@ -60,18 +60,17 @@ public class ODatabaseRepair extends ODatabaseTool {
   }
 
   protected long removeBrokenLinks() {
-    long fixedLinks = 0l;
-    long modifiedDocuments = 0l;
-    long errors = 0l;
+    long fixedLinks = 0L;
+    long modifiedDocuments = 0L;
+    long errors = 0L;
 
     message("\n- Removing broken links...");
     for (String clusterName : database.getClusterNames()) {
       for (ORecord rec : database.browseCluster(clusterName)) {
         try {
-          if (rec instanceof ODocument) {
+          if (rec instanceof ODocument doc) {
             boolean changed = false;
 
-            final ODocument doc = (ODocument) rec;
             for (String fieldName : doc.fieldNames()) {
               final Object fieldValue = doc.rawField(fieldName);
 

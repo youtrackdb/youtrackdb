@@ -46,8 +46,11 @@ public class OServerSSLCertificateManager {
 
   public void loadKeyStoreForSSLSocket() throws Exception {
     try {
-      if (!keyStoreFile.exists()) initKeyStore(this.keyStoreFile, this.keyStore, this.keyStorePass);
-      else loadKeyStore(this.keyStoreFile, this.keyStore, this.keyStorePass);
+      if (!keyStoreFile.exists()) {
+        initKeyStore(this.keyStoreFile, this.keyStore, this.keyStorePass);
+      } else {
+        loadKeyStore(this.keyStoreFile, this.keyStore, this.keyStorePass);
+      }
       this.checkKeyStoreContentValidity();
 
     } catch (IOException e) {
@@ -71,8 +74,11 @@ public class OServerSSLCertificateManager {
 
     try {
 
-      if (!trustStoreFile.exists()) initKeyStore(trustStoreFile, trustStore, trustStorePass);
-      else loadKeyStore(trustStoreFile, trustStore, trustStorePass);
+      if (!trustStoreFile.exists()) {
+        initKeyStore(trustStoreFile, trustStore, trustStorePass);
+      } else {
+        loadKeyStore(trustStoreFile, trustStore, trustStorePass);
+      }
 
     } catch (CertificateException e) {
       // forecatst of initKeyStore throw
@@ -80,25 +86,29 @@ public class OServerSSLCertificateManager {
       // the keystore file is corrupt
       throw e;
     } finally {
-      if (this.oSelfSignedCertificate != null)
+      if (this.oSelfSignedCertificate != null) {
         trustCertificate(
             this.trustStoreFile,
             this.trustStore,
             this.trustStorePass,
             this.oSelfSignedCertificate.getCertificateName(),
             this.oSelfSignedCertificate.getCertificate());
+      }
     }
   }
 
   public void checkKeyStoreContentValidity() throws CertificateException, KeyStoreException {
-    if (!this.keyStore.aliases().hasMoreElements())
+    if (!this.keyStore.aliases().hasMoreElements()) {
       throw new CertificateException("the KeyStore is empty");
+    }
   }
 
   public void reactToCerificateLack() throws Exception {
     try {
 
-      if (this.oSelfSignedCertificate == null) this.initOSelfSignedCertificateParameters();
+      if (this.oSelfSignedCertificate == null) {
+        this.initOSelfSignedCertificateParameters();
+      }
 
       autoGenerateSelfSignedX509Cerificate(this.oSelfSignedCertificate);
 
@@ -152,7 +162,9 @@ public class OServerSSLCertificateManager {
       File keyStoreFilePointer, KeyStore keyStoreInstance, char[] ks_pwd)
       throws IOException, CertificateException, NoSuchAlgorithmException {
     try {
-      if (!keyStoreFilePointer.exists()) keyStoreInstance.load(null, null);
+      if (!keyStoreFilePointer.exists()) {
+        keyStoreInstance.load(null, null);
+      }
     } catch (Exception e) {
       e.printStackTrace();
       throw e;

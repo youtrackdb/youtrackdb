@@ -15,12 +15,14 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 public class OUpdateDatabaseSequenceStatusTask extends OAbstractRemoteTask {
+
   public static final int FACTORYID = 58;
 
   private String databaseName;
   private OTransactionSequenceStatus status;
 
-  public OUpdateDatabaseSequenceStatusTask() {}
+  public OUpdateDatabaseSequenceStatusTask() {
+  }
 
   public OUpdateDatabaseSequenceStatusTask(
       final String databaseName, final OTransactionSequenceStatus status) {

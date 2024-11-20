@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public final class ORawBuffer {
+
   public final int version;
   public final byte recordType;
   public final byte[] buffer;

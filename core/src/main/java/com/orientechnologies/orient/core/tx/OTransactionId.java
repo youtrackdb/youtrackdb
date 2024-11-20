@@ -7,9 +7,10 @@ import java.util.Objects;
 import java.util.Optional;
 
 public class OTransactionId {
-  private Optional<String> nodeOwner;
-  private int position;
-  private long sequence;
+
+  private final Optional<String> nodeOwner;
+  private final int position;
+  private final long sequence;
 
   public OTransactionId(Optional<String> nodeOwner, int position, long sequence) {
     assert nodeOwner != null;
@@ -32,8 +33,12 @@ public class OTransactionId {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     OTransactionId that = (OTransactionId) o;
     return position == that.position
         && sequence == that.sequence
@@ -70,6 +75,6 @@ public class OTransactionId {
 
   @Override
   public String toString() {
-    return "" + position + ":" + sequence + " owner:" + nodeOwner;
+    return position + ":" + sequence + " owner:" + nodeOwner;
   }
 }

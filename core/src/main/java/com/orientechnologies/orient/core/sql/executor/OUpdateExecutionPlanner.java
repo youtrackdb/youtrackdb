@@ -15,8 +15,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/** Created by luigidellaquila on 08/08/16. */
+/**
+ * Created by luigidellaquila on 08/08/16.
+ */
 public class OUpdateExecutionPlanner {
+
   private final OFromClause target;
   public OWhereClause whereClause;
 
@@ -86,7 +89,7 @@ public class OUpdateExecutionPlanner {
    * updates the actual OIdentifiable
    *
    * @param plan the execution plan
-   * @param ctx the executino context
+   * @param ctx  the executino context
    */
   private void convertToModifiableResult(
       OUpdateExecutionPlan plan, OCommandContext ctx, boolean profilingEnabled) {

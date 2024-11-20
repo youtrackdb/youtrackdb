@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.core.db;
 
 import com.orientechnologies.common.collection.OLRUCache;
-import com.orientechnologies.orient.core.serialization.serializer.record.binary.HelperClasses;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 public class OStringCache {
 
@@ -20,7 +20,7 @@ public class OStringCache {
       value = this.values.get(key);
     }
     if (value == null) {
-      value = new String(bytes, offset, len, HelperClasses.CHARSET_UTF_8).intern();
+      value = new String(bytes, offset, len, StandardCharsets.UTF_8).intern();
 
       // Crate a new buffer to avoid to cache big buffers;
       byte[] newBytes = new byte[len];

@@ -19,7 +19,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by frank on 19/11/2015. */
+/**
+ * Created by frank on 19/11/2015.
+ */
 public class OServerShutdownMainTest {
 
   private OServer server;
@@ -54,14 +56,20 @@ public class OServerShutdownMainTest {
 
   @After
   public void tearDown() throws Exception {
-    if (server.isActive()) server.shutdown();
+    if (server.isActive()) {
+      server.shutdown();
+    }
 
     Orient.instance().shutdown();
     OFileUtils.deleteRecursively(new File("./target/testhome"));
     Orient.instance().startup();
 
-    if (prevOrientHome != null) System.setProperty("ORIENTDB_HOME", prevOrientHome);
-    if (prevPassword != null) System.setProperty("ORIENTDB_ROOT_PASSWORD", prevPassword);
+    if (prevOrientHome != null) {
+      System.setProperty("ORIENTDB_HOME", prevOrientHome);
+    }
+    if (prevPassword != null) {
+      System.setProperty("ORIENTDB_ROOT_PASSWORD", prevPassword);
+    }
   }
 
   @Test

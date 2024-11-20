@@ -532,12 +532,19 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
 
     for (OTransactionIndexEntry entry : changesPerKey.getEntriesAsList()) {
       if (entry.getOperation() == OPERATION.REMOVE) {
-        if (entry.getValue() == null) result.clear();
-        else result.remove(entry.getValue());
-      } else result.add(entry.getValue());
+        if (entry.getValue() == null) {
+          result.clear();
+        } else {
+          result.remove(entry.getValue());
+        }
+      } else {
+        result.add(entry.getValue());
+      }
     }
 
-    if (result.isEmpty()) return null;
+    if (result.isEmpty()) {
+      return null;
+    }
 
     return new HashSet<>(result);
   }
@@ -639,11 +646,14 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
 
     int putCounter = 1;
     for (OTransactionIndexEntry entry : changesPerKey.getEntriesAsList()) {
-      if (entry.getOperation() == OPERATION.PUT && entry.getValue().equals(backendValue))
+      if (entry.getOperation() == OPERATION.PUT && entry.getValue().equals(backendValue)) {
         putCounter++;
-      else if (entry.getOperation() == OPERATION.REMOVE) {
-        if (entry.getValue() == null) putCounter = 0;
-        else if (entry.getValue().equals(backendValue) && putCounter > 0) putCounter--;
+      } else if (entry.getOperation() == OPERATION.REMOVE) {
+        if (entry.getValue() == null) {
+          putCounter = 0;
+        } else if (entry.getValue().equals(backendValue) && putCounter > 0) {
+          putCounter--;
+        }
       }
     }
 

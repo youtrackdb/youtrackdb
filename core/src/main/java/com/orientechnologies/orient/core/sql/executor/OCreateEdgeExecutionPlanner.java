@@ -18,7 +18,9 @@ import com.orientechnologies.orient.core.sql.parser.OUpdateItem;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Created by luigidellaquila on 08/08/16. */
+/**
+ * Created by luigidellaquila on 08/08/16.
+ */
 public class OCreateEdgeExecutionPlanner {
 
   private final OCreateEdgeStatement statement;

@@ -24,8 +24,11 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IQueue;
 
-/** Created by luca on 24/09/14. */
+/**
+ * Created by luca on 24/09/14.
+ */
 public class HazelcastQueueThroughputTest {
+
   private static final int TOTAL = 1000000;
   private static final int LAP = 100000;
   private static final int QUEUE_RING_SIZE = 8;
@@ -34,7 +37,9 @@ public class HazelcastQueueThroughputTest {
     final HazelcastInstance hz = Hazelcast.newHazelcastInstance();
 
     final IQueue[] ring = new IQueue[QUEUE_RING_SIZE];
-    for (int q = 0; q < QUEUE_RING_SIZE; ++q) ring[q] = hz.getQueue("test" + q);
+    for (int q = 0; q < QUEUE_RING_SIZE; ++q) {
+      ring[q] = hz.getQueue("test" + q);
+    }
 
     final long start = System.currentTimeMillis();
     long lastLap = start;
@@ -50,7 +55,9 @@ public class HazelcastQueueThroughputTest {
             System.out.println((System.currentTimeMillis() - lastLap) + " Start receiving msgs");
             for (int i = 1; i < TOTAL + 1; ++i) {
               try {
-                if (senderQueueIndex >= QUEUE_RING_SIZE) senderQueueIndex = 0;
+                if (senderQueueIndex >= QUEUE_RING_SIZE) {
+                  senderQueueIndex = 0;
+                }
                 Object msg = ring[senderQueueIndex++].take();
 
                 if (i % LAP == 0) {
@@ -73,7 +80,9 @@ public class HazelcastQueueThroughputTest {
 
     System.out.println((System.currentTimeMillis() - lastLap) + " Start sending msgs");
     for (int i = 1; i < TOTAL + 1; ++i) {
-      if (receiverQueueIndex >= QUEUE_RING_SIZE) receiverQueueIndex = 0;
+      if (receiverQueueIndex >= QUEUE_RING_SIZE) {
+        receiverQueueIndex = 0;
+      }
       ring[receiverQueueIndex++].offer(i);
 
       if (i % LAP == 0) {

@@ -27,6 +27,7 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 public class OGetClusterDataRangeResponse implements OBinaryResponse {
+
   private long[] pos;
 
   public OGetClusterDataRangeResponse() {}

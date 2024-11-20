@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Spliterator;
 
 public class OClusterBrowsePage implements Iterable<OClusterBrowseEntry> {
+
   private List<OClusterBrowseEntry> entries;
   private long lastPosition;
 

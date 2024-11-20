@@ -32,6 +32,7 @@ import java.util.Set;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OCaseInsensitiveCollate extends ODefaultComparator implements OCollate {
+
   public static final String NAME = "ci";
 
   public String getName() {
@@ -39,7 +40,9 @@ public class OCaseInsensitiveCollate extends ODefaultComparator implements OColl
   }
 
   public Object transform(final Object obj) {
-    if (obj instanceof String) return ((String) obj).toLowerCase(Locale.ENGLISH);
+    if (obj instanceof String) {
+      return ((String) obj).toLowerCase(Locale.ENGLISH);
+    }
 
     if (obj instanceof Set) {
       Set result = new HashSet();
@@ -66,7 +69,9 @@ public class OCaseInsensitiveCollate extends ODefaultComparator implements OColl
 
   @Override
   public boolean equals(Object obj) {
-    if (obj == null || obj.getClass() != this.getClass()) return false;
+    if (obj == null || obj.getClass() != this.getClass()) {
+      return false;
+    }
 
     final OCaseInsensitiveCollate that = (OCaseInsensitiveCollate) obj;
 

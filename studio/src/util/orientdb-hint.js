@@ -50,7 +50,7 @@ let OrientDBHint = (function () {
         return e.getTokenAt(cur);
       },
       options);
-  };
+  }
   CodeMirror.registerHelper("hint", "sql", sqlHint);
 
 

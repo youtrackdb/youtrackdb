@@ -57,7 +57,9 @@ public class OConcurrentCreateException extends ONeedRetryException implements O
 
   @Override
   public boolean equals(final Object obj) {
-    if (!(obj instanceof OConcurrentCreateException)) return false;
+    if (!(obj instanceof OConcurrentCreateException)) {
+      return false;
+    }
 
     final OConcurrentCreateException other = (OConcurrentCreateException) obj;
 

@@ -27,6 +27,7 @@ import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
  * @author SDIPro
  */
 public interface OPluginLifecycleListener {
+
   void onBeforeConfig(final OServerPlugin plugin, final OServerParameterConfiguration[] cfg);
 
   void onAfterConfig(final OServerPlugin plugin, final OServerParameterConfiguration[] cfg);

@@ -39,7 +39,9 @@ public class ODistributedLockException extends ODistributedOperationException
 
   @Override
   public boolean equals(final Object obj) {
-    if (obj == null || !obj.getClass().equals(getClass())) return false;
+    if (obj == null || !obj.getClass().equals(getClass())) {
+      return false;
+    }
 
     final String message = ((ODistributedLockException) obj).getMessage();
     return getMessage() != null && getMessage().equals(message);

@@ -26,14 +26,15 @@ import com.orientechnologies.orient.core.storage.index.sbtreebonsai.local.OBonsa
 /**
  * The pointer to a bonsai collection.
  *
- * <p>Determines where the collection is stored. Contains file id and pointer to the root bucket. Is
- * immutable.
+ * <p>Determines where the collection is stored. Contains file id and pointer to the root bucket.
+ * Is immutable.
  *
- * @see ORidBag
  * @author Artem Orobets (enisher-at-gmail.com)
+ * @see ORidBag
  * @since 1.7rc1
  */
 public class OBonsaiCollectionPointer {
+
   public static final OBonsaiCollectionPointer INVALID =
       new OBonsaiCollectionPointer(-1, new OBonsaiBucketPointer(-1, -1));
 
@@ -59,13 +60,21 @@ public class OBonsaiCollectionPointer {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OBonsaiCollectionPointer that = (OBonsaiCollectionPointer) o;
 
-    if (fileId != that.fileId) return false;
-    if (!rootPointer.equals(that.rootPointer)) return false;
+    if (fileId != that.fileId) {
+      return false;
+    }
+    if (!rootPointer.equals(that.rootPointer)) {
+      return false;
+    }
 
     return true;
   }

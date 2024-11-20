@@ -44,7 +44,9 @@ public class OQueryOperatorLike extends OQueryOperatorEqualityNotNulls {
       final Object iLeft,
       final Object iRight,
       OCommandContext iContext) {
-    if (OMultiValue.isMultiValue(iLeft) || OMultiValue.isMultiValue(iRight)) return false;
+    if (OMultiValue.isMultiValue(iLeft) || OMultiValue.isMultiValue(iRight)) {
+      return false;
+    }
 
     return OQueryHelper.like(iLeft.toString(), iRight.toString());
   }

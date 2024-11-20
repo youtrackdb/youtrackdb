@@ -5,6 +5,7 @@ package com.orientechnologies.common.collection.closabledictionary;
  * item that may be in two states open and closed.
  */
 public interface OClosableItem {
+
   boolean isOpen();
 
   void close();

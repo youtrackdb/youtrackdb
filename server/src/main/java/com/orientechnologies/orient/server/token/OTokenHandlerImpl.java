@@ -40,6 +40,7 @@ import java.util.UUID;
  * @author Emrul Islam <emrul@emrul.com> Copyright 2014 Emrul Islam
  */
 public class OTokenHandlerImpl implements OTokenHandler {
+
   protected static final int JWT_DELIMITER = '.';
   private OBinaryTokenSerializer binarySerializer;
   private long sessionInMills = 1000 * 60 * 60; // 1 HOUR
@@ -91,17 +92,22 @@ public class OTokenHandlerImpl implements OTokenHandler {
     int secondDot = -1;
     for (int x = 0; x < tokenBytes.length; x++) {
       if (tokenBytes[x] == JWT_DELIMITER) {
-        if (firstDot == -1) firstDot = x; // stores reference to first '.' character in JWT token
-        else {
+        if (firstDot == -1) {
+          firstDot = x; // stores reference to first '.' character in JWT token
+        } else {
           secondDot = x;
           break;
         }
       }
     }
 
-    if (firstDot == -1) throw new RuntimeException("Token data too short: missed header");
+    if (firstDot == -1) {
+      throw new RuntimeException("Token data too short: missed header");
+    }
 
-    if (secondDot == -1) throw new RuntimeException("Token data too short: missed signature");
+    if (secondDot == -1) {
+      throw new RuntimeException("Token data too short: missed signature");
+    }
     ;
     final byte[] decodedHeader =
         Base64.getUrlDecoder().decode(ByteBuffer.wrap(tokenBytes, 0, firstDot)).array();
@@ -351,7 +357,9 @@ public class OTokenHandlerImpl implements OTokenHandler {
 
   @Override
   public byte[] renewIfNeeded(final OToken token) {
-    if (token == null) throw new IllegalArgumentException("Token is null");
+    if (token == null) {
+      throw new IllegalArgumentException("Token is null");
+    }
 
     final long curTime = System.currentTimeMillis();
     if (token.getExpiry() - curTime < (sessionInMills / 2) && token.getExpiry() >= curTime) {
@@ -359,8 +367,11 @@ public class OTokenHandlerImpl implements OTokenHandler {
       final long currTime = System.currentTimeMillis();
       token.setExpiry(currTime + expiryMinutes);
       try {
-        if (token instanceof OBinaryToken) return serializeSignedToken((OBinaryToken) token);
-        else throw new OTokenException("renew of web token not supported");
+        if (token instanceof OBinaryToken) {
+          return serializeSignedToken((OBinaryToken) token);
+        } else {
+          throw new OTokenException("renew of web token not supported");
+        }
       } catch (IOException e) {
         throw OException.wrapException(new OSystemException("Error on token parsing"), e);
       }
@@ -419,7 +430,9 @@ public class OTokenHandlerImpl implements OTokenHandler {
   }
 
   protected byte[] serializeWebHeader(final OTokenHeader header) throws Exception {
-    if (header == null) throw new IllegalArgumentException("Token header is null");
+    if (header == null) {
+      throw new IllegalArgumentException("Token header is null");
+    }
 
     ODocument doc = new ODocument();
     doc.field("typ", header.getType());
@@ -429,7 +442,9 @@ public class OTokenHandlerImpl implements OTokenHandler {
   }
 
   protected byte[] serializeWebPayload(final OJwtPayload payload) throws Exception {
-    if (payload == null) throw new IllegalArgumentException("Token payload is null");
+    if (payload == null) {
+      throw new IllegalArgumentException("Token payload is null");
+    }
 
     final ODocument doc = new ODocument();
     doc.field("username", payload.getUserName());
@@ -447,7 +462,9 @@ public class OTokenHandlerImpl implements OTokenHandler {
   }
 
   protected OJwtPayload createPayloadServerUser(OSecurityUser serverUser) {
-    if (serverUser == null) throw new IllegalArgumentException("User is null");
+    if (serverUser == null) {
+      throw new IllegalArgumentException("User is null");
+    }
 
     final OrientJwtPayload payload = new OrientJwtPayload();
     payload.setAudience("OrientDBServer");
@@ -465,7 +482,9 @@ public class OTokenHandlerImpl implements OTokenHandler {
   }
 
   protected OJwtPayload createPayload(final ODatabaseSession db, final OSecurityUser user) {
-    if (user == null) throw new IllegalArgumentException("User is null");
+    if (user == null) {
+      throw new IllegalArgumentException("User is null");
+    }
 
     final OrientJwtPayload payload = new OrientJwtPayload();
     payload.setAudience("OrientDB");

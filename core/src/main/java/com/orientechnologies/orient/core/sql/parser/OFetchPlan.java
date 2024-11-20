@@ -7,6 +7,7 @@ import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class OFetchPlan extends SimpleNode {
@@ -60,14 +61,16 @@ public class OFetchPlan extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OFetchPlan that = (OFetchPlan) o;
 
-    if (items != null ? !items.equals(that.items) : that.items != null) return false;
-
-    return true;
+    return Objects.equals(items, that.items);
   }
 
   @Override

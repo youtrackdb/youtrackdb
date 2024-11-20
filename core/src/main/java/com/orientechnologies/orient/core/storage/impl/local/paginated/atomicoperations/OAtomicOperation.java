@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.Set;
 
 public interface OAtomicOperation {
+
   long getOperationUnitId();
 
   OCacheEntry loadPageForWrite(long fileId, long pageIndex, int pageCount, boolean verifyChecksum)

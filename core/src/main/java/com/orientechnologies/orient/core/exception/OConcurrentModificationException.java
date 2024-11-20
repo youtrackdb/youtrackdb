@@ -65,9 +65,10 @@ public class OConcurrentModificationException extends ONeedRetryException
         makeMessage(iRecordOperation, iRID, iDatabaseVersion, iRecordVersion),
         OErrorCode.MVCC_ERROR);
 
-    if (OFastConcurrentModificationException.enabled())
+    if (OFastConcurrentModificationException.enabled()) {
       throw new IllegalStateException(
           "Fast-throw is enabled. Use OFastConcurrentModificationException.instance() instead");
+    }
 
     rid = iRID;
     databaseVersion = iDatabaseVersion;
@@ -77,12 +78,16 @@ public class OConcurrentModificationException extends ONeedRetryException
 
   @Override
   public boolean equals(final Object obj) {
-    if (!(obj instanceof OConcurrentModificationException)) return false;
+    if (!(obj instanceof OConcurrentModificationException)) {
+      return false;
+    }
 
     final OConcurrentModificationException other = (OConcurrentModificationException) obj;
 
     if (recordOperation == other.recordOperation && rid.equals(other.rid)) {
-      if (databaseVersion == other.databaseVersion) return recordOperation == other.recordOperation;
+      if (databaseVersion == other.databaseVersion) {
+        return recordOperation == other.recordOperation;
+      }
     }
 
     return false;

@@ -30,9 +30,12 @@ import java.io.OutputStream;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OHttpResponseWrapper {
+
   private final OHttpResponse response;
 
-  /** @param iResponse */
+  /**
+   * @param iResponse
+   */
   public OHttpResponseWrapper(final OHttpResponse iResponse) {
     response = iResponse;
   }
@@ -98,7 +101,7 @@ public class OHttpResponseWrapper {
    * Sets the response's status as HTTP code and reason.
    *
    * @param iHttpCode Response's HTTP code
-   * @param iReason Response's reason
+   * @param iReason   Response's reason
    * @return The object itself for fluent chained calls
    */
   public OHttpResponseWrapper writeStatus(final int iHttpCode, final String iReason)
@@ -122,7 +125,7 @@ public class OHttpResponseWrapper {
    * Sets the response's headers specifying when using the keep-alive or not.
    *
    * @param iContentType Response's content type
-   * @param iKeepAlive Use the keep-alive of the connection
+   * @param iKeepAlive   Use the keep-alive of the connection
    * @return The object itself for fluent chained calls
    */
   public OHttpResponseWrapper writeHeaders(final String iContentType, final boolean iKeepAlive)
@@ -156,12 +159,12 @@ public class OHttpResponseWrapper {
   /**
    * Sends the complete HTTP response in one call.
    *
-   * @param iCode HTTP response's Code
-   * @param iReason Response's reason
+   * @param iCode        HTTP response's Code
+   * @param iReason      Response's reason
    * @param iContentType Response's content type
-   * @param iContent Content to send. Content can be a string for plain text, binary data to return
-   *     directly binary information, OIdentifiable for a single record and
-   *     Collection<OIdentifiable> for a collection of records
+   * @param iContent     Content to send. Content can be a string for plain text, binary data to
+   *                     return directly binary information, OIdentifiable for a single record and
+   *                     Collection<OIdentifiable> for a collection of records
    * @return The object itself for fluent chained calls
    */
   public OHttpResponseWrapper send(
@@ -174,13 +177,13 @@ public class OHttpResponseWrapper {
   /**
    * Sends the complete HTTP response in one call specifying additional headers. Keep-alive is set.
    *
-   * @param iCode HTTP response's Code
-   * @param iReason Response's reason
+   * @param iCode        HTTP response's Code
+   * @param iReason      Response's reason
    * @param iContentType Response's content type
-   * @param iContent Content to send. Content can be a string for plain text, binary data to return
-   *     directly binary information, OIdentifiable for a single record and
-   *     Collection<OIdentifiable> for a collection of records
-   * @param iHeaders Response's additional headers
+   * @param iContent     Content to send. Content can be a string for plain text, binary data to
+   *                     return directly binary information, OIdentifiable for a single record and
+   *                     Collection<OIdentifiable> for a collection of records
+   * @param iHeaders     Response's additional headers
    * @return The object itself for fluent chained calls
    */
   public OHttpResponseWrapper send(
@@ -197,11 +200,11 @@ public class OHttpResponseWrapper {
   /**
    * Sends the complete HTTP response in one call specifying a stream as content.
    *
-   * @param iCode HTTP response's Code
-   * @param iReason Response's reason
+   * @param iCode        HTTP response's Code
+   * @param iReason      Response's reason
    * @param iContentType Response's content type
-   * @param iContent java.io.InputStream object
-   * @param iSize Content size in bytes
+   * @param iContent     java.io.InputStream object
+   * @param iSize        Content size in bytes
    * @return The object itself for fluent chained calls
    */
   public OHttpResponseWrapper sendStream(
@@ -218,12 +221,12 @@ public class OHttpResponseWrapper {
   /**
    * Sends the complete HTTP response in one call specifying a stream as content.
    *
-   * @param iCode HTTP response's Code
-   * @param iReason Response's reason
+   * @param iCode        HTTP response's Code
+   * @param iReason      Response's reason
    * @param iContentType Response's content type
-   * @param iContent java.io.InputStream object
-   * @param iSize Content size in bytes
-   * @param iFileName Optional file name
+   * @param iContent     java.io.InputStream object
+   * @param iSize        Content size in bytes
+   * @param iFileName    Optional file name
    * @return The object itself for fluent chained calls
    */
   public OHttpResponseWrapper sendStream(

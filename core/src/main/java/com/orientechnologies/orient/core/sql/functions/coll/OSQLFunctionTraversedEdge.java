@@ -28,6 +28,7 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFunctionTraversedEdge extends OSQLFunctionTraversedElement {
+
   public static final String NAME = "traversedEdge";
 
   public OSQLFunctionTraversedEdge() {

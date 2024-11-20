@@ -13,6 +13,7 @@ import java.io.UnsupportedEncodingException;
  * @author Emrul Islam <emrul@emrul.com> Copyright 2014 Emrul Islam
  */
 public class OrientJwtPayload implements OJwtPayload {
+
   public String iss;
   public String sub;
   public String aud;

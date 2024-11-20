@@ -34,6 +34,7 @@ import java.sql.SQLException;
 import org.junit.Test;
 
 public class OrientJdbcBlobTest extends OrientJdbcDbPerClassTemplateTest {
+
   private static final String TEST_WORKING_DIR = "./target/working/";
 
   @Test
@@ -158,7 +159,9 @@ public class OrientJdbcBlobTest extends OrientJdbcDbPerClassTemplateTest {
       s = new FileOutputStream(binaryFile);
       s.write(blob.getBytes(1, (int) blob.length()));
     } finally {
-      if (s != null) s.close();
+      if (s != null) {
+        s.close();
+      }
     }
   }
 }

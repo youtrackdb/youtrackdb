@@ -37,6 +37,7 @@ import java.util.Set;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFunctionSymmetricDifference extends OSQLFunctionMultiValueAbstract<Set<Object>> {
+
   public static final String NAME = "symmetricDifference";
 
   private Set<Object> rejected;
@@ -68,7 +69,9 @@ public class OSQLFunctionSymmetricDifference extends OSQLFunctionMultiValueAbstr
       Object iCurrentResult,
       final Object[] iParams,
       OCommandContext iContext) {
-    if (iParams[0] == null) return null;
+    if (iParams[0] == null) {
+      return null;
+    }
 
     Object value = iParams[0];
 
@@ -132,7 +135,9 @@ public class OSQLFunctionSymmetricDifference extends OSQLFunctionMultiValueAbstr
       return result;
     }
 
-    if (!resultsToMerge.isEmpty()) return resultsToMerge.get(0);
+    if (!resultsToMerge.isEmpty()) {
+      return resultsToMerge.get(0);
+    }
 
     return null;
   }

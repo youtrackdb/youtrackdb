@@ -28,6 +28,7 @@ import com.orientechnologies.orient.server.network.protocol.http.command.OServer
 import java.io.IOException;
 
 public class OServerCommandPostServer extends OServerCommandAuthenticatedServerAbstract {
+
   private static final String[] NAMES = {"POST|server/*"};
 
   public OServerCommandPostServer() {
@@ -42,8 +43,9 @@ public class OServerCommandPostServer extends OServerCommandAuthenticatedServerA
 
     iRequest.getData().commandInfo = "Change server settings";
 
-    if (urlParts[1] == null || urlParts.length == 0)
+    if (urlParts[1] == null || urlParts.length == 0) {
       throw new IllegalArgumentException("setting-name is null or empty");
+    }
 
     final String settingName = urlParts[1];
     final String settingValue = urlParts[2];
@@ -57,13 +59,14 @@ public class OServerCommandPostServer extends OServerCommandAuthenticatedServerA
 
       changeLogLevel(iResponse, settingName.substring("log.".length()), settingValue);
 
-    } else
+    } else {
       iResponse.send(
           OHttpUtils.STATUS_BADREQ_CODE,
           OHttpUtils.STATUS_BADREQ_DESCRIPTION,
           OHttpUtils.CONTENT_TEXT_PLAIN,
           "setting-name '" + settingName + "' is not supported",
           null);
+    }
 
     return false;
   }
@@ -89,27 +92,31 @@ public class OServerCommandPostServer extends OServerCommandAuthenticatedServerA
               + settingValue
               + "'",
           null);
-    } else
+    } else {
       iResponse.send(
           OHttpUtils.STATUS_BADREQ_CODE,
           OHttpUtils.STATUS_BADREQ_DESCRIPTION,
           OHttpUtils.CONTENT_TEXT_PLAIN,
           "Server global configuration '" + settingName + "' is invalid",
           null);
+    }
   }
 
   private void changeLogLevel(
       final OHttpResponse iResponse, final String settingName, final String settingValue)
       throws IOException {
-    if (settingName.equals("console")) OLogManager.instance().setConsoleLevel(settingValue);
-    else if (settingName.equals("file")) OLogManager.instance().setFileLevel(settingValue);
-    else
+    if (settingName.equals("console")) {
+      OLogManager.instance().setConsoleLevel(settingValue);
+    } else if (settingName.equals("file")) {
+      OLogManager.instance().setFileLevel(settingValue);
+    } else {
       iResponse.send(
           OHttpUtils.STATUS_BADREQ_CODE,
           OHttpUtils.STATUS_BADREQ_DESCRIPTION,
           OHttpUtils.CONTENT_TEXT_PLAIN,
           "log name '" + settingName + "' is not supported. Use 'console' or 'log'",
           null);
+    }
 
     iResponse.send(
         OHttpUtils.STATUS_OK_CODE,

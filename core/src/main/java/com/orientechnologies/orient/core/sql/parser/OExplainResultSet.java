@@ -9,8 +9,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-/** Created by luigidellaquila on 08/07/16. */
+/**
+ * Created by luigidellaquila on 08/07/16.
+ */
 public class OExplainResultSet implements OResultSet {
+
   private final OExecutionPlan executionPlan;
   private final ODatabaseStats dbStats;
   boolean hasNext = true;

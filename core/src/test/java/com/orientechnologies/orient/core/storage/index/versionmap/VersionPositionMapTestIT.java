@@ -11,6 +11,7 @@ import java.util.Random;
 import org.junit.*;
 
 public class VersionPositionMapTestIT {
+
   public static final String DIR_NAME = "/versionPositionMapTest";
   public static final String DB_NAME = "versionPositionMapTest";
   private static OrientDB orientDB;

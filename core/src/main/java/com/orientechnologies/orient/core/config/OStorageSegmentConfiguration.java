@@ -24,6 +24,7 @@ import java.io.Serializable;
 
 @SuppressWarnings("serial")
 public class OStorageSegmentConfiguration implements Serializable {
+
   public transient OStorageConfiguration root;
   public volatile int id;
   public volatile String name;
@@ -48,11 +49,15 @@ public class OStorageSegmentConfiguration implements Serializable {
 
   public void setRoot(OStorageConfiguration iRoot) {
     this.root = iRoot;
-    for (OStorageFileConfiguration f : infoFiles) f.parent = this;
+    for (OStorageFileConfiguration f : infoFiles) {
+      f.parent = this;
+    }
   }
 
   public String getLocation() {
-    if (location != null) return location;
+    if (location != null) {
+      return location;
+    }
 
     return root != null ? root.getDirectory() : null;
   }

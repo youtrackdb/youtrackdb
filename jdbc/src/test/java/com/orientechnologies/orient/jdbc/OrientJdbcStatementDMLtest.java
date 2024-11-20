@@ -40,7 +40,7 @@ public class OrientJdbcStatementDMLtest extends OrientJdbcDbPerMethodTemplateTes
         stmt.executeUpdate(
             "INSERT into Item (stringKey, intKey, text, length, date) values ('100','100','dummy"
                 + " text','10','"
-                + date.toString()
+                + date
                 + "')");
     stmt.execute("commit");
 

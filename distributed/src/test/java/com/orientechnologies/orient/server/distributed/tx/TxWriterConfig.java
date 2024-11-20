@@ -1,6 +1,7 @@
 package com.orientechnologies.orient.server.distributed.tx;
 
 public class TxWriterConfig {
+
   public final String writerId;
   public final int vertexGroupId;
   public final int groupSize;

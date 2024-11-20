@@ -30,8 +30,11 @@ import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.junit.Test;
 
-/** Check vertex and edge creation are propagated across all the nodes. */
+/**
+ * Check vertex and edge creation are propagated across all the nodes.
+ */
 public class ServerClusterGraphIT extends AbstractServerClusterTest {
+
   static final int SERVERS = 2;
   private OVertex v1;
   private OVertex v2;

@@ -162,7 +162,7 @@ public class OBinaryProtocol {
   /**
    * Convert the byte array to an int starting from the given offset.
    *
-   * @param b The byte array
+   * @param b      The byte array
    * @param offset The array offset
    * @return The integer
    */

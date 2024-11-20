@@ -77,7 +77,9 @@ public class OHttpNetworkCommandManager {
       }
     }
 
-    if (cmd == null && parent != null) cmd = (OServerCommand) parent.getCommand(iName);
+    if (cmd == null && parent != null) {
+      cmd = (OServerCommand) parent.getCommand(iName);
+    }
 
     return cmd;
   }
@@ -88,12 +90,15 @@ public class OHttpNetworkCommandManager {
    * @param iServerCommandInstance
    */
   public void registerCommand(final OServerCommand iServerCommandInstance) {
-    for (String name : iServerCommandInstance.getNames())
+    for (String name : iServerCommandInstance.getNames()) {
       if (OStringSerializerHelper.contains(name, '{')) {
         restCommands.put(name, iServerCommandInstance);
-      } else if (OStringSerializerHelper.contains(name, '*'))
+      } else if (OStringSerializerHelper.contains(name, '*')) {
         wildcardCommands.put(name, iServerCommandInstance);
-      else exactCommands.put(name, iServerCommandInstance);
+      } else {
+        exactCommands.put(name, iServerCommandInstance);
+      }
+    }
     iServerCommandInstance.configure(server);
   }
 

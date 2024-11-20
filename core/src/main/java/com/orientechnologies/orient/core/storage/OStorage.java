@@ -49,6 +49,7 @@ import javax.annotation.Nonnull;
  * @see com.orientechnologies.orient.core.storage.memory.ODirectMemoryStorage
  */
 public interface OStorage extends OBackupable, OStorageInfo {
+
   public String CLUSTER_DEFAULT_NAME = "default";
 
   public enum STATUS {
@@ -154,10 +155,14 @@ public interface OStorage extends OBackupable, OStorageInfo {
 
   long count(int[] iClusterIds, boolean countTombstones);
 
-  /** Returns the size of the database. */
+  /**
+   * Returns the size of the database.
+   */
   long getSize();
 
-  /** Returns the total number of records. */
+  /**
+   * Returns the total number of records.
+   */
   long countRecords();
 
   void setDefaultClusterId(final int defaultClusterId);
@@ -179,7 +184,9 @@ public interface OStorage extends OBackupable, OStorageInfo {
 
   void synch();
 
-  /** Execute the command request and return the result back. */
+  /**
+   * Execute the command request and return the result back.
+   */
   Object command(OCommandRequestText iCommand);
 
   /**
@@ -198,10 +205,14 @@ public interface OStorage extends OBackupable, OStorageInfo {
 
   OPhysicalPosition[] floorPhysicalPositions(int clusterId, OPhysicalPosition physicalPosition);
 
-  /** Returns the current storage's status */
+  /**
+   * Returns the current storage's status
+   */
   STATUS getStatus();
 
-  /** Returns the storage's type. */
+  /**
+   * Returns the storage's type.
+   */
   String getType();
 
   OStorage getUnderlying();

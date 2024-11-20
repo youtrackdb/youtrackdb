@@ -6,7 +6,9 @@ import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OView;
 import java.util.Set;
 
-/** Created by luigidellaquila on 08/07/16. */
+/**
+ * Created by luigidellaquila on 08/07/16.
+ */
 public class FetchFromViewExecutionStep extends FetchFromClassExecutionStep {
 
   public FetchFromViewExecutionStep(

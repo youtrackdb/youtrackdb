@@ -35,9 +35,12 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Tests the behavior of hooks in distributed configuration. */
+/**
+ * Tests the behavior of hooks in distributed configuration.
+ */
 public class DistributedLifecycleListenerIT extends AbstractServerClusterTest
     implements ODistributedLifecycleListener {
+
   private static final int SERVERS = 2;
 
   private final AtomicLong beforeNodeJoin = new AtomicLong();

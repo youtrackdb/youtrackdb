@@ -47,6 +47,7 @@ import net.jpountz.xxhash.XXHash64;
 import net.jpountz.xxhash.XXHashFactory;
 
 public final class CASDiskWriteAheadLog implements OWriteAheadLog {
+
   private static final String ALGORITHM_NAME = "AES";
   private static final String TRANSFORMATION = "AES/CTR/NoPadding";
 
@@ -354,13 +355,19 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
     name = name.toLowerCase(locale);
     storageName = storageName.toLowerCase(locale);
 
-    if (!name.endsWith(".wal")) return false;
+    if (!name.endsWith(".wal")) {
+      return false;
+    }
 
     final int walOrderStartIndex = name.indexOf('.');
-    if (walOrderStartIndex == name.length() - 4) return false;
+    if (walOrderStartIndex == name.length() - 4) {
+      return false;
+    }
 
     final String walStorageName = name.substring(0, walOrderStartIndex);
-    if (!storageName.equals(walStorageName)) return false;
+    if (!storageName.equals(walStorageName)) {
+      return false;
+    }
 
     final int walOrderEndIndex = name.indexOf('.', walOrderStartIndex + 1);
 
@@ -377,10 +384,14 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
   private static boolean validateSimpleName(String name, final Locale locale) {
     name = name.toLowerCase(locale);
 
-    if (!name.endsWith(".wal")) return false;
+    if (!name.endsWith(".wal")) {
+      return false;
+    }
 
     final int walOrderStartIndex = name.indexOf('.');
-    if (walOrderStartIndex == name.length() - 4) return false;
+    if (walOrderStartIndex == name.length() - 4) {
+      return false;
+    }
 
     final int walOrderEndIndex = name.indexOf('.', walOrderStartIndex + 1);
 
@@ -395,7 +406,9 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
   }
 
   private static Path calculateWalPath(final Path storagePath, final Path walPath) {
-    if (walPath == null) return storagePath;
+    if (walPath == null) {
+      return storagePath;
+    }
 
     return walPath;
   }
@@ -769,8 +782,9 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
 
     final EventWrapper wrapper = new EventWrapper(event);
 
-    if (localFlushedLsn != null && lsn.compareTo(localFlushedLsn) <= 0) event.run();
-    else {
+    if (localFlushedLsn != null && lsn.compareTo(localFlushedLsn) <= 0) {
+      event.run();
+    } else {
       final EventWrapper eventWrapper = events.put(lsn, wrapper);
       if (eventWrapper != null) {
         throw new IllegalStateException(
@@ -837,7 +851,9 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
   }
 
   public void addCutTillLimit(final OLogSequenceNumber lsn) {
-    if (lsn == null) throw new NullPointerException();
+    if (lsn == null) {
+      throw new NullPointerException();
+    }
 
     cuttingLock.sharedLock();
     try {
@@ -848,7 +864,9 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
   }
 
   public void removeCutTillLimit(final OLogSequenceNumber lsn) {
-    if (lsn == null) throw new NullPointerException();
+    if (lsn == null) {
+      throw new NullPointerException();
+    }
 
     cuttingLock.sharedLock();
     try {

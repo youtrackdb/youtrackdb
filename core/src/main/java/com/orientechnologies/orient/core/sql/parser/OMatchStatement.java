@@ -50,6 +50,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -137,7 +138,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
 
     public ODocument toDoc() {
       ODocument doc = new ODocument();
-      doc.fromMap((Map) matched);
+      doc.fromMap(matched);
       return doc;
     }
   }
@@ -145,7 +146,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
   public static class EdgeTraversal {
 
     private boolean out = true;
-    private PatternEdge edge;
+    private final PatternEdge edge;
 
     public EdgeTraversal(PatternEdge edge, boolean out) {
       this.edge = edge;
@@ -395,7 +396,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
 
       Map<String, Long> estimatedRootEntries =
           estimateRootEntries(aliasClasses, aliasFilters, context);
-      if (estimatedRootEntries.values().contains(0l)) {
+      if (estimatedRootEntries.containsValue(0L)) {
         return new OBasicLegacyResultSet(); // some aliases do not match on any classes
       }
 
@@ -709,7 +710,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
       allCandidates = (Iterable) getDatabase().query(new OSQLSynchQuery<Object>(select.toString()));
     }
 
-    if (!processContextFromCandidates(
+    return processContextFromCandidates(
         pattern,
         executionPlan,
         matchContext,
@@ -719,10 +720,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
         request,
         allCandidates,
         smallestAlias,
-        0)) {
-      return false;
-    }
-    return true;
+        0);
   }
 
   private boolean processContextFromCandidates(
@@ -803,7 +801,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
           // node?)
           Iterable rightCandidates = matchContext.candidates.get(outEdge.out.alias);
           if (rightCandidates != null) {
-            if (!processContextFromCandidates(
+            return processContextFromCandidates(
                 pattern,
                 executionPlan,
                 matchContext,
@@ -813,9 +811,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
                 request,
                 rightCandidates,
                 outEdge.out.alias,
-                matchContext.currentEdgeNumber)) {
-              return false;
-            }
+                matchContext.currentEdgeNumber);
           }
           return true;
         }
@@ -1214,7 +1210,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
 
       ODocument mapDoc = new ODocument();
       mapDoc.setTrackingChanges(false);
-      mapDoc.fromMap((Map) matchContext.matched);
+      mapDoc.fromMap(matchContext.matched);
       ctx.setVariable("$current", mapDoc);
       for (OExpression item : returnItems) {
         OIdentifier returnAliasIdentifier = returnAliases.get(i);
@@ -1258,9 +1254,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
       if (limit != null) {
         limitValue = limit.num.getValue().longValue();
       }
-      if (limitValue > -1 && limitValue <= currentCount) {
-        return false;
-      }
+      return limitValue <= -1 || limitValue > currentCount;
     }
     return true;
   }
@@ -1305,12 +1299,9 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
   }
 
   private boolean returnsJson() {
-    if (returnItems.size() == 1
+    return returnItems.size() == 1
         && (returnItems.get(0).value instanceof OJson)
-        && returnAliases.get(0) == null) {
-      return true;
-    }
-    return false;
+        && returnAliases.get(0) == null;
   }
 
   private ODocument jsonToDoc(MatchContext matchContext, OCommandContext ctx) {
@@ -1326,10 +1317,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
   }
 
   private boolean isExplicitAlias(String key) {
-    if (key.startsWith(DEFAULT_ALIAS_PREFIX)) {
-      return false;
-    }
-    return true;
+    return !key.startsWith(DEFAULT_ALIAS_PREFIX);
   }
 
   private Iterator<OIdentifiable> query(
@@ -1367,7 +1355,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
       //      }
     }
     OSQLTarget target = new OSQLTarget(text, ctx);
-    Iterable targetResult = (Iterable) target.getTargetRecords();
+    Iterable targetResult = target.getTargetRecords();
     if (targetResult == null) {
       return null;
     }
@@ -1800,50 +1788,38 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
 
     OMatchStatement that = (OMatchStatement) o;
 
-    if (matchExpressions != null
-        ? !matchExpressions.equals(that.matchExpressions)
-        : that.matchExpressions != null) {
+    if (!Objects.equals(matchExpressions, that.matchExpressions)) {
       return false;
     }
-    if (notMatchExpressions != null
-        ? !notMatchExpressions.equals(that.notMatchExpressions)
-        : that.notMatchExpressions != null) {
+    if (!Objects.equals(notMatchExpressions, that.notMatchExpressions)) {
       return false;
     }
-    if (returnItems != null ? !returnItems.equals(that.returnItems) : that.returnItems != null) {
+    if (!Objects.equals(returnItems, that.returnItems)) {
       return false;
     }
-    if (returnAliases != null
-        ? !returnAliases.equals(that.returnAliases)
-        : that.returnAliases != null) {
+    if (!Objects.equals(returnAliases, that.returnAliases)) {
       return false;
     }
-    if (returnNestedProjections != null
-        ? !returnNestedProjections.equals(that.returnNestedProjections)
-        : that.returnNestedProjections != null) {
+    if (!Objects.equals(returnNestedProjections, that.returnNestedProjections)) {
       return false;
     }
-    if (groupBy != null ? !groupBy.equals(that.groupBy) : that.groupBy != null) {
+    if (!Objects.equals(groupBy, that.groupBy)) {
       return false;
     }
-    if (orderBy != null ? !orderBy.equals(that.orderBy) : that.orderBy != null) {
+    if (!Objects.equals(orderBy, that.orderBy)) {
       return false;
     }
-    if (unwind != null ? !unwind.equals(that.unwind) : that.unwind != null) {
+    if (!Objects.equals(unwind, that.unwind)) {
       return false;
     }
-    if (skip != null ? !skip.equals(that.skip) : that.skip != null) {
+    if (!Objects.equals(skip, that.skip)) {
       return false;
     }
-    if (limit != null ? !limit.equals(that.limit) : that.limit != null) {
+    if (!Objects.equals(limit, that.limit)) {
       return false;
     }
 
-    if (returnDistinct != that.returnDistinct) {
-      return false;
-    }
-
-    return true;
+    return returnDistinct == that.returnDistinct;
   }
 
   @Override

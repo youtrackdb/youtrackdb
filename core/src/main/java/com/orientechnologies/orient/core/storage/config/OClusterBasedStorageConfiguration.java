@@ -48,6 +48,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public final class OClusterBasedStorageConfiguration implements OStorageConfiguration {
+
   public static final String MAP_FILE_EXTENSION = ".ccm";
   public static final String FREE_MAP_FILE_EXTENSION = ".fcm";
   public static final String DATA_FILE_EXTENSION = ".cd";
@@ -339,7 +340,9 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
     }
   }
 
-  /** Added version used for managed Network Versioning. */
+  /**
+   * Added version used for managed Network Versioning.
+   */
   public byte[] toStream(final int iNetworkVersion, final Charset charset)
       throws OSerializationException {
     lock.readLock().lock();

@@ -22,6 +22,7 @@ import org.testng.annotations.Test;
 
 @Test
 public class IndexTxAwareMultiValueGetValuesTest extends DocumentDBBaseTest {
+
   private static final String CLASS_NAME = "idxTxAwareMultiValueGetValuesTest";
   private static final String PROPERTY_NAME = "value";
   private static final String INDEX = "idxTxAwareMultiValueGetValuesTestIndex";

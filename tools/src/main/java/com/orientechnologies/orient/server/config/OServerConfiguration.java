@@ -28,6 +28,7 @@ import java.util.List;
 
 @XmlRootElement(name = "orient-server")
 public class OServerConfiguration {
+
   public static final String FILE_NAME = "server-config.xml";
   // private static final String HEADER = "OrientDB Server configuration";
   public static final OServerStorageConfiguration[] EMPTY_CONFIG_ARRAY =
@@ -73,7 +74,9 @@ public class OServerConfiguration {
   public static final String GUEST_USER = "guest";
   public static final String DEFAULT_GUEST_PASSWORD = "!!!TheGuestPw123";
 
-  /** Empty constructor for JAXB */
+  /**
+   * Empty constructor for JAXB
+   */
   public OServerConfiguration() {}
 
   public OServerConfiguration(OServerConfigurationLoaderXml iFactory) {
@@ -84,8 +87,13 @@ public class OServerConfiguration {
   }
 
   public String getStoragePath(String iURL) {
-    if (storages != null)
-      for (OServerStorageConfiguration stg : storages) if (stg.name.equals(iURL)) return stg.path;
+    if (storages != null) {
+      for (OServerStorageConfiguration stg : storages) {
+        if (stg.name.equals(iURL)) {
+          return stg.path;
+        }
+      }
+    }
 
     return null;
   }
@@ -102,14 +110,18 @@ public class OServerConfiguration {
   /**
    * Returns the property value configured, if any.
    *
-   * @param iName Property name to find
+   * @param iName         Property name to find
    * @param iDefaultValue Default value returned if not found
    */
   public String getProperty(final String iName, final String iDefaultValue) {
-    if (properties == null) return null;
+    if (properties == null) {
+      return null;
+    }
 
     for (OServerEntryConfiguration p : properties) {
-      if (p.name.equals(iName)) return p.value;
+      if (p.name.equals(iName)) {
+        return p.value;
+      }
     }
 
     return null;

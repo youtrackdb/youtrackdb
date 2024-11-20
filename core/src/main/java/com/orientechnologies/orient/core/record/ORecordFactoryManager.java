@@ -43,11 +43,13 @@ import com.orientechnologies.orient.core.record.impl.OViewDocument;
  */
 @SuppressWarnings("unchecked")
 public class ORecordFactoryManager {
+
   protected final String[] recordTypeNames = new String[Byte.MAX_VALUE];
   protected final Class<? extends ORecord>[] recordTypes = new Class[Byte.MAX_VALUE];
   protected final ORecordFactory[] recordFactories = new ORecordFactory[Byte.MAX_VALUE];
 
   public interface ORecordFactory {
+
     ORecord newRecord(ORID rid, ODatabaseSessionInternal database);
   }
 
@@ -80,7 +82,9 @@ public class ORecordFactoryManager {
 
   public String getRecordTypeName(final byte iRecordType) {
     String name = recordTypeNames[iRecordType];
-    if (name == null) throw new IllegalArgumentException("Unsupported record type: " + iRecordType);
+    if (name == null) {
+      throw new IllegalArgumentException("Unsupported record type: " + iRecordType);
+    }
     return name;
   }
 
@@ -103,9 +107,10 @@ public class ORecordFactoryManager {
 
   public void declareRecordType(
       byte iByte, String iName, Class<? extends ORecord> iClass, final ORecordFactory iFactory) {
-    if (recordTypes[iByte] != null)
+    if (recordTypes[iByte] != null) {
       throw new OSystemException(
           "Record type byte '" + iByte + "' already in use : " + recordTypes[iByte].getName());
+    }
     recordTypeNames[iByte] = iName;
     recordTypes[iByte] = iClass;
     recordFactories[iByte] = iFactory;
@@ -113,8 +118,9 @@ public class ORecordFactoryManager {
 
   protected ORecordFactory getFactory(final byte iRecordType) {
     final ORecordFactory factory = recordFactories[iRecordType];
-    if (factory == null)
+    if (factory == null) {
       throw new IllegalArgumentException("Record type '" + iRecordType + "' is not supported");
+    }
     return factory;
   }
 }

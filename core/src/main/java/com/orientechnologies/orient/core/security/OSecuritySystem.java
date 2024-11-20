@@ -80,7 +80,7 @@ public interface OSecuritySystem {
    * Logs to the auditing service, if installed.
    *
    * @param dbName May be null or empty.
-   * @param user May be null or empty.
+   * @param user   May be null or empty.
    */
   void log(
       final OAuditingOperation operation,
@@ -110,10 +110,14 @@ public interface OSecuritySystem {
 
   OAuditingService getAuditing();
 
-  /** Returns the authenticator based on name, if one exists. */
+  /**
+   * Returns the authenticator based on name, if one exists.
+   */
   OSecurityAuthenticator getAuthenticator(final String authName);
 
-  /** Returns the first authenticator in the list, which is the primary authenticator. */
+  /**
+   * Returns the first authenticator in the list, which is the primary authenticator.
+   */
   OSecurityAuthenticator getPrimaryAuthenticator();
 
   OSyslog getSyslog();

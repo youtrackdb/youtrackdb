@@ -36,6 +36,7 @@ import java.util.stream.Stream;
  * @since 18.07.13
  */
 public class ORemoteIndexEngine implements OIndexEngine {
+
   private final String name;
   private final int id;
 

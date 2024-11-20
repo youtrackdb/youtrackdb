@@ -8,10 +8,12 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by frank on 13/12/2016. */
+/**
+ * Created by frank on 13/12/2016.
+ */
 public class LuceneSortTest extends BaseLuceneTest {
 
-  private static String DESCRIPTION =
+  private static final String DESCRIPTION =
       "verylong verylong verylong verylong verylong verylong verylong verylong verylong verylong"
           + " verylong verylong  verylong verylong verylong verylong verylong verylong verylong"
           + " verylong verylong verylong verylong verylong verylong verylong verylong verylong"

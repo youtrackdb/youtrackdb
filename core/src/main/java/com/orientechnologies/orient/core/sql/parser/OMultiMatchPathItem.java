@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class OMultiMatchPathItem extends OMatchPathItem {
+
   protected List<OMatchPathItem> items = new ArrayList<OMatchPathItem>();
 
   public OMultiMatchPathItem(int id) {
@@ -83,13 +84,21 @@ public class OMultiMatchPathItem extends OMatchPathItem {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    if (!super.equals(o)) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    if (!super.equals(o)) {
+      return false;
+    }
 
     OMultiMatchPathItem that = (OMultiMatchPathItem) o;
 
-    if (items != null ? !items.equals(that.items) : that.items != null) return false;
+    if (items != null ? !items.equals(that.items) : that.items != null) {
+      return false;
+    }
 
     return true;
   }

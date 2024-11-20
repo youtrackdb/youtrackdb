@@ -58,22 +58,22 @@ public class OConsoleDatabaseAppTest {
 
   @Test
   public void testWrongCommand() {
-    StringBuilder builder = new StringBuilder();
 
-    builder.append("connect env embedded:./target/ root root;\n");
-    builder.append(
-        "create database OConsoleDatabaseAppTest2 memory users (admin identified by 'admin' role"
-            + " admin);\n");
-    builder.append("open OConsoleDatabaseAppTest2 admin admin;\n");
-
-    builder.append("create class foo;\n");
-    builder.append("begin;\n");
-    builder.append("insert into foo set name = 'foo';\n");
-    builder.append("insert into foo set name = 'bla';\n");
-    builder.append("blabla;\n"); // <- wrong command, this should break the console
-    builder.append("update foo set surname = 'bar' where name = 'foo';\n");
-    builder.append("commit;\n");
-    ConsoleTest c = new ConsoleTest(new String[] {builder.toString()});
+    String builder =
+        "connect env embedded:./target/ root root;\n"
+            + "create database OConsoleDatabaseAppTest2 memory users (admin identified by 'admin'"
+            + " role admin);\n"
+            + "open OConsoleDatabaseAppTest2 admin admin;\n"
+            + "create class foo;\n"
+            + "begin;\n"
+            + "insert into foo set name ="
+            + " 'foo';\n"
+            + "insert into foo set name ="
+            + " 'bla';\n"
+            + "blabla;\n" // <- wrong command, this should break the console
+            + "update foo set surname = 'bar' where name = 'foo';\n"
+            + "commit;\n";
+    ConsoleTest c = new ConsoleTest(new String[] {builder});
     OConsoleDatabaseApp console = c.console();
 
     try {
@@ -95,17 +95,15 @@ public class OConsoleDatabaseAppTest {
 
   @Test
   public void testOldCreateDatabase() {
-    StringBuilder builder = new StringBuilder();
 
-    builder.append(
-        "create database memory:./target/OConsoleDatabaseAppTest2 admin adminpwd memory\n");
-
-    builder.append("create class foo;\n");
-    builder.append("begin;");
-    builder.append("insert into foo set name = 'foo';\n");
-    builder.append("insert into foo set name = 'bla';\n");
-    builder.append("commit;");
-    ConsoleTest c = new ConsoleTest(new String[] {builder.toString()});
+    String builder =
+        "create database memory:./target/OConsoleDatabaseAppTest2 admin adminpwd memory\n"
+            + "create class foo;\n"
+            + "begin;"
+            + "insert into foo set name = 'foo';\n"
+            + "insert into foo set name = 'bla';\n"
+            + "commit;";
+    ConsoleTest c = new ConsoleTest(new String[] {builder});
     OConsoleDatabaseApp console = c.console();
 
     try {
@@ -196,62 +194,53 @@ public class OConsoleDatabaseAppTest {
 
   @Test
   public void testSimple() {
-    StringBuilder builder = new StringBuilder();
 
-    builder.append("connect env embedded:./target/ root root;\n");
-    builder.append(
-        "create database "
+    String builder =
+        "connect env embedded:./target/ root root;\n"
+            + "create database "
             + testName.getMethodName()
-            + " memory users (admin identified by 'admin' role admin);\n");
-    builder.append("open " + testName.getMethodName() + " admin admin;\n");
-    builder.append("profile storage on;\n");
-    builder.append("create class foo;\n");
-    builder.append("config;\n");
-    builder.append("list classes;\n");
-    builder.append("list properties;\n");
-    builder.append("list clusters;\n");
-    builder.append("list indexes;\n");
-    builder.append("info class OUser;\n");
-    builder.append("info property OUser.name;\n");
-
-    builder.append("begin;\n");
-    builder.append("insert into foo set name = 'foo';\n");
-    builder.append("insert into foo set name = 'bla';\n");
-    builder.append("update foo set surname = 'bar' where name = 'foo';\n");
-    builder.append("commit;\n");
-    builder.append("select from foo;\n");
-
-    builder.append("create class bar;\n");
-    builder.append("create property bar.name STRING;\n");
-    builder.append("create index bar_name on bar (name) NOTUNIQUE;\n");
-
-    builder.append("begin;\n");
-    builder.append("insert into bar set name = 'foo';\n");
-    builder.append("delete from bar;\n");
-    builder.append("commit;\n");
-    builder.append("begin;\n");
-    builder.append("insert into bar set name = 'foo';\n");
-    builder.append("rollback;\n");
-
-    builder.append("begin;\n");
-    builder.append("create vertex V set name = 'foo';\n");
-    builder.append("create vertex V set name = 'bar';\n");
-    builder.append("commit;\n");
-
-    builder.append("traverse out() from V;\n");
-
-    builder.append("begin;\n");
-    builder.append(
-        "create edge from (select from V where name = 'foo') to (select from V where name ="
-            + " 'bar');\n");
-    builder.append("commit;\n");
-
-    builder.append("traverse out() from V;\n");
-
-    builder.append("profile storage off;\n");
-
-    builder.append("repair database -v;\n");
-    ConsoleTest c = new ConsoleTest(new String[] {builder.toString()});
+            + " memory users (admin identified by 'admin' role admin);\n"
+            + "open "
+            + testName.getMethodName()
+            + " admin admin;\n"
+            + "profile storage on;\n"
+            + "create class foo;\n"
+            + "config;\n"
+            + "list classes;\n"
+            + "list properties;\n"
+            + "list clusters;\n"
+            + "list indexes;\n"
+            + "info class OUser;\n"
+            + "info property OUser.name;\n"
+            + "begin;\n"
+            + "insert into foo set name = 'foo';\n"
+            + "insert into foo set name = 'bla';\n"
+            + "update foo set surname = 'bar' where name = 'foo';\n"
+            + "commit;\n"
+            + "select from foo;\n"
+            + "create class bar;\n"
+            + "create property bar.name STRING;\n"
+            + "create index bar_name on bar (name) NOTUNIQUE;\n"
+            + "begin;\n"
+            + "insert into bar set name = 'foo';\n"
+            + "delete from bar;\n"
+            + "commit;\n"
+            + "begin;\n"
+            + "insert into bar set name = 'foo';\n"
+            + "rollback;\n"
+            + "begin;\n"
+            + "create vertex V set name = 'foo';\n"
+            + "create vertex V set name = 'bar';\n"
+            + "commit;\n"
+            + "traverse out() from V;\n"
+            + "begin;\n"
+            + "create edge from (select from V where name = 'foo') to (select from V where name ="
+            + " 'bar');\n"
+            + "commit;\n"
+            + "traverse out() from V;\n"
+            + "profile storage off;\n"
+            + "repair database -v;\n";
+    ConsoleTest c = new ConsoleTest(new String[] {builder});
     OConsoleDatabaseApp console = c.console();
 
     try {
@@ -276,49 +265,47 @@ public class OConsoleDatabaseAppTest {
   @Ignore
   public void testMultiLine() {
     String dbUrl = "memory:" + testName.getMethodName();
-    StringBuilder builder = new StringBuilder();
-    builder.append("create database " + dbUrl + ";\n");
-    builder.append("profile storage on;\n");
-    builder.append("create class foo;\n");
-    builder.append("config;\n");
-    builder.append("list classes;\n");
-    builder.append("list properties;\n");
-    builder.append("list clusters;\n");
-    builder.append("list indexes;\n");
-    builder.append("info class OUser;\n");
-    builder.append("info property OUser.name;\n");
 
-    builder.append("begin;\n");
-    builder.append("insert into foo set name = 'foo';\n");
-    builder.append("insert into foo set name = 'bla';\n");
-    builder.append("update foo set surname = 'bar' where name = 'foo';\n");
-    builder.append("commit;\n");
-    builder.append("select from foo;\n");
+    String builder =
+        "create database "
+            + dbUrl
+            + ";\n"
+            + "profile storage on;\n"
+            + "create class foo;\n"
+            + "config;\n"
+            + "list classes;\n"
+            + "list properties;\n"
+            + "list clusters;\n"
+            + "list indexes;\n"
+            + "info class OUser;\n"
+            + "info property OUser.name;\n"
+            + "begin;\n"
+            + "insert into foo set name = 'foo';\n"
+            + "insert into foo set name = 'bla';\n"
+            + "update foo set surname = 'bar' where name = 'foo';\n"
+            + "commit;\n"
+            + "select from foo;\n"
+            + "create class bar;\n"
+            + "create property bar.name STRING;\n"
+            + "create index bar_name on bar (name) NOTUNIQUE;\n"
+            + "insert into bar set name = 'foo';\n"
+            + "delete from bar;\n"
+            + "begin;\n"
+            + "insert into bar set name = 'foo';\n"
+            + "rollback;\n"
+            + "create vertex V set name = 'foo';\n"
+            + "create vertex V set name = 'bar';\n"
+            + "traverse out() from V;\n"
 
-    builder.append("create class bar;\n");
-    builder.append("create property bar.name STRING;\n");
-    builder.append("create index bar_name on bar (name) NOTUNIQUE;\n");
+            //    builder.append("create edge from (select from V where name = 'foo') to (select
+            // from V
+            // where name = 'bar');\n");
 
-    builder.append("insert into bar set name = 'foo';\n");
-    builder.append("delete from bar;\n");
-    builder.append("begin;\n");
-    builder.append("insert into bar set name = 'foo';\n");
-    builder.append("rollback;\n");
-
-    builder.append("create vertex V set name = 'foo';\n");
-    builder.append("create vertex V set name = 'bar';\n");
-
-    builder.append("traverse out() from V;\n");
-
-    //    builder.append("create edge from (select from V where name = 'foo') to (select from V
-    // where name = 'bar');\n");
-
-    builder.append(
-        "create edge from \n"
+            + "create edge from \n"
             + "(select from V where name = 'foo') \n"
-            + "to (select from V where name = 'bar');\n");
+            + "to (select from V where name = 'bar');\n";
 
-    ConsoleTest c = new ConsoleTest(new String[] {builder.toString()});
+    ConsoleTest c = new ConsoleTest(new String[] {builder});
     OConsoleDatabaseApp console = c.console();
 
     try {
@@ -374,8 +361,7 @@ public class OConsoleDatabaseAppTest {
     }
 
     public String getConsoleOutput() {
-      byte[] result = out.toByteArray();
-      return new String(result);
+      return out.toString();
     }
 
     void resetOutput() {

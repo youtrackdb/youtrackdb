@@ -30,6 +30,7 @@ import com.orientechnologies.orient.core.sql.functions.OSQLFunctionAbstract;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFunctionDistance extends OSQLFunctionAbstract {
+
   public static final String NAME = "distance";
 
   private static final double EARTH_RADIUS = 6371;
@@ -49,7 +50,9 @@ public class OSQLFunctionDistance extends OSQLFunctionAbstract {
     final double[] values = new double[4];
 
     for (int i = 0; i < iParams.length && i < 4; ++i) {
-      if (iParams[i] == null) return null;
+      if (iParams[i] == null) {
+        return null;
+      }
 
       values[i] = ((Double) OType.convert(iParams[i], Double.class)).doubleValue();
     }
@@ -70,14 +73,17 @@ public class OSQLFunctionDistance extends OSQLFunctionAbstract {
         // ALREADY IN KM
         ;
       else if (unit.equalsIgnoreCase("mi"))
-        // MILES
+      // MILES
+      {
         distance *= 0.621371192;
-      else if (unit.equalsIgnoreCase("nmi"))
-        // NAUTICAL MILES
+      } else if (unit.equalsIgnoreCase("nmi"))
+      // NAUTICAL MILES
+      {
         distance *= 0.539956803;
-      else
+      } else {
         throw new IllegalArgumentException(
             "Unsupported unit '" + unit + "'. Use km, mi and nmi. Default is km.");
+      }
     }
 
     return distance;

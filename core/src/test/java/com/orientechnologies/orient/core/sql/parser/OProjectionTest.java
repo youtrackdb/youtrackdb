@@ -25,7 +25,9 @@ import java.io.InputStream;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by luigidellaquila on 02/07/15. */
+/**
+ * Created by luigidellaquila on 02/07/15.
+ */
 public class OProjectionTest {
 
   @Test

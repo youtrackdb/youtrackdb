@@ -28,6 +28,7 @@ import com.orientechnologies.orient.server.network.protocol.http.command.OServer
 import java.util.*;
 
 public class OServerCommandPostServerCommand extends OServerCommandAuthenticatedServerAbstract {
+
   private static final String[] NAMES = {"POST|servercommand"};
 
   public OServerCommandPostServerCommand() {
@@ -73,11 +74,13 @@ public class OServerCommandPostServerCommand extends OServerCommandAuthenticated
       }
     }
 
-    if ("false".equalsIgnoreCase("" + iRequest.getHeader("return-execution-plan"))) {
+    if ("false".equalsIgnoreCase(iRequest.getHeader("return-execution-plan"))) {
       returnExecutionPlan = false;
     }
 
-    if (text == null) throw new IllegalArgumentException("text cannot be null");
+    if (text == null) {
+      throw new IllegalArgumentException("text cannot be null");
+    }
 
     iRequest.getData().commandInfo = "Command";
     iRequest.getData().commandDetail = text;
@@ -109,7 +112,9 @@ public class OServerCommandPostServerCommand extends OServerCommandAuthenticated
       format = "fetchPlan:" + fetchPlan;
     }
 
-    if (iRequest.getHeader("TE") != null) iResponse.setStreaming(true);
+    if (iRequest.getHeader("TE") != null) {
+      iResponse.setStreaming(true);
+    }
 
     additionalContent.put("elapsedMs", elapsedMs);
     iResponse.writeResult(response, format, accept, additionalContent, mode, null);

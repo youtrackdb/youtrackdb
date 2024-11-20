@@ -47,7 +47,9 @@ public class OFunction extends ODocumentWrapper {
   public static final String CLASS_NAME = "OFunction";
   private OCallable<Object, Map<Object, Object>> callback;
 
-  /** Creates a new function. */
+  /**
+   * Creates a new function.
+   */
   public OFunction() {
     super(CLASS_NAME);
     setLanguage("SQL");

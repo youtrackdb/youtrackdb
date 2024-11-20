@@ -7,6 +7,7 @@ import com.orientechnologies.orient.distributed.db.OrientDBDistributed;
 import java.util.List;
 
 public class ViewManagerDistributed extends ViewManager {
+
   public ViewManagerDistributed(OrientDBDistributed orientDB, String name) {
     super(orientDB, name);
   }

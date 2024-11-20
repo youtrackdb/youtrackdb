@@ -77,10 +77,14 @@ public interface OCommandDistributedReplicateRequest {
    */
   QUORUM_TYPE getQuorumType();
 
-  /** Returns the distributed timeout in milliseconds. */
+  /**
+   * Returns the distributed timeout in milliseconds.
+   */
   long getDistributedTimeout();
 
-  /** Returns the undo command if any. */
+  /**
+   * Returns the undo command if any.
+   */
   String getUndoCommand();
 
   /**

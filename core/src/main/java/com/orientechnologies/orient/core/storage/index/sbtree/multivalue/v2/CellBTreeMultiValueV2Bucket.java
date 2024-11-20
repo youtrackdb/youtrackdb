@@ -40,6 +40,7 @@ import java.util.List;
  * @since 8/7/13
  */
 public final class CellBTreeMultiValueV2Bucket<K> extends ODurablePage {
+
   private static final int NEXT_ITEM_POINTER_OFFSET = 0;
   private static final int EMBEDDED_ENTRIES_COUNT_OFFSET =
       NEXT_ITEM_POINTER_OFFSET + OIntegerSerializer.INT_SIZE;
@@ -1078,6 +1079,7 @@ public final class CellBTreeMultiValueV2Bucket<K> extends ODurablePage {
   }
 
   protected static class Entry {
+
     public final byte[] key;
 
     Entry(final byte[] key) {
@@ -1086,6 +1088,7 @@ public final class CellBTreeMultiValueV2Bucket<K> extends ODurablePage {
   }
 
   public static final class LeafEntry extends Entry {
+
     public final long mId;
     public final List<ORID> values;
     public final int entriesCount;
@@ -1099,6 +1102,7 @@ public final class CellBTreeMultiValueV2Bucket<K> extends ODurablePage {
   }
 
   public static final class NonLeafEntry extends Entry {
+
     public final int leftChild;
     public final int rightChild;
 

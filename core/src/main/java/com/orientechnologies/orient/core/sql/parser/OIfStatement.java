@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class OIfStatement extends OStatement {
+
   protected OBooleanExpression expression;
   protected List<OStatement> statements = new ArrayList<OStatement>();
   protected List<OStatement> elseStatements =
@@ -204,18 +205,26 @@ public class OIfStatement extends OStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OIfStatement that = (OIfStatement) o;
 
-    if (expression != null ? !expression.equals(that.expression) : that.expression != null)
+    if (expression != null ? !expression.equals(that.expression) : that.expression != null) {
       return false;
-    if (statements != null ? !statements.equals(that.statements) : that.statements != null)
+    }
+    if (statements != null ? !statements.equals(that.statements) : that.statements != null) {
       return false;
+    }
     if (elseStatements != null
         ? !elseStatements.equals(that.elseStatements)
-        : that.elseStatements != null) return false;
+        : that.elseStatements != null) {
+      return false;
+    }
 
     return true;
   }

@@ -27,6 +27,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class ODatabaseRecordThreadLocal extends ThreadLocal<ODatabaseSessionInternal> {
+
   private static final AtomicReference<ODatabaseRecordThreadLocal> INSTANCE =
       new AtomicReference<>();
 

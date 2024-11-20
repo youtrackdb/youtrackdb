@@ -21,10 +21,11 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
- * @author richter
  * @param <T> see {@link TestFactory}
+ * @author richter
  */
 public class TestBuilder<T> {
+
   private final List<Callable<T>> workers = new ArrayList<Callable<T>>();
 
   public TestBuilder<T> add(int threadCount, TestFactory<T> factory) {

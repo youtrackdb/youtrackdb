@@ -44,6 +44,7 @@ import com.orientechnologies.orient.server.distributed.task.ODistributedRecordLo
 import java.util.*;
 
 public class ODistributedTxCoordinator {
+
   public static final String LOCAL_RESULT_SUCCESS = "OK";
 
   private final ODistributedServerManager dManager;
@@ -97,9 +98,9 @@ public class ODistributedTxCoordinator {
           }
         }
       } catch (OConcurrentCreateException
-          | ODistributedRecordLockedException
-          | ODistributedKeyLockedException
-          | OInvalidSequentialException ex) {
+               | ODistributedRecordLockedException
+               | ODistributedKeyLockedException
+               | OInvalidSequentialException ex) {
 
         if (ex instanceof OConcurrentCreateException) {
           iTx.resetAllocatedIds();
@@ -176,44 +177,40 @@ public class ODistributedTxCoordinator {
           // Exception send ko and throws the exception
           localKo(requestId, database, keySource);
           throw ((OTxException) localResult).getException();
-        case OTxUniqueIndex.ID:
-          {
-            // Unique index quorum error send ko and throw unique index exception
-            localKo(requestId, database, keySource);
-            ORID id = ((OTxUniqueIndex) localResult).getRecordId();
-            String index = ((OTxUniqueIndex) localResult).getIndex();
-            Object key = ((OTxUniqueIndex) localResult).getKey();
-            throw new ORecordDuplicatedException(
-                String.format(
-                    "Cannot index record %s: found duplicated key '%s' in index '%s' ",
-                    id, key, index),
-                index,
-                id,
-                key);
-          }
-        case OTxConcurrentModification.ID:
-          {
-            // Concurrent modification exception quorum send ko and throw concurrent modification
-            // exception
-            localKo(requestId, database, keySource);
-            ORID id = ((OTxConcurrentModification) localResult).getRecordId();
-            int version = ((OTxConcurrentModification) localResult).getVersion();
-            throw new OConcurrentModificationException(
-                id,
-                version,
-                iTx.getRecordEntry(id).getRecord().getVersion(),
-                iTx.getRecordEntry(id).getType());
-          }
-        case OTxRecordLockTimeout.ID:
-          {
-            throw new ODistributedRecordLockedException(
-                nodeName, ((OTxRecordLockTimeout) localResult).getLockedId());
-          }
-        case OTxKeyLockTimeout.ID:
-          {
-            throw new ODistributedKeyLockedException(
-                nodeName, ((OTxKeyLockTimeout) localResult).getKey());
-          }
+        case OTxUniqueIndex.ID: {
+          // Unique index quorum error send ko and throw unique index exception
+          localKo(requestId, database, keySource);
+          ORID id = ((OTxUniqueIndex) localResult).getRecordId();
+          String index = ((OTxUniqueIndex) localResult).getIndex();
+          Object key = ((OTxUniqueIndex) localResult).getKey();
+          throw new ORecordDuplicatedException(
+              String.format(
+                  "Cannot index record %s: found duplicated key '%s' in index '%s' ",
+                  id, key, index),
+              index,
+              id,
+              key);
+        }
+        case OTxConcurrentModification.ID: {
+          // Concurrent modification exception quorum send ko and throw concurrent modification
+          // exception
+          localKo(requestId, database, keySource);
+          ORID id = ((OTxConcurrentModification) localResult).getRecordId();
+          int version = ((OTxConcurrentModification) localResult).getVersion();
+          throw new OConcurrentModificationException(
+              id,
+              version,
+              iTx.getRecordEntry(id).getRecord().getVersion(),
+              iTx.getRecordEntry(id).getType());
+        }
+        case OTxRecordLockTimeout.ID: {
+          throw new ODistributedRecordLockedException(
+              nodeName, ((OTxRecordLockTimeout) localResult).getLockedId());
+        }
+        case OTxKeyLockTimeout.ID: {
+          throw new ODistributedKeyLockedException(
+              nodeName, ((OTxKeyLockTimeout) localResult).getKey());
+        }
         case OTxInvalidSequential.ID:
           // This never happen in local only, keep the management anyway
           throw new OInvalidSequentialException();
@@ -286,44 +283,41 @@ public class ODistributedTxCoordinator {
           sendPhase2Task(involvedClusters, nodes, createTxPhase2Task(requestId, txTask, false));
           localKo(requestId, database, txTask);
           throw ((OTxException) resultPayload).getException();
-        case OTxUniqueIndex.ID:
-          {
-            // Unique index quorum error send ko and throw unique index exception
-            sendPhase2Task(involvedClusters, nodes, createTxPhase2Task(requestId, txTask, false));
-            localKo(requestId, database, txTask);
-            ORID id = ((OTxUniqueIndex) resultPayload).getRecordId();
-            String index = ((OTxUniqueIndex) resultPayload).getIndex();
-            Object key = ((OTxUniqueIndex) resultPayload).getKey();
-            throw new ORecordDuplicatedException(
-                String.format(
-                    "Cannot index record %s: found duplicated key '%s' in index '%s' ",
-                    id, key, index),
-                index,
-                id,
-                key);
-          }
-        case OTxConcurrentModification.ID:
-          {
-            // Concurrent modification exception quorum send ko and throw cuncurrent modification
-            // exception
-            sendPhase2Task(involvedClusters, nodes, createTxPhase2Task(requestId, txTask, false));
-            localKo(requestId, database, txTask);
-            ORID id = ((OTxConcurrentModification) resultPayload).getRecordId();
-            int version = ((OTxConcurrentModification) resultPayload).getVersion();
-            throw new OConcurrentModificationException(
-                id,
-                version,
-                iTx.getRecordEntry(id).getRecord().getVersion(),
-                iTx.getRecordEntry(id).getType());
-          }
-        case OTxConcurrentCreation.ID:
-          {
-            sendPhase2Task(involvedClusters, nodes, createTxPhase2Task(requestId, txTask, false));
-            localKo(requestId, database, txTask);
-            throw new OConcurrentCreateException(
-                ((OTxConcurrentCreation) resultPayload).getExpectedRid(),
-                ((OTxConcurrentCreation) resultPayload).getActualRid());
-          }
+        case OTxUniqueIndex.ID: {
+          // Unique index quorum error send ko and throw unique index exception
+          sendPhase2Task(involvedClusters, nodes, createTxPhase2Task(requestId, txTask, false));
+          localKo(requestId, database, txTask);
+          ORID id = ((OTxUniqueIndex) resultPayload).getRecordId();
+          String index = ((OTxUniqueIndex) resultPayload).getIndex();
+          Object key = ((OTxUniqueIndex) resultPayload).getKey();
+          throw new ORecordDuplicatedException(
+              String.format(
+                  "Cannot index record %s: found duplicated key '%s' in index '%s' ",
+                  id, key, index),
+              index,
+              id,
+              key);
+        }
+        case OTxConcurrentModification.ID: {
+          // Concurrent modification exception quorum send ko and throw cuncurrent modification
+          // exception
+          sendPhase2Task(involvedClusters, nodes, createTxPhase2Task(requestId, txTask, false));
+          localKo(requestId, database, txTask);
+          ORID id = ((OTxConcurrentModification) resultPayload).getRecordId();
+          int version = ((OTxConcurrentModification) resultPayload).getVersion();
+          throw new OConcurrentModificationException(
+              id,
+              version,
+              iTx.getRecordEntry(id).getRecord().getVersion(),
+              iTx.getRecordEntry(id).getType());
+        }
+        case OTxConcurrentCreation.ID: {
+          sendPhase2Task(involvedClusters, nodes, createTxPhase2Task(requestId, txTask, false));
+          localKo(requestId, database, txTask);
+          throw new OConcurrentCreateException(
+              ((OTxConcurrentCreation) resultPayload).getExpectedRid(),
+              ((OTxConcurrentCreation) resultPayload).getActualRid());
+        }
 
         case OTxRecordLockTimeout.ID:
           sendPhase2Task(involvedClusters, nodes, createTxPhase2Task(requestId, txTask, false));
@@ -477,7 +471,9 @@ public class ODistributedTxCoordinator {
         requestId, success, txTask.getRids(), txTask.getUniqueKeys(), txTask.getTransactionId());
   }
 
-  /** This is to be used only for testing! */
+  /**
+   * This is to be used only for testing!
+   */
   public void setResponseManager(ODistributedTxResponseManager responseManager) {
     this.responseManager = responseManager;
   }

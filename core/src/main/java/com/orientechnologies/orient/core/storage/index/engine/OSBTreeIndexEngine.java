@@ -49,6 +49,7 @@ import java.util.stream.StreamSupport;
  * @since 8/30/13
  */
 public class OSBTreeIndexEngine implements OIndexEngine {
+
   public static final int VERSION = 2;
 
   public static final String DATA_FILE_EXTENSION = ".sbt";

@@ -5,6 +5,7 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionConfigurableAbstract;
 
 public class OSQLFunctionConcat extends OSQLFunctionConfigurableAbstract {
+
   public static final String NAME = "concat";
   private StringBuilder sb;
 
@@ -22,7 +23,9 @@ public class OSQLFunctionConcat extends OSQLFunctionConfigurableAbstract {
     if (sb == null) {
       sb = new StringBuilder();
     } else {
-      if (iParams.length > 1) sb.append(iParams[1]);
+      if (iParams.length > 1) {
+        sb.append(iParams[1]);
+      }
     }
     sb.append(iParams[0]);
     return null;

@@ -32,6 +32,7 @@ import java.util.Comparator;
 import java.util.List;
 
 public class OServerCommandGetListDatabases extends OServerCommandAuthenticatedServerAbstract {
+
   private static final String[] NAMES = {"GET|listDatabases"};
 
   public OServerCommandGetListDatabases() {

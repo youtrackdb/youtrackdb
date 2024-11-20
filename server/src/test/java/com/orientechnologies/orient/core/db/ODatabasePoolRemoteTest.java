@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class ODatabasePoolRemoteTest {
+
   private static final String SERVER_DIRECTORY = "./target/poolRemote";
   private OServer server;
 

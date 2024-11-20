@@ -27,12 +27,14 @@ import java.io.IOException;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** @author marko */
+/**
+ * @author marko
+ */
 public class OSequenceActionRequestTest {
 
   @Test
   public void testSerializeDeserialize() {
-    OSequence.CreateParams params = new OSequence.CreateParams().setLimitValue(123l);
+    OSequence.CreateParams params = new OSequence.CreateParams().setLimitValue(123L);
     OSequenceAction action =
         new OSequenceAction(
             OSequenceAction.CREATE, "testName", params, OSequence.SEQUENCE_TYPE.ORDERED);
@@ -73,7 +75,7 @@ public class OSequenceActionRequestTest {
           newRequest.getAction().getParameters().getCurrentValue(),
           action.getParameters().getCurrentValue());
     } catch (IOException exc) {
-      Assert.assertTrue(false);
+      Assert.fail();
     }
   }
 }

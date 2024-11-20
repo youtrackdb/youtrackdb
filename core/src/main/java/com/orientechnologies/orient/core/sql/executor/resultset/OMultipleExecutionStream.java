@@ -4,6 +4,7 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 
 public final class OMultipleExecutionStream implements OExecutionStream {
+
   private final OExecutionStreamProducer streamsSource;
   private OExecutionStream currentStream;
 

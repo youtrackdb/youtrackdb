@@ -215,8 +215,12 @@ public class OCreateSecurityPolicyStatement extends OSimpleExecStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     OCreateSecurityPolicyStatement that = (OCreateSecurityPolicyStatement) o;
     return Objects.equals(name, that.name)
         && Objects.equals(create, that.create)
@@ -262,10 +266,7 @@ public class OCreateSecurityPolicyStatement extends OSimpleExecStatement {
     if (delete != null && !delete.isCacheable()) {
       return false;
     }
-    if (execute != null && !execute.isCacheable()) {
-      return false;
-    }
-    return true;
+    return execute == null || execute.isCacheable();
   }
 }
 /* JavaCC - OriginalChecksum=f41480f6734998f6eac27242db146d09 (do not edit this line) */

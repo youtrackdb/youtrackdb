@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 public class OProxyServer extends OServerPluginAbstract {
+
   protected String remoteHost = "localhost";
   protected Map<Integer, Integer> ports = new HashMap<Integer, Integer>();
   protected int bufferSize = 16384;
@@ -21,7 +22,8 @@ public class OProxyServer extends OServerPluginAbstract {
   protected int readTimeout = 300;
   protected boolean waitUntilRemotePortsAreOpen = false;
 
-  public OProxyServer() {}
+  public OProxyServer() {
+  }
 
   @Override
   public String getName() {
@@ -30,7 +32,9 @@ public class OProxyServer extends OServerPluginAbstract {
 
   @Override
   public void startup() {
-    if (!enabled) return;
+    if (!enabled) {
+      return;
+    }
 
     running = true;
 
@@ -63,25 +67,32 @@ public class OProxyServer extends OServerPluginAbstract {
       final int fromPort,
       final int toPort,
       final byte[] buffer,
-      final int size) {}
+      final int size) {
+  }
 
   @Override
   public void shutdown() {
     running = false;
-    for (OProxyServerListener t : serverThreads) t.sendShutdown();
+    for (OProxyServerListener t : serverThreads) {
+      t.sendShutdown();
+    }
   }
 
   @Override
   public void config(final OServer server, final OServerParameterConfiguration[] params) {
     for (OServerParameterConfiguration param : params) {
-      if (param.name.equalsIgnoreCase("enabled")) enabled = Boolean.parseBoolean(param.value);
-      else if (param.name.equalsIgnoreCase("remoteHost")) remoteHost = param.value;
-      else if (param.name.equalsIgnoreCase("tracing")) {
+      if (param.name.equalsIgnoreCase("enabled")) {
+        enabled = Boolean.parseBoolean(param.value);
+      } else if (param.name.equalsIgnoreCase("remoteHost")) {
+        remoteHost = param.value;
+      } else if (param.name.equalsIgnoreCase("tracing")) {
         if (!"none".equalsIgnoreCase(param.value)
             && !"byte".equalsIgnoreCase(param.value)
-            && !"hex".equalsIgnoreCase(param.value))
+            && !"hex".equalsIgnoreCase(param.value)) {
           OLogManager.instance().error(this, "Invalid tracing value: %s", null, param.value);
-        else tracing = param.value;
+        } else {
+          tracing = param.value;
+        }
 
       } else if (param.name.equalsIgnoreCase("ports")) {
         setPorts(param.value);
@@ -95,9 +106,10 @@ public class OProxyServer extends OServerPluginAbstract {
     final String[] pairs = portsAsString.split(",");
     for (String pair : pairs) {
       final String[] fromTo = pair.split("->");
-      if (fromTo.length != 2)
+      if (fromTo.length != 2) {
         throw new OConfigurationException(
             "Proxy server: port configuration is not valid. Format: portFrom->portTo");
+      }
       ports.put(Integer.parseInt(fromTo[0]), Integer.parseInt(fromTo[1]));
     }
   }
@@ -151,14 +163,21 @@ public class OProxyServer extends OServerPluginAbstract {
   }
 
   public String formatBytes(final byte[] request, final int total) {
-    if ("none".equalsIgnoreCase(tracing)) return "";
+    if ("none".equalsIgnoreCase(tracing)) {
+      return "";
+    }
 
     final StringBuilder buffer = new StringBuilder();
     for (int i = 0; i < total; ++i) {
-      if (i > 0) buffer.append(',');
+      if (i > 0) {
+        buffer.append(',');
+      }
 
-      if ("byte".equalsIgnoreCase(tracing)) buffer.append(request[i]);
-      else if ("hex".equalsIgnoreCase(tracing)) buffer.append(String.format("0x%x", request[i]));
+      if ("byte".equalsIgnoreCase(tracing)) {
+        buffer.append(request[i]);
+      } else if ("hex".equalsIgnoreCase(tracing)) {
+        buffer.append(String.format("0x%x", request[i]));
+      }
     }
     return buffer.toString();
   }

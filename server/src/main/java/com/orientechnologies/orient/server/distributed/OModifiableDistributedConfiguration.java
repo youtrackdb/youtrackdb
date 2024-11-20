@@ -34,6 +34,7 @@ import java.util.List;
  * @author Luca Garulli (l.garulli--at--orientdb.com)
  */
 public class OModifiableDistributedConfiguration extends ODistributedConfiguration {
+
   public OModifiableDistributedConfiguration(final ODocument iConfiguration) {
     super(iConfiguration);
   }
@@ -42,7 +43,9 @@ public class OModifiableDistributedConfiguration extends ODistributedConfigurati
     return this;
   }
 
-  /** Sets the server role between MASTER (default) and REPLICA. */
+  /**
+   * Sets the server role between MASTER (default) and REPLICA.
+   */
   public void setServerRole(final String iServerName, final ROLES role) {
     synchronized (configuration) {
       ODocument servers = configuration.field(SERVERS);
@@ -58,8 +61,7 @@ public class OModifiableDistributedConfiguration extends ODistributedConfigurati
 
   /**
    * Adds a server in the configuration. It replaces all the tags &lt;NEW_NODE&gt; with the new
-   * server name<br>
-   * NOTE: It must be executed in distributed database lock.
+   * server name<br> NOTE: It must be executed in distributed database lock.
    *
    * @param iNode Server name
    * @return the list of changed partitions or null if no changes have applied
@@ -104,19 +106,22 @@ public class OModifiableDistributedConfiguration extends ODistributedConfigurati
    * @param iClusterName Cluster name or *. Does not accept null.
    */
   public void setServerOwner(final String iClusterName, final String iServerName) {
-    if (iClusterName == null) throw new IllegalArgumentException("cluster name cannot be null");
+    if (iClusterName == null) {
+      throw new IllegalArgumentException("cluster name cannot be null");
+    }
 
     synchronized (configuration) {
       final ODocument clusters = configuration.field(CLUSTERS);
       ODocument cluster = clusters.field(iClusterName);
 
       if (cluster == null)
-        // CREATE IT
+      // CREATE IT
+      {
         cluster = createCluster(iClusterName);
-      else {
+      } else {
         // CHECK IF THE OWNER IS ALREADY CONFIGURED
         final String owner = cluster.field(OWNER);
-        if (owner != null && !iServerName.equalsIgnoreCase(owner))
+        if (owner != null && !iServerName.equalsIgnoreCase(owner)) {
           throw new ODistributedException(
               "Cannot overwrite ownership of cluster '"
                   + iClusterName
@@ -125,6 +130,7 @@ public class OModifiableDistributedConfiguration extends ODistributedConfigurati
                   + "', because server '"
                   + owner
                   + "' was already configured as owner");
+        }
       }
 
       List<String> serverList = getClusterConfiguration(iClusterName).field(SERVERS);
@@ -133,8 +139,10 @@ public class OModifiableDistributedConfiguration extends ODistributedConfigurati
       }
 
       if (!serverList.isEmpty() && serverList.get(0).equals(iServerName))
-        // ALREADY OWNER
+      // ALREADY OWNER
+      {
         return;
+      }
 
       // REMOVE THE NODE IF ANY
       boolean removed = false;
@@ -146,13 +154,14 @@ public class OModifiableDistributedConfiguration extends ODistributedConfigurati
         }
       }
 
-      if (!removed)
+      if (!removed) {
         throw new ODistributedException(
             "Cannot set ownership of cluster '"
                 + iClusterName
                 + "' to the server '"
                 + iServerName
                 + "', because the server has no that cluster (sharding)");
+      }
 
       // ADD THE NODE AS FIRST OF THE LIST = MASTER
       serverList.add(0, iServerName);
@@ -162,8 +171,7 @@ public class OModifiableDistributedConfiguration extends ODistributedConfigurati
   }
 
   /**
-   * Removes a server from the list.<br>
-   * NOTE: It must be executed in distributed database lock.
+   * Removes a server from the list.<br> NOTE: It must be executed in distributed database lock.
    *
    * @param iNode Server name
    * @return
@@ -195,10 +203,10 @@ public class OModifiableDistributedConfiguration extends ODistributedConfigurati
   }
 
   /**
-   * Set a server offline. It assures the offline server is never on top of the list.<br>
-   * NOTE: It must be executed in distributed database lock.
+   * Set a server offline. It assures the offline server is never on top of the list.<br> NOTE: It
+   * must be executed in distributed database lock.
    *
-   * @param iNode Server name
+   * @param iNode                Server name
    * @param newLockManagerServer New Lock Manager server name
    * @return
    */
@@ -220,12 +228,16 @@ public class OModifiableDistributedConfiguration extends ODistributedConfigurati
               nodes.add(node);
 
               if (newNodeRemoved)
-                // REINSERT NEW NODE TAG AT THE END
+              // REINSERT NEW NODE TAG AT THE END
+              {
                 nodes.add(NEW_NODE_TAG);
+              }
 
               if (newLockManagerServer != null) {
                 // ASSURE THE NEW LOCK MANAGER IS THE FIRST IN THE LIST
-                if (nodes.remove(newLockManagerServer)) nodes.add(0, newLockManagerServer);
+                if (nodes.remove(newLockManagerServer)) {
+                  nodes.add(0, newLockManagerServer);
+                }
               }
 
               changedPartitions.add(clusterName);
@@ -246,7 +258,9 @@ public class OModifiableDistributedConfiguration extends ODistributedConfigurati
   private void incrementVersion() {
     // INCREMENT VERSION
     Integer oldVersion = configuration.field(VERSION);
-    if (oldVersion == null) oldVersion = 0;
+    if (oldVersion == null) {
+      oldVersion = 0;
+    }
     configuration.field(VERSION, oldVersion.intValue() + 1);
   }
 
@@ -267,8 +281,10 @@ public class OModifiableDistributedConfiguration extends ODistributedConfigurati
 
     ODocument cluster = clusters.field(iClusterName);
     if (cluster != null)
-      // ALREADY EXISTS
+    // ALREADY EXISTS
+    {
       return clusters;
+    }
 
     cluster = new ODocument();
     ODocumentInternal.addOwner(cluster, clusters);

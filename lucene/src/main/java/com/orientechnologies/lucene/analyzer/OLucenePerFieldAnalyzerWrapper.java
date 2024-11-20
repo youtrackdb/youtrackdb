@@ -17,6 +17,7 @@ import org.apache.lucene.analysis.core.KeywordAnalyzer;
  * field reuse strategy.
  */
 public class OLucenePerFieldAnalyzerWrapper extends DelegatingAnalyzerWrapper {
+
   private final Analyzer defaultDelegateAnalyzer;
   private final Map<String, Analyzer> fieldAnalyzers;
 
@@ -24,7 +25,7 @@ public class OLucenePerFieldAnalyzerWrapper extends DelegatingAnalyzerWrapper {
    * Constructs with default analyzer.
    *
    * @param defaultAnalyzer Any fields not specifically defined to use a different analyzer will use
-   *     the one provided here.
+   *                        the one provided here.
    */
   public OLucenePerFieldAnalyzerWrapper(final Analyzer defaultAnalyzer) {
     this(defaultAnalyzer, new HashMap<>());
@@ -34,8 +35,8 @@ public class OLucenePerFieldAnalyzerWrapper extends DelegatingAnalyzerWrapper {
    * Constructs with default analyzer and a map of analyzers to use for specific fields.
    *
    * @param defaultAnalyzer Any fields not specifically defined to use a different analyzer will use
-   *     the one provided here.
-   * @param fieldAnalyzers a Map (String field name to the Analyzer) to be used for those fields
+   *                        the one provided here.
+   * @param fieldAnalyzers  a Map (String field name to the Analyzer) to be used for those fields
    */
   public OLucenePerFieldAnalyzerWrapper(
       final Analyzer defaultAnalyzer, final Map<String, Analyzer> fieldAnalyzers) {
@@ -73,7 +74,7 @@ public class OLucenePerFieldAnalyzerWrapper extends DelegatingAnalyzerWrapper {
   }
 
   public OLucenePerFieldAnalyzerWrapper add(final OLucenePerFieldAnalyzerWrapper analyzer) {
-    fieldAnalyzers.putAll(analyzer.getAnalyzers());
+    fieldAnalyzers.putAll(analyzer.fieldAnalyzers);
     return this;
   }
 

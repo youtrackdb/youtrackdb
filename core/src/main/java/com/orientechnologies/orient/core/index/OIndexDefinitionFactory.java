@@ -36,16 +36,17 @@ import java.util.regex.Pattern;
  * @author Artem Orobets
  */
 public class OIndexDefinitionFactory {
+
   private static final Pattern FILED_NAME_PATTERN = Pattern.compile("\\s+");
 
   /**
    * Creates an instance of {@link OIndexDefinition} for automatic index.
    *
-   * @param oClass class which will be indexed
+   * @param oClass     class which will be indexed
    * @param fieldNames list of properties which will be indexed. Format should be '<property> [by
-   *     key|value]', use 'by key' or 'by value' to describe how to index maps. By default maps
-   *     indexed by key
-   * @param types types of indexed properties
+   *                   key|value]', use 'by key' or 'by value' to describe how to index maps. By
+   *                   default maps indexed by key
+   * @param types      types of indexed properties
    * @param collates
    * @param indexKind
    * @param algorithm
@@ -67,7 +68,9 @@ public class OIndexDefinitionFactory {
       String field = fieldNames.get(0);
       final String fieldName =
           OClassImpl.decodeClassName(adjustFieldName(oClass, extractFieldName(field)));
-      if (collates != null) collate = collates.get(0);
+      if (collates != null) {
+        collate = collates.get(0);
+      }
       OProperty property = oClass.getProperty(fieldName);
       if (property != null) {
         if (collate == null) {
@@ -99,10 +102,13 @@ public class OIndexDefinitionFactory {
               + fieldDefinition
               + '\'');
     }
-    if (fieldNameParts.length == 3 && "by".equalsIgnoreCase(fieldNameParts[1]))
+    if (fieldNameParts.length == 3 && "by".equalsIgnoreCase(fieldNameParts[1])) {
       return fieldNameParts[0];
+    }
 
-    if (fieldNameParts.length == 1) return fieldDefinition;
+    if (fieldNameParts.length == 1) {
+      return fieldDefinition;
+    }
 
     StringBuilder result = new StringBuilder();
     result.append(fieldNameParts[0]);
@@ -128,7 +134,9 @@ public class OIndexDefinitionFactory {
       OCollate collate = null;
       OType linkedType = null;
       OType type = types.get(i);
-      if (collates != null) collate = collates.get(i);
+      if (collates != null) {
+        collate = collates.get(i);
+      }
       String field = fieldsToIndex.get(i);
       final String fieldName =
           OClassImpl.decodeClassName(adjustFieldName(oClass, extractFieldName(field)));
@@ -196,15 +204,18 @@ public class OIndexDefinitionFactory {
                 + fieldName
                 + '\'');
       }
-      if (indexBy.equals(OPropertyMapIndexDefinition.INDEX_BY.KEY)) indexType = OType.STRING;
-      else {
-        if (type == OType.LINKMAP) indexType = OType.LINK;
-        else {
+      if (indexBy.equals(OPropertyMapIndexDefinition.INDEX_BY.KEY)) {
+        indexType = OType.STRING;
+      } else {
+        if (type == OType.LINKMAP) {
+          indexType = OType.LINK;
+        } else {
           indexType = linkedType;
-          if (indexType == null)
+          if (indexType == null) {
             throw new OIndexException(
                 "Linked type was not provided. You should provide linked type for embedded"
                     + " collections that are going to be indexed.");
+          }
         }
       }
       indexDefinition = new OPropertyMapIndexDefinition(className, fieldName, indexType, indexBy);
@@ -212,15 +223,17 @@ public class OIndexDefinitionFactory {
         || type.equals(OType.EMBEDDEDSET)
         || type.equals(OType.LINKLIST)
         || type.equals(OType.LINKSET)) {
-      if (type.equals(OType.LINKSET)) indexType = OType.LINK;
-      else if (type.equals(OType.LINKLIST)) {
+      if (type.equals(OType.LINKSET)) {
+        indexType = OType.LINK;
+      } else if (type.equals(OType.LINKLIST)) {
         indexType = OType.LINK;
       } else {
         indexType = linkedType;
-        if (indexType == null)
+        if (indexType == null) {
           throw new OIndexException(
               "Linked type was not provided. You should provide linked type for embedded"
                   + " collections that are going to be indexed.");
+        }
       }
       indexDefinition = new OPropertyListIndexDefinition(className, fieldName, indexType);
     } else if (type.equals(OType.LINKBAG)) {
@@ -242,7 +255,7 @@ public class OIndexDefinitionFactory {
     }
     if (fieldNameParts.length == 3) {
 
-      if ("by".equals(fieldNameParts[1].toLowerCase()))
+      if ("by".equals(fieldNameParts[1].toLowerCase())) {
         try {
           return OPropertyMapIndexDefinition.INDEX_BY.valueOf(fieldNameParts[2].toUpperCase());
         } catch (IllegalArgumentException iae) {
@@ -252,6 +265,7 @@ public class OIndexDefinitionFactory {
                   + '\'',
               iae);
         }
+      }
     }
     throw new IllegalArgumentException(
         "Illegal field name format, should be '<property> [by key|value]' but was '"

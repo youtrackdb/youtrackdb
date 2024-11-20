@@ -13,6 +13,7 @@ import java.util.Optional;
  * OCommandExecutionException in case it's not true
  */
 public class CheckRecordTypeStep extends AbstractExecutionStep {
+
   private final String clazz;
 
   public CheckRecordTypeStep(OCommandContext ctx, String className, boolean profilingEnabled) {

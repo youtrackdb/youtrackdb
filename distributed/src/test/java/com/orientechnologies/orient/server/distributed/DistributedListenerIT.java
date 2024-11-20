@@ -28,6 +28,7 @@ import org.junit.Test;
  * restart.
  */
 public class DistributedListenerIT extends AbstractServerClusterTxTest {
+
   private static final int SERVERS = 2;
   private volatile boolean restartExecuted = false;
   private final Set<String> afterRestartdbOnline = new HashSet<>();
@@ -59,10 +60,12 @@ public class DistributedListenerIT extends AbstractServerClusterTxTest {
               }
 
               @Override
-              public void onNodeJoined(String iNode) {}
+              public void onNodeJoined(String iNode) {
+              }
 
               @Override
-              public void onNodeLeft(String iNode) {}
+              public void onNodeLeft(String iNode) {
+              }
 
               public void onDatabaseChangeStatus(
                   String iNode,
@@ -73,7 +76,9 @@ public class DistributedListenerIT extends AbstractServerClusterTxTest {
 
                 if (iNewStatus == ODistributedServerManager.DB_STATUS.ONLINE) {
                   final String dbName = iNode + ":" + iDatabaseName;
-                  if (restartExecuted) afterRestartdbOnline.add(dbName);
+                  if (restartExecuted) {
+                    afterRestartdbOnline.add(dbName);
+                  }
                 }
               }
             });

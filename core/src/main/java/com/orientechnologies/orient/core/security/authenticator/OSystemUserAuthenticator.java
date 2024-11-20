@@ -55,7 +55,9 @@ public class OSystemUserAuthenticator extends OSecurityAuthenticatorAbstract {
         OSecurityUser user = getSecurity().getSystemUser(username, null);
 
         if (user != null && user.getAccountStatus() == OSecurityUser.STATUSES.ACTIVE) {
-          if (user.checkPassword(password)) return user;
+          if (user.checkPassword(password)) {
+            return user;
+          }
         }
       }
     } catch (Exception ex) {
@@ -69,7 +71,9 @@ public class OSystemUserAuthenticator extends OSecurityAuthenticatorAbstract {
   // If not supported by the authenticator, return false.
   // Checks to see if a
   public boolean isAuthorized(final String username, final String resource) {
-    if (username == null || resource == null) return false;
+    if (username == null || resource == null) {
+      return false;
+    }
 
     try {
       if (getSecurity() != null) {

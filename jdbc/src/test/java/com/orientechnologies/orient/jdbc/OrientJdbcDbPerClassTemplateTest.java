@@ -70,7 +70,9 @@ public abstract class OrientJdbcDbPerClassTemplateTest {
 
   @AfterClass
   public static void closeConnection() throws Exception {
-    if (conn != null && !conn.isClosed()) conn.close();
+    if (conn != null && !conn.isClosed()) {
+      conn.close();
+    }
     orientDB.close();
   }
 }

@@ -27,6 +27,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @since 06.06.13
  */
 public class OOperationUnitId {
+
   private static final AtomicLong sharedId = new AtomicLong();
 
   private static volatile ThreadLocal<OModifiableLong> localId = new ThreadLocal<>();
@@ -40,9 +41,13 @@ public class OOperationUnitId {
             new OOrientListenerAbstract() {
               @Override
               public void onStartup() {
-                if (localId == null) localId = new ThreadLocal<>();
+                if (localId == null) {
+                  localId = new ThreadLocal<>();
+                }
 
-                if (sharedIdCopy == null) sharedIdCopy = new ThreadLocal<>();
+                if (sharedIdCopy == null) {
+                  sharedIdCopy = new ThreadLocal<>();
+                }
               }
 
               @Override
@@ -117,12 +122,18 @@ public class OOperationUnitId {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof OOperationUnitId)) return false;
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof OOperationUnitId)) {
+      return false;
+    }
 
     OOperationUnitId that = (OOperationUnitId) o;
 
-    if (lId != that.lId) return false;
+    if (lId != that.lId) {
+      return false;
+    }
 
     return sId == that.sId;
   }

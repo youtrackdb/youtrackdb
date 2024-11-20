@@ -45,7 +45,7 @@ public class ORightBinaryCondition extends SimpleNode {
   @Override
   public void toString(Map<Object, Object> params, StringBuilder builder) {
     if (operator != null) {
-      builder.append(operator.toString());
+      builder.append(operator);
       builder.append(" ");
       right.toString(params, builder);
     } else if (inOperator != null) {
@@ -63,7 +63,7 @@ public class ORightBinaryCondition extends SimpleNode {
       if (operator instanceof SimpleNode) {
         ((SimpleNode) operator).toGenericStatement(builder);
       } else {
-        builder.append(operator.toString());
+        builder.append(operator);
       }
       builder.append(" ");
       right.toGenericStatement(builder);
@@ -172,10 +172,7 @@ public class ORightBinaryCondition extends SimpleNode {
   }
 
   public boolean needsAliases(Set<String> aliases) {
-    if (right != null && right.needsAliases(aliases)) {
-      return true;
-    }
-    return false;
+    return right != null && right.needsAliases(aliases);
   }
 
   public void extractSubQueries(SubQueryCollector collector) {
@@ -185,10 +182,7 @@ public class ORightBinaryCondition extends SimpleNode {
   }
 
   public boolean refersToParent() {
-    if (right != null && right.refersToParent()) {
-      return true;
-    }
-    return false;
+    return right != null && right.refersToParent();
   }
 
   public OResult serialize() {

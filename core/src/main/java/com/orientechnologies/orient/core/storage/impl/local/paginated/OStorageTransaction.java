@@ -22,6 +22,7 @@ import com.orientechnologies.orient.core.tx.OTransactionInternal;
  * @since 12.06.13
  */
 public class OStorageTransaction {
+
   private final OTransactionInternal clientTx;
 
   public OStorageTransaction(OTransactionInternal clientTx) {

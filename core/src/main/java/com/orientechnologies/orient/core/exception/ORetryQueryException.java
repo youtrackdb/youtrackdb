@@ -7,6 +7,7 @@ package com.orientechnologies.orient.core.exception;
  * @see com.orientechnologies.orient.core.index.OIndexAbstract#getRebuildVersion()
  */
 public abstract class ORetryQueryException extends OCoreException {
+
   public ORetryQueryException(ORetryQueryException exception) {
     super(exception);
   }

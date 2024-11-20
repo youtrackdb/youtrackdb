@@ -20,7 +20,9 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OWALChanges;
 import java.nio.ByteBuffer;
 
-/** Created by Enrico Risa on 04/09/15. */
+/**
+ * Created by Enrico Risa on 04/09/15.
+ */
 public class OLuceneMockSpatialSerializer implements OBinarySerializer<ODocument> {
 
   protected static OLuceneMockSpatialSerializer INSTANCE = new OLuceneMockSpatialSerializer();

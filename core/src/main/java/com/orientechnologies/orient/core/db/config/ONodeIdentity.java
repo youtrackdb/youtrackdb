@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class ONodeIdentity implements Cloneable {
+
   private String id;
   private String name;
 
@@ -39,8 +40,12 @@ public class ONodeIdentity implements Cloneable {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     ONodeIdentity that = (ONodeIdentity) o;
     return Objects.equals(id, that.id);
   }

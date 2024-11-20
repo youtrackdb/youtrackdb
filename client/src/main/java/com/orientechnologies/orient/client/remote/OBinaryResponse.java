@@ -5,7 +5,9 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
 import java.io.IOException;
 
-/** Created by tglman on 07/06/16. */
+/**
+ * Created by tglman on 07/06/16.
+ */
 public interface OBinaryResponse {
 
   void write(OChannelDataOutput channel, int protocolVersion, ORecordSerializer serializer)

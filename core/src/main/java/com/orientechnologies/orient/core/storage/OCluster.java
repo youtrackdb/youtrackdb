@@ -72,11 +72,11 @@ public interface OCluster {
   /**
    * Creates a new record in the cluster.
    *
-   * @param content the content of the record.
-   * @param recordVersion the current version
-   * @param recordType the type of the record
+   * @param content           the content of the record.
+   * @param recordVersion     the current version
+   * @param recordType        the type of the record
    * @param allocatedPosition the eventual allocated position or null if there is no allocated
-   *     position.
+   *                          position.
    * @return the position where the record si created.
    */
   OPhysicalPosition createRecord(
@@ -129,7 +129,9 @@ public interface OCluster {
 
   String getName();
 
-  /** Returns the size of the records contained in the cluster in bytes. */
+  /**
+   * Returns the size of the records contained in the cluster in bytes.
+   */
   long getRecordsSize() throws IOException;
 
   String compression();

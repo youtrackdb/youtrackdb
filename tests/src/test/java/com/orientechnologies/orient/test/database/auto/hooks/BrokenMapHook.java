@@ -16,7 +16,7 @@ import java.util.Set;
 
 public class BrokenMapHook extends ORecordHookAbstract implements ORecordHook {
 
-  private ODatabaseSessionInternal database;
+  private final ODatabaseSessionInternal database;
 
   public BrokenMapHook() {
     this.database = ODatabaseRecordThreadLocal.instance().get();

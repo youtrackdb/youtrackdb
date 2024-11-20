@@ -6,6 +6,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class HttpServerTest extends BaseHttpDatabaseTest {
+
   @Test
   public void testGetServer() throws Exception {
     var res = get("server").getResponse();

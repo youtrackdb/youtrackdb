@@ -33,6 +33,7 @@ import java.lang.ref.WeakReference;
  * @param <V> Item value.
  */
 public final class OSimpleMultiValueTracker<K, V> {
+
   private final WeakReference<ORecordElement> element;
   private OMultiValueChangeTimeLine<Object, Object> timeLine;
   private boolean enabled;

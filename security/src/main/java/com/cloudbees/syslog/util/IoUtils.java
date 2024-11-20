@@ -19,8 +19,11 @@ import java.io.IOException;
 import java.io.Writer;
 import java.net.Socket;
 
-/** @author <a href="mailto:cleclerc@cloudbees.com">Cyrille Le Clerc</a> */
+/**
+ * @author <a href="mailto:cleclerc@cloudbees.com">Cyrille Le Clerc</a>
+ */
 public class IoUtils {
+
   private IoUtils() {}
 
   public static void closeQuietly(Socket socket) {

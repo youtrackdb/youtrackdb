@@ -26,6 +26,7 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
  * @author Artem Orobets (enisher-at-gmail.com)
  */
 public class ORecordCountHandler implements OReturnHandler {
+
   private int count = 0;
 
   @Override

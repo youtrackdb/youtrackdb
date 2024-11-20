@@ -5,6 +5,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import java.util.Map;
 
 public class OCompareOperator extends SimpleNode {
+
   public OCompareOperator(int id) {
     super(id);
   }

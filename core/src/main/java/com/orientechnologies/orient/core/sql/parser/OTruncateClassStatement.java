@@ -127,15 +127,24 @@ public class OTruncateClassStatement extends ODDLStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OTruncateClassStatement that = (OTruncateClassStatement) o;
 
-    if (polymorphic != that.polymorphic) return false;
-    if (unsafe != that.unsafe) return false;
-    if (className != null ? !className.equals(that.className) : that.className != null)
+    if (polymorphic != that.polymorphic) {
       return false;
+    }
+    if (unsafe != that.unsafe) {
+      return false;
+    }
+    if (className != null ? !className.equals(that.className) : that.className != null) {
+      return false;
+    }
 
     return true;
   }

@@ -29,6 +29,7 @@ import org.junit.Test;
  * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
 public class OQueryOperatorMinusTest {
+
   @Test
   public void test() {
     OQueryOperator operator = new OQueryOperatorMinus();

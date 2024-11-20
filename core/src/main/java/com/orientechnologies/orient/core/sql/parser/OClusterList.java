@@ -7,6 +7,7 @@ import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class OClusterList extends SimpleNode {
@@ -66,14 +67,16 @@ public class OClusterList extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OClusterList that = (OClusterList) o;
 
-    if (clusters != null ? !clusters.equals(that.clusters) : that.clusters != null) return false;
-
-    return true;
+    return Objects.equals(clusters, that.clusters);
   }
 
   @Override

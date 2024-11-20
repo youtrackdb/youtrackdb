@@ -25,6 +25,7 @@ import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 
 public class OServerCommandPostCommandGraph extends OServerCommandPostCommand {
+
   public OServerCommandPostCommandGraph() {}
 
   public OServerCommandPostCommandGraph(final OServerCommandConfiguration iConfig) {}

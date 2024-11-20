@@ -2,6 +2,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 public class JJTOrientSqlState {
+
   private java.util.List<Node> nodes;
   private java.util.List<Integer> marks;
 

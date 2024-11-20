@@ -67,6 +67,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class Orient extends OListenerManger<OOrientListener> {
+
   public static final String ORIENTDB_HOME = "ORIENTDB_HOME";
   public static final String URL_SYNTAX =
       "<engine>:<db-type>:<db-name>[?<db-param>=<db-value>[&]]*";
@@ -104,9 +105,13 @@ public class Orient extends OListenerManger<OOrientListener> {
           new Comparator<OShutdownHandler>() {
             @Override
             public int compare(OShutdownHandler handlerOne, OShutdownHandler handlerTwo) {
-              if (handlerOne.getPriority() > handlerTwo.getPriority()) return 1;
+              if (handlerOne.getPriority() > handlerTwo.getPriority()) {
+                return 1;
+              }
 
-              if (handlerOne.getPriority() < handlerTwo.getPriority()) return -1;
+              if (handlerOne.getPriority() < handlerTwo.getPriority()) {
+                return -1;
+              }
 
               return 0;
             }
@@ -114,9 +119,10 @@ public class Orient extends OListenerManger<OOrientListener> {
 
   private final OLocalRecordCacheFactory localRecordCache = new OLocalRecordCacheFactoryImpl();
 
-  private Set<OrientDBEmbedded> factories = Collections.newSetFromMap(new ConcurrentHashMap<>());
+  private final Set<OrientDBEmbedded> factories =
+      Collections.newSetFromMap(new ConcurrentHashMap<>());
 
-  private Set<OrientDBInternal> runningInstances = new HashSet<>();
+  private final Set<OrientDBInternal> runningInstances = new HashSet<>();
 
   private final String os;
 
@@ -128,13 +134,18 @@ public class Orient extends OListenerManger<OOrientListener> {
   private volatile boolean active = false;
   private OSignalHandler signalHandler;
 
-  /** Indicates that engine is initialized inside of web application container. */
-  private volatile boolean insideWebContainer;
+  /**
+   * Indicates that engine is initialized inside of web application container.
+   */
+  private final boolean insideWebContainer;
 
-  /** Prevents duplications because of recursive initialization. */
+  /**
+   * Prevents duplications because of recursive initialization.
+   */
   private static boolean initInProgress = false;
 
   private static class WeakHashSetValueHolder<T> extends WeakReference<T> {
+
     private final int hashCode;
 
     private WeakHashSetValueHolder(T referent, ReferenceQueue<? super T> q) {
@@ -149,19 +160,28 @@ public class Orient extends OListenerManger<OOrientListener> {
 
     @Override
     public boolean equals(Object o) {
-      if (this == o) return true;
+      if (this == o) {
+        return true;
+      }
 
-      if (o == null || getClass() != o.getClass()) return false;
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
 
       WeakHashSetValueHolder that = (WeakHashSetValueHolder) o;
 
-      if (hashCode != that.hashCode) return false;
+      if (hashCode != that.hashCode) {
+        return false;
+      }
 
       final T thisObject = get();
       final Object thatObject = that.get();
 
-      if (thisObject == null && thatObject == null) return super.equals(that);
-      else if (thisObject != null && thatObject != null) return thisObject.equals(thatObject);
+      if (thisObject == null && thatObject == null) {
+        return super.equals(that);
+      } else if (thisObject != null && thatObject != null) {
+        return thisObject.equals(thatObject);
+      }
 
       return false;
     }
@@ -180,7 +200,9 @@ public class Orient extends OListenerManger<OOrientListener> {
   }
 
   public static Orient instance() {
-    if (instance != null) return instance;
+    if (instance != null) {
+      return instance;
+    }
 
     return startUp(false);
   }
@@ -193,7 +215,9 @@ public class Orient extends OListenerManger<OOrientListener> {
       }
 
       initInProgress = true;
-      if (instance != null) return instance;
+      if (instance != null) {
+        return instance;
+      }
 
       final Orient orient = new Orient(insideWebContainer);
       orient.startup();
@@ -210,7 +234,9 @@ public class Orient extends OListenerManger<OOrientListener> {
   public static String getHomePath() {
     String v = System.getProperty("orient.home");
 
-    if (v == null) v = OSystemVariableResolver.resolveVariable(ORIENTDB_HOME);
+    if (v == null) {
+      v = OSystemVariableResolver.resolveVariable(ORIENTDB_HOME);
+    }
 
     return OFileUtils.getPath(v);
   }
@@ -245,10 +271,14 @@ public class Orient extends OListenerManger<OOrientListener> {
     engineLock.writeLock().lock();
     try {
       if (active)
-        // ALREADY ACTIVE
+      // ALREADY ACTIVE
+      {
         return this;
+      }
 
-      if (timer == null) timer = new Timer(true);
+      if (timer == null) {
+        timer = new Timer(true);
+      }
 
       profiler = new OProfilerStub(false);
 
@@ -260,29 +290,36 @@ public class Orient extends OListenerManger<OOrientListener> {
 
       registerEngines();
 
-      if (OGlobalConfiguration.ENVIRONMENT_DUMP_CFG_AT_STARTUP.getValueAsBoolean())
+      if (OGlobalConfiguration.ENVIRONMENT_DUMP_CFG_AT_STARTUP.getValueAsBoolean()) {
         OGlobalConfiguration.dumpConfiguration(System.out);
+      }
 
       active = true;
 
-      for (OOrientStartupListener l : startupListeners)
+      for (OOrientStartupListener l : startupListeners) {
         try {
-          if (l != null) l.onStartup();
+          if (l != null) {
+            l.onStartup();
+          }
         } catch (Exception e) {
           OLogManager.instance().error(this, "Error on startup", e);
         }
+      }
 
       purgeWeakStartupListeners();
-      for (final WeakHashSetValueHolder<OOrientStartupListener> wl : weakStartupListeners)
+      for (final WeakHashSetValueHolder<OOrientStartupListener> wl : weakStartupListeners) {
         try {
           if (wl != null) {
             final OOrientStartupListener l = wl.get();
-            if (l != null) l.onStartup();
+            if (l != null) {
+              l.onStartup();
+            }
           }
 
         } catch (Exception e) {
           OLogManager.instance().error(this, "Error on startup", e);
         }
+      }
 
       initShutdownQueue();
       registerWeakOrientStartupListener(profiler);
@@ -307,7 +344,9 @@ public class Orient extends OListenerManger<OOrientListener> {
     }
   }
 
-  /** Adds shutdown handlers in order which will be used during execution of shutdown. */
+  /**
+   * Adds shutdown handlers in order which will be used during execution of shutdown.
+   */
   private void initShutdownQueue() {
     addShutdownHandler(new OShutdownOrientDBInstancesHandler());
     addShutdownHandler(new OShutdownPendingThreadsHandler());
@@ -317,9 +356,9 @@ public class Orient extends OListenerManger<OOrientListener> {
 
   /**
    * Shutdown whole OrientDB ecosystem. Usually is called during JVM shutdown by JVM shutdown
-   * handler. During shutdown all handlers which were registered by the call of {@link
-   * #addShutdownHandler(OShutdownHandler)} are called together with pre-registered system shoutdown
-   * handlers according to their priority.
+   * handler. During shutdown all handlers which were registered by the call of
+   * {@link #addShutdownHandler(OShutdownHandler)} are called together with pre-registered system
+   * shoutdown handlers according to their priority.
    *
    * @see OShutdownWorkersHandler
    * @see
@@ -336,8 +375,9 @@ public class Orient extends OListenerManger<OOrientListener> {
         engine = engines.next();
         registerEngine(engine);
       } catch (IllegalArgumentException e) {
-        if (engine != null)
+        if (engine != null) {
           OLogManager.instance().debug(this, "Failed to replace engine " + engine.getName(), e);
+        }
       }
     }
   }
@@ -345,7 +385,9 @@ public class Orient extends OListenerManger<OOrientListener> {
   public Orient shutdown() {
     engineLock.writeLock().lock();
     try {
-      if (!active) return this;
+      if (!active) {
+        return this;
+      }
 
       active = false;
 
@@ -505,12 +547,12 @@ public class Orient extends OListenerManger<OOrientListener> {
   }
 
   /**
-   * Obtains an {@link OEngine engine} instance with the given {@code engineName}, if it is {@link
-   * OEngine#isRunning() running}.
+   * Obtains an {@link OEngine engine} instance with the given {@code engineName}, if it is
+   * {@link OEngine#isRunning() running}.
    *
    * @param engineName the name of the engine to obtain.
    * @return the obtained engine instance or {@code null} if no such engine known or the engine is
-   *     not running.
+   * not running.
    */
   public OEngine getEngineIfRunning(final String engineName) {
     engineLock.readLock().lock();
@@ -534,11 +576,13 @@ public class Orient extends OListenerManger<OOrientListener> {
     engineLock.readLock().lock();
     try {
       OEngine engine = engines.get(engineName);
-      if (engine == null)
+      if (engine == null) {
         throw new IllegalStateException("Engine '" + engineName + "' is not found.");
+      }
 
-      if (!engine.isRunning() && !startEngine(engine))
+      if (!engine.isRunning() && !startEngine(engine)) {
         throw new IllegalStateException("Engine '" + engineName + "' is failed to start.");
+      }
 
       return engine;
     } finally {
@@ -593,16 +637,19 @@ public class Orient extends OListenerManger<OOrientListener> {
     final Map<ODatabaseLifecycleListener, ODatabaseLifecycleListener.PRIORITY> tmp =
         new LinkedHashMap<ODatabaseLifecycleListener, ODatabaseLifecycleListener.PRIORITY>(
             dbLifecycleListeners);
-    if (iListener.getPriority() == null)
+    if (iListener.getPriority() == null) {
       throw new IllegalArgumentException(
           "Priority of DatabaseLifecycleListener '" + iListener + "' cannot be null");
+    }
 
     tmp.put(iListener, iListener.getPriority());
     dbLifecycleListeners.clear();
     for (ODatabaseLifecycleListener.PRIORITY p : ODatabaseLifecycleListener.PRIORITY.values()) {
       for (Map.Entry<ODatabaseLifecycleListener, ODatabaseLifecycleListener.PRIORITY> e :
           tmp.entrySet()) {
-        if (e.getValue() == p) dbLifecycleListeners.put(e.getKey(), e.getValue());
+        if (e.getValue() == p) {
+          dbLifecycleListeners.put(e.getKey(), e.getValue());
+        }
       }
     }
   }
@@ -641,16 +688,18 @@ public class Orient extends OListenerManger<OOrientListener> {
 
   @Override
   public void registerListener(OOrientListener listener) {
-    if (listener instanceof OOrientStartupListener)
+    if (listener instanceof OOrientStartupListener) {
       registerOrientStartupListener((OOrientStartupListener) listener);
+    }
 
     super.registerListener(listener);
   }
 
   @Override
   public void unregisterListener(OOrientListener listener) {
-    if (listener instanceof OOrientStartupListener)
+    if (listener instanceof OOrientStartupListener) {
       unregisterOrientStartupListener((OOrientStartupListener) listener);
+    }
 
     super.unregisterListener(listener);
   }
@@ -747,8 +796,11 @@ public class Orient extends OListenerManger<OOrientListener> {
     return false;
   }
 
-  /** Closes all storages and shutdown all engines. */
+  /**
+   * Closes all storages and shutdown all engines.
+   */
   public class OShutdownOrientDBInstancesHandler implements OShutdownHandler {
+
     @Override
     public int getPriority() {
       return SHUTDOWN_ENGINES_PRIORITY;
@@ -769,10 +821,11 @@ public class Orient extends OListenerManger<OOrientListener> {
   }
 
   /**
-   * Interrupts all threads in OrientDB thread group and stops timer is used in methods {@link
-   * #scheduleTask(Runnable, Date, long)} and {@link #scheduleTask(Runnable, long, long)}.
+   * Interrupts all threads in OrientDB thread group and stops timer is used in methods
+   * {@link #scheduleTask(Runnable, Date, long)} and {@link #scheduleTask(Runnable, long, long)}.
    */
   private class OShutdownPendingThreadsHandler implements OShutdownHandler {
+
     @Override
     public int getPriority() {
       return SHUTDOWN_PENDING_THREADS_PRIORITY;
@@ -781,8 +834,10 @@ public class Orient extends OListenerManger<OOrientListener> {
     @Override
     public void shutdown() throws Exception {
       if (threadGroup != null)
-        // STOP ALL THE PENDING THREADS
+      // STOP ALL THE PENDING THREADS
+      {
         threadGroup.interrupt();
+      }
 
       if (timer != null) {
         timer.cancel();
@@ -798,8 +853,11 @@ public class Orient extends OListenerManger<OOrientListener> {
     }
   }
 
-  /** Shutdown OrientDB profiler. */
+  /**
+   * Shutdown OrientDB profiler.
+   */
   private class OShutdownProfilerHandler implements OShutdownHandler {
+
     @Override
     public int getPriority() {
       return SHUTDOWN_PROFILER_PRIORITY;
@@ -817,8 +875,11 @@ public class Orient extends OListenerManger<OOrientListener> {
     }
   }
 
-  /** Calls all shutdown listeners. */
+  /**
+   * Calls all shutdown listeners.
+   */
   private class OShutdownCallListenersHandler implements OShutdownHandler {
+
     @Override
     public int getPriority() {
       return SHUTDOWN_CALL_LISTENERS;
@@ -827,7 +888,7 @@ public class Orient extends OListenerManger<OOrientListener> {
     @Override
     public void shutdown() throws Exception {
       purgeWeakShutdownListeners();
-      for (final WeakHashSetValueHolder<OOrientShutdownListener> wl : weakShutdownListeners)
+      for (final WeakHashSetValueHolder<OOrientShutdownListener> wl : weakShutdownListeners) {
         try {
           if (wl != null) {
             final OOrientShutdownListener l = wl.get();
@@ -839,15 +900,17 @@ public class Orient extends OListenerManger<OOrientListener> {
         } catch (Exception e) {
           OLogManager.instance().error(this, "Error during orient shutdown", e);
         }
+      }
 
       // CALL THE SHUTDOWN ON ALL THE LISTENERS
       for (OOrientListener l : browseListeners()) {
-        if (l != null)
+        if (l != null) {
           try {
             l.onShutdown();
           } catch (Exception e) {
             OLogManager.instance().error(this, "Error during orient shutdown", e);
           }
+        }
       }
 
       System.gc();
@@ -861,9 +924,13 @@ public class Orient extends OListenerManger<OOrientListener> {
 
   public void onEmbeddedFactoryInit(OrientDBEmbedded embeddedFactory) {
     OEngine memory = engines.get("memory");
-    if (memory != null && !memory.isRunning()) memory.startup();
+    if (memory != null && !memory.isRunning()) {
+      memory.startup();
+    }
     OEngine disc = engines.get("plocal");
-    if (disc != null && !disc.isRunning()) disc.startup();
+    if (disc != null && !disc.isRunning()) {
+      disc.startup();
+    }
     factories.add(embeddedFactory);
   }
 
@@ -871,9 +938,13 @@ public class Orient extends OListenerManger<OOrientListener> {
     factories.remove(embeddedFactory);
     if (factories.isEmpty()) {
       OEngine memory = engines.get("memory");
-      if (memory != null && memory.isRunning()) memory.shutdown();
+      if (memory != null && memory.isRunning()) {
+        memory.shutdown();
+      }
       OEngine disc = engines.get("plocal");
-      if (disc != null && disc.isRunning()) disc.shutdown();
+      if (disc != null && disc.isRunning()) {
+        disc.shutdown();
+      }
     }
   }
 

@@ -11,6 +11,7 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 public class ODropDatabaseRequest implements OBinaryRequest<ODropDatabaseResponse> {
+
   private String databaseName;
   private String storageType;
 

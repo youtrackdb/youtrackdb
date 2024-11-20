@@ -5,6 +5,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import java.util.Map;
 
 public class OparseServerStatement extends SimpleNode {
+
   public OparseServerStatement(int id) {
     super(id);
   }

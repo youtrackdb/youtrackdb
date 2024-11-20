@@ -28,6 +28,7 @@ import java.nio.ByteBuffer;
  * @since 29.04.13
  */
 public abstract class OAbstractPageWALRecord extends OOperationUnitBodyRecord {
+
   private long pageIndex;
   private long fileId;
 
@@ -66,13 +67,21 @@ public abstract class OAbstractPageWALRecord extends OOperationUnitBodyRecord {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    if (!super.equals(o)) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    if (!super.equals(o)) {
+      return false;
+    }
 
     OAbstractPageWALRecord that = (OAbstractPageWALRecord) o;
 
-    if (pageIndex != that.pageIndex) return false;
+    if (pageIndex != that.pageIndex) {
+      return false;
+    }
     return fileId == that.fileId;
   }
 

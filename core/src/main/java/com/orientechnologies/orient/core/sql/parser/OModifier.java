@@ -223,28 +223,47 @@ public class OModifier extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OModifier oModifier = (OModifier) o;
 
-    if (squareBrackets != oModifier.squareBrackets) return false;
+    if (squareBrackets != oModifier.squareBrackets) {
+      return false;
+    }
     if (arrayRange != null
         ? !arrayRange.equals(oModifier.arrayRange)
-        : oModifier.arrayRange != null) return false;
-    if (condition != null ? !condition.equals(oModifier.condition) : oModifier.condition != null)
+        : oModifier.arrayRange != null) {
       return false;
+    }
+    if (condition != null ? !condition.equals(oModifier.condition) : oModifier.condition != null) {
+      return false;
+    }
     if (arraySingleValues != null
         ? !arraySingleValues.equals(oModifier.arraySingleValues)
-        : oModifier.arraySingleValues != null) return false;
+        : oModifier.arraySingleValues != null) {
+      return false;
+    }
     if (rightBinaryCondition != null
         ? !rightBinaryCondition.equals(oModifier.rightBinaryCondition)
-        : oModifier.rightBinaryCondition != null) return false;
+        : oModifier.rightBinaryCondition != null) {
+      return false;
+    }
     if (methodCall != null
         ? !methodCall.equals(oModifier.methodCall)
-        : oModifier.methodCall != null) return false;
-    if (suffix != null ? !suffix.equals(oModifier.suffix) : oModifier.suffix != null) return false;
-    if (next != null ? !next.equals(oModifier.next) : oModifier.next != null) return false;
+        : oModifier.methodCall != null) {
+      return false;
+    }
+    if (suffix != null ? !suffix.equals(oModifier.suffix) : oModifier.suffix != null) {
+      return false;
+    }
+    if (next != null ? !next.equals(oModifier.next) : oModifier.next != null) {
+      return false;
+    }
 
     return true;
   }

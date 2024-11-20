@@ -13,7 +13,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Created by luigidellaquila on 12/07/16. */
+/**
+ * Created by luigidellaquila on 12/07/16.
+ */
 public class AggregateProjectionCalculationStep extends ProjectionCalculationStep {
 
   private final OGroupBy groupBy;

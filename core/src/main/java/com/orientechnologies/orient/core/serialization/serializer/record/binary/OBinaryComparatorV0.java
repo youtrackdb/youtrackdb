@@ -308,7 +308,9 @@ public class OBinaryComparatorV0 implements OBinaryComparator {
                   final int len1 = OVarIntSerializer.readAsInteger(fieldValue1);
                   final int len2 = OVarIntSerializer.readAsInteger(fieldValue2);
 
-                  if (len1 != len2) return false;
+                  if (len1 != len2) {
+                    return false;
+                  }
 
                   final OCollate collate;
                   if (iField1.collate != null
@@ -336,7 +338,9 @@ public class OBinaryComparatorV0 implements OBinaryComparator {
                   } else {
                     for (int i = 0; i < len1; ++i) {
                       if (fieldValue1.bytes[fieldValue1.offset + i]
-                          != fieldValue2.bytes[fieldValue2.offset + i]) return false;
+                          != fieldValue2.bytes[fieldValue2.offset + i]) {
+                        return false;
+                      }
                     }
                   }
                   return true;
@@ -692,11 +696,15 @@ public class OBinaryComparatorV0 implements OBinaryComparator {
                 {
                   final int length1 = OVarIntSerializer.readAsInteger(fieldValue1);
                   final int length2 = OVarIntSerializer.readAsInteger(fieldValue2);
-                  if (length1 != length2) return false;
+                  if (length1 != length2) {
+                    return false;
+                  }
 
                   for (int i = 0; i < length1; ++i) {
                     if (fieldValue1.bytes[fieldValue1.offset + i]
-                        != fieldValue2.bytes[fieldValue2.offset + i]) return false;
+                        != fieldValue2.bytes[fieldValue2.offset + i]) {
+                      return false;
+                    }
                   }
                   return true;
                 }
@@ -711,11 +719,15 @@ public class OBinaryComparatorV0 implements OBinaryComparator {
                 {
                   final int clusterId1 = OVarIntSerializer.readAsInteger(fieldValue1);
                   final int clusterId2 = OVarIntSerializer.readAsInteger(fieldValue2);
-                  if (clusterId1 != clusterId2) return false;
+                  if (clusterId1 != clusterId2) {
+                    return false;
+                  }
 
                   final long clusterPos1 = OVarIntSerializer.readAsLong(fieldValue1);
                   final long clusterPos2 = OVarIntSerializer.readAsLong(fieldValue2);
-                  if (clusterPos1 == clusterPos2) return true;
+                  if (clusterPos1 == clusterPos2) {
+                    return true;
+                  }
                   break;
                 }
               case STRING:
@@ -1415,12 +1427,18 @@ public class OBinaryComparatorV0 implements OBinaryComparator {
                     final byte b1 = fieldValue1.bytes[fieldValue1.offset + i];
                     final byte b2 = fieldValue2.bytes[fieldValue2.offset + i];
 
-                    if (b1 > b2) return 1;
-                    else if (b2 > b1) return -1;
+                    if (b1 > b2) {
+                      return 1;
+                    } else if (b2 > b1) {
+                      return -1;
+                    }
                   }
 
-                  if (length1 > length2) return 1;
-                  else if (length2 > length1) return -1;
+                  if (length1 > length2) {
+                    return 1;
+                  } else if (length2 > length1) {
+                    return -1;
+                  }
 
                   // EQUALS
                   return 0;
@@ -1436,13 +1454,18 @@ public class OBinaryComparatorV0 implements OBinaryComparator {
                 {
                   final int clusterId1 = OVarIntSerializer.readAsInteger(fieldValue1);
                   final int clusterId2 = OVarIntSerializer.readAsInteger(fieldValue2);
-                  if (clusterId1 > clusterId2) return 1;
-                  else if (clusterId1 < clusterId2) return -1;
-                  else {
+                  if (clusterId1 > clusterId2) {
+                    return 1;
+                  } else if (clusterId1 < clusterId2) {
+                    return -1;
+                  } else {
                     final long clusterPos1 = OVarIntSerializer.readAsLong(fieldValue1);
                     final long clusterPos2 = OVarIntSerializer.readAsLong(fieldValue2);
-                    if (clusterPos1 > clusterPos2) return 1;
-                    else if (clusterPos1 < clusterPos2) return -1;
+                    if (clusterPos1 > clusterPos2) {
+                      return 1;
+                    } else if (clusterPos1 < clusterPos2) {
+                      return -1;
+                    }
                     return 0;
                   }
                 }

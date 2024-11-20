@@ -153,7 +153,9 @@ public class ConcurrentDistributedUpdateIT extends AbstractScenarioTest {
                   }
                 }
 
-                if (!isRunning) break;
+                if (!isRunning) {
+                  break;
+                }
               }
             }
           }

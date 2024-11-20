@@ -34,6 +34,7 @@ import java.util.stream.Stream;
  * @author Luigi Dell'Aquila (l.dellaquila--(at)--orientdb.com)
  */
 public class OSQLFunctionIndexKeySize extends OSQLFunctionAbstract {
+
   public static final String NAME = "indexKeySize";
 
   public OSQLFunctionIndexKeySize() {

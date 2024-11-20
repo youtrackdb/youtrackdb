@@ -18,7 +18,6 @@ package com.orientechnologies.spatial;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.OMetadataDefault;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -34,7 +33,7 @@ import org.junit.Test;
  */
 public class LuceneTransactionGeoQueryTest {
 
-  private static String PWKT = "POINT(-160.2075374 21.9029803)";
+  private static final String PWKT = "POINT(-160.2075374 21.9029803)";
 
   @Test
   public void testPointTransactionRollBack() {
@@ -53,10 +52,7 @@ public class LuceneTransactionGeoQueryTest {
 
       db.command("CREATE INDEX City.location ON City(location) SPATIAL ENGINE LUCENE").close();
 
-      OIndex idx =
-          ((OMetadataDefault) db.getMetadata())
-              .getIndexManagerInternal()
-              .getIndex((ODatabaseSessionInternal) db, "City.location");
+      OIndex idx = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.location");
       ODocument rome = newCity("Rome", 12.5, 41.9);
       ODocument london = newCity("London", -0.1275, 51.507222);
 
@@ -112,10 +108,7 @@ public class LuceneTransactionGeoQueryTest {
 
       db.command("CREATE INDEX City.location ON City(location) SPATIAL ENGINE LUCENE").close();
 
-      OIndex idx =
-          ((OMetadataDefault) db.getMetadata())
-              .getIndexManagerInternal()
-              .getIndex((ODatabaseSessionInternal) db, "City.location");
+      OIndex idx = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.location");
       ODocument rome = newCity("Rome", 12.5, 41.9);
 
       db.begin();

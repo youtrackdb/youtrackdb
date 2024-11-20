@@ -31,7 +31,6 @@ import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.OQueryParsingException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexAbstract;
-import com.orientechnologies.orient.core.metadata.OMetadataInternal;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.ORecord;
@@ -69,7 +68,7 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
   private String indexName = null;
   private List<Map<String, Object>> newRecords;
   private OSQLAsynchQuery<OIdentifiable> subQuery = null;
-  private AtomicLong saved = new AtomicLong(0);
+  private final AtomicLong saved = new AtomicLong(0);
   private Object returnExpression = null;
   private List<ODocument> queryResult = null;
   private boolean unsafe = false;
@@ -121,9 +120,7 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
         }
 
         final OClass cls =
-            ((OMetadataInternal) database.getMetadata())
-                .getImmutableSchemaSnapshot()
-                .getClass(subjectName);
+            database.getMetadata().getImmutableSchemaSnapshot().getClass(subjectName);
         if (cls == null) {
           throwParsingException("Class " + subjectName + " not found in database");
         }
@@ -333,9 +330,8 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
     // RESET THE IDENTITY TO AVOID UPDATE
     rec.getIdentity().reset();
 
-    if (rec instanceof ODocument) {
+    if (rec instanceof ODocument doc) {
 
-      ODocument doc = (ODocument) rec;
       if (className != null) {
         doc.setClassName(className);
         doc.setTrackingChanges(true);
@@ -527,8 +523,7 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
   private Object getIndexKeyValue(
       OCommandParameters commandParameters, Map<String, Object> candidate) {
     final Object parsedKey = candidate.get(KEYWORD_KEY);
-    if (parsedKey instanceof OSQLFilterItemField) {
-      final OSQLFilterItemField f = (OSQLFilterItemField) parsedKey;
+    if (parsedKey instanceof OSQLFilterItemField f) {
       if (f.getRoot().equals("?"))
       // POSITIONAL PARAMETER
       {
@@ -545,8 +540,7 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
   private OIdentifiable getIndexValue(
       OCommandParameters commandParameters, Map<String, Object> candidate) {
     final Object parsedRid = candidate.get(KEYWORD_RID);
-    if (parsedRid instanceof OSQLFilterItemField) {
-      final OSQLFilterItemField f = (OSQLFilterItemField) parsedRid;
+    if (parsedRid instanceof OSQLFilterItemField f) {
       if (f.getRoot().equals("?"))
       // POSITIONAL PARAMETER
       {

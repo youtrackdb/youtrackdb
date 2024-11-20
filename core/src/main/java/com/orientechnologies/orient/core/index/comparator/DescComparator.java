@@ -6,6 +6,7 @@ import com.orientechnologies.orient.core.id.ORID;
 import java.util.Comparator;
 
 public class DescComparator implements Comparator<ORawPair<Object, ORID>> {
+
   public static final DescComparator INSTANCE = new DescComparator();
 
   @Override

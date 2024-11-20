@@ -63,7 +63,7 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
 
   private ODocument configuration;
 
-  private Set<OAutomaticBackupListener> listeners =
+  private final Set<OAutomaticBackupListener> listeners =
       Collections.newSetFromMap(new ConcurrentHashMap<OAutomaticBackupListener, Boolean>());
 
   public enum VARIABLES {
@@ -86,8 +86,8 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
 
   private String targetDirectory = "backup";
   private String targetFileName;
-  private Set<String> includeDatabases = new HashSet<String>();
-  private Set<String> excludeDatabases = new HashSet<String>();
+  private final Set<String> includeDatabases = new HashSet<String>();
+  private final Set<String> excludeDatabases = new HashSet<String>();
   private OServer serverInstance;
 
   @Override
@@ -349,15 +349,11 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
         targetDirectory = settingValueAsString;
       } else if (settingName.equalsIgnoreCase("dbInclude")) {
         String[] included = getDbsList(settingName, settingValueAsString);
-        for (String db : included) {
-          includeDatabases.add(db);
-        }
+        Collections.addAll(includeDatabases, included);
       } else if (settingName.equalsIgnoreCase("dbExclude")
           && settingValueAsString.trim().length() > 0) {
         String[] excluded = getDbsList(settingName, settingValueAsString);
-        for (String db : excluded) {
-          excludeDatabases.add(db);
-        }
+        Collections.addAll(excludeDatabases, excluded);
       } else if (settingName.equalsIgnoreCase("targetFileName")) {
         targetFileName = settingValueAsString;
       } else if (settingName.equalsIgnoreCase("bufferSize")) {
@@ -375,8 +371,7 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
   private String[] getDbsList(String settingName, String settingValueAsString) {
     String[] included = null;
     Object val = configuration.field(settingName);
-    if (val instanceof Collection) {
-      Collection dbs = (Collection) val;
+    if (val instanceof Collection dbs) {
       included = new String[dbs.size()];
       int i = 0;
       for (Object o : dbs) {

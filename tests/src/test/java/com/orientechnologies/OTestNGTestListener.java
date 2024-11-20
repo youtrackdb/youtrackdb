@@ -28,8 +28,6 @@ import org.testng.ISuiteListener;
 import org.testng.ISuiteResult;
 
 /**
- *
- *
  * <ol>
  *   <li>Listens for TestNG test run started and prohibits logging of exceptions on storage level.
  *   <li>Listens for the TestNG test run finishing and runs the direct memory leaks detector, if no
@@ -42,6 +40,7 @@ import org.testng.ISuiteResult;
  * @author Sergey Sitnikov
  */
 public class OTestNGTestListener implements ISuiteListener {
+
   @Override
   public void onFinish(ISuite suite) {
 
@@ -64,10 +63,15 @@ public class OTestNGTestListener implements ISuiteListener {
   }
 
   private static boolean isFailed(ISuite suite) {
-    if (suite.getSuiteState().isFailed()) return true;
+    if (suite.getSuiteState().isFailed()) {
+      return true;
+    }
 
-    for (ISuiteResult result : suite.getResults().values())
-      if (result.getTestContext().getFailedTests().size() != 0) return true;
+    for (ISuiteResult result : suite.getResults().values()) {
+      if (result.getTestContext().getFailedTests().size() != 0) {
+        return true;
+      }
+    }
 
     return false;
   }

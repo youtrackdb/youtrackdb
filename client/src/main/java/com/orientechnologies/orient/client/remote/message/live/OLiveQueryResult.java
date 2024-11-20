@@ -2,8 +2,11 @@ package com.orientechnologies.orient.client.remote.message.live;
 
 import com.orientechnologies.orient.core.sql.executor.OResult;
 
-/** Created by tglman on 17/05/17. */
+/**
+ * Created by tglman on 17/05/17.
+ */
 public class OLiveQueryResult {
+
   public static final byte CREATE_EVENT = 1;
   public static final byte UPDATE_EVENT = 2;
   public static final byte DELETE_EVENT = 3;

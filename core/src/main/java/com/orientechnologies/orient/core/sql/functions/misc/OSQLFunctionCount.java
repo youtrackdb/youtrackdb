@@ -32,6 +32,7 @@ import java.util.List;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFunctionCount extends OSQLFunctionMathAbstract {
+
   public static final String NAME = "count";
 
   private long total = 0;
@@ -46,7 +47,9 @@ public class OSQLFunctionCount extends OSQLFunctionMathAbstract {
       Object iCurrentResult,
       final Object[] iParams,
       OCommandContext iContext) {
-    if (iParams.length == 0 || iParams[0] != null) total++;
+    if (iParams.length == 0 || iParams[0] != null) {
+      total++;
+    }
 
     return total;
   }

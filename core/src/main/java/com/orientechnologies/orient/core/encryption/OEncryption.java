@@ -34,6 +34,7 @@ package com.orientechnologies.orient.core.encryption;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OEncryption {
+
   byte[] encrypt(byte[] content);
 
   byte[] decrypt(byte[] content);

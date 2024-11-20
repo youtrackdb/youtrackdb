@@ -28,7 +28,9 @@ import org.apache.lucene.spatial.query.SpatialArgs;
 import org.apache.lucene.spatial.query.SpatialOperation;
 import org.locationtech.spatial4j.shape.Shape;
 
-/** Created by Enrico Risa on 11/08/15. */
+/**
+ * Created by Enrico Risa on 11/08/15.
+ */
 public class SpatialQueryBuilderWithin extends SpatialQueryBuilderAbstract {
 
   public static final String NAME = "within";

@@ -184,32 +184,53 @@ public class OInsertStatement extends OStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OInsertStatement that = (OInsertStatement) o;
 
-    if (selectInParentheses != that.selectInParentheses) return false;
-    if (selectWithFrom != that.selectWithFrom) return false;
-    if (unsafe != that.unsafe) return false;
-    if (targetClass != null ? !targetClass.equals(that.targetClass) : that.targetClass != null)
+    if (selectInParentheses != that.selectInParentheses) {
       return false;
+    }
+    if (selectWithFrom != that.selectWithFrom) {
+      return false;
+    }
+    if (unsafe != that.unsafe) {
+      return false;
+    }
+    if (targetClass != null ? !targetClass.equals(that.targetClass) : that.targetClass != null) {
+      return false;
+    }
     if (targetClusterName != null
         ? !targetClusterName.equals(that.targetClusterName)
-        : that.targetClusterName != null) return false;
+        : that.targetClusterName != null) {
+      return false;
+    }
     if (targetCluster != null
         ? !targetCluster.equals(that.targetCluster)
-        : that.targetCluster != null) return false;
-    if (targetIndex != null ? !targetIndex.equals(that.targetIndex) : that.targetIndex != null)
+        : that.targetCluster != null) {
       return false;
-    if (insertBody != null ? !insertBody.equals(that.insertBody) : that.insertBody != null)
+    }
+    if (targetIndex != null ? !targetIndex.equals(that.targetIndex) : that.targetIndex != null) {
       return false;
+    }
+    if (insertBody != null ? !insertBody.equals(that.insertBody) : that.insertBody != null) {
+      return false;
+    }
     if (returnStatement != null
         ? !returnStatement.equals(that.returnStatement)
-        : that.returnStatement != null) return false;
+        : that.returnStatement != null) {
+      return false;
+    }
     if (selectStatement != null
         ? !selectStatement.equals(that.selectStatement)
-        : that.selectStatement != null) return false;
+        : that.selectStatement != null) {
+      return false;
+    }
 
     return true;
   }

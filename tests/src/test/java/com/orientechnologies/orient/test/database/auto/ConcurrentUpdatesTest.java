@@ -78,7 +78,7 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
               totalRetries.addAndGet(retries);
               break;
             } catch (ONeedRetryException e) {
-              Thread.sleep(retries * 10);
+              Thread.sleep(retries * 10L);
             }
           }
           fieldValue += ";" + i;

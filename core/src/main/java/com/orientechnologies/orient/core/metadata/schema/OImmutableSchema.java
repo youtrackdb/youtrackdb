@@ -45,6 +45,7 @@ import java.util.Set;
  * @since 10/21/14
  */
 public class OImmutableSchema implements OSchema {
+
   private final Int2ObjectOpenHashMap<OClass> clustersToClasses;
   private final Map<String, OClass> classes;
   private final IntSet blogClusters;
@@ -69,16 +70,19 @@ public class OImmutableSchema implements OSchema {
       final OImmutableClass immutableClass = new OImmutableClass(oClass, this);
 
       classes.put(immutableClass.getName().toLowerCase(Locale.ENGLISH), immutableClass);
-      if (immutableClass.getShortName() != null)
+      if (immutableClass.getShortName() != null) {
         classes.put(immutableClass.getShortName().toLowerCase(Locale.ENGLISH), immutableClass);
+      }
 
-      for (int clusterId : immutableClass.getClusterIds())
+      for (int clusterId : immutableClass.getClusterIds()) {
         clustersToClasses.put(clusterId, immutableClass);
+      }
     }
 
     properties = new ArrayList<OGlobalProperty>();
-    for (OGlobalProperty globalProperty : schemaShared.getGlobalProperties())
+    for (OGlobalProperty globalProperty : schemaShared.getGlobalProperties()) {
       properties.add(globalProperty);
+    }
 
     for (OClass cl : classes.values()) {
       ((OImmutableClass) cl).init();
@@ -92,11 +96,13 @@ public class OImmutableSchema implements OSchema {
       final OImmutableView immutableClass = new OImmutableView(oClass, this);
 
       views.put(immutableClass.getName().toLowerCase(Locale.ENGLISH), immutableClass);
-      if (immutableClass.getShortName() != null)
+      if (immutableClass.getShortName() != null) {
         views.put(immutableClass.getShortName().toLowerCase(Locale.ENGLISH), immutableClass);
+      }
 
-      for (int clusterId : immutableClass.getClusterIds())
+      for (int clusterId : immutableClass.getClusterIds()) {
         clustersToViews.put(clusterId, immutableClass);
+      }
     }
     for (OClass cl : views.values()) {
       ((OImmutableClass) cl).init();
@@ -180,17 +186,23 @@ public class OImmutableSchema implements OSchema {
 
   @Override
   public OClass getClass(Class<?> iClass) {
-    if (iClass == null) return null;
+    if (iClass == null) {
+      return null;
+    }
 
     return getClass(iClass.getSimpleName());
   }
 
   @Override
   public OClass getClass(String iClassName) {
-    if (iClassName == null) return null;
+    if (iClassName == null) {
+      return null;
+    }
 
     OClass cls = classes.get(iClassName.toLowerCase(Locale.ENGLISH));
-    if (cls != null) return cls;
+    if (cls != null) {
+      return cls;
+    }
 
     return null;
   }
@@ -244,7 +256,9 @@ public class OImmutableSchema implements OSchema {
     final int clusterId = getDatabase().getClusterIdByName(clusterName);
     final Set<OClass> result = new HashSet<OClass>();
     for (OClass c : classes.values()) {
-      if (OArrays.contains(c.getPolymorphicClusterIds(), clusterId)) result.add(c);
+      if (OArrays.contains(c.getPolymorphicClusterIds(), clusterId)) {
+        result.add(c);
+      }
     }
 
     return result;
@@ -262,7 +276,9 @@ public class OImmutableSchema implements OSchema {
 
   @Override
   public OGlobalProperty getGlobalPropertyById(int id) {
-    if (id >= properties.size()) return null;
+    if (id >= properties.size()) {
+      return null;
+    }
     return properties.get(id);
   }
 
@@ -291,10 +307,14 @@ public class OImmutableSchema implements OSchema {
 
   @Override
   public OView getView(String name) {
-    if (name == null) return null;
+    if (name == null) {
+      return null;
+    }
 
     OView cls = views.get(name.toLowerCase(Locale.ENGLISH));
-    if (cls != null) return cls;
+    if (cls != null) {
+      return cls;
+    }
 
     return null;
   }

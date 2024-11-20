@@ -12,7 +12,9 @@ import java.util.function.Consumer;
 
 public final class SpliteratorForward implements Spliterator<ORawPairObjectInteger<EdgeKey>> {
 
-  /** */
+  /**
+   *
+   */
   private final BTree bTree;
 
   private final EdgeKey fromKey;

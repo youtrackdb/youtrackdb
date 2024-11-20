@@ -24,7 +24,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.locationtech.spatial4j.distance.DistanceUtils;
 
-/** Created by Enrico Risa on 28/09/15. */
+/**
+ * Created by Enrico Risa on 28/09/15.
+ */
 public class LuceneSpatialDistanceSphereTest extends BaseSpatialLuceneTest {
 
   @Test

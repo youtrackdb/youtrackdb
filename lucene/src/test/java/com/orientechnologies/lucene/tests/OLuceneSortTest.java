@@ -138,7 +138,7 @@ public class OLuceneSortTest extends OLuceneBaseTest {
 
     List<String> names =
         resultSet.stream()
-            .map(o -> "" + o.<Integer>getProperty("score") + o.<String>getProperty("name"))
+            .map(o -> o.<Integer>getProperty("score") + o.<String>getProperty("name"))
             .collect(Collectors.toList());
 
     assertThat(names)

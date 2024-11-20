@@ -38,14 +38,15 @@ import javax.script.ScriptEngine;
 
 public class OMailPlugin extends OServerPluginAbstract
     implements OScriptInjection, OServerPluginConfigurable {
+
   private static final String CONFIG_PROFILE_PREFIX = "profile.";
   private static final String CONFIG_MAIL_PREFIX = "mail.";
 
   private ODocument configuration;
 
-  private Map<String, OMailProfile> profiles = new HashMap<String, OMailProfile>();
+  private final Map<String, OMailProfile> profiles = new HashMap<String, OMailProfile>();
 
-  private String configFile = "${ORIENTDB_HOME}/config/mail.json";
+  private final String configFile = "${ORIENTDB_HOME}/config/mail.json";
 
   public OMailPlugin() {}
 

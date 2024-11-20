@@ -26,7 +26,9 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
-/** Created by enricorisa on 26/09/14. */
+/**
+ * Created by enricorisa on 26/09/14.
+ */
 public class OLuceneDropClusterTest extends OLuceneBaseTest {
 
   @Test

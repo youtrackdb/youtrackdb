@@ -12,7 +12,9 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by olena.kolesnyk on 03/08/2017. */
+/**
+ * Created by olena.kolesnyk on 03/08/2017.
+ */
 public class ConvertToResultInternalStepTest extends TestUtilsFixture {
 
   private static final String STRING_PROPERTY = "stringPropertyName";

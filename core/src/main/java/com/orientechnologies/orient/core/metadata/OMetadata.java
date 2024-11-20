@@ -26,6 +26,7 @@ import com.orientechnologies.orient.core.schedule.OScheduler;
  * @author Luca Molino (molino.luca--at--gmail.com)
  */
 public interface OMetadata {
+
   OSchema getSchema();
 
   OSecurity getSecurity();

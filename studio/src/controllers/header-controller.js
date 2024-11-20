@@ -68,7 +68,7 @@ let HeaderController = angular.module('header.controller', [databaseServices]).c
             $scope.$apply();
           }
         })
-        return;
+
       }
     });
   }

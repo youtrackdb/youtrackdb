@@ -22,6 +22,7 @@ package com.orientechnologies.orient.core.exception;
  * @see com.orientechnologies.orient.core.index.OIndexAbstract#getRebuildVersion()
  */
 public class OIndexIsRebuildingException extends ORetryQueryException {
+
   public OIndexIsRebuildingException(OIndexIsRebuildingException exception) {
     super(exception);
   }

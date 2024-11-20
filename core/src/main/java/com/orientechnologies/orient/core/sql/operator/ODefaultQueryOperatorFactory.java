@@ -65,7 +65,9 @@ public class ODefaultQueryOperatorFactory implements OQueryOperatorFactory {
     OPERATORS = Collections.unmodifiableSet(operators);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   public Set<OQueryOperator> getOperators() {
     return OPERATORS;
   }

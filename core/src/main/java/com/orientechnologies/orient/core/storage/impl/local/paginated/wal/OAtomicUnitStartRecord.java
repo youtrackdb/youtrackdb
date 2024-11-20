@@ -28,6 +28,7 @@ import java.nio.ByteBuffer;
  * @since 24.05.13
  */
 public class OAtomicUnitStartRecord extends OOperationUnitRecord {
+
   private boolean isRollbackSupported;
 
   public OAtomicUnitStartRecord() {}

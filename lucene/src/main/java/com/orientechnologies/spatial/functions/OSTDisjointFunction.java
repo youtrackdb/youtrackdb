@@ -22,11 +22,13 @@ import com.orientechnologies.spatial.shape.OShapeFactory;
 import org.locationtech.spatial4j.shape.Shape;
 import org.locationtech.spatial4j.shape.SpatialRelation;
 
-/** Created by Enrico Risa on 25/09/15. */
+/**
+ * Created by Enrico Risa on 25/09/15.
+ */
 public class OSTDisjointFunction extends OSQLFunctionAbstract {
 
   public static final String NAME = "st_disjoint";
-  private OShapeFactory factory = OShapeFactory.INSTANCE;
+  private final OShapeFactory factory = OShapeFactory.INSTANCE;
 
   public OSTDisjointFunction() {
     super(NAME, 2, 2);

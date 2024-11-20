@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class OMoveVertexStatement extends OStatement {
+
   protected OFromItem source;
   protected OCluster targetCluster;
   protected OIdentifier targetClass;
@@ -119,20 +120,31 @@ public class OMoveVertexStatement extends OStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OMoveVertexStatement that = (OMoveVertexStatement) o;
 
-    if (!source.equals(that.source)) return false;
+    if (!source.equals(that.source)) {
+      return false;
+    }
     if (targetCluster != null
         ? !targetCluster.equals(that.targetCluster)
-        : that.targetCluster != null) return false;
-    if (targetClass != null ? !targetClass.equals(that.targetClass) : that.targetClass != null)
+        : that.targetCluster != null) {
       return false;
+    }
+    if (targetClass != null ? !targetClass.equals(that.targetClass) : that.targetClass != null) {
+      return false;
+    }
     if (updateOperations != null
         ? !updateOperations.equals(that.updateOperations)
-        : that.updateOperations != null) return false;
+        : that.updateOperations != null) {
+      return false;
+    }
     return batch != null ? batch.equals(that.batch) : that.batch == null;
   }
 

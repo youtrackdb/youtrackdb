@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
 public class OTxMetadataHolderImpl implements OTxMetadataHolder {
+
   private final CountDownLatch request;
   private final OTransactionSequenceStatus status;
   private final OTransactionId id;

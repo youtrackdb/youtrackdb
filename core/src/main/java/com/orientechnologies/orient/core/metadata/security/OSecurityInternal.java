@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 public interface OSecurityInternal {
+
   boolean isAllowed(
       ODatabaseSession session, Set<OIdentifiable> iAllowAll, Set<OIdentifiable> iAllowOperation);
 
@@ -89,9 +90,10 @@ public interface OSecurityInternal {
    * Returns the security policy policy assigned to a role for a specific resource (not recursive on
    * superclasses, nor on role hierarchy)
    *
-   * @param session an active DB session
-   * @param role the role
-   * @param resource the string representation of the security resource, eg. "database.class.Person"
+   * @param session  an active DB session
+   * @param role     the role
+   * @param resource the string representation of the security resource, eg.
+   *                 "database.class.Person"
    * @return
    */
   OSecurityPolicy getSecurityPolicy(ODatabaseSession session, OSecurityRole role, String resource);
@@ -99,10 +101,11 @@ public interface OSecurityInternal {
   /**
    * Sets a security policy for a specific resource on a role
    *
-   * @param session a valid db session to perform the operation (that has permissions to do it)
-   * @param role The role
-   * @param resource the string representation of the security resource, eg. "database.class.Person"
-   * @param policy The security policy
+   * @param session  a valid db session to perform the operation (that has permissions to do it)
+   * @param role     The role
+   * @param resource the string representation of the security resource, eg.
+   *                 "database.class.Person"
+   * @param policy   The security policy
    */
   void setSecurityPolicy(
       ODatabaseSession session, OSecurityRole role, String resource, OSecurityPolicyImpl policy);
@@ -111,7 +114,7 @@ public interface OSecurityInternal {
    * creates and saves an empty security policy
    *
    * @param session the session to a DB where the policy has to be created
-   * @param name the policy name
+   * @param name    the policy name
    * @return
    */
   OSecurityPolicyImpl createSecurityPolicy(ODatabaseSession session, String name);
@@ -125,9 +128,10 @@ public interface OSecurityInternal {
   /**
    * Removes security policy bound to a role for a specific resource
    *
-   * @param session A valid db session to perform the operation
-   * @param role the role
-   * @param resource the string representation of the security resource, eg. "database.class.Person"
+   * @param session  A valid db session to perform the operation
+   * @param role     the role
+   * @param resource the string representation of the security resource, eg.
+   *                 "database.class.Person"
    */
   void removeSecurityPolicy(ODatabaseSession session, ORole role, String resource);
 
@@ -151,10 +155,10 @@ public interface OSecurityInternal {
    * For property-level security. Returns the list of the properties that are hidden (ie. not
    * allowed to be read) for current session, regarding a specific document
    *
-   * @param session the db session
+   * @param session  the db session
    * @param document the document to filter
    * @return the list of the properties that are hidden (ie. not allowed to be read) on current
-   *     document for current session
+   * document for current session
    */
   Set<String> getFilteredProperties(ODatabaseSession session, ODocument document);
 
@@ -162,7 +166,7 @@ public interface OSecurityInternal {
    * For property-level security
    *
    * @param session
-   * @param document current document to check for proeprty-level security
+   * @param document     current document to check for proeprty-level security
    * @param propertyName the property to check for write access
    * @return
    */
@@ -182,10 +186,10 @@ public interface OSecurityInternal {
    * checks if for current session a resource is restricted by security resources (ie. READ policies
    * exist, with predicate different from "TRUE", to access the given resource
    *
-   * @param session The session to check for the existece of policies
+   * @param session  The session to check for the existece of policies
    * @param resource a resource string, eg. "database.class.Person"
    * @return true if a restriction of any type exists for this session and this resource. False
-   *     otherwise
+   * otherwise
    */
   boolean isReadRestrictedBySecurityPolicy(ODatabaseSession session, String resource);
 

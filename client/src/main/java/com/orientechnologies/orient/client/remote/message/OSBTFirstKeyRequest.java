@@ -32,6 +32,7 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 public class OSBTFirstKeyRequest implements OBinaryRequest<OSBTFirstKeyResponse> {
+
   private OBonsaiCollectionPointer collectionPointer;
 
   public OSBTFirstKeyRequest(OBonsaiCollectionPointer collectionPointer) {

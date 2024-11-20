@@ -36,7 +36,7 @@ public class OShapeFactory extends OComplexShapeBuilder {
 
   protected OShapeOperation operation;
 
-  private Map<String, OShapeBuilder> factories = new HashMap<String, OShapeBuilder>();
+  private final Map<String, OShapeBuilder> factories = new HashMap<String, OShapeBuilder>();
 
   protected OShapeFactory() {
     operation = new OShapeOperationImpl(this);
@@ -234,20 +234,16 @@ public class OShapeFactory extends OComplexShapeBuilder {
   }
 
   public ODocument toDoc(Geometry geometry) {
-    if (geometry instanceof org.locationtech.jts.geom.Point) {
-      org.locationtech.jts.geom.Point point = (org.locationtech.jts.geom.Point) geometry;
+    if (geometry instanceof org.locationtech.jts.geom.Point point) {
       Point point1 = context().makePoint(point.getX(), point.getY());
       return toDoc(point1);
     }
-    if (geometry instanceof org.locationtech.jts.geom.GeometryCollection) {
-      org.locationtech.jts.geom.GeometryCollection gc =
-          (org.locationtech.jts.geom.GeometryCollection) geometry;
+    if (geometry instanceof org.locationtech.jts.geom.GeometryCollection gc) {
       List<Shape> shapes = new ArrayList<Shape>();
       for (int i = 0; i < gc.getNumGeometries(); i++) {
         Geometry geo = gc.getGeometryN(i);
         Shape shape = null;
-        if (geo instanceof org.locationtech.jts.geom.Point) {
-          org.locationtech.jts.geom.Point point = (org.locationtech.jts.geom.Point) geo;
+        if (geo instanceof org.locationtech.jts.geom.Point point) {
           shape = context().makePoint(point.getX(), point.getY());
         } else {
           shape = SPATIAL_CONTEXT.makeShape(geo);

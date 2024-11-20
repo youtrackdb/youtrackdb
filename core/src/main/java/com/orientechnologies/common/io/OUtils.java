@@ -22,16 +22,22 @@ package com.orientechnologies.common.io;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 
 public class OUtils {
+
   public static String getDatabaseNameFromURL(final String name) {
-    if (OStringSerializerHelper.contains(name, '/'))
+    if (OStringSerializerHelper.contains(name, '/')) {
       return name.substring(name.lastIndexOf("/") + 1);
+    }
     return name;
   }
 
   public static boolean equals(final Object a, final Object b) {
-    if (a == b) return true;
+    if (a == b) {
+      return true;
+    }
 
-    if (a != null) return a.equals(b);
+    if (a != null) {
+      return a.equals(b);
+    }
     return b.equals(a);
   }
 

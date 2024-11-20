@@ -22,7 +22,9 @@ package com.orientechnologies.common.collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/** The most simpler LRU cache implementation in Java. */
+/**
+ * The most simpler LRU cache implementation in Java.
+ */
 public class OLRUCache<K, V> extends LinkedHashMap<K, V> {
 
   private static final long serialVersionUID = 0;

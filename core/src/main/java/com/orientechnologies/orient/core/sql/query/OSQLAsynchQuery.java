@@ -31,15 +31,18 @@ import java.util.Map;
  * of this. NOTE: if you're working with remote databases don't execute any remote call inside the
  * callback function because the network channel is locked until the query command has finished.
  *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  * @param <T>
+ * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  * @see OSQLSynchQuery
  */
 public class OSQLAsynchQuery<T extends Object> extends OSQLQuery<T>
     implements OCommandRequestAsynch {
+
   private static final long serialVersionUID = 1L;
 
-  /** Empty constructor for unmarshalling. */
+  /**
+   * Empty constructor for unmarshalling.
+   */
   public OSQLAsynchQuery() {}
 
   public OSQLAsynchQuery(final String iText) {
@@ -70,13 +73,16 @@ public class OSQLAsynchQuery<T extends Object> extends OSQLQuery<T>
 
   @Override
   public List<T> run(Object... iArgs) {
-    if (resultListener == null)
+    if (resultListener == null) {
       throw new OCommandExecutionException("Listener not found on asynch query");
+    }
 
     return super.run(iArgs);
   }
 
-  /** Sets default non idempotent to avoid custom query deadlocks database. */
+  /**
+   * Sets default non idempotent to avoid custom query deadlocks database.
+   */
   @Override
   public boolean isIdempotent() {
     return true;

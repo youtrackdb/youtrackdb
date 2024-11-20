@@ -27,6 +27,7 @@ import org.junit.Test;
  * @since 13.03.13
  */
 public class LocalHashTableV2IterationTestIT {
+
   private static final int KEYS_COUNT = 500000;
 
   private ODatabaseSessionInternal db;
@@ -37,7 +38,9 @@ public class LocalHashTableV2IterationTestIT {
   @Before
   public void beforeClass() throws Exception {
     String buildDirectory = System.getProperty("buildDirectory");
-    if (buildDirectory == null) buildDirectory = ".";
+    if (buildDirectory == null) {
+      buildDirectory = ".";
+    }
 
     db = new ODatabaseDocumentTx("plocal:" + buildDirectory + "/localHashTableV2IterationTest");
     if (db.exists()) {

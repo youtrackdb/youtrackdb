@@ -44,8 +44,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * acquire new connection to database.
  *
  * <p>To acquire connection from the pool call {@link #acquire()} method but to release connection
- * you just need to call
- * {@link ODatabaseSession#close()} method.
+ * you just need to call {@link ODatabaseSession#close()} method.
  *
  * <p>In case of remote storage database pool will keep connections to the remote storage till you
  * close pool. So in case of remote storage you should close pool at the end of it's usage, it also
@@ -454,7 +453,7 @@ public class OPartitionedDatabasePool extends OOrientListenerAbstract {
       return true;
     }
 
-    protected void internalOpen() {
+    private void internalOpen() {
       if (internal == null) {
         super.open(userName, password);
       } else {

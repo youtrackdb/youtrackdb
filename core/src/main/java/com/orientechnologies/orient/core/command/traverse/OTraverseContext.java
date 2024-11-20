@@ -37,6 +37,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 public class OTraverseContext extends OBasicCommandContext {
+
   private Memory memory = new StackMemory();
   private Set<ORID> history = new HashSet<ORID>();
 
@@ -59,10 +60,11 @@ public class OTraverseContext extends OBasicCommandContext {
   public Object getVariable(final String iName) {
     final String name = iName.trim().toUpperCase(Locale.ENGLISH);
 
-    if ("DEPTH".startsWith(name)) return getDepth();
-    else if (name.startsWith("PATH"))
+    if ("DEPTH".startsWith(name)) {
+      return getDepth();
+    } else if (name.startsWith("PATH")) {
       return ODocumentHelper.getFieldValue(getPath(), iName.substring("PATH".length()));
-    else if (name.startsWith("STACK")) {
+    } else if (name.startsWith("STACK")) {
 
       Object result =
           ODocumentHelper.getFieldValue(memory.getUnderlying(), iName.substring("STACK".length()));
@@ -70,18 +72,21 @@ public class OTraverseContext extends OBasicCommandContext {
         result = ((ArrayDeque) result).clone();
       }
       return result;
-    } else if (name.startsWith("HISTORY"))
+    } else if (name.startsWith("HISTORY")) {
       return ODocumentHelper.getFieldValue(history, iName.substring("HISTORY".length()));
-    else
-      // DELEGATE
+    } else
+    // DELEGATE
+    {
       return super.getVariable(iName);
+    }
   }
 
   public void pop(final OIdentifiable currentRecord) {
     if (currentRecord != null) {
       final ORID rid = currentRecord.getIdentity();
-      if (!history.remove(rid))
+      if (!history.remove(rid)) {
         OLogManager.instance().warn(this, "Element '" + rid + "' not found in traverse history");
+      }
     }
 
     try {
@@ -105,7 +110,9 @@ public class OTraverseContext extends OBasicCommandContext {
   }
 
   public boolean isAlreadyTraversed(final OIdentifiable identity, final int iLevel) {
-    if (history.contains(identity.getIdentity())) return true;
+    if (history.contains(identity.getIdentity())) {
+      return true;
+    }
 
     // final int[] l = history.get(identity.getIdentity());
     // if (l == null)
@@ -154,11 +161,15 @@ public class OTraverseContext extends OBasicCommandContext {
   }
 
   public void setStrategy(final OTraverse.STRATEGY strategy) {
-    if (strategy == OTraverse.STRATEGY.BREADTH_FIRST) memory = new QueueMemory(memory);
-    else memory = new StackMemory(memory);
+    if (strategy == OTraverse.STRATEGY.BREADTH_FIRST) {
+      memory = new QueueMemory(memory);
+    } else {
+      memory = new StackMemory(memory);
+    }
   }
 
   private interface Memory {
+
     void add(OTraverseAbstractProcess<?> iProcess);
 
     OTraverseAbstractProcess<?> next();
@@ -173,6 +184,7 @@ public class OTraverseContext extends OBasicCommandContext {
   }
 
   private abstract static class AbstractMemory implements Memory {
+
     protected final Deque<OTraverseAbstractProcess<?>> deque;
 
     public AbstractMemory() {
@@ -210,6 +222,7 @@ public class OTraverseContext extends OBasicCommandContext {
   }
 
   private static class StackMemory extends AbstractMemory {
+
     public StackMemory() {
       super();
     }
@@ -225,6 +238,7 @@ public class OTraverseContext extends OBasicCommandContext {
   }
 
   private static class QueueMemory extends AbstractMemory {
+
     public QueueMemory(final Memory memory) {
       super(memory);
     }

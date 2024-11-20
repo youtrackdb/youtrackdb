@@ -212,12 +212,12 @@ public class OFunctionCall extends SimpleNode {
   }
 
   /**
-   * @param target query target
-   * @param ctx execution context
-   * @param operator operator at the right of the function
+   * @param target     query target
+   * @param ctx        execution context
+   * @param operator   operator at the right of the function
    * @param rightValue value to compare to funciton result
    * @return the approximate number of items returned by the condition execution, -1 if the
-   *     extimation cannot be executed
+   * extimation cannot be executed
    */
   public long estimateIndexedFunction(
       OFromClause target, OCommandContext ctx, OBinaryCompareOperator operator, Object rightValue) {
@@ -234,12 +234,12 @@ public class OFunctionCall extends SimpleNode {
    * tests if current function is an indexed function AND that function can also be executed without
    * using the index
    *
-   * @param target the query target
-   * @param context the execution context
+   * @param target   the query target
+   * @param context  the execution context
    * @param operator
    * @param right
    * @return true if current function is an indexed funciton AND that function can also be executed
-   *     without using the index, false otherwise
+   * without using the index, false otherwise
    */
   public boolean canExecuteIndexedFunctionWithoutIndex(
       OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
@@ -255,12 +255,12 @@ public class OFunctionCall extends SimpleNode {
   /**
    * tests if current function is an indexed function AND that function can be used on this target
    *
-   * @param target the query target
-   * @param context the execution context
+   * @param target   the query target
+   * @param context  the execution context
    * @param operator
    * @param right
    * @return true if current function is an indexed function AND that function can be used on this
-   *     target, false otherwise
+   * target, false otherwise
    */
   public boolean allowsIndexedFunctionExecutionOnTarget(
       OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
@@ -279,10 +279,10 @@ public class OFunctionCall extends SimpleNode {
    * excluded from further evaluation. In other cases the result from the index is a superset of the
    * expected result, so the function has to be executed anyway for further filtering
    *
-   * @param target the query target
+   * @param target  the query target
    * @param context the execution context
    * @return true if current expression is an indexed function AND the function has also to be
-   *     executed after the index search.
+   * executed after the index search.
    */
   public boolean executeIndexedFunctionAfterIndexSearch(
       OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
@@ -392,7 +392,9 @@ public class OFunctionCall extends SimpleNode {
 
   public boolean isEarlyCalculated(OCommandContext ctx) {
 
-    if (isTraverseFunction()) return false;
+    if (isTraverseFunction()) {
+      return false;
+    }
 
     for (OExpression param : params) {
       if (!param.isEarlyCalculated(ctx)) {
@@ -432,13 +434,21 @@ public class OFunctionCall extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OFunctionCall that = (OFunctionCall) o;
 
-    if (name != null ? !name.equals(that.name) : that.name != null) return false;
-    if (params != null ? !params.equals(that.params) : that.params != null) return false;
+    if (name != null ? !name.equals(that.name) : that.name != null) {
+      return false;
+    }
+    if (params != null ? !params.equals(that.params) : that.params != null) {
+      return false;
+    }
 
     return true;
   }

@@ -153,7 +153,7 @@ public class ViewManager {
             orientDB.executeNoAuthorization(
                 dbName,
                 (db) -> {
-                  ViewManager.this.updateViews((ODatabaseSessionInternal) db);
+                  ViewManager.this.updateViews(db);
                   return null;
                 });
           }
@@ -214,7 +214,7 @@ public class ViewManager {
   }
 
   public void cleanUnusedViewIndexes(ODatabaseSessionInternal db) {
-    if (((ODatabaseDocumentEmbedded) db).getStorage().isIcrementalBackupRunning()) {
+    if (db.getStorage().isIcrementalBackupRunning()) {
       // backup is running handle delete the next run
       return;
     }
@@ -314,7 +314,7 @@ public class ViewManager {
   private boolean isUpdateExpiredFor(OView view, ODatabaseSessionInternal db) {
     long lastUpdate = view.getLastRefreshTime();
     int updateInterval = view.getUpdateIntervalSeconds();
-    return lastUpdate + (updateInterval * 1000) < System.currentTimeMillis();
+    return lastUpdate + (updateInterval * 1000L) < System.currentTimeMillis();
   }
 
   public void updateView(OView view, ODatabaseSessionInternal db) {
@@ -326,7 +326,7 @@ public class ViewManager {
   }
 
   public void updateViewInternal(OView view, ODatabaseSessionInternal db) {
-    if (((ODatabaseDocumentEmbedded) db).getStorage().isIcrementalBackupRunning() || closed) {
+    if (db.getStorage().isIcrementalBackupRunning() || closed) {
       // backup is running handle rebuild the next run
       return;
     }
@@ -524,17 +524,13 @@ public class ViewManager {
         dbName,
         (databaseSession) -> {
           if (!buildOnThisNode(
-              (ODatabaseSessionInternal) databaseSession,
-              ((ODatabaseSessionInternal) databaseSession)
-                  .getMetadata()
-                  .getSchema()
-                  .getView(name))) {
+              databaseSession, databaseSession.getMetadata().getSchema().getView(name))) {
             return null;
           }
           try {
             OView view = databaseSession.getMetadata().getSchema().getView(name);
             if (view != null) {
-              updateView(view, (ODatabaseSessionInternal) databaseSession);
+              updateView(view, databaseSession);
             }
             if (listener != null) {
               listener.afterCreate(databaseSession, name);

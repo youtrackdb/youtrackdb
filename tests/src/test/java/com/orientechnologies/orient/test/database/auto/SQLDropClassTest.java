@@ -5,8 +5,11 @@ import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-/** Created by luigidellaquila on 09/11/16. */
+/**
+ * Created by luigidellaquila on 09/11/16.
+ */
 public class SQLDropClassTest {
+
   @Test
   public void testSimpleDrop() {
     ODatabaseSessionInternal db =

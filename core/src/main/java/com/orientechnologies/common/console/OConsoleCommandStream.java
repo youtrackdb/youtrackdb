@@ -32,8 +32,9 @@ import java.io.StringReader;
  * @author Luigi Dell'Aquila
  */
 public class OConsoleCommandStream implements OCommandStream {
+
   public static final int BUFFER_SIZE = 1024;
-  private Reader reader;
+  private final Reader reader;
 
   private Character nextCharacter;
   private State state;
@@ -91,8 +92,11 @@ public class OConsoleCommandStream implements OCommandStream {
   private void init() {
     try {
       final int next = reader.read();
-      if (next > -1) nextCharacter = (char) next;
-      else nextCharacter = null;
+      if (next > -1) {
+        nextCharacter = (char) next;
+      } else {
+        nextCharacter = null;
+      }
 
     } catch (IOException e) {
       throw new RuntimeException(e);
@@ -100,12 +104,17 @@ public class OConsoleCommandStream implements OCommandStream {
   }
 
   private Character nextCharacter() throws IOException {
-    if (nextCharacter == null) return null;
+    if (nextCharacter == null) {
+      return null;
+    }
 
     final Character result = nextCharacter;
     final int next = reader.read();
-    if (next < 0) nextCharacter = null;
-    else nextCharacter = (char) next;
+    if (next < 0) {
+      nextCharacter = null;
+    } else {
+      nextCharacter = (char) next;
+    }
 
     return result;
   }
@@ -300,10 +309,7 @@ public class OConsoleCommandStream implements OCommandStream {
     if (cmd.substring(0, 6).equalsIgnoreCase("foreach ")) {
       return true;
     }
-    if (cmd.substring(0, 6).equalsIgnoreCase("while ")) {
-      return true;
-    }
-    return false;
+    return cmd.substring(0, 6).equalsIgnoreCase("while ");
   }
 
   @Override
@@ -316,17 +322,39 @@ public class OConsoleCommandStream implements OCommandStream {
   }
 
   public Symbol symbol(Character c) {
-    if (c == null) return Symbol.EOF;
-    if (c.equals('\'')) return Symbol.SINGLE_QUOTE;
-    if (c.equals('"')) return Symbol.DOUBLE_QUOTE;
-    if (c.equals('-')) return Symbol.HYPHEN;
-    if (c.equals('#')) return Symbol.POUND;
-    if (c.equals('/')) return Symbol.SLASH;
-    if (c.equals('*')) return Symbol.ASTERISK;
-    if (c.equals(';')) return Symbol.SEPARATOR;
-    if (c.equals('{')) return Symbol.LEFT_BRACKET;
-    if (c.equals('}')) return Symbol.RIGHT_BRAKET;
-    if (c.equals('\n') || c.equals('\r')) return Symbol.NEW_LINE;
+    if (c == null) {
+      return Symbol.EOF;
+    }
+    if (c.equals('\'')) {
+      return Symbol.SINGLE_QUOTE;
+    }
+    if (c.equals('"')) {
+      return Symbol.DOUBLE_QUOTE;
+    }
+    if (c.equals('-')) {
+      return Symbol.HYPHEN;
+    }
+    if (c.equals('#')) {
+      return Symbol.POUND;
+    }
+    if (c.equals('/')) {
+      return Symbol.SLASH;
+    }
+    if (c.equals('*')) {
+      return Symbol.ASTERISK;
+    }
+    if (c.equals(';')) {
+      return Symbol.SEPARATOR;
+    }
+    if (c.equals('{')) {
+      return Symbol.LEFT_BRACKET;
+    }
+    if (c.equals('}')) {
+      return Symbol.RIGHT_BRAKET;
+    }
+    if (c.equals('\n') || c.equals('\r')) {
+      return Symbol.NEW_LINE;
+    }
     if (c.equals('\\')) {
       return Symbol.STRING_ESCAPE;
     }

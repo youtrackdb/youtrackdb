@@ -27,6 +27,7 @@ import java.util.Set;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OFunctionLibrary {
+
   Set<String> getFunctionNames();
 
   OFunction getFunction(String iName);

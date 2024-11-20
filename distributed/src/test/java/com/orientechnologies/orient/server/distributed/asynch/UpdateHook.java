@@ -7,7 +7,8 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 public class UpdateHook implements ORecordHook {
 
   @Override
-  public void onUnregister() {}
+  public void onUnregister() {
+  }
 
   @Override
   public RESULT onTrigger(TYPE iType, ORecord iRecord) {

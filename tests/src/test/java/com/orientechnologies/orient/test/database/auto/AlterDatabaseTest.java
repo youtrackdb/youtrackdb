@@ -25,6 +25,7 @@ import org.testng.annotations.Test;
 
 @Test
 public class AlterDatabaseTest extends DocumentDBBaseTest {
+
   @Parameters(value = "remote")
   public AlterDatabaseTest(boolean remote) {
     super(remote);

@@ -31,6 +31,7 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 public final class OReadRecordRequest implements OBinaryRequest<OReadRecordResponse> {
+
   private boolean ignoreCache;
   private ORecordId rid;
   private String fetchPlan;

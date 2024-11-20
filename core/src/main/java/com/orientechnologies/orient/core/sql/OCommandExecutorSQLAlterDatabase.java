@@ -41,6 +41,7 @@ import java.util.Map;
 @SuppressWarnings("unchecked")
 public class OCommandExecutorSQLAlterDatabase extends OCommandExecutorSQLAbstract
     implements OCommandDistributedReplicateRequest {
+
   public static final String KEYWORD_ALTER = "ALTER";
   public static final String KEYWORD_DATABASE = "DATABASE";
 
@@ -62,21 +63,24 @@ public class OCommandExecutorSQLAlterDatabase extends OCommandExecutorSQLAbstrac
 
       int oldPos = 0;
       int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
-      if (pos == -1 || !word.toString().equals(KEYWORD_ALTER))
+      if (pos == -1 || !word.toString().equals(KEYWORD_ALTER)) {
         throw new OCommandSQLParsingException(
             "Keyword " + KEYWORD_ALTER + " not found. Use " + getSyntax(), parserText, oldPos);
+      }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
-      if (pos == -1 || !word.toString().equals(KEYWORD_DATABASE))
+      if (pos == -1 || !word.toString().equals(KEYWORD_DATABASE)) {
         throw new OCommandSQLParsingException(
             "Keyword " + KEYWORD_DATABASE + " not found. Use " + getSyntax(), parserText, oldPos);
+      }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
-      if (pos == -1)
+      if (pos == -1) {
         throw new OCommandSQLParsingException(
             "Missed the database's attribute to change. Use " + getSyntax(), parserText, oldPos);
+      }
 
       final String attributeAsString = word.toString();
 
@@ -97,7 +101,7 @@ public class OCommandExecutorSQLAlterDatabase extends OCommandExecutorSQLAbstrac
 
       value = parserText.substring(pos + 1).trim();
 
-      if (value.length() == 0)
+      if (value.length() == 0) {
         throw new OCommandSQLParsingException(
             "Missed the database's value to change for attribute '"
                 + attribute
@@ -105,8 +109,11 @@ public class OCommandExecutorSQLAlterDatabase extends OCommandExecutorSQLAbstrac
                 + getSyntax(),
             parserText,
             oldPos);
+      }
 
-      if (value.equalsIgnoreCase("null")) value = null;
+      if (value.equalsIgnoreCase("null")) {
+        value = null;
+      }
     } finally {
       textRequest.setText(originalQuery);
     }
@@ -121,11 +128,14 @@ public class OCommandExecutorSQLAlterDatabase extends OCommandExecutorSQLAbstrac
         .getValueAsLong(OGlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT);
   }
 
-  /** Execute the ALTER DATABASE. */
+  /**
+   * Execute the ALTER DATABASE.
+   */
   public Object execute(final Map<Object, Object> iArgs) {
-    if (attribute == null)
+    if (attribute == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
+    }
 
     final ODatabaseSessionInternal database = getDatabase();
     database.checkSecurity(ORule.ResourceGeneric.DATABASE, ORole.PERMISSION_UPDATE);

@@ -43,9 +43,9 @@ import java.util.Set;
  *
  * <p>In the command context you've access to the variable $depth containing the depth level from
  * the root node. This is useful to limit the traverse up to a level. For example to consider from
- * the first depth level (0 is root node) to the third use: <code>
- * TRAVERSE children FROM #5:23 WHERE $depth BETWEEN 1 AND 3</code>. To filter traversed records use
- * it combined with a SELECT statement:
+ * the first depth level (0 is root node) to the third use: <code> TRAVERSE children FROM #5:23
+ * WHERE $depth BETWEEN 1 AND 3</code>. To filter traversed records use it combined with a SELECT
+ * statement:
  *
  * <p><code>
  * SELECT FROM (TRAVERSE children FROM #5:23 WHERE $depth BETWEEN 1 AND 3) WHERE city.name = 'Rome'
@@ -55,15 +55,18 @@ import java.util.Set;
  */
 @SuppressWarnings("unchecked")
 public class OCommandExecutorSQLTraverse extends OCommandExecutorSQLResultsetAbstract {
+
   public static final String KEYWORD_WHILE = "WHILE";
   public static final String KEYWORD_TRAVERSE = "TRAVERSE";
   public static final String KEYWORD_STRATEGY = "STRATEGY";
   public static final String KEYWORD_MAXDEPTH = "MAXDEPTH";
 
   // HANDLES ITERATION IN LAZY WAY
-  private OTraverse traverse = new OTraverse();
+  private final OTraverse traverse = new OTraverse();
 
-  /** Compile the filter conditions only the first time. */
+  /**
+   * Compile the filter conditions only the first time.
+   */
   public OCommandExecutorSQLTraverse parse(final OCommandRequest iRequest) {
     final OCommandRequestText textRequest = (OCommandRequestText) iRequest;
     String queryText = textRequest.getText();
@@ -75,9 +78,10 @@ public class OCommandExecutorSQLTraverse extends OCommandExecutorSQLResultsetAbs
       super.parse(iRequest);
 
       final int pos = parseFields();
-      if (pos == -1)
+      if (pos == -1) {
         throw new OCommandSQLParsingException(
             "Traverse must have the field list. Use " + getSyntax());
+      }
       parserSetCurrentPosition(pos);
 
       int endPosition = parserText.length();
@@ -86,15 +90,20 @@ public class OCommandExecutorSQLTraverse extends OCommandExecutorSQLResultsetAbs
           OSQLEngine.getInstance()
               .parseTarget(parserText.substring(pos, endPosition), getContext());
 
-      if (parsedTarget.parserIsEnded()) parserSetCurrentPosition(endPosition);
-      else parserMoveCurrentPosition(parsedTarget.parserGetCurrentPosition());
+      if (parsedTarget.parserIsEnded()) {
+        parserSetCurrentPosition(endPosition);
+      } else {
+        parserMoveCurrentPosition(parsedTarget.parserGetCurrentPosition());
+      }
 
       if (!parserIsEnded()) {
         parserNextWord(true);
 
         if (parserGetLastWord().equalsIgnoreCase(KEYWORD_WHERE))
-          // // TODO Remove the additional management of WHERE for TRAVERSE after a while
+        // // TODO Remove the additional management of WHERE for TRAVERSE after a while
+        {
           warnDeprecatedWhere();
+        }
 
         if (parserGetLastWord().equalsIgnoreCase(KEYWORD_WHERE)
             || parserGetLastWord().equalsIgnoreCase(KEYWORD_WHILE)) {
@@ -115,7 +124,9 @@ public class OCommandExecutorSQLTraverse extends OCommandExecutorSQLResultsetAbs
             position = compiledFilter.parserGetCurrentPosition() + parserGetCurrentPosition();
           }
           parserSetCurrentPosition(position);
-        } else parserGoBack();
+        } else {
+          parserGoBack();
+        }
       }
 
       parserSkipWhiteSpaces();
@@ -129,17 +140,25 @@ public class OCommandExecutorSQLTraverse extends OCommandExecutorSQLResultsetAbs
             KEYWORD_MAXDEPTH,
             KEYWORD_STRATEGY)) {
           final String w = parserGetLastWord();
-          if (w.equals(KEYWORD_LIMIT)) parseLimit(w);
-          else if (w.equals(KEYWORD_SKIP) || w.equals(KEYWORD_OFFSET)) parseSkip(w);
-          else if (w.equals(KEYWORD_TIMEOUT)) parseTimeout(w);
-          else if (w.equals(KEYWORD_MAXDEPTH)) parseMaxDepth(w);
-          else if (w.equals(KEYWORD_STRATEGY)) parseStrategy(w);
+          if (w.equals(KEYWORD_LIMIT)) {
+            parseLimit(w);
+          } else if (w.equals(KEYWORD_SKIP) || w.equals(KEYWORD_OFFSET)) {
+            parseSkip(w);
+          } else if (w.equals(KEYWORD_TIMEOUT)) {
+            parseTimeout(w);
+          } else if (w.equals(KEYWORD_MAXDEPTH)) {
+            parseMaxDepth(w);
+          } else if (w.equals(KEYWORD_STRATEGY)) {
+            parseStrategy(w);
+          }
         }
       }
 
-      if (limit == 0 || limit < -1)
+      if (limit == 0 || limit < -1) {
         throw new IllegalArgumentException("Limit must be > 0 or = -1 (no limit)");
-      else traverse.limit(limit);
+      } else {
+        traverse.limit(limit);
+      }
 
       traverse.getContext().setParent(iRequest.getContext());
     } finally {
@@ -149,7 +168,9 @@ public class OCommandExecutorSQLTraverse extends OCommandExecutorSQLResultsetAbs
   }
 
   protected boolean parseMaxDepth(final String w) throws OCommandSQLParsingException {
-    if (!w.equals(KEYWORD_MAXDEPTH)) return false;
+    if (!w.equals(KEYWORD_MAXDEPTH)) {
+      return false;
+    }
 
     String word = parserNextWord(true);
 
@@ -166,13 +187,14 @@ public class OCommandExecutorSQLTraverse extends OCommandExecutorSQLResultsetAbs
               + " 3000");
     }
 
-    if (traverse.getMaxDepth() < 0)
+    if (traverse.getMaxDepth() < 0) {
       throwParsingException(
           "Invalid "
               + KEYWORD_MAXDEPTH
               + ": value set minor than ZERO. Example: "
               + KEYWORD_MAXDEPTH
               + " 3");
+    }
 
     return true;
   }
@@ -180,17 +202,21 @@ public class OCommandExecutorSQLTraverse extends OCommandExecutorSQLResultsetAbs
   public Object execute(final Map<Object, Object> iArgs) {
     context.beginExecution(timeoutMs, timeoutStrategy);
 
-    if (!assignTarget(iArgs))
+    if (!assignTarget(iArgs)) {
       throw new OQueryParsingException(
           "No source found in query: specify class, cluster(s) or single record(s)");
+    }
 
     try {
       // BROWSE ALL THE RECORDS AND COLLECTS RESULT
       final List<OIdentifiable> result = traverse.execute();
-      for (OIdentifiable r : result)
+      for (OIdentifiable r : result) {
         if (!handleResult(r, context))
-          // LIMIT REACHED
+        // LIMIT REACHED
+        {
           break;
+        }
+      }
 
       return getResult();
     } finally {
@@ -240,11 +266,14 @@ public class OCommandExecutorSQLTraverse extends OCommandExecutorSQLResultsetAbs
     final StringBuilder word = new StringBuilder();
 
     currentPos = nextWord(parserText, parserTextUpperCase, currentPos, word, true);
-    if (!word.toString().equals(KEYWORD_TRAVERSE)) return -1;
+    if (!word.toString().equals(KEYWORD_TRAVERSE)) {
+      return -1;
+    }
 
     int fromPosition = parserTextUpperCase.indexOf(KEYWORD_FROM_2FIND, currentPos);
-    if (fromPosition == -1)
+    if (fromPosition == -1) {
       throw new OQueryParsingException("Missed " + KEYWORD_FROM, parserText, currentPos);
+    }
 
     Set<Object> fields = new HashSet<Object>();
 
@@ -256,12 +285,16 @@ public class OCommandExecutorSQLTraverse extends OCommandExecutorSQLResultsetAbs
       for (String field : items) {
         final String fieldName = field.trim();
 
-        if (fieldName.contains("(")) fields.add(OSQLHelper.parseValue(null, fieldName, context));
-        else fields.add(fieldName);
+        if (fieldName.contains("(")) {
+          fields.add(OSQLHelper.parseValue(null, fieldName, context));
+        } else {
+          fields.add(fieldName);
+        }
       }
-    } else
+    } else {
       throw new OQueryParsingException(
           "Missed field list to cross in TRAVERSE. Use " + getSyntax(), parserText, currentPos);
+    }
 
     currentPos = fromPosition + KEYWORD_FROM.length() + 1;
 
@@ -270,9 +303,13 @@ public class OCommandExecutorSQLTraverse extends OCommandExecutorSQLResultsetAbs
     return currentPos;
   }
 
-  /** Parses the strategy keyword if found. */
+  /**
+   * Parses the strategy keyword if found.
+   */
   protected boolean parseStrategy(final String w) throws OCommandSQLParsingException {
-    if (!w.equals(KEYWORD_STRATEGY)) return false;
+    if (!w.equals(KEYWORD_STRATEGY)) {
+      return false;
+    }
 
     final String strategyWord = parserNextWord(true);
 

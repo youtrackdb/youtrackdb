@@ -20,10 +20,12 @@ import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import java.io.IOException;
 import java.util.Map;
 
-/** @author Luca Molino (molino.luca--at--gmail.com) */
+/**
+ * @author Luca Molino (molino.luca--at--gmail.com)
+ */
 public interface OHttpMultipartContentParser<T> {
 
-  public T parse(
+  T parse(
       OHttpRequest iRequest,
       Map<String, String> headers,
       OHttpMultipartContentInputStream in,

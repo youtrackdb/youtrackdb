@@ -7,6 +7,7 @@ import com.orientechnologies.orient.core.sql.operator.OQueryOperatorEquals;
 import java.util.Map;
 
 public class ONeOperator extends SimpleNode implements OBinaryCompareOperator {
+
   public ONeOperator(int id) {
     super(id);
   }

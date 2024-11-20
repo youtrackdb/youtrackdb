@@ -21,6 +21,7 @@ import org.testng.annotations.Test;
 
 @Test(groups = "sql-select")
 public class SQLEscapingTest extends DocumentDBBaseTest {
+
   private ODatabaseSessionInternal database;
 
   @Parameters(value = "remote")

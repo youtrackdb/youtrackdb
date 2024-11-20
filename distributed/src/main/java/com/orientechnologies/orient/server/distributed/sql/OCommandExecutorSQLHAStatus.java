@@ -46,6 +46,7 @@ import java.util.Map;
 @SuppressWarnings("unchecked")
 public class OCommandExecutorSQLHAStatus extends OCommandExecutorSQLAbstract
     implements OCommandDistributedReplicateRequest {
+
   public static final String NAME = "HA STATUS";
   public static final String KEYWORD_HA = "HA";
   public static final String KEYWORD_STATUS = "STATUS";
@@ -65,7 +66,9 @@ public class OCommandExecutorSQLHAStatus extends OCommandExecutorSQLAbstract
     return this;
   }
 
-  /** Execute the command. */
+  /**
+   * Execute the command.
+   */
   public Object execute(final Map<Object, Object> iArgs) {
     final ODatabaseDocumentInternal database = getDatabase();
     database.checkSecurity(ORule.ResourceGeneric.SERVER, "status", ORole.PERMISSION_READ);
@@ -76,8 +79,9 @@ public class OCommandExecutorSQLHAStatus extends OCommandExecutorSQLAbstract
 
     final ODistributedPlugin dManager =
         (ODistributedPlugin) ((ODatabaseDocumentDistributed) database).getDistributedManager();
-    if (dManager == null || !dManager.isEnabled())
+    if (dManager == null || !dManager.isEnabled()) {
       throw new OCommandExecutionException("OrientDB is not started in distributed mode");
+    }
 
     final String databaseName = database.getName();
 
@@ -85,19 +89,23 @@ public class OCommandExecutorSQLHAStatus extends OCommandExecutorSQLAbstract
 
     if (parsedStatement.outputText) {
       final StringBuilder output = new StringBuilder();
-      if (parsedStatement.servers)
+      if (parsedStatement.servers) {
         output.append(
             ODistributedOutput.formatServerStatus(dManager, dManager.getClusterConfiguration()));
-      if (parsedStatement.db)
+      }
+      if (parsedStatement.db) {
         output.append(
             ODistributedOutput.formatClusterTable(
                 dManager, databaseName, cfg, dManager.getTotalNodes(databaseName)));
-      if (parsedStatement.latency)
+      }
+      if (parsedStatement.latency) {
         output.append(
             ODistributedOutput.formatLatency(dManager, dManager.getClusterConfiguration()));
-      if (parsedStatement.messages)
+      }
+      if (parsedStatement.messages) {
         output.append(
             ODistributedOutput.formatMessages(dManager, dManager.getClusterConfiguration()));
+      }
       if (parsedStatement.locks) {
         output.append(ODistributedOutput.formatNewRecordLocks(dManager, databaseName));
       }
@@ -105,9 +113,12 @@ public class OCommandExecutorSQLHAStatus extends OCommandExecutorSQLAbstract
     }
 
     final ODocument output = new ODocument();
-    if (parsedStatement.servers)
+    if (parsedStatement.servers) {
       output.field("servers", dManager.getClusterConfiguration(), OType.EMBEDDED);
-    if (parsedStatement.db) output.field("database", cfg.getDocument(), OType.EMBEDDED);
+    }
+    if (parsedStatement.db) {
+      output.field("database", cfg.getDocument(), OType.EMBEDDED);
+    }
 
     if (parsedStatement.locks) {
       output.field("locks", ODistributedOutput.getRequestsStatus(dManager, databaseName));

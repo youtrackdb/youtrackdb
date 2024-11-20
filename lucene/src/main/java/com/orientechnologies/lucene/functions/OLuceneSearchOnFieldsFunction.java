@@ -20,7 +20,7 @@ import com.orientechnologies.orient.core.sql.parser.OExpression;
 import com.orientechnologies.orient.core.sql.parser.OFromClause;
 import com.orientechnologies.orient.core.sql.parser.OFromItem;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -94,7 +94,7 @@ public class OLuceneSearchOnFieldsFunction extends OLuceneSearchFunctionTemplate
     ODocument metadata = getMetadata(params);
     OLuceneKeyAndMetadata keyAndMetadata =
         new OLuceneKeyAndMetadata(
-            new OLuceneCompositeKey(Arrays.asList(query)).setContext(ctx), metadata);
+            new OLuceneCompositeKey(Collections.singletonList(query)).setContext(ctx), metadata);
 
     return memoryIndex.search(index.buildQuery(keyAndMetadata)) > 0.0f;
   }
@@ -134,7 +134,8 @@ public class OLuceneSearchOnFieldsFunction extends OLuceneSearchFunctionTemplate
               .getInternal()
               .getRids(
                   new OLuceneKeyAndMetadata(
-                      new OLuceneCompositeKey(Arrays.asList(query)).setContext(ctx), meta))) {
+                      new OLuceneCompositeKey(Collections.singletonList(query)).setContext(ctx),
+                      meta))) {
         luceneResultSet = rids.collect(Collectors.toSet());
       }
 

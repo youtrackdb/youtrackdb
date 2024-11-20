@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class OCollection extends SimpleNode {
+
   protected List<OExpression> expressions = new ArrayList<OExpression>();
 
   public OCollection(int id) {
@@ -134,13 +135,18 @@ public class OCollection extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OCollection that = (OCollection) o;
 
-    if (expressions != null ? !expressions.equals(that.expressions) : that.expressions != null)
+    if (expressions != null ? !expressions.equals(that.expressions) : that.expressions != null) {
       return false;
+    }
 
     return true;
   }

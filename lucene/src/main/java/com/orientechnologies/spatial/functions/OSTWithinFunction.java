@@ -23,7 +23,9 @@ import com.orientechnologies.orient.core.sql.parser.OFromClause;
 import com.orientechnologies.spatial.strategy.SpatialQueryBuilderWithin;
 import org.locationtech.spatial4j.shape.Shape;
 
-/** Created by Enrico Risa on 12/08/15. */
+/**
+ * Created by Enrico Risa on 12/08/15.
+ */
 public class OSTWithinFunction extends OSpatialFunctionAbstractIndexable {
 
   public static final String NAME = "st_within";

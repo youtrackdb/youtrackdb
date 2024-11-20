@@ -51,8 +51,7 @@ public class OSQLMethodKeys extends OAbstractSQLMethod {
     if (ioResult instanceof ODocument) {
       return Arrays.asList(((ODocument) ioResult).fieldNames());
     }
-    if (ioResult instanceof OResult) {
-      OResult res = (OResult) ioResult;
+    if (ioResult instanceof OResult res) {
       return res.getPropertyNames();
     }
     if (ioResult instanceof Collection) {

@@ -31,6 +31,7 @@ import java.util.List;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFunctionDecimal extends OSQLFunctionMathAbstract {
+
   public static final String NAME = "decimal";
   private Object result;
 

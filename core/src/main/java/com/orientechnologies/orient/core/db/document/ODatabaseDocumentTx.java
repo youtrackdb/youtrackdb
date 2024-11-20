@@ -393,7 +393,7 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
 
   protected void checkOpenness() {
     if (internal == null) {
-      throw new ODatabaseException("Database '" + getURL() + "' is closed");
+      throw new ODatabaseException("Database '" + url + "' is closed");
     }
   }
 
@@ -974,7 +974,7 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
     checkOpenness();
     internal.callOnDropListeners();
     ODatabaseRecordThreadLocal.instance().remove();
-    factory.drop(this.getName(), null, null);
+    factory.drop(this.dbName, null, null);
     this.internal = null;
     clearOwner();
   }

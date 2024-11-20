@@ -65,7 +65,7 @@ public abstract class BareBoneBase1ClientTest extends TestCase {
   }
 
   protected void endTest(BareBonesServer[] servers) throws Throwable {
-    for (BareBonesServer server : servers)
+    for (BareBonesServer server : servers) {
       if (server != null) {
         try {
           server.stop();
@@ -73,6 +73,7 @@ public abstract class BareBoneBase1ClientTest extends TestCase {
           e.printStackTrace();
         }
       }
+    }
     if (exceptionInThread != null) {
       throw exceptionInThread;
     }

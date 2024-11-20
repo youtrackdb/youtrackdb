@@ -16,6 +16,7 @@ import java.util.Map;
  */
 public class OCommandExecutorSQLCreateUser extends OCommandExecutorSQLAbstract
     implements OCommandDistributedReplicateRequest {
+
   public static final String KEYWORD_CREATE = "CREATE";
   public static final String KEYWORD_USER = "USER";
   public static final String KEYWORD_IDENTIFIED = "IDENTIFIED";

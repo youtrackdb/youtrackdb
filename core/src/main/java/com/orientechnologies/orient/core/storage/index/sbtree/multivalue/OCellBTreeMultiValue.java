@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.stream.Stream;
 
 public interface OCellBTreeMultiValue<K> {
+
   void create(
       OBinarySerializer<K> keySerializer,
       OType[] keyTypes,

@@ -10,6 +10,7 @@ import org.graalvm.polyglot.Value;
  * @author Luca Garulli
  */
 public class OPolyglotScriptBinding implements Bindings {
+
   private final Value context;
 
   public OPolyglotScriptBinding(final Value value) {
@@ -25,13 +26,16 @@ public class OPolyglotScriptBinding implements Bindings {
 
   @Override
   public void putAll(Map<? extends String, ?> toMerge) {
-    for (Entry<? extends String, ?> entry : toMerge.entrySet())
+    for (Entry<? extends String, ?> entry : toMerge.entrySet()) {
       context.putMember(entry.getKey(), entry.getValue());
+    }
   }
 
   @Override
   public void clear() {
-    for (String name : context.getMemberKeys()) context.removeMember(name);
+    for (String name : context.getMemberKeys()) {
+      context.removeMember(name);
+    }
   }
 
   @Override
@@ -42,7 +46,9 @@ public class OPolyglotScriptBinding implements Bindings {
   @Override
   public Collection<Object> values() {
     List<Object> result = new ArrayList<>();
-    for (String name : context.getMemberKeys()) result.add(context.getMember(name));
+    for (String name : context.getMemberKeys()) {
+      result.add(context.getMember(name));
+    }
     return result;
   }
 

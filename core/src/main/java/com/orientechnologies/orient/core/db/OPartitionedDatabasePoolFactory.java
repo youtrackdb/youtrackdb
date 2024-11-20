@@ -40,6 +40,7 @@ import java.util.Iterator;
  * @since 06/11/14
  */
 public class OPartitionedDatabasePoolFactory extends OOrientListenerAbstract {
+
   private volatile int maxPoolSize = 64;
   private boolean closed = false;
 
@@ -97,7 +98,9 @@ public class OPartitionedDatabasePoolFactory extends OOrientListenerAbstract {
       }
     }
 
-    for (OPartitionedDatabasePool pool : poolStore.values()) pool.close();
+    for (OPartitionedDatabasePool pool : poolStore.values()) {
+      pool.close();
+    }
 
     poolStore.clear();
   }
@@ -109,9 +112,13 @@ public class OPartitionedDatabasePoolFactory extends OOrientListenerAbstract {
     final PoolIdentity poolIdentity = new PoolIdentity(url, userName, userPassword);
 
     OPartitionedDatabasePool pool = poolStore.get(poolIdentity);
-    if (pool != null && !pool.isClosed()) return pool;
+    if (pool != null && !pool.isClosed()) {
+      return pool;
+    }
 
-    if (pool != null) poolStore.remove(poolIdentity, pool);
+    if (pool != null) {
+      poolStore.remove(poolIdentity, pool);
+    }
 
     while (true) {
       pool = new OPartitionedDatabasePool(url, userName, userPassword, 8, maxPoolSize);
@@ -137,14 +144,18 @@ public class OPartitionedDatabasePoolFactory extends OOrientListenerAbstract {
   }
 
   public void close() {
-    if (closed) return;
+    if (closed) {
+      return;
+    }
 
     closed = true;
     reset();
   }
 
   private void checkForClose() {
-    if (closed) throw new IllegalStateException("Pool factory is closed");
+    if (closed) {
+      throw new IllegalStateException("Pool factory is closed");
+    }
   }
 
   public boolean isClosed() {
@@ -157,6 +168,7 @@ public class OPartitionedDatabasePoolFactory extends OOrientListenerAbstract {
   }
 
   private static final class PoolIdentity {
+
     private final String url;
     private final String userName;
     private final String userPassword;
@@ -169,16 +181,22 @@ public class OPartitionedDatabasePoolFactory extends OOrientListenerAbstract {
 
     @Override
     public boolean equals(final Object o) {
-      if (this == o) return true;
-      if (o == null || getClass() != o.getClass()) return false;
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
 
       final PoolIdentity that = (PoolIdentity) o;
 
-      if (!url.equals(that.url)) return false;
-      if (!userName.equals(that.userName)) return false;
-      if (!userPassword.equals(that.userPassword)) return false;
-
-      return true;
+      if (!url.equals(that.url)) {
+        return false;
+      }
+      if (!userName.equals(that.userName)) {
+        return false;
+      }
+      return userPassword.equals(that.userPassword);
     }
 
     @Override

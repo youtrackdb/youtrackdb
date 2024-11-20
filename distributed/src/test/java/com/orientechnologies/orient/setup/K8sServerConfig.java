@@ -23,7 +23,8 @@ public class K8sServerConfig {
   private String httpAddress;
   private String binaryAddress;
 
-  public K8sServerConfig() {}
+  public K8sServerConfig() {
+  }
 
   public K8sServerConfig(K8sServerConfig configs) {
     this.nodeName = configs.nodeName;
@@ -45,17 +46,39 @@ public class K8sServerConfig {
 
   public void validate() throws TestSetupException {
     String missingField = null;
-    if (notSet(nodeName)) missingField = "nodeName";
-    if (notSet(httpPort)) missingField = "httpPort";
-    if (notSet(binaryPort)) missingField = "binaryPort";
-    if (notSet(hazelcastPort)) missingField = "hazelcastPort";
-    if (notSet(dockerImage)) missingField = "dockerImage";
-    if (notSet(serverConfig)) missingField = "serverConfig";
-    if (notSet(hazelcastConfig)) missingField = "hazelcastConfig";
-    if (notSet(distributedDBConfig)) missingField = "distributedDBConfig";
-    if (notSet(dbVolumeSize)) missingField = "dbVolumeSize";
-    if (notSet(serverUser)) missingField = "serverUser";
-    if (notSet(serverPass)) missingField = "serverPass";
+    if (notSet(nodeName)) {
+      missingField = "nodeName";
+    }
+    if (notSet(httpPort)) {
+      missingField = "httpPort";
+    }
+    if (notSet(binaryPort)) {
+      missingField = "binaryPort";
+    }
+    if (notSet(hazelcastPort)) {
+      missingField = "hazelcastPort";
+    }
+    if (notSet(dockerImage)) {
+      missingField = "dockerImage";
+    }
+    if (notSet(serverConfig)) {
+      missingField = "serverConfig";
+    }
+    if (notSet(hazelcastConfig)) {
+      missingField = "hazelcastConfig";
+    }
+    if (notSet(distributedDBConfig)) {
+      missingField = "distributedDBConfig";
+    }
+    if (notSet(dbVolumeSize)) {
+      missingField = "dbVolumeSize";
+    }
+    if (notSet(serverUser)) {
+      missingField = "serverUser";
+    }
+    if (notSet(serverPass)) {
+      missingField = "serverPass";
+    }
     // server and client log property files are not mandatory.
     if (missingField != null) {
       throw new TestSetupException(

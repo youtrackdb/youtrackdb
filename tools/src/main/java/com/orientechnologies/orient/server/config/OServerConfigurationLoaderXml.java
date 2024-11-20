@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class OServerConfigurationLoaderXml {
+
   private final Class<? extends OServerConfiguration> rootClass;
   private JAXBContext context;
   private InputStream inputStream;
@@ -57,7 +58,9 @@ public class OServerConfigurationLoaderXml {
 
         String path = OFileUtils.getPath(file.getAbsolutePath());
         String current = OFileUtils.getPath(new File("").getAbsolutePath());
-        if (path.startsWith(current)) path = path.substring(current.length() + 1);
+        if (path.startsWith(current)) {
+          path = path.substring(current.length() + 1);
+        }
         OLogManager.instance().info(this, "Loading configuration from: %s...", path);
       } else {
         OLogManager.instance().info(this, "Loading configuration from input stream");
@@ -70,8 +73,9 @@ public class OServerConfigurationLoaderXml {
       final OServerConfiguration obj;
 
       if (file != null) {
-        if (file.exists()) obj = rootClass.cast(unmarshaller.unmarshal(file));
-        else {
+        if (file.exists()) {
+          obj = rootClass.cast(unmarshaller.unmarshal(file));
+        } else {
           OLogManager.instance().error(this, "Server configuration file not found: %s", null, file);
           return rootClass.getConstructor(OServerConfigurationLoaderXml.class).newInstance(this);
         }
@@ -83,7 +87,7 @@ public class OServerConfigurationLoaderXml {
 
       // AUTO CONFIGURE SYSTEM CONFIGURATION
       OGlobalConfiguration config;
-      if (obj.properties != null)
+      if (obj.properties != null) {
         for (OServerEntryConfiguration prop : obj.properties) {
           try {
             config = OGlobalConfiguration.findByKey(prop.name);
@@ -93,6 +97,7 @@ public class OServerConfigurationLoaderXml {
           } catch (Exception e) {
           }
         }
+      }
 
       return obj;
     } catch (Exception e) {
@@ -115,7 +120,7 @@ public class OServerConfigurationLoaderXml {
   }
 
   public void save(final OServerConfiguration iRootObject) throws IOException {
-    if (file != null)
+    if (file != null) {
       try {
         context = JAXBContext.newInstance(rootClass);
         Marshaller marshaller = context.createMarshaller();
@@ -125,6 +130,7 @@ public class OServerConfigurationLoaderXml {
       } catch (JAXBException e) {
         throw new IOException(e);
       }
+    }
   }
 
   public File getFile() {
@@ -136,7 +142,9 @@ public class OServerConfigurationLoaderXml {
   }
 
   public boolean checkForAutoReloading() {
-    if (file != null) return file.lastModified() > fileLastModified;
+    if (file != null) {
+      return file.lastModified() > fileLastModified;
+    }
 
     return false;
   }

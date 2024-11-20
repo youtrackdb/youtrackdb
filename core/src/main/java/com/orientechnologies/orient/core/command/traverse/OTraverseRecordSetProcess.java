@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Iterator;
 
 public class OTraverseRecordSetProcess extends OTraverseAbstractProcess<Iterator<OIdentifiable>> {
+
   private final OTraversePath path;
   protected OIdentifiable record;
   protected int index = -1;

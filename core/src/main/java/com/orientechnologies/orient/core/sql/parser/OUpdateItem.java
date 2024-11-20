@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class OUpdateItem extends SimpleNode {
+
   public static final int OPERATOR_EQ = 0;
   public static final int OPERATOR_PLUSASSIGN = 1;
   public static final int OPERATOR_MINUSASSIGN = 2;
@@ -104,16 +105,29 @@ public class OUpdateItem extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OUpdateItem that = (OUpdateItem) o;
 
-    if (operator != that.operator) return false;
-    if (left != null ? !left.equals(that.left) : that.left != null) return false;
-    if (leftModifier != null ? !leftModifier.equals(that.leftModifier) : that.leftModifier != null)
+    if (operator != that.operator) {
       return false;
-    if (right != null ? !right.equals(that.right) : that.right != null) return false;
+    }
+    if (left != null ? !left.equals(that.left) : that.left != null) {
+      return false;
+    }
+    if (leftModifier != null
+        ? !leftModifier.equals(that.leftModifier)
+        : that.leftModifier != null) {
+      return false;
+    }
+    if (right != null ? !right.equals(that.right) : that.right != null) {
+      return false;
+    }
 
     return true;
   }

@@ -9,6 +9,7 @@ import java.util.Map;
  * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
 public class OMatchPathItemFirst extends OMatchPathItem {
+
   protected OFunctionCall function;
 
   protected OMethodCall methodWrapper;
@@ -61,7 +62,9 @@ public class OMatchPathItemFirst extends OMatchPathItem {
     }
     OMatchPathItemFirst that = (OMatchPathItemFirst) o;
 
-    if (function != null ? !function.equals(that.function) : that.function != null) return false;
+    if (function != null ? !function.equals(that.function) : that.function != null) {
+      return false;
+    }
 
     return true;
   }

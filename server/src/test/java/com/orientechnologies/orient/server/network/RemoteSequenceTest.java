@@ -7,7 +7,9 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.server.BaseServerMemoryDatabase;
 import org.junit.Test;
 
-/** Created by tglman on 19/07/17. */
+/**
+ * Created by tglman on 19/07/17.
+ */
 public class RemoteSequenceTest extends BaseServerMemoryDatabase {
 
   @Test

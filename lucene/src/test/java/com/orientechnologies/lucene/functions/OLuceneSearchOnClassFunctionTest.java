@@ -11,7 +11,9 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by frank on 15/01/2017. */
+/**
+ * Created by frank on 15/01/2017.
+ */
 public class OLuceneSearchOnClassFunctionTest extends OLuceneBaseTest {
 
   @Before

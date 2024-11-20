@@ -10,8 +10,11 @@ import com.orientechnologies.orient.core.sql.parser.OBinaryCondition;
 import com.orientechnologies.orient.core.sql.parser.OFromClause;
 import java.util.Iterator;
 
-/** Created by luigidellaquila on 06/08/16. */
+/**
+ * Created by luigidellaquila on 06/08/16.
+ */
 public class FetchFromIndexedFunctionStep extends AbstractExecutionStep {
+
   private OBinaryCondition functionCondition;
   private OFromClause queryTarget;
 

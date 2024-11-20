@@ -44,7 +44,9 @@ public class OUpdateRecordResponse implements OBinaryResponse {
   public void write(OChannelDataOutput channel, int protocolVersion, ORecordSerializer serializer)
       throws IOException {
     channel.writeVersion(version);
-    if (protocolVersion >= 20) OMessageHelper.writeCollectionChanges(channel, changes);
+    if (protocolVersion >= 20) {
+      OMessageHelper.writeCollectionChanges(channel, changes);
+    }
   }
 
   @Override

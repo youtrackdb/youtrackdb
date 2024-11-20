@@ -31,6 +31,7 @@ import java.util.Map;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OCommandExecutorSQLExplain extends OCommandExecutorSQLDelegate {
+
   public static final String KEYWORD_EXPLAIN = "EXPLAIN";
 
   @SuppressWarnings("unchecked")

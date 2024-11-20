@@ -22,7 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/** Created by tglman on 30/12/16. */
+/**
+ * Created by tglman on 30/12/16.
+ */
 public class OFetchTransaction38Response implements OBinaryResponse {
 
   private int txId;
@@ -51,8 +53,8 @@ public class OFetchTransaction38Response implements OBinaryResponse {
       ORID oldID = updatedRids.get(txEntry.getRID());
       request.setOldId(oldID != null ? oldID : txEntry.getRID());
       request.setRecordType(ORecordInternal.getRecordType(txEntry.getRecord()));
-      if (txEntry.type == ORecordOperation.UPDATED && txEntry.getRecord() instanceof ODocument) {
-        ODocument doc = (ODocument) txEntry.getRecord();
+      if (txEntry.type == ORecordOperation.UPDATED
+          && txEntry.getRecord() instanceof ODocument doc) {
         var result =
             database.getStorage().readRecord((ORecordId) doc.getIdentity(), false, false, null);
 

@@ -36,17 +36,20 @@ import java.util.Set;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class ODefaultDistributedStrategy implements ODistributedStrategy {
+
   @Override
   public void validateConfiguration(ODistributedConfiguration cfg) {
-    if (cfg.hasDataCenterConfiguration())
+    if (cfg.hasDataCenterConfiguration()) {
       throw new OConfigurationException(
           "Data center configuration is supported only in OrientDB Enterprise Edition");
+    }
 
-    if (cfg.isLocalDataCenterWriteQuorum())
+    if (cfg.isLocalDataCenterWriteQuorum()) {
       throw new OConfigurationException(
           "Quorum of type '"
               + ODistributedConfiguration.QUORUM_LOCAL_DC
               + "' is supported only in OrientDB Enterprise Edition");
+    }
   }
 
   @Override
@@ -60,18 +63,21 @@ public class ODefaultDistributedStrategy implements ODistributedStrategy {
     final Set<String> nodesConcurToTheQuorum = new HashSet<String>();
     if (request.getTask().getQuorumType() == OCommandDistributedReplicateRequest.QUORUM_TYPE.WRITE
         || request.getTask().getQuorumType()
-            == OCommandDistributedReplicateRequest.QUORUM_TYPE.WRITE_ALL_MASTERS) {
+        == OCommandDistributedReplicateRequest.QUORUM_TYPE.WRITE_ALL_MASTERS) {
       // ONLY MASTER NODES CONCUR TO THE MINIMUM QUORUM
       for (String node : iNodes) {
-        if (cfg.getServerRole(node) == ODistributedConfiguration.ROLES.MASTER)
+        if (cfg.getServerRole(node) == ODistributedConfiguration.ROLES.MASTER) {
           nodesConcurToTheQuorum.add(node);
+        }
       }
 
       if (localResult != null
           && cfg.getServerRole(manager.getLocalNodeName())
-              == ODistributedConfiguration.ROLES.MASTER)
-        // INCLUDE LOCAL NODE TOO
+          == ODistributedConfiguration.ROLES.MASTER)
+      // INCLUDE LOCAL NODE TOO
+      {
         nodesConcurToTheQuorum.add(manager.getLocalNodeName());
+      }
 
     } else {
 
@@ -79,8 +85,10 @@ public class ODefaultDistributedStrategy implements ODistributedStrategy {
       nodesConcurToTheQuorum.addAll(iNodes);
 
       if (localResult != null)
-        // INCLUDE LOCAL NODE TOO
+      // INCLUDE LOCAL NODE TOO
+      {
         nodesConcurToTheQuorum.add(manager.getLocalNodeName());
+      }
     }
 
     return nodesConcurToTheQuorum;

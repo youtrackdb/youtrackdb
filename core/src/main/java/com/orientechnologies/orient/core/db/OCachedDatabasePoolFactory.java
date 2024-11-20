@@ -8,8 +8,8 @@ package com.orientechnologies.orient.core.db;
 public interface OCachedDatabasePoolFactory {
 
   /**
-   * Get {@link ODatabasePoolInternal} from cache or create and cache new {@link
-   * ODatabasePoolInternal}
+   * Get {@link ODatabasePoolInternal} from cache or create and cache new
+   * {@link ODatabasePoolInternal}
    *
    * @param database name of database
    * @param username user name
@@ -26,7 +26,9 @@ public interface OCachedDatabasePoolFactory {
    */
   OCachedDatabasePoolFactory reset();
 
-  /** Close all cached pools, clear cache. Can't use this factory after close. */
+  /**
+   * Close all cached pools, clear cache. Can't use this factory after close.
+   */
   void close();
 
   /**

@@ -32,7 +32,9 @@ import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 
-/** @author Luca Molino (molino.luca--at--gmail.com) */
+/**
+ * @author Luca Molino (molino.luca--at--gmail.com)
+ */
 public class OServerCommandPostUploadSingleFile extends OHttpMultipartRequestCommand<String, ORID> {
 
   private static final String[] NAMES = {"POST|uploadSingleFile/*"};
@@ -87,16 +89,24 @@ public class OServerCommandPostUploadSingleFile extends OHttpMultipartRequestCom
               null);
         }
       } finally {
-        if (database != null) database.close();
+        if (database != null) {
+          database.close();
+        }
         database = null;
-        if (buffer != null) buffer.close();
+        if (buffer != null) {
+          buffer.close();
+        }
         buffer = null;
-        if (writer != null) writer.close();
+        if (writer != null) {
+          writer.close();
+        }
         writer = null;
         fileDocument = null;
         fileName = null;
         fileType = null;
-        if (fileRID != null) fileRID.reset();
+        if (fileRID != null) {
+          fileRID.reset();
+        }
         fileRID = null;
       }
     }
@@ -123,10 +133,10 @@ public class OServerCommandPostUploadSingleFile extends OHttpMultipartRequestCom
       if (headers.containsKey(OHttpUtils.MULTIPART_CONTENT_FILENAME)) {
         fileName = headers.get(OHttpUtils.MULTIPART_CONTENT_FILENAME);
         if (fileName.charAt(0) == '"') {
-          fileName = new String(fileName.substring(1));
+          fileName = fileName.substring(1);
         }
         if (fileName.charAt(fileName.length() - 1) == '"') {
-          fileName = new String(fileName.substring(0, fileName.length() - 1));
+          fileName = fileName.substring(0, fileName.length() - 1);
         }
         fileType = headers.get(OHttpUtils.MULTIPART_CONTENT_TYPE);
 

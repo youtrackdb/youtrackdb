@@ -35,12 +35,14 @@ import org.junit.Test;
  * <p>The TxWriters could be connected to only one server (single-master) or distributed among the
  * servers (multi-master).
  *
- * <p>If CREATE_EDGES_RANDOMLY is false, txs updating vertex i in each group will conflict. However,
- * contention happens only between txs that are connecting vertices of the same id. Another way to
- * increase contention is to batch together B rounds of connecting vertices in one tx, and slide the
- * range of vertex IDs for next rounds. This way txs across the next B rounds also conflict.
+ * <p>If CREATE_EDGES_RANDOMLY is false, txs updating vertex i in each group will conflict.
+ * However, contention happens only between txs that are connecting vertices of the same id. Another
+ * way to increase contention is to batch together B rounds of connecting vertices in one tx, and
+ * slide the range of vertex IDs for next rounds. This way txs across the next B rounds also
+ * conflict.
  */
 public class ClusterGraphTxWriteIT {
+
   private TestSetup setup;
   private SetupConfig config;
   private String server0;

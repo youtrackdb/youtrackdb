@@ -32,6 +32,7 @@ import com.orientechnologies.orient.core.serialization.serializer.record.binary.
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class ONetworkProtocolData {
+
   public String commandInfo = null;
   public String commandDetail = null;
   public String lastDatabase = null;

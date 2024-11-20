@@ -14,6 +14,7 @@ import org.junit.rules.TestName;
  * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
 public class OMoveVertexStatementExecutionTest {
+
   @Rule public TestName name = new TestName();
 
   private ODatabaseSession db;

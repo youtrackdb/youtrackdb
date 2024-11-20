@@ -32,6 +32,7 @@ import java.util.Set;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFunctionDifference extends OSQLFunctionMultiValueAbstract<Set<Object>> {
+
   public static final String NAME = "difference";
 
   public OSQLFunctionDifference() {
@@ -45,7 +46,9 @@ public class OSQLFunctionDifference extends OSQLFunctionMultiValueAbstract<Set<O
       Object iCurrentResult,
       final Object[] iParams,
       OCommandContext iContext) {
-    if (iParams[0] == null) return null;
+    if (iParams[0] == null) {
+      return null;
+    }
 
     // IN-LINE MODE (STATELESS)
     final Set<Object> result = new HashSet<Object>();

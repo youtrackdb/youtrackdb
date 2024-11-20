@@ -11,6 +11,7 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 public class OOpen37Request implements OBinaryRequest<OOpen37Response> {
+
   private String databaseName;
   private String userName;
   private String userPassword;

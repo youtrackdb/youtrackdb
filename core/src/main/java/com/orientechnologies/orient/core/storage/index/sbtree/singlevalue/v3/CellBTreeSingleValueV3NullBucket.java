@@ -40,6 +40,7 @@ import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODura
  * @since 4/15/14
  */
 public final class CellBTreeSingleValueV3NullBucket extends ODurablePage {
+
   public CellBTreeSingleValueV3NullBucket(final OCacheEntry cacheEntry) {
     super(cacheEntry);
   }

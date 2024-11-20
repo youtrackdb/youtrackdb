@@ -18,11 +18,14 @@ package com.orientechnologies.spatial;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.Arrays;
+import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by Dileep R */
+/**
+ * Created by Dileep R
+ */
 public class LuceneSpatialGeometryCollectionTest extends BaseSpatialLuceneTest {
 
   @Before
@@ -44,7 +47,7 @@ public class LuceneSpatialGeometryCollectionTest extends BaseSpatialLuceneTest {
     ODocument polygon = new ODocument("OPolygon");
     polygon.field(
         "coordinates",
-        Arrays.asList(
+        List.of(
             Arrays.asList(
                 Arrays.asList(0.0, 0.0),
                 Arrays.asList(10.0, 0.0),
@@ -77,7 +80,7 @@ public class LuceneSpatialGeometryCollectionTest extends BaseSpatialLuceneTest {
     ODocument polygon = new ODocument("OPolygon");
     polygon.field(
         "coordinates",
-        Arrays.asList(
+        List.of(
             Arrays.asList(
                 Arrays.asList(0.0, 0.0),
                 Arrays.asList(10.0, 0.0),

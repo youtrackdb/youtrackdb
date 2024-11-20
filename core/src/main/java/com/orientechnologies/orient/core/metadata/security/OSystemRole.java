@@ -24,8 +24,11 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.util.List;
 import java.util.Map;
 
-/** */
+/**
+ *
+ */
 public class OSystemRole extends ORole {
+
   public static final String DB_FILTER = "dbFilter";
 
   private List<String> dbFilter;
@@ -34,7 +37,9 @@ public class OSystemRole extends ORole {
     return dbFilter;
   }
 
-  /** Constructor used in unmarshalling. */
+  /**
+   * Constructor used in unmarshalling.
+   */
   public OSystemRole() {}
 
   public OSystemRole(
@@ -45,7 +50,9 @@ public class OSystemRole extends ORole {
     super(iName, iParent, iAllowMode, policies);
   }
 
-  /** Create the role by reading the source document. */
+  /**
+   * Create the role by reading the source document.
+   */
   public OSystemRole(final ODocument iSource) {
     super(iSource);
   }

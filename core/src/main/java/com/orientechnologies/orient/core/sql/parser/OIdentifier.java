@@ -139,14 +139,24 @@ public class OIdentifier extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OIdentifier that = (OIdentifier) o;
 
-    if (quoted != that.quoted) return false;
-    if (internalAlias != that.internalAlias) return false;
-    if (value != null ? !value.equals(that.value) : that.value != null) return false;
+    if (quoted != that.quoted) {
+      return false;
+    }
+    if (internalAlias != that.internalAlias) {
+      return false;
+    }
+    if (value != null ? !value.equals(that.value) : that.value != null) {
+      return false;
+    }
 
     return true;
   }

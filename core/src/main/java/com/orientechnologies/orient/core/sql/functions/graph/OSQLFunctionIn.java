@@ -17,8 +17,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/** Created by luigidellaquila on 03/01/17. */
+/**
+ * Created by luigidellaquila on 03/01/17.
+ */
 public class OSQLFunctionIn extends OSQLFunctionMoveFiltered {
+
   public static final String NAME = "in";
 
   public OSQLFunctionIn() {

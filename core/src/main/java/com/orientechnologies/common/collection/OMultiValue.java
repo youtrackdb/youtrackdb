@@ -73,13 +73,11 @@ public class OMultiValue {
    * @return true if it's an array, a collection or a map, otherwise false
    */
   public static boolean isMultiValue(final Object iObject) {
-    return iObject == null ? false : isMultiValue(iObject.getClass());
+    return iObject != null && isMultiValue(iObject.getClass());
   }
 
   public static boolean isIterable(final Object iObject) {
-    return iObject == null
-        ? false
-        : iObject instanceof Iterable<?> ? true : iObject instanceof Iterator<?>;
+    return iObject != null && (iObject instanceof Iterable<?> || iObject instanceof Iterator<?>);
   }
 
   /**
@@ -738,16 +736,13 @@ public class OMultiValue {
       // CREATE STATIC ARRAY AND FILL IT
       result = (T[]) Array.newInstance(iClass, getSize(iValue));
       int i = 0;
-      for (Iterator<T> it = (Iterator<T>) (Iterator<Object>) getMultiValueIterator(iValue);
-          it.hasNext();
-          ++i) {
+      for (Iterator<T> it = (Iterator<T>) getMultiValueIterator(iValue); it.hasNext(); ++i) {
         result[i] = (T) convert(it.next(), iCallback);
       }
     } else if (isIterable(iValue)) {
       // SIZE UNKNOWN: USE A LIST AS TEMPORARY OBJECT
       final List<T> temp = new ArrayList<T>();
-      for (Iterator<T> it = (Iterator<T>) (Iterator<Object>) getMultiValueIterator(iValue);
-          it.hasNext(); ) {
+      for (Iterator<T> it = (Iterator<T>) getMultiValueIterator(iValue); it.hasNext(); ) {
         temp.add((T) convert(it.next(), iCallback));
       }
 
@@ -761,7 +756,7 @@ public class OMultiValue {
 
     } else {
       result = (T[]) Array.newInstance(iClass, 1);
-      result[0] = (T) (T) convert(iValue, iCallback);
+      result[0] = (T) convert(iValue, iCallback);
     }
 
     return result;

@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface ORecordConflictStrategy {
+
   byte[] onUpdate(
       OStorage storage,
       byte iRecordType,

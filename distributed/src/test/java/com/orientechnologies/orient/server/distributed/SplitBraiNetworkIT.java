@@ -24,6 +24,7 @@ import org.junit.Test;
  * network (using a proxy) and then it re-merges the cluster again.
  */
 public class SplitBraiNetworkIT extends AbstractHARemoveNode {
+
   static final int SERVERS = 3;
 
   @Test

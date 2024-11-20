@@ -8,8 +8,11 @@ import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.util.ArrayList;
 
-/** Stub for double write log */
+/**
+ * Stub for double write log
+ */
 public class DoubleWriteLogNoOP implements DoubleWriteLog {
+
   @Override
   public boolean write(ArrayList<ByteBuffer> buffers, IntArrayList fileId, IntArrayList pageIndex) {
     return false;

@@ -3,9 +3,12 @@ package com.orientechnologies.orient.core.db.tool.importer;
 import com.orientechnologies.orient.core.db.document.ODocumentFieldVisitor;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 
-/** Created by tglman on 28/07/17. */
+/**
+ * Created by tglman on 28/07/17.
+ */
 public final class OLinksRewriter implements ODocumentFieldVisitor {
-  private OConverterData converterData;
+
+  private final OConverterData converterData;
 
   public OLinksRewriter(OConverterData converterData) {
     this.converterData = converterData;
@@ -17,14 +20,18 @@ public final class OLinksRewriter implements ODocumentFieldVisitor {
 
     final OValuesConverter valuesConverter =
         OImportConvertersFactory.INSTANCE.getConverter(value, converterData);
-    if (valuesConverter == null) return value;
+    if (valuesConverter == null) {
+      return value;
+    }
 
     final Object newValue = valuesConverter.convert(value);
 
     // this code intentionally uses == instead of equals, in such case we may distinguish rids which
     // already contained in
     // document and RID which is used to indicate broken record
-    if (newValue == OImportConvertersFactory.BROKEN_LINK) return null;
+    if (newValue == OImportConvertersFactory.BROKEN_LINK) {
+      return null;
+    }
 
     return newValue;
   }

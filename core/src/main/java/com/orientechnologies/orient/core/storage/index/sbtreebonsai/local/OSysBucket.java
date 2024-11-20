@@ -39,6 +39,7 @@ import java.io.IOException;
  * @author Artem Orobets (enisher-at-gmail.com)
  */
 public final class OSysBucket extends OBonsaiBucketAbstract {
+
   private static final int SYS_MAGIC_OFFSET = WAL_POSITION_OFFSET + OLongSerializer.LONG_SIZE;
   private static final int FREE_SPACE_OFFSET = SYS_MAGIC_OFFSET + OByteSerializer.BYTE_SIZE;
   private static final int FREE_LIST_HEAD_OFFSET = FREE_SPACE_OFFSET + OBonsaiBucketPointer.SIZE;
@@ -46,7 +47,9 @@ public final class OSysBucket extends OBonsaiBucketAbstract {
       FREE_LIST_HEAD_OFFSET + OBonsaiBucketPointer.SIZE;
   private static final int TREES_COUNT_OFFSET = FREE_LIST_LENGTH_OFFSET + OLongSerializer.LONG_SIZE;
 
-  /** Magic number to check if the sys bucket is initialized. */
+  /**
+   * Magic number to check if the sys bucket is initialized.
+   */
   private static final byte SYS_MAGIC = (byte) 41;
 
   public OSysBucket(OCacheEntry cacheEntry) {

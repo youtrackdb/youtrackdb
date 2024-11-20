@@ -45,6 +45,7 @@ import java.util.regex.Pattern;
 @SuppressWarnings("unchecked")
 public class OCommandExecutorSQLCreateProperty extends OCommandExecutorSQLAbstract
     implements OCommandDistributedReplicateRequest {
+
   public static final String KEYWORD_CREATE = "CREATE";
   public static final String KEYWORD_PROPERTY = "PROPERTY";
 
@@ -89,46 +90,54 @@ public class OCommandExecutorSQLCreateProperty extends OCommandExecutorSQLAbstra
 
       int oldPos = 0;
       int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
-      if (pos == -1 || !word.toString().equals(KEYWORD_CREATE))
+      if (pos == -1 || !word.toString().equals(KEYWORD_CREATE)) {
         throw new OCommandSQLParsingException(
             "Keyword " + KEYWORD_CREATE + " not found", parserText, oldPos);
+      }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
-      if (pos == -1 || !word.toString().equals(KEYWORD_PROPERTY))
+      if (pos == -1 || !word.toString().equals(KEYWORD_PROPERTY)) {
         throw new OCommandSQLParsingException(
             "Keyword " + KEYWORD_PROPERTY + " not found", parserText, oldPos);
+      }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false);
-      if (pos == -1)
+      if (pos == -1) {
         throw new OCommandSQLParsingException("Expected <class>.<property>", parserText, oldPos);
+      }
 
       String[] parts = split(word);
-      if (parts.length != 2)
+      if (parts.length != 2) {
         throw new OCommandSQLParsingException("Expected <class>.<property>", parserText, oldPos);
+      }
 
       className = decodeClassName(parts[0]);
-      if (className == null)
+      if (className == null) {
         throw new OCommandSQLParsingException("Class not found", parserText, oldPos);
+      }
       fieldName = decodeClassName(parts[1]);
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
-      if (pos == -1)
+      if (pos == -1) {
         throw new OCommandSQLParsingException("Missed property type", parserText, oldPos);
+      }
       if ("IF".equalsIgnoreCase(word.toString())) {
         oldPos = pos;
         pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
-        if (pos == -1)
+        if (pos == -1) {
           throw new OCommandSQLParsingException("Missed property type", parserText, oldPos);
+        }
         if (!"NOT".equalsIgnoreCase(word.toString())) {
           throw new OCommandSQLParsingException("Expected NOT EXISTS after IF", parserText, oldPos);
         }
         oldPos = pos;
         pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
-        if (pos == -1)
+        if (pos == -1) {
           throw new OCommandSQLParsingException("Missed property type", parserText, oldPos);
+        }
         if (!"EXISTS".equalsIgnoreCase(word.toString())) {
           throw new OCommandSQLParsingException("Expected EXISTS after IF NOT", parserText, oldPos);
         }
@@ -277,17 +286,21 @@ public class OCommandExecutorSQLCreateProperty extends OCommandExecutorSQLAbstra
         .getValueAsLong(OGlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT);
   }
 
-  /** Execute the CREATE PROPERTY. */
+  /**
+   * Execute the CREATE PROPERTY.
+   */
   public Object execute(final Map<Object, Object> iArgs) {
-    if (type == null)
+    if (type == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
+    }
 
     final var database = getDatabase();
     final OClassEmbedded sourceClass =
         (OClassEmbedded) database.getMetadata().getSchema().getClass(className);
-    if (sourceClass == null)
+    if (sourceClass == null) {
       throw new OCommandExecutionException("Source class '" + className + "' not found");
+    }
 
     OPropertyImpl prop = (OPropertyImpl) sourceClass.getProperty(fieldName);
 
@@ -311,8 +324,10 @@ public class OCommandExecutorSQLCreateProperty extends OCommandExecutorSQLAbstra
       linkedClass = database.getMetadata().getSchema().getClass(linked);
 
       if (linkedClass == null)
-        // NOT FOUND: SEARCH BETWEEN TYPES
+      // NOT FOUND: SEARCH BETWEEN TYPES
+      {
         linkedType = OType.valueOf(linked.toUpperCase(Locale.ENGLISH));
+      }
     }
 
     // CREATE IT LOCALLY

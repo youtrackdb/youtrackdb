@@ -175,7 +175,7 @@ public class OSQLFilterItemField extends OSQLFilterItemAbstract {
     // check for embedded objects, they have invalid ID and they are serialized with class name
     return serializer.deserializeField(
         serialized,
-        ODocumentInternal.getImmutableSchemaClass((ODocument) rec),
+        ODocumentInternal.getImmutableSchemaClass(rec),
         name,
         rec.isEmbedded(),
         db.getMetadata().getImmutableSchemaSnapshot(),
@@ -198,10 +198,7 @@ public class OSQLFilterItemField extends OSQLFilterItemAbstract {
     if (iRoot.startsWith("'") && iRoot.endsWith("'")) {
       return true;
     }
-    if (iRoot.startsWith("\"") && iRoot.endsWith("\"")) {
-      return true;
-    }
-    return false;
+    return iRoot.startsWith("\"") && iRoot.endsWith("\"");
   }
 
   /**

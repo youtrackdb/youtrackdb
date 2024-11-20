@@ -39,6 +39,7 @@ import java.util.Map;
  */
 public class OCommandExecutorSQLTruncateClass extends OCommandExecutorSQLAbstract
     implements OCommandDistributedReplicateRequest {
+
   public static final String KEYWORD_TRUNCATE = "TRUNCATE";
   public static final String KEYWORD_CLASS = "CLASS";
   public static final String KEYWORD_POLYMORPHIC = "POLYMORPHIC";
@@ -64,28 +65,32 @@ public class OCommandExecutorSQLTruncateClass extends OCommandExecutorSQLAbstrac
 
       int oldPos = 0;
       int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
-      if (pos == -1 || !word.toString().equals(KEYWORD_TRUNCATE))
+      if (pos == -1 || !word.toString().equals(KEYWORD_TRUNCATE)) {
         throw new OCommandSQLParsingException(
             "Keyword " + KEYWORD_TRUNCATE + " not found. Use " + getSyntax(), parserText, oldPos);
+      }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
-      if (pos == -1 || !word.toString().equals(KEYWORD_CLASS))
+      if (pos == -1 || !word.toString().equals(KEYWORD_CLASS)) {
         throw new OCommandSQLParsingException(
             "Keyword " + KEYWORD_CLASS + " not found. Use " + getSyntax(), parserText, oldPos);
+      }
 
       oldPos = pos;
       pos = nextWord(parserText, parserText, oldPos, word, true);
-      if (pos == -1)
+      if (pos == -1) {
         throw new OCommandSQLParsingException(
             "Expected class name. Use " + getSyntax(), parserText, oldPos);
+      }
 
       final String className = word.toString();
       schemaClass = database.getMetadata().getSchema().getClass(className);
 
-      if (schemaClass == null)
+      if (schemaClass == null) {
         throw new OCommandSQLParsingException(
             "Class '" + className + "' not found", parserText, oldPos);
+      }
 
       oldPos = pos;
       pos = nextWord(parserText, parserText, oldPos, word, true);
@@ -107,11 +112,14 @@ public class OCommandExecutorSQLTruncateClass extends OCommandExecutorSQLAbstrac
     return this;
   }
 
-  /** Execute the command. */
+  /**
+   * Execute the command.
+   */
   public Object execute(final Map<Object, Object> iArgs) {
-    if (schemaClass == null)
+    if (schemaClass == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
+    }
 
     final long recs = schemaClass.count(deep);
     if (recs > 0 && !unsafe) {

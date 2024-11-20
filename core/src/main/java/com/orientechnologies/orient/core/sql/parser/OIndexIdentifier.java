@@ -99,17 +99,26 @@ public class OIndexIdentifier extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OIndexIdentifier that = (OIndexIdentifier) o;
 
-    if (type != that.type) return false;
+    if (type != that.type) {
+      return false;
+    }
     if (indexNameString != null
         ? !indexNameString.equals(that.indexNameString)
-        : that.indexNameString != null) return false;
-    if (indexName != null ? !indexName.equals(that.indexName) : that.indexName != null)
+        : that.indexNameString != null) {
       return false;
+    }
+    if (indexName != null ? !indexName.equals(that.indexName) : that.indexName != null) {
+      return false;
+    }
 
     return true;
   }

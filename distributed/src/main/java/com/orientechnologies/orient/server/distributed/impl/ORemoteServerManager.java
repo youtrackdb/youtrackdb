@@ -37,11 +37,15 @@ public class ORemoteServerManager {
 
   public void closeRemoteServer(final String node) {
     final ORemoteServerController c = remoteServers.remove(node);
-    if (c != null) c.close();
+    if (c != null) {
+      c.close();
+    }
   }
 
   public void closeAll() {
-    for (ORemoteServerController server : remoteServers.values()) server.close();
+    for (ORemoteServerController server : remoteServers.values()) {
+      server.close();
+    }
     remoteServers.clear();
   }
 }

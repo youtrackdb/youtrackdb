@@ -5,7 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.junit.Test;
 
-/** Created by frank on 15/03/2017. */
+/**
+ * Created by frank on 15/03/2017.
+ */
 public class OCommunityEditionSingleNodeIT extends OIntegrationTestTemplate {
 
   @Test

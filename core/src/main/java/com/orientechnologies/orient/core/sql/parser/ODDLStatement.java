@@ -11,7 +11,9 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
 import java.util.HashMap;
 import java.util.Map;
 
-/** Created by luigidellaquila on 12/08/16. */
+/**
+ * Created by luigidellaquila on 12/08/16.
+ */
 public abstract class ODDLStatement extends OStatement {
 
   public ODDLStatement(int id) {

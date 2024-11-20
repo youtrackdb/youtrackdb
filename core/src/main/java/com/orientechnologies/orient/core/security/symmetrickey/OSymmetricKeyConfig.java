@@ -20,6 +20,7 @@
 package com.orientechnologies.orient.core.security.symmetrickey;
 
 public interface OSymmetricKeyConfig {
+
   String getKeyString();
 
   String getKeyFile();

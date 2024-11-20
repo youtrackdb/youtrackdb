@@ -30,7 +30,9 @@ public class ORidSet implements Set<ORID> {
 
   protected int maxArraySize;
 
-  /** instantiates an ORidSet with a bucket size of Integer.MAX_VALUE / 10 */
+  /**
+   * instantiates an ORidSet with a bucket size of Integer.MAX_VALUE / 10
+   */
   public ORidSet() {
     this(Integer.MAX_VALUE / 10);
   }

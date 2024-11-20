@@ -18,8 +18,11 @@ package com.orientechnologies.orient.server.distributed;
 import com.orientechnologies.orient.setup.ServerRun;
 import org.junit.Test;
 
-/** Insert records concurrently against the cluster using "plocal" protocol. */
+/**
+ * Insert records concurrently against the cluster using "plocal" protocol.
+ */
 public class ServerClusterLocalInsertIT extends AbstractServerClusterInsertTest {
+
   @Test
   public void test() throws Exception {
     init(3);

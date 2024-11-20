@@ -30,6 +30,7 @@ import java.util.Set;
  */
 public class OFunctionLibraryProxy extends OProxedResource<OFunctionLibraryImpl>
     implements OFunctionLibrary {
+
   public OFunctionLibraryProxy(
       final OFunctionLibraryImpl iDelegate, final ODatabaseSessionInternal iDatabase) {
     super(iDelegate, iDatabase);

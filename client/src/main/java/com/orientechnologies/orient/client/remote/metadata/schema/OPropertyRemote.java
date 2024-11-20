@@ -19,8 +19,11 @@ import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.util.ArrayList;
 
-/** Created by tglman on 14/06/17. */
+/**
+ * Created by tglman on 14/06/17.
+ */
 public class OPropertyRemote extends OPropertyImpl {
+
   OPropertyRemote(OClassImpl owner) {
     super(owner);
   }
@@ -80,7 +83,9 @@ public class OPropertyRemote extends OPropertyImpl {
   }
 
   public OProperty setCollate(String collate) {
-    if (collate == null) collate = ODefaultCollate.NAME;
+    if (collate == null) {
+      collate = ODefaultCollate.NAME;
+    }
 
     getDatabase().checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
@@ -330,8 +335,9 @@ public class OPropertyRemote extends OPropertyImpl {
       }
     }
 
-    for (final OIndex index : relatedIndexes)
+    for (final OIndex index : relatedIndexes) {
       database.getMetadata().getIndexManagerInternal().dropIndex(database, index.getName());
+    }
 
     return this;
   }

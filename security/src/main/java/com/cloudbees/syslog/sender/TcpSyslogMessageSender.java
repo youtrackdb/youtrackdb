@@ -41,6 +41,7 @@ import javax.net.ssl.SSLSocketFactory;
  * @author <a href="mailto:cleclerc@cloudbees.com">Cyrille Le Clerc</a>
  */
 public class TcpSyslogMessageSender extends AbstractSyslogMessageSender {
+
   public static final int SETTING_SOCKET_CONNECT_TIMEOUT_IN_MILLIS_DEFAULT_VALUE = 500;
   public static final int SETTING_MAX_RETRY = 2;
 
@@ -66,10 +67,14 @@ public class TcpSyslogMessageSender extends AbstractSyslogMessageSender {
   private int socketConnectTimeoutInMillis = SETTING_SOCKET_CONNECT_TIMEOUT_IN_MILLIS_DEFAULT_VALUE;
   private boolean ssl;
 
-  /** Number of retries to send a message before throwing an exception. */
+  /**
+   * Number of retries to send a message before throwing an exception.
+   */
   private int maxRetryCount = SETTING_MAX_RETRY;
 
-  /** Number of exceptions trying to send message. */
+  /**
+   * Number of exceptions trying to send message.
+   */
   protected final AtomicInteger trySendErrorCounter = new AtomicInteger();
 
   @Override

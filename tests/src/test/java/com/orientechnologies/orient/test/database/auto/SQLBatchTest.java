@@ -72,8 +72,7 @@ public class SQLBatchTest extends DocumentDBBaseTest {
     database.command("CREATE PROPERTY " + className2 + ".foos LinkList " + className1).close();
 
     String script =
-        ""
-            + "BEGIN;"
+        "BEGIN;"
             + "LET a = CREATE VERTEX "
             + className1
             + ";"
@@ -109,8 +108,7 @@ public class SQLBatchTest extends DocumentDBBaseTest {
     database.command("CREATE PROPERTY " + className2 + ".foos LinkList " + className1).close();
 
     String script =
-        ""
-            + "BEGIN;"
+        "BEGIN;"
             + "LET a = CREATE VERTEX "
             + className1
             + ";"

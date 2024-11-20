@@ -34,6 +34,7 @@ import java.util.Set;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OServerConfigurationManager {
+
   private final OServerConfigurationLoaderXml configurationLoader;
   private OServerConfiguration configuration;
 
@@ -59,15 +60,18 @@ public class OServerConfigurationManager {
 
   public OServerConfigurationManager setUser(
       final String iServerUserName, final String iServerUserPasswd, final String iPermissions) {
-    if (iServerUserName == null || iServerUserName.length() == 0)
+    if (iServerUserName == null || iServerUserName.length() == 0) {
       throw new IllegalArgumentException("User name is null or empty");
+    }
 
     // An empty password is permissible as some security implementations do not require it.
-    if (iServerUserPasswd == null)
+    if (iServerUserPasswd == null) {
       throw new IllegalArgumentException("User password is null or empty");
+    }
 
-    if (iPermissions == null || iPermissions.length() == 0)
+    if (iPermissions == null || iPermissions.length() == 0) {
       throw new IllegalArgumentException("User permissions is null or empty");
+    }
 
     int userPositionInArray = -1;
 
@@ -100,7 +104,9 @@ public class OServerConfigurationManager {
   }
 
   public void saveConfiguration() throws IOException {
-    if (configurationLoader == null) return;
+    if (configurationLoader == null) {
+      return;
+    }
 
     configurationLoader.save(configuration);
   }
@@ -163,7 +169,9 @@ public class OServerConfigurationManager {
     final HashSet<OServerUserConfiguration> result = new HashSet<OServerUserConfiguration>();
     if (configuration.users != null) {
       for (int i = 0; i < configuration.users.length; ++i) {
-        if (configuration.users[i] != null) result.add(configuration.users[i]);
+        if (configuration.users[i] != null) {
+          result.add(configuration.users[i]);
+        }
       }
     }
 
@@ -171,7 +179,7 @@ public class OServerConfigurationManager {
   }
 
   private void checkForAutoReloading() {
-    if (configurationLoader != null)
+    if (configurationLoader != null) {
       if (configurationLoader.checkForAutoReloading()) {
         try {
           configuration = configurationLoader.load();
@@ -180,5 +188,6 @@ public class OServerConfigurationManager {
               new OConfigurationException("Cannot load server configuration"), e);
         }
       }
+    }
   }
 }

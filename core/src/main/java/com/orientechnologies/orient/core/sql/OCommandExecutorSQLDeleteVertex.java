@@ -33,7 +33,6 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.metadata.OMetadataInternal;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.record.OElement;
@@ -64,7 +63,7 @@ public class OCommandExecutorSQLDeleteVertex extends OCommandExecutorSQLAbstract
   private OCommandRequest query;
   private String returning = "COUNT";
   private List<ORecord> allDeletedRecords;
-  private OModifiableBoolean shutdownFlag = new OModifiableBoolean();
+  private final OModifiableBoolean shutdownFlag = new OModifiableBoolean();
   private boolean txAlreadyBegun;
   private int batch = 100;
 
@@ -107,10 +106,7 @@ public class OCommandExecutorSQLDeleteVertex extends OCommandExecutorSQLAbstract
           if (clazz == null)
           // ASSIGN DEFAULT CLASS
           {
-            clazz =
-                ((OMetadataInternal) database.getMetadata())
-                    .getImmutableSchemaSnapshot()
-                    .getClass("V");
+            clazz = database.getMetadata().getImmutableSchemaSnapshot().getClass("V");
           }
 
           where =
@@ -142,10 +138,7 @@ public class OCommandExecutorSQLDeleteVertex extends OCommandExecutorSQLAbstract
 
         } else if (word.length() > 0) {
           // GET/CHECK CLASS NAME
-          clazz =
-              ((OMetadataInternal) database.getMetadata())
-                  .getImmutableSchemaSnapshot()
-                  .getClass(word);
+          clazz = database.getMetadata().getImmutableSchemaSnapshot().getClass(word);
           if (clazz == null) {
             throw new OCommandSQLParsingException("Class '" + word + "' was not found");
           }

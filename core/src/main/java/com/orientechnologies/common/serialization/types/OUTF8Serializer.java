@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 public class OUTF8Serializer implements OBinarySerializer<String> {
+
   private static final int INT_MASK = 0xFFFF;
 
   public static final OUTF8Serializer INSTANCE = new OUTF8Serializer();

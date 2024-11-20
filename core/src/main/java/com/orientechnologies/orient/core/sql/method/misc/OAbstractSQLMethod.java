@@ -51,7 +51,7 @@ public abstract class OAbstractSQLMethod implements OSQLMethod {
   @Override
   public String getSyntax() {
     final StringBuilder sb = new StringBuilder("<field>.");
-    sb.append(getName());
+    sb.append(name);
     sb.append('(');
     for (int i = 0; i < minparams; i++) {
       if (i != 0) {
@@ -109,7 +109,7 @@ public abstract class OAbstractSQLMethod implements OSQLMethod {
 
   @Override
   public int compareTo(OSQLMethod o) {
-    return this.getName().compareTo(o.getName());
+    return this.name.compareTo(o.getName());
   }
 
   @Override

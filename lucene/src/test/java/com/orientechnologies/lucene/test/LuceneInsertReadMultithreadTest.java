@@ -28,7 +28,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by enricorisa on 28/06/14. */
+/**
+ * Created by enricorisa on 28/06/14.
+ */
 public class LuceneInsertReadMultithreadTest extends BaseLuceneTest {
 
   private static final int THREADS = 10;
@@ -55,20 +57,26 @@ public class LuceneInsertReadMultithreadTest extends BaseLuceneTest {
     OSchema schema = db.getMetadata().getSchema();
 
     Thread[] threads = new Thread[THREADS + RTHREADS];
-    for (int i = 0; i < THREADS; ++i)
+    for (int i = 0; i < THREADS; ++i) {
       threads[i] = new Thread(new LuceneInsertThread(CYCLE), "ConcurrentWriteTest" + i);
+    }
 
-    for (int i = THREADS; i < THREADS + RTHREADS; ++i)
+    for (int i = THREADS; i < THREADS + RTHREADS; ++i) {
       threads[i] = new Thread(new LuceneReadThread(CYCLE), "ConcurrentReadTest" + i);
+    }
 
-    for (int i = 0; i < THREADS + RTHREADS; ++i) threads[i].start();
+    for (int i = 0; i < THREADS + RTHREADS; ++i) {
+      threads[i].start();
+    }
 
     System.out.println(
         "Started LuceneInsertReadMultithreadBaseTest test, waiting for "
             + threads.length
             + " threads to complete...");
 
-    for (int i = 0; i < THREADS + RTHREADS; ++i) threads[i].join();
+    for (int i = 0; i < THREADS + RTHREADS; ++i) {
+      threads[i].join();
+    }
 
     System.out.println("LuceneInsertReadMultithreadBaseTest all threads completed");
 
@@ -83,7 +91,7 @@ public class LuceneInsertReadMultithreadTest extends BaseLuceneTest {
 
     private ODatabaseSession db;
     private int cycle = 0;
-    private int commitBuf = 500;
+    private final int commitBuf = 500;
 
     public LuceneInsertThread(int cycle) {
       this.cycle = cycle;
@@ -113,6 +121,7 @@ public class LuceneInsertReadMultithreadTest extends BaseLuceneTest {
   }
 
   public class LuceneReadThread implements Runnable {
+
     private final int cycle;
     private ODatabaseSession databaseDocumentTx;
 

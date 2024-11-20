@@ -54,10 +54,12 @@ import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
 import org.apache.lucene.search.highlight.TextFragment;
 import org.apache.lucene.search.highlight.TokenSources;
 
-/** Created by Enrico Risa on 16/09/15. */
+/**
+ * Created by Enrico Risa on 16/09/15.
+ */
 public class OLuceneResultSet implements Set<OIdentifiable> {
 
-  private static Integer PAGE_SIZE = 10000;
+  private static final Integer PAGE_SIZE = 10000;
   private Query query;
   private OLuceneIndexEngine engine;
   private OLuceneQueryContext queryContext;
@@ -193,7 +195,7 @@ public class OLuceneResultSet implements Set<OIdentifiable> {
     private ScoreDoc[] scoreDocs;
     private int index;
     private int localIndex;
-    private long totalHits;
+    private final long totalHits;
 
     public OLuceneResultSetIteratorTx() {
       totalHits = topDocs.totalHits;

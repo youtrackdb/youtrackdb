@@ -31,6 +31,7 @@ import java.util.Objects;
  * @since 12.12.13
  */
 public abstract class OAbstractWALRecord implements WriteableWALRecord {
+
   protected volatile OLogSequenceNumber logSequenceNumber;
 
   private int distance = 0;
@@ -114,8 +115,12 @@ public abstract class OAbstractWALRecord implements WriteableWALRecord {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OAbstractWALRecord that = (OAbstractWALRecord) o;
 

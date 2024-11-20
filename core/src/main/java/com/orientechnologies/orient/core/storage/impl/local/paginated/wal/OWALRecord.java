@@ -25,6 +25,7 @@ package com.orientechnologies.orient.core.storage.impl.local.paginated.wal;
  * @since 25.04.13
  */
 public interface OWALRecord {
+
   OLogSequenceNumber getLsn();
 
   void setLsn(OLogSequenceNumber lsn);

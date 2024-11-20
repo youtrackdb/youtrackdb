@@ -4,7 +4,9 @@ import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.OrientDBInternal;
 
-/** Created by tglman on 31/03/16. */
+/**
+ * Created by tglman on 31/03/16.
+ */
 public class ODatabaseDocumentTxInternal {
 
   private ODatabaseDocumentTxInternal() {}

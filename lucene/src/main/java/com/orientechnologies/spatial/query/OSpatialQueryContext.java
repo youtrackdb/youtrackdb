@@ -23,7 +23,9 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.spatial.query.SpatialArgs;
 
-/** Created by Enrico Risa on 08/01/15. */
+/**
+ * Created by Enrico Risa on 08/01/15.
+ */
 public class OSpatialQueryContext extends OLuceneQueryContext {
 
   public SpatialArgs spatialArgs;
