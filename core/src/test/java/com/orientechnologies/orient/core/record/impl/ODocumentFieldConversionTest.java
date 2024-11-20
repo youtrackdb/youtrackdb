@@ -361,7 +361,7 @@ public class ODocumentFieldConversionTest extends BaseMemoryInternalDatabase {
 
     assertThat(doc.<Integer>field("integer")).isEqualTo(3);
 
-    doc.field("double", 1l, OType.LONG);
+    doc.field("double", 1L, OType.LONG);
     assertTrue(doc.field("double") instanceof Double);
     //    assertEquals(1d, doc.field("double"));
 
@@ -462,7 +462,7 @@ public class ODocumentFieldConversionTest extends BaseMemoryInternalDatabase {
     values = doc.field("integerList");
     for (Object val : values) {
       assertTrue(val instanceof Integer);
-      assertEquals((Integer) 1, val);
+      assertEquals(1, val);
     }
     set = doc.field("integerSet");
     for (Object val : set) {
@@ -490,7 +490,7 @@ public class ODocumentFieldConversionTest extends BaseMemoryInternalDatabase {
     values = doc.field("longList");
     for (Object val : values) {
       assertTrue(val instanceof Long);
-      assertEquals((Long) 1L, val);
+      assertEquals(1L, val);
     }
     set = doc.field("longSet");
     for (Object val : set) {
@@ -534,7 +534,7 @@ public class ODocumentFieldConversionTest extends BaseMemoryInternalDatabase {
     values = doc.field("booleanList");
     for (Object val : values) {
       assertTrue(val instanceof Boolean);
-      assertEquals((Boolean) true, val);
+      assertEquals(true, val);
     }
 
     set = doc.field("booleanSet");
@@ -614,7 +614,7 @@ public class ODocumentFieldConversionTest extends BaseMemoryInternalDatabase {
     values = doc.field("floatList");
     for (Object val : values) {
       assertTrue(val instanceof Float);
-      assertEquals((Float) 1f, val);
+      assertEquals(1f, val);
     }
     set = doc.field("floatSet");
     for (Object val : set) {
@@ -655,7 +655,7 @@ public class ODocumentFieldConversionTest extends BaseMemoryInternalDatabase {
     values = doc.field("doubleList");
     for (Object val : values) {
       assertTrue(val instanceof Double);
-      assertEquals((Double) 1d, val);
+      assertEquals(1d, val);
     }
     set = doc.field("doubleSet");
     for (Object val : set) {
@@ -750,7 +750,7 @@ public class ODocumentFieldConversionTest extends BaseMemoryInternalDatabase {
     values = doc.field("integerMap");
     for (Object val : values.values()) {
       assertTrue(val instanceof Integer);
-      assertEquals((Integer) 1, val);
+      assertEquals(1, val);
     }
   }
 
@@ -765,7 +765,7 @@ public class ODocumentFieldConversionTest extends BaseMemoryInternalDatabase {
     values = doc.field("longMap");
     for (Object val : values.values()) {
       assertTrue(val instanceof Long);
-      assertEquals((Long) 1L, val);
+      assertEquals(1L, val);
     }
   }
 
@@ -795,7 +795,7 @@ public class ODocumentFieldConversionTest extends BaseMemoryInternalDatabase {
     values = doc.field("floatMap");
     for (Object val : values.values()) {
       assertTrue(val instanceof Float);
-      assertEquals((Float) 1f, val);
+      assertEquals(1f, val);
     }
   }
 
@@ -810,7 +810,7 @@ public class ODocumentFieldConversionTest extends BaseMemoryInternalDatabase {
     values = doc.field("doubleMap");
     for (Object val : values.values()) {
       assertTrue(val instanceof Double);
-      assertEquals((Double) 1d, val);
+      assertEquals(1d, val);
     }
   }
 

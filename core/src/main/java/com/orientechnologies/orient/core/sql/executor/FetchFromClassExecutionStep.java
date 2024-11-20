@@ -3,7 +3,6 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
@@ -90,7 +89,7 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
         } else if (orderByRidDesc) {
           step.setOrder(FetchFromClusterExecutionStep.ORDER_DESC);
         }
-        getSubSteps().add(step);
+        subSteps.add(step);
       } else {
         // current tx
         FetchTemporaryFromTxStep step =
@@ -100,17 +99,13 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
         } else if (orderByRidDesc) {
           step.setOrder(FetchFromClusterExecutionStep.ORDER_DESC);
         }
-        getSubSteps().add(step);
+        subSteps.add(step);
       }
     }
   }
 
   protected OClass loadClassFromSchema(String className, OCommandContext ctx) {
-    OClass clazz =
-        ((ODatabaseSessionInternal) ctx.getDatabase())
-            .getMetadata()
-            .getImmutableSchemaSnapshot()
-            .getClass(className);
+    OClass clazz = ctx.getDatabase().getMetadata().getImmutableSchemaSnapshot().getClass(className);
     if (clazz == null) {
       throw new OCommandExecutionException("Class " + className + " not found");
     }
@@ -137,7 +132,7 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
       prev.start(ctx).close(ctx);
     }
 
-    List<OExecutionStep> stepsIter = getSubSteps();
+    List<OExecutionStep> stepsIter = subSteps;
 
     OExecutionStreamProducer res =
         new OExecutionStreamProducer() {
@@ -168,7 +163,7 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
 
   @Override
   public void sendTimeout() {
-    for (OExecutionStep step : getSubSteps()) {
+    for (OExecutionStep step : subSteps) {
       ((AbstractExecutionStep) step).sendTimeout();
     }
     if (prev != null) {
@@ -178,7 +173,7 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
 
   @Override
   public void close() {
-    for (OExecutionStep step : getSubSteps()) {
+    for (OExecutionStep step : subSteps) {
       ((AbstractExecutionStep) step).close();
     }
     if (prev != null) {
@@ -196,10 +191,10 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
       builder.append(" (").append(getCostFormatted()).append(")");
     }
     builder.append("\n");
-    for (int i = 0; i < getSubSteps().size(); i++) {
-      OExecutionStepInternal step = (OExecutionStepInternal) getSubSteps().get(i);
+    for (int i = 0; i < subSteps.size(); i++) {
+      OExecutionStepInternal step = (OExecutionStepInternal) subSteps.get(i);
       builder.append(step.prettyPrint(depth + 1, indent));
-      if (i < getSubSteps().size() - 1) {
+      if (i < subSteps.size() - 1) {
         builder.append("\n");
       }
     }

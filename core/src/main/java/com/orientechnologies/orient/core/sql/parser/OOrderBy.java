@@ -8,6 +8,7 @@ import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class OOrderBy extends SimpleNode {
@@ -90,11 +91,7 @@ public class OOrderBy extends SimpleNode {
 
     OOrderBy oOrderBy = (OOrderBy) o;
 
-    if (items != null ? !items.equals(oOrderBy.items) : oOrderBy.items != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(items, oOrderBy.items);
   }
 
   @Override
@@ -144,12 +141,12 @@ public class OOrderBy extends SimpleNode {
   }
 
   public boolean ordersWithCollate() {
-    return getItems().stream().anyMatch(x -> x.getCollate() != null);
+    return items.stream().anyMatch(x -> x.getCollate() != null);
   }
 
   public boolean ordersSameDirection() {
     String order = null;
-    for (OOrderByItem item : getItems()) {
+    for (OOrderByItem item : items) {
       if (order == null) {
         order = item.getType();
       } else if (!order.equals(item.getType())) {
@@ -161,7 +158,7 @@ public class OOrderBy extends SimpleNode {
 
   public List<String> getProperties() {
     List<String> orderItems = new ArrayList<>();
-    for (OOrderByItem item : getItems()) {
+    for (OOrderByItem item : items) {
       orderItems.add(item.getAlias() != null ? item.getAlias() : item.getRecordAttr());
     }
     return orderItems;

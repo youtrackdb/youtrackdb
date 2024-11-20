@@ -67,8 +67,8 @@ public class OBasicCommandContext implements OCommandContext {
       timeoutStrategy;
   protected AtomicLong resultsProcessed = new AtomicLong(0);
   protected Set<Object> uniqueResult = new HashSet<Object>();
-  private Map<OExecutionStep, OStepStats> stepStats = new IdentityHashMap<>();
-  private LinkedList<OStepStats> currentStepStats = new LinkedList<>();
+  private final Map<OExecutionStep, OStepStats> stepStats = new IdentityHashMap<>();
+  private final LinkedList<OStepStats> currentStepStats = new LinkedList<>();
 
   public OBasicCommandContext() {}
 
@@ -269,7 +269,7 @@ public class OBasicCommandContext implements OCommandContext {
     if (value == null) {
       value = iValue;
     } else {
-      value = new Long(value.longValue() + iValue);
+      value = Long.valueOf(value.longValue() + iValue);
     }
     variables.put(iName, value);
     return value.longValue();

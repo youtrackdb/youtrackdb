@@ -760,10 +760,7 @@ public final class CellBTreeMultiValueV2Bucket<K> extends ODurablePage {
 
   public boolean createMainLeafEntry(
       final int index, final byte[] serializedKey, final ORID value, final long mId) {
-    if (doCreateMainLeafEntry(index, serializedKey, value, mId)) {
-      return false;
-    }
-    return true;
+    return !doCreateMainLeafEntry(index, serializedKey, value, mId);
   }
 
   private boolean doCreateMainLeafEntry(int index, byte[] serializedKey, ORID value, long mId) {
@@ -948,10 +945,7 @@ public final class CellBTreeMultiValueV2Bucket<K> extends ODurablePage {
       final boolean updateNeighbors) {
     final int prevChild =
         doAddNonLeafEntry(index, serializedKey, leftChild, rightChild, updateNeighbors);
-    if (prevChild >= -1) {
-      return true;
-    }
-    return false;
+    return prevChild >= -1;
   }
 
   private int doAddNonLeafEntry(

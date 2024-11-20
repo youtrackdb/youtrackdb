@@ -84,9 +84,8 @@ public class OCommandExecutorFunction extends OCommandExecutorAbstract {
       try {
         final Object result;
 
-        if (scriptEngine instanceof Invocable) {
+        if (scriptEngine instanceof Invocable invocableEngine) {
           // INVOKE AS FUNCTION. PARAMS ARE PASSED BY POSITION
-          final Invocable invocableEngine = (Invocable) scriptEngine;
           Object[] args = null;
           if (iArgs != null) {
             args = new Object[iArgs.size()];

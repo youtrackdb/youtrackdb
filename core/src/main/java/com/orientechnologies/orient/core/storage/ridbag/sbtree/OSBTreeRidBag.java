@@ -459,8 +459,7 @@ public class OSBTreeRidBag implements ORidBagDelegate {
     }
 
     for (Map.Entry<OIdentifiable, Change> entry : newChangedValues.entrySet()) {
-      if (entry.getKey() instanceof ORecord) {
-        ORecord record = (ORecord) entry.getKey();
+      if (entry.getKey() instanceof ORecord record) {
 
         newChangedValues.put(record, entry.getValue());
       } else {

@@ -5,6 +5,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.util.Map;
+import java.util.Objects;
 
 public class OCluster extends SimpleNode {
 
@@ -71,18 +72,10 @@ public class OCluster extends SimpleNode {
 
     OCluster oCluster = (OCluster) o;
 
-    if (clusterName != null
-        ? !clusterName.equals(oCluster.clusterName)
-        : oCluster.clusterName != null) {
+    if (!Objects.equals(clusterName, oCluster.clusterName)) {
       return false;
     }
-    if (clusterNumber != null
-        ? !clusterNumber.equals(oCluster.clusterNumber)
-        : oCluster.clusterNumber != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(clusterNumber, oCluster.clusterNumber);
   }
 
   @Override

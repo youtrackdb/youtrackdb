@@ -17,6 +17,7 @@ import com.orientechnologies.orient.core.sql.executor.metadata.OPath;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -272,10 +273,7 @@ public class OBaseExpression extends OMathExpression {
     if (number != null || inputParam != null || string != null) {
       return true;
     }
-    if (identifier != null && identifier.isEarlyCalculated(ctx)) {
-      return true;
-    }
-    return false;
+    return identifier != null && identifier.isEarlyCalculated(ctx);
   }
 
   @Override
@@ -295,26 +293,17 @@ public class OBaseExpression extends OMathExpression {
     if (this.identifier != null && this.identifier.needsAliases(aliases)) {
       return true;
     }
-    if (modifier != null && modifier.needsAliases(aliases)) {
-      return true;
-    }
-    return false;
+    return modifier != null && modifier.needsAliases(aliases);
   }
 
   @Override
   public boolean isAggregate() {
-    if (identifier != null && identifier.isAggregate()) {
-      return true;
-    }
-    return false;
+    return identifier != null && identifier.isAggregate();
   }
 
   @Override
   public boolean isCount() {
-    if (identifier != null && identifier.isCount()) {
-      return true;
-    }
-    return false;
+    return identifier != null && identifier.isCount();
   }
 
   public SimpleNode splitForAggregation(
@@ -336,7 +325,7 @@ public class OBaseExpression extends OMathExpression {
     if (identifier != null) {
       return identifier.getAggregationContext(ctx);
     } else {
-      throw new OCommandExecutionException("cannot aggregate on " + toString());
+      throw new OCommandExecutionException("cannot aggregate on " + this);
     }
   }
 
@@ -355,10 +344,7 @@ public class OBaseExpression extends OMathExpression {
     if (identifier != null && identifier.refersToParent()) {
       return true;
     }
-    if (modifier != null && modifier.refersToParent()) {
-      return true;
-    }
-    return false;
+    return modifier != null && modifier.refersToParent();
   }
 
   @Override
@@ -372,23 +358,19 @@ public class OBaseExpression extends OMathExpression {
 
     OBaseExpression that = (OBaseExpression) o;
 
-    if (number != null ? !number.equals(that.number) : that.number != null) {
+    if (!Objects.equals(number, that.number)) {
       return false;
     }
-    if (identifier != null ? !identifier.equals(that.identifier) : that.identifier != null) {
+    if (!Objects.equals(identifier, that.identifier)) {
       return false;
     }
-    if (inputParam != null ? !inputParam.equals(that.inputParam) : that.inputParam != null) {
+    if (!Objects.equals(inputParam, that.inputParam)) {
       return false;
     }
-    if (string != null ? !string.equals(that.string) : that.string != null) {
+    if (!Objects.equals(string, that.string)) {
       return false;
     }
-    if (modifier != null ? !modifier.equals(that.modifier) : that.modifier != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(modifier, that.modifier);
   }
 
   @Override

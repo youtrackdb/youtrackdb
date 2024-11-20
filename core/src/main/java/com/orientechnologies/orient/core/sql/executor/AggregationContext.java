@@ -7,7 +7,7 @@ import com.orientechnologies.orient.core.command.OCommandContext;
  */
 public interface AggregationContext {
 
-  public Object getFinalValue();
+  Object getFinalValue();
 
   void apply(OResult next, OCommandContext ctx);
 }

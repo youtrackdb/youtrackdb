@@ -20,6 +20,8 @@
 
 package com.orientechnologies.orient.core.storage.index.sbtree.local.v2;
 
+import java.util.Objects;
+
 /**
  * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 9/27/13
@@ -65,11 +67,7 @@ public class OSBTreeValue<V> {
     if (link != that.link) {
       return false;
     }
-    if (value != null ? !value.equals(that.value) : that.value != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(value, that.value);
   }
 
   @Override

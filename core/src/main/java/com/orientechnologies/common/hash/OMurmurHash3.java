@@ -38,7 +38,7 @@ public class OMurmurHash3 {
   }
 
   static long getblock(byte[] key, int i) {
-    return (((long) key[i + 0] & 0x00000000000000FFL))
+    return (((long) key[i] & 0x00000000000000FFL))
         | (((long) key[i + 1] & 0x00000000000000FFL) << 8)
         | (((long) key[i + 2] & 0x00000000000000FFL) << 16)
         | (((long) key[i + 3] & 0x00000000000000FFL) << 24)
@@ -115,7 +115,7 @@ public class OMurmurHash3 {
       case 10:
         state.k2 ^= (long) key[tail + 9] << 8;
       case 9:
-        state.k2 ^= (long) key[tail + 8];
+        state.k2 ^= key[tail + 8];
 
       case 8:
         state.k1 ^= (long) key[tail + 7] << 56;
@@ -132,7 +132,7 @@ public class OMurmurHash3 {
       case 2:
         state.k1 ^= (long) key[tail + 1] << 8;
       case 1:
-        state.k1 ^= (long) key[tail + 0];
+        state.k1 ^= key[tail];
         bmix(state);
     }
 

@@ -61,9 +61,7 @@ public class OQueryOperatorDivide extends OQueryOperator {
       iRight = ((Date) iRight).getTime();
     }
 
-    if (iLeft instanceof Number && iRight instanceof Number) {
-      final Number l = (Number) iLeft;
-      final Number r = (Number) iRight;
+    if (iLeft instanceof Number l && iRight instanceof Number r) {
       Class maxPrecisionClass = OQueryOperatorMultiply.getMaxPrecisionClass(l, r);
       if (Integer.class.equals(maxPrecisionClass)) {
         return l.intValue() / r.intValue();

@@ -42,17 +42,17 @@ public class OQueryOperatorMinusTest {
             10,
             null,
             ORecordSerializerBinary.INSTANCE.getCurrentSerializer()),
-        10 - 10);
+        0);
     Assert.assertEquals(
         operator.evaluateRecord(
             null,
             null,
             null,
-            10l,
-            10l,
+            10L,
+            10L,
             null,
             ORecordSerializerBinary.INSTANCE.getCurrentSerializer()),
-        10l - 10l);
+        0L);
     Assert.assertEquals(
         operator.evaluateRecord(
             null,

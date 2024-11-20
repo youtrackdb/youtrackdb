@@ -41,7 +41,7 @@ public class CountFromIndexStep extends AbstractExecutionStep {
   }
 
   private OResult produce(OCommandContext ctx) {
-    final ODatabaseSessionInternal database = (ODatabaseSessionInternal) ctx.getDatabase();
+    final ODatabaseSessionInternal database = ctx.getDatabase();
     OIndexInternal idx =
         database
             .getMetadata()

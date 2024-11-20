@@ -996,7 +996,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
     assert schemaType.isPresent();
 
     String className = schemaType.get().getName();
-    OIdentifiable edgeId = ((OIdentifiable) edge).getIdentity();
+    OIdentifiable edgeId = edge.getIdentity();
 
     removeLinkFromEdge(
         vertex, edge, OVertex.getEdgeLinkFieldName(direction, className), edgeId, direction);

@@ -13,7 +13,7 @@ public interface OScriptExecutor {
 
   OResultSet execute(ODatabaseSessionInternal database, String script, Map params);
 
-  public Object executeFunction(
+  Object executeFunction(
       OCommandContext context, final String functionName, final Map<Object, Object> iArgs);
 
   void registerInterceptor(OScriptInterceptor interceptor);

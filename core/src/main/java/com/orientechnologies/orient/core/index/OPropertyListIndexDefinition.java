@@ -69,7 +69,7 @@ public class OPropertyListIndexDefinition extends OPropertyIndexDefinition
   @Override
   public Object createValue(ODatabaseSessionInternal session, final Object... params) {
     Object param = params[0];
-    if (!(param instanceof Collection)) {
+    if (!(param instanceof Collection<?> multiValueCollection)) {
       try {
         return OType.convert(param, keyType.getDefaultJavaType());
       } catch (Exception e) {
@@ -77,7 +77,6 @@ public class OPropertyListIndexDefinition extends OPropertyIndexDefinition
       }
     }
 
-    final Collection<?> multiValueCollection = (Collection<?>) param;
     final List<Object> values = new ArrayList<>(multiValueCollection.size());
     for (final Object item : multiValueCollection) {
       values.add(createSingleValue(session, item));

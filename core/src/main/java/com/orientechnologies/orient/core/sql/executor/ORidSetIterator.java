@@ -10,7 +10,7 @@ import java.util.Iterator;
 public class ORidSetIterator implements Iterator<ORID> {
 
   private final Iterator<ORID> negativesIterator;
-  private ORidSet set;
+  private final ORidSet set;
   private int currentCluster = -1;
   private long currentId = -1;
 

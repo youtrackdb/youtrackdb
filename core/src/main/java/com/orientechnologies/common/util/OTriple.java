@@ -87,13 +87,8 @@ public class OTriple<K extends Comparable<K>, V extends Comparable<V>, SV>
     }
     OTriple<?, ?, ?> other = (OTriple<?, ?, ?>) obj;
     if (key == null) {
-      if (other.key != null) {
-        return false;
-      }
-    } else if (!key.equals(other.key)) {
-      return false;
-    }
-    return true;
+      return other.key == null;
+    } else return key.equals(other.key);
   }
 
   public int compareTo(final OTriple<K, V, SV> o) {

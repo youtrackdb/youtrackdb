@@ -64,11 +64,7 @@ public class OBonsaiBucketPointer {
     if (pageIndex != that.pageIndex) {
       return false;
     }
-    if (pageOffset != that.pageOffset) {
-      return false;
-    }
-
-    return true;
+    return pageOffset == that.pageOffset;
   }
 
   @Override

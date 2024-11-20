@@ -10,6 +10,7 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class OCreateFunctionStatement extends OSimpleExecStatement {
@@ -143,26 +144,22 @@ public class OCreateFunctionStatement extends OSimpleExecStatement {
 
     OCreateFunctionStatement that = (OCreateFunctionStatement) o;
 
-    if (name != null ? !name.equals(that.name) : that.name != null) {
+    if (!Objects.equals(name, that.name)) {
       return false;
     }
-    if (codeQuoted != null ? !codeQuoted.equals(that.codeQuoted) : that.codeQuoted != null) {
+    if (!Objects.equals(codeQuoted, that.codeQuoted)) {
       return false;
     }
-    if (code != null ? !code.equals(that.code) : that.code != null) {
+    if (!Objects.equals(code, that.code)) {
       return false;
     }
-    if (parameters != null ? !parameters.equals(that.parameters) : that.parameters != null) {
+    if (!Objects.equals(parameters, that.parameters)) {
       return false;
     }
-    if (idempotent != null ? !idempotent.equals(that.idempotent) : that.idempotent != null) {
+    if (!Objects.equals(idempotent, that.idempotent)) {
       return false;
     }
-    if (language != null ? !language.equals(that.language) : that.language != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(language, that.language);
   }
 
   @Override

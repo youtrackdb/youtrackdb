@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class OIfStatement extends OStatement {
@@ -214,19 +215,13 @@ public class OIfStatement extends OStatement {
 
     OIfStatement that = (OIfStatement) o;
 
-    if (expression != null ? !expression.equals(that.expression) : that.expression != null) {
+    if (!Objects.equals(expression, that.expression)) {
       return false;
     }
-    if (statements != null ? !statements.equals(that.statements) : that.statements != null) {
+    if (!Objects.equals(statements, that.statements)) {
       return false;
     }
-    if (elseStatements != null
-        ? !elseStatements.equals(that.elseStatements)
-        : that.elseStatements != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(elseStatements, that.elseStatements);
   }
 
   @Override

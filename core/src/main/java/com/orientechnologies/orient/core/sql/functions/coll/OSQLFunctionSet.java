@@ -116,7 +116,7 @@ public class OSQLFunctionSet extends OSQLFunctionMultiValueAbstract<Set<Object>>
       final Map<String, Object> doc = new HashMap<String, Object>();
       doc.put("node", getDistributedStorageId());
       doc.put("context", context);
-      return Collections.<Object>singleton(doc);
+      return Collections.singleton(doc);
     } else {
       return res;
     }

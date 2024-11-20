@@ -44,7 +44,7 @@ public class DecimalKeyNormalizer implements KeyNormalizers {
 
   private BigDecimal scaleToDecimal128(final BigDecimal rawValue) {
     final BigDecimal value = clampAndRound(rawValue);
-    long exponent = (long) (-value.scale());
+    long exponent = -value.scale();
     if (exponent >= -6176L && exponent <= 6111L) {
       if (value.unscaledValue().bitLength() > 113) {
         throw new AssertionError(

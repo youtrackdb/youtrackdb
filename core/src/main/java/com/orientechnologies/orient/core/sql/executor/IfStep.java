@@ -39,11 +39,8 @@ public class IfStep extends AbstractExecutionStep {
       return positivePlan;
     } else {
       OScriptExecutionPlan negativePlan = initNegativePlan(ctx);
-      if (negativePlan != null) {
-        return negativePlan;
-      }
+      return negativePlan;
     }
-    return null;
   }
 
   public OScriptExecutionPlan initPositivePlan(OCommandContext ctx) {

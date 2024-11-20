@@ -40,12 +40,12 @@ public class OEqualsCompareOperator extends SimpleNode implements OBinaryCompare
 
   @Override
   public void toString(Map<Object, Object> params, StringBuilder builder) {
-    builder.append(toString());
+    builder.append(this);
   }
 
   @Override
   public void toGenericStatement(StringBuilder builder) {
-    builder.append(toString());
+    builder.append(this);
   }
 
   @Override

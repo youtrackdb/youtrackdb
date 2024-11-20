@@ -87,9 +87,8 @@ public class OQueryOperatorIn extends OQueryOperatorEqualityNotNulls {
 
       if (inParams instanceof OLegacyResultSet) { // manage IN (subquery)
         Set newInParams = new HashSet();
-        for (Object o : ((OLegacyResultSet) inParams)) {
-          if (o instanceof ODocument && ((ODocument) o).getIdentity().getClusterId() < -1) {
-            ODocument doc = (ODocument) o;
+        for (Object o : inParams) {
+          if (o instanceof ODocument doc && ((ODocument) o).getIdentity().getClusterId() < -1) {
             String[] fieldNames = doc.fieldNames();
             if (fieldNames.length == 1) {
               newInParams.add(doc.field(fieldNames[0]));

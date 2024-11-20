@@ -5,6 +5,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class OMatchExpression extends SimpleNode {
@@ -54,14 +55,10 @@ public class OMatchExpression extends SimpleNode {
 
     OMatchExpression that = (OMatchExpression) o;
 
-    if (origin != null ? !origin.equals(that.origin) : that.origin != null) {
+    if (!Objects.equals(origin, that.origin)) {
       return false;
     }
-    if (items != null ? !items.equals(that.items) : that.items != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(items, that.items);
   }
 
   @Override

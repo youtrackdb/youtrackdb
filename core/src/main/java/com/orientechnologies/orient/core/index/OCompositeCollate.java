@@ -53,8 +53,7 @@ public class OCompositeCollate implements OCollate {
   @Override
   public Object transform(final Object obj) {
     final List<Object> keys;
-    if (obj instanceof OCompositeKey) {
-      final OCompositeKey compositeKey = (OCompositeKey) obj;
+    if (obj instanceof OCompositeKey compositeKey) {
       keys = compositeKey.getKeys();
     } else if (obj instanceof List) {
       keys = (List<Object>) obj;
@@ -91,11 +90,7 @@ public class OCompositeCollate implements OCollate {
 
     final OCompositeCollate that = (OCompositeCollate) o;
 
-    if (!collates.equals(that.collates)) {
-      return false;
-    }
-
-    return true;
+    return collates.equals(that.collates);
   }
 
   @Override

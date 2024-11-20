@@ -109,8 +109,7 @@ public class OQueryOperatorTraverse extends OQueryOperatorEqualityNotNulls {
       iTarget = ((OIdentifiable) iTarget).getRecord();
     }
 
-    if (iTarget instanceof ODocument) {
-      final ODocument target = (ODocument) iTarget;
+    if (iTarget instanceof ODocument target) {
 
       iEvaluatedRecords.add(target.getIdentity());
 
@@ -164,9 +163,8 @@ public class OQueryOperatorTraverse extends OQueryOperatorEqualityNotNulls {
         }
       }
 
-    } else if (iTarget instanceof OQueryRuntimeValueMulti) {
+    } else if (iTarget instanceof OQueryRuntimeValueMulti multi) {
 
-      final OQueryRuntimeValueMulti multi = (OQueryRuntimeValueMulti) iTarget;
       for (final Object o : multi.getValues()) {
         if (traverse(o, iCondition, iLevel + 1, iEvaluatedRecords, iContext) == Boolean.TRUE) {
           return true;
@@ -187,8 +185,7 @@ public class OQueryOperatorTraverse extends OQueryOperatorEqualityNotNulls {
           return true;
         }
       }
-    } else if (iTarget instanceof Iterator) {
-      final Iterator iterator = (Iterator) iTarget;
+    } else if (iTarget instanceof Iterator iterator) {
       while (iterator.hasNext()) {
         if (traverse(iterator.next(), iCondition, iLevel + 1, iEvaluatedRecords, iContext)
             == Boolean.TRUE) {

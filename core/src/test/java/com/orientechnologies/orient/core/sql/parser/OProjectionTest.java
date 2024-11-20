@@ -53,7 +53,6 @@ public class OProjectionTest {
 
     try {
       getParserFor("select expand(foo), bar  from V").parse();
-      ;
       Assert.fail();
     } catch (OCommandSQLParsingException ex) {
 

@@ -7,6 +7,7 @@ import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Map;
+import java.util.Objects;
 
 public class OCreateClusterStatement extends ODDLStatement {
 
@@ -139,10 +140,10 @@ public class OCreateClusterStatement extends ODDLStatement {
     if (blob != that.blob) {
       return false;
     }
-    if (name != null ? !name.equals(that.name) : that.name != null) {
+    if (!Objects.equals(name, that.name)) {
       return false;
     }
-    return id != null ? id.equals(that.id) : that.id == null;
+    return Objects.equals(id, that.id);
   }
 
   @Override

@@ -61,9 +61,7 @@ public class OQueryOperatorMultiply extends OQueryOperator {
       iRight = ((Date) iRight).getTime();
     }
 
-    if (iLeft instanceof Number && iRight instanceof Number) {
-      final Number l = (Number) iLeft;
-      final Number r = (Number) iRight;
+    if (iLeft instanceof Number l && iRight instanceof Number r) {
       Class maxPrecisionClass = getMaxPrecisionClass(l, r);
       if (Integer.class.equals(maxPrecisionClass)) {
         return tryDownscaleToInt(l.longValue() * r.longValue());
@@ -88,10 +86,10 @@ public class OQueryOperatorMultiply extends OQueryOperator {
       return (BigDecimal) number;
     }
     if (number instanceof Double) {
-      return new BigDecimal(number.doubleValue());
+      return BigDecimal.valueOf(number.doubleValue());
     }
     if (number instanceof Float) {
-      return new BigDecimal(number.floatValue());
+      return BigDecimal.valueOf(number.floatValue());
     }
     if (number instanceof Long) {
       return new BigDecimal(number.longValue());

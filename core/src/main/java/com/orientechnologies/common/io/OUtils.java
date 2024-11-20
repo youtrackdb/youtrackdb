@@ -25,7 +25,7 @@ public class OUtils {
 
   public static String getDatabaseNameFromURL(final String name) {
     if (OStringSerializerHelper.contains(name, '/')) {
-      return name.substring(name.lastIndexOf("/") + 1);
+      return name.substring(name.lastIndexOf('/') + 1);
     }
     return name;
   }

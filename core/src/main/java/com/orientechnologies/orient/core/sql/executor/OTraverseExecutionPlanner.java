@@ -36,15 +36,15 @@ import java.util.stream.Collectors;
 public class OTraverseExecutionPlanner {
 
   private List<OTraverseProjectionItem> projections = null;
-  private OFromClause target;
+  private final OFromClause target;
 
-  private OWhereClause whileClause;
+  private final OWhereClause whileClause;
 
   private final OTraverseStatement.Strategy strategy;
   private final OInteger maxDepth;
 
-  private OSkip skip;
-  private OLimit limit;
+  private final OSkip skip;
+  private final OLimit limit;
 
   public OTraverseExecutionPlanner(OTraverseStatement statement) {
     // copying the content, so that it can be manipulated and optimized
@@ -205,7 +205,7 @@ public class OTraverseExecutionPlanner {
       OCommandContext ctx,
       boolean profilingEnabled) {
     String indexName = indexIdentifier.getIndexName();
-    final ODatabaseSessionInternal database = (ODatabaseSessionInternal) ctx.getDatabase();
+    final ODatabaseSessionInternal database = ctx.getDatabase();
     OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, indexName);
     if (index == null) {
       throw new OCommandExecutionException("Index not found: " + indexName);

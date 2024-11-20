@@ -67,8 +67,8 @@ public class JavaCharStream implements CharStream {
   int bufsize;
   int available;
   int tokenBegin;
-  protected int bufline[];
-  protected int bufcolumn[];
+  protected int[] bufline;
+  protected int[] bufcolumn;
 
   protected int column = 0;
   protected int line = 1;
@@ -95,8 +95,8 @@ public class JavaCharStream implements CharStream {
 
   protected void ExpandBuff(boolean wrapAround) {
     char[] newbuffer = new char[bufsize + 2048];
-    int newbufline[] = new int[bufsize + 2048];
-    int newbufcolumn[] = new int[bufsize + 2048];
+    int[] newbufline = new int[bufsize + 2048];
+    int[] newbufcolumn = new int[bufsize + 2048];
 
     try {
       if (wrapAround) {
@@ -146,7 +146,6 @@ public class JavaCharStream implements CharStream {
       } else {
         maxNextCharInd += i;
       }
-      return;
     } catch (java.io.IOException e) {
       if (bufpos != 0) {
         --bufpos;

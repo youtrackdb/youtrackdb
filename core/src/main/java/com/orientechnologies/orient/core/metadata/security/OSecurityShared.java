@@ -56,7 +56,6 @@ import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.parser.OBooleanExpression;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -358,7 +357,7 @@ public class OSecurityShared implements OSecurityInternal {
   // Token MUST be validated before being passed to this method.
   public OUser authenticate(final ODatabaseSession session, final OToken authToken) {
     final String dbName = session.getName();
-    if (authToken.getIsValid() != true) {
+    if (!authToken.getIsValid()) {
       throw new OSecurityAccessException(dbName, "Token not valid");
     }
 
@@ -984,7 +983,7 @@ public class OSecurityShared implements OSecurityInternal {
     } else if (!userClass.getSuperClasses().contains(identityClass))
     // MIGRATE AUTOMATICALLY TO 1.2.0
     {
-      userClass.setSuperClasses(Arrays.asList(identityClass));
+      userClass.setSuperClasses(Collections.singletonList(identityClass));
     }
 
     if (!userClass.existsProperty("name")) {
@@ -1079,7 +1078,7 @@ public class OSecurityShared implements OSecurityInternal {
     } else if (!roleClass.getSuperClasses().contains(identityClass))
     // MIGRATE AUTOMATICALLY TO 1.2.0
     {
-      roleClass.setSuperClasses(Arrays.asList(identityClass));
+      roleClass.setSuperClasses(Collections.singletonList(identityClass));
     }
 
     if (!roleClass.existsProperty("name")) {
@@ -1399,7 +1398,7 @@ public class OSecurityShared implements OSecurityInternal {
     if (session.getUser() == null) {
       return Collections.emptySet();
     }
-    OImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass((ODocument) document);
+    OImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(document);
     if (clazz == null) {
       return Collections.emptySet();
     }
@@ -1450,7 +1449,7 @@ public class OSecurityShared implements OSecurityInternal {
     if (document instanceof ODocument) {
       className = document.getClassName();
     } else {
-      clazz = ((OElement) document).getSchemaType().orElse(null);
+      clazz = document.getSchemaType().orElse(null);
       className = clazz == null ? null : clazz.getName();
     }
     if (className == null) {

@@ -25,7 +25,7 @@ import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.OStorageConfigurationImpl;
 import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
@@ -38,7 +38,7 @@ public class OStorageMemoryConfiguration extends OStorageConfigurationImpl {
   private byte[] serializedContent;
 
   public OStorageMemoryConfiguration(OAbstractPaginatedStorage iStorage) {
-    super(iStorage, Charset.forName("UTF-8"));
+    super(iStorage, StandardCharsets.UTF_8);
   }
 
   @Override

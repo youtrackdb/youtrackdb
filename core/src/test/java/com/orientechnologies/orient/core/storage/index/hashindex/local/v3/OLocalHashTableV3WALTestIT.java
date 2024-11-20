@@ -322,9 +322,7 @@ public class OLocalHashTableV3WALTestIT extends OLocalHashTableV3Base {
               continue;
             }
 
-            if (restoreRecord instanceof OFileCreatedWALRecord) {
-              final OFileCreatedWALRecord fileCreatedCreatedRecord =
-                  (OFileCreatedWALRecord) restoreRecord;
+            if (restoreRecord instanceof OFileCreatedWALRecord fileCreatedCreatedRecord) {
               final String fileName =
                   fileCreatedCreatedRecord
                       .getFileName()

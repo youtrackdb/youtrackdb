@@ -20,7 +20,7 @@ public class CheckSafeDeleteStepTest extends TestUtilsFixture {
   private static final String VERTEX_CLASS_NAME = "VertexTestClass";
   private static final String EDGE_CLASS_NAME = "EdgeTestClass";
 
-  private String className;
+  private final String className;
 
   public CheckSafeDeleteStepTest(String className) {
     this.className = className;
@@ -84,7 +84,6 @@ public class CheckSafeDeleteStepTest extends TestUtilsFixture {
           @Override
           public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
             List<OResult> result = new ArrayList<>();
-            ;
             if (!done) {
               for (int i = 0; i < 10; i++) {
                 result.add(new OResultInternal(new ODocument(createClassInstance().getName())));

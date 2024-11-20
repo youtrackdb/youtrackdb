@@ -8,6 +8,7 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class OCommitStatement extends OSimpleExecStatement {
 
@@ -138,15 +139,13 @@ public class OCommitStatement extends OSimpleExecStatement {
 
     OCommitStatement that = (OCommitStatement) o;
 
-    if (retry != null ? !retry.equals(that.retry) : that.retry != null) {
+    if (!Objects.equals(retry, that.retry)) {
       return false;
     }
-    if (elseStatements != null
-        ? !elseStatements.equals(that.elseStatements)
-        : that.elseStatements != null) {
+    if (!Objects.equals(elseStatements, that.elseStatements)) {
       return false;
     }
-    return elseFail != null ? elseFail.equals(that.elseFail) : that.elseFail == null;
+    return Objects.equals(elseFail, that.elseFail);
   }
 
   @Override

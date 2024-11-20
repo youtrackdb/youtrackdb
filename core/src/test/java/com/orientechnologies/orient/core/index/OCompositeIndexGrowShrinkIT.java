@@ -11,10 +11,10 @@ import org.junit.Test;
 
 public class OCompositeIndexGrowShrinkIT extends BaseMemoryDatabase {
 
-  private Random random = new Random();
+  private final Random random = new Random();
 
   public String randomText() {
-    String str = new String();
+    String str = "";
     int count = random.nextInt(10);
     for (int i = 0; i < count; i++) {
       str += random.nextInt(10000) + " ";

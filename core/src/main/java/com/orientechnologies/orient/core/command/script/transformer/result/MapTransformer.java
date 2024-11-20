@@ -13,7 +13,7 @@ import java.util.stream.StreamSupport;
  */
 public class MapTransformer implements OResultTransformer<Map<Object, Object>> {
 
-  private OScriptTransformer transformer;
+  private final OScriptTransformer transformer;
 
   public MapTransformer(OScriptTransformer transformer) {
     this.transformer = transformer;

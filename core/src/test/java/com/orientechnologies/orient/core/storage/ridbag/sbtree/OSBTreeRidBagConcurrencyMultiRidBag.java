@@ -39,8 +39,8 @@ public class OSBTreeRidBagConcurrencyMultiRidBag {
 
   private final CountDownLatch latch = new CountDownLatch(1);
 
-  private ExecutorService threadExecutor = Executors.newCachedThreadPool();
-  private ScheduledExecutorService addDocExecutor = Executors.newScheduledThreadPool(5);
+  private final ExecutorService threadExecutor = Executors.newCachedThreadPool();
+  private final ScheduledExecutorService addDocExecutor = Executors.newScheduledThreadPool(5);
 
   private volatile boolean cont = true;
 

@@ -192,7 +192,6 @@ public final class OClusterPositionMapV2 extends OClusterPositionMap {
 
         if (bucket.isFull()) {
           cacheEntry.close();
-          ;
 
           assert lastPage <= filledUpTo - 1;
 
@@ -215,7 +214,6 @@ public final class OClusterPositionMapV2 extends OClusterPositionMap {
       }
     } finally {
       entryPointEntry.close();
-      ;
     }
   }
 

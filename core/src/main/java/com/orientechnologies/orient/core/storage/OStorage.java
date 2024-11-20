@@ -50,9 +50,9 @@ import javax.annotation.Nonnull;
  */
 public interface OStorage extends OBackupable, OStorageInfo {
 
-  public String CLUSTER_DEFAULT_NAME = "default";
+  String CLUSTER_DEFAULT_NAME = "default";
 
-  public enum STATUS {
+  enum STATUS {
     CLOSED,
     OPEN,
     MIGRATION,

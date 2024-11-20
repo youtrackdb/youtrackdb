@@ -45,8 +45,7 @@ public class OTraverseRecordSetProcess extends OTraverseAbstractProcess<Iterator
       index++;
 
       final ORecord rec = record.getRecord();
-      if (rec instanceof ODocument) {
-        ODocument doc = (ODocument) rec;
+      if (rec instanceof ODocument doc) {
         if (!doc.getIdentity().isPersistent() && doc.fields() == 1) {
           // EXTRACT THE FIELD CONTEXT
           Object fieldvalue = doc.field(doc.fieldNames()[0]);
@@ -55,17 +54,13 @@ public class OTraverseRecordSetProcess extends OTraverseAbstractProcess<Iterator
                 .getContext()
                 .push(
                     new OTraverseRecordSetProcess(
-                        command, ((Collection<OIdentifiable>) fieldvalue).iterator(), getPath()));
+                        command, ((Collection<OIdentifiable>) fieldvalue).iterator(), path));
 
           } else if (fieldvalue instanceof ODocument) {
-            command
-                .getContext()
-                .push(new OTraverseRecordProcess(command, (ODocument) rec, getPath()));
+            command.getContext().push(new OTraverseRecordProcess(command, rec, path));
           }
         } else {
-          command
-              .getContext()
-              .push(new OTraverseRecordProcess(command, (ODocument) rec, getPath()));
+          command.getContext().push(new OTraverseRecordProcess(command, rec, path));
         }
 
         return null;

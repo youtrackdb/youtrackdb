@@ -11,7 +11,7 @@ import java.util.List;
  */
 class TestIterable<T> implements Iterable<T> {
 
-  private List<T> values;
+  private final List<T> values;
 
   TestIterable(List<T> values) {
     this.values = values;

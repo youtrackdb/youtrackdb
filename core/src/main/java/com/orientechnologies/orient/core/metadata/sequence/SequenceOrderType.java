@@ -22,9 +22,9 @@ public enum SequenceOrderType {
   ORDER_POSITIVE((byte) 1),
   ORDER_NEGATIVE((byte) 2);
 
-  private byte val;
+  private final byte val;
 
-  private SequenceOrderType(byte val) {
+  SequenceOrderType(byte val) {
     this.val = val;
   }
 

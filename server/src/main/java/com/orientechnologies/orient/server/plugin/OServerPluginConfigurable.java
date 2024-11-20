@@ -25,7 +25,7 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
  */
 public interface OServerPluginConfigurable {
 
-  public ODocument getConfig();
+  ODocument getConfig();
 
-  public void changeConfig(ODocument document);
+  void changeConfig(ODocument document);
 }

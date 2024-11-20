@@ -33,7 +33,7 @@ public class OArrays {
   public static <T, U> T[] copyOf(
       final U[] iSource, final int iNewSize, final Class<? extends T[]> iNewType) {
     final T[] copy;
-    if ((Object) iNewType == (Object) Object[].class) {
+    if (Object[].class.equals(iNewType)) {
       copy = (T[]) new Object[iNewSize];
     } else {
       copy = (T[]) Array.newInstance(iNewType.getComponentType(), iNewSize);
@@ -54,11 +54,12 @@ public class OArrays {
     }
 
     final D[] copy;
-    if ((Object) iClass == (Object) Object[].class) {
+    if (Object[].class.equals(iClass)) {
       copy = (D[]) new Object[newLength];
     } else {
       copy = (D[]) Array.newInstance(iClass.getComponentType(), newLength);
     }
+
     System.arraycopy(iSource, iBegin, copy, 0, Math.min(iSource.length - iBegin, newLength));
     return copy;
   }
@@ -90,7 +91,7 @@ public class OArrays {
    * Returns true if an arrays contains a value, otherwise false
    */
   public static boolean contains(final int[] iArray, final int iToFind) {
-    if (iArray == null || iArray.length == 0) {
+    if (iArray == null) {
       return false;
     }
 
@@ -107,7 +108,7 @@ public class OArrays {
    * Returns true if an arrays contains a value, otherwise false
    */
   public static <T> boolean contains(final T[] iArray, final T iToFind) {
-    if (iArray == null || iArray.length == 0) {
+    if (iArray == null) {
       return false;
     }
 

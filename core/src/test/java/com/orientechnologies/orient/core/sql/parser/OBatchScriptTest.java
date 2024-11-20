@@ -17,8 +17,7 @@ public class OBatchScriptTest {
     checkRightSyntax("/*foo bar*/ begin;\nselect from foo;return bar;/*foo bar*/ ");
 
     String s =
-        ""
-            + "begin;"
+        "begin;"
             + "let $a = select from foo let a = 13 where bar = 'baz';"
             + "let $b = insert into foo set name = 'baz';"
             + "let $c = update v set name = 'lkajsd';"
@@ -33,8 +32,7 @@ public class OBatchScriptTest {
     checkRightSyntax(s);
 
     s =
-        ""
-            + "begin;\n"
+        "begin;\n"
             + "let $a = select from foo let a = 13 where bar = 'baz';\n"
             + "let $b = insert into foo set name = 'baz';\n"
             + "let $c = update v set name = 'lkajsd';\n"
@@ -48,8 +46,7 @@ public class OBatchScriptTest {
     checkRightSyntax(s);
 
     s =
-        ""
-            + "begin;\n"
+        "begin;\n"
             + "let $a = select from foo let a = 13 where bar = 'baz';\n"
             + "let $b = insert into foo set name = 'baz';\n"
             + "let $c = update v set \n"

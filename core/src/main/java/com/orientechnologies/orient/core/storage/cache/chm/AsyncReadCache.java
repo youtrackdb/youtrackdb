@@ -91,13 +91,12 @@ public final class AsyncReadCache implements OReadCache {
   }
 
   @Override
-  public final long addFile(final String fileName, final OWriteCache writeCache)
-      throws IOException {
+  public long addFile(final String fileName, final OWriteCache writeCache) throws IOException {
     return writeCache.addFile(fileName);
   }
 
   @Override
-  public final long addFile(final String fileName, long fileId, final OWriteCache writeCache)
+  public long addFile(final String fileName, long fileId, final OWriteCache writeCache)
       throws IOException {
     assert fileId >= 0;
     fileId = OAbstractWriteCache.checkFileIdCompatibility(writeCache.getId(), fileId);
@@ -105,7 +104,7 @@ public final class AsyncReadCache implements OReadCache {
   }
 
   @Override
-  public final OCacheEntry loadForWrite(
+  public OCacheEntry loadForWrite(
       final long fileId,
       final long pageIndex,
       final OWriteCache writeCache,
@@ -122,7 +121,7 @@ public final class AsyncReadCache implements OReadCache {
   }
 
   @Override
-  public final OCacheEntry loadForRead(
+  public OCacheEntry loadForRead(
       final long fileId,
       final long pageIndex,
       final OWriteCache writeCache,
@@ -131,7 +130,7 @@ public final class AsyncReadCache implements OReadCache {
   }
 
   @Override
-  public final OCacheEntry silentLoadForRead(
+  public OCacheEntry silentLoadForRead(
       final long extFileId,
       final int pageIndex,
       final OWriteCache writeCache,
@@ -299,7 +298,7 @@ public final class AsyncReadCache implements OReadCache {
   }
 
   @Override
-  public final void changeMaximumAmountOfMemory(final long maxMemory) {
+  public void changeMaximumAmountOfMemory(final long maxMemory) {
     evictionLock.lock();
     try {
       policy.setMaxSize((int) (maxMemory / pageSize));
@@ -309,7 +308,7 @@ public final class AsyncReadCache implements OReadCache {
   }
 
   @Override
-  public final void releaseFromRead(final OCacheEntry cacheEntry) {
+  public void releaseFromRead(final OCacheEntry cacheEntry) {
     cacheEntry.releaseEntry();
 
     if (!cacheEntry.insideCache()) {
@@ -318,7 +317,7 @@ public final class AsyncReadCache implements OReadCache {
   }
 
   @Override
-  public final void releaseFromWrite(
+  public void releaseFromWrite(
       final OCacheEntry cacheEntry, final OWriteCache writeCache, final boolean changed) {
     final OCachePointer cachePointer = cacheEntry.getCachePointer();
     assert cachePointer != null;
@@ -361,7 +360,7 @@ public final class AsyncReadCache implements OReadCache {
   }
 
   @Override
-  public final OCacheEntry allocateNewPage(
+  public OCacheEntry allocateNewPage(
       long fileId, final OWriteCache writeCache, final OLogSequenceNumber startLSN)
       throws IOException {
     fileId = OAbstractWriteCache.checkFileIdCompatibility(writeCache.getId(), fileId);
@@ -482,12 +481,12 @@ public final class AsyncReadCache implements OReadCache {
   }
 
   @Override
-  public final long getUsedMemory() {
+  public long getUsedMemory() {
     return ((long) cacheSize.get()) * pageSize;
   }
 
   @Override
-  public final void clear() {
+  public void clear() {
     evictionLock.lock();
     try {
       emptyBuffers();
@@ -513,7 +512,7 @@ public final class AsyncReadCache implements OReadCache {
   }
 
   @Override
-  public final void truncateFile(long fileId, final OWriteCache writeCache) throws IOException {
+  public void truncateFile(long fileId, final OWriteCache writeCache) throws IOException {
     fileId = OAbstractWriteCache.checkFileIdCompatibility(writeCache.getId(), fileId);
 
     final int filledUpTo = (int) writeCache.getFilledUpTo(fileId);
@@ -523,7 +522,7 @@ public final class AsyncReadCache implements OReadCache {
   }
 
   @Override
-  public final void closeFile(long fileId, final boolean flush, final OWriteCache writeCache) {
+  public void closeFile(long fileId, final boolean flush, final OWriteCache writeCache) {
     fileId = OAbstractWriteCache.checkFileIdCompatibility(writeCache.getId(), fileId);
     final int filledUpTo = (int) writeCache.getFilledUpTo(fileId);
 
@@ -531,7 +530,7 @@ public final class AsyncReadCache implements OReadCache {
     writeCache.close(fileId, flush);
   }
 
-  public final void deleteFile(long fileId, final OWriteCache writeCache) throws IOException {
+  public void deleteFile(long fileId, final OWriteCache writeCache) throws IOException {
     fileId = OAbstractWriteCache.checkFileIdCompatibility(writeCache.getId(), fileId);
     final int filledUpTo = (int) writeCache.getFilledUpTo(fileId);
 

@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -79,7 +80,7 @@ public class OStorageConfigurationSegment extends OStorageConfigurationImpl {
   private final Path storagePath;
 
   public OStorageConfigurationSegment(final OLocalPaginatedStorage storage) {
-    super(storage, Charset.forName("UTF-8"));
+    super(storage, StandardCharsets.UTF_8);
 
     this.storageName = storage.getName();
     this.storagePath = storage.getStoragePath();
@@ -194,7 +195,7 @@ public class OStorageConfigurationSegment extends OStorageConfigurationImpl {
   public void update() throws OSerializationException {
     lock.writeLock().lock();
     try {
-      final Charset utf8 = Charset.forName("UTF-8");
+      final Charset utf8 = StandardCharsets.UTF_8;
       final byte[] buffer = toStream(utf8);
 
       final ByteBuffer byteBuffer =
@@ -308,7 +309,7 @@ public class OStorageConfigurationSegment extends OStorageConfigurationImpl {
         if (encodingFagOne == ENCODING_FLAG_1
             && encodingFagTwo == ENCODING_FLAG_2
             && encodingFagThree == ENCODING_FLAG_3) {
-          final byte[] utf8Encoded = "UTF-8".getBytes(Charset.forName("UTF-8"));
+          final byte[] utf8Encoded = "UTF-8".getBytes(StandardCharsets.UTF_8);
 
           final int encodingNameLength = byteBuffer.getInt();
 
@@ -316,10 +317,10 @@ public class OStorageConfigurationSegment extends OStorageConfigurationImpl {
             final byte[] binaryEncodingName = new byte[encodingNameLength];
             byteBuffer.get(binaryEncodingName);
 
-            final String encodingName = new String(binaryEncodingName, "UTF-8");
+            final String encodingName = new String(binaryEncodingName, StandardCharsets.UTF_8);
 
             if (encodingName.equals("UTF-8")) {
-              streamEncoding = Charset.forName("UTF-8");
+              streamEncoding = StandardCharsets.UTF_8;
             } else {
               return false;
             }
@@ -377,7 +378,7 @@ public class OStorageConfigurationSegment extends OStorageConfigurationImpl {
       }
 
       try {
-        fromStream(buffer, 0, buffer.length, Charset.forName("UTF-8"));
+        fromStream(buffer, 0, buffer.length, StandardCharsets.UTF_8);
       } catch (Exception e) {
         OLogManager.instance()
             .error(

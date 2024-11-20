@@ -117,7 +117,7 @@ public class CellBTreeMultiValueV2TestIT {
         100,
         (value, rollback, atomicOperation) ->
             multiValueTree.remove(
-                atomicOperation, null, new ORecordId(3 * value % 32_000, 3 * value)));
+                atomicOperation, null, new ORecordId(3 * value % 32_000, 3L * value)));
 
     final List<ORID> result;
     try (Stream<ORID> stream = multiValueTree.get(null)) {

@@ -73,15 +73,15 @@ public final class OHashIndexFactory implements OIndexFactory {
    *   <li>DICTIONARY
    * </ul>
    */
-  public final Set<String> getTypes() {
+  public Set<String> getTypes() {
     return TYPES;
   }
 
-  public final Set<String> getAlgorithms() {
+  public Set<String> getAlgorithms() {
     return ALGORITHMS;
   }
 
-  public final OIndexInternal createIndex(final OStorage storage, final OIndexMetadata im)
+  public OIndexInternal createIndex(final OStorage storage, final OIndexMetadata im)
       throws OConfigurationException {
     int version = im.getVersion();
     final String indexType = im.getType();
@@ -104,7 +104,7 @@ public final class OHashIndexFactory implements OIndexFactory {
   }
 
   @Override
-  public final int getLastVersion(final String algorithm) {
+  public int getLastVersion(final String algorithm) {
     return OHashTableIndexEngine.VERSION;
   }
 

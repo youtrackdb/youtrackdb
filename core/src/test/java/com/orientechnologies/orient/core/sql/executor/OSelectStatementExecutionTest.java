@@ -479,7 +479,7 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
       OResult item = result.next();
       Assert.assertNotNull(item);
       Object name = item.getProperty("name");
-      Assert.assertFalse("name1".equals(name));
+      Assert.assertNotEquals("name1", name);
     }
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -2000,8 +2000,8 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     Assert.assertTrue(result.hasNext());
     OResult item = result.next();
     Assert.assertNotNull(item);
-    Assert.assertEquals(1l, item.<Object>getProperty("one"));
-    Assert.assertEquals(2l, item.<Object>getProperty("two"));
+    Assert.assertEquals(1L, item.<Object>getProperty("one"));
+    Assert.assertEquals(2L, item.<Object>getProperty("two"));
     printExecutionPlan(result);
     result.close();
   }

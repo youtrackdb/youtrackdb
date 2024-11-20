@@ -30,14 +30,14 @@ public interface OQuery<T extends Object> extends OCommandRequest {
    *
    * @return List of records if any record matches the query constraints, otherwise an empty List.
    */
-  public List<T> run(Object... iArgs);
+  List<T> run(Object... iArgs);
 
   /**
    * Returns the first occurrence found if any
    *
    * @return Record if found, otherwise null
    */
-  public T runFirst(Object... iArgs);
+  T runFirst(Object... iArgs);
 
-  public void reset();
+  void reset();
 }

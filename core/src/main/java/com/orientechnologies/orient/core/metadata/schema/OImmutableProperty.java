@@ -457,29 +457,29 @@ public class OImmutableProperty implements OProperty {
       case LINKEDCLASS:
         return getLinkedClass();
       case LINKEDTYPE:
-        return getLinkedType();
+        return linkedType;
       case MIN:
-        return getMin();
+        return min;
       case MANDATORY:
-        return isMandatory();
+        return mandatory;
       case READONLY:
-        return isReadonly();
+        return readOnly;
       case MAX:
-        return getMax();
+        return max;
       case DEFAULT:
-        return getDefaultValue();
+        return defaultValue;
       case NAME:
-        return getName();
+        return name;
       case NOTNULL:
-        return isNotNull();
+        return notNull;
       case REGEXP:
-        return getRegexp();
+        return regexp;
       case TYPE:
-        return getType();
+        return type;
       case COLLATE:
-        return getCollate();
+        return collate;
       case DESCRIPTION:
-        return getDescription();
+        return description;
     }
 
     throw new IllegalArgumentException("Cannot find attribute '" + attribute + "'");
@@ -516,18 +516,13 @@ public class OImmutableProperty implements OProperty {
     }
     OProperty other = (OProperty) obj;
     if (owner == null) {
-      if (other.getOwnerClass() != null) {
-        return false;
-      }
-    } else if (!owner.equals(other.getOwnerClass())) {
-      return false;
-    }
-    return true;
+      return other.getOwnerClass() == null;
+    } else return owner.equals(other.getOwnerClass());
   }
 
   @Override
   public String toString() {
-    return getName() + " (type=" + getType() + ")";
+    return name + " (type=" + type + ")";
   }
 
   public Comparable<Object> getMaxComparable() {

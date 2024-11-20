@@ -5,6 +5,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import java.util.Map;
+import java.util.Objects;
 
 public class OBatch extends SimpleNode {
 
@@ -26,7 +27,7 @@ public class OBatch extends SimpleNode {
     } else if (inputParam != null) {
       Object obj = inputParam.getValue(ctx.getInputParameters());
       if (obj == null || !(obj instanceof Number)) {
-        throw new OCommandExecutionException("" + obj + " is not a number (BATCH)");
+        throw new OCommandExecutionException(obj + " is not a number (BATCH)");
       }
       return ((Number) obj).intValue();
     }
@@ -77,14 +78,10 @@ public class OBatch extends SimpleNode {
 
     OBatch oBatch = (OBatch) o;
 
-    if (num != null ? !num.equals(oBatch.num) : oBatch.num != null) {
+    if (!Objects.equals(num, oBatch.num)) {
       return false;
     }
-    if (inputParam != null ? !inputParam.equals(oBatch.inputParam) : oBatch.inputParam != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(inputParam, oBatch.inputParam);
   }
 
   @Override

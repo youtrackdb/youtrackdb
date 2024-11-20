@@ -48,9 +48,9 @@ public class LinksetInTransactionTest extends BaseMemoryDatabase {
 
     /* All seems OK before commit */
     links = withLinks1.getProperty("links");
-    Assert.assertTrue(links.size() == 0);
+    Assert.assertEquals(0, links.size());
     links = withLinks1.getProperty("links");
-    Assert.assertTrue(links.size() == 0);
+    Assert.assertEquals(0, links.size());
     db.commit();
 
     withLinks1 = db.bindToSession(withLinks1);

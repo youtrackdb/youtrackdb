@@ -116,11 +116,9 @@ public class OPhysicalPosition implements OSerializableStream, Externalizable {
 
   @Override
   public boolean equals(Object obj) {
-    if (obj == null || !(obj instanceof OPhysicalPosition)) {
+    if (obj == null || !(obj instanceof OPhysicalPosition other)) {
       return false;
     }
-
-    final OPhysicalPosition other = (OPhysicalPosition) obj;
 
     return clusterPosition == other.clusterPosition
         && recordType == other.recordType

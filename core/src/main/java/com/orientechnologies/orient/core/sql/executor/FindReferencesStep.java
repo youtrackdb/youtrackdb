@@ -2,7 +2,6 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.OMap;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
@@ -97,7 +96,7 @@ public class FindReferencesStep extends AbstractExecutionStep {
             targetClusterNames.add(clusterName);
           }
         }
-        OSchema schema = ((ODatabaseSessionInternal) db).getMetadata().getImmutableSchemaSnapshot();
+        OSchema schema = db.getMetadata().getImmutableSchemaSnapshot();
         assert this.classes != null;
         for (OIdentifier className : this.classes) {
           OClass clazz = schema.getClass(className.getStringValue());
@@ -112,10 +111,7 @@ public class FindReferencesStep extends AbstractExecutionStep {
     }
 
     return targetClusterNames.stream()
-        .map(
-            clusterName ->
-                new ORecordIteratorCluster<>(
-                    (ODatabaseSessionInternal) db, db.getClusterIdByName(clusterName)))
+        .map(clusterName -> new ORecordIteratorCluster<>(db, db.getClusterIdByName(clusterName)))
         .collect(Collectors.toList());
   }
 

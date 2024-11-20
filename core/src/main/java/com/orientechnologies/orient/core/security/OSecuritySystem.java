@@ -153,5 +153,5 @@ public interface OSecuritySystem {
 
   OSecurityUser authenticate(ODatabaseSession session, OAuthenticationInfo authenticationInfo);
 
-  public OTokenSign getTokenSign();
+  OTokenSign getTokenSign();
 }

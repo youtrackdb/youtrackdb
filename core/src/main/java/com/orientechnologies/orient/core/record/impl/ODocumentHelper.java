@@ -90,12 +90,12 @@ public class ODocumentHelper {
   public static final String ATTRIBUTE_FIELS_TYPES = "@fieldtypes";
   public static final String ATTRIBUTE_RAW = "@raw";
 
-  public static interface ODbRelatedCall<T> {
+  public interface ODbRelatedCall<T> {
 
     T call(ODatabaseSessionInternal database);
   }
 
-  public static interface RIDMapper {
+  public interface RIDMapper {
 
     ORID map(ORID rid);
   }
@@ -177,8 +177,7 @@ public class ODocumentHelper {
           ((Collection<Object>) newValue).addAll((Collection<Object>) iValue);
         } else if (iValue instanceof Map) {
           ((Collection<Object>) newValue).addAll(((Map<String, Object>) iValue).values());
-        } else if (iValue instanceof String) {
-          final String stringValue = (String) iValue;
+        } else if (iValue instanceof String stringValue) {
 
           if (stringValue != null && !stringValue.isEmpty()) {
             final String[] items = stringValue.split(",");
@@ -211,8 +210,7 @@ public class ODocumentHelper {
           ((Collection<Object>) newValue).addAll((Collection<Object>) iValue);
         } else if (iValue instanceof Map) {
           ((Collection<Object>) newValue).addAll(((Map<String, Object>) iValue).values());
-        } else if (iValue instanceof String) {
-          final String stringValue = (String) iValue;
+        } else if (iValue instanceof String stringValue) {
 
           if (stringValue != null && !stringValue.isEmpty()) {
             final String[] items = stringValue.split(",");
@@ -284,7 +282,7 @@ public class ODocumentHelper {
 
   @SuppressWarnings("unchecked")
   public static <RET> RET getFieldValue(Object value, final String iFieldName) {
-    return (RET) getFieldValue(value, iFieldName, null);
+    return getFieldValue(value, iFieldName, null);
   }
 
   @SuppressWarnings("unchecked")
@@ -572,8 +570,7 @@ public class ODocumentHelper {
             for (Object v : OMultiValue.getMultiValueIterable(value)) {
               if (v instanceof OIdentifiable) {
                 Object result =
-                    pred.evaluate(
-                        (OIdentifiable) v, (ODocument) ((OIdentifiable) v).getRecord(), iContext);
+                    pred.evaluate((OIdentifiable) v, ((OIdentifiable) v).getRecord(), iContext);
                 if (Boolean.TRUE.equals(result)) {
                   values.add(v);
                 }
@@ -747,11 +744,7 @@ public class ODocumentHelper {
     if (c >= 'a' && c <= 'z') {
       return true;
     }
-    if (c >= 'A' && c <= 'Z') {
-      return true;
-    }
-
-    return false;
+    return c >= 'A' && c <= 'Z';
   }
 
   private static boolean isListOfNumbers(List<String> list) {
@@ -795,8 +788,7 @@ public class ODocumentHelper {
         return null;
       }
 
-      if (rec instanceof ODocument) {
-        final ODocument doc = (ODocument) rec;
+      if (rec instanceof ODocument doc) {
 
         Object fieldValue = doc.field(iConditionFieldName);
 
@@ -835,8 +827,7 @@ public class ODocumentHelper {
       return null;
     }
 
-    if (iKey instanceof String) {
-      String iName = (String) iKey;
+    if (iKey instanceof String iName) {
       int pos = iName.indexOf('.');
       if (pos > -1) {
         iName = iName.substring(0, pos);
@@ -1014,16 +1005,16 @@ public class ODocumentHelper {
                   .substring(Integer.parseInt(args.get(0)), Integer.parseInt(args.get(1)));
         }
       } else if (function.startsWith("APPEND(")) {
-        result = currentValue.toString() + OIOUtils.getStringContent(args.get(0));
+        result = currentValue + OIOUtils.getStringContent(args.get(0));
       } else if (function.startsWith("PREFIX(")) {
-        result = OIOUtils.getStringContent(args.get(0)) + currentValue.toString();
+        result = OIOUtils.getStringContent(args.get(0)) + currentValue;
       } else if (function.startsWith("FORMAT(")) {
         if (currentValue instanceof Date) {
           SimpleDateFormat formatter = new SimpleDateFormat(OIOUtils.getStringContent(args.get(0)));
           formatter.setTimeZone(ODateHelper.getDatabaseTimeZone());
           result = formatter.format(currentValue);
         } else {
-          result = String.format(OIOUtils.getStringContent(args.get(0)), currentValue.toString());
+          result = String.format(OIOUtils.getStringContent(args.get(0)), currentValue);
         }
       } else if (function.startsWith("LEFT(")) {
         final int len = Integer.parseInt(args.get(0));
@@ -1114,8 +1105,7 @@ public class ODocumentHelper {
       final Object iOther,
       final ODatabaseSessionInternal iOtherDb,
       RIDMapper ridMapper) {
-    if (iCurrent instanceof ODocument) {
-      final ODocument current = (ODocument) iCurrent;
+    if (iCurrent instanceof ODocument current) {
       if (iOther instanceof ORID) {
         if (!current.isDirty()) {
           ORID id;
@@ -1708,9 +1698,7 @@ public class ODocumentHelper {
       return true;
     }
 
-    if (myValue instanceof Number && otherValue instanceof Number) {
-      final Number myNumberValue = (Number) myValue;
-      final Number otherNumberValue = (Number) otherValue;
+    if (myValue instanceof Number myNumberValue && otherValue instanceof Number otherNumberValue) {
 
       if (isInteger(myNumberValue) && isInteger(otherNumberValue)) {
         return myNumberValue.longValue() == otherNumberValue.longValue();

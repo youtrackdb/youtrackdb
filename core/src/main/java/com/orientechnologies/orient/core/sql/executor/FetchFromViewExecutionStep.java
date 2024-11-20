@@ -20,7 +20,7 @@ public class FetchFromViewExecutionStep extends FetchFromClassExecutionStep {
       boolean profilingEnabled) {
     super(className, clusters, planningInfo, ctx, ridOrder, profilingEnabled);
 
-    ODatabaseSessionInternal database = (ODatabaseSessionInternal) ctx.getDatabase();
+    ODatabaseSessionInternal database = ctx.getDatabase();
     OView view = loadClassFromSchema(className, ctx);
     int[] classClusters = view.getPolymorphicClusterIds();
     for (int clusterId : classClusters) {
@@ -37,11 +37,7 @@ public class FetchFromViewExecutionStep extends FetchFromClassExecutionStep {
   }
 
   protected OView loadClassFromSchema(String className, OCommandContext ctx) {
-    OView clazz =
-        ((ODatabaseSessionInternal) ctx.getDatabase())
-            .getMetadata()
-            .getImmutableSchemaSnapshot()
-            .getView(className);
+    OView clazz = ctx.getDatabase().getMetadata().getImmutableSchemaSnapshot().getView(className);
     if (clazz == null) {
       throw new OCommandExecutionException("View " + className + " not found");
     }

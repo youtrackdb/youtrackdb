@@ -626,16 +626,10 @@ public final class OSBTreeBucketV1<K, V> extends ODurablePage {
         return false;
       }
       if (value != null) {
-        if (!value.equals(that.value)) {
-          return false;
-        }
+        return value.equals(that.value);
       } else {
-        if (that.value != null) {
-          return false;
-        }
+        return that.value == null;
       }
-
-      return true;
     }
 
     @Override

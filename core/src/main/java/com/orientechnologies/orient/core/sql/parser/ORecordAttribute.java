@@ -14,6 +14,7 @@ import com.orientechnologies.orient.core.record.impl.ORecordBytes;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.util.Map;
+import java.util.Objects;
 
 public class ORecordAttribute extends SimpleNode {
 
@@ -53,11 +54,7 @@ public class ORecordAttribute extends SimpleNode {
 
     ORecordAttribute that = (ORecordAttribute) o;
 
-    if (name != null ? !name.equals(that.name) : that.name != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(name, that.name);
   }
 
   @Override

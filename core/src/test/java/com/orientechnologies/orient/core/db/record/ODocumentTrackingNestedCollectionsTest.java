@@ -1,6 +1,7 @@
 package com.orientechnologies.orient.core.db.record;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.BaseMemoryDatabase;
@@ -54,7 +55,7 @@ public class ODocumentTrackingNestedCollectionsTest extends BaseMemoryDatabase {
     objects = document.field("objects");
     subObjects = (Set) objects.iterator().next();
 
-    assertTrue(!subObjects.isEmpty());
+    assertFalse(subObjects.isEmpty());
   }
 
   @Test

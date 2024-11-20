@@ -305,7 +305,7 @@ public class ORule implements Serializable {
       return null;
     }
 
-    final byte mask = (byte) operation;
+    final byte mask = operation;
 
     return (ac.byteValue() & mask) == mask;
   }

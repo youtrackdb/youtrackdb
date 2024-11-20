@@ -32,7 +32,7 @@ public class OSBTreeRidBagConcurrencySingleRidBag {
   private final ConcurrentSkipListSet<ORID> ridTree = new ConcurrentSkipListSet<ORID>();
   private final CountDownLatch latch = new CountDownLatch(1);
   private ORID docContainerRid;
-  private ExecutorService threadExecutor = Executors.newCachedThreadPool();
+  private final ExecutorService threadExecutor = Executors.newCachedThreadPool();
   private volatile boolean cont = true;
 
   private int topThreshold;

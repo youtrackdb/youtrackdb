@@ -14,12 +14,12 @@ public class OImmutableView extends OImmutableClass implements OView {
   private final List<String> watchClasses;
   private final List<String> nodes;
   private final List<OViewIndexConfig> requiredIndexesInfo;
-  private String query;
-  private String originRidField;
-  private boolean updatable;
-  private String updateStrategy;
-  private Set<String> activeIndexNames;
-  private long lastRefreshTime;
+  private final String query;
+  private final String originRidField;
+  private final boolean updatable;
+  private final String updateStrategy;
+  private final Set<String> activeIndexNames;
+  private final long lastRefreshTime;
 
   public OImmutableView(OView view, OImmutableSchema schema) {
     super(view, schema);

@@ -8,7 +8,7 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
  */
 public interface OInternalExecutionPlan extends OExecutionPlan {
 
-  public static final String JAVA_TYPE = "javaType";
+  String JAVA_TYPE = "javaType";
 
   void close();
 

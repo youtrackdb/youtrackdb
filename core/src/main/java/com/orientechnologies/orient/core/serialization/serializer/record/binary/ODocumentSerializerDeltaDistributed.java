@@ -8,7 +8,7 @@ import com.orientechnologies.orient.core.id.ORecordId;
 
 public class ODocumentSerializerDeltaDistributed extends ODocumentSerializerDelta {
 
-  private static ODocumentSerializerDeltaDistributed INSTANCE =
+  private static final ODocumentSerializerDeltaDistributed INSTANCE =
       new ODocumentSerializerDeltaDistributed();
 
   public static ODocumentSerializerDeltaDistributed instance() {

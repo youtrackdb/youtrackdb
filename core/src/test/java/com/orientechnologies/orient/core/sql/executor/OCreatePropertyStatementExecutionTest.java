@@ -2,6 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.BaseMemoryDatabase;
@@ -255,7 +256,7 @@ public class OCreatePropertyStatementExecutionTest extends BaseMemoryDatabase {
     assertEquals(idProperty.getName(), PROP_ID);
     assertEquals(idProperty.getFullName(), "testDefaultAndMinMaxUnsafeProperty.id");
     assertEquals(idProperty.getType(), OType.INTEGER);
-    assertEquals(idProperty.getLinkedType(), null);
+    assertNull(idProperty.getLinkedType());
     assertFalse(idProperty.isMandatory());
     assertFalse(idProperty.isNotNull());
     assertFalse(idProperty.isReadonly());
@@ -276,7 +277,7 @@ public class OCreatePropertyStatementExecutionTest extends BaseMemoryDatabase {
     assertEquals(idProperty.getName(), PROP_ID);
     assertEquals(idProperty.getFullName(), "testExtraSpaces.id");
     assertEquals(idProperty.getType(), OType.INTEGER);
-    assertEquals(idProperty.getLinkedType(), null);
+    assertNull(idProperty.getLinkedType());
     assertTrue(idProperty.isMandatory());
     assertEquals(idProperty.getDefaultValue(), "5");
   }

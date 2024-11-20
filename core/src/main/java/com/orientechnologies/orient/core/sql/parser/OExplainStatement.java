@@ -11,6 +11,7 @@ import com.orientechnologies.orient.core.sql.executor.OInternalExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class OExplainStatement extends OStatement {
 
@@ -107,11 +108,7 @@ public class OExplainStatement extends OStatement {
 
     OExplainStatement that = (OExplainStatement) o;
 
-    if (statement != null ? !statement.equals(that.statement) : that.statement != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(statement, that.statement);
   }
 
   @Override

@@ -93,7 +93,7 @@ public class OSchemaProxy extends OProxedResource<OSchemaShared> implements OSch
 
   @Override
   public OClass createClass(final String iClassName, final OClass iSuperClass) {
-    return delegate.createClass(database, iClassName, iSuperClass, (int[]) null);
+    return delegate.createClass(database, iClassName, iSuperClass, null);
   }
 
   @Override

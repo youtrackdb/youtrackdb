@@ -11,7 +11,7 @@ import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
  */
 public abstract class OCoreException extends OException {
 
-  private OErrorCode errorCode;
+  private final OErrorCode errorCode;
 
   private String dbName;
   private String componentName;

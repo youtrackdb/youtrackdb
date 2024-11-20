@@ -41,9 +41,9 @@ public class OServerShutdownMain {
   public int[] networkPort;
   public OChannelBinaryAsynchClient channel;
 
-  private OContextConfiguration contextConfig;
-  private String rootUser;
-  private String rootPassword;
+  private final OContextConfiguration contextConfig;
+  private final String rootUser;
+  private final String rootPassword;
 
   public OServerShutdownMain(
       final String iServerAddress,

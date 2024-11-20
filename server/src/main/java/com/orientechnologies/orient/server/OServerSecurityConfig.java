@@ -9,8 +9,8 @@ import com.orientechnologies.orient.server.plugin.OServerPluginInfo;
 
 public class OServerSecurityConfig implements OSecurityConfig {
 
-  private OServer server;
-  private OServerConfigurationManager serverCfg;
+  private final OServer server;
+  private final OServerConfigurationManager serverCfg;
   private OSyslog sysLog;
 
   public OServerSecurityConfig(OServer server, OServerConfigurationManager serverCfg) {

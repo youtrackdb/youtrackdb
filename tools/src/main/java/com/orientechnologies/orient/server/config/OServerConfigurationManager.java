@@ -150,13 +150,10 @@ public class OServerConfigurationManager {
         final OServerUserConfiguration[] newArray =
             new OServerUserConfiguration[configuration.users.length - 1];
         // COPY LEFT PART
-        for (int k = 0; k < i; ++k) {
-          newArray[k] = configuration.users[k];
-        }
+        System.arraycopy(configuration.users, 0, newArray, 0, i);
         // COPY RIGHT PART
-        for (int k = i; k < newArray.length; ++k) {
-          newArray[k] = configuration.users[k + 1];
-        }
+        if (newArray.length - i >= 0)
+          System.arraycopy(configuration.users, i + 1, newArray, i, newArray.length - i);
         configuration.users = newArray;
         break;
       }

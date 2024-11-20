@@ -132,7 +132,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
   private int lastPercentStep;
   private String currentDatabaseUserName;
   private String currentDatabaseUserPassword;
-  private int maxMultiValueEntries = 10;
+  private final int maxMultiValueEntries = 10;
 
   public OConsoleDatabaseApp(final String[] args) {
     super(args);
@@ -778,15 +778,13 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     rs.close();
     float elapsedSeconds = getElapsedSecs(start);
 
-    setResultset((List<OIdentifiable>) result);
+    setResultset(result);
 
     int displayLimit = Integer.parseInt(properties.get(OConsoleProperties.LIMIT));
 
     dumpResultSet(displayLimit);
 
-    message(
-        "\nCreated '%s' edges in %f sec(s).\n",
-        ((List<OIdentifiable>) result).size(), elapsedSeconds);
+    message("\nCreated '%s' edges in %f sec(s).\n", result.size(), elapsedSeconds);
   }
 
   @ConsoleCommand(description = "Switches on storage profiling for upcoming set of commands")
@@ -1340,7 +1338,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       @ConsoleParameter(name = "text", description = "Commands to execute, one per line")
           String iText) {
     final String language;
-    final int languageEndPos = iText.indexOf(";");
+    final int languageEndPos = iText.indexOf(';');
     String[] splitted = iText.split(" ")[0].split(";")[0].split("\n")[0].split("\t");
     language = splitted[0];
     iText = iText.substring(language.length() + 1);
@@ -1856,7 +1854,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       clusters.append(")");
     }
 
-    message("\nSupported clusters...: " + clusters.toString());
+    message("\nSupported clusters...: " + clusters);
     message("\nCluster selection....: " + cls.getClusterSelection().getName());
     message("\nOversize.............: " + cls.getClassOverSize());
 
@@ -2683,10 +2681,11 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     String fName = null;
     try {
       out.println(
-          new StringBuilder(
-                  "Executing incremental backup of database '" + currentDatabaseName + "' to: ")
-              .append(iText)
-              .append("..."));
+          "Executing incremental backup of database '"
+              + currentDatabaseName
+              + "' to: "
+              + iText
+              + "...");
       fName = currentDatabase.incrementalBackup(fileName);
 
       message(
@@ -2706,10 +2705,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       throws IOException {
     checkForDatabase();
 
-    out.println(
-        new StringBuilder("Exporting current database to: ")
-            .append(iText)
-            .append(" in GZipped JSON format ..."));
+    out.println("Exporting current database to: " + iText + " in GZipped JSON format ...");
     final List<String> items = OStringSerializerHelper.smartSplit(iText, ' ');
     final String fileName =
         items.size() <= 1 || items.get(1).charAt(0) == '-' ? null : items.get(1);
@@ -3499,8 +3495,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
   private void dumpRecordDetails() {
     if (currentRecord == null) {
       return;
-    } else if (currentRecord instanceof ODocument) {
-      ODocument rec = (ODocument) currentRecord;
+    } else if (currentRecord instanceof ODocument rec) {
       if (rec.getClassName() != null || rec.getIdentity().isValid()) {
         message(
             "\nDOCUMENT @class:%s @rid:%s @version:%d",
@@ -3539,8 +3534,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
       formatter.writeRecords(resultSet, -1);
 
-    } else if (currentRecord instanceof OBlob) {
-      OBlob rec = (OBlob) currentRecord;
+    } else if (currentRecord instanceof OBlob rec) {
       message(
           "\n"
               + "+-------------------------------------------------------------------------------------------------+");
@@ -3583,7 +3577,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
     for (ORecordSerializer s : ORecordSerializerFactory.instance().getFormats()) {
       if (s instanceof ORecordSerializerStringAbstract) {
-        message("\n- " + s.toString());
+        message("\n- " + s);
       }
     }
   }
@@ -3646,7 +3640,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
   protected void onException(Throwable e) {
     Throwable current = e;
     while (current != null) {
-      err.print("\nError: " + current.toString() + "\n");
+      err.print("\nError: " + current + "\n");
       current = current.getCause();
     }
   }

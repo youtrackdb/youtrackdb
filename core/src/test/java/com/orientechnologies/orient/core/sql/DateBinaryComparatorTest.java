@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.sql;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -45,7 +45,7 @@ public class DateBinaryComparatorTest extends BaseMemoryDatabase {
     params.put("dateParam", new SimpleDateFormat(dateFormat).parse(dateValue));
 
     try (OResultSet result = db.query(str, params)) {
-      assertTrue(result.stream().count() == 1);
+      assertEquals(1, result.stream().count());
     }
   }
 }

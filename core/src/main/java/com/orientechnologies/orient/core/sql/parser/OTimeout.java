@@ -5,6 +5,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.util.Map;
+import java.util.Objects;
 
 public class OTimeout extends SimpleNode {
 
@@ -56,16 +57,10 @@ public class OTimeout extends SimpleNode {
 
     OTimeout timeout = (OTimeout) o;
 
-    if (val != null ? !val.equals(timeout.val) : timeout.val != null) {
+    if (!Objects.equals(val, timeout.val)) {
       return false;
     }
-    if (failureStrategy != null
-        ? !failureStrategy.equals(timeout.failureStrategy)
-        : timeout.failureStrategy != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(failureStrategy, timeout.failureStrategy);
   }
 
   @Override

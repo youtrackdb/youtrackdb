@@ -61,7 +61,7 @@ public class OSBTreeIndexEngine implements OIndexEngine {
   private final String name;
   private final int id;
 
-  private OAbstractPaginatedStorage storage;
+  private final OAbstractPaginatedStorage storage;
 
   public OSBTreeIndexEngine(
       final int id, String name, OAbstractPaginatedStorage storage, int version) {

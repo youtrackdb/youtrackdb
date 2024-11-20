@@ -14,7 +14,7 @@ import java.util.List;
 public class OSingleOpExecutionPlan implements OInternalExecutionPlan {
 
   protected final OSimpleExecStatement statement;
-  private OCommandContext ctx;
+  private final OCommandContext ctx;
 
   private boolean executed = false;
   private OExecutionStream result;
@@ -77,11 +77,8 @@ public class OSingleOpExecutionPlan implements OInternalExecutionPlan {
   @Override
   public String prettyPrint(int depth, int indent) {
     String spaces = OExecutionStepInternal.getIndent(depth, indent);
-    StringBuilder result = new StringBuilder();
-    result.append(spaces);
-    result.append("+ ");
-    result.append(statement.toString());
-    return result.toString();
+    String result = spaces + "+ " + statement.toString();
+    return result;
   }
 
   @Override

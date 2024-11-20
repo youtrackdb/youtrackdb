@@ -21,9 +21,9 @@ package com.orientechnologies.orient.core.command;
 
 public interface OCommandRequestAsynch {
 
-  public OCommandResultListener getResultListener();
+  OCommandResultListener getResultListener();
 
-  public void setResultListener(OCommandResultListener iListener);
+  void setResultListener(OCommandResultListener iListener);
 
-  public boolean isAsynchronous();
+  boolean isAsynchronous();
 }

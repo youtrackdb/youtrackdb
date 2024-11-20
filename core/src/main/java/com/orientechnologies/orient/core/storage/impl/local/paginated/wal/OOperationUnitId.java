@@ -125,11 +125,9 @@ public class OOperationUnitId {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof OOperationUnitId)) {
+    if (!(o instanceof OOperationUnitId that)) {
       return false;
     }
-
-    OOperationUnitId that = (OOperationUnitId) o;
 
     if (lId != that.lId) {
       return false;

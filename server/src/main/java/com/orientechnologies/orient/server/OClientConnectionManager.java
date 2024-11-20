@@ -62,7 +62,7 @@ public class OClientConnectionManager {
   protected final ConcurrentMap<OHashToken, OClientSessions> sessions =
       new ConcurrentHashMap<OHashToken, OClientSessions>();
   protected final TimerTask timerTask;
-  private OServer server;
+  private final OServer server;
 
   public OClientConnectionManager(OServer server) {
     final int delay = OGlobalConfiguration.SERVER_CHANNEL_CLEAN_DELAY.getValueAsInteger();
@@ -424,14 +424,13 @@ public class OClientConnectionManager {
         continue;
       }
 
-      if (!(c.getProtocol() instanceof ONetworkProtocolBinary)
+      if (!(c.getProtocol() instanceof ONetworkProtocolBinary p)
           || c.getData().getSerializationImpl() == null)
       // INVOLVE ONLY BINARY PROTOCOLS
       {
         continue;
       }
 
-      final ONetworkProtocolBinary p = (ONetworkProtocolBinary) c.getProtocol();
       final OChannelBinary channel = p.getChannel();
       final ORecordSerializer ser =
           ORecordSerializerFactory.instance().getFormat(c.getData().getSerializationImpl());

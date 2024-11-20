@@ -5,7 +5,7 @@ import java.util.List;
 
 public class OPath {
 
-  private List<String> path = new ArrayList<>();
+  private final List<String> path = new ArrayList<>();
 
   public OPath(String value) {
     this.path.add(value);

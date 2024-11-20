@@ -107,8 +107,8 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
                   recordId = recordId.copy();
                   return recordId;
                 })
-            .map(ORecordId::<ORecord>getRecord)
-            .collect(Collectors.toList());
+            .<ORecord>map(ORecordId::getRecord)
+            .toList();
 
     MoreLikeThis mlt = buildMoreLikeThis(index, searcher, metadata);
 

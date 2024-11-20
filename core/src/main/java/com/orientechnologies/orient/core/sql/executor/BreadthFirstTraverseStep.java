@@ -178,7 +178,7 @@ public class BreadthFirstTraverseStep extends AbstractTraverseStep {
 
       List<OIdentifiable> newPath = new ArrayList<>();
       newPath.addAll(path);
-      newPath.add(((OTraverseResult) nextStep).getIdentity().get());
+      newPath.add(nextStep.getIdentity().get());
       ((OTraverseResult) nextStep).setMetadata("$path", newPath);
 
       List reverseStack = new ArrayList();
@@ -196,7 +196,7 @@ public class BreadthFirstTraverseStep extends AbstractTraverseStep {
 
       List<OIdentifiable> newPath = new ArrayList<>();
       newPath.addAll(path);
-      newPath.add(((OTraverseResult) nextStep).getIdentity().get());
+      newPath.add(nextStep.getIdentity().get());
       ((OTraverseResult) nextStep).setMetadata("$path", newPath);
 
       List reverseStack = new ArrayList();
@@ -226,7 +226,7 @@ public class BreadthFirstTraverseStep extends AbstractTraverseStep {
     result.append("+ BREADTH-FIRST TRAVERSE \n");
     if (whileClause != null) {
       result.append(spaces);
-      result.append("WHILE " + whileClause.toString());
+      result.append("WHILE " + whileClause);
     }
     return result.toString();
   }

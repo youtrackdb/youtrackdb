@@ -30,13 +30,12 @@ import java.util.concurrent.TimeUnit;
  */
 public interface SyslogMessageSender {
 
-  public static final long DEFAULT_INET_ADDRESS_TTL_IN_MILLIS =
-      TimeUnit.MILLISECONDS.convert(30, TimeUnit.SECONDS);
-  public static final long DEFAULT_INET_ADDRESS_TTL_IN_NANOS =
+  long DEFAULT_INET_ADDRESS_TTL_IN_MILLIS = TimeUnit.MILLISECONDS.convert(30, TimeUnit.SECONDS);
+  long DEFAULT_INET_ADDRESS_TTL_IN_NANOS =
       TimeUnit.NANOSECONDS.convert(DEFAULT_INET_ADDRESS_TTL_IN_MILLIS, TimeUnit.MILLISECONDS);
-  public static final String DEFAULT_SYSLOG_HOST = "localhost";
-  public static final MessageFormat DEFAULT_SYSLOG_MESSAGE_FORMAT = MessageFormat.RFC_3164;
-  public static final int DEFAULT_SYSLOG_PORT = 514;
+  String DEFAULT_SYSLOG_HOST = "localhost";
+  MessageFormat DEFAULT_SYSLOG_MESSAGE_FORMAT = MessageFormat.RFC_3164;
+  int DEFAULT_SYSLOG_PORT = 514;
 
   /**
    * Send the given message ; the Syslog fields (appName, severity, priority, hostname ...) are the

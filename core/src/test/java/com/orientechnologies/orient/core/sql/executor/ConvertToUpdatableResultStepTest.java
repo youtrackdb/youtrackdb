@@ -19,7 +19,7 @@ public class ConvertToUpdatableResultStepTest extends TestUtilsFixture {
 
   private static final String STRING_PROPERTY = "stringPropertyName";
   private static final String INTEGER_PROPERTY = "integerPropertyName";
-  private List<ODocument> documents = new ArrayList<>();
+  private final List<ODocument> documents = new ArrayList<>();
 
   @Test
   public void shouldConvertUpdatableResult() {

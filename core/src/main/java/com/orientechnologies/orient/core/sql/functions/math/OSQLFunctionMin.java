@@ -77,7 +77,7 @@ public class OSQLFunctionMin extends OSQLFunctionMathAbstract {
       if (context == null)
       // FIRST TIME
       {
-        context = (Comparable) min;
+        context = min;
       } else {
         if (context instanceof Number && min instanceof Number) {
           final Number[] casted = OType.castComparableNumber((Number) context, (Number) min);
@@ -85,10 +85,10 @@ public class OSQLFunctionMin extends OSQLFunctionMathAbstract {
           min = casted[1];
         }
 
-        if (((Comparable<Object>) context).compareTo((Comparable) min) > 0)
+        if (((Comparable<Object>) context).compareTo(min) > 0)
         // MINOR
         {
-          context = (Comparable) min;
+          context = min;
         }
       }
 

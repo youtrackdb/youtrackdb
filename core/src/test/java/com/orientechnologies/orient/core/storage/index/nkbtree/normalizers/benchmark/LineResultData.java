@@ -4,7 +4,7 @@ import java.util.List;
 
 public class LineResultData {
 
-  private String seriesName;
+  private final String seriesName;
   private List<Double> xData;
   private List<Double> yData;
 

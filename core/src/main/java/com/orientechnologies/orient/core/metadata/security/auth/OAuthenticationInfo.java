@@ -4,5 +4,5 @@ import java.util.Optional;
 
 public interface OAuthenticationInfo {
 
-  public Optional<String> getDatabase();
+  Optional<String> getDatabase();
 }

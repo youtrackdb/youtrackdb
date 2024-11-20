@@ -3,6 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import java.util.Map;
+import java.util.Objects;
 
 public class OCommandLineOption extends SimpleNode {
 
@@ -45,11 +46,7 @@ public class OCommandLineOption extends SimpleNode {
 
     OCommandLineOption that = (OCommandLineOption) o;
 
-    if (name != null ? !name.equals(that.name) : that.name != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(name, that.name);
   }
 
   @Override

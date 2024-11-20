@@ -47,7 +47,7 @@ import java.util.stream.Stream;
  */
 public abstract class OQueryOperator {
 
-  public static enum ORDER {
+  public enum ORDER {
     /**
      * Used when order compared to other operator cannot be evaluated or has no consequences.
      */

@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class OFuncitonAggregationContext implements AggregationContext {
 
-  private OSQLFunction aggregateFunction;
+  private final OSQLFunction aggregateFunction;
   private List<OExpression> params;
 
   public OFuncitonAggregationContext(OSQLFunction function, List<OExpression> params) {

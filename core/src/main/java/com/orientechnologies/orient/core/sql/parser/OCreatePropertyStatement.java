@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class OCreatePropertyStatement extends ODDLStatement {
@@ -195,30 +196,22 @@ public class OCreatePropertyStatement extends ODDLStatement {
     if (unsafe != that.unsafe) {
       return false;
     }
-    if (className != null ? !className.equals(that.className) : that.className != null) {
+    if (!Objects.equals(className, that.className)) {
       return false;
     }
-    if (propertyName != null
-        ? !propertyName.equals(that.propertyName)
-        : that.propertyName != null) {
+    if (!Objects.equals(propertyName, that.propertyName)) {
       return false;
     }
-    if (propertyType != null
-        ? !propertyType.equals(that.propertyType)
-        : that.propertyType != null) {
+    if (!Objects.equals(propertyType, that.propertyType)) {
       return false;
     }
-    if (linkedType != null ? !linkedType.equals(that.linkedType) : that.linkedType != null) {
+    if (!Objects.equals(linkedType, that.linkedType)) {
       return false;
     }
-    if (attributes != null ? !attributes.equals(that.attributes) : that.attributes != null) {
+    if (!Objects.equals(attributes, that.attributes)) {
       return false;
     }
-    if (ifNotExists != that.ifNotExists) {
-      return false;
-    }
-
-    return true;
+    return ifNotExists == that.ifNotExists;
   }
 
   @Override

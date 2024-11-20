@@ -94,8 +94,7 @@ public class OWhereClause extends SimpleNode {
     for (OAndBlock condition : flattenedConditions) {
 
       List<OBinaryCondition> indexedFunctConditions =
-          condition.getIndexedFunctionConditions(
-              oClass, (ODatabaseSessionInternal) ctx.getDatabase());
+          condition.getIndexedFunctionConditions(oClass, ctx.getDatabase());
 
       long conditionEstimation = Long.MAX_VALUE;
 
@@ -259,8 +258,7 @@ public class OWhereClause extends SimpleNode {
       OAndBlock condition, OCommandContext ctx) {
     Map<String, Object> result = new HashMap<>();
     for (OBooleanExpression expression : condition.subBlocks) {
-      if (expression instanceof OBinaryCondition) {
-        OBinaryCondition b = (OBinaryCondition) expression;
+      if (expression instanceof OBinaryCondition b) {
         if (b.operator instanceof OEqualsCompareOperator) {
           if (b.left.isBaseIdentifier() && b.right.isEarlyCalculated(ctx)) {
             result.put(b.left.toString(), b.right.execute((OResult) null, ctx));

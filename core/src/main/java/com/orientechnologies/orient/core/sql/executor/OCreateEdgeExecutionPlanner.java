@@ -151,8 +151,7 @@ public class OCreateEdgeExecutionPlanner {
         && statement.executinPlanCanBeCached()
         && result.canBeCached()
         && OExecutionPlanCache.getLastInvalidation(db) < planningStart) {
-      OExecutionPlanCache.put(
-          statement.getOriginalStatement(), result, (ODatabaseSessionInternal) ctx.getDatabase());
+      OExecutionPlanCache.put(statement.getOriginalStatement(), result, ctx.getDatabase());
     }
 
     return result;

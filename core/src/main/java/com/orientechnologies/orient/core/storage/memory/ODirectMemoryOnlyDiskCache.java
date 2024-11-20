@@ -120,17 +120,17 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
   }
 
   @Override
-  public final int internalFileId(final long fileId) {
+  public int internalFileId(final long fileId) {
     return extractFileId(fileId);
   }
 
   @Override
-  public final long externalFileId(final int fileId) {
+  public long externalFileId(final int fileId) {
     return composeFileId(id, fileId);
   }
 
   @Override
-  public final long bookFileId(final String fileName) {
+  public long bookFileId(final String fileName) {
     metadataLock.lock();
     try {
       counter++;
@@ -141,18 +141,16 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
   }
 
   @Override
-  public final void addBackgroundExceptionListener(final OBackgroundExceptionListener listener) {}
+  public void addBackgroundExceptionListener(final OBackgroundExceptionListener listener) {}
 
   @Override
-  public final void removeBackgroundExceptionListener(
-      final OBackgroundExceptionListener listener) {}
+  public void removeBackgroundExceptionListener(final OBackgroundExceptionListener listener) {}
 
   @Override
-  public final void checkCacheOverflow() {}
+  public void checkCacheOverflow() {}
 
   @Override
-  public final long addFile(
-      final String fileName, final long fileId, final OWriteCache writeCache) {
+  public long addFile(final String fileName, final long fileId, final OWriteCache writeCache) {
     final int intId = extractFileId(fileId);
 
     metadataLock.lock();
@@ -176,7 +174,7 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
   }
 
   @Override
-  public final OCacheEntry loadForWrite(
+  public OCacheEntry loadForWrite(
       final long fileId,
       final long pageIndex,
       final OWriteCache writeCache,
@@ -194,7 +192,7 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
   }
 
   @Override
-  public final OCacheEntry loadForRead(
+  public OCacheEntry loadForRead(
       final long fileId,
       final long pageIndex,
       final OWriteCache writeCache,
@@ -234,7 +232,7 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
   }
 
   @Override
-  public final OCacheEntry allocateNewPage(
+  public OCacheEntry allocateNewPage(
       final long fileId, final OWriteCache writeCache, final OLogSequenceNumber startLSN) {
     final int intId = extractFileId(fileId);
 
@@ -264,7 +262,7 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
   }
 
   @Override
-  public final void releaseFromWrite(
+  public void releaseFromWrite(
       final OCacheEntry cacheEntry, final OWriteCache writeCache, boolean changed) {
     cacheEntry.releaseExclusiveLock();
 
@@ -272,7 +270,7 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
   }
 
   @Override
-  public final void releaseFromRead(final OCacheEntry cacheEntry) {
+  public void releaseFromRead(final OCacheEntry cacheEntry) {
     cacheEntry.releaseSharedLock();
 
     doRelease(cacheEntry);
@@ -289,20 +287,20 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
   }
 
   @Override
-  public final long getFilledUpTo(final long fileId) {
+  public long getFilledUpTo(final long fileId) {
     final int intId = extractFileId(fileId);
     final MemoryFile memoryFile = getFile(intId);
     return memoryFile.size();
   }
 
   @Override
-  public final void flush(final long fileId) {}
+  public void flush(final long fileId) {}
 
   @Override
-  public final void close(final long fileId, final boolean flush) {}
+  public void close(final long fileId, final boolean flush) {}
 
   @Override
-  public final void deleteFile(final long fileId) {
+  public void deleteFile(final long fileId) {
     final int intId = extractFileId(fileId);
     metadataLock.lock();
     try {
@@ -322,7 +320,7 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
   }
 
   @Override
-  public final void renameFile(final long fileId, final String newFileName) {
+  public void renameFile(final long fileId, final String newFileName) {
     final int intId = extractFileId(fileId);
 
     metadataLock.lock();
@@ -342,7 +340,7 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
   }
 
   @Override
-  public final void truncateFile(final long fileId) {
+  public void truncateFile(final long fileId) {
     final int intId = extractFileId(fileId);
 
     final MemoryFile file = getFile(intId);
@@ -350,20 +348,20 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
   }
 
   @Override
-  public final void flush() {}
+  public void flush() {}
 
   @Override
-  public final long[] close() {
+  public long[] close() {
     return new long[0];
   }
 
   @Override
-  public final void clear() {
+  public void clear() {
     delete();
   }
 
   @Override
-  public final long[] delete() {
+  public long[] delete() {
     metadataLock.lock();
     try {
       for (final MemoryFile file : files.values()) {
@@ -386,7 +384,7 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
   }
 
   @Override
-  public final void deleteStorage(final OWriteCache writeCache) {
+  public void deleteStorage(final OWriteCache writeCache) {
     delete();
   }
 
@@ -394,7 +392,7 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
    * {@inheritDoc}
    */
   @Override
-  public final void closeStorage(final OWriteCache writeCache) {
+  public void closeStorage(final OWriteCache writeCache) {
     //noinspection ResultOfMethodCallIgnored
     close();
   }
@@ -425,7 +423,7 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
   }
 
   @Override
-  public final boolean exists(final long fileId) {
+  public boolean exists(final long fileId) {
     final int intId = extractFileId(fileId);
 
     metadataLock.lock();
@@ -444,7 +442,7 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
   public void restoreModeOff() {}
 
   @Override
-  public final String fileNameById(final long fileId) {
+  public String fileNameById(final long fileId) {
     final int intId = extractFileId(fileId);
 
     metadataLock.lock();
@@ -456,12 +454,12 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
   }
 
   @Override
-  public final String nativeFileNameById(final long fileId) {
+  public String nativeFileNameById(final long fileId) {
     return fileNameById(fileId);
   }
 
   @Override
-  public final long getUsedMemory() {
+  public long getUsedMemory() {
     long totalPages = 0;
     for (final MemoryFile file : files.values()) {
       totalPages += file.getUsedMemory();
@@ -504,12 +502,12 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
   }
 
   @Override
-  public final long addFile(final String fileName) {
+  public long addFile(final String fileName) {
     return addFile(fileName, null);
   }
 
   @Override
-  public final long addFile(final String fileName, final long fileId) {
+  public long addFile(final String fileName, final long fileId) {
     return addFile(fileName, fileId, null);
   }
 
@@ -585,7 +583,7 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
    * @inheritDoc
    */
   @Override
-  public final int pageSize() {
+  public int pageSize() {
     return pageSize;
   }
 
@@ -593,7 +591,7 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
    * @inheritDoc
    */
   @Override
-  public final boolean fileIdsAreEqual(final long firsId, final long secondId) {
+  public boolean fileIdsAreEqual(final long firsId, final long secondId) {
     final int firstIntId = extractFileId(firsId);
     final int secondIntId = extractFileId(secondId);
 
@@ -601,18 +599,17 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
   }
 
   @Override
-  public final String restoreFileById(final long fileId) {
+  public String restoreFileById(final long fileId) {
     return null;
   }
 
   @Override
-  public final void closeFile(
-      final long fileId, final boolean flush, final OWriteCache writeCache) {
+  public void closeFile(final long fileId, final boolean flush, final OWriteCache writeCache) {
     close(fileId, flush);
   }
 
   @Override
-  public final void deleteFile(final long fileId, final OWriteCache writeCache) {
+  public void deleteFile(final long fileId, final OWriteCache writeCache) {
     deleteFile(fileId);
   }
 }

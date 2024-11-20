@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.metadata.schema.validation;
 
 public class ValidationBinaryComparable implements Comparable<Object> {
 
-  private int size;
+  private final int size;
 
   public ValidationBinaryComparable(int size) {
     this.size = size;

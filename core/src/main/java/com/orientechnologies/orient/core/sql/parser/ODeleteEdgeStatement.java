@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class ODeleteEdgeStatement extends OStatement {
@@ -219,10 +220,7 @@ public class ODeleteEdgeStatement extends OStatement {
       return false;
     }
 
-    if (whereClause != null && !whereClause.isCacheable()) {
-      return false;
-    }
-    return true;
+    return whereClause == null || whereClause.isCacheable();
   }
 
   @Override
@@ -236,41 +234,31 @@ public class ODeleteEdgeStatement extends OStatement {
 
     ODeleteEdgeStatement that = (ODeleteEdgeStatement) o;
 
-    if (className != null ? !className.equals(that.className) : that.className != null) {
+    if (!Objects.equals(className, that.className)) {
       return false;
     }
-    if (targetClusterName != null
-        ? !targetClusterName.equals(that.targetClusterName)
-        : that.targetClusterName != null) {
+    if (!Objects.equals(targetClusterName, that.targetClusterName)) {
       return false;
     }
-    if (rid != null ? !rid.equals(that.rid) : that.rid != null) {
+    if (!Objects.equals(rid, that.rid)) {
       return false;
     }
-    if (rids != null ? !rids.equals(that.rids) : that.rids != null) {
+    if (!Objects.equals(rids, that.rids)) {
       return false;
     }
-    if (leftExpression != null
-        ? !leftExpression.equals(that.leftExpression)
-        : that.leftExpression != null) {
+    if (!Objects.equals(leftExpression, that.leftExpression)) {
       return false;
     }
-    if (rightExpression != null
-        ? !rightExpression.equals(that.rightExpression)
-        : that.rightExpression != null) {
+    if (!Objects.equals(rightExpression, that.rightExpression)) {
       return false;
     }
-    if (whereClause != null ? !whereClause.equals(that.whereClause) : that.whereClause != null) {
+    if (!Objects.equals(whereClause, that.whereClause)) {
       return false;
     }
-    if (limit != null ? !limit.equals(that.limit) : that.limit != null) {
+    if (!Objects.equals(limit, that.limit)) {
       return false;
     }
-    if (batch != null ? !batch.equals(that.batch) : that.batch != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(batch, that.batch);
   }
 
   @Override

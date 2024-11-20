@@ -75,7 +75,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
 
   private OIndex findIndex(String uniqueIndexName) {
     if (uniqueIndexName != null) {
-      final ODatabaseSessionInternal database = (ODatabaseSessionInternal) ctx.getDatabase();
+      final ODatabaseSessionInternal database = ctx.getDatabase();
       OIndex uniqueIndex =
           database.getMetadata().getIndexManagerInternal().getIndex(database, uniqueIndexName);
       if (uniqueIndex == null) {
@@ -201,8 +201,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
               .getVertex()
               .orElseThrow(
                   () ->
-                      new OCommandExecutionException(
-                          "Invalid vertex for edge creation: " + from.toString()));
+                      new OCommandExecutionException("Invalid vertex for edge creation: " + from));
     }
     if (currentFrom instanceof OVertex) {
       return (OVertex) currentFrom;
@@ -212,9 +211,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
       return ((OElement) currentFrom)
           .asVertex()
           .orElseThrow(
-              () ->
-                  new OCommandExecutionException(
-                      "Invalid vertex for edge creation: " + from.toString()));
+              () -> new OCommandExecutionException("Invalid vertex for edge creation: " + from));
     }
     throw new OCommandExecutionException(
         "Invalid vertex for edge creation: "

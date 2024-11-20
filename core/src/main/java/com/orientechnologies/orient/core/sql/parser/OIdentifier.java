@@ -6,6 +6,7 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * This class is used to represent all the indentifies in the SQL grammar, ie. class names, property
@@ -154,11 +155,7 @@ public class OIdentifier extends SimpleNode {
     if (internalAlias != that.internalAlias) {
       return false;
     }
-    if (value != null ? !value.equals(that.value) : that.value != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(value, that.value);
   }
 
   @Override
@@ -181,10 +178,7 @@ public class OIdentifier extends SimpleNode {
       return true;
     }
     String stringVal = getStringValue();
-    if (ctx.isScriptVariableDeclared(stringVal)) {
-      return true; // context variable, for batch scripts
-    }
-    return false;
+    return ctx.isScriptVariableDeclared(stringVal); // context variable, for batch scripts
   }
 }
 /* JavaCC - OriginalChecksum=691a2eb5096f7b5e634b2ca8ac2ded3a (do not edit this line) */

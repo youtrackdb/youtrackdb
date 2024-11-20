@@ -35,7 +35,8 @@ public class OClusterSelectionFactory
     this.registerStrategy();
   }
 
-  private static ClassLoader orientClassLoader = OClusterSelectionFactory.class.getClassLoader();
+  private static final ClassLoader orientClassLoader =
+      OClusterSelectionFactory.class.getClassLoader();
 
   private void registerStrategy() {
     final Iterator<OClusterSelectionStrategy> ite =

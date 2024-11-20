@@ -15,6 +15,7 @@ import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class OBaseIdentifier extends SimpleNode {
@@ -190,40 +191,28 @@ public class OBaseIdentifier extends SimpleNode {
     if (levelZero != null && levelZero.needsAliases(aliases)) {
       return true;
     }
-    if (suffix != null && suffix.needsAliases(aliases)) {
-      return true;
-    }
-    return false;
+    return suffix != null && suffix.needsAliases(aliases);
   }
 
   public boolean isAggregate() {
     if (levelZero != null && levelZero.isAggregate()) {
       return true;
     }
-    if (suffix != null && suffix.isAggregate()) {
-      return true;
-    }
-    return false;
+    return suffix != null && suffix.isAggregate();
   }
 
   public boolean isCount() {
     if (levelZero != null && levelZero.isCount()) {
       return true;
     }
-    if (suffix != null && suffix.isCount()) {
-      return true;
-    }
-    return false;
+    return suffix != null && suffix.isCount();
   }
 
   public boolean isEarlyCalculated(OCommandContext ctx) {
     if (levelZero != null && levelZero.isEarlyCalculated(ctx)) {
       return true;
     }
-    if (suffix != null && suffix.isEarlyCalculated(ctx)) {
-      return true;
-    }
-    return false;
+    return suffix != null && suffix.isEarlyCalculated(ctx);
   }
 
   public SimpleNode splitForAggregation(
@@ -256,10 +245,10 @@ public class OBaseIdentifier extends SimpleNode {
       } else if (suffix != null) {
         return suffix.getAggregationContext(ctx);
       } else {
-        throw new OCommandExecutionException("cannot aggregate on " + toString());
+        throw new OCommandExecutionException("cannot aggregate on " + this);
       }
     } else {
-      throw new OCommandExecutionException("cannot aggregate on " + toString());
+      throw new OCommandExecutionException("cannot aggregate on " + this);
     }
   }
 
@@ -285,14 +274,10 @@ public class OBaseIdentifier extends SimpleNode {
 
     OBaseIdentifier that = (OBaseIdentifier) o;
 
-    if (levelZero != null ? !levelZero.equals(that.levelZero) : that.levelZero != null) {
+    if (!Objects.equals(levelZero, that.levelZero)) {
       return false;
     }
-    if (suffix != null ? !suffix.equals(that.suffix) : that.suffix != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(suffix, that.suffix);
   }
 
   @Override
@@ -306,10 +291,7 @@ public class OBaseIdentifier extends SimpleNode {
     if (levelZero != null && levelZero.refersToParent()) {
       return true;
     }
-    if (suffix != null && suffix.refersToParent()) {
-      return true;
-    }
-    return false;
+    return suffix != null && suffix.refersToParent();
   }
 
   public OSuffixIdentifier getSuffix() {
@@ -325,7 +307,7 @@ public class OBaseIdentifier extends SimpleNode {
     if (suffix != null) {
       suffix.applyRemove(result, ctx);
     } else {
-      throw new OCommandExecutionException("cannot apply REMOVE " + toString());
+      throw new OCommandExecutionException("cannot apply REMOVE " + this);
     }
   }
 

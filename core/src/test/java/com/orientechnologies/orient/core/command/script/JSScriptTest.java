@@ -34,7 +34,7 @@ public class JSScriptTest {
     var db = orientDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     try {
       OResultSet resultSet = db.execute("javascript", "'foo'");
-      Assert.assertEquals(true, resultSet.hasNext());
+      Assert.assertTrue(resultSet.hasNext());
       OResult result = resultSet.next();
       String ret = result.getProperty("value");
       Assert.assertEquals("foo", ret);
@@ -52,7 +52,7 @@ public class JSScriptTest {
     try {
       String script = "db.query('select from OUser')";
       OResultSet resultSet = db.execute("javascript", script);
-      Assert.assertEquals(true, resultSet.hasNext());
+      Assert.assertTrue(resultSet.hasNext());
 
       List<OResult> results = resultSet.stream().collect(Collectors.toList());
       Assert.assertEquals(1, results.size()); // no default users anymore, 'admin' created
@@ -78,7 +78,7 @@ public class JSScriptTest {
     try {
       InputStream stream = ClassLoader.getSystemResourceAsStream("fixtures/scriptTest.js");
       OResultSet resultSet = db.execute("javascript", OIOUtils.readStreamAsString(stream));
-      Assert.assertEquals(true, resultSet.hasNext());
+      Assert.assertTrue(resultSet.hasNext());
 
       List<OResult> results = resultSet.stream().collect(Collectors.toList());
       Assert.assertEquals(1, results.size());
@@ -106,7 +106,7 @@ public class JSScriptTest {
     try {
       InputStream stream = ClassLoader.getSystemResourceAsStream("fixtures/scriptCountTest.js");
       OResultSet resultSet = db.execute("javascript", OIOUtils.readStreamAsString(stream));
-      Assert.assertEquals(true, resultSet.hasNext());
+      Assert.assertTrue(resultSet.hasNext());
 
       List<OResult> results = resultSet.stream().collect(Collectors.toList());
       Assert.assertEquals(1, results.size());
@@ -153,7 +153,7 @@ public class JSScriptTest {
     OScriptManager scriptManager = OrientDBInternal.extract(orientDB).getScriptManager();
 
     try {
-      scriptManager.addAllowedPackages(new HashSet<>(Arrays.asList("java.lang.System")));
+      scriptManager.addAllowedPackages(new HashSet<>(List.of("java.lang.System")));
 
       OResultSet resultSet =
           db.execute(
@@ -163,7 +163,7 @@ public class JSScriptTest {
       orientDB.drop(name.getMethodName());
       orientDB.close();
 
-      scriptManager.removeAllowedPackages(new HashSet<>(Arrays.asList("java.lang.System")));
+      scriptManager.removeAllowedPackages(new HashSet<>(List.of("java.lang.System")));
     }
   }
 
@@ -209,7 +209,7 @@ public class JSScriptTest {
     final OScriptManager scriptManager = OrientDBInternal.extract(orientDB).getScriptManager();
     try (var db =
         orientDB.open(name.getMethodName(), "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
-      scriptManager.addAllowedPackages(new HashSet<>(Arrays.asList("java.math.BigDecimal")));
+      scriptManager.addAllowedPackages(new HashSet<>(List.of("java.math.BigDecimal")));
 
       try (OResultSet resultSet =
           db.execute(
@@ -217,7 +217,7 @@ public class JSScriptTest {
               "var BigDecimal = Java.type('java.math.BigDecimal'); new BigDecimal(1.0);")) {
         Assert.assertEquals(1, resultSet.stream().count());
       }
-      scriptManager.removeAllowedPackages(new HashSet<>(Arrays.asList("java.math.BigDecimal")));
+      scriptManager.removeAllowedPackages(new HashSet<>(List.of("java.math.BigDecimal")));
       scriptManager.closeAll();
 
       try {
@@ -231,7 +231,7 @@ public class JSScriptTest {
             e.getCause().getClass());
       }
 
-      scriptManager.addAllowedPackages(new HashSet<>(Arrays.asList("java.math.*")));
+      scriptManager.addAllowedPackages(new HashSet<>(List.of("java.math.*")));
       scriptManager.closeAll();
 
       try (OResultSet resultSet = db.execute("javascript", "new java.math.BigDecimal(1.0);")) {

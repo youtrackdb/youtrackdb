@@ -65,12 +65,10 @@ public class OQueryOperatorPlus extends OQueryOperator {
     }
 
     if (iLeft instanceof String) {
-      return (String) iLeft + iRight.toString();
+      return iLeft.toString() + iRight;
     } else if (iRight instanceof String) {
-      return iLeft.toString() + (String) iRight;
-    } else if (iLeft instanceof Number && iRight instanceof Number) {
-      final Number l = (Number) iLeft;
-      final Number r = (Number) iRight;
+      return iLeft.toString() + iRight;
+    } else if (iLeft instanceof Number l && iRight instanceof Number r) {
       Class maxPrecisionClass = OQueryOperatorMultiply.getMaxPrecisionClass(l, r);
       if (Integer.class.equals(maxPrecisionClass)) {
         return OQueryOperatorMultiply.tryDownscaleToInt(l.longValue() + r.longValue());

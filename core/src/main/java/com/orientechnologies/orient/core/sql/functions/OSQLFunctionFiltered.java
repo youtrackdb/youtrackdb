@@ -42,7 +42,7 @@ public interface OSQLFunctionFiltered extends OSQLFunction {
    * @return function result, can be null. Special cases : can be null if function aggregate
    * results, can be null if function filter results : this mean result is excluded
    */
-  public Object execute(
+  Object execute(
       Object iThis,
       OIdentifiable iCurrentRecord,
       Object iCurrentResult,

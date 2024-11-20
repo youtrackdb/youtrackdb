@@ -2,7 +2,7 @@ package com.orientechnologies.common.jnr;
 
 public class LastErrorException extends RuntimeException {
 
-  private long errorCode;
+  private final long errorCode;
 
   public LastErrorException(long errorCode) {
     super("Error during execution of native call, error code " + errorCode);

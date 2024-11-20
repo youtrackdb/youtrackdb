@@ -7,11 +7,11 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public final class OTimeoutResultSet implements OExecutionStream {
 
-  private AtomicLong totalTime = new AtomicLong(0);
+  private final AtomicLong totalTime = new AtomicLong(0);
   private final TimedOut timedout;
   private final OExecutionStream internal;
   private final long timeoutMillis;
-  protected boolean timedOut = false;
+  private boolean timedOut = false;
 
   public interface TimedOut {
 

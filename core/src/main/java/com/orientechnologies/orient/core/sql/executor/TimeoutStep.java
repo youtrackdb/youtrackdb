@@ -27,7 +27,6 @@ public class TimeoutStep extends AbstractExecutionStep {
   private void fail() {
     sendTimeout();
     if (OTimeout.RETURN.equals(this.timeout.getFailureStrategy())) {
-      return;
     } else {
       throw new OTimeoutException("Timeout expired");
     }

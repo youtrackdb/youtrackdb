@@ -4,7 +4,6 @@ import com.orientechnologies.common.util.OPairIntegerObject;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
@@ -13,7 +12,6 @@ import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexAbstract;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
-import com.orientechnologies.orient.core.metadata.OMetadataInternal;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
@@ -80,7 +78,7 @@ import java.util.stream.Collectors;
 public class OSelectExecutionPlanner {
 
   private QueryPlanningInfo info;
-  private OSelectStatement statement;
+  private final OSelectStatement statement;
 
   public OSelectExecutionPlanner(OSelectStatement oSelectStatement) {
     this.statement = oSelectStatement;
@@ -122,7 +120,7 @@ public class OSelectExecutionPlanner {
 
   public OInternalExecutionPlan createExecutionPlan(
       OCommandContext ctx, boolean enableProfiling, boolean useCache) {
-    ODatabaseSessionInternal db = (ODatabaseSessionInternal) ctx.getDatabase();
+    ODatabaseSessionInternal db = ctx.getDatabase();
     if (useCache && !enableProfiling && statement.executinPlanCanBeCached()) {
       OExecutionPlan plan = OExecutionPlanCache.get(statement.getOriginalStatement(), ctx, db);
       if (plan != null) {
@@ -175,8 +173,7 @@ public class OSelectExecutionPlanner {
         && statement.executinPlanCanBeCached()
         && result.canBeCached()
         && OExecutionPlanCache.getLastInvalidation(db) < planningStart) {
-      OExecutionPlanCache.put(
-          statement.getOriginalStatement(), result, (ODatabaseSessionInternal) ctx.getDatabase());
+      OExecutionPlanCache.put(statement.getOriginalStatement(), result, ctx.getDatabase());
     }
     return result;
   }
@@ -231,7 +228,7 @@ public class OSelectExecutionPlanner {
     if (info.distributedFetchExecutionPlans == null) {
       return;
     }
-    String currentNode = ((ODatabaseSessionInternal) ctx.getDatabase()).getLocalNodeName();
+    String currentNode = ctx.getDatabase().getLocalNodeName();
     if (info.distributedFetchExecutionPlans.size() == 1) {
       if (info.distributedFetchExecutionPlans.get(currentNode) != null) {
         // everything is executed on local server
@@ -273,7 +270,7 @@ public class OSelectExecutionPlanner {
    * strategy to execute the query on the cluster.
    */
   private void calculateShardingStrategy(QueryPlanningInfo info, OCommandContext ctx) {
-    ODatabaseSessionInternal db = (ODatabaseSessionInternal) ctx.getDatabase();
+    ODatabaseSessionInternal db = ctx.getDatabase();
     info.distributedFetchExecutionPlans = new LinkedHashMap<>();
     String localNode = db.getLocalNodeName();
     Collection<String> readClusterNames = db.getClusterNames();
@@ -423,7 +420,7 @@ public class OSelectExecutionPlanner {
     }
 
     Set<String> result = new HashSet<>();
-    ODatabaseSessionInternal db = (ODatabaseSessionInternal) ctx.getDatabase();
+    ODatabaseSessionInternal db = ctx.getDatabase();
     OFromItem item = info.target.getItem();
     if (item.getRids() != null && !item.getRids().isEmpty()) {
       if (item.getRids().size() == 1) {
@@ -562,10 +559,9 @@ public class OSelectExecutionPlanner {
     if (item.getExpression().getMathExpression() == null) {
       return false;
     }
-    if (!(item.getExpression().getMathExpression() instanceof OBaseExpression)) {
+    if (!(item.getExpression().getMathExpression() instanceof OBaseExpression base)) {
       return false;
     }
-    OBaseExpression base = (OBaseExpression) item.getExpression().getMathExpression();
     if (base.getIdentifier() == null) {
       return false;
     }
@@ -624,7 +620,7 @@ public class OSelectExecutionPlanner {
   }
 
   private boolean securityPoliciesExistForClass(OIdentifier targetClass, OCommandContext ctx) {
-    ODatabaseSessionInternal db = (ODatabaseSessionInternal) ctx.getDatabase();
+    ODatabaseSessionInternal db = ctx.getDatabase();
     OSecurityInternal security = db.getSharedContext().getSecurity();
     OClass clazz =
         db.getMetadata()
@@ -633,8 +629,7 @@ public class OSelectExecutionPlanner {
     if (clazz == null) {
       return false;
     }
-    return security.isReadRestrictedBySecurityPolicy(
-        (ODatabaseSession) db, "database.class." + clazz.getName());
+    return security.isReadRestrictedBySecurityPolicy(db, "database.class." + clazz.getName());
   }
 
   private boolean handleHardwiredCountOnClassUsingIndex(
@@ -665,7 +660,7 @@ public class OSelectExecutionPlanner {
       return false;
     }
     OClass clazz =
-        ((ODatabaseSessionInternal) ctx.getDatabase())
+        ctx.getDatabase()
             .getMetadata()
             .getImmutableSchemaSnapshot()
             .getClass(targetClass.getStringValue());
@@ -679,10 +674,9 @@ public class OSelectExecutionPlanner {
       return false;
     }
     OBooleanExpression condition = info.flattenedWhereClause.get(0).getSubBlocks().get(0);
-    if (!(condition instanceof OBinaryCondition)) {
+    if (!(condition instanceof OBinaryCondition binaryCondition)) {
       return false;
     }
-    OBinaryCondition binaryCondition = (OBinaryCondition) condition;
     if (!binaryCondition.getLeft().isBaseIdentifier()) {
       return false;
     }
@@ -781,8 +775,8 @@ public class OSelectExecutionPlanner {
     }
     OProjectionItem item = info.aggregateProjection.getItems().get(0);
     OExpression exp = item.getExpression();
-    if (exp.getMathExpression() != null && exp.getMathExpression() instanceof OBaseExpression) {
-      OBaseExpression base = (OBaseExpression) exp.getMathExpression();
+    if (exp.getMathExpression() != null
+        && exp.getMathExpression() instanceof OBaseExpression base) {
       return base.isCount() && base.getModifier() == null;
     }
     return false;
@@ -916,8 +910,7 @@ public class OSelectExecutionPlanner {
 
   private static boolean isUnionAllOfQueries(
       QueryPlanningInfo info, OIdentifier varName, OExpression expression) {
-    if (expression.getMathExpression() instanceof OBaseExpression) {
-      OBaseExpression exp = (OBaseExpression) expression.getMathExpression();
+    if (expression.getMathExpression() instanceof OBaseExpression exp) {
       if (exp.getIdentifier() != null
           && exp.getModifier() == null
           && exp.getIdentifier().getLevelZero() != null
@@ -1282,7 +1275,7 @@ public class OSelectExecutionPlanner {
       } else if (target.getIdentifier() != null) {
         String className = target.getIdentifier().getStringValue();
         if (className.startsWith("$")
-            && !((ODatabaseSessionInternal) ctx.getDatabase())
+            && !ctx.getDatabase()
                 .getMetadata()
                 .getImmutableSchemaSnapshot()
                 .existsClass(className)) {
@@ -1451,8 +1444,7 @@ public class OSelectExecutionPlanner {
   }
 
   private boolean isRidRange(OBooleanExpression booleanExpression, OCommandContext ctx) {
-    if (booleanExpression instanceof OBinaryCondition) {
-      OBinaryCondition cond = ((OBinaryCondition) booleanExpression);
+    if (booleanExpression instanceof OBinaryCondition cond) {
       OBinaryCompareOperator operator = cond.getOperator();
       if (operator.isRangeOperator() && cond.getLeft().toString().equalsIgnoreCase("@rid")) {
         Object obj;
@@ -1570,7 +1562,7 @@ public class OSelectExecutionPlanner {
 
     OIndexAbstract.manualIndexesWarning();
     String indexName = indexIdentifier.getIndexName();
-    final ODatabaseSessionInternal database = (ODatabaseSessionInternal) ctx.getDatabase();
+    final ODatabaseSessionInternal database = ctx.getDatabase();
     OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, indexName);
     if (index == null) {
       throw new OCommandExecutionException("Index not found: " + indexName);
@@ -2029,7 +2021,7 @@ public class OSelectExecutionPlanner {
 
     for (OAndBlock block : info.flattenedWhereClause) {
       List<OBinaryCondition> indexedFunctionConditions =
-          block.getIndexedFunctionConditions(clazz, (ODatabaseSessionInternal) ctx.getDatabase());
+          block.getIndexedFunctionConditions(clazz, ctx.getDatabase());
 
       indexedFunctionConditions =
           filterIndexedFunctionsWithoutIndex(indexedFunctionConditions, info.target, ctx);
@@ -2524,7 +2516,7 @@ public class OSelectExecutionPlanner {
   }
 
   private static OSchema getSchemaFromContext(OCommandContext ctx) {
-    return ((OMetadataInternal) ctx.getDatabase().getMetadata()).getImmutableSchemaSnapshot();
+    return ctx.getDatabase().getMetadata().getImmutableSchemaSnapshot();
   }
 
   private boolean fullySorted(OOrderBy orderBy, IndexSearchDescriptor desc) {
@@ -2568,9 +2560,7 @@ public class OSelectExecutionPlanner {
       subPlan.chain(new FetchFromIndexStep(desc, true, ctx, profilingEnabled));
       IntArrayList filterClusterIds = null;
       if (filterClusters != null) {
-        filterClusterIds =
-            IntArrayList.of(
-                ((ODatabaseSessionInternal) ctx.getDatabase()).getClustersIds(filterClusters));
+        filterClusterIds = IntArrayList.of(ctx.getDatabase().getClustersIds(filterClusters));
       }
       subPlan.chain(new GetValueFromIndexEntryStep(ctx, filterClusterIds, profilingEnabled));
       if (desc.requiresDistinctStep()) {
@@ -2955,11 +2945,7 @@ public class OSelectExecutionPlanner {
       }
       if (name != null) {
         clusterNames.add(name);
-        OClass clazz =
-            ((ODatabaseSessionInternal) db)
-                .getMetadata()
-                .getImmutableSchemaSnapshot()
-                .getClassByClusterId(clusterId);
+        OClass clazz = db.getMetadata().getImmutableSchemaSnapshot().getClassByClusterId(clusterId);
         if (clazz == null) {
           tryByIndex = false;
           break;

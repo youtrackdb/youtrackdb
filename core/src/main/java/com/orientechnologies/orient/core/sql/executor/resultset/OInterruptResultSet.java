@@ -7,7 +7,7 @@ import com.orientechnologies.orient.core.sql.executor.OResult;
 
 public class OInterruptResultSet implements OExecutionStream {
 
-  private OExecutionStream source;
+  private final OExecutionStream source;
 
   public OInterruptResultSet(OExecutionStream source) {
     this.source = source;

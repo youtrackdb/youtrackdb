@@ -157,7 +157,7 @@ public class StorageBackupMTStateTest {
     databaseDocumentTx.open("admin", "admin");
     databaseDocumentTx.incrementalBackup(backupDir.getAbsolutePath());
 
-    OStorage storage = ((ODatabaseSessionInternal) databaseDocumentTx).getStorage();
+    OStorage storage = databaseDocumentTx.getStorage();
     databaseDocumentTx.close();
 
     storage.shutdown();
@@ -167,7 +167,7 @@ public class StorageBackupMTStateTest {
         new ODatabaseDocumentTx("plocal:" + backedUpDbDirectory);
     backedUpDb.create(backupDir.getAbsolutePath());
 
-    final OStorage backupStorage = ((ODatabaseSessionInternal) backedUpDb).getStorage();
+    final OStorage backupStorage = backedUpDb.getStorage();
     backedUpDb.close();
 
     backupStorage.shutdown();

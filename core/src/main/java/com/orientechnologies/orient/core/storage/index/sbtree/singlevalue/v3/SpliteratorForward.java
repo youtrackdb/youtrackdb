@@ -58,7 +58,7 @@ final class SpliteratorForward<K> implements Spliterator<ORawPair<K, ORID>> {
 
     btree.fetchNextForwardCachePortion(this);
 
-    cacheIterator = getDataCache().iterator();
+    cacheIterator = dataCache.iterator();
 
     if (cacheIterator.hasNext()) {
       action.accept(cacheIterator.next());

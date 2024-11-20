@@ -77,11 +77,7 @@ public class OPositionalParameter extends OInputParameter {
 
     OPositionalParameter that = (OPositionalParameter) o;
 
-    if (paramNumber != that.paramNumber) {
-      return false;
-    }
-
-    return true;
+    return paramNumber == that.paramNumber;
   }
 
   @Override

@@ -205,7 +205,7 @@ public class KeyNormalizerBenchmark {
   @Benchmark
   public void normalizeCompositeDecimal() {
     final OCompositeKey compositeKey = new OCompositeKey();
-    compositeKey.addKey(new BigDecimal(3.14159265359));
+    compositeKey.addKey(new BigDecimal("3.14159265359"));
 
     final OType[] types = new OType[1];
     types[0] = OType.DECIMAL;

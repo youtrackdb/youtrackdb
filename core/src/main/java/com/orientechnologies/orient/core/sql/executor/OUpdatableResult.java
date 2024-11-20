@@ -26,7 +26,7 @@ public class OUpdatableResult extends OResultInternal {
     if (content != null && content.containsKey(name)) {
       result = (T) content.get(name);
     } else if (isElement()) {
-      result = (T) ((OElement) identifiable).getProperty(name);
+      result = ((OElement) identifiable).getProperty(name);
     }
     if (result instanceof OIdentifiable && ((OIdentifiable) result).getIdentity().isPersistent()) {
       result = (T) ((OIdentifiable) result).getIdentity();

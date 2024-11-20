@@ -76,7 +76,7 @@ public class ODocumentSerializerDelta {
   protected static final byte REMOVED = 4;
   public static final byte DELTA_RECORD_TYPE = 10;
 
-  private static ODocumentSerializerDelta INSTANCE = new ODocumentSerializerDelta();
+  private static final ODocumentSerializerDelta INSTANCE = new ODocumentSerializerDelta();
 
   public static ODocumentSerializerDelta instance() {
     return INSTANCE;
@@ -1087,7 +1087,7 @@ public class ODocumentSerializerDelta {
           cur.field(ODocumentSerializable.CLASS_NAME, value.getClass().getName());
           serialize(cur, bytes);
         } else {
-          serialize((ODocument) ((ORecord) value).getRecord(), bytes);
+          serialize(((ORecord) value).getRecord(), bytes);
         }
         break;
       case EMBEDDEDSET:

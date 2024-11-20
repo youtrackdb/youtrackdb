@@ -1,6 +1,7 @@
 package com.orientechnologies.orient.core.sql.method.misc;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.util.ArrayList;
@@ -93,7 +94,7 @@ public class OSQLMethodAsMapTest {
 
   public void testOtherValue() {
     // The expected behavior is to return null.
-    Object result = function.execute(null, null, null, new Integer(4), null);
-    assertEquals(result, null);
+    Object result = function.execute(null, null, null, Integer.valueOf(4), null);
+    assertNull(result);
   }
 }

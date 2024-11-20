@@ -39,7 +39,7 @@ public class ParallelExecStep extends AbstractExecutionStep {
           @Override
           public OExecutionStream next(OCommandContext ctx) {
             OInternalExecutionPlan step = iter.next();
-            return ((OInternalExecutionPlan) step).start();
+            return step.start();
           }
 
           @Override

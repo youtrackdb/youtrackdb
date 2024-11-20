@@ -67,16 +67,16 @@ public class OImmutableUser implements OSecurityUser {
       final String resourceSpecific,
       final int iOperation) {
     if (roles.isEmpty()) {
-      throw new OSecurityAccessException(getName(), "User '" + getName() + "' has no role defined");
+      throw new OSecurityAccessException(name, "User '" + name + "' has no role defined");
     }
 
     final OSecurityRole role = checkIfAllowed(resourceGeneric, resourceSpecific, iOperation);
 
     if (role == null) {
       throw new OSecurityAccessException(
-          getName(),
+          name,
           "User '"
-              + getName()
+              + name
               + "' does not have permission to execute the operation '"
               + ORole.permissionToString(iOperation)
               + "' against the resource: "
@@ -99,7 +99,7 @@ public class OImmutableUser implements OSecurityUser {
                 this,
                 "User '%s' has a null role, ignoring it.  Consider fixing this user's roles before"
                     + " continuing",
-                getName());
+                name);
       } else if (r.allow(resourceGeneric, resourceSpecific, iOperation)) {
         return r;
       }
@@ -117,7 +117,7 @@ public class OImmutableUser implements OSecurityUser {
                 this,
                 "UseOSecurityAuthenticatorr '%s' has a null role, ignoring it.  Consider fixing"
                     + " this user's roles before continuing",
-                getName());
+                name);
       } else if (r.hasRule(resourceGeneric, resourceSpecific)) {
         return true;
       }
@@ -169,7 +169,7 @@ public class OImmutableUser implements OSecurityUser {
   }
 
   public boolean checkPassword(final String iPassword) {
-    return OSecurityManager.checkPassword(iPassword, getPassword());
+    return OSecurityManager.checkPassword(iPassword, password);
   }
 
   public String getName() {
@@ -234,7 +234,7 @@ public class OImmutableUser implements OSecurityUser {
 
   @Override
   public String toString() {
-    return getName();
+    return name;
   }
 
   public long getVersion() {

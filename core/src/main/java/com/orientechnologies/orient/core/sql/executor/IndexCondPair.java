@@ -2,6 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.sql.parser.OBinaryCondition;
 import com.orientechnologies.orient.core.sql.parser.OBooleanExpression;
+import java.util.Objects;
 
 /**
  * For internal use. It is used to keep info about an index range search, where the main condition
@@ -28,18 +29,10 @@ class IndexCondPair {
 
     IndexCondPair that = (IndexCondPair) o;
 
-    if (mainCondition != null
-        ? !mainCondition.equals(that.mainCondition)
-        : that.mainCondition != null) {
+    if (!Objects.equals(mainCondition, that.mainCondition)) {
       return false;
     }
-    if (additionalRange != null
-        ? !additionalRange.equals(that.additionalRange)
-        : that.additionalRange != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(additionalRange, that.additionalRange);
   }
 
   @Override

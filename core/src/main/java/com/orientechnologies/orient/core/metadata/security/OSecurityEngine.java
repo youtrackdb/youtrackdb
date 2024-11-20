@@ -19,7 +19,7 @@ import java.util.Set;
 
 public class OSecurityEngine {
 
-  private static OPredicateCache cache =
+  private static final OPredicateCache cache =
       new OPredicateCache(OGlobalConfiguration.STATEMENT_CACHE_SIZE.getValueAsInteger());
 
   /**
@@ -202,8 +202,7 @@ public class OSecurityEngine {
       OFunction clazz,
       OSecurityPolicy.Scope scope) {
     String resource = "database.function." + clazz.getName();
-    Map<String, OSecurityPolicy> definedPolicies =
-        security.getSecurityPolicies(session, (ORole) role);
+    Map<String, OSecurityPolicy> definedPolicies = security.getSecurityPolicies(session, role);
     OSecurityPolicy policy = definedPolicies.get(resource);
 
     String predicateString = policy != null ? policy.get(scope) : null;

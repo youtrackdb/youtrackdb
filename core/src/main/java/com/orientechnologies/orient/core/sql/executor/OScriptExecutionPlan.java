@@ -115,7 +115,7 @@ public class OScriptExecutionPlan implements OInternalExecutionPlan {
 
   @Override
   public long getCost() {
-    return 0l;
+    return 0L;
   }
 
   @Override

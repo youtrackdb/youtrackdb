@@ -296,7 +296,7 @@ public class OLocalHashTableV3<K, V> extends ODurableComponent implements OHashT
               final boolean found;
 
               try (final OCacheEntry cacheEntry =
-                  loadPageForWrite(atomicOperation, fileId, pageIndex, true); ) {
+                  loadPageForWrite(atomicOperation, fileId, pageIndex, true)) {
                 final OHashIndexBucket<K, V> bucket =
                     new OHashIndexBucket<>(cacheEntry, keySerializer, valueSerializer, keyTypes);
                 final int positionIndex = bucket.getIndex(hashCode, key);
@@ -334,7 +334,7 @@ public class OLocalHashTableV3<K, V> extends ODurableComponent implements OHashT
               V removed;
 
               try (OCacheEntry cacheEntry =
-                  loadOrAddPageForWrite(atomicOperation, nullBucketFileId, 0); ) {
+                  loadOrAddPageForWrite(atomicOperation, nullBucketFileId, 0)) {
                 final ONullBucket<V> nullBucket =
                     new ONullBucket<>(cacheEntry, valueSerializer, false);
 
@@ -1517,7 +1517,7 @@ public class OLocalHashTableV3<K, V> extends ODurableComponent implements OHashT
         directory.setNodePointer(
             parentNodeIndex,
             startIndex + i,
-            (bucketPath.nodeIndex << 8) | (i * hashMapSize) | Long.MIN_VALUE,
+            ((long) bucketPath.nodeIndex << 8) | ((long) i * hashMapSize) | Long.MIN_VALUE,
             atomicOperation);
       }
     }
@@ -1533,7 +1533,7 @@ public class OLocalHashTableV3<K, V> extends ODurableComponent implements OHashT
         directory.setNodePointer(
             parentNodeIndex,
             startIndex + pointersSize + i,
-            (newNodeIndex << 8) | (i * hashMapSize) | Long.MIN_VALUE,
+            ((long) newNodeIndex << 8) | ((long) i * hashMapSize) | Long.MIN_VALUE,
             atomicOperation);
       }
     }
@@ -1656,7 +1656,7 @@ public class OLocalHashTableV3<K, V> extends ODurableComponent implements OHashT
       directory.setNodePointer(
           nodeIndex,
           nodeOffset,
-          (newNodeIndex << 8) | (i * mapSize) | Long.MIN_VALUE,
+          ((long) newNodeIndex << 8) | ((long) i * mapSize) | Long.MIN_VALUE,
           atomicOperation);
     }
 
@@ -1945,7 +1945,7 @@ public class OLocalHashTableV3<K, V> extends ODurableComponent implements OHashT
 
     for (long pageIndex = 0; pageIndex < MAX_LEVEL_SIZE; pageIndex++) {
 
-      try (final OCacheEntry cacheEntry = addPage(atomicOperation, fileId); ) {
+      try (final OCacheEntry cacheEntry = addPage(atomicOperation, fileId)) {
         assert cacheEntry.getPageIndex() == pageIndex;
         @SuppressWarnings("unused")
         final OHashIndexBucket<K, V> emptyBucket =

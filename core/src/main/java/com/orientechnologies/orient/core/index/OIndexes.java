@@ -58,7 +58,7 @@ public final class OIndexes {
   private static Set<OIndexFactory> FACTORIES = null;
   private static final Set<OIndexFactory> DYNAMIC_FACTORIES =
       Collections.synchronizedSet(new HashSet<>());
-  private static ClassLoader orientClassLoader = OIndexes.class.getClassLoader();
+  private static final ClassLoader orientClassLoader = OIndexes.class.getClassLoader();
 
   private OIndexes() {}
 

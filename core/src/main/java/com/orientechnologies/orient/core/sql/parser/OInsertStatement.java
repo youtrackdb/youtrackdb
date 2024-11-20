@@ -10,6 +10,7 @@ import com.orientechnologies.orient.core.sql.executor.OInsertExecutionPlanner;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class OInsertStatement extends OStatement {
 
@@ -202,37 +203,25 @@ public class OInsertStatement extends OStatement {
     if (unsafe != that.unsafe) {
       return false;
     }
-    if (targetClass != null ? !targetClass.equals(that.targetClass) : that.targetClass != null) {
+    if (!Objects.equals(targetClass, that.targetClass)) {
       return false;
     }
-    if (targetClusterName != null
-        ? !targetClusterName.equals(that.targetClusterName)
-        : that.targetClusterName != null) {
+    if (!Objects.equals(targetClusterName, that.targetClusterName)) {
       return false;
     }
-    if (targetCluster != null
-        ? !targetCluster.equals(that.targetCluster)
-        : that.targetCluster != null) {
+    if (!Objects.equals(targetCluster, that.targetCluster)) {
       return false;
     }
-    if (targetIndex != null ? !targetIndex.equals(that.targetIndex) : that.targetIndex != null) {
+    if (!Objects.equals(targetIndex, that.targetIndex)) {
       return false;
     }
-    if (insertBody != null ? !insertBody.equals(that.insertBody) : that.insertBody != null) {
+    if (!Objects.equals(insertBody, that.insertBody)) {
       return false;
     }
-    if (returnStatement != null
-        ? !returnStatement.equals(that.returnStatement)
-        : that.returnStatement != null) {
+    if (!Objects.equals(returnStatement, that.returnStatement)) {
       return false;
     }
-    if (selectStatement != null
-        ? !selectStatement.equals(that.selectStatement)
-        : that.selectStatement != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(selectStatement, that.selectStatement);
   }
 
   @Override

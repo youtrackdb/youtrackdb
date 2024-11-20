@@ -67,7 +67,7 @@ public class OClosableLinkedContainerTest {
     }
 
     for (int i = 5; i < 10; i++) {
-      Assert.assertTrue(!dictionary.get((long) i).isOpen());
+      Assert.assertFalse(dictionary.get((long) i).isOpen());
     }
 
     for (int i = 10; i < 15; i++) {

@@ -75,13 +75,12 @@ public class OTraverseRecordProcess extends OTraverseAbstractProcess<OIdentifiab
       pop();
     } else {
       final ORecord targetRec = target.getRecord();
-      if (!(targetRec instanceof ODocument))
+      if (!(targetRec instanceof ODocument targetDoc))
       // SKIP IT
       {
         return pop();
       }
 
-      ODocument targetDoc = (ODocument) targetRec;
       if (targetDoc.isUnloaded()) {
         targetDoc = ODatabaseSession.getActiveSession().bindToSession(targetDoc);
       }
@@ -181,14 +180,14 @@ public class OTraverseRecordProcess extends OTraverseAbstractProcess<OIdentifiab
 
           subProcess =
               new OTraverseMultiValueProcess(
-                  command, (Iterator<Object>) coll, getPath().appendField(field.toString()));
+                  command, (Iterator<Object>) coll, path.appendField(field.toString()));
         } else if (fieldValue instanceof OIdentifiable
             && ((OIdentifiable) fieldValue).getRecord() instanceof ODocument) {
           subProcess =
               new OTraverseRecordProcess(
                   command,
                   ((OIdentifiable) fieldValue).getRecord(),
-                  getPath().appendField(field.toString()));
+                  path.appendField(field.toString()));
         } else {
           continue;
         }

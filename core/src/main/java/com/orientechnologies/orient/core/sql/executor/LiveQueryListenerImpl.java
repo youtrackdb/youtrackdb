@@ -35,7 +35,7 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
 
   private final Map<Object, Object> params;
 
-  private int token;
+  private final int token;
   private static final Random random = new Random();
 
   public LiveQueryListenerImpl(
@@ -185,10 +185,7 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
         return false;
       } else if (!(className.equalsIgnoreCase(recordClassName))) {
         OClass recordClass =
-            ((ODatabaseSessionInternal) this.execDb)
-                .getMetadata()
-                .getImmutableSchemaSnapshot()
-                .getClass(recordClassName);
+            this.execDb.getMetadata().getImmutableSchemaSnapshot().getClass(recordClassName);
         if (recordClass == null) {
           return false;
         }

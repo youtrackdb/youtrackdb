@@ -40,9 +40,9 @@ import java.util.Locale;
  */
 public class ODocumentComparator implements Comparator<OIdentifiable> {
 
-  private List<OPair<String, String>> orderCriteria;
-  private OCommandContext context;
-  private Collator collator;
+  private final List<OPair<String, String>> orderCriteria;
+  private final OCommandContext context;
+  private final Collator collator;
 
   public ODocumentComparator(
       final List<OPair<String, String>> iOrderCriteria, OCommandContext iContext) {

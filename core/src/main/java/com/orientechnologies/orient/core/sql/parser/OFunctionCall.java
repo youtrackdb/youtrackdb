@@ -18,6 +18,7 @@ import com.orientechnologies.orient.core.sql.functions.graph.OSQLFunctionMove;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -45,11 +46,10 @@ public class OFunctionCall extends SimpleNode {
       return false;
     }
     OExpression param = params.get(0);
-    if (param.mathExpression == null || !(param.mathExpression instanceof OBaseExpression)) {
+    if (param.mathExpression == null || !(param.mathExpression instanceof OBaseExpression base)) {
 
       return false;
     }
-    OBaseExpression base = (OBaseExpression) param.mathExpression;
     if (base.getIdentifier() == null || base.getIdentifier().suffix == null) {
       return false;
     }
@@ -107,7 +107,7 @@ public class OFunctionCall extends SimpleNode {
 
     if (record == null) {
       if (targetObjects instanceof OIdentifiable) {
-        record = (OIdentifiable) targetObjects;
+        record = targetObjects;
       } else if (targetObjects instanceof OResult) {
         record = ((OResult) targetObjects).toElement();
       } else {
@@ -206,7 +206,7 @@ public class OFunctionCall extends SimpleNode {
     if (function instanceof OIndexableSQLFunction) {
       return ((OIndexableSQLFunction) function)
           .searchFromTarget(
-              target, operator, rightValue, ctx, this.getParams().toArray(new OExpression[] {}));
+              target, operator, rightValue, ctx, this.params.toArray(new OExpression[] {}));
     }
     return null;
   }
@@ -224,8 +224,7 @@ public class OFunctionCall extends SimpleNode {
     OSQLFunction function = OSQLEngine.getInstance().getFunction(name.getStringValue());
     if (function instanceof OIndexableSQLFunction) {
       return ((OIndexableSQLFunction) function)
-          .estimate(
-              target, operator, rightValue, ctx, this.getParams().toArray(new OExpression[] {}));
+          .estimate(target, operator, rightValue, ctx, this.params.toArray(new OExpression[] {}));
     }
     return -1;
   }
@@ -247,7 +246,7 @@ public class OFunctionCall extends SimpleNode {
     if (function instanceof OIndexableSQLFunction) {
       return ((OIndexableSQLFunction) function)
           .canExecuteInline(
-              target, operator, right, context, this.getParams().toArray(new OExpression[] {}));
+              target, operator, right, context, this.params.toArray(new OExpression[] {}));
     }
     return false;
   }
@@ -268,7 +267,7 @@ public class OFunctionCall extends SimpleNode {
     if (function instanceof OIndexableSQLFunction) {
       return ((OIndexableSQLFunction) function)
           .allowsIndexedExecution(
-              target, operator, right, context, this.getParams().toArray(new OExpression[] {}));
+              target, operator, right, context, this.params.toArray(new OExpression[] {}));
     }
     return false;
   }
@@ -290,7 +289,7 @@ public class OFunctionCall extends SimpleNode {
     if (function instanceof OIndexableSQLFunction) {
       return ((OIndexableSQLFunction) function)
           .shouldExecuteAfterSearch(
-              target, operator, right, context, this.getParams().toArray(new OExpression[] {}));
+              target, operator, right, context, this.params.toArray(new OExpression[] {}));
     }
     return false;
   }
@@ -333,14 +332,13 @@ public class OFunctionCall extends SimpleNode {
 
         if (isStar()) {
           for (OExpression param : params) {
-            newFunct.getParams().add(param);
+            newFunct.params.add(param);
           }
         } else {
           for (OExpression param : params) {
             if (param.isAggregate()) {
               throw new OCommandExecutionException(
-                  "Cannot calculate an aggregate function of another aggregate function "
-                      + toString());
+                  "Cannot calculate an aggregate function of another aggregate function " + this);
             }
             OIdentifier nextAlias = aggregateProj.getNextAlias();
             OProjectionItem paramItem = new OProjectionItem(-1);
@@ -356,11 +354,11 @@ public class OFunctionCall extends SimpleNode {
       } else {
         if (isStar()) {
           for (OExpression param : params) {
-            newFunct.getParams().add(param);
+            newFunct.params.add(param);
           }
         } else {
           for (OExpression param : params) {
-            newFunct.getParams().add(param.splitForAggregation(aggregateProj, ctx));
+            newFunct.params.add(param.splitForAggregation(aggregateProj, ctx));
           }
         }
       }
@@ -410,10 +408,7 @@ public class OFunctionCall extends SimpleNode {
       return false;
     }
     OSQLFunction function = OSQLEngine.getInstance().getFunction(name.value);
-    if (function instanceof OSQLFunctionMove) {
-      return true;
-    }
-    return false;
+    return function instanceof OSQLFunctionMove;
   }
 
   public AggregationContext getAggregationContext(OCommandContext ctx) {
@@ -443,14 +438,10 @@ public class OFunctionCall extends SimpleNode {
 
     OFunctionCall that = (OFunctionCall) o;
 
-    if (name != null ? !name.equals(that.name) : that.name != null) {
+    if (!Objects.equals(name, that.name)) {
       return false;
     }
-    if (params != null ? !params.equals(that.params) : that.params != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(params, that.params);
   }
 
   @Override
@@ -522,10 +513,7 @@ public class OFunctionCall extends SimpleNode {
   }
 
   public boolean isCacheable() {
-    if (isGraphFunction()) {
-      return true;
-    }
-    return false; // TODO
+    return isGraphFunction(); // TODO
   }
 
   private boolean isGraphFunction() {
@@ -554,10 +542,7 @@ public class OFunctionCall extends SimpleNode {
     if (string.equalsIgnoreCase("bothE")) {
       return true;
     }
-    if (string.equalsIgnoreCase("bothV")) {
-      return true;
-    }
-    return false;
+    return string.equalsIgnoreCase("bothV");
   }
 }
 /* JavaCC - OriginalChecksum=290d4e1a3f663299452e05f8db718419 (do not edit this line) */

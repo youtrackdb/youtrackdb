@@ -29,7 +29,7 @@ import com.orientechnologies.orient.core.metadata.function.OFunction;
  */
 public interface OScriptFormatter {
 
-  public String getFunctionDefinition(OFunction iFunction);
+  String getFunctionDefinition(OFunction iFunction);
 
-  public String getFunctionInvoke(OFunction iFunction, final Object[] iArgs);
+  String getFunctionInvoke(OFunction iFunction, final Object[] iArgs);
 }

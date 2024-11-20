@@ -77,11 +77,10 @@ public class OEdgeDelegate implements OEdgeInternal {
     }
 
     Object result = doc.getProperty(DIRECTION_OUT);
-    if (!(result instanceof OElement)) {
+    if (!(result instanceof OElement v)) {
       return null;
     }
 
-    OElement v = (OElement) result;
     if (!v.isVertex()) {
       return null; // TODO optional...?
     }

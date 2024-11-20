@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 public class OHashToken {
 
-  private byte[] binaryToken;
+  private final byte[] binaryToken;
 
   public OHashToken(byte[] binaryToken) {
     this.binaryToken = binaryToken;

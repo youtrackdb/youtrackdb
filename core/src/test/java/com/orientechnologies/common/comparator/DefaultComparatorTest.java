@@ -13,7 +13,7 @@ import org.junit.Test;
  */
 public class DefaultComparatorTest {
 
-  private ODefaultComparator comparator = ODefaultComparator.INSTANCE;
+  private final ODefaultComparator comparator = ODefaultComparator.INSTANCE;
 
   @Test
   public void testCompareStrings() {
@@ -27,6 +27,6 @@ public class DefaultComparatorTest {
       final Comparator<Object> comparator, final Object keyOne, final Object keyTwo) {
     Assert.assertTrue(comparator.compare(keyOne, keyTwo) < 0);
     Assert.assertTrue(comparator.compare(keyTwo, keyOne) > 0);
-    Assert.assertTrue(comparator.compare(keyTwo, keyTwo) == 0);
+    Assert.assertEquals(0, comparator.compare(keyTwo, keyTwo));
   }
 }

@@ -89,6 +89,6 @@ public class OMultiKey {
    */
   @Override
   public String toString() {
-    return "OMultiKey " + keys + "";
+    return "OMultiKey " + keys;
   }
 }

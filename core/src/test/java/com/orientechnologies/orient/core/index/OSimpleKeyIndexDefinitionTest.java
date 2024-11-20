@@ -51,7 +51,8 @@ public class OSimpleKeyIndexDefinitionTest extends BaseMemoryDatabase {
 
   @Test
   public void testCreateValueCompositeKeyNullListParam() {
-    final Object result = simpleKeyIndexDefinition.createValue(db, Arrays.asList((Object) null));
+    final Object result =
+        simpleKeyIndexDefinition.createValue(db, Collections.singletonList((Object) null));
 
     Assert.assertNull(result);
   }

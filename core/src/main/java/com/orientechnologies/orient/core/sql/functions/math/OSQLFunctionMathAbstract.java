@@ -37,9 +37,9 @@ public abstract class OSQLFunctionMathAbstract extends OSQLFunctionConfigurableA
     if (iClass != iContext.getClass()) {
       // CHANGE TYPE
       if (iClass == Long.class) {
-        iContext = new Long(((Number) iContext).longValue());
+        iContext = Long.valueOf(((Number) iContext).longValue());
       } else if (iClass == Short.class) {
-        iContext = new Short(((Number) iContext).shortValue());
+        iContext = Short.valueOf(((Number) iContext).shortValue());
       } else if (iClass == Float.class) {
         iContext = new Float(((Number) iContext).floatValue());
       } else if (iClass == Double.class) {

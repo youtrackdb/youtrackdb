@@ -72,7 +72,7 @@ public class FetchFromClustersExecutionStep extends AbstractExecutionStep {
       prev.start(ctx).close(ctx);
     }
 
-    List<OExecutionStep> stepsIter = getSubSteps();
+    List<OExecutionStep> stepsIter = subSteps;
 
     OExecutionStreamProducer res =
         new OExecutionStreamProducer() {

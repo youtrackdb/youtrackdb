@@ -19,7 +19,7 @@ public class OSecurityEngineTest {
 
   static OrientDB orient;
   private ODatabaseSession db;
-  private static String DB_NAME = "test";
+  private static final String DB_NAME = "test";
 
   @BeforeClass
   public static void beforeClass() {

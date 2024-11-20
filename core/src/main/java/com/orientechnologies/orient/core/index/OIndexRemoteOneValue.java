@@ -59,7 +59,7 @@ public class OIndexRemoteOneValue extends OIndexRemote {
     try (OResultSet result =
         getDatabase().indexQuery(getName(), String.format(QUERY_GET, name), key)) {
       if (result != null && result.hasNext()) {
-        return ((OIdentifiable) result.next().getProperty("rid"));
+        return result.next().getProperty("rid");
       }
       return null;
     }

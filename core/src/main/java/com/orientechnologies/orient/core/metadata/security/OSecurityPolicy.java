@@ -4,7 +4,7 @@ import com.orientechnologies.orient.core.id.ORID;
 
 public interface OSecurityPolicy {
 
-  public enum Scope {
+  enum Scope {
     CREATE,
     READ,
     BEFORE_UPDATE,

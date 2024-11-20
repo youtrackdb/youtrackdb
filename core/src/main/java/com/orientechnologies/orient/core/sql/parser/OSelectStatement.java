@@ -17,6 +17,7 @@ import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.executor.OSelectExecutionPlanner;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class OSelectStatement extends OStatement {
 
@@ -278,11 +279,7 @@ public class OSelectStatement extends OStatement {
       return false;
     }
 
-    if (whereClause != null && !whereClause.isCacheable()) {
-      return false;
-    }
-
-    return true;
+    return whereClause == null || whereClause.isCacheable();
   }
 
   @Override
@@ -318,7 +315,7 @@ public class OSelectStatement extends OStatement {
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
-    ctx.setDatabase((ODatabaseSessionInternal) db);
+    ctx.setDatabase(db);
     ctx.setInputParameters(params);
     OInternalExecutionPlan executionPlan;
     if (usePlanCache) {
@@ -385,47 +382,43 @@ public class OSelectStatement extends OStatement {
 
     OSelectStatement that = (OSelectStatement) o;
 
-    if (target != null ? !target.equals(that.target) : that.target != null) {
+    if (!Objects.equals(target, that.target)) {
       return false;
     }
-    if (projection != null ? !projection.equals(that.projection) : that.projection != null) {
+    if (!Objects.equals(projection, that.projection)) {
       return false;
     }
-    if (whereClause != null ? !whereClause.equals(that.whereClause) : that.whereClause != null) {
+    if (!Objects.equals(whereClause, that.whereClause)) {
       return false;
     }
-    if (groupBy != null ? !groupBy.equals(that.groupBy) : that.groupBy != null) {
+    if (!Objects.equals(groupBy, that.groupBy)) {
       return false;
     }
-    if (orderBy != null ? !orderBy.equals(that.orderBy) : that.orderBy != null) {
+    if (!Objects.equals(orderBy, that.orderBy)) {
       return false;
     }
-    if (unwind != null ? !unwind.equals(that.unwind) : that.unwind != null) {
+    if (!Objects.equals(unwind, that.unwind)) {
       return false;
     }
-    if (skip != null ? !skip.equals(that.skip) : that.skip != null) {
+    if (!Objects.equals(skip, that.skip)) {
       return false;
     }
-    if (limit != null ? !limit.equals(that.limit) : that.limit != null) {
+    if (!Objects.equals(limit, that.limit)) {
       return false;
     }
-    if (fetchPlan != null ? !fetchPlan.equals(that.fetchPlan) : that.fetchPlan != null) {
+    if (!Objects.equals(fetchPlan, that.fetchPlan)) {
       return false;
     }
-    if (letClause != null ? !letClause.equals(that.letClause) : that.letClause != null) {
+    if (!Objects.equals(letClause, that.letClause)) {
       return false;
     }
-    if (timeout != null ? !timeout.equals(that.timeout) : that.timeout != null) {
+    if (!Objects.equals(timeout, that.timeout)) {
       return false;
     }
-    if (parallel != null ? !parallel.equals(that.parallel) : that.parallel != null) {
+    if (!Objects.equals(parallel, that.parallel)) {
       return false;
     }
-    if (noCache != null ? !noCache.equals(that.noCache) : that.noCache != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(noCache, that.noCache);
   }
 
   @Override
@@ -466,10 +459,7 @@ public class OSelectStatement extends OStatement {
     if (orderBy != null && orderBy.refersToParent()) {
       return true;
     }
-    if (letClause != null && letClause.refersToParent()) {
-      return true;
-    }
-    return false;
+    return letClause != null && letClause.refersToParent();
   }
 
   public OUnwind getUnwind() {

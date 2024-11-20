@@ -219,9 +219,6 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
 
   public OIndex getIndex(ODatabaseSessionInternal database, final String iName) {
     final OIndex index = indexes.get(iName);
-    if (index == null) {
-      return null;
-    }
     return index;
   }
 
@@ -944,8 +941,7 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
     }
 
     final OStorage storage = database.getStorage();
-    if (storage instanceof OAbstractPaginatedStorage) {
-      OAbstractPaginatedStorage paginatedStorage = (OAbstractPaginatedStorage) storage;
+    if (storage instanceof OAbstractPaginatedStorage paginatedStorage) {
       return paginatedStorage.wereDataRestoredAfterOpen()
           && paginatedStorage.wereNonTxOperationsPerformedInPreviousOpen();
     }

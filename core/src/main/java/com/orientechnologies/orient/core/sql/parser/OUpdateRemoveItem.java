@@ -9,6 +9,7 @@ import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class OUpdateRemoveItem extends SimpleNode {
@@ -58,14 +59,10 @@ public class OUpdateRemoveItem extends SimpleNode {
 
     OUpdateRemoveItem that = (OUpdateRemoveItem) o;
 
-    if (left != null ? !left.equals(that.left) : that.left != null) {
+    if (!Objects.equals(left, that.left)) {
       return false;
     }
-    if (right != null ? !right.equals(that.right) : that.right != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(right, that.right);
   }
 
   @Override
@@ -88,7 +85,7 @@ public class OUpdateRemoveItem extends SimpleNode {
         rightVal =
             ((Collection) rightVal)
                 .stream()
-                    .map(OResult.class::cast)
+                    .map(o -> o)
                     .map(x -> ((OResult) x).getElement().get())
                     .collect(Collectors.toList());
       }

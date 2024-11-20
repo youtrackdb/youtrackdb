@@ -12,8 +12,8 @@ import com.orientechnologies.orient.core.metadata.security.OPropertyAccess;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.junit.Test;
@@ -67,7 +67,7 @@ public class OPropertyAccessTest {
     assertArrayEquals(
         new String[] {"one value"},
         doc.getPropertyNames().stream().map(doc::getProperty).toArray());
-    assertEquals(new HashSet<String>(Arrays.asList("name")), doc.getPropertyNames());
+    assertEquals(new HashSet<String>(List.of("name")), doc.getPropertyNames());
     for (Map.Entry<String, Object> e : doc) {
       assertEquals("name", e.getKey());
     }
@@ -91,7 +91,7 @@ public class OPropertyAccessTest {
     assertArrayEquals(
         new String[] {"one value"},
         docPre.getPropertyNames().stream().map(docPre::getProperty).toArray());
-    assertEquals(new HashSet<String>(Arrays.asList("name")), docPre.getPropertyNames());
+    assertEquals(new HashSet<String>(List.of("name")), docPre.getPropertyNames());
     for (Map.Entry<String, Object> e : docPre) {
       assertEquals("name", e.getKey());
     }

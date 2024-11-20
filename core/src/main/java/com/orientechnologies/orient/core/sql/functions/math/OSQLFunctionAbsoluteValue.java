@@ -70,7 +70,7 @@ public class OSQLFunctionAbsoluteValue extends OSQLFunctionMathAbstract {
       throw new IllegalArgumentException("Argument to absolute value must be a number.");
     }
 
-    return getResult();
+    return result;
   }
 
   public boolean aggregateResults() {

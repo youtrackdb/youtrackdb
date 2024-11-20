@@ -122,7 +122,7 @@ public class ODocumentSchemalessBinarySerializationTest {
     Arrays.fill(byteValue, (byte) 10);
     document.field("bytes", byteValue);
 
-    document.field("utf8String", new String("A" + "\u00ea" + "\u00f1" + "\u00fc" + "C"));
+    document.field("utf8String", "A" + "\u00ea" + "\u00f1" + "\u00fc" + "C");
     document.field("recordId", new ORecordId(10, 10));
 
     byte[] res = serializer.toStream(document);
@@ -468,8 +468,7 @@ public class ODocumentSchemalessBinarySerializationTest {
         assertEquals(extr.fields(), document.fields());
         assertEquals(
             ((Set<?>) extr.field("linkSet")).size(), ((Set<?>) document.field("linkSet")).size());
-        assertTrue(
-            ((Set<?>) extr.field("linkSet")).containsAll((Set<?>) document.field("linkSet")));
+        assertTrue(((Set<?>) extr.field("linkSet")).containsAll(document.field("linkSet")));
         assertEquals(extr.<Object>field("linkList"), document.field("linkList"));
       }
       ctx.drop("test");

@@ -328,14 +328,13 @@ public class SpeedTestData {
                       ? lapTimerElapsed * 100 / previousLapTimerElapsed - 100
                       : 0);
 
-          System.out.print(
-              String.format(
-                  "\n%3d%% lap elapsed: %7dms, total: %7dms, delta: %+3d%%, forecast: %7dms",
-                  (cyclesDone + 1) * 100 / cycles,
-                  lapTimerElapsed,
-                  cyclesElapsed,
-                  delta,
-                  cyclesElapsed * cycles / cyclesDone));
+          System.out.printf(
+              "\n%3d%% lap elapsed: %7dms, total: %7dms, delta: %+3d%%, forecast: %7dms",
+              (cyclesDone + 1) * 100 / cycles,
+              lapTimerElapsed,
+              cyclesElapsed,
+              delta,
+              cyclesElapsed * cycles / cyclesDone);
 
           previousLapTimerElapsed = lapTimerElapsed;
           lapTimerElapsed = System.nanoTime();

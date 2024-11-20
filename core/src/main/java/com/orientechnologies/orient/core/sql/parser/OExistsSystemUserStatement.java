@@ -47,10 +47,8 @@ public class OExistsSystemUserStatement extends OSimpleExecServerStatement {
             params.add(nameParam.getValue(ctx.getInputParameters()));
           }
           // INSERT INTO OUser SET
-          StringBuilder sb = new StringBuilder();
-          sb.append("SELECT FROM OUser WHERE name = ?");
 
-          try (OResultSet rs = db.command(sb.toString(), params.toArray())) {
+          try (OResultSet rs = db.command("SELECT FROM OUser WHERE name = ?", params.toArray())) {
             if (rs.hasNext()) {
               result.setProperty("exists", true);
             } else {

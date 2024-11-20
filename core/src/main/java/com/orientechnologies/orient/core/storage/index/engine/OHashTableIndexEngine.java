@@ -76,7 +76,7 @@ public final class OHashTableIndexEngine implements OIndexEngine {
 
   private final OVersionPositionMap versionPositionMap;
 
-  private OAbstractPaginatedStorage storage;
+  private final OAbstractPaginatedStorage storage;
 
   public OHashTableIndexEngine(
       String name, int id, OAbstractPaginatedStorage storage, int version) {

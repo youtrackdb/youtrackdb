@@ -4,12 +4,12 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 
 public class OIndexSearchInfo {
 
-  private boolean allowsRangeQueries;
-  private boolean map;
-  private boolean indexByKey;
-  private String field;
-  private OCommandContext ctx;
-  private boolean indexByValue;
+  private final boolean allowsRangeQueries;
+  private final boolean map;
+  private final boolean indexByKey;
+  private final String field;
+  private final OCommandContext ctx;
+  private final boolean indexByValue;
 
   public OIndexSearchInfo(
       String indexField,

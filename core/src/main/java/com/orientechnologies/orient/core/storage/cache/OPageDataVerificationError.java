@@ -59,11 +59,7 @@ public class OPageDataVerificationError {
     if (pageIndex != that.pageIndex) {
       return false;
     }
-    if (!fileName.equals(that.fileName)) {
-      return false;
-    }
-
-    return true;
+    return fileName.equals(that.fileName);
   }
 
   @Override

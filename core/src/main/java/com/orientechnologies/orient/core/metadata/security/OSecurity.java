@@ -32,14 +32,14 @@ import java.util.Set;
  */
 public interface OSecurity {
 
-  static final String RESTRICTED_CLASSNAME = "ORestricted";
-  @Deprecated static final String IDENTITY_CLASSNAME = OIdentity.CLASS_NAME;
-  static final String ALLOW_ALL_FIELD = "_allow";
-  static final String ALLOW_READ_FIELD = "_allowRead";
-  static final String ALLOW_UPDATE_FIELD = "_allowUpdate";
-  static final String ALLOW_DELETE_FIELD = "_allowDelete";
-  static final String ONCREATE_IDENTITY_TYPE = "onCreate.identityType";
-  static final String ONCREATE_FIELD = "onCreate.fields";
+  String RESTRICTED_CLASSNAME = "ORestricted";
+  @Deprecated String IDENTITY_CLASSNAME = OIdentity.CLASS_NAME;
+  String ALLOW_ALL_FIELD = "_allow";
+  String ALLOW_READ_FIELD = "_allowRead";
+  String ALLOW_UPDATE_FIELD = "_allowUpdate";
+  String ALLOW_DELETE_FIELD = "_allowDelete";
+  String ONCREATE_IDENTITY_TYPE = "onCreate.identityType";
+  String ONCREATE_FIELD = "onCreate.fields";
 
   @Deprecated
   boolean isAllowed(final Set<OIdentifiable> iAllowAll, final Set<OIdentifiable> iAllowOperation);

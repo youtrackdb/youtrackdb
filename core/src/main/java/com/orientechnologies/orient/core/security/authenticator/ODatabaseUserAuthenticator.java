@@ -38,7 +38,7 @@ public class ODatabaseUserAuthenticator extends OSecurityAuthenticatorAbstract {
       if (tokenSign != null && !tokenSign.verifyTokenSign(token)) {
         throw new OTokenSecurityException("The token provided is expired");
       }
-      if (token.getToken().getIsValid() != true) {
+      if (!token.getToken().getIsValid()) {
         throw new OSecurityAccessException(session.getName(), "Token not valid");
       }
 

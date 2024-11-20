@@ -203,11 +203,10 @@ public interface OResult {
       }
       builder.append("]");
       jsonVal = builder.toString();
-    } else if (val instanceof Iterator) {
+    } else if (val instanceof Iterator iterator) {
       StringBuilder builder = new StringBuilder();
       builder.append("[");
       boolean first = true;
-      Iterator iterator = (Iterator) val;
       while (iterator.hasNext()) {
         if (!first) {
           builder.append(", ");

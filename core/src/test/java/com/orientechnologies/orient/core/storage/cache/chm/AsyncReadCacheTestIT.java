@@ -84,7 +84,7 @@ public class AsyncReadCacheTestIT {
     readCache.assertConsistency();
 
     Assert.assertEquals(
-        allocator.getMemoryConsumption() - byteBufferPool.getPoolSize() * pageSize,
+        allocator.getMemoryConsumption() - (long) byteBufferPool.getPoolSize() * pageSize,
         readCache.getUsedMemory());
 
     Assert.assertFalse(memoryAboveLimit.get());
@@ -102,7 +102,7 @@ public class AsyncReadCacheTestIT {
 
     readCache.clear();
     Assert.assertEquals(
-        0, allocator.getMemoryConsumption() - byteBufferPool.getPoolSize() * pageSize);
+        0, allocator.getMemoryConsumption() - (long) byteBufferPool.getPoolSize() * pageSize);
     Assert.assertEquals(0, readCache.getUsedMemory());
     readCache.assertSize();
   }
@@ -161,7 +161,7 @@ public class AsyncReadCacheTestIT {
     readCache.assertConsistency();
 
     Assert.assertEquals(
-        allocator.getMemoryConsumption() - byteBufferPool.getPoolSize() * pageSize,
+        allocator.getMemoryConsumption() - (long) byteBufferPool.getPoolSize() * pageSize,
         readCache.getUsedMemory());
 
     Assert.assertFalse(memoryAboveLimit.get());
@@ -183,7 +183,7 @@ public class AsyncReadCacheTestIT {
 
     readCache.clear();
     Assert.assertEquals(
-        0, allocator.getMemoryConsumption() - byteBufferPool.getPoolSize() * pageSize);
+        0, allocator.getMemoryConsumption() - (long) byteBufferPool.getPoolSize() * pageSize);
     Assert.assertEquals(0, readCache.getUsedMemory());
     readCache.assertSize();
   }

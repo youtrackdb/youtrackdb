@@ -89,7 +89,7 @@ public class OQueryOperatorContainsAll extends OQueryOperatorEqualityNotNulls {
       if (condition != null) {
         // CHECK AGAINST A CONDITION
         for (final ODocument o : collection) {
-          if ((Boolean) condition.evaluate(o, null, iContext) == Boolean.FALSE) {
+          if (condition.evaluate(o, null, iContext) == Boolean.FALSE) {
             return false;
           }
         }
@@ -108,7 +108,7 @@ public class OQueryOperatorContainsAll extends OQueryOperatorEqualityNotNulls {
 
       if (condition != null) {
         for (final ODocument o : collection) {
-          if ((Boolean) condition.evaluate(o, null, iContext) == Boolean.FALSE) {
+          if (condition.evaluate(o, null, iContext) == Boolean.FALSE) {
             return false;
           }
         }

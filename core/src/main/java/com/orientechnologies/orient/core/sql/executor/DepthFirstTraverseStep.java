@@ -276,7 +276,7 @@ public class DepthFirstTraverseStep extends AbstractTraverseStep {
     if (whileClause != null) {
       result.append("\n");
       result.append(spaces);
-      result.append("WHILE " + whileClause.toString());
+      result.append("WHILE " + whileClause);
     }
     return result.toString();
   }

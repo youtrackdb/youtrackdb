@@ -72,11 +72,7 @@ public class OBonsaiCollectionPointer {
     if (fileId != that.fileId) {
       return false;
     }
-    if (!rootPointer.equals(that.rootPointer)) {
-      return false;
-    }
-
-    return true;
+    return rootPointer.equals(that.rootPointer);
   }
 
   @Override

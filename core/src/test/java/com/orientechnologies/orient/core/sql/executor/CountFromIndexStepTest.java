@@ -24,7 +24,7 @@ public class CountFromIndexStepTest extends TestUtilsFixture {
   private static final String ALIAS = "size";
   private String indexName;
 
-  private OIndexIdentifier.Type identifierType;
+  private final OIndexIdentifier.Type identifierType;
 
   public CountFromIndexStepTest(OIndexIdentifier.Type identifierType) {
     this.identifierType = identifierType;

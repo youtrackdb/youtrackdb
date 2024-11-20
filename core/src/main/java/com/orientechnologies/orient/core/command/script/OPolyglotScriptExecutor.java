@@ -154,7 +154,7 @@ public class OPolyglotScriptExecutor extends OAbstractScriptExecutor
   public Object executeFunction(
       OCommandContext context, final String functionName, final Map<Object, Object> iArgs) {
 
-    ODatabaseSessionInternal database = (ODatabaseSessionInternal) context.getDatabase();
+    ODatabaseSessionInternal database = context.getDatabase();
     if (database == null) {
       database = ODatabaseRecordThreadLocal.instance().get();
     }

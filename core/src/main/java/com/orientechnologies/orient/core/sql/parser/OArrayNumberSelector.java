@@ -7,6 +7,7 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class OArrayNumberSelector extends SimpleNode {
@@ -109,15 +110,13 @@ public class OArrayNumberSelector extends SimpleNode {
 
     OArrayNumberSelector that = (OArrayNumberSelector) o;
 
-    if (inputValue != null ? !inputValue.equals(that.inputValue) : that.inputValue != null) {
+    if (!Objects.equals(inputValue, that.inputValue)) {
       return false;
     }
-    if (expressionValue != null
-        ? !expressionValue.equals(that.expressionValue)
-        : that.expressionValue != null) {
+    if (!Objects.equals(expressionValue, that.expressionValue)) {
       return false;
     }
-    return integer != null ? integer.equals(that.integer) : that.integer == null;
+    return Objects.equals(integer, that.integer);
   }
 
   @Override
@@ -135,10 +134,7 @@ public class OArrayNumberSelector extends SimpleNode {
   }
 
   public boolean refersToParent() {
-    if (expressionValue != null && expressionValue.refersToParent()) {
-      return true;
-    }
-    return false;
+    return expressionValue != null && expressionValue.refersToParent();
   }
 
   public OResult serialize() {

@@ -50,7 +50,7 @@ public class OGlobalPropertyImpl implements OGlobalProperty {
 
   public void fromDocument(final ODocument document) {
     this.name = document.field("name");
-    this.type = OType.valueOf((String) document.field("type"));
+    this.type = OType.valueOf(document.field("type"));
     this.id = document.field("id");
   }
 

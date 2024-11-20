@@ -138,8 +138,7 @@ public abstract class OSQLFunctionAbstract implements OSQLFunction {
    * returned indicating an error If source is not a map-like object, it is returned
    */
   protected Object getSingleProperty(Object source, boolean requireSingleProperty) {
-    if (source instanceof OResult) {
-      final OResult result = (OResult) source;
+    if (source instanceof OResult result) {
       // TODO we might want to add .size() and iterator with .next() to OResult. The current
       // implementation is
       // quite heavy compared to the result we actually want (the single first property).

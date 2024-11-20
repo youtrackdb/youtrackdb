@@ -31,6 +31,7 @@ import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.query.OLiveQuery;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class OStreamSerializerAnyStreamable {
@@ -68,7 +69,7 @@ public class OStreamSerializerAnyStreamable {
       throw new OSerializationException(message);
     }
 
-    final String className = new String(iStream, 4, classNameSize, "UTF-8");
+    final String className = new String(iStream, 4, classNameSize, StandardCharsets.UTF_8);
 
     try {
       final OCommandRequestText stream;
@@ -112,7 +113,7 @@ public class OStreamSerializerAnyStreamable {
     // SERIALIZE THE CLASS NAME
     final byte[] className;
     if (iObject instanceof OLiveQuery<?>) {
-      className = iObject.getClass().getName().getBytes("UTF-8");
+      className = iObject.getClass().getName().getBytes(StandardCharsets.UTF_8);
     } else if (iObject instanceof OSQLSynchQuery<?>) {
       className = QUERY_COMMAND_CLASS_ASBYTES;
     } else if (iObject instanceof OCommandSQL) {
@@ -123,7 +124,7 @@ public class OStreamSerializerAnyStreamable {
       if (iObject == null) {
         className = null;
       } else {
-        className = iObject.getClass().getName().getBytes("UTF-8");
+        className = iObject.getClass().getName().getBytes(StandardCharsets.UTF_8);
       }
     }
     // SERIALIZE THE OBJECT CONTENT

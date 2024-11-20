@@ -9,6 +9,7 @@ import com.orientechnologies.orient.core.metadata.schema.OView;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Map;
+import java.util.Objects;
 
 public class ODropViewStatement extends ODDLStatement {
 
@@ -99,11 +100,7 @@ public class ODropViewStatement extends ODDLStatement {
     if (ifExists != that.ifExists) {
       return false;
     }
-    if (name != null ? !name.equals(that.name) : that.name != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(name, that.name);
   }
 
   @Override

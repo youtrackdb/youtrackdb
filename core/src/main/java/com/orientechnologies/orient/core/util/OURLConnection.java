@@ -8,11 +8,11 @@ import java.util.Optional;
  */
 public class OURLConnection {
 
-  private String url;
-  private String type;
-  private String path;
-  private String dbName;
-  private Optional<ODatabaseType> dbType;
+  private final String url;
+  private final String type;
+  private final String path;
+  private final String dbName;
+  private final Optional<ODatabaseType> dbType;
 
   public OURLConnection(String url, String type, String path, String dbName) {
     this(url, type, path, dbName, Optional.empty());

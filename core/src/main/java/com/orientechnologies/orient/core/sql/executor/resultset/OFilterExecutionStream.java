@@ -5,8 +5,8 @@ import com.orientechnologies.orient.core.sql.executor.OResult;
 
 public class OFilterExecutionStream implements OExecutionStream {
 
-  private OExecutionStream prevResult;
-  private OFilterResult filter;
+  private final OExecutionStream prevResult;
+  private final OFilterResult filter;
   private OResult nextItem = null;
 
   public OFilterExecutionStream(OExecutionStream resultSet, OFilterResult filter) {
@@ -21,11 +21,7 @@ public class OFilterExecutionStream implements OExecutionStream {
       fetchNextItem(ctx);
     }
 
-    if (nextItem != null) {
-      return true;
-    }
-
-    return false;
+    return nextItem != null;
   }
 
   @Override

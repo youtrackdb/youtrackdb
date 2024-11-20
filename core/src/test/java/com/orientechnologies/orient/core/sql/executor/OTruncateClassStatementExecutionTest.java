@@ -11,7 +11,6 @@ import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -52,7 +51,7 @@ public class OTruncateClassStatementExecutionTest extends BaseMemoryInternalData
 
     Set<Integer> set = new HashSet<Integer>();
     while (result.hasNext()) {
-      set.addAll((Collection<Integer>) result.next().getProperty("data"));
+      set.addAll(result.next().getProperty("data"));
     }
     result.close();
     Assert.assertTrue(set.containsAll(Arrays.asList(5, 6, 7, 8, 9, -1)));

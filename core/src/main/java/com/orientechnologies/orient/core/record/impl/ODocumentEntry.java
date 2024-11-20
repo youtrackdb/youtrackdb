@@ -177,7 +177,7 @@ public class ODocumentEntry {
   }
 
   public void undo() {
-    if (isChanged()) {
+    if (changed) {
       this.value = original;
       unmarkChanged();
       original = null;

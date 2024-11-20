@@ -61,9 +61,7 @@ public class OQueryOperatorMod extends OQueryOperator {
       iRight = ((Date) iRight).getTime();
     }
 
-    if (iLeft instanceof Number && iRight instanceof Number) {
-      final Number l = (Number) iLeft;
-      final Number r = (Number) iRight;
+    if (iLeft instanceof Number l && iRight instanceof Number r) {
       if (l instanceof Integer) {
         return l.intValue() % r.intValue();
       } else if (l instanceof Long) {
@@ -78,9 +76,9 @@ public class OQueryOperatorMod extends OQueryOperator {
         if (r instanceof BigDecimal) {
           return ((BigDecimal) l).remainder((BigDecimal) r);
         } else if (r instanceof Float) {
-          return ((BigDecimal) l).remainder(new BigDecimal(r.floatValue()));
+          return ((BigDecimal) l).remainder(BigDecimal.valueOf(r.floatValue()));
         } else if (r instanceof Double) {
-          return ((BigDecimal) l).remainder(new BigDecimal(r.doubleValue()));
+          return ((BigDecimal) l).remainder(BigDecimal.valueOf(r.doubleValue()));
         } else if (r instanceof Long) {
           return ((BigDecimal) l).remainder(new BigDecimal(r.longValue()));
         } else if (r instanceof Integer) {

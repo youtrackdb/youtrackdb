@@ -5,6 +5,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class OUpdateOperations extends SimpleNode {
@@ -203,29 +204,19 @@ public class OUpdateOperations extends SimpleNode {
     if (type != that.type) {
       return false;
     }
-    if (updateItems != null ? !updateItems.equals(that.updateItems) : that.updateItems != null) {
+    if (!Objects.equals(updateItems, that.updateItems)) {
       return false;
     }
-    if (updatePutItems != null
-        ? !updatePutItems.equals(that.updatePutItems)
-        : that.updatePutItems != null) {
+    if (!Objects.equals(updatePutItems, that.updatePutItems)) {
       return false;
     }
-    if (json != null ? !json.equals(that.json) : that.json != null) {
+    if (!Objects.equals(json, that.json)) {
       return false;
     }
-    if (updateIncrementItems != null
-        ? !updateIncrementItems.equals(that.updateIncrementItems)
-        : that.updateIncrementItems != null) {
+    if (!Objects.equals(updateIncrementItems, that.updateIncrementItems)) {
       return false;
     }
-    if (updateRemoveItems != null
-        ? !updateRemoveItems.equals(that.updateRemoveItems)
-        : that.updateRemoveItems != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(updateRemoveItems, that.updateRemoveItems);
   }
 
   @Override

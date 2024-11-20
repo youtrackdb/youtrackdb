@@ -43,7 +43,7 @@ import org.junit.Test;
  */
 public class ODateConversionTestCase {
 
-  private ORecordSerializer serializer = new ORecordSerializerBinary();
+  private final ORecordSerializer serializer = new ORecordSerializerBinary();
 
   @Test
   public void testDateSerializationWithDST() throws ParseException {

@@ -40,6 +40,6 @@ public class OFunctionUtilWrapper {
   }
 
   public Object value(final Object iValue) {
-    return iValue != null ? iValue : null;
+    return iValue;
   }
 }

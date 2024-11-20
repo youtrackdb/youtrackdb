@@ -40,7 +40,7 @@ public class ODefaultCollate extends ODefaultComparator implements OCollate {
 
   @Override
   public int hashCode() {
-    return getName().hashCode();
+    return NAME.hashCode();
   }
 
   @Override
@@ -51,11 +51,11 @@ public class ODefaultCollate extends ODefaultComparator implements OCollate {
 
     final ODefaultCollate that = (ODefaultCollate) obj;
 
-    return getName().equals(that.getName());
+    return NAME.equals(that.NAME);
   }
 
   @Override
   public String toString() {
-    return "{" + getClass().getSimpleName() + " : name = " + getName() + "}";
+    return "{" + getClass().getSimpleName() + " : name = " + NAME + "}";
   }
 }

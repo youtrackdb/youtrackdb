@@ -21,7 +21,6 @@
 package com.orientechnologies.orient.core.serialization.serializer.record.binary;
 
 import com.orientechnologies.common.collection.OMultiValue;
-import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.serialization.types.ODecimalSerializer;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
@@ -63,8 +62,8 @@ import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollection
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
 import com.orientechnologies.orient.core.util.ODateHelper;
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -859,19 +858,11 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
   }
 
   private byte[] bytesFromString(final String toWrite) {
-    try {
-      return toWrite.getBytes(CHARSET_UTF_8);
-    } catch (UnsupportedEncodingException e) {
-      throw OException.wrapException(new OSerializationException("Error on string encoding"), e);
-    }
+    return toWrite.getBytes(StandardCharsets.UTF_8);
   }
 
   protected String stringFromBytes(final byte[] bytes, final int offset, final int len) {
-    try {
-      return new String(bytes, offset, len, CHARSET_UTF_8);
-    } catch (UnsupportedEncodingException e) {
-      throw OException.wrapException(new OSerializationException("Error on string decoding"), e);
-    }
+    return new String(bytes, offset, len, StandardCharsets.UTF_8);
   }
 
   public OBinaryField deserializeField(

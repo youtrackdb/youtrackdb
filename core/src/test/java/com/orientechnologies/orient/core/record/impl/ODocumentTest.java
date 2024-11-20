@@ -60,13 +60,13 @@ public class ODocumentTest {
     ORecordInternal.unsetDirty(doc2);
     doc1.copyTo(doc2);
 
-    assertEquals(doc2.<Object>field("integer2"), null);
-    assertEquals(doc2.<Object>field("string"), null);
-    assertEquals(doc2.<Object>field("a"), null);
+    assertNull(doc2.<Object>field("integer2"));
+    assertNull(doc2.<Object>field("string"));
+    assertNull(doc2.<Object>field("a"));
 
-    assertEquals(doc2.fieldType("integer"), null);
-    assertEquals(doc2.fieldType("string"), null);
-    assertEquals(doc2.fieldType("binary"), null);
+    assertNull(doc2.fieldType("integer"));
+    assertNull(doc2.fieldType("string"));
+    assertNull(doc2.fieldType("binary"));
 
     assertNull(doc2.getOwner());
   }
@@ -90,9 +90,9 @@ public class ODocumentTest {
 
     doc.clear();
 
-    assertEquals(doc.fieldType("integer"), null);
-    assertEquals(doc.fieldType("string"), null);
-    assertEquals(doc.fieldType("binary"), null);
+    assertNull(doc.fieldType("integer"));
+    assertNull(doc.fieldType("string"));
+    assertNull(doc.fieldType("binary"));
   }
 
   @Test
@@ -108,9 +108,9 @@ public class ODocumentTest {
 
     doc = new ODocument();
 
-    assertEquals(doc.fieldType("integer"), null);
-    assertEquals(doc.fieldType("string"), null);
-    assertEquals(doc.fieldType("binary"), null);
+    assertNull(doc.fieldType("integer"));
+    assertNull(doc.fieldType("string"));
+    assertNull(doc.fieldType("binary"));
   }
 
   @Test

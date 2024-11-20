@@ -63,7 +63,7 @@ public enum OAnsiCode {
 
   NULL("");
 
-  private String code;
+  private final String code;
 
   OAnsiCode(final String code) {
     this.code = code;
@@ -88,11 +88,8 @@ public enum OAnsiCode {
       supportsColors = true;
     } else if ("auto".equalsIgnoreCase(ansiSupport)) {
       // AUTOMATIC CHECK
-      if (System.console() != null && !System.getProperty("os.name").contains("Windows")) {
-        supportsColors = true;
-      } else {
-        supportsColors = false;
-      }
+      supportsColors =
+          System.console() != null && !System.getProperty("os.name").contains("Windows");
     } else
     // DO NOT SUPPORT ANSI
     {

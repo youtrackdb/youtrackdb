@@ -8,6 +8,7 @@ import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Map;
+import java.util.Objects;
 
 public class OTruncateClusterStatement extends ODDLStatement {
 
@@ -99,16 +100,10 @@ public class OTruncateClusterStatement extends ODDLStatement {
     if (unsafe != that.unsafe) {
       return false;
     }
-    if (clusterName != null ? !clusterName.equals(that.clusterName) : that.clusterName != null) {
+    if (!Objects.equals(clusterName, that.clusterName)) {
       return false;
     }
-    if (clusterNumber != null
-        ? !clusterNumber.equals(that.clusterNumber)
-        : that.clusterNumber != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(clusterNumber, that.clusterNumber);
   }
 
   @Override

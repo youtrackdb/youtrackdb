@@ -19,16 +19,14 @@
  */
 package com.orientechnologies.orient.core.serialization;
 
-import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.profiler.OAbstractProfiler.OProfilerHookValue;
 import com.orientechnologies.common.profiler.OProfiler.METRIC_TYPE;
 import com.orientechnologies.common.util.OArrays;
 import com.orientechnologies.orient.core.Orient;
-import com.orientechnologies.orient.core.exception.OSerializationException;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 /**
@@ -44,7 +42,7 @@ public class OMemoryStream extends OutputStream {
 
   private byte[] buffer;
   private int position;
-  private Charset charset = Charset.forName("utf8");
+  private final Charset charset = StandardCharsets.UTF_8;
 
   private static final int NATIVE_COPY_THRESHOLD = 9;
   private static long metricResize = 0;
@@ -131,9 +129,7 @@ public class OMemoryStream extends OutputStream {
     final byte[] sourceBuffer = buffer;
 
     if (pos < NATIVE_COPY_THRESHOLD) {
-      for (int i = 0; i < pos; ++i) {
-        destinBuffer[i] = sourceBuffer[i];
-      }
+      System.arraycopy(sourceBuffer, 0, destinBuffer, 0, pos);
     } else {
       System.arraycopy(sourceBuffer, 0, destinBuffer, 0, pos);
     }
@@ -166,9 +162,7 @@ public class OMemoryStream extends OutputStream {
     final byte[] localBuffer = buffer;
 
     if (iLength < NATIVE_COPY_THRESHOLD) {
-      for (int i = 0; i < iLength; ++i) {
-        localBuffer[pos + i] = iBuffer[iOffset + i];
-      }
+      if (iLength >= 0) System.arraycopy(iBuffer, iOffset + 0, localBuffer, pos + 0, iLength);
     } else {
       System.arraycopy(iBuffer, iOffset, localBuffer, pos, iLength);
     }
@@ -232,11 +226,7 @@ public class OMemoryStream extends OutputStream {
   }
 
   public final int setCustom(final String iContent) {
-    try {
-      return set(iContent.getBytes("UTF-8"));
-    } catch (UnsupportedEncodingException e) {
-      throw OException.wrapException(new OSerializationException("error encoding string"), e);
-    }
+    return set(iContent.getBytes(StandardCharsets.UTF_8));
   }
 
   public final int setUtf8(final String iContent) {
@@ -303,9 +293,7 @@ public class OMemoryStream extends OutputStream {
       final byte[] newbuf = new byte[Math.max(bufferLength << 1, capacity)];
 
       if (pos < NATIVE_COPY_THRESHOLD) {
-        for (int i = 0; i < pos; ++i) {
-          newbuf[i] = localBuffer[i];
-        }
+        if (pos >= 0) System.arraycopy(localBuffer, 0, newbuf, 0, pos);
       } else {
         System.arraycopy(localBuffer, 0, newbuf, 0, pos);
       }

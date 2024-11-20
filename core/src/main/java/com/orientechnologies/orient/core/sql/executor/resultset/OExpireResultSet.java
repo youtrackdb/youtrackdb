@@ -8,8 +8,8 @@ public final class OExpireResultSet implements OExecutionStream {
 
   private final TimedOut timedout;
   private final OExecutionStream internal;
-  protected boolean timedOut = false;
-  private long expiryTime;
+  private boolean timedOut = false;
+  private final long expiryTime;
 
   public interface TimedOut {
 

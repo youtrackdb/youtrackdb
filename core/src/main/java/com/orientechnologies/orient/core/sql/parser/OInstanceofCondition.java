@@ -14,6 +14,7 @@ import com.orientechnologies.orient.core.sql.executor.OResult;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class OInstanceofCondition extends OBooleanExpression {
@@ -42,10 +43,9 @@ public class OInstanceofCondition extends OBooleanExpression {
       return false;
     }
 
-    if (!(record instanceof ODocument)) {
+    if (!(record instanceof ODocument doc)) {
       return false;
     }
-    ODocument doc = (ODocument) record;
     OClass clazz = ODocumentInternal.getImmutableSchemaClass(doc);
     if (clazz == null) {
       return false;
@@ -68,10 +68,9 @@ public class OInstanceofCondition extends OBooleanExpression {
     }
 
     ORecord record = currentRecord.getElement().get().getRecord();
-    if (!(record instanceof ODocument)) {
+    if (!(record instanceof ODocument doc)) {
       return false;
     }
-    ODocument doc = (ODocument) record;
     OClass clazz = ODocumentInternal.getImmutableSchemaClass(doc);
     if (clazz == null) {
       return false;
@@ -127,17 +126,14 @@ public class OInstanceofCondition extends OBooleanExpression {
   @Override
   protected List<Object> getExternalCalculationConditions() {
     if (!left.supportsBasicCalculation()) {
-      return (List) Collections.singletonList(left);
+      return Collections.singletonList(left);
     }
     return Collections.EMPTY_LIST;
   }
 
   @Override
   public boolean needsAliases(Set<String> aliases) {
-    if (left.needsAliases(aliases)) {
-      return true;
-    }
-    return false;
+    return left.needsAliases(aliases);
   }
 
   @Override
@@ -156,10 +152,7 @@ public class OInstanceofCondition extends OBooleanExpression {
 
   @Override
   public boolean refersToParent() {
-    if (left != null && left.refersToParent()) {
-      return true;
-    }
-    return false;
+    return left != null && left.refersToParent();
   }
 
   @Override
@@ -173,17 +166,13 @@ public class OInstanceofCondition extends OBooleanExpression {
 
     OInstanceofCondition that = (OInstanceofCondition) o;
 
-    if (left != null ? !left.equals(that.left) : that.left != null) {
+    if (!Objects.equals(left, that.left)) {
       return false;
     }
-    if (right != null ? !right.equals(that.right) : that.right != null) {
+    if (!Objects.equals(right, that.right)) {
       return false;
     }
-    if (rightString != null ? !rightString.equals(that.rightString) : that.rightString != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(rightString, that.rightString);
   }
 
   @Override

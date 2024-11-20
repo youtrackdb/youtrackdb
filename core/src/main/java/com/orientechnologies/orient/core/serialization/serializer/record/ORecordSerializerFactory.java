@@ -39,7 +39,8 @@ import java.util.Map;
 public class ORecordSerializerFactory {
 
   private static final ORecordSerializerFactory instance = new ORecordSerializerFactory();
-  private Map<String, ORecordSerializer> implementations = new HashMap<String, ORecordSerializer>();
+  private final Map<String, ORecordSerializer> implementations =
+      new HashMap<String, ORecordSerializer>();
 
   private ORecordSerializer defaultRecordSerializer;
 

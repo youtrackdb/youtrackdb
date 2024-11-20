@@ -49,7 +49,7 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
   private static File buildDir;
   private ODatabaseSessionInternal testDocumentTx;
   private ODatabaseSessionInternal baseDocumentTx;
-  private ExecutorService executorService = Executors.newCachedThreadPool();
+  private final ExecutorService executorService = Executors.newCachedThreadPool();
 
   @BeforeClass
   public static void beforeClass() {
@@ -280,9 +280,9 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
 
   public class DataPropagationTask implements Callable<Void> {
 
-    private ODatabaseSessionInternal baseDB;
+    private final ODatabaseSessionInternal baseDB;
     private ODatabaseSessionInternal testDB;
-    private long seed;
+    private final long seed;
 
     public DataPropagationTask(long seed) {
       this.seed = seed;

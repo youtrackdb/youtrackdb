@@ -139,11 +139,7 @@ public abstract class OCommandExecutorAbstract extends OBaseParser implements OC
       throw new OCommandInterruptedException("The command has been interrupted");
     }
 
-    if (iContext != null && !iContext.checkTimeout()) {
-      return false;
-    }
-
-    return true;
+    return iContext == null || iContext.checkTimeout();
   }
 
   public OCommandDistributedReplicateRequest.DISTRIBUTED_RESULT_MGMT

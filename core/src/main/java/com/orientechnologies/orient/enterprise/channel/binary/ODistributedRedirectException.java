@@ -27,9 +27,9 @@ import com.orientechnologies.common.exception.OSystemException;
  */
 public class ODistributedRedirectException extends OSystemException {
 
-  private String fromServer;
-  private String toServer;
-  private String toServerAddress;
+  private final String fromServer;
+  private final String toServer;
+  private final String toServerAddress;
 
   public ODistributedRedirectException(final ODistributedRedirectException exception) {
     super(exception);

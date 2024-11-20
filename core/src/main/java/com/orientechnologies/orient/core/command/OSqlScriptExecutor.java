@@ -135,7 +135,7 @@ public class OSqlScriptExecutor extends OAbstractScriptExecutor {
   public Object executeFunction(
       OCommandContext context, final String functionName, final Map<Object, Object> iArgs) {
 
-    ODatabaseSessionInternal db = (ODatabaseSessionInternal) context.getDatabase();
+    ODatabaseSessionInternal db = context.getDatabase();
     if (db == null) {
       db = ODatabaseRecordThreadLocal.instance().get();
     }

@@ -10,6 +10,7 @@ import com.orientechnologies.orient.core.sql.executor.ODeleteExecutionPlanner;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class ODeleteStatement extends OStatement {
 
@@ -91,17 +92,13 @@ public class ODeleteStatement extends OStatement {
     if (unsafe != that.unsafe) {
       return false;
     }
-    if (fromClause != null ? !fromClause.equals(that.fromClause) : that.fromClause != null) {
+    if (!Objects.equals(fromClause, that.fromClause)) {
       return false;
     }
-    if (whereClause != null ? !whereClause.equals(that.whereClause) : that.whereClause != null) {
+    if (!Objects.equals(whereClause, that.whereClause)) {
       return false;
     }
-    if (limit != null ? !limit.equals(that.limit) : that.limit != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(limit, that.limit);
   }
 
   @Override

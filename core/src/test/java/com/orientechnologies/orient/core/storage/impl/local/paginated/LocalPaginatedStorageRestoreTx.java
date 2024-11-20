@@ -46,7 +46,7 @@ public class LocalPaginatedStorageRestoreTx {
   private ODatabaseSessionInternal baseDocumentTx;
   private File buildDir;
 
-  private ExecutorService executorService = Executors.newCachedThreadPool();
+  private final ExecutorService executorService = Executors.newCachedThreadPool();
 
   private static void copyFile(String from, String to) throws IOException {
     final File fromFile = new File(from);
@@ -151,7 +151,7 @@ public class LocalPaginatedStorageRestoreTx {
     final File testStorageDir = new File(testStoragePath);
     final File copyToDir = new File(copyTo);
 
-    Assert.assertTrue(!copyToDir.exists());
+    Assert.assertFalse(copyToDir.exists());
     Assert.assertTrue(copyToDir.mkdir());
 
     File[] storageFiles = testStorageDir.listFiles();

@@ -11,6 +11,7 @@ import com.orientechnologies.orient.core.sql.executor.OInternalExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class OCreateVertexStatement extends OStatement {
 
@@ -158,29 +159,19 @@ public class OCreateVertexStatement extends OStatement {
 
     OCreateVertexStatement that = (OCreateVertexStatement) o;
 
-    if (targetClass != null ? !targetClass.equals(that.targetClass) : that.targetClass != null) {
+    if (!Objects.equals(targetClass, that.targetClass)) {
       return false;
     }
-    if (targetClusterName != null
-        ? !targetClusterName.equals(that.targetClusterName)
-        : that.targetClusterName != null) {
+    if (!Objects.equals(targetClusterName, that.targetClusterName)) {
       return false;
     }
-    if (targetCluster != null
-        ? !targetCluster.equals(that.targetCluster)
-        : that.targetCluster != null) {
+    if (!Objects.equals(targetCluster, that.targetCluster)) {
       return false;
     }
-    if (returnStatement != null
-        ? !returnStatement.equals(that.returnStatement)
-        : that.returnStatement != null) {
+    if (!Objects.equals(returnStatement, that.returnStatement)) {
       return false;
     }
-    if (insertBody != null ? !insertBody.equals(that.insertBody) : that.insertBody != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(insertBody, that.insertBody);
   }
 
   @Override

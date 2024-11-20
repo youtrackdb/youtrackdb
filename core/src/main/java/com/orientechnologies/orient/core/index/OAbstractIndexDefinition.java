@@ -73,11 +73,7 @@ public abstract class OAbstractIndexDefinition implements OIndexDefinition {
       return false;
     }
 
-    if (nullValuesIgnored != that.nullValuesIgnored) {
-      return false;
-    }
-
-    return true;
+    return nullValuesIgnored == that.nullValuesIgnored;
   }
 
   @Override

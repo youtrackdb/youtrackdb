@@ -10,6 +10,7 @@ import com.orientechnologies.orient.core.sql.executor.OResult;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class OIsDefinedCondition extends OBooleanExpression implements OSimpleBooleanExpression {
@@ -95,10 +96,7 @@ public class OIsDefinedCondition extends OBooleanExpression implements OSimpleBo
 
   @Override
   public boolean refersToParent() {
-    if (expression != null && expression.refersToParent()) {
-      return true;
-    }
-    return false;
+    return expression != null && expression.refersToParent();
   }
 
   @Override
@@ -112,11 +110,7 @@ public class OIsDefinedCondition extends OBooleanExpression implements OSimpleBo
 
     OIsDefinedCondition that = (OIsDefinedCondition) o;
 
-    if (expression != null ? !expression.equals(that.expression) : that.expression != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(expression, that.expression);
   }
 
   @Override

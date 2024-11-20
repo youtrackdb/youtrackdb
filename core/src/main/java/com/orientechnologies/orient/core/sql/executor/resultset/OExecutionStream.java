@@ -18,60 +18,60 @@ public interface OExecutionStream {
 
   void close(OCommandContext ctx);
 
-  public default OExecutionStream map(OResultMapper mapper) {
+  default OExecutionStream map(OResultMapper mapper) {
     return new OMapperExecutionStream(this, mapper);
   }
 
-  public default OExecutionStream filter(OFilterResult filter) {
+  default OExecutionStream filter(OFilterResult filter) {
     return new OFilterExecutionStream(this, filter);
   }
 
-  public default OExecutionStream flatMap(OMapExecutionStream map) {
+  default OExecutionStream flatMap(OMapExecutionStream map) {
     return new OFlatMapExecutionStream(this, map);
   }
 
-  public default OExecutionStream interruptable() {
+  default OExecutionStream interruptable() {
     return new OInterruptResultSet(this);
   }
 
-  public default OExecutionStream limit(long limit) {
+  default OExecutionStream limit(long limit) {
     return new OLimitedExecutionStream(this, limit);
   }
 
-  public static OExecutionStream iterator(Iterator<?> iterator) {
+  static OExecutionStream iterator(Iterator<?> iterator) {
     return new OIteratorExecutionStream(iterator);
   }
 
-  public static OExecutionStream resultIterator(Iterator<OResult> iterator) {
+  static OExecutionStream resultIterator(Iterator<OResult> iterator) {
     return new OResultIteratorExecutionStream(iterator);
   }
 
-  public default OCostMeasureExecutionStream profile(OExecutionStep step) {
+  default OCostMeasureExecutionStream profile(OExecutionStep step) {
     return new OCostMeasureExecutionStream(this, step);
   }
 
-  public static OExecutionStream loadIterator(Iterator<? extends OIdentifiable> iterator) {
+  static OExecutionStream loadIterator(Iterator<? extends OIdentifiable> iterator) {
     return new OLoaderExecutionStream(iterator);
   }
 
-  public static OExecutionStream empty() {
+  static OExecutionStream empty() {
     return OEmptyExecutionStream.EMPTY;
   }
 
-  public static OExecutionStream singleton(OResult result) {
+  static OExecutionStream singleton(OResult result) {
     return new OSingletonExecutionStream(result);
   }
 
-  public interface OnClose {
+  interface OnClose {
 
     void close(OCommandContext ctx);
   }
 
-  public default OExecutionStream onClose(OnClose onClose) {
+  default OExecutionStream onClose(OnClose onClose) {
     return new OnCloseExecutionStream(this, onClose);
   }
 
-  public default Stream<OResult> stream(OCommandContext ctx) {
+  default Stream<OResult> stream(OCommandContext ctx) {
     return StreamSupport.stream(
             new Spliterator<OResult>() {
 

@@ -90,9 +90,8 @@ public abstract class OQueryOperatorEquality extends OQueryOperator {
     // BINARY COMPARISON
     {
       return evaluate((OBinaryField) iLeft, (OBinaryField) iRight, iContext, serializer);
-    } else if (iLeft instanceof OQueryRuntimeValueMulti) {
+    } else if (iLeft instanceof OQueryRuntimeValueMulti left) {
       // LEFT = MULTI
-      final OQueryRuntimeValueMulti left = (OQueryRuntimeValueMulti) iLeft;
 
       if (left.getValues().length == 0) {
         return false;
@@ -134,9 +133,8 @@ public abstract class OQueryOperatorEquality extends OQueryOperator {
         return false;
       }
 
-    } else if (iRight instanceof OQueryRuntimeValueMulti) {
+    } else if (iRight instanceof OQueryRuntimeValueMulti right) {
       // RIGHT = MULTI
-      final OQueryRuntimeValueMulti right = (OQueryRuntimeValueMulti) iRight;
 
       if (right.getValues().length == 0) {
         return false;

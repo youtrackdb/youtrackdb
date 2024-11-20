@@ -61,7 +61,7 @@ public enum OAuditingOperation {
 
   public static OAuditingOperation getByByte(byte value) {
     for (OAuditingOperation op : values()) {
-      if (op.getByte() == value) {
+      if (op.byteOp == value) {
         return op;
       }
     }

@@ -125,7 +125,7 @@ public class AggregateProjectionCalculationStep extends ProjectionCalculationSte
             + spaces
             + "      "
             + projection.toString()
-            + (groupBy == null ? "" : (spaces + "\n  " + groupBy.toString()));
+            + (groupBy == null ? "" : (spaces + "\n  " + groupBy));
     return result;
   }
 

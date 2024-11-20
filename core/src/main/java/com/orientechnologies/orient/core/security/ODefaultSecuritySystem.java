@@ -211,7 +211,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   // Some external security implementations may permit falling back to a
   // default authentication mode if external authentication fails.
   public boolean isDefaultAllowed() {
-    if (isEnabled()) {
+    if (enabled) {
       return allowDefault;
     } else {
       return true; // If the security system is disabled return the original system default.
@@ -222,7 +222,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   public OSecurityUser authenticate(
       ODatabaseSession session, OAuthenticationInfo authenticationInfo) {
     try {
-      for (OSecurityAuthenticator sa : getEnabledAuthenticators()) {
+      for (OSecurityAuthenticator sa : enabledAuthenticators) {
         OSecurityUser principal = sa.authenticate(session, authenticationInfo);
 
         if (principal != null) {
@@ -253,7 +253,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
         }
       }
 
-      for (OSecurityAuthenticator sa : getEnabledAuthenticators()) {
+      for (OSecurityAuthenticator sa : enabledAuthenticators) {
         OSecurityUser principal = sa.authenticate(session, username, password);
 
         if (principal != null) {
@@ -295,11 +295,11 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
       header = "WWW-Authenticate: Basic realm=\"OrientDB Server\"";
     }
 
-    if (isEnabled()) {
+    if (enabled) {
       StringBuilder sb = new StringBuilder();
 
       // Walk through the list of OSecurityAuthenticators.
-      for (OSecurityAuthenticator sa : getEnabledAuthenticators()) {
+      for (OSecurityAuthenticator sa : enabledAuthenticators) {
         String sah = sa.getAuthenticationHeader(databaseName);
 
         if (sah != null && sah.trim().length() > 0) {
@@ -330,10 +330,10 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
       headers.put("WWW-Authenticate", "Basic realm=\"OrientDB Server\"");
     }
 
-    if (isEnabled()) {
+    if (enabled) {
 
       // Walk through the list of OSecurityAuthenticators.
-      for (OSecurityAuthenticator sa : getEnabledAuthenticators()) {
+      for (OSecurityAuthenticator sa : enabledAuthenticators) {
         if (sa.isEnabled()) {
           Map<String, String> currentHeaders = sa.getAuthenticationHeaders(databaseName);
           currentHeaders.entrySet().forEach(entry -> headers.put(entry.getKey(), entry.getValue()));
@@ -436,7 +436,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
     }
 
     // Walk through the list of OSecurityAuthenticators.
-    for (OSecurityAuthenticator sa : getEnabledAuthenticators()) {
+    for (OSecurityAuthenticator sa : enabledAuthenticators) {
       if (sa.isAuthorized(username, resource)) {
         return true;
       }
@@ -470,7 +470,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   // OSecuritySystem (via OServerSecurity)
   // Indicates if passwords should be stored for users.
   public boolean arePasswordsStored() {
-    if (isEnabled()) {
+    if (enabled) {
       return storePasswords;
     } else {
       return true; // If the security system is disabled return the original system default.
@@ -480,7 +480,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   // OSecuritySystem (via OServerSecurity)
   // Indicates if the primary security mechanism supports single sign-on.
   public boolean isSingleSignOnSupported() {
-    if (isEnabled()) {
+    if (enabled) {
       OSecurityAuthenticator priAuth = getPrimaryAuthenticator();
 
       if (priAuth != null) {
@@ -494,7 +494,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   // OSecuritySystem (via OServerSecurity)
   public void validatePassword(final String username, final String password)
       throws OInvalidPasswordException {
-    if (isEnabled()) {
+    if (enabled) {
       synchronized (passwordValidatorSynch) {
         if (passwordValidator != null) {
           passwordValidator.validatePassword(username, password);
@@ -522,7 +522,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
 
   // OServerSecurity
   public OSecurityAuthenticator getAuthenticator(final String authMethod) {
-    for (OSecurityAuthenticator am : getAuthenticatorsList()) {
+    for (OSecurityAuthenticator am : authenticatorsList) {
       // If authMethod is null or an empty string, then return the first OSecurityAuthenticator.
       if (authMethod == null || authMethod.isEmpty()) {
         return am;
@@ -539,8 +539,8 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   // OServerSecurity
   // Returns the first OSecurityAuthenticator in the list.
   public OSecurityAuthenticator getPrimaryAuthenticator() {
-    if (isEnabled()) {
-      List<OSecurityAuthenticator> auth = getAuthenticatorsList();
+    if (enabled) {
+      List<OSecurityAuthenticator> auth = authenticatorsList;
       if (auth.size() > 0) {
         return auth.get(0);
       }
@@ -554,7 +554,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
     OSecurityUser userCfg = null;
 
     // Walk through the list of OSecurityAuthenticators.
-    for (OSecurityAuthenticator sa : getEnabledAuthenticators()) {
+    for (OSecurityAuthenticator sa : enabledAuthenticators) {
       userCfg = sa.getUser(username);
       if (userCfg != null) {
         break;
@@ -800,7 +800,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
     if (configDoc != null) {
       loadComponents();
 
-      if (isEnabled()) {
+      if (enabled) {
         log(OAuditingOperation.SECURITY, null, user, "The security module is now loaded");
       }
     } else {
@@ -813,7 +813,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
     // Loads the top-level configuration properties ("enabled" and "debug").
     loadSecurity();
 
-    if (isEnabled()) {
+    if (enabled) {
       // Loads the "auditing" configuration properties.
       auditingDoc = getSection("auditing");
       reloadAuditingService();

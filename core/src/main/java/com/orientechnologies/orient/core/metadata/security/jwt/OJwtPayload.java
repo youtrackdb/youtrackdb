@@ -7,29 +7,29 @@ package com.orientechnologies.orient.core.metadata.security.jwt;
  */
 public interface OJwtPayload extends OTokenPayload {
 
-  public String getIssuer();
+  String getIssuer();
 
-  public void setIssuer(String iss);
+  void setIssuer(String iss);
 
-  public long getIssuedAt();
+  long getIssuedAt();
 
-  public void setIssuedAt(long iat);
+  void setIssuedAt(long iat);
 
-  public long getNotBefore();
+  long getNotBefore();
 
-  public void setNotBefore(long nbf);
+  void setNotBefore(long nbf);
 
-  public void setUserName(String sub);
+  void setUserName(String sub);
 
-  public String getAudience();
+  String getAudience();
 
-  public void setAudience(String aud);
+  void setAudience(String aud);
 
-  public String getTokenId();
+  String getTokenId();
 
-  public void setTokenId(String jti);
+  void setTokenId(String jti);
 
-  public void setDatabase(String database);
+  void setDatabase(String database);
 
-  public void setDatabaseType(String databaseType);
+  void setDatabaseType(String databaseType);
 }

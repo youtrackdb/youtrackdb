@@ -14,7 +14,7 @@ public class OInfoExecutionStep implements OExecutionStep {
   private String targetNode;
   private String description;
   private long cost;
-  private List<OExecutionStep> subSteps = new ArrayList<>();
+  private final List<OExecutionStep> subSteps = new ArrayList<>();
 
   @Override
   public String getName() {

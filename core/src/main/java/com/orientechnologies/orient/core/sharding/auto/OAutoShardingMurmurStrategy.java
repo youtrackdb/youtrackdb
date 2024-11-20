@@ -32,7 +32,7 @@ import com.orientechnologies.orient.core.storage.index.hashindex.local.OMurmurHa
  */
 public final class OAutoShardingMurmurStrategy implements OAutoShardingStrategy {
 
-  private OMurmurHash3HashFunction hashFunction;
+  private final OMurmurHash3HashFunction hashFunction;
 
   public OAutoShardingMurmurStrategy(final OBinarySerializer keySerializer) {
     hashFunction = new OMurmurHash3HashFunction<Object>(keySerializer);

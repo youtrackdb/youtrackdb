@@ -51,7 +51,7 @@ public class OFunctionLibraryImpl {
 
   public static final String CLASSNAME = "OFunction";
   protected final Map<String, OFunction> functions = new ConcurrentHashMap<String, OFunction>();
-  private AtomicBoolean needReload = new AtomicBoolean(false);
+  private final AtomicBoolean needReload = new AtomicBoolean(false);
 
   public OFunctionLibraryImpl() {}
 

@@ -27,6 +27,7 @@ import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.ORecord;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 /**
  * Iterator to browse multiple clusters forward and backward. Once browsed in a direction, the
@@ -71,8 +72,7 @@ public class ORecordIteratorClusters<REC extends ORecord> extends OIdentifiableI
     beginRange = iBegin;
     endRange = iEnd;
 
-    if ((oldBegin == null ? iBegin == null : oldBegin.equals(iBegin))
-        && (oldEnd == null ? iEnd == null : oldEnd.equals(iEnd))) {
+    if ((Objects.equals(oldBegin, iBegin)) && (Objects.equals(oldEnd, iEnd))) {
       return this;
     }
 

@@ -3,7 +3,6 @@ package com.orientechnologies.orient.core.metadata.security.jwt;
 import com.orientechnologies.orient.core.id.ORID;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
 public interface OTokenPayload {
 
@@ -21,6 +20,5 @@ public interface OTokenPayload {
 
   String getPayloadType();
 
-  void serialize(DataOutputStream output, OTokenMetaInfo serializer)
-      throws UnsupportedEncodingException, IOException;
+  void serialize(DataOutputStream output, OTokenMetaInfo serializer) throws IOException;
 }

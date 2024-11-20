@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -161,11 +162,7 @@ public class OArraySingleValuesSelector extends SimpleNode {
 
     OArraySingleValuesSelector that = (OArraySingleValuesSelector) o;
 
-    if (items != null ? !items.equals(that.items) : that.items != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(items, that.items);
   }
 
   @Override
@@ -219,8 +216,7 @@ public class OArraySingleValuesSelector extends SimpleNode {
           list.remove(val);
         }
       }
-    } else if (currentValue instanceof Set) {
-      Set set = (Set) currentValue;
+    } else if (currentValue instanceof Set set) {
       Iterator iterator = set.iterator();
       int count = 0;
       while (iterator.hasNext()) {

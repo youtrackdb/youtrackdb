@@ -15,6 +15,7 @@ import java.text.Collator;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Created by luigidellaquila on 06/02/15.
@@ -160,7 +161,7 @@ public class OOrderByItem {
         result = 1;
       } else if (aVal instanceof String && bVal instanceof String) {
 
-        ODatabaseSessionInternal internal = ((ODatabaseSessionInternal) ctx.getDatabase());
+        ODatabaseSessionInternal internal = ctx.getDatabase();
         if (stringCollator == null) {
           String language = (String) internal.get(ATTRIBUTES.LOCALELANGUAGE);
           String country = (String) internal.get(ATTRIBUTES.LOCALECOUNTRY);
@@ -201,7 +202,7 @@ public class OOrderByItem {
     result.rid = rid == null ? null : rid.copy();
     result.type = type;
     result.collate = this.collate == null ? null : collate.copy();
-    result.setEdge(this.isEdge);
+    result.isEdge = this.isEdge;
     return result;
   }
 
@@ -218,10 +219,7 @@ public class OOrderByItem {
     if (modifier != null && modifier.refersToParent()) {
       return true;
     }
-    if (collate != null && collate.refersToParent()) {
-      return true;
-    }
-    return false;
+    return collate != null && collate.refersToParent();
   }
 
   public OModifier getModifier() {
@@ -278,22 +276,22 @@ public class OOrderByItem {
 
     OOrderByItem that = (OOrderByItem) o;
 
-    if (alias != null ? !alias.equals(that.alias) : that.alias != null) {
+    if (!Objects.equals(alias, that.alias)) {
       return false;
     }
-    if (modifier != null ? !modifier.equals(that.modifier) : that.modifier != null) {
+    if (!Objects.equals(modifier, that.modifier)) {
       return false;
     }
-    if (recordAttr != null ? !recordAttr.equals(that.recordAttr) : that.recordAttr != null) {
+    if (!Objects.equals(recordAttr, that.recordAttr)) {
       return false;
     }
-    if (rid != null ? !rid.equals(that.rid) : that.rid != null) {
+    if (!Objects.equals(rid, that.rid)) {
       return false;
     }
-    if (type != null ? !type.equals(that.type) : that.type != null) {
+    if (!Objects.equals(type, that.type)) {
       return false;
     }
-    return collate != null ? collate.equals(that.collate) : that.collate == null;
+    return Objects.equals(collate, that.collate);
   }
 
   @Override

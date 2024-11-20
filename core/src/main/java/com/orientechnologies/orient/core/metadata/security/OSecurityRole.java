@@ -12,59 +12,59 @@ import java.util.Set;
 public interface OSecurityRole extends Serializable {
 
   @Deprecated
-  public enum ALLOW_MODES {
+  enum ALLOW_MODES {
     @Deprecated
     DENY_ALL_BUT,
     @Deprecated
     ALLOW_ALL_BUT
   }
 
-  public boolean allow(
+  boolean allow(
       final ORule.ResourceGeneric resourceGeneric,
       String resourceSpecific,
       final int iCRUDOperation);
 
-  public boolean hasRule(final ORule.ResourceGeneric resourceGeneric, String resourceSpecific);
+  boolean hasRule(final ORule.ResourceGeneric resourceGeneric, String resourceSpecific);
 
-  public OSecurityRole addRule(
+  OSecurityRole addRule(
       final ORule.ResourceGeneric resourceGeneric, String resourceSpecific, final int iOperation);
 
-  public OSecurityRole grant(
+  OSecurityRole grant(
       final ORule.ResourceGeneric resourceGeneric, String resourceSpecific, final int iOperation);
 
-  public OSecurityRole revoke(
+  OSecurityRole revoke(
       final ORule.ResourceGeneric resourceGeneric, String resourceSpecific, final int iOperation);
 
   @Deprecated
-  public boolean allow(final String iResource, final int iCRUDOperation);
+  boolean allow(final String iResource, final int iCRUDOperation);
 
   @Deprecated
-  public boolean hasRule(final String iResource);
+  boolean hasRule(final String iResource);
 
   @Deprecated
-  public OSecurityRole addRule(final String iResource, final int iOperation);
+  OSecurityRole addRule(final String iResource, final int iOperation);
 
   @Deprecated
-  public OSecurityRole grant(final String iResource, final int iOperation);
+  OSecurityRole grant(final String iResource, final int iOperation);
 
   @Deprecated
-  public OSecurityRole revoke(final String iResource, final int iOperation);
+  OSecurityRole revoke(final String iResource, final int iOperation);
 
-  public String getName();
+  String getName();
 
-  public OSecurityRole.ALLOW_MODES getMode();
+  OSecurityRole.ALLOW_MODES getMode();
 
-  public OSecurityRole setMode(final OSecurityRole.ALLOW_MODES iMode);
+  OSecurityRole setMode(final OSecurityRole.ALLOW_MODES iMode);
 
-  public OSecurityRole getParentRole();
+  OSecurityRole getParentRole();
 
-  public OSecurityRole setParentRole(final OSecurityRole iParent);
+  OSecurityRole setParentRole(final OSecurityRole iParent);
 
-  public Set<ORule> getRuleSet();
+  Set<ORule> getRuleSet();
 
-  public OIdentifiable getIdentity();
+  OIdentifiable getIdentity();
 
-  public Map<String, OSecurityPolicy> getPolicies();
+  Map<String, OSecurityPolicy> getPolicies();
 
-  public OSecurityPolicy getPolicy(String resource);
+  OSecurityPolicy getPolicy(String resource);
 }

@@ -171,7 +171,7 @@ public class OScriptDocumentDatabaseWrapper {
 
   public ODocument save(final String iString) {
     // return database.save((ORecord) new ODocument().fromJSON(iString));
-    return database.save((ORecord) new ODocument().fromJSON(iString, true));
+    return database.save(new ODocument().fromJSON(iString, true));
   }
 
   public ODocument save(ORecord iRecord) {
@@ -267,15 +267,15 @@ public class OScriptDocumentDatabaseWrapper {
   }
 
   public <RET extends ORecord> RET load(ORID iRecordId) {
-    return (RET) database.load(iRecordId);
+    return database.load(iRecordId);
   }
 
   public <RET extends ORecord> RET load(ORID iRecordId, String iFetchPlan) {
-    return (RET) database.load(iRecordId, iFetchPlan);
+    return database.load(iRecordId, iFetchPlan);
   }
 
   public <RET extends ORecord> RET load(ORID iRecordId, String iFetchPlan, boolean iIgnoreCache) {
-    return (RET) database.load(iRecordId, iFetchPlan, iIgnoreCache);
+    return database.load(iRecordId, iFetchPlan, iIgnoreCache);
   }
 
   public int getDefaultClusterId() {
@@ -283,15 +283,15 @@ public class OScriptDocumentDatabaseWrapper {
   }
 
   public <RET extends ORecord> RET load(final String iRidAsString) {
-    return (RET) database.load(new ORecordId(iRidAsString));
+    return database.load(new ORecordId(iRidAsString));
   }
 
   public <RET extends ORecord> RET load(ORecord iRecord, String iFetchPlan) {
-    return (RET) database.load(iRecord, iFetchPlan);
+    return database.load(iRecord, iFetchPlan);
   }
 
   public <RET extends ORecord> RET load(ORecord iRecord, String iFetchPlan, boolean iIgnoreCache) {
-    return (RET) database.load(iRecord, iFetchPlan, iIgnoreCache);
+    return database.load(iRecord, iFetchPlan, iIgnoreCache);
   }
 
   public ODatabaseSession setDatabaseOwner(ODatabaseSessionInternal iOwner) {

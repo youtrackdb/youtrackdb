@@ -5,6 +5,8 @@ import static org.junit.Assert.assertEquals;
 import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.exception.OSchemaException;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.junit.Test;
 
 /**
@@ -20,11 +22,11 @@ public class AlterSuperclassTest extends BaseMemoryDatabase {
     classA.setAbstract(true);
     OProperty property = classA.createProperty("RevNumberNine", OType.INTEGER);
     OClass classChild = schema.createClass("ChildClass1", classA);
-    assertEquals(classChild.getSuperClasses(), Arrays.asList(classA));
+    assertEquals(classChild.getSuperClasses(), List.of(classA));
     OClass classChild2 = schema.createClass("ChildClass2", classChild);
-    assertEquals(classChild2.getSuperClasses(), Arrays.asList(classChild));
-    classChild2.setSuperClasses(Arrays.asList(classA));
-    assertEquals(classChild2.getSuperClasses(), Arrays.asList(classA));
+    assertEquals(classChild2.getSuperClasses(), List.of(classChild));
+    classChild2.setSuperClasses(List.of(classA));
+    assertEquals(classChild2.getSuperClasses(), List.of(classA));
   }
 
   @Test(expected = OSchemaException.class)
@@ -34,10 +36,10 @@ public class AlterSuperclassTest extends BaseMemoryDatabase {
     classA.setAbstract(true);
     OProperty property = classA.createProperty("RevNumberNine", OType.INTEGER);
     OClass classChild = schema.createClass("ChildClass1", classA);
-    assertEquals(classChild.getSuperClasses(), Arrays.asList(classA));
+    assertEquals(classChild.getSuperClasses(), List.of(classA));
     OClass classChild2 = schema.createClass("ChildClass2");
     classChild2.createProperty("RevNumberNine", OType.STRING);
-    classChild2.setSuperClasses(Arrays.asList(classChild));
+    classChild2.setSuperClasses(List.of(classChild));
   }
 
   @Test(expected = OSchemaException.class)
@@ -45,7 +47,7 @@ public class AlterSuperclassTest extends BaseMemoryDatabase {
     OSchema schema = db.getMetadata().getSchema();
     OClass classA = schema.createClass("ParentClass");
     OClass classChild = schema.createClass("ChildClass1", classA);
-    assertEquals(classChild.getSuperClasses(), Arrays.asList(classA));
+    assertEquals(classChild.getSuperClasses(), Collections.singletonList(classA));
     classChild.addSuperClass(classA);
   }
 
@@ -54,7 +56,7 @@ public class AlterSuperclassTest extends BaseMemoryDatabase {
     OSchema schema = db.getMetadata().getSchema();
     OClass classA = schema.createClass("ParentClass");
     OClass classChild = schema.createClass("ChildClass1", classA);
-    assertEquals(classChild.getSuperClasses(), Arrays.asList(classA));
+    assertEquals(classChild.getSuperClasses(), Collections.singletonList(classA));
     classChild.setSuperClasses(Arrays.asList(classA, classA));
   }
 

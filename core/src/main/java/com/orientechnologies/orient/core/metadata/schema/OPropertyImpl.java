@@ -567,11 +567,7 @@ public abstract class OPropertyImpl implements OProperty {
     if (s.startsWith("'") && s.endsWith("'")) {
       return true;
     }
-    if (s.startsWith("`") && s.endsWith("`")) {
-      return true;
-    }
-
-    return false;
+    return s.startsWith("`") && s.endsWith("`");
   }
 
   public OCollate getCollate() {
@@ -679,17 +675,15 @@ public abstract class OPropertyImpl implements OProperty {
     mandatory = document.containsField("mandatory") ? (Boolean) document.field("mandatory") : false;
     readonly = document.containsField("readonly") ? (Boolean) document.field("readonly") : false;
     notNull = document.containsField("notNull") ? (Boolean) document.field("notNull") : false;
-    defaultValue =
-        (String) (document.containsField("defaultValue") ? document.field("defaultValue") : null);
+    defaultValue = document.containsField("defaultValue") ? document.field("defaultValue") : null;
     if (document.containsField("collate")) {
-      collate = OSQLEngine.getCollate((String) document.field("collate"));
+      collate = OSQLEngine.getCollate(document.field("collate"));
     }
 
-    min = (String) (document.containsField("min") ? document.field("min") : null);
-    max = (String) (document.containsField("max") ? document.field("max") : null);
-    regexp = (String) (document.containsField("regexp") ? document.field("regexp") : null);
-    linkedClassName =
-        (String) (document.containsField("linkedClass") ? document.field("linkedClass") : null);
+    min = document.containsField("min") ? document.field("min") : null;
+    max = document.containsField("max") ? document.field("max") : null;
+    regexp = document.containsField("regexp") ? document.field("regexp") : null;
+    linkedClassName = document.containsField("linkedClass") ? document.field("linkedClass") : null;
     linkedType =
         document.field("linkedType") != null
             ? OType.getById(((Integer) document.field("linkedType")).byteValue())
@@ -699,8 +693,7 @@ public abstract class OPropertyImpl implements OProperty {
     } else {
       customFields = null;
     }
-    description =
-        (String) (document.containsField("description") ? document.field("description") : null);
+    description = document.containsField("description") ? document.field("description") : null;
   }
 
   public Collection<OIndex> getAllIndexes() {
@@ -809,7 +802,7 @@ public abstract class OPropertyImpl implements OProperty {
   }
 
   protected boolean isDistributedCommand() {
-    return !((ODatabaseSessionInternal) getDatabase()).isLocalEnv();
+    return !getDatabase().isLocalEnv();
   }
 
   @Override

@@ -39,7 +39,6 @@ import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.core.id.OEmptyRecordId;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.metadata.OMetadataInternal;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.ORecord;
@@ -208,7 +207,9 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
         if (iValue.length() > 1) {
           int pos = iValue.indexOf(OStringSerializerHelper.CLASS_SEPARATOR);
           if (pos > -1) {
-            ((OMetadataInternal) ODatabaseRecordThreadLocal.instance().get().getMetadata())
+            ODatabaseRecordThreadLocal.instance()
+                .get()
+                .getMetadata()
                 .getImmutableSchemaSnapshot()
                 .getClass(iValue.substring(1, pos));
           } else {
@@ -342,7 +343,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
                     "Cannot load map because the type was not the expected: key="
                         + key
                         + "(type "
-                        + key.getClass().toString()
+                        + key.getClass()
                         + "), value="
                         + mapValueObject
                         + "(type "
@@ -475,7 +476,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
 
       case LINKSET:
         {
-          if (!(iValue instanceof OStringBuilderSerializable)) {
+          if (!(iValue instanceof OStringBuilderSerializable coll)) {
             final Collection<OIdentifiable> coll;
             // FIRST TIME: CONVERT THE ENTIRE COLLECTION
             if (!(iValue instanceof OSet)) {
@@ -491,7 +492,6 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
 
           } else {
             // LAZY SET
-            final OStringBuilderSerializable coll = (OStringBuilderSerializable) iValue;
             coll.toStream(iOutput);
           }
 
@@ -559,7 +559,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
           iOutput.append(OStringSerializerHelper.EMBEDDED_END);
 
         } else if (iValue != null) {
-          iOutput.append(iValue.toString());
+          iOutput.append(iValue);
         }
         PROFILER.stopChrono(
             PROFILER.getProcessMetric("serializer.record.string.embed2string"),

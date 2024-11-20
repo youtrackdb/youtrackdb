@@ -16,7 +16,7 @@ import org.junit.Test;
 
 public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
 
-  private static String DB_NAME = "OMatchStatementExecutionNewTest";
+  private static final String DB_NAME = "OMatchStatementExecutionNewTest";
 
   public void beforeTest() {
     super.beforeTest();
@@ -191,7 +191,6 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
         db.command(
                 "CREATE EDGE ManagerOf from (select from Employee where name = '"
                     + manager
-                    + ""
                     + "') to (select from Department where name = 'department"
                     + dept
                     + "') ")
@@ -209,7 +208,6 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
         db.command(
                 "CREATE EDGE WorksAt from (select from Employee where name = '"
                     + employee
-                    + ""
                     + "') to (select from Department where name = 'department"
                     + dept
                     + "') ")
@@ -275,7 +273,7 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
 
     for (int i = 0; i < 6; i++) {
       OResult item = qResult.next();
-      Assert.assertTrue(item.getPropertyNames().size() == 1);
+      Assert.assertEquals(1, item.getPropertyNames().size());
       OElement person = db.load((ORID) item.getProperty("person"));
 
       String name = person.getProperty("name");
@@ -292,7 +290,7 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
 
     for (int i = 0; i < 2; i++) {
       OResult item = qResult.next();
-      Assert.assertTrue(item.getPropertyNames().size() == 1);
+      Assert.assertEquals(1, item.getPropertyNames().size());
       OElement personId = db.load((ORID) item.getProperty("person"));
 
       ODocument person = personId.getRecord();
@@ -353,7 +351,7 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
     for (int i = 0; i < 2; i++) {
 
       OResult item = qResult.next();
-      Assert.assertTrue(item.getPropertyNames().size() == 1);
+      Assert.assertEquals(1, item.getPropertyNames().size());
       OElement person = db.load((ORID) item.getProperty("person"));
 
       String name = person.getProperty("name");
@@ -883,19 +881,21 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
   }
 
   private ODocument getManager(String personName) {
-    StringBuilder query = new StringBuilder();
-    query.append("select expand(manager) from (");
-    query.append("  match {class:Employee, where: (name = '" + personName + "')}");
-    query.append("  .out('WorksAt')");
-    query.append("  .out('ParentDepartment'){");
-    query.append("      while: (in('ManagerOf').size() == 0),");
-    query.append("      where: (in('ManagerOf').size() > 0)");
-    query.append("  }");
-    query.append("  .in('ManagerOf'){as: manager}");
-    query.append("  return manager");
-    query.append(")");
+    String query =
+        "select expand(manager) from ("
+            + "  match {class:Employee, where: (name = '"
+            + personName
+            + "')}"
+            + "  .out('WorksAt')"
+            + "  .out('ParentDepartment'){"
+            + "      while: (in('ManagerOf').size() == 0),"
+            + "      where: (in('ManagerOf').size() > 0)"
+            + "  }"
+            + "  .in('ManagerOf'){as: manager}"
+            + "  return manager"
+            + ")";
 
-    OResultSet qResult = db.query(query.toString());
+    OResultSet qResult = db.query(query);
     Assert.assertTrue(qResult.hasNext());
     OResult item = qResult.next();
     Assert.assertFalse(qResult.hasNext());
@@ -904,17 +904,19 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
   }
 
   private ODocument getManagerArrows(String personName) {
-    StringBuilder query = new StringBuilder();
-    query.append("select expand(manager) from (");
-    query.append("  match {class:Employee, where: (name = '" + personName + "')}");
-    query.append("  -WorksAt->{}-ParentDepartment->{");
-    query.append("      while: (in('ManagerOf').size() == 0),");
-    query.append("      where: (in('ManagerOf').size() > 0)");
-    query.append("  }<-ManagerOf-{as: manager}");
-    query.append("  return manager");
-    query.append(")");
+    String query =
+        "select expand(manager) from ("
+            + "  match {class:Employee, where: (name = '"
+            + personName
+            + "')}"
+            + "  -WorksAt->{}-ParentDepartment->{"
+            + "      while: (in('ManagerOf').size() == 0),"
+            + "      where: (in('ManagerOf').size() > 0)"
+            + "  }<-ManagerOf-{as: manager}"
+            + "  return manager"
+            + ")";
 
-    OResultSet qResult = db.query(query.toString());
+    OResultSet qResult = db.query(query);
     printExecutionPlan(qResult);
     Assert.assertTrue(qResult.hasNext());
     OResult item = qResult.next();
@@ -941,20 +943,22 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
   }
 
   private OResult getManager2(String personName) {
-    StringBuilder query = new StringBuilder();
-    query.append("select expand(manager) from (");
-    query.append("  match {class:Employee, where: (name = '" + personName + "')}");
-    query.append("   .( out('WorksAt')");
-    query.append("     .out('ParentDepartment'){");
-    query.append("       while: (in('ManagerOf').size() == 0),");
-    query.append("       where: (in('ManagerOf').size() > 0)");
-    query.append("     }");
-    query.append("   )");
-    query.append("  .in('ManagerOf'){as: manager}");
-    query.append("  return manager");
-    query.append(")");
+    String query =
+        "select expand(manager) from ("
+            + "  match {class:Employee, where: (name = '"
+            + personName
+            + "')}"
+            + "   .( out('WorksAt')"
+            + "     .out('ParentDepartment'){"
+            + "       while: (in('ManagerOf').size() == 0),"
+            + "       where: (in('ManagerOf').size() > 0)"
+            + "     }"
+            + "   )"
+            + "  .in('ManagerOf'){as: manager}"
+            + "  return manager"
+            + ")";
 
-    OResultSet qResult = db.query(query.toString());
+    OResultSet qResult = db.query(query);
     Assert.assertTrue(qResult.hasNext());
     OResult item = qResult.next();
     Assert.assertFalse(qResult.hasNext());
@@ -963,18 +967,20 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
   }
 
   private OResult getManager2Arrows(String personName) {
-    StringBuilder query = new StringBuilder();
-    query.append("select expand(manager) from (");
-    query.append("  match {class:Employee, where: (name = '" + personName + "')}");
-    query.append("   .( -WorksAt->{}-ParentDepartment->{");
-    query.append("       while: (in('ManagerOf').size() == 0),");
-    query.append("       where: (in('ManagerOf').size() > 0)");
-    query.append("     }");
-    query.append("   )<-ManagerOf-{as: manager}");
-    query.append("  return manager");
-    query.append(")");
+    String query =
+        "select expand(manager) from ("
+            + "  match {class:Employee, where: (name = '"
+            + personName
+            + "')}"
+            + "   .( -WorksAt->{}-ParentDepartment->{"
+            + "       while: (in('ManagerOf').size() == 0),"
+            + "       where: (in('ManagerOf').size() > 0)"
+            + "     }"
+            + "   )<-ManagerOf-{as: manager}"
+            + "  return manager"
+            + ")";
 
-    OResultSet qResult = db.query(query.toString());
+    OResultSet qResult = db.query(query);
     Assert.assertTrue(qResult.hasNext());
     OResult item = qResult.next();
     Assert.assertFalse(qResult.hasNext());
@@ -1014,19 +1020,21 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
   }
 
   private OResultSet getManagedBy(String managerName) {
-    StringBuilder query = new StringBuilder();
-    query.append("select expand(managed) from (");
-    query.append("  match {class:Employee, where: (name = '" + managerName + "')}");
-    query.append("  .out('ManagerOf')");
-    query.append("  .in('ParentDepartment'){");
-    query.append("      while: ($depth = 0 or in('ManagerOf').size() = 0),");
-    query.append("      where: ($depth = 0 or in('ManagerOf').size() = 0)");
-    query.append("  }");
-    query.append("  .in('WorksAt'){as: managed}");
-    query.append("  return managed");
-    query.append(")");
+    String query =
+        "select expand(managed) from ("
+            + "  match {class:Employee, where: (name = '"
+            + managerName
+            + "')}"
+            + "  .out('ManagerOf')"
+            + "  .in('ParentDepartment'){"
+            + "      while: ($depth = 0 or in('ManagerOf').size() = 0),"
+            + "      where: ($depth = 0 or in('ManagerOf').size() = 0)"
+            + "  }"
+            + "  .in('WorksAt'){as: managed}"
+            + "  return managed"
+            + ")";
 
-    return db.query(query.toString());
+    return db.query(query);
   }
 
   @Test
@@ -1060,17 +1068,19 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
   }
 
   private OResultSet getManagedByArrows(String managerName) {
-    StringBuilder query = new StringBuilder();
-    query.append("select expand(managed) from (");
-    query.append("  match {class:Employee, where: (name = '" + managerName + "')}");
-    query.append("  -ManagerOf->{}<-ParentDepartment-{");
-    query.append("      while: ($depth = 0 or in('ManagerOf').size() = 0),");
-    query.append("      where: ($depth = 0 or in('ManagerOf').size() = 0)");
-    query.append("  }<-WorksAt-{as: managed}");
-    query.append("  return managed");
-    query.append(")");
+    String query =
+        "select expand(managed) from ("
+            + "  match {class:Employee, where: (name = '"
+            + managerName
+            + "')}"
+            + "  -ManagerOf->{}<-ParentDepartment-{"
+            + "      while: ($depth = 0 or in('ManagerOf').size() = 0),"
+            + "      where: ($depth = 0 or in('ManagerOf').size() = 0)"
+            + "  }<-WorksAt-{as: managed}"
+            + "  return managed"
+            + ")";
 
-    return db.query(query.toString());
+    return db.query(query);
   }
 
   @Test
@@ -1104,19 +1114,21 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
   }
 
   private OResultSet getManagedBy2(String managerName) {
-    StringBuilder query = new StringBuilder();
-    query.append("select expand(managed) from (");
-    query.append("  match {class:Employee, where: (name = '" + managerName + "')}");
-    query.append("  .out('ManagerOf')");
-    query.append("  .(inE('ParentDepartment').outV()){");
-    query.append("      while: ($depth = 0 or in('ManagerOf').size() = 0),");
-    query.append("      where: ($depth = 0 or in('ManagerOf').size() = 0)");
-    query.append("  }");
-    query.append("  .in('WorksAt'){as: managed}");
-    query.append("  return managed");
-    query.append(")");
+    String query =
+        "select expand(managed) from ("
+            + "  match {class:Employee, where: (name = '"
+            + managerName
+            + "')}"
+            + "  .out('ManagerOf')"
+            + "  .(inE('ParentDepartment').outV()){"
+            + "      while: ($depth = 0 or in('ManagerOf').size() = 0),"
+            + "      where: ($depth = 0 or in('ManagerOf').size() = 0)"
+            + "  }"
+            + "  .in('WorksAt'){as: managed}"
+            + "  return managed"
+            + ")";
 
-    return db.query(query.toString());
+    return db.query(query);
   }
 
   @Test
@@ -1150,33 +1162,35 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
   }
 
   private OResultSet getManagedBy2Arrows(String managerName) {
-    StringBuilder query = new StringBuilder();
-    query.append("select expand(managed) from (");
-    query.append("  match {class:Employee, where: (name = '" + managerName + "')}");
-    query.append("  -ManagerOf->{}");
-    query.append("  .(inE('ParentDepartment').outV()){");
-    query.append("      while: ($depth = 0 or in('ManagerOf').size() = 0),");
-    query.append("      where: ($depth = 0 or in('ManagerOf').size() = 0)");
-    query.append("  }<-WorksAt-{as: managed}");
-    query.append("  return managed");
-    query.append(")");
+    String query =
+        "select expand(managed) from ("
+            + "  match {class:Employee, where: (name = '"
+            + managerName
+            + "')}"
+            + "  -ManagerOf->{}"
+            + "  .(inE('ParentDepartment').outV()){"
+            + "      while: ($depth = 0 or in('ManagerOf').size() = 0),"
+            + "      where: ($depth = 0 or in('ManagerOf').size() = 0)"
+            + "  }<-WorksAt-{as: managed}"
+            + "  return managed"
+            + ")";
 
-    return db.query(query.toString());
+    return db.query(query);
   }
 
   @Test
   public void testTriangle1() {
     initTriangleTest();
-    StringBuilder query = new StringBuilder();
-    query.append("match ");
-    query.append("{class:TriangleV, as: friend1, where: (uid = 0)}");
-    query.append("  .out('TriangleE'){as: friend2}");
-    query.append("  .out('TriangleE'){as: friend3},");
-    query.append("{class:TriangleV, as: friend1}");
-    query.append("  .out('TriangleE'){as: friend3}");
-    query.append("return $matches");
+    String query =
+        "match "
+            + "{class:TriangleV, as: friend1, where: (uid = 0)}"
+            + "  .out('TriangleE'){as: friend2}"
+            + "  .out('TriangleE'){as: friend3},"
+            + "{class:TriangleV, as: friend1}"
+            + "  .out('TriangleE'){as: friend3}"
+            + "return $matches";
 
-    OResultSet result = db.query(query.toString());
+    OResultSet result = db.query(query);
 
     printExecutionPlan(result);
 
@@ -1189,15 +1203,12 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
   @Test
   public void testTriangle1Arrows() {
     initTriangleTest();
-    StringBuilder query = new StringBuilder();
-    query.append("match ");
-    query.append(
-        "{class:TriangleV, as: friend1, where: (uid = 0)} -TriangleE-> {as: friend2} -TriangleE->"
-            + " {as: friend3},");
-    query.append("{class:TriangleV, as: friend1} -TriangleE-> {as: friend3}");
-    query.append("return $matches");
+    String query =
+        "match {class:TriangleV, as: friend1, where: (uid = 0)} -TriangleE-> {as: friend2}"
+            + " -TriangleE-> {as: friend3},{class:TriangleV, as: friend1} -TriangleE-> {as:"
+            + " friend3}return $matches";
 
-    OResultSet result = db.query(query.toString());
+    OResultSet result = db.query(query);
     Assert.assertTrue(result.hasNext());
     result.next();
     Assert.assertFalse(result.hasNext());
@@ -1207,16 +1218,16 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
   @Test
   public void testTriangle2Old() {
     initTriangleTest();
-    StringBuilder query = new StringBuilder();
-    query.append("match ");
-    query.append("{class:TriangleV, as: friend1}");
-    query.append("  .out('TriangleE'){class:TriangleV, as: friend2, where: (uid = 1)}");
-    query.append("  .out('TriangleE'){as: friend3},");
-    query.append("{class:TriangleV, as: friend1}");
-    query.append("  .out('TriangleE'){as: friend3}");
-    query.append("return $matches");
+    String query =
+        "match "
+            + "{class:TriangleV, as: friend1}"
+            + "  .out('TriangleE'){class:TriangleV, as: friend2, where: (uid = 1)}"
+            + "  .out('TriangleE'){as: friend3},"
+            + "{class:TriangleV, as: friend1}"
+            + "  .out('TriangleE'){as: friend3}"
+            + "return $matches";
 
-    OResultSet result = db.query(query.toString());
+    OResultSet result = db.query(query);
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
     OResult doc = result.next();
@@ -1232,16 +1243,16 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
   @Test
   public void testTriangle2() {
     initTriangleTest();
-    StringBuilder query = new StringBuilder();
-    query.append("match ");
-    query.append("{class:TriangleV, as: friend1}");
-    query.append("  .out('TriangleE'){class:TriangleV, as: friend2, where: (uid = 1)}");
-    query.append("  .out('TriangleE'){as: friend3},");
-    query.append("{class:TriangleV, as: friend1}");
-    query.append("  .out('TriangleE'){as: friend3}");
-    query.append("return $patterns");
+    String query =
+        "match "
+            + "{class:TriangleV, as: friend1}"
+            + "  .out('TriangleE'){class:TriangleV, as: friend2, where: (uid = 1)}"
+            + "  .out('TriangleE'){as: friend3},"
+            + "{class:TriangleV, as: friend1}"
+            + "  .out('TriangleE'){as: friend3}"
+            + "return $patterns";
 
-    OResultSet result = db.query(query.toString());
+    OResultSet result = db.query(query);
     Assert.assertTrue(result.hasNext());
     OResult doc = result.next();
     Assert.assertFalse(result.hasNext());
@@ -1257,16 +1268,16 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
   @Test
   public void testTriangle2Arrows() {
     initTriangleTest();
-    StringBuilder query = new StringBuilder();
-    query.append("match ");
-    query.append("{class:TriangleV, as: friend1}");
-    query.append("  -TriangleE->{class:TriangleV, as: friend2, where: (uid = 1)}");
-    query.append("  -TriangleE->{as: friend3},");
-    query.append("{class:TriangleV, as: friend1}");
-    query.append("  -TriangleE->{as: friend3}");
-    query.append("return $matches");
+    String query =
+        "match "
+            + "{class:TriangleV, as: friend1}"
+            + "  -TriangleE->{class:TriangleV, as: friend2, where: (uid = 1)}"
+            + "  -TriangleE->{as: friend3},"
+            + "{class:TriangleV, as: friend1}"
+            + "  -TriangleE->{as: friend3}"
+            + "return $matches";
 
-    OResultSet result = db.query(query.toString());
+    OResultSet result = db.query(query);
     Assert.assertTrue(result.hasNext());
     OResult doc = result.next();
     Assert.assertFalse(result.hasNext());
@@ -1282,16 +1293,16 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
   @Test
   public void testTriangle3() {
     initTriangleTest();
-    StringBuilder query = new StringBuilder();
-    query.append("match ");
-    query.append("{class:TriangleV, as: friend1}");
-    query.append("  -TriangleE->{as: friend2}");
-    query.append("  -TriangleE->{as: friend3, where: (uid = 2)},");
-    query.append("{class:TriangleV, as: friend1}");
-    query.append("  -TriangleE->{as: friend3}");
-    query.append("return $matches");
+    String query =
+        "match "
+            + "{class:TriangleV, as: friend1}"
+            + "  -TriangleE->{as: friend2}"
+            + "  -TriangleE->{as: friend3, where: (uid = 2)},"
+            + "{class:TriangleV, as: friend1}"
+            + "  -TriangleE->{as: friend3}"
+            + "return $matches";
 
-    OResultSet result = db.query(query.toString());
+    OResultSet result = db.query(query);
     Assert.assertTrue(result.hasNext());
     OResult doc = result.next();
     Assert.assertFalse(result.hasNext());
@@ -1301,16 +1312,16 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
   @Test
   public void testTriangle4() {
     initTriangleTest();
-    StringBuilder query = new StringBuilder();
-    query.append("match ");
-    query.append("{class:TriangleV, as: friend1}");
-    query.append("  .out('TriangleE'){as: friend2, where: (uid = 1)}");
-    query.append("  .out('TriangleE'){as: friend3},");
-    query.append("{class:TriangleV, as: friend1}");
-    query.append("  .out('TriangleE'){as: friend3}");
-    query.append("return $matches");
+    String query =
+        "match "
+            + "{class:TriangleV, as: friend1}"
+            + "  .out('TriangleE'){as: friend2, where: (uid = 1)}"
+            + "  .out('TriangleE'){as: friend3},"
+            + "{class:TriangleV, as: friend1}"
+            + "  .out('TriangleE'){as: friend3}"
+            + "return $matches";
 
-    OResultSet result = db.query(query.toString());
+    OResultSet result = db.query(query);
     Assert.assertTrue(result.hasNext());
     OResult doc = result.next();
     Assert.assertFalse(result.hasNext());
@@ -1320,16 +1331,16 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
   @Test
   public void testTriangle4Arrows() {
     initTriangleTest();
-    StringBuilder query = new StringBuilder();
-    query.append("match ");
-    query.append("{class:TriangleV, as: friend1}");
-    query.append("  -TriangleE->{as: friend2, where: (uid = 1)}");
-    query.append("  -TriangleE->{as: friend3},");
-    query.append("{class:TriangleV, as: friend1}");
-    query.append("  -TriangleE->{as: friend3}");
-    query.append("return $matches");
+    String query =
+        "match "
+            + "{class:TriangleV, as: friend1}"
+            + "  -TriangleE->{as: friend2, where: (uid = 1)}"
+            + "  -TriangleE->{as: friend3},"
+            + "{class:TriangleV, as: friend1}"
+            + "  -TriangleE->{as: friend3}"
+            + "return $matches";
 
-    OResultSet result = db.query(query.toString());
+    OResultSet result = db.query(query);
     Assert.assertTrue(result.hasNext());
     OResult doc = result.next();
     Assert.assertFalse(result.hasNext());
@@ -1339,16 +1350,16 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
   @Test
   public void testTriangleWithEdges4() {
     initTriangleTest();
-    StringBuilder query = new StringBuilder();
-    query.append("match ");
-    query.append("{class:TriangleV, as: friend1}");
-    query.append("  .outE('TriangleE').inV(){as: friend2, where: (uid = 1)}");
-    query.append("  .outE('TriangleE').inV(){as: friend3},");
-    query.append("{class:TriangleV, as: friend1}");
-    query.append("  .outE('TriangleE').inV(){as: friend3}");
-    query.append("return $matches");
+    String query =
+        "match "
+            + "{class:TriangleV, as: friend1}"
+            + "  .outE('TriangleE').inV(){as: friend2, where: (uid = 1)}"
+            + "  .outE('TriangleE').inV(){as: friend3},"
+            + "{class:TriangleV, as: friend1}"
+            + "  .outE('TriangleE').inV(){as: friend3}"
+            + "return $matches";
 
-    OResultSet result = db.query(query.toString());
+    OResultSet result = db.query(query);
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
     OResult doc = result.next();
@@ -1359,13 +1370,13 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
   @Test
   public void testCartesianProduct() {
     initTriangleTest();
-    StringBuilder query = new StringBuilder();
-    query.append("match ");
-    query.append("{class:TriangleV, as: friend1, where:(uid = 1)},");
-    query.append("{class:TriangleV, as: friend2, where:(uid = 2 or uid = 3)}");
-    query.append("return $matches");
+    String query =
+        "match "
+            + "{class:TriangleV, as: friend1, where:(uid = 1)},"
+            + "{class:TriangleV, as: friend2, where:(uid = 2 or uid = 3)}"
+            + "return $matches";
 
-    OResultSet result = db.query(query.toString());
+    OResultSet result = db.query(query);
     printExecutionPlan(result);
 
     for (int i = 0; i < 2; i++) {
@@ -1381,12 +1392,9 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
   @Test
   public void testNoPrefetch() {
     initEdgeIndexTest();
-    StringBuilder query = new StringBuilder();
-    query.append("match ");
-    query.append("{class:IndexedVertex, as: one}");
-    query.append("return $patterns");
+    String query = "match " + "{class:IndexedVertex, as: one}" + "return $patterns";
 
-    OResultSet result = db.query(query.toString());
+    OResultSet result = db.query(query);
     printExecutionPlan(result);
 
     result
@@ -1408,13 +1416,13 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
   @Test
   public void testCartesianProductLimit() {
     initTriangleTest();
-    StringBuilder query = new StringBuilder();
-    query.append("match ");
-    query.append("{class:TriangleV, as: friend1, where:(uid = 1)},");
-    query.append("{class:TriangleV, as: friend2, where:(uid = 2 or uid = 3)}");
-    query.append("return $matches LIMIT 1");
+    String query =
+        "match "
+            + "{class:TriangleV, as: friend1, where:(uid = 1)},"
+            + "{class:TriangleV, as: friend2, where:(uid = 2 or uid = 3)}"
+            + "return $matches LIMIT 1";
 
-    OResultSet result = db.query(query.toString());
+    OResultSet result = db.query(query);
 
     Assert.assertTrue(result.hasNext());
     OResult d = result.next();
@@ -1427,12 +1435,12 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
   @Test
   public void testArrayNumber() {
     initTriangleTest();
-    StringBuilder query = new StringBuilder();
-    query.append("match ");
-    query.append("{class:TriangleV, as: friend1, where: (uid = 0)}");
-    query.append("return friend1.out('TriangleE')[0] as foo");
+    String query =
+        "match "
+            + "{class:TriangleV, as: friend1, where: (uid = 0)}"
+            + "return friend1.out('TriangleE')[0] as foo";
 
-    OResultSet result = db.query(query.toString());
+    OResultSet result = db.query(query);
 
     Assert.assertTrue(result.hasNext());
 
@@ -1446,12 +1454,12 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
   @Test
   public void testArraySingleSelectors2() {
     initTriangleTest();
-    StringBuilder query = new StringBuilder();
-    query.append("match ");
-    query.append("{class:TriangleV, as: friend1, where: (uid = 0)}");
-    query.append("return friend1.out('TriangleE')[0,1] as foo");
+    String query =
+        "match "
+            + "{class:TriangleV, as: friend1, where: (uid = 0)}"
+            + "return friend1.out('TriangleE')[0,1] as foo";
 
-    OResultSet result = db.query(query.toString());
+    OResultSet result = db.query(query);
     Assert.assertTrue(result.hasNext());
     OResult doc = result.next();
     Assert.assertFalse(result.hasNext());
@@ -1465,12 +1473,12 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
   @Test
   public void testArrayRangeSelectors1() {
     initTriangleTest();
-    StringBuilder query = new StringBuilder();
-    query.append("match ");
-    query.append("{class:TriangleV, as: friend1, where: (uid = 0)}");
-    query.append("return friend1.out('TriangleE')[0..1] as foo");
+    String query =
+        "match "
+            + "{class:TriangleV, as: friend1, where: (uid = 0)}"
+            + "return friend1.out('TriangleE')[0..1] as foo";
 
-    OResultSet result = db.query(query.toString());
+    OResultSet result = db.query(query);
     Assert.assertTrue(result.hasNext());
     OResult doc = result.next();
     Assert.assertFalse(result.hasNext());
@@ -1485,12 +1493,12 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
   @Test
   public void testArrayRange2() {
     initTriangleTest();
-    StringBuilder query = new StringBuilder();
-    query.append("match ");
-    query.append("{class:TriangleV, as: friend1, where: (uid = 0)}");
-    query.append("return friend1.out('TriangleE')[0..2] as foo");
+    String query =
+        "match "
+            + "{class:TriangleV, as: friend1, where: (uid = 0)}"
+            + "return friend1.out('TriangleE')[0..2] as foo";
 
-    OResultSet result = db.query(query.toString());
+    OResultSet result = db.query(query);
     Assert.assertTrue(result.hasNext());
     OResult doc = result.next();
     Assert.assertFalse(result.hasNext());
@@ -1505,12 +1513,12 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
   @Test
   public void testArrayRange3() {
     initTriangleTest();
-    StringBuilder query = new StringBuilder();
-    query.append("match ");
-    query.append("{class:TriangleV, as: friend1, where: (uid = 0)}");
-    query.append("return friend1.out('TriangleE')[0..3] as foo");
+    String query =
+        "match "
+            + "{class:TriangleV, as: friend1, where: (uid = 0)}"
+            + "return friend1.out('TriangleE')[0..3] as foo";
 
-    OResultSet result = db.query(query.toString());
+    OResultSet result = db.query(query);
     Assert.assertTrue(result.hasNext());
     OResult doc = result.next();
     Assert.assertFalse(result.hasNext());
@@ -1525,12 +1533,12 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
   @Test
   public void testConditionInSquareBrackets() {
     initTriangleTest();
-    StringBuilder query = new StringBuilder();
-    query.append("match ");
-    query.append("{class:TriangleV, as: friend1, where: (uid = 0)}");
-    query.append("return friend1.out('TriangleE')[uid = 2] as foo");
+    String query =
+        "match "
+            + "{class:TriangleV, as: friend1, where: (uid = 0)}"
+            + "return friend1.out('TriangleE')[uid = 2] as foo";
 
-    OResultSet result = db.query(query.toString());
+    OResultSet result = db.query(query);
     Assert.assertTrue(result.hasNext());
     OResult doc = result.next();
     Assert.assertFalse(result.hasNext());
@@ -1547,13 +1555,13 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
   @Test
   public void testIndexedEdge() {
     initEdgeIndexTest();
-    StringBuilder query = new StringBuilder();
-    query.append("match ");
-    query.append("{class:IndexedVertex, as: one, where: (uid = 0)}");
-    query.append(".out('IndexedEdge'){class:IndexedVertex, as: two, where: (uid = 1)}");
-    query.append("return one, two");
+    String query =
+        "match "
+            + "{class:IndexedVertex, as: one, where: (uid = 0)}"
+            + ".out('IndexedEdge'){class:IndexedVertex, as: two, where: (uid = 1)}"
+            + "return one, two";
 
-    OResultSet result = db.query(query.toString());
+    OResultSet result = db.query(query);
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
     OResult doc = result.next();
@@ -1564,13 +1572,13 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
   @Test
   public void testIndexedEdgeArrows() {
     initEdgeIndexTest();
-    StringBuilder query = new StringBuilder();
-    query.append("match ");
-    query.append("{class:IndexedVertex, as: one, where: (uid = 0)}");
-    query.append("-IndexedEdge->{class:IndexedVertex, as: two, where: (uid = 1)}");
-    query.append("return one, two");
+    String query =
+        "match "
+            + "{class:IndexedVertex, as: one, where: (uid = 0)}"
+            + "-IndexedEdge->{class:IndexedVertex, as: two, where: (uid = 1)}"
+            + "return one, two";
 
-    OResultSet result = db.query(query.toString());
+    OResultSet result = db.query(query);
     Assert.assertTrue(result.hasNext());
     OResult doc = result.next();
     Assert.assertFalse(result.hasNext());
@@ -1580,12 +1588,12 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
   @Test
   public void testJson() {
     initEdgeIndexTest();
-    StringBuilder query = new StringBuilder();
-    query.append("match ");
-    query.append("{class:IndexedVertex, as: one, where: (uid = 0)} ");
-    query.append("return {'name':'foo', 'uuid':one.uid}");
+    String query =
+        "match "
+            + "{class:IndexedVertex, as: one, where: (uid = 0)} "
+            + "return {'name':'foo', 'uuid':one.uid}";
 
-    OResultSet result = db.query(query.toString());
+    OResultSet result = db.query(query);
     Assert.assertTrue(result.hasNext());
     OResult doc = result.next();
     Assert.assertFalse(result.hasNext());
@@ -1599,12 +1607,12 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
   @Test
   public void testJson2() {
     initEdgeIndexTest();
-    StringBuilder query = new StringBuilder();
-    query.append("match ");
-    query.append("{class:IndexedVertex, as: one, where: (uid = 0)} ");
-    query.append("return {'name':'foo', 'sub': {'uuid':one.uid}}");
+    String query =
+        "match "
+            + "{class:IndexedVertex, as: one, where: (uid = 0)} "
+            + "return {'name':'foo', 'sub': {'uuid':one.uid}}";
 
-    OResultSet result = db.query(query.toString());
+    OResultSet result = db.query(query);
     Assert.assertTrue(result.hasNext());
     OResult doc = result.next();
     Assert.assertFalse(result.hasNext());
@@ -1617,12 +1625,12 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
   @Test
   public void testJson3() {
     initEdgeIndexTest();
-    StringBuilder query = new StringBuilder();
-    query.append("match ");
-    query.append("{class:IndexedVertex, as: one, where: (uid = 0)} ");
-    query.append("return {'name':'foo', 'sub': [{'uuid':one.uid}]}");
+    String query =
+        "match "
+            + "{class:IndexedVertex, as: one, where: (uid = 0)} "
+            + "return {'name':'foo', 'sub': [{'uuid':one.uid}]}";
 
-    OResultSet result = db.query(query.toString());
+    OResultSet result = db.query(query);
     Assert.assertTrue(result.hasNext());
     OResult doc = result.next();
     Assert.assertFalse(result.hasNext());
@@ -1727,15 +1735,17 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
   }
 
   private OResultSet getManagedElements(String managerName) {
-    StringBuilder query = new StringBuilder();
-    query.append("  match {class:Employee, as:boss, where: (name = '" + managerName + "')}");
-    query.append("  -ManagerOf->{}<-ParentDepartment-{");
-    query.append("      while: ($depth = 0 or in('ManagerOf').size() = 0),");
-    query.append("      where: ($depth = 0 or in('ManagerOf').size() = 0)");
-    query.append("  }<-WorksAt-{as: managed}");
-    query.append("  return distinct $elements");
+    String query =
+        "  match {class:Employee, as:boss, where: (name = '"
+            + managerName
+            + "')}"
+            + "  -ManagerOf->{}<-ParentDepartment-{"
+            + "      while: ($depth = 0 or in('ManagerOf').size() = 0),"
+            + "      where: ($depth = 0 or in('ManagerOf').size() = 0)"
+            + "  }<-WorksAt-{as: managed}"
+            + "  return distinct $elements";
 
-    return db.query(query.toString());
+    return db.query(query);
   }
 
   @Test
@@ -1777,7 +1787,7 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
     for (int i = 0; i < 6; i++) {
       Assert.assertTrue(qResult.hasNext());
       OResult doc = qResult.next();
-      Assert.assertTrue(doc.getPropertyNames().size() == 2);
+      Assert.assertEquals(2, doc.getPropertyNames().size());
       OElement person = db.load((ORID) doc.getProperty("person"));
 
       String name = person.getProperty("name");
@@ -1795,7 +1805,7 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
     for (int i = 0; i < 6; i++) {
       Assert.assertTrue(qResult.hasNext());
       OResult doc = qResult.next();
-      Assert.assertTrue(doc.getPropertyNames().size() == 2);
+      Assert.assertEquals(2, doc.getPropertyNames().size());
       OElement person = db.load((ORID) doc.getProperty("person"));
 
       String name = person.getProperty("name");
@@ -2000,7 +2010,7 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
     for (int i = 0; i < 4; i++) {
       Assert.assertTrue(result.hasNext());
       OResult item = result.next();
-      sum += (int) item.getProperty("num");
+      sum += item.<Integer>getProperty("num");
     }
 
     Assert.assertFalse(result.hasNext());
@@ -2394,15 +2404,17 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
   }
 
   private OResultSet getManagedPathElements(String managerName) {
-    StringBuilder query = new StringBuilder();
-    query.append("  match {class:Employee, as:boss, where: (name = '" + managerName + "')}");
-    query.append("  -ManagerOf->{}<-ParentDepartment-{");
-    query.append("      while: ($depth = 0 or in('ManagerOf').size() = 0),");
-    query.append("      where: ($depth = 0 or in('ManagerOf').size() = 0)");
-    query.append("  }<-WorksAt-{as: managed}");
-    query.append("  return distinct $pathElements");
+    String query =
+        "  match {class:Employee, as:boss, where: (name = '"
+            + managerName
+            + "')}"
+            + "  -ManagerOf->{}<-ParentDepartment-{"
+            + "      while: ($depth = 0 or in('ManagerOf').size() = 0),"
+            + "      where: ($depth = 0 or in('ManagerOf').size() = 0)"
+            + "  }<-WorksAt-{as: managed}"
+            + "  return distinct $pathElements";
 
-    return db.query(query.toString());
+    return db.query(query);
   }
 
   @Test

@@ -23,7 +23,6 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.traverse.OTraverseRecordProcess;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
-import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionConfigurableAbstract;
@@ -104,7 +103,7 @@ public class OSQLFunctionTraversedElement extends OSQLFunctionConfigurableAbstra
           final OIdentifiable record = ((OTraverseRecordProcess) o).getTarget();
 
           if (iClassName == null
-              || ODocumentInternal.getImmutableSchemaClass((ODocument) record.getRecord())
+              || ODocumentInternal.getImmutableSchemaClass(record.getRecord())
                   .isSubClassOf(iClassName)) {
             if (i <= beginIndex) {
               if (items == 1) {
@@ -118,11 +117,10 @@ public class OSQLFunctionTraversedElement extends OSQLFunctionConfigurableAbstra
             }
             i--;
           }
-        } else if (o instanceof OIdentifiable) {
-          final OIdentifiable record = (OIdentifiable) o;
+        } else if (o instanceof OIdentifiable record) {
 
           if (iClassName == null
-              || ODocumentInternal.getImmutableSchemaClass((ODocument) record.getRecord())
+              || ODocumentInternal.getImmutableSchemaClass(record.getRecord())
                   .isSubClassOf(iClassName)) {
             if (i <= beginIndex) {
               if (items == 1) {
@@ -147,7 +145,7 @@ public class OSQLFunctionTraversedElement extends OSQLFunctionConfigurableAbstra
           final OIdentifiable record = ((OTraverseRecordProcess) o).getTarget();
 
           if (iClassName == null
-              || ODocumentInternal.getImmutableSchemaClass((ODocument) record.getRecord())
+              || ODocumentInternal.getImmutableSchemaClass(record.getRecord())
                   .isSubClassOf(iClassName)) {
             if (i >= beginIndex) {
               if (items == 1) {
@@ -161,11 +159,10 @@ public class OSQLFunctionTraversedElement extends OSQLFunctionConfigurableAbstra
             }
             i++;
           }
-        } else if (o instanceof OIdentifiable) {
-          final OIdentifiable record = (OIdentifiable) o;
+        } else if (o instanceof OIdentifiable record) {
 
           if (iClassName == null
-              || ODocumentInternal.getImmutableSchemaClass((ODocument) record.getRecord())
+              || ODocumentInternal.getImmutableSchemaClass(record.getRecord())
                   .isSubClassOf(iClassName)) {
             if (i >= beginIndex) {
               if (items == 1) {

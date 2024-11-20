@@ -29,7 +29,6 @@ import com.orientechnologies.orient.core.db.record.OSet;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.metadata.OMetadataInternal;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -37,10 +36,11 @@ import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
-import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -131,9 +131,7 @@ public class ORecordSerializerSchemaAware2CSV extends ORecordSerializerCSVAbstra
 
     if (iFields != null && iFields.length > 0) {
       fieldSet = new HashSet<String>(iFields.length);
-      for (String f : iFields) {
-        fieldSet.add(f);
-      }
+      Collections.addAll(fieldSet, iFields);
     } else {
       fieldSet = null;
     }
@@ -328,11 +326,7 @@ public class ORecordSerializerSchemaAware2CSV extends ORecordSerializerCSVAbstra
       iOutput.append(ODocumentInternal.getImmutableSchemaClass(record).getStreamableName());
       iOutput.append(OStringSerializerHelper.CLASS_SEPARATOR);
     }
-    try {
-      return iOutput.toString().getBytes("UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      throw OException.wrapException(new OSerializationException("error writing class name"), e);
-    }
+    return iOutput.toString().getBytes(StandardCharsets.UTF_8);
   }
 
   @Override
@@ -345,12 +339,10 @@ public class ORecordSerializerSchemaAware2CSV extends ORecordSerializerCSVAbstra
       throw new OSerializationException("Expected a record but was null");
     }
 
-    if (!(iRecord instanceof ODocument)) {
+    if (!(iRecord instanceof ODocument record)) {
       throw new OSerializationException(
           "Cannot marshall a record of type " + iRecord.getClass().getSimpleName());
     }
-
-    final ODocument record = (ODocument) iRecord;
 
     if (ODocumentInternal.getImmutableSchemaClass(record) != null) {
       iOutput.append(ODocumentInternal.getImmutableSchemaClass(record).getStreamableName());
@@ -633,9 +625,7 @@ public class ORecordSerializerSchemaAware2CSV extends ORecordSerializerCSVAbstra
     }
 
     OClass linkedClass =
-        ((OMetadataInternal) iDatabase.getMetadata())
-            .getImmutableSchemaSnapshot()
-            .getClass(iFieldClassName);
+        iDatabase.getMetadata().getImmutableSchemaSnapshot().getClass(iFieldClassName);
 
     return linkedClass;
   }

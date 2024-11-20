@@ -26,6 +26,7 @@ import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 import com.orientechnologies.orient.core.exception.OSecurityException;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -71,7 +72,7 @@ public class OSecurityManager {
 
     final MessageDigest msgDigest = MessageDigest.getInstance(iAlgorithm);
 
-    return byteArrayToHexStr(msgDigest.digest(iInput.getBytes("UTF-8")));
+    return byteArrayToHexStr(msgDigest.digest(iInput.getBytes(StandardCharsets.UTF_8)));
   }
 
   public static OSecurityManager instance() {
@@ -168,8 +169,8 @@ public class OSecurityManager {
 
     try {
       MessageDigest md = MessageDigest.getInstance(HASH_ALGORITHM);
-      return md.digest(iInput.getBytes("UTF-8"));
-    } catch (UnsupportedEncodingException | NoSuchAlgorithmException e) {
+      return md.digest(iInput.getBytes(StandardCharsets.UTF_8));
+    } catch (NoSuchAlgorithmException e) {
       final String message =
           "The requested encoding is not supported: cannot execute security checks";
       OLogManager.instance().error(OSecuritySystem.class, message, e);
@@ -279,9 +280,7 @@ public class OSecurityManager {
         && Runtime.class.getPackage().getImplementationVersion() != null) {
       if (Runtime.class.getPackage().getImplementationVersion().startsWith("1.7")) {
         // Java 7 does not support the PBKDF2_SHA256_ALGORITHM.
-        if (algorithm != null && algorithm.equals(PBKDF2_SHA256_ALGORITHM)) {
-          return false;
-        }
+        return algorithm == null || !algorithm.equals(PBKDF2_SHA256_ALGORITHM);
       }
     }
 

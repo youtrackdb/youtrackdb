@@ -13,6 +13,7 @@ import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.executor.OUpdateExecutionPlan;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class OProfileStatement extends OStatement {
 
@@ -139,11 +140,7 @@ public class OProfileStatement extends OStatement {
 
     OProfileStatement that = (OProfileStatement) o;
 
-    if (statement != null ? !statement.equals(that.statement) : that.statement != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(statement, that.statement);
   }
 
   @Override

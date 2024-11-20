@@ -4,7 +4,7 @@ import java.util.Map;
 
 public class ValidationMapComparable implements Comparable<Object> {
 
-  private int size;
+  private final int size;
 
   public ValidationMapComparable(int size) {
     this.size = size;

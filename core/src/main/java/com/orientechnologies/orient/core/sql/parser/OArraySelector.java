@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class OArraySelector extends SimpleNode {
@@ -120,20 +121,16 @@ public class OArraySelector extends SimpleNode {
 
     OArraySelector that = (OArraySelector) o;
 
-    if (rid != null ? !rid.equals(that.rid) : that.rid != null) {
+    if (!Objects.equals(rid, that.rid)) {
       return false;
     }
-    if (inputParam != null ? !inputParam.equals(that.inputParam) : that.inputParam != null) {
+    if (!Objects.equals(inputParam, that.inputParam)) {
       return false;
     }
-    if (expression != null ? !expression.equals(that.expression) : that.expression != null) {
+    if (!Objects.equals(expression, that.expression)) {
       return false;
     }
-    if (integer != null ? !integer.equals(that.integer) : that.integer != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(integer, that.integer);
   }
 
   @Override
@@ -152,10 +149,7 @@ public class OArraySelector extends SimpleNode {
   }
 
   public boolean refersToParent() {
-    if (expression != null && expression.refersToParent()) {
-      return true;
-    }
-    return false;
+    return expression != null && expression.refersToParent();
   }
 
   public void setValue(OResult currentRecord, Object target, Object value, OCommandContext ctx) {

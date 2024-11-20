@@ -39,7 +39,7 @@ import java.util.Set;
 public class OTraverseContext extends OBasicCommandContext {
 
   private Memory memory = new StackMemory();
-  private Set<ORID> history = new HashSet<ORID>();
+  private final Set<ORID> history = new HashSet<ORID>();
 
   private OTraverseAbstractProcess<?> currentProcess;
 
@@ -110,9 +110,7 @@ public class OTraverseContext extends OBasicCommandContext {
   }
 
   public boolean isAlreadyTraversed(final OIdentifiable identity, final int iLevel) {
-    if (history.contains(identity.getIdentity())) {
-      return true;
-    }
+    return history.contains(identity.getIdentity());
 
     // final int[] l = history.get(identity.getIdentity());
     // if (l == null)
@@ -121,8 +119,6 @@ public class OTraverseContext extends OBasicCommandContext {
     // for (int i = 0; i < l.length && l[i] > -1; ++i)
     // if (l[i] == iLevel)
     // return true;
-
-    return false;
   }
 
   public void addTraversed(final OIdentifiable identity, final int iLevel) {

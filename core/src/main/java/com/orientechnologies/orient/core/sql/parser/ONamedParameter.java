@@ -5,6 +5,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.util.Map;
+import java.util.Objects;
 
 public class ONamedParameter extends OInputParameter {
 
@@ -89,11 +90,7 @@ public class ONamedParameter extends OInputParameter {
     if (paramNumber != that.paramNumber) {
       return false;
     }
-    if (paramName != null ? !paramName.equals(that.paramName) : that.paramName != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(paramName, that.paramName);
   }
 
   @Override

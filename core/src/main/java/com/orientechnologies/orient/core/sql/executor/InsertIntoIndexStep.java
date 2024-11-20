@@ -45,7 +45,7 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
   }
 
   private OResultInternal produce(OCommandContext ctx) {
-    final ODatabaseSessionInternal database = (ODatabaseSessionInternal) ctx.getDatabase();
+    final ODatabaseSessionInternal database = ctx.getDatabase();
     OIndex index =
         database
             .getMetadata()

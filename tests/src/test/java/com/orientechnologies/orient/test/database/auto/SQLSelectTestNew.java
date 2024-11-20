@@ -1978,7 +1978,7 @@ public class SQLSelectTestNew extends AbstractSelectTest {
     Assert.assertEquals(result.size(), 1);
 
     for (OIdentifiable r : result) {
-      Assert.assertNull(((ODocument) r.getRecord()).<Object>field("name"));
+      Assert.assertNull(((ODocument) r.getRecord()).field("name"));
     }
   }
 

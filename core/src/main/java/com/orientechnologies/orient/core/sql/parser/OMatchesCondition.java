@@ -8,6 +8,7 @@ import com.orientechnologies.orient.core.sql.executor.OResult;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class OMatchesCondition extends OBooleanExpression {
@@ -120,10 +121,7 @@ public class OMatchesCondition extends OBooleanExpression {
     if (!expression.supportsBasicCalculation()) {
       return false;
     }
-    if (rightExpression != null && !rightExpression.supportsBasicCalculation()) {
-      return false;
-    }
-    return true;
+    return rightExpression == null || rightExpression.supportsBasicCalculation();
   }
 
   @Override
@@ -155,10 +153,7 @@ public class OMatchesCondition extends OBooleanExpression {
     if (expression.needsAliases(aliases)) {
       return true;
     }
-    if (rightExpression.needsAliases(aliases)) {
-      return true;
-    }
-    return false;
+    return rightExpression.needsAliases(aliases);
   }
 
   @Override
@@ -184,10 +179,7 @@ public class OMatchesCondition extends OBooleanExpression {
     if (expression != null && expression.refersToParent()) {
       return true;
     }
-    if (rightExpression != null && rightExpression.refersToParent()) {
-      return true;
-    }
-    return false;
+    return rightExpression != null && rightExpression.refersToParent();
   }
 
   @Override
@@ -201,18 +193,16 @@ public class OMatchesCondition extends OBooleanExpression {
 
     OMatchesCondition that = (OMatchesCondition) o;
 
-    if (expression != null ? !expression.equals(that.expression) : that.expression != null) {
+    if (!Objects.equals(expression, that.expression)) {
       return false;
     }
-    if (right != null ? !right.equals(that.right) : that.right != null) {
+    if (!Objects.equals(right, that.right)) {
       return false;
     }
-    if (rightExpression != null
-        ? !rightExpression.equals(that.rightExpression)
-        : that.rightExpression != null) {
+    if (!Objects.equals(rightExpression, that.rightExpression)) {
       return false;
     }
-    return rightParam != null ? rightParam.equals(that.rightParam) : that.rightParam == null;
+    return Objects.equals(rightParam, that.rightParam);
   }
 
   @Override
@@ -239,10 +229,7 @@ public class OMatchesCondition extends OBooleanExpression {
     if (!expression.isCacheable()) {
       return false;
     }
-    if (rightExpression != null && !rightExpression.isCacheable()) {
-      return false;
-    }
-    return true;
+    return rightExpression == null || rightExpression.isCacheable();
   }
 }
 /* JavaCC - OriginalChecksum=68712f476e2e633c2bbfc34cb6c39356 (do not edit this line) */

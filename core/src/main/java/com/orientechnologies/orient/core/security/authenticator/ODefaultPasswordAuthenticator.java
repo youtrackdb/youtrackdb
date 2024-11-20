@@ -136,9 +136,7 @@ public class ODefaultPasswordAuthenticator extends OSecurityAuthenticatorAbstrac
 
     if (userCfg != null) {
       // TODO: to verify if this logic match previous logic
-      if (userCfg.checkIfAllowed(resource, ORole.PERMISSION_ALL) != null) {
-        return true;
-      }
+      return userCfg.checkIfAllowed(resource, ORole.PERMISSION_ALL) != null;
 
       // Total Access
       /*

@@ -48,7 +48,7 @@ public abstract class CachingReference<E> {
 
   private final ReadWriteLock rwl = new ReentrantReadWriteLock();
   private long lastCreationInNanos;
-  private long timeToLiveInNanos;
+  private final long timeToLiveInNanos;
   private E object;
 
   public CachingReference(long timeToLiveInNanos) {

@@ -268,7 +268,7 @@ public class HashTableDirectoryV3Test extends BaseMemoryInternalDatabase {
 
     for (int n = 0; n < ODirectoryFirstPage.NODES_PER_PAGE; n++) {
       for (int i = 0; i < level.length; i++) {
-        level[i] = i + n * 100;
+        level[i] = i + n * 100L;
       }
 
       int index = directory.addNewNode((byte) 5, (byte) 6, (byte) 7, level, atomicOperation);
@@ -279,7 +279,7 @@ public class HashTableDirectoryV3Test extends BaseMemoryInternalDatabase {
 
     for (int n = 0; n < ODirectoryPage.NODES_PER_PAGE; n++) {
       for (int i = 0; i < level.length; i++) {
-        level[i] = i + n * 100;
+        level[i] = i + n * 100L;
       }
 
       int index = directory.addNewNode((byte) 5, (byte) 6, (byte) 7, level, atomicOperation);
@@ -290,7 +290,7 @@ public class HashTableDirectoryV3Test extends BaseMemoryInternalDatabase {
 
     for (int n = 0; n < ODirectoryPage.NODES_PER_PAGE; n++) {
       for (int i = 0; i < level.length; i++) {
-        level[i] = i + n * 100;
+        level[i] = i + n * 100L;
       }
 
       int index = directory.addNewNode((byte) 5, (byte) 6, (byte) 7, level, atomicOperation);
@@ -335,7 +335,7 @@ public class HashTableDirectoryV3Test extends BaseMemoryInternalDatabase {
 
     index = directory.addNewNode((byte) 17, (byte) 18, (byte) 19, level, atomicOperation);
     Assert.assertEquals(
-        index, ODirectoryFirstPage.NODES_PER_PAGE + 2 * ODirectoryPage.NODES_PER_PAGE);
+        index, ODirectoryFirstPage.NODES_PER_PAGE + 2L * ODirectoryPage.NODES_PER_PAGE);
 
     Assert.assertEquals(directory.getMaxLeftChildDepth(thirdIndex, atomicOperation), 8);
     Assert.assertEquals(directory.getMaxRightChildDepth(thirdIndex, atomicOperation), 9);
@@ -381,7 +381,7 @@ public class HashTableDirectoryV3Test extends BaseMemoryInternalDatabase {
 
     for (int n = 0; n < ODirectoryFirstPage.NODES_PER_PAGE; n++) {
       for (int i = 0; i < level.length; i++) {
-        level[i] = i + n * 100;
+        level[i] = i + n * 100L;
       }
 
       directory.addNewNode((byte) 5, (byte) 6, (byte) 7, level, atomicOperation);
@@ -389,7 +389,7 @@ public class HashTableDirectoryV3Test extends BaseMemoryInternalDatabase {
 
     for (int n = 0; n < ODirectoryPage.NODES_PER_PAGE; n++) {
       for (int i = 0; i < level.length; i++) {
-        level[i] = i + n * 100;
+        level[i] = i + n * 100L;
       }
 
       directory.addNewNode((byte) 5, (byte) 6, (byte) 7, level, atomicOperation);
@@ -397,7 +397,7 @@ public class HashTableDirectoryV3Test extends BaseMemoryInternalDatabase {
 
     for (int n = 0; n < ODirectoryPage.NODES_PER_PAGE; n++) {
       for (int i = 0; i < level.length; i++) {
-        level[i] = i + n * 100;
+        level[i] = i + n * 100L;
       }
 
       directory.addNewNode((byte) 5, (byte) 6, (byte) 7, level, atomicOperation);

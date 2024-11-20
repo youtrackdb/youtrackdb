@@ -5,6 +5,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class OInsertBody extends SimpleNode {
@@ -200,27 +201,19 @@ public class OInsertBody extends SimpleNode {
 
     OInsertBody that = (OInsertBody) o;
 
-    if (identifierList != null
-        ? !identifierList.equals(that.identifierList)
-        : that.identifierList != null) {
+    if (!Objects.equals(identifierList, that.identifierList)) {
       return false;
     }
-    if (valueExpressions != null
-        ? !valueExpressions.equals(that.valueExpressions)
-        : that.valueExpressions != null) {
+    if (!Objects.equals(valueExpressions, that.valueExpressions)) {
       return false;
     }
-    if (setExpressions != null
-        ? !setExpressions.equals(that.setExpressions)
-        : that.setExpressions != null) {
+    if (!Objects.equals(setExpressions, that.setExpressions)) {
       return false;
     }
-    if (content != null ? !content.equals(that.content) : that.content != null) {
+    if (!Objects.equals(content, that.content)) {
       return false;
     }
-    return contentInputParam != null
-        ? contentInputParam.equals(that.contentInputParam)
-        : that.contentInputParam == null;
+    return Objects.equals(contentInputParam, that.contentInputParam);
   }
 
   @Override

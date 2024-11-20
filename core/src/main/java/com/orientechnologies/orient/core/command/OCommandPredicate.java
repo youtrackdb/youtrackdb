@@ -38,6 +38,6 @@ public interface OCommandPredicate {
    * @param iContext       Context of execution
    * @return The result of predicate
    */
-  public Object evaluate(
+  Object evaluate(
       final OIdentifiable iRecord, ODocument iCurrentResult, final OCommandContext iContext);
 }

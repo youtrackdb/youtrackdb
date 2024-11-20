@@ -138,7 +138,7 @@ public class OResultInternal implements OResult {
       result = (T) wrap(content.get(name));
     } else {
       if (isElement()) {
-        result = (T) wrap((T) ODocumentInternal.rawPropertyRead((OElement) identifiable, name));
+        result = (T) wrap(ODocumentInternal.rawPropertyRead((OElement) identifiable, name));
       }
     }
     if (result instanceof OIdentifiable && ((OIdentifiable) result).getIdentity().isPersistent()) {
@@ -543,10 +543,9 @@ public class OResultInternal implements OResult {
     if (this == obj) {
       return true;
     }
-    if (!(obj instanceof OResultInternal)) {
+    if (!(obj instanceof OResultInternal resultObj)) {
       return false;
     }
-    OResultInternal resultObj = (OResultInternal) obj;
     if (identifiable != null) {
       if (!resultObj.getElement().isPresent()) {
         return false;

@@ -105,7 +105,7 @@ public interface OHashTable<K, V> {
 
   String getName();
 
-  public static final class BucketPath {
+  final class BucketPath {
 
     public final BucketPath parent;
     public final int hashMapOffset;
@@ -130,7 +130,7 @@ public interface OHashTable<K, V> {
     }
   }
 
-  public static final class BucketSplitResult {
+  final class BucketSplitResult {
 
     public final long updatedBucketPointer;
     public final long newBucketPointer;
@@ -143,7 +143,7 @@ public interface OHashTable<K, V> {
     }
   }
 
-  public static final class NodeSplitResult {
+  final class NodeSplitResult {
 
     public final long[] newNode;
     public final boolean allLeftHashMapsEqual;

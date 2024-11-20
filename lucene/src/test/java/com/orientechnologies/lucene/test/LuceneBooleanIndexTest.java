@@ -68,8 +68,7 @@ public class LuceneBooleanIndexTest extends BaseLuceneTest {
     Assert.assertEquals(
         500, docs.stream().filter((doc) -> !((Boolean) doc.getProperty("isDeleted"))).count());
     docs = db.query("select from Person where isDeleted lucene true");
-    Assert.assertEquals(
-        500, docs.stream().filter((doc) -> (Boolean) doc.getProperty("isDeleted")).count());
+    Assert.assertEquals(500, docs.stream().filter((doc) -> doc.getProperty("isDeleted")).count());
   }
 
   @Test

@@ -22,7 +22,7 @@ public class OAlterSecurityPolicyStatementExecutionTest extends BaseMemoryDataba
     OSecurityPolicy policy = security.getSecurityPolicy(db, "foo");
     Assert.assertNotNull(policy);
     Assert.assertNotNull("foo", policy.getName());
-    Assert.assertEquals("name = 'foo'", policy.getReadRule().toString());
+    Assert.assertEquals("name = 'foo'", policy.getReadRule());
     Assert.assertNull(policy.getCreateRule());
     Assert.assertNull(policy.getBeforeUpdateRule());
     Assert.assertNull(policy.getAfterUpdateRule());

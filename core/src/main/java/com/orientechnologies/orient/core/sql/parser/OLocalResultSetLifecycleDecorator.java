@@ -18,15 +18,15 @@ public class OLocalResultSetLifecycleDecorator implements OResultSet {
 
   private static final AtomicLong counter = new AtomicLong(0);
 
-  private OResultSet entity;
-  private List<OQueryLifecycleListener> lifecycleListeners = new ArrayList<>();
-  private String queryId;
+  private final OResultSet entity;
+  private final List<OQueryLifecycleListener> lifecycleListeners = new ArrayList<>();
+  private final String queryId;
 
   private boolean hasNextPage;
 
   public OLocalResultSetLifecycleDecorator(OResultSet entity) {
     this.entity = entity;
-    queryId = "" + System.currentTimeMillis() + "_" + counter.incrementAndGet();
+    queryId = System.currentTimeMillis() + "_" + counter.incrementAndGet();
   }
 
   public OLocalResultSetLifecycleDecorator(OInternalResultSet rsCopy, String queryId) {
@@ -59,7 +59,7 @@ public class OLocalResultSetLifecycleDecorator implements OResultSet {
   @Override
   public void close() {
     entity.close();
-    this.lifecycleListeners.forEach(x -> x.queryClosed(this.getQueryId()));
+    this.lifecycleListeners.forEach(x -> x.queryClosed(this.queryId));
     this.lifecycleListeners.clear();
   }
 

@@ -53,8 +53,7 @@ public class LocalHashTableV2IterationTestIT {
     OHashFunction<Integer> hashFunction = value -> Long.MAX_VALUE / 2 + value;
 
     atomicOperationsManager =
-        ((OAbstractPaginatedStorage) ((ODatabaseSessionInternal) db).getStorage())
-            .getAtomicOperationsManager();
+        ((OAbstractPaginatedStorage) db.getStorage()).getAtomicOperationsManager();
 
     localHashTable =
         new LocalHashTableV2<Integer, String>(
@@ -71,7 +70,7 @@ public class LocalHashTableV2IterationTestIT {
             localHashTable.create(
                 atomicOperation,
                 OIntegerSerializer.INSTANCE,
-                OBinarySerializerFactory.getInstance().<String>getObjectSerializer(OType.STRING),
+                OBinarySerializerFactory.getInstance().getObjectSerializer(OType.STRING),
                 null,
                 null,
                 hashFunction,

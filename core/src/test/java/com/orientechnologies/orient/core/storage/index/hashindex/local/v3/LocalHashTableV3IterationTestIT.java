@@ -61,15 +61,14 @@ public class LocalHashTableV3IterationTestIT {
             (OAbstractPaginatedStorage) db.getStorage());
 
     atomicOperationsManager =
-        ((OAbstractPaginatedStorage) ((ODatabaseSessionInternal) db).getStorage())
-            .getAtomicOperationsManager();
+        ((OAbstractPaginatedStorage) db.getStorage()).getAtomicOperationsManager();
     atomicOperationsManager.executeInsideAtomicOperation(
         null,
         atomicOperation ->
             localHashTable.create(
                 atomicOperation,
                 OIntegerSerializer.INSTANCE,
-                OBinarySerializerFactory.getInstance().<String>getObjectSerializer(OType.STRING),
+                OBinarySerializerFactory.getInstance().getObjectSerializer(OType.STRING),
                 null,
                 null,
                 hashFunction,

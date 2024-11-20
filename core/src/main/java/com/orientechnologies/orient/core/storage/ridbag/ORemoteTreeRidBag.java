@@ -61,11 +61,11 @@ public class ORemoteTreeRidBag implements ORidBagDelegate {
   private boolean transactionDirty = false;
   private ORecordId ownerRecord;
   private String fieldName;
-  private OBonsaiCollectionPointer collectionPointer;
+  private final OBonsaiCollectionPointer collectionPointer;
 
   private class RemovableIterator implements Iterator<OIdentifiable> {
 
-    private Iterator<OIdentifiable> iter;
+    private final Iterator<OIdentifiable> iter;
     private OIdentifiable next;
     private OIdentifiable removeNext;
 

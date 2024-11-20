@@ -42,11 +42,11 @@ public class OQueryOperatorDivideTest {
             null,
             null,
             null,
-            10l,
-            3l,
+            10L,
+            3L,
             null,
             ORecordSerializerBinary.INSTANCE.getCurrentSerializer()),
-        10l / 3l);
+        10L / 3L);
     Assert.assertEquals(
         operator.evaluateRecord(
             null,

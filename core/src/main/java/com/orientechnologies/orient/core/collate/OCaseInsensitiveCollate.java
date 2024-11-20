@@ -64,7 +64,7 @@ public class OCaseInsensitiveCollate extends ODefaultComparator implements OColl
 
   @Override
   public int hashCode() {
-    return getName().hashCode();
+    return NAME.hashCode();
   }
 
   @Override
@@ -75,7 +75,7 @@ public class OCaseInsensitiveCollate extends ODefaultComparator implements OColl
 
     final OCaseInsensitiveCollate that = (OCaseInsensitiveCollate) obj;
 
-    return getName().equals(that.getName());
+    return NAME.equals(that.NAME);
   }
 
   @Override
@@ -94,6 +94,6 @@ public class OCaseInsensitiveCollate extends ODefaultComparator implements OColl
 
   @Override
   public String toString() {
-    return "{" + getClass().getSimpleName() + " : name = " + getName() + "}";
+    return "{" + getClass().getSimpleName() + " : name = " + NAME + "}";
   }
 }

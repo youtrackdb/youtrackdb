@@ -100,7 +100,7 @@ public class OSelectExecutionPlan implements OInternalExecutionPlan {
 
   @Override
   public long getCost() {
-    return 0l;
+    return 0L;
   }
 
   public OResult serialize() {

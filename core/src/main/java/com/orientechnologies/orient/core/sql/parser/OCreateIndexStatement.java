@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class OCreateIndexStatement extends ODDLStatement {
@@ -69,7 +70,7 @@ public class OCreateIndexStatement extends ODDLStatement {
   }
 
   Object execute(OCommandContext ctx) {
-    final ODatabaseSessionInternal database = (ODatabaseSessionInternal) ctx.getDatabase();
+    final ODatabaseSessionInternal database = ctx.getDatabase();
 
     if (database.getMetadata().getIndexManagerInternal().existsIndex(name.getValue())) {
       if (ifNotExists) {
@@ -131,7 +132,7 @@ public class OCreateIndexStatement extends ODDLStatement {
           throw new ODatabaseException(
               "Impossible to create an index without specify class and property name nor key types:"
                   + " "
-                  + toString());
+                  + this);
         }
         OClass oClass = database.getClass(split[0]);
         if (oClass == null) {
@@ -149,7 +150,7 @@ public class OCreateIndexStatement extends ODDLStatement {
         throw new ODatabaseException(
             "Impossible to create an index without specify the key type or the associated property:"
                 + " "
-                + toString());
+                + this);
       }
     } else {
       String[] fields = calculateProperties(ctx);
@@ -432,27 +433,25 @@ public class OCreateIndexStatement extends ODDLStatement {
 
     OCreateIndexStatement that = (OCreateIndexStatement) o;
 
-    if (name != null ? !name.equals(that.name) : that.name != null) {
+    if (!Objects.equals(name, that.name)) {
       return false;
     }
-    if (className != null ? !className.equals(that.className) : that.className != null) {
+    if (!Objects.equals(className, that.className)) {
       return false;
     }
-    if (propertyList != null
-        ? !propertyList.equals(that.propertyList)
-        : that.propertyList != null) {
+    if (!Objects.equals(propertyList, that.propertyList)) {
       return false;
     }
-    if (type != null ? !type.equals(that.type) : that.type != null) {
+    if (!Objects.equals(type, that.type)) {
       return false;
     }
-    if (engine != null ? !engine.equals(that.engine) : that.engine != null) {
+    if (!Objects.equals(engine, that.engine)) {
       return false;
     }
-    if (keyTypes != null ? !keyTypes.equals(that.keyTypes) : that.keyTypes != null) {
+    if (!Objects.equals(keyTypes, that.keyTypes)) {
       return false;
     }
-    return metadata != null ? metadata.equals(that.metadata) : that.metadata == null;
+    return Objects.equals(metadata, that.metadata);
   }
 
   @Override
@@ -502,15 +501,13 @@ public class OCreateIndexStatement extends ODDLStatement {
       if (byValue != property.byValue) {
         return false;
       }
-      if (name != null ? !name.equals(property.name) : property.name != null) {
+      if (!Objects.equals(name, property.name)) {
         return false;
       }
-      if (recordAttribute != null
-          ? !recordAttribute.equals(property.recordAttribute)
-          : property.recordAttribute != null) {
+      if (!Objects.equals(recordAttribute, property.recordAttribute)) {
         return false;
       }
-      return collate != null ? collate.equals(property.collate) : property.collate == null;
+      return Objects.equals(collate, property.collate);
     }
 
     @Override

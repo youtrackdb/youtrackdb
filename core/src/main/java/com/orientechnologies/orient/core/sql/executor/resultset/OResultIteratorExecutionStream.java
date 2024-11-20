@@ -6,7 +6,7 @@ import java.util.Iterator;
 
 public class OResultIteratorExecutionStream implements OExecutionStream {
 
-  private Iterator<OResult> iterator;
+  private final Iterator<OResult> iterator;
 
   public OResultIteratorExecutionStream(Iterator<OResult> iterator) {
     this.iterator = iterator;

@@ -9,9 +9,9 @@ import java.security.Key;
  */
 public interface OKeyProvider {
 
-  public Key getKey(OTokenHeader header);
+  Key getKey(OTokenHeader header);
 
-  public String[] getKeys();
+  String[] getKeys();
 
-  public String getDefaultKey();
+  String getDefaultKey();
 }

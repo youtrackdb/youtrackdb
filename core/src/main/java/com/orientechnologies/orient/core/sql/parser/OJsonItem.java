@@ -4,6 +4,7 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -59,10 +60,7 @@ public class OJsonItem {
     if (aliases.contains(leftIdentifier.getStringValue())) {
       return true;
     }
-    if (right.needsAliases(aliases)) {
-      return true;
-    }
-    return false;
+    return right.needsAliases(aliases);
   }
 
   public boolean isAggregate() {
@@ -109,17 +107,13 @@ public class OJsonItem {
 
     OJsonItem oJsonItem = (OJsonItem) o;
 
-    if (leftIdentifier != null
-        ? !leftIdentifier.equals(oJsonItem.leftIdentifier)
-        : oJsonItem.leftIdentifier != null) {
+    if (!Objects.equals(leftIdentifier, oJsonItem.leftIdentifier)) {
       return false;
     }
-    if (leftString != null
-        ? !leftString.equals(oJsonItem.leftString)
-        : oJsonItem.leftString != null) {
+    if (!Objects.equals(leftString, oJsonItem.leftString)) {
       return false;
     }
-    return right != null ? right.equals(oJsonItem.right) : oJsonItem.right == null;
+    return Objects.equals(right, oJsonItem.right);
   }
 
   @Override

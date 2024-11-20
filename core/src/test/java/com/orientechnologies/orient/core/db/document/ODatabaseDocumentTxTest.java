@@ -4,7 +4,6 @@ import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommitSerializationException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
@@ -347,8 +346,7 @@ public class ODatabaseDocumentTxTest extends BaseMemoryDatabase {
     ODocument document = new ODocument(className);
     document.save();
     ORecordIteratorClassDescendentOrder<ODocument> reverseIterator =
-        new ORecordIteratorClassDescendentOrder<ODocument>(
-            (ODatabaseSessionInternal) db, (ODatabaseSessionInternal) db, className, true);
+        new ORecordIteratorClassDescendentOrder<ODocument>(db, db, className, true);
     Assert.assertTrue(reverseIterator.hasNext());
     Assert.assertEquals(document, reverseIterator.next());
   }

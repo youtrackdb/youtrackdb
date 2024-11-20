@@ -45,7 +45,7 @@ public class SyslogMessage {
   private static final int DEFAULT_CONCURRENCY = 50;
   protected static final ConcurrentDateFormat rfc3339DateFormat;
   protected static final ConcurrentDateFormat rfc3164DateFormat;
-  private static CachingReference<String> localhostNameReference =
+  private static final CachingReference<String> localhostNameReference =
       new CachingReference<String>(10, TimeUnit.SECONDS) {
         @Override
         protected String newObject() {

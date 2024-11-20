@@ -29,6 +29,7 @@ import java.io.BufferedWriter;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.security.SecureRandom;
 import java.security.spec.KeySpec;
@@ -395,7 +396,7 @@ public class OSymmetricKey {
 
     try {
       if (base64 != null) {
-        result = Base64.getDecoder().decode(base64.getBytes("UTF8"));
+        result = Base64.getDecoder().decode(base64.getBytes(StandardCharsets.UTF_8));
       }
     } catch (Exception ex) {
       OLogManager.instance().error(OSymmetricKey.class, "convertFromBase64()", ex);
@@ -413,7 +414,7 @@ public class OSymmetricKey {
    */
   public String encrypt(final String value) {
     try {
-      return encrypt(value.getBytes("UTF8"));
+      return encrypt(value.getBytes(StandardCharsets.UTF_8));
     } catch (Exception ex) {
       throw OException.wrapException(
           new OSecurityException("OSymmetricKey.encrypt() Exception: " + ex.getMessage()), ex);
@@ -430,7 +431,7 @@ public class OSymmetricKey {
    */
   public String encrypt(final String transform, final String value) {
     try {
-      return encrypt(transform, value.getBytes("UTF8"));
+      return encrypt(transform, value.getBytes(StandardCharsets.UTF_8));
     } catch (Exception ex) {
       throw OException.wrapException(
           new OSecurityException("OSymmetricKey.encrypt() Exception: " + ex.getMessage()), ex);
@@ -522,7 +523,7 @@ public class OSymmetricKey {
 
     try {
       // Convert the JSON document to Base64, for a touch more obfuscation.
-      encodedJSON = convertToBase64(sb.toString().getBytes("UTF8"));
+      encodedJSON = convertToBase64(sb.toString().getBytes(StandardCharsets.UTF_8));
 
     } catch (Exception ex) {
       OLogManager.instance().error(this, "Convert to Base64 exception", ex);
@@ -541,7 +542,7 @@ public class OSymmetricKey {
   public String decryptAsString(final String encodedJSON) {
     try {
       byte[] decrypted = decrypt(encodedJSON);
-      return new String(decrypted, "UTF8");
+      return new String(decrypted, StandardCharsets.UTF_8);
     } catch (Exception ex) {
       throw OException.wrapException(
           new OSecurityException("OSymmetricKey.decryptAsString() Exception: " + ex.getMessage()),
@@ -571,7 +572,7 @@ public class OSymmetricKey {
             "OSymmetricKey.decrypt(String) encodedJSON could not be decoded");
       }
 
-      String json = new String(decoded, "UTF8");
+      String json = new String(decoded, StandardCharsets.UTF_8);
 
       // Convert the JSON content to an ODocument to make parsing it easier.
       final ODocument doc = new ODocument().fromJSON(json, "noMap");

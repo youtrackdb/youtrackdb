@@ -46,7 +46,7 @@ public class CheckClassTypeStep extends AbstractExecutionStep {
     if (this.targetClass.equals(this.parentClass)) {
       return OExecutionStream.empty();
     }
-    ODatabaseSessionInternal db = (ODatabaseSessionInternal) context.getDatabase();
+    ODatabaseSessionInternal db = context.getDatabase();
 
     OSchema schema = db.getMetadata().getImmutableSchemaSnapshot();
     OClass parentClazz = schema.getClass(this.parentClass);

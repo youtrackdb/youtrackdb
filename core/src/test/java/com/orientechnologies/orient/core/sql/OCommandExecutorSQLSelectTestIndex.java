@@ -21,9 +21,7 @@ package com.orientechnologies.orient.core.sql;
 import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.BaseMemoryInternalDatabase;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.OMetadataDefault;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.junit.Test;
 
@@ -39,10 +37,7 @@ public class OCommandExecutorSQLSelectTestIndex extends BaseMemoryInternalDataba
     OResultSet results = db.query("select from Foo where bar = 'yep'");
     assertEquals(results.stream().count(), 1);
 
-    final OIndex index =
-        ((OMetadataDefault) db.getMetadata())
-            .getIndexManagerInternal()
-            .getIndex((ODatabaseSessionInternal) db, "Foo.bar");
+    final OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Foo.bar");
     assertEquals(index.getInternal().size(), 1);
   }
 

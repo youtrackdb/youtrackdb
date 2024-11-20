@@ -20,8 +20,8 @@ import java.util.Map;
  */
 public class OStatementCache {
 
-  private Map<String, OStatement> map;
-  private int mapSize;
+  private final Map<String, OStatement> map;
+  private final int mapSize;
 
   /**
    * @param size the size of the cache

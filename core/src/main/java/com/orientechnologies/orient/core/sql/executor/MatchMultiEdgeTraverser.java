@@ -101,8 +101,7 @@ public class MatchMultiEdgeTraverser extends MatchEdgeTraverser {
                 rightSide.add(converted);
               }
             }
-          } else if (nextSteps instanceof Iterator) {
-            Iterator iterator = (Iterator) nextSteps;
+          } else if (nextSteps instanceof Iterator iterator) {
             while (iterator.hasNext()) {
               OResultInternal converted = toOResultInternal(iterator.next());
               if (converted != null

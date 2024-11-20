@@ -13,6 +13,7 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class ODropIndexStatement extends ODDLStatement {
 
@@ -31,7 +32,7 @@ public class ODropIndexStatement extends ODDLStatement {
   @Override
   public OExecutionStream executeDDL(OCommandContext ctx) {
     List<OResult> rs = new ArrayList<>();
-    ODatabaseSessionInternal db = (ODatabaseSessionInternal) ctx.getDatabase();
+    ODatabaseSessionInternal db = ctx.getDatabase();
     OIndexManagerAbstract idxMgr = db.getMetadata().getIndexManagerInternal();
     if (all) {
       for (OIndex idx : idxMgr.getIndexes(db)) {
@@ -104,11 +105,7 @@ public class ODropIndexStatement extends ODDLStatement {
     if (all != that.all) {
       return false;
     }
-    if (name != null ? !name.equals(that.name) : that.name != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(name, that.name);
   }
 
   @Override

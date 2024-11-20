@@ -53,10 +53,7 @@ public class OProjectionItem extends SimpleNode {
     if (all) {
       return true;
     }
-    if (expression != null && "*".equals(expression.toString())) {
-      return true;
-    }
-    return false;
+    return expression != null && "*".equals(expression.toString());
   }
 
   public void setAll(boolean all) {
@@ -228,7 +225,7 @@ public class OProjectionItem extends SimpleNode {
 
   public OProjectionItem getExpandContent() {
     OProjectionItem result = new OProjectionItem(-1);
-    result.setExpression(expression.getExpandContent());
+    result.expression = expression.getExpandContent();
     return result;
   }
 
@@ -268,7 +265,7 @@ public class OProjectionItem extends SimpleNode {
 
   public AggregationContext getAggregationContext(OCommandContext ctx) {
     if (expression == null) {
-      throw new OCommandExecutionException("Cannot aggregate on this projection: " + toString());
+      throw new OCommandExecutionException("Cannot aggregate on this projection: " + this);
     }
     return expression.getAggregationContext(ctx);
   }

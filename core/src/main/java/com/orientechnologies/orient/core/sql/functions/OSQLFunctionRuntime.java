@@ -106,7 +106,7 @@ public class OSQLFunctionRuntime extends OSQLFilterItemAbstract {
           final OSQLPredicate pred = new OSQLPredicate(text);
           runtimeParameters[i] =
               pred.evaluate(
-                  iCurrentRecord instanceof ORecord ? (ORecord) iCurrentRecord : null,
+                  iCurrentRecord instanceof ORecord ? iCurrentRecord : null,
                   (ODocument) iCurrentResult,
                   iContext);
           // REPLACE ORIGINAL PARAM

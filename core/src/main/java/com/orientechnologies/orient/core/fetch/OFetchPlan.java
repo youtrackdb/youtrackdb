@@ -66,7 +66,7 @@ public class OFetchPlan {
 
           if (key.startsWith("[")) {
             // EXTRACT DEPTH LEVEL
-            final int endLevel = key.indexOf("]");
+            final int endLevel = key.indexOf(']');
             if (endLevel == -1) {
               throw new IllegalArgumentException(
                   "Missing closing square bracket on depth level in fetch plan: " + key);
@@ -75,7 +75,7 @@ public class OFetchPlan {
             final String range = key.substring(1, endLevel);
             key = key.substring(endLevel + 1);
 
-            if (key.indexOf(".") > -1) {
+            if (key.indexOf('.') > -1) {
               throw new IllegalArgumentException(
                   "Nested levels (fields separated by dot) are not allowed on fetch plan when"
                       + " dynamic depth level is specified (square brackets): "

@@ -8,6 +8,7 @@ import com.orientechnologies.orient.core.sql.executor.OResult;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class OIsNotNullCondition extends OBooleanExpression {
@@ -86,7 +87,7 @@ public class OIsNotNullCondition extends OBooleanExpression {
   @Override
   protected List<Object> getExternalCalculationConditions() {
     if (!expression.supportsBasicCalculation()) {
-      return (List) Collections.singletonList(expression);
+      return Collections.singletonList(expression);
     }
     return Collections.EMPTY_LIST;
   }
@@ -110,10 +111,7 @@ public class OIsNotNullCondition extends OBooleanExpression {
 
   @Override
   public boolean refersToParent() {
-    if (expression != null && expression.refersToParent()) {
-      return true;
-    }
-    return false;
+    return expression != null && expression.refersToParent();
   }
 
   @Override
@@ -127,11 +125,7 @@ public class OIsNotNullCondition extends OBooleanExpression {
 
     OIsNotNullCondition that = (OIsNotNullCondition) o;
 
-    if (expression != null ? !expression.equals(that.expression) : that.expression != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(expression, that.expression);
   }
 
   @Override

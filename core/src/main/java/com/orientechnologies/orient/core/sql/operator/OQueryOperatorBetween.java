@@ -79,7 +79,7 @@ public class OQueryOperatorBetween extends OQueryOperatorEqualityNotNulls {
       OCommandContext iContext) {
     validate(right);
 
-    final Iterator<?> valueIterator = (Iterator<Object>) OMultiValue.getMultiValueIterator(right);
+    final Iterator<?> valueIterator = OMultiValue.getMultiValueIterator(right);
 
     Object right1 = valueIterator.next();
     valueIterator.next();
@@ -221,8 +221,7 @@ public class OQueryOperatorBetween extends OQueryOperatorEqualityNotNulls {
 
     if (iLeft instanceof OSQLFilterItemField
         && ODocumentHelper.ATTRIBUTE_RID.equals(((OSQLFilterItemField) iLeft).getRoot())) {
-      final Iterator<?> valueIterator =
-          (Iterator<Object>) OMultiValue.getMultiValueIterator(iRight);
+      final Iterator<?> valueIterator = OMultiValue.getMultiValueIterator(iRight);
 
       final Object right1 = valueIterator.next();
       if (right1 != null) {
@@ -245,8 +244,7 @@ public class OQueryOperatorBetween extends OQueryOperatorEqualityNotNulls {
 
     if (iLeft instanceof OSQLFilterItemField
         && ODocumentHelper.ATTRIBUTE_RID.equals(((OSQLFilterItemField) iLeft).getRoot())) {
-      final Iterator<?> valueIterator =
-          (Iterator<Object>) OMultiValue.getMultiValueIterator(iRight);
+      final Iterator<?> valueIterator = OMultiValue.getMultiValueIterator(iRight);
 
       final Object right1 = valueIterator.next();
 

@@ -11,6 +11,7 @@ import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -106,7 +107,7 @@ public class OCollection extends SimpleNode {
           result.expressions.add(exp.splitForAggregation(aggregateProj, ctx));
         } else {
           throw new OCommandExecutionException(
-              "Cannot mix aggregate and non-aggregate operations in a collection: " + toString());
+              "Cannot mix aggregate and non-aggregate operations in a collection: " + this);
         }
       }
       return result;
@@ -144,11 +145,7 @@ public class OCollection extends SimpleNode {
 
     OCollection that = (OCollection) o;
 
-    if (expressions != null ? !expressions.equals(that.expressions) : that.expressions != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(expressions, that.expressions);
   }
 
   @Override

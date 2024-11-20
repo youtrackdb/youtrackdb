@@ -754,11 +754,8 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
         write(buffer, c.getName());
         write(buffer, c.getDataSegmentId());
 
-        if (c instanceof OStoragePaginatedClusterConfiguration) {
+        if (c instanceof OStoragePaginatedClusterConfiguration paginatedClusterConfiguration) {
           write(buffer, "d");
-
-          final OStoragePaginatedClusterConfiguration paginatedClusterConfiguration =
-              (OStoragePaginatedClusterConfiguration) c;
 
           write(buffer, paginatedClusterConfiguration.useWal);
           write(buffer, paginatedClusterConfiguration.recordOverflowGrowFactor);

@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
@@ -126,11 +127,7 @@ public final class OSBTreeBonsaiBucket<K, V> extends OBonsaiBucketAbstract {
       if (!key.equals(that.key)) {
         return false;
       }
-      if (value != null ? !value.equals(that.value) : that.value != null) {
-        return false;
-      }
-
-      return true;
+      return Objects.equals(value, that.value);
     }
 
     @Override
@@ -181,7 +178,7 @@ public final class OSBTreeBonsaiBucket<K, V> extends OBonsaiBucketAbstract {
     setIntValue(offset + SIZE_OFFSET, 0);
 
     // THIS REMOVE ALSO THE EVENTUAL DELETED FLAG
-    setByteValue(offset + FLAGS_OFFSET, (byte) (isLeaf ? LEAF : 0));
+    setByteValue(offset + FLAGS_OFFSET, isLeaf ? LEAF : 0);
     setLongValue(offset + LEFT_SIBLING_OFFSET, -1);
     setLongValue(offset + RIGHT_SIBLING_OFFSET, -1);
 

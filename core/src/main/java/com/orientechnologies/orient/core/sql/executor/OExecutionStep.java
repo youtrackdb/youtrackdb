@@ -24,7 +24,7 @@ public interface OExecutionStep {
    * @return the absolute cost (in nanoseconds) of the execution of this step, -1 if not calculated
    */
   default long getCost() {
-    return -1l;
+    return -1L;
   }
 
   default OResult toResult() {

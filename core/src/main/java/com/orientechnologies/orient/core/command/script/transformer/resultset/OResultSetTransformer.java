@@ -7,5 +7,5 @@ import com.orientechnologies.orient.core.sql.executor.OResultSet;
  */
 public interface OResultSetTransformer<T> {
 
-  public OResultSet transform(T value);
+  OResultSet transform(T value);
 }

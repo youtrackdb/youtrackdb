@@ -70,7 +70,7 @@ public final class SpliteratorForward implements Spliterator<ORawPairObjectInteg
   }
 
   public void clearCache() {
-    getDataCache().clear();
+    dataCache.clear();
     cacheIterator = Collections.emptyIterator();
   }
 

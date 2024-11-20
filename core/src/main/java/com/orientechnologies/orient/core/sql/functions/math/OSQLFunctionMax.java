@@ -77,17 +77,17 @@ public class OSQLFunctionMax extends OSQLFunctionMathAbstract {
       if (context == null)
       // FIRST TIME
       {
-        context = (Comparable) max;
+        context = max;
       } else {
         if (context instanceof Number && max instanceof Number) {
           final Number[] casted = OType.castComparableNumber((Number) context, (Number) max);
           context = casted[0];
           max = casted[1];
         }
-        if (((Comparable<Object>) context).compareTo((Comparable) max) < 0)
+        if (((Comparable<Object>) context).compareTo(max) < 0)
         // BIGGER
         {
-          context = (Comparable) max;
+          context = max;
         }
       }
 

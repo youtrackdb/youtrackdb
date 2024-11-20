@@ -28,7 +28,7 @@ public class OForEachBlockExecutionTest extends BaseMemoryDatabase {
     int sum = 0;
     while (results.hasNext()) {
       OResult item = results.next();
-      sum += (Integer) item.getProperty("value");
+      sum += item.<Integer>getProperty("value");
       tot++;
     }
     Assert.assertEquals(3, tot);
@@ -58,7 +58,7 @@ public class OForEachBlockExecutionTest extends BaseMemoryDatabase {
     int sum = 0;
     while (results.hasNext()) {
       OResult item = results.next();
-      sum += (Integer) item.getProperty("value");
+      sum += item.<Integer>getProperty("value");
       tot++;
     }
     Assert.assertEquals(2, tot);

@@ -65,8 +65,7 @@ public class OLiveIndexRebuildTest {
 
     for (Future<?> future : futures) {
       Object result = future.get();
-      if (result instanceof long[]) {
-        long[] results = (long[]) result;
+      if (result instanceof long[] results) {
         if (results[0] < minInterval) {
           minInterval = results[0];
         }

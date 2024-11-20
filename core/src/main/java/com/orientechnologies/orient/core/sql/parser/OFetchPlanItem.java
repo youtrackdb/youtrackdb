@@ -7,6 +7,7 @@ import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class OFetchPlanItem extends SimpleNode {
@@ -103,20 +104,16 @@ public class OFetchPlanItem extends SimpleNode {
     if (leftStar != that.leftStar) {
       return false;
     }
-    if (star != null ? !star.equals(that.star) : that.star != null) {
+    if (!Objects.equals(star, that.star)) {
       return false;
     }
-    if (leftDepth != null ? !leftDepth.equals(that.leftDepth) : that.leftDepth != null) {
+    if (!Objects.equals(leftDepth, that.leftDepth)) {
       return false;
     }
-    if (rightDepth != null ? !rightDepth.equals(that.rightDepth) : that.rightDepth != null) {
+    if (!Objects.equals(rightDepth, that.rightDepth)) {
       return false;
     }
-    if (fieldChain != null ? !fieldChain.equals(that.fieldChain) : that.fieldChain != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(fieldChain, that.fieldChain);
   }
 
   @Override

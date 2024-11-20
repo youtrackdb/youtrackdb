@@ -113,7 +113,7 @@ public class OSQLFunctionList extends OSQLFunctionMultiValueAbstract<List<Object
       final Map<String, Object> doc = new HashMap<String, Object>();
       doc.put("node", getDistributedStorageId());
       doc.put("context", res);
-      return Collections.<Object>singletonList(doc);
+      return Collections.singletonList(doc);
     } else {
       return res;
     }

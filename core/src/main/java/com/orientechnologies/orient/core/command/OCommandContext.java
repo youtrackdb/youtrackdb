@@ -73,11 +73,11 @@ public interface OCommandContext {
    * @return false if it the timeout is elapsed and strategy is "return"
    * @throws OTimeoutException if the strategy is "exception" (default)
    */
-  public boolean checkTimeout();
+  boolean checkTimeout();
 
-  public Map<Object, Object> getInputParameters();
+  Map<Object, Object> getInputParameters();
 
-  public void setInputParameters(Map<Object, Object> inputParameters);
+  void setInputParameters(Map<Object, Object> inputParameters);
 
   /**
    * Creates a copy of execution context.

@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 // import com.orientechnologies.orient.core.sql.executor.LetExpressionStep;
@@ -121,15 +122,13 @@ public class OForEachBlock extends OStatement {
 
     OForEachBlock that = (OForEachBlock) o;
 
-    if (loopVariable != null
-        ? !loopVariable.equals(that.loopVariable)
-        : that.loopVariable != null) {
+    if (!Objects.equals(loopVariable, that.loopVariable)) {
       return false;
     }
-    if (loopValues != null ? !loopValues.equals(that.loopValues) : that.loopValues != null) {
+    if (!Objects.equals(loopValues, that.loopValues)) {
       return false;
     }
-    return statements != null ? statements.equals(that.statements) : that.statements == null;
+    return Objects.equals(statements, that.statements);
   }
 
   @Override

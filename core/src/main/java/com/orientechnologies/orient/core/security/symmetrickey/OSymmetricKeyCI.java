@@ -111,7 +111,7 @@ public class OSymmetricKeyCI implements OCredentialInterceptor {
       key.setDefaultCipherTransform(transform);
     } else // "keyFile" has priority over "keyStore".
     if (jsonDoc.containsField("keyFile")) {
-      key = OSymmetricKey.fromFile(algorithm, (String) jsonDoc.field("keyFile"));
+      key = OSymmetricKey.fromFile(algorithm, jsonDoc.field("keyFile"));
       key.setDefaultCipherTransform(transform);
     } else if (jsonDoc.containsField("keyStore")) {
       ODocument ksDoc = jsonDoc.field("keyStore");

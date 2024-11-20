@@ -58,9 +58,10 @@ public class OServerPluginManager implements OService {
 
   private static final int CHECK_DELAY = 5000;
   private OServer server;
-  private ConcurrentHashMap<String, OServerPluginInfo> activePlugins =
+  private final ConcurrentHashMap<String, OServerPluginInfo> activePlugins =
       new ConcurrentHashMap<String, OServerPluginInfo>();
-  private ConcurrentHashMap<String, String> loadedPlugins = new ConcurrentHashMap<String, String>();
+  private final ConcurrentHashMap<String, String> loadedPlugins =
+      new ConcurrentHashMap<String, String>();
   private volatile TimerTask autoReloadTimerTask;
   private String directory;
 

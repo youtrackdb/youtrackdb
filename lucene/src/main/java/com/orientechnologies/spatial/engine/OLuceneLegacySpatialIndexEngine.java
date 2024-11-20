@@ -202,7 +202,7 @@ public class OLuceneLegacySpatialIndexEngine extends OLuceneSpatialIndexEngineAb
           newGeoDocument(
               (OIdentifiable) value,
               legacyBuilder.makeShape(compositeKey, ctx),
-              ((OCompositeKey) key).toDocument()));
+              compositeKey.toDocument()));
     }
   }
 

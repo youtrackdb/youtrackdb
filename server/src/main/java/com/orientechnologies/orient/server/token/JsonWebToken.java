@@ -71,12 +71,12 @@ public class JsonWebToken implements OJsonWebToken, OToken {
 
   @Override
   public String getDatabase() {
-    return getPayload().getDatabase();
+    return payload.getDatabase();
   }
 
   @Override
   public long getExpiry() {
-    return getPayload().getExpiry();
+    return payload.getExpiry();
   }
 
   @Override
@@ -86,7 +86,7 @@ public class JsonWebToken implements OJsonWebToken, OToken {
 
   @Override
   public String getDatabaseType() {
-    return getPayload().getDatabaseType();
+    return payload.getDatabaseType();
   }
 
   @Override

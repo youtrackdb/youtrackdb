@@ -27,6 +27,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1469,14 +1470,14 @@ public class ODocumentSerializerDeltaTest {
       db.begin();
       ODocument doc = new ODocument(claz);
       doc.setProperty("one", "value");
-      doc.setProperty("list", Arrays.asList("test"));
-      doc.setProperty("set", new HashSet<>(Arrays.asList("test")));
+      doc.setProperty("list", List.of("test"));
+      doc.setProperty("set", new HashSet<>(List.of("test")));
       Map<String, String> map = new HashMap<>();
       map.put("two", "value");
       doc.setProperty("map", map);
       OIdentifiable link = db.save(new ODocument("testClass"));
-      doc.setProperty("linkList", Arrays.asList(link));
-      doc.setProperty("linkSet", new HashSet<>(Arrays.asList(link)));
+      doc.setProperty("linkList", Collections.singletonList(link));
+      doc.setProperty("linkSet", new HashSet<>(Collections.singletonList(link)));
       Map<String, OIdentifiable> linkMap = new HashMap<>();
       linkMap.put("two", link);
       doc.setProperty("linkMap", linkMap);
@@ -1688,7 +1689,7 @@ public class ODocumentSerializerDeltaTest {
     Arrays.fill(byteValue, (byte) 10);
     document.field("bytes", byteValue);
 
-    document.field("utf8String", new String("A" + "\u00ea" + "\u00f1" + "\u00fc" + "C"));
+    document.field("utf8String", "A" + "\u00ea" + "\u00f1" + "\u00fc" + "C");
     document.field("recordId", new ORecordId(10, 10));
 
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
@@ -2039,8 +2040,7 @@ public class ODocumentSerializerDeltaTest {
         assertEquals(extr.fields(), document.fields());
         assertEquals(
             ((Set<?>) extr.field("linkSet")).size(), ((Set<?>) document.field("linkSet")).size());
-        assertTrue(
-            ((Set<?>) extr.field("linkSet")).containsAll((Set<?>) document.field("linkSet")));
+        assertTrue(((Set<?>) extr.field("linkSet")).containsAll(document.field("linkSet")));
         assertEquals(extr.<Object>field("linkList"), document.field("linkList"));
       }
       ctx.drop("test");

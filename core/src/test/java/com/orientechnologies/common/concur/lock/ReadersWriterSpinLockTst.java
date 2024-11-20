@@ -96,14 +96,14 @@ public class ReadersWriterSpinLockTst {
   private void consumeCPU(int cycles) {
     long c1 = c;
     for (int i = 0; i < cycles; i++) {
-      c1 += c1 * 31 + i * 51;
+      c1 += c1 * 31 + i * 51L;
     }
     c = c1;
   }
 
   private final class Reader implements Callable<Void> {
 
-    private ThreadLocalRandom random = ThreadLocalRandom.current();
+    private final ThreadLocalRandom random = ThreadLocalRandom.current();
 
     @Override
     public Void call() throws Exception {
@@ -141,7 +141,7 @@ public class ReadersWriterSpinLockTst {
 
   private final class TryReader implements Callable<Void> {
 
-    private ThreadLocalRandom random = ThreadLocalRandom.current();
+    private final ThreadLocalRandom random = ThreadLocalRandom.current();
 
     @Override
     public Void call() throws Exception {
@@ -188,7 +188,7 @@ public class ReadersWriterSpinLockTst {
 
   private final class Writer implements Callable<Void> {
 
-    private ThreadLocalRandom random = ThreadLocalRandom.current();
+    private final ThreadLocalRandom random = ThreadLocalRandom.current();
 
     @Override
     public Void call() throws Exception {

@@ -118,9 +118,6 @@ public class OQueryOperatorAnd extends OQueryOperator {
 
   @Override
   public boolean canShortCircuit(Object l) {
-    if (Boolean.FALSE.equals(l)) {
-      return true;
-    }
-    return false;
+    return Boolean.FALSE.equals(l);
   }
 }

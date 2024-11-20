@@ -425,7 +425,7 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
         && Double.toString(dou).equals(Float.toString((float) dou))
         && new Double(new Double(dou).floatValue()).doubleValue() == dou) {
       return OType.FLOAT;
-    } else if (!new Double(dou).toString().equals(iValue)) {
+    } else if (!Double.toString(dou).equals(iValue)) {
       return OType.DECIMAL;
     }
 
@@ -530,15 +530,15 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
             } else if (c == 'c') {
               return new BigDecimal(v);
             } else if (c == 'l') {
-              return new Long(v);
+              return Long.valueOf(v);
             } else if (c == 'd') {
               return new Double(v);
             } else if (c == 'b') {
-              return new Byte(v);
+              return Byte.valueOf(v);
             } else if (c == 'a' || c == 't') {
               return new Date(Long.parseLong(v));
             } else if (c == 's') {
-              return new Short(v);
+              return Short.valueOf(v);
             }
           }
           return iValue;
@@ -553,9 +553,9 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
 
     if (integer) {
       try {
-        return new Integer(iValue);
+        return Integer.valueOf(iValue);
       } catch (NumberFormatException ignore) {
-        return new Long(iValue);
+        return Long.valueOf(iValue);
       }
     } else if ("NaN".equals(iValue) || "Infinity".equals(iValue))
     // NaN and Infinity CANNOT BE MANAGED BY BIG-DECIMAL TYPE
@@ -579,13 +579,13 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
         if (iValue instanceof Integer) {
           return iValue;
         }
-        return new Integer(iValue.toString());
+        return Integer.valueOf(iValue.toString());
 
       case BOOLEAN:
         if (iValue instanceof Boolean) {
           return iValue;
         }
-        return new Boolean(iValue.toString());
+        return Boolean.valueOf(iValue.toString());
 
       case FLOAT:
         if (iValue instanceof Float) {

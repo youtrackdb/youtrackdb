@@ -72,7 +72,7 @@ public class OMatchExecutionPlanner {
   private Map<String, String> aliasClusters;
   private Map<String, ORid> aliasRids;
   private boolean foundOptional = false;
-  private long threshold = 100;
+  private final long threshold = 100;
 
   public OMatchExecutionPlanner(OMatchStatement stm) {
     this.matchExpressions =
@@ -187,7 +187,7 @@ public class OMatchExecutionPlanner {
       info.projection = new OProjection(items, returnDistinct);
 
       info.projection = OSelectExecutionPlanner.translateDistinct(info.projection);
-      info.distinct = info.projection == null ? false : info.projection.isDistinct();
+      info.distinct = info.projection != null && info.projection.isDistinct();
       if (info.projection != null) {
         info.projection.setDistinct(false);
       }
@@ -213,10 +213,7 @@ public class OMatchExecutionPlanner {
     if (filter.refersToParent()) {
       return true;
     }
-    if (filter.toString().toLowerCase().contains("$matched.")) {
-      return true;
-    }
-    return false;
+    return filter.toString().toLowerCase().contains("$matched.");
   }
 
   private boolean isOptional(String key) {
@@ -249,7 +246,7 @@ public class OMatchExecutionPlanner {
       for (OMatchPathItem item : exp.getItems()) {
         if (item instanceof OMultiMatchPathItem) {
           throw new OCommandExecutionException(
-              "This kind of NOT expression is not supported (yet): " + item.toString());
+              "This kind of NOT expression is not supported (yet): " + item);
         }
         PatternEdge edge = new PatternEdge();
         edge.item = item;
@@ -859,8 +856,7 @@ public class OMatchExecutionPlanner {
     allAliases.addAll(aliasClusters.keySet());
     allAliases.addAll(aliasRids.keySet());
 
-    OSchema schema =
-        ((ODatabaseSessionInternal) ctx.getDatabase()).getMetadata().getImmutableSchemaSnapshot();
+    OSchema schema = ctx.getDatabase().getMetadata().getImmutableSchemaSnapshot();
 
     Map<String, Long> result = new LinkedHashMap<String, Long>();
     for (String alias : allAliases) {

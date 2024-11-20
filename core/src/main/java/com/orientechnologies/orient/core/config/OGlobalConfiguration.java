@@ -1864,7 +1864,7 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       out.print("  + ");
       out.print(value.key);
       out.print(" = ");
-      out.println(value.isHidden() ? "<hidden>" : String.valueOf((Object) value.getValue()));
+      out.println(value.hidden ? "<hidden>" : String.valueOf((Object) value.getValue()));
     }
   }
 
@@ -1876,7 +1876,7 @@ public enum OGlobalConfiguration { // ENVIRONMENT
    */
   public static OGlobalConfiguration findByKey(final String iKey) {
     for (OGlobalConfiguration v : values()) {
-      if (v.getKey().equalsIgnoreCase(iKey)) {
+      if (v.key.equalsIgnoreCase(iKey)) {
         return v;
       }
     }
@@ -1890,7 +1890,7 @@ public enum OGlobalConfiguration { // ENVIRONMENT
   public static void setConfiguration(final Map<String, Object> iConfig) {
     for (Entry<String, Object> config : iConfig.entrySet()) {
       for (OGlobalConfiguration v : values()) {
-        if (v.getKey().equals(config.getKey())) {
+        if (v.key.equals(config.getKey())) {
           v.setValue(config.getValue());
           break;
         } else if (v.name().equals(config.getKey())) {

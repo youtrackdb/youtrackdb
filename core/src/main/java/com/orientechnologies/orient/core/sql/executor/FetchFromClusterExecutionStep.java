@@ -3,7 +3,6 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.id.ORID;
@@ -56,10 +55,7 @@ public class FetchFromClusterExecutionStep extends AbstractExecutionStep {
     long maxClusterPosition = calculateMaxClusterPosition();
     ORecordIteratorCluster<ORecord> iterator =
         new ORecordIteratorCluster<>(
-            (ODatabaseSessionInternal) ctx.getDatabase(),
-            clusterId,
-            minClusterPosition,
-            maxClusterPosition);
+            ctx.getDatabase(), clusterId, minClusterPosition, maxClusterPosition);
     Iterator<ORecord> iter;
     if (ORDER_DESC.equals(order)) {
       iter = iterator.reversed();
@@ -113,7 +109,7 @@ public class FetchFromClusterExecutionStep extends AbstractExecutionStep {
         ORID conditionRid;
 
         Object obj;
-        if (((OBinaryCondition) ridRangeCondition).getRight().getRid() != null) {
+        if (cond.getRight().getRid() != null) {
           obj =
               ((OBinaryCondition) ridRangeCondition)
                   .getRight()

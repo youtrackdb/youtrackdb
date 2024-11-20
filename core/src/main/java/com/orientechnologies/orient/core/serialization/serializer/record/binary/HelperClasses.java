@@ -53,6 +53,7 @@ import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeRidBag;
 import com.orientechnologies.orient.core.tx.OTransactionOptimistic;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
@@ -173,11 +174,7 @@ public class HelperClasses {
   }
 
   public static String stringFromBytes(final byte[] bytes, final int offset, final int len) {
-    try {
-      return new String(bytes, offset, len, CHARSET_UTF_8);
-    } catch (UnsupportedEncodingException e) {
-      throw OException.wrapException(new OSerializationException("Error on string decoding"), e);
-    }
+    return new String(bytes, offset, len, StandardCharsets.UTF_8);
   }
 
   public static String stringFromBytesIntern(final byte[] bytes, final int offset, final int len) {
@@ -192,18 +189,14 @@ public class HelperClasses {
           }
         }
       }
-      return new String(bytes, offset, len, CHARSET_UTF_8).intern();
+      return new String(bytes, offset, len, StandardCharsets.UTF_8).intern();
     } catch (UnsupportedEncodingException e) {
       throw OException.wrapException(new OSerializationException("Error on string decoding"), e);
     }
   }
 
   public static byte[] bytesFromString(final String toWrite) {
-    try {
-      return toWrite.getBytes(CHARSET_UTF_8);
-    } catch (UnsupportedEncodingException e) {
-      throw OException.wrapException(new OSerializationException("Error on string encoding"), e);
-    }
+    return toWrite.getBytes(StandardCharsets.UTF_8);
   }
 
   public static long convertDayToTimezone(TimeZone from, TimeZone to, long time) {
@@ -385,8 +378,7 @@ public class HelperClasses {
     Object[] entries = ((OEmbeddedRidBag) ridbag.getDelegate()).getEntries();
     for (int i = 0; i < entries.length; i++) {
       Object entry = entries[i];
-      if (entry instanceof OIdentifiable) {
-        OIdentifiable itemValue = (OIdentifiable) entry;
+      if (entry instanceof OIdentifiable itemValue) {
         if (db != null
             && !db.isClosed()
             && db.getTransaction().isActive()
@@ -505,7 +497,7 @@ public class HelperClasses {
       ridbag.getDelegate().setSize(size);
       for (int i = 0; i < size; i++) {
         OIdentifiable record = readLinkOptimizedEmbedded(bytes);
-        ((ORidBagDelegate) ridbag.getDelegate()).addInternal(record);
+        ridbag.getDelegate().addInternal(record);
       }
     } else {
       long fileId = OVarIntSerializer.readAsLong(bytes);

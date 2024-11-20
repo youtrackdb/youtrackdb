@@ -149,7 +149,7 @@ public enum Facility implements Comparable<Facility> {
    */
   private final String label;
 
-  private Facility(int numericalCode, String label) {
+  Facility(int numericalCode, String label) {
     this.numericalCode = numericalCode;
     this.label = label;
   }

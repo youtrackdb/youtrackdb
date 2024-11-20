@@ -192,11 +192,9 @@ public abstract class ODocumentHookAbstract implements ORecordHook {
       return RESULT.RECORD_NOT_CHANGED;
     }
 
-    if (!(iRecord instanceof ODocument)) {
+    if (!(iRecord instanceof ODocument document)) {
       return RESULT.RECORD_NOT_CHANGED;
     }
-
-    final ODocument document = (ODocument) iRecord;
 
     if (!filterBySchemaClass(document)) {
       return RESULT.RECORD_NOT_CHANGED;

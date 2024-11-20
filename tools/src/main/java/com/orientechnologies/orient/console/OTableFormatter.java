@@ -67,7 +67,7 @@ public class OTableFormatter {
       new HashMap<String, Map<String, String>>();
   protected final Set<String> columnHidden = new HashSet<String>();
   protected final Set<String> prefixedColumns =
-      new LinkedHashSet<String>(Arrays.asList(new String[] {"#", "@RID", "@CLASS"}));
+      new LinkedHashSet<String>(Arrays.asList("#", "@RID", "@CLASS"));
   protected final OTableOutput out;
   protected int maxMultiValueEntries = 10;
   protected int minColumnSize = 4;
@@ -239,7 +239,7 @@ public class OTableFormatter {
         format.append('|');
       }
 
-      out.onMessage("\n" + format.toString(), vargs.toArray());
+      out.onMessage("\n" + format, vargs.toArray());
 
     } catch (Exception t) {
       out.onMessage(
@@ -546,10 +546,9 @@ public class OTableFormatter {
         columns.put(c, getColumnSize(fetched, rec, c, columns.get(c)));
       }
 
-      if (rec instanceof ODocument) {
+      if (rec instanceof ODocument doc) {
         ((ODocument) rec).setLazyLoad(false);
         // PARSE ALL THE DOCUMENT'S FIELDS
-        final ODocument doc = (ODocument) rec;
         for (String fieldName : doc.getPropertyNames()) {
           columns.put(fieldName, getColumnSize(fetched, doc, fieldName, columns.get(fieldName)));
         }

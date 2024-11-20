@@ -52,8 +52,7 @@ public class OScriptTransformerImpl implements OScriptTransformer {
 
   @Override
   public OResultSet toResultSet(Object value) {
-    if (value instanceof Value) {
-      final Value v = (Value) value;
+    if (value instanceof Value v) {
       if (v.isNull()) {
         return null;
       } else if (v.hasArrayElements()) {

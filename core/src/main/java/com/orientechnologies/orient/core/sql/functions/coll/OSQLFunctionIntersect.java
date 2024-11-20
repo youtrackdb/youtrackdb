@@ -26,7 +26,6 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterItemVariable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -71,11 +70,11 @@ public class OSQLFunctionIntersect extends OSQLFunctionMultiValueAbstract<Object
         if (value instanceof Collection) {
           context = ((Collection) value).iterator();
         } else if (value instanceof Iterator) {
-          context = (Iterator) value;
+          context = value;
         } else if (value instanceof Iterable) {
           context = ((Iterable) value).iterator();
         } else {
-          context = Arrays.asList(value).iterator();
+          context = List.of(value).iterator();
         }
       } else {
         Iterator contextIterator = null;
@@ -90,7 +89,7 @@ public class OSQLFunctionIntersect extends OSQLFunctionMultiValueAbstract<Object
     }
 
     // IN-LINE MODE (STATELESS)
-    Iterator iterator = (Iterator<Object>) OMultiValue.getMultiValueIterator(value);
+    Iterator iterator = OMultiValue.getMultiValueIterator(value);
 
     for (int i = 1; i < iParams.length; ++i) {
       value = iParams[i];
@@ -101,9 +100,9 @@ public class OSQLFunctionIntersect extends OSQLFunctionMultiValueAbstract<Object
 
       if (value != null) {
         value = intersectWith(iterator, value);
-        iterator = (Iterator<Object>) OMultiValue.getMultiValueIterator(value);
+        iterator = OMultiValue.getMultiValueIterator(value);
       } else {
-        return new ArrayList().iterator();
+        return Collections.emptyIterator();
       }
     }
 

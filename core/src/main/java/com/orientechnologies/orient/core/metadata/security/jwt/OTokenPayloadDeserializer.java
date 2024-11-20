@@ -5,6 +5,5 @@ import java.io.IOException;
 
 public interface OTokenPayloadDeserializer {
 
-  public OBinaryTokenPayload deserialize(DataInputStream input, OTokenMetaInfo base)
-      throws IOException;
+  OBinaryTokenPayload deserialize(DataInputStream input, OTokenMetaInfo base) throws IOException;
 }

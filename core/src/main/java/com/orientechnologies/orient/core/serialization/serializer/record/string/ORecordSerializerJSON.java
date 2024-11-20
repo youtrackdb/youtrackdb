@@ -375,14 +375,11 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
         ORecordInternal.setVersion(record, Integer.parseInt(fieldValue));
       } else {
         if (fieldName.equals(ODocumentHelper.ATTRIBUTE_CLASS)) {
-          return;
         } else {
           if (fieldName.equals(ODocumentHelper.ATTRIBUTE_TYPE)) {
-            return;
           } else {
             if (fieldName.equals(OFieldTypesString.ATTRIBUTE_FIELD_TYPES)
                 && record instanceof ODocument) {
-              return;
             } else {
               if (fieldName.equals("value") && !(record instanceof ODocument)) {
                 // RECORD VALUE(S)

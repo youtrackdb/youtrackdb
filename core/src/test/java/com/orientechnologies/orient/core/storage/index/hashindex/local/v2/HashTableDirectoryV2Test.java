@@ -286,7 +286,7 @@ public class HashTableDirectoryV2Test {
 
     for (int n = 0; n < DirectoryFirstPageV2.NODES_PER_PAGE; n++) {
       for (int i = 0; i < level.length; i++) {
-        level[i] = i + n * 100;
+        level[i] = i + n * 100L;
       }
 
       int index = directory.addNewNode((byte) 5, (byte) 6, (byte) 7, level, atomicOperation);
@@ -297,7 +297,7 @@ public class HashTableDirectoryV2Test {
 
     for (int n = 0; n < DirectoryPageV2.NODES_PER_PAGE; n++) {
       for (int i = 0; i < level.length; i++) {
-        level[i] = i + n * 100;
+        level[i] = i + n * 100L;
       }
 
       int index = directory.addNewNode((byte) 5, (byte) 6, (byte) 7, level, atomicOperation);
@@ -308,7 +308,7 @@ public class HashTableDirectoryV2Test {
 
     for (int n = 0; n < DirectoryPageV2.NODES_PER_PAGE; n++) {
       for (int i = 0; i < level.length; i++) {
-        level[i] = i + n * 100;
+        level[i] = i + n * 100L;
       }
 
       int index = directory.addNewNode((byte) 5, (byte) 6, (byte) 7, level, atomicOperation);
@@ -353,7 +353,7 @@ public class HashTableDirectoryV2Test {
 
     index = directory.addNewNode((byte) 17, (byte) 18, (byte) 19, level, atomicOperation);
     Assert.assertEquals(
-        index, DirectoryFirstPageV2.NODES_PER_PAGE + 2 * DirectoryPageV2.NODES_PER_PAGE);
+        index, DirectoryFirstPageV2.NODES_PER_PAGE + 2L * DirectoryPageV2.NODES_PER_PAGE);
 
     Assert.assertEquals(directory.getMaxLeftChildDepth(thirdIndex, atomicOperation), 8);
     Assert.assertEquals(directory.getMaxRightChildDepth(thirdIndex, atomicOperation), 9);
@@ -399,7 +399,7 @@ public class HashTableDirectoryV2Test {
 
     for (int n = 0; n < DirectoryFirstPageV2.NODES_PER_PAGE; n++) {
       for (int i = 0; i < level.length; i++) {
-        level[i] = i + n * 100;
+        level[i] = i + n * 100L;
       }
 
       directory.addNewNode((byte) 5, (byte) 6, (byte) 7, level, atomicOperation);
@@ -407,7 +407,7 @@ public class HashTableDirectoryV2Test {
 
     for (int n = 0; n < DirectoryPageV2.NODES_PER_PAGE; n++) {
       for (int i = 0; i < level.length; i++) {
-        level[i] = i + n * 100;
+        level[i] = i + n * 100L;
       }
 
       directory.addNewNode((byte) 5, (byte) 6, (byte) 7, level, atomicOperation);
@@ -415,7 +415,7 @@ public class HashTableDirectoryV2Test {
 
     for (int n = 0; n < DirectoryPageV2.NODES_PER_PAGE; n++) {
       for (int i = 0; i < level.length; i++) {
-        level[i] = i + n * 100;
+        level[i] = i + n * 100L;
       }
 
       directory.addNewNode((byte) 5, (byte) 6, (byte) 7, level, atomicOperation);

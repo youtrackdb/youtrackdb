@@ -108,13 +108,8 @@ public class OPair<K extends Comparable, V>
     }
     OPair<?, ?> other = (OPair<?, ?>) obj;
     if (key == null) {
-      if (other.key != null) {
-        return false;
-      }
-    } else if (!key.equals(other.key)) {
-      return false;
-    }
-    return true;
+      return other.key == null;
+    } else return key.equals(other.key);
   }
 
   public int compareTo(final OPair<K, V> o) {
@@ -125,7 +120,7 @@ public class OPair<K extends Comparable, V>
       final List<OPair<K, V>> iValues) {
     final HashMap<K, V> result = new HashMap<K, V>(iValues.size());
     for (OPair<K, V> p : iValues) {
-      result.put(p.getKey(), p.getValue());
+      result.put(p.key, p.value);
     }
 
     return result;

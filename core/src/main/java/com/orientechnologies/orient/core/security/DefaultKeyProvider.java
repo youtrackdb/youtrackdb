@@ -12,7 +12,7 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class DefaultKeyProvider implements OKeyProvider {
 
-  private SecretKeySpec secretKey;
+  private final SecretKeySpec secretKey;
 
   public DefaultKeyProvider(byte[] secret) {
     secretKey = new SecretKeySpec(secret, "HmacSHA256");

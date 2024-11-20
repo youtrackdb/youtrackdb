@@ -56,7 +56,7 @@ public class InternalLogger {
     InternalLogger.level = level;
   }
 
-  private DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
+  private final DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
   private final String name;
 
   /**
@@ -74,11 +74,11 @@ public class InternalLogger {
       return false;
     }
 
-    if (this.level == null) {
+    if (InternalLogger.level == null) {
       return julLogger.isLoggable(level);
     }
 
-    return level.intValue() >= this.level.intValue();
+    return level.intValue() >= InternalLogger.level.intValue();
   }
 
   public void finest(String msg) {

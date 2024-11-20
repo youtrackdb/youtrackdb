@@ -161,8 +161,7 @@ public class TcpSyslogMessageSender extends AbstractSyslogMessageSender {
             SSLSession session = sslSocket.getSession();
             logger.finer("The Certificates used by peer");
             for (Certificate certificate : session.getPeerCertificates()) {
-              if (certificate instanceof X509Certificate) {
-                X509Certificate x509Certificate = (X509Certificate) certificate;
+              if (certificate instanceof X509Certificate x509Certificate) {
                 logger.finer("" + x509Certificate.getSubjectDN());
               } else {
                 logger.finer("" + certificate);
@@ -253,7 +252,7 @@ public class TcpSyslogMessageSender extends AbstractSyslogMessageSender {
         + this.getSyslogServerHostname()
         + '\''
         + ", syslogServerPort='"
-        + this.getSyslogServerPort()
+        + this.syslogServerPort
         + '\''
         + ", ssl="
         + ssl

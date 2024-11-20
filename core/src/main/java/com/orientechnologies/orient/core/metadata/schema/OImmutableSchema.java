@@ -200,11 +200,7 @@ public class OImmutableSchema implements OSchema {
     }
 
     OClass cls = classes.get(iClassName.toLowerCase(Locale.ENGLISH));
-    if (cls != null) {
-      return cls;
-    }
-
-    return null;
+    return cls;
   }
 
   @Override
@@ -312,11 +308,7 @@ public class OImmutableSchema implements OSchema {
     }
 
     OView cls = views.get(name.toLowerCase(Locale.ENGLISH));
-    if (cls != null) {
-      return cls;
-    }
-
-    return null;
+    return cls;
   }
 
   @Override

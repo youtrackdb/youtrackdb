@@ -2,7 +2,6 @@ package com.orientechnologies.orient.core.db;
 
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentEmbedded;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.junit.Test;
 
@@ -13,8 +12,7 @@ public class OSharedContextEmbeddedTests {
     try (OrientDB orientDb = new OrientDB("embedded:", OrientDBConfig.defaultConfig())) {
       orientDb.execute("create database test memory users(admin identified by 'admin' role admin)");
       try (var session = (ODatabaseSessionInternal) orientDb.open("test", "admin", "admin")) {
-        OSharedContextEmbedded shared =
-            (OSharedContextEmbedded) ((ODatabaseDocumentEmbedded) session).getSharedContext();
+        OSharedContextEmbedded shared = (OSharedContextEmbedded) session.getSharedContext();
         ODocument config = new ODocument();
         config.setProperty("one", "two");
         shared.saveConfig(session, "simple", config);

@@ -57,11 +57,9 @@ public class OConcurrentCreateException extends ONeedRetryException implements O
 
   @Override
   public boolean equals(final Object obj) {
-    if (!(obj instanceof OConcurrentCreateException)) {
+    if (!(obj instanceof OConcurrentCreateException other)) {
       return false;
     }
-
-    final OConcurrentCreateException other = (OConcurrentCreateException) obj;
 
     return expectedRid.equals(other.expectedRid) && actualRid.equals(other.actualRid);
   }
@@ -80,12 +78,12 @@ public class OConcurrentCreateException extends ONeedRetryException implements O
   }
 
   private static String makeMessage(ORID expectedRid, ORID actualRid) {
-    final StringBuilder sb = new StringBuilder();
-    sb.append("Cannot create the record ");
-    sb.append(expectedRid);
-    sb.append(" because the assigned RID was ");
-    sb.append(actualRid);
-    sb.append(" instead");
-    return sb.toString();
+    String sb =
+        "Cannot create the record "
+            + expectedRid
+            + " because the assigned RID was "
+            + actualRid
+            + " instead";
+    return sb;
   }
 }

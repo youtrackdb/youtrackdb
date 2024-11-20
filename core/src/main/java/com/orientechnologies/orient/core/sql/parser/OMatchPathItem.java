@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class OMatchPathItem extends SimpleNode {
@@ -207,14 +208,10 @@ public class OMatchPathItem extends SimpleNode {
 
     OMatchPathItem that = (OMatchPathItem) o;
 
-    if (method != null ? !method.equals(that.method) : that.method != null) {
+    if (!Objects.equals(method, that.method)) {
       return false;
     }
-    if (filter != null ? !filter.equals(that.filter) : that.filter != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(filter, that.filter);
   }
 
   @Override

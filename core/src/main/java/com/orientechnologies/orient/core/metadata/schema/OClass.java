@@ -71,7 +71,7 @@ public interface OClass extends Comparable<OClass> {
     DICTIONARY_HASH_INDEX(false),
     SPATIAL(true);
 
-    private boolean automaticIndexable;
+    private final boolean automaticIndexable;
 
     INDEX_TYPE(boolean iValue) {
       automaticIndexable = iValue;

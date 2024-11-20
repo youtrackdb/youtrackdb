@@ -54,7 +54,7 @@ public class UdpSyslogMessageSender extends AbstractSyslogMessageSender {
    */
   protected int syslogServerPort = DEFAULT_SYSLOG_PORT;
 
-  private DatagramSocket datagramSocket;
+  private final DatagramSocket datagramSocket;
 
   public UdpSyslogMessageSender() {
     try {
@@ -84,7 +84,7 @@ public class UdpSyslogMessageSender extends AbstractSyslogMessageSender {
       out.flush();
 
       if (logger.isLoggable(Level.FINEST)) {
-        logger.finest("Send syslog message " + new String(baos.toByteArray(), UTF_8));
+        logger.finest("Send syslog message " + baos.toString(UTF_8));
       }
       byte[] bytes = baos.toByteArray();
 
@@ -138,7 +138,7 @@ public class UdpSyslogMessageSender extends AbstractSyslogMessageSender {
         + this.getSyslogServerHostname()
         + '\''
         + ", syslogServerPort='"
-        + this.getSyslogServerPort()
+        + this.syslogServerPort
         + '\''
         + ", defaultAppName='"
         + defaultAppName

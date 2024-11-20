@@ -5,7 +5,7 @@ import com.orientechnologies.orient.core.sql.executor.OResult;
 
 public class OProduceExecutionStream implements OExecutionStream {
 
-  private OProduceResult producer;
+  private final OProduceResult producer;
 
   public OProduceExecutionStream(OProduceResult producer) {
     if (producer == null) {

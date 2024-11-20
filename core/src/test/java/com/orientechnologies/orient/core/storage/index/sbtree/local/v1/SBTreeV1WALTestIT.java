@@ -302,9 +302,7 @@ public class SBTreeV1WALTestIT extends SBTreeV1TestIT {
               continue;
             }
 
-            if (restoreRecord instanceof OFileCreatedWALRecord) {
-              final OFileCreatedWALRecord fileCreatedCreatedRecord =
-                  (OFileCreatedWALRecord) restoreRecord;
+            if (restoreRecord instanceof OFileCreatedWALRecord fileCreatedCreatedRecord) {
               final String fileName =
                   fileCreatedCreatedRecord.getFileName().replace("actualSBTree", "expectedSBTree");
 

@@ -2,7 +2,6 @@ package com.orientechnologies.orient.core.record.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
@@ -10,6 +9,8 @@ import com.orientechnologies.orient.core.db.record.OList;
 import com.orientechnologies.orient.core.db.record.OMap;
 import com.orientechnologies.orient.core.db.record.OSet;
 import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.record.OElement;
+import java.util.Set;
 import org.junit.Test;
 
 public class CollectionOfLinkInNestedDocumentTest extends BaseMemoryDatabase {
@@ -37,7 +38,7 @@ public class CollectionOfLinkInNestedDocumentTest extends BaseMemoryDatabase {
     ODocument nest1 = base1.field("nested");
     assertNotNull(nest1);
 
-    assertTrue(nested.field("set").equals(nest1.field("set")));
+    assertEquals(nested.<Set<OElement>>field("set"), nest1.<Set<OElement>>field("set"));
   }
 
   @Test

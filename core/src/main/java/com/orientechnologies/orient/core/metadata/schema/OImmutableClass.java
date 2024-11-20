@@ -225,7 +225,7 @@ public class OImmutableClass implements OClass {
 
   @Override
   public List<OClass> getSuperClasses() {
-    return Collections.unmodifiableList((List<? extends OClass>) superClasses);
+    return Collections.unmodifiableList(superClasses);
   }
 
   @Override
@@ -511,7 +511,7 @@ public class OImmutableClass implements OClass {
 
   @Override
   public long count(boolean isPolymorphic) {
-    return getDatabase().countClass(getName(), isPolymorphic);
+    return getDatabase().countClass(name, isPolymorphic);
   }
 
   public long countImpl(boolean isPolymorphic) {
@@ -536,7 +536,7 @@ public class OImmutableClass implements OClass {
       return false;
     }
 
-    if (iClassName.equalsIgnoreCase(getName()) || iClassName.equalsIgnoreCase(getShortName())) {
+    if (iClassName.equalsIgnoreCase(name) || iClassName.equalsIgnoreCase(shortName)) {
       return true;
     }
 
@@ -601,25 +601,25 @@ public class OImmutableClass implements OClass {
 
     switch (iAttribute) {
       case NAME:
-        return getName();
+        return name;
       case SHORTNAME:
-        return getShortName();
+        return shortName;
       case SUPERCLASS:
         return getSuperClass();
       case SUPERCLASSES:
         return getSuperClasses();
       case OVERSIZE:
-        return getOverSize();
+        return overSize;
       case STRICTMODE:
-        return isStrictMode();
+        return strictMode;
       case ABSTRACT:
-        return isAbstract();
+        return isAbstract;
       case CLUSTERSELECTION:
-        return getClusterSelection();
+        return clusterSelection;
       case CUSTOM:
-        return getCustomInternal();
+        return customFields;
       case DESCRIPTION:
-        return getDescription();
+        return description;
     }
 
     throw new IllegalArgumentException("Cannot find attribute '" + iAttribute + "'");
@@ -798,13 +798,8 @@ public class OImmutableClass implements OClass {
     }
     final OClass other = (OClass) obj;
     if (name == null) {
-      if (other.getName() != null) {
-        return false;
-      }
-    } else if (!name.equals(other.getName())) {
-      return false;
-    }
-    return true;
+      return other.getName() == null;
+    } else return name.equals(other.getName());
   }
 
   @Override

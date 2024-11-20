@@ -7,9 +7,9 @@ import java.util.List;
 
 public class OClientSessions {
 
-  private List<OClientConnection> connections =
+  private final List<OClientConnection> connections =
       Collections.synchronizedList(new ArrayList<OClientConnection>());
-  private byte[] binaryToken;
+  private final byte[] binaryToken;
 
   public OClientSessions(byte[] binaryToken) {
     this.binaryToken = binaryToken;

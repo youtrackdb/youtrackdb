@@ -185,7 +185,7 @@ public class OCompositeIndexDefinitionTest extends BaseMemoryDatabase {
         new OPropertyIndexDefinition("testCollectionClass", "fOne", OType.INTEGER));
 
     final Object result = compositeIndexDefinition.createValue(db, Collections.emptyList(), 12);
-    Assert.assertEquals(result, Arrays.asList(new OCompositeKey(null, 12)));
+    Assert.assertEquals(result, List.of(new OCompositeKey(null, 12)));
   }
 
   @Test
@@ -200,7 +200,7 @@ public class OCompositeIndexDefinitionTest extends BaseMemoryDatabase {
         new OPropertyListIndexDefinition("testCollectionClass", "fTwo", OType.INTEGER));
 
     final Object result = compositeIndexDefinition.createValue(db, 12, Collections.emptyList());
-    Assert.assertEquals(result, Arrays.asList(new OCompositeKey(12, null)));
+    Assert.assertEquals(result, List.of(new OCompositeKey(12, null)));
   }
 
   @Test
@@ -289,7 +289,7 @@ public class OCompositeIndexDefinitionTest extends BaseMemoryDatabase {
     compositeIndexDefinition.addIndex(
         new OPropertyListIndexDefinition("testCollectionClass", "fOne", OType.INTEGER));
 
-    compositeIndexDefinition.createValue(db, Arrays.asList(1, 2), Arrays.asList(12));
+    compositeIndexDefinition.createValue(db, Arrays.asList(1, 2), List.of(12));
   }
 
   @Test(expected = ODatabaseException.class)
@@ -450,7 +450,7 @@ public class OCompositeIndexDefinitionTest extends BaseMemoryDatabase {
     compositeIndexDefinition.setNullValuesIgnored(false);
 
     final Object result = compositeIndexDefinition.getDocumentValueToIndex(db, document);
-    Assert.assertEquals(result, Arrays.asList(new OCompositeKey(12, null)));
+    Assert.assertEquals(result, List.of(new OCompositeKey(12, null)));
   }
 
   @Test
@@ -470,7 +470,7 @@ public class OCompositeIndexDefinitionTest extends BaseMemoryDatabase {
     compositeIndexDefinition.setNullValuesIgnored(false);
 
     final Object result = compositeIndexDefinition.getDocumentValueToIndex(db, document);
-    Assert.assertEquals(result, Arrays.asList(new OCompositeKey(null, 12)));
+    Assert.assertEquals(result, List.of(new OCompositeKey(null, 12)));
   }
 
   @Test
@@ -626,7 +626,7 @@ public class OCompositeIndexDefinitionTest extends BaseMemoryDatabase {
   public void testDocumentToIndexCollectionValueTwoCollections() {
     final ODocument document = new ODocument();
 
-    document.field("fOne", Arrays.asList(12));
+    document.field("fOne", List.of(12));
     document.field("fTwo", Arrays.asList(1, 2));
 
     final OCompositeIndexDefinition compositeIndexDefinition =

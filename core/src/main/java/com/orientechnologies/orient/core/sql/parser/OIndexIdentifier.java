@@ -5,6 +5,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.util.Map;
+import java.util.Objects;
 
 public class OIndexIdentifier extends SimpleNode {
 
@@ -111,16 +112,10 @@ public class OIndexIdentifier extends SimpleNode {
     if (type != that.type) {
       return false;
     }
-    if (indexNameString != null
-        ? !indexNameString.equals(that.indexNameString)
-        : that.indexNameString != null) {
+    if (!Objects.equals(indexNameString, that.indexNameString)) {
       return false;
     }
-    if (indexName != null ? !indexName.equals(that.indexName) : that.indexName != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(indexName, that.indexName);
   }
 
   @Override

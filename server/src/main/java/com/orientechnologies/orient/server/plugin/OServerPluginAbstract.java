@@ -34,9 +34,7 @@ public abstract class OServerPluginAbstract implements OServerPlugin {
 
   @Override
   public void startup() {
-    if (!enabled) {
-      return;
-    }
+    if (!enabled) {}
   }
 
   @Override

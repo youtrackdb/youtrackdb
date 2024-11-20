@@ -32,7 +32,7 @@ import java.util.Map;
  */
 public class OUserSymmetricKeyConfig implements OSymmetricKeyConfig {
 
-  private String keyString;
+  private final String keyString;
   private String keyFile;
   private String keyAlgorithm;
   private String keystoreFile;

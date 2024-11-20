@@ -55,7 +55,7 @@ import java.util.Set;
  */
 public class OSymmetricKeySecurity implements OSecurityInternal {
 
-  private OSecurityInternal delegate;
+  private final OSecurityInternal delegate;
 
   public OSymmetricKeySecurity(final OSecurityInternal iDelegate) {
     this.delegate = iDelegate;

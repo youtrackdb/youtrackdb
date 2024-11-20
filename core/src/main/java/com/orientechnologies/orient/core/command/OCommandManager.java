@@ -41,14 +41,15 @@ import java.util.Map;
 
 public class OCommandManager {
 
-  private Map<String, Class<? extends OCommandRequest>> commandRequesters =
+  private final Map<String, Class<? extends OCommandRequest>> commandRequesters =
       new HashMap<String, Class<? extends OCommandRequest>>();
-  private Map<Class<? extends OCommandRequest>, OCallable<Void, OCommandRequest>> configCallbacks =
-      new HashMap<Class<? extends OCommandRequest>, OCallable<Void, OCommandRequest>>();
-  private Map<Class<? extends OCommandRequest>, Class<? extends OCommandExecutor>>
+  private final Map<Class<? extends OCommandRequest>, OCallable<Void, OCommandRequest>>
+      configCallbacks =
+          new HashMap<Class<? extends OCommandRequest>, OCallable<Void, OCommandRequest>>();
+  private final Map<Class<? extends OCommandRequest>, Class<? extends OCommandExecutor>>
       commandReqExecMap =
           new HashMap<Class<? extends OCommandRequest>, Class<? extends OCommandExecutor>>();
-  private Map<String, OScriptExecutor> scriptExecutors = new HashMap<>();
+  private final Map<String, OScriptExecutor> scriptExecutors = new HashMap<>();
 
   public OCommandManager() {
     registerScriptExecutor("sql", new OSqlScriptExecutor());

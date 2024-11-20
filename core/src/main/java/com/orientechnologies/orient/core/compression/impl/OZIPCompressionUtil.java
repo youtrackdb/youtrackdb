@@ -265,8 +265,7 @@ public class OZIPCompressionUtil {
               + " ratio="
               + ratio
               + "%% elapsed="
-              + OIOUtils.getTimeAsString(System.currentTimeMillis() - begin)
-              + "");
+              + OIOUtils.getTimeAsString(System.currentTimeMillis() - begin));
     }
   }
 }

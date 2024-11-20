@@ -1,7 +1,6 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OCompositeIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
@@ -19,10 +18,10 @@ import java.util.List;
  */
 public class IndexSearchDescriptor {
 
-  private OIndex index;
-  private OBooleanExpression keyCondition;
-  private OBinaryCondition additionalRangeCondition;
-  private OBooleanExpression remainingCondition;
+  private final OIndex index;
+  private final OBooleanExpression keyCondition;
+  private final OBinaryCondition additionalRangeCondition;
+  private final OBooleanExpression remainingCondition;
 
   public IndexSearchDescriptor(
       OIndex idx,
@@ -50,9 +49,9 @@ public class IndexSearchDescriptor {
   }
 
   public int cost(OCommandContext ctx) {
-    OQueryStats stats = OQueryStats.get((ODatabaseSessionInternal) ctx.getDatabase());
+    OQueryStats stats = OQueryStats.get(ctx.getDatabase());
 
-    String indexName = getIndex().getName();
+    String indexName = index.getName();
     int size = getSubBlocks().size();
     boolean range = false;
     OBooleanExpression lastOp = getSubBlocks().get(getSubBlocks().size() - 1);
@@ -63,7 +62,7 @@ public class IndexSearchDescriptor {
 
     long val =
         stats.getIndexStats(
-            indexName, size, range, getAdditionalRangeCondition() != null, ctx.getDatabase());
+            indexName, size, range, additionalRangeCondition != null, ctx.getDatabase());
     if (val == -1) {
       // TODO query the index!
     }
@@ -122,18 +121,15 @@ public class IndexSearchDescriptor {
   }
 
   public boolean duplicateResultsForRecord() {
-    if (getIndex().getDefinition() instanceof OCompositeIndexDefinition) {
-      if (((OCompositeIndexDefinition) getIndex().getDefinition()).getMultiValueDefinition()
-          != null) {
-        return true;
-      }
+    if (index.getDefinition() instanceof OCompositeIndexDefinition) {
+      return ((OCompositeIndexDefinition) index.getDefinition()).getMultiValueDefinition() != null;
     }
     return false;
   }
 
   public boolean fullySorted(List<String> orderItems) {
     List<OBooleanExpression> conditions = getSubBlocks();
-    OIndex idx = getIndex();
+    OIndex idx = index;
 
     if (!idx.supportsOrderedIterations()) {
       return false;

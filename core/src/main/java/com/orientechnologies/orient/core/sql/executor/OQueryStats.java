@@ -38,8 +38,7 @@ public class OQueryStats {
     if (val != null) {
       return val;
     }
-    if (database != null && database instanceof ODatabaseSessionInternal) {
-      ODatabaseSessionInternal db = (ODatabaseSessionInternal) database;
+    if (database != null && database instanceof ODatabaseSessionInternal db) {
       OIndex idx = db.getMetadata().getIndexManagerInternal().getIndex(db, indexName);
       if (idx != null
           && idx.isUnique()
@@ -117,7 +116,7 @@ public class OQueryStats {
       // refine this ;-)
       val = ((Double) ((val * .9) + (value * .1))).longValue();
       if (value > 0 && val == 0) {
-        val = 1l;
+        val = 1L;
       }
     }
     stats.put(key, val);

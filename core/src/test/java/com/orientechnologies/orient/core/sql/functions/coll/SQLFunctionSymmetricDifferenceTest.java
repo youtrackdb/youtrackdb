@@ -42,7 +42,7 @@ public class SQLFunctionSymmetricDifferenceTest {
           }
         };
 
-    final List<Object> income = Arrays.<Object>asList(1, 2, 3, 1, 4, 5, 2, 2, 1, 1);
+    final List<Object> income = Arrays.asList(1, 2, 3, 1, 4, 5, 2, 2, 1, 1);
     final Set<Object> expectedResult = new HashSet<Object>(Arrays.asList(3, 4, 5));
 
     for (Object i : income) {
@@ -78,9 +78,9 @@ public class SQLFunctionSymmetricDifferenceTest {
 
     final List<List<Object>> incomes =
         Arrays.asList(
-            Arrays.<Object>asList(1, 2, 3, 4, 5, 1),
-            Arrays.<Object>asList(3, 5, 6, 7, 0, 1, 3, 3, 6),
-            Arrays.<Object>asList(2, 2, 8, 9));
+            Arrays.asList(1, 2, 3, 4, 5, 1),
+            Arrays.asList(3, 5, 6, 7, 0, 1, 3, 3, 6),
+            Arrays.asList(2, 2, 8, 9));
 
     final Set<Object> expectedResult = new HashSet<Object>(Arrays.<Object>asList(4, 7, 8, 9, 0));
 
@@ -94,7 +94,7 @@ public class SQLFunctionSymmetricDifferenceTest {
         (Set<Object>)
             merger.mergeDistributedResult(
                 Arrays.asList(
-                    (Object) differences.get(0).getResult(),
+                    differences.get(0).getResult(),
                     differences.get(1).getResult(),
                     differences.get(2).getResult()));
 
@@ -107,9 +107,9 @@ public class SQLFunctionSymmetricDifferenceTest {
 
     final List<List<Object>> incomes =
         Arrays.asList(
-            Arrays.<Object>asList(1, 2, 3, 4, 5, 1),
-            Arrays.<Object>asList(3, 5, 6, 7, 0, 1, 3, 3, 6),
-            Arrays.<Object>asList(2, 2, 8, 9));
+            Arrays.asList(1, 2, 3, 4, 5, 1),
+            Arrays.asList(3, 5, 6, 7, 0, 1, 3, 3, 6),
+            Arrays.asList(2, 2, 8, 9));
 
     final Set<Object> expectedResult = new HashSet<Object>(Arrays.<Object>asList(4, 7, 8, 9, 0));
 

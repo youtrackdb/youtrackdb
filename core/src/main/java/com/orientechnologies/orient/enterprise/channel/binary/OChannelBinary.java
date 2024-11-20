@@ -33,6 +33,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 /**
@@ -48,8 +49,8 @@ public abstract class OChannelBinary extends OChannel
   private final int maxChunkSize;
   public DataInputStream in;
   public DataOutputStream out;
-  private int responseTimeout;
-  private int networkTimeout;
+  private final int responseTimeout;
+  private final int networkTimeout;
 
   public OChannelBinary(final Socket iSocket, final OContextConfiguration iConfig)
       throws IOException {
@@ -168,7 +169,7 @@ public abstract class OChannelBinary extends OChannel
 
       updateMetricReceivedBytes(OBinaryProtocol.SIZE_INT + len);
 
-      final String value = new String(tmp, "UTF-8");
+      final String value = new String(tmp, StandardCharsets.UTF_8);
       OLogManager.instance()
           .info(this, "%s - Read string: %s", socket.getRemoteSocketAddress(), value);
       return value;
@@ -184,7 +185,7 @@ public abstract class OChannelBinary extends OChannel
 
     updateMetricReceivedBytes(OBinaryProtocol.SIZE_INT + len);
 
-    return new String(tmp, "UTF-8");
+    return new String(tmp, StandardCharsets.UTF_8);
   }
 
   public byte[] readBytes() throws IOException {
@@ -321,7 +322,7 @@ public abstract class OChannelBinary extends OChannel
       out.writeInt(-1);
       updateMetricTransmittedBytes(OBinaryProtocol.SIZE_INT);
     } else {
-      final byte[] buffer = iContent.getBytes("UTF-8");
+      final byte[] buffer = iContent.getBytes(StandardCharsets.UTF_8);
       if (buffer.length > maxChunkSize) {
         throw new OInvalidBinaryChunkException(
             "Impossible to write a chunk of length:"

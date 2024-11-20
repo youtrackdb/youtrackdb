@@ -56,8 +56,7 @@ public class OSBTreeBonsaiLocalTestIT {
             "actualSBTreeBonsaiLocalTest", ".irs", (OAbstractPaginatedStorage) db.getStorage());
 
     atomicOperationsManager =
-        ((OAbstractPaginatedStorage) ((ODatabaseSessionInternal) db).getStorage())
-            .getAtomicOperationsManager();
+        ((OAbstractPaginatedStorage) db.getStorage()).getAtomicOperationsManager();
     atomicOperationsManager.executeInsideAtomicOperation(
         null, atomicOperation -> sbTree.createComponent(atomicOperation));
 

@@ -255,7 +255,7 @@ public class OIndexDefinitionFactory {
     }
     if (fieldNameParts.length == 3) {
 
-      if ("by".equals(fieldNameParts[1].toLowerCase())) {
+      if ("by".equalsIgnoreCase(fieldNameParts[1])) {
         try {
           return OPropertyMapIndexDefinition.INDEX_BY.valueOf(fieldNameParts[2].toUpperCase());
         } catch (IllegalArgumentException iae) {

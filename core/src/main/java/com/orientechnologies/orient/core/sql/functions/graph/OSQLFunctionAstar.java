@@ -162,7 +162,7 @@ public class OSQLFunctionAstar extends OSQLFunctionHeuristicPathFinderAbstract {
 
       // we discussed about this feature in
       // https://github.com/orientechnologies/orientdb/pull/6002#issuecomment-212492687
-      if (paramEmptyIfMaxDepth == true && currentDepth >= paramMaxDepth) {
+      if (paramEmptyIfMaxDepth && currentDepth >= paramMaxDepth) {
         route.clear(); // to ensure our result is empty
         return getPath();
       }

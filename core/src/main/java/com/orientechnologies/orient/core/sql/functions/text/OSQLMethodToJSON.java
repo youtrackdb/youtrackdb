@@ -61,9 +61,8 @@ public class OSQLMethodToJSON extends OAbstractSQLMethod {
     if (iThis instanceof OResult) {
       iThis = ((OResult) iThis).toElement();
     }
-    if (iThis instanceof ORecord) {
+    if (iThis instanceof ORecord record) {
 
-      ORecord record = (ORecord) iThis;
       if (record.isUnloaded()) {
         record = ODatabaseSession.getActiveSession().bindToSession(record);
       }

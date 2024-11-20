@@ -14,6 +14,7 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 public class OAlterPropertyStatement extends ODDLStatement {
 
@@ -171,34 +172,22 @@ public class OAlterPropertyStatement extends ODDLStatement {
 
     OAlterPropertyStatement that = (OAlterPropertyStatement) o;
 
-    if (className != null ? !className.equals(that.className) : that.className != null) {
+    if (!Objects.equals(className, that.className)) {
       return false;
     }
-    if (propertyName != null
-        ? !propertyName.equals(that.propertyName)
-        : that.propertyName != null) {
+    if (!Objects.equals(propertyName, that.propertyName)) {
       return false;
     }
-    if (customPropertyName != null
-        ? !customPropertyName.equals(that.customPropertyName)
-        : that.customPropertyName != null) {
+    if (!Objects.equals(customPropertyName, that.customPropertyName)) {
       return false;
     }
-    if (customPropertyValue != null
-        ? !customPropertyValue.equals(that.customPropertyValue)
-        : that.customPropertyValue != null) {
+    if (!Objects.equals(customPropertyValue, that.customPropertyValue)) {
       return false;
     }
-    if (settingName != null ? !settingName.equals(that.settingName) : that.settingName != null) {
+    if (!Objects.equals(settingName, that.settingName)) {
       return false;
     }
-    if (settingValue != null
-        ? !settingValue.equals(that.settingValue)
-        : that.settingValue != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(settingValue, that.settingValue);
   }
 
   @Override

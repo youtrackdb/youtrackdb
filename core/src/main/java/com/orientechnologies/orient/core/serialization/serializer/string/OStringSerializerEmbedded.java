@@ -27,7 +27,7 @@ import com.orientechnologies.orient.core.record.impl.ODocumentEmbedded;
 import com.orientechnologies.orient.core.serialization.ODocumentSerializable;
 import com.orientechnologies.orient.core.serialization.OSerializableStream;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerSchemaAware2CSV;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 public class OStringSerializerEmbedded implements OStringSerializer {
 
@@ -48,12 +48,8 @@ public class OStringSerializerEmbedded implements OStringSerializer {
     }
 
     final ODocument instance = new ODocumentEmbedded();
-    try {
-      ORecordSerializerSchemaAware2CSV.INSTANCE.fromStream(
-          iStream.getBytes("UTF-8"), instance, null);
-    } catch (UnsupportedEncodingException e) {
-      throw OException.wrapException(new OSerializationException("Error decoding string"), e);
-    }
+    ORecordSerializerSchemaAware2CSV.INSTANCE.fromStream(
+        iStream.getBytes(StandardCharsets.UTF_8), instance, null);
 
     final String className = instance.field(ODocumentSerializable.CLASS_NAME);
     if (className == null) {
@@ -106,21 +102,15 @@ public class OStringSerializerEmbedded implements OStringSerializer {
         iValue = ((ODocumentSerializable) iValue).toDocument();
       }
 
-      if (!(iValue instanceof OSerializableStream)) {
+      if (!(iValue instanceof OSerializableStream stream)) {
         throw new OSerializationException(
             "Cannot serialize the object since it's not implements the OSerializableStream"
                 + " interface");
       }
 
-      OSerializableStream stream = (OSerializableStream) iValue;
       iOutput.append(iValue.getClass().getName());
       iOutput.append(SEPARATOR);
-      try {
-        iOutput.append(new String(stream.toStream(), "UTF-8"));
-      } catch (UnsupportedEncodingException e) {
-        throw OException.wrapException(
-            new OSerializationException("Error serializing embedded object"), e);
-      }
+      iOutput.append(new String(stream.toStream(), StandardCharsets.UTF_8));
     }
 
     return iOutput;

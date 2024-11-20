@@ -39,14 +39,14 @@ public class OSocketFactory {
   private SocketFactory socketFactory;
   private boolean useSSL = false;
   private SSLContext context = null;
-  private OContextConfiguration config;
+  private final OContextConfiguration config;
 
   private String keyStorePath = null;
   private String keyStorePassword = null;
-  private String keyStoreType = KeyStore.getDefaultType();
+  private final String keyStoreType = KeyStore.getDefaultType();
   private String trustStorePath = null;
   private String trustStorePassword = null;
-  private String trustStoreType = KeyStore.getDefaultType();
+  private final String trustStoreType = KeyStore.getDefaultType();
 
   private OSocketFactory(final OContextConfiguration iConfig) {
     config = iConfig;

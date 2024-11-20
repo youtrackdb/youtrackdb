@@ -2,7 +2,6 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -54,7 +53,7 @@ public class UpsertStep extends AbstractExecutionStep {
         clusterId = ctx.getDatabase().getClusterIdByName(cluster.getClusterName());
       }
       OClass clazz =
-          ((ODatabaseSessionInternal) ctx.getDatabase())
+          ctx.getDatabase()
               .getMetadata()
               .getImmutableSchemaSnapshot()
               .getClassByClusterId(clusterId);

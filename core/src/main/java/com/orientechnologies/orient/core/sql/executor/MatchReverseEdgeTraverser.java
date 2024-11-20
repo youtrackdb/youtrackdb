@@ -51,8 +51,7 @@ public class MatchReverseEdgeTraverser extends MatchEdgeTraverser {
     if (qR instanceof OIdentifiable) {
       return OExecutionStream.singleton(new OResultInternal((OIdentifiable) qR));
     }
-    if (qR instanceof Iterable) {
-      Iterable iterable = (Iterable) qR;
+    if (qR instanceof Iterable iterable) {
       return OExecutionStream.iterator(iterable.iterator());
     }
     return OExecutionStream.empty();

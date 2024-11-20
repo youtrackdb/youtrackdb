@@ -10,6 +10,7 @@ import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.executor.OUpdateExecutionPlan;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class OMoveVertexStatement extends OStatement {
 
@@ -132,20 +133,16 @@ public class OMoveVertexStatement extends OStatement {
     if (!source.equals(that.source)) {
       return false;
     }
-    if (targetCluster != null
-        ? !targetCluster.equals(that.targetCluster)
-        : that.targetCluster != null) {
+    if (!Objects.equals(targetCluster, that.targetCluster)) {
       return false;
     }
-    if (targetClass != null ? !targetClass.equals(that.targetClass) : that.targetClass != null) {
+    if (!Objects.equals(targetClass, that.targetClass)) {
       return false;
     }
-    if (updateOperations != null
-        ? !updateOperations.equals(that.updateOperations)
-        : that.updateOperations != null) {
+    if (!Objects.equals(updateOperations, that.updateOperations)) {
       return false;
     }
-    return batch != null ? batch.equals(that.batch) : that.batch == null;
+    return Objects.equals(batch, that.batch);
   }
 
   @Override

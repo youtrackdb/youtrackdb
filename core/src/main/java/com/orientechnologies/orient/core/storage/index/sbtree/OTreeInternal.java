@@ -54,10 +54,10 @@ public interface OTreeInternal<K, V> {
     boolean addResult(Map.Entry<K, V> entry);
   }
 
-  public class AccumulativeListener<K, V> implements RangeResultListener<K, V> {
+  class AccumulativeListener<K, V> implements RangeResultListener<K, V> {
 
     private final int limit;
-    private List<Map.Entry<K, V>> entries;
+    private final List<Map.Entry<K, V>> entries;
 
     public AccumulativeListener(int limit) {
       entries = new ArrayList<Map.Entry<K, V>>(limit);

@@ -54,7 +54,7 @@ public class OSQLMethodSubStringTest {
     assertEquals(result, "foobar".substring(1));
 
     result = function.execute("foobar", null, null, null, new Object[] {0});
-    assertEquals(result, "foobar".substring(0));
+    assertEquals(result, "foobar");
 
     result = function.execute("foobar", null, null, null, new Object[] {6});
     assertEquals(result, "foobar".substring(6));
@@ -63,7 +63,7 @@ public class OSQLMethodSubStringTest {
     assertEquals(result, "");
 
     result = function.execute("foobar", null, null, null, new Object[] {-7});
-    assertEquals(result, "foobar".substring(0));
+    assertEquals(result, "foobar");
   }
 
   @Test

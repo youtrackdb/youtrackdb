@@ -142,12 +142,12 @@ public class OFileUtils {
       return String.format("%2.2fKB", (float) iSize / KILOBYTE);
     }
 
-    return String.valueOf(iSize) + "b";
+    return iSize + "b";
   }
 
   public static String getDirectory(String iPath) {
     iPath = getPath(iPath);
-    int pos = iPath.lastIndexOf("/");
+    int pos = iPath.lastIndexOf('/');
     if (pos == -1) {
       return "";
     }

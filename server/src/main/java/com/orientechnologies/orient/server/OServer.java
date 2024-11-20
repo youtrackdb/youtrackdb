@@ -173,7 +173,7 @@ public class OServer {
 
   public static OServer getInstanceByPath(final String iPath) {
     for (Map.Entry<String, OServer> entry : distributedServers.entrySet()) {
-      if (iPath.startsWith(entry.getValue().getDatabaseDirectory())) {
+      if (iPath.startsWith(entry.getValue().databaseDirectory)) {
         return entry.getValue();
       }
     }
@@ -460,7 +460,7 @@ public class OServer {
 
       tokenHandler =
           new OTokenHandlerImpl(
-              this.databases.getSecuritySystem().getTokenSign(), this.getContextConfiguration());
+              this.databases.getSecuritySystem().getTokenSign(), this.contextConfiguration);
 
       if (configuration.network != null) {
         // REGISTER/CREATE SOCKET FACTORIES
@@ -523,7 +523,7 @@ public class OServer {
 
       String httpAddress = "localhost:2480";
       boolean ssl = false;
-      for (OServerNetworkListener listener : getNetworkListeners()) {
+      for (OServerNetworkListener listener : networkListeners) {
         if (listener.getProtocolType().getName().equals(ONetworkProtocolHttpDb.class.getName())) {
           httpAddress = listener.getListeningAddress(true);
           ssl = listener.getSocketFactory().isEncrypted();
@@ -660,8 +660,8 @@ public class OServer {
           OLogManager.instance().error(this, "Error during OrientDB shutdown", e);
         }
       }
-      if (!getContextConfiguration()
-              .getValueAsBoolean(OGlobalConfiguration.SERVER_BACKWARD_COMPATIBILITY)
+      if (!contextConfiguration.getValueAsBoolean(
+              OGlobalConfiguration.SERVER_BACKWARD_COMPATIBILITY)
           && databases != null) {
         databases.close();
         databases = null;
@@ -702,11 +702,11 @@ public class OServer {
    * Opens all the available server's databases.
    */
   protected void loadDatabases() {
-    if (!getContextConfiguration()
-        .getValueAsBoolean(OGlobalConfiguration.SERVER_OPEN_ALL_DATABASES_AT_STARTUP)) {
+    if (!contextConfiguration.getValueAsBoolean(
+        OGlobalConfiguration.SERVER_OPEN_ALL_DATABASES_AT_STARTUP)) {
       return;
     }
-    getDatabases().loadAllDatabases();
+    databases.loadAllDatabases();
   }
 
   private boolean askForEncryptionKey(final String iDatabaseName) {
@@ -928,7 +928,7 @@ public class OServer {
   }
 
   public ODatabaseSessionInternal openDatabase(String database) {
-    return getDatabases().openNoAuthorization(database);
+    return databases.openNoAuthorization(database);
   }
 
   public ODistributedServerManager getDistributedManager() {

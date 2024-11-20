@@ -1063,13 +1063,13 @@ public class ODatabaseDocumentRemote extends ODatabaseDocumentAbstract {
     if (polimorfic) {
       try (OResultSet result = command("truncate class " + name + " polymorphic ")) {
         while (result.hasNext()) {
-          count += (long) result.next().getProperty("count");
+          count += result.next().<Long>getProperty("count");
         }
       }
     } else {
       try (OResultSet result = command("truncate class " + name)) {
         while (result.hasNext()) {
-          count += (long) result.next().getProperty("count");
+          count += result.next().<Long>getProperty("count");
         }
       }
     }

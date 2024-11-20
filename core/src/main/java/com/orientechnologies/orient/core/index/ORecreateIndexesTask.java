@@ -57,9 +57,7 @@ public class ORecreateIndexesTask implements Runnable {
       try {
         recreateIndexes(indexesToRebuild, newDb);
       } finally {
-        if (indexManager.storage instanceof OAbstractPaginatedStorage) {
-          final OAbstractPaginatedStorage abstractPaginatedStorage =
-              (OAbstractPaginatedStorage) indexManager.storage;
+        if (indexManager.storage instanceof OAbstractPaginatedStorage abstractPaginatedStorage) {
           abstractPaginatedStorage.synch();
         }
         newDb.close();
@@ -84,7 +82,7 @@ public class ORecreateIndexesTask implements Runnable {
       }
     }
 
-    ((OIndexManagerShared) db.getMetadata().getIndexManagerInternal()).save();
+    db.getMetadata().getIndexManagerInternal().save();
 
     indexManager.rebuildCompleted = true;
 
@@ -214,7 +212,7 @@ public class ORecreateIndexesTask implements Runnable {
     if (indexType == null) {
       OLogManager.instance().error(this, "Index type is null, will process other record", null);
       throw new OIndexException(
-          "Index type is null, will process other record. Index configuration: " + idx.toString());
+          "Index type is null, will process other record. Index configuration: " + idx);
     }
     OIndexMetadata m = OIndexAbstract.loadMetadataFromDoc(idx);
     return OIndexes.createIndex(indexManager.storage, m);

@@ -69,14 +69,14 @@ public class OrientJdbcResultSet implements ResultSet {
   private final OrientJdbcResultSetMetaData resultSetMetaData;
   private final List<String> fieldNames;
   private List<OResult> records;
-  private OrientJdbcStatement statement;
+  private final OrientJdbcStatement statement;
   private OResult result;
 
   private int cursor = -1;
   private int rowCount = 0;
-  private int type;
-  private int concurrency;
-  private int holdability;
+  private final int type;
+  private final int concurrency;
+  private final int holdability;
 
   private boolean lastReadWasNull = true;
 
@@ -421,8 +421,7 @@ public class OrientJdbcResultSet implements ResultSet {
       if (value instanceof OBlob) {
         lastReadWasNull = false;
         return new OrientBlob((OBlob) value);
-      } else if (value instanceof OList) {
-        OList list = (OList) value;
+      } else if (value instanceof OList list) {
         // check if all the list items are instances of ORecordBytes
         ListIterator<OIdentifiable> iterator = list.listIterator();
 

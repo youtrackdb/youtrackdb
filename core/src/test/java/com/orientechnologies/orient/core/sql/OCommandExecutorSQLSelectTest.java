@@ -53,7 +53,7 @@ import org.junit.Test;
 
 public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
 
-  private static int ORDER_SKIP_LIMIT_ITEMS = 100 * 1000;
+  private static final int ORDER_SKIP_LIMIT_ITEMS = 100 * 1000;
 
   public void beforeTest() {
     super.beforeTest();
@@ -812,7 +812,6 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     List<OResult> qResult =
         db.command("select from unwindtest unwind coll limit 3").stream()
             .collect(Collectors.toList());
-    ;
 
     assertEquals(qResult.size(), 3);
     for (OResult doc : qResult) {
@@ -1454,7 +1453,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     assertEquals(results.size(), 1);
     //    assertEquals(results.iterator().next().field("count"), 0l);
 
-    assertThat(results.iterator().next().<Long>getProperty("count")).isEqualTo(0l);
+    assertThat(results.iterator().next().<Long>getProperty("count")).isEqualTo(0L);
   }
 
   @Test
@@ -1465,7 +1464,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     assertEquals(results.size(), 1);
 
     //    assertEquals(results.get(0).field("value"), 86400000l * 26);
-    assertThat(results.get(0).<Long>getProperty("value")).isEqualTo(86400000l * 26);
+    assertThat(results.get(0).<Long>getProperty("value")).isEqualTo(86400000L * 26);
   }
 
   @Test
@@ -1917,6 +1916,6 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     } catch (Exception e) {
       fail();
     }
-    return -1l;
+    return -1L;
   }
 }

@@ -5,6 +5,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.util.Map;
+import java.util.Objects;
 
 public class OLetItem extends SimpleNode {
 
@@ -75,19 +76,13 @@ public class OLetItem extends SimpleNode {
 
     OLetItem oLetItem = (OLetItem) o;
 
-    if (varName != null ? !varName.equals(oLetItem.varName) : oLetItem.varName != null) {
+    if (!Objects.equals(varName, oLetItem.varName)) {
       return false;
     }
-    if (expression != null
-        ? !expression.equals(oLetItem.expression)
-        : oLetItem.expression != null) {
+    if (!Objects.equals(expression, oLetItem.expression)) {
       return false;
     }
-    if (query != null ? !query.equals(oLetItem.query) : oLetItem.query != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(query, oLetItem.query);
   }
 
   @Override
@@ -102,10 +97,7 @@ public class OLetItem extends SimpleNode {
     if (expression != null && expression.refersToParent()) {
       return true;
     }
-    if (query != null && query.refersToParent()) {
-      return true;
-    }
-    return false;
+    return query != null && query.refersToParent();
   }
 
   public OIdentifier getVarName() {

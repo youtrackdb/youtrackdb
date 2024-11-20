@@ -88,8 +88,7 @@ public abstract class OStringSerializerHelper {
 
     switch (iType) {
       case STRING:
-        if (iValue instanceof String) {
-          final String s = (String) iValue;
+        if (iValue instanceof String s) {
           return decode(OIOUtils.getStringContent(s));
         }
         return iValue.toString();
@@ -220,8 +219,7 @@ public abstract class OStringSerializerHelper {
             iDocument, null, value, null);
 
       case ANY:
-        if (iValue instanceof String) {
-          final String s = (String) iValue;
+        if (iValue instanceof String s) {
           return decode(OIOUtils.getStringContent(s));
         }
         return iValue;
@@ -706,7 +704,7 @@ public abstract class OStringSerializerHelper {
                         + " character at position "
                         + i
                         + " of text "
-                        + new String(iSource)
+                        + iSource
                         + ". Ensure it is opened and closed correctly.");
               }
               insideList--;
@@ -722,7 +720,7 @@ public abstract class OStringSerializerHelper {
                       + " character at position "
                       + i
                       + " of text "
-                      + new String(iSource)
+                      + iSource
                       + ". Ensure it is opened and closed correctly.");
             }
             // }
@@ -739,7 +737,7 @@ public abstract class OStringSerializerHelper {
                         + " character at position "
                         + i
                         + " of text "
-                        + new String(iSource)
+                        + iSource
                         + ". Ensure it is opened and closed correctly.");
               }
               insideMap--;
@@ -765,7 +763,7 @@ public abstract class OStringSerializerHelper {
                             + " character at position "
                             + i
                             + " of text "
-                            + new String(iSource)
+                            + iSource
                             + ". Ensure it is opened and closed correctly.");
                   }
                   insideSet--;
@@ -1306,7 +1304,7 @@ public abstract class OStringSerializerHelper {
 
     // CHANGE THE INPUT STRING
     final StringBuilder buffer = new StringBuilder(textSize);
-    buffer.append(iText.substring(0, pos));
+    buffer.append(iText, 0, pos);
 
     boolean escaped = false;
     for (int i = pos; i < textSize; ++i) {
@@ -1322,11 +1320,7 @@ public abstract class OStringSerializerHelper {
           buffer.append('\r');
         } else if (c == '\\') {
           buffer.append('\\');
-        } else if (c == '\f') {
-          buffer.append('\f');
-        } else {
-          buffer.append(c);
-        }
+        } else buffer.append(c);
         continue;
       } else if (c == '\\') {
         escaped = true;
@@ -1376,8 +1370,7 @@ public abstract class OStringSerializerHelper {
       return ((OBinary) iValue).toByteArray();
     } else if (iValue instanceof byte[]) {
       return (byte[]) iValue;
-    } else if (iValue instanceof String) {
-      String s = (String) iValue;
+    } else if (iValue instanceof String s) {
       if (s.length() > 1
               && (s.charAt(0) == BINARY_BEGINEND && s.charAt(s.length() - 1) == BINARY_BEGINEND)
           || (s.charAt(0) == '\'' && s.charAt(s.length() - 1) == '\''))

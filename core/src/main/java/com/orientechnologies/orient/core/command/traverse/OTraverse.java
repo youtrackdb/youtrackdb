@@ -39,12 +39,12 @@ public class OTraverse implements OCommand, Iterable<OIdentifiable>, Iterator<OI
 
   private OCommandPredicate predicate;
   private Iterator<? extends OIdentifiable> target;
-  private List<Object> fields = new ArrayList<Object>();
+  private final List<Object> fields = new ArrayList<Object>();
   private long resultCount = 0;
   private long limit = 0;
   private OIdentifiable lastTraversed;
   private STRATEGY strategy = STRATEGY.DEPTH_FIRST;
-  private OTraverseContext context = new OTraverseContext();
+  private final OTraverseContext context = new OTraverseContext();
   private int maxDepth = -1;
 
   public enum STRATEGY {

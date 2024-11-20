@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -200,11 +201,7 @@ public class OModifier extends SimpleNode {
       return true;
     }
 
-    if (next != null && next.needsAliases(aliases)) {
-      return true;
-    }
-
-    return false;
+    return next != null && next.needsAliases(aliases);
   }
 
   public OModifier copy() {
@@ -235,37 +232,25 @@ public class OModifier extends SimpleNode {
     if (squareBrackets != oModifier.squareBrackets) {
       return false;
     }
-    if (arrayRange != null
-        ? !arrayRange.equals(oModifier.arrayRange)
-        : oModifier.arrayRange != null) {
+    if (!Objects.equals(arrayRange, oModifier.arrayRange)) {
       return false;
     }
-    if (condition != null ? !condition.equals(oModifier.condition) : oModifier.condition != null) {
+    if (!Objects.equals(condition, oModifier.condition)) {
       return false;
     }
-    if (arraySingleValues != null
-        ? !arraySingleValues.equals(oModifier.arraySingleValues)
-        : oModifier.arraySingleValues != null) {
+    if (!Objects.equals(arraySingleValues, oModifier.arraySingleValues)) {
       return false;
     }
-    if (rightBinaryCondition != null
-        ? !rightBinaryCondition.equals(oModifier.rightBinaryCondition)
-        : oModifier.rightBinaryCondition != null) {
+    if (!Objects.equals(rightBinaryCondition, oModifier.rightBinaryCondition)) {
       return false;
     }
-    if (methodCall != null
-        ? !methodCall.equals(oModifier.methodCall)
-        : oModifier.methodCall != null) {
+    if (!Objects.equals(methodCall, oModifier.methodCall)) {
       return false;
     }
-    if (suffix != null ? !suffix.equals(oModifier.suffix) : oModifier.suffix != null) {
+    if (!Objects.equals(suffix, oModifier.suffix)) {
       return false;
     }
-    if (next != null ? !next.equals(oModifier.next) : oModifier.next != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(next, oModifier.next);
   }
 
   @Override
@@ -322,10 +307,7 @@ public class OModifier extends SimpleNode {
     if (methodCall != null && methodCall.refersToParent()) {
       return true;
     }
-    if (suffix != null && suffix.refersToParent()) {
-      return true;
-    }
-    return false;
+    return suffix != null && suffix.refersToParent();
   }
 
   protected void setValue(OResult currentRecord, Object target, Object value, OCommandContext ctx) {
@@ -413,7 +395,7 @@ public class OModifier extends SimpleNode {
       } else if (suffix != null) {
         suffix.applyRemove(currentValue, ctx);
       } else {
-        throw new OCommandExecutionException("cannot apply REMOVE " + toString());
+        throw new OCommandExecutionException("cannot apply REMOVE " + this);
       }
     }
   }
@@ -492,11 +474,7 @@ public class OModifier extends SimpleNode {
     if (suffix != null && !suffix.isCacheable()) {
       return false;
     }
-    if (next != null && !next.isCacheable()) {
-      return false;
-    }
-
-    return true;
+    return next == null || next.isCacheable();
   }
 
   public boolean isIndexChain(OCommandContext ctx, OClass clazz) {

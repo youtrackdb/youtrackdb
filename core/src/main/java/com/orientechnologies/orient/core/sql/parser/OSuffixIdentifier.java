@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class OSuffixIdentifier extends SimpleNode {
@@ -288,20 +289,17 @@ public class OSuffixIdentifier extends SimpleNode {
   }
 
   public boolean isEarlyCalculated(OCommandContext ctx) {
-    if (identifier != null && identifier.isEarlyCalculated(ctx)) {
-      return true;
-    }
-    return false;
+    return identifier != null && identifier.isEarlyCalculated(ctx);
   }
 
   public void aggregate(Object value, OCommandContext ctx) {
     throw new UnsupportedOperationException(
-        "this operation does not support plain aggregation: " + toString());
+        "this operation does not support plain aggregation: " + this);
   }
 
   public AggregationContext getAggregationContext(OCommandContext ctx) {
     throw new UnsupportedOperationException(
-        "this operation does not support plain aggregation: " + toString());
+        "this operation does not support plain aggregation: " + this);
   }
 
   public OSuffixIdentifier copy() {
@@ -326,16 +324,10 @@ public class OSuffixIdentifier extends SimpleNode {
     if (star != that.star) {
       return false;
     }
-    if (identifier != null ? !identifier.equals(that.identifier) : that.identifier != null) {
+    if (!Objects.equals(identifier, that.identifier)) {
       return false;
     }
-    if (recordAttribute != null
-        ? !recordAttribute.equals(that.recordAttribute)
-        : that.recordAttribute != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(recordAttribute, that.recordAttribute);
   }
 
   @Override
@@ -349,10 +341,7 @@ public class OSuffixIdentifier extends SimpleNode {
   public void extractSubQueries(SubQueryCollector collector) {}
 
   public boolean refersToParent() {
-    if (identifier != null && identifier.getStringValue().equalsIgnoreCase("$parent")) {
-      return true;
-    }
-    return false;
+    return identifier != null && identifier.getStringValue().equalsIgnoreCase("$parent");
   }
 
   public void setValue(Object target, Object value, OCommandContext ctx) {
@@ -408,8 +397,7 @@ public class OSuffixIdentifier extends SimpleNode {
     if (target == null) {
       return;
     }
-    if (target instanceof OResultInternal) {
-      OResultInternal intTarget = (OResultInternal) target;
+    if (target instanceof OResultInternal intTarget) {
       if (identifier != null) {
         intTarget.setProperty(identifier.getStringValue(), value);
       } else if (recordAttribute != null) {

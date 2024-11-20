@@ -4,7 +4,7 @@ import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 
 public class ValidationLinkbagComparable implements Comparable<Object> {
 
-  private int size;
+  private final int size;
 
   public ValidationLinkbagComparable(int size) {
     this.size = size;

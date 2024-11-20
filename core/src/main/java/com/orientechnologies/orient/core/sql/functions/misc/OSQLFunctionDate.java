@@ -43,7 +43,7 @@ public class OSQLFunctionDate extends OSQLFunctionAbstract {
 
   public static final String NAME = "date";
 
-  private Date date;
+  private final Date date;
   private DateFormat format;
 
   /**

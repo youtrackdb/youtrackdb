@@ -44,7 +44,7 @@ public class CheckClusterTypeStep extends AbstractExecutionStep {
       prev.start(context).close(ctx);
     }
 
-    ODatabaseSessionInternal db = (ODatabaseSessionInternal) context.getDatabase();
+    ODatabaseSessionInternal db = context.getDatabase();
 
     int clusterId;
     if (clusterName != null) {

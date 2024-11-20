@@ -57,7 +57,7 @@ public final class SpliteratorBackward<K> implements Spliterator<ORawPair<K, ORI
 
     btree.fetchBackwardNextCachePortion(this);
 
-    cacheIterator = getDataCache().iterator();
+    cacheIterator = dataCache.iterator();
 
     if (cacheIterator.hasNext()) {
       action.accept(cacheIterator.next());

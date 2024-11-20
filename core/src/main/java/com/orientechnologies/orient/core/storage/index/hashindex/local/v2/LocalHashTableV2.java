@@ -1612,7 +1612,7 @@ public class LocalHashTableV2<K, V> extends ODurableComponent implements OHashTa
         directory.setNodePointer(
             parentNodeIndex,
             startIndex + i,
-            (bucketPath.nodeIndex << 8) | (i * hashMapSize) | Long.MIN_VALUE,
+            ((long) bucketPath.nodeIndex << 8) | ((long) i * hashMapSize) | Long.MIN_VALUE,
             atomicOperation);
       }
     }
@@ -1753,7 +1753,7 @@ public class LocalHashTableV2<K, V> extends ODurableComponent implements OHashTa
       directory.setNodePointer(
           nodeIndex,
           nodeOffset,
-          (newNodeIndex << 8) | (i * mapSize) | Long.MIN_VALUE,
+          ((long) newNodeIndex << 8) | ((long) i * mapSize) | Long.MIN_VALUE,
           atomicOperation);
     }
 

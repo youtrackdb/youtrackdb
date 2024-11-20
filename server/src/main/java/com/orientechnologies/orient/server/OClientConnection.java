@@ -52,19 +52,19 @@ public class OClientConnection {
 
   private final int id;
   private final long since;
-  private Set<ONetworkProtocol> protocols =
+  private final Set<ONetworkProtocol> protocols =
       Collections.newSetFromMap(new WeakHashMap<ONetworkProtocol, Boolean>());
   private volatile ONetworkProtocol protocol;
   private volatile ODatabaseSessionInternal database;
   private volatile OSecurityUser serverUser;
   private ONetworkProtocolData data = new ONetworkProtocolData();
-  private OClientConnectionStats stats = new OClientConnectionStats();
-  private Lock lock = new ReentrantLock();
+  private final OClientConnectionStats stats = new OClientConnectionStats();
+  private final Lock lock = new ReentrantLock();
   private Boolean tokenBased;
   private byte[] tokenBytes;
   private OParsedToken token;
   private boolean disconnectOnAfter;
-  private OBinaryRequestExecutor executor;
+  private final OBinaryRequestExecutor executor;
 
   public OClientConnection(final int id, final ONetworkProtocol protocol) {
     this.id = id;
@@ -75,17 +75,17 @@ public class OClientConnection {
   }
 
   public void close() {
-    if (getDatabase() != null) {
-      if (!getDatabase().isClosed()) {
-        getDatabase().activateOnCurrentThread();
+    if (database != null) {
+      if (!database.isClosed()) {
+        database.activateOnCurrentThread();
         try {
-          getDatabase().close();
+          database.close();
         } catch (Exception e) {
           // IGNORE IT (ALREADY CLOSED?)
         }
       }
 
-      setDatabase(null);
+      database = null;
     }
   }
 
@@ -107,20 +107,12 @@ public class OClientConnection {
   @Override
   public String toString() {
     Object address;
-    if (getProtocol() != null
-        && getProtocol().getChannel() != null
-        && getProtocol().getChannel().socket != null) {
-      address = getProtocol().getChannel().socket.getRemoteSocketAddress();
+    if (protocol != null && protocol.getChannel() != null && protocol.getChannel().socket != null) {
+      address = protocol.getChannel().socket.getRemoteSocketAddress();
     } else {
       address = "?";
     }
-    return "OClientConnection [id="
-        + getId()
-        + ", source="
-        + address
-        + ", since="
-        + getSince()
-        + "]";
+    return "OClientConnection [id=" + id + ", source=" + address + ", since=" + since + "]";
   }
 
   /**
@@ -128,8 +120,8 @@ public class OClientConnection {
    */
   public String getRemoteAddress() {
     Socket socket = null;
-    if (getProtocol() != null) {
-      socket = getProtocol().getChannel().socket;
+    if (protocol != null) {
+      socket = protocol.getChannel().socket;
     } else {
       for (ONetworkProtocol protocol : this.protocols) {
         socket = protocol.getChannel().socket;
@@ -148,7 +140,7 @@ public class OClientConnection {
 
   @Override
   public int hashCode() {
-    return getId();
+    return id;
   }
 
   @Override
@@ -163,14 +155,11 @@ public class OClientConnection {
       return false;
     }
     final OClientConnection other = (OClientConnection) obj;
-    if (getId() != other.getId()) {
-      return false;
-    }
-    return true;
+    return id == other.id;
   }
 
   public OChannelBinary getChannel() {
-    return (OChannelBinary) getProtocol().getChannel();
+    return (OChannelBinary) protocol.getChannel();
   }
 
   public ONetworkProtocol getProtocol() {
@@ -259,7 +248,7 @@ public class OClientConnection {
 
   public void init(final OServer server) {
     if (database == null) {
-      setData(server.getTokenHandler().getProtocolDataFromToken(this, token.getToken()));
+      data = server.getTokenHandler().getProtocolDataFromToken(this, token.getToken());
 
       if (data == null) {
         throw new OTokenSecurityException("missing in token data");
@@ -268,7 +257,7 @@ public class OClientConnection {
       final String db = token.getToken().getDatabase();
       final String type = token.getToken().getDatabaseType();
       if (db != null && type != null) {
-        setDatabase(server.openDatabase(db, token));
+        database = server.openDatabase(db, token);
       }
     }
   }

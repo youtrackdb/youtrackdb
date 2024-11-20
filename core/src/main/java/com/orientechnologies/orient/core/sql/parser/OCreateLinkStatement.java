@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class OCreateLinkStatement extends OSimpleExecStatement {
@@ -77,31 +78,31 @@ public class OCreateLinkStatement extends OSimpleExecStatement {
               + "' was found");
     }
 
-    final ODatabaseSessionInternal db = (ODatabaseSessionInternal) database.getDatabaseOwner();
+    final ODatabaseSessionInternal db = database.getDatabaseOwner();
 
     OClass sourceClass =
         database
             .getMetadata()
             .getImmutableSchemaSnapshot()
-            .getClass(getSourceClass().getStringValue());
+            .getClass(this.sourceClass.getStringValue());
     if (sourceClass == null) {
       throw new OCommandExecutionException(
-          "Source class '" + getSourceClass().getStringValue() + "' not found");
+          "Source class '" + this.sourceClass.getStringValue() + "' not found");
     }
 
     OClass destClass =
         database
             .getMetadata()
             .getImmutableSchemaSnapshot()
-            .getClass(getDestClass().getStringValue());
+            .getClass(this.destClass.getStringValue());
     if (destClass == null) {
       throw new OCommandExecutionException(
-          "Destination class '" + getDestClass().getStringValue() + "' not found");
+          "Destination class '" + this.destClass.getStringValue() + "' not found");
     }
 
     String cmd = "select from ";
     if (destField != null && !ODocumentHelper.ATTRIBUTE_RID.equals(destField.value)) {
-      cmd = "select from " + getDestClass() + " where " + destField + " = ";
+      cmd = "select from " + this.destClass + " where " + destField + " = ";
     }
 
     long[] total = new long[1];
@@ -233,7 +234,7 @@ public class OCreateLinkStatement extends OSimpleExecStatement {
         if (inverse) {
           // REMOVE THE OLD PROPERTY IF ANY
           OProperty prop = destClass.getProperty(linkName);
-          destClass = db.getMetadata().getSchema().getClass(getDestClass().getStringValue());
+          destClass = db.getMetadata().getSchema().getClass(this.destClass.getStringValue());
           if (prop != null) {
             if (linkType != prop.getType()) {
               throw new OCommandExecutionException(
@@ -257,7 +258,7 @@ public class OCreateLinkStatement extends OSimpleExecStatement {
         } else {
           // REMOVE THE OLD PROPERTY IF ANY
           OProperty prop = sourceClass.getProperty(linkName);
-          sourceClass = db.getMetadata().getSchema().getClass(getDestClass().getStringValue());
+          sourceClass = db.getMetadata().getSchema().getClass(this.destClass.getStringValue());
           if (prop != null) {
             if (prop.getType() != OType.LINK) {
               throw new OCommandExecutionException(
@@ -382,36 +383,28 @@ public class OCreateLinkStatement extends OSimpleExecStatement {
     if (inverse != that.inverse) {
       return false;
     }
-    if (name != null ? !name.equals(that.name) : that.name != null) {
+    if (!Objects.equals(name, that.name)) {
       return false;
     }
-    if (type != null ? !type.equals(that.type) : that.type != null) {
+    if (!Objects.equals(type, that.type)) {
       return false;
     }
-    if (sourceClass != null ? !sourceClass.equals(that.sourceClass) : that.sourceClass != null) {
+    if (!Objects.equals(sourceClass, that.sourceClass)) {
       return false;
     }
-    if (sourceField != null ? !sourceField.equals(that.sourceField) : that.sourceField != null) {
+    if (!Objects.equals(sourceField, that.sourceField)) {
       return false;
     }
-    if (sourceRecordAttr != null
-        ? !sourceRecordAttr.equals(that.sourceRecordAttr)
-        : that.sourceRecordAttr != null) {
+    if (!Objects.equals(sourceRecordAttr, that.sourceRecordAttr)) {
       return false;
     }
-    if (destClass != null ? !destClass.equals(that.destClass) : that.destClass != null) {
+    if (!Objects.equals(destClass, that.destClass)) {
       return false;
     }
-    if (destField != null ? !destField.equals(that.destField) : that.destField != null) {
+    if (!Objects.equals(destField, that.destField)) {
       return false;
     }
-    if (destRecordAttr != null
-        ? !destRecordAttr.equals(that.destRecordAttr)
-        : that.destRecordAttr != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(destRecordAttr, that.destRecordAttr);
   }
 
   @Override

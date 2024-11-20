@@ -50,7 +50,7 @@ public interface OIndexableSQLFunction extends OSQLFunction {
    * @return an iterable of records that match the condition; null means that the execution could
    * not be performed for some reason.
    */
-  public Iterable<OIdentifiable> searchFromTarget(
+  Iterable<OIdentifiable> searchFromTarget(
       OFromClause target,
       OBinaryCompareOperator operator,
       Object rightValue,
@@ -72,7 +72,7 @@ public interface OIndexableSQLFunction extends OSQLFunction {
    * @return an estimantion of how many entries will be returned by searchFromTarget() with these
    * parameters, -1 if the estimation cannot be done
    */
-  public long estimate(
+  long estimate(
       OFromClause target,
       OBinaryCompareOperator operator,
       Object rightValue,
@@ -94,7 +94,7 @@ public interface OIndexableSQLFunction extends OSQLFunction {
    *                   </code> the arguments are [name]
    * @return true if the funciton can be calculated without the index. False otherwise
    */
-  public boolean canExecuteInline(
+  boolean canExecuteInline(
       OFromClause target,
       OBinaryCompareOperator operator,
       Object rightValue,
@@ -116,7 +116,7 @@ public interface OIndexableSQLFunction extends OSQLFunction {
    *                   </code> the arguments are [name]
    * @return True if the funciton can be used to fetch from an index. False otherwise
    */
-  public boolean allowsIndexedExecution(
+  boolean allowsIndexedExecution(
       OFromClause target,
       OBinaryCompareOperator operator,
       Object rightValue,
@@ -139,7 +139,7 @@ public interface OIndexableSQLFunction extends OSQLFunction {
    * @return True if this function should be called even if the method {@link #searchFromTarget} is
    * executed. False otherwise
    */
-  public boolean shouldExecuteAfterSearch(
+  boolean shouldExecuteAfterSearch(
       OFromClause target,
       OBinaryCompareOperator operator,
       Object rightValue,

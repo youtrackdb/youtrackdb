@@ -58,7 +58,7 @@ public class ReadersWriterSpinLockBenchmark {
   private void consumeCPU(int cycles) {
     long c1 = c;
     for (int i = 0; i < cycles; i++) {
-      c1 += c1 * 31 + i * 51;
+      c1 += c1 * 31 + i * 51L;
     }
     c = c1;
   }

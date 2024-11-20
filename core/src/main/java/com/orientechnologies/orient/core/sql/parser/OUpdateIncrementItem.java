@@ -3,6 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import java.util.Map;
+import java.util.Objects;
 
 public class OUpdateIncrementItem extends SimpleNode {
 
@@ -55,19 +56,13 @@ public class OUpdateIncrementItem extends SimpleNode {
 
     OUpdateIncrementItem that = (OUpdateIncrementItem) o;
 
-    if (left != null ? !left.equals(that.left) : that.left != null) {
+    if (!Objects.equals(left, that.left)) {
       return false;
     }
-    if (leftModifier != null
-        ? !leftModifier.equals(that.leftModifier)
-        : that.leftModifier != null) {
+    if (!Objects.equals(leftModifier, that.leftModifier)) {
       return false;
     }
-    if (right != null ? !right.equals(that.right) : that.right != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(right, that.right);
   }
 
   @Override

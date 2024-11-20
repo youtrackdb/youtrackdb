@@ -52,11 +52,11 @@ public class OJSONReader {
   public static final char[] BEGIN_COLLECTION = new char[] {'['};
   public static final char[] END_COLLECTION = new char[] {']'};
 
-  private BufferedReader in;
+  private final BufferedReader in;
   private int cursor = 0;
   private int lineNumber = 0;
   private int columnNumber = 0;
-  private StringBuilder buffer = new StringBuilder(16384); // 16KB
+  private final StringBuilder buffer = new StringBuilder(16384); // 16KB
   private String value;
   private char c;
   private char lastCharacter;
@@ -111,7 +111,7 @@ public class OJSONReader {
     }
 
     if (!iInclude && value.startsWith("\"")) {
-      return value.substring(1, value.lastIndexOf("\""));
+      return value.substring(1, value.lastIndexOf('"'));
     }
 
     return value;
@@ -129,7 +129,7 @@ public class OJSONReader {
     }
 
     if (!iInclude && value.startsWith("\"")) {
-      return value.substring(1, value.lastIndexOf("\""));
+      return value.substring(1, value.lastIndexOf('"'));
     }
 
     return value;
@@ -158,7 +158,7 @@ public class OJSONReader {
 
     String resultValue = value;
     if (value.startsWith("\"")) {
-      resultValue = value.substring(1, value.lastIndexOf("\""));
+      resultValue = value.substring(1, value.lastIndexOf('"'));
     }
 
     return new OPair(resultValue, ridbags);
@@ -251,11 +251,7 @@ public class OJSONReader {
         beginStringChar = ' ';
       }
 
-      if (c == '\\' && !encodeMode) {
-        encodeMode = true;
-      } else {
-        encodeMode = false;
-      }
+      encodeMode = c == '\\' && !encodeMode;
 
       if (!found) {
         final int read = nextChar();
@@ -393,11 +389,7 @@ public class OJSONReader {
         beginStringChar = ' ';
       }
 
-      if (c == '\\' && !encodeMode) {
-        encodeMode = true;
-      } else {
-        encodeMode = false;
-      }
+      encodeMode = c == '\\' && !encodeMode;
 
       if (!found) {
         final int read = nextChar();
@@ -587,7 +579,7 @@ public class OJSONReader {
       ++columnNumber;
     }
 
-    return (char) c;
+    return c;
   }
 
   public char lastChar() {

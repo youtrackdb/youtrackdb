@@ -31,7 +31,7 @@ public interface OCommand {
    *
    * @return The result of command if any, otherwise null
    */
-  public Object execute();
+  Object execute();
 
-  public OCommandContext getContext();
+  OCommandContext getContext();
 }

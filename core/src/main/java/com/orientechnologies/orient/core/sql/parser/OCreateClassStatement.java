@@ -11,6 +11,7 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class OCreateClassStatement extends ODDLStatement {
@@ -214,27 +215,19 @@ public class OCreateClassStatement extends ODDLStatement {
     if (abstractClass != that.abstractClass) {
       return false;
     }
-    if (name != null ? !name.equals(that.name) : that.name != null) {
+    if (!Objects.equals(name, that.name)) {
       return false;
     }
-    if (superclasses != null
-        ? !superclasses.equals(that.superclasses)
-        : that.superclasses != null) {
+    if (!Objects.equals(superclasses, that.superclasses)) {
       return false;
     }
-    if (clusters != null ? !clusters.equals(that.clusters) : that.clusters != null) {
+    if (!Objects.equals(clusters, that.clusters)) {
       return false;
     }
-    if (totalClusterNo != null
-        ? !totalClusterNo.equals(that.totalClusterNo)
-        : that.totalClusterNo != null) {
+    if (!Objects.equals(totalClusterNo, that.totalClusterNo)) {
       return false;
     }
-    if (ifNotExists != that.ifNotExists) {
-      return false;
-    }
-
-    return true;
+    return ifNotExists == that.ifNotExists;
   }
 
   @Override

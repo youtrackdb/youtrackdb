@@ -2,8 +2,8 @@ package com.orientechnologies.orient.core.storage.impl.local.paginated.wal.commo
 
 public final class Cursor<T> {
 
-  protected final Node<T> node;
-  protected final int itemIndex;
+  final Node<T> node;
+  final int itemIndex;
   private final T item;
 
   public Cursor(Node<T> node, int itemIndex, T item) {

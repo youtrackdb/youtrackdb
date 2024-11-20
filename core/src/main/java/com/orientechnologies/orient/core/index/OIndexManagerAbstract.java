@@ -35,8 +35,8 @@ import java.util.Set;
  */
 public interface OIndexManagerAbstract extends OCloseable {
 
-  public static final String CONFIG_INDEXES = "indexes";
-  public static final String DICTIONARY_NAME = "dictionary";
+  String CONFIG_INDEXES = "indexes";
+  String DICTIONARY_NAME = "dictionary";
 
   void recreateIndexes(ODatabaseSessionInternal database);
 

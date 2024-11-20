@@ -38,7 +38,7 @@ public class OSQLFunctionPercentile extends OSQLFunctionAbstract {
   public static final String NAME = "percentile";
 
   protected List<Double> quantiles = new ArrayList<Double>();
-  private List<Number> values = new ArrayList<Number>();
+  private final List<Number> values = new ArrayList<Number>();
 
   public OSQLFunctionPercentile() {
     this(NAME, 2, -1);

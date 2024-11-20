@@ -74,7 +74,7 @@ public enum Severity {
   private final int numericalCode;
   private final String label;
 
-  private Severity(int numericalCode, String label) {
+  Severity(int numericalCode, String label) {
     this.numericalCode = numericalCode;
     this.label = label;
   }

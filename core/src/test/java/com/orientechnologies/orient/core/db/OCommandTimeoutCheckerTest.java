@@ -11,7 +11,7 @@ import org.junit.Test;
 
 public class OCommandTimeoutCheckerTest implements OSchedulerInternal {
 
-  private Timer timer = new Timer();
+  private final Timer timer = new Timer();
 
   @Override
   public void schedule(TimerTask task, long delay, long period) {

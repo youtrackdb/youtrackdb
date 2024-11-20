@@ -9,6 +9,7 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Map;
+import java.util.Objects;
 
 public class ORebuildIndexStatement extends OSimpleExecStatement {
 
@@ -100,11 +101,7 @@ public class ORebuildIndexStatement extends OSimpleExecStatement {
     if (all != that.all) {
       return false;
     }
-    if (name != null ? !name.equals(that.name) : that.name != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(name, that.name);
   }
 
   @Override

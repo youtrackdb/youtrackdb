@@ -62,7 +62,6 @@ public class OImmutableRole implements OSecurityRole {
     this.name = name;
     this.rid = new ORecordId(-1, -1);
     this.rules.putAll(rules);
-    ;
     this.policies = (Map<String, OSecurityPolicy>) (Map) policies;
   }
 
@@ -98,11 +97,7 @@ public class OImmutableRole implements OSecurityRole {
       return false;
     }
 
-    if (resourceSpecific != null && !rule.containsSpecificResource(resourceSpecific)) {
-      return false;
-    }
-
-    return true;
+    return resourceSpecific == null || rule.containsSpecificResource(resourceSpecific);
   }
 
   public OSecurityRole addRule(
@@ -189,7 +184,7 @@ public class OImmutableRole implements OSecurityRole {
 
   @Override
   public String toString() {
-    return getName();
+    return name;
   }
 
   @Override

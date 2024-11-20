@@ -94,7 +94,7 @@ public abstract class OHttpRequestAbstract implements OHttpRequest {
     HashMap<String, String> retMap = new HashMap<String, String>();
     String key;
     String value;
-    String[] pairs = getContent().split("\\&");
+    String[] pairs = content.split("\\&");
     for (int i = 0; i < pairs.length; i++) {
       String[] fields = pairs[i].split("=");
       if (fields.length == 2) {

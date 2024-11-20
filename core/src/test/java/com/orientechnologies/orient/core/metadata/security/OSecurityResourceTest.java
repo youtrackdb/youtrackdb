@@ -119,6 +119,6 @@ public class OSecurityResourceTest {
   public void testCache() {
     OSecurityResource person = OSecurityResource.getInstance("database.class.Person");
     OSecurityResource person2 = OSecurityResource.getInstance("database.class.Person");
-    Assert.assertTrue(person == person2);
+    Assert.assertSame(person, person2);
   }
 }

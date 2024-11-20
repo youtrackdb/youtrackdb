@@ -150,7 +150,7 @@ public abstract class OSL4JLogManager {
       @Nonnull final String message,
       @Nullable final Throwable exception,
       @Nullable final Object... additionalArgs) {
-    if (isDebugEnabled()) {
+    if (debug) {
       log(requester, Level.DEBUG, message, exception, additionalArgs);
     }
   }
@@ -184,7 +184,7 @@ public abstract class OSL4JLogManager {
       final @Nonnull String message,
       final @Nullable Throwable exception,
       final @Nullable Object... additionalArgs) {
-    if (isInfoEnabled()) {
+    if (info) {
       log(requester, Level.INFO, message, exception, additionalArgs);
     }
   }
@@ -218,7 +218,7 @@ public abstract class OSL4JLogManager {
       @Nonnull final String message,
       @Nullable final Throwable exception,
       @Nullable final Object... additionalArgs) {
-    if (isWarnEnabled()) {
+    if (warn) {
       log(requester, Level.WARN, message, exception, additionalArgs);
     }
   }
@@ -236,7 +236,7 @@ public abstract class OSL4JLogManager {
       @Nonnull final String message,
       @Nullable final Throwable exception,
       @Nullable final Object... additionalArgs) {
-    if (isErrorEnabled()) {
+    if (error) {
       log(requester, Level.ERROR, message, exception, additionalArgs);
     }
   }

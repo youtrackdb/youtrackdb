@@ -34,8 +34,8 @@ import java.util.Set;
  */
 public class OSecurityProxy implements OSecurity {
 
-  private ODatabaseSession session;
-  private OSecurityInternal security;
+  private final ODatabaseSession session;
+  private final OSecurityInternal security;
 
   public OSecurityProxy(OSecurityInternal security, ODatabaseSessionInternal session) {
     this.security = security;

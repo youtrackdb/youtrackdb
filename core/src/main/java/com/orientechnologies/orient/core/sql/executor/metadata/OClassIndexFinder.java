@@ -17,7 +17,7 @@ public class OClassIndexFinder implements OIndexFinder {
     this.clazz = clazz;
   }
 
-  private String clazz;
+  private final String clazz;
 
   private static class PrePath {
 

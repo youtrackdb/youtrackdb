@@ -21,11 +21,7 @@ public final class OMultivalueIndexKeyUpdaterImpl implements OIndexKeyUpdater<Ob
     this.identity = identity;
     this.indexName = indexName;
     if (ODefaultIndexFactory.SBTREE_BONSAI_VALUE_CONTAINER.equals(valueContainerAlgorithm)) {
-      if (binaryFormatVersion >= 13) {
-        mixedContainer = true;
-      } else {
-        mixedContainer = false;
-      }
+      mixedContainer = binaryFormatVersion >= 13;
     } else {
       throw new IllegalStateException("MVRBTree is not supported any more");
     }
@@ -51,8 +47,7 @@ public final class OMultivalueIndexKeyUpdaterImpl implements OIndexKeyUpdater<Ob
       } else {
         return OIndexUpdateAction.changed(toUpdate);
       }
-    } else if (toUpdate instanceof OMixedIndexRIDContainer) {
-      final OMixedIndexRIDContainer ridContainer = (OMixedIndexRIDContainer) toUpdate;
+    } else if (toUpdate instanceof OMixedIndexRIDContainer ridContainer) {
       final boolean embeddedWasUpdated = ridContainer.addEntry(identity);
 
       if (!embeddedWasUpdated) {

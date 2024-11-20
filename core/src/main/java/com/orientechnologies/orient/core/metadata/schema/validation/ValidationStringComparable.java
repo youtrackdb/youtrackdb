@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.metadata.schema.validation;
 
 public class ValidationStringComparable implements Comparable<Object> {
 
-  private int size;
+  private final int size;
 
   public ValidationStringComparable(int size) {
     this.size = size;

@@ -163,7 +163,7 @@ public class OFunction extends ODocumentWrapper {
       return callback.call(args);
     }
 
-    ODatabaseSessionInternal database = (ODatabaseSessionInternal) iContext.getDatabase();
+    ODatabaseSessionInternal database = iContext.getDatabase();
     if (database == null) {
       database = ODatabaseRecordThreadLocal.instance().get();
     }
@@ -200,7 +200,7 @@ public class OFunction extends ODocumentWrapper {
       return callback.call(args);
     }
 
-    ODatabaseSessionInternal database = (ODatabaseSessionInternal) iContext.getDatabase();
+    ODatabaseSessionInternal database = iContext.getDatabase();
     if (database == null) {
       database = ODatabaseRecordThreadLocal.instance().get();
     }

@@ -91,7 +91,7 @@ public class OUser extends OIdentity implements OSecurityUser {
       throw new OSecurityException("User name not found");
     }
 
-    final String password = (String) iDocument.field("password");
+    final String password = iDocument.field("password");
 
     if (password == null) {
       throw new OSecurityException("User '" + iDocument.field("name") + "' has no password");
@@ -278,7 +278,7 @@ public class OUser extends OIdentity implements OSecurityUser {
   }
 
   public boolean checkPassword(final String iPassword) {
-    return OSecurityManager.checkPassword(iPassword, (String) getDocument().field(PASSWORD_FIELD));
+    return OSecurityManager.checkPassword(iPassword, getDocument().field(PASSWORD_FIELD));
   }
 
   public String getName() {

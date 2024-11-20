@@ -48,11 +48,11 @@ public class OQueryOperatorPlusTest {
             null,
             null,
             null,
-            10l,
-            10l,
+            10L,
+            10L,
             null,
             ORecordSerializerBinary.INSTANCE.getCurrentSerializer()),
-        10l + 10l);
+        10L + 10L);
     Assert.assertEquals(
         operator.evaluateRecord(
             null,

@@ -5,7 +5,6 @@ import com.orientechnologies.orient.core.metadata.security.jwt.OJwtPayload;
 import com.orientechnologies.orient.core.metadata.security.jwt.OTokenMetaInfo;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
 /**
  * Created by emrul on 28/09/2014.
@@ -127,8 +126,7 @@ public class OrientJwtPayload implements OJwtPayload {
   }
 
   @Override
-  public void serialize(DataOutputStream output, OTokenMetaInfo serializer)
-      throws UnsupportedEncodingException, IOException {
+  public void serialize(DataOutputStream output, OTokenMetaInfo serializer) throws IOException {
     throw new UnsupportedOperationException();
   }
 }

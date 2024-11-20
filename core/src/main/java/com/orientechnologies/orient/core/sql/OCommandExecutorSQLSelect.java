@@ -1623,8 +1623,8 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
       return null;
     }
 
-    final OQueryOperator rightOperator = ((OSQLFilterCondition) right).getOperator();
-    final OQueryOperator leftOperator = ((OSQLFilterCondition) left).getOperator();
+    final OQueryOperator rightOperator = rightCondition.getOperator();
+    final OQueryOperator leftOperator = leftCondition.getOperator();
 
     if ((rightOperator instanceof OQueryOperatorMajor
             || rightOperator instanceof OQueryOperatorMajorEquals)
