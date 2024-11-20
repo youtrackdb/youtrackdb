@@ -166,7 +166,7 @@ public class OConsoleApplication {
     final int verboseLevel = getVerboseLevel();
     if (verboseLevel > 1) {
       if (iArgs != null && iArgs.length > 0) {
-        out.printf("%s", String.format(iMessage, iArgs));
+        out.printf("%s", String.format("%s", iMessage, iArgs));
       } else {
         out.printf("%s", iMessage);
       }
