@@ -168,7 +168,7 @@ public class OConsoleApplication {
       if (iArgs != null && iArgs.length > 0) {
         out.printf(iMessage, iArgs);
       } else {
-        out.print(iMessage);
+        out.printf("%s", iMessage);
       }
     }
   }
